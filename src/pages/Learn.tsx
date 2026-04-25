@@ -1,82 +1,297 @@
-import { lazy, Suspense } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BookOpen, Coins, Loader2, Sparkles, Cpu } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import {
+  BookOpen,
+  Coins,
+  Sparkles,
+  Cpu,
+  ArrowRight,
+  Zap,
+  ShieldCheck,
+  Flame,
+  DollarSign,
+  Target,
+  Layers,
+  Award,
+  Users,
+  Battery,
+  Car,
+  Sun,
+} from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { SEO } from '@/components/SEO';
-import { useSearchParams } from 'react-router-dom';
+import { PageShell, SectionHeader } from '@/components/layout/PageShell';
+import { cn } from '@/lib/utils';
 
-const HowItWorks = lazy(() => import('./HowItWorks'));
-const Tokenomics = lazy(() => import('./Tokenomics'));
-const ProofOfGenesis = lazy(() => import('./ProofOfGenesis'));
-const Technology = lazy(() => import('./Technology'));
+const sections = [
+  { id: 'how-it-works', label: 'How It Works', icon: BookOpen },
+  { id: 'tokenomics', label: 'Tokenomics', icon: Coins },
+  { id: 'proof-of-genesis', label: 'Proof-of-Genesis™', icon: Sparkles },
+  { id: 'patent', label: 'Patent Tech', icon: Cpu },
+] as const;
 
-const Loading = () => (
-  <div className="flex items-center justify-center py-20">
-    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-  </div>
-);
+type SectionId = typeof sections[number]['id'];
 
 export default function Learn() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const tab = searchParams.get('tab') || 'how-it-works';
+  const [active, setActive] = useState<SectionId>('how-it-works');
+
+  // Scrollspy — highlight pill matching the visible section
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible?.target.id) setActive(visible.target.id as SectionId);
+      },
+      { rootMargin: '-30% 0px -55% 0px', threshold: [0, 0.25, 0.5, 0.75, 1] }
+    );
+    sections.forEach((s) => {
+      const el = document.getElementById(s.id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  const handleJump = (id: SectionId) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY - 80;
+    window.scrollTo({ top, behavior: 'smooth' });
+  };
 
   return (
     <>
-      <SEO title="Learn" url="https://zensolar.lovable.app/learn" />
-      <div className="space-y-0">
-        <div className="container max-w-6xl mx-auto px-4 pt-6 pb-4">
-          <h1 className="text-2xl font-bold tracking-tight">Learn</h1>
-          <p className="text-sm text-muted-foreground mt-1">Everything about ZenSolar in one place</p>
+      <SEO title="Learn" url="https://beta.zen.solar/learn" />
+      <PageShell
+        title="Learn"
+        description="Everything about ZenSolar — how it works, the token economics, and the patent-pending tech behind it."
+        icon={BookOpen}
+        width="4xl"
+        sticky={
+          <nav className="flex gap-1 overflow-x-auto py-2 -mx-1 px-1 scrollbar-none" aria-label="Learn sections">
+            {sections.map((s) => {
+              const isActive = active === s.id;
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => handleJump(s.id)}
+                  className={cn(
+                    'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium transition-all',
+                    isActive
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  )}
+                >
+                  <s.icon className="h-3.5 w-3.5" />
+                  {s.label}
+                </button>
+              );
+            })}
+          </nav>
+        }
+      >
+        <div className="space-y-16">
+          <HowItWorksSection />
+          <TokenomicsSection />
+          <ProofOfGenesisSection />
+          <PatentTechSection />
         </div>
-
-        <div className="container max-w-6xl mx-auto px-4">
-          <Tabs value={tab} onValueChange={(v) => setSearchParams({ tab: v })}>
-            <div className="overflow-x-auto -mx-4 px-4 pb-2">
-              <TabsList className="inline-flex w-auto min-w-full sm:min-w-0 gap-1">
-                <TabsTrigger value="how-it-works" className="gap-2 whitespace-nowrap">
-                  <BookOpen className="h-4 w-4" />
-                  How It Works
-                </TabsTrigger>
-                <TabsTrigger value="tokenomics" className="gap-2 whitespace-nowrap">
-                  <Coins className="h-4 w-4" />
-                  Tokenomics
-                </TabsTrigger>
-                <TabsTrigger value="proof-of-genesis" className="gap-2 whitespace-nowrap">
-                  <Sparkles className="h-4 w-4" />
-                  Proof-of-Genesis™
-                </TabsTrigger>
-                <TabsTrigger value="patent" className="gap-2 whitespace-nowrap">
-                  <Cpu className="h-4 w-4" />
-                  Patent Tech
-                </TabsTrigger>
-              </TabsList>
-            </div>
-
-            <TabsContent value="how-it-works" className="mt-0">
-              <Suspense fallback={<Loading />}>
-                <HowItWorks />
-              </Suspense>
-            </TabsContent>
-
-            <TabsContent value="tokenomics" className="mt-0">
-              <Suspense fallback={<Loading />}>
-                <Tokenomics />
-              </Suspense>
-            </TabsContent>
-
-            <TabsContent value="proof-of-genesis" className="mt-0">
-              <Suspense fallback={<Loading />}>
-                <ProofOfGenesis />
-              </Suspense>
-            </TabsContent>
-
-            <TabsContent value="patent" className="mt-0">
-              <Suspense fallback={<Loading />}>
-                <Technology />
-              </Suspense>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </div>
+      </PageShell>
     </>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                 SECTIONS                                   */
+/* -------------------------------------------------------------------------- */
+
+function HowItWorksSection() {
+  const steps = [
+    { icon: Zap, title: 'Connect', desc: 'Link Tesla, Enphase, SolarEdge, or Wallbox in 30 seconds — no hardware.' },
+    { icon: Sun, title: 'Generate', desc: 'Your panels, EV, and battery are already producing verified clean energy.' },
+    { icon: Sparkles, title: 'Tap-to-Mint™', desc: 'One tap mints $ZSOLAR + milestone NFTs to your wallet.' },
+    { icon: Award, title: 'Level up', desc: 'Hit milestones, earn rare NFTs, climb the leaderboard.' },
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionHeader
+        id="how-it-works"
+        eyebrow="01 — The Game"
+        title="How ZenSolar works"
+        description="Your clean energy is already worth real money. We just made it claimable in one tap."
+        icon={BookOpen}
+      />
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {steps.map((s, i) => (
+          <motion.div
+            key={s.title}
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ delay: i * 0.05 }}
+          >
+            <Card className="h-full border-border/60 hover:border-primary/40 transition-colors">
+              <CardContent className="p-4">
+                <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                  <s.icon className="h-4 w-4 text-primary" />
+                </div>
+                <p className="text-xs font-semibold text-primary mb-1">Step {i + 1}</p>
+                <h3 className="font-semibold text-sm mb-1">{s.title}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">{s.desc}</p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+      <Button asChild variant="ghost" size="sm" className="text-primary hover:text-primary">
+        <Link to="/demo/how-it-works">
+          Read full guide
+          <ArrowRight className="h-3.5 w-3.5 ml-1" />
+        </Link>
+      </Button>
+    </section>
+  );
+}
+
+function TokenomicsSection() {
+  const stats = [
+    { label: 'Max Supply', value: '1T', icon: Coins },
+    { label: 'Launch Price', value: '$0.10', icon: DollarSign },
+    { label: 'Mint Burn', value: '20%', icon: Flame },
+    { label: 'Transfer Tax', value: '7%', icon: Target },
+  ];
+  const splits = [
+    { label: 'User reward', pct: '75%', desc: 'Goes to your wallet on every mint' },
+    { label: 'Burn', pct: '20%', desc: 'Permanently removed — deflationary by design' },
+    { label: 'Liquidity', pct: '3%', desc: 'Auto-injected to USDC pool each round' },
+    { label: 'Treasury', pct: '2%', desc: 'Funds protocol operations & growth' },
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionHeader
+        id="tokenomics"
+        eyebrow="02 — The Economy"
+        title="$ZSOLAR tokenomics"
+        description="1 trillion hard cap. Aggressive deflation. Every mint burns supply and seeds liquidity."
+        icon={Coins}
+      />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {stats.map((s) => (
+          <Card key={s.label} className="border-border/60">
+            <CardContent className="p-4 text-center">
+              <s.icon className="h-4 w-4 mx-auto mb-2 text-primary" />
+              <p className="text-2xl font-bold tracking-tight">{s.value}</p>
+              <p className="text-[11px] text-muted-foreground uppercase tracking-wide mt-0.5">{s.label}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <Card className="border-border/60">
+        <CardContent className="p-5 space-y-3">
+          <h3 className="text-sm font-semibold flex items-center gap-2">
+            <Layers className="h-4 w-4 text-primary" />
+            Mint distribution
+          </h3>
+          <div className="space-y-2.5">
+            {splits.map((s) => (
+              <div key={s.label} className="flex items-start justify-between gap-3 py-1.5 border-b border-border/40 last:border-0">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium">{s.label}</p>
+                  <p className="text-xs text-muted-foreground">{s.desc}</p>
+                </div>
+                <Badge variant="secondary" className="font-mono text-xs flex-shrink-0">{s.pct}</Badge>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+      <Button asChild variant="ghost" size="sm" className="text-primary hover:text-primary">
+        <Link to="/demo/tokenomics">
+          Full tokenomics
+          <ArrowRight className="h-3.5 w-3.5 ml-1" />
+        </Link>
+      </Button>
+    </section>
+  );
+}
+
+function ProofOfGenesisSection() {
+  const marks = [
+    { mark: 'Proof-of-Genesis™', desc: 'The consensus primitive: Proof-of-Delta + Proof-of-Origin. Mints from verified clean energy instead of burning energy to prove waste.', icon: Sparkles },
+    { mark: 'Tap-to-Mint™', desc: 'One tap reads device data, runs the proof, mints $ZSOLAR.', icon: Zap },
+    { mark: 'Mint-on-Proof™', desc: 'No proof, no mint. Period. Every token traces back to a verified physical event.', icon: ShieldCheck },
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionHeader
+        id="proof-of-genesis"
+        eyebrow="03 — The Thesis"
+        title="Proof-of-Genesis™"
+        description="Bitcoin proves work. We prove genesis — the verified moment clean energy enters the world."
+        icon={Sparkles}
+      />
+      <div className="grid gap-3 sm:grid-cols-3">
+        {marks.map((m) => (
+          <Card key={m.mark} className="border-border/60 hover:border-primary/40 transition-colors">
+            <CardContent className="p-4">
+              <m.icon className="h-5 w-5 text-primary mb-3" />
+              <h3 className="font-semibold text-sm mb-1.5">{m.mark}</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">{m.desc}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <Button asChild variant="ghost" size="sm" className="text-primary hover:text-primary">
+        <Link to="/demo/proof-of-genesis">
+          See full trademark portfolio
+          <ArrowRight className="h-3.5 w-3.5 ml-1" />
+        </Link>
+      </Button>
+    </section>
+  );
+}
+
+function PatentTechSection() {
+  const layers = [
+    { n: 1, title: 'API Aggregation', desc: 'OAuth into Tesla, Enphase, SolarEdge, Wallbox. Zero hardware.' },
+    { n: 2, title: 'Data Normalization', desc: 'Every provider unified into one Impact Score (kg CO₂ / kWh).' },
+    { n: 3, title: 'Verification Engine', desc: 'Cryptographically signed device data — tamper-evident.' },
+    { n: 4, title: 'Smart Contract Bridge', desc: 'Mint-on-Proof™ to Base L2. Anti-double-mint registry.' },
+  ];
+  return (
+    <section className="space-y-6">
+      <SectionHeader
+        id="patent"
+        eyebrow="04 — The Engine"
+        title="Patent-pending tech"
+        description="SEGI — the four-layer engine that turns real-world clean energy into on-chain currency."
+        icon={Cpu}
+      />
+      <div className="space-y-2">
+        {layers.map((l) => (
+          <Card key={l.n} className="border-border/60">
+            <CardContent className="p-4 flex items-start gap-4">
+              <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <span className="text-sm font-bold text-primary font-mono">L{l.n}</span>
+              </div>
+              <div className="min-w-0">
+                <h3 className="font-semibold text-sm">{l.title}</h3>
+                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{l.desc}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <Button asChild variant="ghost" size="sm" className="text-primary hover:text-primary">
+        <Link to="/demo/technology">
+          See full architecture
+          <ArrowRight className="h-3.5 w-3.5 ml-1" />
+        </Link>
+      </Button>
+    </section>
   );
 }
