@@ -183,10 +183,19 @@ Deno.serve(async (req) => {
     }
 
     const email = (user.email ?? "").toLowerCase().trim();
-    const isInnerCircle = INNER_CIRCLE.has(email);
-    log("authenticated", { userId: user.id, email, isInnerCircle });
-
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
+
+    // Inner-circle = hardcoded email allowlist OR admin-granted via deason_inner_circle table.
+    let isInnerCircle = INNER_CIRCLE.has(email);
+    if (!isInnerCircle) {
+      const { data: dbGrant } = await admin
+        .from("deason_inner_circle")
+        .select("user_id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (dbGrant) isInnerCircle = true;
+    }
+    log("authenticated", { userId: user.id, email, isInnerCircle });
 
     if (isDiag) {
       return json({
