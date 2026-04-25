@@ -424,7 +424,8 @@ export default function MintHistory() {
             </CardContent>
           </Card>
         </motion.div>
-      </div>
+        </div>
+      </PageShell>
     </PullToRefreshWrapper>
   );
 }
