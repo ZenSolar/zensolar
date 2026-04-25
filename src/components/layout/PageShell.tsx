@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -106,6 +106,85 @@ export function SectionHeader({
         <p className="text-sm text-muted-foreground mt-1.5 max-w-2xl">{description}</p>
       )}
     </header>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Shared section navigation                                                  */
+/* -------------------------------------------------------------------------- */
+
+export interface PageSectionNavItem<T extends string = string> {
+  id: T;
+  label: string;
+  icon?: LucideIcon;
+}
+
+export function PageSectionNav<T extends string>({
+  items,
+  active,
+  onSelect,
+  asAnchors = false,
+  ariaLabel = "Section navigation",
+  className,
+}: {
+  items: ReadonlyArray<PageSectionNavItem<T>>;
+  active: T;
+  onSelect: (id: T) => void;
+  asAnchors?: boolean;
+  ariaLabel?: string;
+  className?: string;
+}) {
+  return (
+    <nav
+      aria-label={ariaLabel}
+      className={cn("flex gap-1 overflow-x-auto py-2 -mx-1 px-1 scrollbar-hide", className)}
+    >
+      {items.map((item) => {
+        const isActive = active === item.id;
+        const sharedClass = cn(
+          "inline-flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors duration-150",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+          isActive
+            ? "bg-primary text-primary-foreground"
+            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+        );
+        const inner = (
+          <>
+            {item.icon && <item.icon className="h-3.5 w-3.5" aria-hidden />}
+            {item.label}
+          </>
+        );
+
+        if (asAnchors) {
+          return (
+            <a
+              key={item.id}
+              href={`#${item.id}`}
+              aria-current={isActive ? "true" : undefined}
+              onClick={(e) => {
+                e.preventDefault();
+                onSelect(item.id);
+              }}
+              className={sharedClass}
+            >
+              {inner}
+            </a>
+          );
+        }
+
+        return (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => onSelect(item.id)}
+            aria-pressed={isActive}
+            className={sharedClass}
+          >
+            {inner}
+          </button>
+        );
+      })}
+    </nav>
   );
 }
 
