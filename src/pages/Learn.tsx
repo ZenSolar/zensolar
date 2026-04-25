@@ -87,6 +87,7 @@ const ALL_CATEGORIES: LearnCategory[] = ['Engineering', 'Tokenomics', 'Patent Te
 export default function Learn() {
   const { active, select } = useSectionNavigation<SectionId>(sections, 'index');
   const learnTheme = useLearnTheme();
+  const currentThemeName = LEARN_THEMES.find((theme) => theme.id === learnTheme)?.name ?? 'Cupertino Cryo';
 
   return (
     <>
@@ -107,6 +108,9 @@ export default function Learn() {
             />
           }
         >
+          <div className="mb-6 inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+            Current theme: {currentThemeName}
+          </div>
           <div className="space-y-12 sm:space-y-16">
             <section id="index" className="scroll-mt-32"><LearnIndexSection /></section>
             <section id="how-it-works" className="scroll-mt-32 min-h-[220px]"><HowItWorksSection /></section>
