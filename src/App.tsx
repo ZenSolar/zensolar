@@ -1043,6 +1043,7 @@ const App = () => {
                     <Route path="/founders/lyndon" element={<FounderRoute><FoundersLyndonOnePager /></FounderRoute>} />
                     <Route path="/founders/vpp-roadmap" element={<FounderRoute><FoundersVPPRoadmap /></FounderRoute>} />
                     <Route path="/founders/patent-expansion" element={<FounderRoute><FoundersPatentExpansion /></FounderRoute>} />
+                    <Route path="/founders/master-outline" element={<FounderRoute><FoundersMasterOutline /></FounderRoute>} />
                     {/* Deason — founders-only AI agent */}
                     <Route path="/deason" element={<FounderRoute><Deason /></FounderRoute>} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
