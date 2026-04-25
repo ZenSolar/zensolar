@@ -1,11 +1,17 @@
 import { lazy, Suspense } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { HelpCircle, MessageSquarePlus, Loader2 } from 'lucide-react';
-import { SEO } from '@/components/SEO';
+import { HelpCircle, MessageSquarePlus, Loader2, LifeBuoy } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
+import { SEO } from '@/components/SEO';
+import { PageShell } from '@/components/layout/PageShell';
+import { cn } from '@/lib/utils';
 
 const Help = lazy(() => import('./Help'));
 const Feedback = lazy(() => import('./Feedback'));
+
+const tabs = [
+  { id: 'help', label: 'Help & FAQ', icon: HelpCircle },
+  { id: 'feedback', label: 'Feedback', icon: MessageSquarePlus },
+] as const;
 
 const Loading = () => (
   <div className="flex items-center justify-center py-20">
@@ -15,42 +21,43 @@ const Loading = () => (
 
 export default function HelpCenter() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const tab = searchParams.get('tab') || 'help';
+  const tab = (searchParams.get('tab') || 'help') as typeof tabs[number]['id'];
 
   return (
     <>
-      <SEO title="Help & Feedback" url="https://zensolar.lovable.app/help-center" />
-      <div className="container max-w-6xl mx-auto px-4 py-6 space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Help & Feedback</h1>
-          <p className="text-sm text-muted-foreground mt-1">Get answers or share your thoughts</p>
-        </div>
-
-        <Tabs value={tab} onValueChange={(v) => setSearchParams({ tab: v })}>
-          <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="help" className="gap-2">
-              <HelpCircle className="h-4 w-4" />
-              Help & FAQ
-            </TabsTrigger>
-            <TabsTrigger value="feedback" className="gap-2">
-              <MessageSquarePlus className="h-4 w-4" />
-              Feedback
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="help" className="mt-6">
-            <Suspense fallback={<Loading />}>
-              <Help />
-            </Suspense>
-          </TabsContent>
-
-          <TabsContent value="feedback" className="mt-6">
-            <Suspense fallback={<Loading />}>
-              <Feedback />
-            </Suspense>
-          </TabsContent>
-        </Tabs>
-      </div>
+      <SEO title="Help & Feedback" url="https://beta.zen.solar/help-center" />
+      <PageShell
+        title="Help & Feedback"
+        description="Find answers, report issues, or share what you'd like to see next."
+        icon={LifeBuoy}
+        width="4xl"
+        sticky={
+          <nav className="flex gap-1 py-2" aria-label="Help sections">
+            {tabs.map((t) => {
+              const isActive = tab === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setSearchParams({ tab: t.id })}
+                  className={cn(
+                    'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-1.5 text-xs font-medium transition-all',
+                    isActive
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  )}
+                >
+                  <t.icon className="h-3.5 w-3.5" />
+                  {t.label}
+                </button>
+              );
+            })}
+          </nav>
+        }
+      >
+        <Suspense fallback={<Loading />}>
+          {tab === 'help' ? <Help /> : <Feedback />}
+        </Suspense>
+      </PageShell>
     </>
   );
 }
