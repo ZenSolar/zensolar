@@ -737,6 +737,7 @@ export default function NftCollection() {
   const [mintingMilestone, setMintingMilestone] = useState<NFTMilestone | null>(null);
   const [ownedTokenIds, setOwnedTokenIds] = useState<number[]>([]);
   const [isCheckingOnChain, setIsCheckingOnChain] = useState(false);
+  const [nftTab, setNftTab] = useState<'solar' | 'ev_miles' | 'charging' | 'battery' | 'combos'>('solar');
 
   const walletAddress = profile?.wallet_address;
 
