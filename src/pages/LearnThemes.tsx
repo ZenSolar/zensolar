@@ -61,64 +61,66 @@ export default function LearnThemes() {
 
       <div className="min-h-screen bg-background">
         {/* Sticky theme switcher */}
-        <div className="sticky top-[3.5rem] z-30 border-b border-border/60 bg-background/85 backdrop-blur-xl">
-          <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-2">
-              <Shield className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">Learn Theme Gallery</span>
-              <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
-                Admin
-              </Badge>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              {LEARN_THEMES.map((t) => {
-                const active = preview === t.id;
-                return (
-                  <button
-                    key={t.id}
-                    onClick={() => setPreview(t.id)}
-                    className={cn(
-                      "rounded-full border px-3 py-1.5 text-xs font-medium transition-all active:scale-95",
-                      active
-                        ? "border-primary bg-primary text-primary-foreground shadow-[0_0_24px_hsl(var(--primary)/0.35)]"
-                        : "border-border bg-card text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    {t.name}
-                    {applied === t.id && (
-                      <Check className="ml-1.5 inline h-3 w-3" />
-                    )}
-                  </button>
-                );
-              })}
-
-              <div className="ml-1 flex items-center gap-1.5">
+        <div className="sticky top-[3.5rem] z-30 border-b border-border/60 bg-background/90 backdrop-blur-xl">
+          <div className="mx-auto max-w-6xl px-4 pt-3">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex min-w-0 items-center gap-2">
+                <Shield className="h-4 w-4 shrink-0 text-primary" />
+                <span className="truncate text-sm font-medium">Learn Theme Gallery</span>
+                <Badge variant="outline" className="hidden text-[10px] uppercase tracking-wider sm:inline-flex">
+                  Admin
+                </Badge>
+              </div>
+              <div className="flex shrink-0 items-center gap-1.5">
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={handleReset}
-                  className="h-8 gap-1.5"
+                  className="h-8 gap-1.5 px-2.5"
                   title="Reset to default"
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
-                  Reset
+                  <span className="hidden sm:inline">Reset</span>
                 </Button>
                 <Button
                   size="sm"
                   onClick={handleApply}
                   disabled={!isDirty}
-                  className="h-8 gap-1.5"
+                  className="h-8 gap-1.5 px-2.5"
                 >
                   <Check className="h-3.5 w-3.5" />
-                  Apply to Learn
+                  Apply
                 </Button>
               </div>
             </div>
-          </div>
 
-          <div className="mx-auto max-w-6xl px-4 pb-3 text-xs text-muted-foreground">
-            {LEARN_THEMES.find((t) => t.id === preview)?.description}
+            {/* Theme chips — horizontal scroll on mobile so they never clip */}
+            <div className="-mx-4 mt-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div className="flex w-max items-center gap-2">
+                {LEARN_THEMES.map((t) => {
+                  const active = preview === t.id;
+                  return (
+                    <button
+                      key={t.id}
+                      onClick={() => setPreview(t.id)}
+                      className={cn(
+                        "shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-all active:scale-95",
+                        active
+                          ? "border-primary bg-primary text-primary-foreground shadow-[0_0_24px_hsl(var(--primary)/0.35)]"
+                          : "border-border bg-card text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      {t.name}
+                      {applied === t.id && <Check className="ml-1.5 inline h-3 w-3" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="pb-3 pt-2 text-xs text-muted-foreground">
+              {LEARN_THEMES.find((t) => t.id === preview)?.description}
+            </div>
           </div>
         </div>
 
