@@ -21,6 +21,8 @@ import { useServiceWorkerMessages } from "@/hooks/useServiceWorkerMessages";
 import { RootRoute } from "./components/RootRoute";
 import { PathNormalizer } from "./components/PathNormalizer";
 import { AppHistoryTracker } from "./components/AppHistoryTracker";
+import { ScrollManager } from "./components/ScrollManager";
+import { SwipeBackHandler } from "./components/SwipeBackHandler";
 import Home from "./pages/Home";
 
 // Lazy load layout and auth components to reduce main bundle size
@@ -209,6 +211,8 @@ const App = () => {
                   <GoogleAnalytics />
                   <PathNormalizer />
                   <AppHistoryTracker />
+                  <ScrollManager />
+                  <SwipeBackHandler />
                   <Suspense fallback={<PageLoader />}>
                     <Routes>
                     <Route path="/auth" element={<Auth />} />
