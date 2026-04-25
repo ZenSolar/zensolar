@@ -1,6 +1,6 @@
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
-import { Flame } from "lucide-react";
+import { ChevronLeft, Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { markSidebarOpened } from "@/components/layout/MenuTooltip";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
@@ -11,6 +11,8 @@ import { Link } from "react-router-dom";
 import { WeatherWidget } from "@/components/dashboard/WeatherWidget";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { useAppBack } from "@/hooks/useAppHistory";
+import { Button } from "@/components/ui/button";
 
 interface TopNavProps {
   isDemo?: boolean;
@@ -23,6 +25,7 @@ interface TopNavProps {
  */
 export function TopNav({ isDemo = false, className }: TopNavProps) {
   const { isAdmin } = useAdminCheck();
+  const { canGoBack, goBack } = useAppBack();
   const [isLiveBeta, setIsLiveBeta] = useState(getLiveBetaMode());
 
   useEffect(() => {
@@ -54,8 +57,21 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
       <div className="pt-safe" />
       {/* Content row with icons */}
       <div className="flex h-14 items-center justify-between px-4">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <SidebarTrigger id="zen-sidebar-trigger" className="text-foreground touch-target" onClick={() => markSidebarOpened()} />
+          {canGoBack && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={goBack}
+              aria-label="Go back"
+              className="h-9 px-2 -ml-1 text-foreground/80 hover:text-foreground"
+            >
+              <ChevronLeft className="h-5 w-5" aria-hidden />
+              <span className="sr-only sm:not-sr-only sm:ml-1 text-xs font-medium">Back</span>
+            </Button>
+          )}
         </div>
         
         {/* Centered Logo with Beta/Demo Badge underneath */}
