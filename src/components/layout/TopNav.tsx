@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import { WeatherWidget } from "@/components/dashboard/WeatherWidget";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { SoundToggle } from "@/components/layout/SoundToggle";
 import { useAppBack } from "@/hooks/useAppHistory";
 import { Button } from "@/components/ui/button";
 
