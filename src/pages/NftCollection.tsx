@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PillNav } from '@/components/layout/PillNav';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NFTDetailModal } from '@/components/nft/NFTDetailModal';
 import { BatchMintButton } from '@/components/nft/BatchMintButton';
