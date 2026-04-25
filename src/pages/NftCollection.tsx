@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useDashboardData } from '@/hooks/useDashboardData';
+import { PageLoader } from '@/components/ui/empty-state';
 import { useProfile } from '@/hooks/useProfile';
 import { PullToRefreshWrapper } from '@/components/ui/PullToRefreshWrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
