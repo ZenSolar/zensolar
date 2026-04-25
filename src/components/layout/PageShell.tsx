@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -253,7 +253,7 @@ export function useSectionNavigation<T extends string>(
   initial: T,
   offset = 92,
 ) {
-  const ids = items.map((item) => item.id) as T[];
+  const ids = useMemo(() => items.map((item) => item.id) as T[], [items]);
   const active = useSectionScrollSpy<T>(ids, initial);
   const select = useCallback((id: T) => jumpToSection(id, offset), [offset]);
   useDeepLinkSection(ids, select);
@@ -272,11 +272,14 @@ export function useDeepLinkSection(validIds: ReadonlyArray<string>, onMatch: (id
     const fromLegacyTab = new URLSearchParams(window.location.search).get("tab") ?? "";
     const target = [fromHash, fromQuery, fromLegacyTab].find((v) => v && validIds.includes(v));
     if (!target) return;
+    let second = 0;
     const first = requestAnimationFrame(() => {
-      const second = requestAnimationFrame(() => onMatch(target));
-      return () => cancelAnimationFrame(second);
+      second = requestAnimationFrame(() => onMatch(target));
     });
-    return () => cancelAnimationFrame(first);
+    return () => {
+      cancelAnimationFrame(first);
+      cancelAnimationFrame(second);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 }
