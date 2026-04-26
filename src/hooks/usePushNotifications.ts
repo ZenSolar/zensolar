@@ -211,6 +211,14 @@ export function usePushNotifications() {
         throw error;
       }
 
+      const { error: flushError } = await supabase.functions.invoke('flush-pending-push-messages', {
+        body: {},
+      });
+
+      if (flushError) {
+        console.error('Error flushing pending push messages:', flushError);
+      }
+
       setIsSubscribed(true);
       toast.success('Push notifications enabled!');
       return true;
