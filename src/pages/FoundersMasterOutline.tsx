@@ -244,7 +244,7 @@ More attractive to new users → loop restarts, stronger`}
         </div>
 
         {/* LAYER 5 — THE BITCOIN ASYMMETRIES (HALVING + LOST COINS) */}
-        <div className="rounded-lg border border-amber-500/40 bg-amber-500/[0.06] p-3 space-y-2">
+        <div className="rounded-lg border border-destructive/40 bg-destructive/[0.06] p-3 space-y-2">
           <h4 className="text-sm font-bold text-foreground">
             Layer 5 — The Bitcoin Scarcity Lie (Halving + Lost Coins)
           </h4>
