@@ -43,9 +43,9 @@
 
 /* ---------- 2. Tesla Whitepaper: Engineering brutalism ---------- */
 [data-learn-theme="tesla-whitepaper"] {
-  --learn-bg: hsl(var(--background));
-  --learn-surface: hsl(var(--card));
-  --learn-surface-border: hsl(var(--border));
+  --learn-bg: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--muted) / 0.22) 100%);
+  --learn-surface: hsl(var(--background));
+  --learn-surface-border: hsl(var(--primary) / 0.55);
   --learn-surface-blur: 0px;
   --learn-text: hsl(var(--foreground));
   --learn-muted: hsl(var(--muted-foreground));
@@ -78,9 +78,9 @@
 
 /* ---------- 3. Linear Docs: Frictionless reading ---------- */
 [data-learn-theme="linear-docs"] {
-  --learn-bg: hsl(var(--background));
-  --learn-surface: hsl(var(--card));
-  --learn-surface-border: hsl(var(--border) / 0.5);
+  --learn-bg: linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--background)) 46%);
+  --learn-surface: hsl(var(--muted) / 0.32);
+  --learn-surface-border: hsl(var(--border) / 0.72);
   --learn-surface-blur: 0px;
   --learn-text: hsl(var(--foreground));
   --learn-muted: hsl(var(--muted-foreground));
@@ -107,6 +107,7 @@
 
 /* ---------- Shared primitives that read from the variables ---------- */
 .learn-surface {
+  min-height: 100%;
   background: var(--learn-bg);
   color: var(--learn-text);
   font-family: var(--learn-body-font);
