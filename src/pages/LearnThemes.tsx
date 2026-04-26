@@ -38,11 +38,12 @@ export default function LearnThemes() {
   const handleApply = () => {
     setStoredLearnTheme(preview);
     setApplied(preview);
+    const learnUrl = `/learn?learnTheme=${preview}`;
     toast.success(`Applied: ${previewMeta?.name}`, {
       description: "Open /learn to see it live.",
       action: {
         label: "Open Learn",
-        onClick: () => window.open("/learn", "_blank"),
+        onClick: () => window.open(learnUrl, "_blank"),
       },
     });
   };
@@ -70,10 +71,10 @@ export default function LearnThemes() {
         <meta name="robots" content="noindex" />
       </Helmet>
 
-      <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background">
         {/* Sticky theme switcher — compact, mobile-first */}
-        <div className="sticky top-[3.5rem] z-30 border-b border-border/60 bg-background/90 backdrop-blur-xl">
-          <div className="mx-auto max-w-6xl px-4 py-2.5">
+        <div className="sticky top-[3.5rem] z-30 border-b border-border/60 bg-background/95 backdrop-blur-xl">
+          <div className="mx-auto max-w-6xl px-4 py-3 sm:py-3.5">
             {/* Row 1: title + actions */}
             <div className="flex items-center justify-between gap-2">
               <div className="flex min-w-0 items-center gap-2">
@@ -119,7 +120,7 @@ export default function LearnThemes() {
             </div>
 
             {/* Row 2: theme chips + status — single horizontal scroll, no clip */}
-            <div className="-mx-4 mt-2 flex items-center gap-2 overflow-x-auto px-4 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="-mx-4 mt-3 flex items-center gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {LEARN_THEMES.map((t) => {
                 const active = preview === t.id;
                 const isApplied = applied === t.id;
@@ -128,7 +129,7 @@ export default function LearnThemes() {
                     key={t.id}
                     onClick={() => setPreview(t.id)}
                     className={cn(
-                      "shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-all active:scale-95",
+                      "shrink-0 rounded-full border px-3.5 py-2 text-xs font-medium transition-all active:scale-95",
                       active
                         ? "border-primary bg-primary text-primary-foreground shadow-[0_0_18px_hsl(var(--primary)/0.3)]"
                         : "border-border bg-card text-muted-foreground hover:text-foreground"
@@ -142,7 +143,7 @@ export default function LearnThemes() {
             </div>
 
             {/* Row 3: tagline + status — kept on one line, truncated */}
-            <div className="mt-1.5 flex items-center gap-2 text-[11px] text-muted-foreground">
+            <div className="mt-2 flex items-center gap-2 text-[11px] text-muted-foreground">
               {isDirty ? (
                 <span className="shrink-0 rounded-full border border-primary/40 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
                   Preview
@@ -163,7 +164,7 @@ export default function LearnThemes() {
         <ThemePreview theme={preview} />
 
         {/* Side-by-side comparison */}
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:py-10">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:py-12">
           <h2 className="mb-1 text-base font-semibold sm:text-lg">Side-by-side</h2>
           <p className="mb-4 text-xs text-muted-foreground sm:mb-6 sm:text-sm">
             Same content, three skins. Tap any tile to make it the active preview above.
@@ -200,7 +201,7 @@ export default function LearnThemes() {
 
           <p className="mt-6 text-center text-xs text-muted-foreground">
             Tip: <span className="font-medium text-foreground">Apply</span> saves your pick.
-            Open <Link to="/learn" target="_blank" rel="noopener" className="text-primary underline-offset-2 hover:underline">/learn</Link> to see it on the real page.
+            Open <Link to={`/learn?learnTheme=${applied}`} target="_blank" rel="noopener" className="text-primary underline-offset-2 hover:underline">/learn</Link> to see it on the real page.
           </p>
         </div>
       </div>
@@ -240,18 +241,18 @@ function ThemePreview({ theme, compact = false }: { theme: LearnTheme; compact?:
       <div
         className={cn(
           "mx-auto max-w-5xl px-4 sm:px-5",
-          compact ? "py-5" : "py-8 sm:py-12"
+          compact ? "py-5" : "py-10 sm:py-14"
         )}
       >
         {/* Hero */}
-        <div className={compact ? "mb-4" : "mb-8 sm:mb-10"}>
+        <div className={compact ? "mb-4" : "mb-9 sm:mb-10"}>
           <div className="learn-mono mb-2 text-[10px] uppercase tracking-[0.2em] learn-muted">
             Learn · v1.0
           </div>
           <h1
             className={cn(
               "learn-display leading-[1.05]",
-              compact ? "text-xl" : "text-3xl sm:text-5xl md:text-6xl"
+              compact ? "text-xl" : "text-[2rem] sm:text-5xl md:text-6xl"
             )}
           >
             Currency from{" "}

@@ -14,9 +14,16 @@ export function useLearnTheme(): LearnTheme {
     // Also re-sync on storage changes from another tab
     const onStorage = () => setTheme(getStoredLearnTheme());
     window.addEventListener("storage", onStorage);
+    const channel = "BroadcastChannel" in window ? new BroadcastChannel("zen.learn.theme") : null;
+    if (channel) {
+      channel.onmessage = (event: MessageEvent<LearnTheme>) => {
+        if (event.data) setTheme(event.data);
+      };
+    }
     return () => {
       window.removeEventListener("learn-theme-change", handler);
       window.removeEventListener("storage", onStorage);
+      channel?.close();
     };
   }, []);
 

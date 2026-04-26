@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   BookOpen,
@@ -88,6 +88,13 @@ export default function Learn() {
   const { active, select } = useSectionNavigation<SectionId>(sections, 'index');
   const learnTheme = useLearnTheme();
   const currentThemeName = LEARN_THEMES.find((theme) => theme.id === learnTheme)?.name ?? 'Cupertino Cryo';
+
+  useEffect(() => {
+    document.documentElement.dataset.learnTheme = learnTheme;
+    return () => {
+      delete document.documentElement.dataset.learnTheme;
+    };
+  }, [learnTheme]);
 
   return (
     <>
