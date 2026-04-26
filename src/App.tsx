@@ -96,6 +96,8 @@ const LearnHowItWorks = lazy(() => import("./pages/learn/LearnHowItWorks"));
 const LearnTokenomics = lazy(() => import("./pages/learn/LearnTokenomics"));
 const LearnProofOfGenesis = lazy(() => import("./pages/learn/LearnProofOfGenesis"));
 const LearnPatentTech = lazy(() => import("./pages/learn/LearnPatentTech"));
+const LearnTour = lazy(() => import("./pages/learn/LearnTour"));
+const LearnGlossary = lazy(() => import("./pages/learn/LearnGlossary"));
 const LearnThemes = lazy(() => import("./pages/LearnThemes"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const InvestmentThesis = lazy(() => import("./pages/InvestmentThesis"));
