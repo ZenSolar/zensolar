@@ -200,71 +200,7 @@ function OracleContent() {
             <Rocket className="h-4 w-4 text-primary" /> Phased build plan
           </h2>
 
-function OracleContentPhases() {
-  const { state, toggleItem, setStatus } = useChecklist();
-  return (
-    <div className="space-y-3">
-      <PhaseCard
-        id="phase-0"
-        tag="Phase 0 · Today"
-        title="Seed pitch — narrative only"
-        defaultStatus="active"
-        bullets={[
-          "Proof-of-Genesis + LP launch model carry the room",
-          "kWh value mentioned only as 'each token = 1 verified kWh'",
-          "Zero on-chain oracle work",
-        ]}
-        state={state}
-        onToggle={toggleItem}
-        onStatus={setStatus}
-      />
-      <PhaseCard
-        id="phase-1"
-        tag="Phase 1 · Post-seed (months 3–6)"
-        title="Off-chain MVP — pure UX"
-        defaultStatus="next"
-        bullets={[
-          "New table: user_kwh_rates (utility, plan, $/kWh, source)",
-          "Extend analyze-bill to persist extracted rate",
-          "Show 'Your verified kWh value: $X' on dashboard",
-          "~1 day of work · zero chain risk",
-        ]}
-        state={state}
-        onToggle={toggleItem}
-        onStatus={setStatus}
-      />
-      <PhaseCard
-        id="phase-2"
-        tag="Phase 2 · Series A prep (6–12mo)"
-        title="Multi-source ingestion"
-        defaultStatus="later"
-        bullets={[
-          "EIA fallback edge function (free)",
-          "UtilityAPI.com integration as 'verified' tier",
-          "Tiered trust model: API > Bill OCR > EIA",
-        ]}
-        state={state}
-        onToggle={toggleItem}
-        onStatus={setStatus}
-      />
-      <PhaseCard
-        id="phase-3"
-        tag="Phase 3 · Series A moat (year 2)"
-        title="On-chain Oracle + floor enforcement"
-        defaultStatus="later"
-        bullets={[
-          "Deploy EnergyOracle.sol on Base",
-          "Daily Merkle-root publisher (gas-efficient per-user rates)",
-          "ZSolarMint.sol reads oracle → rejects sub-floor swaps",
-          "Series A headline: first token with on-chain market backing",
-        ]}
-        state={state}
-        onToggle={toggleItem}
-        onStatus={setStatus}
-      />
-    </div>
-  );
-}
+          <OracleContentPhases />
         </section>
 
         {/* Already built */}
