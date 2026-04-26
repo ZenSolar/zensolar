@@ -15,21 +15,16 @@
    localhost). Production resets to default on every load.
    ============================================================ */
 
-/* Smooth color transitions when swapping themes (skip during reduce-motion). */
+/* One-shot transition only when the theme attribute itself changes.
+   We deliberately DO NOT keep transitions on .bg-card / .bg-background /
+   .border permanently — that would force layout/paint thrash on every
+   hover, focus, and animation (which makes buttons feel sticky and
+   ruins MintEffectButton/holds). The body fade is enough to sell the
+   swap visually. */
 @media (prefers-reduced-motion: no-preference) {
-  html[data-app-theme] body,
-  html[data-app-theme] [data-app-theme-surface],
-  html[data-app-theme] .bg-background,
-  html[data-app-theme] .bg-card,
-  html[data-app-theme] .bg-popover,
-  html[data-app-theme] .bg-muted,
-  html[data-app-theme] .bg-sidebar,
-  html[data-app-theme] .text-foreground,
-  html[data-app-theme] .text-muted-foreground,
-  html[data-app-theme] .border {
+  html[data-app-theme] body {
     transition:
-      background-color 380ms cubic-bezier(0.16, 1, 0.3, 1),
-      border-color 280ms ease,
+      background-color 320ms cubic-bezier(0.16, 1, 0.3, 1),
       color 220ms ease;
   }
 }
@@ -37,10 +32,23 @@
 /* Body font swap (themes can override --app-body-font). */
 html[data-app-theme] body {
   font-family: var(--app-body-font, inherit);
+  letter-spacing: var(--app-body-tracking, normal);
 }
-html[data-app-theme] :is(h1, h2, h3, h4, h5) {
+html[data-app-theme] :is(h1, h2, h3, h4, h5, h6) {
   font-family: var(--app-display-font, inherit);
   letter-spacing: var(--app-display-tracking, normal);
+  font-weight: var(--app-display-weight, 700);
+  text-transform: var(--app-display-case, none);
+}
+/* Buttons + nav inherit the body family explicitly so theme fonts
+   actually show across the whole UI, not just headings. */
+html[data-app-theme] button,
+html[data-app-theme] input,
+html[data-app-theme] select,
+html[data-app-theme] textarea,
+html[data-app-theme] [role="menuitem"],
+html[data-app-theme] [role="tab"] {
+  font-family: var(--app-body-font, inherit);
 }
 
 /* ============================================================
