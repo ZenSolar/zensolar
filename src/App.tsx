@@ -255,6 +255,8 @@ const App = () => {
                       <Route path="nft-collection" element={<DemoNftCollection />} />
                       <Route path="mint-history" element={<MintHistory />} />
                      <Route path="learn" element={<Learn />} />
+                     <Route path="learn/tour" element={<LearnTour />} />
+                     <Route path="learn/glossary" element={<LearnGlossary />} />
                      <Route path="learn/how-it-works" element={<LearnHowItWorks />} />
                      <Route path="learn/tokenomics" element={<LearnTokenomics />} />
                      <Route path="learn/proof-of-genesis" element={<LearnProofOfGenesis />} />
