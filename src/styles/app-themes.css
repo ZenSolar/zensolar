@@ -52,6 +52,30 @@ html[data-app-theme] [role="tab"] {
 }
 
 /* ============================================================
+   MOTION GATE — themes set --app-allow-idle-motion: 0 to disable
+   decorative idle animations (shimmer sweeps, ambient glows).
+   IMPORTANT: this gate explicitly does NOT cover the press-and-hold
+   mint pulse — that's functional feedback, not decoration.
+   ============================================================ */
+html[data-app-theme] {
+  --app-allow-idle-motion: 1;
+  --app-motion-fast: 150ms;
+  --app-motion-base: 250ms;
+  --app-motion-slow: 400ms;
+  --app-density-pad: 1rem;
+  --app-density-gap: 1rem;
+  --app-density-row-h: 44px;
+}
+/* When idle motion is disabled, neutralize decorative animation classes. */
+html[data-app-theme][style*="--app-allow-idle-motion: 0"] [data-zen-decorative-motion],
+html[data-app-theme="tesla-whitepaper"] [data-zen-decorative-motion],
+html[data-app-theme="elon"] [data-zen-decorative-motion],
+html[data-app-theme="linear-docs"] [data-zen-decorative-motion] {
+  animation: none !important;
+  opacity: 0 !important;
+}
+
+/* ============================================================
    1. CUPERTINO CRYO — Apple x Web3
    Frosted glass on near-black, aurora gradients, generous radii.
    Accent: emerald-glacial cyan-blue, glowing primary.
