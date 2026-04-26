@@ -1,34 +1,22 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
+  ArrowRight,
   BookOpen,
   Coins,
-  Sparkles,
   Cpu,
-  ArrowRight,
-  Zap,
-  ShieldCheck,
-  Flame,
-  DollarSign,
-  Target,
-  Layers,
-  Award,
-  Sun,
-  Search,
   FileText,
+  Search,
+  Sparkles,
   X,
+  Library,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { SEO } from '@/components/SEO';
-import {
-  PageShell,
-  SectionHeader,
-  PageSectionNav,
-  useSectionNavigation,
-} from '@/components/layout/PageShell';
+import { PageShell, SectionHeader } from '@/components/layout/PageShell';
 import { useLearnTheme } from '@/hooks/useLearnTheme';
 import {
   DEFAULT_LEARN_THEME,
@@ -38,60 +26,80 @@ import {
 } from '@/lib/learnThemes';
 import { cn } from '@/lib/utils';
 
-const sections = [
-  { id: 'index', label: 'Browse', icon: Search },
-  { id: 'how-it-works', label: 'How It Works', icon: BookOpen },
-  { id: 'tokenomics', label: 'Tokenomics', icon: Coins },
-  { id: 'proof-of-genesis', label: 'Proof-of-Genesis™', icon: Sparkles },
-  { id: 'patent', label: 'Patent Tech', icon: Cpu },
-] as const;
-
-type SectionId = typeof sections[number]['id'];
-
 /* -------------------------------------------------------------------------- */
-/*                              SEARCH INDEX DATA                             */
+/*  Hub topic cards — each routes to a focused sub-page                        */
 /* -------------------------------------------------------------------------- */
 
-type LearnCategory = 'Engineering' | 'Tokenomics' | 'Patent Tech' | 'White Paper';
-
-interface LearnEntry {
+interface Topic {
   title: string;
-  description: string;
+  blurb: string;
   href: string;
-  category: LearnCategory;
-  keywords: string[];
+  icon: typeof BookOpen;
+  badge: string;
+  /** Time to read estimate so users know what they're committing to. */
+  read: string;
 }
 
-const LEARN_ENTRIES: LearnEntry[] = [
-  // Engineering
-  { title: 'How ZenSolar works', description: 'Connect → generate → Tap-to-Mint™ → level up.', href: '/demo/how-it-works', category: 'Engineering', keywords: ['onboarding', 'flow', 'tesla', 'enphase', 'wallbox', 'solaredge'] },
-  { title: 'Full architecture', description: 'The four-layer SEGI engine — APIs, normalization, verification, mint bridge.', href: '/demo/technology', category: 'Engineering', keywords: ['segi', 'architecture', 'oauth', 'base l2'] },
-  { title: 'Energy verification engine', description: 'How device data is signed, normalized, and made tamper-evident.', href: '/demo/technology', category: 'Engineering', keywords: ['verification', 'signing', 'impact score'] },
-  // Tokenomics
-  { title: 'Full tokenomics', description: '1T cap, 75/20/3/2 mint split, 7% transfer tax, LP-seeded launch at $0.10.', href: '/demo/tokenomics', category: 'Tokenomics', keywords: ['supply', 'burn', 'liquidity', 'treasury', 'lp'] },
-  { title: 'Launch model & LP rounds', description: 'Tranche-per-round LP seeding — circulating vs pact-locked supply.', href: '/demo/tokenomics', category: 'Tokenomics', keywords: ['launch', 'lp rounds', 'tranches', 'usdc'] },
-  { title: 'Founders pact & legacy lock', description: 'Joseph 150B / Michael 50B — pact-locked allocations and crossover prices.', href: '/demo/tokenomics', category: 'Tokenomics', keywords: ['founders', 'pact', 'trillionaire', 'crossover'] },
-  // Patent Tech
-  { title: 'Proof-of-Genesis™', description: 'The consensus primitive: Proof-of-Delta + Proof-of-Origin.', href: '/demo/proof-of-genesis', category: 'Patent Tech', keywords: ['proof', 'delta', 'origin', 'consensus'] },
-  { title: 'Tap-to-Mint™', description: 'One tap reads device data, runs the proof, mints $ZSOLAR.', href: '/demo/proof-of-genesis', category: 'Patent Tech', keywords: ['mint', 'tap', 'one tap'] },
-  { title: 'Mint-on-Proof™', description: 'No proof, no mint — every token traces to a verified physical event.', href: '/demo/proof-of-genesis', category: 'Patent Tech', keywords: ['mint', 'proof', 'verified'] },
-  // White Paper
-  { title: 'ZenSolar White Paper', description: 'The complete thesis, mechanics, and roadmap in one document.', href: '/white-paper', category: 'White Paper', keywords: ['whitepaper', 'thesis', 'roadmap'] },
-  { title: 'Patent claims & filings', description: 'USPTO claim references for the SEGI engine and Proof-of-Genesis™.', href: '/demo/technology', category: 'White Paper', keywords: ['uspto', 'patent', 'filing', 'claims'] },
+const TOPICS: Topic[] = [
+  {
+    title: 'How It Works',
+    blurb: 'The four-step game: connect → generate → tap → level up. Start here if you\'re new.',
+    href: '/demo/learn/how-it-works',
+    icon: BookOpen,
+    badge: 'Start here',
+    read: '2 min',
+  },
+  {
+    title: 'Tokenomics',
+    blurb: '1T hard cap, 75/20/3/2 mint split, deflationary by design. Built to not crash.',
+    href: '/demo/learn/tokenomics',
+    icon: Coins,
+    badge: 'The numbers',
+    read: '3 min',
+  },
+  {
+    title: 'Proof-of-Genesis™',
+    blurb: 'Why we don\'t burn energy to make money — we prove energy and mint from it.',
+    href: '/demo/learn/proof-of-genesis',
+    icon: Sparkles,
+    badge: 'The thesis',
+    read: '3 min',
+  },
+  {
+    title: 'Patent Tech',
+    blurb: 'The four-layer SEGI engine that turns Tesla / Enphase data into on-chain currency.',
+    href: '/demo/learn/patent-tech',
+    icon: Cpu,
+    badge: 'The engine',
+    read: '4 min',
+  },
 ];
 
-const CATEGORY_META: Record<LearnCategory, { icon: typeof Cpu; tone: string }> = {
-  'Engineering': { icon: Cpu, tone: 'text-primary' },
-  'Tokenomics': { icon: Coins, tone: 'text-primary' },
-  'Patent Tech': { icon: Sparkles, tone: 'text-primary' },
-  'White Paper': { icon: FileText, tone: 'text-primary' },
-};
+/* -------------------------------------------------------------------------- */
+/*  Glossary — single source of truth for the plain-language explainers        */
+/* -------------------------------------------------------------------------- */
 
-const ALL_CATEGORIES: LearnCategory[] = ['Engineering', 'Tokenomics', 'Patent Tech', 'White Paper'];
+interface GlossaryEntry {
+  term: string;
+  short: string;
+}
+
+const GLOSSARY: GlossaryEntry[] = [
+  { term: '$ZSOLAR', short: 'The reward currency you earn for clean energy. Like loyalty points — but tradeable.' },
+  { term: 'Tap-to-Mint™', short: 'One tap reads your device data, verifies the energy, and credits your account.' },
+  { term: 'Proof-of-Genesis™', short: 'Our way of proving your clean energy is real before turning it into rewards.' },
+  { term: 'Mint', short: 'Convert verified clean energy into $ZSOLAR — like cashing in a check.' },
+  { term: 'Burn', short: 'Permanently removed from circulation — making the remaining supply more valuable.' },
+  { term: 'NFT', short: 'A collectible badge for hitting a milestone (like 1,000 solar kWh). Yours forever.' },
+  { term: 'Wallet', short: 'Your account that holds $ZSOLAR and NFTs. We create one for you automatically.' },
+  { term: 'Liquidity (LP)', short: 'The pool of $ZSOLAR + USDC that lets you trade tokens at a fair market price.' },
+  { term: 'Base L2', short: 'The blockchain we mint on — fast, cheap, and built by Coinbase on top of Ethereum.' },
+  { term: 'kWh', short: 'Kilowatt-hour — the unit your solar panels and EV charger already report.' },
+];
 
 export default function Learn() {
-  const { active, select } = useSectionNavigation<SectionId>(sections, 'index');
   const learnTheme = useLearnTheme();
+  const [query, setQuery] = useState('');
 
   useEffect(() => {
     document.documentElement.dataset.learnTheme = learnTheme;
@@ -100,32 +108,134 @@ export default function Learn() {
     };
   }, [learnTheme]);
 
+  const visibleTopics = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return TOPICS;
+    return TOPICS.filter(t =>
+      [t.title, t.blurb, t.badge].join(' ').toLowerCase().includes(q),
+    );
+  }, [query]);
+
+  const visibleGlossary = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return GLOSSARY;
+    return GLOSSARY.filter(g =>
+      [g.term, g.short].join(' ').toLowerCase().includes(q),
+    );
+  }, [query]);
+
   return (
     <>
-      <SEO title="Learn" url="https://beta.zen.solar/learn" />
+      <SEO title="Learn" url="https://beta.zen.solar/demo/learn" />
       <div data-learn-theme={learnTheme} className="learn-surface">
         <PageShell
           title="Learn"
-          description="Everything about ZenSolar — how it works, the token economics, and the patent-pending tech behind it."
+          description="Pick a topic. Each one is a quick, focused read — no walls of text."
           icon={BookOpen}
           width="4xl"
-          sticky={
-            <PageSectionNav
-              items={sections}
-              active={active}
-              onSelect={select}
-              asAnchors
-              ariaLabel="Learn sections"
-            />
-          }
         >
-          <div className="space-y-12 sm:space-y-16">
+          <div className="space-y-10">
             <LiveThemeSwitcher current={learnTheme} />
-            <section id="index" className="scroll-mt-32"><LearnIndexSection /></section>
-            <section id="how-it-works" className="scroll-mt-32 min-h-[220px]"><HowItWorksSection /></section>
-            <section id="tokenomics" className="scroll-mt-32 min-h-[360px]"><TokenomicsSection /></section>
-            <section id="proof-of-genesis" className="scroll-mt-32 min-h-[320px]"><ProofOfGenesisSection /></section>
-            <section id="patent" className="scroll-mt-32 min-h-[300px]"><PatentTechSection /></section>
+
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <Input
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                placeholder="Search topics or glossary…"
+                className="pl-9 pr-9 h-11"
+                aria-label="Search Learn"
+              />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => setQuery('')}
+                  aria-label="Clear search"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+
+            {/* Topic cards */}
+            <section className="space-y-4">
+              <SectionHeader
+                eyebrow="Topics"
+                title="Pick what you want to learn"
+                description="Each card opens its own focused page so you're never overwhelmed."
+                icon={Library}
+              />
+              {visibleTopics.length === 0 ? (
+                <Card className="learn-card border-dashed border-border/60">
+                  <CardContent className="p-6 text-center text-sm text-muted-foreground">
+                    No topics match "{query}". Try the glossary below.
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {visibleTopics.map((topic) => (
+                    <Link key={topic.href} to={topic.href} className="group block">
+                      <Card className="learn-card h-full border-border/60 group-hover:border-primary/50 group-hover:shadow-md transition-all">
+                        <CardContent className="p-5">
+                          <div className="flex items-start justify-between gap-3 mb-3">
+                            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                              <topic.icon className="h-5 w-5 text-primary" />
+                            </div>
+                            <Badge variant="secondary" className="text-[10px] font-medium flex-shrink-0">
+                              {topic.badge}
+                            </Badge>
+                          </div>
+                          <h3 className="font-semibold text-base leading-tight mb-1">{topic.title}</h3>
+                          <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{topic.blurb}</p>
+                          <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/40">
+                            <span className="text-[11px] text-muted-foreground font-medium">{topic.read} read</span>
+                            <span className="inline-flex items-center gap-1 text-xs font-medium text-primary group-hover:gap-1.5 transition-all">
+                              Open
+                              <ArrowRight className="h-3.5 w-3.5" />
+                            </span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {/* Quick links */}
+            <section className="space-y-3">
+              <SectionHeader
+                eyebrow="Go deeper"
+                title="Full reference docs"
+                description="Already familiar? Jump straight to the long-form material."
+                icon={FileText}
+              />
+              <div className="grid gap-2 sm:grid-cols-2">
+                {[
+                  { label: 'White Paper', href: '/demo/white-paper' },
+                  { label: 'Engineering deep-dive', href: '/demo/engineering' },
+                  { label: 'Full architecture', href: '/demo/technology' },
+                  { label: 'Trademark portfolio', href: '/demo/proof-of-genesis' },
+                ].map((link) => (
+                  <Button
+                    key={link.href}
+                    asChild
+                    variant="outline"
+                    className="justify-between border-border/60 hover:border-primary/50"
+                  >
+                    <Link to={link.href}>
+                      <span>{link.label}</span>
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                  </Button>
+                ))}
+              </div>
+            </section>
+
+            {/* Glossary */}
+            <GlossarySection entries={visibleGlossary} totalCount={GLOSSARY.length} />
           </div>
         </PageShell>
       </div>
@@ -134,48 +244,65 @@ export default function Learn() {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                       LIVE THEME SWITCHER + DEBUG                          */
+/*  Glossary section — plain-language terms at the bottom of the hub           */
+/* -------------------------------------------------------------------------- */
+
+function GlossarySection({ entries, totalCount }: { entries: GlossaryEntry[]; totalCount: number }) {
+  return (
+    <section className="space-y-4">
+      <SectionHeader
+        eyebrow="Plain English"
+        title="Glossary"
+        description="Every term used across ZenSolar, explained in one sentence."
+        icon={BookOpen}
+      />
+      {entries.length === 0 ? (
+        <Card className="learn-card border-dashed border-border/60">
+          <CardContent className="p-6 text-center text-sm text-muted-foreground">
+            No terms match your search.
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="learn-card border-border/60">
+          <CardContent className="p-0 divide-y divide-border/40">
+            {entries.map((g) => (
+              <div key={g.term} className="px-4 py-3 sm:px-5 sm:py-4">
+                <p className="text-sm font-semibold text-foreground">{g.term}</p>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{g.short}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+      {entries.length > 0 && entries.length < totalCount && (
+        <p className="text-[11px] text-muted-foreground">
+          Showing {entries.length} of {totalCount} terms
+        </p>
+      )}
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Live theme switcher (kept — user confirmed this works)                     */
 /* -------------------------------------------------------------------------- */
 
 function LiveThemeSwitcher({ current }: { current: LearnTheme }) {
-  const [storedRaw, setStoredRaw] = useState<string | null>(null);
-  const [urlParam, setUrlParam] = useState<string | null>(null);
-
-  useEffect(() => {
-    const refresh = () => {
-      try {
-        setStoredRaw(localStorage.getItem('zen.learn.theme'));
-      } catch {
-        setStoredRaw(null);
-      }
-      const params = new URLSearchParams(window.location.search);
-      setUrlParam(params.get('learnTheme') ?? params.get('theme'));
-    };
-    refresh();
-    window.addEventListener('learn-theme-change', refresh);
-    return () => window.removeEventListener('learn-theme-change', refresh);
-  }, [current]);
-
-  const handlePick = (id: LearnTheme) => {
-    setStoredLearnTheme(id);
-  };
-
-  const handleReset = () => {
-    setStoredLearnTheme(DEFAULT_LEARN_THEME);
-  };
+  const handlePick = (id: LearnTheme) => setStoredLearnTheme(id);
+  const handleReset = () => setStoredLearnTheme(DEFAULT_LEARN_THEME);
 
   return (
     <section
       aria-label="Live theme switcher"
-      className="learn-card border border-border/60 rounded-xl p-4 sm:p-5 space-y-3"
+      className="learn-card border border-border/60 rounded-xl p-4 space-y-3"
     >
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
             Live theme
           </p>
-          <h2 className="text-sm sm:text-base font-semibold mt-0.5">
-            Tap to switch — this page reloads instantly
+          <h2 className="text-sm font-semibold mt-0.5">
+            Try a different look
           </h2>
         </div>
         <button
@@ -186,7 +313,6 @@ function LiveThemeSwitcher({ current }: { current: LearnTheme }) {
           Reset
         </button>
       </div>
-
       <div className="flex flex-wrap gap-2">
         {LEARN_THEMES.map((t) => {
           const isActive = current === t.id;
@@ -209,352 +335,6 @@ function LiveThemeSwitcher({ current }: { current: LearnTheme }) {
           );
         })}
       </div>
-
-      {/* Debug panel */}
-      <details className="text-[11px] font-mono text-muted-foreground">
-        <summary className="cursor-pointer select-none hover:text-foreground">
-          Debug
-        </summary>
-        <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
-          <dt>applied</dt>
-          <dd className="text-foreground">{current}</dd>
-          <dt>localStorage</dt>
-          <dd className="text-foreground">{storedRaw ?? '(empty)'}</dd>
-          <dt>?learnTheme</dt>
-          <dd className="text-foreground">{urlParam ?? '(none)'}</dd>
-          <dt>data-attr</dt>
-          <dd className="text-foreground break-all">
-            {typeof document !== 'undefined'
-              ? document.documentElement.dataset.learnTheme ?? '(unset)'
-              : '(ssr)'}
-          </dd>
-        </dl>
-      </details>
-    </section>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/*                            LEARN INDEX (SEARCH)                            */
-/* -------------------------------------------------------------------------- */
-
-function LearnIndexSection() {
-  const [query, setQuery] = useState('');
-  const [activeFilters, setActiveFilters] = useState<Set<LearnCategory>>(new Set());
-
-  const toggleFilter = (cat: LearnCategory) => {
-    setActiveFilters(prev => {
-      const next = new Set(prev);
-      if (next.has(cat)) next.delete(cat); else next.add(cat);
-      return next;
-    });
-  };
-
-  const results = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return LEARN_ENTRIES.filter(e => {
-      if (activeFilters.size > 0 && !activeFilters.has(e.category)) return false;
-      if (!q) return true;
-      const hay = [e.title, e.description, e.category, ...e.keywords].join(' ').toLowerCase();
-      return hay.includes(q);
-    });
-  }, [query, activeFilters]);
-
-  const clearAll = () => { setQuery(''); setActiveFilters(new Set()); };
-  const hasActive = query.trim().length > 0 || activeFilters.size > 0;
-
-  return (
-    <section className="space-y-5">
-      <SectionHeader
-        eyebrow="00 — Browse"
-        title="Find a topic"
-        description="Search the entire Learn hub or filter by category."
-        icon={Search}
-      />
-
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-        <Input
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          placeholder="Search engineering, tokenomics, patents…"
-          className="pl-9 pr-9 h-11"
-          aria-label="Search Learn topics"
-        />
-        {query && (
-          <button
-            type="button"
-            onClick={() => setQuery('')}
-            aria-label="Clear search"
-            className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-2">
-        {ALL_CATEGORIES.map(cat => {
-          const Icon = CATEGORY_META[cat].icon;
-          const isOn = activeFilters.has(cat);
-          return (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => toggleFilter(cat)}
-              aria-pressed={isOn}
-              className={cn(
-                "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all",
-                "active:scale-95 motion-reduce:active:scale-100",
-                isOn
-                  ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                  : "bg-card text-foreground/80 border-border/60 hover:border-primary/40 hover:text-foreground"
-              )}
-            >
-              <Icon className="h-3.5 w-3.5" />
-              {cat}
-            </button>
-          );
-        })}
-        {hasActive && (
-          <button
-            type="button"
-            onClick={clearAll}
-            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <X className="h-3 w-3" /> Clear
-          </button>
-        )}
-      </div>
-
-      {/* Results */}
-      <div className="space-y-2">
-        <p className="text-xs text-muted-foreground" aria-live="polite">
-          {results.length} {results.length === 1 ? 'topic' : 'topics'}
-        </p>
-        {results.length === 0 ? (
-          <Card className="learn-card border-dashed border-border/60">
-            <CardContent className="p-6 text-center">
-              <p className="text-sm text-muted-foreground">No topics match your search.</p>
-              <Button variant="ghost" size="sm" onClick={clearAll} className="mt-2 text-primary">
-                Clear filters
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-2 sm:grid-cols-2">
-            {results.map(entry => {
-              const Icon = CATEGORY_META[entry.category].icon;
-              return (
-                <Link
-                  key={entry.title}
-                  to={entry.href}
-                  className="group block"
-                >
-                  <Card className="learn-card h-full border-border/60 group-hover:border-primary/40 transition-colors">
-                    <CardContent className="p-4">
-                      <div className="flex items-start gap-3">
-                        <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                          <Icon className="h-4 w-4 text-primary" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-start justify-between gap-2">
-                            <h3 className="font-semibold text-sm leading-tight">{entry.title}</h3>
-                            <ArrowRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all flex-shrink-0 mt-0.5" />
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1 leading-relaxed line-clamp-2">{entry.description}</p>
-                          <Badge variant="secondary" className="mt-2 text-[10px] font-medium">{entry.category}</Badge>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/*                                 SECTIONS                                   */
-/* -------------------------------------------------------------------------- */
-
-function HowItWorksSection() {
-  const steps = [
-    { icon: Zap, title: 'Connect', desc: 'Link Tesla, Enphase, SolarEdge, or Wallbox in 30 seconds — no hardware.' },
-    { icon: Sun, title: 'Generate', desc: 'Your panels, EV, and battery are already producing verified clean energy.' },
-    { icon: Sparkles, title: 'Tap-to-Mint™', desc: 'One tap mints $ZSOLAR + milestone NFTs to your wallet.' },
-    { icon: Award, title: 'Level up', desc: 'Hit milestones, earn rare NFTs, climb the leaderboard.' },
-  ];
-  return (
-    <section className="space-y-6">
-      <SectionHeader
-        eyebrow="01 — The Game"
-        title="How ZenSolar works"
-        description="Your clean energy is already worth real money. We just made it claimable in one tap."
-        icon={BookOpen}
-      />
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {steps.map((s, i) => (
-          <Card key={s.title} className="learn-card h-full border-border/60 hover:border-primary/40 transition-colors fade-up" style={{ animationDelay: `${i * 50}ms` }}>
-            <CardContent className="p-4">
-              <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
-                <s.icon className="h-4 w-4 text-primary" />
-              </div>
-              <p className="text-xs font-semibold text-primary mb-1">Step {i + 1}</p>
-              <h3 className="font-semibold text-sm mb-1">{s.title}</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">{s.desc}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      <Button asChild variant="ghost" size="sm" className="text-primary hover:text-primary">
-        <Link to="/demo/how-it-works">
-          Read full guide
-          <ArrowRight className="h-3.5 w-3.5 ml-1" />
-        </Link>
-      </Button>
-    </section>
-  );
-}
-
-function TokenomicsSection() {
-  const stats = [
-    { label: 'Max Supply', value: '1T', icon: Coins },
-    { label: 'Launch Price', value: '$0.10', icon: DollarSign },
-    { label: 'Mint Burn', value: '20%', icon: Flame },
-    { label: 'Transfer Tax', value: '7%', icon: Target },
-  ];
-  const splits = [
-    { label: 'User reward', pct: '75%', desc: 'Goes to your wallet on every mint' },
-    { label: 'Burn', pct: '20%', desc: 'Permanently removed — deflationary by design' },
-    { label: 'Liquidity', pct: '3%', desc: 'Auto-injected to USDC pool each round' },
-    { label: 'Treasury', pct: '2%', desc: 'Funds protocol operations & growth' },
-  ];
-  return (
-    <section className="space-y-6">
-      <SectionHeader
-        eyebrow="02 — The Economy"
-        title="$ZSOLAR tokenomics"
-        description="1 trillion hard cap. Aggressive deflation. Every mint burns supply and seeds liquidity."
-        icon={Coins}
-      />
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {stats.map((s) => (
-          <Card key={s.label} className="learn-card border-border/60">
-            <CardContent className="p-4 text-center">
-              <s.icon className="h-4 w-4 mx-auto mb-2 text-primary" />
-              <p className="text-2xl font-bold tracking-tight">{s.value}</p>
-              <p className="text-[11px] text-muted-foreground uppercase tracking-wide mt-0.5">{s.label}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      <Card className="learn-card border-border/60">
-        <CardContent className="p-5 space-y-3">
-          <h3 className="text-sm font-semibold flex items-center gap-2">
-            <Layers className="h-4 w-4 text-primary" />
-            Mint distribution
-          </h3>
-          <div className="space-y-2.5">
-            {splits.map((s) => (
-              <div key={s.label} className="flex items-start justify-between gap-3 py-1.5 border-b border-border/40 last:border-0">
-                <div className="min-w-0">
-                  <p className="text-sm font-medium">{s.label}</p>
-                  <p className="text-xs text-muted-foreground">{s.desc}</p>
-                </div>
-                <Badge variant="secondary" className="font-mono text-xs flex-shrink-0">{s.pct}</Badge>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-      <Button asChild variant="ghost" size="sm" className="text-primary hover:text-primary">
-        <Link to="/demo/tokenomics">
-          Full tokenomics
-          <ArrowRight className="h-3.5 w-3.5 ml-1" />
-        </Link>
-      </Button>
-    </section>
-  );
-}
-
-function ProofOfGenesisSection() {
-  const marks = [
-    { mark: 'Proof-of-Genesis™', desc: 'The consensus primitive: Proof-of-Delta + Proof-of-Origin. Mints from verified clean energy instead of burning energy to prove waste.', icon: Sparkles },
-    { mark: 'Tap-to-Mint™', desc: 'One tap reads device data, runs the proof, mints $ZSOLAR.', icon: Zap },
-    { mark: 'Mint-on-Proof™', desc: 'No proof, no mint. Period. Every token traces back to a verified physical event.', icon: ShieldCheck },
-  ];
-  return (
-    <section className="space-y-6">
-      <SectionHeader
-        eyebrow="03 — The Thesis"
-        title="Proof-of-Genesis™"
-        description="Bitcoin proves work. We prove genesis — the verified moment clean energy enters the world."
-        icon={Sparkles}
-      />
-      <div className="grid gap-3 sm:grid-cols-3">
-        {marks.map((m) => (
-          <Card key={m.mark} className="learn-card border-border/60 hover:border-primary/40 transition-colors">
-            <CardContent className="p-4">
-              <m.icon className="h-5 w-5 text-primary mb-3" />
-              <h3 className="font-semibold text-sm mb-1.5">{m.mark}</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">{m.desc}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      <Button asChild variant="ghost" size="sm" className="text-primary hover:text-primary">
-        <Link to="/demo/proof-of-genesis">
-          See full trademark portfolio
-          <ArrowRight className="h-3.5 w-3.5 ml-1" />
-        </Link>
-      </Button>
-    </section>
-  );
-}
-
-function PatentTechSection() {
-  const layers = [
-    { n: 1, title: 'API Aggregation', desc: 'OAuth into Tesla, Enphase, SolarEdge, Wallbox. Zero hardware.' },
-    { n: 2, title: 'Data Normalization', desc: 'Every provider unified into one Impact Score (kg CO₂ / kWh).' },
-    { n: 3, title: 'Verification Engine', desc: 'Cryptographically signed device data — tamper-evident.' },
-    { n: 4, title: 'Smart Contract Bridge', desc: 'Mint-on-Proof™ to Base L2. Anti-double-mint registry.' },
-  ];
-  return (
-    <section className="space-y-6">
-      <SectionHeader
-        eyebrow="04 — The Engine"
-        title="Patent-pending tech"
-        description="SEGI — the four-layer engine that turns real-world clean energy into on-chain currency."
-        icon={Cpu}
-      />
-      <div className="space-y-2">
-        {layers.map((l) => (
-          <Card key={l.n} className="learn-card border-border/60">
-            <CardContent className="p-4 flex items-start gap-4">
-              <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <span className="text-sm font-bold text-primary font-mono">L{l.n}</span>
-              </div>
-              <div className="min-w-0">
-                <h3 className="font-semibold text-sm">{l.title}</h3>
-                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{l.desc}</p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      <Button asChild variant="ghost" size="sm" className="text-primary hover:text-primary">
-        <Link to="/demo/technology">
-          See full architecture
-          <ArrowRight className="h-3.5 w-3.5 ml-1" />
-        </Link>
-      </Button>
     </section>
   );
 }
