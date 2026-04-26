@@ -36,7 +36,7 @@ const JoFounderVipEmail = ({ firstName, trackUrl }: JoFounderVipProps) => {
     <Html lang="en" dir="ltr">
       <Head />
       <Preview>{`${name} — Founder VIP access is live, plus a brand-new Founders Area in the sidebar.`}</Preview>
-      <Body style={main} bgcolor={COLORS.background}>
+      <Body style={main}>
         <Container style={container}>
           <Section style={logoWrap}>
             <Img src={LOGO_URL} alt="ZenSolar" width="220" height="65" style={logo} />
@@ -114,17 +114,17 @@ const JoFounderVipEmail = ({ firstName, trackUrl }: JoFounderVipProps) => {
 
           <Section style={mintCard}>
             <Text style={mintBadge}>
-              <font color="#ffffff"><span style={{ color: '#ffffff' }}>While you&apos;re in there</span></font>
+              <span style={{ color: '#ffffff' }}>While you&apos;re in there</span>
             </Text>
             <Text style={mintTitle}>
-              <font color="#ffffff"><span style={{ color: '#ffffff' }}>Read the Founders Pack</span></font>
+              <span style={{ color: '#ffffff' }}>Read the Founders Pack</span>
             </Text>
             <Text style={mintText}>
-              <font color="#ffffff"><span style={{ color: '#ffffff' }}>
+              <span style={{ color: '#ffffff' }}>
                 It&apos;s the clearest picture of where we&apos;re headed — patent-pending tech,
                 tokenomics, the team, and why this is shaping up to be a generational company.
                 Tap any chapter bubble at the top to jump straight to that section.
-              </span></font>
+              </span>
             </Text>
           </Section>
 

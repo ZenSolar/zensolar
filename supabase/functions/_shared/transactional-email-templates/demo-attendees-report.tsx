@@ -28,7 +28,7 @@ const DemoAttendeesReportEmail = ({ attendees = [], generatedAt }: DemoAttendees
   return (
     <Html lang="en" dir="ltr">
       <Head />
-      <Preview>{attendees.length} people have completed the ZenSolar demo</Preview>
+      <Preview>{`${attendees.length} people have completed the ZenSolar demo`}</Preview>
       <Body style={main}>
         <Container style={container}>
           <Heading style={h1}>Demo Attendees Report</Heading>
