@@ -445,3 +445,34 @@ html[data-app-theme="elon"] :is(.rounded-lg, .rounded-xl, .rounded-2xl) {
     --app-density-row-h: 36px;
   }
 }
+
+/* ============================================================
+   TESLA WHITEPAPER — engineering polish
+   ============================================================ */
+/* Full-opacity 1px borders (no fade) on cards + sections */
+html[data-app-theme="tesla-whitepaper"] :is([class*="border"], .card, [data-card]) {
+  border-color: hsl(var(--border));
+}
+/* Strip soft shadows — engineering schematics don't have drop shadows */
+html[data-app-theme="tesla-whitepaper"] :is(.shadow, .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl) {
+  box-shadow: none !important;
+}
+/* Status indicators: replace soft glows with crisp 2px solid bars */
+html[data-app-theme="tesla-whitepaper"] [data-zen-status-bar] {
+  border-left-width: 2px !important;
+  border-left-style: solid !important;
+  box-shadow: none !important;
+}
+/* Tighter line-height for dense reading */
+html[data-app-theme="tesla-whitepaper"] body {
+  line-height: 1.45;
+}
+/* Tabular numerics on all data — schematics need alignment */
+html[data-app-theme="tesla-whitepaper"] {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+/* Buttons: sharp, no soft fills */
+html[data-app-theme="tesla-whitepaper"] button:not([data-no-theme-override]) {
+  border-radius: 0.125rem;
+}
