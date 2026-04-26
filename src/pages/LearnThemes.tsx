@@ -38,11 +38,12 @@ export default function LearnThemes() {
   const handleApply = () => {
     setStoredLearnTheme(preview);
     setApplied(preview);
+    const learnUrl = `/learn?learnTheme=${preview}`;
     toast.success(`Applied: ${previewMeta?.name}`, {
       description: "Open /learn to see it live.",
       action: {
         label: "Open Learn",
-        onClick: () => window.open("/learn", "_blank"),
+        onClick: () => window.open(learnUrl, "_blank"),
       },
     });
   };
@@ -70,10 +71,10 @@ export default function LearnThemes() {
         <meta name="robots" content="noindex" />
       </Helmet>
 
-      <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background">
         {/* Sticky theme switcher — compact, mobile-first */}
-        <div className="sticky top-[3.5rem] z-30 border-b border-border/60 bg-background/90 backdrop-blur-xl">
-          <div className="mx-auto max-w-6xl px-4 py-2.5">
+        <div className="sticky top-[3.5rem] z-30 border-b border-border/60 bg-background/95 backdrop-blur-xl">
+          <div className="mx-auto max-w-6xl px-4 py-3 sm:py-3.5">
             {/* Row 1: title + actions */}
             <div className="flex items-center justify-between gap-2">
               <div className="flex min-w-0 items-center gap-2">
@@ -119,7 +120,7 @@ export default function LearnThemes() {
             </div>
 
             {/* Row 2: theme chips + status — single horizontal scroll, no clip */}
-            <div className="-mx-4 mt-2 flex items-center gap-2 overflow-x-auto px-4 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="-mx-4 mt-3 flex items-center gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {LEARN_THEMES.map((t) => {
                 const active = preview === t.id;
                 const isApplied = applied === t.id;
@@ -128,7 +129,7 @@ export default function LearnThemes() {
                     key={t.id}
                     onClick={() => setPreview(t.id)}
                     className={cn(
-                      "shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-all active:scale-95",
+                      "shrink-0 rounded-full border px-3.5 py-2 text-xs font-medium transition-all active:scale-95",
                       active
                         ? "border-primary bg-primary text-primary-foreground shadow-[0_0_18px_hsl(var(--primary)/0.3)]"
                         : "border-border bg-card text-muted-foreground hover:text-foreground"
@@ -142,7 +143,7 @@ export default function LearnThemes() {
             </div>
 
             {/* Row 3: tagline + status — kept on one line, truncated */}
-            <div className="mt-1.5 flex items-center gap-2 text-[11px] text-muted-foreground">
+            <div className="mt-2 flex items-center gap-2 text-[11px] text-muted-foreground">
               {isDirty ? (
                 <span className="shrink-0 rounded-full border border-primary/40 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
                   Preview
