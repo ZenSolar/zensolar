@@ -30,7 +30,12 @@ import {
   useSectionNavigation,
 } from '@/components/layout/PageShell';
 import { useLearnTheme } from '@/hooks/useLearnTheme';
-import { LEARN_THEMES } from '@/lib/learnThemes';
+import {
+  DEFAULT_LEARN_THEME,
+  LEARN_THEMES,
+  setStoredLearnTheme,
+  type LearnTheme,
+} from '@/lib/learnThemes';
 import { cn } from '@/lib/utils';
 
 const sections = [
