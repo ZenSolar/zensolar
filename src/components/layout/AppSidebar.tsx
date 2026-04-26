@@ -318,7 +318,7 @@ export function AppSidebar() {
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="Founders Vault">
-                    <NavLink to="/founders" onClick={handleNavClick} className={founderNavClass}>
+                    <NavLink to="/founders" onClick={handleFounderNavClick} className={founderNavClass}>
                       <Lock className="h-4 w-4 text-amber-400" />
                       <span>Founders Vault</span>
                     </NavLink>
@@ -326,7 +326,7 @@ export function AppSidebar() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="Founder Pack">
-                    <NavLink to="/founder-pack" onClick={handleNavClick} className={founderNavClass}>
+                    <NavLink to="/founder-pack" onClick={handleFounderNavClick} className={founderNavClass}>
                       <ScrollText className="h-4 w-4 text-amber-400" />
                       <span>Founder Pack</span>
                     </NavLink>
@@ -334,7 +334,7 @@ export function AppSidebar() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="White Paper · Phase 1">
-                    <NavLink to="/whitepaper-phase-1" onClick={handleNavClick} className={founderNavClass}>
+                    <NavLink to="/whitepaper-phase-1" onClick={handleFounderNavClick} className={founderNavClass}>
                       <FileText className="h-4 w-4 text-amber-400" />
                       <span>White Paper · Phase 1</span>
                     </NavLink>
@@ -342,7 +342,7 @@ export function AppSidebar() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="White Paper · Phase 2">
-                    <NavLink to="/whitepaper-phase-2" onClick={handleNavClick} className={founderNavClass}>
+                    <NavLink to="/whitepaper-phase-2" onClick={handleFounderNavClick} className={founderNavClass}>
                       <Rocket className="h-4 w-4 text-amber-400" />
                       <span>White Paper · Phase 2</span>
                     </NavLink>
@@ -350,7 +350,7 @@ export function AppSidebar() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="Seed Ask · Lyndon">
-                    <NavLink to="/founders/seed-ask" onClick={handleNavClick} className={founderNavClass}>
+                    <NavLink to="/founders/seed-ask" onClick={handleFounderNavClick} className={founderNavClass}>
                       <Banknote className="h-4 w-4 text-amber-400" />
                       <span>Seed Ask · Lyndon</span>
                     </NavLink>
