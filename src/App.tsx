@@ -96,6 +96,8 @@ const LearnHowItWorks = lazy(() => import("./pages/learn/LearnHowItWorks"));
 const LearnTokenomics = lazy(() => import("./pages/learn/LearnTokenomics"));
 const LearnProofOfGenesis = lazy(() => import("./pages/learn/LearnProofOfGenesis"));
 const LearnPatentTech = lazy(() => import("./pages/learn/LearnPatentTech"));
+const LearnTour = lazy(() => import("./pages/learn/LearnTour"));
+const LearnGlossary = lazy(() => import("./pages/learn/LearnGlossary"));
 const LearnThemes = lazy(() => import("./pages/LearnThemes"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const InvestmentThesis = lazy(() => import("./pages/InvestmentThesis"));
@@ -253,6 +255,8 @@ const App = () => {
                       <Route path="nft-collection" element={<DemoNftCollection />} />
                       <Route path="mint-history" element={<MintHistory />} />
                      <Route path="learn" element={<Learn />} />
+                     <Route path="learn/tour" element={<LearnTour />} />
+                     <Route path="learn/glossary" element={<LearnGlossary />} />
                      <Route path="learn/how-it-works" element={<LearnHowItWorks />} />
                      <Route path="learn/tokenomics" element={<LearnTokenomics />} />
                      <Route path="learn/proof-of-genesis" element={<LearnProofOfGenesis />} />
@@ -411,6 +415,67 @@ const App = () => {
                           </AppLayout>
                         </ProtectedRoute>
                       } 
+                    />
+                    {/* Learn sub-routes */}
+                    <Route
+                      path="/learn/tour"
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <LearnTour />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/learn/glossary"
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <LearnGlossary />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/learn/how-it-works"
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <LearnHowItWorks />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/learn/tokenomics"
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <LearnTokenomics />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/learn/proof-of-genesis"
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <LearnProofOfGenesis />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/learn/patent-tech"
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <LearnPatentTech />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
                     />
                     {/* Admin-only theme gallery for the Learn section */}
                     <Route

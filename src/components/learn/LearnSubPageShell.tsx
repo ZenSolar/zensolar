@@ -47,9 +47,9 @@ export function LearnSubPageShell({
           width="4xl"
           actions={
             <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-              <Link to="/demo/learn">
+              <Link to="/learn">
                 <ArrowLeft className="h-3.5 w-3.5 mr-1" />
-                Learn hub
+                Hub
               </Link>
             </Button>
           }
