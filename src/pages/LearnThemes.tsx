@@ -164,7 +164,7 @@ export default function LearnThemes() {
         <ThemePreview theme={preview} />
 
         {/* Side-by-side comparison */}
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:py-10">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:py-12">
           <h2 className="mb-1 text-base font-semibold sm:text-lg">Side-by-side</h2>
           <p className="mb-4 text-xs text-muted-foreground sm:mb-6 sm:text-sm">
             Same content, three skins. Tap any tile to make it the active preview above.
@@ -201,7 +201,7 @@ export default function LearnThemes() {
 
           <p className="mt-6 text-center text-xs text-muted-foreground">
             Tip: <span className="font-medium text-foreground">Apply</span> saves your pick.
-            Open <Link to="/learn" target="_blank" rel="noopener" className="text-primary underline-offset-2 hover:underline">/learn</Link> to see it on the real page.
+            Open <Link to={`/learn?learnTheme=${applied}`} target="_blank" rel="noopener" className="text-primary underline-offset-2 hover:underline">/learn</Link> to see it on the real page.
           </p>
         </div>
       </div>
@@ -241,18 +241,18 @@ function ThemePreview({ theme, compact = false }: { theme: LearnTheme; compact?:
       <div
         className={cn(
           "mx-auto max-w-5xl px-4 sm:px-5",
-          compact ? "py-5" : "py-8 sm:py-12"
+          compact ? "py-5" : "py-10 sm:py-14"
         )}
       >
         {/* Hero */}
-        <div className={compact ? "mb-4" : "mb-8 sm:mb-10"}>
+        <div className={compact ? "mb-4" : "mb-9 sm:mb-10"}>
           <div className="learn-mono mb-2 text-[10px] uppercase tracking-[0.2em] learn-muted">
             Learn · v1.0
           </div>
           <h1
             className={cn(
               "learn-display leading-[1.05]",
-              compact ? "text-xl" : "text-3xl sm:text-5xl md:text-6xl"
+              compact ? "text-xl" : "text-[2rem] sm:text-5xl md:text-6xl"
             )}
           >
             Currency from{" "}
