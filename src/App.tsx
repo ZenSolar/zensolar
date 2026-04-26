@@ -92,6 +92,10 @@ const Wallet = lazy(() => import("./pages/Wallet"));
 // Combined pages
 const NFTs = lazy(() => import("./pages/NFTs"));
 const Learn = lazy(() => import("./pages/Learn"));
+const LearnHowItWorks = lazy(() => import("./pages/learn/LearnHowItWorks"));
+const LearnTokenomics = lazy(() => import("./pages/learn/LearnTokenomics"));
+const LearnProofOfGenesis = lazy(() => import("./pages/learn/LearnProofOfGenesis"));
+const LearnPatentTech = lazy(() => import("./pages/learn/LearnPatentTech"));
 const LearnThemes = lazy(() => import("./pages/LearnThemes"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const InvestmentThesis = lazy(() => import("./pages/InvestmentThesis"));
@@ -248,7 +252,11 @@ const App = () => {
                       <Route path="energy-log" element={<DemoEnergyLog />} />
                       <Route path="nft-collection" element={<DemoNftCollection />} />
                       <Route path="mint-history" element={<MintHistory />} />
-                      <Route path="learn" element={<Learn />} />
+                     <Route path="learn" element={<Learn />} />
+                     <Route path="learn/how-it-works" element={<LearnHowItWorks />} />
+                     <Route path="learn/tokenomics" element={<LearnTokenomics />} />
+                     <Route path="learn/proof-of-genesis" element={<LearnProofOfGenesis />} />
+                     <Route path="learn/patent-tech" element={<LearnPatentTech />} />
                       <Route path="proof-of-genesis" element={<ProofOfGenesis />} />
                       <Route path="white-paper" element={<WhitePaper />} />
                       <Route path="engineering" element={<Engineering />} />
