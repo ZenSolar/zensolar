@@ -1,0 +1,218 @@
+/* ============================================================
+   App-wide theme variants. Scoped under [data-app-theme] on the
+   <html> element. Each theme remaps the core semantic HSL tokens
+   defined in index.css so EVERY component (cards, buttons, inputs,
+   sidebar, popovers, etc.) restyles instantly.
+
+   Themes:
+     - default            (no override — uses base index.css tokens)
+     - cupertino-cryo     (Apple x Web3, frosted aurora)
+     - tesla-whitepaper   (engineering brutalism, mono, schematic)
+     - linear-docs        (frictionless reading, flat surfaces)
+
+   Persistence is handled in src/lib/appThemes.ts and only sticks
+   inside preview hosts (lovable.app / lovableproject.com / dev /
+   localhost). Production resets to default on every load.
+   ============================================================ */
+
+/* Smooth color transitions when swapping themes (skip during reduce-motion). */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-app-theme] body,
+  html[data-app-theme] [data-app-theme-surface],
+  html[data-app-theme] .bg-background,
+  html[data-app-theme] .bg-card,
+  html[data-app-theme] .bg-popover,
+  html[data-app-theme] .bg-muted,
+  html[data-app-theme] .bg-sidebar,
+  html[data-app-theme] .text-foreground,
+  html[data-app-theme] .text-muted-foreground,
+  html[data-app-theme] .border {
+    transition:
+      background-color 380ms cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 280ms ease,
+      color 220ms ease;
+  }
+}
+
+/* Body font swap (themes can override --app-body-font). */
+html[data-app-theme] body {
+  font-family: var(--app-body-font, inherit);
+}
+html[data-app-theme] :is(h1, h2, h3, h4, h5) {
+  font-family: var(--app-display-font, inherit);
+  letter-spacing: var(--app-display-tracking, normal);
+}
+
+/* ============================================================
+   1. CUPERTINO CRYO — Apple x Web3
+   Frosted glass on near-black, aurora gradients, generous radii.
+   Accent: emerald-glacial cyan-blue, glowing primary.
+   ============================================================ */
+html[data-app-theme="cupertino-cryo"] {
+  /* Surfaces */
+  --background: 220 24% 6%;
+  --foreground: 210 40% 98%;
+  --card: 220 24% 9%;
+  --card-foreground: 210 40% 98%;
+  --popover: 220 24% 8%;
+  --popover-foreground: 210 40% 98%;
+
+  /* Accents */
+  --primary: 195 95% 60%;          /* glacial cyan */
+  --primary-foreground: 220 30% 8%;
+  --secondary: 160 84% 50%;        /* aurora emerald */
+  --secondary-foreground: 220 30% 8%;
+  --accent: 270 90% 70%;           /* aurora violet */
+  --accent-foreground: 220 30% 8%;
+
+  /* Neutrals */
+  --muted: 220 18% 14%;
+  --muted-foreground: 215 20% 70%;
+  --border: 220 18% 18%;
+  --input: 220 18% 18%;
+  --ring: 195 95% 60%;
+  --radius: 1.25rem;
+
+  /* Sidebar */
+  --sidebar-background: 220 28% 5%;
+  --sidebar-foreground: 210 30% 92%;
+  --sidebar-primary: 195 95% 60%;
+  --sidebar-primary-foreground: 220 30% 8%;
+  --sidebar-accent: 220 22% 12%;
+  --sidebar-accent-foreground: 210 30% 96%;
+  --sidebar-border: 220 22% 14%;
+  --sidebar-ring: 195 95% 60%;
+
+  /* Brand semantic tokens */
+  --solar: 45 100% 65%;
+  --eco: 160 84% 50%;
+  --energy: 195 95% 60%;
+  --token: 270 90% 70%;
+
+  /* Typography */
+  --app-display-font: "Inter Tight", "SF Pro Display", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --app-body-font: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --app-display-tracking: -0.035em;
+}
+/* Aurora background on the body */
+html[data-app-theme="cupertino-cryo"] body {
+  background:
+    radial-gradient(60% 40% at 20% 0%, hsl(195 95% 60% / 0.10) 0%, transparent 60%),
+    radial-gradient(50% 35% at 90% 10%, hsl(270 90% 70% / 0.10) 0%, transparent 60%),
+    radial-gradient(70% 50% at 50% 100%, hsl(160 84% 50% / 0.06) 0%, transparent 60%),
+    hsl(var(--background));
+  background-attachment: fixed;
+}
+/* Frosted card treatment — subtle, doesn't break contrast */
+html[data-app-theme="cupertino-cryo"] [class*="rounded-"][class*="border"] {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* ============================================================
+   2. TESLA WHITEPAPER — Engineering brutalism
+   Near-pure black, mono everywhere, sharp 2px radii, schematic grid.
+   Accent: signal red on dense neutral.
+   ============================================================ */
+html[data-app-theme="tesla-whitepaper"] {
+  --background: 0 0% 4%;
+  --foreground: 0 0% 96%;
+  --card: 0 0% 7%;
+  --card-foreground: 0 0% 96%;
+  --popover: 0 0% 6%;
+  --popover-foreground: 0 0% 96%;
+
+  --primary: 0 84% 56%;            /* signal red */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 90%;           /* high-contrast neutral */
+  --secondary-foreground: 0 0% 6%;
+  --accent: 200 100% 60%;          /* schematic blue */
+  --accent-foreground: 0 0% 6%;
+
+  --muted: 0 0% 10%;
+  --muted-foreground: 0 0% 65%;
+  --border: 0 0% 18%;
+  --input: 0 0% 14%;
+  --ring: 0 84% 56%;
+  --radius: 0.125rem;
+
+  --sidebar-background: 0 0% 3%;
+  --sidebar-foreground: 0 0% 90%;
+  --sidebar-primary: 0 84% 56%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 0 0% 9%;
+  --sidebar-accent-foreground: 0 0% 96%;
+  --sidebar-border: 0 0% 14%;
+  --sidebar-ring: 0 84% 56%;
+
+  --solar: 45 95% 55%;
+  --eco: 140 60% 50%;
+  --energy: 200 100% 60%;
+  --token: 0 84% 56%;
+
+  --app-display-font: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --app-body-font: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --app-display-tracking: -0.005em;
+}
+/* Schematic grid behind everything */
+html[data-app-theme="tesla-whitepaper"] body {
+  background-image:
+    linear-gradient(to right, hsl(0 0% 100% / 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(0 0% 100% / 0.025) 1px, transparent 1px);
+  background-size: 64px 64px;
+  background-color: hsl(var(--background));
+  background-attachment: fixed;
+}
+html[data-app-theme="tesla-whitepaper"] :is(h1, h2, h3, h4) {
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* ============================================================
+   3. LINEAR DOCS — Frictionless reading
+   Flat surfaces, soft slate, Inter everywhere, perfect spacing.
+   Accent: indigo. Minimal shadows. Speed is the design.
+   ============================================================ */
+html[data-app-theme="linear-docs"] {
+  --background: 230 18% 9%;
+  --foreground: 220 14% 92%;
+  --card: 230 16% 12%;
+  --card-foreground: 220 14% 92%;
+  --popover: 230 16% 11%;
+  --popover-foreground: 220 14% 92%;
+
+  --primary: 244 80% 68%;          /* linear indigo */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 220 12% 26%;
+  --secondary-foreground: 220 14% 96%;
+  --accent: 244 80% 68%;
+  --accent-foreground: 0 0% 100%;
+
+  --muted: 230 14% 16%;
+  --muted-foreground: 220 10% 64%;
+  --border: 230 12% 20%;
+  --input: 230 12% 18%;
+  --ring: 244 80% 68%;
+  --radius: 0.625rem;
+
+  --sidebar-background: 230 18% 7%;
+  --sidebar-foreground: 220 12% 84%;
+  --sidebar-primary: 244 80% 68%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 230 14% 13%;
+  --sidebar-accent-foreground: 220 14% 96%;
+  --sidebar-border: 230 12% 16%;
+  --sidebar-ring: 244 80% 68%;
+
+  --solar: 45 90% 60%;
+  --eco: 160 70% 50%;
+  --energy: 244 80% 68%;
+  --token: 280 70% 70%;
+
+  --app-display-font: "Inter", -apple-system, system-ui, sans-serif;
+  --app-body-font: "Inter", -apple-system, system-ui, sans-serif;
+  --app-display-tracking: -0.022em;
+}
+html[data-app-theme="linear-docs"] body {
+  background: hsl(var(--background));
+}
