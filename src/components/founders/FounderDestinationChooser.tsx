@@ -337,7 +337,7 @@ export function FounderDestinationChooser({
           paddingRight: "calc(env(safe-area-inset-right) + 1rem)",
         }}
       >
-        <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-border/80" />
+        <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-border/80 shrink-0" />
         {body}
       </div>
     </div>
