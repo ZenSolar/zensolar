@@ -1,16 +1,39 @@
 /* ============================================================
-   Learn-section theme variants. All scoped under [data-learn-theme]
-   so they NEVER leak into the rest of the app. Uses HSL tokens
-   that mirror the project design system.
+   Learn-section theme variants. Scoped under [data-learn-theme]
+   so they NEVER leak into the rest of the app. Each theme makes
+   *visible* changes to: background, fonts, headings, cards,
+   borders, and radii — so switching is obvious at a glance.
    ============================================================ */
+
+/* Shared surface — fills the page area and applies the theme bg+font */
+.learn-surface {
+  min-height: 100%;
+  background: var(--learn-bg, transparent);
+  color: var(--learn-text, hsl(var(--foreground)));
+  font-family: var(--learn-body-font, inherit);
+  transition: background 400ms ease, color 200ms ease;
+}
+
+/* Apply the theme display font to ALL headings inside the learn area
+   so the typography change is immediately visible. */
+[data-learn-theme] .learn-surface :is(h1, h2, h3, h4) {
+  font-family: var(--learn-display-font);
+  font-weight: var(--learn-display-weight);
+  letter-spacing: var(--learn-display-tracking);
+}
+
+/* Force ALL cards inside the learn area to pick up the theme treatment,
+   not just elements that opted in with .learn-card. This is what makes
+   the switch dramatic. */
+[data-learn-theme] .learn-surface [class*="rounded"],
+[data-learn-theme] .learn-surface .learn-card {
+  border-radius: var(--learn-radius) !important;
+}
 
 /* ---------- 1. Cupertino Cryo: Apple × Web3 ---------- */
 [data-learn-theme="cupertino-cryo"] {
-  --learn-bg: radial-gradient(
-      120% 80% at 50% 0%,
-      hsl(var(--primary) / 0.18) 0%,
-      transparent 60%
-    ),
+  --learn-bg:
+    radial-gradient(120% 80% at 50% 0%, hsl(var(--primary) / 0.18) 0%, transparent 60%),
     linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--background)) 100%);
   --learn-surface: hsl(var(--card) / 0.55);
   --learn-surface-border: hsl(var(--border) / 0.6);
@@ -26,13 +49,11 @@
   --learn-display-tracking: -0.035em;
   --learn-display-weight: 600;
 }
-
 [data-learn-theme="cupertino-cryo"] .learn-card {
   background: var(--learn-surface);
   backdrop-filter: blur(var(--learn-surface-blur));
   -webkit-backdrop-filter: blur(var(--learn-surface-blur));
   border: 1px solid var(--learn-surface-border);
-  border-radius: var(--learn-radius);
   transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 600ms cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -43,7 +64,8 @@
 
 /* ---------- 2. Tesla Whitepaper: Engineering brutalism ---------- */
 [data-learn-theme="tesla-whitepaper"] {
-  --learn-bg: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--muted) / 0.22) 100%);
+  --learn-bg:
+    linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--muted) / 0.22) 100%);
   --learn-surface: hsl(var(--background));
   --learn-surface-border: hsl(var(--primary) / 0.55);
   --learn-surface-blur: 0px;
@@ -52,24 +74,26 @@
   --learn-accent: hsl(var(--primary));
   --learn-accent-glow: none;
   --learn-radius: 0.125rem;
-  --learn-display-font: "JetBrains Mono", ui-monospace, monospace;
-  --learn-body-font: "Inter", system-ui, sans-serif;
+  --learn-display-font: "JetBrains Mono", ui-monospace, "Courier New", monospace;
+  --learn-body-font: "JetBrains Mono", ui-monospace, "Courier New", monospace;
   --learn-mono-font: "JetBrains Mono", ui-monospace, monospace;
   --learn-display-tracking: -0.01em;
   --learn-display-weight: 500;
-  background-image: linear-gradient(
-      to right,
-      hsl(var(--border) / 0.25) 1px,
-      transparent 1px
-    ),
-    linear-gradient(to bottom, hsl(var(--border) / 0.18) 1px, transparent 1px);
-  background-size: 64px 64px;
 }
-
+/* Schematic grid background, layered on top of the bg gradient */
+[data-learn-theme="tesla-whitepaper"] .learn-surface {
+  background-image:
+    linear-gradient(to right, hsl(var(--primary) / 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--primary) / 0.08) 1px, transparent 1px),
+    var(--learn-bg);
+  background-size: 64px 64px, 64px 64px, auto;
+}
+[data-learn-theme="tesla-whitepaper"] .learn-surface :is(h1, h2, h3, h4) {
+  text-transform: uppercase;
+}
 [data-learn-theme="tesla-whitepaper"] .learn-card {
   background: var(--learn-surface);
   border: 1px solid var(--learn-surface-border);
-  border-radius: var(--learn-radius);
   transition: border-color 200ms ease;
 }
 [data-learn-theme="tesla-whitepaper"] .learn-card:hover {
@@ -78,7 +102,8 @@
 
 /* ---------- 3. Linear Docs: Frictionless reading ---------- */
 [data-learn-theme="linear-docs"] {
-  --learn-bg: linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--background)) 46%);
+  --learn-bg:
+    linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--background)) 46%);
   --learn-surface: hsl(var(--muted) / 0.32);
   --learn-surface-border: hsl(var(--border) / 0.72);
   --learn-surface-blur: 0px;
@@ -93,11 +118,9 @@
   --learn-display-tracking: -0.022em;
   --learn-display-weight: 600;
 }
-
 [data-learn-theme="linear-docs"] .learn-card {
   background: var(--learn-surface);
   border: 1px solid var(--learn-surface-border);
-  border-radius: var(--learn-radius);
   transition: background-color 120ms ease, border-color 120ms ease;
 }
 [data-learn-theme="linear-docs"] .learn-card:hover {
@@ -105,24 +128,12 @@
   border-color: hsl(var(--border));
 }
 
-/* ---------- Shared primitives that read from the variables ---------- */
-.learn-surface {
-  min-height: 100%;
-  background: var(--learn-bg);
-  color: var(--learn-text);
-  font-family: var(--learn-body-font);
-}
+/* ---------- Shared text utilities ---------- */
 .learn-display {
   font-family: var(--learn-display-font);
   font-weight: var(--learn-display-weight);
   letter-spacing: var(--learn-display-tracking);
 }
-.learn-muted {
-  color: var(--learn-muted);
-}
-.learn-accent {
-  color: var(--learn-accent);
-}
-.learn-mono {
-  font-family: var(--learn-mono-font);
-}
+.learn-muted { color: var(--learn-muted); }
+.learn-accent { color: var(--learn-accent); }
+.learn-mono { font-family: var(--learn-mono-font); }
