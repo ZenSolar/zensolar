@@ -39,7 +39,7 @@ End-of-session: append entry to /founders/changelog when shipping features, lock
 - [Clean Energy Center Dashboard](mem://features/dashboard) — UI specifications, interactions, fallbacks, and navigation for dashboard
 - [Investor Demo Gate](mem://features/demo-gate) — Access logic, screenshots, and interactions for the gated demo
 - [Global Theme & Brand](mem://style/theme) — Core visual aesthetics, terminology, and component tokens
-- [Engineering-Grade Theme Overhaul Spec](mem://design/engineering-grade-overhaul) — Layout density, motion budget, typography scale, and per-theme behaviors for Tesla/Elon/Lyndon/Cupertino/Linear (preview-only)
+- [Engineering-Grade Theme Overhaul Spec](mem://design/engineering-grade-overhaul) — 4 themes (Cupertino/Tesla/Elon/Linear) preview-only; density tiers, motion budget, mobile auto-loosen, mint pulse exempt from gate
 - [Animations & Sensory Feedback](mem://style/animations-and-audio) — Performance standards, audio architecture, and core sound effects
 - [Tech Stack & Resilience](mem://technical/architecture) — Core libraries, mobile-first priority, and auto-recovery mechanisms
 - [Data Integrity Hardening](mem://technical/data-integrity-hardening) — DB constraints, validation rules, hardening checklist
