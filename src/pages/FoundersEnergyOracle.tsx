@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Navigate, Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -15,7 +15,38 @@ import {
   Lock,
   Sparkles,
   AlertTriangle,
+  Circle,
+  CircleDot,
 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+
+type PhaseStatus = "todo" | "in_progress" | "done";
+const STORAGE_KEY = "founders.energyOracle.checklist.v1";
+
+function useChecklist() {
+  const [state, setState] = useState<Record<string, { checked: boolean; status: PhaseStatus }>>(() => {
+    if (typeof window === "undefined") return {};
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    } catch {
+      return {};
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch {
+      /* ignore */
+    }
+  }, [state]);
+  const toggleItem = useCallback((id: string) => {
+    setState((s) => ({ ...s, [id]: { ...s[id], checked: !s[id]?.checked, status: s[id]?.status ?? "todo" } }));
+  }, []);
+  const setStatus = useCallback((id: string, status: PhaseStatus) => {
+    setState((s) => ({ ...s, [id]: { checked: s[id]?.checked ?? false, status } }));
+  }, []);
+  return { state, toggleItem, setStatus };
+}
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { VaultPinGate } from "@/components/founders/VaultPinGate";
