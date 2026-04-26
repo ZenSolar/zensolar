@@ -416,6 +416,67 @@ const App = () => {
                         </ProtectedRoute>
                       } 
                     />
+                    {/* Learn sub-routes */}
+                    <Route
+                      path="/learn/tour"
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <LearnTour />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/learn/glossary"
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <LearnGlossary />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/learn/how-it-works"
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <LearnHowItWorks />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/learn/tokenomics"
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <LearnTokenomics />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/learn/proof-of-genesis"
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <LearnProofOfGenesis />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/learn/patent-tech"
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <LearnPatentTech />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
+                    />
                     {/* Admin-only theme gallery for the Learn section */}
                     <Route
                       path="/learn/themes"
