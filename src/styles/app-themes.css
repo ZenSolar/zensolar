@@ -204,7 +204,10 @@ html[data-app-theme="tesla-whitepaper"] {
 
   --app-display-font: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --app-body-font: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  --app-display-tracking: -0.005em;
+  --app-display-tracking: 0.02em;
+  --app-body-tracking: 0;
+  --app-display-weight: 500;
+  --app-display-case: uppercase;
 }
 /* Schematic grid behind everything */
 html[data-app-theme="tesla-whitepaper"] body {
@@ -214,10 +217,6 @@ html[data-app-theme="tesla-whitepaper"] body {
   background-size: 64px 64px;
   background-color: hsl(var(--background));
   background-attachment: fixed;
-}
-html[data-app-theme="tesla-whitepaper"] :is(h1, h2, h3, h4) {
-  text-transform: uppercase;
-  font-weight: 500;
 }
 
 /* ============================================================
@@ -277,10 +276,14 @@ html[data-app-theme="linear-docs"] {
   --energy: 244 80% 68%;
   --token: 280 70% 70%;
 
-  --app-display-font: "Inter", -apple-system, system-ui, sans-serif;
-  --app-body-font: "Inter", -apple-system, system-ui, sans-serif;
-  --app-display-tracking: -0.022em;
+  --app-display-font: "IBM Plex Sans", "Inter", -apple-system, system-ui, sans-serif;
+  --app-body-font: "IBM Plex Sans", "Inter", -apple-system, system-ui, sans-serif;
+  --app-display-tracking: -0.025em;
+  --app-body-tracking: -0.005em;
+  --app-display-weight: 600;
+  --app-display-case: none;
 }
+/* Linear: tighter spacing + flat surfaces, no big shadows. */
 html[data-app-theme="linear-docs"] body {
   background: hsl(var(--background));
 }
