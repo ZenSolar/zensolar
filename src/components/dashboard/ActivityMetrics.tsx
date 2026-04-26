@@ -503,15 +503,17 @@ export function ActivityMetrics({
         {/* Activity Fields - Single Column with Swipe-to-Hide */}
         {/* Order: 1. Solar, 2. Battery, 3. EV Miles, 4. Tesla Supercharger, 5. Home Charger */}
         <div className="relative overflow-hidden rounded-lg" data-hint-target="kpi-cards">
-          {/* Rainbow shimmer — scoped to KPI body only */}
+          {/* Rainbow shimmer — scoped to KPI body only.
+              z-20 + mix-blend-screen lifts the beam ABOVE every tile so
+              the bottom Home Charger row visibly catches the sweep too. */}
           <ShimmerOverlay
             gradient="linear-gradient(90deg, transparent 0%, hsl(340 85% 58% / 0.25) 8%, hsl(30 90% 55% / 0.35) 22%, hsl(60 85% 50% / 0.3) 36%, hsl(155 90% 50% / 0.45) 52%, hsl(210 85% 55% / 0.4) 68%, hsl(280 70% 58% / 0.3) 84%, transparent 100%)"
             glowColor="hsla(155, 85%, 45%, 0.15)"
             duration="4s"
             idleDelay="1.0s"
-            className="z-0 inset-0"
+            className="z-20 inset-0 mix-blend-screen"
           />
-          <div className="space-y-2">
+          <div className="relative z-10 space-y-2">
           {/* 1. Solar Fields - Show individual devices if multiple, otherwise single field */}
           {!isHidden('solar') && (
             hasMultipleSolarDevices ? (
