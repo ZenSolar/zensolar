@@ -234,6 +234,15 @@ export function AppSidebar() {
     setOpenMobile(false);
   };
 
+  // Tapping any founder link in the sidebar should open the Hub chooser
+  // after navigation (once the vault is unlocked — VaultPinGate ignores
+  // the event while locked, so first tap still triggers PIN normally).
+  const handleFounderNavClick = () => {
+    setOpenMobile(false);
+    // Defer until after the route mounts so the listener is wired up.
+    window.setTimeout(() => openFounderChooser(), 80);
+  };
+
   const handleLogout = async () => {
     setOpenMobile(false);
     await supabase.auth.signOut();
