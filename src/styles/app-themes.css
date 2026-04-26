@@ -115,24 +115,34 @@ html[data-app-theme="cupertino-cryo"] {
   --energy: 195 95% 60%;
   --token: 270 90% 70%;
 
-  /* Typography */
-  --app-display-font: "Inter Tight", "SF Pro Display", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --app-body-font: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --app-display-tracking: -0.035em;
+  /* Typography — distinctive serif display + grotesk body for Apple-luxury feel */
+  --app-display-font: "Newsreader", "Times New Roman", Georgia, ui-serif, serif;
+  --app-body-font: "Inter Tight", "SF Pro Text", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --app-display-tracking: -0.045em;
+  --app-body-tracking: -0.012em;
+  --app-display-weight: 500;
+  --app-display-case: none;
 }
 /* Aurora background on the body */
 html[data-app-theme="cupertino-cryo"] body {
   background:
-    radial-gradient(60% 40% at 20% 0%, hsl(195 95% 60% / 0.10) 0%, transparent 60%),
-    radial-gradient(50% 35% at 90% 10%, hsl(270 90% 70% / 0.10) 0%, transparent 60%),
-    radial-gradient(70% 50% at 50% 100%, hsl(160 84% 50% / 0.06) 0%, transparent 60%),
+    radial-gradient(60% 40% at 20% 0%, hsl(195 95% 60% / 0.12) 0%, transparent 60%),
+    radial-gradient(50% 35% at 90% 10%, hsl(270 90% 70% / 0.12) 0%, transparent 60%),
+    radial-gradient(70% 50% at 50% 100%, hsl(160 84% 50% / 0.08) 0%, transparent 60%),
     hsl(var(--background));
   background-attachment: fixed;
 }
-/* Frosted card treatment — subtle, doesn't break contrast */
-html[data-app-theme="cupertino-cryo"] [class*="rounded-"][class*="border"] {
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+/* Cupertino: oversized headings + soft luminous primary glow on key surfaces.
+   We deliberately scope the blur to the sidebar + dialog overlays only —
+   applying backdrop-filter to every card kills scroll perf on mobile. */
+html[data-app-theme="cupertino-cryo"] [data-sidebar="sidebar"],
+html[data-app-theme="cupertino-cryo"] [role="dialog"] > div,
+html[data-app-theme="cupertino-cryo"] [data-radix-popper-content-wrapper] > * {
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+html[data-app-theme="cupertino-cryo"] :is(h1, h2) {
+  font-style: italic;
 }
 
 /* ============================================================
