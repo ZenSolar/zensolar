@@ -318,6 +318,30 @@ function VaultDashboard({ isAdmin }: { isAdmin: boolean }) {
           </div>
         </Link>
 
+        {/* Energy Price Oracle — Patent Track 2.5 (parked roadmap) */}
+        <Link
+          to="/founders/energy-oracle"
+          className="block rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-4 hover:border-primary/70 transition-colors group"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center">
+                <Gauge className="h-5 w-5 text-primary" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-widest text-primary">
+                  Patent Track 2.5 · Parked
+                </p>
+                <p className="text-sm font-semibold">Energy Price Oracle</p>
+                <p className="text-[11px] text-muted-foreground line-clamp-2">
+                  Per-user verified $/kWh on-chain. Series A moat. NOT in seed pitch.
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="h-4 w-4 text-primary group-hover:translate-x-0.5 transition-transform shrink-0" />
+          </div>
+        </Link>
+
         {/* Patent Expansion — bi-directional EV + FSD claim additions */}
         <Link
           to="/founders/patent-expansion"
