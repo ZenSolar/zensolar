@@ -253,39 +253,168 @@ function OracleContent() {
   );
 }
 
+function OracleContentPhases() {
+  const { state, toggleItem, setStatus } = useChecklist();
+  const phases: Array<{
+    id: string;
+    tag: string;
+    title: string;
+    defaultStatus: "active" | "next" | "later";
+    bullets: string[];
+  }> = [
+    {
+      id: "phase-0",
+      tag: "Phase 0 · Today",
+      title: "Seed pitch — narrative only",
+      defaultStatus: "active",
+      bullets: [
+        "Proof-of-Genesis + LP launch model carry the room",
+        "kWh value mentioned only as 'each token = 1 verified kWh'",
+        "Zero on-chain oracle work",
+      ],
+    },
+    {
+      id: "phase-1",
+      tag: "Phase 1 · Post-seed (months 3–6)",
+      title: "Off-chain MVP — pure UX",
+      defaultStatus: "next",
+      bullets: [
+        "New table: user_kwh_rates (utility, plan, $/kWh, source)",
+        "Extend analyze-bill to persist extracted rate",
+        "Show 'Your verified kWh value: $X' on dashboard",
+        "~1 day of work · zero chain risk",
+      ],
+    },
+    {
+      id: "phase-2",
+      tag: "Phase 2 · Series A prep (6–12mo)",
+      title: "Multi-source ingestion",
+      defaultStatus: "later",
+      bullets: [
+        "EIA fallback edge function (free)",
+        "UtilityAPI.com integration as 'verified' tier",
+        "Tiered trust model: API > Bill OCR > EIA",
+      ],
+    },
+    {
+      id: "phase-3",
+      tag: "Phase 3 · Series A moat (year 2)",
+      title: "On-chain Oracle + floor enforcement",
+      defaultStatus: "later",
+      bullets: [
+        "Deploy EnergyOracle.sol on Base",
+        "Daily Merkle-root publisher (gas-efficient per-user rates)",
+        "ZSolarMint.sol reads oracle → rejects sub-floor swaps",
+        "Series A headline: first token with on-chain market backing",
+      ],
+    },
+  ];
+  return (
+    <div className="space-y-3">
+      {phases.map((p) => (
+        <PhaseCard
+          key={p.id}
+          {...p}
+          state={state}
+          onToggle={toggleItem}
+          onStatus={setStatus}
+        />
+      ))}
+    </div>
+  );
+}
+
+const STATUS_META: Record<PhaseStatus, { label: string; cls: string }> = {
+  todo: { label: "To do", cls: "bg-muted/40 text-muted-foreground border-border/60" },
+  in_progress: { label: "In progress", cls: "bg-primary/15 text-primary border-primary/40" },
+  done: { label: "Done", cls: "bg-eco/15 text-eco border-eco/40" },
+};
+
 function PhaseCard({
+  id,
   tag,
   title,
-  status,
+  defaultStatus,
   bullets,
+  state,
+  onToggle,
+  onStatus,
 }: {
+  id: string;
   tag: string;
   title: string;
-  status: "active" | "next" | "later";
+  defaultStatus: "active" | "next" | "later";
   bullets: string[];
+  state: Record<string, { checked: boolean; status: PhaseStatus }>;
+  onToggle: (id: string) => void;
+  onStatus: (id: string, s: PhaseStatus) => void;
 }) {
   const styles = {
     active: "border-eco/50 bg-eco/10",
     next: "border-primary/50 bg-primary/10",
     later: "border-border/60 bg-card/30",
-  }[status];
+  }[defaultStatus];
   const tagColor = {
     active: "text-eco",
     next: "text-primary",
     later: "text-muted-foreground",
-  }[status];
+  }[defaultStatus];
+
+  const phaseEntry = state[id];
+  const phaseStatus: PhaseStatus = phaseEntry?.status ?? "todo";
+
+  const cycleStatus = () => {
+    const next: PhaseStatus =
+      phaseStatus === "todo" ? "in_progress" : phaseStatus === "in_progress" ? "done" : "todo";
+    onStatus(id, next);
+  };
 
   return (
-    <div className={`rounded-xl border p-3 space-y-1.5 ${styles}`}>
-      <p className={`text-[10px] uppercase tracking-widest ${tagColor}`}>{tag}</p>
-      <p className="text-sm font-semibold">{title}</p>
-      <ul className="space-y-1 pt-1">
-        {bullets.map((b, i) => (
-          <li key={i} className="text-[11px] text-muted-foreground leading-snug pl-3 relative">
-            <span className="absolute left-0 top-1.5 h-1 w-1 rounded-full bg-current opacity-50" />
-            {b}
-          </li>
-        ))}
+    <div className={`rounded-xl border p-3 space-y-2 ${styles}`}>
+      <div className="flex items-start justify-between gap-2">
+        <div className="space-y-0.5">
+          <p className={`text-[10px] uppercase tracking-widest ${tagColor}`}>{tag}</p>
+          <p className="text-sm font-semibold">{title}</p>
+        </div>
+        <button
+          type="button"
+          onClick={cycleStatus}
+          className={`shrink-0 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wider transition-colors ${STATUS_META[phaseStatus].cls}`}
+          aria-label={`Cycle status (current: ${STATUS_META[phaseStatus].label})`}
+        >
+          {phaseStatus === "done" ? (
+            <CheckCircle2 className="h-3 w-3" />
+          ) : phaseStatus === "in_progress" ? (
+            <CircleDot className="h-3 w-3" />
+          ) : (
+            <Circle className="h-3 w-3" />
+          )}
+          {STATUS_META[phaseStatus].label}
+        </button>
+      </div>
+      <ul className="space-y-1.5 pt-1">
+        {bullets.map((b, i) => {
+          const itemId = `${id}:${i}`;
+          const checked = state[itemId]?.checked ?? false;
+          return (
+            <li key={i} className="flex items-start gap-2">
+              <Checkbox
+                id={itemId}
+                checked={checked}
+                onCheckedChange={() => onToggle(itemId)}
+                className="mt-0.5"
+              />
+              <label
+                htmlFor={itemId}
+                className={`text-[11px] leading-snug cursor-pointer select-none ${
+                  checked ? "text-muted-foreground line-through" : "text-foreground/90"
+                }`}
+              >
+                {b}
+              </label>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
