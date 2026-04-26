@@ -267,9 +267,27 @@ export function VaultPinGate({ userId, children }: Props) {
 
   // Render order: unlocked content underneath, optional chooser overlay on top.
   if (status.kind === "unlocked") {
+    const showBackToVault = location.pathname !== "/founders";
     return (
       <>
         {children}
+        {showBackToVault && (
+          <button
+            type="button"
+            onClick={() => {
+              void lightTap();
+              navigate("/founders");
+            }}
+            className="fixed left-3 z-40 inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-background/85 backdrop-blur-md px-3 py-2 text-xs font-medium text-amber-300 shadow-lg hover:bg-background hover:border-amber-400/70 active:scale-95 transition-all"
+            style={{
+              bottom: "calc(env(safe-area-inset-bottom) + 5.5rem)",
+            }}
+            aria-label="Back to Founders Vault"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            <span>Founders Vault</span>
+          </button>
+        )}
         {chooserMode === "reopen" && (
           <FounderDestinationChooser
             userId={userId}
