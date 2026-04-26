@@ -110,16 +110,6 @@ export default function Learn() {
           description="Everything about ZenSolar — how it works, the token economics, and the patent-pending tech behind it."
           icon={BookOpen}
           width="4xl"
-          actions={
-            <span
-              className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary whitespace-nowrap"
-              title={`Current Learn theme: ${currentThemeName}`}
-            >
-              <Sparkles className="h-3 w-3" aria-hidden />
-              <span className="hidden sm:inline">Theme:</span>
-              <span>{currentThemeName}</span>
-            </span>
-          }
           sticky={
             <PageSectionNav
               items={sections}
@@ -131,6 +121,7 @@ export default function Learn() {
           }
         >
           <div className="space-y-12 sm:space-y-16">
+            <LiveThemeSwitcher current={learnTheme} />
             <section id="index" className="scroll-mt-32"><LearnIndexSection /></section>
             <section id="how-it-works" className="scroll-mt-32 min-h-[220px]"><HowItWorksSection /></section>
             <section id="tokenomics" className="scroll-mt-32 min-h-[360px]"><TokenomicsSection /></section>
@@ -140,6 +131,107 @@ export default function Learn() {
         </PageShell>
       </div>
     </>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*                       LIVE THEME SWITCHER + DEBUG                          */
+/* -------------------------------------------------------------------------- */
+
+function LiveThemeSwitcher({ current }: { current: LearnTheme }) {
+  const [storedRaw, setStoredRaw] = useState<string | null>(null);
+  const [urlParam, setUrlParam] = useState<string | null>(null);
+
+  useEffect(() => {
+    const refresh = () => {
+      try {
+        setStoredRaw(localStorage.getItem('zen.learn.theme'));
+      } catch {
+        setStoredRaw(null);
+      }
+      const params = new URLSearchParams(window.location.search);
+      setUrlParam(params.get('learnTheme') ?? params.get('theme'));
+    };
+    refresh();
+    window.addEventListener('learn-theme-change', refresh);
+    return () => window.removeEventListener('learn-theme-change', refresh);
+  }, [current]);
+
+  const handlePick = (id: LearnTheme) => {
+    setStoredLearnTheme(id);
+  };
+
+  const handleReset = () => {
+    setStoredLearnTheme(DEFAULT_LEARN_THEME);
+  };
+
+  return (
+    <section
+      aria-label="Live theme switcher"
+      className="learn-card border border-border/60 rounded-xl p-4 sm:p-5 space-y-3"
+    >
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+            Live theme
+          </p>
+          <h2 className="text-sm sm:text-base font-semibold mt-0.5">
+            Tap to switch — this page reloads instantly
+          </h2>
+        </div>
+        <button
+          type="button"
+          onClick={handleReset}
+          className="text-[11px] font-medium text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
+        >
+          Reset
+        </button>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {LEARN_THEMES.map((t) => {
+          const isActive = current === t.id;
+          return (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => handlePick(t.id)}
+              aria-pressed={isActive}
+              className={cn(
+                'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all active:scale-95',
+                isActive
+                  ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                  : 'bg-card text-foreground/80 border-border/60 hover:border-primary/40 hover:text-foreground',
+              )}
+            >
+              {isActive && <Sparkles className="h-3 w-3" aria-hidden />}
+              {t.name}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Debug panel */}
+      <details className="text-[11px] font-mono text-muted-foreground">
+        <summary className="cursor-pointer select-none hover:text-foreground">
+          Debug
+        </summary>
+        <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+          <dt>applied</dt>
+          <dd className="text-foreground">{current}</dd>
+          <dt>localStorage</dt>
+          <dd className="text-foreground">{storedRaw ?? '(empty)'}</dd>
+          <dt>?learnTheme</dt>
+          <dd className="text-foreground">{urlParam ?? '(none)'}</dd>
+          <dt>data-attr</dt>
+          <dd className="text-foreground break-all">
+            {typeof document !== 'undefined'
+              ? document.documentElement.dataset.learnTheme ?? '(unset)'
+              : '(ssr)'}
+          </dd>
+        </dl>
+      </details>
+    </section>
   );
 }
 
