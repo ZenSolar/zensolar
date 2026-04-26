@@ -1053,6 +1053,42 @@ export type Database = {
         }
         Relationships: []
       }
+      pending_push_messages: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string | null
+          data: Json
+          delivered_at: string | null
+          id: string
+          status: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          delivered_at?: string | null
+          id?: string
+          status?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          delivered_at?: string | null
+          id?: string
+          status?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
