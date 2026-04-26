@@ -113,7 +113,18 @@ export function usePushNotifications() {
           .eq('endpoint', subscription.endpoint)
           .maybeSingle();
         
-        setIsSubscribed(!!data);
+        const active = !!data;
+        setIsSubscribed(active);
+
+        if (active) {
+          const { error } = await supabase.functions.invoke('flush-pending-push-messages', {
+            body: {},
+          });
+
+          if (error) {
+            console.error('Error flushing pending push messages:', error);
+          }
+        }
       } else {
         setIsSubscribed(false);
       }
