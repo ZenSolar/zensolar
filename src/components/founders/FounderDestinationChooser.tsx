@@ -190,9 +190,9 @@ export function FounderDestinationChooser({
   const isUnlock = variant === "unlock";
 
   const body = (
-    <div className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full">
+    <div className={`flex flex-col ${isUnlock ? "flex-1 justify-center" : ""} max-w-md mx-auto w-full min-h-0`}>
       {isUnlock ? (
-        <div className="text-center mb-6 animate-fade-in">
+        <div className="text-center mb-6 animate-fade-in shrink-0">
           <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center shadow-[0_0_24px_hsl(var(--primary)/0.35)]">
             <Check className="h-6 w-6 text-primary" strokeWidth={2.5} />
           </div>
@@ -204,7 +204,7 @@ export function FounderDestinationChooser({
           </p>
         </div>
       ) : (
-        <div className="flex items-start justify-between gap-3 mb-4 animate-fade-in">
+        <div className="flex items-start justify-between gap-3 mb-4 animate-fade-in shrink-0">
           <div>
             <p className="text-[10px] uppercase tracking-widest text-primary">
               Founders Navigation
@@ -230,7 +230,7 @@ export function FounderDestinationChooser({
         </div>
       )}
 
-      <div className="space-y-2.5">
+      <div className="space-y-2.5 overflow-y-auto overscroll-contain flex-1 min-h-0 -mx-1 px-1 pb-2">
         {FOUNDER_DESTINATIONS.map(({ to, label, blurb, Icon }, i) => {
           const isCurrent = to === location.pathname;
           const isLast = !isCurrent && to === lastRoute;
@@ -241,7 +241,7 @@ export function FounderDestinationChooser({
               onClick={() => choose(to)}
               className="group w-full text-left rounded-2xl border border-border/60 bg-card/60 hover:bg-card hover:border-primary/40 active:scale-[0.99] transition-all p-4 flex items-center gap-3 animate-fade-in"
               style={{
-                animationDelay: `${i * 50}ms`,
+                animationDelay: `${i * 30}ms`,
                 animationFillMode: "backwards",
               }}
             >
