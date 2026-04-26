@@ -203,6 +203,69 @@ function OracleContent() {
           <OracleContentPhases />
         </section>
 
+        {/* Investor FAQ — Floor vs Market Price */}
+        <section className="rounded-2xl border border-primary/40 bg-primary/5 p-4 space-y-3">
+          <h2 className="text-sm font-semibold flex items-center gap-2 text-primary">
+            <Sparkles className="h-4 w-4" /> Investor FAQ — Floor vs Market Price
+          </h2>
+          <p className="text-[11px] text-muted-foreground italic">
+            For when a retail investor asks: "A kWh costs $0.30 — why is $ZSOLAR worth $2.25? Isn't that inflated?"
+          </p>
+
+          <div className="rounded-xl border border-primary/30 bg-background/40 p-3 space-y-1.5">
+            <div className="text-[10px] uppercase tracking-wider text-primary/80">The one-liner</div>
+            <p className="text-xs text-foreground leading-snug">
+              "Every $ZSOLAR is backed by at least <span className="text-primary font-semibold">$0.30 of real, metered clean energy</span>. The market decides how much <span className="italic">more</span> it's worth."
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">The BTC analogy</div>
+            <div className="grid grid-cols-2 gap-2 text-[11px]">
+              <div className="rounded-lg border border-border/60 bg-card/40 p-2.5 space-y-1">
+                <div className="font-semibold text-foreground">Bitcoin</div>
+                <div className="text-muted-foreground">Mining cost: <span className="text-foreground">~$45K</span></div>
+                <div className="text-muted-foreground">Market price: <span className="text-foreground">~$90K+</span></div>
+                <div className="text-[10px] text-muted-foreground/80 pt-1">Backed by <span className="line-through">wasted</span> hash power</div>
+              </div>
+              <div className="rounded-lg border border-eco/40 bg-eco/5 p-2.5 space-y-1">
+                <div className="font-semibold text-eco">$ZSOLAR</div>
+                <div className="text-muted-foreground">kWh floor: <span className="text-foreground">$0.30</span></div>
+                <div className="text-muted-foreground">Market price: <span className="text-foreground">$2.25</span></div>
+                <div className="text-[10px] text-muted-foreground/80 pt-1">Backed by <span className="text-eco">verifiable clean energy</span></div>
+              </div>
+            </div>
+            <p className="text-[11px] text-muted-foreground leading-snug">
+              Nobody calls BTC "inflated 2x its energy cost." Markets price in scarcity, network effects, and future utility on <span className="italic">top</span> of cost basis. Same structure here — except our basis is real, metered, and clean.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-amber-400/30 bg-amber-400/5 p-3 space-y-1.5">
+            <div className="text-[10px] uppercase tracking-wider text-amber-300/90 flex items-center gap-1">
+              <AlertTriangle className="h-3 w-3" /> Critical framing rule
+            </div>
+            <p className="text-[11px] text-foreground/90 leading-snug">
+              kWh floor and LP price are <span className="font-semibold">two independent mechanisms</span> — never conflate them. The oracle proves the <span className="text-primary">floor</span>. The LP discovers the <span className="text-primary">price</span>. Different jobs.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-border/60 bg-card/40 p-3 space-y-1.5">
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Floor stacking math</div>
+            <p className="text-[11px] text-foreground/90 leading-snug font-mono">
+              floor = MAX(LP price, kWh oracle price)
+            </p>
+            <ul className="text-[11px] text-muted-foreground space-y-0.5 pt-1">
+              <li>• Launch: LP $0.10, kWh $0.30 → <span className="text-foreground">floor = $0.30</span> (oracle protects)</li>
+              <li>• Growth: LP $2.25, kWh $0.30 → <span className="text-foreground">floor = $2.25</span> (oracle dormant)</li>
+              <li>• Crash: LP $0.18, kWh $0.30 → <span className="text-foreground">floor = $0.30</span> (oracle catches knife)</li>
+            </ul>
+          </div>
+
+          <p className="text-[10px] text-muted-foreground/80 italic leading-snug">
+            Bonus: critics yelling "inflated vs kWh!" accidentally market the energy floor for us — same way BTC maxis spent a decade complaining about energy waste and made BTC the most recognized asset on earth.
+          </p>
+        </section>
+
         {/* Already built */}
         <section className="rounded-2xl border border-eco/40 bg-eco/5 p-4 space-y-3">
           <h2 className="text-sm font-semibold flex items-center gap-2">
