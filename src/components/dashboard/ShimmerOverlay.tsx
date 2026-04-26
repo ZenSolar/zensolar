@@ -30,6 +30,7 @@ export function ShimmerOverlay({
     <>
       {/* Shimmer beam */}
       <div
+        data-zen-decorative-motion
         className={`absolute inset-0 pointer-events-none ${className}`}
         style={{
           background: gradient,
@@ -41,6 +42,7 @@ export function ShimmerOverlay({
       {/* Synchronized card glow — pulses in time with the shimmer */}
       {glowColor && (
         <div
+          data-zen-decorative-motion
           className={`absolute inset-0 pointer-events-none rounded-[inherit] ${className}`}
           style={{
             '--shimmer-glow': glowColor,

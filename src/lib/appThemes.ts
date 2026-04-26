@@ -13,7 +13,7 @@
 
 import { isPreviewMode } from "./previewMode";
 
-export type AppTheme = "default" | "cupertino-cryo" | "tesla-whitepaper" | "linear-docs";
+export type AppTheme = "default" | "cupertino-cryo" | "tesla-whitepaper" | "elon" | "linear-docs";
 
 export const APP_THEMES: {
   id: AppTheme;
@@ -38,6 +38,12 @@ export const APP_THEMES: {
     name: "Tesla Whitepaper",
     tagline: "Engineering brutalism",
     description: "Mono everywhere, schematic grid, signal red accent. Dense and authoritative.",
+  },
+  {
+    id: "elon",
+    name: "Elon Design",
+    tagline: "Mission control",
+    description: "Compact telemetry layout, X.AI cyan accent, zero decorative motion. Auto-loosens on phones.",
   },
   {
     id: "linear-docs",
