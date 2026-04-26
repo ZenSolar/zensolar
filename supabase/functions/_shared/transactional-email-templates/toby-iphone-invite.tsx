@@ -36,7 +36,7 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
     <Html lang="en" dir="ltr">
       <Head />
       <Preview>{`Your ZenSolar access code is ${ACCESS_CODE}. Open in browser or install to Home Screen.`}</Preview>
-      <Body style={main} bgcolor={COLORS.background}>
+      <Body style={main}>
         <Container style={container}>
           <Section style={logoWrap}>
             <Img
@@ -141,17 +141,17 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
 
           <Section style={mintCard}>
             <Text style={mintBadge}>
-              <font color="#ffffff"><span style={{ color: '#ffffff' }}>The 2-step magic moment</span></font>
+              <span style={{ color: '#ffffff' }}>The 2-step magic moment</span>
             </Text>
             <Text style={mintTitle}>
-              <font color="#ffffff"><span style={{ color: '#ffffff' }}>Tap-to-Mint, then peek at your Wallet</span></font>
+              <span style={{ color: '#ffffff' }}>Tap-to-Mint, then peek at your Wallet</span>
             </Text>
             <Text style={mintText}>
-              <font color="#ffffff"><span style={{ color: '#ffffff' }}>
+              <span style={{ color: '#ffffff' }}>
                 Once you&apos;re in the app, <strong style={{ color: '#ffffff' }}>tap the glowing tile to mint your $ZSOLAR tokens</strong>.
                 Then <strong style={{ color: '#ffffff' }}>open the Wallet</strong> and watch your freshly minted balance land in
                 real time. That little moment is the heart of ZenSolar — make sure you experience it.
-              </span></font>
+              </span>
             </Text>
           </Section>
 

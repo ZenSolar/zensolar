@@ -37,7 +37,7 @@ const ToddAndroidInviteEmail = ({ firstName, trackUrl }: ToddAndroidInviteProps)
     <Html lang="en" dir="ltr">
       <Head />
       <Preview>{`${name} — your ZenSolar Founder VIP access. Create your account & install on Android.`}</Preview>
-      <Body style={main} bgcolor={COLORS.background}>
+      <Body style={main}>
         <Container style={container}>
           <Section style={logoWrap}>
             <Img src={LOGO_URL} alt="ZenSolar" width="220" height="65" style={logo} />
@@ -145,19 +145,19 @@ const ToddAndroidInviteEmail = ({ firstName, trackUrl }: ToddAndroidInviteProps)
 
           <Section style={mintCard}>
             <Text style={mintBadge}>
-              <font color="#ffffff"><span style={{ color: '#ffffff' }}>What to look for inside</span></font>
+              <span style={{ color: '#ffffff' }}>What to look for inside</span>
             </Text>
             <Text style={mintTitle}>
-              <font color="#ffffff"><span style={{ color: '#ffffff' }}>Founders Area + Tap-to-Mint™</span></font>
+              <span style={{ color: '#ffffff' }}>Founders Area + Tap-to-Mint™</span>
             </Text>
             <Text style={mintText}>
-              <font color="#ffffff"><span style={{ color: '#ffffff' }}>
+              <span style={{ color: '#ffffff' }}>
                 Open the <strong style={{ color: '#ffffff' }}>sidebar menu</strong> — you&apos;ll see a new
                 <strong style={{ color: '#ffffff' }}> Founders Area</strong> with the Founders Pack, vault, and
                 investor materials. Then head to the demo dashboard and{' '}
                 <strong style={{ color: '#ffffff' }}>tap the glowing tile to mint your $ZSOLAR tokens</strong>.
                 That little moment is the heart of ZenSolar — make sure you experience it.
-              </span></font>
+              </span>
             </Text>
           </Section>
 
