@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
 import "./index.css";
+import "./styles/learn-themes.css";
 
 // Theme migration + pre-paint application now lives in index.html (blocking script)
 // to guarantee no light-mode flash on cold load (PWA, Safari, Chrome, all routes).
