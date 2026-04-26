@@ -1,4 +1,4 @@
-import { Check, Palette, Sparkles, Eye, RefreshCw } from "lucide-react";
+import { Check, Palette, Sparkles, Eye, RefreshCw, RotateCcw } from "lucide-react";
 import { useAppTheme } from "@/contexts/AppThemeContext";
 import { APP_THEMES, type AppTheme } from "@/lib/appThemes";
 import { isPreviewMode } from "@/lib/previewMode";
@@ -84,6 +84,30 @@ export function AppThemeSelector({ previewOnly = true }: AppThemeSelectorProps) 
               Restyles every page in real time. Production always loads the
               default ZenSolar theme.
             </p>
+            <div className="mx-2 mb-2 px-2.5 py-2 rounded-md border border-border/60 bg-muted/40 flex items-center justify-between gap-2">
+              <div className="flex flex-col min-w-0">
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground/80 font-semibold">
+                  Active
+                </span>
+                <span className="text-xs font-semibold text-foreground truncate">
+                  {current.name}
+                  <span className="ml-1.5 font-normal text-muted-foreground">
+                    · {persistenceMode === "preview" ? "Saved" : "Session only"}
+                  </span>
+                </span>
+              </div>
+              {isCustomTheme && (
+                <button
+                  type="button"
+                  onClick={() => setTheme("default")}
+                  className="shrink-0 text-[10px] font-medium uppercase tracking-wider text-muted-foreground hover:text-foreground flex items-center gap-1 px-2 py-1 rounded border border-border/60 hover:border-border transition-colors"
+                  title="Reset to ZenSolar default"
+                >
+                  <RotateCcw className="h-2.5 w-2.5" />
+                  Reset
+                </button>
+              )}
+            </div>
             <DropdownMenuSeparator />
             <DropdownMenuRadioGroup
               value={theme}

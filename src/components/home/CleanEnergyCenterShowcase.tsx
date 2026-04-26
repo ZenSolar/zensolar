@@ -82,10 +82,10 @@ export function CleanEnergyCenterShowcase() {
           viewport={{ once: true }}
           transition={{ delay: 0.15 }}
         >
-          <Card className="border-primary/20 overflow-hidden shadow-2xl shadow-primary/10 bg-gradient-to-b from-[#0d1520] via-[#111d2e] to-[#0d1520]">
+          <Card className="border-primary/20 overflow-hidden shadow-2xl shadow-primary/10 bg-card">
             <CardContent className="p-5 md:p-8">
               {/* Wallet preview */}
-              <div className="flex items-center justify-between p-4 rounded-xl border border-border/30 bg-[#0d1520]/80 mb-6">
+              <div className="flex items-center justify-between p-4 rounded-xl border border-border/40 bg-muted/40 mb-6">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-lg bg-primary/10">
                     <Wallet className="h-5 w-5 text-primary" />
@@ -127,7 +127,7 @@ export function CleanEnergyCenterShowcase() {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.2 + i * 0.08 }}
-                    className={`flex items-center gap-4 p-4 rounded-xl border border-border/30 bg-[#1a2535]/60 border-l-4 ${item.borderColor} group hover:bg-[#1a2535]/90 transition-colors`}
+                    className={`flex items-center gap-4 p-4 rounded-xl border border-border/40 bg-muted/30 border-l-4 ${item.borderColor} group hover:bg-muted/60 transition-colors`}
                   >
                     <div className={`p-2.5 rounded-xl ${item.iconBg} flex-shrink-0`}>
                       <item.icon className={`h-5 w-5 ${item.iconColor}`} />
