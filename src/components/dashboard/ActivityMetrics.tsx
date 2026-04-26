@@ -295,6 +295,7 @@ export function ActivityMetrics({
       {/* Outer ambient glow — lives outside the card */}
       {activityUnits > 0 && (
         <div 
+          data-zen-decorative-motion
           className="absolute inset-0 pointer-events-none rounded-xl z-0"
           style={{
             background: 'radial-gradient(ellipse 20% 6% at 50% 6%, hsl(160 100% 10% / 0.006), transparent 35%)',
