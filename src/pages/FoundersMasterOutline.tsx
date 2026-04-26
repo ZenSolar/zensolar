@@ -173,9 +173,9 @@ const SECTIONS: OutlineSection[] = [
         </div>
 
         {/* LAYER 4 — THE FLYWHEEL */}
-        <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/[0.06] p-3 space-y-2">
+        <div className="rounded-lg border border-primary/50 bg-primary/[0.08] p-3 space-y-2">
           <h4 className="text-sm font-bold text-foreground">
-            Layer 4 — The Self-Reinforcing Flywheel <span className="text-emerald-400">(Bitcoin literally cannot do this)</span>
+            Layer 4 — The Self-Reinforcing Flywheel <span className="text-primary">(Bitcoin literally cannot do this)</span>
           </h4>
           <p>
             Bitcoin's economic loop is one-directional: miners spend energy → tokens exist →
