@@ -109,47 +109,200 @@ const SECTIONS: OutlineSection[] = [
     number: 2,
     title: "The Thesis",
     icon: Sparkles,
-    tagline: "Creating Currency From Energy.",
-    lastUpdated: "Apr 25, 2026",
+    tagline: "Creating Currency From Energy. The 5-Layer Conviction Stack.",
+    lastUpdated: "Apr 26, 2026",
     memoryLinks: [
       { label: "mem://features/proof-of-genesis", path: "features/proof-of-genesis" },
     ],
     body: (
-      <div className="space-y-4 text-sm text-foreground/85 leading-relaxed">
+      <div className="space-y-5 text-sm text-foreground/85 leading-relaxed">
         <p>
           ZenSolar turns verified, real-world clean-energy production and electrification activity
           into a tokenized currency on Base L2. Every $ZSOLAR minted is backed by a cryptographic
           proof tied to a physical device and an immutable on-chain registry.
         </p>
-        <p>
-          <strong>Why this is bigger than Bitcoin's narrative:</strong> Bitcoin's value comes from
-          artificial scarcity secured by Proof-of-Work — energy <em>destroyed</em>. ZenSolar's
-          value comes from energy <em>created and verified</em>. We're the regenerative inverse of
-          PoW. Defensible thesis: 5–10x Bitcoin in 10 years if we land it, because we're backed by
-          physical productive capacity, not just scarcity.
+        <p className="text-xs uppercase tracking-widest text-primary font-semibold">
+          The 5-Layer Conviction Stack — memorize in order
         </p>
-        <div className="rounded-lg border border-primary/30 bg-primary/[0.04] p-3">
-          <p className="text-xs uppercase tracking-widest text-primary font-semibold mb-2">
-            What's actually new (the cryptographic primitive)
+
+        {/* LAYER 1 */}
+        <div className="rounded-lg border border-primary/30 bg-primary/[0.04] p-3 space-y-2">
+          <h4 className="text-sm font-bold text-foreground">Layer 1 — Physics: PoG &gt; PoW</h4>
+          <p>
+            Bitcoin's PoW is energy <em>destroyed</em> to prove computational waste. ~1,400 kWh
+            burned to mint 1 BTC, becoming heat. Its value is purely the cost to redo it.
           </p>
-          <ul className="space-y-1.5 text-sm">
+          <p>
+            Proof-of-Genesis is energy <em>created and delivered</em>, cryptographically witnessed
+            at physical origin: <strong>Proof-of-Origin</strong> (verified hardware signs real
+            production), <strong>Proof-of-Delta</strong> (measured kWh change between timestamps),
+            <strong> Proof-of-Permanence</strong> (immutable on-chain Merkle snapshots).
+          </p>
+          <p className="text-foreground font-medium">
+            Bitcoin gets one output per kWh (a token). ZSOLAR gets three: real-world utility +
+            tradeable token + verified carbon credit.
+          </p>
+        </div>
+
+        {/* LAYER 2 */}
+        <div className="rounded-lg border border-primary/30 bg-primary/[0.04] p-3 space-y-2">
+          <h4 className="text-sm font-bold text-foreground">Layer 2 — TAM: Tokenized Energy Transition</h4>
+          <p>
+            Bitcoin's ceiling = belief × 21M cap. ZSOLAR's ceiling = global clean energy
+            production rate. Solar+EV is ~$2T/yr capex, growing 25%+ annually. Every panel
+            installed and every EV charged for the next 30 years is a potential mint event.
+          </p>
+          <p className="text-foreground font-medium">
+            Capture even 5% of verified clean energy flows globally by 2035 and market cap
+            mechanically exceeds Bitcoin's current ~$2T. Not speculation — tokenized GDP.
+          </p>
+        </div>
+
+        {/* LAYER 3 */}
+        <div className="rounded-lg border border-primary/30 bg-primary/[0.04] p-3 space-y-2">
+          <h4 className="text-sm font-bold text-foreground">Layer 3 — IP: The Patented Primitive</h4>
+          <p>
+            Patent App. <strong>19/634,402</strong> + April 2025 provisional + upcoming
+            SpaceX/satellite-verification provisional cover the <em>method</em> of converting
+            verified physical energy events into on-chain tokens via OEM-signed telemetry.
+          </p>
+          <p className="text-foreground font-medium">
+            Anyone trying to copy this either licenses from ZenCorp Inc or infringes. The token
+            isn't the moat — the primitive is.
+          </p>
+        </div>
+
+        {/* LAYER 4 — THE FLYWHEEL */}
+        <div className="rounded-lg border border-primary/50 bg-primary/[0.08] p-3 space-y-2">
+          <h4 className="text-sm font-bold text-foreground">
+            Layer 4 — The Self-Reinforcing Flywheel <span className="text-primary">(Bitcoin literally cannot do this)</span>
+          </h4>
+          <p>
+            Bitcoin's economic loop is one-directional: miners spend energy → tokens exist →
+            market decides price. <strong>No mechanism makes price rise as adoption grows.</strong>{" "}
+            New users just bid against existing holders.
+          </p>
+          <p className="text-foreground font-medium">ZSOLAR's loop is self-reinforcing on every axis:</p>
+          <pre className="text-xs bg-background/60 border border-border rounded p-2 overflow-x-auto leading-snug">
+{`More users connect devices
+   ↓
+More verified kWh minted (real production)
+   ↓
+More $9.99/mo subscriptions → 50% auto-injected into LP
+   ↓
+LP depth grows → price floor rises → less slippage
+   ↓
+Higher token price → each kWh mint worth more
+   ↓
+More attractive to new users → loop restarts, stronger`}
+          </pre>
+          <div className="overflow-x-auto">
+            <table className="text-xs w-full border-collapse">
+              <thead>
+                <tr className="text-left border-b border-border">
+                  <th className="py-1.5 pr-2 font-semibold">Mechanism</th>
+                  <th className="py-1.5 pr-2 font-semibold">Effect</th>
+                  <th className="py-1.5 font-semibold text-muted-foreground">BTC Equivalent</th>
+                </tr>
+              </thead>
+              <tbody className="text-foreground/80">
+                <tr className="border-b border-border/50">
+                  <td className="py-1.5 pr-2">50% of subs → LP</td>
+                  <td className="py-1.5 pr-2">Every paying user permanently deepens liquidity</td>
+                  <td className="py-1.5 text-muted-foreground">None</td>
+                </tr>
+                <tr className="border-b border-border/50">
+                  <td className="py-1.5 pr-2">Mint burn (20%) + LP (3%)</td>
+                  <td className="py-1.5 pr-2">Every mint tightens supply AND deepens LP</td>
+                  <td className="py-1.5 text-muted-foreground">Burns only via lost keys</td>
+                </tr>
+                <tr className="border-b border-border/50">
+                  <td className="py-1.5 pr-2">Tranched LP rounds</td>
+                  <td className="py-1.5 pr-2">Price discovery managed up, not speculated</td>
+                  <td className="py-1.5 text-muted-foreground">Pure auction</td>
+                </tr>
+                <tr className="border-b border-border/50">
+                  <td className="py-1.5 pr-2">Subscription revenue floor</td>
+                  <td className="py-1.5 pr-2">Real USDC flowing in monthly</td>
+                  <td className="py-1.5 text-muted-foreground">Miners are sellers</td>
+                </tr>
+                <tr>
+                  <td className="py-1.5 pr-2">Verified utility per token</td>
+                  <td className="py-1.5 pr-2">Each token = real kWh = carbon credit = grid value</td>
+                  <td className="py-1.5 text-muted-foreground">Narrative only</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p className="text-foreground font-medium pt-1">
+            Killer line for Lyndon: <em>"Bitcoin's price requires new buyers to outpace miner sell
+            pressure. ZSOLAR's price rises automatically with every new subscriber, because half
+            their subscription is a permanent LP injection — even if they never trade a single
+            token. Adoption mechanically increases price floor. Bitcoin can't do that. Nothing can
+            without our patent."</em>
+          </p>
+        </div>
+
+        {/* LAYER 5 — THE BITCOIN ASYMMETRIES (HALVING + LOST COINS) */}
+        <div className="rounded-lg border border-destructive/40 bg-destructive/[0.06] p-3 space-y-2">
+          <h4 className="text-sm font-bold text-foreground">
+            Layer 5 — The Bitcoin Scarcity Lie (Halving + Lost Coins)
+          </h4>
+          <p className="text-foreground/85">
+            Most people — including most investors — don't realize this. Bitcoin's "21M hard cap"
+            is a marketing fiction. The real circulating ceiling is dramatically lower, and
+            <strong> the network is structurally incapable of reaching its own cap.</strong>
+          </p>
+          <ul className="space-y-2 pl-1">
             <li>
-              • <strong>Proof-of-Delta™</strong> — the hash chain proving energy flowed from one
-              verified state to another
+              <strong className="text-foreground">The Halving:</strong> Every 4 years, mining
+              rewards halve. Issuance approaches zero asymptotically — the final BTC won't be
+              minted until ~2140. Meanwhile miner revenue collapses each cycle, forcing reliance
+              on transaction fees the network can't reliably generate. <em>Halving is a slow
+              suffocation of the security budget.</em>
             </li>
             <li>
-              • <strong>Proof-of-Origin™</strong> — the device-to-mint registry proving a token
-              came from a real machine
+              <strong className="text-foreground">The Lost Coin Problem:</strong> Chainalysis,
+              Glassnode, and Cane Island estimate <strong>3.7M – 6M+ BTC are permanently lost</strong>
+              {" "}(dead wallets, lost keys, Satoshi's ~1M untouched). That's 17–28% of total supply
+              gone forever. <strong>Bitcoin will never have 21M circulating. Period.</strong> The
+              practical cap is closer to 15–17M, and shrinking every year as more keys are lost.
             </li>
             <li>
-              • <strong>Proof-of-Permanence™</strong> ("The Eternal Ledger") — periodic on-chain
-              Merkle snapshots making history immutable forever
-            </li>
-            <li>
-              • Together: <strong>Proof-of-Genesis™</strong> — every receipt is a cryptographic
-              birth certificate for clean-energy money
+              <strong className="text-foreground">Why this matters for us:</strong> Bitcoin's
+              scarcity is <em>accidental and lossy</em>. Our scarcity is <em>engineered and
+              productive</em>:
+              <ul className="pl-4 pt-1.5 space-y-1">
+                <li>• <strong>1T hard cap</strong> — codified, audited, immutable</li>
+                <li>• <strong>20% burn on every mint</strong> — programmatic deflation tied to real activity</li>
+                <li>• <strong>Pact-locked founder allocations</strong> (Joseph 150B / Michael 50B) — non-circulating by design, not by accident</li>
+                <li>• <strong>Tranched LP releases</strong> — circulating supply is governed, not random</li>
+                <li>• <strong>Subscription burn pressure</strong> — every paying user creates upward price pressure via the flywheel</li>
+              </ul>
             </li>
           </ul>
+          <p className="text-foreground font-medium pt-1">
+            Punchline: <em>"Bitcoin's scarcity is what's left after people lose their keys. Ours
+            is what's left after we burn it on purpose. One is decay. The other is design."</em>
+          </p>
+        </div>
+
+        <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
+          <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">
+            Investor framing cheat sheet
+          </p>
+          <p>
+            <strong className="text-foreground">For Lyndon:</strong> Lead with Layer 4 (Flywheel)
+            + Layer 5 (Halving/Lost Coins). He underwrote Sunrun on flywheel economics — he'll
+            see this pattern instantly.
+          </p>
+          <p>
+            <strong className="text-foreground">For Joe / Toby / Brady:</strong> Use the Netflix
+            analogy: <em>"Imagine if every new Netflix subscriber automatically made Netflix stock
+            more valuable by contract, not sentiment. That's what we built. Half of every
+            subscription dollar permanently goes into the token's liquidity pool. The token
+            literally cannot stay flat as we grow — it's mathematically forced upward."</em>
+          </p>
         </div>
       </div>
     ),
