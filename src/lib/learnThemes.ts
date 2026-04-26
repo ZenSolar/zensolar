@@ -36,11 +36,24 @@ export const LEARN_THEMES: {
 const STORAGE_KEY = "zen.learn.theme";
 export const DEFAULT_LEARN_THEME: LearnTheme = "cupertino-cryo";
 
+export function isLearnTheme(value: string | null | undefined): value is LearnTheme {
+  return !!value && LEARN_THEMES.some((t) => t.id === value);
+}
+
+export function getLearnThemeFromUrl(): LearnTheme | null {
+  if (typeof window === "undefined") return null;
+  const params = new URLSearchParams(window.location.search);
+  const fromParam = params.get("learnTheme") ?? params.get("theme");
+  return isLearnTheme(fromParam) ? fromParam : null;
+}
+
 export function getStoredLearnTheme(): LearnTheme {
   if (typeof window === "undefined") return DEFAULT_LEARN_THEME;
+  const fromUrl = getLearnThemeFromUrl();
+  if (fromUrl) return fromUrl;
   try {
     const v = localStorage.getItem(STORAGE_KEY) as LearnTheme | null;
-    if (v && LEARN_THEMES.some((t) => t.id === v)) return v;
+    if (isLearnTheme(v)) return v;
   } catch {
     /* noop */
   }
@@ -51,6 +64,11 @@ export function setStoredLearnTheme(theme: LearnTheme) {
   try {
     localStorage.setItem(STORAGE_KEY, theme);
     window.dispatchEvent(new CustomEvent("learn-theme-change", { detail: theme }));
+    if ("BroadcastChannel" in window) {
+      const channel = new BroadcastChannel("zen.learn.theme");
+      channel.postMessage(theme);
+      channel.close();
+    }
   } catch {
     /* noop */
   }
