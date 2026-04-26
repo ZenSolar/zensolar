@@ -60,6 +60,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LiveBetaIndicator } from "./LiveBetaIndicator";
 import { LiveBetaToggle } from "./LiveBetaToggle";
 import { UserViewToggle } from "./UserViewToggle";
+import { AppThemeSelector } from "./AppThemeSelector";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 import {
@@ -603,6 +604,7 @@ export function AppSidebar() {
             </div>
           )}
         </div>
+        <AppThemeSelector />
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton 

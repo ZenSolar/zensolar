@@ -25,6 +25,7 @@ import zenFavicon from "@/assets/zen-favicon.png";
 import { NavLink } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { AppThemeSelector } from "@/components/layout/AppThemeSelector";
 
 import {
   Sidebar,
@@ -165,6 +166,7 @@ export function DemoSidebar() {
             </div>
           )}
         </div>
+        <AppThemeSelector />
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton 
