@@ -113,7 +113,7 @@ function SessionRow({ session, category }: { session: ChargingSession; category:
             <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
             <span className="truncate">{session.location || (category === 'home' ? 'Home' : 'Unknown')}</span>
             {isVerified && (
-              <ShieldCheck className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+              <ShieldCheck className="h-3.5 w-3.5 text-success shrink-0" />
             )}
           </div>
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
@@ -200,29 +200,29 @@ export function ChargingSessionList({ sessions }: ChargingSessionListProps) {
     <div className="space-y-4">
       <CategorySection
         label="Home Charging"
-        icon={<Home className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />}
+        icon={<Home className="h-4 w-4 text-success dark:text-success" />}
         sessions={homeSessions}
-        accentClass="bg-emerald-500/15"
-        bgClass="bg-emerald-500/5 dark:bg-emerald-500/10"
-        borderClass="border-emerald-500/20"
+        accentClass="bg-success/15"
+        bgClass="bg-success/5 dark:bg-success/10"
+        borderClass="border-success/20"
       />
 
       <CategorySection
         label="Tesla Supercharger"
-        icon={<Zap className="h-4 w-4 text-red-500 dark:text-red-400" />}
+        icon={<Zap className="h-4 w-4 text-danger dark:text-danger" />}
         sessions={superchargerSessions}
-        accentClass="bg-red-500/15"
-        bgClass="bg-red-500/5 dark:bg-red-500/10"
-        borderClass="border-red-500/20"
+        accentClass="bg-danger/15"
+        bgClass="bg-danger/5 dark:bg-danger/10"
+        borderClass="border-danger/20"
       />
 
       <CategorySection
         label="Destination Charging"
-        icon={<Plug className="h-4 w-4 text-blue-500 dark:text-blue-400" />}
+        icon={<Plug className="h-4 w-4 text-info dark:text-info" />}
         sessions={destinationSessions}
-        accentClass="bg-blue-500/15"
-        bgClass="bg-blue-500/5 dark:bg-blue-500/10"
-        borderClass="border-blue-500/20"
+        accentClass="bg-info/15"
+        bgClass="bg-info/5 dark:bg-info/10"
+        borderClass="border-info/20"
       />
 
       {sessions.length > 0 && (

@@ -156,7 +156,7 @@ export function WalletConnectDiagnostics({
             </p>
           )}
           {lastResetResult && (
-            <p className="mt-2 text-green-600 dark:text-green-400">
+            <p className="mt-2 text-success dark:text-success">
               Last reset cleared: {lastResetResult.localStorage} local, {lastResetResult.sessionStorage} session, {lastResetResult.indexedDB} IndexedDB
             </p>
           )}

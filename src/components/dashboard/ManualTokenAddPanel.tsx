@@ -131,7 +131,7 @@ export function ManualTokenAddPanel() {
           onClick={handleSwitchNetwork}
           disabled={switchingNetwork}
           variant="outline"
-          className="w-full h-10 rounded-xl border-amber-500/50 bg-amber-500/10 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20"
+          className="w-full h-10 rounded-xl border-warning/50 bg-warning/10 text-warning dark:text-warning hover:bg-warning/20"
         >
           {switchingNetwork ? (
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -169,8 +169,8 @@ export function ManualTokenAddPanel() {
       
       {/* Base Wallet specific testnet instructions */}
       {walletInfo.type === 'coinbase' && (
-        <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/30 space-y-2">
-          <p className="text-xs font-medium text-blue-700 dark:text-blue-400">
+        <div className="p-3 rounded-lg bg-info/10 border border-info/30 space-y-2">
+          <p className="text-xs font-medium text-info dark:text-info">
             📱 One-time setup for Base Wallet:
           </p>
           <ol className="text-[11px] text-muted-foreground space-y-1 list-decimal list-inside">
@@ -178,7 +178,7 @@ export function ManualTokenAddPanel() {
             <li>Tap <strong className="text-foreground">Display</strong></li>
             <li>Toggle on <strong className="text-foreground">"Show testnet balances"</strong></li>
           </ol>
-          <p className="text-[11px] text-green-600 dark:text-green-400 font-medium">
+          <p className="text-[11px] text-success dark:text-success font-medium">
             ✓ Your $ZSOLAR tokens will appear automatically after enabling!
           </p>
         </div>

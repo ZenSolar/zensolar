@@ -40,7 +40,7 @@ function PanelCard({ inverter, intensity, isBest, isWorst }: {
       className={cn(
         "relative rounded-lg p-2.5 transition-all duration-300 border",
         !isReporting && "opacity-50",
-        isBest && "ring-2 ring-amber-400/60",
+        isBest && "ring-2 ring-warning/60",
         isWorst && "ring-2 ring-destructive/40",
       )}
       style={{

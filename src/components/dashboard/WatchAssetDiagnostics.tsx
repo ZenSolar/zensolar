@@ -45,9 +45,9 @@ export function WatchAssetDiagnostics({ attempts, onClear }: WatchAssetDiagnosti
           <span className="text-muted-foreground/70">({attempts.length} attempt{attempts.length !== 1 ? 's' : ''})</span>
         </span>
         <span className="flex items-center gap-2">
-          {hasSuccess && <CheckCircle2 className="h-4 w-4 text-green-500" />}
+          {hasSuccess && <CheckCircle2 className="h-4 w-4 text-success" />}
           {hasError && !hasSuccess && <XCircle className="h-4 w-4 text-destructive" />}
-          {!hasSuccess && !hasError && <AlertTriangle className="h-4 w-4 text-amber-500" />}
+          {!hasSuccess && !hasError && <AlertTriangle className="h-4 w-4 text-warning" />}
           {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </span>
       </button>
@@ -60,10 +60,10 @@ export function WatchAssetDiagnostics({ attempts, onClear }: WatchAssetDiagnosti
               className={cn(
                 'p-2 rounded border text-xs font-mono',
                 attempt.success
-                  ? 'border-green-500/30 bg-green-500/10'
+                  ? 'border-success/30 bg-success/10'
                   : attempt.error
                   ? 'border-destructive/30 bg-destructive/10'
-                  : 'border-amber-500/30 bg-amber-500/10'
+                  : 'border-warning/30 bg-warning/10'
               )}
             >
               <div className="flex items-center justify-between mb-1">
@@ -75,7 +75,7 @@ export function WatchAssetDiagnostics({ attempts, onClear }: WatchAssetDiagnosti
                 </span>
               </div>
               <div className="text-muted-foreground">
-                <span className={attempt.success ? 'text-green-600' : 'text-destructive'}>
+                <span className={attempt.success ? 'text-success' : 'text-destructive'}>
                   {attempt.success ? '✓ Success' : '✗ Failed'}
                 </span>
                 {attempt.error && (

@@ -166,8 +166,8 @@ export function EnphaseCodeDialog({ open, onOpenChange, onSubmit }: EnphaseCodeD
         <div className="space-y-6 py-4">
           {/* Important note about Enphase's authorization process */}
           {!autoDetected && currentStep < 4 && (
-            <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
-              <p className="text-sm text-amber-700 dark:text-amber-400">
+            <div className="bg-warning/10 border border-warning/20 rounded-lg p-3">
+              <p className="text-sm text-warning dark:text-warning">
                 <strong>Note:</strong> Enphase will display an authorization code on their page after you approve access. 
                 You'll need to <strong>copy that code</strong> and return here to complete the connection.
               </p>

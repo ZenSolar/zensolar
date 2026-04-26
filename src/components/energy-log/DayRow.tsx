@@ -45,7 +45,7 @@ export function DayRow({ day, maxKwh, isBestDay }: DayRowProps) {
       {/* Spacer */}
       <div className="relative flex-1 flex items-center">
         {isBestDay && day.kWh > 0 && (
-          <span className="text-[10px] font-semibold text-amber-500/80">⭐ Best</span>
+          <span className="text-[10px] font-semibold text-warning/80">⭐ Best</span>
         )}
       </div>
 

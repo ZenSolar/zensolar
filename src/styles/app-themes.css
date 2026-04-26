@@ -49,6 +49,24 @@ html[data-app-theme] :is(h1, h2, h3, h4, h5) {
    Accent: emerald-glacial cyan-blue, glowing primary.
    ============================================================ */
 html[data-app-theme="cupertino-cryo"] {
+  /* Accent palette (used heavily by dashboard/mint cards) */
+  --accent-warm: 195 95% 60%;       /* glacial cyan */
+  --accent-cool: 210 95% 70%;       /* arctic blue */
+  --accent-rare: 270 90% 70%;       /* aurora violet */
+  --accent-warm-foreground: 220 30% 8%;
+  --accent-cool-foreground: 220 30% 8%;
+  --accent-rare-foreground: 220 30% 8%;
+
+  /* Status semantics (replace raw emerald/amber/red literals) */
+  --success: 160 84% 50%;
+  --success-foreground: 220 30% 8%;
+  --warning: 35 95% 60%;
+  --warning-foreground: 220 30% 8%;
+  --info: 195 95% 60%;
+  --info-foreground: 220 30% 8%;
+  --danger: 0 84% 62%;
+  --danger-foreground: 0 0% 100%;
+
   /* Surfaces */
   --background: 220 24% 6%;
   --foreground: 210 40% 98%;
@@ -115,6 +133,22 @@ html[data-app-theme="cupertino-cryo"] [class*="rounded-"][class*="border"] {
    Accent: signal red on dense neutral.
    ============================================================ */
 html[data-app-theme="tesla-whitepaper"] {
+  --accent-warm: 0 0% 90%;          /* high-contrast neutral */
+  --accent-cool: 200 100% 60%;      /* schematic blue */
+  --accent-rare: 0 84% 56%;         /* signal red */
+  --accent-warm-foreground: 0 0% 6%;
+  --accent-cool-foreground: 0 0% 6%;
+  --accent-rare-foreground: 0 0% 100%;
+
+  --success: 140 60% 50%;
+  --success-foreground: 0 0% 6%;
+  --warning: 45 95% 55%;
+  --warning-foreground: 0 0% 6%;
+  --info: 200 100% 60%;
+  --info-foreground: 0 0% 6%;
+  --danger: 0 84% 56%;
+  --danger-foreground: 0 0% 100%;
+
   --background: 0 0% 4%;
   --foreground: 0 0% 96%;
   --card: 0 0% 7%;
@@ -174,6 +208,22 @@ html[data-app-theme="tesla-whitepaper"] :is(h1, h2, h3, h4) {
    Accent: indigo. Minimal shadows. Speed is the design.
    ============================================================ */
 html[data-app-theme="linear-docs"] {
+  --accent-warm: 35 95% 62%;        /* warm amber */
+  --accent-cool: 244 80% 68%;       /* indigo */
+  --accent-rare: 280 70% 70%;       /* violet */
+  --accent-warm-foreground: 220 20% 10%;
+  --accent-cool-foreground: 0 0% 100%;
+  --accent-rare-foreground: 0 0% 100%;
+
+  --success: 160 70% 50%;
+  --success-foreground: 0 0% 100%;
+  --warning: 35 95% 62%;
+  --warning-foreground: 220 20% 10%;
+  --info: 244 80% 68%;
+  --info-foreground: 0 0% 100%;
+  --danger: 0 75% 60%;
+  --danger-foreground: 0 0% 100%;
+
   --background: 230 18% 9%;
   --foreground: 220 14% 92%;
   --card: 230 16% 12%;

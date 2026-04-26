@@ -651,8 +651,8 @@ export function TokenPriceCard({
             <div className="space-y-1.5">
               {/* BTC */}
               <div className="flex items-center gap-2.5 p-2 rounded-xl bg-muted/20 border border-border/30">
-                <div className="p-1.5 rounded-lg bg-amber-500/10">
-                  <Bitcoin className="h-3.5 w-3.5 text-amber-500" />
+                <div className="p-1.5 rounded-lg bg-warning/10">
+                  <Bitcoin className="h-3.5 w-3.5 text-warning" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <span className="text-sm font-medium text-foreground">Bitcoin</span>
@@ -665,8 +665,8 @@ export function TokenPriceCard({
               </div>
               {/* ETH */}
               <div className="flex items-center gap-2.5 p-2 rounded-xl bg-muted/20 border border-border/30">
-                <div className="p-1.5 rounded-lg bg-blue-500/10">
-                  <svg className="h-3.5 w-3.5 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
+                <div className="p-1.5 rounded-lg bg-info/10">
+                  <svg className="h-3.5 w-3.5 text-info" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 1.75l-6.25 10.5L12 16l6.25-3.75L12 1.75zM5.75 13.5L12 22.25l6.25-8.75L12 17.25 5.75 13.5z" />
                   </svg>
                 </div>
@@ -681,8 +681,8 @@ export function TokenPriceCard({
               </div>
               {/* USDC */}
               <div className="flex items-center gap-2.5 p-2 rounded-xl bg-muted/20 border border-border/30">
-                <div className="p-1.5 rounded-lg bg-blue-400/10">
-                  <DollarSign className="h-3.5 w-3.5 text-blue-400" />
+                <div className="p-1.5 rounded-lg bg-info/10">
+                  <DollarSign className="h-3.5 w-3.5 text-info" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <span className="text-sm font-medium text-foreground">USD Coin</span>
@@ -710,7 +710,7 @@ export function TokenPriceCard({
                   </div>
                   <span className="text-xs font-medium text-foreground">$ZSOLAR → USDC / USDT</span>
                 </div>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20 font-medium">
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-warning/10 text-warning border border-warning/20 font-medium">
                   Coming Soon
                 </span>
               </div>
@@ -755,7 +755,7 @@ export function TokenPriceCard({
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-medium text-foreground">{label}</span>
-                          <span className="text-xs font-bold text-emerald-400 tabular-nums">+{receipt.tokens.toLocaleString()}</span>
+                          <span className="text-xs font-bold text-success tabular-nums">+{receipt.tokens.toLocaleString()}</span>
                         </div>
                         <div className="flex items-center gap-1.5 mt-0.5">
                           <Clock className="h-2.5 w-2.5 text-muted-foreground/60" />
@@ -824,7 +824,7 @@ export function TokenPriceCard({
               </div>
               <div className="flex items-center justify-between mt-1">
                 <span className="text-xs text-muted-foreground">Estimated USD</span>
-                <span className="text-sm font-semibold text-emerald-400 tabular-nums">${(tokensHeld * tokenPrice).toFixed(2)}</span>
+                <span className="text-sm font-semibold text-success tabular-nums">${(tokensHeld * tokenPrice).toFixed(2)}</span>
               </div>
             </div>
 
