@@ -328,8 +328,9 @@ export function FounderDestinationChooser({
       />
       {/* Sheet */}
       <div
-        className="relative mt-auto w-full bg-background border-t border-border/60 rounded-t-3xl shadow-[0_-12px_40px_-12px_hsl(var(--primary)/0.25)] animate-fade-in"
+        className="relative mt-auto w-full bg-background border-t border-border/60 rounded-t-3xl shadow-[0_-12px_40px_-12px_hsl(var(--primary)/0.25)] animate-fade-in flex flex-col min-h-0"
         style={{
+          maxHeight: "85svh",
           paddingTop: "0.75rem",
           paddingBottom: "calc(env(safe-area-inset-bottom) + 1.25rem)",
           paddingLeft: "calc(env(safe-area-inset-left) + 1rem)",
