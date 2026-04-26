@@ -4,6 +4,12 @@ import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
 import "./index.css";
 import "./styles/learn-themes.css";
+import "./styles/app-themes.css";
+import { getInitialAppTheme, applyAppTheme } from "./lib/appThemes";
+
+// Apply the persisted (or default) app theme synchronously BEFORE React renders
+// to prevent any flash of the wrong theme.
+applyAppTheme(getInitialAppTheme());
 
 // Theme migration + pre-paint application now lives in index.html (blocking script)
 // to guarantee no light-mode flash on cold load (PWA, Safari, Chrome, all routes).

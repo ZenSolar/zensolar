@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
+import { AppThemeProvider } from "@/contexts/AppThemeContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LazyWeb3Provider } from "@/components/providers/LazyWeb3Provider";
 
@@ -207,6 +208,7 @@ const App = () => {
       enableSystem={false}
       forcedTheme={undefined}
     >
+      <AppThemeProvider>
       <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ViewAsUserProvider>
