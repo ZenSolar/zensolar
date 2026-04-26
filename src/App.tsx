@@ -1119,6 +1119,7 @@ const App = () => {
                     <Route path="/founders/changelog" element={<FounderRoute><FoundersChangelog /></FounderRoute>} />
                     <Route path="/founders/lyndon" element={<FounderRoute><FoundersLyndonOnePager /></FounderRoute>} />
                     <Route path="/founders/vpp-roadmap" element={<FounderRoute><FoundersVPPRoadmap /></FounderRoute>} />
+                    <Route path="/founders/energy-oracle" element={<FounderRoute><FoundersEnergyOracle /></FounderRoute>} />
                     <Route path="/founders/patent-expansion" element={<FounderRoute><FoundersPatentExpansion /></FounderRoute>} />
                     <Route path="/founders/master-outline" element={<FounderRoute><FoundersMasterOutline /></FounderRoute>} />
                     <Route path="/founders/bitcoin-thesis" element={<FounderRoute><FoundersBitcoinThesis /></FounderRoute>} />
