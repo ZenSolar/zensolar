@@ -49,6 +49,7 @@ import {
   Mail,
 } from "lucide-react";
 import { isPreviewMode } from "@/lib/previewMode";
+import { openFounderChooser } from "@/lib/founderChooser";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 import zenFavicon from "@/assets/zen-favicon.png";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
