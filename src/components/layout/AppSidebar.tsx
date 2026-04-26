@@ -346,46 +346,6 @@ export function AppSidebar() {
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="SpaceX & Inter-System">
-                    <NavLink to="/founders/spacex" onClick={handleNavClick} className={founderNavClass}>
-                      <Rocket className="h-4 w-4 text-amber-400" />
-                      <span>SpaceX & Inter-System</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="App Overhaul Plan">
-                    <NavLink to="/founders/app-overhaul-plan" onClick={handleNavClick} className={founderNavClass}>
-                      <Sparkles className="h-4 w-4 text-amber-400" />
-                      <span>App Overhaul Plan</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="v2 App Sandbox">
-                    <NavLink to="/founders/v2app" onClick={handleNavClick} className={founderNavClass}>
-                      <Sparkles className="h-4 w-4 text-amber-400" />
-                      <span>v2 App Sandbox</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Deason V3 — Wow Stack">
-                    <NavLink to="/founders/deason-v3" onClick={handleNavClick} className={founderNavClass}>
-                      <Sparkles className="h-4 w-4 text-amber-400" />
-                      <span>Deason V3 — Wow Stack</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Deason (AI)">
-                    <NavLink to="/deason" onClick={handleNavClick} className={founderNavClass}>
-                      <Sparkles className="h-4 w-4 text-amber-400" />
-                      <span>Deason</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
