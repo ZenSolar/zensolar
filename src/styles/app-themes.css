@@ -311,3 +311,137 @@ html[data-app-theme="linear-docs"] {
 html[data-app-theme="linear-docs"] body {
   background: hsl(var(--background));
 }
+
+/* ============================================================
+   PER-THEME density + motion budget overrides
+   (must come AFTER each theme's main token block)
+   ============================================================ */
+html[data-app-theme="cupertino-cryo"] {
+  --app-allow-idle-motion: 1;
+  --app-motion-fast: 200ms;
+  --app-motion-base: 350ms;
+  --app-motion-slow: 600ms;
+  --app-density-pad: 1.25rem;
+  --app-density-gap: 1.25rem;
+  --app-density-row-h: 52px;
+}
+html[data-app-theme="tesla-whitepaper"] {
+  --app-allow-idle-motion: 0;
+  --app-motion-fast: 80ms;
+  --app-motion-base: 120ms;
+  --app-motion-slow: 160ms;
+  --app-density-pad: 0.625rem;
+  --app-density-gap: 0.5rem;
+  --app-density-row-h: 32px;
+}
+html[data-app-theme="linear-docs"] {
+  --app-allow-idle-motion: 0;
+  --app-motion-fast: 100ms;
+  --app-motion-base: 150ms;
+  --app-motion-slow: 220ms;
+  --app-density-pad: 0.875rem;
+  --app-density-gap: 0.875rem;
+  --app-density-row-h: 40px;
+}
+
+/* ============================================================
+   4. ELON DESIGN — Mission control
+   X.AI / SpaceX flight-control aesthetic. Compact, telemetry-grade,
+   one accent (cyan-blue), zero decorative motion.
+   Auto-loosens density on phones (<480px) so tap targets stay usable.
+   ============================================================ */
+html[data-app-theme="elon"] {
+  --accent-warm: 200 100% 50%;
+  --accent-cool: 200 100% 50%;
+  --accent-rare: 200 100% 50%;
+  --accent-warm-foreground: 0 0% 4%;
+  --accent-cool-foreground: 0 0% 4%;
+  --accent-rare-foreground: 0 0% 4%;
+
+  --success: 145 70% 48%;
+  --success-foreground: 0 0% 4%;
+  --warning: 40 95% 55%;
+  --warning-foreground: 0 0% 4%;
+  --info: 200 100% 50%;
+  --info-foreground: 0 0% 4%;
+  --danger: 0 80% 55%;
+  --danger-foreground: 0 0% 100%;
+
+  --background: 0 0% 3%;
+  --foreground: 0 0% 95%;
+  --card: 0 0% 5%;
+  --card-foreground: 0 0% 95%;
+  --popover: 0 0% 4%;
+  --popover-foreground: 0 0% 95%;
+
+  --primary: 200 100% 50%;
+  --primary-foreground: 0 0% 4%;
+  --secondary: 0 0% 12%;
+  --secondary-foreground: 0 0% 95%;
+  --accent: 200 100% 50%;
+  --accent-foreground: 0 0% 4%;
+
+  --muted: 0 0% 8%;
+  --muted-foreground: 0 0% 60%;
+  --border: 0 0% 18%;
+  --input: 0 0% 10%;
+  --ring: 200 100% 50%;
+  --radius: 0.25rem;
+
+  --sidebar-background: 0 0% 2%;
+  --sidebar-foreground: 0 0% 88%;
+  --sidebar-primary: 200 100% 50%;
+  --sidebar-primary-foreground: 0 0% 4%;
+  --sidebar-accent: 0 0% 7%;
+  --sidebar-accent-foreground: 0 0% 95%;
+  --sidebar-border: 0 0% 12%;
+  --sidebar-ring: 200 100% 50%;
+
+  --solar: 40 95% 55%;
+  --eco: 145 70% 48%;
+  --energy: 200 100% 50%;
+  --token: 200 100% 50%;
+
+  --app-display-font: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --app-body-font: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --app-display-tracking: -0.012em;
+  --app-body-tracking: 0;
+  --app-display-weight: 500;
+  --app-display-case: none;
+
+  --app-allow-idle-motion: 0;
+  --app-motion-fast: 80ms;
+  --app-motion-base: 120ms;
+  --app-motion-slow: 160ms;
+
+  /* compact density by default — auto-loosens on phones below */
+  --app-density-pad: 0.5rem;
+  --app-density-gap: 0.5rem;
+  --app-density-row-h: 28px;
+}
+/* No background gradients, no grid — just pure dark. */
+html[data-app-theme="elon"] body {
+  background: hsl(var(--background));
+}
+/* Tabular numerics everywhere — telemetry should align. */
+html[data-app-theme="elon"] {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "ss01" 1;
+}
+/* Tighter line-height and letter-spacing for dense info. */
+html[data-app-theme="elon"] body {
+  line-height: 1.4;
+}
+/* Sharper buttons + cards. */
+html[data-app-theme="elon"] :is(.rounded-lg, .rounded-xl, .rounded-2xl) {
+  border-radius: 0.25rem;
+}
+/* Mobile auto-loosen: switch from compact to default density below 480px
+   so tap targets stay comfortable on phones. */
+@media (max-width: 479px) {
+  html[data-app-theme="elon"] {
+    --app-density-pad: 0.75rem;
+    --app-density-gap: 0.75rem;
+    --app-density-row-h: 36px;
+  }
+}
