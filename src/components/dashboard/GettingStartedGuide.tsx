@@ -127,8 +127,8 @@ const GUIDE_STEPS = [
           Once connected, you'll automatically start earning rewards:
         </p>
         <div className="space-y-3">
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-            <Zap className="h-5 w-5 text-emerald-500 mt-0.5" />
+          <div className="flex items-start gap-3 p-3 rounded-lg bg-success/10 border border-success/20">
+            <Zap className="h-5 w-5 text-success mt-0.5" />
             <div>
               <p className="text-sm font-medium">$ZSOLAR Tokens</p>
               <p className="text-xs text-muted-foreground">
@@ -136,8 +136,8 @@ const GUIDE_STEPS = [
               </p>
             </div>
           </div>
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
-            <CheckCircle2 className="h-5 w-5 text-purple-500 mt-0.5" />
+          <div className="flex items-start gap-3 p-3 rounded-lg bg-accent-rare/10 border border-accent-rare/20">
+            <CheckCircle2 className="h-5 w-5 text-accent-rare mt-0.5" />
             <div>
               <p className="text-sm font-medium">NFT Milestones</p>
               <p className="text-xs text-muted-foreground">

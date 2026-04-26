@@ -37,7 +37,7 @@ export function MonthComparison({ current, previous, currentLabel, previousLabel
           <div className={cn(
             "flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-bold",
             isFlat ? "bg-muted text-muted-foreground" :
-            isUp ? "bg-emerald-500/15 text-emerald-500" : "bg-destructive/15 text-destructive"
+            isUp ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"
           )}>
             {isFlat ? <Minus className="h-4 w-4" /> : isUp ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
             {isFlat ? '0%' : `${isUp ? '+' : ''}${pctChange}%`}

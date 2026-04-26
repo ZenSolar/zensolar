@@ -24,10 +24,10 @@ interface EnergyLogFallbackProps {
 }
 
 const PROVIDER_COLORS: Record<ProviderStatus['provider'], string> = {
-  tesla: 'border-l-red-500',
-  enphase: 'border-l-orange-500',
-  solaredge: 'border-l-yellow-500',
-  wallbox: 'border-l-blue-500',
+  tesla: 'border-l-danger',
+  enphase: 'border-l-warning',
+  solaredge: 'border-l-warning',
+  wallbox: 'border-l-info',
 };
 
 /**

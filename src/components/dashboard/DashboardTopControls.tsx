@@ -61,7 +61,7 @@ export function DashboardTopControls() {
           isTransitioning ? "rotate-180 scale-0 opacity-0" : "rotate-0 scale-100 opacity-100"
         )}>
           {isDark ? (
-            <Sun className="h-4 w-4 text-amber-400" />
+            <Sun className="h-4 w-4 text-warning" />
           ) : (
             <Moon className="h-4 w-4 text-foreground/70" />
           )}

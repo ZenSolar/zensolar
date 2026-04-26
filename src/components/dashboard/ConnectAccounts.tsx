@@ -149,8 +149,8 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
     return (
       <div className="space-y-2">
         {incompleteSetups.map((setup) => (
-          <Alert key={setup.provider} className="border-amber-500/50 bg-amber-500/10">
-            <AlertCircle className="h-4 w-4 text-amber-500" />
+          <Alert key={setup.provider} className="border-warning/50 bg-warning/10">
+            <AlertCircle className="h-4 w-4 text-warning" />
             <AlertDescription className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-2">
                 <img 
@@ -165,7 +165,7 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
               <Button
                 size="sm"
                 variant="outline"
-                className="shrink-0 border-amber-500/50 hover:bg-amber-500/20"
+                className="shrink-0 border-warning/50 hover:bg-warning/20"
                 onClick={() => handleResumeSetup(setup.provider)}
               >
                 Complete Setup

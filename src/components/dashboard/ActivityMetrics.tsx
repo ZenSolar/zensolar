@@ -1579,8 +1579,8 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
           >{label}</p>
           {liveIndicator && (
             <span className="relative flex h-2 w-2 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-success" />
             </span>
           )}
         </div>
@@ -1611,7 +1611,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
           )}
         </div>
         {liveIndicator && !(isLoading && value === 0) && (
-          <p className="text-[10px] text-emerald-500 font-medium tracking-wide">Charging in progress…</p>
+          <p className="text-[10px] text-success font-medium tracking-wide">Charging in progress…</p>
         )}
       </div>
       
@@ -1709,13 +1709,13 @@ function TotalTokensCard({ tokensToReceive, activityUnits, tokenPrice, onMintReq
     <>
       {/* Animated background glow for active state */}
       {activityUnits > 0 && (
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-emerald-500/5 animate-pulse-glow" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-success/5 animate-pulse-glow" />
       )}
       
       <div className={cn(
         "relative p-3 rounded-xl transition-all",
         activityUnits > 0 
-          ? "bg-gradient-to-br from-primary to-emerald-600 shadow-lg shadow-primary/30" 
+          ? "bg-gradient-to-br from-primary to-success shadow-lg shadow-primary/30" 
           : "bg-muted"
       )}>
         <Coins className={cn(

@@ -310,8 +310,8 @@ export function DeviceSelectionDialog({
                               {isVehicle && vehicleState && (
                                 <span className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${
                                   vehicleState === 'online' 
-                                    ? 'bg-green-500/10 text-green-600 dark:text-green-400' 
-                                    : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                                    ? 'bg-success/10 text-success dark:text-success' 
+                                    : 'bg-warning/10 text-warning dark:text-warning'
                                 }`}>
                                   {vehicleState === 'online' ? <Wifi className="h-3 w-3" /> : <Moon className="h-3 w-3" />}
                                   {vehicleState}
@@ -332,8 +332,8 @@ export function DeviceSelectionDialog({
                         {/* Wake vehicle button for sleeping vehicles without odometer */}
                         {needsWake && isSelected && (
                           <div className="mt-3 pt-3 border-t border-border/50">
-                            <Alert className="mb-3 bg-amber-500/5 border-amber-500/20">
-                              <AlertTriangle className="h-4 w-4 text-amber-500" />
+                            <Alert className="mb-3 bg-warning/5 border-warning/20">
+                              <AlertTriangle className="h-4 w-4 text-warning" />
                               <AlertDescription className="text-sm">
                                 Vehicle is {vehicleState}. Tap "Wake Vehicle" to retrieve odometer data before connecting.
                               </AlertDescription>

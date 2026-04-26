@@ -41,14 +41,14 @@ export function TodayHero({ days, activityType }: TodayHeroProps) {
       {showComparison ? (
         <div className="flex items-center justify-center gap-1 text-xs">
           {diff > 0 ? (
-            <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
+            <TrendingUp className="h-3.5 w-3.5 text-success" />
           ) : diff < 0 ? (
             <TrendingDown className="h-3.5 w-3.5 text-destructive" />
           ) : (
             <Minus className="h-3.5 w-3.5 text-muted-foreground" />
           )}
           <span className={
-            diff > 0 ? "text-emerald-500 font-medium" :
+            diff > 0 ? "text-success font-medium" :
             diff < 0 ? "text-destructive font-medium" :
             "text-muted-foreground"
           }>
