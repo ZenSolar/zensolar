@@ -64,6 +64,16 @@
     --accent-warm-foreground: 0 0% 100%;
     --accent-cool-foreground: 0 0% 100%;
     --accent-rare-foreground: 0 0% 100%;
+
+    /* Status semantic tokens (theme-aware replacements for emerald/amber/blue/red literals) */
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 10%;
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 100%;
+    --danger: 0 75% 55%;
+    --danger-foreground: 0 0% 100%;
   }
 
   .dark {
@@ -113,6 +123,15 @@
     --accent-warm-foreground: 220 20% 10%;
     --accent-cool-foreground: 0 0% 100%;
     --accent-rare-foreground: 0 0% 100%;
+
+    --success: 142 70% 50%;
+    --success-foreground: 0 0% 10%;
+    --warning: 38 95% 60%;
+    --warning-foreground: 0 0% 10%;
+    --info: 217 91% 65%;
+    --info-foreground: 0 0% 100%;
+    --danger: 0 75% 60%;
+    --danger-foreground: 0 0% 100%;
   }
 }
 
