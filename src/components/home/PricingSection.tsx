@@ -30,10 +30,10 @@ const tiers = [
     earningNote: 'Data tracking only, no token rewards',
   },
   {
-    name: 'Pro',
+    name: 'Base',
     price: '$9.99',
     period: '/mo',
-    description: 'Start minting tokens for your clean energy',
+    description: 'Mint $ZSOLAR when you want — full member access',
     icon: Sparkles,
     color: 'text-primary',
     borderColor: 'border-primary/40',
@@ -53,18 +53,18 @@ const tiers = [
     earningNote: '~$4,000–$9,000/year projected',
   },
   {
-    name: 'Elite',
+    name: 'Auto-Mint',
     price: '$19.99',
     period: '/mo',
-    description: 'Maximum rewards with daily auto-minting',
+    description: 'DCA your energy — daily auto-mint, set it and forget it',
     icon: Crown,
     color: 'text-solar',
     borderColor: 'border-solar/40',
     bg: 'from-solar/5 via-card to-solar/5',
-    cta: 'Go Elite',
+    cta: 'Go Auto-Mint',
     ctaVariant: 'default' as const,
     features: [
-      { text: 'Everything in Pro', included: true },
+      { text: 'Everything in Base', included: true },
       { text: 'Daily auto-minting (DCA your energy)', included: true },
       { text: 'Automatic token accumulation', included: true },
       { text: 'Priority support', included: true },
@@ -157,7 +157,7 @@ export function PricingSection() {
                     <Button 
                       variant={tier.ctaVariant}
                       onClick={mediumTap}
-                      className={`w-full ${tier.popular ? 'bg-primary hover:bg-primary/90 shadow-md' : ''} ${tier.name === 'Elite' ? 'bg-gradient-to-r from-solar to-accent text-accent-foreground hover:opacity-90' : ''}`}
+                      className={`w-full ${tier.popular ? 'bg-primary hover:bg-primary/90 shadow-md' : ''} ${tier.name === 'Auto-Mint' ? 'bg-gradient-to-r from-solar to-accent text-accent-foreground hover:opacity-90' : ''}`}
                     >
                       {tier.cta}
                       <ArrowRight className="ml-2 h-4 w-4" />
@@ -182,16 +182,20 @@ export function PricingSection() {
               <p className="text-sm font-medium text-muted-foreground">Data tracking only</p>
             </div>
             <div className="px-5 py-3 rounded-xl border border-primary/30 bg-primary/5 text-center">
-              <p className="text-xs text-primary mb-1">Pro · Projected Earnings</p>
+              <p className="text-xs text-primary mb-1">Base · Projected Earnings</p>
               <p className="text-lg font-bold text-primary">~$4,000–$9,000<span className="text-xs font-normal text-muted-foreground">/year</span></p>
             </div>
             <div className="px-5 py-3 rounded-xl border border-solar/30 bg-solar/5 text-center">
-              <p className="text-xs text-solar mb-1">Elite · Projected Earnings</p>
+              <p className="text-xs text-solar mb-1">Auto-Mint · Projected Earnings</p>
               <p className="text-lg font-bold text-solar">~$8,000–$19,875<span className="text-xs font-normal text-muted-foreground">/year</span></p>
             </div>
           </div>
-          <p className="text-center text-sm text-muted-foreground max-w-2xl mx-auto">
-            💡 Even at Pro ($9.99/mo = $120/year), projected earnings of $4,000+ represent a <span className="text-primary font-semibold">33x return</span> on your subscription.
+          <p className="text-center text-sm text-muted-foreground max-w-2xl mx-auto mb-3">
+            💡 Even at Base ($9.99/mo = $120/year), projected earnings of $4,000+ represent a <span className="text-primary font-semibold">33x return</span> on your subscription.
+          </p>
+          <p className="text-center text-xs text-muted-foreground/80 max-w-2xl mx-auto">
+            🌱 <span className="text-foreground font-medium">50% of every subscription dollar</span> is injected back into the $ZSOLAR liquidity pool —
+            raising the floor for every holder, automatically, every month.
           </p>
         </motion.div>
       </div>

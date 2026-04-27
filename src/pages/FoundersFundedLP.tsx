@@ -75,7 +75,14 @@ interface MonthlyProjection {
 const SEED_USDC = 50_000;
 const SEED_TOKENS = 500_000;
 const SEED_K = SEED_USDC * SEED_TOKENS;
-const SUB_PRICE = 9.99;
+// Two-tier subscription:
+//  - $9.99/mo Base (mint when you want)            ~70% of subscribers
+//  - $19.99/mo Auto-Mint (DCA your energy daily)   ~30% of subscribers
+// Blended ARPU = 0.70 * 9.99 + 0.30 * 19.99 = 12.99
+const BASE_PRICE = 9.99;
+const AUTOMINT_PRICE = 19.99;
+const AUTOMINT_ATTACH = 0.30;
+const SUB_PRICE = BASE_PRICE * (1 - AUTOMINT_ATTACH) + AUTOMINT_PRICE * AUTOMINT_ATTACH; // 12.99
 const LP_SPLIT = 0.5;
 const FIAT_SPLIT = 0.5;
 
@@ -275,10 +282,11 @@ function Dashboard() {
             Self-Funded Liquidity Plan
           </h1>
           <p className="text-muted-foreground max-w-2xl text-sm sm:text-base leading-relaxed">
-            The complete bootstrap path: $50K seed LP, $9.99/mo subscriptions
-            (50% LP / 50% fiat), seven user waves with 12-month cliff + 12-month
-            linear vest, all the way to 1M users — without raising a single
-            dollar of venture capital.
+            The complete bootstrap path: $50K seed LP, two-tier subscriptions
+            ($9.99 Base · $19.99 Auto-Mint at ~30% attach = <span className="text-foreground font-semibold">$12.99 blended ARPU</span>),
+            split 50% LP / 50% fiat, seven user waves with 12-month cliff +
+            12-month linear vest, all the way to 1M users — without raising a
+            single dollar of venture capital.
           </p>
         </motion.section>
 
@@ -429,7 +437,7 @@ function Dashboard() {
           icon={<TrendingUp className="h-4 w-4" />}
           eyebrow="Revenue & LP Growth"
           title="Subscription Flywheel"
-          subtitle="Cumulative LP and cumulative fiat are always equal — same source ($9.99/mo), 50/50 split."
+          subtitle="Two tiers, blended $12.99 ARPU. Cumulative LP and cumulative fiat are always equal — same source, 50/50 split."
         >
           <div className="rounded-xl border border-border/60 overflow-hidden">
             <div className="overflow-x-auto">
@@ -498,8 +506,9 @@ function Dashboard() {
         <div className="text-xs text-muted-foreground/70 border-t border-border/40 pt-6 leading-relaxed">
           <Lock className="inline h-3 w-3 mr-1.5 -mt-0.5" />
           This page is restricted to Joseph and Michael. All numbers are
-          forecasts based on the locked-in bootstrap model: $50K seed LP, $9.99
-          monthly subscriptions split 50% LP / 50% fiat, 7 waves over 36 months
+          forecasts based on the locked-in bootstrap model: $50K seed LP,
+          two-tier subscriptions ($9.99 Base + $19.99 Auto-Mint, 30% attach →
+          $12.99 blended ARPU) split 50% LP / 50% fiat, 7 waves over 36 months
           to 1M users, 12-month cliff + 12-month linear vest. Live LP state
           reflects the lp_rounds ledger.
         </div>
