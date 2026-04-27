@@ -75,7 +75,14 @@ interface MonthlyProjection {
 const SEED_USDC = 50_000;
 const SEED_TOKENS = 500_000;
 const SEED_K = SEED_USDC * SEED_TOKENS;
-const SUB_PRICE = 9.99;
+// Two-tier subscription:
+//  - $9.99/mo Base (mint when you want)            ~70% of subscribers
+//  - $19.99/mo Auto-Mint (DCA your energy daily)   ~30% of subscribers
+// Blended ARPU = 0.70 * 9.99 + 0.30 * 19.99 = 12.99
+const BASE_PRICE = 9.99;
+const AUTOMINT_PRICE = 19.99;
+const AUTOMINT_ATTACH = 0.30;
+const SUB_PRICE = BASE_PRICE * (1 - AUTOMINT_ATTACH) + AUTOMINT_PRICE * AUTOMINT_ATTACH; // 12.99
 const LP_SPLIT = 0.5;
 const FIAT_SPLIT = 0.5;
 
