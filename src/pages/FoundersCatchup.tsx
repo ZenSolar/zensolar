@@ -429,8 +429,8 @@ function CommentBox({
 }
 
 export default function FoundersCatchup() {
-  const { user, loading } = useAuth();
-  if (loading) {
+  const { user, isLoading } = useAuth();
+  if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
