@@ -18,6 +18,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { VaultPinGate } from "@/components/founders/VaultPinGate";
 import { toast } from "@/hooks/use-toast";
+import { isPreviewMode } from "@/lib/previewMode";
 
 /**
  * /founders/catchup — Michael's async briefing room.
@@ -430,13 +431,22 @@ function CommentBox({
 
 export default function FoundersCatchup() {
   const { user, isLoading } = useAuth();
-  if (isLoading) {
+  const preview = isPreviewMode();
+
+  if (isLoading && !preview) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
       </div>
     );
   }
+
+  // In preview (Lovable editor / localhost) skip auth + PIN gate so the page
+  // is always reachable for review. Decisions UI will no-op without a user.
+  if (preview) {
+    return <FoundersCatchupInner />;
+  }
+
   if (!user) return null;
   return (
     <VaultPinGate userId={user.id}>
