@@ -111,9 +111,12 @@ export type Database = {
           ended_at: string | null
           energy_kwh: number
           flow_type: string
+          genesis_reason: string | null
+          genesis_status: Database["public"]["Enums"]["genesis_status"]
           id: string
           mint_status: string
           mint_tx_hash: string | null
+          origin_proof: Json | null
           patent_claim_ref: string | null
           proof_hash: string | null
           proof_metadata: Json | null
@@ -132,9 +135,12 @@ export type Database = {
           ended_at?: string | null
           energy_kwh?: number
           flow_type: string
+          genesis_reason?: string | null
+          genesis_status?: Database["public"]["Enums"]["genesis_status"]
           id?: string
           mint_status?: string
           mint_tx_hash?: string | null
+          origin_proof?: Json | null
           patent_claim_ref?: string | null
           proof_hash?: string | null
           proof_metadata?: Json | null
@@ -153,9 +159,12 @@ export type Database = {
           ended_at?: string | null
           energy_kwh?: number
           flow_type?: string
+          genesis_reason?: string | null
+          genesis_status?: Database["public"]["Enums"]["genesis_status"]
           id?: string
           mint_status?: string
           mint_tx_hash?: string | null
+          origin_proof?: Json | null
           patent_claim_ref?: string | null
           proof_hash?: string | null
           proof_metadata?: Json | null
@@ -177,8 +186,11 @@ export type Database = {
           energy_kwh: number
           fee_amount: number | null
           fee_currency: string | null
+          genesis_reason: string | null
+          genesis_status: Database["public"]["Enums"]["genesis_status"]
           id: string
           location: string | null
+          origin_proof: Json | null
           provider: string
           session_date: string
           session_metadata: Json | null
@@ -191,8 +203,11 @@ export type Database = {
           energy_kwh?: number
           fee_amount?: number | null
           fee_currency?: string | null
+          genesis_reason?: string | null
+          genesis_status?: Database["public"]["Enums"]["genesis_status"]
           id?: string
           location?: string | null
+          origin_proof?: Json | null
           provider: string
           session_date: string
           session_metadata?: Json | null
@@ -205,8 +220,11 @@ export type Database = {
           energy_kwh?: number
           fee_amount?: number | null
           fee_currency?: string | null
+          genesis_reason?: string | null
+          genesis_status?: Database["public"]["Enums"]["genesis_status"]
           id?: string
           location?: string | null
+          origin_proof?: Json | null
           provider?: string
           session_date?: string
           session_metadata?: Json | null
@@ -537,13 +555,52 @@ export type Database = {
         }
         Relationships: []
       }
+      energy_manual_adjustments: {
+        Row: {
+          admin_user_id: string
+          beta_only: boolean
+          created_at: string
+          id: string
+          kwh_adjustment: number
+          reason: string
+          source_row_id: string | null
+          source_table: string
+          target_user_id: string
+        }
+        Insert: {
+          admin_user_id: string
+          beta_only?: boolean
+          created_at?: string
+          id?: string
+          kwh_adjustment: number
+          reason: string
+          source_row_id?: string | null
+          source_table: string
+          target_user_id: string
+        }
+        Update: {
+          admin_user_id?: string
+          beta_only?: boolean
+          created_at?: string
+          id?: string
+          kwh_adjustment?: number
+          reason?: string
+          source_row_id?: string | null
+          source_table?: string
+          target_user_id?: string
+        }
+        Relationships: []
+      }
       energy_production: {
         Row: {
           consumption_wh: number | null
           created_at: string
           data_type: string
           device_id: string
+          genesis_reason: string | null
+          genesis_status: Database["public"]["Enums"]["genesis_status"]
           id: string
+          origin_proof: Json | null
           production_wh: number
           proof_metadata: Json | null
           provider: string
@@ -555,7 +612,10 @@ export type Database = {
           created_at?: string
           data_type?: string
           device_id: string
+          genesis_reason?: string | null
+          genesis_status?: Database["public"]["Enums"]["genesis_status"]
           id?: string
+          origin_proof?: Json | null
           production_wh?: number
           proof_metadata?: Json | null
           provider: string
@@ -567,7 +627,10 @@ export type Database = {
           created_at?: string
           data_type?: string
           device_id?: string
+          genesis_reason?: string | null
+          genesis_status?: Database["public"]["Enums"]["genesis_status"]
           id?: string
+          origin_proof?: Json | null
           production_wh?: number
           proof_metadata?: Json | null
           provider?: string
@@ -643,6 +706,27 @@ export type Database = {
           message?: string
           status?: string
           subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      founder_dashboard_prefs: {
+        Row: {
+          show_manual_adjustments_in_kpi: boolean
+          show_unverifiable_in_kpi: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          show_manual_adjustments_in_kpi?: boolean
+          show_unverifiable_in_kpi?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          show_manual_adjustments_in_kpi?: boolean
+          show_unverifiable_in_kpi?: boolean
           updated_at?: string
           user_id?: string
         }
@@ -796,10 +880,13 @@ export type Database = {
           device_id: string
           end_kwh_added: number
           end_time: string | null
+          genesis_reason: string | null
+          genesis_status: Database["public"]["Enums"]["genesis_status"]
           id: string
           latitude: number | null
           location: string | null
           longitude: number | null
+          origin_proof: Json | null
           proof_chain: Json | null
           session_metadata: Json | null
           start_kwh_added: number
@@ -817,10 +904,13 @@ export type Database = {
           device_id: string
           end_kwh_added?: number
           end_time?: string | null
+          genesis_reason?: string | null
+          genesis_status?: Database["public"]["Enums"]["genesis_status"]
           id?: string
           latitude?: number | null
           location?: string | null
           longitude?: number | null
+          origin_proof?: Json | null
           proof_chain?: Json | null
           session_metadata?: Json | null
           start_kwh_added?: number
@@ -838,10 +928,13 @@ export type Database = {
           device_id?: string
           end_kwh_added?: number
           end_time?: string | null
+          genesis_reason?: string | null
+          genesis_status?: Database["public"]["Enums"]["genesis_status"]
           id?: string
           latitude?: number | null
           location?: string | null
           longitude?: number | null
+          origin_proof?: Json | null
           proof_chain?: Json | null
           session_metadata?: Json | null
           start_kwh_added?: number
@@ -1275,6 +1368,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      protocol_settings: {
+        Row: {
+          beta_overrides_enabled: boolean
+          id: number
+          mainnet_launched_at: string | null
+          notes: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          beta_overrides_enabled?: boolean
+          id?: number
+          mainnet_launched_at?: string | null
+          notes?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          beta_overrides_enabled?: boolean
+          id?: number
+          mainnet_launched_at?: string | null
+          notes?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
       }
       push_subscriptions: {
         Row: {
@@ -1915,6 +2035,10 @@ export type Database = {
           provider: string
         }[]
       }
+      get_mintable_status_filter: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["genesis_status"][]
+      }
       get_nda_signer_name: { Args: { _email: string }; Returns: string }
       get_profiles_for_viewer: {
         Args: { _user_id: string }
@@ -1978,6 +2102,11 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user" | "editor" | "viewer" | "founder"
+      genesis_status:
+        | "pending_genesis"
+        | "genesis_consumed"
+        | "unverifiable_source"
+        | "broken"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2106,6 +2235,12 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user", "editor", "viewer", "founder"],
+      genesis_status: [
+        "pending_genesis",
+        "genesis_consumed",
+        "unverifiable_source",
+        "broken",
+      ],
     },
   },
 } as const
