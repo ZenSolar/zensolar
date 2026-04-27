@@ -14,11 +14,25 @@ import {
   ArrowLeft,
   Loader2,
   Eye,
+  Mail,
+  Sparkles,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { isPreviewMode } from "@/lib/previewMode";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 // =============================================================================
 // MODEL — match the locked-in numbers from FoundersFundedLP
@@ -216,6 +230,9 @@ export default function Transparency() {
             Every kWh verified. Every token minted. Every dollar of liquidity. Public,
             on-chain, real-time. This is what "Creating Currency From Energy" looks like.
           </p>
+          <div className="mt-4">
+            <WaitlistDialog />
+          </div>
         </motion.div>
 
         {/* Hero metrics */}
@@ -462,5 +479,112 @@ function LpStat({
       </div>
       <p className="text-xl font-bold tabular-nums mt-2">{value}</p>
     </Card>
+  );
+}
+
+function WaitlistDialog() {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [done, setDone] = useState(false);
+
+  const submit = async () => {
+    if (!name.trim() || !email.trim()) {
+      toast.error("Name and email required");
+      return;
+    }
+    setSubmitting(true);
+    const { error } = await supabase
+      .from("beta_signups")
+      .insert({ name: name.trim(), email: email.trim().toLowerCase() });
+    setSubmitting(false);
+    if (error) {
+      toast.error("Couldn't join waitlist. Try again.");
+      return;
+    }
+    setDone(true);
+    toast.success("You're on the list. We'll be in touch.");
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        setOpen(o);
+        if (!o) {
+          setTimeout(() => {
+            setDone(false);
+            setName("");
+            setEmail("");
+          }, 200);
+        }
+      }}
+    >
+      <DialogTrigger asChild>
+        <Button size="lg" className="gap-2 shadow-lg shadow-primary/20">
+          <Sparkles className="h-4 w-4" />
+          Join the Waitlist
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-md">
+        {done ? (
+          <div className="py-6 text-center space-y-3">
+            <div className="mx-auto h-12 w-12 rounded-full bg-eco/15 grid place-items-center">
+              <Sparkles className="h-6 w-6 text-eco" />
+            </div>
+            <DialogTitle className="text-xl">You're on the list</DialogTitle>
+            <DialogDescription>
+              We'll email <span className="text-foreground font-medium">{email}</span> when your
+              spot in the next wave opens up.
+            </DialogDescription>
+            <Button onClick={() => setOpen(false)} className="mt-2">
+              Done
+            </Button>
+          </div>
+        ) : (
+          <>
+            <DialogHeader>
+              <div className="inline-flex items-center gap-1.5 self-start rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[10px] uppercase tracking-widest text-primary mb-2">
+                <Mail className="h-3 w-3" />
+                Early Access
+              </div>
+              <DialogTitle className="text-2xl">Join the ZenSolar waitlist</DialogTitle>
+              <DialogDescription>
+                We're rolling out in waves. Drop your email and we'll let you know the moment your
+                spot opens.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <Input
+                placeholder="Your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                disabled={submitting}
+              />
+              <Input
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={submitting}
+              />
+            </div>
+            <DialogFooter>
+              <Button onClick={submit} disabled={submitting} className="w-full">
+                {submitting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4" />
+                    Reserve my spot
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }

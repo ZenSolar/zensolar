@@ -77,6 +77,7 @@ const FoundersMasterOutline = lazy(() => import("./pages/FoundersMasterOutline")
 const FoundersBitcoinThesis = lazy(() => import("./pages/FoundersBitcoinThesis"));
 const FoundersFundedLP = lazy(() => import("./pages/FoundersFundedLP"));
 const Transparency = lazy(() => import("./pages/Transparency"));
+const Pulse = lazy(() => import("./pages/Pulse"));
 const Deason = lazy(() => import("./pages/Deason"));
 import { DeasonFloatingBubble } from "./components/deason/DeasonFloatingBubble";
 const Onboarding = lazy(() => import("./pages/Onboarding"));
@@ -1129,6 +1130,17 @@ const App = () => {
                     <Route path="/vault/founder-funded-lp" element={<Navigate to="/founders/funded-lp" replace />} />
                     {/* Transparency page — gated inside the component to preview hosts + founders only */}
                     <Route path="/transparency" element={<Transparency />} />
+                    {/* Subscriber-exclusive Pulse page — personalized network impact */}
+                    <Route
+                      path="/pulse"
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <Pulse />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
+                    />
                     {/* Deason — founders-only AI agent */}
                     <Route path="/deason" element={<FounderRoute><Deason /></FounderRoute>} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
