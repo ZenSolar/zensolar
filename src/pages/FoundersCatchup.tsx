@@ -429,8 +429,17 @@ function CommentBox({
 }
 
 export default function FoundersCatchup() {
+  const { user, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+  if (!user) return null;
   return (
-    <VaultPinGate>
+    <VaultPinGate userId={user.id}>
       <FoundersCatchupInner />
     </VaultPinGate>
   );
