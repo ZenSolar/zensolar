@@ -31,6 +31,7 @@ End-of-session: append entry to /founders/changelog when shipping features, lock
 - [Receipt CO₂ + EV Math](mem://features/receipt-co2-framing) — Context-aware CO₂ per source, 1 token/mile EV formula, PoW comparison rule
 - [VPP Settlement & Token Timing](mem://features/vpp-settlement) — Real-time tokens per dispatch, monthly cash, 50/30/15/5 split, launch mechanics
 - [Bi-Directional EV Minting](mem://features/bidirectional-ev-minting) — V2G/V2H/V2L + FSD as Phase 3 mintable surfaces, patent-anchored
+- [Emissions Wallet (Gas Sponsorship)](mem://features/emissions-wallet) — Treasury sponsors ALL user mint gas; users never pay. Funded by 2% mint treasury + 50% subs ops side.
 - [Launch Model (LP rounds)](mem://features/launch-model) — $0.10 launch, tranche-per-round LP seeding, circulating vs pact-locked
 - [Proof-of-Genesis](mem://features/proof-of-genesis) — Trademark thesis: Proof of Delta + Proof of Origin
 - [Auth & Web3 Integration](mem://features/auth) — Wallet connection, auth guards, PWA constraints, and role-based access
