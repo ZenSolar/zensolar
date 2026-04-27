@@ -17,6 +17,7 @@ import {
   Battery,
   ShieldCheck,
   Gauge,
+  Activity,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -294,7 +295,29 @@ function VaultDashboard({ isAdmin }: { isAdmin: boolean }) {
           </div>
         </Link>
 
-        {/* VPP Roadmap — Phase 2 revenue stream */}
+        {/* Public Transparency Dashboard — preview-only until launched */}
+        <Link
+          to="/transparency"
+          className="block rounded-2xl border border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent p-4 hover:border-amber-500/70 transition-colors group"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="h-10 w-10 rounded-xl bg-amber-500/15 flex items-center justify-center">
+                <Activity className="h-5 w-5 text-amber-400" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-widest text-amber-400">
+                  Preview · Public Dashboard
+                </p>
+                <p className="text-sm font-semibold">Transparency Page</p>
+                <p className="text-[11px] text-muted-foreground line-clamp-2">
+                  Live network stats, LP reserves, wave progress. Hidden from prod until you launch it.
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="h-4 w-4 text-amber-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+          </div>
+        </Link>
         <Link
           to="/founders/vpp-roadmap"
           className="block rounded-2xl border border-eco/40 bg-gradient-to-br from-eco/10 via-eco/5 to-transparent p-4 hover:border-eco/70 transition-colors group"
