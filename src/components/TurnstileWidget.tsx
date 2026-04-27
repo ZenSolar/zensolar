@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useState } from 'react';
+import { useEffect, useRef, useCallback, useState, forwardRef, useImperativeHandle } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 // Fallback test key for development (always passes)
@@ -34,17 +34,36 @@ interface TurnstileWidgetProps {
   size?: 'normal' | 'compact' | 'invisible';
 }
 
-export function TurnstileWidget({ 
+export interface TurnstileHandle {
+  reset: () => void;
+  getToken: () => string | undefined;
+}
+
+export const TurnstileWidget = forwardRef<TurnstileHandle, TurnstileWidgetProps>(function TurnstileWidget({ 
   onVerify, 
   onError, 
   onExpire,
   theme = 'dark',
   size = 'invisible'
-}: TurnstileWidgetProps) {
+}, ref) {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
   const scriptLoadedRef = useRef(false);
   const [siteKey, setSiteKey] = useState<string | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    reset: () => {
+      if (widgetIdRef.current && window.turnstile) {
+        try { window.turnstile.reset(widgetIdRef.current); } catch {}
+      }
+    },
+    getToken: () => {
+      if (widgetIdRef.current && window.turnstile) {
+        return window.turnstile.getResponse(widgetIdRef.current);
+      }
+      return undefined;
+    },
+  }), []);
 
   // Fetch site key from edge function
   useEffect(() => {
@@ -145,7 +164,7 @@ export function TurnstileWidget({
       data-turnstile-widget
     />
   );
-}
+});
 
 // Hook for easier integration
 export function useTurnstile() {
