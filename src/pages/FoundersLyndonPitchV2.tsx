@@ -16,6 +16,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { VaultPinGate } from "@/components/founders/VaultPinGate";
+import { SubscriptionTransparencyPanel } from "@/components/home/SubscriptionTransparencyPanel";
 
 /**
  * Founders One-Pager v2 — for Lyndon Rive.
@@ -302,6 +303,11 @@ function PitchContent() {
               patent moat locked in 9 jurisdictions before competitors even file.
             </p>
           </div>
+        </section>
+
+        {/* Subscription 50/50 transparency */}
+        <section className="-mx-4 sm:mx-0">
+          <SubscriptionTransparencyPanel />
         </section>
 
         {/* The closer */}

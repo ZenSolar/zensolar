@@ -33,6 +33,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { SubscriptionTransparencyPanel } from "@/components/home/SubscriptionTransparencyPanel";
 
 // =============================================================================
 // MODEL — match the locked-in numbers from FoundersFundedLP
@@ -391,6 +392,11 @@ export default function Transparency() {
             })}
           </div>
         </Card>
+
+        {/* 50/50 Split Visual Panel */}
+        <div className="-mx-4 mb-2">
+          <SubscriptionTransparencyPanel />
+        </div>
 
         {/* Subscription Revenue Forecast — blended ARPU + 50/50 split */}
         <Card className="p-5 mb-6 border-eco/30 bg-gradient-to-br from-eco/[0.04] to-primary/[0.03]">

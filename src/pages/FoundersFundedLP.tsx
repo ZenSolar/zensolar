@@ -16,6 +16,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { VaultPinGate } from "@/components/founders/VaultPinGate";
+import { SubscriptionTransparencyPanel } from "@/components/home/SubscriptionTransparencyPanel";
 import { Card } from "@/components/ui/card";
 import {
   Table,
@@ -379,6 +380,11 @@ function Dashboard() {
             </div>
           )}
         </Section>
+
+        {/* SUBSCRIPTION 50/50 TRANSPARENCY */}
+        <div className="-mx-4 sm:mx-0">
+          <SubscriptionTransparencyPanel />
+        </div>
 
         {/* WAVE ROLLOUT PLANNER */}
         <Section
