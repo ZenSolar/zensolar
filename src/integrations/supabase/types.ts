@@ -648,6 +648,89 @@ export type Database = {
         }
         Relationships: []
       }
+      founder_decision_votes: {
+        Row: {
+          choice: string | null
+          comment: string | null
+          created_at: string
+          decision_id: string
+          id: string
+          updated_at: string
+          user_id: string
+          vote: string
+        }
+        Insert: {
+          choice?: string | null
+          comment?: string | null
+          created_at?: string
+          decision_id: string
+          id?: string
+          updated_at?: string
+          user_id: string
+          vote: string
+        }
+        Update: {
+          choice?: string | null
+          comment?: string | null
+          created_at?: string
+          decision_id?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+          vote?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "founder_decision_votes_decision_id_fkey"
+            columns: ["decision_id"]
+            isOneToOne: false
+            referencedRelation: "founder_decisions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      founder_decisions: {
+        Row: {
+          context: string
+          created_at: string
+          id: string
+          locked_at: string | null
+          locked_choice: string | null
+          options: Json
+          proposed_by: string | null
+          recommendation: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          context: string
+          created_at?: string
+          id?: string
+          locked_at?: string | null
+          locked_choice?: string | null
+          options?: Json
+          proposed_by?: string | null
+          recommendation?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          context?: string
+          created_at?: string
+          id?: string
+          locked_at?: string | null
+          locked_choice?: string | null
+          options?: Json
+          proposed_by?: string | null
+          recommendation?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       founder_pins: {
         Row: {
           created_at: string
