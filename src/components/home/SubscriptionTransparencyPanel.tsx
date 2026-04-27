@@ -173,22 +173,20 @@ export function SubscriptionTransparencyPanel() {
                   <tr>
                     <th className="text-left px-2 md:px-3 py-2">Wave</th>
                     <th className="text-right px-2 md:px-3 py-2">Subs</th>
-                    <th className="text-right px-2 md:px-3 py-2">Mo Rev</th>
+                    <th className="hidden sm:table-cell text-right px-2 md:px-3 py-2">Mo Rev</th>
                     <th className="text-right px-2 md:px-3 py-2 text-eco">
-                      → LP/mo
+                      → LP/yr
                     </th>
-                    <th className="text-right px-2 md:px-3 py-2">→ Co/mo</th>
-                    <th className="hidden sm:table-cell text-right px-2 md:px-3 py-2 text-eco">
-                      LP/yr
+                    <th className="hidden sm:table-cell text-right px-2 md:px-3 py-2">→ Co/yr</th>
+                    <th className="text-right px-2 md:px-3 py-2 text-eco">
+                      Floor
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {WAVES.map((w) => {
+                  {WAVE_MATH.map((w) => {
                     const monthly = w.users * BLENDED_ARPU;
-                    const lpMo = monthly * 0.5;
-                    const coMo = monthly * 0.5;
-                    const lpYr = lpMo * 12;
+                    const coYr = monthly * 0.5 * 12;
                     return (
                       <tr key={w.id} className="border-t border-border/40">
                         <td className="px-2 md:px-3 py-2">
@@ -200,17 +198,17 @@ export function SubscriptionTransparencyPanel() {
                         <td className="text-right px-2 md:px-3 py-2 text-foreground">
                           {fmtNum(w.users)}
                         </td>
-                        <td className="text-right px-2 md:px-3 py-2 text-foreground">
+                        <td className="hidden sm:table-cell text-right px-2 md:px-3 py-2 text-foreground">
                           {fmtUsd(monthly)}
                         </td>
                         <td className="text-right px-2 md:px-3 py-2 text-eco font-semibold">
-                          {fmtUsd(lpMo)}
+                          {fmtUsd(w.lpInjectYr)}
                         </td>
-                        <td className="text-right px-2 md:px-3 py-2 text-foreground">
-                          {fmtUsd(coMo)}
+                        <td className="hidden sm:table-cell text-right px-2 md:px-3 py-2 text-foreground">
+                          {fmtUsd(coYr)}
                         </td>
-                        <td className="hidden sm:table-cell text-right px-2 md:px-3 py-2 text-eco font-semibold">
-                          {fmtUsd(lpYr)}
+                        <td className="text-right px-2 md:px-3 py-2 text-eco font-semibold">
+                          {fmtFloor(w.floor)}
                         </td>
                       </tr>
                     );
@@ -220,7 +218,7 @@ export function SubscriptionTransparencyPanel() {
             </div>
 
             {/* Big numbers at scale */}
-            <div className="mt-4 grid grid-cols-3 gap-2 md:gap-3 text-center">
+            <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 text-center">
               <div className="rounded-md border border-border/60 bg-background/40 p-2.5">
                 <div className="text-[9px] uppercase tracking-wider text-muted-foreground">
                   ARR @ 1M
@@ -245,6 +243,15 @@ export function SubscriptionTransparencyPanel() {
                   $77.9M
                 </div>
               </div>
+              <div className="rounded-md border border-eco/60 bg-eco/[0.08] p-2.5">
+                <div className="text-[9px] uppercase tracking-wider text-eco flex items-center justify-center gap-1">
+                  <TrendingUp className="h-2.5 w-2.5" />
+                  Floor @ 1M
+                </div>
+                <div className="text-base md:text-lg font-bold text-eco">
+                  {fmtFloor(FLOOR_AT_1M)}
+                </div>
+              </div>
             </div>
 
             <p className="text-[10px] md:text-xs text-muted-foreground/80 mt-4 italic leading-relaxed text-center">
@@ -252,9 +259,17 @@ export function SubscriptionTransparencyPanel() {
               from subscriber revenue alone — automatic floor defense, no
               founder rounds required.
             </p>
+            <p className="text-[10px] md:text-xs text-muted-foreground/70 mt-2 leading-relaxed text-center">
+              <span className="text-eco font-semibold">Floor</span> = cumulative
+              USDC ÷ cumulative LP-side $ZSOLAR. Conservative model: one $200K
+              USDC + 2M $ZSOLAR launch tranche per wave; subscription USDC
+              accumulates without adding new tokens. Spot price = floor + market
+              demand premium.
+            </p>
           </Card>
         </motion.div>
       </div>
     </section>
   );
 }
+
