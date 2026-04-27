@@ -128,8 +128,9 @@ export function SubscriptionTransparencyPanel() {
                   $0.50
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Engineering, hardware integrations, patent, legal, support.
-                  Pure runway — no VC, no dilution.
+                  Engineering, hardware integrations, patent, legal, support —
+                  plus <span className="text-foreground font-medium">gas sponsorship</span>{' '}
+                  so users never pay to mint. Pure runway, no VC, no dilution.
                 </p>
               </div>
             </div>
