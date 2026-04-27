@@ -11,7 +11,7 @@ import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { TurnstileWidget } from '@/components/TurnstileWidget';
+import { TurnstileWidget, type TurnstileHandle } from '@/components/TurnstileWidget';
 import { lovable } from '@/integrations/lovable/index';
 
 const emailSchema = z.string().email('Please enter a valid email address');
@@ -49,6 +49,7 @@ export default function Auth() {
   
   // Turnstile CAPTCHA state
   const turnstileTokenRef = useRef<string | null>(null);
+  const turnstileWidgetRef = useRef<TurnstileHandle>(null);
   const [turnstileVerified, setTurnstileVerified] = useState(false);
 
   const handleTurnstileVerify = (token: string) => {
@@ -63,8 +64,13 @@ export default function Auth() {
 
   const verifyTurnstileToken = async (): Promise<boolean> => {
     const token = turnstileTokenRef.current;
+    // Consume the token immediately — Turnstile tokens are single-use.
+    // Clear our ref + reset the widget so a fresh token is issued for the next attempt.
+    turnstileTokenRef.current = null;
+    setTurnstileVerified(false);
+    turnstileWidgetRef.current?.reset();
+
     if (!token) {
-      // In development without a configured key, allow through
       console.log('[Auth] No turnstile token, allowing in development');
       return true;
     }
@@ -573,6 +579,7 @@ export default function Auth() {
                       
                       {/* Turnstile CAPTCHA - invisible widget */}
                       <TurnstileWidget 
+                        ref={turnstileWidgetRef}
                         onVerify={handleTurnstileVerify}
                         onExpire={handleTurnstileExpire}
                         size="invisible"
@@ -703,6 +710,7 @@ export default function Auth() {
                       
                       {/* Turnstile CAPTCHA - invisible widget */}
                       <TurnstileWidget 
+                        ref={turnstileWidgetRef}
                         onVerify={handleTurnstileVerify}
                         onExpire={handleTurnstileExpire}
                         size="invisible"
