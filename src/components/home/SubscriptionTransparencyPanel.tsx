@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Droplets, Building2, Receipt, ArrowDownUp } from 'lucide-react';
+import { Droplets, Building2, Receipt, ArrowDownUp, TrendingUp } from 'lucide-react';
 
 // Two-tier subscription assumptions
 const BASE_PRICE = 9.99;
@@ -10,8 +10,18 @@ const AUTOMINT_ATTACH = 0.30; // 30% of subs choose Auto-Mint
 const BLENDED_ARPU =
   BASE_PRICE * (1 - AUTOMINT_ATTACH) + AUTOMINT_PRICE * AUTOMINT_ATTACH; // $12.99
 
-// Same 7 waves as Transparency / Self-Funded LP pages
-const WAVES = [
+// LP seed mechanics (per memory: $200K USDC + 2M $ZSOLAR per launch tranche; $0.10 floor)
+const SEED_USDC = 200_000;
+const SEED_ZSOLAR_LP = 2_000_000;
+const TRANCHE_USDC = 200_000;
+const TRANCHE_ZSOLAR = 2_000_000;
+
+// Conservative floor projection:
+// - One new LP tranche per wave (matches launch model)
+// - 1yr of subs LP injection at each wave's user count adds USDC (no new ZSOLAR on that side)
+// - Floor = cumulative USDC / cumulative LP-side ZSOLAR
+type Wave = { id: string; name: string; users: number };
+const WAVES: Wave[] = [
   { id: 'W1', name: 'Genesis', users: 1_000 },
   { id: 'W2', name: 'Founders', users: 5_000 },
   { id: 'W3', name: 'Pioneers', users: 25_000 },
@@ -21,11 +31,29 @@ const WAVES = [
   { id: 'W7', name: 'Mass', users: 1_000_000 },
 ];
 
+function buildWaveMath() {
+  let usdc = SEED_USDC;
+  let zsolarLp = SEED_ZSOLAR_LP;
+  return WAVES.map((w) => {
+    usdc += TRANCHE_USDC;
+    zsolarLp += TRANCHE_ZSOLAR;
+    const lpInjectYr = w.users * BLENDED_ARPU * 12 * 0.5;
+    usdc += lpInjectYr;
+    const floor = usdc / zsolarLp;
+    return { ...w, lpInjectYr, cumUsdc: usdc, cumZsolar: zsolarLp, floor };
+  });
+}
+const WAVE_MATH = buildWaveMath();
+const FLOOR_AT_1M = WAVE_MATH[WAVE_MATH.length - 1].floor;
+
 const fmtUsd = (n: number) => {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `$${(n / 1_000).toFixed(0)}K`;
   return `$${n.toFixed(0)}`;
 };
+
+const fmtFloor = (n: number) =>
+  n >= 10 ? `$${n.toFixed(2)}` : n >= 1 ? `$${n.toFixed(2)}` : `$${n.toFixed(3)}`;
 
 const fmtNum = (n: number) =>
   n >= 1_000_000
@@ -33,6 +61,7 @@ const fmtNum = (n: number) =>
     : n >= 1_000
     ? `${(n / 1_000).toFixed(0)}K`
     : n.toString();
+
 
 export function SubscriptionTransparencyPanel() {
   return (
