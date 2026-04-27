@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   Gauge,
   Activity,
+  Coffee,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -270,6 +271,30 @@ function VaultDashboard({ isAdmin }: { isAdmin: boolean }) {
 
         {/* Jump to Chapter — skip the chooser, drop straight into a chapter */}
         <JumpToChapter />
+
+        {/* Catchup — Michael's async briefing room */}
+        <Link
+          to="/founders/catchup"
+          className="block rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-4 hover:border-primary/70 transition-colors group"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center">
+                <Coffee className="h-5 w-5 text-primary" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-widest text-primary">
+                  Async Briefing · Daily Roll-Up
+                </p>
+                <p className="text-sm font-semibold">Catchup</p>
+                <p className="text-[11px] text-muted-foreground line-clamp-2">
+                  What's new since your last visit + decisions awaiting your 👍 / 👎.
+                </p>
+              </div>
+            </div>
+            <ArrowRight className="h-4 w-4 text-primary group-hover:translate-x-0.5 transition-transform shrink-0" />
+          </div>
+        </Link>
 
         {/* Proof of Genesis™ CTA */}
         <Link

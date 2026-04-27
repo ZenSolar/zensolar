@@ -69,6 +69,7 @@ const FoundersProofOfGenesis = lazy(() => import("./pages/FoundersProofOfGenesis
 const V2App = lazy(() => import("./pages/V2App"));
 const FounderSeedAsk = lazy(() => import("./pages/FounderSeedAsk"));
 const FoundersChangelog = lazy(() => import("./pages/FoundersChangelog"));
+const FoundersCatchup = lazy(() => import("./pages/FoundersCatchup"));
 const FoundersLyndonOnePager = lazy(() => import("./pages/FoundersLyndonOnePager"));
 const FoundersLyndonPitchV2 = lazy(() => import("./pages/FoundersLyndonPitchV2"));
 const FoundersVPPRoadmap = lazy(() => import("./pages/FoundersVPPRoadmap"));
@@ -1121,6 +1122,7 @@ const App = () => {
                     <Route path="/founders/deason-v3" element={<FounderRoute><FoundersDeasonV3 /></FounderRoute>} />
                     <Route path="/founders/seed-ask" element={<FounderRoute><FounderSeedAsk /></FounderRoute>} />
                     <Route path="/founders/changelog" element={<FounderRoute><FoundersChangelog /></FounderRoute>} />
+                    <Route path="/founders/catchup" element={<FounderRoute><FoundersCatchup /></FounderRoute>} />
                     <Route path="/founders/lyndon" element={<FounderRoute><FoundersLyndonOnePager /></FounderRoute>} />
                     <Route path="/founders/lyndon-pitch-v2" element={<FounderRoute><FoundersLyndonPitchV2 /></FounderRoute>} />
                     <Route path="/founders/vpp-roadmap" element={<FounderRoute><FoundersVPPRoadmap /></FounderRoute>} />

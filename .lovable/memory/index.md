@@ -19,6 +19,7 @@ End-of-session: append entry to /founders/changelog when shipping features, lock
 
 ## Memories
 - [Master Project Outline (cornerstone doc)](mem://features/master-project-outline) — /founders/master-outline · 12 sections · mirror twin of memory · update both together
+- [Catchup page (Michael's briefing)](mem://features/catchup-page) — /founders/catchup · daily roll-ups · since-last-visit diff · pending decisions w/ 👍/👎/comment async approval
 - [Brand & Naming (ZenSolar vs ZenCorp Inc)](mem://brand/naming) — Product name vs legal entity, the "never IPO" joke, when to use which
 - [Patent Update Checklist](mem://legal/patent-update-checklist) — 3-track strategy for App 19/634,402: Preliminary Amendment by July 2 2026, new provisionals for Optimist/Starlink, CIP candidates
 - [Trademark Roadmap (Tier 1/2/3)](mem://features/trademark-roadmap) — Proof-of-Permanence™, Genesis Anchor™, Proof-of-Custody™ file immediately
