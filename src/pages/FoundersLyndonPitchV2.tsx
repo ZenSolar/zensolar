@@ -105,18 +105,6 @@ const LINE_ITEMS = [
   },
 ];
 
-const NEW_REVENUE = [
-  {
-    title: "$19.99/mo Auto-Mint Subscription",
-    body: "Subscribers get daily automated minting against their connected solar/EV/battery — set it and forget it. At 100K subs that's $24M ARR. At 1M subs it's $240M ARR. This isn't in the model yet.",
-    icon: <Coins className="h-4 w-4" />,
-  },
-  {
-    title: "Virtual Power Plant Revenue Share",
-    body: "Once subscribers cross ~50K homes we have a dispatchable VPP. Utilities pay $40–80/kW-year for grid services. A 200MW aggregated fleet = $8–16M/year in pure utility-paid revenue, on top of the token economy. Also not in the model yet.",
-    icon: <TrendingUp className="h-4 w-4" />,
-  },
-];
 
 function PitchContent() {
   return (
