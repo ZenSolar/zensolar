@@ -16,6 +16,7 @@ const StoreRedemptionSection = lazy(() => import('@/components/home/StoreRedempt
 const WhyZenSolarSection = lazy(() => import('@/components/home/WhyZenSolarSection').then(m => ({ default: m.WhyZenSolarSection })));
 const TokenizationWaveSection = lazy(() => import('@/components/home/TokenizationWaveSection').then(m => ({ default: m.TokenizationWaveSection })));
 const PricingSection = lazy(() => import('@/components/home/PricingSection').then(m => ({ default: m.PricingSection })));
+const SubscriptionTransparencyPanel = lazy(() => import('@/components/home/SubscriptionTransparencyPanel').then(m => ({ default: m.SubscriptionTransparencyPanel })));
 const TestimonialsSection = lazy(() => import('@/components/home/TestimonialsSection').then(m => ({ default: m.TestimonialsSection })));
 const FAQSection = lazy(() => import('@/components/home/FAQSection').then(m => ({ default: m.FAQSection })));
 const HomeCTA = lazy(() => import('@/components/home/HomeCTA').then(m => ({ default: m.HomeCTA })));
@@ -82,6 +83,9 @@ export default function Home() {
             <SectionDivider variant="diamond" />
             <LazySection>
               <PricingSection />
+            </LazySection>
+            <LazySection>
+              <SubscriptionTransparencyPanel />
             </LazySection>
             <SectionDivider variant="chevron" />
             <LazySection>
