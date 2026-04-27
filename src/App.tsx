@@ -70,6 +70,7 @@ const V2App = lazy(() => import("./pages/V2App"));
 const FounderSeedAsk = lazy(() => import("./pages/FounderSeedAsk"));
 const FoundersChangelog = lazy(() => import("./pages/FoundersChangelog"));
 const FoundersLyndonOnePager = lazy(() => import("./pages/FoundersLyndonOnePager"));
+const FoundersLyndonPitchV2 = lazy(() => import("./pages/FoundersLyndonPitchV2"));
 const FoundersVPPRoadmap = lazy(() => import("./pages/FoundersVPPRoadmap"));
 const FoundersEnergyOracle = lazy(() => import("./pages/FoundersEnergyOracle"));
 const FoundersPatentExpansion = lazy(() => import("./pages/FoundersPatentExpansion"));
@@ -1121,6 +1122,7 @@ const App = () => {
                     <Route path="/founders/seed-ask" element={<FounderRoute><FounderSeedAsk /></FounderRoute>} />
                     <Route path="/founders/changelog" element={<FounderRoute><FoundersChangelog /></FounderRoute>} />
                     <Route path="/founders/lyndon" element={<FounderRoute><FoundersLyndonOnePager /></FounderRoute>} />
+                    <Route path="/founders/lyndon-pitch-v2" element={<FounderRoute><FoundersLyndonPitchV2 /></FounderRoute>} />
                     <Route path="/founders/vpp-roadmap" element={<FounderRoute><FoundersVPPRoadmap /></FounderRoute>} />
                     <Route path="/founders/energy-oracle" element={<FounderRoute><FoundersEnergyOracle /></FounderRoute>} />
                     <Route path="/founders/patent-expansion" element={<FounderRoute><FoundersPatentExpansion /></FounderRoute>} />

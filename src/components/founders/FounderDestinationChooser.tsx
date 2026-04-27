@@ -85,8 +85,14 @@ export const FOUNDER_DESTINATIONS: FounderDestination[] = [
   },
   {
     to: "/founders/lyndon",
-    label: "Lyndon One-Pager",
-    blurb: "Single-page investor brief.",
+    label: "Lyndon One-Pager · v1",
+    blurb: "Homeowner-distribution framing.",
+    Icon: ScrollText,
+  },
+  {
+    to: "/founders/lyndon-pitch-v2",
+    label: "Lyndon Pitch · v2",
+    blurb: "Refined: patent moat + $5M line items + closer.",
     Icon: ScrollText,
   },
   {
