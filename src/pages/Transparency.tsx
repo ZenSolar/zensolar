@@ -230,6 +230,9 @@ export default function Transparency() {
             Every kWh verified. Every token minted. Every dollar of liquidity. Public,
             on-chain, real-time. This is what "Creating Currency From Energy" looks like.
           </p>
+          <div className="mt-4">
+            <WaitlistDialog />
+          </div>
         </motion.div>
 
         {/* Hero metrics */}
