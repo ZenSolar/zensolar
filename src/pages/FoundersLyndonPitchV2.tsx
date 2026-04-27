@@ -220,28 +220,6 @@ function PitchContent() {
           </div>
         </section>
 
-        {/* New revenue lines not in the model */}
-        <section className="mb-10">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">
-            Two revenue lines not yet in the model
-          </h2>
-          <div className="space-y-3">
-            {NEW_REVENUE.map((r) => (
-              <div key={r.title} className="rounded-xl border border-eco/40 bg-eco/[0.04] p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="p-1.5 rounded-md bg-eco/10 text-eco">{r.icon}</div>
-                  <h3 className="text-sm font-semibold">{r.title}</h3>
-                </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">{r.body}</p>
-              </div>
-            ))}
-          </div>
-          <p className="text-xs text-muted-foreground mt-4 italic">
-            Both of these are additive to the token economics already shown. The current model
-            assumes neither — they're upside, not dependence.
-          </p>
-        </section>
-
         {/* $5M line items */}
         <section className="mb-10">
           <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">
