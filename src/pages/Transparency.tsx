@@ -392,7 +392,90 @@ export default function Transparency() {
           </div>
         </Card>
 
-        {/* Footer transparency */}
+        {/* Subscription Revenue Forecast — blended ARPU + 50/50 split */}
+        <Card className="p-5 mb-6 border-eco/30 bg-gradient-to-br from-eco/[0.04] to-primary/[0.03]">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[10px] uppercase tracking-widest text-eco font-semibold">
+              Subscription Revenue Forecast
+            </p>
+            <span className="text-[9px] uppercase tracking-wider text-muted-foreground">
+              Blended · 50/50 LP+Fiat
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 mb-4">
+            <div className="rounded-md border border-border/60 bg-background/40 p-2">
+              <div className="text-[9px] uppercase tracking-wider text-muted-foreground">$9.99 Base · 70%</div>
+              <div className="text-xs font-semibold text-foreground">Mint when you want</div>
+            </div>
+            <div className="rounded-md border border-eco/40 bg-eco/[0.05] p-2">
+              <div className="text-[9px] uppercase tracking-wider text-eco">$19.99 Auto-Mint · 30%</div>
+              <div className="text-xs font-semibold text-foreground">DCA your energy</div>
+            </div>
+          </div>
+
+          <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
+            Blended ARPU <span className="text-foreground font-semibold">$12.99/mo</span>.
+            Every dollar splits <span className="text-eco font-semibold">50% to LP (USDC)</span> and
+            <span className="text-foreground font-semibold"> 50% to company (fiat)</span>.
+          </p>
+
+          <div className="overflow-hidden rounded-lg border border-border/60">
+            <table className="w-full text-[11px] tabular-nums">
+              <thead className="bg-muted/40 text-muted-foreground uppercase tracking-wider text-[9px]">
+                <tr>
+                  <th className="text-left px-2 py-2">Wave</th>
+                  <th className="text-right px-2 py-2">Users</th>
+                  <th className="text-right px-2 py-2">ARR</th>
+                  <th className="text-right px-2 py-2 text-eco">→ LP/yr</th>
+                </tr>
+              </thead>
+              <tbody>
+                {WAVES.map((w) => {
+                  const monthly = w.threshold * 12.99;
+                  const arr = monthly * 12;
+                  const lpYear = arr / 2;
+                  return (
+                    <tr key={w.id} className="border-t border-border/40">
+                      <td className="px-2 py-2">
+                        <span className="text-muted-foreground font-mono mr-1.5">{w.id}</span>
+                        <span className="text-foreground">{w.name}</span>
+                      </td>
+                      <td className="text-right px-2 py-2 text-foreground">{fmtNum(w.threshold)}</td>
+                      <td className="text-right px-2 py-2 text-foreground">
+                        {arr >= 1_000_000 ? `$${(arr / 1_000_000).toFixed(1)}M` : `$${(arr / 1_000).toFixed(0)}K`}
+                      </td>
+                      <td className="text-right px-2 py-2 text-eco font-semibold">
+                        {lpYear >= 1_000_000 ? `$${(lpYear / 1_000_000).toFixed(1)}M` : `$${(lpYear / 1_000).toFixed(0)}K`}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+            <div className="rounded-md border border-border/60 bg-background/40 p-2">
+              <div className="text-[9px] uppercase tracking-wider text-muted-foreground">@ 1M ARR</div>
+              <div className="text-sm font-bold text-foreground">$155.9M</div>
+            </div>
+            <div className="rounded-md border border-eco/40 bg-eco/[0.05] p-2">
+              <div className="text-[9px] uppercase tracking-wider text-eco">LP Inject/yr</div>
+              <div className="text-sm font-bold text-eco">$77.9M</div>
+            </div>
+            <div className="rounded-md border border-border/60 bg-background/40 p-2">
+              <div className="text-[9px] uppercase tracking-wider text-muted-foreground">Company/yr</div>
+              <div className="text-sm font-bold text-foreground">$77.9M</div>
+            </div>
+          </div>
+
+          <p className="text-[10px] text-muted-foreground/80 mt-3 italic leading-relaxed">
+            At full scale, ~$6.5M/mo of continuous USDC flows into the LP from subscriber revenue alone —
+            no manual founder rounds required after the seed phase.
+          </p>
+        </Card>
+
         <Card className="p-5 mb-6 border-dashed">
           <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2">
             On-Chain Verification

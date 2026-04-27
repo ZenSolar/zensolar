@@ -220,7 +220,60 @@ function PitchContent() {
           </div>
         </section>
 
-        {/* $5M line items */}
+        {/* Subscription tiers + 50/50 LP-fiat split */}
+        <section className="mb-10">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">
+            Two-tier subscription · 50/50 split funds the LP forever
+          </h2>
+
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="rounded-xl border border-border p-4">
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Base</div>
+              <div className="text-2xl font-bold text-foreground mb-1">$9.99<span className="text-xs text-muted-foreground font-normal">/mo</span></div>
+              <p className="text-xs text-muted-foreground leading-relaxed">Mint when you want. Member access, wallet, full history.</p>
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground mt-2">~70% of base</p>
+            </div>
+            <div className="rounded-xl border border-eco/40 bg-eco/[0.05] p-4">
+              <div className="text-[10px] uppercase tracking-widest text-eco mb-1">Auto-Mint</div>
+              <div className="text-2xl font-bold text-foreground mb-1">$19.99<span className="text-xs text-muted-foreground font-normal">/mo</span></div>
+              <p className="text-xs text-muted-foreground leading-relaxed">DCA your energy. Daily auto-mint to your wallet — set it and forget it.</p>
+              <p className="text-[10px] uppercase tracking-widest text-eco mt-2">~30% attach</p>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-primary/30 bg-primary/[0.05] p-5 mb-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Coins className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-semibold text-primary">The 50/50 split — the engine that defends the floor forever</h3>
+            </div>
+            <p className="text-sm text-foreground/90 leading-relaxed mb-3">
+              Every dollar of subscription revenue splits cleanly:
+              <span className="font-semibold"> 50% injected into the LP as USDC</span>, raising the floor for every holder, and
+              <span className="font-semibold"> 50% to the company as fiat</span> for salaries, patent, and ops. Once subs scale,
+              the LP self-funds — we never need another founder-funded round.
+            </p>
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <div className="rounded-md border border-border/60 bg-background/40 p-2">
+                <div className="text-[9px] uppercase tracking-wider text-muted-foreground">Blended ARPU</div>
+                <div className="text-base font-bold text-foreground">$12.99<span className="text-[10px] text-muted-foreground font-normal">/mo</span></div>
+              </div>
+              <div className="rounded-md border border-border/60 bg-background/40 p-2">
+                <div className="text-[9px] uppercase tracking-wider text-muted-foreground">ARR @ 1M users</div>
+                <div className="text-base font-bold text-foreground">$155.9M</div>
+              </div>
+              <div className="rounded-md border border-border/60 bg-background/40 p-2">
+                <div className="text-[9px] uppercase tracking-wider text-eco">LP inject @ 1M</div>
+                <div className="text-base font-bold text-eco">$77.9M<span className="text-[10px] text-muted-foreground font-normal">/yr</span></div>
+              </div>
+            </div>
+          </div>
+
+          <p className="text-xs text-muted-foreground italic leading-relaxed">
+            At 1M subs that's <span className="text-foreground font-medium">~$6.5M/month of continuous USDC</span> flowing into the LP — automatic floor defense
+            no competitor can replicate without first acquiring the same user base.
+          </p>
+        </section>
+
         <section className="mb-10">
           <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">
             $5M · 24-month runway · exactly how it deploys
