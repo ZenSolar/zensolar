@@ -12,7 +12,6 @@ import {
   Quote,
   Sparkles,
   Lock,
-  TrendingUp,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -106,18 +105,6 @@ const LINE_ITEMS = [
   },
 ];
 
-const NEW_REVENUE = [
-  {
-    title: "$19.99/mo Auto-Mint Subscription",
-    body: "Subscribers get daily automated minting against their connected solar/EV/battery — set it and forget it. At 100K subs that's $24M ARR. At 1M subs it's $240M ARR. This isn't in the model yet.",
-    icon: <Coins className="h-4 w-4" />,
-  },
-  {
-    title: "Virtual Power Plant Revenue Share",
-    body: "Once subscribers cross ~50K homes we have a dispatchable VPP. Utilities pay $40–80/kW-year for grid services. A 200MW aggregated fleet = $8–16M/year in pure utility-paid revenue, on top of the token economy. Also not in the model yet.",
-    icon: <TrendingUp className="h-4 w-4" />,
-  },
-];
 
 function PitchContent() {
   return (
@@ -231,28 +218,6 @@ function PitchContent() {
               whether they want to or not.
             </p>
           </div>
-        </section>
-
-        {/* New revenue lines not in the model */}
-        <section className="mb-10">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">
-            Two revenue lines not yet in the model
-          </h2>
-          <div className="space-y-3">
-            {NEW_REVENUE.map((r) => (
-              <div key={r.title} className="rounded-xl border border-eco/40 bg-eco/[0.04] p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="p-1.5 rounded-md bg-eco/10 text-eco">{r.icon}</div>
-                  <h3 className="text-sm font-semibold">{r.title}</h3>
-                </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">{r.body}</p>
-              </div>
-            ))}
-          </div>
-          <p className="text-xs text-muted-foreground mt-4 italic">
-            Both of these are additive to the token economics already shown. The current model
-            assumes neither — they're upside, not dependence.
-          </p>
         </section>
 
         {/* $5M line items */}
