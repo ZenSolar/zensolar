@@ -1203,6 +1203,14 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
               ? `0 0 12px hsl(${styles.rgba} / 0.18), 0 0 5px hsl(${styles.rgba} / 0.12), 0 0 24px hsl(${styles.rgba} / 0.06), inset 0 0 6px hsl(${styles.rgba} / 0.06)`
               : shadowRest,
         transition: 'box-shadow 0.4s ease-out',
+        // Promote each tile to its own GPU compositor layer so bursts, rings,
+        // and ripples don't trigger sibling tile repaints. Big win on iOS.
+        transform: 'translateZ(0)',
+        contain: 'layout paint',
+        // Inline touch-action beats the CSS class on iOS Safari — eliminates
+        // the ~300ms tap delay heuristic on touch targets reliably.
+        touchAction: 'manipulation',
+        WebkitTapHighlightColor: 'transparent',
       } as React.CSSProperties}
        className={cn(
         "p-3.5 rounded-xl border-l-[3px] flex items-center gap-3.5 relative overflow-hidden touch-manipulation select-none",
