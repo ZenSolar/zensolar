@@ -579,6 +579,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       }
 
       setMintingProgress({ step: 'transmitting', message: `Transmitting to Base L2 Blockchain...` });
+      setMicroActive(false);
+      requestAnimationFrame(() => setMicroActive(true));
 
       // Map subcategories back to 'charging' for the edge function, with subcategory hint
       const mintCategory = (category === 'home_charging' || category === 'supercharging') ? 'charging' : category;
