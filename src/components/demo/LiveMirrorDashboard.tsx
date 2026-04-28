@@ -181,9 +181,11 @@ export function LiveMirrorDashboard() {
   return (
     <div ref={containerRef} className="bg-background min-h-full w-full relative overflow-x-hidden">
       <DashboardHexBackground />
-      <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} isReady={isReady} />
+      <div className="md:hidden">
+        <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} isReady={isReady} />
+      </div>
 
-      <AnimatedContainer className="relative z-10 w-full max-w-lg min-w-0 mx-auto px-3 sm:px-4 py-6 space-y-6 box-border">
+      <AnimatedContainer className="relative z-10 w-full max-w-lg min-w-0 mx-auto px-3 sm:px-4 py-6 space-y-6 box-border md:my-6 md:rounded-3xl md:border md:border-border/40 md:bg-background/40 md:backdrop-blur-sm md:shadow-[0_0_60px_-20px_hsl(var(--primary)/0.25)] md:px-6 md:py-8">
         {/* Header — matches DemoDashboard */}
         <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center relative">
           <div className="absolute top-0 right-0">
