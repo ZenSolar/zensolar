@@ -179,22 +179,19 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
       
       if (result.success) {
         setMintingProgress({ step: 'complete', message: '✅ Transaction confirmed on Base Sepolia!' });
-        await new Promise(resolve => setTimeout(resolve, 600));
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         setMintingProgressDialog(false);
+        triggerConfetti();
+        setMicroActive(false);
+        requestAnimationFrame(() => setMicroActive(true));
 
-        // Play the cinematic protocol sequence; result dialog opens after it completes
-        const tokenCount = getCategoryTokens(category);
-        setCinematic({
+        setResultDialog({
           open: true,
-          tokenCount,
-          subtitle: `${tokenCount.toLocaleString()} $ZSOLAR minted`,
-          pendingResult: {
-            success: true,
-            txHash: result.txHash,
-            message: result.message,
-            type: 'token',
-          },
+          success: true,
+          txHash: result.txHash,
+          message: result.message,
+          type: 'token',
         });
 
         await onRefresh();
@@ -236,32 +233,23 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
       
       if (result.success) {
         setMintingProgress({ step: 'complete', message: '✅ NFT minted to Base Sepolia!' });
-        await new Promise(resolve => setTimeout(resolve, 600));
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         setMintingProgressDialog(false);
-
         const isAlreadyClaimed = result.message.includes('already');
-        if (isAlreadyClaimed) {
-          // Skip cinematic for already-owned welcome NFT
-          setResultDialog({
-            open: true,
-            success: true,
-            txHash: result.txHash,
-            message: result.message,
-            type: 'nft',
-          });
-        } else {
-          setCinematic({
-            open: true,
-            subtitle: 'Welcome NFT minted',
-            pendingResult: {
-              success: true,
-              txHash: result.txHash,
-              message: result.message,
-              type: 'nft',
-            },
-          });
+        if (!isAlreadyClaimed) {
+          triggerConfetti();
+          setMicroActive(false);
+          requestAnimationFrame(() => setMicroActive(true));
         }
+
+        setResultDialog({
+          open: true,
+          success: true,
+          txHash: result.txHash,
+          message: result.message,
+          type: 'nft',
+        });
 
         await onRefresh();
       }
@@ -293,28 +281,6 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
 
   return (
     <div className="space-y-4">
-      {/* Cinematic protocol sequence — plays after a successful mint, before the result dialog */}
-      <ProtocolCinematicSequence
-        open={cinematic.open}
-        finaleTokenCount={cinematic.tokenCount}
-        finaleSubtitle={cinematic.subtitle}
-        tapAtIso={new Date().toISOString()}
-        onComplete={() => {
-          const pending = cinematic.pendingResult;
-          setCinematic({ open: false });
-          if (pending) {
-            triggerConfetti();
-            setResultDialog({ open: true, ...pending });
-          }
-        }}
-        onClose={() => {
-          const pending = cinematic.pendingResult;
-          setCinematic({ open: false });
-          if (pending) {
-            setResultDialog({ open: true, ...pending });
-          }
-        }}
-      />
       {/* Demo Mode Banner */}
       <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 text-center">
         <p className="text-sm text-primary font-medium">
