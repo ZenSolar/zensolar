@@ -661,7 +661,7 @@ function Dashboard() {
           forecasts based on the locked-in bootstrap model: $50K founder-funded LP (out-of-pocket, no investors),
           two-tier subscriptions ($9.99 Base + $19.99 Auto-Mint, 30% attach →
           $12.99 blended ARPU) split 50% LP / 50% fiat, 7 waves over 36 months
-          to 1M users, 12-month cliff + 12-month linear vest. Live LP state
+          to 1M users, tapered cliff/vest ladder (W1 12+12 → W2 9+9 → W3–W7 6+6). Live LP state
           reflects the lp_rounds ledger.
         </div>
       </div>
