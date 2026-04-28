@@ -650,11 +650,24 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
             <h3 className="text-lg font-bold tracking-tight mb-1">
               {mintingProgress.step === 'complete' ? 'Transaction Complete' : 
                mintingProgress.step === 'error' ? 'Transaction Failed' : 
+               mintingProgress.step === 'submitting' ? 'Transmitting to Base L2 Blockchain…' :
+               mintingProgress.step === 'confirming' ? 'Confirming on Base L2' :
                'Minting to Blockchain'}
             </h3>
             <p className="text-sm text-muted-foreground">{mintingProgress.message}</p>
-            
-            {mintingProgress.step !== 'complete' && mintingProgress.step !== 'error' && (
+
+            {/* Variant C — inline Proof-of-Genesis cinematic, in sync with the
+                broadcast. ~6.5s. */}
+            {(mintingProgress.step === 'submitting' || mintingProgress.step === 'confirming') && (
+              <div className="mt-5">
+                <MicroProtocolBadge
+                  active={microActive}
+                  onComplete={() => { /* hold seal until step advances */ }}
+                />
+              </div>
+            )}
+
+            {mintingProgress.step !== 'complete' && mintingProgress.step !== 'error' && mintingProgress.step !== 'submitting' && mintingProgress.step !== 'confirming' && (
               <p className="text-xs text-muted-foreground/60 mt-2">
                 Securing your rewards on Base Sepolia
               </p>
