@@ -207,10 +207,15 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
 
     try {
       await new Promise(resolve => setTimeout(resolve, 800));
-      setMintingProgress({ step: 'submitting', message: '⚡ Processing $ZSOLAR tokens mint to Blockchain...' });
-      
-      await new Promise(resolve => setTimeout(resolve, 1200));
-      setMintingProgress({ step: 'confirming', message: '🔐 Confirming transaction on-chain...' });
+      setMintingProgress({ step: 'submitting', message: '⚡ Transmitting to Base L2 Blockchain...' });
+      // Kick off Variant C — runs in sync with the broadcast (~6.5s).
+      setMicroActive(false);
+      requestAnimationFrame(() => setMicroActive(true));
+
+      // Hold while the badge plays (~5.2s) before flipping to confirming.
+      await new Promise(resolve => setTimeout(resolve, 5200));
+      setMintingProgress({ step: 'confirming', message: '🔐 Confirming on-chain...' });
+      await new Promise(resolve => setTimeout(resolve, 1300));
       
       const result = await onMintTokens(category);
       
