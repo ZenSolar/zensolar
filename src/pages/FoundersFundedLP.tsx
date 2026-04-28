@@ -394,13 +394,13 @@ function Dashboard() {
             </div>
           ) : (
             <div className="space-y-3">
-              {/* Breakdown strip — makes it impossible to confuse seed with total */}
+              {/* Breakdown strip — makes it impossible to confuse founder deposit with total */}
               <div className="rounded-xl border border-border/50 bg-card/40 p-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs">
                 <span className="text-muted-foreground uppercase tracking-[0.14em]">
                   Reserve breakdown
                 </span>
                 <span className="text-foreground">
-                  Seed <span className="text-muted-foreground">{fmtUsd(SEED_USDC)}</span>
+                  Founder deposit <span className="text-muted-foreground">{fmtUsd(SEED_USDC)}</span>
                 </span>
                 <span className="text-muted-foreground">+</span>
                 <span className="text-foreground">
@@ -416,14 +416,15 @@ function Dashboard() {
                 <Stat
                   label="USDC Reserve (Total)"
                   value={fmtUsd(liveState.usdcReserve)}
-                  hint={`${fmtUsd(SEED_USDC)} seed + ${fmtUsd(liveState.totalUsdcInjected)} rounds`}
+                  hint={`${fmtUsd(SEED_USDC)} founder deposit + ${fmtUsd(liveState.totalUsdcInjected)} rounds`}
                   accent
                 />
                 <Stat
                   label="Token Reserve"
                   value={fmtNum(liveState.tokenReserve)}
-                  hint={`${fmtNum(SEED_TOKENS)} seed + ${fmtNum(liveState.totalTokensReleased)} rounds`}
+                  hint={`${fmtNum(SEED_TOKENS)} founder deposit + ${fmtNum(liveState.totalTokensReleased)} rounds`}
                 />
+
                 <Stat
                   label="Constant k"
                   value={fmtNum(liveState.k)}
