@@ -386,7 +386,7 @@ function Dashboard() {
           icon={<Droplets className="h-4 w-4" />}
           eyebrow="Live LP State"
           title="Current AMM Reserves"
-          subtitle="$50K founder seed + every executed LP round, summed from the lp_rounds ledger. The seed never changes — only injected rounds grow this number."
+          subtitle="$50K founder deposit (Joseph & Michael, out-of-pocket) + every executed LP round, summed from the lp_rounds ledger. The $50K starting deposit never changes — only injected rounds grow this number."
         >
           {loading ? (
             <div className="h-32 flex items-center justify-center">
