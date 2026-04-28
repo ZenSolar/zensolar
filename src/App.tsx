@@ -78,6 +78,7 @@ const FoundersPatentExpansion = lazy(() => import("./pages/FoundersPatentExpansi
 const FoundersMasterOutline = lazy(() => import("./pages/FoundersMasterOutline"));
 const FoundersBitcoinThesis = lazy(() => import("./pages/FoundersBitcoinThesis"));
 const FoundersFundedLP = lazy(() => import("./pages/FoundersFundedLP"));
+const FoundersTschida = lazy(() => import("./pages/FoundersTschida"));
 const Transparency = lazy(() => import("./pages/Transparency"));
 const Pulse = lazy(() => import("./pages/Pulse"));
 const Deason = lazy(() => import("./pages/Deason"));
@@ -1131,6 +1132,7 @@ const App = () => {
                     <Route path="/founders/master-outline" element={<FounderRoute><FoundersMasterOutline /></FounderRoute>} />
                     <Route path="/founders/bitcoin-thesis" element={<FounderRoute><FoundersBitcoinThesis /></FounderRoute>} />
                     <Route path="/founders/funded-lp" element={<FounderRoute><FoundersFundedLP /></FounderRoute>} />
+                    <Route path="/founders/tschida" element={<FounderRoute><FoundersTschida /></FounderRoute>} />
                     <Route path="/vault/founder-funded-lp" element={<Navigate to="/founders/funded-lp" replace />} />
                     {/* Transparency page — gated inside the component to preview hosts + founders only */}
                     <Route path="/transparency" element={<Transparency />} />
