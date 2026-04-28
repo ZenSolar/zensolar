@@ -991,3 +991,118 @@ function Guarantee({
     </li>
   );
 }
+
+// =============================================================================
+// UNIT TEST PANEL
+// =============================================================================
+
+function UnitTestPanel() {
+  const results = useMemo(() => runUnitTests(), []);
+  const passed = results.filter((r) => r.passed).length;
+  const failed = results.length - passed;
+  const allPassed = failed === 0;
+
+  return (
+    <Section
+      icon={<ShieldCheck className="h-4 w-4" />}
+      eyebrow="Unit Tests"
+      title="Cliff = Vest Invariants"
+      subtitle="Runs in-browser on every load. Verifies the symmetric cliff/vest rule for every wave, the 50/50 LP/fiat split, the unlock schedule shape, and the average monthly mint per user (25 kWh × 0.5 $ZSOLAR/kWh = 12.5 $ZSOLAR gross)."
+    >
+      <div
+        className={`rounded-xl border p-4 mb-3 ${
+          allPassed
+            ? "border-primary/40 bg-primary/5"
+            : "border-destructive/50 bg-destructive/5"
+        }`}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {allPassed ? (
+              <ShieldCheck className="h-5 w-5 text-primary" />
+            ) : (
+              <Flame className="h-5 w-5 text-destructive" />
+            )}
+            <span className="text-sm font-semibold">
+              {allPassed ? "All assertions passing" : "Assertion failures detected"}
+            </span>
+          </div>
+          <div className="flex items-center gap-3 text-xs tabular-nums">
+            <span className="text-primary font-semibold">{passed} pass</span>
+            <span
+              className={
+                failed > 0 ? "text-destructive font-semibold" : "text-muted-foreground"
+              }
+            >
+              {failed} fail
+            </span>
+            <span className="text-muted-foreground">
+              {results.length} total
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Constants snapshot */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+        <Stat
+          label="Avg kWh / user / mo"
+          value={`${AVG_KWH_PER_USER_MONTH} kWh`}
+          hint="ZPPA threshold (rolling 30d)"
+        />
+        <Stat
+          label="$ZSOLAR / kWh"
+          value={ZSOLAR_PER_KWH.toFixed(2)}
+          hint="ZPPA_KWH_TO_USDC"
+        />
+        <Stat
+          label="Avg gross mint / user / mo"
+          value={`${AVG_GROSS_MINT_PER_USER_MONTH} $ZSOLAR`}
+          hint="25 × 0.5"
+          accent
+        />
+        <Stat
+          label="Avg net mint / user / mo"
+          value={`${AVG_NET_MINT_PER_USER_MONTH} $ZSOLAR`}
+          hint="× 75% user share"
+          accent
+        />
+      </div>
+
+      <div className="rounded-xl border border-border/60 overflow-hidden">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/40">
+                <TableHead className="w-16">Status</TableHead>
+                <TableHead>Assertion</TableHead>
+                <TableHead className="hidden sm:table-cell">Detail</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {results.map((r, i) => (
+                <TableRow key={i}>
+                  <TableCell>
+                    <span
+                      className={`inline-flex items-center justify-center h-5 px-2 rounded text-[10px] font-mono font-semibold ${
+                        r.passed
+                          ? "bg-primary/15 text-primary"
+                          : "bg-destructive/15 text-destructive"
+                      }`}
+                    >
+                      {r.passed ? "PASS" : "FAIL"}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-sm">{r.name}</TableCell>
+                  <TableCell className="hidden sm:table-cell text-xs text-muted-foreground font-mono">
+                    {r.detail}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+    </Section>
+  );
+}
