@@ -90,18 +90,8 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
     type: null,
   });
 
-  // Cinematic sequence state — plays between progress and success dialogs
-  const [cinematic, setCinematic] = useState<{
-    open: boolean;
-    tokenCount?: number;
-    subtitle?: string;
-    pendingResult?: {
-      success: boolean;
-      txHash?: string;
-      message: string;
-      type: 'token' | 'nft';
-    };
-  }>({ open: false });
+  // Embedded micro-cinematic — plays inside the success result dialog (Variant C, 6.5s)
+  const [microActive, setMicroActive] = useState(false);
 
   // Expose openMintDialogForCategory to parent via ref
   useImperativeHandle(ref, () => ({
