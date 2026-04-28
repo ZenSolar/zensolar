@@ -51,21 +51,37 @@ interface Wave {
   monthOpens: number;
   newUsers: number;
   cumulativeUsers: number;
-  cliffMonth: number;
-  fullyVestedMonth: number;
+  // Symmetric structure: cliff = vest, ALWAYS. Stored in days for sub-month precision.
+  cliffDays: number;
+  vestDays: number;
+  mintMultiplier: number;
+  forecastEntryPrice: number;
+  sellTaxPct?: number; // only for instant-unlock waves (8+)
 }
 
-// Locked wave schedule: symmetric 12-month cliff + 12-month linear vest for EVERY wave.
-// Each wave opens 6 months after the prior wave, so unlocks are staggered instead of piled up.
+// CORRECTED LOCKED LADDER — symmetric cliff = vest for every wave.
+// Tapered as the network matures: longer locks for earlier risk-takers, shorter as floor deepens.
+// Waves 8+ replace lock with sell-tax (cleaner — instant liquidity, disincentivized dumping).
 const WAVES: Wave[] = [
-  { id: "W1", name: "Genesis",   monthOpens: 0,  newUsers: 1_000,   cumulativeUsers: 1_000,     cliffMonth: 0  + 12, fullyVestedMonth: 0  + 12 + 12 },
-  { id: "W2", name: "Founders",  monthOpens: 6,  newUsers: 4_000,   cumulativeUsers: 5_000,     cliffMonth: 6  + 12, fullyVestedMonth: 6  + 12 + 12 },
-  { id: "W3", name: "Pioneers",  monthOpens: 12, newUsers: 20_000,  cumulativeUsers: 25_000,    cliffMonth: 12 + 12, fullyVestedMonth: 12 + 12 + 12 },
-  { id: "W4", name: "Builders",  monthOpens: 18, newUsers: 75_000,  cumulativeUsers: 100_000,   cliffMonth: 18 + 12, fullyVestedMonth: 18 + 12 + 12 },
-  { id: "W5", name: "Network",   monthOpens: 24, newUsers: 200_000, cumulativeUsers: 300_000,   cliffMonth: 24 + 12, fullyVestedMonth: 24 + 12 + 12 },
-  { id: "W6", name: "Expansion", monthOpens: 30, newUsers: 300_000, cumulativeUsers: 600_000,   cliffMonth: 30 + 12, fullyVestedMonth: 30 + 12 + 12 },
-  { id: "W7", name: "Mass",      monthOpens: 36, newUsers: 400_000, cumulativeUsers: 1_000_000, cliffMonth: 36 + 12, fullyVestedMonth: 36 + 12 + 12 },
+  { id: "W1",  name: "Genesis",    monthOpens: 0,  newUsers: 1_000,     cumulativeUsers: 1_000,      cliffDays: 365, vestDays: 365, mintMultiplier: 2.0,  forecastEntryPrice: 0.10 },
+  { id: "W2",  name: "Wave 2",     monthOpens: 6,  newUsers: 4_000,     cumulativeUsers: 5_000,      cliffDays: 274, vestDays: 274, mintMultiplier: 1.5,  forecastEntryPrice: 0.16 },
+  { id: "W3",  name: "Wave 3",     monthOpens: 12, newUsers: 20_000,    cumulativeUsers: 25_000,     cliffDays: 183, vestDays: 183, mintMultiplier: 1.25, forecastEntryPrice: 0.26 },
+  { id: "W4",  name: "Wave 4",     monthOpens: 18, newUsers: 75_000,    cumulativeUsers: 100_000,    cliffDays: 91,  vestDays: 91,  mintMultiplier: 1.1,  forecastEntryPrice: 0.42 },
+  { id: "W5",  name: "Wave 5",     monthOpens: 24, newUsers: 400_000,   cumulativeUsers: 500_000,    cliffDays: 30,  vestDays: 30,  mintMultiplier: 1.0,  forecastEntryPrice: 0.68 },
+  { id: "W6",  name: "Wave 6",     monthOpens: 30, newUsers: 500_000,   cumulativeUsers: 1_000_000,  cliffDays: 14,  vestDays: 14,  mintMultiplier: 1.0,  forecastEntryPrice: 1.15 },
+  { id: "W7",  name: "Wave 7",     monthOpens: 36, newUsers: 1_500_000, cumulativeUsers: 2_500_000,  cliffDays: 7,   vestDays: 7,   mintMultiplier: 1.0,  forecastEntryPrice: 1.95 },
+  { id: "W8",  name: "Wave 8",     monthOpens: 42, newUsers: 2_500_000, cumulativeUsers: 5_000_000,  cliffDays: 0,   vestDays: 0,   mintMultiplier: 1.0,  forecastEntryPrice: 3.30, sellTaxPct: 5 },
+  { id: "W9",  name: "Wave 9",     monthOpens: 48, newUsers: 5_000_000, cumulativeUsers: 10_000_000, cliffDays: 0,   vestDays: 0,   mintMultiplier: 1.0,  forecastEntryPrice: 5.70, sellTaxPct: 3 },
+  { id: "W10", name: "Open Mint",  monthOpens: 54, newUsers: 0,         cumulativeUsers: 0,          cliffDays: 0,   vestDays: 0,   mintMultiplier: 0.75, forecastEntryPrice: 9.00, sellTaxPct: 1 },
 ];
+
+// Format a duration in days into a compact human-readable label (e.g. "12mo", "14d", "Instant").
+function fmtDuration(days: number): string {
+  if (days <= 0) return "Instant";
+  if (days < 30) return `${days}d`;
+  const months = Math.round(days / 30.4375);
+  return `${months}mo`;
+}
 
 interface MonthlyProjection {
   month: number;
@@ -286,8 +302,9 @@ function Dashboard() {
           </h1>
           <p className="text-muted-foreground max-w-2xl text-sm sm:text-base leading-relaxed">
             The complete bootstrap path: $50K founder-funded LP (Joseph & Michael, out-of-pocket — no investors), $9.99/mo subscriptions,
-            split 50% LP / 50% fiat, seven user waves on a <span className="text-foreground font-semibold">symmetric 12+12 cliff/vest schedule</span>,
-            all the way to 1M users — without raising a single dollar of venture capital.
+            split 50% LP / 50% fiat, ten user waves on a <span className="text-foreground font-semibold">tapered symmetric cliff = vest schedule</span>
+            {" "}(12+12 → 9+9 → 6+6 → 3+3 → 1+1 → 14d/14d → 7d/7d → instant + sell-tax),
+            all the way to mass adoption — without raising a single dollar of venture capital.
           </p>
         </motion.section>
 
@@ -324,13 +341,13 @@ function Dashboard() {
           <div className="relative grid sm:grid-cols-3 gap-3">
             <ForceCard
               icon={<Lock className="h-4 w-4" />}
-              title="12-Month Cliff"
-              body="Every wave accepts the same 12-month cliff from its start date. Because waves open every 6 months, no group reaches liquidity at the same moment as the next."
+              title="Symmetric Cliff = Vest"
+              body="Every wave's cliff equals its vest. Genesis = 12+12, then 9+9, 6+6, 3+3, 1+1, then 14d/14d, 7d/7d. No insider tricks, no asymmetric founder advantages — same shape for everyone."
             />
             <ForceCard
               icon={<Calendar className="h-4 w-4" />}
-              title="Symmetric Linear Vest"
-              body="Every wave gets a 12-month linear vest after cliff. Only 1/12 of any wave's tokens unlock per month. Even if 100% of unlocks were sold, max monthly sell pressure is mathematically capped."
+              title="Tapered Lock Ladder"
+              body="Earliest waves take the most risk and earn the longest locks (and the highest mint multipliers). As the floor deepens, locks shorten — until waves 8+ graduate to instant unlocks protected by a sell-tax instead."
             />
             <ForceCard
               icon={<Droplets className="h-4 w-4" />}
@@ -515,8 +532,8 @@ function Dashboard() {
         <Section
           icon={<Calendar className="h-4 w-4" />}
           eyebrow="Wave Rollout Planner"
-          title="7 Waves · 1K → 1M Users · 12+12 Locks"
-          subtitle="Every wave uses the same symmetric schedule: 12-month cliff, then 12-month linear vest. Max 1/12 of any wave can sell per month after its cliff, and waves are staggered 6 months apart."
+          title="10 Waves · Symmetric Cliff = Vest"
+          subtitle="Cliff = vest, ALWAYS. Earlier waves accept the longest locks for the strongest mint multipliers; later waves graduate from lock-based protection to sell-tax-based protection once the floor is deep enough that instant unlocks can't move it."
         >
           <div className="rounded-xl border border-border/60 overflow-hidden">
             <div className="overflow-x-auto">
@@ -525,18 +542,17 @@ function Dashboard() {
                   <TableRow className="bg-muted/40">
                     <TableHead>Wave</TableHead>
                     <TableHead>Opens</TableHead>
-                    <TableHead>New Users</TableHead>
-                    <TableHead>Cumulative</TableHead>
-                    <TableHead className="hidden sm:table-cell">Cliff</TableHead>
-                    <TableHead className="hidden sm:table-cell">Vest</TableHead>
-                    <TableHead className="hidden md:table-cell">Cliff Ends</TableHead>
-                    <TableHead className="hidden md:table-cell">Fully Vested</TableHead>
+                    <TableHead className="hidden md:table-cell">Cumulative Users</TableHead>
+                    <TableHead>Cliff</TableHead>
+                    <TableHead>Vest</TableHead>
+                    <TableHead className="hidden sm:table-cell">Mint ×</TableHead>
+                    <TableHead className="hidden sm:table-cell text-primary">Entry Price</TableHead>
+                    <TableHead className="hidden md:table-cell">Sell Tax</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {WAVES.map((w) => {
-                    const cliffDuration = w.cliffMonth - w.monthOpens;
-                    const vestDuration = w.fullyVestedMonth - w.cliffMonth;
+                    const isOpenMint = w.id === "W10";
                     return (
                       <TableRow key={w.id}>
                         <TableCell>
@@ -550,21 +566,23 @@ function Dashboard() {
                         <TableCell className="text-muted-foreground">
                           M{w.monthOpens}
                         </TableCell>
-                        <TableCell>{fmtNum(w.newUsers)}</TableCell>
-                        <TableCell className="font-medium text-primary">
-                          {fmtNum(w.cumulativeUsers)}
+                        <TableCell className="hidden md:table-cell font-medium text-primary">
+                          {isOpenMint ? "Unlimited" : fmtNum(w.cumulativeUsers)}
+                        </TableCell>
+                        <TableCell className="tabular-nums">
+                          {fmtDuration(w.cliffDays)}
+                        </TableCell>
+                        <TableCell className="tabular-nums">
+                          {fmtDuration(w.vestDays)}
                         </TableCell>
                         <TableCell className="hidden sm:table-cell tabular-nums">
-                          {cliffDuration}mo
+                          {w.mintMultiplier.toFixed(2)}×
                         </TableCell>
-                        <TableCell className="hidden sm:table-cell tabular-nums">
-                          {vestDuration}mo
+                        <TableCell className="hidden sm:table-cell text-primary tabular-nums">
+                          {fmtPrice(w.forecastEntryPrice)}
                         </TableCell>
-                        <TableCell className="hidden md:table-cell text-muted-foreground">
-                          M{w.cliffMonth}
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell text-muted-foreground">
-                          M{w.fullyVestedMonth}
+                        <TableCell className="hidden md:table-cell tabular-nums text-muted-foreground">
+                          {w.sellTaxPct ? `${w.sellTaxPct}%` : "—"}
                         </TableCell>
                       </TableRow>
                     );
