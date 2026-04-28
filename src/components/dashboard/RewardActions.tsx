@@ -27,7 +27,7 @@ import { ManualTokenAddPanel } from './ManualTokenAddPanel';
 import { getNftArtwork } from '@/lib/nftArtwork';
 import { MILESTONE_TO_TOKEN_ID, TOKEN_ID_TO_MILESTONE } from '@/lib/nftTokenMapping';
 import { getRewardMultiplier, getLiveBetaMode } from '@/lib/tokenomics';
-import { ProtocolCinematicSequence } from '@/components/proof/ProtocolCinematicSequence';
+import { MicroProtocolBadge } from '@/components/proof/MicroProtocolBadge';
 
 // NFT Contract address on Base Sepolia
 const NFT_CONTRACT_ADDRESS = '0xD1d509a48CEbB8f9f9aAA462979D7977c30424E3';
@@ -151,19 +151,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     message: '',
     type: null,
   });
-  // Cinematic protocol sequence — plays between progress dialog and result dialog on success
-  const [cinematic, setCinematic] = useState<{
-    open: boolean;
-    tokenCount?: number;
-    subtitle?: string;
-    pendingResult?: {
-      success: boolean;
-      txHash?: string;
-      message: string;
-      type: 'token' | 'nft' | 'milestone' | 'combo';
-      onAfter?: () => void;
-    };
-  }>({ open: false });
+  // Inline micro-cinematic — plays inside result dialog (Variant C, 6.5s)
+  const [microActive, setMicroActive] = useState(false);
   const [showTokenAddPanel, setShowTokenAddPanel] = useState(false);
   const [tokenMintDialog, setTokenMintDialog] = useState(false);
   const [confirmMintDialog, setConfirmMintDialog] = useState(false);
