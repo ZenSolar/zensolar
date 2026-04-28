@@ -103,6 +103,17 @@ const SUB_PRICE = 10;
 const LP_SPLIT = 0.5;
 const FIAT_SPLIT = 0.5;
 
+// Average monthly token mint per user — derived from the ZPPA eligibility model:
+//   Threshold = 25 kWh of verified clean energy / 30 days
+//   Allocation rate = 0.5 $ZSOLAR per kWh (ZPPA_KWH_TO_USDC)
+// → 25 × 0.5 = 12.5 $ZSOLAR gross-minted per active user per month.
+// Mint split (locked): 75% user / 20% burn / 3% LP / 2% treasury.
+const AVG_KWH_PER_USER_MONTH = 25;
+const ZSOLAR_PER_KWH = 0.5;
+const AVG_GROSS_MINT_PER_USER_MONTH = AVG_KWH_PER_USER_MONTH * ZSOLAR_PER_KWH; // 12.5
+const USER_MINT_SHARE = 0.75;
+const AVG_NET_MINT_PER_USER_MONTH = AVG_GROSS_MINT_PER_USER_MONTH * USER_MINT_SHARE; // 9.375
+
 function buildProjection(): MonthlyProjection[] {
   const milestones = [6, 12, 18, 24, 30, 36, 48, 60];
   const rows: MonthlyProjection[] = [];
