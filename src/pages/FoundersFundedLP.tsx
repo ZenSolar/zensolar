@@ -51,21 +51,37 @@ interface Wave {
   monthOpens: number;
   newUsers: number;
   cumulativeUsers: number;
-  cliffMonth: number;
-  fullyVestedMonth: number;
+  // Symmetric structure: cliff = vest, ALWAYS. Stored in days for sub-month precision.
+  cliffDays: number;
+  vestDays: number;
+  mintMultiplier: number;
+  forecastEntryPrice: number;
+  sellTaxPct?: number; // only for instant-unlock waves (8+)
 }
 
-// Locked wave schedule: symmetric 12-month cliff + 12-month linear vest for EVERY wave.
-// Each wave opens 6 months after the prior wave, so unlocks are staggered instead of piled up.
+// CORRECTED LOCKED LADDER — symmetric cliff = vest for every wave.
+// Tapered as the network matures: longer locks for earlier risk-takers, shorter as floor deepens.
+// Waves 8+ replace lock with sell-tax (cleaner — instant liquidity, disincentivized dumping).
 const WAVES: Wave[] = [
-  { id: "W1", name: "Genesis",   monthOpens: 0,  newUsers: 1_000,   cumulativeUsers: 1_000,     cliffMonth: 0  + 12, fullyVestedMonth: 0  + 12 + 12 },
-  { id: "W2", name: "Founders",  monthOpens: 6,  newUsers: 4_000,   cumulativeUsers: 5_000,     cliffMonth: 6  + 12, fullyVestedMonth: 6  + 12 + 12 },
-  { id: "W3", name: "Pioneers",  monthOpens: 12, newUsers: 20_000,  cumulativeUsers: 25_000,    cliffMonth: 12 + 12, fullyVestedMonth: 12 + 12 + 12 },
-  { id: "W4", name: "Builders",  monthOpens: 18, newUsers: 75_000,  cumulativeUsers: 100_000,   cliffMonth: 18 + 12, fullyVestedMonth: 18 + 12 + 12 },
-  { id: "W5", name: "Network",   monthOpens: 24, newUsers: 200_000, cumulativeUsers: 300_000,   cliffMonth: 24 + 12, fullyVestedMonth: 24 + 12 + 12 },
-  { id: "W6", name: "Expansion", monthOpens: 30, newUsers: 300_000, cumulativeUsers: 600_000,   cliffMonth: 30 + 12, fullyVestedMonth: 30 + 12 + 12 },
-  { id: "W7", name: "Mass",      monthOpens: 36, newUsers: 400_000, cumulativeUsers: 1_000_000, cliffMonth: 36 + 12, fullyVestedMonth: 36 + 12 + 12 },
+  { id: "W1",  name: "Genesis",    monthOpens: 0,  newUsers: 1_000,     cumulativeUsers: 1_000,      cliffDays: 365, vestDays: 365, mintMultiplier: 2.0,  forecastEntryPrice: 0.10 },
+  { id: "W2",  name: "Wave 2",     monthOpens: 6,  newUsers: 4_000,     cumulativeUsers: 5_000,      cliffDays: 274, vestDays: 274, mintMultiplier: 1.5,  forecastEntryPrice: 0.16 },
+  { id: "W3",  name: "Wave 3",     monthOpens: 12, newUsers: 20_000,    cumulativeUsers: 25_000,     cliffDays: 183, vestDays: 183, mintMultiplier: 1.25, forecastEntryPrice: 0.26 },
+  { id: "W4",  name: "Wave 4",     monthOpens: 18, newUsers: 75_000,    cumulativeUsers: 100_000,    cliffDays: 91,  vestDays: 91,  mintMultiplier: 1.1,  forecastEntryPrice: 0.42 },
+  { id: "W5",  name: "Wave 5",     monthOpens: 24, newUsers: 400_000,   cumulativeUsers: 500_000,    cliffDays: 30,  vestDays: 30,  mintMultiplier: 1.0,  forecastEntryPrice: 0.68 },
+  { id: "W6",  name: "Wave 6",     monthOpens: 30, newUsers: 500_000,   cumulativeUsers: 1_000_000,  cliffDays: 14,  vestDays: 14,  mintMultiplier: 1.0,  forecastEntryPrice: 1.15 },
+  { id: "W7",  name: "Wave 7",     monthOpens: 36, newUsers: 1_500_000, cumulativeUsers: 2_500_000,  cliffDays: 7,   vestDays: 7,   mintMultiplier: 1.0,  forecastEntryPrice: 1.95 },
+  { id: "W8",  name: "Wave 8",     monthOpens: 42, newUsers: 2_500_000, cumulativeUsers: 5_000_000,  cliffDays: 0,   vestDays: 0,   mintMultiplier: 1.0,  forecastEntryPrice: 3.30, sellTaxPct: 5 },
+  { id: "W9",  name: "Wave 9",     monthOpens: 48, newUsers: 5_000_000, cumulativeUsers: 10_000_000, cliffDays: 0,   vestDays: 0,   mintMultiplier: 1.0,  forecastEntryPrice: 5.70, sellTaxPct: 3 },
+  { id: "W10", name: "Open Mint",  monthOpens: 54, newUsers: 0,         cumulativeUsers: 0,          cliffDays: 0,   vestDays: 0,   mintMultiplier: 0.75, forecastEntryPrice: 9.00, sellTaxPct: 1 },
 ];
+
+// Format a duration in days into a compact human-readable label (e.g. "12mo", "14d", "Instant").
+function fmtDuration(days: number): string {
+  if (days <= 0) return "Instant";
+  if (days < 30) return `${days}d`;
+  const months = Math.round(days / 30.4375);
+  return `${months}mo`;
+}
 
 interface MonthlyProjection {
   month: number;
