@@ -264,10 +264,13 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
 
     try {
       await new Promise(resolve => setTimeout(resolve, 800));
-      setMintingProgress({ step: 'submitting', message: '⚡ Processing NFT mint to Blockchain...' });
-      
-      await new Promise(resolve => setTimeout(resolve, 1200));
-      setMintingProgress({ step: 'confirming', message: '🔐 Confirming transaction on-chain...' });
+      setMintingProgress({ step: 'submitting', message: '⚡ Transmitting to Base L2 Blockchain...' });
+      setMicroActive(false);
+      requestAnimationFrame(() => setMicroActive(true));
+
+      await new Promise(resolve => setTimeout(resolve, 5200));
+      setMintingProgress({ step: 'confirming', message: '🔐 Confirming on-chain...' });
+      await new Promise(resolve => setTimeout(resolve, 1300));
       
       const result = await onMintWelcomeNFT();
       
