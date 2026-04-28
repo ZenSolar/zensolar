@@ -287,7 +287,7 @@ function Dashboard() {
             Self-Funded Liquidity Plan
           </h1>
           <p className="text-muted-foreground max-w-2xl text-sm sm:text-base leading-relaxed">
-            The complete bootstrap path: $50K seed LP, two-tier subscriptions
+            The complete bootstrap path: $50K founder-funded LP (Joseph & Michael, out-of-pocket — no investors), two-tier subscriptions
             ($9.99 Base · $19.99 Auto-Mint at ~30% attach = <span className="text-foreground font-semibold">$12.99 blended ARPU</span>),
             split 50% LP / 50% fiat, seven user waves with 12-month cliff +
             12-month linear vest, all the way to 1M users — without raising a
@@ -386,7 +386,7 @@ function Dashboard() {
           icon={<Droplets className="h-4 w-4" />}
           eyebrow="Live LP State"
           title="Current AMM Reserves"
-          subtitle="$50K founder seed + every executed LP round, summed from the lp_rounds ledger. The seed never changes — only injected rounds grow this number."
+          subtitle="$50K founder deposit (Joseph & Michael, out-of-pocket) + every executed LP round, summed from the lp_rounds ledger. The $50K starting deposit never changes — only injected rounds grow this number."
         >
           {loading ? (
             <div className="h-32 flex items-center justify-center">
@@ -394,13 +394,13 @@ function Dashboard() {
             </div>
           ) : (
             <div className="space-y-3">
-              {/* Breakdown strip — makes it impossible to confuse seed with total */}
+              {/* Breakdown strip — makes it impossible to confuse founder deposit with total */}
               <div className="rounded-xl border border-border/50 bg-card/40 p-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs">
                 <span className="text-muted-foreground uppercase tracking-[0.14em]">
                   Reserve breakdown
                 </span>
                 <span className="text-foreground">
-                  Seed <span className="text-muted-foreground">{fmtUsd(SEED_USDC)}</span>
+                  Founder deposit <span className="text-muted-foreground">{fmtUsd(SEED_USDC)}</span>
                 </span>
                 <span className="text-muted-foreground">+</span>
                 <span className="text-foreground">
@@ -416,14 +416,15 @@ function Dashboard() {
                 <Stat
                   label="USDC Reserve (Total)"
                   value={fmtUsd(liveState.usdcReserve)}
-                  hint={`${fmtUsd(SEED_USDC)} seed + ${fmtUsd(liveState.totalUsdcInjected)} rounds`}
+                  hint={`${fmtUsd(SEED_USDC)} founder deposit + ${fmtUsd(liveState.totalUsdcInjected)} rounds`}
                   accent
                 />
                 <Stat
                   label="Token Reserve"
                   value={fmtNum(liveState.tokenReserve)}
-                  hint={`${fmtNum(SEED_TOKENS)} seed + ${fmtNum(liveState.totalTokensReleased)} rounds`}
+                  hint={`${fmtNum(SEED_TOKENS)} founder deposit + ${fmtNum(liveState.totalTokensReleased)} rounds`}
                 />
+
                 <Stat
                   label="Constant k"
                   value={fmtNum(liveState.k)}
@@ -453,8 +454,8 @@ function Dashboard() {
             </div>
           ) : rounds.length === 0 ? (
             <div className="rounded-lg border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
-              No LP rounds executed yet. The $50K seed LP is the starting
-              position.
+              No LP rounds executed yet. The $50K founder deposit (Joseph &
+              Michael, out-of-pocket) is the starting position.
             </div>
           ) : (
             <div className="rounded-xl border border-border/60 overflow-hidden">
@@ -625,7 +626,7 @@ function Dashboard() {
         <div className="text-xs text-muted-foreground/70 border-t border-border/40 pt-6 leading-relaxed">
           <Lock className="inline h-3 w-3 mr-1.5 -mt-0.5" />
           This page is restricted to Joseph and Michael. All numbers are
-          forecasts based on the locked-in bootstrap model: $50K seed LP,
+          forecasts based on the locked-in bootstrap model: $50K founder-funded LP (out-of-pocket, no investors),
           two-tier subscriptions ($9.99 Base + $19.99 Auto-Mint, 30% attach →
           $12.99 blended ARPU) split 50% LP / 50% fiat, 7 waves over 36 months
           to 1M users, 12-month cliff + 12-month linear vest. Live LP state
