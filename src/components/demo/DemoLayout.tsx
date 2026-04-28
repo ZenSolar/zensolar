@@ -1,5 +1,6 @@
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { Sparkles } from 'lucide-react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { DemoSidebar } from '@/components/demo/DemoSidebar';
 import { TopNav } from '@/components/layout/TopNav';
@@ -7,12 +8,35 @@ import { DemoProvider } from '@/contexts/DemoContext';
 import { useDemoScreenshotDetector } from '@/hooks/useDemoScreenshotDetector';
 import { FeedbackFab } from '@/components/FeedbackFab';
 import { Badge } from '@/components/ui/badge';
+import { resetFirstMintCelebration } from '@/lib/firstMintCelebration';
+import { toast } from 'sonner';
 
 export function DemoLayout() {
   useDemoScreenshotDetector();
   const location = useLocation();
+  const navigate = useNavigate();
   const host = typeof window === 'undefined' ? '' : window.location.hostname;
   const showRouteBanner = import.meta.env.DEV || host.includes('lovableproject.com') || host.includes('id-preview--') || new URLSearchParams(location.search).has('routeqa');
+
+  // Convenience: ?replayCinematic=1 (anywhere) clears the flags so the next
+  // mint plays the full Cinematic D again. Also exposes window.zenReplayCinematic().
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('replayCinematic') === '1') {
+      resetFirstMintCelebration();
+      toast.success('Cinematic D armed — your next mint will play it.');
+      params.delete('replayCinematic');
+      navigate(
+        { pathname: location.pathname, search: params.toString() ? `?${params.toString()}` : '' },
+        { replace: true },
+      );
+    }
+  }, [location.pathname, location.search, navigate]);
+
+  const handleReplay = () => {
+    resetFirstMintCelebration();
+    toast.success('Cinematic D armed — your next mint will play it.');
+  };
 
   // Force dark on /demo WITHOUT persisting to localStorage, so the user's
   // chosen light/dark preference for the rest of the app is preserved.
@@ -59,6 +83,16 @@ export function DemoLayout() {
           </div>
         </div>
         <FeedbackFab />
+        {/* Demo-only: arm Cinematic D so the next mint replays the full ~11s sequence. */}
+        <button
+          type="button"
+          onClick={handleReplay}
+          aria-label="Replay first-mint cinematic on next mint"
+          className="fixed bottom-4 left-4 z-50 inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-background/80 px-3 py-1.5 text-[11px] font-semibold text-primary shadow-[0_0_18px_hsl(var(--primary)/0.25)] backdrop-blur hover:bg-primary/10 transition-colors"
+        >
+          <Sparkles className="h-3.5 w-3.5" aria-hidden />
+          Replay cinematic
+        </button>
       </SidebarProvider>
     </DemoProvider>
   );
