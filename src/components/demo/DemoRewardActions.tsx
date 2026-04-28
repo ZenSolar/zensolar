@@ -18,6 +18,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { DemoMintResult } from '@/hooks/useDemoData';
 import { MicroProtocolBadge } from '@/components/proof/MicroProtocolBadge';
+import { ProtocolCinematicSequence } from '@/components/proof/ProtocolCinematicSequence';
+import { hasShownFirstMintCelebration, markFirstMintCelebrationShown } from '@/lib/firstMintCelebration';
 
 export type MintCategory = 'solar' | 'ev_miles' | 'battery' | 'charging' | 'all';
 
