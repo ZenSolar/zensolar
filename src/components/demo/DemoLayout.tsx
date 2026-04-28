@@ -94,16 +94,29 @@ export function DemoLayout() {
           </div>
         </div>
         <FeedbackFab />
-        {/* Demo-only: arm Cinematic D so the next mint replays the full ~11s sequence. */}
-        <button
-          type="button"
-          onClick={handleReplay}
-          aria-label="Replay first-mint cinematic on next mint"
-          className="fixed bottom-4 left-4 z-50 inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-background/80 px-3 py-1.5 text-[11px] font-semibold text-primary shadow-[0_0_18px_hsl(var(--primary)/0.25)] backdrop-blur hover:bg-primary/10 transition-colors"
-        >
-          <Sparkles className="h-3.5 w-3.5" aria-hidden />
-          Replay cinematic
-        </button>
+        {/* Demo-only controls: arm Cinematic D locally, or copy a shareable link
+            that arms it for whoever opens it. */}
+        <div className="fixed bottom-4 left-4 z-50 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleReplay}
+            aria-label="Replay first-mint cinematic on next mint"
+            className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-background/80 px-3 py-1.5 text-[11px] font-semibold text-primary shadow-[0_0_18px_hsl(var(--primary)/0.25)] backdrop-blur hover:bg-primary/10 transition-colors"
+          >
+            <Sparkles className="h-3.5 w-3.5" aria-hidden />
+            Replay cinematic
+          </button>
+          <button
+            type="button"
+            onClick={handleCopyReplayUrl}
+            aria-label="Copy shareable replay-cinematic URL"
+            title="Copy beta.zen.solar/demo?replayCinematic=1"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-background/80 px-3 py-1.5 text-[11px] font-semibold text-foreground/80 shadow-sm backdrop-blur hover:bg-foreground/5 transition-colors"
+          >
+            <Link2 className="h-3.5 w-3.5" aria-hidden />
+            Copy replay URL
+          </button>
+        </div>
       </SidebarProvider>
     </DemoProvider>
   );
