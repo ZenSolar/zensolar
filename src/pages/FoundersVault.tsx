@@ -13,13 +13,6 @@ import {
   ArrowRight,
   Home,
   Compass,
-  Sparkles as SparklesIcon,
-  Battery,
-  ShieldCheck,
-  Gauge,
-  Activity,
-  Coffee,
-  Download,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
