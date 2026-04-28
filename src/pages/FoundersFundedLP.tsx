@@ -320,9 +320,9 @@ function Dashboard() {
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-3xl">
               Every other token launch begs holders not to sell. We make selling
-              <span className="text-foreground font-medium"> structurally impossible</span> for
-              the first 12 months — and <span className="text-foreground font-medium">throttled to 1/12 per month</span>
-              for the 12 months after that. Meanwhile, <span className="text-foreground font-medium">50% of every subscription dollar</span>
+              <span className="text-foreground font-medium"> structurally impossible</span> during
+              each wave's cliff — and <span className="text-foreground font-medium">throttled to a fraction per month</span>
+              during the linear vest after that. Meanwhile, <span className="text-foreground font-medium">50% of every subscription dollar</span>
               flows directly into the LP. Buy pressure compounds. Sell pressure
               is rate-limited by code. The floor only moves one direction.
             </p>
@@ -332,18 +332,18 @@ function Dashboard() {
           <div className="relative grid sm:grid-cols-3 gap-3">
             <ForceCard
               icon={<Lock className="h-4 w-4" />}
-              title="12-Month Cliff"
-              body="Every wave's minted tokens are locked for a full year. Zero sell pressure from new mints during the entire bootstrap period — by smart-contract enforcement, not promise."
+              title="Tapered Cliff Ladder"
+              body="Genesis locks 12 months. Founders 9 months. Pioneers and beyond, 6 months. The earliest believers carry the deepest conviction; later waves get faster liquidity because the floor is already proven."
             />
             <ForceCard
               icon={<Calendar className="h-4 w-4" />}
-              title="12-Month Linear Vest"
-              body="After the cliff, only 1/12 of any wave's tokens unlock per month. Even in the worst case where 100% of unlocks are sold, max monthly sell pressure is mathematically capped."
+              title="Symmetric Linear Vest"
+              body="Every wave's vest equals its cliff (12+12, 9+9, 6+6…). Only 1/N of any wave's tokens unlock per month after cliff. Even if 100% of unlocks were sold, max monthly sell pressure is mathematically capped."
             />
             <ForceCard
               icon={<Droplets className="h-4 w-4" />}
               title="50% Sub → LP"
-              body="Half of every $9.99 / $19.99 subscription is auto-injected into LP. With 12 months of zero unlocks, the LP grows uncontested. By the time anyone can sell, the floor has already moved up."
+              body="Half of every $9.99 / $19.99 subscription is auto-injected into LP. Through every cliff window, the LP grows uncontested. By the time anyone can sell, the floor has already moved up."
             />
           </div>
 
@@ -352,7 +352,7 @@ function Dashboard() {
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-primary" />
               <h3 className="text-sm font-semibold uppercase tracking-wider">
-                Why users sign up for a 12-month lock
+                Why users sign up for the lock
               </h3>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
@@ -381,10 +381,11 @@ function Dashboard() {
           </div>
 
           <p className="relative text-xs text-muted-foreground italic max-w-3xl">
-            This is the public pitch: <span className="text-foreground not-italic">mint for 12 months, hold for 12 more, watch the floor compound underneath you.</span>
+            This is the public pitch: <span className="text-foreground not-italic">mint, accept your wave's lock, watch the floor compound underneath you.</span>
             The only people who lose are the ones who didn't show up early.
           </p>
         </motion.section>
+
 
         <Section
           icon={<Droplets className="h-4 w-4" />}
