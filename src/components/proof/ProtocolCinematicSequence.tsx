@@ -143,6 +143,29 @@ export function ProtocolCinematicSequence({
   const audioCtxRef = useRef<AudioContext | null>(null);
   const { primeAudio, playMintSound } = useMintSound();
 
+  // Idempotent finalizer — guarantees the consumer's onComplete fires exactly
+  // once whether the sequence ends naturally OR is dismissed early. This is
+  // critical so the confetti + result dialog never get stuck behind a closed
+  // cinematic. onClose is also fired so consumers that want to differentiate
+  // can, but most consumers should treat them as a single "we're done" event.
+  const finalizedRef = useRef(false);
+  const finalize = (reason: 'complete' | 'dismiss') => {
+    if (finalizedRef.current) return;
+    finalizedRef.current = true;
+    try {
+      onComplete?.();
+    } finally {
+      if (reason === 'dismiss') {
+        try { onClose?.(); } catch { /* ignore */ }
+      }
+    }
+  };
+
+  // Reset finalized flag whenever the sequence is re-opened
+  useEffect(() => {
+    if (open) finalizedRef.current = false;
+  }, [open]);
+
   const prefersReducedMotion = useMemo(() => {
     if (typeof window === 'undefined') return false;
     return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
