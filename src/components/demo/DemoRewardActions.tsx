@@ -713,11 +713,14 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
             </h3>
             <p className="text-sm text-muted-foreground mt-1">{resultDialog.message}</p>
             {resultDialog.success && (
-              <div className="mt-5">
-                <MicroProtocolBadge
-                  active={microActive && resultDialog.open}
-                  onComplete={() => { /* hold final seal */ }}
-                />
+              <div className="mt-5 flex justify-center">
+                <a
+                  href="/demo/proof-of-genesis-receipt-preview"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-3.5 py-1.5 text-xs font-semibold text-primary tracking-wide shadow-[0_0_18px_hsl(var(--primary)/0.25)] hover:bg-primary/15 transition-colors"
+                >
+                  <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
+                  View Proof of Genesis ✓
+                </a>
               </div>
             )}
           </div>
