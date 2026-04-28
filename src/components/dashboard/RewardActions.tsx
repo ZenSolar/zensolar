@@ -153,7 +153,9 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     message: '',
     type: null,
   });
-  // Inline micro-cinematic — plays inside result dialog (Variant C, 6.5s)
+  // Inline micro-cinematic (Variant C, 6.5s) — plays inside the
+  // "Transmitting to Base L2" progress dialog, in sync with the on-chain
+  // broadcast. Triggered when we enter the `transmitting` step.
   const [microActive, setMicroActive] = useState(false);
 
   // Full Cinematic D — plays once on the user's very first successful mint.
