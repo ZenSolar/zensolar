@@ -310,6 +310,28 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     });
     return () => { cancelled = true; };
   }, [granted]);
+
+  // Zero-friction deep link: ?email=<addr> on /demo. If that email already has
+  // a signed NDA in the database (e.g. pre-authorized strategic partner),
+  // save it locally so the existing "NDA already on file" branch in
+  // submitCode() short-circuits the NDA modal.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (granted) return;
+    const params = new URLSearchParams(window.location.search);
+    const emailParam = (params.get('email') || '').trim().toLowerCase();
+    if (!emailParam) return;
+    if (getSavedNdaEmail()?.toLowerCase() === emailParam) return;
+    let cancelled = false;
+    (async () => {
+      const signed = await checkExistingNda(emailParam);
+      if (cancelled || !signed) return;
+      saveNdaEmail(emailParam);
+      const name = await fetchNdaName(emailParam);
+      if (!cancelled && name) saveNdaName(name);
+    })();
+    return () => { cancelled = true; };
+  }, [granted]);
   const [code, setCode] = useState(prefillCodeFromUrl);
   const [showNda, setShowNda] = useState(false);
   const [verifiedCode, setVerifiedCode] = useState('');
