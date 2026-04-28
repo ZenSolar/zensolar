@@ -233,6 +233,8 @@ export function SubscriptionTransparencyPanel() {
             </p>
           </Card>
         </motion.div>
+
+        <CheetahExportButton />
       </div>
     </section>
   );
