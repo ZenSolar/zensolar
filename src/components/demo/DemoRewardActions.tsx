@@ -219,16 +219,14 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         setMintingProgressDialog(false);
-        triggerConfetti();
-        setMicroActive(false);
-        requestAnimationFrame(() => setMicroActive(true));
 
-        setResultDialog({
-          open: true,
+        const tokenCount = getCategoryTokens(category);
+        celebrateMint({
           success: true,
           txHash: result.txHash,
           message: result.message,
           type: 'token',
+          tokenCount,
         });
 
         await onRefresh();
@@ -274,19 +272,24 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
 
         setMintingProgressDialog(false);
         const isAlreadyClaimed = result.message.includes('already');
-        if (!isAlreadyClaimed) {
-          triggerConfetti();
-          setMicroActive(false);
-          requestAnimationFrame(() => setMicroActive(true));
-        }
 
-        setResultDialog({
-          open: true,
-          success: true,
-          txHash: result.txHash,
-          message: result.message,
-          type: 'nft',
-        });
+        if (isAlreadyClaimed) {
+          // Skip celebration for already-claimed welcome NFT
+          setResultDialog({
+            open: true,
+            success: true,
+            txHash: result.txHash,
+            message: result.message,
+            type: 'nft',
+          });
+        } else {
+          celebrateMint({
+            success: true,
+            txHash: result.txHash,
+            message: result.message,
+            type: 'nft',
+          });
+        }
 
         await onRefresh();
       }
