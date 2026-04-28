@@ -293,7 +293,7 @@ export function ProtocolCinematicSequence({
     timeouts.push(
       setTimeout(() => {
         setPhase('done');
-        onComplete?.();
+        finalize('complete');
       }, SCENES.length * sceneMs + finaleMs),
     );
 
@@ -320,7 +320,7 @@ export function ProtocolCinematicSequence({
   useEffect(() => {
     if (!open || !dismissible) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose?.();
+      if (e.key === 'Escape') finalize('dismiss');
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -353,7 +353,7 @@ export function ProtocolCinematicSequence({
         aria-modal="true"
         aria-label="Protocol verification sequence"
         className="fixed inset-0 z-[100] flex items-center justify-center"
-        onClick={() => dismissible && onClose?.()}
+        onClick={() => dismissible && finalize('dismiss')}
       >
         {/* Stage backdrop — emerald-warmed black with deep radial vignette */}
         <div
@@ -463,7 +463,7 @@ export function ProtocolCinematicSequence({
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              onClose?.();
+              finalize('dismiss');
             }}
             className="absolute top-5 right-5 z-20 h-9 w-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors"
             aria-label="Skip protocol sequence"
