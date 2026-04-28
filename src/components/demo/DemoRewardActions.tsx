@@ -108,11 +108,21 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
     };
   }>({ open: false });
 
-  /** Single shared "celebrate this mint" entrypoint — handles first vs repeat. */
+  /** Single shared "celebrate this mint" entrypoint — handles first vs repeat.
+   *  Demo uses a per-session flag so every fresh demo visit gets Cinematic D
+   *  on the first mint (investor walkthroughs replay across sessions). */
+  const DEMO_SESSION_KEY = 'zen:demoCinematicDShown:session';
+  const hasPlayedThisSession = () => {
+    try { return sessionStorage.getItem(DEMO_SESSION_KEY) === '1'; } catch { return false; }
+  };
+  const markPlayedThisSession = () => {
+    try { sessionStorage.setItem(DEMO_SESSION_KEY, '1'); } catch { /* ignore */ }
+  };
+
   const celebrateMint = (pending: NonNullable<typeof cinematicD.pending>) => {
-    if (!hasShownFirstMintCelebration()) {
-      // First mint ever: play full Cinematic D, then result dialog
-      markFirstMintCelebrationShown();
+    if (!hasPlayedThisSession()) {
+      // First mint of this demo session: play full Cinematic D
+      markPlayedThisSession();
       setCinematicD({ open: true, pending });
     } else {
       // Repeat mint: Variant C already played during transmit — straight to result.
