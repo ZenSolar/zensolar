@@ -115,10 +115,8 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
       markFirstMintCelebrationShown();
       setCinematicD({ open: true, pending });
     } else {
-      // Repeat mint: straight to result dialog with embedded Variant C
+      // Repeat mint: Variant C already played during transmit — straight to result.
       triggerConfetti();
-      setMicroActive(false);
-      requestAnimationFrame(() => setMicroActive(true));
       setResultDialog({
         open: true,
         success: pending.success,
