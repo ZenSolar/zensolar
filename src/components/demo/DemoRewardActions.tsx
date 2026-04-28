@@ -332,8 +332,6 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
     setCinematicD({ open: false });
     if (!pending) return;
     triggerConfetti();
-    setMicroActive(false);
-    requestAnimationFrame(() => setMicroActive(true));
     setResultDialog({
       open: true,
       success: pending.success,
