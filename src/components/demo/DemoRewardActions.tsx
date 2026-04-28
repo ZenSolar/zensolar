@@ -303,6 +303,28 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
 
   return (
     <div className="space-y-4">
+      {/* Cinematic protocol sequence — plays after a successful mint, before the result dialog */}
+      <ProtocolCinematicSequence
+        open={cinematic.open}
+        finaleTokenCount={cinematic.tokenCount}
+        finaleSubtitle={cinematic.subtitle}
+        tapAtIso={new Date().toISOString()}
+        onComplete={() => {
+          const pending = cinematic.pendingResult;
+          setCinematic({ open: false });
+          if (pending) {
+            triggerConfetti();
+            setResultDialog({ open: true, ...pending });
+          }
+        }}
+        onClose={() => {
+          const pending = cinematic.pendingResult;
+          setCinematic({ open: false });
+          if (pending) {
+            setResultDialog({ open: true, ...pending });
+          }
+        }}
+      />
       {/* Demo Mode Banner */}
       <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 text-center">
         <p className="text-sm text-primary font-medium">
