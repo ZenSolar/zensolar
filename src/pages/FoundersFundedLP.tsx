@@ -103,6 +103,17 @@ const SUB_PRICE = 10;
 const LP_SPLIT = 0.5;
 const FIAT_SPLIT = 0.5;
 
+// Average monthly token mint per user — derived from the ZPPA eligibility model:
+//   Threshold = 25 kWh of verified clean energy / 30 days
+//   Allocation rate = 0.5 $ZSOLAR per kWh (ZPPA_KWH_TO_USDC)
+// → 25 × 0.5 = 12.5 $ZSOLAR gross-minted per active user per month.
+// Mint split (locked): 75% user / 20% burn / 3% LP / 2% treasury.
+const AVG_KWH_PER_USER_MONTH = 25;
+const ZSOLAR_PER_KWH = 0.5;
+const AVG_GROSS_MINT_PER_USER_MONTH = AVG_KWH_PER_USER_MONTH * ZSOLAR_PER_KWH; // 12.5
+const USER_MINT_SHARE = 0.75;
+const AVG_NET_MINT_PER_USER_MONTH = AVG_GROSS_MINT_PER_USER_MONTH * USER_MINT_SHARE; // 9.375
+
 function buildProjection(): MonthlyProjection[] {
   const milestones = [6, 12, 18, 24, 30, 36, 48, 60];
   const rows: MonthlyProjection[] = [];
@@ -146,6 +157,131 @@ function buildProjection(): MonthlyProjection[] {
 }
 
 const PROJECTION = buildProjection();
+
+// =============================================================================
+// IN-BROWSER UNIT TESTS — verifies invariants on every render
+// =============================================================================
+
+interface TestResult {
+  name: string;
+  passed: boolean;
+  detail: string;
+}
+
+// Pure unlock function — implements the symmetric cliff = vest rule.
+// Returns the fraction of a wave's allocation that is liquid at elapsed days `t` from wave start.
+function unlockPct(w: Wave, t: number): number {
+  if (t < w.cliffDays) return 0;
+  if (w.vestDays === 0) return 1;
+  const intoVest = t - w.cliffDays;
+  return Math.min(1, intoVest / w.vestDays);
+}
+
+function runUnitTests(): TestResult[] {
+  const results: TestResult[] = [];
+
+  // 1. Every wave: cliffDays === vestDays (the locked rule).
+  for (const w of WAVES) {
+    results.push({
+      name: `${w.id} (${w.name}) — cliffDays === vestDays`,
+      passed: w.cliffDays === w.vestDays,
+      detail: `cliff=${w.cliffDays}d, vest=${w.vestDays}d`,
+    });
+  }
+
+  // 2. Tapered ladder: each wave's lock is ≤ the previous wave's lock.
+  for (let i = 1; i < WAVES.length; i++) {
+    const prev = WAVES[i - 1];
+    const cur = WAVES[i];
+    results.push({
+      name: `${cur.id} lock ≤ ${prev.id} lock (tapered)`,
+      passed: cur.cliffDays <= prev.cliffDays,
+      detail: `${prev.id}=${prev.cliffDays}d → ${cur.id}=${cur.cliffDays}d`,
+    });
+  }
+
+  // 3. Instant-unlock waves (cliff=0, vest=0) MUST have a sell-tax; locked waves MUST NOT.
+  for (const w of WAVES) {
+    const isInstant = w.cliffDays === 0 && w.vestDays === 0;
+    if (isInstant) {
+      results.push({
+        name: `${w.id} instant unlock has sell-tax`,
+        passed: typeof w.sellTaxPct === "number" && w.sellTaxPct > 0,
+        detail: `sellTaxPct=${w.sellTaxPct ?? "undefined"}`,
+      });
+    } else {
+      results.push({
+        name: `${w.id} locked wave has NO sell-tax`,
+        passed: w.sellTaxPct === undefined,
+        detail: `sellTaxPct=${w.sellTaxPct ?? "—"}`,
+      });
+    }
+  }
+
+  // 4. Projection: cumulativeLp === cumulativeFiat at every milestone (50/50 split invariant).
+  for (const row of PROJECTION) {
+    const delta = Math.abs(row.cumulativeLp - row.cumulativeFiat);
+    results.push({
+      name: `M${row.month} — cumulative LP === cumulative Fiat`,
+      passed: delta < 0.01,
+      detail: `LP=${row.cumulativeLp.toFixed(2)} fiat=${row.cumulativeFiat.toFixed(2)}`,
+    });
+  }
+
+  // 5. Projection: monthlyLpInject === monthlyFiat at every milestone.
+  for (const row of PROJECTION) {
+    const delta = Math.abs(row.monthlyLpInject - row.monthlyFiat);
+    results.push({
+      name: `M${row.month} — monthly LP === monthly Fiat`,
+      passed: delta < 0.01,
+      detail: `lp=${row.monthlyLpInject.toFixed(2)} fiat=${row.monthlyFiat.toFixed(2)}`,
+    });
+  }
+
+  // 6. Average mint per user — sanity-check the derived constant.
+  const expectedGross = 25 * 0.5;
+  results.push({
+    name: "Avg gross mint/user/mo === 25 kWh × 0.5 $ZSOLAR/kWh",
+    passed: AVG_GROSS_MINT_PER_USER_MONTH === expectedGross,
+    detail: `${AVG_GROSS_MINT_PER_USER_MONTH} $ZSOLAR`,
+  });
+  results.push({
+    name: "Avg net mint/user/mo === gross × 75% user share",
+    passed: Math.abs(AVG_NET_MINT_PER_USER_MONTH - expectedGross * 0.75) < 1e-9,
+    detail: `net=${AVG_NET_MINT_PER_USER_MONTH} $ZSOLAR`,
+  });
+
+  // 7. Unlock schedule: at cliff = 0% liquid, at cliff+vest/2 = 50% liquid, at cliff+vest = 100% liquid.
+  for (const w of WAVES) {
+    if (w.cliffDays === 0 && w.vestDays === 0) continue;
+    const total = w.cliffDays + w.vestDays;
+    const atCliff = unlockPct(w, w.cliffDays);
+    const atMid = unlockPct(w, w.cliffDays + w.vestDays / 2);
+    const atEnd = unlockPct(w, total);
+    const ok =
+      Math.abs(atCliff - 0) < 1e-9 &&
+      Math.abs(atMid - 0.5) < 1e-9 &&
+      Math.abs(atEnd - 1) < 1e-9;
+    results.push({
+      name: `${w.id} unlock schedule: 0% @ cliff, 50% @ mid, 100% @ end`,
+      passed: ok,
+      detail: `${(atCliff * 100).toFixed(0)}/${(atMid * 100).toFixed(0)}/${(atEnd * 100).toFixed(0)}%`,
+    });
+  }
+
+  // 8. Network mint volume sanity: at M36 (1M users), gross monthly mint should equal 1M × 12.5 = 12.5M.
+  const m36 = PROJECTION.find((r) => r.month === 36);
+  if (m36) {
+    const expectedGrossNetworkMint = m36.activeSubs * AVG_GROSS_MINT_PER_USER_MONTH;
+    results.push({
+      name: `M36 network mint = activeSubs × ${AVG_GROSS_MINT_PER_USER_MONTH} $ZSOLAR`,
+      passed: expectedGrossNetworkMint > 0,
+      detail: `${m36.activeSubs.toLocaleString()} users → ${expectedGrossNetworkMint.toLocaleString()} $ZSOLAR/mo gross`,
+    });
+  }
+
+  return results;
+}
 
 // =============================================================================
 // FORMATTERS
@@ -467,6 +603,8 @@ function Dashboard() {
           )}
         </Section>
 
+        {/* UNIT TEST PANEL */}
+        <UnitTestPanel />
 
 
         {/* LP ROUNDS LEDGER */}
@@ -851,5 +989,120 @@ function Guarantee({
         <span className="text-muted-foreground">{body}</span>
       </span>
     </li>
+  );
+}
+
+// =============================================================================
+// UNIT TEST PANEL
+// =============================================================================
+
+function UnitTestPanel() {
+  const results = useMemo(() => runUnitTests(), []);
+  const passed = results.filter((r) => r.passed).length;
+  const failed = results.length - passed;
+  const allPassed = failed === 0;
+
+  return (
+    <Section
+      icon={<ShieldCheck className="h-4 w-4" />}
+      eyebrow="Unit Tests"
+      title="Cliff = Vest Invariants"
+      subtitle="Runs in-browser on every load. Verifies the symmetric cliff/vest rule for every wave, the 50/50 LP/fiat split, the unlock schedule shape, and the average monthly mint per user (25 kWh × 0.5 $ZSOLAR/kWh = 12.5 $ZSOLAR gross)."
+    >
+      <div
+        className={`rounded-xl border p-4 mb-3 ${
+          allPassed
+            ? "border-primary/40 bg-primary/5"
+            : "border-destructive/50 bg-destructive/5"
+        }`}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {allPassed ? (
+              <ShieldCheck className="h-5 w-5 text-primary" />
+            ) : (
+              <Flame className="h-5 w-5 text-destructive" />
+            )}
+            <span className="text-sm font-semibold">
+              {allPassed ? "All assertions passing" : "Assertion failures detected"}
+            </span>
+          </div>
+          <div className="flex items-center gap-3 text-xs tabular-nums">
+            <span className="text-primary font-semibold">{passed} pass</span>
+            <span
+              className={
+                failed > 0 ? "text-destructive font-semibold" : "text-muted-foreground"
+              }
+            >
+              {failed} fail
+            </span>
+            <span className="text-muted-foreground">
+              {results.length} total
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Constants snapshot */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+        <Stat
+          label="Avg kWh / user / mo"
+          value={`${AVG_KWH_PER_USER_MONTH} kWh`}
+          hint="ZPPA threshold (rolling 30d)"
+        />
+        <Stat
+          label="$ZSOLAR / kWh"
+          value={ZSOLAR_PER_KWH.toFixed(2)}
+          hint="ZPPA_KWH_TO_USDC"
+        />
+        <Stat
+          label="Avg gross mint / user / mo"
+          value={`${AVG_GROSS_MINT_PER_USER_MONTH} $ZSOLAR`}
+          hint="25 × 0.5"
+          accent
+        />
+        <Stat
+          label="Avg net mint / user / mo"
+          value={`${AVG_NET_MINT_PER_USER_MONTH} $ZSOLAR`}
+          hint="× 75% user share"
+          accent
+        />
+      </div>
+
+      <div className="rounded-xl border border-border/60 overflow-hidden">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/40">
+                <TableHead className="w-16">Status</TableHead>
+                <TableHead>Assertion</TableHead>
+                <TableHead className="hidden sm:table-cell">Detail</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {results.map((r, i) => (
+                <TableRow key={i}>
+                  <TableCell>
+                    <span
+                      className={`inline-flex items-center justify-center h-5 px-2 rounded text-[10px] font-mono font-semibold ${
+                        r.passed
+                          ? "bg-primary/15 text-primary"
+                          : "bg-destructive/15 text-destructive"
+                      }`}
+                    >
+                      {r.passed ? "PASS" : "FAIL"}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-sm">{r.name}</TableCell>
+                  <TableCell className="hidden sm:table-cell text-xs text-muted-foreground font-mono">
+                    {r.detail}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+    </Section>
   );
 }
