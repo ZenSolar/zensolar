@@ -454,8 +454,8 @@ function Dashboard() {
             </div>
           ) : rounds.length === 0 ? (
             <div className="rounded-lg border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
-              No LP rounds executed yet. The $50K seed LP is the starting
-              position.
+              No LP rounds executed yet. The $50K founder deposit (Joseph &
+              Michael, out-of-pocket) is the starting position.
             </div>
           ) : (
             <div className="rounded-xl border border-border/60 overflow-hidden">
