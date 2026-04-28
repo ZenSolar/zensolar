@@ -340,13 +340,13 @@ function Dashboard() {
           <div className="relative grid sm:grid-cols-3 gap-3">
             <ForceCard
               icon={<Lock className="h-4 w-4" />}
-              title="12-Month Cliff"
-              body="Every wave accepts the same 12-month cliff from its start date. Because waves open every 6 months, no group reaches liquidity at the same moment as the next."
+              title="Symmetric Cliff = Vest"
+              body="Every wave's cliff equals its vest. Genesis = 12+12, then 9+9, 6+6, 3+3, 1+1, then 14d/14d, 7d/7d. No insider tricks, no asymmetric founder advantages — same shape for everyone."
             />
             <ForceCard
               icon={<Calendar className="h-4 w-4" />}
-              title="Symmetric Linear Vest"
-              body="Every wave gets a 12-month linear vest after cliff. Only 1/12 of any wave's tokens unlock per month. Even if 100% of unlocks were sold, max monthly sell pressure is mathematically capped."
+              title="Tapered Lock Ladder"
+              body="Earliest waves take the most risk and earn the longest locks (and the highest mint multipliers). As the floor deepens, locks shorten — until waves 8+ graduate to instant unlocks protected by a sell-tax instead."
             />
             <ForceCard
               icon={<Droplets className="h-4 w-4" />}
