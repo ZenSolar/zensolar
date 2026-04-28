@@ -17,7 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { DemoMintResult } from '@/hooks/useDemoData';
-import { ProtocolCinematicSequence } from '@/components/proof/ProtocolCinematicSequence';
+import { MicroProtocolBadge } from '@/components/proof/MicroProtocolBadge';
 
 export type MintCategory = 'solar' | 'ev_miles' | 'battery' | 'charging' | 'all';
 
@@ -618,6 +618,14 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
               {resultDialog.success ? 'Mint Successful' : 'Transaction Failed'}
             </h3>
             <p className="text-sm text-muted-foreground mt-1">{resultDialog.message}</p>
+            {resultDialog.success && (
+              <div className="mt-5">
+                <MicroProtocolBadge
+                  active={microActive && resultDialog.open}
+                  onComplete={() => { /* hold final seal */ }}
+                />
+              </div>
+            )}
           </div>
           
           <div className="px-6 pb-6 space-y-4">
