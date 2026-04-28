@@ -151,6 +151,19 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     message: '',
     type: null,
   });
+  // Cinematic protocol sequence — plays between progress dialog and result dialog on success
+  const [cinematic, setCinematic] = useState<{
+    open: boolean;
+    tokenCount?: number;
+    subtitle?: string;
+    pendingResult?: {
+      success: boolean;
+      txHash?: string;
+      message: string;
+      type: 'token' | 'nft' | 'milestone' | 'combo';
+      onAfter?: () => void;
+    };
+  }>({ open: false });
   const [showTokenAddPanel, setShowTokenAddPanel] = useState(false);
   const [tokenMintDialog, setTokenMintDialog] = useState(false);
   const [confirmMintDialog, setConfirmMintDialog] = useState(false);
