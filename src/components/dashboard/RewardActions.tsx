@@ -933,6 +933,19 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
   return (
     <>
+      {/* Full Cinematic D — first-mint celebration. Hardened so dismiss === complete. */}
+      <ProtocolCinematicSequence
+        open={cinematicD.open}
+        finaleTokenCount={cinematicD.pending?.tokenCount}
+        finaleSubtitle={
+          cinematicD.pending?.tokenCount
+            ? `${cinematicD.pending.tokenCount.toLocaleString()} $ZSOLAR minted`
+            : '$ZSOLAR minted'
+        }
+        tapAtIso={new Date().toISOString()}
+        onComplete={handleCinematicDFinished}
+        onClose={handleCinematicDFinished}
+      />
       <div className="space-y-3">
         {/* Mint Tokens Button */}
         <Button
