@@ -1509,6 +1509,16 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   </h3>
                 </div>
               </div>
+
+              {/* Variant C — embedded micro-cinematic (~6.5s) */}
+              {resultDialog.success && (
+                <div className="mt-4">
+                  <MicroProtocolBadge
+                    active={microActive && resultDialog.open}
+                    onComplete={() => { /* hold final seal until user dismisses */ }}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Scrollable Body */}
