@@ -515,8 +515,8 @@ function Dashboard() {
         <Section
           icon={<Calendar className="h-4 w-4" />}
           eyebrow="Wave Rollout Planner"
-          title="7 Waves · 1K → 1M Users · Tapered Lock Ladder"
-          subtitle="Genesis carries the deepest conviction lock (12+12). Each subsequent wave gets shorter as the floor proves itself: W2 9+9, W3–W7 6+6. Max 1/N of any wave can sell per month after its cliff."
+          title="7 Waves · 1K → 1M Users · 12+12 Locks"
+          subtitle="Every wave uses the same symmetric schedule: 12-month cliff, then 12-month linear vest. Max 1/12 of any wave can sell per month after its cliff, and waves are staggered 6 months apart."
         >
           <div className="rounded-xl border border-border/60 overflow-hidden">
             <div className="overflow-x-auto">
@@ -581,7 +581,7 @@ function Dashboard() {
           icon={<TrendingUp className="h-4 w-4" />}
           eyebrow="Revenue & LP Growth"
           title="Subscription Flywheel"
-          subtitle="Two tiers, blended $12.99 ARPU. Cumulative LP and cumulative fiat are always equal — same source, 50/50 split."
+          subtitle="$9.99/mo subscription shown as $10 planning math. Cumulative LP and cumulative fiat are always equal — same source, 50/50 split. The $50K founder-funded starting LP is separate and not mixed into either column."
         >
           <div className="rounded-xl border border-border/60 overflow-hidden">
             <div className="overflow-x-auto">
@@ -591,6 +591,8 @@ function Dashboard() {
                     <TableHead>Month</TableHead>
                     <TableHead>Active Subs</TableHead>
                     <TableHead className="hidden sm:table-cell">Monthly Sub Rev</TableHead>
+                    <TableHead className="hidden md:table-cell">Monthly LP Inject</TableHead>
+                    <TableHead className="hidden md:table-cell">Monthly Fiat</TableHead>
                     <TableHead>Cumulative LP</TableHead>
                     <TableHead>Cumulative Fiat</TableHead>
                     <TableHead className="hidden sm:table-cell text-primary">Floor</TableHead>
@@ -605,6 +607,12 @@ function Dashboard() {
                       <TableCell>{fmtNum(row.activeSubs)}</TableCell>
                       <TableCell className="hidden sm:table-cell">
                         {fmtUsd(row.monthlySubRev)}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {fmtUsd(row.monthlyLpInject)}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {fmtUsd(row.monthlyFiat)}
                       </TableCell>
                       <TableCell className="font-medium">
                         {fmtUsd(row.cumulativeLp)}
