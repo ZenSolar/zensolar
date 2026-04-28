@@ -12,6 +12,10 @@ import {
   Target,
   Sparkles,
   Loader2,
+  Infinity as InfinityIcon,
+  ShieldCheck,
+  Eye,
+  Flame,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
