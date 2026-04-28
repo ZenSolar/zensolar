@@ -626,7 +626,7 @@ function Dashboard() {
         <div className="text-xs text-muted-foreground/70 border-t border-border/40 pt-6 leading-relaxed">
           <Lock className="inline h-3 w-3 mr-1.5 -mt-0.5" />
           This page is restricted to Joseph and Michael. All numbers are
-          forecasts based on the locked-in bootstrap model: $50K seed LP,
+          forecasts based on the locked-in bootstrap model: $50K founder-funded LP (out-of-pocket, no investors),
           two-tier subscriptions ($9.99 Base + $19.99 Auto-Mint, 30% attach →
           $12.99 blended ARPU) split 50% LP / 50% fiat, 7 waves over 36 months
           to 1M users, 12-month cliff + 12-month linear vest. Live LP state
