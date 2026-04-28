@@ -1580,13 +1580,18 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                 </div>
               </div>
 
-              {/* Variant C — embedded micro-cinematic (~6.5s) */}
+              {/* Link out to the Proof of Genesis receipt — the cinematic
+                  has already played in the progress dialog; the receipt page
+                  hosts the full replayable Cinematic D. */}
               {resultDialog.success && (
-                <div className="mt-4">
-                  <MicroProtocolBadge
-                    active={microActive && resultDialog.open}
-                    onComplete={() => { /* hold final seal until user dismisses */ }}
-                  />
+                <div className="mt-4 flex justify-center">
+                  <a
+                    href="/proof-of-genesis-receipt-preview"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-3.5 py-1.5 text-xs font-semibold text-primary tracking-wide shadow-[0_0_18px_hsl(var(--primary)/0.25)] hover:bg-primary/15 transition-colors"
+                  >
+                    <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
+                    View Proof of Genesis ✓
+                  </a>
                 </div>
               )}
             </div>
