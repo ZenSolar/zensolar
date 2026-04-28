@@ -189,19 +189,24 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
       
       if (result.success) {
         setMintingProgress({ step: 'complete', message: '✅ Transaction confirmed on Base Sepolia!' });
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
+        await new Promise(resolve => setTimeout(resolve, 600));
+
         setMintingProgressDialog(false);
-        triggerConfetti();
-        
-        setResultDialog({
+
+        // Play the cinematic protocol sequence; result dialog opens after it completes
+        const tokenCount = getCategoryTokens(category);
+        setCinematic({
           open: true,
-          success: true,
-          txHash: result.txHash,
-          message: result.message,
-          type: 'token',
+          tokenCount,
+          subtitle: `${tokenCount.toLocaleString()} $ZSOLAR minted`,
+          pendingResult: {
+            success: true,
+            txHash: result.txHash,
+            message: result.message,
+            type: 'token',
+          },
         });
-        
+
         await onRefresh();
       }
     } catch (error) {
@@ -241,21 +246,33 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
       
       if (result.success) {
         setMintingProgress({ step: 'complete', message: '✅ NFT minted to Base Sepolia!' });
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
+        await new Promise(resolve => setTimeout(resolve, 600));
+
         setMintingProgressDialog(false);
-        if (!result.message.includes('already')) {
-          triggerConfetti();
+
+        const isAlreadyClaimed = result.message.includes('already');
+        if (isAlreadyClaimed) {
+          // Skip cinematic for already-owned welcome NFT
+          setResultDialog({
+            open: true,
+            success: true,
+            txHash: result.txHash,
+            message: result.message,
+            type: 'nft',
+          });
+        } else {
+          setCinematic({
+            open: true,
+            subtitle: 'Welcome NFT minted',
+            pendingResult: {
+              success: true,
+              txHash: result.txHash,
+              message: result.message,
+              type: 'nft',
+            },
+          });
         }
-        
-        setResultDialog({
-          open: true,
-          success: true,
-          txHash: result.txHash,
-          message: result.message,
-          type: 'nft',
-        });
-        
+
         await onRefresh();
       }
     } catch (error) {
