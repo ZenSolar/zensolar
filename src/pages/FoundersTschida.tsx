@@ -17,7 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { VaultPinGate } from "@/components/founders/VaultPinGate";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import { summarizeModel, computeWaveMath } from "@/lib/subscriptionSplitModel";
+import { summarizeModel, buildWaveMath } from "@/lib/subscriptionSplitModel";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 
 /**
@@ -79,7 +79,7 @@ function fmtUsers(n: number) {
 }
 
 function TschidaContent() {
-  const rows = computeWaveMath();
+  const rows = buildWaveMath();
   const last = rows[rows.length - 1];
   const [state, setState] = useState<"idle" | "loading" | "ok" | "err">("idle");
   const [shareUrl, setShareUrl] = useState<string | null>(null);
