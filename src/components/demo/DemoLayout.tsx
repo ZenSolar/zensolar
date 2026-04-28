@@ -1,5 +1,6 @@
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { Sparkles } from 'lucide-react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { DemoSidebar } from '@/components/demo/DemoSidebar';
 import { TopNav } from '@/components/layout/TopNav';
@@ -7,6 +8,8 @@ import { DemoProvider } from '@/contexts/DemoContext';
 import { useDemoScreenshotDetector } from '@/hooks/useDemoScreenshotDetector';
 import { FeedbackFab } from '@/components/FeedbackFab';
 import { Badge } from '@/components/ui/badge';
+import { resetFirstMintCelebration } from '@/lib/firstMintCelebration';
+import { toast } from 'sonner';
 
 export function DemoLayout() {
   useDemoScreenshotDetector();
