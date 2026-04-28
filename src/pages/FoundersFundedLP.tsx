@@ -295,7 +295,93 @@ function Dashboard() {
           </p>
         </motion.section>
 
-        {/* LIVE LP STATE */}
+        {/* WHY THIS IS INEVITABLE */}
+        <motion.section
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, delay: 0.05 }}
+          className="relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 via-background to-background p-5 sm:p-7 space-y-5"
+        >
+          <div className="absolute -top-12 -right-12 h-40 w-40 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
+
+          <div className="relative space-y-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/15 border border-primary/30 text-[10px] uppercase tracking-[0.22em] text-primary">
+              <InfinityIcon className="h-3 w-3" />
+              The Inevitability Thesis
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+              The math doesn't <span className="italic text-primary">hope</span> to work.
+              <br className="hidden sm:block" />
+              It is <span className="text-primary">forced</span> to work.
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-3xl">
+              Every other token launch begs holders not to sell. We make selling
+              <span className="text-foreground font-medium"> structurally impossible</span> for
+              the first 12 months — and <span className="text-foreground font-medium">throttled to 1/12 per month</span>
+              for the 12 months after that. Meanwhile, <span className="text-foreground font-medium">50% of every subscription dollar</span>
+              flows directly into the LP. Buy pressure compounds. Sell pressure
+              is rate-limited by code. The floor only moves one direction.
+            </p>
+          </div>
+
+          {/* The Three Forcing Functions */}
+          <div className="relative grid sm:grid-cols-3 gap-3">
+            <ForceCard
+              icon={<Lock className="h-4 w-4" />}
+              title="12-Month Cliff"
+              body="Every wave's minted tokens are locked for a full year. Zero sell pressure from new mints during the entire bootstrap period — by smart-contract enforcement, not promise."
+            />
+            <ForceCard
+              icon={<Calendar className="h-4 w-4" />}
+              title="12-Month Linear Vest"
+              body="After the cliff, only 1/12 of any wave's tokens unlock per month. Even in the worst case where 100% of unlocks are sold, max monthly sell pressure is mathematically capped."
+            />
+            <ForceCard
+              icon={<Droplets className="h-4 w-4" />}
+              title="50% Sub → LP"
+              body="Half of every $9.99 / $19.99 subscription is auto-injected into LP. With 12 months of zero unlocks, the LP grows uncontested. By the time anyone can sell, the floor has already moved up."
+            />
+          </div>
+
+          {/* Why users WILL accept the lock */}
+          <div className="relative rounded-xl border border-border/50 bg-card/50 backdrop-blur p-4 sm:p-5 space-y-3">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-semibold uppercase tracking-wider">
+                Why users sign up for a 12-month lock
+              </h3>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Because they aren't buying tokens — they're <span className="text-foreground font-medium">producing</span>
+              them from energy they already generate. Locking is the price of
+              admission to a system that, by design, cannot dump on them. Three
+              guarantees make this trade obvious:
+            </p>
+            <ul className="space-y-2.5 text-sm">
+              <Guarantee
+                icon={<Eye className="h-4 w-4" />}
+                heading="Radical transparency"
+                body="Every LP round, every subscription dollar, every wave's vesting schedule lives on this page and on-chain. No hidden allocations, no insider unlocks, no surprises."
+              />
+              <Guarantee
+                icon={<Flame className="h-4 w-4" />}
+                heading="Proof of Genesis"
+                body="Each token is born from a verified kWh — never minted from thin air. If you believe the energy is real, you have to believe the floor is real too."
+              />
+              <Guarantee
+                icon={<Lock className="h-4 w-4" />}
+                heading="The same rules apply to founders"
+                body="Joseph (150B) and Michael (50B) are pact-locked under the same logic. We don't unlock until the network does. We win when the holders win, in that order."
+              />
+            </ul>
+          </div>
+
+          <p className="relative text-xs text-muted-foreground italic max-w-3xl">
+            This is the public pitch: <span className="text-foreground not-italic">mint for 12 months, hold for 12 more, watch the floor compound underneath you.</span>
+            The only people who lose are the ones who didn't show up early.
+          </p>
+        </motion.section>
+
         <Section
           icon={<Droplets className="h-4 w-4" />}
           eyebrow="Live LP State"
