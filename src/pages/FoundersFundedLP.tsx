@@ -95,12 +95,12 @@ function buildProjection(): MonthlyProjection[] {
   let prevMonth = 0;
 
   for (const m of milestones) {
-    // Active subs at month m = cumulativeUsers of the latest wave whose monthOpens <= m
-    const activeWaves = WAVES.filter((w) => w.monthOpens <= m);
+    // Planning table counts the wave that was active through the prior interval.
+    // Example: W2 opens at M6, then shows as active at M12 after six months of subs.
+    const activeWaves = WAVES.filter((w) => w.monthOpens <= prevMonth);
     const activeSubs = activeWaves[activeWaves.length - 1]?.cumulativeUsers ?? 0;
 
-    // Approximate sub-driven LP/fiat accumulated between prevMonth and m using
-    // average of step boundaries (waves step up, so we use cumulativeUsers at m).
+    // Subscription-sourced LP and fiat remain exactly equal by the 50/50 split.
     const monthsElapsed = m - prevMonth;
     const monthlySubRev = activeSubs * SUB_PRICE;
     const monthlyLpInject = monthlySubRev * LP_SPLIT;
