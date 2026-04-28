@@ -55,17 +55,16 @@ interface Wave {
   fullyVestedMonth: number;
 }
 
-// Tapered cliff/vest ladder — earliest waves take the deepest conviction lock,
-// later waves get progressively shorter locks because the floor is already proven.
-// cliffMonths/vestMonths are DURATIONS (in months from when that wave opens).
+// Locked wave schedule: symmetric 12-month cliff + 12-month linear vest for EVERY wave.
+// Each wave opens 6 months after the prior wave, so unlocks are staggered instead of piled up.
 const WAVES: Wave[] = [
   { id: "W1", name: "Genesis",   monthOpens: 0,  newUsers: 1_000,   cumulativeUsers: 1_000,     cliffMonth: 0  + 12, fullyVestedMonth: 0  + 12 + 12 },
-  { id: "W2", name: "Founders",  monthOpens: 6,  newUsers: 4_000,   cumulativeUsers: 5_000,     cliffMonth: 6  + 9,  fullyVestedMonth: 6  + 9  + 9  },
-  { id: "W3", name: "Pioneers",  monthOpens: 12, newUsers: 20_000,  cumulativeUsers: 25_000,    cliffMonth: 12 + 6,  fullyVestedMonth: 12 + 6  + 6  },
-  { id: "W4", name: "Builders",  monthOpens: 18, newUsers: 75_000,  cumulativeUsers: 100_000,   cliffMonth: 18 + 6,  fullyVestedMonth: 18 + 6  + 6  },
-  { id: "W5", name: "Network",   monthOpens: 24, newUsers: 200_000, cumulativeUsers: 300_000,   cliffMonth: 24 + 6,  fullyVestedMonth: 24 + 6  + 6  },
-  { id: "W6", name: "Expansion", monthOpens: 30, newUsers: 300_000, cumulativeUsers: 600_000,   cliffMonth: 30 + 6,  fullyVestedMonth: 30 + 6  + 6  },
-  { id: "W7", name: "Mass",      monthOpens: 36, newUsers: 400_000, cumulativeUsers: 1_000_000, cliffMonth: 36 + 6,  fullyVestedMonth: 36 + 6  + 6  },
+  { id: "W2", name: "Founders",  monthOpens: 6,  newUsers: 4_000,   cumulativeUsers: 5_000,     cliffMonth: 6  + 12, fullyVestedMonth: 6  + 12 + 12 },
+  { id: "W3", name: "Pioneers",  monthOpens: 12, newUsers: 20_000,  cumulativeUsers: 25_000,    cliffMonth: 12 + 12, fullyVestedMonth: 12 + 12 + 12 },
+  { id: "W4", name: "Builders",  monthOpens: 18, newUsers: 75_000,  cumulativeUsers: 100_000,   cliffMonth: 18 + 12, fullyVestedMonth: 18 + 12 + 12 },
+  { id: "W5", name: "Network",   monthOpens: 24, newUsers: 200_000, cumulativeUsers: 300_000,   cliffMonth: 24 + 12, fullyVestedMonth: 24 + 12 + 12 },
+  { id: "W6", name: "Expansion", monthOpens: 30, newUsers: 300_000, cumulativeUsers: 600_000,   cliffMonth: 30 + 12, fullyVestedMonth: 30 + 12 + 12 },
+  { id: "W7", name: "Mass",      monthOpens: 36, newUsers: 400_000, cumulativeUsers: 1_000_000, cliffMonth: 36 + 12, fullyVestedMonth: 36 + 12 + 12 },
 ];
 
 interface MonthlyProjection {
@@ -83,14 +82,8 @@ interface MonthlyProjection {
 const SEED_USDC = 50_000;
 const SEED_TOKENS = 500_000;
 const SEED_K = SEED_USDC * SEED_TOKENS;
-// Two-tier subscription:
-//  - $9.99/mo Base (mint when you want)            ~70% of subscribers
-//  - $19.99/mo Auto-Mint (DCA your energy daily)   ~30% of subscribers
-// Blended ARPU = 0.70 * 9.99 + 0.30 * 19.99 = 12.99
-const BASE_PRICE = 9.99;
-const AUTOMINT_PRICE = 19.99;
-const AUTOMINT_ATTACH = 0.30;
-const SUB_PRICE = BASE_PRICE * (1 - AUTOMINT_ATTACH) + AUTOMINT_PRICE * AUTOMINT_ATTACH; // 12.99
+// Locked plan uses the public $9.99/mo subscription, rounded to $10 in the planning table.
+const SUB_PRICE = 10;
 const LP_SPLIT = 0.5;
 const FIAT_SPLIT = 0.5;
 
@@ -102,12 +95,12 @@ function buildProjection(): MonthlyProjection[] {
   let prevMonth = 0;
 
   for (const m of milestones) {
-    // Active subs at month m = cumulativeUsers of the latest wave whose monthOpens <= m
-    const activeWaves = WAVES.filter((w) => w.monthOpens <= m);
+    // Planning table counts the wave that was active through the prior interval.
+    // Example: W2 opens at M6, then shows as active at M12 after six months of subs.
+    const activeWaves = WAVES.filter((w) => w.monthOpens <= prevMonth);
     const activeSubs = activeWaves[activeWaves.length - 1]?.cumulativeUsers ?? 0;
 
-    // Approximate sub-driven LP/fiat accumulated between prevMonth and m using
-    // average of step boundaries (waves step up, so we use cumulativeUsers at m).
+    // Subscription-sourced LP and fiat remain exactly equal by the 50/50 split.
     const monthsElapsed = m - prevMonth;
     const monthlySubRev = activeSubs * SUB_PRICE;
     const monthlyLpInject = monthlySubRev * LP_SPLIT;
@@ -292,9 +285,8 @@ function Dashboard() {
             Self-Funded Liquidity Plan
           </h1>
           <p className="text-muted-foreground max-w-2xl text-sm sm:text-base leading-relaxed">
-            The complete bootstrap path: $50K founder-funded LP (Joseph & Michael, out-of-pocket — no investors), two-tier subscriptions
-            ($9.99 Base · $19.99 Auto-Mint at ~30% attach = <span className="text-foreground font-semibold">$12.99 blended ARPU</span>),
-            split 50% LP / 50% fiat, seven user waves on a <span className="text-foreground font-semibold">tapered cliff/vest ladder</span> (Genesis 12+12 → Mass 6+6),
+            The complete bootstrap path: $50K founder-funded LP (Joseph & Michael, out-of-pocket — no investors), $9.99/mo subscriptions,
+            split 50% LP / 50% fiat, seven user waves on a <span className="text-foreground font-semibold">symmetric 12+12 cliff/vest schedule</span>,
             all the way to 1M users — without raising a single dollar of venture capital.
           </p>
         </motion.section>
@@ -332,18 +324,18 @@ function Dashboard() {
           <div className="relative grid sm:grid-cols-3 gap-3">
             <ForceCard
               icon={<Lock className="h-4 w-4" />}
-              title="Tapered Cliff Ladder"
-              body="Genesis locks 12 months. Founders 9 months. Pioneers and beyond, 6 months. The earliest believers carry the deepest conviction; later waves get faster liquidity because the floor is already proven."
+              title="12-Month Cliff"
+              body="Every wave accepts the same 12-month cliff from its start date. Because waves open every 6 months, no group reaches liquidity at the same moment as the next."
             />
             <ForceCard
               icon={<Calendar className="h-4 w-4" />}
               title="Symmetric Linear Vest"
-              body="Every wave's vest equals its cliff (12+12, 9+9, 6+6…). Only 1/N of any wave's tokens unlock per month after cliff. Even if 100% of unlocks were sold, max monthly sell pressure is mathematically capped."
+              body="Every wave gets a 12-month linear vest after cliff. Only 1/12 of any wave's tokens unlock per month. Even if 100% of unlocks were sold, max monthly sell pressure is mathematically capped."
             />
             <ForceCard
               icon={<Droplets className="h-4 w-4" />}
               title="50% Sub → LP"
-              body="Half of every $9.99 / $19.99 subscription is auto-injected into LP. Through every cliff window, the LP grows uncontested. By the time anyone can sell, the floor has already moved up."
+              body="Half of every $9.99 subscription is auto-injected into LP. Through every cliff window, the LP grows uncontested. By the time anyone can sell, the floor has already moved up."
             />
           </div>
 
@@ -523,8 +515,8 @@ function Dashboard() {
         <Section
           icon={<Calendar className="h-4 w-4" />}
           eyebrow="Wave Rollout Planner"
-          title="7 Waves · 1K → 1M Users · Tapered Lock Ladder"
-          subtitle="Genesis carries the deepest conviction lock (12+12). Each subsequent wave gets shorter as the floor proves itself: W2 9+9, W3–W7 6+6. Max 1/N of any wave can sell per month after its cliff."
+          title="7 Waves · 1K → 1M Users · 12+12 Locks"
+          subtitle="Every wave uses the same symmetric schedule: 12-month cliff, then 12-month linear vest. Max 1/12 of any wave can sell per month after its cliff, and waves are staggered 6 months apart."
         >
           <div className="rounded-xl border border-border/60 overflow-hidden">
             <div className="overflow-x-auto">
@@ -589,7 +581,7 @@ function Dashboard() {
           icon={<TrendingUp className="h-4 w-4" />}
           eyebrow="Revenue & LP Growth"
           title="Subscription Flywheel"
-          subtitle="Two tiers, blended $12.99 ARPU. Cumulative LP and cumulative fiat are always equal — same source, 50/50 split."
+          subtitle="$9.99/mo subscription shown as $10 planning math. Cumulative LP and cumulative fiat are always equal — same source, 50/50 split. The $50K founder-funded starting LP is separate and not mixed into either column."
         >
           <div className="rounded-xl border border-border/60 overflow-hidden">
             <div className="overflow-x-auto">
@@ -599,6 +591,8 @@ function Dashboard() {
                     <TableHead>Month</TableHead>
                     <TableHead>Active Subs</TableHead>
                     <TableHead className="hidden sm:table-cell">Monthly Sub Rev</TableHead>
+                    <TableHead className="hidden md:table-cell">Monthly LP Inject</TableHead>
+                    <TableHead className="hidden md:table-cell">Monthly Fiat</TableHead>
                     <TableHead>Cumulative LP</TableHead>
                     <TableHead>Cumulative Fiat</TableHead>
                     <TableHead className="hidden sm:table-cell text-primary">Floor</TableHead>
@@ -613,6 +607,12 @@ function Dashboard() {
                       <TableCell>{fmtNum(row.activeSubs)}</TableCell>
                       <TableCell className="hidden sm:table-cell">
                         {fmtUsd(row.monthlySubRev)}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {fmtUsd(row.monthlyLpInject)}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {fmtUsd(row.monthlyFiat)}
                       </TableCell>
                       <TableCell className="font-medium">
                         {fmtUsd(row.cumulativeLp)}
@@ -659,9 +659,8 @@ function Dashboard() {
           <Lock className="inline h-3 w-3 mr-1.5 -mt-0.5" />
           This page is restricted to Joseph and Michael. All numbers are
           forecasts based on the locked-in bootstrap model: $50K founder-funded LP (out-of-pocket, no investors),
-          two-tier subscriptions ($9.99 Base + $19.99 Auto-Mint, 30% attach →
-          $12.99 blended ARPU) split 50% LP / 50% fiat, 7 waves over 36 months
-          to 1M users, tapered cliff/vest ladder (W1 12+12 → W2 9+9 → W3–W7 6+6). Live LP state
+          $9.99/mo subscriptions shown as $10 planning math, split 50% LP / 50% fiat, 7 waves over 36 months
+          to 1M users, symmetric 12-month cliff + 12-month linear vest for every wave. Live LP state
           reflects the lp_rounds ledger.
         </div>
       </div>
