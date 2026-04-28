@@ -205,33 +205,44 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
 
   const handleConfirmMint = async () => {
     if (!pendingMintCategory) return;
-    
+
     setConfirmMintDialog(false);
     const category = pendingMintCategory;
     setPendingMintCategory(null);
     setMintingState({ isLoading: true, type: 'token', category });
-    setMintingProgressDialog(true);
-    setMintingProgress({ step: 'preparing', message: '🔗 Connecting to Base Sepolia...' });
+
+    // First mint of the session → Cinematic D will play and own the entire
+    // narrative. Suppress the "Transmitting to Base L2" progress dialog so
+    // the two experiences don't overlap.
+    const willPlayCinematicD = !hasPlayedThisSession();
+
+    if (!willPlayCinematicD) {
+      setMintingProgressDialog(true);
+      setMintingProgress({ step: 'preparing', message: '🔗 Connecting to Base Sepolia...' });
+    }
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      setMintingProgress({ step: 'submitting', message: '⚡ Transmitting to Base L2 Blockchain...' });
-      // Kick off Variant C — runs in sync with the broadcast (~6.5s).
-      setMicroActive(false);
-      requestAnimationFrame(() => setMicroActive(true));
+      if (!willPlayCinematicD) {
+        await new Promise(resolve => setTimeout(resolve, 800));
+        setMintingProgress({ step: 'submitting', message: '⚡ Transmitting to Base L2 Blockchain...' });
+        // Kick off Variant C — runs in sync with the broadcast (~6.5s).
+        setMicroActive(false);
+        requestAnimationFrame(() => setMicroActive(true));
 
-      // Hold while the badge plays (~5.2s) before flipping to confirming.
-      await new Promise(resolve => setTimeout(resolve, 5200));
-      setMintingProgress({ step: 'confirming', message: '🔐 Confirming on-chain...' });
-      await new Promise(resolve => setTimeout(resolve, 1300));
-      
+        // Hold while the badge plays (~5.2s) before flipping to confirming.
+        await new Promise(resolve => setTimeout(resolve, 5200));
+        setMintingProgress({ step: 'confirming', message: '🔐 Confirming on-chain...' });
+        await new Promise(resolve => setTimeout(resolve, 1300));
+      }
+
       const result = await onMintTokens(category);
-      
-      if (result.success) {
-        setMintingProgress({ step: 'complete', message: '✅ Transaction confirmed on Base Sepolia!' });
-        await new Promise(resolve => setTimeout(resolve, 1000));
 
-        setMintingProgressDialog(false);
+      if (result.success) {
+        if (!willPlayCinematicD) {
+          setMintingProgress({ step: 'complete', message: '✅ Transaction confirmed on Base Sepolia!' });
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          setMintingProgressDialog(false);
+        }
 
         const tokenCount = getCategoryTokens(category);
         celebrateMint({
@@ -245,10 +256,12 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
         await onRefresh();
       }
     } catch (error) {
-      setMintingProgress({ step: 'error', message: '❌ Transaction failed' });
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setMintingProgressDialog(false);
-      
+      if (!willPlayCinematicD) {
+        setMintingProgress({ step: 'error', message: '❌ Transaction failed' });
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        setMintingProgressDialog(false);
+      }
+
       setResultDialog({
         open: true,
         success: false,
