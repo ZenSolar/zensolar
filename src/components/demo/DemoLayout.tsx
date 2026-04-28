@@ -38,6 +38,17 @@ export function DemoLayout() {
     toast.success('Cinematic D armed — your next mint will play it.');
   };
 
+  const handleCopyReplayUrl = async () => {
+    // Always share the canonical demo URL — never lovable.app/.dev preview hosts.
+    const url = 'https://beta.zen.solar/demo?replayCinematic=1';
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success('Replay link copied', { description: url });
+    } catch {
+      toast.error('Could not copy', { description: url });
+    }
+  };
+
   // Force dark on /demo WITHOUT persisting to localStorage, so the user's
   // chosen light/dark preference for the rest of the app is preserved.
   // The pre-paint script in index.html already applied .dark for first paint
