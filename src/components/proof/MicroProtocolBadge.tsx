@@ -28,10 +28,10 @@ const PRIMITIVES = [
   { key: 'permanence', label: 'Permanence', mark: 'Proof-of-Permanence™',  tagline: 'Anchored to the ledger',   icon: Anchor },
 ] as const;
 
-const STEP_INTERVAL_MS = 850;
-const SEAL_DELAY_MS = STEP_INTERVAL_MS * PRIMITIVES.length; // 4250
-const SEAL_HOLD_MS = 1400;
-const TOTAL_MS = SEAL_DELAY_MS + SEAL_HOLD_MS; // ~5.65s
+const STEP_INTERVAL_MS = 1000;
+const SEAL_DELAY_MS = STEP_INTERVAL_MS * PRIMITIVES.length; // 5000
+const SEAL_HOLD_MS = 1500;
+const TOTAL_MS = SEAL_DELAY_MS + SEAL_HOLD_MS; // 6500ms — agreed timing
 
 
 interface MicroProtocolBadgeProps {

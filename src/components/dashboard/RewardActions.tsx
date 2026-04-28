@@ -27,7 +27,7 @@ import { ManualTokenAddPanel } from './ManualTokenAddPanel';
 import { getNftArtwork } from '@/lib/nftArtwork';
 import { MILESTONE_TO_TOKEN_ID, TOKEN_ID_TO_MILESTONE } from '@/lib/nftTokenMapping';
 import { getRewardMultiplier, getLiveBetaMode } from '@/lib/tokenomics';
-import { ProtocolCinematicSequence } from '@/components/proof/ProtocolCinematicSequence';
+import { MicroProtocolBadge } from '@/components/proof/MicroProtocolBadge';
 
 // NFT Contract address on Base Sepolia
 const NFT_CONTRACT_ADDRESS = '0xD1d509a48CEbB8f9f9aAA462979D7977c30424E3';
@@ -151,19 +151,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     message: '',
     type: null,
   });
-  // Cinematic protocol sequence — plays between progress dialog and result dialog on success
-  const [cinematic, setCinematic] = useState<{
-    open: boolean;
-    tokenCount?: number;
-    subtitle?: string;
-    pendingResult?: {
-      success: boolean;
-      txHash?: string;
-      message: string;
-      type: 'token' | 'nft' | 'milestone' | 'combo';
-      onAfter?: () => void;
-    };
-  }>({ open: false });
+  // Inline micro-cinematic — plays inside result dialog (Variant C, 6.5s)
+  const [microActive, setMicroActive] = useState(false);
   const [showTokenAddPanel, setShowTokenAddPanel] = useState(false);
   const [tokenMintDialog, setTokenMintDialog] = useState(false);
   const [confirmMintDialog, setConfirmMintDialog] = useState(false);
@@ -512,18 +501,18 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         await new Promise(resolve => setTimeout(resolve, 2500));
         
         setMintingProgress({ step: 'complete', message: 'Transaction confirmed!' });
-        await new Promise(resolve => setTimeout(resolve, 600));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         setMintingProgressDialog(false);
+        triggerConfetti();
+        setMicroActive(false);
+        requestAnimationFrame(() => setMicroActive(true));
 
-        setCinematic({
+        setResultDialog({
           open: true,
-          subtitle: '$ZSOLAR minted',
-          pendingResult: {
-            success: true,
-            txHash: result.txHash,
-            message: result.message,
-            type: 'token',
-          },
+          success: true,
+          txHash: result.txHash,
+          message: result.message,
+          type: 'token',
         });
 
         hapticSuccess();
@@ -585,9 +574,10 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           });
         });
         
-        await new Promise(resolve => setTimeout(resolve, 600));
+        await new Promise(resolve => setTimeout(resolve, 1000));
         
         setMintingProgressDialog(false);
+        triggerConfetti();
         
         if (!hasTokenBeenAdded() && supportsWatchAsset && walletType === 'metamask') {
           addZsolarToWallet().then(added => {
@@ -622,19 +612,15 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           }
         }
         
-        // Play cinematic protocol sequence; result dialog opens after it completes
-        setCinematic({
+        setMicroActive(false);
+        requestAnimationFrame(() => setMicroActive(true));
+
+        setResultDialog({
           open: true,
-          tokenCount: result.mintedCount ?? undefined,
-          subtitle: result.mintedCount
-            ? `${result.mintedCount.toLocaleString()} $ZSOLAR minted`
-            : '$ZSOLAR minted',
-          pendingResult: {
-            success: true,
-            txHash: result.txHash,
-            message: successMessage,
-            type: 'token',
-          },
+          success: true,
+          txHash: result.txHash,
+          message: successMessage,
+          type: 'token',
         });
         
         hapticSuccess();
@@ -903,42 +889,6 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
   return (
     <>
-      {/* Cinematic protocol sequence — plays after a successful mint, before the result dialog */}
-      <ProtocolCinematicSequence
-        open={cinematic.open}
-        finaleTokenCount={cinematic.tokenCount}
-        finaleSubtitle={cinematic.subtitle}
-        tapAtIso={new Date().toISOString()}
-        onComplete={() => {
-          const pending = cinematic.pendingResult;
-          setCinematic({ open: false });
-          if (pending) {
-            triggerConfetti();
-            setResultDialog({
-              open: true,
-              success: pending.success,
-              txHash: pending.txHash,
-              message: pending.message,
-              type: pending.type,
-            });
-            pending.onAfter?.();
-          }
-        }}
-        onClose={() => {
-          const pending = cinematic.pendingResult;
-          setCinematic({ open: false });
-          if (pending) {
-            setResultDialog({
-              open: true,
-              success: pending.success,
-              txHash: pending.txHash,
-              message: pending.message,
-              type: pending.type,
-            });
-            pending.onAfter?.();
-          }
-        }}
-      />
       <div className="space-y-3">
         {/* Mint Tokens Button */}
         <Button
@@ -1559,6 +1509,16 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   </h3>
                 </div>
               </div>
+
+              {/* Variant C — embedded micro-cinematic (~6.5s) */}
+              {resultDialog.success && (
+                <div className="mt-4">
+                  <MicroProtocolBadge
+                    active={microActive && resultDialog.open}
+                    onComplete={() => { /* hold final seal until user dismisses */ }}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Scrollable Body */}
