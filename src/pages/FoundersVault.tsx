@@ -13,13 +13,6 @@ import {
   ArrowRight,
   Home,
   Compass,
-  Sparkles as SparklesIcon,
-  Battery,
-  ShieldCheck,
-  Gauge,
-  Activity,
-  Coffee,
-  Download,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,6 +24,7 @@ import { FounderCard } from "@/components/founders/FounderCard";
 import { PriceScenarioToggle } from "@/components/founders/PriceScenarioToggle";
 import { PriceAdminPanel } from "@/components/founders/PriceAdminPanel";
 import { LpRoundTracker } from "@/components/founders/LpRoundTracker";
+import { HubCardList } from "@/components/founders/HubCardList";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import zenLogo from "@/assets/zen-logo-horizontal-transparent.png";
@@ -273,171 +267,8 @@ function VaultDashboard({ isAdmin }: { isAdmin: boolean }) {
         {/* Jump to Chapter — skip the chooser, drop straight into a chapter */}
         <JumpToChapter />
 
-        {/* Catchup — Michael's async briefing room */}
-        <Link
-          to="/founders/catchup"
-          className="block rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-4 hover:border-primary/70 transition-colors group"
-        >
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center">
-                <Coffee className="h-5 w-5 text-primary" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[10px] uppercase tracking-widest text-primary">
-                  Async Briefing · Daily Roll-Up
-                </p>
-                <p className="text-sm font-semibold">Catchup</p>
-                <p className="text-[11px] text-muted-foreground line-clamp-2">
-                  What's new since your last visit + decisions awaiting your 👍 / 👎.
-                </p>
-              </div>
-            </div>
-            <ArrowRight className="h-4 w-4 text-primary group-hover:translate-x-0.5 transition-transform shrink-0" />
-          </div>
-        </Link>
-
-        {/* Tschida — private cofounder handout */}
-        <Link
-          to="/founders/tschida"
-          className="block rounded-2xl border border-eco/40 bg-gradient-to-br from-eco/10 via-eco/5 to-transparent p-4 hover:border-eco/70 transition-colors group"
-        >
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="h-10 w-10 rounded-xl bg-eco/15 flex items-center justify-center">
-                <Download className="h-5 w-5 text-eco" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[10px] uppercase tracking-widest text-eco">
-                  Private · For Michael Tschida
-                </p>
-                <p className="text-sm font-semibold">50/50 Split Handout</p>
-                <p className="text-[11px] text-muted-foreground line-clamp-2">
-                  Branded one-pager PDF. Verified against the live transparency model.
-                </p>
-              </div>
-            </div>
-            <ArrowRight className="h-4 w-4 text-eco group-hover:translate-x-0.5 transition-transform shrink-0" />
-          </div>
-        </Link>
-
-        {/* Proof of Genesis™ CTA */}
-        <Link
-          to="/founders/proof-of-genesis"
-          className="block rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-4 hover:border-primary/70 transition-colors group"
-        >
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center">
-                <SparklesIcon className="h-5 w-5 text-primary" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[10px] uppercase tracking-widest text-primary">
-                  NDA-Shareable · Investor Brief
-                </p>
-                <p className="text-sm font-semibold">Proof of Genesis™</p>
-                <p className="text-[11px] text-muted-foreground line-clamp-2">
-                  Δ + Origin → the primitive that eclipses Bitcoin. One-screen narrative + diagrams.
-                </p>
-              </div>
-            </div>
-            <ArrowRight className="h-4 w-4 text-primary group-hover:translate-x-0.5 transition-transform shrink-0" />
-          </div>
-        </Link>
-
-        {/* Public Transparency Dashboard — preview-only until launched */}
-        <Link
-          to="/transparency"
-          className="block rounded-2xl border border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent p-4 hover:border-amber-500/70 transition-colors group"
-        >
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="h-10 w-10 rounded-xl bg-amber-500/15 flex items-center justify-center">
-                <Activity className="h-5 w-5 text-amber-400" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[10px] uppercase tracking-widest text-amber-400">
-                  Preview · Public Dashboard
-                </p>
-                <p className="text-sm font-semibold">Transparency Page</p>
-                <p className="text-[11px] text-muted-foreground line-clamp-2">
-                  Live network stats, LP reserves, wave progress. Hidden from prod until you launch it.
-                </p>
-              </div>
-            </div>
-            <ArrowRight className="h-4 w-4 text-amber-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
-          </div>
-        </Link>
-        <Link
-          to="/founders/vpp-roadmap"
-          className="block rounded-2xl border border-eco/40 bg-gradient-to-br from-eco/10 via-eco/5 to-transparent p-4 hover:border-eco/70 transition-colors group"
-        >
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="h-10 w-10 rounded-xl bg-eco/15 flex items-center justify-center">
-                <Battery className="h-5 w-5 text-eco" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[10px] uppercase tracking-widest text-eco">
-                  Phase 2 · Post-Seed Revenue
-                </p>
-                <p className="text-sm font-semibold">VPP Program Roadmap</p>
-                <p className="text-[11px] text-muted-foreground line-clamp-2">
-                  Phase 1 mints today. Phase 2 layers VPP. 50% → LP on every dollar.
-                </p>
-              </div>
-            </div>
-            <ArrowRight className="h-4 w-4 text-eco group-hover:translate-x-0.5 transition-transform shrink-0" />
-          </div>
-        </Link>
-
-        {/* Energy Price Oracle — Patent Track 2.5 (parked roadmap) */}
-        <Link
-          to="/founders/energy-oracle"
-          className="block rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-4 hover:border-primary/70 transition-colors group"
-        >
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center">
-                <Gauge className="h-5 w-5 text-primary" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[10px] uppercase tracking-widest text-primary">
-                  Patent Track 2.5 · Parked
-                </p>
-                <p className="text-sm font-semibold">Energy Price Oracle</p>
-                <p className="text-[11px] text-muted-foreground line-clamp-2">
-                  Per-user verified $/kWh on-chain. Series A moat. NOT in seed pitch.
-                </p>
-              </div>
-            </div>
-            <ArrowRight className="h-4 w-4 text-primary group-hover:translate-x-0.5 transition-transform shrink-0" />
-          </div>
-        </Link>
-
-        {/* Patent Expansion — bi-directional EV + FSD claim additions */}
-        <Link
-          to="/founders/patent-expansion"
-          className="block rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-4 hover:border-primary/70 transition-colors group"
-        >
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center">
-                <ShieldCheck className="h-5 w-5 text-primary" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[10px] uppercase tracking-widest text-primary">
-                  Patent · Phase 3 Claims
-                </p>
-                <p className="text-sm font-semibold">Bi-Directional EV + FSD</p>
-                <p className="text-[11px] text-muted-foreground line-clamp-2">
-                  V2G / V2H / V2L + FSD autonomous miles. File now, ship later.
-                </p>
-              </div>
-            </div>
-            <ArrowRight className="h-4 w-4 text-primary group-hover:translate-x-0.5 transition-transform shrink-0" />
-          </div>
-        </Link>
+        {/* Hub cards — sorted newest first, with pin-to-top support */}
+        <HubCardList />
 
         {/* Live Price */}
         <section className="rounded-2xl border border-border/60 bg-card/40 p-4 space-y-3">
