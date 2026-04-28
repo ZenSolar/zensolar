@@ -531,8 +531,8 @@ function Dashboard() {
         <Section
           icon={<Calendar className="h-4 w-4" />}
           eyebrow="Wave Rollout Planner"
-          title="7 Waves · 1K → 1M Users · 12+12 Locks"
-          subtitle="Every wave uses the same symmetric schedule: 12-month cliff, then 12-month linear vest. Max 1/12 of any wave can sell per month after its cliff, and waves are staggered 6 months apart."
+          title="10 Waves · Symmetric Cliff = Vest"
+          subtitle="Cliff = vest, ALWAYS. Earlier waves accept the longest locks for the strongest mint multipliers; later waves graduate from lock-based protection to sell-tax-based protection once the floor is deep enough that instant unlocks can't move it."
         >
           <div className="rounded-xl border border-border/60 overflow-hidden">
             <div className="overflow-x-auto">
@@ -541,18 +541,17 @@ function Dashboard() {
                   <TableRow className="bg-muted/40">
                     <TableHead>Wave</TableHead>
                     <TableHead>Opens</TableHead>
-                    <TableHead>New Users</TableHead>
-                    <TableHead>Cumulative</TableHead>
-                    <TableHead className="hidden sm:table-cell">Cliff</TableHead>
-                    <TableHead className="hidden sm:table-cell">Vest</TableHead>
-                    <TableHead className="hidden md:table-cell">Cliff Ends</TableHead>
-                    <TableHead className="hidden md:table-cell">Fully Vested</TableHead>
+                    <TableHead className="hidden md:table-cell">Cumulative Users</TableHead>
+                    <TableHead>Cliff</TableHead>
+                    <TableHead>Vest</TableHead>
+                    <TableHead className="hidden sm:table-cell">Mint ×</TableHead>
+                    <TableHead className="hidden sm:table-cell text-primary">Entry Price</TableHead>
+                    <TableHead className="hidden md:table-cell">Sell Tax</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {WAVES.map((w) => {
-                    const cliffDuration = w.cliffMonth - w.monthOpens;
-                    const vestDuration = w.fullyVestedMonth - w.cliffMonth;
+                    const isOpenMint = w.id === "W10";
                     return (
                       <TableRow key={w.id}>
                         <TableCell>
@@ -566,21 +565,23 @@ function Dashboard() {
                         <TableCell className="text-muted-foreground">
                           M{w.monthOpens}
                         </TableCell>
-                        <TableCell>{fmtNum(w.newUsers)}</TableCell>
-                        <TableCell className="font-medium text-primary">
-                          {fmtNum(w.cumulativeUsers)}
+                        <TableCell className="hidden md:table-cell font-medium text-primary">
+                          {isOpenMint ? "Unlimited" : fmtNum(w.cumulativeUsers)}
+                        </TableCell>
+                        <TableCell className="tabular-nums">
+                          {fmtDuration(w.cliffDays)}
+                        </TableCell>
+                        <TableCell className="tabular-nums">
+                          {fmtDuration(w.vestDays)}
                         </TableCell>
                         <TableCell className="hidden sm:table-cell tabular-nums">
-                          {cliffDuration}mo
+                          {w.mintMultiplier.toFixed(2)}×
                         </TableCell>
-                        <TableCell className="hidden sm:table-cell tabular-nums">
-                          {vestDuration}mo
+                        <TableCell className="hidden sm:table-cell text-primary tabular-nums">
+                          {fmtPrice(w.forecastEntryPrice)}
                         </TableCell>
-                        <TableCell className="hidden md:table-cell text-muted-foreground">
-                          M{w.cliffMonth}
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell text-muted-foreground">
-                          M{w.fullyVestedMonth}
+                        <TableCell className="hidden md:table-cell tabular-nums text-muted-foreground">
+                          {w.sellTaxPct ? `${w.sellTaxPct}%` : "—"}
                         </TableCell>
                       </TableRow>
                     );
