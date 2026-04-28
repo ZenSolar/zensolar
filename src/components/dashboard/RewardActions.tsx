@@ -551,6 +551,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         setMintingProgress({ step: 'submitting', message: `Minting ${categoryLabel} tokens...` });
         await new Promise(resolve => setTimeout(resolve, 1200));
         setMintingProgress({ step: 'transmitting', message: 'Transmitting to Base L2 Blockchain...' });
+        setMicroActive(false);
+        requestAnimationFrame(() => setMicroActive(true));
         const result = await demoMintHandler.simulateMintTokens(category);
         await new Promise(resolve => setTimeout(resolve, 2500));
         
