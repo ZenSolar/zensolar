@@ -523,8 +523,8 @@ function Dashboard() {
         <Section
           icon={<Calendar className="h-4 w-4" />}
           eyebrow="Wave Rollout Planner"
-          title="7 Waves · 1K → 1M Users"
-          subtitle="Symmetric 12-month cliff + 12-month linear vest. Max 1/12 of any wave can sell per month after cliff."
+          title="7 Waves · 1K → 1M Users · Tapered Lock Ladder"
+          subtitle="Genesis carries the deepest conviction lock (12+12). Each subsequent wave gets shorter as the floor proves itself: W2 9+9, W3–W7 6+6. Max 1/N of any wave can sell per month after its cliff."
         >
           <div className="rounded-xl border border-border/60 overflow-hidden">
             <div className="overflow-x-auto">
@@ -535,41 +535,54 @@ function Dashboard() {
                     <TableHead>Opens</TableHead>
                     <TableHead>New Users</TableHead>
                     <TableHead>Cumulative</TableHead>
-                    <TableHead className="hidden sm:table-cell">Cliff Ends</TableHead>
-                    <TableHead className="hidden sm:table-cell">Fully Vested</TableHead>
+                    <TableHead className="hidden sm:table-cell">Cliff</TableHead>
+                    <TableHead className="hidden sm:table-cell">Vest</TableHead>
+                    <TableHead className="hidden md:table-cell">Cliff Ends</TableHead>
+                    <TableHead className="hidden md:table-cell">Fully Vested</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {WAVES.map((w) => (
-                    <TableRow key={w.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs text-muted-foreground">
-                            {w.id}
-                          </span>
-                          <span className="font-medium">{w.name}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        M{w.monthOpens}
-                      </TableCell>
-                      <TableCell>{fmtNum(w.newUsers)}</TableCell>
-                      <TableCell className="font-medium text-primary">
-                        {fmtNum(w.cumulativeUsers)}
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell text-muted-foreground">
-                        M{w.cliffMonth}
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell text-muted-foreground">
-                        M{w.fullyVestedMonth}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {WAVES.map((w) => {
+                    const cliffDuration = w.cliffMonth - w.monthOpens;
+                    const vestDuration = w.fullyVestedMonth - w.cliffMonth;
+                    return (
+                      <TableRow key={w.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-xs text-muted-foreground">
+                              {w.id}
+                            </span>
+                            <span className="font-medium">{w.name}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          M{w.monthOpens}
+                        </TableCell>
+                        <TableCell>{fmtNum(w.newUsers)}</TableCell>
+                        <TableCell className="font-medium text-primary">
+                          {fmtNum(w.cumulativeUsers)}
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell tabular-nums">
+                          {cliffDuration}mo
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell tabular-nums">
+                          {vestDuration}mo
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell text-muted-foreground">
+                          M{w.cliffMonth}
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell text-muted-foreground">
+                          M{w.fullyVestedMonth}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
           </div>
         </Section>
+
 
         {/* REVENUE & LP GROWTH */}
         <Section
