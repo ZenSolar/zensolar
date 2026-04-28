@@ -115,10 +115,8 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
       markFirstMintCelebrationShown();
       setCinematicD({ open: true, pending });
     } else {
-      // Repeat mint: straight to result dialog with embedded Variant C
+      // Repeat mint: Variant C already played during transmit — straight to result.
       triggerConfetti();
-      setMicroActive(false);
-      requestAnimationFrame(() => setMicroActive(true));
       setResultDialog({
         open: true,
         success: pending.success,
@@ -207,10 +205,15 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
 
     try {
       await new Promise(resolve => setTimeout(resolve, 800));
-      setMintingProgress({ step: 'submitting', message: '⚡ Processing $ZSOLAR tokens mint to Blockchain...' });
-      
-      await new Promise(resolve => setTimeout(resolve, 1200));
-      setMintingProgress({ step: 'confirming', message: '🔐 Confirming transaction on-chain...' });
+      setMintingProgress({ step: 'submitting', message: '⚡ Transmitting to Base L2 Blockchain...' });
+      // Kick off Variant C — runs in sync with the broadcast (~6.5s).
+      setMicroActive(false);
+      requestAnimationFrame(() => setMicroActive(true));
+
+      // Hold while the badge plays (~5.2s) before flipping to confirming.
+      await new Promise(resolve => setTimeout(resolve, 5200));
+      setMintingProgress({ step: 'confirming', message: '🔐 Confirming on-chain...' });
+      await new Promise(resolve => setTimeout(resolve, 1300));
       
       const result = await onMintTokens(category);
       
@@ -259,10 +262,13 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
 
     try {
       await new Promise(resolve => setTimeout(resolve, 800));
-      setMintingProgress({ step: 'submitting', message: '⚡ Processing NFT mint to Blockchain...' });
-      
-      await new Promise(resolve => setTimeout(resolve, 1200));
-      setMintingProgress({ step: 'confirming', message: '🔐 Confirming transaction on-chain...' });
+      setMintingProgress({ step: 'submitting', message: '⚡ Transmitting to Base L2 Blockchain...' });
+      setMicroActive(false);
+      requestAnimationFrame(() => setMicroActive(true));
+
+      await new Promise(resolve => setTimeout(resolve, 5200));
+      setMintingProgress({ step: 'confirming', message: '🔐 Confirming on-chain...' });
+      await new Promise(resolve => setTimeout(resolve, 1300));
       
       const result = await onMintWelcomeNFT();
       
@@ -326,8 +332,6 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
     setCinematicD({ open: false });
     if (!pending) return;
     triggerConfetti();
-    setMicroActive(false);
-    requestAnimationFrame(() => setMicroActive(true));
     setResultDialog({
       open: true,
       success: pending.success,
@@ -642,11 +646,24 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
             <h3 className="text-lg font-bold tracking-tight mb-1">
               {mintingProgress.step === 'complete' ? 'Transaction Complete' : 
                mintingProgress.step === 'error' ? 'Transaction Failed' : 
+               mintingProgress.step === 'submitting' ? 'Transmitting to Base L2 Blockchain…' :
+               mintingProgress.step === 'confirming' ? 'Confirming on Base L2' :
                'Minting to Blockchain'}
             </h3>
             <p className="text-sm text-muted-foreground">{mintingProgress.message}</p>
-            
-            {mintingProgress.step !== 'complete' && mintingProgress.step !== 'error' && (
+
+            {/* Variant C — inline Proof-of-Genesis cinematic, in sync with the
+                broadcast. ~6.5s. */}
+            {(mintingProgress.step === 'submitting' || mintingProgress.step === 'confirming') && (
+              <div className="mt-5">
+                <MicroProtocolBadge
+                  active={microActive}
+                  onComplete={() => { /* hold seal until step advances */ }}
+                />
+              </div>
+            )}
+
+            {mintingProgress.step !== 'complete' && mintingProgress.step !== 'error' && mintingProgress.step !== 'submitting' && mintingProgress.step !== 'confirming' && (
               <p className="text-xs text-muted-foreground/60 mt-2">
                 Securing your rewards on Base Sepolia
               </p>
@@ -692,11 +709,14 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
             </h3>
             <p className="text-sm text-muted-foreground mt-1">{resultDialog.message}</p>
             {resultDialog.success && (
-              <div className="mt-5">
-                <MicroProtocolBadge
-                  active={microActive && resultDialog.open}
-                  onComplete={() => { /* hold final seal */ }}
-                />
+              <div className="mt-5 flex justify-center">
+                <a
+                  href="/demo/proof-of-genesis-receipt-preview"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-3.5 py-1.5 text-xs font-semibold text-primary tracking-wide shadow-[0_0_18px_hsl(var(--primary)/0.25)] hover:bg-primary/15 transition-colors"
+                >
+                  <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
+                  View Proof of Genesis ✓
+                </a>
               </div>
             )}
           </div>
