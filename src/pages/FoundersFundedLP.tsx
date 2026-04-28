@@ -55,14 +55,17 @@ interface Wave {
   fullyVestedMonth: number;
 }
 
+// Tapered cliff/vest ladder — earliest waves take the deepest conviction lock,
+// later waves get progressively shorter locks because the floor is already proven.
+// cliffMonths/vestMonths are DURATIONS (in months from when that wave opens).
 const WAVES: Wave[] = [
-  { id: "W1", name: "Genesis",   monthOpens: 0,  newUsers: 1_000,   cumulativeUsers: 1_000,     cliffMonth: 12, fullyVestedMonth: 24 },
-  { id: "W2", name: "Founders",  monthOpens: 6,  newUsers: 4_000,   cumulativeUsers: 5_000,     cliffMonth: 18, fullyVestedMonth: 30 },
-  { id: "W3", name: "Pioneers",  monthOpens: 12, newUsers: 20_000,  cumulativeUsers: 25_000,    cliffMonth: 24, fullyVestedMonth: 36 },
-  { id: "W4", name: "Builders",  monthOpens: 18, newUsers: 75_000,  cumulativeUsers: 100_000,   cliffMonth: 30, fullyVestedMonth: 42 },
-  { id: "W5", name: "Network",   monthOpens: 24, newUsers: 200_000, cumulativeUsers: 300_000,   cliffMonth: 36, fullyVestedMonth: 48 },
-  { id: "W6", name: "Expansion", monthOpens: 30, newUsers: 300_000, cumulativeUsers: 600_000,   cliffMonth: 42, fullyVestedMonth: 54 },
-  { id: "W7", name: "Mass",      monthOpens: 36, newUsers: 400_000, cumulativeUsers: 1_000_000, cliffMonth: 48, fullyVestedMonth: 60 },
+  { id: "W1", name: "Genesis",   monthOpens: 0,  newUsers: 1_000,   cumulativeUsers: 1_000,     cliffMonth: 0  + 12, fullyVestedMonth: 0  + 12 + 12 },
+  { id: "W2", name: "Founders",  monthOpens: 6,  newUsers: 4_000,   cumulativeUsers: 5_000,     cliffMonth: 6  + 9,  fullyVestedMonth: 6  + 9  + 9  },
+  { id: "W3", name: "Pioneers",  monthOpens: 12, newUsers: 20_000,  cumulativeUsers: 25_000,    cliffMonth: 12 + 6,  fullyVestedMonth: 12 + 6  + 6  },
+  { id: "W4", name: "Builders",  monthOpens: 18, newUsers: 75_000,  cumulativeUsers: 100_000,   cliffMonth: 18 + 6,  fullyVestedMonth: 18 + 6  + 6  },
+  { id: "W5", name: "Network",   monthOpens: 24, newUsers: 200_000, cumulativeUsers: 300_000,   cliffMonth: 24 + 6,  fullyVestedMonth: 24 + 6  + 6  },
+  { id: "W6", name: "Expansion", monthOpens: 30, newUsers: 300_000, cumulativeUsers: 600_000,   cliffMonth: 30 + 6,  fullyVestedMonth: 30 + 6  + 6  },
+  { id: "W7", name: "Mass",      monthOpens: 36, newUsers: 400_000, cumulativeUsers: 1_000_000, cliffMonth: 36 + 6,  fullyVestedMonth: 36 + 6  + 6  },
 ];
 
 interface MonthlyProjection {
@@ -291,9 +294,8 @@ function Dashboard() {
           <p className="text-muted-foreground max-w-2xl text-sm sm:text-base leading-relaxed">
             The complete bootstrap path: $50K founder-funded LP (Joseph & Michael, out-of-pocket — no investors), two-tier subscriptions
             ($9.99 Base · $19.99 Auto-Mint at ~30% attach = <span className="text-foreground font-semibold">$12.99 blended ARPU</span>),
-            split 50% LP / 50% fiat, seven user waves with 12-month cliff +
-            12-month linear vest, all the way to 1M users — without raising a
-            single dollar of venture capital.
+            split 50% LP / 50% fiat, seven user waves on a <span className="text-foreground font-semibold">tapered cliff/vest ladder</span> (Genesis 12+12 → Mass 6+6),
+            all the way to 1M users — without raising a single dollar of venture capital.
           </p>
         </motion.section>
 
@@ -318,9 +320,9 @@ function Dashboard() {
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-3xl">
               Every other token launch begs holders not to sell. We make selling
-              <span className="text-foreground font-medium"> structurally impossible</span> for
-              the first 12 months — and <span className="text-foreground font-medium">throttled to 1/12 per month</span>
-              for the 12 months after that. Meanwhile, <span className="text-foreground font-medium">50% of every subscription dollar</span>
+              <span className="text-foreground font-medium"> structurally impossible</span> during
+              each wave's cliff — and <span className="text-foreground font-medium">throttled to a fraction per month</span>
+              during the linear vest after that. Meanwhile, <span className="text-foreground font-medium">50% of every subscription dollar</span>
               flows directly into the LP. Buy pressure compounds. Sell pressure
               is rate-limited by code. The floor only moves one direction.
             </p>
@@ -330,18 +332,18 @@ function Dashboard() {
           <div className="relative grid sm:grid-cols-3 gap-3">
             <ForceCard
               icon={<Lock className="h-4 w-4" />}
-              title="12-Month Cliff"
-              body="Every wave's minted tokens are locked for a full year. Zero sell pressure from new mints during the entire bootstrap period — by smart-contract enforcement, not promise."
+              title="Tapered Cliff Ladder"
+              body="Genesis locks 12 months. Founders 9 months. Pioneers and beyond, 6 months. The earliest believers carry the deepest conviction; later waves get faster liquidity because the floor is already proven."
             />
             <ForceCard
               icon={<Calendar className="h-4 w-4" />}
-              title="12-Month Linear Vest"
-              body="After the cliff, only 1/12 of any wave's tokens unlock per month. Even in the worst case where 100% of unlocks are sold, max monthly sell pressure is mathematically capped."
+              title="Symmetric Linear Vest"
+              body="Every wave's vest equals its cliff (12+12, 9+9, 6+6…). Only 1/N of any wave's tokens unlock per month after cliff. Even if 100% of unlocks were sold, max monthly sell pressure is mathematically capped."
             />
             <ForceCard
               icon={<Droplets className="h-4 w-4" />}
               title="50% Sub → LP"
-              body="Half of every $9.99 / $19.99 subscription is auto-injected into LP. With 12 months of zero unlocks, the LP grows uncontested. By the time anyone can sell, the floor has already moved up."
+              body="Half of every $9.99 / $19.99 subscription is auto-injected into LP. Through every cliff window, the LP grows uncontested. By the time anyone can sell, the floor has already moved up."
             />
           </div>
 
@@ -350,7 +352,7 @@ function Dashboard() {
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-primary" />
               <h3 className="text-sm font-semibold uppercase tracking-wider">
-                Why users sign up for a 12-month lock
+                Why users sign up for the lock
               </h3>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
@@ -379,10 +381,11 @@ function Dashboard() {
           </div>
 
           <p className="relative text-xs text-muted-foreground italic max-w-3xl">
-            This is the public pitch: <span className="text-foreground not-italic">mint for 12 months, hold for 12 more, watch the floor compound underneath you.</span>
+            This is the public pitch: <span className="text-foreground not-italic">mint, accept your wave's lock, watch the floor compound underneath you.</span>
             The only people who lose are the ones who didn't show up early.
           </p>
         </motion.section>
+
 
         <Section
           icon={<Droplets className="h-4 w-4" />}
@@ -520,8 +523,8 @@ function Dashboard() {
         <Section
           icon={<Calendar className="h-4 w-4" />}
           eyebrow="Wave Rollout Planner"
-          title="7 Waves · 1K → 1M Users"
-          subtitle="Symmetric 12-month cliff + 12-month linear vest. Max 1/12 of any wave can sell per month after cliff."
+          title="7 Waves · 1K → 1M Users · Tapered Lock Ladder"
+          subtitle="Genesis carries the deepest conviction lock (12+12). Each subsequent wave gets shorter as the floor proves itself: W2 9+9, W3–W7 6+6. Max 1/N of any wave can sell per month after its cliff."
         >
           <div className="rounded-xl border border-border/60 overflow-hidden">
             <div className="overflow-x-auto">
@@ -532,41 +535,54 @@ function Dashboard() {
                     <TableHead>Opens</TableHead>
                     <TableHead>New Users</TableHead>
                     <TableHead>Cumulative</TableHead>
-                    <TableHead className="hidden sm:table-cell">Cliff Ends</TableHead>
-                    <TableHead className="hidden sm:table-cell">Fully Vested</TableHead>
+                    <TableHead className="hidden sm:table-cell">Cliff</TableHead>
+                    <TableHead className="hidden sm:table-cell">Vest</TableHead>
+                    <TableHead className="hidden md:table-cell">Cliff Ends</TableHead>
+                    <TableHead className="hidden md:table-cell">Fully Vested</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {WAVES.map((w) => (
-                    <TableRow key={w.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs text-muted-foreground">
-                            {w.id}
-                          </span>
-                          <span className="font-medium">{w.name}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        M{w.monthOpens}
-                      </TableCell>
-                      <TableCell>{fmtNum(w.newUsers)}</TableCell>
-                      <TableCell className="font-medium text-primary">
-                        {fmtNum(w.cumulativeUsers)}
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell text-muted-foreground">
-                        M{w.cliffMonth}
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell text-muted-foreground">
-                        M{w.fullyVestedMonth}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {WAVES.map((w) => {
+                    const cliffDuration = w.cliffMonth - w.monthOpens;
+                    const vestDuration = w.fullyVestedMonth - w.cliffMonth;
+                    return (
+                      <TableRow key={w.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-xs text-muted-foreground">
+                              {w.id}
+                            </span>
+                            <span className="font-medium">{w.name}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          M{w.monthOpens}
+                        </TableCell>
+                        <TableCell>{fmtNum(w.newUsers)}</TableCell>
+                        <TableCell className="font-medium text-primary">
+                          {fmtNum(w.cumulativeUsers)}
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell tabular-nums">
+                          {cliffDuration}mo
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell tabular-nums">
+                          {vestDuration}mo
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell text-muted-foreground">
+                          M{w.cliffMonth}
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell text-muted-foreground">
+                          M{w.fullyVestedMonth}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
           </div>
         </Section>
+
 
         {/* REVENUE & LP GROWTH */}
         <Section
@@ -645,7 +661,7 @@ function Dashboard() {
           forecasts based on the locked-in bootstrap model: $50K founder-funded LP (out-of-pocket, no investors),
           two-tier subscriptions ($9.99 Base + $19.99 Auto-Mint, 30% attach →
           $12.99 blended ARPU) split 50% LP / 50% fiat, 7 waves over 36 months
-          to 1M users, 12-month cliff + 12-month linear vest. Live LP state
+          to 1M users, tapered cliff/vest ladder (W1 12+12 → W2 9+9 → W3–W7 6+6). Live LP state
           reflects the lp_rounds ledger.
         </div>
       </div>
