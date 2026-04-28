@@ -285,9 +285,8 @@ function Dashboard() {
             Self-Funded Liquidity Plan
           </h1>
           <p className="text-muted-foreground max-w-2xl text-sm sm:text-base leading-relaxed">
-            The complete bootstrap path: $50K founder-funded LP (Joseph & Michael, out-of-pocket — no investors), two-tier subscriptions
-            ($9.99 Base · $19.99 Auto-Mint at ~30% attach = <span className="text-foreground font-semibold">$12.99 blended ARPU</span>),
-            split 50% LP / 50% fiat, seven user waves on a <span className="text-foreground font-semibold">tapered cliff/vest ladder</span> (Genesis 12+12 → Mass 6+6),
+            The complete bootstrap path: $50K founder-funded LP (Joseph & Michael, out-of-pocket — no investors), $9.99/mo subscriptions,
+            split 50% LP / 50% fiat, seven user waves on a <span className="text-foreground font-semibold">symmetric 12+12 cliff/vest schedule</span>,
             all the way to 1M users — without raising a single dollar of venture capital.
           </p>
         </motion.section>
@@ -325,18 +324,18 @@ function Dashboard() {
           <div className="relative grid sm:grid-cols-3 gap-3">
             <ForceCard
               icon={<Lock className="h-4 w-4" />}
-              title="Tapered Cliff Ladder"
-              body="Genesis locks 12 months. Founders 9 months. Pioneers and beyond, 6 months. The earliest believers carry the deepest conviction; later waves get faster liquidity because the floor is already proven."
+              title="12-Month Cliff"
+              body="Every wave accepts the same 12-month cliff from its start date. Because waves open every 6 months, no group reaches liquidity at the same moment as the next."
             />
             <ForceCard
               icon={<Calendar className="h-4 w-4" />}
               title="Symmetric Linear Vest"
-              body="Every wave's vest equals its cliff (12+12, 9+9, 6+6…). Only 1/N of any wave's tokens unlock per month after cliff. Even if 100% of unlocks were sold, max monthly sell pressure is mathematically capped."
+              body="Every wave gets a 12-month linear vest after cliff. Only 1/12 of any wave's tokens unlock per month. Even if 100% of unlocks were sold, max monthly sell pressure is mathematically capped."
             />
             <ForceCard
               icon={<Droplets className="h-4 w-4" />}
               title="50% Sub → LP"
-              body="Half of every $9.99 / $19.99 subscription is auto-injected into LP. Through every cliff window, the LP grows uncontested. By the time anyone can sell, the floor has already moved up."
+              body="Half of every $9.99 subscription is auto-injected into LP. Through every cliff window, the LP grows uncontested. By the time anyone can sell, the floor has already moved up."
             />
           </div>
 
