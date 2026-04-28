@@ -55,14 +55,17 @@ interface Wave {
   fullyVestedMonth: number;
 }
 
+// Tapered cliff/vest ladder — earliest waves take the deepest conviction lock,
+// later waves get progressively shorter locks because the floor is already proven.
+// cliffMonths/vestMonths are DURATIONS (in months from when that wave opens).
 const WAVES: Wave[] = [
-  { id: "W1", name: "Genesis",   monthOpens: 0,  newUsers: 1_000,   cumulativeUsers: 1_000,     cliffMonth: 12, fullyVestedMonth: 24 },
-  { id: "W2", name: "Founders",  monthOpens: 6,  newUsers: 4_000,   cumulativeUsers: 5_000,     cliffMonth: 18, fullyVestedMonth: 30 },
-  { id: "W3", name: "Pioneers",  monthOpens: 12, newUsers: 20_000,  cumulativeUsers: 25_000,    cliffMonth: 24, fullyVestedMonth: 36 },
-  { id: "W4", name: "Builders",  monthOpens: 18, newUsers: 75_000,  cumulativeUsers: 100_000,   cliffMonth: 30, fullyVestedMonth: 42 },
-  { id: "W5", name: "Network",   monthOpens: 24, newUsers: 200_000, cumulativeUsers: 300_000,   cliffMonth: 36, fullyVestedMonth: 48 },
-  { id: "W6", name: "Expansion", monthOpens: 30, newUsers: 300_000, cumulativeUsers: 600_000,   cliffMonth: 42, fullyVestedMonth: 54 },
-  { id: "W7", name: "Mass",      monthOpens: 36, newUsers: 400_000, cumulativeUsers: 1_000_000, cliffMonth: 48, fullyVestedMonth: 60 },
+  { id: "W1", name: "Genesis",   monthOpens: 0,  newUsers: 1_000,   cumulativeUsers: 1_000,     cliffMonth: 0  + 12, fullyVestedMonth: 0  + 12 + 12 },
+  { id: "W2", name: "Founders",  monthOpens: 6,  newUsers: 4_000,   cumulativeUsers: 5_000,     cliffMonth: 6  + 9,  fullyVestedMonth: 6  + 9  + 9  },
+  { id: "W3", name: "Pioneers",  monthOpens: 12, newUsers: 20_000,  cumulativeUsers: 25_000,    cliffMonth: 12 + 6,  fullyVestedMonth: 12 + 6  + 6  },
+  { id: "W4", name: "Builders",  monthOpens: 18, newUsers: 75_000,  cumulativeUsers: 100_000,   cliffMonth: 18 + 6,  fullyVestedMonth: 18 + 6  + 6  },
+  { id: "W5", name: "Network",   monthOpens: 24, newUsers: 200_000, cumulativeUsers: 300_000,   cliffMonth: 24 + 6,  fullyVestedMonth: 24 + 6  + 6  },
+  { id: "W6", name: "Expansion", monthOpens: 30, newUsers: 300_000, cumulativeUsers: 600_000,   cliffMonth: 30 + 6,  fullyVestedMonth: 30 + 6  + 6  },
+  { id: "W7", name: "Mass",      monthOpens: 36, newUsers: 400_000, cumulativeUsers: 1_000_000, cliffMonth: 36 + 6,  fullyVestedMonth: 36 + 6  + 6  },
 ];
 
 interface MonthlyProjection {
