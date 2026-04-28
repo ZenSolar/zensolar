@@ -58,8 +58,12 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
       <div className="pt-safe" />
       {/* Content row with icons */}
       <div className="flex h-14 items-center justify-between px-4">
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 min-w-0">
           <SidebarTrigger id="zen-sidebar-trigger" className="text-foreground touch-target" onClick={() => markSidebarOpened()} />
+          {/* Weather moved to the left of the logo to avoid overlap */}
+          <div className="hidden min-[360px]:block max-w-[88px] sm:max-w-[140px] overflow-hidden truncate ml-1">
+            <WeatherWidget />
+          </div>
           {canGoBack && (
             <Button
               type="button"
@@ -112,10 +116,6 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
               Beta 10x
             </Badge>
           )}
-          {/* Weather hidden under 360px to prevent header crowding */}
-          <div className="hidden min-[360px]:block max-w-[88px] sm:max-w-[140px] md:max-w-none overflow-hidden truncate">
-            <WeatherWidget />
-          </div>
           {!isDemo && <SoundToggle />}
           {!isDemo && <ThemeToggle />}
           {!isDemo && <NotificationBell />}
