@@ -14,8 +14,29 @@ import { toast } from 'sonner';
 export function DemoLayout() {
   useDemoScreenshotDetector();
   const location = useLocation();
+  const navigate = useNavigate();
   const host = typeof window === 'undefined' ? '' : window.location.hostname;
   const showRouteBanner = import.meta.env.DEV || host.includes('lovableproject.com') || host.includes('id-preview--') || new URLSearchParams(location.search).has('routeqa');
+
+  // Convenience: ?replayCinematic=1 (anywhere) clears the flags so the next
+  // mint plays the full Cinematic D again. Also exposes window.zenReplayCinematic().
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('replayCinematic') === '1') {
+      resetFirstMintCelebration();
+      toast.success('Cinematic D armed — your next mint will play it.');
+      params.delete('replayCinematic');
+      navigate(
+        { pathname: location.pathname, search: params.toString() ? `?${params.toString()}` : '' },
+        { replace: true },
+      );
+    }
+  }, [location.pathname, location.search, navigate]);
+
+  const handleReplay = () => {
+    resetFirstMintCelebration();
+    toast.success('Cinematic D armed — your next mint will play it.');
+  };
 
   // Force dark on /demo WITHOUT persisting to localStorage, so the user's
   // chosen light/dark preference for the rest of the app is preserved.
