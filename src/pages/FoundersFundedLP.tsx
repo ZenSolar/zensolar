@@ -388,45 +388,58 @@ function Dashboard() {
           icon={<Droplets className="h-4 w-4" />}
           eyebrow="Live LP State"
           title="Current AMM Reserves"
-          subtitle="$50K founder deposit (Joseph & Michael, out-of-pocket) + every executed LP round, summed from the lp_rounds ledger. The $50K starting deposit never changes — only injected rounds grow this number."
+          subtitle="Joseph & Michael personally funded the $50K starting LP — out-of-pocket, no investors. Everything beyond that comes from executed LP rounds (USDC paired against newly-released supply, governed by the lp_rounds ledger)."
         >
           {loading ? (
             <div className="h-32 flex items-center justify-center">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
           ) : (
-            <div className="space-y-3">
-              {/* Breakdown strip — makes it impossible to confuse founder deposit with total */}
-              <div className="rounded-xl border border-border/50 bg-card/40 p-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs">
-                <span className="text-muted-foreground uppercase tracking-[0.14em]">
-                  Reserve breakdown
-                </span>
-                <span className="text-foreground">
-                  Founder deposit <span className="text-muted-foreground">{fmtUsd(SEED_USDC)}</span>
-                </span>
-                <span className="text-muted-foreground">+</span>
-                <span className="text-foreground">
-                  Rounds <span className="text-muted-foreground">{fmtUsd(liveState.totalUsdcInjected)}</span>
-                </span>
-                <span className="text-muted-foreground">=</span>
-                <span className="font-semibold text-primary">
-                  {fmtUsd(liveState.usdcReserve)} total USDC
-                </span>
+            <div className="space-y-4">
+              {/* Two-column source-of-funds breakdown — impossible to misread */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-1">
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-primary/80 flex items-center gap-1.5">
+                    <Wallet className="h-3 w-3" />
+                    Founders' Own Money
+                  </div>
+                  <div className="text-2xl font-bold text-primary tabular-nums">
+                    {fmtUsd(SEED_USDC)}
+                  </div>
+                  <div className="text-[11px] text-muted-foreground leading-snug">
+                    Out-of-pocket from Joseph & Michael. No investors, no raise.
+                    This number never changes.
+                  </div>
+                </div>
+                <div className="rounded-xl border border-border/60 bg-card/40 p-4 space-y-1">
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground flex items-center gap-1.5">
+                    <Layers className="h-3 w-3" />
+                    LP Rounds (USDC Paired)
+                  </div>
+                  <div className="text-2xl font-bold tabular-nums">
+                    {fmtUsd(liveState.totalUsdcInjected)}
+                  </div>
+                  <div className="text-[11px] text-muted-foreground leading-snug">
+                    USDC paired against newly-released $ZSOLAR in {liveState.roundCount} executed
+                    round{liveState.roundCount === 1 ? "" : "s"}. Tracked on-chain via{" "}
+                    <code className="text-[10px]">lp_rounds</code>.
+                  </div>
+                </div>
               </div>
 
+              {/* AMM stats — clearly labeled as the resulting pool state */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <Stat
-                  label="USDC Reserve (Total)"
+                  label="Pool USDC"
                   value={fmtUsd(liveState.usdcReserve)}
-                  hint={`${fmtUsd(SEED_USDC)} founder deposit + ${fmtUsd(liveState.totalUsdcInjected)} rounds`}
+                  hint={`${fmtUsd(SEED_USDC)} founders + ${fmtUsd(liveState.totalUsdcInjected)} rounds`}
                   accent
                 />
                 <Stat
-                  label="Token Reserve"
+                  label="Pool $ZSOLAR"
                   value={fmtNum(liveState.tokenReserve)}
-                  hint={`${fmtNum(SEED_TOKENS)} founder deposit + ${fmtNum(liveState.totalTokensReleased)} rounds`}
+                  hint={`${fmtNum(SEED_TOKENS)} founders + ${fmtNum(liveState.totalTokensReleased)} rounds`}
                 />
-
                 <Stat
                   label="Constant k"
                   value={fmtNum(liveState.k)}
@@ -441,6 +454,7 @@ function Dashboard() {
             </div>
           )}
         </Section>
+
 
 
         {/* LP ROUNDS LEDGER */}
