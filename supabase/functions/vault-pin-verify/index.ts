@@ -10,7 +10,7 @@ const PIN_REGEX = /^\d{4}$/;
 const MAX_ATTEMPTS = 3;
 const LOCKOUT_MINUTES = 15;
 const ALLOWED_ROLES = new Set(["admin", "founder"]);
-const PIN_DENY_EMAILS = new Set(["jo@zen.solar", "todd@zen.solar"]);
+const PIN_DENY_EMAILS = new Set(["todd@zen.solar"]);
 
 async function hashPin(pin: string, salt: string): Promise<string> {
   const enc = new TextEncoder();

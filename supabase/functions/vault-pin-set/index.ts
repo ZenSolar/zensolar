@@ -9,7 +9,7 @@ const corsHeaders = {
 const PIN_REGEX = /^\d{4}$/;
 const ALLOWED_ROLES = new Set(["admin", "founder"]);
 // Email-based denylist: these accounts have founder role but cannot use PIN gate.
-const PIN_DENY_EMAILS = new Set(["jo@zen.solar", "todd@zen.solar"]);
+const PIN_DENY_EMAILS = new Set(["todd@zen.solar"]);
 
 async function hashPin(pin: string, salt: string): Promise<string> {
   const enc = new TextEncoder();
