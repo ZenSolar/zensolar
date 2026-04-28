@@ -179,8 +179,6 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       setCinematicD({ open: true, pending });
     } else {
       triggerConfetti();
-      setMicroActive(false);
-      requestAnimationFrame(() => setMicroActive(true));
       setResultDialog({
         open: true,
         success: pending.success,
