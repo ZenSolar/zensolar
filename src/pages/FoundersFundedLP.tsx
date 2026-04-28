@@ -294,9 +294,8 @@ function Dashboard() {
           <p className="text-muted-foreground max-w-2xl text-sm sm:text-base leading-relaxed">
             The complete bootstrap path: $50K founder-funded LP (Joseph & Michael, out-of-pocket — no investors), two-tier subscriptions
             ($9.99 Base · $19.99 Auto-Mint at ~30% attach = <span className="text-foreground font-semibold">$12.99 blended ARPU</span>),
-            split 50% LP / 50% fiat, seven user waves with 12-month cliff +
-            12-month linear vest, all the way to 1M users — without raising a
-            single dollar of venture capital.
+            split 50% LP / 50% fiat, seven user waves on a <span className="text-foreground font-semibold">tapered cliff/vest ladder</span> (Genesis 12+12 → Mass 6+6),
+            all the way to 1M users — without raising a single dollar of venture capital.
           </p>
         </motion.section>
 
