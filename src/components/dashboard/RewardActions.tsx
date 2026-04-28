@@ -585,10 +585,9 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           });
         });
         
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 600));
         
         setMintingProgressDialog(false);
-        triggerConfetti();
         
         if (!hasTokenBeenAdded() && supportsWatchAsset && walletType === 'metamask') {
           addZsolarToWallet().then(added => {
@@ -623,12 +622,19 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           }
         }
         
-        setResultDialog({
+        // Play cinematic protocol sequence; result dialog opens after it completes
+        setCinematic({
           open: true,
-          success: true,
-          txHash: result.txHash,
-          message: successMessage,
-          type: 'token',
+          tokenCount: result.mintedCount ?? undefined,
+          subtitle: result.mintedCount
+            ? `${result.mintedCount.toLocaleString()} $ZSOLAR minted`
+            : '$ZSOLAR minted',
+          pendingResult: {
+            success: true,
+            txHash: result.txHash,
+            message: successMessage,
+            type: 'token',
+          },
         });
         
         hapticSuccess();
