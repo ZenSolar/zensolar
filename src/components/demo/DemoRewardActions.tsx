@@ -18,6 +18,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { DemoMintResult } from '@/hooks/useDemoData';
 import { MicroProtocolBadge } from '@/components/proof/MicroProtocolBadge';
+import { ProtocolCinematicSequence } from '@/components/proof/ProtocolCinematicSequence';
+import { hasShownFirstMintCelebration, markFirstMintCelebrationShown } from '@/lib/firstMintCelebration';
 
 export type MintCategory = 'solar' | 'ev_miles' | 'battery' | 'charging' | 'all';
 
@@ -92,6 +94,41 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
 
   // Embedded micro-cinematic — plays inside the success result dialog (Variant C, 6.5s)
   const [microActive, setMicroActive] = useState(false);
+
+  // Full Cinematic D — plays once on the user's very first mint, then never again.
+  // After it completes/dismisses we open the result dialog (with embedded Variant C).
+  const [cinematicD, setCinematicD] = useState<{
+    open: boolean;
+    pending?: {
+      success: boolean;
+      txHash?: string;
+      message: string;
+      type: 'token' | 'nft';
+      tokenCount?: number;
+    };
+  }>({ open: false });
+
+  /** Single shared "celebrate this mint" entrypoint — handles first vs repeat. */
+  const celebrateMint = (pending: NonNullable<typeof cinematicD.pending>) => {
+    if (!hasShownFirstMintCelebration()) {
+      // First mint ever: play full Cinematic D, then result dialog
+      markFirstMintCelebrationShown();
+      setCinematicD({ open: true, pending });
+    } else {
+      // Repeat mint: straight to result dialog with embedded Variant C
+      triggerConfetti();
+      setMicroActive(false);
+      requestAnimationFrame(() => setMicroActive(true));
+      setResultDialog({
+        open: true,
+        success: pending.success,
+        txHash: pending.txHash,
+        message: pending.message,
+        type: pending.type,
+      });
+    }
+  };
+
 
   // Expose openMintDialogForCategory to parent via ref
   useImperativeHandle(ref, () => ({
@@ -182,16 +219,14 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         setMintingProgressDialog(false);
-        triggerConfetti();
-        setMicroActive(false);
-        requestAnimationFrame(() => setMicroActive(true));
 
-        setResultDialog({
-          open: true,
+        const tokenCount = getCategoryTokens(category);
+        celebrateMint({
           success: true,
           txHash: result.txHash,
           message: result.message,
           type: 'token',
+          tokenCount,
         });
 
         await onRefresh();
@@ -237,19 +272,24 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
 
         setMintingProgressDialog(false);
         const isAlreadyClaimed = result.message.includes('already');
-        if (!isAlreadyClaimed) {
-          triggerConfetti();
-          setMicroActive(false);
-          requestAnimationFrame(() => setMicroActive(true));
-        }
 
-        setResultDialog({
-          open: true,
-          success: true,
-          txHash: result.txHash,
-          message: result.message,
-          type: 'nft',
-        });
+        if (isAlreadyClaimed) {
+          // Skip celebration for already-claimed welcome NFT
+          setResultDialog({
+            open: true,
+            success: true,
+            txHash: result.txHash,
+            message: result.message,
+            type: 'nft',
+          });
+        } else {
+          celebrateMint({
+            success: true,
+            txHash: result.txHash,
+            message: result.message,
+            type: 'nft',
+          });
+        }
 
         await onRefresh();
       }
@@ -279,8 +319,41 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
     }
   };
 
+  // Hand off from Cinematic D → result dialog. Wrapped so an early dismiss
+  // never leaves the user without the celebration + receipt.
+  const handleCinematicDFinished = () => {
+    const pending = cinematicD.pending;
+    setCinematicD({ open: false });
+    if (!pending) return;
+    triggerConfetti();
+    setMicroActive(false);
+    requestAnimationFrame(() => setMicroActive(true));
+    setResultDialog({
+      open: true,
+      success: pending.success,
+      txHash: pending.txHash,
+      message: pending.message,
+      type: pending.type,
+    });
+  };
+
   return (
     <div className="space-y-4">
+      {/* Full Cinematic D — first-mint celebration. Hardened so dismiss === complete. */}
+      <ProtocolCinematicSequence
+        open={cinematicD.open}
+        finaleTokenCount={cinematicD.pending?.tokenCount}
+        finaleSubtitle={
+          cinematicD.pending?.tokenCount
+            ? `${cinematicD.pending.tokenCount.toLocaleString()} $ZSOLAR minted`
+            : cinematicD.pending?.type === 'nft'
+              ? 'Welcome NFT minted'
+              : '$ZSOLAR minted'
+        }
+        tapAtIso={new Date().toISOString()}
+        onComplete={handleCinematicDFinished}
+        onClose={handleCinematicDFinished}
+      />
       {/* Demo Mode Banner */}
       <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 text-center">
         <p className="text-sm text-primary font-medium">

@@ -28,6 +28,8 @@ import { getNftArtwork } from '@/lib/nftArtwork';
 import { MILESTONE_TO_TOKEN_ID, TOKEN_ID_TO_MILESTONE } from '@/lib/nftTokenMapping';
 import { getRewardMultiplier, getLiveBetaMode } from '@/lib/tokenomics';
 import { MicroProtocolBadge } from '@/components/proof/MicroProtocolBadge';
+import { ProtocolCinematicSequence } from '@/components/proof/ProtocolCinematicSequence';
+import { hasShownFirstMintCelebration, markFirstMintCelebrationShown } from '@/lib/firstMintCelebration';
 
 // NFT Contract address on Base Sepolia
 const NFT_CONTRACT_ADDRESS = '0xD1d509a48CEbB8f9f9aAA462979D7977c30424E3';
@@ -153,6 +155,56 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   });
   // Inline micro-cinematic — plays inside result dialog (Variant C, 6.5s)
   const [microActive, setMicroActive] = useState(false);
+
+  // Full Cinematic D — plays once on the user's very first successful mint.
+  // Hardened so any dismissal also fires onComplete and routes to the result
+  // dialog (which renders the embedded Variant C). User never gets stuck.
+  const [cinematicD, setCinematicD] = useState<{
+    open: boolean;
+    pending?: {
+      success: boolean;
+      txHash?: string;
+      message: string;
+      type: 'token' | 'nft' | 'milestone' | 'combo';
+      tokenCount?: number;
+    };
+  }>({ open: false });
+
+  /** Single shared "celebrate this mint" entrypoint — handles first vs repeat. */
+  const celebrateMint = (pending: NonNullable<typeof cinematicD.pending>) => {
+    if (!hasShownFirstMintCelebration()) {
+      markFirstMintCelebrationShown();
+      setCinematicD({ open: true, pending });
+    } else {
+      triggerConfetti();
+      setMicroActive(false);
+      requestAnimationFrame(() => setMicroActive(true));
+      setResultDialog({
+        open: true,
+        success: pending.success,
+        txHash: pending.txHash,
+        message: pending.message,
+        type: pending.type,
+      });
+    }
+  };
+
+  const handleCinematicDFinished = () => {
+    const pending = cinematicD.pending;
+    setCinematicD({ open: false });
+    if (!pending) return;
+    triggerConfetti();
+    setMicroActive(false);
+    requestAnimationFrame(() => setMicroActive(true));
+    setResultDialog({
+      open: true,
+      success: pending.success,
+      txHash: pending.txHash,
+      message: pending.message,
+      type: pending.type,
+    });
+  };
+
   const [showTokenAddPanel, setShowTokenAddPanel] = useState(false);
   const [tokenMintDialog, setTokenMintDialog] = useState(false);
   const [confirmMintDialog, setConfirmMintDialog] = useState(false);
@@ -503,12 +555,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         setMintingProgress({ step: 'complete', message: 'Transaction confirmed!' });
         await new Promise(resolve => setTimeout(resolve, 1000));
         setMintingProgressDialog(false);
-        triggerConfetti();
-        setMicroActive(false);
-        requestAnimationFrame(() => setMicroActive(true));
 
-        setResultDialog({
-          open: true,
+        celebrateMint({
           success: true,
           txHash: result.txHash,
           message: result.message,
@@ -577,7 +625,6 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         setMintingProgressDialog(false);
-        triggerConfetti();
         
         if (!hasTokenBeenAdded() && supportsWatchAsset && walletType === 'metamask') {
           addZsolarToWallet().then(added => {
@@ -612,15 +659,12 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           }
         }
         
-        setMicroActive(false);
-        requestAnimationFrame(() => setMicroActive(true));
-
-        setResultDialog({
-          open: true,
+        celebrateMint({
           success: true,
           txHash: result.txHash,
           message: successMessage,
           type: 'token',
+          tokenCount: result.mintedCount ?? undefined,
         });
         
         hapticSuccess();
@@ -889,6 +933,19 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
   return (
     <>
+      {/* Full Cinematic D — first-mint celebration. Hardened so dismiss === complete. */}
+      <ProtocolCinematicSequence
+        open={cinematicD.open}
+        finaleTokenCount={cinematicD.pending?.tokenCount}
+        finaleSubtitle={
+          cinematicD.pending?.tokenCount
+            ? `${cinematicD.pending.tokenCount.toLocaleString()} $ZSOLAR minted`
+            : '$ZSOLAR minted'
+        }
+        tapAtIso={new Date().toISOString()}
+        onComplete={handleCinematicDFinished}
+        onClose={handleCinematicDFinished}
+      />
       <div className="space-y-3">
         {/* Mint Tokens Button */}
         <Button
