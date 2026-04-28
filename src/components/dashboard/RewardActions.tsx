@@ -512,18 +512,20 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         await new Promise(resolve => setTimeout(resolve, 2500));
         
         setMintingProgress({ step: 'complete', message: 'Transaction confirmed!' });
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 600));
         setMintingProgressDialog(false);
-        triggerConfetti();
-        
-        setResultDialog({
+
+        setCinematic({
           open: true,
-          success: true,
-          txHash: result.txHash,
-          message: result.message,
-          type: 'token',
+          subtitle: '$ZSOLAR minted',
+          pendingResult: {
+            success: true,
+            txHash: result.txHash,
+            message: result.message,
+            type: 'token',
+          },
         });
-        
+
         hapticSuccess();
         await onRefresh();
         await checkEligibility();
