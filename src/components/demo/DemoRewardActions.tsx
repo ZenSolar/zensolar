@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { DemoMintResult } from '@/hooks/useDemoData';
+import { ProtocolCinematicSequence } from '@/components/proof/ProtocolCinematicSequence';
 
 export type MintCategory = 'solar' | 'ev_miles' | 'battery' | 'charging' | 'all';
 
@@ -88,6 +89,19 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
     message: '',
     type: null,
   });
+
+  // Cinematic sequence state — plays between progress and success dialogs
+  const [cinematic, setCinematic] = useState<{
+    open: boolean;
+    tokenCount?: number;
+    subtitle?: string;
+    pendingResult?: {
+      success: boolean;
+      txHash?: string;
+      message: string;
+      type: 'token' | 'nft';
+    };
+  }>({ open: false });
 
   // Expose openMintDialogForCategory to parent via ref
   useImperativeHandle(ref, () => ({
