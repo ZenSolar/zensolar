@@ -155,6 +155,56 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   });
   // Inline micro-cinematic — plays inside result dialog (Variant C, 6.5s)
   const [microActive, setMicroActive] = useState(false);
+
+  // Full Cinematic D — plays once on the user's very first successful mint.
+  // Hardened so any dismissal also fires onComplete and routes to the result
+  // dialog (which renders the embedded Variant C). User never gets stuck.
+  const [cinematicD, setCinematicD] = useState<{
+    open: boolean;
+    pending?: {
+      success: boolean;
+      txHash?: string;
+      message: string;
+      type: 'token' | 'nft' | 'milestone' | 'combo';
+      tokenCount?: number;
+    };
+  }>({ open: false });
+
+  /** Single shared "celebrate this mint" entrypoint — handles first vs repeat. */
+  const celebrateMint = (pending: NonNullable<typeof cinematicD.pending>) => {
+    if (!hasShownFirstMintCelebration()) {
+      markFirstMintCelebrationShown();
+      setCinematicD({ open: true, pending });
+    } else {
+      triggerConfetti();
+      setMicroActive(false);
+      requestAnimationFrame(() => setMicroActive(true));
+      setResultDialog({
+        open: true,
+        success: pending.success,
+        txHash: pending.txHash,
+        message: pending.message,
+        type: pending.type,
+      });
+    }
+  };
+
+  const handleCinematicDFinished = () => {
+    const pending = cinematicD.pending;
+    setCinematicD({ open: false });
+    if (!pending) return;
+    triggerConfetti();
+    setMicroActive(false);
+    requestAnimationFrame(() => setMicroActive(true));
+    setResultDialog({
+      open: true,
+      success: pending.success,
+      txHash: pending.txHash,
+      message: pending.message,
+      type: pending.type,
+    });
+  };
+
   const [showTokenAddPanel, setShowTokenAddPanel] = useState(false);
   const [tokenMintDialog, setTokenMintDialog] = useState(false);
   const [confirmMintDialog, setConfirmMintDialog] = useState(false);
