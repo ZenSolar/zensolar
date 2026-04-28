@@ -386,36 +386,59 @@ function Dashboard() {
           icon={<Droplets className="h-4 w-4" />}
           eyebrow="Live LP State"
           title="Current AMM Reserves"
-          subtitle="Seed + every executed LP round, computed from the lp_rounds ledger."
+          subtitle="$50K founder seed + every executed LP round, summed from the lp_rounds ledger. The seed never changes — only injected rounds grow this number."
         >
           {loading ? (
             <div className="h-32 flex items-center justify-center">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <Stat
-                label="USDC Reserve"
-                value={fmtUsd(liveState.usdcReserve)}
-                accent
-              />
-              <Stat
-                label="Token Reserve"
-                value={fmtNum(liveState.tokenReserve)}
-              />
-              <Stat
-                label="Constant k"
-                value={fmtNum(liveState.k)}
-                hint="USDC × tokens"
-              />
-              <Stat
-                label="Floor Price"
-                value={fmtPrice(liveState.floorPrice)}
-                accent
-              />
+            <div className="space-y-3">
+              {/* Breakdown strip — makes it impossible to confuse seed with total */}
+              <div className="rounded-xl border border-border/50 bg-card/40 p-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs">
+                <span className="text-muted-foreground uppercase tracking-[0.14em]">
+                  Reserve breakdown
+                </span>
+                <span className="text-foreground">
+                  Seed <span className="text-muted-foreground">{fmtUsd(SEED_USDC)}</span>
+                </span>
+                <span className="text-muted-foreground">+</span>
+                <span className="text-foreground">
+                  Rounds <span className="text-muted-foreground">{fmtUsd(liveState.totalUsdcInjected)}</span>
+                </span>
+                <span className="text-muted-foreground">=</span>
+                <span className="font-semibold text-primary">
+                  {fmtUsd(liveState.usdcReserve)} total USDC
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <Stat
+                  label="USDC Reserve (Total)"
+                  value={fmtUsd(liveState.usdcReserve)}
+                  hint={`${fmtUsd(SEED_USDC)} seed + ${fmtUsd(liveState.totalUsdcInjected)} rounds`}
+                  accent
+                />
+                <Stat
+                  label="Token Reserve"
+                  value={fmtNum(liveState.tokenReserve)}
+                  hint={`${fmtNum(SEED_TOKENS)} seed + ${fmtNum(liveState.totalTokensReleased)} rounds`}
+                />
+                <Stat
+                  label="Constant k"
+                  value={fmtNum(liveState.k)}
+                  hint="USDC × tokens"
+                />
+                <Stat
+                  label="Floor Price"
+                  value={fmtPrice(liveState.floorPrice)}
+                  accent
+                />
+              </div>
             </div>
           )}
         </Section>
+
 
         {/* LP ROUNDS LEDGER */}
         <Section
