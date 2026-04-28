@@ -625,7 +625,6 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         setMintingProgressDialog(false);
-        triggerConfetti();
         
         if (!hasTokenBeenAdded() && supportsWatchAsset && walletType === 'metamask') {
           addZsolarToWallet().then(added => {
@@ -660,15 +659,12 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           }
         }
         
-        setMicroActive(false);
-        requestAnimationFrame(() => setMicroActive(true));
-
-        setResultDialog({
-          open: true,
+        celebrateMint({
           success: true,
           txHash: result.txHash,
           message: successMessage,
           type: 'token',
+          tokenCount: result.mintedCount ?? undefined,
         });
         
         hapticSuccess();
