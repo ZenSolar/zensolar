@@ -124,14 +124,15 @@ export const HUB_CARDS: HubCardDef[] = [
 ];
 
 const PIN_STORAGE_KEY = "zen.foundersHub.pinned";
+const DEFAULT_PINNED = ["master-outline"];
 
 function readPinned(): Set<string> {
   try {
     const raw = localStorage.getItem(PIN_STORAGE_KEY);
-    if (!raw) return new Set();
+    if (!raw) return new Set(DEFAULT_PINNED);
     return new Set(JSON.parse(raw));
   } catch {
-    return new Set();
+    return new Set(DEFAULT_PINNED);
   }
 }
 
