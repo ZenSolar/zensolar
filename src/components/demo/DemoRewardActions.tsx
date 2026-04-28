@@ -319,8 +319,41 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
     }
   };
 
+  // Hand off from Cinematic D → result dialog. Wrapped so an early dismiss
+  // never leaves the user without the celebration + receipt.
+  const handleCinematicDFinished = () => {
+    const pending = cinematicD.pending;
+    setCinematicD({ open: false });
+    if (!pending) return;
+    triggerConfetti();
+    setMicroActive(false);
+    requestAnimationFrame(() => setMicroActive(true));
+    setResultDialog({
+      open: true,
+      success: pending.success,
+      txHash: pending.txHash,
+      message: pending.message,
+      type: pending.type,
+    });
+  };
+
   return (
     <div className="space-y-4">
+      {/* Full Cinematic D — first-mint celebration. Hardened so dismiss === complete. */}
+      <ProtocolCinematicSequence
+        open={cinematicD.open}
+        finaleTokenCount={cinematicD.pending?.tokenCount}
+        finaleSubtitle={
+          cinematicD.pending?.tokenCount
+            ? `${cinematicD.pending.tokenCount.toLocaleString()} $ZSOLAR minted`
+            : cinematicD.pending?.type === 'nft'
+              ? 'Welcome NFT minted'
+              : '$ZSOLAR minted'
+        }
+        tapAtIso={new Date().toISOString()}
+        onComplete={handleCinematicDFinished}
+        onClose={handleCinematicDFinished}
+      />
       {/* Demo Mode Banner */}
       <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 text-center">
         <p className="text-sm text-primary font-medium">
