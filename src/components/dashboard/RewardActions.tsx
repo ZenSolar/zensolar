@@ -1469,6 +1469,17 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
               </h3>
               <p className="text-sm text-muted-foreground">{mintingProgress.message}</p>
             </div>
+
+            {/* Variant C — inline Proof-of-Genesis cinematic, in sync with the
+                "Transmitting to Base L2" broadcast. ~6.5s. */}
+            {(mintingProgress.step === 'transmitting' || mintingProgress.step === 'confirming') && (
+              <div className="relative">
+                <MicroProtocolBadge
+                  active={microActive}
+                  onComplete={() => { /* hold seal until step advances */ }}
+                />
+              </div>
+            )}
             
             {/* Progress bar */}
             {mintingProgress.step !== 'error' && mintingProgress.step !== 'complete' && (
