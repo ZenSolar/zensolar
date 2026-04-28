@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { DemoMintResult } from '@/hooks/useDemoData';
+import { ProtocolCinematicSequence } from '@/components/proof/ProtocolCinematicSequence';
 
 export type MintCategory = 'solar' | 'ev_miles' | 'battery' | 'charging' | 'all';
 
@@ -88,6 +89,19 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
     message: '',
     type: null,
   });
+
+  // Cinematic sequence state — plays between progress and success dialogs
+  const [cinematic, setCinematic] = useState<{
+    open: boolean;
+    tokenCount?: number;
+    subtitle?: string;
+    pendingResult?: {
+      success: boolean;
+      txHash?: string;
+      message: string;
+      type: 'token' | 'nft';
+    };
+  }>({ open: false });
 
   // Expose openMintDialogForCategory to parent via ref
   useImperativeHandle(ref, () => ({
@@ -175,19 +189,24 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
       
       if (result.success) {
         setMintingProgress({ step: 'complete', message: '✅ Transaction confirmed on Base Sepolia!' });
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
+        await new Promise(resolve => setTimeout(resolve, 600));
+
         setMintingProgressDialog(false);
-        triggerConfetti();
-        
-        setResultDialog({
+
+        // Play the cinematic protocol sequence; result dialog opens after it completes
+        const tokenCount = getCategoryTokens(category);
+        setCinematic({
           open: true,
-          success: true,
-          txHash: result.txHash,
-          message: result.message,
-          type: 'token',
+          tokenCount,
+          subtitle: `${tokenCount.toLocaleString()} $ZSOLAR minted`,
+          pendingResult: {
+            success: true,
+            txHash: result.txHash,
+            message: result.message,
+            type: 'token',
+          },
         });
-        
+
         await onRefresh();
       }
     } catch (error) {
@@ -227,21 +246,33 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
       
       if (result.success) {
         setMintingProgress({ step: 'complete', message: '✅ NFT minted to Base Sepolia!' });
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
+        await new Promise(resolve => setTimeout(resolve, 600));
+
         setMintingProgressDialog(false);
-        if (!result.message.includes('already')) {
-          triggerConfetti();
+
+        const isAlreadyClaimed = result.message.includes('already');
+        if (isAlreadyClaimed) {
+          // Skip cinematic for already-owned welcome NFT
+          setResultDialog({
+            open: true,
+            success: true,
+            txHash: result.txHash,
+            message: result.message,
+            type: 'nft',
+          });
+        } else {
+          setCinematic({
+            open: true,
+            subtitle: 'Welcome NFT minted',
+            pendingResult: {
+              success: true,
+              txHash: result.txHash,
+              message: result.message,
+              type: 'nft',
+            },
+          });
         }
-        
-        setResultDialog({
-          open: true,
-          success: true,
-          txHash: result.txHash,
-          message: result.message,
-          type: 'nft',
-        });
-        
+
         await onRefresh();
       }
     } catch (error) {
@@ -272,6 +303,28 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
 
   return (
     <div className="space-y-4">
+      {/* Cinematic protocol sequence — plays after a successful mint, before the result dialog */}
+      <ProtocolCinematicSequence
+        open={cinematic.open}
+        finaleTokenCount={cinematic.tokenCount}
+        finaleSubtitle={cinematic.subtitle}
+        tapAtIso={new Date().toISOString()}
+        onComplete={() => {
+          const pending = cinematic.pendingResult;
+          setCinematic({ open: false });
+          if (pending) {
+            triggerConfetti();
+            setResultDialog({ open: true, ...pending });
+          }
+        }}
+        onClose={() => {
+          const pending = cinematic.pendingResult;
+          setCinematic({ open: false });
+          if (pending) {
+            setResultDialog({ open: true, ...pending });
+          }
+        }}
+      />
       {/* Demo Mode Banner */}
       <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 text-center">
         <p className="text-sm text-primary font-medium">
