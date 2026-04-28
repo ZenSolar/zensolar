@@ -9,6 +9,7 @@ import {
   Gauge,
   ShieldCheck,
   Download,
+  ListTree,
   Pin,
   PinOff,
   type LucideIcon,
@@ -38,6 +39,16 @@ export type HubCardDef = {
 
 // Newest first by createdAt. Edit dates here to re-order.
 export const HUB_CARDS: HubCardDef[] = [
+  {
+    id: "master-outline",
+    to: "/founders/master-outline",
+    eyebrow: "Source of Truth · Living Doc",
+    title: "Master Outline",
+    blurb: "Canonical record of every change to the business and model. Start here.",
+    icon: ListTree,
+    tone: "primary",
+    createdAt: "2026-04-28",
+  },
   {
     id: "tschida",
     to: "/founders/tschida",
