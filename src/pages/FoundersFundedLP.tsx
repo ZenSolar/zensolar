@@ -603,6 +603,8 @@ function Dashboard() {
           )}
         </Section>
 
+        {/* UNIT TEST PANEL */}
+        <UnitTestPanel />
 
 
         {/* LP ROUNDS LEDGER */}
