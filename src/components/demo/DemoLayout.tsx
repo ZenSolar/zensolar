@@ -83,6 +83,16 @@ export function DemoLayout() {
           </div>
         </div>
         <FeedbackFab />
+        {/* Demo-only: arm Cinematic D so the next mint replays the full ~11s sequence. */}
+        <button
+          type="button"
+          onClick={handleReplay}
+          aria-label="Replay first-mint cinematic on next mint"
+          className="fixed bottom-4 left-4 z-50 inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-background/80 px-3 py-1.5 text-[11px] font-semibold text-primary shadow-[0_0_18px_hsl(var(--primary)/0.25)] backdrop-blur hover:bg-primary/10 transition-colors"
+        >
+          <Sparkles className="h-3.5 w-3.5" aria-hidden />
+          Replay cinematic
+        </button>
       </SidebarProvider>
     </DemoProvider>
   );
