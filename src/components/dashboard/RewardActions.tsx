@@ -903,6 +903,42 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
   return (
     <>
+      {/* Cinematic protocol sequence — plays after a successful mint, before the result dialog */}
+      <ProtocolCinematicSequence
+        open={cinematic.open}
+        finaleTokenCount={cinematic.tokenCount}
+        finaleSubtitle={cinematic.subtitle}
+        tapAtIso={new Date().toISOString()}
+        onComplete={() => {
+          const pending = cinematic.pendingResult;
+          setCinematic({ open: false });
+          if (pending) {
+            triggerConfetti();
+            setResultDialog({
+              open: true,
+              success: pending.success,
+              txHash: pending.txHash,
+              message: pending.message,
+              type: pending.type,
+            });
+            pending.onAfter?.();
+          }
+        }}
+        onClose={() => {
+          const pending = cinematic.pendingResult;
+          setCinematic({ open: false });
+          if (pending) {
+            setResultDialog({
+              open: true,
+              success: pending.success,
+              txHash: pending.txHash,
+              message: pending.message,
+              type: pending.type,
+            });
+            pending.onAfter?.();
+          }
+        }}
+      />
       <div className="space-y-3">
         {/* Mint Tokens Button */}
         <Button
