@@ -738,3 +738,45 @@ function CrossoverCard({
     </Card>
   );
 }
+
+function ForceCard({
+  icon,
+  title,
+  body,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  body: string;
+}) {
+  return (
+    <div className="rounded-xl border border-border/50 bg-card/60 backdrop-blur p-4 space-y-2">
+      <div className="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-primary/15 text-primary">
+        {icon}
+      </div>
+      <div className="text-sm font-semibold tracking-tight">{title}</div>
+      <p className="text-xs text-muted-foreground leading-relaxed">{body}</p>
+    </div>
+  );
+}
+
+function Guarantee({
+  icon,
+  heading,
+  body,
+}: {
+  icon: React.ReactNode;
+  heading: string;
+  body: string;
+}) {
+  return (
+    <li className="flex gap-3">
+      <span className="flex-shrink-0 mt-0.5 inline-flex items-center justify-center h-7 w-7 rounded-lg bg-primary/10 text-primary">
+        {icon}
+      </span>
+      <span className="leading-relaxed">
+        <span className="font-medium text-foreground">{heading}.</span>{" "}
+        <span className="text-muted-foreground">{body}</span>
+      </span>
+    </li>
+  );
+}
