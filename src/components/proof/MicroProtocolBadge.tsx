@@ -58,6 +58,11 @@ export function MicroProtocolBadge({
 
   const { playMintSound, playConfirmSound, primeAudio } = useMintSound();
 
+  // Keep onComplete in a ref so re-renders from the parent (new function
+  // identity each render) don't restart the animation mid-flight.
+  const onCompleteRef = useRef(onComplete);
+  useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
+
   const prefersReducedMotion = useMemo(() => {
     if (typeof window === 'undefined') return false;
     return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
@@ -102,7 +107,7 @@ export function MicroProtocolBadge({
     const completeT = setTimeout(() => {
       if (!completedRef.current) {
         completedRef.current = true;
-        onComplete?.();
+        onCompleteRef.current?.();
       }
     }, TOTAL_MS);
     timersRef.current.push(completeT);
@@ -111,7 +116,7 @@ export function MicroProtocolBadge({
       timersRef.current.forEach(clearTimeout);
       timersRef.current = [];
     };
-  }, [active, withSound, prefersReducedMotion, playMintSound, playConfirmSound, primeAudio, onComplete]);
+  }, [active, withSound, prefersReducedMotion, playMintSound, playConfirmSound, primeAudio]);
 
   const dotSize = compact ? 'w-6 h-6' : 'w-8 h-8';
   const iconSize = compact ? 'h-3 w-3' : 'h-4 w-4';
