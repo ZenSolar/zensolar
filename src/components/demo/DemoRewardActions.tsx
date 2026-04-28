@@ -95,6 +95,41 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
   // Embedded micro-cinematic — plays inside the success result dialog (Variant C, 6.5s)
   const [microActive, setMicroActive] = useState(false);
 
+  // Full Cinematic D — plays once on the user's very first mint, then never again.
+  // After it completes/dismisses we open the result dialog (with embedded Variant C).
+  const [cinematicD, setCinematicD] = useState<{
+    open: boolean;
+    pending?: {
+      success: boolean;
+      txHash?: string;
+      message: string;
+      type: 'token' | 'nft';
+      tokenCount?: number;
+    };
+  }>({ open: false });
+
+  /** Single shared "celebrate this mint" entrypoint — handles first vs repeat. */
+  const celebrateMint = (pending: NonNullable<typeof cinematicD.pending>) => {
+    if (!hasShownFirstMintCelebration()) {
+      // First mint ever: play full Cinematic D, then result dialog
+      markFirstMintCelebrationShown();
+      setCinematicD({ open: true, pending });
+    } else {
+      // Repeat mint: straight to result dialog with embedded Variant C
+      triggerConfetti();
+      setMicroActive(false);
+      requestAnimationFrame(() => setMicroActive(true));
+      setResultDialog({
+        open: true,
+        success: pending.success,
+        txHash: pending.txHash,
+        message: pending.message,
+        type: pending.type,
+      });
+    }
+  };
+
+
   // Expose openMintDialogForCategory to parent via ref
   useImperativeHandle(ref, () => ({
     openMintDialogForCategory: (category: MintCategory) => {
