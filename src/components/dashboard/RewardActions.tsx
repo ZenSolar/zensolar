@@ -555,12 +555,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         setMintingProgress({ step: 'complete', message: 'Transaction confirmed!' });
         await new Promise(resolve => setTimeout(resolve, 1000));
         setMintingProgressDialog(false);
-        triggerConfetti();
-        setMicroActive(false);
-        requestAnimationFrame(() => setMicroActive(true));
 
-        setResultDialog({
-          open: true,
+        celebrateMint({
           success: true,
           txHash: result.txHash,
           message: result.message,
