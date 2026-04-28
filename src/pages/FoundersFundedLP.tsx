@@ -302,8 +302,9 @@ function Dashboard() {
           </h1>
           <p className="text-muted-foreground max-w-2xl text-sm sm:text-base leading-relaxed">
             The complete bootstrap path: $50K founder-funded LP (Joseph & Michael, out-of-pocket — no investors), $9.99/mo subscriptions,
-            split 50% LP / 50% fiat, seven user waves on a <span className="text-foreground font-semibold">symmetric 12+12 cliff/vest schedule</span>,
-            all the way to 1M users — without raising a single dollar of venture capital.
+            split 50% LP / 50% fiat, ten user waves on a <span className="text-foreground font-semibold">tapered symmetric cliff = vest schedule</span>
+            {" "}(12+12 → 9+9 → 6+6 → 3+3 → 1+1 → 14d/14d → 7d/7d → instant + sell-tax),
+            all the way to mass adoption — without raising a single dollar of venture capital.
           </p>
         </motion.section>
 
