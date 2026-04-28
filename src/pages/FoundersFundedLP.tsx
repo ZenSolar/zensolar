@@ -55,17 +55,16 @@ interface Wave {
   fullyVestedMonth: number;
 }
 
-// Tapered cliff/vest ladder — earliest waves take the deepest conviction lock,
-// later waves get progressively shorter locks because the floor is already proven.
-// cliffMonths/vestMonths are DURATIONS (in months from when that wave opens).
+// Locked wave schedule: symmetric 12-month cliff + 12-month linear vest for EVERY wave.
+// Each wave opens 6 months after the prior wave, so unlocks are staggered instead of piled up.
 const WAVES: Wave[] = [
   { id: "W1", name: "Genesis",   monthOpens: 0,  newUsers: 1_000,   cumulativeUsers: 1_000,     cliffMonth: 0  + 12, fullyVestedMonth: 0  + 12 + 12 },
-  { id: "W2", name: "Founders",  monthOpens: 6,  newUsers: 4_000,   cumulativeUsers: 5_000,     cliffMonth: 6  + 9,  fullyVestedMonth: 6  + 9  + 9  },
-  { id: "W3", name: "Pioneers",  monthOpens: 12, newUsers: 20_000,  cumulativeUsers: 25_000,    cliffMonth: 12 + 6,  fullyVestedMonth: 12 + 6  + 6  },
-  { id: "W4", name: "Builders",  monthOpens: 18, newUsers: 75_000,  cumulativeUsers: 100_000,   cliffMonth: 18 + 6,  fullyVestedMonth: 18 + 6  + 6  },
-  { id: "W5", name: "Network",   monthOpens: 24, newUsers: 200_000, cumulativeUsers: 300_000,   cliffMonth: 24 + 6,  fullyVestedMonth: 24 + 6  + 6  },
-  { id: "W6", name: "Expansion", monthOpens: 30, newUsers: 300_000, cumulativeUsers: 600_000,   cliffMonth: 30 + 6,  fullyVestedMonth: 30 + 6  + 6  },
-  { id: "W7", name: "Mass",      monthOpens: 36, newUsers: 400_000, cumulativeUsers: 1_000_000, cliffMonth: 36 + 6,  fullyVestedMonth: 36 + 6  + 6  },
+  { id: "W2", name: "Founders",  monthOpens: 6,  newUsers: 4_000,   cumulativeUsers: 5_000,     cliffMonth: 6  + 12, fullyVestedMonth: 6  + 12 + 12 },
+  { id: "W3", name: "Pioneers",  monthOpens: 12, newUsers: 20_000,  cumulativeUsers: 25_000,    cliffMonth: 12 + 12, fullyVestedMonth: 12 + 12 + 12 },
+  { id: "W4", name: "Builders",  monthOpens: 18, newUsers: 75_000,  cumulativeUsers: 100_000,   cliffMonth: 18 + 12, fullyVestedMonth: 18 + 12 + 12 },
+  { id: "W5", name: "Network",   monthOpens: 24, newUsers: 200_000, cumulativeUsers: 300_000,   cliffMonth: 24 + 12, fullyVestedMonth: 24 + 12 + 12 },
+  { id: "W6", name: "Expansion", monthOpens: 30, newUsers: 300_000, cumulativeUsers: 600_000,   cliffMonth: 30 + 12, fullyVestedMonth: 30 + 12 + 12 },
+  { id: "W7", name: "Mass",      monthOpens: 36, newUsers: 400_000, cumulativeUsers: 1_000_000, cliffMonth: 36 + 12, fullyVestedMonth: 36 + 12 + 12 },
 ];
 
 interface MonthlyProjection {
@@ -83,14 +82,8 @@ interface MonthlyProjection {
 const SEED_USDC = 50_000;
 const SEED_TOKENS = 500_000;
 const SEED_K = SEED_USDC * SEED_TOKENS;
-// Two-tier subscription:
-//  - $9.99/mo Base (mint when you want)            ~70% of subscribers
-//  - $19.99/mo Auto-Mint (DCA your energy daily)   ~30% of subscribers
-// Blended ARPU = 0.70 * 9.99 + 0.30 * 19.99 = 12.99
-const BASE_PRICE = 9.99;
-const AUTOMINT_PRICE = 19.99;
-const AUTOMINT_ATTACH = 0.30;
-const SUB_PRICE = BASE_PRICE * (1 - AUTOMINT_ATTACH) + AUTOMINT_PRICE * AUTOMINT_ATTACH; // 12.99
+// Locked plan uses the public $9.99/mo subscription, rounded to $10 in the planning table.
+const SUB_PRICE = 10;
 const LP_SPLIT = 0.5;
 const FIAT_SPLIT = 0.5;
 
