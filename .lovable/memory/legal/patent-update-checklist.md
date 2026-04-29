@@ -68,7 +68,25 @@ Items NOT supported by the April 2 2025 disclosure. Must file as a separate prov
 
 ---
 
-## Track 3 — CIP Candidates (attorney decision)
+## Track 4 — ZK-Proof-of-Genesis (file fresh provisional this quarter)
+
+### 4.1 — Zero-Knowledge Proof-of-Genesis
+- **Why new:** As-filed disclosure has no ZK content. Proofs are plaintext (OAuth payload + watermark hash). No circuit, no commitment scheme, no privacy-preserving aggregation.
+- **What's new:**
+  - **ZK circuit** that takes (signed OEM payload, device watermark, time window) as private inputs and emits a public proof `"this wallet produced ≥ X kWh in window W on a registered device"` without revealing exact kWh, location, time series, or device ID.
+  - **On-chain verifier contract** that accepts the ZK proof and triggers Mint-on-Proof.
+  - **Aggregation proof** — N user proofs collapsed into one verifier call (gas optimization + plausible-deniability set).
+  - **PII-compliant mode** — for EU/CA jurisdictions where raw kWh curves are personal data.
+- **Why file now (even though we ship in Phase 3 / Series B):**
+  - ZK-energy-tokenization is an obvious next claim once any competitor sees our stack.
+  - Filing the provisional secures priority date *now* even if we don't implement until 2027–2028.
+  - Strengthens Series A story ("we have the patent moat for the privacy layer too").
+- **Action:** Draft fresh provisional (ZEN-003). Likely 6–10 figures: ZK circuit topology, public/private input split, verifier contract integration, aggregation proof flow, PII-mode toggle.
+- **Cross-reference:** `mem://features/proof-of-genesis-verification` Phase 3.
+
+---
+
+
 Gray area: arguably supported, arguably new. Attorney must rule whether each fits within original disclosure or requires a Continuation-In-Part.
 
 ### 3.1 — Producer-gated LP rounds (ZPPA)

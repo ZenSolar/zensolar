@@ -192,6 +192,8 @@ ZenSolar has **two cap tables**. Never mix them.
 5. **SAFT/warrant terms** for non-producer investors who can't qualify via energy production.
 6. **Halving on-chain enforcement** — narrative is locked; Solidity logic not yet written.
 7. **Energy Price Oracle** — parked for Series A. Confirm it stays parked through seed.
+8. **Decentralized oracle migration timeline** — Chainlink Functions / DON in Phase 2 (Series A). Confirm trigger condition (user count? TVL? regulatory?). See `mem://features/proof-of-genesis-verification`.
+9. **ZK-Proof-of-Genesis provisional filing** — file Patent Track 4 (ZEN-003) this quarter to secure priority date even though implementation is Series B / Phase 3.
 
 ---
 

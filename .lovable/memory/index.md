@@ -13,15 +13,18 @@ Launch price (LP math) and kWh-floor (real-world utility+carbon+REC) are TWO IND
 Founders pact-locked: Joseph 150B → $6.67 crossover, Michael 50B → $20 crossover (individual net-worth thresholds, NOT project market cap).
 **Halving every 4 years (Bitcoin cadence) on the 700B community pool only. Epoch 1 = 350B (87.5B/yr). 5 halvings inside 20-yr founder pact-lock. Net-deflationary by epoch 5.**
 **5-layer Scarcity Stack: cap + burn-per-mint + 4yr halving + founder pact-lock + POL. Always cite all 5 — never just one.**
+**10-layer Proof-of-Genesis verification stack (OAuth + watermark + reconciliation + weather + bidirectional EV + receipts + dual-gate sub + producer-gated LP + VPP + scarcity). We are a verification system that happens to mint a token. Lead with this for any "fraud prevention" question.**
 Tokens ≠ Equity. Strategic intros + investor token grants = $ZSOLAR, NOT ZenCorp shares. Never call token grants "equity".
 ALL demo/preview/share URLs MUST use https://beta.zen.solar — NEVER lovable.app or lovable.dev domains.
 
 ## Memories
 - [📜 CANONICAL SSoT](mem://CANONICAL_SSOT) — **THE source of truth. Allocations, halving, LP rounds, pact-lock, equity vs token, open questions. Read first.**
+- [Proof-of-Genesis Verification Stack](mem://features/proof-of-genesis-verification) — 10-layer fraud-prevention stack + 3-phase roadmap (Seed → Chainlink DON → ZK). Lead with this for any "how do you prevent fraud?" question.
 - [Halving Schedule (LOCKED)](mem://features/halving-schedule) — 4yr Bitcoin cadence, epoch table (350→175→87.5…), math basis, why not 2/6/milestone
 - [Scarcity Stack](mem://features/scarcity-stack) — 5 stacked deflationary/anti-dump mechanisms, Lyndon framing, presentation order
 - [Producer-Gated LP Rounds](mem://features/producer-gated-lp-rounds) — Earn-to-buy gating, per-wallet caps, 24hr producer window
 - [Strategic Introductions Allocation](mem://features/strategic-introductions-allocation) — 100M $ZSOLAR pre-launch bucket for warm intros (Lyndon intro = Jo Ferriter)
+- [Patent Update Checklist](mem://legal/patent-update-checklist) — 4-track filing strategy. Track 4 = ZK-Proof-of-Genesis provisional (file this quarter).
 - [Energy Price Oracle (parked)](mem://roadmap/energy-price-oracle) — Per-user verified $/kWh on-chain. NOT in seed scope. Phase 1 post-seed, Phase 3 = Series A moat. Patent Track 2.5.
 - [Launch Model (LP rounds)](mem://features/launch-model) — $0.10 launch, tranche-per-round LP seeding, circulating vs pact-locked
 - [Auth & Web3 Integration](mem://features/auth) — Wallet connection, auth guards, PWA constraints, and role-based access
