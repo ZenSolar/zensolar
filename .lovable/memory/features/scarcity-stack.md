@@ -14,7 +14,7 @@ $ZSOLAR has **five independent scarcity/anti-dump mechanisms** stacked together.
 |---|-----------|--------------|---------------------|
 | 1 | **1T hard cap** | Absolute maximum supply, contract-enforced | ✅ Yes (21M) |
 | 2 | **20% burn-per-mint** | Every kWh minted destroys 20% — float shrinks against cap with every productive action | ❌ None |
-| 3 | **4-year halving** | Epoch issuance halves every 4 years (Bitcoin cadence). 400B → 200B → 100B → 50B → 25B | ✅ Yes |
+| 3 | **4-year halving** | Epoch issuance halves every 4 years (Bitcoin cadence) on the 700B community pool. 350B → 175B → 87.5B → 43.75B → 21.875B | ✅ Yes |
 | 4 | **Founder pact-lock** | 200B (Joseph 150B + Michael 50B) locked until $6.67 / $20 crossovers. No cliff dumps. Ever. | ❌ None |
 | 5 | **Protocol-Owned Liquidity (POL)** | Protocol owns its own LP — no rented/mercenary liquidity that can flee in a downturn | ❌ None |
 
@@ -22,7 +22,7 @@ $ZSOLAR has **five independent scarcity/anti-dump mechanisms** stacked together.
 - Bitcoin has **1 deflationary mechanism** (halvings against a cap)
 - $ZSOLAR has **5 stacked mechanisms** — three deflationary (cap, burn, halving) + two anti-dump (founder lock, POL)
 - Bitcoin reaches net-deflationary territory ~116 years after launch (post-2140)
-- $ZSOLAR reaches net-deflationary by **epoch 5 (~year 16)** — burn-per-mint exceeds new issuance once epoch reward drops to 25B/4yr = 6.25B/yr
+- $ZSOLAR reaches net-deflationary by **epoch 5 (~year 16)** — burn-per-mint exceeds new issuance once epoch reward drops to 21.875B/4yr ≈ 5.47B/yr
 
 ## The Lyndon framing
 > *"Bitcoin proved that one well-designed scarcity mechanism can create $1T+ of value. We stacked five — three deflationary, two anti-dump — and tied them to productive clean energy instead of wasted compute. The math suggests $ZSOLAR has a credible path to surpass Bitcoin's market cap because it's structurally scarcer AND structurally useful."*
