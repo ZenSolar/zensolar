@@ -12,6 +12,15 @@ import {
   ListTree,
   Pin,
   PinOff,
+  Banknote,
+  Bitcoin,
+  Rocket,
+  FileText,
+  Presentation,
+  MessageSquare,
+  History,
+  LayoutDashboard,
+  Droplets,
   type LucideIcon,
 } from "lucide-react";
 
