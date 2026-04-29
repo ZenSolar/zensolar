@@ -19,6 +19,7 @@ ALL demo/preview/share URLs MUST use https://beta.zen.solar — NEVER lovable.ap
 
 ## Memories
 - [📜 CANONICAL SSoT](mem://CANONICAL_SSOT) — **THE source of truth. Allocations, halving, LP rounds, pact-lock, equity vs token, open questions. Read first.**
+- [Cheetah Doomsday Rebuttal](mem://features/cheetah-doomsday-rebuttal) — Math refuting "5K users + 30% sell 100% monthly = doomed". Three independent breaks of the premise.
 - [Proof-of-Genesis Verification Stack](mem://features/proof-of-genesis-verification) — 10-layer fraud-prevention stack + 3-phase roadmap (Seed → Chainlink DON → ZK). Lead with this for any "how do you prevent fraud?" question.
 - [Halving Schedule (LOCKED)](mem://features/halving-schedule) — 4yr Bitcoin cadence, epoch table (350→175→87.5…), math basis, why not 2/6/milestone
 - [Scarcity Stack](mem://features/scarcity-stack) — 5 stacked deflationary/anti-dump mechanisms, Lyndon framing, presentation order
