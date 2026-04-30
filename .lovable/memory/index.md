@@ -11,8 +11,10 @@ Launch price (LP math) and kWh-floor (real-world utility+carbon+REC) are TWO IND
 Founders pact-locked: Joseph 150B, Michael 50B. $1T crossovers: $6.67 / $20.
 ALL demo/preview/share URLs MUST use https://beta.zen.solar — NEVER lovable.app or lovable.dev domains.
 NEVER say "cheetah" for sell cohorts. Use "7% monthly sell-off cohort". Tschida = co-founder Michael only.
+Satoshi-Mirror v2 (pending Michael sign-off): EIA monthly oracle = guaranteed floor; Treasury auto-buyback via POL = floor defense. Independent of $0.10 launch price.
 
 ## Memories
+- [Satoshi-Mirror v2 Oracle](mem://features/satoshi-mirror-v2-oracle) — EIA monthly floor + treasury auto-buyback. Pending Michael sign-off before SSoT promotion.
 - [Sell-cohort terminology](mem://preferences/terminology-sell-cohort) — Hard rule: never "cheetah" for sellers; that's Michael Tschida
 - [Energy Price Oracle (parked)](mem://roadmap/energy-price-oracle) — Per-user verified $/kWh on-chain. NOT in seed scope. Phase 1 post-seed, Phase 3 = Series A moat. Patent Track 2.5.
 - [Launch Model (LP rounds)](mem://features/launch-model) — $0.10 launch, tranche-per-round LP seeding, circulating vs pact-locked
