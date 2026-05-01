@@ -157,10 +157,10 @@ export default function MintHistory() {
         icon={Clock}
         width="4xl"
       >
-        <div className="space-y-6 sm:space-y-8">
+        <div className="space-y-5 sm:space-y-8">
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
           {[
             { label: 'Tokens Received', value: totalTokensMinted, icon: Coins, gradient: 'from-primary to-primary/60', iconFg: 'text-primary-foreground', sub: '$ZSOLAR (75%)' },
             { label: 'NFTs Earned', value: totalNftsMinted, icon: Award, gradient: 'from-accent-warm to-accent-warm/60', iconFg: 'text-accent-warm-foreground', sub: 'Total NFTs' },
@@ -168,16 +168,16 @@ export default function MintHistory() {
             { label: 'Pending Tokens', value: pendingActivity.totalTokens, icon: TrendingUp, gradient: 'from-primary to-primary/60', iconFg: 'text-primary-foreground', sub: "You'll receive", loading: isPendingLoading },
           ].map((stat, i) => (
             <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-              <Card className="bg-gradient-to-br from-card to-muted/30 border-0 border-l-2 border-l-primary/60 shadow-lg overflow-hidden">
-                <CardHeader className="pb-2 px-4">
-                  <CardDescription className="text-xs">{stat.label}</CardDescription>
-                  <CardTitle className="text-xl flex items-center gap-2 tracking-tight tabular-nums">
-                    <div className={`p-1.5 rounded-lg bg-gradient-to-br ${stat.gradient}`}>
-                      <stat.icon className={`h-4 w-4 ${stat.iconFg}`} />
+              <Card className="bg-gradient-to-br from-card to-muted/30 border-0 border-l-2 border-l-primary/60 shadow-lg overflow-hidden h-full">
+                <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4">
+                  <CardDescription className="text-[10px] sm:text-xs leading-tight">{stat.label}</CardDescription>
+                  <CardTitle className="text-base sm:text-xl flex items-center gap-1.5 sm:gap-2 tracking-tight tabular-nums min-w-0">
+                    <div className={`p-1 sm:p-1.5 rounded-lg bg-gradient-to-br ${stat.gradient} shrink-0`}>
+                      <stat.icon className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${stat.iconFg}`} />
                     </div>
-                    {stat.loading ? <Skeleton className="h-6 w-12" /> : stat.value.toLocaleString()}
+                    <span className="truncate">{stat.loading ? <Skeleton className="h-5 w-10 sm:h-6 sm:w-12" /> : stat.value.toLocaleString()}</span>
                   </CardTitle>
-                  <p className="text-xs text-muted-foreground">{stat.sub}</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight">{stat.sub}</p>
                 </CardHeader>
               </Card>
             </motion.div>
