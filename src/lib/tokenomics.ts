@@ -141,15 +141,78 @@ export const REWARD_RATES = {
   fsdUnsupervisedMiles: BASE_REWARD_RATES.fsdUnsupervisedMiles * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
 } as const;
 
-// === SUBSCRIPTION (Tier-1 active, ladder roadmap) ===
+// === SUBSCRIPTION (v2 — Base / Regular / Power, 50/50 LP/treasury) ===
+// Locked 2026-05. See: .lovable/memory/features/tiered-subscriptions-halving-flywheel.md
 export const SUBSCRIPTION = {
-  monthlyPrice: 19.99, // Active tier
-  tier1Price: 19.99,
-  tier2Price: 29.99,
-  tier3Price: 49.99,
-  lpContribution: 50, // 50% to LP
-  ladderNotes: 'Tier-1 ($19.99) live now. Tier-2 ($29.99) and Tier-3 ($49.99) unlock as user value grows.',
+  monthlyPrice: 19.99, // Default tier (Regular) — kept for back-compat
+  tier1Price: 9.99,    // Base
+  tier2Price: 19.99,   // Regular
+  tier3Price: 49.99,   // Power
+  lpContribution: 50,  // 50% of every subscription dollar → LP
+  treasuryContribution: 50, // 50% → treasury
+  ladderNotes: 'Base $9.99 / Regular $19.99 / Power $49.99 — every dollar splits 50% LP / 50% treasury.',
 } as const;
+
+export const SUBSCRIPTION_TIERS = {
+  base: {
+    id: 'base',
+    name: 'Base',
+    monthlyPrice: 9.99,
+    lpPerMonth: 4.995,
+    treasuryPerMonth: 4.995,
+    assumedMonthlySellRate: 0.90, // 90% of minted tokens sold
+    softMintCapPerMonth: 1_000,    // optional soft cap (Base only)
+    description: 'Cash-out / light-producer on-ramp. Soft cap protects whales from squatting.',
+  },
+  regular: {
+    id: 'regular',
+    name: 'Regular',
+    monthlyPrice: 19.99,
+    lpPerMonth: 9.995,
+    treasuryPerMonth: 9.995,
+    assumedMonthlySellRate: 0.25,
+    softMintCapPerMonth: null,
+    description: 'Default homeowner / EV driver. Uncapped minting.',
+  },
+  power: {
+    id: 'power',
+    name: 'Power',
+    monthlyPrice: 49.99,
+    lpPerMonth: 24.995,
+    treasuryPerMonth: 24.995,
+    assumedMonthlySellRate: 0.05,
+    softMintCapPerMonth: null,
+    description: 'Prosumer / fleet / staker. Future staking multipliers (1.5× at 6mo lock, 2× at 12mo).',
+  },
+} as const;
+
+export type SubscriptionTierId = keyof typeof SUBSCRIPTION_TIERS;
+
+// === GENESIS HALVING (v2 flywheel — 50% mint-rate cut, Bitcoin-style) ===
+// Locked 2026-05. The first halving is pulled forward to a user-count milestone.
+// Pre-announce 3–6 months out; existing users get a bonus month at pre-halving rate.
+export const GENESIS_HALVING = {
+  enabled: true,
+  multiplier: 0.5, // 50% reduction in per-kWh mint rate
+  userCountTrigger: 250_000, // primary trigger: 250K paying subscribers
+  fallbackCadenceYears: 4,   // fallback: Bitcoin-style 4-yr cadence
+  preAnnouncementMonths: 6,  // announce 3–6 months in advance
+  bonusMonthAtPreRate: true, // existing users get 1 bonus month at pre-halving rate
+  publicName: 'Genesis Halving', // never "mint cut" / "rate change"
+} as const;
+
+/** Genesis Halving trigger — returns true once the user-count milestone is reached. */
+export function shouldTriggerGenesisHalving(payingSubscribers: number, yearsSinceLaunch = 0): boolean {
+  if (!GENESIS_HALVING.enabled) return false;
+  if (payingSubscribers >= GENESIS_HALVING.userCountTrigger) return true;
+  if (yearsSinceLaunch >= GENESIS_HALVING.fallbackCadenceYears) return true;
+  return false;
+}
+
+/** Apply Genesis Halving to a raw mint amount. */
+export function applyGenesisHalving(rawTokens: number, halvingActive: boolean): number {
+  return halvingActive ? Math.floor(rawTokens * GENESIS_HALVING.multiplier) : rawTokens;
+}
 
 // === LIVE BETA SIMULATION ===
 export const LIVE_BETA_CONFIG = {
