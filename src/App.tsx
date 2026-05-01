@@ -51,6 +51,7 @@ const AdminRevenueFlywheel = lazy(() => import("./pages/AdminRevenueFlywheel"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const AdminMintRequests = lazy(() => import("./pages/AdminMintRequests"));
 const Tokenomics = lazy(() => import("./pages/Tokenomics"));
+const Subscribe = lazy(() => import("./pages/Subscribe"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Help = lazy(() => import("./pages/Help"));
@@ -292,6 +293,8 @@ const App = () => {
                       <Route path="blog" element={<Blog />} />
                     </Route>
                     <Route path="/home" element={<Home />} />
+                    <Route path="/subscribe" element={<Suspense fallback={<PageLoader />}><Subscribe /></Suspense>} />
+                    <Route path="/demo/subscribe" element={<Suspense fallback={<PageLoader />}><Subscribe /></Suspense>} />
                     <Route path="/competition/gridpay" element={<GridPayCompetition />} />
                     <Route path="/blog" element={<Blog />} />
                     <Route path="/blog/what-is-solar-energy-blockchain-rewards" element={<BlogWhatIsSolar />} />
