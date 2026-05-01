@@ -130,7 +130,7 @@ export function PricingSection() {
 
 
         {/* Pricing cards */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {tiers.map((tier, i) => (
             <motion.div
               key={tier.name}
