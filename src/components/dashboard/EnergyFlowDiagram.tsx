@@ -269,32 +269,32 @@ export function EnergyFlowDiagram({
       
       <CardContent className="pt-0">
         {/* Key Metrics */}
-        <div className="grid grid-cols-3 gap-3 mb-4">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-3 mb-4">
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-3 rounded-lg bg-solar/10 border border-solar/20 text-center"
+            className="p-2 sm:p-3 rounded-lg bg-solar/10 border border-solar/20 text-center"
           >
-            <p className="text-2xl font-bold text-solar">{metrics.selfConsumption}%</p>
-            <p className="text-xs text-muted-foreground">Self-Consumption</p>
+            <p className="text-lg sm:text-2xl font-bold text-solar leading-tight tabular-nums">{metrics.selfConsumption}%</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight mt-0.5">Self-Consumption</p>
           </motion.div>
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="p-3 rounded-lg bg-primary/10 border border-primary/20 text-center"
+            className="p-2 sm:p-3 rounded-lg bg-primary/10 border border-primary/20 text-center"
           >
-            <p className="text-2xl font-bold text-primary">{metrics.gridIndependence}%</p>
-            <p className="text-xs text-muted-foreground">Grid Independence</p>
+            <p className="text-lg sm:text-2xl font-bold text-primary leading-tight tabular-nums">{metrics.gridIndependence}%</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight mt-0.5">Grid Independence</p>
           </motion.div>
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="p-3 rounded-lg bg-accent/10 border border-accent/20 text-center"
+            className="p-2 sm:p-3 rounded-lg bg-accent/10 border border-accent/20 text-center"
           >
-            <p className="text-2xl font-bold text-accent">{metrics.solarPoweredEV}%</p>
-            <p className="text-xs text-muted-foreground">Solar-Powered EV</p>
+            <p className="text-lg sm:text-2xl font-bold text-accent leading-tight tabular-nums">{metrics.solarPoweredEV}%</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight mt-0.5">Solar-Powered EV</p>
           </motion.div>
         </div>
         
