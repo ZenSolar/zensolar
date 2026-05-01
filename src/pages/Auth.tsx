@@ -436,12 +436,12 @@ export default function Auth() {
                     value={forgotEmail}
                     onChange={(e) => setForgotEmail(e.target.value)}
                     required
-                      className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground"
+                      className="h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground text-base"
                   />
                 </div>
                 <Button 
                   type="submit" 
-                    className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
+                    className="w-full h-11 text-base bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
                   disabled={isLoading}
                 >
                   {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -472,7 +472,7 @@ export default function Auth() {
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       required
-                      className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground pr-12"
+                      className="h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground pr-12 text-base"
                     />
                     <Button
                       type="button"
@@ -495,12 +495,12 @@ export default function Auth() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
-                    className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground"
+                    className="h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground text-base"
                   />
                 </div>
                 <Button 
                   type="submit" 
-                  className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
+                  className="w-full h-11 text-base bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
                   disabled={isLoading}
                 >
                   {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -539,7 +539,7 @@ export default function Auth() {
                           value={loginEmail}
                           onChange={(e) => setLoginEmail(e.target.value)}
                           required
-                          className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground"
+                          className="h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground text-base"
                         />
                       </div>
                       <div className="space-y-2">
@@ -562,7 +562,7 @@ export default function Auth() {
                             value={loginPassword}
                             onChange={(e) => setLoginPassword(e.target.value)}
                             required
-                            className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground pr-12"
+                            className="h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground pr-12 text-base"
                           />
                           <Button
                             type="button"
@@ -587,7 +587,7 @@ export default function Auth() {
                       
                       <Button 
                         type="submit" 
-                        className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
+                        className="w-full h-11 text-base bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
                         disabled={isLoading}
                       >
                         {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -602,11 +602,11 @@ export default function Auth() {
                       </div>
                       
                       {/* Social Sign In Buttons */}
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <Button
                           type="button"
                           variant="outline"
-                          className="bg-background/60 border-border border-l-4 border-l-primary text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
+                          className="h-11 bg-background/60 border-border border-l-4 border-l-primary text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
                           onClick={handleGoogleSignIn}
                           disabled={isLoading}
                         >
@@ -633,7 +633,7 @@ export default function Auth() {
                         <Button
                           type="button"
                           variant="outline"
-                          className="bg-background/60 border-border border-l-4 border-l-primary text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
+                          className="h-11 bg-background/60 border-border border-l-4 border-l-primary text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
                           onClick={handleAppleSignIn}
                           disabled={isLoading}
                         >
@@ -656,7 +656,7 @@ export default function Auth() {
                           placeholder="Your name"
                           value={signupDisplayName}
                           onChange={(e) => setSignupDisplayName(e.target.value)}
-                          className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground"
+                          className="h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground text-base"
                         />
                       </div>
                       <div className="space-y-2">
@@ -668,7 +668,7 @@ export default function Auth() {
                           value={signupEmail}
                           onChange={(e) => setSignupEmail(e.target.value)}
                           required
-                          className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground"
+                          className="h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground text-base"
                         />
                       </div>
                       <div className="space-y-2">
@@ -681,7 +681,7 @@ export default function Auth() {
                             value={signupPassword}
                             onChange={(e) => setSignupPassword(e.target.value)}
                             required
-                            className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground pr-12"
+                            className="h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground pr-12 text-base"
                           />
                           <Button
                             type="button"
@@ -704,7 +704,7 @@ export default function Auth() {
                           value={referralCode}
                           onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
                           maxLength={8}
-                          className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground uppercase"
+                          className="h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground uppercase text-base tracking-wider"
                         />
                       </div>
                       
@@ -718,7 +718,7 @@ export default function Auth() {
                       
                       <Button 
                         type="submit" 
-                        className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
+                        className="w-full h-11 text-base bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
                         disabled={isLoading}
                       >
                         {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -733,11 +733,11 @@ export default function Auth() {
                       </div>
                       
                       {/* Social Sign In Buttons */}
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <Button
                           type="button"
                           variant="outline"
-                          className="bg-background/60 border-border border-l-4 border-l-primary text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
+                          className="h-11 bg-background/60 border-border border-l-4 border-l-primary text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
                           onClick={handleGoogleSignIn}
                           disabled={isLoading}
                         >
@@ -764,7 +764,7 @@ export default function Auth() {
                         <Button
                           type="button"
                           variant="outline"
-                          className="bg-background/60 border-border border-l-4 border-l-primary text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
+                          className="h-11 bg-background/60 border-border border-l-4 border-l-primary text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
                           onClick={handleAppleSignIn}
                           disabled={isLoading}
                         >
