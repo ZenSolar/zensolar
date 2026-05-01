@@ -325,8 +325,10 @@ export const NFTQuickMintDialog = forwardRef<NFTQuickMintDialogRef, NFTQuickMint
             {/* NFT List - Only Mintable */}
             <ScrollArea className="flex-1 px-4 pb-4 sm:px-6 sm:pb-6" style={{ maxHeight: 'calc(85vh - 160px)' }}>
               {isCheckingStatus ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <div className="space-y-2 py-1" aria-busy="true" aria-label="Checking your on-chain NFTs">
+                  <MintableNFTSkeleton />
+                  <MintableNFTSkeleton />
+                  <MintableNFTSkeleton />
                 </div>
               ) : mintableNFTs.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
@@ -348,27 +350,34 @@ export const NFTQuickMintDialog = forwardRef<NFTQuickMintDialogRef, NFTQuickMint
                   {mintableNFTs.length > 1 && (
                     <Button
                       onClick={handleBatchMintAll}
-                      disabled={isBatchMinting || !walletAddress}
-                      className="w-full gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+                      disabled={isBatchMinting || !walletAddress || isCheckingStatus}
+                      aria-busy={isBatchMinting}
+                      className="w-full h-12 gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 active:scale-[0.99] transition-all touch-manipulation"
                       size="lg"
                     >
                       {isBatchMinting ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Minting {mintableNFTs.length} NFTs…
+                        </>
                       ) : (
-                        <Layers className="h-4 w-4" />
+                        <>
+                          <Layers className="h-4 w-4" />
+                          Mint All ({mintableNFTs.length} NFTs)
+                        </>
                       )}
-                      Mint All ({mintableNFTs.length} NFTs)
                     </Button>
                   )}
 
                   <div className="space-y-2">
                     <AnimatePresence mode="popLayout">
-                      {mintableNFTs.map((nft, index) => (
+                      {mintableNFTs.map((nft) => (
                         <MintableNFTCard
                           key={nft.id}
                           milestone={nft}
                           onMint={handleMintNFT}
                           isMinting={(mintingMilestone?.id === nft.id && mintFlowOpen) || isBatchMinting}
+                          disabled={isBatchMinting}
                         />
                       ))}
                     </AnimatePresence>
