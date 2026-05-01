@@ -80,10 +80,12 @@ function MintableNFTCard({
   milestone,
   onMint,
   isMinting,
+  disabled,
 }: {
   milestone: NFTMilestone;
   onMint: (milestone: NFTMilestone) => void;
   isMinting: boolean;
+  disabled?: boolean;
 }) {
   const artwork = getNftArtwork(milestone.id);
   const tier = getTierFromId(milestone.id);
@@ -97,7 +99,7 @@ function MintableNFTCard({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       whileHover={{ scale: 1.01 }}
-      className="relative flex items-center gap-3 p-3 rounded-xl border bg-primary/5 border-primary/30 hover:border-primary/50 transition-all"
+      className={`relative flex items-center gap-3 p-3 rounded-xl border bg-primary/5 transition-all ${isMinting ? 'border-primary/70 shadow-[0_0_0_3px_hsl(var(--primary)/0.15)]' : 'border-primary/30 hover:border-primary/50'}`}
     >
       {/* NFT Image */}
       <div className="relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 shadow-md">
@@ -110,7 +112,7 @@ function MintableNFTCard({
       {/* NFT Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <h4 className="font-semibold text-sm">{milestone.name}</h4>
+          <h4 className="font-semibold text-sm truncate">{milestone.name}</h4>
           <Badge variant="outline" className={`text-[10px] px-1.5 py-0 bg-gradient-to-r ${rarityConfig.gradient} text-white border-0`}>
             {rarityConfig.label}
           </Badge>
@@ -121,9 +123,11 @@ function MintableNFTCard({
       {/* Mint Button */}
       <Button
         size="sm"
-        className="gap-1.5 h-9 text-xs flex-shrink-0"
+        className="gap-1.5 h-10 sm:h-9 min-w-[72px] text-xs flex-shrink-0 active:scale-95 transition-transform touch-manipulation"
         onClick={() => onMint(milestone)}
-        disabled={isMinting}
+        disabled={isMinting || disabled}
+        aria-busy={isMinting}
+        aria-label={`Mint ${milestone.name}`}
       >
         {isMinting ? (
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -133,6 +137,20 @@ function MintableNFTCard({
         Mint
       </Button>
     </motion.div>
+  );
+}
+
+// Loading skeleton row that matches MintableNFTCard rhythm so layout doesn't jump
+function MintableNFTSkeleton() {
+  return (
+    <div className="flex items-center gap-3 p-3 rounded-xl border border-border/40 bg-muted/20 animate-pulse">
+      <div className="w-14 h-14 rounded-lg bg-muted/60 flex-shrink-0" />
+      <div className="flex-1 min-w-0 space-y-1.5">
+        <div className="h-3 w-2/3 rounded bg-muted/60" />
+        <div className="h-2.5 w-full rounded bg-muted/40" />
+      </div>
+      <div className="h-9 w-[72px] rounded-md bg-muted/60 flex-shrink-0" />
+    </div>
   );
 }
 
