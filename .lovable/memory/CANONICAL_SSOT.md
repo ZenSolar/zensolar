@@ -145,12 +145,36 @@ ZenSolar has **two cap tables**. Never mix them.
 
 ---
 
-## 9. Subscription Model
+## 9. Subscription Model (v2 — LOCKED 2026-05)
 
-- **Active tier:** Tier-1 at **$19.99/mo**
-- **Roadmap:** Tier-2 $29.99, Tier-3 $49.99 (unlock as user value grows)
-- **LP contribution:** **50% of subscription revenue** routes to LP
-- **Dual-gate:** community minting requires active subscription
+Three tiers, every dollar split **50% LP / 50% Treasury**. Dual-gate: community minting requires an active subscription.
+
+| Tier | Price/mo | LP/mo | Treasury/mo | Assumed monthly sell-rate |
+|---|---|---|---|---|
+| **Base** | $9.99 | $4.995 | $4.995 | 90% (cash-out cohort) |
+| **Regular** | $19.99 | $9.995 | $9.995 | 25% (default holders) |
+| **Power** | $49.99 | $24.995 | $24.995 | 5% (prosumer/staker) |
+
+- Optional Base-tier soft mint cap: **800–1,000 tokens/mo** (Regular + Power uncapped).
+- Staking/locking multipliers (Regular + Power, future): 6-mo lock = 1.5×, 12-mo lock = 2.0×.
+- Full model + per-tier flywheel math: `mem://features/tiered-subscriptions-halving-flywheel`.
+
+## 9a. v2 Tokenomics & Flywheel Model (2026-05)
+
+The v2 flywheel keeps **1 kWh = 1 $ZSOLAR** and **1T hard cap** intact. The LP-coverage gap is closed by three mechanisms working together:
+
+1. **Tiered subscriptions** (§9 above) — Power tier is net-positive on day one.
+2. **Genesis Halving** — first halving (50% mint-rate cut) is **pulled forward** to a user milestone instead of waiting 4 years.
+   - **Primary trigger:** 250,000 paying subscribers.
+   - **Fallback:** 4-year on-chain cadence if milestone not hit first.
+   - **Comms:** Always called "Genesis Halving." Pre-announce 3–6 months out. Existing users get a bonus month at the pre-halving rate.
+3. **Satoshi-Mirror v2** — EIA $/kWh × 2^epoch floor + treasury auto-buyback via POL. See `mem://features/satoshi-mirror-v2-oracle`.
+
+**Mint mechanics unchanged from §3:** 75% user / 20% burn / 3% LP / 2% treasury. Genesis Halving multiplies the **per-kWh mint amount** by 0.5; the split percentages stay the same.
+
+**Code:** `src/lib/tokenomics.ts` exports `SUBSCRIPTION_TIERS` and `GENESIS_HALVING`. `contracts/ZSOLAR.sol` is **not yet updated** (still legacy 10B model) — leave untouched until Michael signs off on full flywheel math.
+
+**External phrasing:** Tier names are **Base / Regular / Power** (never "Tier-1/2/3"). The mint-rate cut is **Genesis Halving** (never "mint cut" or "ratio change").
 
 ---
 
