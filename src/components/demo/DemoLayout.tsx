@@ -97,7 +97,7 @@ export function DemoLayout() {
         <FeedbackFab />
         {/* Demo-only controls: arm Cinematic D locally, or copy a shareable link
             that arms it for whoever opens it. */}
-        <div className="fixed bottom-4 left-4 z-50 flex items-center gap-2">
+        <div className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+72px)] left-4 z-50 flex items-center gap-2 md:bottom-4">
           <button
             type="button"
             onClick={handleReplay}
@@ -118,6 +118,8 @@ export function DemoLayout() {
             Copy replay URL
           </button>
         </div>
+        {/* Mobile-only sticky bottom tab bar */}
+        <MobileBottomNav variant="demo" />
       </SidebarProvider>
     </DemoProvider>
   );
