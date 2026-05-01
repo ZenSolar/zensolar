@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Sparkles, Zap, Leaf, ArrowRight } from 'lucide-react';
+import { toast } from 'sonner';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -95,7 +96,7 @@ export function TapToMintCard({
         }}
       />
 
-      <div className="relative p-5 sm:p-6 space-y-5">
+      <div className="relative p-4 sm:p-6 space-y-4 sm:space-y-5">
         {/* Header */}
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1">
@@ -174,12 +175,29 @@ export function TapToMintCard({
 
         {/* CTA */}
         <Button
-          onClick={onTapToMint}
-          disabled={ctaDisabled}
+          onClick={() => {
+            if (ctaDisabled) {
+              if (!hasWallet) {
+                toast.error('Connect a wallet to mint', {
+                  description: 'Your live preview stays in sync until you connect.',
+                });
+              } else if (!hasPending) {
+                toast('Nothing to mint yet', {
+                  description: 'Sync a device or wait for the next interval.',
+                });
+              }
+              return;
+            }
+            toast.success(`Tap-to-Mint™ engaged · ${expectedTokens.toLocaleString()} $ZSOLAR queued`, {
+              description: 'Confirm in the next step to write your proof on-chain.',
+            });
+            onTapToMint();
+          }}
+          disabled={disabled}
           size="lg"
-          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold animate-pulse-glow shadow-lg shadow-primary/20"
+          className="w-full min-h-[52px] bg-primary hover:bg-primary/90 text-primary-foreground text-base font-semibold animate-pulse-glow shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform"
         >
-          Tap to Mint
+          {ctaDisabled && !hasWallet ? 'Connect wallet to mint' : ctaDisabled && !hasPending ? 'Waiting for energy…' : 'Tap to Mint'}
           <ArrowRight className="ml-1 h-4 w-4" />
         </Button>
 

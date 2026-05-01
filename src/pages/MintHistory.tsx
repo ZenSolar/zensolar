@@ -157,10 +157,10 @@ export default function MintHistory() {
         icon={Clock}
         width="4xl"
       >
-        <div className="space-y-6 sm:space-y-8">
+        <div className="space-y-5 sm:space-y-8">
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
           {[
             { label: 'Tokens Received', value: totalTokensMinted, icon: Coins, gradient: 'from-primary to-primary/60', iconFg: 'text-primary-foreground', sub: '$ZSOLAR (75%)' },
             { label: 'NFTs Earned', value: totalNftsMinted, icon: Award, gradient: 'from-accent-warm to-accent-warm/60', iconFg: 'text-accent-warm-foreground', sub: 'Total NFTs' },
@@ -168,16 +168,16 @@ export default function MintHistory() {
             { label: 'Pending Tokens', value: pendingActivity.totalTokens, icon: TrendingUp, gradient: 'from-primary to-primary/60', iconFg: 'text-primary-foreground', sub: "You'll receive", loading: isPendingLoading },
           ].map((stat, i) => (
             <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-              <Card className="bg-gradient-to-br from-card to-muted/30 border-0 border-l-2 border-l-primary/60 shadow-lg overflow-hidden">
-                <CardHeader className="pb-2 px-4">
-                  <CardDescription className="text-xs">{stat.label}</CardDescription>
-                  <CardTitle className="text-xl flex items-center gap-2 tracking-tight tabular-nums">
-                    <div className={`p-1.5 rounded-lg bg-gradient-to-br ${stat.gradient}`}>
-                      <stat.icon className={`h-4 w-4 ${stat.iconFg}`} />
+              <Card className="bg-gradient-to-br from-card to-muted/30 border-0 border-l-2 border-l-primary/60 shadow-lg overflow-hidden h-full">
+                <CardHeader className="pb-2 px-3 sm:px-4 pt-3 sm:pt-4">
+                  <CardDescription className="text-[10px] sm:text-xs leading-tight">{stat.label}</CardDescription>
+                  <CardTitle className="text-base sm:text-xl flex items-center gap-1.5 sm:gap-2 tracking-tight tabular-nums min-w-0">
+                    <div className={`p-1 sm:p-1.5 rounded-lg bg-gradient-to-br ${stat.gradient} shrink-0`}>
+                      <stat.icon className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${stat.iconFg}`} />
                     </div>
-                    {stat.loading ? <Skeleton className="h-6 w-12" /> : stat.value.toLocaleString()}
+                    <span className="truncate">{stat.loading ? <Skeleton className="h-5 w-10 sm:h-6 sm:w-12" /> : stat.value.toLocaleString()}</span>
                   </CardTitle>
-                  <p className="text-xs text-muted-foreground">{stat.sub}</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight">{stat.sub}</p>
                 </CardHeader>
               </Card>
             </motion.div>
@@ -187,19 +187,19 @@ export default function MintHistory() {
         {/* Pending Activity */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           <Card className="bg-gradient-to-br from-accent-warm/10 via-background to-primary/5 border-accent-warm/20 shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <TrendingUp className="h-5 w-5 text-accent-warm" />
+            <CardHeader className="pb-3 sm:pb-4">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <TrendingUp className="h-5 w-5 text-accent-warm shrink-0" />
                 Pending Activity Breakdown
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-xs sm:text-sm leading-relaxed">
                 Activity since your last <JargonTip term="mint">mint</JargonTip> — you receive 75% as <JargonTip term="zsolar">$ZSOLAR</JargonTip> (20% burn).
               </CardDescription>
             </CardHeader>
             <CardContent>
               {isPendingLoading ? (
-                <div className="grid grid-cols-2 gap-4">
-                  {[0,1,2,3].map(i => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
+                  {[0,1,2,3].map(i => <Skeleton key={i} className="h-[68px] sm:h-20 w-full rounded-xl" />)}
                 </div>
               ) : pendingActivity.totalTokens === 0 ? (
                 <EmptyState
@@ -209,20 +209,20 @@ export default function MintHistory() {
                   className="py-8"
                 />
               ) : (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
                   {[
                     { icon: Sun, label: 'Solar kWh', value: pendingActivity.solarKwh, gradient: 'from-accent-warm to-accent-warm/60', iconFg: 'text-accent-warm-foreground' },
                     { icon: BatteryFull, label: 'Battery kWh', value: pendingActivity.batteryKwh, gradient: 'from-primary to-primary/60', iconFg: 'text-primary-foreground' },
                     { icon: Car, label: 'EV Miles', value: pendingActivity.evMiles, gradient: 'from-accent-cool to-accent-cool/60', iconFg: 'text-accent-cool-foreground' },
-                    { icon: Zap, label: 'EV Charging kWh', value: pendingActivity.evChargingKwh, gradient: 'from-accent-rare to-accent-rare/60', iconFg: 'text-accent-rare-foreground' },
+                    { icon: Zap, label: 'Charging kWh', value: pendingActivity.evChargingKwh, gradient: 'from-accent-rare to-accent-rare/60', iconFg: 'text-accent-rare-foreground' },
                   ].map((item) => (
-                    <div key={item.label} className="flex items-center gap-3 p-4 bg-card/50 rounded-xl border border-border/50">
-                      <div className={`p-2.5 rounded-xl bg-gradient-to-br ${item.gradient}`}>
-                        <item.icon className={`h-5 w-5 ${item.iconFg}`} />
+                    <div key={item.label} className="flex items-center gap-2.5 sm:gap-3 p-3 sm:p-4 bg-card/50 rounded-xl border border-border/50 min-w-0">
+                      <div className={`p-2 sm:p-2.5 rounded-xl bg-gradient-to-br ${item.gradient} shrink-0`}>
+                        <item.icon className={`h-4 w-4 sm:h-5 sm:w-5 ${item.iconFg}`} />
                       </div>
-                      <div>
-                        <span className="text-xl font-bold tracking-tight tabular-nums block">{Math.floor(item.value).toLocaleString()}</span>
-                        <span className="text-xs text-muted-foreground">{item.label}</span>
+                      <div className="min-w-0">
+                        <span className="text-lg sm:text-xl font-bold tracking-tight tabular-nums block leading-none">{Math.floor(item.value).toLocaleString()}</span>
+                        <span className="text-[11px] sm:text-xs text-muted-foreground block mt-1 truncate">{item.label}</span>
                       </div>
                     </div>
                   ))}
@@ -235,20 +235,20 @@ export default function MintHistory() {
         {/* Transactions */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
           <Card className="shadow-lg">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Hash className="h-5 w-5 text-primary" />
+            <CardHeader className="pb-3 sm:pb-4">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <Hash className="h-5 w-5 text-primary shrink-0" />
                   Transaction Details
                 </CardTitle>
                 {profile?.wallet_address && (
-                  <a href={`https://sepolia.basescan.org/address/${profile.wallet_address}#tokentxns`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline">
-                    <ExternalLink className="h-3.5 w-3.5" />View on BaseScan
+                  <a href={`https://sepolia.basescan.org/address/${profile.wallet_address}#tokentxns`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs text-primary hover:underline touch-target px-1 -mx-1">
+                    <ExternalLink className="h-3.5 w-3.5" />BaseScan
                   </a>
                 )}
               </div>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-2.5 sm:space-y-3">
               {isLoading ? (
                 <div className="space-y-2">
                   {[0,1,2].map(i => <Skeleton key={i} className="h-16 w-full rounded-xl" />)}
@@ -267,21 +267,21 @@ export default function MintHistory() {
                   return (
                     <Collapsible key={tx.id} open={isExpanded} onOpenChange={() => setExpandedTx(isExpanded ? null : tx.id)}>
                       <div className="border rounded-xl overflow-hidden bg-card/50">
-                        <CollapsibleTrigger className="w-full">
-                          <div className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
-                            <div className="flex items-center gap-3">
-                              <div className={`p-2 rounded-lg bg-gradient-to-br ${actionInfo.gradient} text-primary-foreground`}>{actionInfo.icon}</div>
-                              <div className="text-left">
-                                <p className="font-medium text-sm">{actionInfo.label}</p>
-                                <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(tx.created_at), { addSuffix: true })}</p>
+                        <CollapsibleTrigger className="w-full touch-target">
+                          <div className="flex items-center justify-between p-3 sm:p-4 hover:bg-muted/30 active:bg-muted/40 transition-colors gap-3">
+                            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                              <div className={`p-2 rounded-lg bg-gradient-to-br ${actionInfo.gradient} text-primary-foreground shrink-0`}>{actionInfo.icon}</div>
+                              <div className="text-left min-w-0">
+                                <p className="font-medium text-sm truncate">{actionInfo.label}</p>
+                                <p className="text-[11px] sm:text-xs text-muted-foreground truncate">{formatDistanceToNow(new Date(tx.created_at), { addSuffix: true })}</p>
                               </div>
                             </div>
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                               <div className="text-right">
-                                {tx.tokens_minted > 0 && <p className="font-semibold text-sm">{tx.tokens_minted.toLocaleString()} $ZSOLAR</p>}
-                                {tx.nft_names?.length > 0 && <p className="text-xs text-muted-foreground">{tx.nft_names.length} NFT{tx.nft_names.length > 1 ? 's' : ''}</p>}
+                                {tx.tokens_minted > 0 && <p className="font-semibold text-xs sm:text-sm tabular-nums">{tx.tokens_minted.toLocaleString()}<span className="text-muted-foreground font-normal ml-1">$ZSOLAR</span></p>}
+                                {tx.nft_names?.length > 0 && <p className="text-[11px] sm:text-xs text-muted-foreground">{tx.nft_names.length} NFT{tx.nft_names.length > 1 ? 's' : ''}</p>}
                               </div>
-                              {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                              {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />}
                             </div>
                           </div>
                         </CollapsibleTrigger>
