@@ -447,7 +447,9 @@ function EnergyFlowGlowCard() {
         animationDelay: burstDone ? '0s' : '0.25s',
       }}
     >
-      <AnimatedEnergyFlow className="w-full" />
+      <Suspense fallback={<div className="w-full h-64 bg-card/10 animate-pulse" aria-hidden="true" />}>
+        <AnimatedEnergyFlow className="w-full" />
+      </Suspense>
     </div>
   );
 }
