@@ -12,6 +12,16 @@ export default {
         "2xl": "1400px",
       },
     },
+    screens: {
+      // Project-wide mobile-first breakpoint to bridge 390px and 640px (sm).
+      // Targets larger phones (428px iPhone Pro Max, 412px Pixel) before tablet.
+      xs: "420px",
+      sm: "640px",
+      md: "768px",
+      lg: "1024px",
+      xl: "1280px",
+      "2xl": "1536px",
+    },
     extend: {
       colors: {
         border: "hsl(var(--border))",

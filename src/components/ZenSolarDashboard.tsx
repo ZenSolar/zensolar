@@ -57,6 +57,8 @@ import {
 } from '@/lib/nftMilestones';
 import { Link } from 'react-router-dom';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+import { PerfProbe } from '@/components/dev/PerfProbe';
+import { installNetworkPerfLogger } from '@/lib/perfProfiler';
 
 // Lightweight skeleton placeholder — matches dashboard card vertical rhythm so layout doesn't jump
 function CardSkeleton({ height = 'h-40' }: { height?: string }) {
@@ -110,6 +112,11 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
     return () => {
       window.removeEventListener('newUserViewModeChange', handleModeChange as EventListener);
     };
+  }, []);
+
+  // Dev-only: log slow network calls (>800ms) to the console while exploring the dashboard.
+  useEffect(() => {
+    installNetworkPerfLogger();
   }, []);
   
   const { pullDistance, isRefreshing, isReady, containerRef } = usePullToRefresh({
@@ -210,6 +217,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         />
       </div>
       
+      <PerfProbe id="ZenSolarDashboard">
       <AnimatedContainer className="relative z-10 w-full max-w-lg min-w-0 mx-auto px-3 sm:px-4 py-6 space-y-6 box-border md:my-6 md:rounded-3xl md:border md:border-border/40 md:bg-background/40 md:backdrop-blur-sm md:shadow-[0_0_60px_-20px_hsl(var(--primary)/0.25)] md:px-6 md:py-8">
         {/* Dashboard Header with Logo - fixed height to prevent layout shifts */}
         <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center">
@@ -257,23 +265,25 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         
         {/* ENERGY COMMAND CENTER - The Hero Section */}
         <AnimatedItem>
-          <ActivityMetrics
-            data={activityData}
-            currentActivity={currentActivity}
-            refreshInfo={{ lastUpdatedAt }}
-            connectedProviders={connectedProviders}
-            onMintRequest={!isViewer && profile?.wallet_address ? handleMintRequest : undefined}
-            onMintSuccess={handleMintSuccess}
-            tokenPrice={tokenPrice}
-            lifetimeMinted={activityData.lifetimeMinted}
-            hiddenFields={hiddenFields}
-            onHideField={hideField}
-            onShowField={showField}
-            onShowAllFields={showAllFields}
-            isNewUserView={isNewUserView}
-            teslaNeedsReauth={providerRefresh.tesla?.needsReauth}
-            isLoading={dataLoading || isAutoSyncing}
-          />
+          <PerfProbe id="ActivityMetrics">
+            <ActivityMetrics
+              data={activityData}
+              currentActivity={currentActivity}
+              refreshInfo={{ lastUpdatedAt }}
+              connectedProviders={connectedProviders}
+              onMintRequest={!isViewer && profile?.wallet_address ? handleMintRequest : undefined}
+              onMintSuccess={handleMintSuccess}
+              tokenPrice={tokenPrice}
+              lifetimeMinted={activityData.lifetimeMinted}
+              hiddenFields={hiddenFields}
+              onHideField={hideField}
+              onShowField={showField}
+              onShowAllFields={showAllFields}
+              isNewUserView={isNewUserView}
+              teslaNeedsReauth={providerRefresh.tesla?.needsReauth}
+              isLoading={dataLoading || isAutoSyncing}
+            />
+          </PerfProbe>
         </AnimatedItem>
 
         {/* Prominent CO₂ Offset card — matches the new sidebar accent styling */}
@@ -287,25 +297,27 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         {!isViewer && (
           <AnimatedItem>
             <Suspense fallback={<CardSkeleton height="h-48" />}>
-              <RewardActions 
-                ref={rewardActionsRef}
-                onRefresh={refreshDashboard} 
-                isLoading={dataLoading}
-                walletAddress={isNewUserView ? undefined : profile?.wallet_address}
-                pendingRewards={isNewUserView ? {
-                  solar: 0,
-                  evMiles: 0,
-                  battery: 0,
-                  charging: 0,
-                } : {
-                  solar: currentActivity.solarKwh,
-                  evMiles: currentActivity.evMiles,
-                  battery: currentActivity.batteryKwh,
-                  charging: currentActivity.chargingKwh,
-                  superchargerKwh: currentActivity.superchargerKwh,
-                  homeChargerKwh: currentActivity.homeChargerKwh,
-                }}
-              />
+              <PerfProbe id="RewardActions">
+                <RewardActions 
+                  ref={rewardActionsRef}
+                  onRefresh={refreshDashboard} 
+                  isLoading={dataLoading}
+                  walletAddress={isNewUserView ? undefined : profile?.wallet_address}
+                  pendingRewards={isNewUserView ? {
+                    solar: 0,
+                    evMiles: 0,
+                    battery: 0,
+                    charging: 0,
+                  } : {
+                    solar: currentActivity.solarKwh,
+                    evMiles: currentActivity.evMiles,
+                    battery: currentActivity.batteryKwh,
+                    charging: currentActivity.chargingKwh,
+                    superchargerKwh: currentActivity.superchargerKwh,
+                    homeChargerKwh: currentActivity.homeChargerKwh,
+                  }}
+                />
+              </PerfProbe>
             </Suspense>
           </AnimatedItem>
         )}
@@ -411,6 +423,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           </AnimatedItem>
         )}
       </AnimatedContainer>
+      </PerfProbe>
       
       {/* Wallet Setup Modal — only mount when actually needed (saves bytes for the common path) */}
       {showWalletModal && (
