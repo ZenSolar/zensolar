@@ -1220,16 +1220,22 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                     </span>
                   </div>
                   <Button
-                    className="relative w-full h-12 rounded-xl bg-gradient-to-r from-primary via-primary to-primary/90 shadow-lg shadow-primary/25 hover:shadow-primary/35 hover:scale-[1.01] transition-all duration-200"
+                    className="relative w-full h-12 rounded-xl bg-gradient-to-r from-primary via-primary to-primary/90 shadow-lg shadow-primary/25 hover:shadow-primary/35 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 touch-manipulation"
                     onClick={() => handleRequestMint('all')}
                     disabled={isMinting}
+                    aria-busy={mintingState.category === 'all'}
                   >
                     {mintingState.category === 'all' ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Minting…
+                      </>
                     ) : (
-                      <Coins className="mr-2 h-4 w-4" />
+                      <>
+                        <Coins className="mr-2 h-4 w-4" />
+                        Mint All Tokens
+                      </>
                     )}
-                    Mint All Tokens
                   </Button>
                 </div>
               </>
