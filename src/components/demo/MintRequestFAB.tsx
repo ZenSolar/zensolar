@@ -55,7 +55,7 @@ export function MintRequestFAB({ accessCode }: MintRequestFABProps) {
       }}
       aria-label="Want to mint? Text Joe"
       className={cn(
-        "fixed bottom-6 right-4 z-50",
+        "fixed right-4 z-50",
         "flex items-center gap-2 px-4 h-12 rounded-full",
         "bg-primary text-primary-foreground font-semibold text-sm",
         "shadow-[0_8px_24px_-4px_hsl(var(--primary)/0.6)]",
@@ -65,8 +65,8 @@ export function MintRequestFAB({ accessCode }: MintRequestFABProps) {
         pulsing && "animate-pulse-slow"
       )}
       style={{
-        // Sit above iOS home indicator
-        bottom: 'calc(env(safe-area-inset-bottom, 0px) + 1.5rem)',
+        // Sit above bottom nav + iOS home indicator
+        bottom: 'calc(var(--bottom-nav-total-h) + 12px)',
       }}
     >
       <Zap className="h-4 w-4 fill-current" />

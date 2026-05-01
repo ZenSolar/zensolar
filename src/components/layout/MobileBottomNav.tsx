@@ -97,9 +97,12 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
         "border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80",
         className,
       )}
-      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+      style={{
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
+        height: "var(--bottom-nav-total-h)",
+      }}
     >
-      <ul className="grid grid-cols-5">
+      <ul className="grid grid-cols-5 h-[var(--bottom-nav-height)]">
         {tabs.map((item) => {
           const active = isActive(item);
           const Icon = item.icon;
