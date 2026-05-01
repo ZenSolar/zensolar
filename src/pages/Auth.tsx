@@ -436,7 +436,7 @@ export default function Auth() {
                     value={forgotEmail}
                     onChange={(e) => setForgotEmail(e.target.value)}
                     required
-                      className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground"
+                      className="h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground text-base"
                   />
                 </div>
                 <Button 
@@ -472,7 +472,7 @@ export default function Auth() {
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       required
-                      className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground pr-12"
+                      className="h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground pr-12 text-base"
                     />
                     <Button
                       type="button"
@@ -495,7 +495,7 @@ export default function Auth() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
-                    className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground"
+                    className="h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground text-base"
                   />
                 </div>
                 <Button 
@@ -539,7 +539,7 @@ export default function Auth() {
                           value={loginEmail}
                           onChange={(e) => setLoginEmail(e.target.value)}
                           required
-                          className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground"
+                          className="h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground text-base"
                         />
                       </div>
                       <div className="space-y-2">
@@ -562,7 +562,7 @@ export default function Auth() {
                             value={loginPassword}
                             onChange={(e) => setLoginPassword(e.target.value)}
                             required
-                            className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground pr-12"
+                            className="h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground pr-12 text-base"
                           />
                           <Button
                             type="button"
@@ -656,7 +656,7 @@ export default function Auth() {
                           placeholder="Your name"
                           value={signupDisplayName}
                           onChange={(e) => setSignupDisplayName(e.target.value)}
-                          className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground"
+                          className="h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground text-base"
                         />
                       </div>
                       <div className="space-y-2">
@@ -668,7 +668,7 @@ export default function Auth() {
                           value={signupEmail}
                           onChange={(e) => setSignupEmail(e.target.value)}
                           required
-                          className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground"
+                          className="h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground text-base"
                         />
                       </div>
                       <div className="space-y-2">
@@ -681,7 +681,7 @@ export default function Auth() {
                             value={signupPassword}
                             onChange={(e) => setSignupPassword(e.target.value)}
                             required
-                            className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground pr-12"
+                            className="h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground pr-12 text-base"
                           />
                           <Button
                             type="button"
@@ -704,7 +704,7 @@ export default function Auth() {
                           value={referralCode}
                           onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
                           maxLength={8}
-                          className="h-9 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground uppercase"
+                          className="h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground uppercase text-base tracking-wider"
                         />
                       </div>
                       
