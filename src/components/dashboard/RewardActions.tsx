@@ -128,7 +128,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   const navigate = useNavigate();
   const { toast } = useToast();
   const { triggerConfetti } = useConfetti();
-  const { success: hapticSuccess } = useHaptics();
+  const { success: hapticSuccess, lightTap: hapticLightTap, error: hapticError } = useHaptics();
   const { isConnected } = useSafeAccount();
   const { data: walletClient } = useSafeWalletClient();
   const { watchAssetAsync } = useSafeWatchAsset();
@@ -510,7 +510,11 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
   // Show confirmation dialog before minting
   const handleRequestMint = (category: MintCategory, deviceId?: string, deviceName?: string) => {
+    // Tactile feedback on every mint tap (works in PWA + native via @capacitor/haptics)
+    hapticLightTap();
+
     if (!walletAddress) {
+      hapticError();
       toast({
         title: "Wallet Required",
         description: "Please connect your wallet first to mint tokens.",
@@ -1010,7 +1014,26 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
           </DialogHeader>
           
           <div className="space-y-3 py-4">
-            {totalPendingTokens === 0 ? (
+            {isLoading && totalPendingTokens === 0 ? (
+              // Loading skeletons — match the category-row vertical rhythm so layout doesn't jump
+              <div className="space-y-2" aria-busy="true" aria-label="Loading mint categories">
+                {[0, 1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between p-3.5 rounded-xl border border-border/40 bg-muted/20 animate-pulse"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-xl bg-muted/60" />
+                      <div className="space-y-1.5">
+                        <div className="h-3 w-24 rounded bg-muted/60" />
+                        <div className="h-2.5 w-32 rounded bg-muted/40" />
+                      </div>
+                    </div>
+                    <div className="h-9 w-16 rounded-lg bg-muted/60" />
+                  </div>
+                ))}
+              </div>
+            ) : totalPendingTokens === 0 ? (
               <div className="bg-gradient-to-br from-accent-warm/15 via-accent-warm/10 to-accent-warm/5 border border-accent-warm/30 rounded-xl p-4">
                 <div className="flex items-start gap-3">
                   <div className="h-9 w-9 rounded-lg bg-accent-warm/20 flex items-center justify-center flex-shrink-0">
@@ -1029,14 +1052,16 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                 {/* Category breakdown */}
                 <div className="space-y-2">
                   {/* Solar Energy */}
-                  <div className="flex items-center justify-between p-3.5 rounded-xl border border-border/60 bg-gradient-to-r from-muted/40 to-transparent hover:border-solar/30 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 rounded-xl bg-gradient-to-br from-solar/20 to-solar/10 shadow-sm">
+                  <div className={`flex items-center justify-between p-3.5 rounded-xl border bg-gradient-to-r from-muted/40 to-transparent transition-all ${mintingState.category === 'solar' ? 'border-solar/60 shadow-[0_0_0_3px_hsl(var(--solar)/0.15)]' : 'border-border/60 hover:border-solar/30'}`}>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="p-2.5 rounded-xl bg-gradient-to-br from-solar/20 to-solar/10 shadow-sm flex-shrink-0">
                         <Sun className="h-4 w-4 text-solar" />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <p className="font-medium text-sm">Solar Energy</p>
-                        <p className="text-xs text-muted-foreground">{pendingRewards.solar.toLocaleString()} $ZSOLAR</p>
+                        <p className="text-xs text-muted-foreground tabular-nums">
+                          {pendingRewards.solar > 0 ? `${pendingRewards.solar.toLocaleString()} $ZSOLAR` : 'Nothing to mint yet'}
+                        </p>
                       </div>
                     </div>
                     <Button
@@ -1044,7 +1069,9 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                       variant="outline"
                       onClick={() => handleRequestMint('solar')}
                       disabled={pendingRewards.solar === 0 || isMinting}
-                      className="rounded-lg h-9 px-4 hover:bg-solar/10 hover:border-solar/30 hover:text-solar transition-colors"
+                      aria-busy={mintingState.category === 'solar'}
+                      aria-label={`Mint ${pendingRewards.solar.toLocaleString()} solar tokens`}
+                      className="rounded-lg h-10 sm:h-9 min-w-[72px] px-4 hover:bg-solar/10 hover:border-solar/30 hover:text-solar active:scale-95 transition-all touch-manipulation flex-shrink-0"
                     >
                       {mintingState.category === 'solar' ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -1055,14 +1082,16 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   </div>
 
                   {/* Battery Storage */}
-                  <div className="flex items-center justify-between p-3.5 rounded-xl border border-border/60 bg-gradient-to-r from-muted/40 to-transparent hover:border-secondary/30 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 rounded-xl bg-gradient-to-br from-secondary/20 to-secondary/10 shadow-sm">
+                  <div className={`flex items-center justify-between p-3.5 rounded-xl border bg-gradient-to-r from-muted/40 to-transparent transition-all ${mintingState.category === 'battery' ? 'border-secondary/60 shadow-[0_0_0_3px_hsl(var(--secondary)/0.15)]' : 'border-border/60 hover:border-secondary/30'}`}>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="p-2.5 rounded-xl bg-gradient-to-br from-secondary/20 to-secondary/10 shadow-sm flex-shrink-0">
                         <BatteryFull className="h-4 w-4 text-secondary" />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <p className="font-medium text-sm">Battery Storage</p>
-                        <p className="text-xs text-muted-foreground">{pendingRewards.battery.toLocaleString()} $ZSOLAR</p>
+                        <p className="text-xs text-muted-foreground tabular-nums">
+                          {pendingRewards.battery > 0 ? `${pendingRewards.battery.toLocaleString()} $ZSOLAR` : 'Nothing to mint yet'}
+                        </p>
                       </div>
                     </div>
                     <Button
@@ -1070,7 +1099,9 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                       variant="outline"
                       onClick={() => handleRequestMint('battery')}
                       disabled={pendingRewards.battery === 0 || isMinting}
-                      className="rounded-lg h-9 px-4 hover:bg-secondary/10 hover:border-secondary/30 hover:text-secondary transition-colors"
+                      aria-busy={mintingState.category === 'battery'}
+                      aria-label={`Mint ${pendingRewards.battery.toLocaleString()} battery tokens`}
+                      className="rounded-lg h-10 sm:h-9 min-w-[72px] px-4 hover:bg-secondary/10 hover:border-secondary/30 hover:text-secondary active:scale-95 transition-all touch-manipulation flex-shrink-0"
                     >
                       {mintingState.category === 'battery' ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -1081,14 +1112,16 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   </div>
 
                   {/* EV Miles */}
-                  <div className="flex items-center justify-between p-3.5 rounded-xl border border-border/60 bg-gradient-to-r from-muted/40 to-transparent hover:border-energy/30 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 rounded-xl bg-gradient-to-br from-energy/20 to-energy/10 shadow-sm">
+                  <div className={`flex items-center justify-between p-3.5 rounded-xl border bg-gradient-to-r from-muted/40 to-transparent transition-all ${mintingState.category === 'ev_miles' ? 'border-energy/60 shadow-[0_0_0_3px_hsl(var(--energy)/0.15)]' : 'border-border/60 hover:border-energy/30'}`}>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="p-2.5 rounded-xl bg-gradient-to-br from-energy/20 to-energy/10 shadow-sm flex-shrink-0">
                         <Car className="h-4 w-4 text-energy" />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <p className="font-medium text-sm">EV Miles</p>
-                        <p className="text-xs text-muted-foreground">{pendingRewards.evMiles.toLocaleString()} $ZSOLAR</p>
+                        <p className="text-xs text-muted-foreground tabular-nums">
+                          {pendingRewards.evMiles > 0 ? `${pendingRewards.evMiles.toLocaleString()} $ZSOLAR` : 'Nothing to mint yet'}
+                        </p>
                       </div>
                     </div>
                     <Button
@@ -1096,7 +1129,9 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                       variant="outline"
                       onClick={() => handleRequestMint('ev_miles')}
                       disabled={pendingRewards.evMiles === 0 || isMinting}
-                      className="rounded-lg h-9 px-4 hover:bg-energy/10 hover:border-energy/30 hover:text-energy transition-colors"
+                      aria-busy={mintingState.category === 'ev_miles'}
+                      aria-label={`Mint ${pendingRewards.evMiles.toLocaleString()} EV miles tokens`}
+                      className="rounded-lg h-10 sm:h-9 min-w-[72px] px-4 hover:bg-energy/10 hover:border-energy/30 hover:text-energy active:scale-95 transition-all touch-manipulation flex-shrink-0"
                     >
                       {mintingState.category === 'ev_miles' ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -1108,14 +1143,14 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
                   {/* Tesla Supercharging */}
                   {(pendingRewards.superchargerKwh ?? 0) > 0 && (
-                    <div className="flex items-center justify-between p-3.5 rounded-xl border border-border/60 bg-gradient-to-r from-muted/40 to-transparent hover:border-destructive/30 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-destructive/20 to-destructive/10 shadow-sm">
+                    <div className={`flex items-center justify-between p-3.5 rounded-xl border bg-gradient-to-r from-muted/40 to-transparent transition-all ${mintingState.category === 'supercharging' ? 'border-destructive/60 shadow-[0_0_0_3px_hsl(var(--destructive)/0.15)]' : 'border-border/60 hover:border-destructive/30'}`}>
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-destructive/20 to-destructive/10 shadow-sm flex-shrink-0">
                           <Zap className="h-4 w-4 text-destructive" />
                         </div>
-                        <div>
+                        <div className="min-w-0">
                           <p className="font-medium text-sm">Tesla Supercharging</p>
-                          <p className="text-xs text-muted-foreground">{(pendingRewards.superchargerKwh ?? 0).toLocaleString()} $ZSOLAR</p>
+                          <p className="text-xs text-muted-foreground tabular-nums">{(pendingRewards.superchargerKwh ?? 0).toLocaleString()} $ZSOLAR</p>
                         </div>
                       </div>
                       <Button
@@ -1123,7 +1158,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                         variant="outline"
                         onClick={() => handleRequestMint('supercharging')}
                         disabled={(pendingRewards.superchargerKwh ?? 0) === 0 || isMinting}
-                        className="rounded-lg h-9 px-4 hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive transition-colors"
+                        aria-busy={mintingState.category === 'supercharging'}
+                        className="rounded-lg h-10 sm:h-9 min-w-[72px] px-4 hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive active:scale-95 transition-all touch-manipulation flex-shrink-0"
                       >
                         {mintingState.category === 'supercharging' ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -1136,14 +1172,14 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
                   {/* Home Charging */}
                   {(pendingRewards.homeChargerKwh ?? 0) > 0 && (
-                    <div className="flex items-center justify-between p-3.5 rounded-xl border border-border/60 bg-gradient-to-r from-muted/40 to-transparent hover:border-accent/30 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-accent/20 to-accent/10 shadow-sm">
+                    <div className={`flex items-center justify-between p-3.5 rounded-xl border bg-gradient-to-r from-muted/40 to-transparent transition-all ${mintingState.category === 'home_charging' ? 'border-accent/60 shadow-[0_0_0_3px_hsl(var(--accent)/0.15)]' : 'border-border/60 hover:border-accent/30'}`}>
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-accent/20 to-accent/10 shadow-sm flex-shrink-0">
                           <Zap className="h-4 w-4 text-accent" />
                         </div>
-                        <div>
+                        <div className="min-w-0">
                           <p className="font-medium text-sm">Home Charging</p>
-                          <p className="text-xs text-muted-foreground">{(pendingRewards.homeChargerKwh ?? 0).toLocaleString()} $ZSOLAR</p>
+                          <p className="text-xs text-muted-foreground tabular-nums">{(pendingRewards.homeChargerKwh ?? 0).toLocaleString()} $ZSOLAR</p>
                         </div>
                       </div>
                       <Button
@@ -1151,7 +1187,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                         variant="outline"
                         onClick={() => handleRequestMint('home_charging')}
                         disabled={(pendingRewards.homeChargerKwh ?? 0) === 0 || isMinting}
-                        className="rounded-lg h-9 px-4 hover:bg-accent/10 hover:border-accent/30 hover:text-accent transition-colors"
+                        aria-busy={mintingState.category === 'home_charging'}
+                        className="rounded-lg h-10 sm:h-9 min-w-[72px] px-4 hover:bg-accent/10 hover:border-accent/30 hover:text-accent active:scale-95 transition-all touch-manipulation flex-shrink-0"
                       >
                         {mintingState.category === 'home_charging' ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -1183,16 +1220,22 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                     </span>
                   </div>
                   <Button
-                    className="relative w-full h-12 rounded-xl bg-gradient-to-r from-primary via-primary to-primary/90 shadow-lg shadow-primary/25 hover:shadow-primary/35 hover:scale-[1.01] transition-all duration-200"
+                    className="relative w-full h-12 rounded-xl bg-gradient-to-r from-primary via-primary to-primary/90 shadow-lg shadow-primary/25 hover:shadow-primary/35 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 touch-manipulation"
                     onClick={() => handleRequestMint('all')}
                     disabled={isMinting}
+                    aria-busy={mintingState.category === 'all'}
                   >
                     {mintingState.category === 'all' ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Minting…
+                      </>
                     ) : (
-                      <Coins className="mr-2 h-4 w-4" />
+                      <>
+                        <Coins className="mr-2 h-4 w-4" />
+                        Mint All Tokens
+                      </>
                     )}
-                    Mint All Tokens
                   </Button>
                 </div>
               </>

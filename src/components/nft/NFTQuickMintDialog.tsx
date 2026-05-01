@@ -80,10 +80,12 @@ function MintableNFTCard({
   milestone,
   onMint,
   isMinting,
+  disabled,
 }: {
   milestone: NFTMilestone;
   onMint: (milestone: NFTMilestone) => void;
   isMinting: boolean;
+  disabled?: boolean;
 }) {
   const artwork = getNftArtwork(milestone.id);
   const tier = getTierFromId(milestone.id);
@@ -97,7 +99,7 @@ function MintableNFTCard({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       whileHover={{ scale: 1.01 }}
-      className="relative flex items-center gap-3 p-3 rounded-xl border bg-primary/5 border-primary/30 hover:border-primary/50 transition-all"
+      className={`relative flex items-center gap-3 p-3 rounded-xl border bg-primary/5 transition-all ${isMinting ? 'border-primary/70 shadow-[0_0_0_3px_hsl(var(--primary)/0.15)]' : 'border-primary/30 hover:border-primary/50'}`}
     >
       {/* NFT Image */}
       <div className="relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 shadow-md">
@@ -110,7 +112,7 @@ function MintableNFTCard({
       {/* NFT Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <h4 className="font-semibold text-sm">{milestone.name}</h4>
+          <h4 className="font-semibold text-sm truncate">{milestone.name}</h4>
           <Badge variant="outline" className={`text-[10px] px-1.5 py-0 bg-gradient-to-r ${rarityConfig.gradient} text-white border-0`}>
             {rarityConfig.label}
           </Badge>
@@ -121,9 +123,11 @@ function MintableNFTCard({
       {/* Mint Button */}
       <Button
         size="sm"
-        className="gap-1.5 h-9 text-xs flex-shrink-0"
+        className="gap-1.5 h-10 sm:h-9 min-w-[72px] text-xs flex-shrink-0 active:scale-95 transition-transform touch-manipulation"
         onClick={() => onMint(milestone)}
-        disabled={isMinting}
+        disabled={isMinting || disabled}
+        aria-busy={isMinting}
+        aria-label={`Mint ${milestone.name}`}
       >
         {isMinting ? (
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -136,6 +140,20 @@ function MintableNFTCard({
   );
 }
 
+// Loading skeleton row that matches MintableNFTCard rhythm so layout doesn't jump
+function MintableNFTSkeleton() {
+  return (
+    <div className="flex items-center gap-3 p-3 rounded-xl border border-border/40 bg-muted/20 animate-pulse">
+      <div className="w-14 h-14 rounded-lg bg-muted/60 flex-shrink-0" />
+      <div className="flex-1 min-w-0 space-y-1.5">
+        <div className="h-3 w-2/3 rounded bg-muted/60" />
+        <div className="h-2.5 w-full rounded bg-muted/40" />
+      </div>
+      <div className="h-9 w-[72px] rounded-md bg-muted/60 flex-shrink-0" />
+    </div>
+  );
+}
+
 export const NFTQuickMintDialog = forwardRef<NFTQuickMintDialogRef, NFTQuickMintDialogProps>(
   function NFTQuickMintDialog({ walletAddress, activityData, onMintSuccess }, ref) {
     const [open, setOpen] = useState(false);
@@ -145,7 +163,7 @@ export const NFTQuickMintDialog = forwardRef<NFTQuickMintDialogRef, NFTQuickMint
     const [mintingMilestone, setMintingMilestone] = useState<NFTMilestone | null>(null);
     const [isBatchMinting, setIsBatchMinting] = useState(false);
     const { triggerCelebration, triggerGoldBurst } = useConfetti();
-    const { success: hapticSuccess } = useHaptics();
+    const { success: hapticSuccess, lightTap: hapticLightTap, error: hapticError } = useHaptics();
 
     // Expose openDialog to parent
     useImperativeHandle(ref, () => ({
@@ -218,6 +236,8 @@ export const NFTQuickMintDialog = forwardRef<NFTQuickMintDialogRef, NFTQuickMint
     const mintableNFTs = allNFTs.filter(nft => isEarned(nft.id) && !isOnChain(nft.id));
 
     const handleMintNFT = (milestone: NFTMilestone) => {
+      // Tactile feedback on tap (mobile-first)
+      hapticLightTap();
       setMintingMilestone(milestone);
       setMintFlowOpen(true);
     };
@@ -235,7 +255,8 @@ export const NFTQuickMintDialog = forwardRef<NFTQuickMintDialogRef, NFTQuickMint
     // Batch mint all available NFTs
     const handleBatchMintAll = async () => {
       if (!walletAddress || mintableNFTs.length === 0) return;
-      
+
+      hapticLightTap();
       setIsBatchMinting(true);
       try {
         const tokenIds = mintableNFTs
@@ -270,6 +291,9 @@ export const NFTQuickMintDialog = forwardRef<NFTQuickMintDialogRef, NFTQuickMint
         onMintSuccess?.();
       } catch (err) {
         console.error('Batch mint error:', err);
+        hapticError();
+        const message = err instanceof Error ? err.message : 'Please try again in a moment.';
+        toast.error('Batch mint failed', { description: message });
       } finally {
         setIsBatchMinting(false);
       }
@@ -301,8 +325,10 @@ export const NFTQuickMintDialog = forwardRef<NFTQuickMintDialogRef, NFTQuickMint
             {/* NFT List - Only Mintable */}
             <ScrollArea className="flex-1 px-4 pb-4 sm:px-6 sm:pb-6" style={{ maxHeight: 'calc(85vh - 160px)' }}>
               {isCheckingStatus ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <div className="space-y-2 py-1" aria-busy="true" aria-label="Checking your on-chain NFTs">
+                  <MintableNFTSkeleton />
+                  <MintableNFTSkeleton />
+                  <MintableNFTSkeleton />
                 </div>
               ) : mintableNFTs.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
@@ -324,27 +350,34 @@ export const NFTQuickMintDialog = forwardRef<NFTQuickMintDialogRef, NFTQuickMint
                   {mintableNFTs.length > 1 && (
                     <Button
                       onClick={handleBatchMintAll}
-                      disabled={isBatchMinting || !walletAddress}
-                      className="w-full gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+                      disabled={isBatchMinting || !walletAddress || isCheckingStatus}
+                      aria-busy={isBatchMinting}
+                      className="w-full h-12 gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 active:scale-[0.99] transition-all touch-manipulation"
                       size="lg"
                     >
                       {isBatchMinting ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Minting {mintableNFTs.length} NFTs…
+                        </>
                       ) : (
-                        <Layers className="h-4 w-4" />
+                        <>
+                          <Layers className="h-4 w-4" />
+                          Mint All ({mintableNFTs.length} NFTs)
+                        </>
                       )}
-                      Mint All ({mintableNFTs.length} NFTs)
                     </Button>
                   )}
 
                   <div className="space-y-2">
                     <AnimatePresence mode="popLayout">
-                      {mintableNFTs.map((nft, index) => (
+                      {mintableNFTs.map((nft) => (
                         <MintableNFTCard
                           key={nft.id}
                           milestone={nft}
                           onMint={handleMintNFT}
                           isMinting={(mintingMilestone?.id === nft.id && mintFlowOpen) || isBatchMinting}
+                          disabled={isBatchMinting}
                         />
                       ))}
                     </AnimatePresence>
