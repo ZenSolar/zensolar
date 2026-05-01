@@ -127,7 +127,7 @@ export default function AdminCoffeePitch() {
           </CardHeader>
           <CardContent className="space-y-5">
             <p className="text-sm text-muted-foreground">
-              Users pay <strong className="text-foreground">$9.99 or $19.99/month</strong> for auto-minting. Here's the clever part:
+              Users pay <strong className="text-foreground">$9.99, $19.99, or $49.99/month</strong> (Base / Regular / Power) for auto-minting. Here's the clever part:
             </p>
             <div className="grid gap-3">
               {[

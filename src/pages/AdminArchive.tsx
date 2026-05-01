@@ -100,7 +100,7 @@ export default function AdminArchive() {
             <p className="font-semibold text-foreground">Currently Active: 1T Trillionaire Strategy (v2)</p>
             <p className="text-sm text-muted-foreground">
               1,000,000,000,000 hard cap · Joseph 15% / Michael 5% / Treasury 7.5% / Team 2.5% / Community 70% · 
-              $19.99 subscription · Built for trillionaire founder outcomes at $1+ token price.
+              Base $9.99 / Regular $19.99 / Power $49.99 subscription tiers · Built for trillionaire founder outcomes at $1+ token price.
             </p>
           </div>
         </div>
