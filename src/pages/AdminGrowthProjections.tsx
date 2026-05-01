@@ -564,6 +564,116 @@ export default function AdminGrowthProjections() {
           </Card>
         </div>
 
+        {/* v2 Flywheel — Tier Mix + Genesis Halving */}
+        <Card className="border-primary/40">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Zap className="h-5 w-5 text-primary" />
+              v2 Flywheel — Tier Mix vs Genesis Halving
+            </CardTitle>
+            <CardDescription>
+              LP injection vs sell pressure across user counts at the target tier mix. Genesis Halving triggers at{" "}
+              {formatNumber(GENESIS_HALVING.userCountTrigger)} paying users (50% mint-rate cut).
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+              {Object.values(SUBSCRIPTION_TIERS).map((t) => (
+                <div key={t.id} className="p-3 rounded-lg border bg-muted/40">
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold">{t.name}</span>
+                    <Badge variant="secondary">${t.monthlyPrice}/mo</Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    LP ${t.lpPerMonth.toFixed(2)} · Treasury ${t.treasuryPerMonth.toFixed(2)}
+                  </p>
+                  <p className="text-xs mt-1">
+                    Sell-rate: <span className="font-mono">{Math.round(t.assumedMonthlySellRate * 100)}%</span>
+                  </p>
+                </div>
+              ))}
+            </div>
+            {(() => {
+              const userCounts = [1_000, 10_000, 50_000, 250_000];
+              const rawTokensPerUser = WEIGHTED_AVG_RAW_TOKENS;
+              const userShareOfMint = 0.75;
+              const price = PRICES.launchFloor;
+
+              // Cohort mix evolves: heavier Power tier as scale grows
+              const mixFor = (users: number) => {
+                if (users < 10_000) return { base: 0.6, regular: 0.35, power: 0.05 };
+                if (users < 100_000) return { base: 0.4, regular: 0.45, power: 0.15 };
+                return { base: 0.25, regular: 0.5, power: 0.25 };
+              };
+
+              const rows = userCounts.map((users) => {
+                const mix = mixFor(users);
+                const halvingActive = users >= GENESIS_HALVING.userCountTrigger;
+                const mintMultiplier = halvingActive ? GENESIS_HALVING.multiplier : 1;
+                const userTokens = rawTokensPerUser * userShareOfMint * mintMultiplier;
+
+                const tiers = [
+                  { ...SUBSCRIPTION_TIERS.base, share: mix.base },
+                  { ...SUBSCRIPTION_TIERS.regular, share: mix.regular },
+                  { ...SUBSCRIPTION_TIERS.power, share: mix.power },
+                ];
+
+                const lpInjection = tiers.reduce(
+                  (sum, t) => sum + users * t.share * t.lpPerMonth,
+                  0
+                );
+                const sellPressure = tiers.reduce(
+                  (sum, t) => sum + users * t.share * userTokens * t.assumedMonthlySellRate * price,
+                  0
+                );
+                const net = lpInjection - sellPressure;
+
+                return { users, halvingActive, lpInjection, sellPressure, net };
+              });
+
+              return (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b text-left text-muted-foreground">
+                        <th className="py-2">Users</th>
+                        <th className="py-2">Genesis Halving</th>
+                        <th className="py-2">Monthly LP</th>
+                        <th className="py-2">Sell pressure</th>
+                        <th className="py-2">Net flywheel</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows.map((r) => (
+                        <tr key={r.users} className="border-b last:border-0">
+                          <td className="py-2 font-medium">{formatNumber(r.users)}</td>
+                          <td className="py-2">
+                            {r.halvingActive ? (
+                              <Badge className="bg-primary text-primary-foreground">Active</Badge>
+                            ) : (
+                              <Badge variant="outline">Pre-halving</Badge>
+                            )}
+                          </td>
+                          <td className="py-2 text-emerald-600 font-medium">{formatCurrency(r.lpInjection)}</td>
+                          <td className="py-2 text-orange-600 font-medium">{formatCurrency(r.sellPressure)}</td>
+                          <td className={`py-2 font-bold ${r.net >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+                            {r.net >= 0 ? "+" : ""}
+                            {formatCurrency(r.net)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })()}
+            <p className="text-xs text-muted-foreground mt-3">
+              Mix evolves: launch (60/35/5) → growth (40/45/15) → post-halving (25/50/25) for Base/Regular/Power.
+              Sell pressure priced at $0.10 floor. Treasury auto-buyback (Satoshi-Mirror v2) absorbs residual gap.
+            </p>
+          </CardContent>
+        </Card>
+
         {/* Disclaimer */}
         <Card className="bg-muted/30">
           <CardContent className="pt-4">
