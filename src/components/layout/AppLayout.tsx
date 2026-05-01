@@ -1,6 +1,7 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { TopNav } from "./TopNav";
+import { MobileBottomNav } from "./MobileBottomNav";
 
 import { ViewAsUserBanner } from "@/components/admin/ViewAsUserBanner";
 import { useViewAsUser } from "@/contexts/ViewAsUserContext";
@@ -33,11 +34,13 @@ export function AppLayout({ children }: AppLayoutProps) {
             <TopNav />
             
             {/* Main content with padding-top to offset fixed header */}
-            <main className="flex-1 pt-[calc(env(safe-area-inset-top)+3.5rem)] pb-safe min-w-0 overflow-x-hidden">
+            <main className="flex-1 pt-[calc(env(safe-area-inset-top)+3.5rem)] pb-[calc(env(safe-area-inset-bottom,0px)+72px)] md:pb-safe min-w-0 overflow-x-hidden">
               {children}
             </main>
           </div>
         </div>
+        {/* Mobile-only sticky bottom tab bar */}
+        <MobileBottomNav variant="app" />
         {/* Floating banner when viewing as another user */}
         <ViewAsUserBanner />
       </SidebarProvider>
