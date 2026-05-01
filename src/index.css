@@ -215,6 +215,26 @@
     padding-right: env(safe-area-inset-right, 0px);
   }
 
+  /* ----- Mobile bottom nav geometry (single source of truth) ----- */
+  /* Visible nav row height (excludes safe-area). Tweak here only. */
+  :root {
+    --bottom-nav-height: 56px;
+    --bottom-nav-safe: env(safe-area-inset-bottom, 0px);
+    --bottom-nav-total-h: calc(var(--bottom-nav-height) + var(--bottom-nav-safe));
+    /* Standard FAB clearance above the nav (gap between FAB and nav top edge) */
+    --fab-gap: 12px;
+    --fab-bottom: calc(var(--bottom-nav-total-h) + var(--fab-gap));
+  }
+
+  /* Utility: any FAB anchors itself above the nav + iOS home indicator */
+  .fab-above-nav {
+    bottom: var(--fab-bottom);
+  }
+  /* Utility: page content padding so nothing is occluded by the nav */
+  .pb-bottom-nav {
+    padding-bottom: var(--bottom-nav-total-h);
+  }
+
   /* iOS scroll container */
   .scroll-ios {
     -webkit-overflow-scrolling: touch;
