@@ -6,7 +6,7 @@ const steps = [
   {
     icon: Users,
     label: 'Subscribers Pay',
-    sub: '$9.99–$19.99/mo subscriptions',
+    sub: 'Base $9.99 / Regular $19.99 / Power $49.99',
     color: 'text-blue-500',
     bg: 'bg-blue-500/10',
     border: 'border-blue-500/20',

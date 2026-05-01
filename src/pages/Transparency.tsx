@@ -415,7 +415,7 @@ export default function Transparency() {
               <div className="text-xs font-semibold text-foreground">Mint when you want</div>
             </div>
             <div className="rounded-md border border-eco/40 bg-eco/[0.05] p-2">
-              <div className="text-[9px] uppercase tracking-wider text-eco">$19.99 Auto-Mint · 30%</div>
+              <div className="text-[9px] uppercase tracking-wider text-eco">Regular $19.99 Auto-Mint · 30%</div>
               <div className="text-xs font-semibold text-foreground">DCA your energy</div>
             </div>
           </div>

@@ -14,22 +14,32 @@ const levels = [
     iconColor: 'text-muted-foreground',
   },
   {
-    name: 'Pro',
+    name: 'Base',
     icon: Crown,
-    frequency: 'Every week',
-    description: 'Auto-mint weekly. Your energy earns $ZSOLAR on autopilot.',
+    frequency: 'On-demand',
+    description: 'Mint $ZSOLAR when you want — full member access with a soft monthly cap.',
     price: '$9.99/mo',
     accent: 'border-primary/40',
     iconBg: 'bg-primary/15',
     iconColor: 'text-primary',
+  },
+  {
+    name: 'Regular',
+    icon: Crown,
+    frequency: 'Every day',
+    description: 'Daily auto-minting, uncapped. The sweet spot — net-positive flywheel as you scale.',
+    price: '$19.99/mo',
+    accent: 'border-primary/60',
+    iconBg: 'bg-primary/20',
+    iconColor: 'text-primary',
     popular: true,
   },
   {
-    name: 'Elite',
+    name: 'Power',
     icon: Rocket,
-    frequency: 'Every day',
-    description: 'Auto-mint daily for maximum token accumulation + priority rewards.',
-    price: '$19.99/mo',
+    frequency: 'Every day, uncapped',
+    description: 'Power-tier auto-mint for prosumers and fleets, with first access to staking multipliers.',
+    price: '$49.99/mo',
     accent: 'border-accent/40',
     iconBg: 'bg-accent/15',
     iconColor: 'text-accent',
@@ -56,7 +66,7 @@ export function LevelUpSection() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {levels.map((level, i) => (
             <motion.div
               key={level.name}

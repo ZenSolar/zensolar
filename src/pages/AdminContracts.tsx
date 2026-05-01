@@ -152,9 +152,9 @@ const TOKENOMICS = {
     total: 7,
   },
   redemptionBurnFee: 5, // 5% store redemption burn
-  subscriptionTier1: 19.99,
-  subscriptionTier2: 29.99,
-  subscriptionTier3: 49.99,
+  subscriptionTier1: 9.99,   // Base
+  subscriptionTier2: 19.99,  // Regular
+  subscriptionTier3: 49.99,  // Power
 };
 
 export default function AdminContracts() {

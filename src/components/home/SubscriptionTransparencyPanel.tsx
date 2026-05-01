@@ -46,7 +46,7 @@ export function SubscriptionTransparencyPanel() {
             Every dollar splits cleanly in two. Half builds the floor under{' '}
             <span className="text-foreground font-medium">$ZSOLAR</span>. Half
             keeps the lights on. No mystery, no marketing budgets, no executive
-            bonuses — the math is the same whether you pay $9.99 or $19.99.
+            bonuses — the math is the same whether you pay $9.99, $19.99, or $49.99.
           </p>
         </div>
 
@@ -104,11 +104,9 @@ export function SubscriptionTransparencyPanel() {
               <ArrowDownUp className="h-3 w-3" />
               <span>
                 Same split applies to the{' '}
-                <span className="text-foreground font-medium">$9.99 Base</span>{' '}
-                and{' '}
-                <span className="text-foreground font-medium">
-                  $19.99 Auto-Mint
-                </span>{' '}
+                <span className="text-foreground font-medium">$9.99 Base</span>,{' '}
+                <span className="text-foreground font-medium">$19.99 Regular</span>, and{' '}
+                <span className="text-foreground font-medium">$49.99 Power</span>{' '}
                 tiers
               </span>
             </div>
