@@ -236,6 +236,8 @@ export const NFTQuickMintDialog = forwardRef<NFTQuickMintDialogRef, NFTQuickMint
     const mintableNFTs = allNFTs.filter(nft => isEarned(nft.id) && !isOnChain(nft.id));
 
     const handleMintNFT = (milestone: NFTMilestone) => {
+      // Tactile feedback on tap (mobile-first)
+      hapticLightTap();
       setMintingMilestone(milestone);
       setMintFlowOpen(true);
     };
@@ -253,7 +255,8 @@ export const NFTQuickMintDialog = forwardRef<NFTQuickMintDialogRef, NFTQuickMint
     // Batch mint all available NFTs
     const handleBatchMintAll = async () => {
       if (!walletAddress || mintableNFTs.length === 0) return;
-      
+
+      hapticLightTap();
       setIsBatchMinting(true);
       try {
         const tokenIds = mintableNFTs
@@ -288,6 +291,9 @@ export const NFTQuickMintDialog = forwardRef<NFTQuickMintDialogRef, NFTQuickMint
         onMintSuccess?.();
       } catch (err) {
         console.error('Batch mint error:', err);
+        hapticError();
+        const message = err instanceof Error ? err.message : 'Please try again in a moment.';
+        toast.error('Batch mint failed', { description: message });
       } finally {
         setIsBatchMinting(false);
       }
