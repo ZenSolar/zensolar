@@ -187,19 +187,19 @@ export default function MintHistory() {
         {/* Pending Activity */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           <Card className="bg-gradient-to-br from-accent-warm/10 via-background to-primary/5 border-accent-warm/20 shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <TrendingUp className="h-5 w-5 text-accent-warm" />
+            <CardHeader className="pb-3 sm:pb-4">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <TrendingUp className="h-5 w-5 text-accent-warm shrink-0" />
                 Pending Activity Breakdown
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-xs sm:text-sm leading-relaxed">
                 Activity since your last <JargonTip term="mint">mint</JargonTip> — you receive 75% as <JargonTip term="zsolar">$ZSOLAR</JargonTip> (20% burn).
               </CardDescription>
             </CardHeader>
             <CardContent>
               {isPendingLoading ? (
-                <div className="grid grid-cols-2 gap-4">
-                  {[0,1,2,3].map(i => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
+                  {[0,1,2,3].map(i => <Skeleton key={i} className="h-[68px] sm:h-20 w-full rounded-xl" />)}
                 </div>
               ) : pendingActivity.totalTokens === 0 ? (
                 <EmptyState
@@ -209,20 +209,20 @@ export default function MintHistory() {
                   className="py-8"
                 />
               ) : (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
                   {[
                     { icon: Sun, label: 'Solar kWh', value: pendingActivity.solarKwh, gradient: 'from-accent-warm to-accent-warm/60', iconFg: 'text-accent-warm-foreground' },
                     { icon: BatteryFull, label: 'Battery kWh', value: pendingActivity.batteryKwh, gradient: 'from-primary to-primary/60', iconFg: 'text-primary-foreground' },
                     { icon: Car, label: 'EV Miles', value: pendingActivity.evMiles, gradient: 'from-accent-cool to-accent-cool/60', iconFg: 'text-accent-cool-foreground' },
-                    { icon: Zap, label: 'EV Charging kWh', value: pendingActivity.evChargingKwh, gradient: 'from-accent-rare to-accent-rare/60', iconFg: 'text-accent-rare-foreground' },
+                    { icon: Zap, label: 'Charging kWh', value: pendingActivity.evChargingKwh, gradient: 'from-accent-rare to-accent-rare/60', iconFg: 'text-accent-rare-foreground' },
                   ].map((item) => (
-                    <div key={item.label} className="flex items-center gap-3 p-4 bg-card/50 rounded-xl border border-border/50">
-                      <div className={`p-2.5 rounded-xl bg-gradient-to-br ${item.gradient}`}>
-                        <item.icon className={`h-5 w-5 ${item.iconFg}`} />
+                    <div key={item.label} className="flex items-center gap-2.5 sm:gap-3 p-3 sm:p-4 bg-card/50 rounded-xl border border-border/50 min-w-0">
+                      <div className={`p-2 sm:p-2.5 rounded-xl bg-gradient-to-br ${item.gradient} shrink-0`}>
+                        <item.icon className={`h-4 w-4 sm:h-5 sm:w-5 ${item.iconFg}`} />
                       </div>
-                      <div>
-                        <span className="text-xl font-bold tracking-tight tabular-nums block">{Math.floor(item.value).toLocaleString()}</span>
-                        <span className="text-xs text-muted-foreground">{item.label}</span>
+                      <div className="min-w-0">
+                        <span className="text-lg sm:text-xl font-bold tracking-tight tabular-nums block leading-none">{Math.floor(item.value).toLocaleString()}</span>
+                        <span className="text-[11px] sm:text-xs text-muted-foreground block mt-1 truncate">{item.label}</span>
                       </div>
                     </div>
                   ))}
