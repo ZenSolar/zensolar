@@ -20,6 +20,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { ExportButtons } from "@/components/admin/ExportButtons";
 import { DEVICE_MIX, WEIGHTED_AVG_RAW_TOKENS, WEIGHTED_AVG_NET_TOKENS, NET_MULTIPLIER } from "@/data/deviceMixAssumptions";
+import { SUBSCRIPTION_TIERS, GENESIS_HALVING, PRICES } from "@/lib/tokenomics";
 import {
   LineChart,
   Line,
