@@ -265,23 +265,25 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         
         {/* ENERGY COMMAND CENTER - The Hero Section */}
         <AnimatedItem>
-          <ActivityMetrics
-            data={activityData}
-            currentActivity={currentActivity}
-            refreshInfo={{ lastUpdatedAt }}
-            connectedProviders={connectedProviders}
-            onMintRequest={!isViewer && profile?.wallet_address ? handleMintRequest : undefined}
-            onMintSuccess={handleMintSuccess}
-            tokenPrice={tokenPrice}
-            lifetimeMinted={activityData.lifetimeMinted}
-            hiddenFields={hiddenFields}
-            onHideField={hideField}
-            onShowField={showField}
-            onShowAllFields={showAllFields}
-            isNewUserView={isNewUserView}
-            teslaNeedsReauth={providerRefresh.tesla?.needsReauth}
-            isLoading={dataLoading || isAutoSyncing}
-          />
+          <PerfProbe id="ActivityMetrics">
+            <ActivityMetrics
+              data={activityData}
+              currentActivity={currentActivity}
+              refreshInfo={{ lastUpdatedAt }}
+              connectedProviders={connectedProviders}
+              onMintRequest={!isViewer && profile?.wallet_address ? handleMintRequest : undefined}
+              onMintSuccess={handleMintSuccess}
+              tokenPrice={tokenPrice}
+              lifetimeMinted={activityData.lifetimeMinted}
+              hiddenFields={hiddenFields}
+              onHideField={hideField}
+              onShowField={showField}
+              onShowAllFields={showAllFields}
+              isNewUserView={isNewUserView}
+              teslaNeedsReauth={providerRefresh.tesla?.needsReauth}
+              isLoading={dataLoading || isAutoSyncing}
+            />
+          </PerfProbe>
         </AnimatedItem>
 
         {/* Prominent CO₂ Offset card — matches the new sidebar accent styling */}
@@ -295,25 +297,27 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         {!isViewer && (
           <AnimatedItem>
             <Suspense fallback={<CardSkeleton height="h-48" />}>
-              <RewardActions 
-                ref={rewardActionsRef}
-                onRefresh={refreshDashboard} 
-                isLoading={dataLoading}
-                walletAddress={isNewUserView ? undefined : profile?.wallet_address}
-                pendingRewards={isNewUserView ? {
-                  solar: 0,
-                  evMiles: 0,
-                  battery: 0,
-                  charging: 0,
-                } : {
-                  solar: currentActivity.solarKwh,
-                  evMiles: currentActivity.evMiles,
-                  battery: currentActivity.batteryKwh,
-                  charging: currentActivity.chargingKwh,
-                  superchargerKwh: currentActivity.superchargerKwh,
-                  homeChargerKwh: currentActivity.homeChargerKwh,
-                }}
-              />
+              <PerfProbe id="RewardActions">
+                <RewardActions 
+                  ref={rewardActionsRef}
+                  onRefresh={refreshDashboard} 
+                  isLoading={dataLoading}
+                  walletAddress={isNewUserView ? undefined : profile?.wallet_address}
+                  pendingRewards={isNewUserView ? {
+                    solar: 0,
+                    evMiles: 0,
+                    battery: 0,
+                    charging: 0,
+                  } : {
+                    solar: currentActivity.solarKwh,
+                    evMiles: currentActivity.evMiles,
+                    battery: currentActivity.batteryKwh,
+                    charging: currentActivity.chargingKwh,
+                    superchargerKwh: currentActivity.superchargerKwh,
+                    homeChargerKwh: currentActivity.homeChargerKwh,
+                  }}
+                />
+              </PerfProbe>
             </Suspense>
           </AnimatedItem>
         )}
