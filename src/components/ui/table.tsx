@@ -2,10 +2,32 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
+/**
+ * Mobile-first table:
+ * - Wrapper allows horizontal swipe on small screens (touch-pan-x, momentum)
+ * - Subtle right-edge fade hint signals there's more content to scroll to
+ * - `min-w-full sm:min-w-0` so cells stay readable instead of squishing into 2-3px columns
+ * - For data-heavy tables we recommend hiding non-critical columns with
+ *   `className="hidden sm:table-cell"` on the corresponding <TableHead> + <TableCell>.
+ */
 const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
   ({ className, ...props }, ref) => (
-    <div className="relative w-full overflow-auto">
-      <table ref={ref} className={cn("w-full caption-bottom text-sm", className)} {...props} />
+    <div className="relative w-full">
+      <div
+        className="relative w-full overflow-x-auto overflow-y-hidden touch-pan-x overscroll-x-contain rounded-md scrollbar-thin"
+        style={{ WebkitOverflowScrolling: 'touch' as const }}
+      >
+        <table
+          ref={ref}
+          className={cn("w-full min-w-[480px] sm:min-w-0 caption-bottom text-sm", className)}
+          {...props}
+        />
+      </div>
+      {/* Right-edge fade — purely decorative scroll affordance; pointer-events-none so it never blocks taps */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-background to-transparent sm:hidden"
+      />
     </div>
   ),
 );
