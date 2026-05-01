@@ -37,7 +37,7 @@ export function Slide07ValueMechanism() {
         <div className="grid grid-cols-3 gap-6">
           {[
             { title: 'Burns Reduce Supply', desc: '20% mint burn + 3% transfer burn permanently destroys tokens every interaction', color: 'hsl(0,84%,60%)' },
-            { title: 'Subscriptions Add Reserve', desc: '50% of every $9.99–$19.99 subscription flows into the USDC liquidity pool', color: 'hsl(207,90%,54%)' },
+            { title: 'Subscriptions Add Reserve', desc: '50% of every $9.99 / $19.99 / $49.99 subscription flows into the USDC liquidity pool', color: 'hsl(207,90%,54%)' },
             { title: 'Floor Only Rises', desc: 'Numerator grows (more USDC), denominator shrinks (more burns). Math guarantees trajectory.', color: 'hsl(142,76%,50%)' },
           ].map((item, i) => (
             <motion.div key={item.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}

@@ -20,7 +20,7 @@ export function Slide10UnitEconomics() {
           <div className="space-y-5">
             {[
               { metric: 'CAC', value: '$15–$25', desc: 'Organic + referral-driven. Solar communities are tightly networked.', color: 'hsl(207,90%,54%)' },
-              { metric: 'LTV', value: '$240–$400', desc: '$9.99–$19.99/mo × 24+ month avg retention. Hardware lock-in.', color: 'hsl(142,76%,50%)' },
+              { metric: 'LTV', value: '$240–$1,200', desc: 'Base $9.99 / Regular $19.99 / Power $49.99 × 24+ mo retention. Hardware lock-in.', color: 'hsl(142,76%,50%)' },
               { metric: 'LTV:CAC', value: '10–16x', desc: 'SaaS benchmark is 3x. We exceed this because solar owners don\'t churn.', color: 'hsl(45,93%,47%)' },
               { metric: 'Payback', value: '<30 days', desc: 'First subscription payment recoups acquisition cost.', color: 'hsl(280,68%,60%)' },
             ].map((item, i) => (

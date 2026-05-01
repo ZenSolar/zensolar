@@ -15,7 +15,7 @@ export function Slide09Revenue() {
 
         <div className="grid grid-cols-5 gap-4 mb-10">
           {[
-            { icon: DollarSign, title: 'Subscription SaaS', stat: '$9.99–$19.99/mo', desc: 'Auto-minting access', color: 'hsl(207,90%,54%)' },
+            { icon: DollarSign, title: 'Subscription SaaS', stat: '$9.99 / $19.99 / $49.99', desc: 'Base / Regular / Power tiers, 50% LP / 50% treasury', color: 'hsl(207,90%,54%)' },
             { icon: ArrowRight, title: '7% Transfer Tax', stat: '3%+2%+2%', desc: 'Burn · LP · Treasury', color: 'hsl(0,84%,60%)' },
             { icon: Flame, title: 'Mint Distribution', stat: '20%+3%+2%', desc: 'Burn · LP · Treasury', color: 'hsl(45,93%,47%)' },
             { icon: TrendingUp, title: 'Treasury Growth', stat: 'Passive', desc: 'Compounding reserve', color: 'hsl(142,76%,50%)' },
