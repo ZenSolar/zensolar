@@ -113,6 +113,11 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
       window.removeEventListener('newUserViewModeChange', handleModeChange as EventListener);
     };
   }, []);
+
+  // Dev-only: log slow network calls (>800ms) to the console while exploring the dashboard.
+  useEffect(() => {
+    installNetworkPerfLogger();
+  }, []);
   
   const { pullDistance, isRefreshing, isReady, containerRef } = usePullToRefresh({
     onRefresh: refreshDashboard,
