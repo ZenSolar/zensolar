@@ -217,6 +217,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         />
       </div>
       
+      <PerfProbe id="ZenSolarDashboard">
       <AnimatedContainer className="relative z-10 w-full max-w-lg min-w-0 mx-auto px-3 sm:px-4 py-6 space-y-6 box-border md:my-6 md:rounded-3xl md:border md:border-border/40 md:bg-background/40 md:backdrop-blur-sm md:shadow-[0_0_60px_-20px_hsl(var(--primary)/0.25)] md:px-6 md:py-8">
         {/* Dashboard Header with Logo - fixed height to prevent layout shifts */}
         <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center">
