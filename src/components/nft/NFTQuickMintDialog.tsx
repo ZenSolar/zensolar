@@ -163,7 +163,7 @@ export const NFTQuickMintDialog = forwardRef<NFTQuickMintDialogRef, NFTQuickMint
     const [mintingMilestone, setMintingMilestone] = useState<NFTMilestone | null>(null);
     const [isBatchMinting, setIsBatchMinting] = useState(false);
     const { triggerCelebration, triggerGoldBurst } = useConfetti();
-    const { success: hapticSuccess } = useHaptics();
+    const { success: hapticSuccess, lightTap: hapticLightTap, error: hapticError } = useHaptics();
 
     // Expose openDialog to parent
     useImperativeHandle(ref, () => ({
