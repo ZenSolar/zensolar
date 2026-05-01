@@ -12,7 +12,7 @@ export default function Subscribe() {
       <SEO
         title="Choose your $ZSOLAR plan — Base, Regular, Power"
         description="Pick a $ZSOLAR subscription tier. Every dollar splits 50% to liquidity and 50% to treasury."
-        canonical="https://beta.zen.solar/subscribe"
+        url="https://beta.zen.solar/subscribe"
       />
       <TierSelectionScreen
         selectedTier={tier}
