@@ -46,7 +46,54 @@ interface ChangelogEntry {
 
 const ENTRIES: ChangelogEntry[] = [
   {
-    date: "April 24, 2026 (LATEST)",
+    date: "April 30, 2026 (LATEST)",
+    iso: "2026-04-30T23:00",
+    title: "Mobile-First Sprint #2 — Bottom Nav Fixed + Capacitor + Performance Pass",
+    summary:
+      "Big native-feel push. Fixed the bottom navigation so it respects the iOS home indicator and never gets clipped. Re-anchored every floating button (MINT, Deason, Feedback) to sit cleanly above the nav. Wired Capacitor splash screen, status bar, and keyboard plugins for edge-to-edge native rendering. Tables now scroll cleanly on mobile instead of squishing. Mint flow got skeletons, disabled states, and haptic feedback. Dashboard supports pull-to-refresh without remounting. Lazy-load + memoization audit confirmed clean.",
+    sections: [
+      {
+        heading: "Shipped",
+        icon: "shipped",
+        bullets: [
+          "Bottom nav: single-source CSS vars (--bottom-nav-height, --bottom-nav-safe, --bottom-nav-total-h) so the bar respects iOS safe-area and never clips.",
+          "AppLayout main content now reserves correct bottom padding so content is never hidden behind the nav.",
+          "Floating MINT (yellow), Deason chat bubble, and Feedback FAB all re-anchored to sit 12px above the nav on every device.",
+          "Capacitor edge-to-edge: splash screen (#0F172A dark), translucent status bar, keyboard plugin, contentInset='never' for true full-bleed.",
+          "Native boot sequence (src/lib/capacitorBoot.ts) — dismisses splash + sets status bar after first React paint. No-op on web.",
+          "Pull-to-refresh on dashboard: reloads solar / EV / battery / CO₂ metrics without remounting the page.",
+          "Mint UX polish: skeleton loaders, disabled states during in-flight mints, haptic + visual confirmation on every tap-to-mint action.",
+          "Table primitive upgraded — horizontal scroll with right-edge gradient hint on mobile, tightened padding, sticky header heights. Fixes every wide table app-wide in one shot.",
+          "Phone-width QA pass at 390 / 428 / 768 — forms, dialogs, dashboard sub-components, EnergyFlowDiagram all clean.",
+          "Perf audit: 149 lazy() splits + memoization + virtualization confirmed; PerfProbe + network logger validated.",
+        ],
+        links: [
+          { label: "Dashboard (pull-to-refresh)", url: "https://beta.zen.solar/home", preview: true },
+          { label: "Mint flow", url: "https://beta.zen.solar/mint-history", preview: true },
+        ],
+      },
+      {
+        heading: "Strategic Decisions Locked",
+        icon: "strategy",
+        bullets: [
+          "Mobile-first is now the #1 UX priority — every new surface must pass 390x844 + safe-area before merge.",
+          "Native shell = Capacitor (iOS + Android). PWA stays as the web fallback. No React Native rewrite.",
+          "Tables scroll horizontally on mobile rather than collapsing to cards — less code, consistent data density, gradient hint signals scrollability.",
+        ],
+      },
+      {
+        heading: "Saved to Project Memory",
+        icon: "memory",
+        bullets: [
+          "Bottom-nav geometry rule: always use --bottom-nav-total-h for content padding and FAB offsets — never hardcode 56px.",
+          "Capacitor plugins in use: @capacitor/splash-screen, @capacitor/status-bar, @capacitor/keyboard, @capacitor/haptics (v8).",
+          "Performance budget: lazy-load any route-level chunk; memoize dashboard widgets; virtualize lists >50 rows.",
+        ],
+      },
+    ],
+  },
+  {
+    date: "April 24, 2026",
     iso: "2026-04-25T02:00",
     title: "Wallbox Verified Live · Proof-of-Genesis Receipt — EV Math + PoW Comparison",
     summary:
@@ -84,7 +131,7 @@ const ENTRIES: ChangelogEntry[] = [
     ],
   },
   {
-    date: "April 24, 2026 (LATEST)",
+    date: "April 24, 2026",
     iso: "2026-04-25T00:30",
     title: "VPP Roadmap — UX Flow + Token Timing Locked",
     summary:
