@@ -57,6 +57,8 @@ import {
 } from '@/lib/nftMilestones';
 import { Link } from 'react-router-dom';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+import { PerfProbe } from '@/components/dev/PerfProbe';
+import { installNetworkPerfLogger } from '@/lib/perfProfiler';
 
 // Lightweight skeleton placeholder — matches dashboard card vertical rhythm so layout doesn't jump
 function CardSkeleton({ height = 'h-40' }: { height?: string }) {
