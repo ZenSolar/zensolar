@@ -135,7 +135,7 @@ export default function Tokenomics() {
           <CardContent className="space-y-4">
             <div className="space-y-3">
               {[
-                { label: "Community Rewards", percent: 90, color: "bg-emerald-500", desc: "Dual-gated for $9.99/mo subscribers" },
+                { label: "Community Rewards", percent: 90, color: "bg-emerald-500", desc: "Dual-gated for Base ($9.99) / Regular ($19.99) / Power ($49.99) subscribers" },
                 { label: "Treasury", percent: 7.5, color: "bg-blue-500", desc: "2-year vest for ecosystem growth" },
                 { label: "Founder", percent: 2.5, color: "bg-purple-500", desc: "3-year vest, 6-month cliff" },
               ].map((item) => (
