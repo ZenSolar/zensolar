@@ -6,7 +6,7 @@ const valueFlows = [
   {
     icon: Users,
     title: 'Premium Members',
-    description: '$9.99–$19.99/mo subscriptions',
+    description: '$9.99 / $19.99 / $49.99 tiers',
   },
   {
     icon: ShoppingBag,
