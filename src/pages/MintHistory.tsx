@@ -235,20 +235,20 @@ export default function MintHistory() {
         {/* Transactions */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
           <Card className="shadow-lg">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Hash className="h-5 w-5 text-primary" />
+            <CardHeader className="pb-3 sm:pb-4">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <Hash className="h-5 w-5 text-primary shrink-0" />
                   Transaction Details
                 </CardTitle>
                 {profile?.wallet_address && (
-                  <a href={`https://sepolia.basescan.org/address/${profile.wallet_address}#tokentxns`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline">
-                    <ExternalLink className="h-3.5 w-3.5" />View on BaseScan
+                  <a href={`https://sepolia.basescan.org/address/${profile.wallet_address}#tokentxns`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs text-primary hover:underline touch-target px-1 -mx-1">
+                    <ExternalLink className="h-3.5 w-3.5" />BaseScan
                   </a>
                 )}
               </div>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-2.5 sm:space-y-3">
               {isLoading ? (
                 <div className="space-y-2">
                   {[0,1,2].map(i => <Skeleton key={i} className="h-16 w-full rounded-xl" />)}
@@ -267,21 +267,21 @@ export default function MintHistory() {
                   return (
                     <Collapsible key={tx.id} open={isExpanded} onOpenChange={() => setExpandedTx(isExpanded ? null : tx.id)}>
                       <div className="border rounded-xl overflow-hidden bg-card/50">
-                        <CollapsibleTrigger className="w-full">
-                          <div className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
-                            <div className="flex items-center gap-3">
-                              <div className={`p-2 rounded-lg bg-gradient-to-br ${actionInfo.gradient} text-primary-foreground`}>{actionInfo.icon}</div>
-                              <div className="text-left">
-                                <p className="font-medium text-sm">{actionInfo.label}</p>
-                                <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(tx.created_at), { addSuffix: true })}</p>
+                        <CollapsibleTrigger className="w-full touch-target">
+                          <div className="flex items-center justify-between p-3 sm:p-4 hover:bg-muted/30 active:bg-muted/40 transition-colors gap-3">
+                            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                              <div className={`p-2 rounded-lg bg-gradient-to-br ${actionInfo.gradient} text-primary-foreground shrink-0`}>{actionInfo.icon}</div>
+                              <div className="text-left min-w-0">
+                                <p className="font-medium text-sm truncate">{actionInfo.label}</p>
+                                <p className="text-[11px] sm:text-xs text-muted-foreground truncate">{formatDistanceToNow(new Date(tx.created_at), { addSuffix: true })}</p>
                               </div>
                             </div>
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                               <div className="text-right">
-                                {tx.tokens_minted > 0 && <p className="font-semibold text-sm">{tx.tokens_minted.toLocaleString()} $ZSOLAR</p>}
-                                {tx.nft_names?.length > 0 && <p className="text-xs text-muted-foreground">{tx.nft_names.length} NFT{tx.nft_names.length > 1 ? 's' : ''}</p>}
+                                {tx.tokens_minted > 0 && <p className="font-semibold text-xs sm:text-sm tabular-nums">{tx.tokens_minted.toLocaleString()}<span className="text-muted-foreground font-normal ml-1">$ZSOLAR</span></p>}
+                                {tx.nft_names?.length > 0 && <p className="text-[11px] sm:text-xs text-muted-foreground">{tx.nft_names.length} NFT{tx.nft_names.length > 1 ? 's' : ''}</p>}
                               </div>
-                              {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                              {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />}
                             </div>
                           </div>
                         </CollapsibleTrigger>
