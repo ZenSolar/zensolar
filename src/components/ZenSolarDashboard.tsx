@@ -286,25 +286,27 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         {!isViewer && (
           <AnimatedItem>
-            <RewardActions 
-              ref={rewardActionsRef}
-              onRefresh={refreshDashboard} 
-              isLoading={dataLoading}
-              walletAddress={isNewUserView ? undefined : profile?.wallet_address}
-              pendingRewards={isNewUserView ? {
-                solar: 0,
-                evMiles: 0,
-                battery: 0,
-                charging: 0,
-              } : {
-                solar: currentActivity.solarKwh,
-                evMiles: currentActivity.evMiles,
-                battery: currentActivity.batteryKwh,
-                charging: currentActivity.chargingKwh,
-                superchargerKwh: currentActivity.superchargerKwh,
-                homeChargerKwh: currentActivity.homeChargerKwh,
-              }}
-            />
+            <Suspense fallback={<CardSkeleton height="h-48" />}>
+              <RewardActions 
+                ref={rewardActionsRef}
+                onRefresh={refreshDashboard} 
+                isLoading={dataLoading}
+                walletAddress={isNewUserView ? undefined : profile?.wallet_address}
+                pendingRewards={isNewUserView ? {
+                  solar: 0,
+                  evMiles: 0,
+                  battery: 0,
+                  charging: 0,
+                } : {
+                  solar: currentActivity.solarKwh,
+                  evMiles: currentActivity.evMiles,
+                  battery: currentActivity.batteryKwh,
+                  charging: currentActivity.chargingKwh,
+                  superchargerKwh: currentActivity.superchargerKwh,
+                  homeChargerKwh: currentActivity.homeChargerKwh,
+                }}
+              />
+            </Suspense>
           </AnimatedItem>
         )}
 
@@ -329,16 +331,18 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         {/* NFT Milestones - Beta */}
         <AnimatedItem id="reward-progress">
-          <RewardProgress
-            tokensEarned={isNewUserView ? 0 : activityData.tokensEarned}
-            solarKwh={isNewUserView ? 0 : activityData.solarEnergyProduced}
-            evMilesDriven={isNewUserView ? 0 : activityData.evMilesDriven}
-            evChargingKwh={isNewUserView ? 0 : activityData.teslaSuperchargerKwh + activityData.homeChargerKwh}
-            batteryDischargedKwh={isNewUserView ? 0 : activityData.batteryStorageDischarged}
-            nftsEarned={isNewUserView ? [] : activityData.nftsEarned}
-            lifetimeMinted={isNewUserView ? 0 : activityData.lifetimeMinted}
-            isNewUser={true}
-          />
+          <Suspense fallback={<CardSkeleton height="h-56" />}>
+            <RewardProgress
+              tokensEarned={isNewUserView ? 0 : activityData.tokensEarned}
+              solarKwh={isNewUserView ? 0 : activityData.solarEnergyProduced}
+              evMilesDriven={isNewUserView ? 0 : activityData.evMilesDriven}
+              evChargingKwh={isNewUserView ? 0 : activityData.teslaSuperchargerKwh + activityData.homeChargerKwh}
+              batteryDischargedKwh={isNewUserView ? 0 : activityData.batteryStorageDischarged}
+              nftsEarned={isNewUserView ? [] : activityData.nftsEarned}
+              lifetimeMinted={isNewUserView ? 0 : activityData.lifetimeMinted}
+              isNewUser={true}
+            />
+          </Suspense>
         </AnimatedItem>
 
         {/* NFT Mint Button - Below NFT Card with Glow Animation */}
@@ -379,34 +383,44 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           </AnimatedItem>
         )}
 
-        {/* NFT Quick Mint Dialog */}
-        <NFTQuickMintDialog
-          ref={nftQuickMintRef}
-          walletAddress={profile?.wallet_address}
-          activityData={activityData}
-          onMintSuccess={refreshDashboard}
-        />
+        {/* NFT Quick Mint Dialog (lazy — only the dialog chunk is fetched the first time it opens) */}
+        <Suspense fallback={null}>
+          <NFTQuickMintDialog
+            ref={nftQuickMintRef}
+            walletAddress={profile?.wallet_address}
+            activityData={activityData}
+            onMintSuccess={refreshDashboard}
+          />
+        </Suspense>
         
         {/* Admin-only Baseline Reset Tool - Hidden in New User View */}
         {isAdminView && !isNewUserView && (
           <AnimatedItem>
-            <AdminBaselineReset onResetComplete={refreshDashboard} />
+            <Suspense fallback={<CardSkeleton height="h-32" />}>
+              <AdminBaselineReset onResetComplete={refreshDashboard} />
+            </Suspense>
           </AnimatedItem>
         )}
 
         {/* Admin-only NFT Reset Tool - Hidden in New User View */}
         {isAdminView && !isNewUserView && (
           <AnimatedItem>
-            <NFTResetPanel />
+            <Suspense fallback={<CardSkeleton height="h-32" />}>
+              <NFTResetPanel />
+            </Suspense>
           </AnimatedItem>
         )}
       </AnimatedContainer>
       
-      {/* Wallet Setup Modal - appears for users without wallet */}
-      <WalletSetupModal 
-        isOpen={showWalletModal} 
-        onClose={() => setShowWalletModal(false)} 
-      />
+      {/* Wallet Setup Modal — only mount when actually needed (saves bytes for the common path) */}
+      {showWalletModal && (
+        <Suspense fallback={null}>
+          <WalletSetupModal 
+            isOpen={showWalletModal} 
+            onClose={() => setShowWalletModal(false)} 
+          />
+        </Suspense>
+      )}
       
       {/* Dashboard Footer */}
       <DashboardFooter />
