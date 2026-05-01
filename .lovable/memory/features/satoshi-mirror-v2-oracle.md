@@ -44,6 +44,18 @@ $ZSOLAR makes this **explicit and on-chain**: the guaranteed floor price tracks 
 3. **Treasury buyback caps** — max % of treasury deployable per month, reserve floor that pauses buybacks, circuit breakers
 4. **Burn vs. Reserve split** — when buyback executes, what % of repurchased $ZSOLAR is burned vs. held in treasury reserve
 
+### 5. Mint ratio decision (kWh : $ZSOLAR)
+
+**Locked: keep 1 kWh : 1 $ZSOLAR.** Do NOT compress to 10:1 at launch.
+
+Reasoning:
+- 10:1 ratio would mathematically eliminate the LP gap (5.3x surplus vs current 0.53x), but Satoshi-Mirror v2 (EIA floor + treasury auto-buyback) already solves the same problem without breaking the "1 kWh = 1 $ZSOLAR" narrative.
+- A blunt ratio change collapses perceived reward at launch ($7.50/mo vs $75/mo at $0.10) and triggers churn before the floor mechanism has time to lift token value.
+- Preferred path: let the **halving schedule** (`mem://features/halving-schedule`) compress issuance organically — first halving can be pulled forward to a user-count milestone (e.g., 250K users) and framed as "Genesis Halving" if extra dampening is needed.
+- A one-time ratio compression remains a **belt-and-suspenders option** for Michael to consider, but only if framed as Genesis Halving — never as a silent ratio change.
+
+Cross-ref: full 1:1 vs 10:1 vs Genesis Halving math is in the Michael memo (`/mnt/documents/satoshi-mirror-v2-michael-memo.pdf`).
+
 ## Cross-references
 - Independent of: `mem://roadmap/energy-price-oracle` (that one is per-user verified $/kWh for minting; this one is national-average floor)
 - Mirrors: Bitcoin's implicit electricity-cost floor
