@@ -419,6 +419,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           </AnimatedItem>
         )}
       </AnimatedContainer>
+      </PerfProbe>
       
       {/* Wallet Setup Modal — only mount when actually needed (saves bytes for the common path) */}
       {showWalletModal && (
