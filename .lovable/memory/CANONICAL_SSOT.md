@@ -6,7 +6,7 @@ type: feature
 
 # ZenSolar — Canonical Source of Truth (SSoT)
 
-> **Read this first.** This file overrides every other memory, doc, slide, code comment, and contract draft. If something conflicts, fix the other file — never edit around this one. Last locked: 2026-04-29.
+> **Read this first.** This file overrides every other memory, doc, slide, code comment, and contract draft. If something conflicts, fix the other file — never edit around this one. Last locked: 2026-05-01.
 
 ---
 
