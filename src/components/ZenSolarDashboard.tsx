@@ -1,4 +1,4 @@
-import { useRef, useCallback, useState, useEffect } from 'react';
+import { useRef, useCallback, useState, useEffect, lazy, Suspense } from 'react';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useProfile } from '@/hooks/useProfile';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
@@ -8,21 +8,39 @@ import { useHiddenActivityFields } from '@/hooks/useHiddenActivityFields';
 import { getNewUserViewMode } from '@/lib/userViewMode';
 import { DashboardHeader } from './dashboard/DashboardHeader';
 import { DashboardFooter } from './dashboard/DashboardFooter';
+// Above-the-fold (eager): hero metrics + token price card stay in main chunk
 import { ActivityMetrics, MintCategory, MintRequest } from './dashboard/ActivityMetrics';
-import { RewardActions, RewardActionsRef, MintCategory as RewardMintCategory } from './dashboard/RewardActions';
-import { RewardProgress } from './dashboard/RewardProgress';
+import type { RewardActionsRef, MintCategory as RewardMintCategory } from './dashboard/RewardActions';
 import { CompactSetupPrompt } from './dashboard/CompactSetupPrompt';
 import { CompactWalletPrompt } from './dashboard/CompactWalletPrompt';
-import { WalletSetupModal } from './dashboard/WalletSetupModal';
-import { AdminBaselineReset } from './dashboard/AdminBaselineReset';
-import { NFTResetPanel } from './admin/NFTResetPanel';
 import { TokenPriceCard } from './dashboard/TokenPriceCard';
 import { CO2OffsetCard } from './dashboard/CO2OffsetCard';
-import { AnimatedEnergyFlow } from './dashboard/AnimatedEnergyFlow';
 import { DashboardHexBackground } from './dashboard/DashboardHexBackground';
 
+// Below-the-fold / conditional (lazy): split into separate chunks to cut TTI on mobile
+const RewardActions = lazy(() =>
+  import('./dashboard/RewardActions').then((m) => ({ default: m.RewardActions }))
+);
+const RewardProgress = lazy(() =>
+  import('./dashboard/RewardProgress').then((m) => ({ default: m.RewardProgress }))
+);
+const AnimatedEnergyFlow = lazy(() =>
+  import('./dashboard/AnimatedEnergyFlow').then((m) => ({ default: m.AnimatedEnergyFlow }))
+);
+const WalletSetupModal = lazy(() =>
+  import('./dashboard/WalletSetupModal').then((m) => ({ default: m.WalletSetupModal }))
+);
+const AdminBaselineReset = lazy(() =>
+  import('./dashboard/AdminBaselineReset').then((m) => ({ default: m.AdminBaselineReset }))
+);
+const NFTResetPanel = lazy(() =>
+  import('./admin/NFTResetPanel').then((m) => ({ default: m.NFTResetPanel }))
+);
+import type { NFTQuickMintDialogRef } from './nft/NFTQuickMintDialog';
+const NFTQuickMintDialog = lazy(() =>
+  import('./nft/NFTQuickMintDialog').then((m) => ({ default: m.NFTQuickMintDialog }))
+);
 
-import { NFTQuickMintDialog, NFTQuickMintDialogRef } from './nft/NFTQuickMintDialog';
 import { PullToRefreshIndicator } from './ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from './ui/animated-section';
 import { Button } from './ui/button';
@@ -39,6 +57,16 @@ import {
 } from '@/lib/nftMilestones';
 import { Link } from 'react-router-dom';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+
+// Lightweight skeleton placeholder — matches dashboard card vertical rhythm so layout doesn't jump
+function CardSkeleton({ height = 'h-40' }: { height?: string }) {
+  return (
+    <div
+      className={`w-full ${height} rounded-2xl border border-border/40 bg-card/30 animate-pulse`}
+      aria-hidden="true"
+    />
+  );
+}
 
 interface ZenSolarDashboardProps {
   isDemo?: boolean;
