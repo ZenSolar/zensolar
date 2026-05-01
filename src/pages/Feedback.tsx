@@ -159,7 +159,7 @@ export default function Feedback() {
               {/* Category Selection */}
               <div className="space-y-3">
                 <Label className="text-base">What type of feedback?</Label>
-                <div className="grid grid-cols-1 xs:grid-cols-2 gap-2.5 sm:gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                   {categories.map((cat) => {
                     const Icon = cat.icon;
                     const isSelected = category === cat.value;
