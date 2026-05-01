@@ -121,7 +121,7 @@ export default function Feedback() {
   }
 
   return (
-    <div className="container max-w-2xl mx-auto px-4 py-6 space-y-6">
+    <div className="container max-w-2xl mx-auto px-3 sm:px-4 py-5 sm:py-6 space-y-5 sm:space-y-6">
       {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -159,7 +159,7 @@ export default function Feedback() {
               {/* Category Selection */}
               <div className="space-y-3">
                 <Label className="text-base">What type of feedback?</Label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 xs:grid-cols-2 gap-2.5 sm:gap-3">
                   {categories.map((cat) => {
                     const Icon = cat.icon;
                     const isSelected = category === cat.value;
@@ -168,7 +168,7 @@ export default function Feedback() {
                         key={cat.value}
                         type="button"
                         onClick={() => setCategory(cat.value)}
-                        className={`relative p-4 rounded-xl border text-left transition-all ${
+                        className={`relative min-h-[60px] p-3.5 sm:p-4 rounded-xl border text-left transition-all active:scale-[0.98] ${
                           isSelected 
                             ? 'border-primary bg-primary/5 ring-2 ring-primary/20' 
                             : 'border-border hover:border-primary/50 hover:bg-muted/30'
