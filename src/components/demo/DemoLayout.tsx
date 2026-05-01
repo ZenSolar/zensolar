@@ -4,6 +4,7 @@ import { Sparkles, Link2 } from 'lucide-react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { DemoSidebar } from '@/components/demo/DemoSidebar';
 import { TopNav } from '@/components/layout/TopNav';
+import { MobileBottomNav } from '@/components/layout/MobileBottomNav';
 import { DemoProvider } from '@/contexts/DemoContext';
 import { useDemoScreenshotDetector } from '@/hooks/useDemoScreenshotDetector';
 import { FeedbackFab } from '@/components/FeedbackFab';
@@ -78,7 +79,7 @@ export function DemoLayout() {
           <DemoSidebar />
           <div className="flex-1 flex flex-col min-h-screen min-h-[100dvh] min-w-0">
             <TopNav isDemo />
-            <main className="flex-1 pt-[calc(env(safe-area-inset-top)+3.5rem)] pb-safe min-w-0 overflow-x-hidden">
+            <main className="flex-1 pt-[calc(env(safe-area-inset-top)+3.5rem)] pb-[calc(env(safe-area-inset-bottom,0px)+72px)] md:pb-safe min-w-0 overflow-x-hidden">
               {showRouteBanner && (
                 <div className="mx-auto mt-2 max-w-4xl px-4">
                   <div className="flex items-center justify-between gap-3 rounded-md border border-primary/20 bg-primary/10 px-3 py-2 text-[11px] text-primary">
@@ -96,7 +97,7 @@ export function DemoLayout() {
         <FeedbackFab />
         {/* Demo-only controls: arm Cinematic D locally, or copy a shareable link
             that arms it for whoever opens it. */}
-        <div className="fixed bottom-4 left-4 z-50 flex items-center gap-2">
+        <div className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+72px)] left-4 z-50 flex items-center gap-2 md:bottom-4">
           <button
             type="button"
             onClick={handleReplay}
@@ -117,6 +118,8 @@ export function DemoLayout() {
             Copy replay URL
           </button>
         </div>
+        {/* Mobile-only sticky bottom tab bar */}
+        <MobileBottomNav variant="demo" />
       </SidebarProvider>
     </DemoProvider>
   );
