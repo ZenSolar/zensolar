@@ -441,7 +441,7 @@ export default function Auth() {
                 </div>
                 <Button 
                   type="submit" 
-                    className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
+                    className="w-full h-11 text-base bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
                   disabled={isLoading}
                 >
                   {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -500,7 +500,7 @@ export default function Auth() {
                 </div>
                 <Button 
                   type="submit" 
-                  className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
+                  className="w-full h-11 text-base bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
                   disabled={isLoading}
                 >
                   {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -587,7 +587,7 @@ export default function Auth() {
                       
                       <Button 
                         type="submit" 
-                        className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
+                        className="w-full h-11 text-base bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
                         disabled={isLoading}
                       >
                         {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -602,11 +602,11 @@ export default function Auth() {
                       </div>
                       
                       {/* Social Sign In Buttons */}
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <Button
                           type="button"
                           variant="outline"
-                          className="bg-background/60 border-border border-l-4 border-l-primary text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
+                          className="h-11 bg-background/60 border-border border-l-4 border-l-primary text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
                           onClick={handleGoogleSignIn}
                           disabled={isLoading}
                         >
@@ -633,7 +633,7 @@ export default function Auth() {
                         <Button
                           type="button"
                           variant="outline"
-                          className="bg-background/60 border-border border-l-4 border-l-primary text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
+                          className="h-11 bg-background/60 border-border border-l-4 border-l-primary text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
                           onClick={handleAppleSignIn}
                           disabled={isLoading}
                         >
@@ -718,7 +718,7 @@ export default function Auth() {
                       
                       <Button 
                         type="submit" 
-                        className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
+                        className="w-full h-11 text-base bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-primary/40" 
                         disabled={isLoading}
                       >
                         {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -733,11 +733,11 @@ export default function Auth() {
                       </div>
                       
                       {/* Social Sign In Buttons */}
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <Button
                           type="button"
                           variant="outline"
-                          className="bg-background/60 border-border border-l-4 border-l-primary text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
+                          className="h-11 bg-background/60 border-border border-l-4 border-l-primary text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
                           onClick={handleGoogleSignIn}
                           disabled={isLoading}
                         >
@@ -764,7 +764,7 @@ export default function Auth() {
                         <Button
                           type="button"
                           variant="outline"
-                          className="bg-background/60 border-border border-l-4 border-l-primary text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
+                          className="h-11 bg-background/60 border-border border-l-4 border-l-primary text-foreground hover:bg-muted/80 hover:text-foreground shadow-sm"
                           onClick={handleAppleSignIn}
                           disabled={isLoading}
                         >
