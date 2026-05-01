@@ -92,6 +92,10 @@ if (typeof window !== 'undefined' && typeof (window as any).hideSplashScreen ===
     requestAnimationFrame(() => {
       (window as any).__zensolarBooted = true;
       (window as any).hideSplashScreen();
+      // Initialize Capacitor native polish (no-op on web).
+      import('./lib/capacitorBoot')
+        .then(({ initCapacitorRuntime }) => initCapacitorRuntime())
+        .catch(() => {});
     });
   });
 }
