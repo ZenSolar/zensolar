@@ -131,7 +131,7 @@ const ENTRIES: ChangelogEntry[] = [
     ],
   },
   {
-    date: "April 24, 2026 (LATEST)",
+    date: "April 24, 2026",
     iso: "2026-04-25T00:30",
     title: "VPP Roadmap — UX Flow + Token Timing Locked",
     summary:
