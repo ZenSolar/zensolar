@@ -177,7 +177,8 @@ function Phase1Content() {
               </table>
             </div>
             <p className="text-xs text-muted-foreground mt-3">
-              At $19.99/mo Tier-1, every 1,000 subscribers contributes ~$10K/mo to LP. 10K subs ≈ $100K/mo organic LP growth.
+              Three tiers: Base $9.99 · Regular $19.99 · Power $49.99 — every dollar splits 50% LP / 50% treasury.
+              At the Regular tier, 1,000 subscribers contributes ~$10K/mo to LP. 10K subs ≈ $100K/mo organic LP growth.
             </p>
           </section>
 
