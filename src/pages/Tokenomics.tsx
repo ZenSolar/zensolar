@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { SEO } from "@/components/SEO";
+import { SatoshiMirrorFloorCard } from "@/components/dashboard/SatoshiMirrorFloorCard";
 
 import { 
   MAX_SUPPLY, 
@@ -153,6 +154,11 @@ export default function Tokenomics() {
             </div>
           </CardContent>
         </Card>
+      </motion.div>
+
+      {/* Satoshi-Mirror Floor */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
+        <SatoshiMirrorFloorCard />
       </motion.div>
 
       {/* NFT Milestones */}
