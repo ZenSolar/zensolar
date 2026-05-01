@@ -128,7 +128,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   const navigate = useNavigate();
   const { toast } = useToast();
   const { triggerConfetti } = useConfetti();
-  const { success: hapticSuccess } = useHaptics();
+  const { success: hapticSuccess, lightTap: hapticLightTap, error: hapticError } = useHaptics();
   const { isConnected } = useSafeAccount();
   const { data: walletClient } = useSafeWalletClient();
   const { watchAssetAsync } = useSafeWatchAsset();
@@ -510,7 +510,11 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
   // Show confirmation dialog before minting
   const handleRequestMint = (category: MintCategory, deviceId?: string, deviceName?: string) => {
+    // Tactile feedback on every mint tap (works in PWA + native via @capacitor/haptics)
+    hapticLightTap();
+
     if (!walletAddress) {
+      hapticError();
       toast({
         title: "Wallet Required",
         description: "Please connect your wallet first to mint tokens.",
