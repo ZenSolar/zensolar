@@ -781,6 +781,7 @@ export function ActivityMetrics({
         <div className="pt-1.5 mt-1 border-t border-primary/15">
           <TotalTokensCard 
             tokensToReceive={tokensToReceive}
+            tokensEligible={tokensEligible}
             activityUnits={activityUnits}
             tokenPrice={tokenPrice}
             onMintRequest={onMintRequest}
@@ -1704,13 +1705,16 @@ const TOUCH_DELTA_THRESHOLD = 15;
 
 interface TotalTokensCardProps {
   tokensToReceive: number;
+  tokensEligible?: number;
   activityUnits: number;
   tokenPrice: number;
   onMintRequest?: (request: MintRequest) => void;
 }
 
-function TotalTokensCard({ tokensToReceive, activityUnits, tokenPrice, onMintRequest }: TotalTokensCardProps) {
+function TotalTokensCard({ tokensToReceive, tokensEligible, activityUnits, tokenPrice, onMintRequest }: TotalTokensCardProps) {
   const isTappable = activityUnits > 0 && !!onMintRequest;
+  // v2.1 — token-first display: lead with eligible tokens, kWh shown as small secondary text.
+  const eligible = tokensEligible ?? Math.floor(activityUnits / MINT_RATIO_KWH_PER_TOKEN);
 
   const handleMint = () => {
     if (onMintRequest) {
@@ -1737,7 +1741,16 @@ function TotalTokensCard({ tokensToReceive, activityUnits, tokenPrice, onMintReq
         )} />
       </div>
       <div className="flex-1 min-w-0 relative">
-        <p className="text-sm text-muted-foreground font-medium">Total Available Tokens</p>
+        <p
+          className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground/80 font-semibold"
+          title={`${activityUnits.toLocaleString()} kWh / miles tracked at the 10:1 mint ratio`}
+        >
+          {eligible.toLocaleString()} tokens eligible
+          <span className="ml-1.5 normal-case tracking-normal text-muted-foreground/60 font-normal">
+            · {activityUnits.toLocaleString()} kWh
+          </span>
+        </p>
+        <p className="text-sm text-muted-foreground font-medium">You receive (75%)</p>
         <p className="text-2xl font-bold text-foreground tracking-tight">
           {tokensToReceive.toLocaleString()}
           <span className="text-lg font-semibold text-muted-foreground ml-1.5">$ZSOLAR</span>
