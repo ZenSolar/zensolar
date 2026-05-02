@@ -142,6 +142,7 @@ export function ProtocolCinematicSequence({
   finaleTokenCount,
   tapAtIso,
   backendTimestamps,
+  verifiedSource,
   dismissible = true,
 }: ProtocolCinematicSequenceProps) {
   const [sceneIdx, setSceneIdx] = useState(0);
