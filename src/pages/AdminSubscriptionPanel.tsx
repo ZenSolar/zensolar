@@ -313,7 +313,7 @@ export default function AdminSubscriptionPanel() {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => persistUsage(0)}
+                onClick={() => persistUsage(0, 'reset')}
                 className="h-9"
               >
                 Reset
