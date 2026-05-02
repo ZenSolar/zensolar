@@ -149,6 +149,7 @@ const Engineering = lazy(() => import("./pages/Engineering"));
 const WhitePaperWrapper = lazy(() => import("./components/WhitePaperWrapper"));
 const AdminLiveEnergyFlow = lazy(() => import("./pages/AdminLiveEnergyFlow"));
 const AdminProjectSummary = lazy(() => import("./pages/AdminProjectSummary"));
+const AdminSSOT = lazy(() => import("./pages/AdminSSOT"));
 const AdminSeoStrategy = lazy(() => import("./pages/admin/SeoStrategy"));
 const AdminContentCalendar = lazy(() => import("./pages/admin/ContentCalendar"));
 const AdminBlogManager = lazy(() => import("./pages/admin/BlogManager"));
@@ -391,6 +392,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminProjectSummary />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/ssot" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminSSOT />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
