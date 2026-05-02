@@ -18,9 +18,14 @@ export default function Subscribe() {
         selectedTier={tier}
         onSelect={(t) => {
           setTier(t);
+          try {
+            localStorage.setItem('zensolar_mock_subscription_tier', t);
+          } catch {
+            // ignore storage failures
+          }
           toast({
             title: `${t.charAt(0).toUpperCase() + t.slice(1)} plan selected`,
-            description: "Checkout coming soon — billing is being wired up.",
+            description: "Activated locally — billing wiring coming soon.",
           });
         }}
       />

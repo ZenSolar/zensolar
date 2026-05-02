@@ -15,6 +15,7 @@ import { CompactSetupPrompt } from './dashboard/CompactSetupPrompt';
 import { CompactWalletPrompt } from './dashboard/CompactWalletPrompt';
 import { TokenPriceCard } from './dashboard/TokenPriceCard';
 import { CO2OffsetCard } from './dashboard/CO2OffsetCard';
+import { SubscriptionStatusCard } from './dashboard/SubscriptionStatusCard';
 import { DashboardHexBackground } from './dashboard/DashboardHexBackground';
 
 // Below-the-fold / conditional (lazy): split into separate chunks to cut TTI on mobile
@@ -292,6 +293,11 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             co2Pounds={isNewUserView ? 0 : activityData.co2OffsetPounds}
             isLoading={dataLoading && !isNewUserView}
           />
+        </AnimatedItem>
+
+        {/* Subscription Status — current tier, 50/50 split, mint cap (mocked v2.1) */}
+        <AnimatedItem>
+          <SubscriptionStatusCard />
         </AnimatedItem>
 
         {!isViewer && (
