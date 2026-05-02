@@ -101,6 +101,12 @@ export default function AdminSubscriptionPanel() {
       else localStorage.removeItem(MOCK_TIER_KEY);
       resetFlywheelAnchor();
       setTier(next);
+      if (next) {
+        const t = SUBSCRIPTION_TIERS[next];
+        logAuditAction('tier_set', `Tier set: ${t.name}`, `${formatUSD(t.monthlyPrice)}/mo · anchor reset`);
+      } else {
+        logAuditAction('tier_cleared', 'Mock subscription cleared');
+      }
       toast.success(
         next
           ? `Mock tier set to ${SUBSCRIPTION_TIERS[next].name}`
@@ -111,10 +117,14 @@ export default function AdminSubscriptionPanel() {
     }
   };
 
-  const persistUsage = (n: number) => {
+  const persistUsage = (n: number, source: 'edit' | 'reset' = 'edit') => {
     try {
       localStorage.setItem(MOCK_USAGE_KEY, String(n));
       setUsage(n);
+      logAuditAction(
+        source === 'reset' ? 'usage_reset' : 'usage_set',
+        source === 'reset' ? 'Mock usage reset' : `Mock usage set to ${n.toLocaleString()} $ZSOLAR`,
+      );
     } catch {
       /* ignore */
     }
@@ -123,7 +133,14 @@ export default function AdminSubscriptionPanel() {
   const handleResetAnchor = () => {
     resetFlywheelAnchor();
     forceTick((n) => n + 1);
+    logAuditAction('anchor_reset', 'Cumulative ledger anchor reset');
     toast.success("Cumulative ledger reset");
+  };
+
+  const handleClearAuditLog = () => {
+    clearAuditLog();
+    setAuditEntries([]);
+    toast.success("Audit log cleared");
   };
 
   // Subscriber-count projection scenarios (annualized).
