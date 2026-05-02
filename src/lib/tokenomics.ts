@@ -38,7 +38,17 @@ export const LIVE_BETA_MULTIPLIER = 10;
 
 // === MODEL METADATA ===
 export const MODEL_NAME = '1T Trillionaire Strategy';
-export const MODEL_VERSION = 2;
+export const MODEL_VERSION = 2.1; // v2.1 — Mint ratio switched 1:1 → 10:1 (Economic Win Model)
+
+// === MINT RATIO (v2.1 LOCKED — 2026-05-02) ===
+// 10 kWh (or 10 miles) of verified clean-energy activity = 1 $ZSOLAR minted.
+// Switched from 1:1 to 10:1 to create a positive flywheel from day one:
+//   • ~10× lower sell pressure on LP at every user count
+//   • Same narrative ("clean energy = currency"), denser per-token value
+//   • Genesis Halving at 250k users still applies on top
+// Realistic average: 700 kWh/user/month → 70 $ZSOLAR minted → 52.5 received (75% user share)
+export const MINT_RATIO_KWH_PER_TOKEN = 10;
+export const MINT_RATIO_LABEL = '10 kWh = 1 $ZSOLAR';
 
 // === TOKEN SUPPLY ===
 export const MAX_SUPPLY = 1_000_000_000_000; // 1 TRILLION hard cap
