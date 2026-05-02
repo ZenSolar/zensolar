@@ -12,10 +12,18 @@ import {
   Crown,
   Droplets,
   Gauge,
+  History,
   RefreshCw,
   Sparkles,
+  Trash2,
   Zap,
 } from "lucide-react";
+import {
+  logAuditAction,
+  readAuditLog,
+  clearAuditLog,
+  type AuditEntry,
+} from "@/lib/adminAuditLog";
 import { toast } from "sonner";
 import { SEO } from "@/components/SEO";
 import { cn } from "@/lib/utils";
@@ -66,11 +74,23 @@ export default function AdminSubscriptionPanel() {
     }
   });
   const [, forceTick] = useState(0);
+  const [auditEntries, setAuditEntries] = useState<AuditEntry[]>(() => readAuditLog());
 
   // Refresh ledger snapshot every 5s so the cumulative numbers tick up live.
   useEffect(() => {
     const id = setInterval(() => forceTick((n) => n + 1), 5000);
     return () => clearInterval(id);
+  }, []);
+
+  // Re-read audit log when actions are recorded (this tab + cross-tab).
+  useEffect(() => {
+    const refresh = () => setAuditEntries(readAuditLog());
+    window.addEventListener('zensolar:audit-log-updated', refresh);
+    window.addEventListener('storage', refresh);
+    return () => {
+      window.removeEventListener('zensolar:audit-log-updated', refresh);
+      window.removeEventListener('storage', refresh);
+    };
   }, []);
 
   const ledger = useMemo(() => getFlywheelContribution(), [tier, usage]);
@@ -81,6 +101,12 @@ export default function AdminSubscriptionPanel() {
       else localStorage.removeItem(MOCK_TIER_KEY);
       resetFlywheelAnchor();
       setTier(next);
+      if (next) {
+        const t = SUBSCRIPTION_TIERS[next];
+        logAuditAction('tier_set', `Tier set: ${t.name}`, `${formatUSD(t.monthlyPrice)}/mo · anchor reset`);
+      } else {
+        logAuditAction('tier_cleared', 'Mock subscription cleared');
+      }
       toast.success(
         next
           ? `Mock tier set to ${SUBSCRIPTION_TIERS[next].name}`
@@ -91,10 +117,14 @@ export default function AdminSubscriptionPanel() {
     }
   };
 
-  const persistUsage = (n: number) => {
+  const persistUsage = (n: number, source: 'edit' | 'reset' = 'edit') => {
     try {
       localStorage.setItem(MOCK_USAGE_KEY, String(n));
       setUsage(n);
+      logAuditAction(
+        source === 'reset' ? 'usage_reset' : 'usage_set',
+        source === 'reset' ? 'Mock usage reset' : `Mock usage set to ${n.toLocaleString()} $ZSOLAR`,
+      );
     } catch {
       /* ignore */
     }
@@ -103,7 +133,14 @@ export default function AdminSubscriptionPanel() {
   const handleResetAnchor = () => {
     resetFlywheelAnchor();
     forceTick((n) => n + 1);
+    logAuditAction('anchor_reset', 'Cumulative ledger anchor reset');
     toast.success("Cumulative ledger reset");
+  };
+
+  const handleClearAuditLog = () => {
+    clearAuditLog();
+    setAuditEntries([]);
+    toast.success("Audit log cleared");
   };
 
   // Subscriber-count projection scenarios (annualized).
@@ -276,7 +313,7 @@ export default function AdminSubscriptionPanel() {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => persistUsage(0)}
+                onClick={() => persistUsage(0, 'reset')}
                 className="h-9"
               >
                 Reset
@@ -338,6 +375,70 @@ export default function AdminSubscriptionPanel() {
             <p className="text-[11px] text-muted-foreground">
               Top number = annual $ injected into LP. Bottom = annual $ to
               Treasury. Both columns at uniform tier adoption.
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Audit log */}
+        <Card>
+          <CardHeader className="pb-3 flex-row items-center justify-between space-y-0">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <History className="h-4 w-4 text-primary" />
+              Admin Audit Log
+              <Badge variant="outline" className="text-[9px] ml-1">
+                {auditEntries.length}
+              </Badge>
+            </CardTitle>
+            {auditEntries.length > 0 && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={handleClearAuditLog}
+                className="h-7 text-xs text-muted-foreground hover:text-destructive"
+              >
+                <Trash2 className="h-3 w-3 mr-1" />
+                Clear
+              </Button>
+            )}
+          </CardHeader>
+          <CardContent>
+            {auditEntries.length === 0 ? (
+              <p className="text-xs text-muted-foreground">
+                No actions recorded yet. Tier overrides, ledger resets, and
+                usage edits will appear here.
+              </p>
+            ) : (
+              <ul className="space-y-1.5 max-h-72 overflow-y-auto pr-1">
+                {auditEntries.map((e) => (
+                  <li
+                    key={e.id}
+                    className="rounded-md border border-border/60 bg-muted/30 px-2.5 py-2 text-xs"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-medium text-foreground truncate">
+                        {e.label}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">
+                        {new Date(e.at).toLocaleString(undefined, {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                    </div>
+                    {e.detail && (
+                      <p className="text-[10.5px] text-muted-foreground mt-0.5">
+                        {e.detail}
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="text-[10px] text-muted-foreground/80 mt-3 leading-snug">
+              Local mock log (this browser only). When mainnet billing ships,
+              every action will emit an on-chain event visible on Basescan.
             </p>
           </CardContent>
         </Card>
