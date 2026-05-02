@@ -12,10 +12,18 @@ import {
   Crown,
   Droplets,
   Gauge,
+  History,
   RefreshCw,
   Sparkles,
+  Trash2,
   Zap,
 } from "lucide-react";
+import {
+  logAuditAction,
+  readAuditLog,
+  clearAuditLog,
+  type AuditEntry,
+} from "@/lib/adminAuditLog";
 import { toast } from "sonner";
 import { SEO } from "@/components/SEO";
 import { cn } from "@/lib/utils";
