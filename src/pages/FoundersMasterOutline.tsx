@@ -129,8 +129,9 @@ const SECTIONS: OutlineSection[] = [
         <div className="rounded-lg border border-primary/30 bg-primary/[0.04] p-3 space-y-2">
           <h4 className="text-sm font-bold text-foreground">Layer 1 — Physics: PoG &gt; PoW</h4>
           <p>
-            Bitcoin's PoW is energy <em>destroyed</em> to prove computational waste. ~1,400 kWh
-            burned to mint 1 BTC, becoming heat. Its value is purely the cost to redo it.
+            Bitcoin's PoW is energy <em>destroyed</em> to prove computational waste —
+            roughly <strong>~1.4 million kWh</strong> of grid electricity burned as heat to mint
+            a single BTC.<sup className="text-primary">[1]</sup> Its value is purely the cost to redo it.
           </p>
           <p>
             Proof-of-Genesis is energy <em>created and delivered</em>, cryptographically witnessed
@@ -139,9 +140,74 @@ const SECTIONS: OutlineSection[] = [
             <strong> Proof-of-Permanence</strong> (immutable on-chain Merkle snapshots).
           </p>
           <p className="text-foreground font-medium">
-            Bitcoin gets one output per kWh (a token). ZSOLAR gets three: real-world utility +
-            tradeable token + verified carbon credit.
+            ZSOLAR mints 1 $ZSOLAR from just <strong>10 kWh</strong> of clean energy that already
+            powered a home, battery, or EV.<sup className="text-primary">[2]</sup> Same unit (the kWh),
+            opposite physics: PoW destroys, PoG creates. Every $ZSOLAR mint is real-world utility —
+            currency created from renewable energy that was never wasted.
           </p>
+
+          {/* Energy vs Token explainer callout */}
+          <div className="mt-2 rounded-md border border-primary/40 bg-background/60 p-3">
+            <p className="text-[11px] uppercase tracking-widest text-primary font-semibold mb-2">
+              Energy vs Token — at a glance
+            </p>
+            <div className="overflow-x-auto">
+              <table className="text-xs w-full border-collapse">
+                <thead>
+                  <tr className="text-left border-b border-border">
+                    <th className="py-1.5 pr-2 font-semibold"></th>
+                    <th className="py-1.5 pr-2 font-semibold">Bitcoin (PoW)</th>
+                    <th className="py-1.5 font-semibold text-primary">ZSOLAR (PoG)</th>
+                  </tr>
+                </thead>
+                <tbody className="text-foreground/85">
+                  <tr className="border-b border-border/50">
+                    <td className="py-1.5 pr-2 text-muted-foreground">Energy in per token</td>
+                    <td className="py-1.5 pr-2">~1,400,000 kWh / BTC</td>
+                    <td className="py-1.5">10 kWh / $ZSOLAR</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-1.5 pr-2 text-muted-foreground">What happens to that energy</td>
+                    <td className="py-1.5 pr-2">Destroyed as waste heat</td>
+                    <td className="py-1.5">Delivered as useful power first, then minted</td>
+                  </tr>
+                  <tr className="border-b border-border/50">
+                    <td className="py-1.5 pr-2 text-muted-foreground">Energy source</td>
+                    <td className="py-1.5 pr-2">Any grid electricity (mostly fossil)</td>
+                    <td className="py-1.5">Verified clean energy only</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1.5 pr-2 text-muted-foreground">Net effect per token</td>
+                    <td className="py-1.5 pr-2">CO₂ emitted</td>
+                    <td className="py-1.5">Real-world utility delivered</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p className="text-[11px] text-muted-foreground italic mt-2">
+              Bitcoin requires roughly <strong>140,000×</strong> more energy per token than ZSOLAR —
+              and that energy is wasted, not used. That's the digital-photosynthesis asymmetry.
+            </p>
+          </div>
+
+          {/* Footnotes */}
+          <div className="mt-2 space-y-1 text-[11px] text-muted-foreground leading-snug">
+            <p>
+              <sup className="text-primary">[1]</sup> Derived from public network estimates:
+              Cambridge Centre for Alternative Finance (<a href="https://ccaf.io/cbnsi/cbeci" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">CBECI</a>)
+              annualized Bitcoin electricity consumption ÷ annual BTC issuance, cross-checked against
+              Digiconomist's <a href="https://digiconomist.net/bitcoin-energy-consumption" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">Bitcoin Energy Consumption Index</a>.
+              Figure rounds to ~1.4M kWh per newly minted BTC at current network hashrate; varies with
+              difficulty and miner efficiency.
+            </p>
+            <p>
+              <sup className="text-primary">[2]</sup> ZenSolar mint ratio is a protocol parameter
+              locked in SSoT v2.1 (May 2 2026): <strong>10 kWh = 1 $ZSOLAR</strong> (and 10 EV miles =
+              1 $ZSOLAR). Energy must be cryptographically verified at origin via OEM-signed telemetry
+              (Proof-of-Genesis). No CO₂ destruction is required or claimed — the value comes from
+              real-world utility delivered before the mint event.
+            </p>
+          </div>
         </div>
 
         {/* LAYER 2 */}
