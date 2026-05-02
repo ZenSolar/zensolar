@@ -180,7 +180,7 @@ export function VerifiedSourceBadge({
   const interactive = typeof onClick === 'function';
 
   if (variant === 'compact') {
-    const Tag = interactive ? 'button' : 'div';
+    const Tag: any = interactive ? 'button' : 'div';
     return (
       <Tag
         type={interactive ? 'button' : undefined}
@@ -220,7 +220,7 @@ export function VerifiedSourceBadge({
             </span>
           </>
         )}
-      </div>
+      </Tag>
     );
   }
 
