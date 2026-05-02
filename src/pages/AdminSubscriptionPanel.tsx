@@ -74,11 +74,23 @@ export default function AdminSubscriptionPanel() {
     }
   });
   const [, forceTick] = useState(0);
+  const [auditEntries, setAuditEntries] = useState<AuditEntry[]>(() => readAuditLog());
 
   // Refresh ledger snapshot every 5s so the cumulative numbers tick up live.
   useEffect(() => {
     const id = setInterval(() => forceTick((n) => n + 1), 5000);
     return () => clearInterval(id);
+  }, []);
+
+  // Re-read audit log when actions are recorded (this tab + cross-tab).
+  useEffect(() => {
+    const refresh = () => setAuditEntries(readAuditLog());
+    window.addEventListener('zensolar:audit-log-updated', refresh);
+    window.addEventListener('storage', refresh);
+    return () => {
+      window.removeEventListener('zensolar:audit-log-updated', refresh);
+      window.removeEventListener('storage', refresh);
+    };
   }, []);
 
   const ledger = useMemo(() => getFlywheelContribution(), [tier, usage]);
