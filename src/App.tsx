@@ -1148,6 +1148,7 @@ const App = () => {
                     <Route path="/founders/bitcoin-thesis" element={<FounderRoute><FoundersBitcoinThesis /></FounderRoute>} />
                     <Route path="/founders/funded-lp" element={<FounderRoute><FoundersFundedLP /></FounderRoute>} />
                     <Route path="/founders/tschida" element={<FounderRoute><FoundersTschida /></FounderRoute>} />
+                    <Route path="/founders/subscription-admin" element={<FounderRoute><AdminSubscriptionPanel /></FounderRoute>} />
                     <Route path="/vault/founder-funded-lp" element={<Navigate to="/founders/funded-lp" replace />} />
                     {/* Transparency page — gated inside the component to preview hosts + founders only */}
                     <Route path="/transparency" element={<Transparency />} />
