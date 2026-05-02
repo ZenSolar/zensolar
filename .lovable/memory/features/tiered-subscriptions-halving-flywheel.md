@@ -8,12 +8,12 @@ type: feature
 
 Locked 2026-05-01. Pitch-ready model for Lyndon Rive. Companion to `mem://features/satoshi-mirror-v2-oracle` and `CANONICAL_SSOT.md` §"v2 Tokenomics & Flywheel Model (2026-05)".
 
-## 1. Core principles (DO NOT CHANGE)
+## 1. Core principles (v2.1 — LOCKED 2026-05-02)
 
-- **1:1 mint ratio:** 1 verified kWh (or equivalent) = 1 $ZSOLAR minted. Never compress to 10:1.
+- **10:1 mint ratio:** 10 verified kWh (or 10 EV miles) = 1 $ZSOLAR minted. (Switched from 1:1 on 2026-05-02 — see CANONICAL_SSOT §0.)
 - **Mint split unchanged:** 75% user / 20% burn / 3% LP / 2% treasury.
 - **1T hard cap unchanged.**
-- **All clean-narrative phrasing preserved.** "1 kWh = 1 $ZSOLAR." "Genesis Halving." "Satoshi-Mirror floor."
+- **External phrasing:** "10 kWh = 1 $ZSOLAR." "Genesis Halving." "Satoshi-Mirror floor."
 
 ## 2. Three subscription tiers (50/50 LP/treasury split on every dollar)
 
