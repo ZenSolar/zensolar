@@ -624,6 +624,7 @@ More attractive to new users → loop restarts, stronger`}
           <li>• <strong>Email infra:</strong> queue, send log, opens, clicks, suppressed, unsubscribe tokens — full deliverability stack</li>
           <li>• <strong>Push notifications:</strong> subscriptions, templates, logs, dismissals — operational</li>
           <li>• <strong>AI assistant:</strong> "Deason" — gated, rate-limited, inner-circle access</li>
+          <li>• <strong>Deason Utility Optimizer (planned, post-seed):</strong> bill analysis + Saturday Weekly Energy Report (Basic/Premium tiers, +$4.99 add-on or Power tier). See <Link to="/founders/deason-utility-ai-revstream" className="text-primary underline-offset-2 hover:underline">Deason Utility AI planning page</Link>.</li>
           <li>• <strong>Founders' working tools:</strong> work_journal, tokenomics_framework_responses, yc_application_content, vault_access_log</li>
         </ul>
         <p className="text-xs text-muted-foreground italic">
