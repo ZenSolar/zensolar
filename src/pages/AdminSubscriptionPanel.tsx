@@ -378,6 +378,70 @@ export default function AdminSubscriptionPanel() {
             </p>
           </CardContent>
         </Card>
+
+        {/* Audit log */}
+        <Card>
+          <CardHeader className="pb-3 flex-row items-center justify-between space-y-0">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <History className="h-4 w-4 text-primary" />
+              Admin Audit Log
+              <Badge variant="outline" className="text-[9px] ml-1">
+                {auditEntries.length}
+              </Badge>
+            </CardTitle>
+            {auditEntries.length > 0 && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={handleClearAuditLog}
+                className="h-7 text-xs text-muted-foreground hover:text-destructive"
+              >
+                <Trash2 className="h-3 w-3 mr-1" />
+                Clear
+              </Button>
+            )}
+          </CardHeader>
+          <CardContent>
+            {auditEntries.length === 0 ? (
+              <p className="text-xs text-muted-foreground">
+                No actions recorded yet. Tier overrides, ledger resets, and
+                usage edits will appear here.
+              </p>
+            ) : (
+              <ul className="space-y-1.5 max-h-72 overflow-y-auto pr-1">
+                {auditEntries.map((e) => (
+                  <li
+                    key={e.id}
+                    className="rounded-md border border-border/60 bg-muted/30 px-2.5 py-2 text-xs"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-medium text-foreground truncate">
+                        {e.label}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground tabular-nums shrink-0">
+                        {new Date(e.at).toLocaleString(undefined, {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                    </div>
+                    {e.detail && (
+                      <p className="text-[10.5px] text-muted-foreground mt-0.5">
+                        {e.detail}
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="text-[10px] text-muted-foreground/80 mt-3 leading-snug">
+              Local mock log (this browser only). When mainnet billing ships,
+              every action will emit an on-chain event visible on Basescan.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
