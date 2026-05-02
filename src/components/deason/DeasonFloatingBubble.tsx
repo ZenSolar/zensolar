@@ -18,7 +18,10 @@ export function DeasonFloatingBubble() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
 
-  if (isLoading || !user) return null;
+  // Allow on /demo even without auth (concierge persona handles unauthenticated demo visitors).
+  const isDemoRoute = location.pathname === '/demo' || location.pathname.startsWith('/demo/');
+  if (isLoading) return null;
+  if (!user && !isDemoRoute) return null;
   if (location.pathname.startsWith("/deason")) return null;
   if (location.pathname.startsWith("/auth")) return null;
 
