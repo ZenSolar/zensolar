@@ -68,6 +68,7 @@ const WhitepaperPhase2 = lazy(() => import("./pages/WhitepaperPhase2"));
 const FoundersSpaceX = lazy(() => import("./pages/FoundersSpaceX"));
 const FoundersAppOverhaul = lazy(() => import("./pages/FoundersAppOverhaul"));
 const FoundersDeasonV3 = lazy(() => import("./pages/FoundersDeasonV3"));
+const FoundersDeasonUtilityAI = lazy(() => import("./pages/FoundersDeasonUtilityAI"));
 const FoundersProofOfGenesis = lazy(() => import("./pages/FoundersProofOfGenesis"));
 const V2App = lazy(() => import("./pages/V2App"));
 const FounderSeedAsk = lazy(() => import("./pages/FounderSeedAsk"));
@@ -1137,6 +1138,7 @@ const App = () => {
                     <Route path="/founders/proof-of-genesis" element={<FounderRoute><FoundersProofOfGenesis /></FounderRoute>} />
                     <Route path="/founders/v2app" element={<FounderRoute><V2App /></FounderRoute>} />
                     <Route path="/founders/deason-v3" element={<FounderRoute><FoundersDeasonV3 /></FounderRoute>} />
+                    <Route path="/founders/deason-utility-ai-revstream" element={<FounderRoute><FoundersDeasonUtilityAI /></FounderRoute>} />
                     <Route path="/founders/seed-ask" element={<FounderRoute><FounderSeedAsk /></FounderRoute>} />
                     <Route path="/founders/changelog" element={<FounderRoute><FoundersChangelog /></FounderRoute>} />
                     <Route path="/founders/catchup" element={<FounderRoute><FoundersCatchup /></FounderRoute>} />
