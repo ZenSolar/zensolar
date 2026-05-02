@@ -390,6 +390,12 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
               : '$ZSOLAR minted'
         }
         tapAtIso={new Date().toISOString()}
+        verifiedSource={{
+          provider: 'tesla_energy',
+          deviceLabel: 'Powerwall 3',
+          kwh: 47.3,
+          timestamp: new Date().toISOString(),
+        }}
         onComplete={handleCinematicDFinished}
         onClose={handleCinematicDFinished}
       />
