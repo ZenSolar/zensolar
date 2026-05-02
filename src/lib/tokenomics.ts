@@ -299,11 +299,43 @@ export function getEffectiveRewardRate(activityType: keyof typeof BASE_REWARD_RA
   return BASE_REWARD_RATES[activityType] * getRewardMultiplier();
 }
 
+/**
+ * v2.1 — Convert raw activity (kWh or miles) into raw $ZSOLAR minted at the 10:1 ratio.
+ * Live Beta multiplier (10×) is applied on top so beta users still see visible mints.
+ *   • Mainnet: 700 kWh → 70 $ZSOLAR raw → 52.5 received (75% user share)
+ *   • Live Beta: 700 kWh × 10× / 10 ratio = 700 raw
+ */
 export function calculateRawTokensFromActivity(activityUnits: number): number {
-  return Math.floor(activityUnits * getRewardMultiplier());
+  const tokens = (activityUnits * getRewardMultiplier()) / MINT_RATIO_KWH_PER_TOKEN;
+  return Math.floor(tokens);
 }
 
 export function calculatePendingTokens(activityUnits: number): number {
   const rawTokens = calculateRawTokensFromActivity(activityUnits);
   return Math.floor(rawTokens * (MINT_DISTRIBUTION.user / 100));
 }
+
+/** v2.1 helper — convert kWh / miles to mintable tokens at the 10:1 ratio (no live-beta multiplier). */
+export function kwhToTokens(units: number): number {
+  return units / MINT_RATIO_KWH_PER_TOKEN;
+}
+
+// === STAKING / LOCKING INCENTIVES (Regular + Power tiers — future, not yet on-chain) ===
+// Voluntary lock-ups grant a mint multiplier on top of the base 10:1 ratio.
+// Multipliers are NOT compatible with Base tier (which has the soft mint cap).
+// Locked tokens are non-transferable for the duration; early-unlock forfeits 50% to burn.
+export const STAKING_MULTIPLIERS = {
+  none:     { lockMonths: 0,  multiplier: 1.0, label: 'No lock'         },
+  threeMo:  { lockMonths: 3,  multiplier: 1.2, label: '3-month lock'    },
+  sixMo:    { lockMonths: 6,  multiplier: 1.5, label: '6-month lock'    },
+  twelveMo: { lockMonths: 12, multiplier: 2.0, label: '12-month lock'   },
+  twentyFour: { lockMonths: 24, multiplier: 3.0, label: '24-month lock' },
+} as const;
+
+export type StakingTier = keyof typeof STAKING_MULTIPLIERS;
+
+/** Apply a staking lock multiplier to a mint amount. Floor-rounded. */
+export function applyStakingMultiplier(tokens: number, tier: StakingTier): number {
+  return Math.floor(tokens * STAKING_MULTIPLIERS[tier].multiplier);
+}
+
