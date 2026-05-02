@@ -9,6 +9,7 @@ import { SEO } from '@/components/SEO';
 import { VerifyOnChainDrawer, type VerifyOnChainData } from '@/components/proof/VerifyOnChainDrawer';
 import { ProtocolJourney, type ProtocolJourneyData } from '@/components/proof/ProtocolJourney';
 import { ProofOfAuthenticityStamp } from '@/components/proof/ProofOfAuthenticityStamp';
+import { VerifiedSourceBadge } from '@/components/proof/VerifiedSourceBadge';
 import { ProtocolCinematicSequence } from '@/components/proof/ProtocolCinematicSequence';
 import { useLatestMintReceipt, type LiveMintReceipt } from '@/hooks/useLatestMintReceipt';
 
@@ -461,6 +462,26 @@ export default function ProofOfGenesisReceiptPreview() {
             </p>
           )}
 
+          {/* Verified Source — Proof-of-Origin attribution */}
+          {receipt.readings[0] && (
+            <motion.div
+              key={`source-${receipt.id}`}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35 }}
+            >
+              <VerifiedSourceBadge
+                variant="full"
+                provider={receipt.readings[0].provider}
+                deviceLabel={receipt.readings[0].device_id}
+                kwh={receipt.total_kwh}
+                miles={receipt.miles_driven}
+                timestamp={receipt.minted_at}
+                isLive={isLive}
+              />
+            </motion.div>
+          )}
+
           {/* Hero stats */}
           <motion.section
             key={receipt.id}
@@ -715,6 +736,14 @@ export default function ProofOfGenesisReceiptPreview() {
         tapAtIso={receipt.minted_at}
         finaleTokenCount={receipt.tokens_minted}
         finaleSubtitle={`${formatKwh(receipt.tokens_minted)} $ZSOLAR minted · ${formatKwh(receipt.total_kwh)} kWh verified`}
+        verifiedSource={receipt.readings[0] ? {
+          provider: receipt.readings[0].provider,
+          deviceLabel: receipt.readings[0].device_id,
+          kwh: receipt.total_kwh,
+          miles: receipt.miles_driven,
+          timestamp: receipt.minted_at,
+          isLive,
+        } : null}
         backendTimestamps={{
           tap: receipt.minted_at,
           // Origin = first device reading recorded_at (clean source verified at this moment)

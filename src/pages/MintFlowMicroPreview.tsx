@@ -200,6 +200,12 @@ export default function MintFlowMicroPreview() {
         finaleSubtitle="47.32 $ZSOLAR minted"
         finaleTokenCount={47}
         tapAtIso={new Date().toISOString()}
+        verifiedSource={{
+          provider: 'tesla_energy',
+          deviceLabel: 'Powerwall 3',
+          kwh: 473.2,
+          timestamp: new Date().toISOString(),
+        }}
       />
     </div>
   );

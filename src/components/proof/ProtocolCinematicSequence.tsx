@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Hand, Cpu, Layers, ShieldCheck, Anchor, CheckCircle2, X, Zap, Bug } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { useMintSound } from '@/hooks/useMintSound';
+import { VerifiedSourceBadge, type VerifiedSourceBadgeProps } from './VerifiedSourceBadge';
 
 /**
  * ProtocolCinematicSequence — premium full-screen cinematic that visually
@@ -110,6 +111,13 @@ interface ProtocolCinematicSequenceProps {
    * in milliseconds — invaluable for verifying the receipt is in lock-step.
    */
   backendTimestamps?: BackendTimestamps;
+  /**
+   * Optional verified source attribution rendered under the finale subtitle.
+   * Surfaces the OEM device + kWh/miles + timestamp behind this mint so the
+   * "Genesis confirmed" moment includes Proof-of-Origin attribution, not just
+   * a token count. Pass `null`/omit when source isn't known yet.
+   */
+  verifiedSource?: Pick<VerifiedSourceBadgeProps, 'provider' | 'deviceLabel' | 'kwh' | 'miles' | 'timestamp' | 'isLive'> | null;
   /** When true, allows clicking backdrop / pressing Esc to skip. Default true. */
   dismissible?: boolean;
 }
@@ -134,6 +142,7 @@ export function ProtocolCinematicSequence({
   finaleTokenCount,
   tapAtIso,
   backendTimestamps,
+  verifiedSource,
   dismissible = true,
 }: ProtocolCinematicSequenceProps) {
   const [sceneIdx, setSceneIdx] = useState(0);
@@ -570,6 +579,11 @@ export function ProtocolCinematicSequence({
                   <p className="text-xs sm:text-sm text-muted-foreground/90 max-w-md mx-auto leading-snug">
                     Five primitives. One verifiable mint. Anchored forever.
                   </p>
+                  {verifiedSource && (
+                    <div className="pt-2 flex justify-center">
+                      <VerifiedSourceBadge variant="compact" {...verifiedSource} />
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}
