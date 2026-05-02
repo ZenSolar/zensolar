@@ -378,11 +378,17 @@ More attractive to new users → loop restarts, stronger`}
     number: 3,
     title: "Tokenomics",
     icon: Coins,
-    tagline: "1T hard cap. $0.10 launch via tranched LP rounds.",
-    lastUpdated: "Apr 25, 2026",
+    tagline: "SSoT v2.1 · 10 kWh = 1 $ZSOLAR · 1T hard cap · $0.10 launch.",
+    lastUpdated: "May 2, 2026",
     memoryLinks: [
+      { label: "mem://CANONICAL_SSOT", path: "CANONICAL_SSOT" },
       { label: "mem://features/tokenomics", path: "features/tokenomics" },
       { label: "mem://features/launch-model", path: "features/launch-model" },
+      {
+        label: "mem://features/tiered-subscriptions-halving-flywheel",
+        path: "features/tiered-subscriptions-halving-flywheel",
+      },
+      { label: "mem://features/halving-schedule", path: "features/halving-schedule" },
       {
         label: "mem://features/strategic-introductions-allocation",
         path: "features/strategic-introductions-allocation",
@@ -390,14 +396,75 @@ More attractive to new users → loop restarts, stronger`}
     ],
     body: (
       <div className="space-y-4 text-sm text-foreground/85 leading-relaxed">
+        <div className="rounded-lg border border-primary/40 bg-primary/[0.06] p-3">
+          <p className="text-xs uppercase tracking-widest text-primary font-semibold mb-2">
+            SSoT v2.1 — Mint Ratio (locked May 2, 2026)
+          </p>
+          <ul className="space-y-1.5">
+            <li>• <strong>10 kWh = 1 $ZSOLAR</strong> (and <strong>10 EV miles = 1 $ZSOLAR</strong>) — replaces prior 1:1 model</li>
+            <li>• 700 kWh/mo avg user → <strong>70 raw → 52.5 received</strong> after 75% user share</li>
+            <li>• At $0.10 launch: ~<strong>$5.25/mo of token value</strong> back to user vs $19.99 Regular sub = healthy net-paying flywheel</li>
+            <li className="text-muted-foreground">❌ "1 kWh = 1 $ZSOLAR" &nbsp;✅ "10 kWh = 1 $ZSOLAR"</li>
+          </ul>
+        </div>
         <div>
           <h4 className="text-sm font-semibold text-foreground mb-2">Hard parameters</h4>
           <ul className="space-y-1.5">
             <li>• <strong>1,000,000,000,000</strong> $ZSOLAR max supply (1 trillion, hard cap)</li>
             <li>• <strong>Launch price:</strong> $0.10 USDC via LP-seeded tranches (e.g. $200K USDC + 2M $ZSOLAR per round). NEVER "launch at $1."</li>
-            <li>• <strong>Mint split per kWh:</strong> 75% user · 20% burn · 3% LP · 2% treasury</li>
+            <li>• <strong>Per-mint split:</strong> 75% user · 20% burn · 3% LP · 2% treasury (unchanged at v2.1)</li>
+            <li>• <strong>Transfer tax:</strong> 7% total (3% burn + 2% LP + 2% treasury). Redemption fee: 5% burn on fiat off-ramp.</li>
             <li>• <strong>VPP earnings split:</strong> 50% LP · 30% user cash · 15% ops · 5% user tokens (tokens real-time, cash monthly on the 1st)</li>
-            <li>• <strong>Transfer tax:</strong> see active <code className="text-xs bg-muted px-1 rounded">tokenomics_models</code> row (v3 active)</li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="text-sm font-semibold text-foreground mb-2">Subscription tiers (50/50 LP / Treasury split on every dollar)</h4>
+          <div className="overflow-x-auto">
+            <table className="text-xs w-full border-collapse">
+              <thead>
+                <tr className="text-left border-b border-border">
+                  <th className="py-1.5 pr-2 font-semibold">Tier</th>
+                  <th className="py-1.5 pr-2 font-semibold">Price/mo</th>
+                  <th className="py-1.5 pr-2 font-semibold">LP / Treasury</th>
+                  <th className="py-1.5 font-semibold">Cohort assumption</th>
+                </tr>
+              </thead>
+              <tbody className="text-foreground/85">
+                <tr className="border-b border-border/50">
+                  <td className="py-1.5 pr-2"><strong>Base</strong></td>
+                  <td className="py-1.5 pr-2">$9.99</td>
+                  <td className="py-1.5 pr-2">$4.995 / $4.995</td>
+                  <td className="py-1.5">90% sell-rate (cash-out). Optional 800–1,000 token/mo soft cap.</td>
+                </tr>
+                <tr className="border-b border-border/50">
+                  <td className="py-1.5 pr-2"><strong>Regular</strong></td>
+                  <td className="py-1.5 pr-2">$19.99</td>
+                  <td className="py-1.5 pr-2">$9.995 / $9.995</td>
+                  <td className="py-1.5">25% sell-rate (default holders). Uncapped.</td>
+                </tr>
+                <tr>
+                  <td className="py-1.5 pr-2"><strong>Power</strong></td>
+                  <td className="py-1.5 pr-2">$49.99</td>
+                  <td className="py-1.5 pr-2">$24.995 / $24.995</td>
+                  <td className="py-1.5">5% sell-rate (prosumer/staker). Uncapped + future staking multipliers (1.5× / 2×).</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p className="text-xs text-muted-foreground italic mt-2">
+            Dual-gate: community minting requires an active subscription. Names are <strong>Base / Regular / Power</strong> externally — never "Tier-1/2/3."
+          </p>
+        </div>
+        <div className="rounded-lg border border-eco/40 bg-eco/[0.05] p-3">
+          <p className="text-xs uppercase tracking-widest text-eco font-semibold mb-2">
+            Genesis Halving (the flywheel fix)
+          </p>
+          <ul className="space-y-1.5 text-sm">
+            <li>• <strong>Primary trigger:</strong> 250,000 paying subscribers → first halving fires immediately</li>
+            <li>• <strong>Fallback:</strong> 4-year on-chain Bitcoin cadence if milestone not hit first</li>
+            <li>• <strong>Effect:</strong> per-mint amount × 0.5; 75/20/3/2 split unchanged. Average mint drops ~70 → ~35/mo per user.</li>
+            <li>• <strong>Comms:</strong> always called <strong>"Genesis Halving"</strong> — never "mint cut" or "rate change." Pre-announce 3–6 months out; existing users get one bonus month at the pre-halving rate.</li>
+            <li>• Subsequent halvings continue on the locked 4-yr cadence (Epoch 1 = 350B, Epoch 2 = 175B, …). Net-deflationary by Epoch 5 (~year 16).</li>
           </ul>
         </div>
         <div>
