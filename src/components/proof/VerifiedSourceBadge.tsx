@@ -46,6 +46,8 @@ export interface VerifiedSourceBadgeProps {
   className?: string;
   /** Show a "Live" pulse dot for real on-chain mints */
   isLive?: boolean;
+  /** When provided, the badge becomes a tappable button (opens Proof-of-Mint modal). */
+  onClick?: () => void;
 }
 
 type ProviderMeta = {
@@ -170,16 +172,21 @@ export function VerifiedSourceBadge({
   variant = 'compact',
   className = '',
   isLive = false,
+  onClick,
 }: VerifiedSourceBadgeProps) {
   const meta = resolveProvider(provider);
   const Icon = meta.icon;
   const device = deviceLabel || meta.defaultDevice;
+  const interactive = typeof onClick === 'function';
 
   if (variant === 'compact') {
+    const Tag: any = interactive ? 'button' : 'div';
     return (
-      <div
-        className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md border ${meta.border} ${meta.bg} text-[10.5px] sm:text-[11px] leading-none ${className}`}
-        aria-label={`Verified source: ${meta.label} ${device}${kwh ? `, ${formatKwh(kwh)} kWh` : ''}${timestamp ? `, ${formatTimestamp(timestamp, 'compact')}` : ''}`}
+      <Tag
+        type={interactive ? 'button' : undefined}
+        onClick={interactive ? (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); onClick!(); } : undefined}
+        className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md border ${meta.border} ${meta.bg} text-[10.5px] sm:text-[11px] leading-none ${interactive ? 'cursor-pointer hover:bg-foreground/10 hover:border-primary/40 active:scale-[0.98] transition-all touch-manipulation' : ''} ${className}`}
+        aria-label={`${interactive ? 'View proof — ' : 'Verified source: '}${meta.label} ${device}${kwh ? `, ${formatKwh(kwh)} kWh` : ''}${timestamp ? `, ${formatTimestamp(timestamp, 'compact')}` : ''}`}
       >
         {isLive && (
           <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse shrink-0" aria-hidden />
@@ -213,7 +220,7 @@ export function VerifiedSourceBadge({
             </span>
           </>
         )}
-      </div>
+      </Tag>
     );
   }
 
