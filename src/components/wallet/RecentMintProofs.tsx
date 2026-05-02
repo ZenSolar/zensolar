@@ -6,6 +6,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VerifiedSourceBadge, type VerifiedSourceProvider } from '@/components/proof/VerifiedSourceBadge';
+import { ProofOfMintModal } from '@/components/proof/ProofOfMintModal';
 
 interface RecentMint {
   id: string;
