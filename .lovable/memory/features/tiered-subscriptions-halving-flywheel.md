@@ -1,6 +1,6 @@
 ---
-name: Tiered Subscriptions + Genesis Halving Flywheel (v2 Tokenomics)
-description: Final $ZSOLAR flywheel model for the Lyndon Rive pitch — keeps 1 kWh = 1 $ZSOLAR, fixes the LP coverage gap with 3 subscription tiers (Base/Regular/Power), Genesis Halving (Bitcoin-style 50% mint cut at 250K paying users or 4-yr cadence), and Satoshi-Mirror v2 EIA floor defense.
+name: Tiered Subscriptions + Genesis Halving Flywheel (v2.1 Tokenomics)
+description: Final $ZSOLAR flywheel model — v2.1 mint ratio is 10 kWh = 1 $ZSOLAR (switched from 1:1 on 2026-05-02), 3 subscription tiers (Base/Regular/Power), Genesis Halving (Bitcoin-style 50% mint cut at 250K paying users or 4-yr cadence), and Satoshi-Mirror v2 EIA floor defense.
 type: feature
 ---
 
@@ -8,12 +8,12 @@ type: feature
 
 Locked 2026-05-01. Pitch-ready model for Lyndon Rive. Companion to `mem://features/satoshi-mirror-v2-oracle` and `CANONICAL_SSOT.md` §"v2 Tokenomics & Flywheel Model (2026-05)".
 
-## 1. Core principles (DO NOT CHANGE)
+## 1. Core principles (v2.1 — LOCKED 2026-05-02)
 
-- **1:1 mint ratio:** 1 verified kWh (or equivalent) = 1 $ZSOLAR minted. Never compress to 10:1.
+- **10:1 mint ratio:** 10 verified kWh (or 10 EV miles) = 1 $ZSOLAR minted. (Switched from 1:1 on 2026-05-02 — see CANONICAL_SSOT §0.)
 - **Mint split unchanged:** 75% user / 20% burn / 3% LP / 2% treasury.
 - **1T hard cap unchanged.**
-- **All clean-narrative phrasing preserved.** "1 kWh = 1 $ZSOLAR." "Genesis Halving." "Satoshi-Mirror floor."
+- **External phrasing:** "10 kWh = 1 $ZSOLAR." "Genesis Halving." "Satoshi-Mirror floor."
 
 ## 2. Three subscription tiers (50/50 LP/treasury split on every dollar)
 
@@ -112,6 +112,8 @@ Higher tiers grow as users accumulate token value and unlock staking multipliers
 
 ## 12. Forbidden phrasings
 
-- ❌ "10:1 ratio" / "compress the ratio" → ✅ "1 kWh = 1 $ZSOLAR, halved at Genesis"
+- ❌ "1 kWh = 1 $ZSOLAR" → ✅ "10 kWh = 1 $ZSOLAR" (v2.1)
 - ❌ "Mint cut" / "rate change" → ✅ "Genesis Halving"
 - ❌ "Tier-1/Tier-2/Tier-3" externally → ✅ "Base / Regular / Power"
+
+> **Note on §5 illustrative math:** the per-tier tables above were modeled at the old 1:1 ratio (1,000 raw tokens/user/mo). Under v2.1 (10:1) the equivalent baseline is ~70 raw tokens/user/mo from 700 kWh — directional conclusions (Power net-positive, Regular flips at halving, Base subsidized) still hold, but absolute dollar figures shrink ~10×. Refresh tables before next pitch.

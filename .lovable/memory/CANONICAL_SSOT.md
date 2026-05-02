@@ -1,57 +1,43 @@
 ---
 name: ZenSolar Canonical Source of Truth
-description: THE single source of truth for ZenSolar economics, allocations, halving, LP rounds, founder pact, vesting, equity vs token split, and open questions. Every other doc, slide, contract, and memory MUST defer to this file. If it conflicts with another file, this file wins until explicitly updated.
+description: THE single source of truth for ZenSolar economics, allocations, halving, LP rounds, founder pact, vesting, equity vs token split, and open questions. Every other doc, slide, contract, and memory MUST defer to this file.
 type: feature
 ---
 
 # ZenSolar — Canonical Source of Truth (SSoT)
 
-> **Read this first.** This file overrides every other memory, doc, slide, code comment, and contract draft. If something conflicts, fix the other file — never edit around this one. Last locked: 2026-05-02 (v2.1 — 10:1 mint ratio).
+> **Read this first.** This file overrides every other memory, doc, slide, code comment, and contract draft. If something conflicts, fix the other file — never edit around this one.
+
+> **Last locked:** 2026-05-02 (v2.1 — 10:1 mint ratio, liquidity plan, dashboard UI rules)
 
 ---
 
 ## 0. v2.1 Mint Ratio Decision — Switched to 10:1 (Economic Win Model) — 2026-05-02
 
-**Decision:** The mint ratio is officially **10 kWh = 1 $ZSOLAR** (and **10 EV miles = 1 $ZSOLAR**). This replaces the prior 1:1 model.
+**Decision:** The mint ratio is officially **10 kWh = 1 $ZSOLAR** (and **10 EV miles = 1 $ZSOLAR**).
 
 ### Rationale
 
 | Lever | 1:1 (old) | **10:1 (new)** | Effect |
 |---|---|---|---|
 | Tokens minted from 700 kWh/user/mo | 700 | **70** | 10× lower issuance |
-| Tokens received (75% user share) | 525 | **52.5** | 10× lower sell pressure on LP |
+| Tokens received (75% user share) | 525 | **52.5** | 10× lower sell pressure |
 | Sell pressure at 100k users | very high | manageable from day one | flywheel positive immediately |
-| Narrative ("clean energy = currency") | ✅ | ✅ | unchanged |
-| Genesis Halving at 250k users | applies | applies | stacks on top |
-
-### What stays the same
-
-- 1T hard cap, 75/20/3/2 mint split, 7% transfer tax, 5% redemption burn
-- 4-yr halving cadence on the 700B community pool
-- Founder pact-lock at $6.67 / $20 crossovers
-- Subscription tiers ($9.99 / $19.99 / $49.99) with 50/50 LP/treasury split
-- Genesis Halving primary trigger at 250k paying subscribers
-- Satoshi-Mirror v2 EIA $/kWh × 2^epoch floor narrative
-- LP tranche-per-round model (OG round seeds $50K USDC + 500K $ZSOLAR @ $0.10)
 
 ### Realistic baseline (use everywhere)
 
-- Average residential user activity: **700 kWh/month** (solar + battery + EV charging + EV miles combined)
-- Mainnet mint at 10:1: **70 $ZSOLAR/mo raw → 52.5 received**
-- At $0.10 launch price: **$5.25/mo of token value back to user** vs $19.99 subscription = healthy net-paying flywheel on Regular tier
-- Power tier ($49.99) at same activity: still net-positive on day one
+- Average user activity: **700 kWh/month**
+- Tokens received per user/month: **52.5**
+- At $0.10 launch price: ~$5.25/mo token value back to user
+
+### Dashboard UI Rule (Locked)
+
+- Clean Energy Center headline must show **"X tokens eligible for minting"** (10:1 ratio).
+- Raw kWh remains visible as secondary text / tooltip.
 
 ### Code state
 
-- `src/lib/tokenomics.ts` exports `MINT_RATIO_KWH_PER_TOKEN = 10`, `MINT_RATIO_LABEL`, and `kwhToTokens(units)` helper.
-- `BASE_REWARD_RATES` set to 0.1 token/unit so all downstream reward math automatically reflects 10:1.
-- `STAKING_MULTIPLIERS` added (3mo 1.2× / 6mo 1.5× / 12mo 2× / 24mo 3×) — narrative-only, not yet on-chain.
-
-### Forbidden phrasings (additions)
-
-- ❌ "1 kWh = 1 $ZSOLAR"  → ✅ "10 kWh = 1 $ZSOLAR"
-- ❌ "Every kilowatt-hour is a coin" → ✅ "Every 10 kilowatt-hours mints a coin"
-- ❌ Showing raw kWh as the headline metric in the Clean Energy Center → ✅ Show **tokens eligible** as headline; kWh as secondary
+- `src/lib/tokenomics.ts` uses `MINT_RATIO_KWH_PER_TOKEN = 10`
 
 ---
 
@@ -63,10 +49,7 @@ type: feature
 | Chain | Base L2 |
 | Hard cap | **1,000,000,000,000 (1T)** — contract-enforced |
 | Decimals | 18 |
-| Launch price (LP math) | **$0.10 USDC** per $ZSOLAR |
-| Real-world floor narrative | kWh value (utility + carbon + REC) — **narrative-only at seed**, on-chain Energy Oracle parked for Series A |
-
-**Rule:** Launch price ($0.10 LP math) and kWh-floor (real-world utility) are **two independent mechanisms**. Never conflate them in any deck, doc, or code.
+| Launch price | **$0.10 USDC** per $ZSOLAR |
 
 ---
 
@@ -74,217 +57,124 @@ type: feature
 
 | Bucket | % | Tokens | Notes |
 |---|---|---|---|
-| **Community (Mint-on-Proof)** | 70.00% | 700,000,000,000 | Subject to 4-yr halving schedule (§4) |
-| **Joseph Maushart (Founder/CEO)** | 15.00% | 150,000,000,000 | **Pact-locked** until $6.67 crossover (§5) |
-| **Michael Tschida (CFO/CRO)** | 5.00% | 50,000,000,000 | **Pact-locked** until $6.67 crossover (§5) |
-| **Treasury (multisig)** | 7.50% | 75,000,000,000 | 2-yr vest |
-| **Team Pool** (future hires/advisors) | 2.49% | 24,900,000,000 | Out of halving pool |
-| **Strategic Introductions** | 0.01% | 100,000,000 | Carved from team pool. 1M default per Lyndon-tier intro, 12-mo linear vest, 3-mo cliff |
-| **TOTAL** | 100.00% | 1,000,000,000,000 | |
-
-Founder + co-founder = **200B pact-locked, never enters halving emissions**.
+| Community (Mint-on-Proof) | 70.00% | 700,000,000,000 | Subject to halving |
+| Joseph Maushart | 15.00% | 150,000,000,000 | Pact-locked until $6.67 |
+| Michael Tschida | 5.00% | 50,000,000,000 | Pact-locked until $20 |
+| Treasury | 7.50% | 75,000,000,000 | 2-yr vest |
+| Team Pool | 2.49% | 24,900,000,000 | Future hires |
+| Strategic Introductions | 0.01% | 100,000,000 | 12-mo vest, 3-mo cliff |
+| **TOTAL** | 100% | 1T | |
 
 ---
 
 ## 3. Per-Mint Distribution (LOCKED)
 
-Every $ZSOLAR minted from a verified kWh splits as follows:
-
 | Slice | % | Purpose |
 |---|---|---|
-| User wallet | **75%** | Producer reward |
-| Burn | **20%** | Permanent supply destruction |
-| LP injection | **3%** | Protocol-owned liquidity growth |
-| Treasury | **2%** | Operational runway |
+| User | 75% | Producer reward |
+| Burn | 20% | Permanent destruction |
+| LP | 3% | Liquidity growth |
+| Treasury | 2% | Operations |
 
-**Transfer tax** (on every $ZSOLAR transfer): 3% burn + 2% LP + 2% treasury = **7% total**.
-
-**Redemption fee:** 5% burn on $ZSOLAR → fiat off-ramp.
+Transfer tax: 7%. Redemption burn: 5%.
 
 ---
 
-## 4. Halving Schedule (LOCKED — corrected)
+## 4. Halving Schedule (LOCKED)
 
-**4-year Bitcoin cadence** applied to the **700B community pool only** (treasury, team, founders are NOT subject to halving).
-
-| Epoch | Years | Mintable | Annual rate | Cumulative | % of community pool |
-|---|---|---|---|---|---|
-| 1 | 0–4 | **350B** | 87.5B/yr | 350B | 50% |
-| 2 | 4–8 | 175B | 43.75B/yr | 525B | 75% |
-| 3 | 8–12 | 87.5B | 21.875B/yr | 612.5B | 87.5% |
-| 4 | 12–16 | 43.75B | 10.94B/yr | 656.25B | 93.75% |
-| 5 | 16–20 | 21.875B | 5.47B/yr | 678.125B | 96.875% |
-| 6+ | 20→∞ | tail | … | →700B | →100% |
-
-**Net-deflationary by Epoch 5** (~year 16): 20% burn-per-mint exceeds new issuance once epoch reward drops to 5.47B/yr.
-
-Geometric series sums exactly to **700B** community pool. Bitcoin reaches its tail in ~116 years; ZenSolar in ~16.
+4-year cadence on the 700B community pool only.
 
 ---
 
-## 5. Founder Pact-Lock (CURRENT POSTURE)
+## 5. Founder Pact-Lock (LOCKED)
 
-- **Joseph Maushart:** 150B locked. Cannot sell until **$6.67** $ZSOLAR price crossover (= $1T personal net worth at 150B).
-- **Michael Tschida:** 50B locked. Cannot sell until **$20.00** $ZSOLAR price crossover (= $1T personal net worth at 50B).
-- **Binding mechanism:** **TBD** — currently treated as voluntary public commitment + intent to enforce on-chain. Final choice (price-only / vest-only / both / both + 20-yr backstop) to be locked in a follow-up session.
-- **Code state:** legacy 4-yr vest with 12-mo cliff still present in `src/lib/tokenomics.ts` — must be reconciled once §5 binding is decided.
-
-**Always cite both crossover prices together** ($6.67 / $20). Never just one.
+Joseph: 150B locked until $6.67 crossover
+Michael: 50B locked until $20 crossover
 
 ---
 
-## 6. Liquidity Pool Strategy (Producer-Gated, Tranche-per-Round)
+## 6. Liquidity Pool Strategy & Strategic Expansion (LOCKED 2026-05)
 
-LP is **seeded per round, not as a single mainnet seed**. Each round is gated to verified energy producers first.
+**Total liquidity reserve required in seed round: $1.7M**
 
-### Round model (working baseline — refine before Round 1)
+| Round | Trigger | USDC to LP | Tokens to LP | Funding Source |
+|-------|---------|------------|--------------|----------------|
+| OG | Day 0 | $200,000 | 2,000,000 | Seed round |
+| Round 2 | 25,000 users | $500,000 | 5,000,000 | Seed round |
+| Round 3 | 100,000 users | $1,000,000 | 8,000,000 | Seed round |
+| Round 4+ | 250,000+ users | $2M+ | Scaling | **100% self-funded from 50% subscription revenue** |
 
-| Round | User band | Indicative LP seed | Target $ZSOLAR seeded | Price |
+**Self-funding milestone:** By ~100k paying users the flywheel is fully self-sustaining. No further capital raises needed for liquidity.
+
+---
+
+## 7. Scarcity Stack (always cite all 5 + floor)
+
+1. 1T hard cap
+2. 20% burn-per-mint
+3. Halving schedule
+4. Founder pact-lock
+5. Protocol-Owned Liquidity (POL)
+
+**+ Satoshi-Mirror v2 floor** (6th layer)
+
+---
+
+## 8. Subscription Model (v2 — LOCKED)
+
+| Tier | Price/mo | LP/mo | Treasury/mo | Sell-rate |
 |---|---|---|---|---|
-| **OG** | Users 0–1,000 | **$50,000 USDC** | 500,000 $ZSOLAR | $0.10 |
-| Round 2 | 1,000–10,000 | TBD (scales with verified kWh) | TBD | $0.10 floor |
-| Round 3+ | 10,000+ | TBD | TBD | $0.10 floor |
-
-Older docs cite `$200K / 2M` (memory) and `$300K / 3M` (`src/lib/tokenomics.ts` mainnet seed). **Both are deprecated** in favor of the tranche-per-round model above. The legacy single-seed numbers should only appear in archived contexts.
-
-### Producer-gating mechanics (apply to every round)
-1. **Proof-of-Genesis gate** — must have minted ≥ X kWh (suggested floor: 25 kWh / 30 days) to qualify
-2. **Per-wallet cap per round** (e.g. $500 USDC)
-3. **kWh-weighted ceiling:** `min($500, your_minted_kWh × $0.50)`
-4. **24-hr producer-only window**, then opens to public
-5. **Soulbound holding-period discount** for 90+ day holders
-
-### Forbidden phrasings
-- ❌ "Anyone can buy in the next round" → ✅ "Producers buy first. Everyone else gets the leftovers."
-- ❌ "Launch at $1" → ✅ "Launch at $0.10, $1 is the first major target."
+| Base | $9.99 | $4.995 | $4.995 | 90% |
+| Regular | $19.99 | $9.995 | $9.995 | 25% |
+| Power | $49.99 | $24.995 | $24.995 | 5% |
 
 ---
 
-## 7. Scarcity Stack (always cite all 5)
+## 9. Sell Pressure Assumptions (LOCKED)
 
-| # | Mechanism | Bitcoin equivalent |
-|---|---|---|
-| 1 | 1T hard cap | ✅ |
-| 2 | 20% burn-per-mint | ❌ |
-| 3 | 4-yr halving (350B → 175B → …) | ✅ |
-| 4 | Founder pact-lock (200B locked to $6.67/$20) | ❌ |
-| 5 | Protocol-Owned Liquidity (POL) | ❌ |
-
-Bitcoin = 1 mechanism. ZenSolar = 5 stacked. Net-deflationary 100 years sooner.
+- Average activity: 700 kWh/user/month → 52.5 tokens received
+- Tier sell rates: Base 90%, Regular 25%, Power 5%
+- Cohort mix evolves from base-heavy → more Regular/Power
 
 ---
 
-## 8. Tokens vs Equity — Critical Distinction
+## 10. Dashboard / Clean Energy Center UI Rules
 
-ZenSolar has **two cap tables**. Never mix them.
-
-| | **Token cap table ($ZSOLAR)** | **Equity cap table (ZenCorp Inc)** |
-|---|---|---|
-| What | 1T protocol tokens | Company shares |
-| Governs | On-chain protocol economics | Corporate decisions, exits, fundraising |
-| Strategic intros get | **Tokens** (1M $ZSOLAR default) | Nothing automatically |
-| Investors get | Tokens via SAFT/warrant (TBD per round) | Equity via SAFE/priced round |
-| Voting | None (protocol is rules-based) | Standard corporate voting |
-
-**Rule:** Externally always say "pre-launch token allocation" or "$ZSOLAR allocation" — **never** "equity" or "shares" — when describing token grants. Mixing the two creates securities-law and cap-table confusion.
+- Headline metric: **"X tokens eligible for minting"** (10:1)
+- Raw kWh shown as secondary text/tooltip only
 
 ---
 
-## 9. Subscription Model (v2 — LOCKED 2026-05)
+## 11. Staking / Locking Incentives (Planned)
 
-Three tiers, every dollar split **50% LP / 50% Treasury**. Dual-gate: community minting requires an active subscription.
+Regular + Power tiers will offer:
 
-| Tier | Price/mo | LP/mo | Treasury/mo | Assumed monthly sell-rate |
-|---|---|---|---|---|
-| **Base** | $9.99 | $4.995 | $4.995 | 90% (cash-out cohort) |
-| **Regular** | $19.99 | $9.995 | $9.995 | 25% (default holders) |
-| **Power** | $49.99 | $24.995 | $24.995 | 5% (prosumer/staker) |
-
-- Optional Base-tier soft mint cap: **800–1,000 tokens/mo** (Regular + Power uncapped).
-- Staking/locking multipliers (Regular + Power, future): 6-mo lock = 1.5×, 12-mo lock = 2.0×.
-- Full model + per-tier flywheel math: `mem://features/tiered-subscriptions-halving-flywheel`.
-
-## 9a. v2 Tokenomics & Flywheel Model (2026-05)
-
-The v2 flywheel keeps **1 kWh = 1 $ZSOLAR** and **1T hard cap** intact. The LP-coverage gap is closed by three mechanisms working together:
-
-1. **Tiered subscriptions** (§9 above) — Power tier is net-positive on day one.
-2. **Genesis Halving** — first halving (50% mint-rate cut) is **pulled forward** to a user milestone instead of waiting 4 years.
-   - **Primary trigger:** 250,000 paying subscribers.
-   - **Fallback:** 4-year on-chain cadence if milestone not hit first.
-   - **Comms:** Always called "Genesis Halving." Pre-announce 3–6 months out. Existing users get a bonus month at the pre-halving rate.
-3. **Satoshi-Mirror v2** — EIA $/kWh × 2^epoch floor + treasury auto-buyback via POL. See `mem://features/satoshi-mirror-v2-oracle`.
-
-**Mint mechanics unchanged from §3:** 75% user / 20% burn / 3% LP / 2% treasury. Genesis Halving multiplies the **per-kWh mint amount** by 0.5; the split percentages stay the same.
-
-**Code:** `src/lib/tokenomics.ts` exports `SUBSCRIPTION_TIERS` and `GENESIS_HALVING`. `contracts/ZSOLAR.sol` is **not yet updated** (still legacy 10B model) — leave untouched until Michael signs off on full flywheel math.
-
-**External phrasing:** Tier names are **Base / Regular / Power** (never "Tier-1/2/3"). The mint-rate cut is **Genesis Halving** (never "mint cut" or "ratio change").
+- 3-month lock → 1.2× mint multiplier
+- 6-month lock → 1.5×
+- 12-month lock → 2.0×
+- 24-month lock → 3.0×
 
 ---
 
-## 10. Reward Rates (1:1 base, scarcity-preserving)
+## 12. Open Questions (Updated)
 
-| Activity | Base rate |
-|---|---|
-| Solar production | 1 $ZSOLAR / kWh |
-| Battery discharge | 1 $ZSOLAR / kWh |
-| EV miles | 1 $ZSOLAR / mile |
-| EV charging | 1 $ZSOLAR / kWh |
-| FSD supervised miles | 1 $ZSOLAR / mile |
-| FSD unsupervised miles | 1 $ZSOLAR / mile |
-
-**Live Beta multiplier:** 10× (test mode only, never production).
+1. Final binding mechanism for founder pact-lock
+2. Exact on-chain implementation details for Genesis Halving
+3. ZK-Proof-of-Genesis provisional filing timeline
 
 ---
 
-## 11. Scaling Milestones (ARR ↔ Users, ~$250 ARPU)
+## 13. Forbidden Statements
 
-| Milestone | Users | ARR |
-|---|---|---|
-| Tipping point | 25,000 | — |
-| Scale target | 100,000 | — |
-| $1M ARR | 4,000 | $1M |
-| $10M ARR | 40,000 | $10M |
-| $100M ARR | 400,000 | $100M |
-| $1B ARR | 4,000,000 | $1B |
-| $5B ARR | 20,000,000 | $5B |
-
----
-
-## 12. Open Questions (must resolve before mainnet)
-
-1. **Founder pact-lock binding mechanism** — price-only / vest-only / both / both + 20-yr backstop. Current code has legacy vest; current narrative is pact-only. Pick one.
-2. **LP round sizing math** — formalize the per-round seed formula (USDC + $ZSOLAR) and per-wallet caps for OG, Round 2, Round 3+.
-3. **kWh threshold for round eligibility** — suggested floor 25 kWh / 30 days; confirm.
-4. **`ZSOLAR.sol` rewrite** — contract still reflects archived 10B model. Must be rebuilt to match this SSoT before mainnet.
-5. **SAFT/warrant terms** for non-producer investors who can't qualify via energy production.
-6. **Halving on-chain enforcement** — narrative is locked; Solidity logic not yet written.
-7. **Energy Price Oracle** — parked for Series A. Confirm it stays parked through seed.
-8. **Decentralized oracle migration timeline** — Chainlink Functions / DON in Phase 2 (Series A). Confirm trigger condition (user count? TVL? regulatory?). See `mem://features/proof-of-genesis-verification`.
-9. **ZK-Proof-of-Genesis provisional filing** — file Patent Track 4 (ZEN-003) this quarter to secure priority date even though implementation is Series B / Phase 3.
-
----
-
-## 13. Forbidden Statements (auto-fail any draft)
-
-- ❌ "Launch at $1" (it's $0.10; $1 is a target)
-- ❌ "10B supply" (deprecated; we are 1T)
-- ❌ "Anyone can buy at launch" (producer-gated)
-- ❌ Citing scarcity using fewer than all 5 stack layers
-- ❌ Calling token grants "equity" or "shares"
-- ❌ "$1T market cap crossover" when referring to founder net-worth crossovers ($6.67 / $20 are *individual founder* net-worth thresholds, not project market cap)
-- ❌ Using `lovable.app` or `lovable.dev` in any shared URL — always `https://beta.zen.solar`
+- ❌ "1 kWh = 1 $ZSOLAR"
+- ❌ "Launch at $1"
+- ❌ "10B supply"
+- ❌ "Anyone can buy at launch"
 
 ---
 
 ## 14. Change Protocol
 
-To update this file:
-1. Propose change in chat with explicit before/after.
-2. Joseph approves.
-3. Update this file + bump "Last locked" date at top.
-4. Update `mem://index.md` Core if a Core rule changed.
-5. Update or archive any conflicting downstream memory file in the same commit.
+Propose change → Joseph approves → edit in place → bump "Last locked" date.
 
-**Never** create a new "v2" or "draft" version of this file. There is one SSoT. Edit in place.
+**End of Canonical Source of Truth**
