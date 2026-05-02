@@ -1,6 +1,6 @@
 ---
-name: Tiered Subscriptions + Genesis Halving Flywheel (v2 Tokenomics)
-description: Final $ZSOLAR flywheel model for the Lyndon Rive pitch — keeps 1 kWh = 1 $ZSOLAR, fixes the LP coverage gap with 3 subscription tiers (Base/Regular/Power), Genesis Halving (Bitcoin-style 50% mint cut at 250K paying users or 4-yr cadence), and Satoshi-Mirror v2 EIA floor defense.
+name: Tiered Subscriptions + Genesis Halving Flywheel (v2.1 Tokenomics)
+description: Final $ZSOLAR flywheel model — v2.1 mint ratio is 10 kWh = 1 $ZSOLAR (switched from 1:1 on 2026-05-02), 3 subscription tiers (Base/Regular/Power), Genesis Halving (Bitcoin-style 50% mint cut at 250K paying users or 4-yr cadence), and Satoshi-Mirror v2 EIA floor defense.
 type: feature
 ---
 
