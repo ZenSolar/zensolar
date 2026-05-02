@@ -132,47 +132,62 @@ export function RecentMintProofs() {
             mints.map((tx) => {
               const label = ACTION_LABEL[tx.action] || tx.action;
               const nftCount = tx.nfts_minted?.length || 0;
+              const source = inferSource(tx);
               return (
                 <Link
                   key={tx.id}
                   to={`/mint-history#tx-${tx.id}`}
-                  className="flex items-center justify-between gap-3 p-3 rounded-xl bg-muted/30 border border-border/50 hover:border-primary/40 hover:bg-primary/[0.03] transition-all group"
+                  className="flex flex-col gap-2 p-3 rounded-xl bg-muted/30 border border-border/50 hover:border-primary/40 hover:bg-primary/[0.03] transition-all group"
                 >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="p-1.5 rounded-lg bg-primary/10 flex-shrink-0">
-                      {tx.tokens_minted > 0 ? (
-                        <Coins className="h-3.5 w-3.5 text-primary" />
-                      ) : (
-                        <ImageIcon className="h-3.5 w-3.5 text-primary" />
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{label}</p>
-                      <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                        <Hash className="h-2.5 w-2.5" />
-                        <span className="font-mono truncate">
-                          {tx.tx_hash.slice(0, 8)}…{tx.tx_hash.slice(-4)}
-                        </span>
-                        <span>·</span>
-                        <span>{formatDistanceToNow(new Date(tx.created_at), { addSuffix: true })}</span>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="p-1.5 rounded-lg bg-primary/10 flex-shrink-0">
+                        {tx.tokens_minted > 0 ? (
+                          <Coins className="h-3.5 w-3.5 text-primary" />
+                        ) : (
+                          <ImageIcon className="h-3.5 w-3.5 text-primary" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{label}</p>
+                        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                          <Hash className="h-2.5 w-2.5" />
+                          <span className="font-mono truncate">
+                            {tx.tx_hash.slice(0, 8)}…{tx.tx_hash.slice(-4)}
+                          </span>
+                          <span>·</span>
+                          <span>{formatDistanceToNow(new Date(tx.created_at), { addSuffix: true })}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <div className="text-right">
-                      {tx.tokens_minted > 0 && (
-                        <p className="text-xs font-semibold tabular-nums text-foreground">
-                          {tx.tokens_minted.toLocaleString()}
-                        </p>
-                      )}
-                      {nftCount > 0 && (
-                        <p className="text-[10px] text-muted-foreground">
-                          {nftCount} NFT{nftCount > 1 ? 's' : ''}
-                        </p>
-                      )}
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <div className="text-right">
+                        {tx.tokens_minted > 0 && (
+                          <p className="text-xs font-semibold tabular-nums text-foreground">
+                            {tx.tokens_minted.toLocaleString()}
+                          </p>
+                        )}
+                        {nftCount > 0 && (
+                          <p className="text-[10px] text-muted-foreground">
+                            {nftCount} NFT{nftCount > 1 ? 's' : ''}
+                          </p>
+                        )}
+                      </div>
+                      <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
                     </div>
-                    <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
                   </div>
+                  {source && (
+                    <div className="pl-9">
+                      <VerifiedSourceBadge
+                        variant="compact"
+                        provider={source.provider}
+                        deviceLabel={source.deviceLabel}
+                        kwh={source.kwh}
+                        miles={source.miles}
+                        timestamp={tx.created_at}
+                      />
+                    </div>
+                  )}
                 </Link>
               );
             })
