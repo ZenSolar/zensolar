@@ -9,6 +9,7 @@ import { SEO } from '@/components/SEO';
 import { VerifyOnChainDrawer, type VerifyOnChainData } from '@/components/proof/VerifyOnChainDrawer';
 import { ProtocolJourney, type ProtocolJourneyData } from '@/components/proof/ProtocolJourney';
 import { ProofOfAuthenticityStamp } from '@/components/proof/ProofOfAuthenticityStamp';
+import { VerifiedSourceBadge } from '@/components/proof/VerifiedSourceBadge';
 import { ProtocolCinematicSequence } from '@/components/proof/ProtocolCinematicSequence';
 import { useLatestMintReceipt, type LiveMintReceipt } from '@/hooks/useLatestMintReceipt';
 
