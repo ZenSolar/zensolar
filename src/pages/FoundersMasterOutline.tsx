@@ -703,13 +703,20 @@ More attractive to new users → loop restarts, stronger`}
     title: "Strategic Decisions Locked",
     icon: Lock,
     tagline: "Defensive log against revisionism. Append-only.",
-    lastUpdated: "Apr 25, 2026",
+    lastUpdated: "May 2, 2026",
     body: (
       <div className="space-y-3 text-sm text-foreground/85 leading-relaxed">
         <p className="text-xs text-muted-foreground italic">
           Newest first. Each entry: <strong>date · decision · why</strong>.
         </p>
         <ul className="space-y-3">
+          <li className="border-l-2 border-primary/60 pl-3">
+            <strong>May 2, 2026 — SSoT v2.1 locked: 10:1 mint ratio + Genesis Halving + 3-tier subscriptions.</strong>
+            <br />
+            <span className="text-xs text-muted-foreground">
+              Mint ratio switched from 1:1 to <strong>10 kWh = 1 $ZSOLAR</strong> (and 10 EV miles = 1 $ZSOLAR) — drops day-one sell pressure 10× without breaking the clean-energy narrative. Subscription tiers locked at <strong>Base $9.99 / Regular $19.99 / Power $49.99</strong>, every dollar split 50% LP / 50% Treasury. <strong>Genesis Halving</strong> fires at 250k paying subs (or 4-yr fallback) — first halving pulled forward to a user milestone Bitcoin-style. 75/20/3/2 mint split, 1T hard cap, founder pact-locks, and $0.10 launch price all unchanged.
+            </span>
+          </li>
           <li className="border-l-2 border-eco/40 pl-3">
             <strong>Apr 25, 2026 — Strategic Introductions bucket created (100M $ZSOLAR).</strong>
             <br />
