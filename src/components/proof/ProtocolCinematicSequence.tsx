@@ -579,6 +579,11 @@ export function ProtocolCinematicSequence({
                   <p className="text-xs sm:text-sm text-muted-foreground/90 max-w-md mx-auto leading-snug">
                     Five primitives. One verifiable mint. Anchored forever.
                   </p>
+                  {verifiedSource && (
+                    <div className="pt-2 flex justify-center">
+                      <VerifiedSourceBadge variant="compact" {...verifiedSource} />
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}
