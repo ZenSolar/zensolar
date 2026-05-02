@@ -48,6 +48,7 @@ const AdminAnalytics = lazy(() => import("./pages/AdminAnalytics"));
 const AdminContracts = lazy(() => import("./pages/AdminContracts"));
 const AdminEvApiReference = lazy(() => import("./pages/AdminEvApiReference"));
 const AdminRevenueFlywheel = lazy(() => import("./pages/AdminRevenueFlywheel"));
+const AdminSubscriptionPanel = lazy(() => import("./pages/AdminSubscriptionPanel"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const AdminMintRequests = lazy(() => import("./pages/AdminMintRequests"));
 const Tokenomics = lazy(() => import("./pages/Tokenomics"));
@@ -1147,6 +1148,7 @@ const App = () => {
                     <Route path="/founders/bitcoin-thesis" element={<FounderRoute><FoundersBitcoinThesis /></FounderRoute>} />
                     <Route path="/founders/funded-lp" element={<FounderRoute><FoundersFundedLP /></FounderRoute>} />
                     <Route path="/founders/tschida" element={<FounderRoute><FoundersTschida /></FounderRoute>} />
+                    <Route path="/founders/subscription-admin" element={<FounderRoute><AdminSubscriptionPanel /></FounderRoute>} />
                     <Route path="/vault/founder-funded-lp" element={<Navigate to="/founders/funded-lp" replace />} />
                     {/* Transparency page — gated inside the component to preview hosts + founders only */}
                     <Route path="/transparency" element={<Transparency />} />
