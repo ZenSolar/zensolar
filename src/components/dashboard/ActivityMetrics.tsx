@@ -239,9 +239,11 @@ export function ActivityMetrics({
     : current.evMiles;
 
   const activityUnits = totalPendingSolarFromDevices + totalPendingEvFromDevices + totalPendingBatteryFromDevices + current.chargingKwh;
-  // Apply Live Beta multiplier (10x or 1x) then 75% user share
-  const rawTokens = activityUnits * getRewardMultiplier();
+  // v2.1 — 10:1 mint ratio: 10 kWh / 10 miles = 1 $ZSOLAR. Live Beta multiplier (10x) applies on top.
+  // Then 75% user share. Example mainnet: 1000 kWh → 100 raw → 75 received.
+  const rawTokens = (activityUnits * getRewardMultiplier()) / MINT_RATIO_KWH_PER_TOKEN;
   const tokensToReceive = Math.floor(rawTokens * 0.75);
+  const tokensEligible = Math.floor(activityUnits / MINT_RATIO_KWH_PER_TOKEN); // headline "X tokens eligible for minting"
 
   // Filter to only Tesla/Enphase
   const filteredProviders = effectiveConnectedProviders.filter(p => p === 'tesla' || p === 'enphase');
