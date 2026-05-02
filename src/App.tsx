@@ -48,6 +48,7 @@ const AdminAnalytics = lazy(() => import("./pages/AdminAnalytics"));
 const AdminContracts = lazy(() => import("./pages/AdminContracts"));
 const AdminEvApiReference = lazy(() => import("./pages/AdminEvApiReference"));
 const AdminRevenueFlywheel = lazy(() => import("./pages/AdminRevenueFlywheel"));
+const AdminSubscriptionPanel = lazy(() => import("./pages/AdminSubscriptionPanel"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const AdminMintRequests = lazy(() => import("./pages/AdminMintRequests"));
 const Tokenomics = lazy(() => import("./pages/Tokenomics"));
