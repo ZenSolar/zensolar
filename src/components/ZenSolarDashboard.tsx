@@ -308,6 +308,11 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           <FlywheelContributionCard />
         </AnimatedItem>
 
+        {/* Persistent discoverability hint → Mint History (Proof-of-Mint receipts) */}
+        <AnimatedItem>
+          <MintReceiptsHint />
+        </AnimatedItem>
+
         {!isViewer && (
           <AnimatedItem>
             <Suspense fallback={<CardSkeleton height="h-48" />}>
