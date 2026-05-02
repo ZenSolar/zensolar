@@ -38,7 +38,17 @@ export const LIVE_BETA_MULTIPLIER = 10;
 
 // === MODEL METADATA ===
 export const MODEL_NAME = '1T Trillionaire Strategy';
-export const MODEL_VERSION = 2;
+export const MODEL_VERSION = 2.1; // v2.1 — Mint ratio switched 1:1 → 10:1 (Economic Win Model)
+
+// === MINT RATIO (v2.1 LOCKED — 2026-05-02) ===
+// 10 kWh (or 10 miles) of verified clean-energy activity = 1 $ZSOLAR minted.
+// Switched from 1:1 to 10:1 to create a positive flywheel from day one:
+//   • ~10× lower sell pressure on LP at every user count
+//   • Same narrative ("clean energy = currency"), denser per-token value
+//   • Genesis Halving at 250k users still applies on top
+// Realistic average: 700 kWh/user/month → 70 $ZSOLAR minted → 52.5 received (75% user share)
+export const MINT_RATIO_KWH_PER_TOKEN = 10;
+export const MINT_RATIO_LABEL = '10 kWh = 1 $ZSOLAR';
 
 // === TOKEN SUPPLY ===
 export const MAX_SUPPLY = 1_000_000_000_000; // 1 TRILLION hard cap
@@ -122,14 +132,17 @@ export const TRANSFER_TAX = {
   total: 7,
 } as const;
 
-// === REWARD RATES (1 token per kWh / mile — kept 1:1 for scarcity) ===
+// === REWARD RATES (v2.1 — 10:1 Economic Win Model) ===
+// 1 / MINT_RATIO_KWH_PER_TOKEN = 0.1 token per kWh / mile of verified activity.
+// Live Beta multiplier (10×) compensates so beta still mints visibly.
+const PER_UNIT = 1 / MINT_RATIO_KWH_PER_TOKEN; // 0.1
 export const BASE_REWARD_RATES = {
-  solarProduction: 1,
-  batteryDischarge: 1,
-  evMiles: 1,
-  evCharging: 1,
-  fsdSupervisedMiles: 1,
-  fsdUnsupervisedMiles: 1,
+  solarProduction: PER_UNIT,
+  batteryDischarge: PER_UNIT,
+  evMiles: PER_UNIT,
+  evCharging: PER_UNIT,
+  fsdSupervisedMiles: PER_UNIT,
+  fsdUnsupervisedMiles: PER_UNIT,
 } as const;
 
 export const REWARD_RATES = {
@@ -286,11 +299,43 @@ export function getEffectiveRewardRate(activityType: keyof typeof BASE_REWARD_RA
   return BASE_REWARD_RATES[activityType] * getRewardMultiplier();
 }
 
+/**
+ * v2.1 — Convert raw activity (kWh or miles) into raw $ZSOLAR minted at the 10:1 ratio.
+ * Live Beta multiplier (10×) is applied on top so beta users still see visible mints.
+ *   • Mainnet: 700 kWh → 70 $ZSOLAR raw → 52.5 received (75% user share)
+ *   • Live Beta: 700 kWh × 10× / 10 ratio = 700 raw
+ */
 export function calculateRawTokensFromActivity(activityUnits: number): number {
-  return Math.floor(activityUnits * getRewardMultiplier());
+  const tokens = (activityUnits * getRewardMultiplier()) / MINT_RATIO_KWH_PER_TOKEN;
+  return Math.floor(tokens);
 }
 
 export function calculatePendingTokens(activityUnits: number): number {
   const rawTokens = calculateRawTokensFromActivity(activityUnits);
   return Math.floor(rawTokens * (MINT_DISTRIBUTION.user / 100));
 }
+
+/** v2.1 helper — convert kWh / miles to mintable tokens at the 10:1 ratio (no live-beta multiplier). */
+export function kwhToTokens(units: number): number {
+  return units / MINT_RATIO_KWH_PER_TOKEN;
+}
+
+// === STAKING / LOCKING INCENTIVES (Regular + Power tiers — future, not yet on-chain) ===
+// Voluntary lock-ups grant a mint multiplier on top of the base 10:1 ratio.
+// Multipliers are NOT compatible with Base tier (which has the soft mint cap).
+// Locked tokens are non-transferable for the duration; early-unlock forfeits 50% to burn.
+export const STAKING_MULTIPLIERS = {
+  none:     { lockMonths: 0,  multiplier: 1.0, label: 'No lock'         },
+  threeMo:  { lockMonths: 3,  multiplier: 1.2, label: '3-month lock'    },
+  sixMo:    { lockMonths: 6,  multiplier: 1.5, label: '6-month lock'    },
+  twelveMo: { lockMonths: 12, multiplier: 2.0, label: '12-month lock'   },
+  twentyFour: { lockMonths: 24, multiplier: 3.0, label: '24-month lock' },
+} as const;
+
+export type StakingTier = keyof typeof STAKING_MULTIPLIERS;
+
+/** Apply a staking lock multiplier to a mint amount. Floor-rounded. */
+export function applyStakingMultiplier(tokens: number, tier: StakingTier): number {
+  return Math.floor(tokens * STAKING_MULTIPLIERS[tier].multiplier);
+}
+

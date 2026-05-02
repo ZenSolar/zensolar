@@ -6,7 +6,52 @@ type: feature
 
 # ZenSolar — Canonical Source of Truth (SSoT)
 
-> **Read this first.** This file overrides every other memory, doc, slide, code comment, and contract draft. If something conflicts, fix the other file — never edit around this one. Last locked: 2026-05-01.
+> **Read this first.** This file overrides every other memory, doc, slide, code comment, and contract draft. If something conflicts, fix the other file — never edit around this one. Last locked: 2026-05-02 (v2.1 — 10:1 mint ratio).
+
+---
+
+## 0. v2.1 Mint Ratio Decision — Switched to 10:1 (Economic Win Model) — 2026-05-02
+
+**Decision:** The mint ratio is officially **10 kWh = 1 $ZSOLAR** (and **10 EV miles = 1 $ZSOLAR**). This replaces the prior 1:1 model.
+
+### Rationale
+
+| Lever | 1:1 (old) | **10:1 (new)** | Effect |
+|---|---|---|---|
+| Tokens minted from 700 kWh/user/mo | 700 | **70** | 10× lower issuance |
+| Tokens received (75% user share) | 525 | **52.5** | 10× lower sell pressure on LP |
+| Sell pressure at 100k users | very high | manageable from day one | flywheel positive immediately |
+| Narrative ("clean energy = currency") | ✅ | ✅ | unchanged |
+| Genesis Halving at 250k users | applies | applies | stacks on top |
+
+### What stays the same
+
+- 1T hard cap, 75/20/3/2 mint split, 7% transfer tax, 5% redemption burn
+- 4-yr halving cadence on the 700B community pool
+- Founder pact-lock at $6.67 / $20 crossovers
+- Subscription tiers ($9.99 / $19.99 / $49.99) with 50/50 LP/treasury split
+- Genesis Halving primary trigger at 250k paying subscribers
+- Satoshi-Mirror v2 EIA $/kWh × 2^epoch floor narrative
+- LP tranche-per-round model (OG round seeds $50K USDC + 500K $ZSOLAR @ $0.10)
+
+### Realistic baseline (use everywhere)
+
+- Average residential user activity: **700 kWh/month** (solar + battery + EV charging + EV miles combined)
+- Mainnet mint at 10:1: **70 $ZSOLAR/mo raw → 52.5 received**
+- At $0.10 launch price: **$5.25/mo of token value back to user** vs $19.99 subscription = healthy net-paying flywheel on Regular tier
+- Power tier ($49.99) at same activity: still net-positive on day one
+
+### Code state
+
+- `src/lib/tokenomics.ts` exports `MINT_RATIO_KWH_PER_TOKEN = 10`, `MINT_RATIO_LABEL`, and `kwhToTokens(units)` helper.
+- `BASE_REWARD_RATES` set to 0.1 token/unit so all downstream reward math automatically reflects 10:1.
+- `STAKING_MULTIPLIERS` added (3mo 1.2× / 6mo 1.5× / 12mo 2× / 24mo 3×) — narrative-only, not yet on-chain.
+
+### Forbidden phrasings (additions)
+
+- ❌ "1 kWh = 1 $ZSOLAR"  → ✅ "10 kWh = 1 $ZSOLAR"
+- ❌ "Every kilowatt-hour is a coin" → ✅ "Every 10 kilowatt-hours mints a coin"
+- ❌ Showing raw kWh as the headline metric in the Clean Energy Center → ✅ Show **tokens eligible** as headline; kWh as secondary
 
 ---
 

@@ -18,7 +18,7 @@ import { useMintSound } from '@/hooks/useMintSound';
 import { useShimmerSound } from '@/hooks/useShimmerSound';
 import { useSoundPreference } from '@/hooks/useSoundPreference';
 import { ActivityData, SolarDeviceData, BatteryDeviceData, EVDeviceData, ChargerDeviceData } from '@/types/dashboard';
-import { getRewardMultiplier } from '@/lib/tokenomics';
+import { getRewardMultiplier, MINT_RATIO_KWH_PER_TOKEN } from '@/lib/tokenomics';
 import { Link, useNavigate } from 'react-router-dom';
 import { useBasePath } from '@/hooks/useBasePath';
 import {
@@ -239,9 +239,11 @@ export function ActivityMetrics({
     : current.evMiles;
 
   const activityUnits = totalPendingSolarFromDevices + totalPendingEvFromDevices + totalPendingBatteryFromDevices + current.chargingKwh;
-  // Apply Live Beta multiplier (10x or 1x) then 75% user share
-  const rawTokens = activityUnits * getRewardMultiplier();
+  // v2.1 — 10:1 mint ratio: 10 kWh / 10 miles = 1 $ZSOLAR. Live Beta multiplier (10x) applies on top.
+  // Then 75% user share. Example mainnet: 1000 kWh → 100 raw → 75 received.
+  const rawTokens = (activityUnits * getRewardMultiplier()) / MINT_RATIO_KWH_PER_TOKEN;
   const tokensToReceive = Math.floor(rawTokens * 0.75);
+  const tokensEligible = Math.floor(activityUnits / MINT_RATIO_KWH_PER_TOKEN); // headline "X tokens eligible for minting"
 
   // Filter to only Tesla/Enphase
   const filteredProviders = effectiveConnectedProviders.filter(p => p === 'tesla' || p === 'enphase');
@@ -779,6 +781,7 @@ export function ActivityMetrics({
         <div className="pt-1.5 mt-1 border-t border-primary/15">
           <TotalTokensCard 
             tokensToReceive={tokensToReceive}
+            tokensEligible={tokensEligible}
             activityUnits={activityUnits}
             tokenPrice={tokenPrice}
             onMintRequest={onMintRequest}
@@ -1702,13 +1705,16 @@ const TOUCH_DELTA_THRESHOLD = 15;
 
 interface TotalTokensCardProps {
   tokensToReceive: number;
+  tokensEligible?: number;
   activityUnits: number;
   tokenPrice: number;
   onMintRequest?: (request: MintRequest) => void;
 }
 
-function TotalTokensCard({ tokensToReceive, activityUnits, tokenPrice, onMintRequest }: TotalTokensCardProps) {
+function TotalTokensCard({ tokensToReceive, tokensEligible, activityUnits, tokenPrice, onMintRequest }: TotalTokensCardProps) {
   const isTappable = activityUnits > 0 && !!onMintRequest;
+  // v2.1 — token-first display: lead with eligible tokens, kWh shown as small secondary text.
+  const eligible = tokensEligible ?? Math.floor(activityUnits / MINT_RATIO_KWH_PER_TOKEN);
 
   const handleMint = () => {
     if (onMintRequest) {
@@ -1735,7 +1741,16 @@ function TotalTokensCard({ tokensToReceive, activityUnits, tokenPrice, onMintReq
         )} />
       </div>
       <div className="flex-1 min-w-0 relative">
-        <p className="text-sm text-muted-foreground font-medium">Total Available Tokens</p>
+        <p
+          className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground/80 font-semibold"
+          title={`${activityUnits.toLocaleString()} kWh / miles tracked at the 10:1 mint ratio`}
+        >
+          {eligible.toLocaleString()} tokens eligible
+          <span className="ml-1.5 normal-case tracking-normal text-muted-foreground/60 font-normal">
+            · {activityUnits.toLocaleString()} kWh
+          </span>
+        </p>
+        <p className="text-sm text-muted-foreground font-medium">You receive (75%)</p>
         <p className="text-2xl font-bold text-foreground tracking-tight">
           {tokensToReceive.toLocaleString()}
           <span className="text-lg font-semibold text-muted-foreground ml-1.5">$ZSOLAR</span>
