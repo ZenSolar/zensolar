@@ -462,6 +462,26 @@ export default function ProofOfGenesisReceiptPreview() {
             </p>
           )}
 
+          {/* Verified Source — Proof-of-Origin attribution */}
+          {receipt.readings[0] && (
+            <motion.div
+              key={`source-${receipt.id}`}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35 }}
+            >
+              <VerifiedSourceBadge
+                variant="full"
+                provider={receipt.readings[0].provider}
+                deviceLabel={receipt.readings[0].device_id}
+                kwh={receipt.total_kwh}
+                miles={receipt.miles_driven}
+                timestamp={receipt.minted_at}
+                isLive={isLive}
+              />
+            </motion.div>
+          )}
+
           {/* Hero stats */}
           <motion.section
             key={receipt.id}
