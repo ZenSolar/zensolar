@@ -17,6 +17,7 @@ import { TokenPriceCard } from './dashboard/TokenPriceCard';
 import { CO2OffsetCard } from './dashboard/CO2OffsetCard';
 import { SubscriptionStatusCard } from './dashboard/SubscriptionStatusCard';
 import { FlywheelContributionCard } from './dashboard/FlywheelContributionCard';
+import { MintReceiptsHint } from './dashboard/MintReceiptsHint';
 import { DashboardHexBackground } from './dashboard/DashboardHexBackground';
 
 // Below-the-fold / conditional (lazy): split into separate chunks to cut TTI on mobile
@@ -305,6 +306,11 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             from the active mock subscription. Renders nothing if no plan. */}
         <AnimatedItem>
           <FlywheelContributionCard />
+        </AnimatedItem>
+
+        {/* Persistent discoverability hint → Mint History (Proof-of-Mint receipts) */}
+        <AnimatedItem>
+          <MintReceiptsHint />
         </AnimatedItem>
 
         {!isViewer && (
