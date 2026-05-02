@@ -46,6 +46,52 @@ interface ChangelogEntry {
 
 const ENTRIES: ChangelogEntry[] = [
   {
+    date: "May 2, 2026 (LATEST)",
+    iso: "2026-05-02T18:00",
+    title: "Master Outline v2.1 Sweep + Verified Source Proof Badge",
+    summary:
+      "Reconciled the Master Outline with SSoT v2.1: added the 10:1 mint ratio (10 kWh = 1 $ZSOLAR), Subscription tiers (Base $9.99 / Regular $19.99 / Power $49.99) with 50/50 LP/Treasury split, and Genesis Halving (250k paying-sub trigger, 4-yr fallback). Logged the v2.1 lock as the newest entry in Strategic Decisions. Also shipped the Verified Source proof badge (Tesla / Enphase / SolarEdge / Wallbox + kWh + timestamp) on the Proof-of-Genesis Receipt, the cinematic mint celebration, and the Recent Mint Proofs feed — every mint now visually carries its Proof-of-Origin™.",
+    sections: [
+      {
+        heading: "Shipped",
+        icon: "shipped",
+        bullets: [
+          "Master Outline §3 Tokenomics rewritten: SSoT v2.1 callout (10 kWh = 1 $ZSOLAR), Subscription tiers table (Base/Regular/Power, 50/50 LP/Treasury), Genesis Halving callout (250k trigger, 4-yr fallback, 'never call it a mint cut').",
+          "Master Outline §3 + §10 lastUpdated bumped to May 2, 2026; §3 memoryLinks now point to CANONICAL_SSOT, tiered-subscriptions-halving-flywheel, and halving-schedule.",
+          "Master Outline §10 Strategic Decisions Locked: prepended the May 2 v2.1 lock entry (highlighted in primary color).",
+          "VerifiedSourceBadge component (compact + full variants) auto-resolves OEM logos and branding for Tesla, Enphase, SolarEdge, Wallbox.",
+          "Proof-of-Genesis Receipt now renders the full badge from receipt.readings (real device, kWh, timestamp).",
+          "Cinematic mint celebration (ProtocolCinematicSequence) accepts a verifiedSource prop and renders the badge during the 'Genesis confirmed' finale.",
+          "Recent Mint Proofs feed (wallet) shows compact badges per row, with deterministic OEM inference from tx hash and 10:1 kWh derivation.",
+          "Demo / preview surfaces fall back to realistic Tesla Powerwall sample data so the badge is never empty.",
+        ],
+        links: [
+          { label: "Master Outline (SSoT v2.1)", url: "https://beta.zen.solar/founders/master-outline", preview: true },
+          { label: "Proof-of-Genesis Receipt", url: "https://beta.zen.solar/proof-of-genesis-receipt", preview: true },
+        ],
+      },
+      {
+        heading: "Strategic Decisions Locked",
+        icon: "strategy",
+        bullets: [
+          "SSoT v2.1 is canonical: 10 kWh = 1 $ZSOLAR (and 10 EV miles = 1 $ZSOLAR). Replaces the prior 1:1 model. 75/20/3/2 split, 1T cap, $0.10 launch, founder pact-locks all unchanged.",
+          "Subscription tiers locked at Base $9.99 / Regular $19.99 / Power $49.99 — every dollar splits 50% LP / 50% Treasury. Names are Base/Regular/Power externally — never 'Tier-1/2/3'.",
+          "Genesis Halving primary trigger = 250,000 paying subscribers; fallback = 4-year on-chain cadence. Always called 'Genesis Halving' in user-facing copy.",
+          "ZenSolar does NOT issue carbon credits. Every $ZSOLAR mint = real-world utility + currency from renewable energy. Bitcoin PoW destroys energy as heat (~1.4M kWh per BTC); ZSOLAR PoG creates currency from already-productive kWh.",
+          "Every mint must visually carry its Proof-of-Origin™ (verified energy source + kWh + timestamp) on the receipt, the celebration, and the wallet feed.",
+        ],
+      },
+      {
+        heading: "Saved to Project Memory",
+        icon: "memory",
+        bullets: [
+          "Two memory contradictions flagged for next session (NOT yet reconciled, per Joseph): (1) mem://features/tiered-subscriptions-halving-flywheel still says '1:1 mint ratio: DO NOT CHANGE' — needs to defer to SSoT v2.1; (2) CANONICAL_SSOT §10 'Reward Rates' table still lists '1 $ZSOLAR / kWh' which contradicts its own §0 v2.1 lock.",
+          "Subscription-fee flywheel implementation (where subs revenue actually injects USDC into LP, where Treasury spend logs, how 250k-sub trigger is detected) is parked as the next major roadmap item — needs a dedicated session.",
+        ],
+      },
+    ],
+  },
+  {
     date: "April 30, 2026 (LATEST)",
     iso: "2026-04-30T23:00",
     title: "Mobile-First Sprint #2 — Bottom Nav Fixed + Capacitor + Performance Pass",
