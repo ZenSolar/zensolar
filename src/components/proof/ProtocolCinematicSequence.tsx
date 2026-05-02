@@ -111,6 +111,13 @@ interface ProtocolCinematicSequenceProps {
    * in milliseconds — invaluable for verifying the receipt is in lock-step.
    */
   backendTimestamps?: BackendTimestamps;
+  /**
+   * Optional verified source attribution rendered under the finale subtitle.
+   * Surfaces the OEM device + kWh/miles + timestamp behind this mint so the
+   * "Genesis confirmed" moment includes Proof-of-Origin attribution, not just
+   * a token count. Pass `null`/omit when source isn't known yet.
+   */
+  verifiedSource?: Pick<VerifiedSourceBadgeProps, 'provider' | 'deviceLabel' | 'kwh' | 'miles' | 'timestamp' | 'isLive'> | null;
   /** When true, allows clicking backdrop / pressing Esc to skip. Default true. */
   dismissible?: boolean;
 }
