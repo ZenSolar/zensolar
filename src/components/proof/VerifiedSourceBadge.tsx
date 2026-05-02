@@ -46,6 +46,8 @@ export interface VerifiedSourceBadgeProps {
   className?: string;
   /** Show a "Live" pulse dot for real on-chain mints */
   isLive?: boolean;
+  /** When provided, the badge becomes a tappable button (opens Proof-of-Mint modal). */
+  onClick?: () => void;
 }
 
 type ProviderMeta = {
