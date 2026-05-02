@@ -16,6 +16,7 @@ import { CompactWalletPrompt } from './dashboard/CompactWalletPrompt';
 import { TokenPriceCard } from './dashboard/TokenPriceCard';
 import { CO2OffsetCard } from './dashboard/CO2OffsetCard';
 import { SubscriptionStatusCard } from './dashboard/SubscriptionStatusCard';
+import { FlywheelContributionCard } from './dashboard/FlywheelContributionCard';
 import { DashboardHexBackground } from './dashboard/DashboardHexBackground';
 
 // Below-the-fold / conditional (lazy): split into separate chunks to cut TTI on mobile
@@ -298,6 +299,12 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         {/* Subscription Status — current tier, 50/50 split, mint cap (mocked v2.1) */}
         <AnimatedItem>
           <SubscriptionStatusCard />
+        </AnimatedItem>
+
+        {/* Subscription-Fee Flywheel — live cumulative LP/Treasury contribution
+            from the active mock subscription. Renders nothing if no plan. */}
+        <AnimatedItem>
+          <FlywheelContributionCard />
         </AnimatedItem>
 
         {!isViewer && (
