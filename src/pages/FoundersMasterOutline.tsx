@@ -403,7 +403,7 @@ More attractive to new users → loop restarts, stronger`}
         <div>
           <h4 className="text-sm font-semibold text-foreground mb-2">Founder allocations (pact-locked)</h4>
           <ul className="space-y-1.5">
-            <li>• <strong>Joseph Deason:</strong> 150,000,000,000 (15%) — pact-locked, $6.67 trillionaire crossover</li>
+            <li>• <strong>Joseph Maushart:</strong> 150,000,000,000 (15%) — pact-locked, $6.67 trillionaire crossover</li>
             <li>• <strong>Michael Tschida:</strong> 50,000,000,000 (5%) — pact-locked, $20.00 trillionaire crossover</li>
             <li>• <strong>Family Legacy Pact:</strong> active — see <code className="text-xs bg-muted px-1 rounded">vault_state</code></li>
           </ul>
