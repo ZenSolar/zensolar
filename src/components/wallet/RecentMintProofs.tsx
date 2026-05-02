@@ -73,6 +73,7 @@ function inferSource(tx: RecentMint): {
 export function RecentMintProofs() {
   const [mints, setMints] = useState<RecentMint[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [proofTx, setProofTx] = useState<RecentMint | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -186,6 +187,7 @@ export function RecentMintProofs() {
                         kwh={source.kwh}
                         miles={source.miles}
                         timestamp={tx.created_at}
+                        onClick={() => setProofTx(tx)}
                       />
                     </div>
                   )}
@@ -195,6 +197,24 @@ export function RecentMintProofs() {
           )}
         </div>
       </div>
+
+      {proofTx && (() => {
+        const src = inferSource(proofTx);
+        return (
+          <ProofOfMintModal
+            open={!!proofTx}
+            onOpenChange={(v) => !v && setProofTx(null)}
+            provider={src?.provider || 'unknown'}
+            deviceLabel={src?.deviceLabel}
+            kwh={src?.kwh}
+            miles={src?.miles}
+            timestamp={proofTx.created_at}
+            tokens={proofTx.tokens_minted}
+            txHash={proofTx.tx_hash?.startsWith('0x') ? proofTx.tx_hash : undefined}
+            proofUrl={`/mint-history#tx-${proofTx.id}`}
+          />
+        );
+      })()}
     </motion.div>
   );
 }
