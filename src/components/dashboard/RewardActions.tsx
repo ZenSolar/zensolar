@@ -937,6 +937,29 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   const eligibleMilestones = eligibility?.eligibleMilestoneNFTs?.length ?? 0;
   const eligibleCombos = eligibility?.eligibleComboNFTs?.length ?? 0;
 
+  // Infer dominant source for the cinematic finale's Verified Source badge.
+  // The badge shows the OEM device + units that produced the largest share of
+  // this mint event. Defaults to Tesla Powerwall when no signal is available.
+  const cinematicVerifiedSource = (() => {
+    const pr = pendingRewards;
+    const buckets: { provider: string; deviceLabel: string; kwh?: number; miles?: number; weight: number }[] = [
+      { provider: 'tesla_vehicle', deviceLabel: 'Model Y', miles: pr.evMiles, weight: pr.evMiles },
+      { provider: 'tesla_energy', deviceLabel: 'Powerwall 3', kwh: pr.battery, weight: pr.battery },
+      { provider: 'enphase', deviceLabel: 'IQ8 Microinverters', kwh: pr.solar, weight: pr.solar },
+      { provider: 'wallbox', deviceLabel: 'Pulsar Plus', kwh: pr.charging, weight: pr.charging },
+    ];
+    const top = buckets.filter((b) => b.weight > 0).sort((a, b) => b.weight - a.weight)[0];
+    if (!top) return null;
+    return {
+      provider: top.provider,
+      deviceLabel: top.deviceLabel,
+      kwh: top.kwh,
+      miles: top.miles,
+      timestamp: new Date().toISOString(),
+      isLive: true,
+    };
+  })();
+
   return (
     <>
       {/* Full Cinematic D — first-mint celebration. Hardened so dismiss === complete. */}
@@ -949,6 +972,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
             : '$ZSOLAR minted'
         }
         tapAtIso={new Date().toISOString()}
+        verifiedSource={cinematicVerifiedSource}
         onComplete={handleCinematicDFinished}
         onClose={handleCinematicDFinished}
       />
