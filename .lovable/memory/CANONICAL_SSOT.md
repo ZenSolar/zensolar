@@ -57,12 +57,6 @@ type: feature
 
 ## 1. Token & Cap
 
-(Unchanged — see below.)
-
-
-
-## 1. Token & Cap
-
 | Item | Value |
 |---|---|
 | Token | **$ZSOLAR** |
