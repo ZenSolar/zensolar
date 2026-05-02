@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Hand, Cpu, Layers, ShieldCheck, Anchor, CheckCircle2, X, Zap, Bug } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { useMintSound } from '@/hooks/useMintSound';
+import { VerifiedSourceBadge, type VerifiedSourceBadgeProps } from './VerifiedSourceBadge';
 
 /**
  * ProtocolCinematicSequence — premium full-screen cinematic that visually
