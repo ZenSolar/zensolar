@@ -5,7 +5,7 @@ React 18, Vite, Supabase, Base L2. Strict mobile-first (390x844).
 Dark theme, "Less is More". Emerald green primary. 100svh/100dvh.
 "Creating Currency From Energy". No crypto jargon. Use "Tap-to-Mint™".
 Embedded Coinbase Wallet. Reown AppKit. Hard redirects for OAuth.
-1T hard cap. Mint split: 75% user, 20% burn, 3% LP, 2% treasury. Mint ratio LOCKED at 1 kWh = 1 $ZSOLAR (never 10:1).
+1T hard cap. Mint split: 75% user, 20% burn, 3% LP, 2% treasury. Mint ratio LOCKED v2.1 at 10 kWh = 1 $ZSOLAR (switched from 1:1 on 2026-05-02).
 Launch price $0.10 USDC via LP-seeded tranches — NEVER "launch at $1".
 Launch price (LP math) and kWh-floor are TWO INDEPENDENT mechanisms — never conflate.
 Founders pact-locked: Joseph 150B, Michael 50B. $1T crossovers: $6.67 / $20.
