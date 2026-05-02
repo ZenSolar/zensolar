@@ -3,6 +3,7 @@ import { TierSelectionScreen } from "@/components/subscription/TierSelectionScre
 import { SEO } from "@/components/SEO";
 import type { SubscriptionTierId } from "@/lib/tokenomics";
 import { toast } from "@/hooks/use-toast";
+import { resetFlywheelAnchor } from "@/lib/flywheelLedger";
 
 export default function Subscribe() {
   const [tier, setTier] = useState<SubscriptionTierId>();
@@ -19,7 +20,11 @@ export default function Subscribe() {
         onSelect={(t) => {
           setTier(t);
           try {
+            const prev = localStorage.getItem('zensolar_mock_subscription_tier');
             localStorage.setItem('zensolar_mock_subscription_tier', t);
+            // Reset flywheel anchor on first activation or tier switch so
+            // cumulative LP/Treasury math is keyed off the new plan.
+            if (prev !== t) resetFlywheelAnchor();
           } catch {
             // ignore storage failures
           }
