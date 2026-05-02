@@ -1139,6 +1139,7 @@ const App = () => {
                     <Route path="/founders/v2app" element={<FounderRoute><V2App /></FounderRoute>} />
                     <Route path="/founders/deason-v3" element={<FounderRoute><FoundersDeasonV3 /></FounderRoute>} />
                     <Route path="/founders/deason-utility-ai-revstream" element={<FounderRoute><FoundersDeasonUtilityAI /></FounderRoute>} />
+                    <Route path="/founders/vault/deason-utility-ai-revstream" element={<Navigate to="/founders/deason-utility-ai-revstream" replace />} />
                     <Route path="/founders/seed-ask" element={<FounderRoute><FounderSeedAsk /></FounderRoute>} />
                     <Route path="/founders/changelog" element={<FounderRoute><FoundersChangelog /></FounderRoute>} />
                     <Route path="/founders/catchup" element={<FounderRoute><FoundersCatchup /></FounderRoute>} />
