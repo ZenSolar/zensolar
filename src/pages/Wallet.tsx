@@ -26,6 +26,7 @@ import { Link } from 'react-router-dom';
 import { getMilestoneForTokenId } from '@/lib/nftTokenMapping';
 import { getNftArtwork } from '@/lib/nftArtwork';
 import { SEO } from '@/components/SEO';
+import { PageTransition } from '@/components/layout/PageTransition';
 import { motion, AnimatePresence } from 'framer-motion';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { ZppaStatusWidget } from '@/components/wallet/ZppaStatusWidget';
