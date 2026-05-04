@@ -83,7 +83,7 @@ function GlassCard({ className, children }: { className?: string; children: Reac
 export default function FoundersSsotOnePager() {
   return (
     <PageTransition>
-      <SEO title="ZenSolar SSOT — One-Pager" description="Executive one-pager: tokenomics, flywheel, roadmap." noindex />
+      <SEO title="ZenSolar SSOT — One-Pager" description="Executive one-pager: tokenomics, flywheel, roadmap." />
       <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_hsl(var(--primary)/0.08),_transparent_60%)] bg-background">
         <div className="mx-auto max-w-5xl px-4 py-8 md:py-12 space-y-6">
           {/* Header */}
