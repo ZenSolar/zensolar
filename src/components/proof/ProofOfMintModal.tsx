@@ -106,6 +106,11 @@ export function ProofOfMintModal({
   const resolvedDeviceId = deviceId || fallbackDeviceId(seed, provider);
   const isPending = !txHash;
 
+  // Light haptic when proof modal opens
+  useEffect(() => {
+    if (open) triggerLightTap();
+  }, [open]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md p-0 overflow-hidden">
