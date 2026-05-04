@@ -297,7 +297,12 @@ export function LiveMirrorDashboard() {
       <DashboardFooter />
 
       {/* Floating "Want to mint?" CTA — opens SMS to Joe + logs request */}
-      <MintRequestFAB accessCode={typeof window !== 'undefined' ? localStorage.getItem('zen_vip_mirror_active') : null} />
+      <MintRequestFAB
+        accessCode={typeof window !== 'undefined' ? localStorage.getItem('zen_vip_mirror_active') : null}
+        pendingActive={
+          (currentActivity.solarKwh + currentActivity.evMiles + currentActivity.batteryKwh + currentActivity.chargingKwh) > 0
+        }
+      />
     </div>
   );
 }

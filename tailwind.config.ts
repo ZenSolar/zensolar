@@ -207,6 +207,22 @@ export default {
           "10%, 30%, 50%, 70%, 90%": { transform: "translateX(-4px)" },
           "20%, 40%, 60%, 80%": { transform: "translateX(4px)" },
         },
+        "shimmer-sweep": {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
+        "mint-ready-glow": {
+          "0%, 100%": {
+            boxShadow:
+              "0 8px 24px -4px hsl(var(--primary) / 0.55), 0 0 0 0 hsl(var(--primary) / 0.5)",
+            transform: "scale(1)",
+          },
+          "50%": {
+            boxShadow:
+              "0 12px 36px -2px hsl(var(--primary) / 0.75), 0 0 0 8px hsl(var(--primary) / 0)",
+            transform: "scale(1.04)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -223,6 +239,8 @@ export default {
         "logo-glow": "logo-glow 3s ease-in-out infinite",
         "breathing-glow": "breathing-glow 4s ease-in-out infinite",
         "shake": "shake 0.4s ease-in-out",
+        "shimmer-sweep": "shimmer-sweep 1.8s ease-in-out infinite",
+        "mint-ready-glow": "mint-ready-glow 2.2s ease-in-out infinite",
       },
     },
   },
