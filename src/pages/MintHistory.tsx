@@ -436,5 +436,6 @@ export default function MintHistory() {
         </div>
       </PageShell>
     </PullToRefreshWrapper>
+    </PageTransition>
   );
 }
