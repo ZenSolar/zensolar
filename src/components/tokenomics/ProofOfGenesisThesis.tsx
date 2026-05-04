@@ -111,8 +111,9 @@ export function ProofOfGenesisThesis() {
                 Proof-of-Genesis™ Thesis
               </CardTitle>
               <p className="text-[13px] sm:text-sm text-muted-foreground leading-snug">
-                Why $ZSOLAR is engineered to eclipse Bitcoin's market cap by{' '}
-                <span className="text-primary font-semibold">5x to 10x</span>.
+                Why $ZSOLAR has a credible path to{' '}
+                <span className="text-primary font-semibold">top-5 status ($100B–$500B)</span> —
+                without needing to dethrone Bitcoin.
               </p>
             </div>
           </div>
