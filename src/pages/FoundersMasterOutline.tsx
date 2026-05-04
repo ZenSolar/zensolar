@@ -801,6 +801,7 @@ More attractive to new users → loop restarts, stronger`}
           <ul className="space-y-1">
             <li>• VPP at scale (real dispatch + monthly cash settlement live for users)</li>
             <li>• Bi-Directional EV Minting (V2G/V2H/V2L + FSD)</li>
+            <li>• <strong>Tesla FSD / Autonomous Miles (Phase 2):</strong> tokenize FSD/autonomous miles at 10 miles = 1 $ZSOLAR (same 10:1 ratio). Included in latest patent application. High-impact "cherry on top" for the Lyndon Rive pitch — not yet in Clean Energy Center dashboard.</li>
             <li>• ZPPA producer-gated LP rounds operational</li>
           </ul>
         </div>
