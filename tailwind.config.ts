@@ -239,6 +239,8 @@ export default {
         "logo-glow": "logo-glow 3s ease-in-out infinite",
         "breathing-glow": "breathing-glow 4s ease-in-out infinite",
         "shake": "shake 0.4s ease-in-out",
+        "shimmer-sweep": "shimmer-sweep 1.8s ease-in-out infinite",
+        "mint-ready-glow": "mint-ready-glow 2.2s ease-in-out infinite",
       },
     },
   },
