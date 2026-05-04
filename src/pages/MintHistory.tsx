@@ -257,10 +257,11 @@ export default function MintHistory() {
                 </div>
               ) : transactions.length === 0 ? (
                 <EmptyState
-                  icon={Hash}
-                  title="No transactions yet"
-                  description="Your mint history will appear here as soon as you tap to mint your first $ZSOLAR."
-                  className="py-8"
+                  icon={Coins}
+                  title="Start Your Journey"
+                  description="Every kWh of clean energy you generate or mile you drive earns $ZSOLAR. Tap below to connect your devices and mint your first rewards."
+                  action={{ label: "Start earning $ZSOLAR today", onClick: () => navigate('/dashboard') }}
+                  className="py-10"
                 />
               ) : (
                 transactions.map((tx) => {
