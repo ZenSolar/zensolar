@@ -411,5 +411,6 @@ export default function Wallet() {
         </div>
       </motion.div>
     </div>
+    </PageTransition>
   );
 }
