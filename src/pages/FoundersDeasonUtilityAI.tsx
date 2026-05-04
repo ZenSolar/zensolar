@@ -15,6 +15,8 @@ import {
   Zap,
   TrendingUp,
   CheckCircle2,
+  BarChart3,
+  Car,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -139,6 +141,8 @@ function Content() {
             <li>• <strong>Hybrid data approach:</strong> UtilityAPI for users who connect, photo/PDF bill upload for everyone else.</li>
             <li>• Tone: upbeat, academic, confidence-building — "frequent flyer miles" analogies before any jargon.</li>
             <li>• Context-aware: switches between patient educator (wallets, blockchain) and expert (rate plans, battery dispatch) automatically.</li>
+            <li>• <strong>Monthly Deep Energy Insights:</strong> richer Deason-powered report sent once per month, unlocked by UtilityAPI connection or latest bill upload. Includes rate-plan optimization, savings forecasts, battery/EV recommendations, and peak/off-peak analysis.</li>
+            <li>• <strong>In-App Personalized Energy Insights Page</strong> (at /energy-insights or inside Clean Energy Center): dedicated dashboard with charts, savings projections, and one-tap actions. Becomes the "home base" for the premium experience.</li>
           </ul>
         </Section>
 
@@ -150,6 +154,16 @@ function Content() {
             <li>• <strong>Device-aware advice</strong> — Tesla Powerwall, Enphase, EVs, thermostats, solar panels.</li>
             <li>• <strong>Savings forecasts</strong> — annualized $ savings projections per recommendation.</li>
             <li>• <strong>One-tap actions</strong> — schedule switches, file utility forms, queue device automations.</li>
+          </ul>
+        </Section>
+
+        {/* Tesla FSD / Autonomous Miles */}
+        <Section icon={Car} title="2.5 · Tesla FSD / Autonomous Miles (Phase 2)">
+          <ul className="space-y-1.5">
+            <li>• <strong>Tokenized behavior:</strong> 10 full self-driving (FSD) / autonomous miles = 1 $ZSOLAR (same 10:1 ratio as other mint events).</li>
+            <li>• Planned as a high-impact visual "cherry on top" for the Lyndon Rive presentation.</li>
+            <li>• <strong>Not yet in Clean Energy Center dashboard</strong> — scheduled for Phase 2 integration after core Deason launch.</li>
+            <li>• Treated as a distinct mint event class; pairs with bi-directional EV flows to form the "Tesla as yield-bearing asset" thesis.</li>
           </ul>
         </Section>
 
@@ -179,6 +193,26 @@ function Content() {
               with <strong>Gemini 2.5 Pro</strong> for narrative quality.
             </p>
           </div>
+        </Section>
+
+        {/* Monthly Deep Energy Insights */}
+        <Section icon={BarChart3} title="3.5 · Monthly Deep Energy Insights">
+          <p>
+            A richer Deason-powered report sent <strong>once per month</strong>,
+            unlocked automatically when the user connects via UtilityAPI or
+            uploads their latest bill.
+          </p>
+          <ul className="space-y-1.5">
+            <li>• <strong>Rate-plan optimization</strong> — identifies the cheapest available plan for the user's actual usage shape.</li>
+            <li>• <strong>Savings forecasts</strong> — annualized $ savings projections with confidence intervals.</li>
+            <li>• <strong>Battery & EV recommendations</strong> — dispatch schedules, charge-timing advice, V2G readiness.</li>
+            <li>• <strong>Peak / off-peak analysis</strong> — time-of-use exposure, demand-charge risk, and shift recommendations.</li>
+            <li>• Generated with <strong>Gemini 2.5 Pro</strong> for maximum depth and narrative quality.</li>
+          </ul>
+          <p className="text-xs text-muted-foreground">
+            The monthly report becomes the upgrade hook from Regular → Power
+            tier because it requires full device connectivity and bill access.
+          </p>
         </Section>
 
         {/* Pricing */}
