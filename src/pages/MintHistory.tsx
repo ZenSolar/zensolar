@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -47,6 +48,7 @@ const ACTION_LABELS: Record<string, { label: string; icon: React.ReactNode; grad
 };
 
 export default function MintHistory() {
+  const navigate = useNavigate();
   const { profile } = useProfile();
   const [transactions, setTransactions] = useState<MintTransaction[]>([]);
   const [expandedTx, setExpandedTx] = useState<string | null>(null);
@@ -255,10 +257,11 @@ export default function MintHistory() {
                 </div>
               ) : transactions.length === 0 ? (
                 <EmptyState
-                  icon={Hash}
-                  title="No transactions yet"
-                  description="Your mint history will appear here as soon as you tap to mint your first $ZSOLAR."
-                  className="py-8"
+                  icon={Coins}
+                  title="Start Your Journey"
+                  description="Every kWh of clean energy you generate or mile you drive earns $ZSOLAR. Tap below to connect your devices and mint your first rewards."
+                  action={{ label: "Start earning $ZSOLAR today", onClick: () => navigate('/dashboard') }}
+                  className="py-10"
                 />
               ) : (
                 transactions.map((tx) => {
