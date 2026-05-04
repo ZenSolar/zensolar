@@ -195,6 +195,26 @@ function Content() {
           </div>
         </Section>
 
+        {/* Monthly Deep Energy Insights */}
+        <Section icon={BarChart3} title="3.5 · Monthly Deep Energy Insights">
+          <p>
+            A richer Deason-powered report sent <strong>once per month</strong>,
+            unlocked automatically when the user connects via UtilityAPI or
+            uploads their latest bill.
+          </p>
+          <ul className="space-y-1.5">
+            <li>• <strong>Rate-plan optimization</strong> — identifies the cheapest available plan for the user's actual usage shape.</li>
+            <li>• <strong>Savings forecasts</strong> — annualized $ savings projections with confidence intervals.</li>
+            <li>• <strong>Battery & EV recommendations</strong> — dispatch schedules, charge-timing advice, V2G readiness.</li>
+            <li>• <strong>Peak / off-peak analysis</strong> — time-of-use exposure, demand-charge risk, and shift recommendations.</li>
+            <li>• Generated with <strong>Gemini 2.5 Pro</strong> for maximum depth and narrative quality.</li>
+          </ul>
+          <p className="text-xs text-muted-foreground">
+            The monthly report becomes the upgrade hook from Regular → Power
+            tier because it requires full device connectivity and bill access.
+          </p>
+        </Section>
+
         {/* Pricing */}
         <Section icon={DollarSign} title="4 · Pricing">
           <ul className="space-y-1.5">
