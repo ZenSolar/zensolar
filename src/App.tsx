@@ -81,6 +81,7 @@ const FoundersEnergyOracle = lazy(() => import("./pages/FoundersEnergyOracle"));
 const FoundersPatentExpansion = lazy(() => import("./pages/FoundersPatentExpansion"));
 const FoundersMasterOutline = lazy(() => import("./pages/FoundersMasterOutline"));
 const FoundersSsotZen = lazy(() => import("./pages/FoundersSsotZen"));
+const FoundersSsotOnePager = lazy(() => import("./pages/FoundersSsotOnePager"));
 const FoundersBitcoinThesis = lazy(() => import("./pages/FoundersBitcoinThesis"));
 const FoundersFundedLP = lazy(() => import("./pages/FoundersFundedLP"));
 const FoundersTschida = lazy(() => import("./pages/FoundersTschida"));
