@@ -1,6 +1,8 @@
+import { useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ShieldCheck, Hash, ExternalLink, Cpu, Clock, Zap, Car } from 'lucide-react';
 import { VerifiedSourceBadge, type VerifiedSourceBadgeProps } from './VerifiedSourceBadge';
+import { triggerLightTap } from '@/hooks/useHaptics';
 
 /**
  * ProofOfMintModal — tap-to-open proof viewer.
