@@ -26,6 +26,7 @@ import { Link } from 'react-router-dom';
 import { getMilestoneForTokenId } from '@/lib/nftTokenMapping';
 import { getNftArtwork } from '@/lib/nftArtwork';
 import { SEO } from '@/components/SEO';
+import { PageTransition } from '@/components/layout/PageTransition';
 import { motion, AnimatePresence } from 'framer-motion';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { ZppaStatusWidget } from '@/components/wallet/ZppaStatusWidget';
@@ -134,6 +135,7 @@ export default function Wallet() {
   }
 
   return (
+    <PageTransition>
     <div className="max-w-lg mx-auto px-4 py-5 space-y-3.5">
       <SEO title="My Wallet | ZenSolar" />
       {/* ── Hero Balance Card ── */}
@@ -409,5 +411,6 @@ export default function Wallet() {
         </div>
       </motion.div>
     </div>
+    </PageTransition>
   );
 }

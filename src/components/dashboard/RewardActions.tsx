@@ -174,6 +174,8 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
   /** Single shared "celebrate this mint" entrypoint — handles first vs repeat. */
   const celebrateMint = (pending: NonNullable<typeof cinematicD.pending>) => {
+    // Success haptic on every mint confirmation (light vibration fallback on web)
+    if (pending.success) hapticSuccess(); else hapticError();
     if (!hasShownFirstMintCelebration()) {
       markFirstMintCelebrationShown();
       setCinematicD({ open: true, pending });
@@ -194,6 +196,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     setCinematicD({ open: false });
     if (!pending) return;
     triggerConfetti();
+    hapticSuccess();
     setResultDialog({
       open: true,
       success: pending.success,

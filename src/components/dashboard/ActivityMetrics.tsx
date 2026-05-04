@@ -1777,7 +1777,9 @@ function TotalTokensCard({ tokensToReceive, tokensEligible, activityUnits, token
         onClick={handleMint}
         className={cn(
           "p-3 rounded-lg border flex items-center gap-3 transition-all relative overflow-hidden w-full",
-          "border-primary/30 bg-primary/5 hover:border-primary/50"
+          "border-primary/40 bg-primary/5 hover:border-primary/60",
+          // Pending-kWh ready glow (matches MintRequestFAB on the live mirror)
+          "animate-mint-ready-glow"
         )}
       >
         {content}
