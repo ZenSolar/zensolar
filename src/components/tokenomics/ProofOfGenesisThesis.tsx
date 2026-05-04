@@ -62,8 +62,6 @@ const COMPARISON_ROWS: Array<{
 ];
 
 export function ProofOfGenesisThesis() {
-  const target5x = (BTC_MCAP_NUMERIC * 5).toFixed(1);
-  const target10x = (BTC_MCAP_NUMERIC * 10).toFixed(0);
 
   return (
     <motion.section
