@@ -81,6 +81,7 @@ const FoundersEnergyOracle = lazy(() => import("./pages/FoundersEnergyOracle"));
 const FoundersPatentExpansion = lazy(() => import("./pages/FoundersPatentExpansion"));
 const FoundersMasterOutline = lazy(() => import("./pages/FoundersMasterOutline"));
 const FoundersSsotZen = lazy(() => import("./pages/FoundersSsotZen"));
+const FoundersSsotOnePager = lazy(() => import("./pages/FoundersSsotOnePager"));
 const FoundersBitcoinThesis = lazy(() => import("./pages/FoundersBitcoinThesis"));
 const FoundersFundedLP = lazy(() => import("./pages/FoundersFundedLP"));
 const FoundersTschida = lazy(() => import("./pages/FoundersTschida"));
@@ -1151,6 +1152,7 @@ const App = () => {
                     <Route path="/founders/patent-expansion" element={<FounderRoute><FoundersPatentExpansion /></FounderRoute>} />
                     <Route path="/founders/master-outline" element={<FounderRoute><FoundersMasterOutline /></FounderRoute>} />
                     <Route path="/founders/ssot-zen" element={<FounderRoute><FoundersSsotZen /></FounderRoute>} />
+                    <Route path="/founders/ssot-one-pager" element={<FounderRoute><FoundersSsotOnePager /></FounderRoute>} />
                     <Route path="/founders/bitcoin-thesis" element={<FounderRoute><FoundersBitcoinThesis /></FounderRoute>} />
                     <Route path="/founders/funded-lp" element={<FounderRoute><FoundersFundedLP /></FounderRoute>} />
                     <Route path="/founders/tschida" element={<FounderRoute><FoundersTschida /></FounderRoute>} />
