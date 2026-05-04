@@ -206,6 +206,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   }
 
   return (
+    <PageTransition>
     <div 
       ref={containerRef}
       className="bg-background min-h-full w-full relative overflow-x-hidden"
