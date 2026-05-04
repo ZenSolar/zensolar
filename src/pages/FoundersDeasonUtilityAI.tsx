@@ -157,6 +157,16 @@ function Content() {
           </ul>
         </Section>
 
+        {/* Tesla FSD / Autonomous Miles */}
+        <Section icon={Car} title="2.5 · Tesla FSD / Autonomous Miles (Phase 2)">
+          <ul className="space-y-1.5">
+            <li>• <strong>Tokenized behavior:</strong> 10 full self-driving (FSD) / autonomous miles = 1 $ZSOLAR (same 10:1 ratio as other mint events).</li>
+            <li>• Planned as a high-impact visual "cherry on top" for the Lyndon Rive presentation.</li>
+            <li>• <strong>Not yet in Clean Energy Center dashboard</strong> — scheduled for Phase 2 integration after core Deason launch.</li>
+            <li>• Treated as a distinct mint event class; pairs with bi-directional EV flows to form the "Tesla as yield-bearing asset" thesis.</li>
+          </ul>
+        </Section>
+
         {/* Weekly Report */}
         <Section icon={Mail} title="3 · Weekly Energy Report">
           <p className="font-medium text-foreground">Two-tier email sent every Saturday:</p>
