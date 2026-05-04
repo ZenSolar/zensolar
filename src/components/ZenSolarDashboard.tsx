@@ -459,6 +459,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
       {/* Dashboard Footer */}
       <DashboardFooter />
     </div>
+    </PageTransition>
   );
 }
 
