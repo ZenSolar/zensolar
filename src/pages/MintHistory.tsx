@@ -48,6 +48,7 @@ const ACTION_LABELS: Record<string, { label: string; icon: React.ReactNode; grad
 };
 
 export default function MintHistory() {
+  const navigate = useNavigate();
   const { profile } = useProfile();
   const [transactions, setTransactions] = useState<MintTransaction[]>([]);
   const [expandedTx, setExpandedTx] = useState<string | null>(null);
