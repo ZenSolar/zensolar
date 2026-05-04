@@ -19,6 +19,7 @@ import { SubscriptionStatusCard } from './dashboard/SubscriptionStatusCard';
 import { FlywheelContributionCard } from './dashboard/FlywheelContributionCard';
 import { MintReceiptsHint } from './dashboard/MintReceiptsHint';
 import { DashboardHexBackground } from './dashboard/DashboardHexBackground';
+import { PageTransition } from './layout/PageTransition';
 
 // Below-the-fold / conditional (lazy): split into separate chunks to cut TTI on mobile
 const RewardActions = lazy(() =>
