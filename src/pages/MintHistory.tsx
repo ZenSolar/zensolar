@@ -153,6 +153,7 @@ export default function MintHistory() {
   const totalNftsMinted = transactions.reduce((sum, t) => sum + (t.nfts_minted?.length || 0), 0);
 
   return (
+    <PageTransition>
     <PullToRefreshWrapper onRefresh={handleRefresh}>
       <PageShell
         title="Mint History"
