@@ -20,6 +20,7 @@ import {
   Activity,
   ArrowUpRight,
   AlertCircle,
+  RefreshCw,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -222,7 +223,7 @@ export default function FoundersSsotZen() {
                 <code className="text-xs px-1.5 py-0.5 rounded bg-muted/50 text-foreground/80">.lovable/memory/CANONICAL_SSOT.md</code>.
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card/40 border border-border/40 backdrop-blur-sm">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-75" />
@@ -231,6 +232,16 @@ export default function FoundersSsotZen() {
                 <span className="text-xs text-muted-foreground">Last locked</span>
                 <span className="text-xs font-semibold tabular-nums">{SSOT.lastLocked}</span>
               </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => window.location.reload()}
+                className="border-primary/40 hover:bg-primary/10 gap-2"
+                title="Reload values mirrored from .lovable/memory/CANONICAL_SSOT.md (no redeploy)"
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+                Refresh from CANONICAL_SSOT.md
+              </Button>
             </div>
           </div>
         </motion.header>

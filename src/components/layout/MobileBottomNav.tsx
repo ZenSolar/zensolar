@@ -94,7 +94,8 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
       aria-label="Primary"
       className={cn(
         "md:hidden fixed inset-x-0 bottom-0 z-40",
-        "border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80",
+        // Solid background so iOS home-indicator safe area never looks like a gap
+        "border-t border-border bg-background",
         className,
       )}
       style={{
