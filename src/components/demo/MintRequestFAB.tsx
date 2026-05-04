@@ -13,6 +13,8 @@ const SMS_HREF = `sms:${JOE_PHONE}?&body=${SMS_BODY}`;
 
 interface MintRequestFABProps {
   accessCode?: string | null;
+  /** When true, FAB pulses with primary glow to signal unminted kWh. */
+  pendingActive?: boolean;
 }
 
 /**
@@ -20,7 +22,7 @@ interface MintRequestFABProps {
  * (Todd, etc.) can request real mint access in one tap. Logs the request
  * server-side AND opens the user's SMS app pre-filled to Joe.
  */
-export function MintRequestFAB({ accessCode }: MintRequestFABProps) {
+export function MintRequestFAB({ accessCode, pendingActive = false }: MintRequestFABProps) {
   const [pulsing, setPulsing] = useState(true);
 
   const handleTap = async () => {
@@ -62,7 +64,9 @@ export function MintRequestFAB({ accessCode }: MintRequestFABProps) {
         "border border-primary/40",
         "active:scale-95 transition-transform",
         "hover:brightness-110",
-        pulsing && "animate-pulse-slow"
+        pendingActive
+          ? "animate-mint-ready-glow"
+          : pulsing && "animate-pulse-slow",
       )}
       style={{
         // Sit above bottom nav + iOS home indicator
@@ -70,7 +74,7 @@ export function MintRequestFAB({ accessCode }: MintRequestFABProps) {
       }}
     >
       <Zap className="h-4 w-4 fill-current" />
-      <span>Want to mint? Text Joe</span>
+      <span>{pendingActive ? "New kWh ready — Text Joe" : "Want to mint? Text Joe"}</span>
     </a>
   );
 }
