@@ -18,6 +18,7 @@ Billing infra not wired yet (no Stripe). `/subscribe` route shows tier picker on
 
 ## Memories
 - [v2 Tokenomics Flywheel](mem://features/tiered-subscriptions-halving-flywheel) — 3 subscription tiers + Genesis Halving + per-tier flywheel math.
+- [Deason AI Utility Optimizer](mem://features/deason-utility-optimizer) — Phase 1 weekly report, Phase 1.5 monthly deep insights + /energy-insights, Phase 2 Tesla FSD miles (10:1).
 - [Satoshi-Mirror v2 Oracle](mem://features/satoshi-mirror-v2-oracle) — EIA monthly floor + treasury auto-buyback. Pending Michael sign-off.
 - [Sell-cohort terminology](mem://preferences/terminology-sell-cohort) — never "cheetah" for sellers; that's Michael Tschida.
 - [Energy Price Oracle (parked)](mem://roadmap/energy-price-oracle) — Per-user verified $/kWh on-chain. Phase 3 = Series A moat.

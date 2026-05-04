@@ -173,6 +173,23 @@ Regular + Power tiers will offer:
 
 ---
 
+## 13.5 Deason AI Utility Optimizer Roadmap
+
+**Phase 1 (post-seed)** — Deason AI agent (orange chat) + Saturday Weekly Energy Report (Basic for all subscribers, Premium for Power tier or +$4.99 add-on, Gemini 2.5 Pro for premium narrative).
+
+**Phase 1.5 (post-seed)**
+- **Monthly Deep Energy Insights email** — sent once per month after the user's bill cycle. Unlocked only when UtilityAPI is connected OR latest bill is uploaded. Includes tariff analysis, rate-plan optimization, peak/off-peak breakdown, battery/EV optimization, projected savings, historical comparisons. Generated with Gemini 2.5 Pro.
+- **In-App Personalized Energy Insights Page** — `/energy-insights` (or inside Clean Energy Center). Charts, savings forecasts, one-tap actions. Home base for the premium Deason experience.
+
+**Phase 2 — Tesla FSD / Autonomous Miles** (Lyndon-pitch "cherry on top")
+- Tokenize FSD / autonomous miles at **10 miles = 1 $ZSOLAR** (same 10:1 ratio).
+- Included in latest patent application.
+- Not yet in Clean Energy Center dashboard.
+
+Full spec: `/founders/deason-utility-ai-revstream`.
+
+---
+
 ## 14. Change Protocol
 
 Propose change → Joseph approves → edit in place → bump "Last locked" date.

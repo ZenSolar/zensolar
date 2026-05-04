@@ -625,6 +625,8 @@ More attractive to new users → loop restarts, stronger`}
           <li>• <strong>Push notifications:</strong> subscriptions, templates, logs, dismissals — operational</li>
           <li>• <strong>AI assistant:</strong> "Deason" — gated, rate-limited, inner-circle access</li>
           <li>• <strong>Deason Utility Optimizer (planned, post-seed):</strong> bill analysis + Saturday Weekly Energy Report (Basic/Premium tiers, +$4.99 add-on or Power tier). See <Link to="/founders/deason-utility-ai-revstream" className="text-primary underline-offset-2 hover:underline">Deason Utility AI planning page</Link>.</li>
+          <li>• <strong>Phase 1.5 — Monthly Deep Energy Insights (post-seed):</strong> richer Deason-powered monthly report unlocked by UtilityAPI connection or bill upload — tariff analysis, rate-plan optimization, peak/off-peak breakdowns, battery/EV optimization, projected savings, historical comparisons. Generated with Gemini 2.5 Pro.</li>
+          <li>• <strong>Phase 1.5 — In-App Personalized Energy Insights Page</strong> (<code className="text-xs bg-muted px-1 rounded">/energy-insights</code> or inside Clean Energy Center): dedicated dashboard with charts, savings forecasts, and one-tap actions. Home base for the premium Deason experience.</li>
           <li>• <strong>Founders' working tools:</strong> work_journal, tokenomics_framework_responses, yc_application_content, vault_access_log</li>
         </ul>
         <p className="text-xs text-muted-foreground italic">
@@ -799,6 +801,7 @@ More attractive to new users → loop restarts, stronger`}
           <ul className="space-y-1">
             <li>• VPP at scale (real dispatch + monthly cash settlement live for users)</li>
             <li>• Bi-Directional EV Minting (V2G/V2H/V2L + FSD)</li>
+            <li>• <strong>Tesla FSD / Autonomous Miles (Phase 2):</strong> tokenize FSD/autonomous miles at 10 miles = 1 $ZSOLAR (same 10:1 ratio). Included in latest patent application. High-impact "cherry on top" for the Lyndon Rive pitch — not yet in Clean Energy Center dashboard.</li>
             <li>• ZPPA producer-gated LP rounds operational</li>
           </ul>
         </div>
