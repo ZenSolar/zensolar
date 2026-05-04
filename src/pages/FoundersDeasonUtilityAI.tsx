@@ -141,6 +141,8 @@ function Content() {
             <li>• <strong>Hybrid data approach:</strong> UtilityAPI for users who connect, photo/PDF bill upload for everyone else.</li>
             <li>• Tone: upbeat, academic, confidence-building — "frequent flyer miles" analogies before any jargon.</li>
             <li>• Context-aware: switches between patient educator (wallets, blockchain) and expert (rate plans, battery dispatch) automatically.</li>
+            <li>• <strong>Monthly Deep Energy Insights:</strong> richer Deason-powered report sent once per month, unlocked by UtilityAPI connection or latest bill upload. Includes rate-plan optimization, savings forecasts, battery/EV recommendations, and peak/off-peak analysis.</li>
+            <li>• <strong>In-App Personalized Energy Insights Page</strong> (at /energy-insights or inside Clean Energy Center): dedicated dashboard with charts, savings projections, and one-tap actions. Becomes the "home base" for the premium experience.</li>
           </ul>
         </Section>
 
