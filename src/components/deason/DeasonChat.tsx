@@ -154,7 +154,11 @@ export function DeasonChat({ onClose, compact = false }: DeasonChatProps) {
       </div>
 
       {/* Composer */}
-      <form onSubmit={onSubmit} className="border-t border-border bg-card p-3">
+      <form
+        onSubmit={onSubmit}
+        className="border-t border-border bg-card px-3 pt-3"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.75rem)" }}
+      >
         {attachedImage && (
           <div className="mb-2 flex items-center gap-2 rounded-lg border border-border bg-background p-2">
             <img src={attachedImage} alt="Attached bill" className="h-12 w-12 rounded object-cover" />
