@@ -23,7 +23,11 @@ import {
 
 const BTC_MCAP_LABEL = '$1.9T';
 const BTC_MCAP_AS_OF = 'April 2026';
-const BTC_MCAP_NUMERIC = 1.9; // trillions, used for the math display
+
+// Honest, defensible target range for $ZSOLAR best-case execution.
+// We do NOT need to beat Bitcoin to win — top-5 status is the prize.
+const TARGET_LOW_B = 100; // $100B
+const TARGET_HIGH_B = 500; // $500B
 
 const COMPARISON_ROWS: Array<{
   axis: string;
