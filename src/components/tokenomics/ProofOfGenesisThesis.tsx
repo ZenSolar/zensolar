@@ -235,10 +235,10 @@ export function ProofOfGenesisThesis() {
         <CardHeader className="relative px-5 pt-5 pb-3 sm:px-6 sm:pt-6">
           <CardTitle className="text-[17px] sm:text-xl flex items-center gap-2 leading-tight">
             <InfinityIcon className="h-4.5 w-4.5 text-primary shrink-0" />
-            The 5x–10x Math
+            The Path to Top-5
           </CardTitle>
           <p className="text-[11.5px] text-muted-foreground mt-1.5 leading-snug">
-            BTC market cap as of {BTC_MCAP_AS_OF} · hardcoded reference snapshot
+            BTC reference mcap as of {BTC_MCAP_AS_OF} · honest best-case range
           </p>
         </CardHeader>
 
@@ -246,15 +246,15 @@ export function ProofOfGenesisThesis() {
           {/* Hero number block */}
           <div className="rounded-2xl border border-primary/25 bg-gradient-to-br from-primary/10 via-primary/[0.04] to-transparent px-5 py-5 text-center">
             <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-primary/80 mb-2">
-              Target Range
+              Best-Case Target Range
             </p>
             <div className="flex items-baseline justify-center gap-1.5">
               <span className="text-5xl sm:text-6xl font-black tracking-tight bg-gradient-to-br from-primary to-accent bg-clip-text text-transparent leading-none">
-                5–10×
+                ${TARGET_LOW_B}B–${TARGET_HIGH_B}B
               </span>
             </div>
             <p className="text-[12.5px] text-muted-foreground mt-2.5 leading-snug">
-              Bitcoin's current market capitalization
+              Top-5 to top-10 cryptocurrency outcome
             </p>
           </div>
 
@@ -265,27 +265,27 @@ export function ProofOfGenesisThesis() {
               label="Bitcoin today"
               value={`~${BTC_MCAP_LABEL}`}
               icon={<Bitcoin className="h-3.5 w-3.5 text-muted-foreground" />}
-              widthPct={10}
+              widthPct={100}
               barClass="bg-muted-foreground/45"
               labelClass="text-foreground/75"
               valueClass="text-foreground/75"
             />
-            {/* 5x */}
+            {/* Low target ~$100B = ~5% of BTC */}
             <BarRow
-              label="$ZSOLAR · 5× target"
-              value={`~$${target5x}T`}
+              label="$ZSOLAR · floor target"
+              value={`~$${TARGET_LOW_B}B`}
               icon={<TrendingUp className="h-3.5 w-3.5 text-primary" />}
-              widthPct={50}
+              widthPct={Math.round((TARGET_LOW_B / 1900) * 100)}
               barClass="bg-gradient-to-r from-primary/70 to-primary"
               labelClass="text-foreground"
               valueClass="text-primary"
             />
-            {/* 10x */}
+            {/* High target ~$500B = ~26% of BTC */}
             <BarRow
-              label="$ZSOLAR · 10× target"
-              value={`~$${target10x}T`}
+              label="$ZSOLAR · stretch target"
+              value={`~$${TARGET_HIGH_B}B`}
               icon={<Zap className="h-3.5 w-3.5 text-primary" />}
-              widthPct={100}
+              widthPct={Math.round((TARGET_HIGH_B / 1900) * 100)}
               barClass="bg-gradient-to-r from-primary via-primary to-accent shadow-[0_0_16px_hsl(var(--primary)/0.45)]"
               labelClass="text-foreground"
               valueClass="text-primary"
@@ -293,20 +293,23 @@ export function ProofOfGenesisThesis() {
             />
           </div>
 
-          {/* "Why this isn't hand-wavy" */}
+          {/* "Why this is defensible" */}
           <div className="rounded-xl border border-primary/20 bg-primary/[0.04] px-4 py-3.5 mt-2">
             <p className="text-[10.5px] font-bold uppercase tracking-[0.18em] text-primary mb-1.5">
-              Why this isn't hand-wavy
+              Why this is defensible
             </p>
             <p className="text-[13px] sm:text-[13.5px] leading-relaxed text-foreground/85">
-              Bitcoin's mcap is essentially "the price the market pays for digital scarcity." The
-              global energy market is{' '}
+              Bitcoin's moat is{' '}
+              <span className="font-semibold text-foreground">cultural, institutional, and monetary</span>{' '}
+              — a 15-year head start, spot ETFs, and "digital gold" brand recognition. We don't need to
+              dethrone it. With our five stacked scarcity mechanisms (1T cap, 20% burn-per-mint,
+              halving, founder pact-lock, POL) tied to real-world clean energy utility, $ZSOLAR has a
+              credible path to{' '}
               <span className="font-semibold text-foreground">
-                orders of magnitude larger
-              </span>{' '}
-              than digital scarcity — and $ZSOLAR is the first token cryptographically anchored to
-              real energy production. Capturing even a sliver of that value flow is what gets us to
-              5×–10×.
+                top-5 to top-10 status at $100B–$500B
+              </span>
+              . That outcome alone would be category-defining for clean-energy crypto — and
+              transformative for early holders.
             </p>
           </div>
 
