@@ -11,6 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import { SEO } from "@/components/SEO";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { cn } from "@/lib/utils";
+import { ScarcityOutlookSection } from "@/components/founders/ScarcityOutlookSection";
 
 const LAST_LOCKED = "2026-05-02";
 const VERSION = "v2.1";
