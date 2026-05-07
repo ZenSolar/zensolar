@@ -3,6 +3,7 @@ import { useOnChainHoldings } from '@/hooks/useOnChainHoldings';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PageSkeleton } from '@/components/ui/empty-state';
 import { 
   Wallet as WalletIcon, 
   Coins, 
