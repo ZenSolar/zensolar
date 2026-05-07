@@ -94,9 +94,9 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
       aria-label="Primary"
       className={cn(
         "md:hidden fixed inset-x-0 bottom-0 z-40",
-        // Solid background fills through safe-area; no padding-bottom so there's
-        // no visible gap below the icons on iOS PWAs.
-        "border-t border-border bg-background",
+        // Use card surface (distinct from page bg) so the safe-area band below
+        // the icons reads as part of the nav, eliminating perceived dead space.
+        "border-t border-border bg-card/95 backdrop-blur-md supports-[backdrop-filter]:bg-card/80",
         className,
       )}
       style={{
