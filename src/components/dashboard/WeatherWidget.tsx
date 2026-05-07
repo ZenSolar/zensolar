@@ -1,5 +1,6 @@
 import { useWeather, getWeatherDescription } from '@/hooks/useWeather';
-import { MapPin, Loader2, Sun, Moon, Cloud, CloudRain, CloudSnow, CloudLightning, CloudFog, CloudDrizzle, CloudSun } from 'lucide-react';
+import { MapPin, Sun, Moon, Cloud, CloudRain, CloudSnow, CloudLightning, CloudFog, CloudDrizzle, CloudSun } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 
 function WeatherIcon({ code, isDay, className }: { code: number; isDay: boolean; className?: string }) {
