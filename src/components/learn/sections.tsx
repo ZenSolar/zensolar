@@ -18,6 +18,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SectionHeader } from '@/components/layout/PageShell';
+import { useBasePath } from '@/hooks/useBasePath';
 
 /**
  * Reusable Learn section blocks. Used by the focused sub-pages
@@ -26,6 +27,7 @@ import { SectionHeader } from '@/components/layout/PageShell';
  */
 
 export function HowItWorksSection() {
+  const basePath = useBasePath();
   const steps = [
     { icon: Zap, title: 'Connect', desc: 'Link Tesla, Enphase, SolarEdge, or Wallbox in 30 seconds — no hardware.' },
     { icon: Sun, title: 'Generate', desc: 'Your panels, EV, and battery are already producing verified clean energy.' },
@@ -55,7 +57,7 @@ export function HowItWorksSection() {
         ))}
       </div>
       <Button asChild variant="ghost" size="sm" className="text-primary hover:text-primary">
-        <Link to="/demo/how-it-works">
+        <Link to={`${basePath}/how-it-works`}>
           Read full guide
           <ArrowRight className="h-3.5 w-3.5 ml-1" />
         </Link>
