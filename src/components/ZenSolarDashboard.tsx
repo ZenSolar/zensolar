@@ -65,11 +65,12 @@ import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { PerfProbe } from '@/components/dev/PerfProbe';
 import { installNetworkPerfLogger } from '@/lib/perfProfiler';
 
-// Lightweight skeleton placeholder — matches dashboard card vertical rhythm so layout doesn't jump
+// Unified card skeleton — matches the rounded-2xl, border-primary/15, bg-card/80
+// rhythm used across Wallet, Mint History, Profile, Referrals, and Subscribe.
 function CardSkeleton({ height = 'h-40' }: { height?: string }) {
   return (
     <div
-      className={`w-full ${height} rounded-2xl border border-border/40 bg-card/30 animate-pulse`}
+      className={`relative w-full ${height} rounded-2xl border border-primary/15 bg-card/80 overflow-hidden animate-pulse before:absolute before:inset-0 before:-translate-x-full before:bg-gradient-to-r before:from-transparent before:via-foreground/[0.05] before:to-transparent before:animate-[shimmer-sweep_1.8s_ease-in-out_infinite]`}
       aria-hidden="true"
     />
   );
