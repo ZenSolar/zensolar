@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { PageSkeleton } from "@/components/ui/empty-state";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/hooks/useAuth";
