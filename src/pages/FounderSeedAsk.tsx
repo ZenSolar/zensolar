@@ -112,7 +112,7 @@ export default function FounderSeedAsk() {
           </a>
           <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/5 px-4 py-2.5 text-xs text-amber-400">
             <Banknote className="h-3.5 w-3.5" />
-            v3.1 · Eyes-only: Joseph & Michael
+            v16 · Eyes-only: Joseph & Michael
           </div>
         </div>
       </section>
