@@ -96,27 +96,7 @@ export default function Wallet() {
   const nftContractUrl = `https://sepolia.basescan.org/token/${ZSOLAR_NFT_ADDRESS}`;
 
   if (profileLoading) {
-    return (
-      <div className="max-w-lg mx-auto px-4 py-5 space-y-3.5">
-        <div className="rounded-2xl border border-primary/15 bg-card/80 p-5 space-y-4">
-          <div className="flex items-center justify-between">
-            <Skeleton className="h-5 w-24" />
-            <Skeleton className="h-5 w-12 rounded-full" />
-          </div>
-          <Skeleton className="h-12 w-12 rounded-xl" />
-          <Skeleton className="h-10 w-48" />
-          <Skeleton className="h-4 w-32" />
-          <div className="grid grid-cols-2 gap-3 pt-2">
-            <Skeleton className="h-20 w-full rounded-xl" />
-            <Skeleton className="h-20 w-full rounded-xl" />
-          </div>
-          <div className="flex gap-2 pt-2">
-            <Skeleton className="h-10 flex-1 rounded-md" />
-            <Skeleton className="h-10 flex-1 rounded-md" />
-          </div>
-        </div>
-      </div>
-    );
+    return <PageSkeleton variant="default" />;
   }
 
   if (!walletAddress) {
