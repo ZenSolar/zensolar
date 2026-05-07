@@ -1,9 +1,7 @@
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Coins, TrendingUp, Lock, Sparkles, ArrowRight } from 'lucide-react';
-import { useBasePath } from '@/hooks/useBasePath';
+import { Coins, TrendingUp, Lock, Sparkles } from 'lucide-react';
+import { HowItWorksCTA } from '@/components/how-it-works/HowItWorksCTA';
 
 interface Tokenomics101CardProps {
   className?: string;
