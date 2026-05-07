@@ -642,27 +642,30 @@ export function AppSidebar() {
         <AppThemeSelector />
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton 
+            <SidebarMenuButton
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              tooltip={theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
-              className="hover:bg-sidebar-accent/50"
+              tooltip={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              aria-label={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              className="min-h-[2.5rem] rounded-md transition-all duration-200 hover:bg-sidebar-accent/60 active:scale-[0.98]"
             >
-              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              {theme === 'dark' ? <Sun className="h-4 w-4" aria-hidden="true" /> : <Moon className="h-4 w-4" aria-hidden="true" />}
               <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton 
+            <SidebarMenuButton
               onClick={handleLogout}
-              tooltip="Sign Out"
-              className="text-destructive hover:bg-destructive/10"
+              tooltip="Sign out of your account"
+              aria-label="Sign out of your account"
+              className="min-h-[2.5rem] rounded-md text-destructive transition-all duration-200 hover:bg-destructive/10 active:scale-[0.98]"
             >
-              <LogOut className="h-4 w-4" />
+              <LogOut className="h-4 w-4" aria-hidden="true" />
               <span>Sign Out</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+      <SidebarOnboarding />
     </Sidebar>
   );
 }
