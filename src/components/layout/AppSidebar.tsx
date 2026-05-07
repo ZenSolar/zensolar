@@ -364,6 +364,29 @@ export function AppSidebar() {
           </SidebarGroup>
         )}
 
+        {/* Resources - lower-frequency reference content */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Resources</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {resourcesNavItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild tooltip={item.title}>
+                    <NavLink
+                      to={item.url}
+                      onClick={handleNavClick}
+                      className={navClass}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
         {/* Secondary Navigation */}
         <SidebarGroup>
           <SidebarGroupLabel>Account</SidebarGroupLabel>
