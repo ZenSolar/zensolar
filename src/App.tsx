@@ -299,8 +299,10 @@ const App = () => {
                       <Route path="blog" element={<Blog />} />
                     </Route>
                     <Route path="/home" element={<Home />} />
-                    <Route path="/subscribe" element={<Suspense fallback={<PageLoader />}><Subscribe /></Suspense>} />
-                    <Route path="/demo/subscribe" element={<Suspense fallback={<PageLoader />}><Subscribe /></Suspense>} />
+                    {/* Subscribe wrapped in AppLayout so it inherits the
+                        global top nav (back button + safe-area-top) and bottom nav. */}
+                    <Route path="/subscribe" element={<Suspense fallback={<PageLoader />}><AppLayout><Subscribe /></AppLayout></Suspense>} />
+                    <Route path="/demo/subscribe" element={<Suspense fallback={<PageLoader />}><AppLayout><Subscribe /></AppLayout></Suspense>} />
                     <Route path="/competition/gridpay" element={<GridPayCompetition />} />
                     <Route path="/blog" element={<Blog />} />
                     <Route path="/blog/what-is-solar-energy-blockchain-rewards" element={<BlogWhatIsSolar />} />

@@ -94,13 +94,16 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
       aria-label="Primary"
       className={cn(
         "md:hidden fixed inset-x-0 bottom-0 z-40",
-        // Solid background so iOS home-indicator safe area never looks like a gap
-        "border-t border-border bg-background",
+        // Use card surface (distinct from page bg) so the safe-area band below
+        // the icons reads as part of the nav, eliminating perceived dead space.
+        "border-t border-border bg-card/95 backdrop-blur-md supports-[backdrop-filter]:bg-card/80",
         className,
       )}
       style={{
-        paddingBottom: "env(safe-area-inset-bottom, 0px)",
         height: "var(--bottom-nav-total-h)",
+        // Push icon row up by the home-indicator inset so icons remain tappable
+        // and the safe-area band shares the nav's solid background.
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
       }}
     >
       <ul className="grid grid-cols-5 h-[var(--bottom-nav-height)]">
