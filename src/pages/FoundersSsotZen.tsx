@@ -34,6 +34,7 @@ import { PageTransition } from "@/components/layout/PageTransition";
 import { cn } from "@/lib/utils";
 
 const ChartsBlock = lazy(() => import("./founders-ssot/SsotCharts"));
+import { ScarcityOutlookSection } from "@/components/founders/ScarcityOutlookSection";
 
 const SSOT = {
   version: "v2.1",
@@ -369,6 +370,10 @@ export default function FoundersSsotZen() {
           <Suspense fallback={<div className="h-[400px] rounded-2xl bg-card/30 border border-border/30 animate-pulse" />}>
             <ChartsBlock scenario={scenario} ssot={SSOT} />
           </Suspense>
+        </section>
+
+        <section>
+          <ScarcityOutlookSection />
         </section>
 
         <section>
