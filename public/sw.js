@@ -114,31 +114,46 @@ self.addEventListener('push', (event) => {
   })());
 });
 
-// Handle notification clicks
+// Handle notification clicks — normalize URLs so any deep link
+// (relative path, full https URL, or path with query) opens the
+// correct in-app route via SPA routing.
 self.addEventListener('notificationclick', (event) => {
   console.log('[SW] Notification clicked');
-  
+
   event.notification.close();
 
-  // Get URL from notification data
-  const urlToOpen = event.notification.data?.url || '/';
+  const rawUrl = event.notification.data?.url || '/';
+  let target;
+  try {
+    // Resolve against our own origin so external absolute URLs that point
+    // to our domain still produce a same-origin navigation, and relative
+    // paths like "/how-it-works" stay intact.
+    const resolved = new URL(rawUrl, self.location.origin);
+    target = resolved.origin === self.location.origin
+      ? resolved.pathname + resolved.search + resolved.hash
+      : resolved.href;
+  } catch {
+    target = '/';
+  }
 
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true })
-      .then((clientList) => {
-        // Try to focus existing window
-        for (const client of clientList) {
-          if (client.url.includes(self.location.origin) && 'focus' in client) {
-            client.navigate(urlToOpen);
-            return client.focus();
-          }
+  event.waitUntil((async () => {
+    const clientList = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+    // Prefer focusing/navigating an existing same-origin window
+    for (const client of clientList) {
+      if (client.url.startsWith(self.location.origin) && 'focus' in client) {
+        try {
+          await client.navigate(target);
+        } catch (err) {
+          console.warn('[SW] client.navigate failed, falling back to openWindow:', err);
+          if (clients.openWindow) await clients.openWindow(target);
         }
-        // Open new window if none exists
-        if (clients.openWindow) {
-          return clients.openWindow(urlToOpen);
-        }
-      })
-  );
+        return client.focus();
+      }
+    }
+    if (clients.openWindow) {
+      return clients.openWindow(target);
+    }
+  })());
 });
 
 // Handle notification close
