@@ -18,6 +18,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { PageShell } from '@/components/layout/PageShell';
 import { PageTransition } from '@/components/layout/PageTransition';
 import { JargonTip } from '@/components/ui/jargon-tip';
+import { Tokenomics101Card } from '@/components/tokenomics/Tokenomics101Card';
 
 interface MintTransaction {
   id: string;
@@ -162,6 +163,9 @@ export default function MintHistory() {
         width="4xl"
       >
         <div className="space-y-5 sm:space-y-8">
+
+        {/* Newbie-friendly tokenomics summary */}
+        <Tokenomics101Card compact />
 
         {/* Summary Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">

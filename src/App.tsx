@@ -581,7 +581,7 @@ const App = () => {
                       } 
                     />
                     {/* Redirects from old routes */}
-                    <Route path="/how-it-works" element={<Navigate to="/learn?tab=how-it-works" replace />} />
+                    {/* /how-it-works now resolves to the rich HowItWorks hub (registered above). */}
                     <Route path="/tokenomics" element={<Navigate to="/learn?tab=tokenomics" replace />} />
                     <Route path="/help" element={<Navigate to="/help-center?tab=help" replace />} />
                     <Route path="/feedback" element={<Navigate to="/help-center?tab=feedback" replace />} />
