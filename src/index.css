@@ -224,6 +224,10 @@
     /* Standard FAB clearance above the nav (gap between FAB and nav top edge) */
     --fab-gap: 12px;
     --fab-bottom: calc(var(--bottom-nav-total-h) + var(--fab-gap));
+    /* Top safe area (Dynamic Island / notch) — single source of truth */
+    --top-safe: env(safe-area-inset-top, 0px);
+    --header-h: 3.5rem;
+    --header-total-h: calc(var(--header-h) + var(--top-safe));
   }
 
   /* Utility: any FAB anchors itself above the nav + iOS home indicator */
@@ -233,6 +237,23 @@
   /* Utility: page content padding so nothing is occluded by the nav */
   .pb-bottom-nav {
     padding-bottom: var(--bottom-nav-total-h);
+  }
+  /* Utility: page content padding so nothing is occluded by the header */
+  .pt-header {
+    padding-top: var(--header-total-h);
+  }
+
+  /* GLOBAL RULE: any element marked as a fixed top bar must reserve the top
+     safe-area so it cannot bleed under the Dynamic Island / notch. */
+  [data-fixed-top="true"],
+  .fixed-top-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  /* GLOBAL RULE: any element marked as a fixed bottom bar fills through the
+     home-indicator inset so there is never a visible gap. */
+  [data-fixed-bottom="true"],
+  .fixed-bottom-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   /* iOS scroll container */
