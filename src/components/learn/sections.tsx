@@ -18,6 +18,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SectionHeader } from '@/components/layout/PageShell';
+import { useBasePath } from '@/hooks/useBasePath';
 
 /**
  * Reusable Learn section blocks. Used by the focused sub-pages
