@@ -369,19 +369,22 @@ export function AppSidebar() {
         )}
 
         {/* Resources - lower-frequency reference content */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Resources</SidebarGroupLabel>
+        <SidebarGroup className="px-1 mt-1 border-t border-sidebar-border/50 pt-2">
+          <SidebarGroupLabel className="px-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-sidebar-foreground/50">
+            Resources
+          </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-0.5">
               {resourcesNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
+                  <SidebarMenuButton asChild tooltip={item.desc ?? item.title}>
                     <NavLink
                       to={item.url}
                       onClick={handleNavClick}
+                      aria-label={`${item.title}${item.desc ? ` — ${item.desc}` : ""}`}
                       className={navClass}
                     >
-                      <item.icon className="h-4 w-4" />
+                      <item.icon className="h-4 w-4" aria-hidden="true" />
                       <span>{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
@@ -391,20 +394,23 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Secondary Navigation */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Account</SidebarGroupLabel>
+        {/* Account */}
+        <SidebarGroup className="px-1 mt-1 border-t border-sidebar-border/50 pt-2">
+          <SidebarGroupLabel className="px-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-sidebar-foreground/50">
+            Account
+          </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-0.5">
               {secondaryNavItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
-                    <NavLink 
+                  <SidebarMenuButton asChild tooltip={item.desc ?? item.title}>
+                    <NavLink
                       to={item.url}
                       onClick={handleNavClick}
+                      aria-label={`${item.title}${item.desc ? ` — ${item.desc}` : ""}`}
                       className={navClass}
                     >
-                      <item.icon className="h-4 w-4" />
+                      <item.icon className="h-4 w-4" aria-hidden="true" />
                       <span>{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
