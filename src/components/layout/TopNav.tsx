@@ -49,13 +49,13 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
 
   return (
     <header 
+      data-fixed-top="true"
       className={cn(
         "fixed inset-x-0 top-0 z-50 bg-background border-b border-border",
         className
       )}
     >
-      {/* Safe area spacer for PWA/notch */}
-      <div className="pt-safe" />
+      {/* pt-safe handled globally via [data-fixed-top] */}
       {/* Content row with icons */}
       <div className="flex h-14 items-center justify-between px-4">
         <div className="flex items-center gap-1 min-w-0">
