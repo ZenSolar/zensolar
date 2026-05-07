@@ -79,29 +79,29 @@ import {
 
 // High-frequency items only — keep ≤ 7 for scannability.
 const mainNavItems = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Mint History", url: "/mint-history", icon: History },
-  { title: "$ZSOLAR Store", url: "/store", icon: ShoppingBag },
-  { title: "My Energy Logs", url: "/energy-log", icon: BarChart3 },
-  { title: "Learn", url: "/learn", icon: BookOpen },
-  { title: "Wallet", url: "/wallet", icon: Wallet },
+  { title: "Dashboard", url: "/", icon: LayoutDashboard, desc: "Your home — energy + token overview" },
+  { title: "Mint History", url: "/mint-history", icon: History, desc: "All your past mints and receipts" },
+  { title: "$ZSOLAR Store", url: "/store", icon: ShoppingBag, desc: "Spend $ZSOLAR on rewards" },
+  { title: "My Energy Logs", url: "/energy-log", icon: BarChart3, desc: "Detailed kWh production & charging" },
+  { title: "Learn", url: "/learn", icon: BookOpen, desc: "How ZenSolar works, in plain English" },
+  { title: "Wallet", url: "/wallet", icon: Wallet, desc: "Your $ZSOLAR balance and tokens" },
 ];
 
 const previewOnlyNavItems = [
-  { title: "Engineering", url: "/engineering", icon: Wrench },
+  { title: "Engineering", url: "/engineering", icon: Wrench, desc: "Internal engineering tools" },
 ];
 
 // Lower-frequency reference content.
 const resourcesNavItems = [
-  { title: "NFT Collection", url: "/nft-collection", icon: Award },
-  { title: "Proof-of-Genesis™", url: "/proof-of-genesis", icon: Sparkles },
-  { title: "White Paper", url: "/white-paper", icon: FileText },
-  { title: "Patent Technology", url: "/technology", icon: Cpu },
+  { title: "NFT Collection", url: "/nft-collection", icon: Award, desc: "Browse the ZenSolar NFT collection" },
+  { title: "Proof-of-Genesis™", url: "/proof-of-genesis", icon: Sparkles, desc: "How we verify real clean energy" },
+  { title: "White Paper", url: "/white-paper", icon: FileText, desc: "The full ZenSolar thesis" },
+  { title: "Patent Technology", url: "/technology", icon: Cpu, desc: "Mint-on-Proof™ patent stack" },
 ];
 
 const secondaryNavItems = [
-  { title: "Profile", url: "/profile", icon: User },
-  { title: "Referrals", url: "/referrals", icon: Users },
+  { title: "Profile", url: "/profile", icon: User, desc: "Your profile and settings" },
+  { title: "Referrals", url: "/referrals", icon: Users, desc: "Invite friends, earn rewards" },
 ];
 
 // Consolidated admin menu structure
@@ -169,27 +169,27 @@ const adminMenuGroups = {
   ],
 };
 
-// Shared NavLink className builders — adds a left accent bar on the active route.
-// Primary (emerald) for main/account/admin nav; Amber for Founders nav.
+// Shared NavLink className builders — adds a left accent bar + smooth active highlight.
+// Slightly taller rows + larger tap targets for mobile.
 const navClass = ({ isActive }: { isActive: boolean }) =>
-  `relative pl-3 border-l-2 transition-colors ${
+  `relative pl-3 border-l-2 rounded-md transition-all duration-200 min-h-[2.5rem] active:scale-[0.98] ${
     isActive
-      ? "border-primary bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-      : "border-transparent hover:bg-sidebar-accent/50 hover:border-primary/40"
+      ? "border-primary bg-sidebar-accent text-sidebar-accent-foreground font-medium shadow-[inset_0_0_0_1px_hsl(var(--sidebar-accent))]"
+      : "border-transparent hover:bg-sidebar-accent/60 hover:border-primary/40 hover:translate-x-[1px]"
   }`;
 
 const navClassWithExtra = (extra: string) => ({ isActive }: { isActive: boolean }) =>
-  `relative pl-3 border-l-2 transition-colors ${
+  `relative pl-3 border-l-2 rounded-md transition-all duration-200 min-h-[2.5rem] active:scale-[0.98] ${
     isActive
-      ? `border-primary bg-sidebar-accent text-sidebar-accent-foreground font-medium ${extra}`
-      : `border-transparent hover:bg-sidebar-accent/50 hover:border-primary/40 ${extra}`
+      ? `border-primary bg-sidebar-accent text-sidebar-accent-foreground font-medium shadow-[inset_0_0_0_1px_hsl(var(--sidebar-accent))] ${extra}`
+      : `border-transparent hover:bg-sidebar-accent/60 hover:border-primary/40 hover:translate-x-[1px] ${extra}`
   }`;
 
 const founderNavClass = ({ isActive }: { isActive: boolean }) =>
-  `relative pl-3 border-l-2 transition-colors text-amber-400 font-semibold rounded-lg ${
+  `relative pl-3 border-l-2 rounded-md transition-all duration-200 min-h-[2.5rem] text-amber-400 font-semibold active:scale-[0.98] ${
     isActive
       ? "border-amber-400 bg-amber-400/10 text-amber-300"
-      : "border-transparent hover:bg-sidebar-accent/50 hover:border-amber-400/40"
+      : "border-transparent hover:bg-sidebar-accent/50 hover:border-amber-400/40 hover:translate-x-[1px]"
   }`;
 
 export function AppSidebar() {
