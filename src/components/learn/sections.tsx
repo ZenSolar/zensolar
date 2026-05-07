@@ -57,7 +57,7 @@ export function HowItWorksSection() {
         ))}
       </div>
       <Button asChild variant="ghost" size="sm" className="text-primary hover:text-primary">
-        <Link to="/demo/how-it-works">
+        <Link to={`${basePath}/how-it-works`}>
           Read full guide
           <ArrowRight className="h-3.5 w-3.5 ml-1" />
         </Link>
