@@ -97,8 +97,24 @@ export default function Wallet() {
 
   if (profileLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <div className="max-w-lg mx-auto px-4 py-5 space-y-3.5">
+        <div className="rounded-2xl border border-primary/15 bg-card/80 p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-5 w-12 rounded-full" />
+          </div>
+          <Skeleton className="h-12 w-12 rounded-xl" />
+          <Skeleton className="h-10 w-48" />
+          <Skeleton className="h-4 w-32" />
+          <div className="grid grid-cols-2 gap-3 pt-2">
+            <Skeleton className="h-20 w-full rounded-xl" />
+            <Skeleton className="h-20 w-full rounded-xl" />
+          </div>
+          <div className="flex gap-2 pt-2">
+            <Skeleton className="h-10 flex-1 rounded-md" />
+            <Skeleton className="h-10 flex-1 rounded-md" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -334,6 +350,22 @@ export default function Wallet() {
       <RecentMintProofs />
 
       {/* ── NFT Gallery ── */}
+      {!holdingsLoading && nftTokenIds.length === 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.15 }}
+          className="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-5 text-center"
+        >
+          <div className="mx-auto mb-3 h-12 w-12 rounded-xl bg-gradient-to-br from-secondary/20 to-secondary/5 border border-secondary/20 flex items-center justify-center">
+            <Images className="h-5 w-5 text-secondary" />
+          </div>
+          <p className="text-sm font-semibold text-foreground mb-1">No NFTs yet</p>
+          <p className="text-xs text-muted-foreground max-w-xs mx-auto leading-relaxed">
+            Hit your first milestone to unlock a collectible NFT — one for every major step of your clean-energy journey.
+          </p>
+        </motion.div>
+      )}
       {nftTokenIds.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 12 }}
