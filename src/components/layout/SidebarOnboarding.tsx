@@ -140,10 +140,10 @@ export function SidebarOnboarding() {
           "data-[state=open]:duration-300",
         )}
       >
-        <VisuallyHidden>
+        <div className="sr-only">
           <DialogTitle>{current.title}</DialogTitle>
           <DialogDescription>{current.blurb}</DialogDescription>
-        </VisuallyHidden>
+        </div>
 
         {/* Skip button */}
         <button
