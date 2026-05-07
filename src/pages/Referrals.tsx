@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { PageSkeleton } from "@/components/ui/empty-state";
 import { useProfile } from "@/hooks/useProfile";
 import { ReferralCard } from "@/components/dashboard/ReferralCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -42,17 +43,7 @@ export default function Referrals() {
   const totalTokensEarned = referrals?.reduce((sum, r) => sum + Number(r.tokens_rewarded), 0) || 0;
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative">
-            <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
-            <Loader2 className="h-10 w-10 animate-spin text-primary relative z-10" />
-          </div>
-          <p className="text-sm text-muted-foreground">Loading referrals...</p>
-        </div>
-      </div>
-    );
+    return <PageSkeleton variant="default" />;
   }
 
   return (

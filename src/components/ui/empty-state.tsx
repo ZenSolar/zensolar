@@ -115,3 +115,86 @@ export function PageLoader({ label = "Loading…" }: { label?: string }) {
     </div>
   );
 }
+
+/**
+ * Unified card skeleton — matches the rounded-2xl, border-primary/15, bg-card/80
+ * vertical rhythm used across Wallet, Mint History, Profile, and Referrals.
+ */
+export function PageCardSkeleton({
+  rows = 4,
+  showHeader = true,
+  showGrid = false,
+  className,
+}: {
+  rows?: number;
+  showHeader?: boolean;
+  showGrid?: boolean;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "rounded-2xl border border-primary/15 bg-card/80 p-5 space-y-4",
+        className,
+      )}
+      aria-label="Loading"
+    >
+      {showHeader && (
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-5 w-28" />
+          <Skeleton className="h-5 w-12 rounded-full" />
+        </div>
+      )}
+      <Skeleton className="h-12 w-12 rounded-xl" />
+      <Skeleton className="h-9 w-2/3" />
+      <Skeleton className="h-3.5 w-1/3" />
+      {showGrid && (
+        <div className="grid grid-cols-2 gap-3 pt-1">
+          <Skeleton className="h-20 w-full rounded-xl" />
+          <Skeleton className="h-20 w-full rounded-xl" />
+        </div>
+      )}
+      <div className="space-y-2 pt-1">
+        {Array.from({ length: rows }).map((_, i) => (
+          <Skeleton key={i} className="h-3.5 w-full" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Standardized full-page skeleton for settings/profile pages.
+ */
+export function PageSkeleton({
+  variant = "default",
+}: {
+  variant?: "default" | "settings" | "list";
+}) {
+  return (
+    <div className="max-w-lg mx-auto px-4 py-5 space-y-3.5">
+      <div className="flex items-center gap-3 mb-2">
+        <Skeleton className="h-8 w-8 rounded-lg" />
+        <div className="space-y-1.5 flex-1">
+          <Skeleton className="h-5 w-40" />
+          <Skeleton className="h-3 w-56" />
+        </div>
+      </div>
+      {variant === "list" ? (
+        <ListSkeleton rows={5} />
+      ) : variant === "settings" ? (
+        <>
+          <PageCardSkeleton rows={3} showGrid />
+          <PageCardSkeleton rows={2} />
+          <PageCardSkeleton rows={2} />
+        </>
+      ) : (
+        <>
+          <PageCardSkeleton rows={3} showGrid />
+          <PageCardSkeleton rows={4} />
+        </>
+      )}
+    </div>
+  );
+}
+

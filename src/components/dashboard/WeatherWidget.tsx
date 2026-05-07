@@ -1,5 +1,6 @@
 import { useWeather, getWeatherDescription } from '@/hooks/useWeather';
-import { MapPin, Loader2, Sun, Moon, Cloud, CloudRain, CloudSnow, CloudLightning, CloudFog, CloudDrizzle, CloudSun } from 'lucide-react';
+import { MapPin, Sun, Moon, Cloud, CloudRain, CloudSnow, CloudLightning, CloudFog, CloudDrizzle, CloudSun } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 
 function WeatherIcon({ code, isDay, className }: { code: number; isDay: boolean; className?: string }) {
@@ -26,9 +27,10 @@ export function WeatherWidget() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="flex items-center gap-1 text-muted-foreground"
+          className="flex items-center gap-1.5 shrink-0"
         >
-          <Loader2 className="h-3 w-3 animate-spin" />
+          <Skeleton className="h-3 w-3 rounded-full" plain />
+          <Skeleton className="h-3 w-8" plain />
         </motion.div>
       ) : weather ? (
         <motion.div
