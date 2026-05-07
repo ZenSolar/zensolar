@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { PageSkeleton } from "@/components/ui/empty-state";
 import { useProfile } from "@/hooks/useProfile";
 import { ReferralCard } from "@/components/dashboard/ReferralCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
