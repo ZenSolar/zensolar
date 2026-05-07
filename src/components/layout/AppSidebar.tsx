@@ -76,29 +76,31 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
+// High-frequency items only — keep ≤ 7 for scannability.
 const mainNavItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Mint History", url: "/mint-history", icon: History },
   { title: "$ZSOLAR Store", url: "/store", icon: ShoppingBag },
   { title: "My Energy Logs", url: "/energy-log", icon: BarChart3 },
-  { title: "NFT Collection", url: "/nft-collection", icon: Award },
   { title: "Learn", url: "/learn", icon: BookOpen },
-  { title: "Proof-of-Genesis™", url: "/proof-of-genesis", icon: Sparkles },
-  { title: "White Paper", url: "/white-paper", icon: FileText },
-  { title: "Patent Technology", url: "/technology", icon: Cpu },
-  { title: "Referrals", url: "/referrals", icon: Users },
-  // Preview-only items appended below at render time
+  { title: "Wallet", url: "/wallet", icon: Wallet },
 ];
 
 const previewOnlyNavItems = [
   { title: "Engineering", url: "/engineering", icon: Wrench },
 ];
 
+// Lower-frequency reference content.
+const resourcesNavItems = [
+  { title: "NFT Collection", url: "/nft-collection", icon: Award },
+  { title: "Proof-of-Genesis™", url: "/proof-of-genesis", icon: Sparkles },
+  { title: "White Paper", url: "/white-paper", icon: FileText },
+  { title: "Patent Technology", url: "/technology", icon: Cpu },
+];
+
 const secondaryNavItems = [
   { title: "Profile", url: "/profile", icon: User },
-  { title: "Wallet", url: "/wallet", icon: Wallet },
-  { title: "Settings", url: "/settings", icon: Settings },
-  { title: "Help & Feedback", url: "/help-center", icon: MessageSquarePlus },
+  { title: "Referrals", url: "/referrals", icon: Users },
 ];
 
 // Consolidated admin menu structure
@@ -361,6 +363,29 @@ export function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
         )}
+
+        {/* Resources - lower-frequency reference content */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Resources</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {resourcesNavItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild tooltip={item.title}>
+                    <NavLink
+                      to={item.url}
+                      onClick={handleNavClick}
+                      className={navClass}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
 
         {/* Secondary Navigation */}
         <SidebarGroup>
