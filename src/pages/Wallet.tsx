@@ -350,6 +350,22 @@ export default function Wallet() {
       <RecentMintProofs />
 
       {/* ── NFT Gallery ── */}
+      {!holdingsLoading && nftTokenIds.length === 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.15 }}
+          className="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-5 text-center"
+        >
+          <div className="mx-auto mb-3 h-12 w-12 rounded-xl bg-gradient-to-br from-secondary/20 to-secondary/5 border border-secondary/20 flex items-center justify-center">
+            <Images className="h-5 w-5 text-secondary" />
+          </div>
+          <p className="text-sm font-semibold text-foreground mb-1">No NFTs yet</p>
+          <p className="text-xs text-muted-foreground max-w-xs mx-auto leading-relaxed">
+            Hit your first milestone to unlock a collectible NFT — one for every major step of your clean-energy journey.
+          </p>
+        </motion.div>
+      )}
       {nftTokenIds.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 12 }}
