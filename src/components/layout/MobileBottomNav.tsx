@@ -94,18 +94,19 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
       aria-label="Primary"
       className={cn(
         "md:hidden fixed inset-x-0 bottom-0 z-40",
-        // Solid background so iOS home-indicator safe area never looks like a gap
+        // Solid background fills through safe-area; no padding-bottom so there's
+        // no visible gap below the icons on iOS PWAs.
         "border-t border-border bg-background",
         className,
       )}
       style={{
-        paddingBottom: "env(safe-area-inset-bottom, 0px)",
         height: "var(--bottom-nav-total-h)",
+        // Push icon row up by the home-indicator inset so icons remain tappable
+        // and the safe-area band shares the nav's solid background.
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
       }}
     >
-      {/* Fill full nav height (including safe-area band) so the home-indicator
-          zone shares the tab row's background — no visible "dead space". */}
-      <ul className="grid grid-cols-5 h-full">
+      <ul className="grid grid-cols-5 h-[var(--bottom-nav-height)]">
         {tabs.map((item) => {
           const active = isActive(item);
           const Icon = item.icon;
