@@ -94,13 +94,18 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
       aria-label="Primary"
       data-fixed-bottom="true"
       className={cn(
-        "md:hidden fixed inset-x-0 bottom-0 z-40",
-        // Distinct surface so safe-area band reads as part of the nav, not as a gap.
-        "border-t border-border bg-card/95 backdrop-blur-md supports-[backdrop-filter]:bg-card/80",
+        "md:hidden fixed inset-x-0 z-40",
+        // Solid surface (no transparency) so the safe-area band reads as the nav,
+        // never as a black gap under the icons on PWA / standalone mode.
+        "border-t border-border bg-card",
         className,
       )}
       style={{
+        // Pin to the very bottom edge of the screen, accounting for the
+        // iOS home indicator / Android gesture inset.
+        bottom: 0,
         height: "var(--bottom-nav-total-h)",
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
       }}
     >
       <ul className="grid grid-cols-5 h-[var(--bottom-nav-height)]">
