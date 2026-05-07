@@ -34,6 +34,7 @@ import { PageTransition } from "@/components/layout/PageTransition";
 import { cn } from "@/lib/utils";
 
 const ChartsBlock = lazy(() => import("./founders-ssot/SsotCharts"));
+import { ScarcityOutlookSection } from "@/components/founders/ScarcityOutlookSection";
 
 const SSOT = {
   version: "v2.1",
