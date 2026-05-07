@@ -229,17 +229,7 @@ export default function Profile() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative">
-            <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
-            <Loader2 className="h-10 w-10 animate-spin text-primary relative z-10" />
-          </div>
-          <p className="text-sm text-muted-foreground">Loading profile...</p>
-        </div>
-      </div>
-    );
+    return <PageSkeleton variant="settings" />;
   }
 
   const formatDate = (dateString: string) => {
