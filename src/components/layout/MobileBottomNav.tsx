@@ -103,7 +103,9 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
         height: "var(--bottom-nav-total-h)",
       }}
     >
-      <ul className="grid grid-cols-5 h-[var(--bottom-nav-height)]">
+      {/* Fill full nav height (including safe-area band) so the home-indicator
+          zone shares the tab row's background — no visible "dead space". */}
+      <ul className="grid grid-cols-5 h-full">
         {tabs.map((item) => {
           const active = isActive(item);
           const Icon = item.icon;
