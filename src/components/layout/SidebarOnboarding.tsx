@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
 import { triggerLightTap } from "@/hooks/useHaptics";
 import { cn } from "@/lib/utils";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+
 
 const STORAGE_KEY = "zen.sidebarOnboardingSeen.v2";
 
