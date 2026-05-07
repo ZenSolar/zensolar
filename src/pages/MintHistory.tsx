@@ -262,13 +262,56 @@ export default function MintHistory() {
                   {[0,1,2].map(i => <Skeleton key={i} className="h-16 w-full rounded-xl" />)}
                 </div>
               ) : transactions.length === 0 ? (
-                <EmptyState
-                  icon={Coins}
-                  title="Start Your Journey"
-                  description="Every kWh of clean energy you generate or mile you drive earns $ZSOLAR. Tap below to connect your devices and mint your first rewards."
-                  action={{ label: "Start earning $ZSOLAR today", onClick: () => navigate('/dashboard') }}
-                  className="py-10"
-                />
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ type: 'spring', stiffness: 220, damping: 22 }}
+                  className="relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/5 via-card to-accent-warm/5 px-6 py-10 text-center"
+                >
+                  {/* Soft glow backdrop */}
+                  <div className="pointer-events-none absolute -top-16 left-1/2 -translate-x-1/2 h-40 w-40 rounded-full bg-primary/20 blur-3xl" aria-hidden />
+
+                  {/* Floating icon trio */}
+                  <div className="relative mx-auto mb-5 flex items-end justify-center gap-3">
+                    {[
+                      { icon: Sun, color: 'text-accent-warm', bg: 'from-accent-warm/20 to-accent-warm/5', delay: 0 },
+                      { icon: Coins, color: 'text-primary', bg: 'from-primary/25 to-primary/5', delay: 0.15 },
+                      { icon: Sparkles, color: 'text-accent-rare', bg: 'from-accent-rare/20 to-accent-rare/5', delay: 0.3 },
+                    ].map((it, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ y: 0 }}
+                        animate={{ y: [0, -6, 0] }}
+                        transition={{ duration: 2.4, repeat: Infinity, delay: it.delay, ease: 'easeInOut' }}
+                        className={`h-14 w-14 rounded-2xl bg-gradient-to-br ${it.bg} border border-primary/15 flex items-center justify-center shadow-lg shadow-primary/5 ${i === 1 ? 'h-16 w-16' : ''}`}
+                      >
+                        <it.icon className={`h-6 w-6 ${it.color}`} />
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  <h3 className="text-base sm:text-lg font-semibold tracking-tight mb-1.5">
+                    Your first mint is waiting
+                  </h3>
+                  <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-6 leading-relaxed">
+                    Every kWh you produce and every mile you drive turns into $ZSOLAR. Connect a device to make your first one.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                    <button
+                      onClick={() => navigate('/dashboard')}
+                      className="inline-flex items-center justify-center gap-1.5 h-10 px-5 rounded-md bg-primary text-primary-foreground text-sm font-semibold shadow-md shadow-primary/20 transition-all hover:shadow-primary/40 active:scale-[0.98]"
+                    >
+                      <Zap className="h-4 w-4" />
+                      Start earning $ZSOLAR
+                    </button>
+                    <button
+                      onClick={() => navigate('/learn')}
+                      className="inline-flex items-center justify-center h-10 px-5 rounded-md border border-border/60 bg-card/50 text-sm text-muted-foreground hover:text-foreground hover:bg-card transition-colors"
+                    >
+                      How it works
+                    </button>
+                  </div>
+                </motion.div>
               ) : (
                 transactions.map((tx) => {
                   const actionInfo = ACTION_LABELS[tx.action] || { label: tx.action, icon: <Coins className="h-4 w-4" />, gradient: 'from-muted to-muted', description: 'Transaction' };
