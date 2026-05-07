@@ -602,6 +602,15 @@ export function NFTMintFlow({
                     </span>
                   </div>
                 </motion.div>
+
+                {/* Newbie-friendly tokenomics summary → /how-it-works */}
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.45 }}
+                >
+                  <Tokenomics101Card compact />
+                </motion.div>
               </div>
 
               {/* Fixed Footer */}
