@@ -95,7 +95,7 @@ export default function FounderSeedAsk() {
         <div className="flex flex-wrap gap-3">
           <a
             href={PDF_PATH}
-            download="ZenSolar_Seed_Ask_Lyndon_v3.1.pdf"
+            download="ZenSolar_Seed_Ask_Lyndon_v16.pdf"
             className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-medium hover:bg-primary/90"
           >
             <Download className="h-4 w-4" />
