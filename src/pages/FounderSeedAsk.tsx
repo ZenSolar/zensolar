@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIsFounder } from "@/hooks/useIsFounder";
 import { isPreviewMode } from "@/lib/previewMode";
 
-const PDF_PATH = "/founder-docs/seed-ask-lyndon-v8final.pdf";
+const PDF_PATH = "/founder-docs/seed-ask-lyndon-v8.1final.pdf";
 
 export default function FounderSeedAsk() {
   const { user, isLoading } = useAuth();
