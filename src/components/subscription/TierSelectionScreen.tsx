@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SUBSCRIPTION_TIERS, type SubscriptionTierId } from "@/lib/tokenomics";
 import { cn } from "@/lib/utils";
+import { Tokenomics101Card } from "@/components/tokenomics/Tokenomics101Card";
 
 interface TierSelectionScreenProps {
   selectedTier?: SubscriptionTierId;
@@ -23,21 +24,19 @@ const TIER_META: Record<SubscriptionTierId, {
     icon: Battery,
     tagline: "Just getting started",
     benefits: [
-      "Mint up to ~1,000 $ZSOLAR / month",
+      "Earn up to ~1,000 $ZSOLAR per month",
       "Cash out anytime",
-      "Access to all energy device connections",
-      "$5/mo flows to liquidity, $5/mo to treasury",
+      "Connect any solar, battery, or EV device",
     ],
-    badge: "Soft cap on minting",
+    badge: "Starter",
   },
   regular: {
     icon: Zap,
     tagline: "The sweet spot",
     benefits: [
-      "Uncapped monthly minting",
-      "Lower long-term sell pressure → stronger floor",
-      "Future: 6-month lock = 1.5× mint multiplier",
-      "$10/mo flows to liquidity, $10/mo to treasury",
+      "Earn unlimited $ZSOLAR every month",
+      "Bigger rewards if you lock longer",
+      "Helps strengthen the token price faster",
     ],
     badge: "Most popular",
     recommended: true,
@@ -46,12 +45,11 @@ const TIER_META: Record<SubscriptionTierId, {
     icon: Rocket,
     tagline: "For prosumers & fleets",
     benefits: [
-      "Uncapped + priority verification",
-      "First access to staking multipliers (up to 2× at 12-mo lock)",
-      "Net-positive flywheel from day one",
-      "$25/mo flows to liquidity, $25/mo to treasury",
+      "Unlimited earning + priority processing",
+      "First access to bonus staking rewards (up to 2× at 12-mo lock)",
+      "Maximum impact on token strength",
     ],
-    badge: "Power-user economics",
+    badge: "Power user",
   },
 };
 
@@ -66,13 +64,13 @@ export function TierSelectionScreen({
     <div className="container mx-auto max-w-5xl px-4 py-6 sm:py-8 space-y-5 sm:space-y-6">
       <div className="text-center space-y-2">
         <Badge variant="outline" className="mx-auto text-[10px] sm:text-xs px-2 py-1">
-          50% to liquidity · 50% to treasury
+          Half of every dollar strengthens the token
         </Badge>
         <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent leading-tight">
           Pick your $ZSOLAR plan
         </h1>
         <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto px-2">
-          Each tier subsidizes the protocol. Higher tiers strengthen the floor faster.
+          Choose the tier that fits your system. You can upgrade anytime.
         </p>
       </div>
 
@@ -142,10 +140,7 @@ export function TierSelectionScreen({
         })}
       </div>
 
-      <p className="text-[11px] sm:text-xs text-center text-muted-foreground max-w-2xl mx-auto px-2 leading-relaxed">
-        $ZSOLAR is minted 1:1 from verified energy production. Mint rate halves at the
-        Genesis Halving (250,000 paying subscribers) — pre-announced 3–6 months in advance.
-      </p>
+      <Tokenomics101Card />
     </div>
   );
 }

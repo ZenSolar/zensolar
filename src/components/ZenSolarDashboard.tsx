@@ -17,6 +17,7 @@ import { TokenPriceCard } from './dashboard/TokenPriceCard';
 import { CO2OffsetCard } from './dashboard/CO2OffsetCard';
 import { SubscriptionStatusCard } from './dashboard/SubscriptionStatusCard';
 import { FlywheelContributionCard } from './dashboard/FlywheelContributionCard';
+import { Tokenomics101Card } from './tokenomics/Tokenomics101Card';
 import { MintReceiptsHint } from './dashboard/MintReceiptsHint';
 import { DashboardHexBackground } from './dashboard/DashboardHexBackground';
 import { PageTransition } from './layout/PageTransition';
@@ -313,6 +314,11 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         {/* Persistent discoverability hint → Mint History (Proof-of-Mint receipts) */}
         <AnimatedItem>
           <MintReceiptsHint />
+        </AnimatedItem>
+
+        {/* Newbie-friendly tokenomics summary → links to /how-it-works hub */}
+        <AnimatedItem>
+          <Tokenomics101Card />
         </AnimatedItem>
 
         {!isViewer && (
