@@ -372,6 +372,10 @@ export default function FoundersSsotZen() {
         </section>
 
         <section>
+          <ScarcityOutlookSection />
+        </section>
+
+        <section>
           <SectionHeader icon={Calendar} title="Roadmap & Milestones" description="Phase progress. Source: master outline + canonical SSoT." />
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {SSOT.roadmap.map((phase, i) => (
