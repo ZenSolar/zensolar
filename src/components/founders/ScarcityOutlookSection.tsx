@@ -38,7 +38,33 @@ export function ScarcityOutlookSection({ className }: { className?: string }) {
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="rounded-lg border border-white/10 bg-white/[0.02] overflow-hidden">
+          {/* Mobile: stacked cards */}
+          <div className="space-y-2 md:hidden">
+            {ROWS.map((r) => (
+              <div
+                key={r.year}
+                className="rounded-lg border border-white/10 bg-white/[0.02] p-3 space-y-2"
+              >
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="font-bold tabular-nums text-base">{r.year}</span>
+                  <span className={cn("font-semibold tabular-nums text-sm", r.tone)}>{r.pct}</span>
+                </div>
+                <div className="grid grid-cols-1 gap-1.5 text-xs">
+                  <div>
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Activity</div>
+                    <div className="text-foreground/80">{r.activity}</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Cumulative Minted (10:1)</div>
+                    <div className="tabular-nums">{r.minted}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop/tablet: table with horizontal scroll fallback */}
+          <div className="hidden md:block rounded-lg border border-white/10 bg-white/[0.02] overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent border-white/10">
