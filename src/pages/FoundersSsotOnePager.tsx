@@ -197,6 +197,8 @@ export default function FoundersSsotOnePager() {
             </CardContent>
           </GlassCard>
 
+          <ScarcityOutlookSection />
+
           {/* Roadmap */}
           <GlassCard>
             <CardHeader>
