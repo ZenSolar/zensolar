@@ -27,6 +27,7 @@ import { useBasePath } from '@/hooks/useBasePath';
  */
 
 export function HowItWorksSection() {
+  const basePath = useBasePath();
   const steps = [
     { icon: Zap, title: 'Connect', desc: 'Link Tesla, Enphase, SolarEdge, or Wallbox in 30 seconds — no hardware.' },
     { icon: Sun, title: 'Generate', desc: 'Your panels, EV, and battery are already producing verified clean energy.' },
