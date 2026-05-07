@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIsFounder } from "@/hooks/useIsFounder";
 import { isPreviewMode } from "@/lib/previewMode";
 
-const PDF_PATH = "/founder-docs/seed-ask-lyndon-v8.pdf";
+const PDF_PATH = "/founder-docs/seed-ask-lyndon-v9.pdf";
 
 export default function FounderSeedAsk() {
   const { user, isLoading } = useAuth();
@@ -112,7 +112,7 @@ export default function FounderSeedAsk() {
           </a>
           <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/5 px-4 py-2.5 text-xs text-amber-400">
             <Banknote className="h-3.5 w-3.5" />
-            v8 · Eyes-only: Joseph & Michael
+            v9 · Eyes-only: Joseph & Michael
           </div>
         </div>
       </section>
