@@ -140,6 +140,10 @@ export function TierSelectionScreen({
         })}
       </div>
 
+      <p className="text-center text-[11px] sm:text-xs text-muted-foreground px-4">
+        No lock-in · Cancel anytime · Every dollar splits 50% liquidity / 50% treasury
+      </p>
+
       <Tokenomics101Card />
     </div>
   );
