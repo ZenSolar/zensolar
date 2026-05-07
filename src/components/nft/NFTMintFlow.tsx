@@ -23,6 +23,7 @@ import { getNftArtwork } from '@/lib/nftArtwork';
 import { getLiveBetaMode } from '@/lib/tokenomics';
 import { promptAddZsolarToken } from '@/lib/walletAssets';
 import type { NFTMilestone } from '@/lib/nftMilestones';
+import { Tokenomics101Card } from '@/components/tokenomics/Tokenomics101Card';
 
 // NFT Contract address on Base Sepolia
 const NFT_CONTRACT_ADDRESS = '0xD1d509a48CEbB8f9f9aAA462979D7977c30424E3';
@@ -600,6 +601,15 @@ export function NFTMintFlow({
                       Auto-redirect in <span className="font-mono font-semibold text-foreground">{countdown}s</span>
                     </span>
                   </div>
+                </motion.div>
+
+                {/* Newbie-friendly tokenomics summary → /how-it-works */}
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.45 }}
+                >
+                  <Tokenomics101Card compact />
                 </motion.div>
               </div>
 
