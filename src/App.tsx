@@ -581,7 +581,8 @@ const App = () => {
                       } 
                     />
                     {/* Redirects from old routes */}
-                    {/* /how-it-works now resolves to the rich HowItWorks hub (registered above). */}
+                    {/* /how-it-works — public, top-level rich hub page (single source of truth) */}
+                    <Route path="/how-it-works" element={<Suspense fallback={<PageLoader />}><HowItWorks /></Suspense>} />
                     <Route path="/tokenomics" element={<Navigate to="/learn?tab=tokenomics" replace />} />
                     <Route path="/help" element={<Navigate to="/help-center?tab=help" replace />} />
                     <Route path="/feedback" element={<Navigate to="/help-center?tab=feedback" replace />} />
