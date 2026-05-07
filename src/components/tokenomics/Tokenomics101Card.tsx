@@ -37,7 +37,6 @@ const rows = [
 ];
 
 export function Tokenomics101Card({ className = '', compact = false }: Tokenomics101CardProps) {
-  const basePath = useBasePath();
   return (
     <Card
       className={`border-border/60 bg-card/70 backdrop-blur-md shadow-sm overflow-hidden ${className}`}
@@ -68,12 +67,7 @@ export function Tokenomics101Card({ className = '', compact = false }: Tokenomic
           ))}
         </ul>
 
-        <Link to={`${basePath}/how-it-works`} className="block">
-          <Button variant="outline" className="w-full justify-between group">
-            <span>Learn how ZenSolar works</span>
-            <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-          </Button>
-        </Link>
+        <HowItWorksCTA />
       </CardContent>
     </Card>
   );
