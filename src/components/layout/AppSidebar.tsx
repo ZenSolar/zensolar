@@ -291,20 +291,23 @@ export function AppSidebar() {
         )}
 
         {/* Main Navigation */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Main</SidebarGroupLabel>
+        <SidebarGroup className="px-1">
+          <SidebarGroupLabel className="px-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-sidebar-foreground/50">
+            Main
+          </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-0.5">
               {[...mainNavItems, ...(isPreviewMode() ? previewOnlyNavItems : [])].map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
-                    <NavLink 
-                      to={item.url} 
+                  <SidebarMenuButton asChild tooltip={item.desc ?? item.title}>
+                    <NavLink
+                      to={item.url}
                       end={item.url === "/"}
                       onClick={handleNavClick}
+                      aria-label={`${item.title}${item.desc ? ` — ${item.desc}` : ""}`}
                       className={item.url === "/store" ? navClassWithExtra("text-secondary font-semibold rounded-lg animate-sidebar-glow") : navClass}
                     >
-                      <item.icon className={`h-4 w-4 ${item.url === "/store" ? "animate-icon-glow text-secondary" : ""}`} />
+                      <item.icon className={`h-4 w-4 ${item.url === "/store" ? "animate-icon-glow text-secondary" : ""}`} aria-hidden="true" />
                       <span className={item.url === "/store" ? "animate-text-glow" : ""}>{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
