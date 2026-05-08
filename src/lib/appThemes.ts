@@ -109,7 +109,28 @@ export function applyAppTheme(theme: AppTheme) {
     root.removeAttribute("data-app-theme");
   } else {
     root.setAttribute("data-app-theme", theme);
+    ensureThemeFontsLoaded();
   }
+}
+
+/**
+ * Inject the Google Fonts stylesheet on demand. The default theme uses the
+ * system stack, so we skip the network cost until an alternate theme is picked.
+ */
+let themeFontsLoaded = false;
+function ensureThemeFontsLoaded() {
+  if (themeFontsLoaded || typeof document === "undefined") return;
+  if (document.querySelector('link[data-zen-theme-fonts]')) {
+    themeFontsLoaded = true;
+    return;
+  }
+  const l = document.createElement("link");
+  l.rel = "stylesheet";
+  l.dataset.zenThemeFonts = "1";
+  l.href =
+    "https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Newsreader:ital,wght@0,400;0,500;1,400;1,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap";
+  document.head.appendChild(l);
+  themeFontsLoaded = true;
 }
 
 /**

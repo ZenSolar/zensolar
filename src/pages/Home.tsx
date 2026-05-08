@@ -2,10 +2,15 @@ import { SEO } from '@/components/SEO';
 import { HomeHero } from '@/components/home/HomeHero';
 import { LiveStatsBar } from '@/components/home/LiveStatsBar';
 import { HomeNav } from '@/components/home/HomeNav';
-import { FloatingSectionNav } from '@/components/home/FloatingSectionNav';
 import { SectionDivider } from '@/components/ui/section-divider';
 import { LazySection } from '@/components/home/LazySection';
 import { lazy, Suspense } from 'react';
+
+// Defer the floating section nav — it pulls in framer-motion, Vaul drawer,
+// and @capacitor/haptics, none of which are needed for first paint.
+const FloatingSectionNav = lazy(() =>
+  import('@/components/home/FloatingSectionNav').then((m) => ({ default: m.FloatingSectionNav }))
+);
 
 // Lazy-load below-the-fold sections for faster initial paint
 const HowItWorksSection = lazy(() => import('@/components/home/HowItWorksSection').then(m => ({ default: m.HowItWorksSection })));
@@ -44,7 +49,9 @@ export default function Home() {
       />
       <div className="relative min-h-screen bg-background dark:bg-gradient-to-br dark:from-background dark:via-background dark:to-primary/5">
         <HomeNav />
-        <FloatingSectionNav />
+        <Suspense fallback={null}>
+          <FloatingSectionNav />
+        </Suspense>
         <main>
           {/* Above-the-fold: loaded eagerly */}
           <HomeHero />
