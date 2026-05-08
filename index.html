@@ -184,15 +184,30 @@
       }
     </style>
 
-    <!-- Theme fonts (loaded only when a preview theme is active; default theme uses system stack). -->
+    <!-- Theme fonts: only fetched when an alternate learn/app theme is active.
+         Default theme uses the system font stack, so most users skip this entirely. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Newsreader:ital,wght@0,400;0,500;1,400;1,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
-      media="print"
-      onload="this.media='all'"
-    />
+    <script>
+      (function () {
+        try {
+          var ls = window.localStorage;
+          var learn = ls.getItem('zs-learn-theme');
+          var app = ls.getItem('zs-app-theme');
+          var needsFonts =
+            (learn && learn !== 'default') ||
+            (app && app !== 'default' && app !== 'system');
+          if (!needsFonts) return;
+          var l = document.createElement('link');
+          l.rel = 'stylesheet';
+          l.href =
+            'https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Newsreader:ital,wght@0,400;0,500;1,400;1,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap';
+          l.media = 'print';
+          l.onload = function () { l.media = 'all'; };
+          document.head.appendChild(l);
+        } catch (e) { /* fail-safe: no fonts, system stack still works */ }
+      })();
+    </script>
   </head>
 
   <body>
