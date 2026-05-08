@@ -49,7 +49,9 @@ export default function Home() {
       />
       <div className="relative min-h-screen bg-background dark:bg-gradient-to-br dark:from-background dark:via-background dark:to-primary/5">
         <HomeNav />
-        <FloatingSectionNav />
+        <Suspense fallback={null}>
+          <FloatingSectionNav />
+        </Suspense>
         <main>
           {/* Above-the-fold: loaded eagerly */}
           <HomeHero />
