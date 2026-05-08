@@ -192,8 +192,8 @@
       (function () {
         try {
           var ls = window.localStorage;
-          var learn = ls.getItem('zs-learn-theme');
-          var app = ls.getItem('zs-app-theme');
+          var learn = ls.getItem('zen.learn.theme');
+          var app = ls.getItem('zen.app.theme');
           var needsFonts =
             (learn && learn !== 'default') ||
             (app && app !== 'default' && app !== 'system');
