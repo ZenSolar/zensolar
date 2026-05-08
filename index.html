@@ -184,30 +184,12 @@
       }
     </style>
 
-    <!-- Theme fonts: only fetched when an alternate learn/app theme is active.
-         Default theme uses the system font stack, so most users skip this entirely. -->
+    <!-- Theme fonts are injected on demand by the learn/app theme hooks
+         (see useLearnTheme.ts and appThemes.ts). The default home/app routes
+         use the system font stack, so we skip a 4-family CSS request entirely
+         for the common case. We still preconnect so the on-demand fetch is fast. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <script>
-      (function () {
-        try {
-          var ls = window.localStorage;
-          var learn = ls.getItem('zen.learn.theme');
-          var app = ls.getItem('zen.app.theme');
-          var needsFonts =
-            (learn && learn !== 'default') ||
-            (app && app !== 'default' && app !== 'system');
-          if (!needsFonts) return;
-          var l = document.createElement('link');
-          l.rel = 'stylesheet';
-          l.href =
-            'https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Newsreader:ital,wght@0,400;0,500;1,400;1,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap';
-          l.media = 'print';
-          l.onload = function () { l.media = 'all'; };
-          document.head.appendChild(l);
-        } catch (e) { /* fail-safe: no fonts, system stack still works */ }
-      })();
-    </script>
   </head>
 
   <body>
