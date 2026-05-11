@@ -213,22 +213,6 @@ export default function FoundersSeedAllocation() {
 
         {/* Why Option B + Self-Funding */}
         <div className="grid md:grid-cols-2 gap-4 mb-10">
-          <div className="rounded-xl border-t-2 border-muted-foreground bg-muted/30 p-5">
-            <h3 className="text-[11px] font-bold tracking-widest text-primary mb-3">WHY OPTION B</h3>
-            <ul className="space-y-2 text-sm text-foreground/90">
-              {state.whyOptionB.map((b, i) => (
-                <li key={i} className="flex gap-2"><span className="text-primary">•</span>
-                  <Editable
-                    on={editing}
-                    value={b}
-                    onChange={(v) => setState((s) => { const next = [...s.whyOptionB]; next[i] = v; return { ...s, whyOptionB: next }; })}
-                    multiline
-                    className="flex-1"
-                  />
-                </li>
-              ))}
-            </ul>
-          </div>
           <div className="rounded-xl border-t-2 border-primary bg-primary/5 p-5">
             <h3 className="text-[11px] font-bold tracking-widest text-primary mb-3">THE SELF-FUNDING MOMENT</h3>
             <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-line">
