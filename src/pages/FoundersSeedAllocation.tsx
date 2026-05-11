@@ -99,6 +99,53 @@ export default function FoundersSeedAllocation() {
     });
   const reset = () => { if (confirm("Reset all edits to canonical defaults?")) { setState(DEFAULTS); localStorage.removeItem(STORAGE_KEY); } };
   const doPrint = () => window.print();
+  const mainRef = useRef<HTMLElement>(null);
+  const [exporting, setExporting] = useState(false);
+
+  const downloadPdf = async () => {
+    if (!mainRef.current) return;
+    setExporting(true);
+    const wasEditing = editing;
+    setEditing(false);
+    await new Promise((r) => setTimeout(r, 80));
+    try {
+      const node = mainRef.current;
+      const bg = getComputedStyle(document.body).backgroundColor || "#ffffff";
+      const canvas = await html2canvas(node, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: bg,
+        windowWidth: node.scrollWidth,
+      });
+      const PAGE_W = 612, PAGE_H = 792, MARGIN = 24;
+      const contentW = PAGE_W - MARGIN * 2;
+      const ratio = contentW / canvas.width;
+      const pageContentH = PAGE_H - MARGIN * 2;
+      const sliceHpx = Math.floor(pageContentH / ratio);
+      const pdf = new jsPDF({ orientation: "portrait", unit: "pt", format: "letter" });
+      let yPx = 0, pageIndex = 0;
+      while (yPx < canvas.height) {
+        const hPx = Math.min(sliceHpx, canvas.height - yPx);
+        const slice = document.createElement("canvas");
+        slice.width = canvas.width;
+        slice.height = hPx;
+        const ctx = slice.getContext("2d");
+        if (!ctx) break;
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, slice.width, slice.height);
+        ctx.drawImage(canvas, 0, yPx, canvas.width, hPx, 0, 0, canvas.width, hPx);
+        const img = slice.toDataURL("image/jpeg", 0.92);
+        if (pageIndex > 0) pdf.addPage();
+        pdf.addImage(img, "JPEG", MARGIN, MARGIN, contentW, hPx * ratio);
+        yPx += hPx;
+        pageIndex += 1;
+      }
+      pdf.save("ZenSolar_Seed_Allocation_v2.pdf");
+    } finally {
+      setEditing(wasEditing);
+      setExporting(false);
+    }
+  };
 
   return (
     <div className="min-h-[100svh] bg-background text-foreground pb-safe print:bg-white">
