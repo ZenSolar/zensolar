@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Navigate, Link } from "react-router-dom";
-import { ArrowLeft, Loader2, Lock, Printer, RotateCcw, Pencil, Eye } from "lucide-react";
+import { ArrowLeft, Download, Loader2, Lock, Printer, RotateCcw, Pencil, Eye } from "lucide-react";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsFounder } from "@/hooks/useIsFounder";
 import { isPreviewMode } from "@/lib/previewMode";
