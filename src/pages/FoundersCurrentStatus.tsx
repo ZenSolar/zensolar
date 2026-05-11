@@ -56,14 +56,19 @@ export default function FoundersCurrentStatus() {
       <section className="max-w-5xl mx-auto px-5 md:px-6 pb-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <Stat
-            kpi={metrics.isLoading ? "…" : metrics.mintTransactionCount.toLocaleString()}
-            label="Confirmed beta mints"
-            sub="On-chain · Base L2"
+            kpi={stats.isLoading ? "…" : stats.mintCount.toLocaleString()}
+            label="Confirmed on-chain mints"
+            sub="Base L2 · since Jan 2026"
           />
           <Stat
-            kpi={metrics.isLoading ? "…" : `${Math.round(metrics.totalMinted).toLocaleString()}`}
+            kpi={stats.isLoading ? "…" : Math.round(stats.totalMinted).toLocaleString()}
             label="$ZSOLAR minted"
             sub="From verified energy"
+          />
+          <Stat
+            kpi={stats.isLoading ? "…" : stats.uniqueMinters.toLocaleString()}
+            label="Beta minters"
+            sub="Unique wallets"
           />
           <Stat
             kpi="4"
