@@ -167,8 +167,16 @@ export default function FoundersSeedAllocation() {
             <button onClick={reset} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/40 px-3 py-1.5 text-[11px] font-medium hover:bg-card">
               <RotateCcw className="h-3.5 w-3.5" /> Reset
             </button>
-            <button onClick={doPrint} className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-3 py-1.5 text-[11px] font-medium hover:bg-primary/90">
-              <Printer className="h-3.5 w-3.5" /> Print / PDF
+            <button onClick={doPrint} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/40 px-3 py-1.5 text-[11px] font-medium hover:bg-card">
+              <Printer className="h-3.5 w-3.5" /> Print
+            </button>
+            <button
+              onClick={downloadPdf}
+              disabled={exporting}
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-3 py-1.5 text-[11px] font-medium hover:bg-primary/90 disabled:opacity-60"
+            >
+              {exporting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+              {exporting ? "Generating…" : "Download PDF"}
             </button>
             <div className="hidden sm:inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-amber-400">
               <Lock className="h-3 w-3" /> Founders
