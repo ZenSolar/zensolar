@@ -1,61 +1,68 @@
 ## Goal
-Make tokenomics content newbie-friendly across the app, with a single source-of-truth page and progressive disclosure everywhere else.
 
-## 1. Single Source of Truth: `/how-it-works` hub
-Extend the existing `src/pages/HowItWorks.tsx` with a new newbie-first section component:
+Jo Fertier asked 3 specific questions before getting the Lyndon meeting on the calendar. Build a single, forwardable brief that answers all three crisply — separate from the Lyndon one-pager so that artifact stays clean as the in-meeting pitch.
 
-**New component: `src/components/how-it-works/TokenomicsExplained.tsx`**
-A long-form, plain-English section with 6 simple sub-cards (icons + 1-paragraph each):
-1. **You earn tokens for clean energy** — 1 kWh = 1 $ZSOLAR (beta), 0.1 at mainnet (the 10:1 framing)
-2. **Pick a plan** — 3 tiers (Base / Regular / Power) with one-line benefit each
-3. **Half of every dollar strengthens the token** — 50/50 LP / treasury split, simple analogy
-4. **Your tokens are locked for 12 months** — vesting in friendly terms ("locked so the price can grow stronger"), optional staking = bigger rewards
-5. **Genesis Halving + Satoshi-Mirror floor defense** — "rewards get rarer over time, like Bitcoin" + "a built-in safety net keeps the price from crashing"
-6. **100–200 year scarcity outlook** — short summary + link to full table
+## Deliverables
 
-Reuse existing `ScarcityOutlookSection` at the bottom.
+1. New gated page: `/founders/jo-brief` (`src/pages/FoundersJoBrief.tsx`) — founder-only, behind `<FounderRoute>` + `<VaultPinGate>`.
+2. New PDF: `public/founder-docs/jo-fertier-prebrief-v1.pdf` — generated via reportlab, downloadable from the page.
+3. Sidebar link in Founders Vault.
 
-## 2. Reusable `Tokenomics101Card` component
-**New: `src/components/tokenomics/Tokenomics101Card.tsx`**
+## Brief structure (single page, scannable in 90 seconds)
 
-Compact glassmorphism card with 4 stacked rows, each one short line + icon:
-- 3 tiers shown as mini-pills (Base / Regular / Power)
-- "Half of every subscription dollar strengthens the token"
-- "New tokens lock for 12 months so the price can grow stronger"
-- "Hold or stake longer = bigger rewards"
+**Header**
+- Title: "Jo Fertier — Pre-Meeting Brief: Lyndon Rive"
+- Subtitle: "Answers to the 3 questions before the calendar invite"
+- ZenSolar logo + date
 
-Footer: prominent CTA button → `/how-it-works`.
+**Q1 — Competitive Landscape (vs SolarCoin et al.)**
+- Lead with a 5-row comparison table sourced from `AdminCompetitiveIntel.tsx`:
+  - Columns: Project | Verification | Supply Model | Liquidity | Patent IP | Status
+  - Rows: ZenSolar, SolarCoin, GridPay, Power Ledger, C+Charge
+- Followed by "3 reasons SolarCoin is not us":
+  1. **Verification** — SolarCoin = unverified self-report (upload a screenshot). ZenSolar = SEGI + Proof-of-Delta™ cryptographic verification at the device API layer.
+  2. **Supply** — SolarCoin = 98B pre-minted pool drained by claims. ZenSolar = Mint-on-Proof™ — tokens only exist when verified energy is produced. 1T hard cap, 20% burn-per-mint.
+  3. **Liquidity & moat** — SolarCoin = no real LP, no patents, dead since 2014. ZenSolar = POL flywheel, 5 trademarks filed, patent-pending SEGI architecture, live OEM integrations.
+- One-liner on GridPay: "ERCOT-only solo founder hackathon project, no verification IP, March 2026 launch — confirms the category is real, validates our nationwide multi-vertical moat."
 
-Drop into:
-- `src/pages/Subscribe.tsx` (above or below tier selector)
-- `src/components/ZenSolarDashboard.tsx` (replacing or complementing the existing `HowItWorks` mini-card section)
-- Mint success screen (locate via search; likely `src/components/dashboard/` or onboarding/mint flow)
+**Q2 — The Ask from Lyndon**
+- Verbatim from v8.1 (locked, do not modify): **"Board seat — co-shape the tokenized energy economy from day one."**
+- One supporting line: why a board seat (not capital) — Lyndon's operator credibility + Tesla/SolarCity network unlocks utility partnerships and OEM rails faster than any check.
 
-## 3. Progressive disclosure trims
-Identify and shorten/remove duplicated long-form tokenomics blocks on:
-- Subscription screen (`TierSelectionScreen`) — keep tier cards but strip any embedded LP/vesting paragraphs; replace with `Tokenomics101Card` link
-- Dashboard — replace verbose explainers with the 101 card
-- Mint flow / mint success — 1–2 sentence summary + "Learn more →" link
-- Wallet screen — short blurb + link
-- Learn / HelpCenter — short intros that link to the hub
+**Q3 — Going Live to See Traction**
+Three proof pillars:
+- **Live product**: beta.zen.solar — fully functional, embedded wallet, Tap-to-Mint™ working today
+- **OEM integrations live**: Tesla ✅, Enphase ✅, Wallbox ✅, SolarEdge (code-ready) — real production data flowing for 4+ real users (Joseph, Tschida, Pessah, Golson)
+- **IP filed**: SEGI™ provisional patent (Q1 2025), 5 trademarks filed (Mint-on-Proof™, Proof-of-Delta™, Proof-of-Origin™, Proof-of-Genesis™, Tap-to-Mint™), Device Watermark Registry on-chain spec
 
-For each, swap heavy copy for: 1 sentence + "Learn how ZenSolar works →" link.
+**Footer**
+- "Live demo: https://beta.zen.solar"
+- "Full competitive intel: internal admin"
+- Confidential — for Jo Fertier only
 
-## 4. Language pass
-Search-and-replace on user-facing strings (NOT internal code/comments/founder/admin pages):
-- "LP injection" / "liquidity injection" → "Half of every subscription dollar automatically strengthens the token"
-- "Vesting" (user-facing) → "Locked for 12 months so the price can grow stronger"
-- "Staking" (user-facing) → "Lock longer and earn extra rewards"
+## Technical approach
 
-Skip founder/admin/whitepaper/SSOT pages — they're for technical audiences.
+**Page (`FoundersJoBrief.tsx`)**
+- Mirror layout patterns from `FounderSeedAsk.tsx` (header, version badge, download button, prose sections, comparison table using shadcn `Table`)
+- Pull competitor data by importing the array from `AdminCompetitiveIntel.tsx` (refactor the `competitors` const into a small shared module `src/data/competitors.ts` so both pages use one source of truth — no duplication)
+- Pull OEM live status from a new tiny constant `src/data/oemLiveStatus.ts` mirroring the memory file, so the page and PDF both render from one source
+- Use semantic tokens only (no hard-coded colors)
+
+**PDF (`/tmp/gen_jo_brief.py`)**
+- reportlab, US Letter, 1" margins
+- Same font + visual approach as v8.1 one-pager (Liberation Sans, 2-column cards where appropriate, ZenSolar logo at top)
+- Single page if possible, max 2 pages
+- Output → `public/founder-docs/jo-fertier-prebrief-v1.pdf`
+- Mandatory QA: pdftoppm → inspect → fix → re-verify before declaring done
+
+**Routing & access**
+- Add route in `src/App.tsx` (or wherever Founders routes live)
+- Wrap in `<FounderRoute>` + `<VaultPinGate>` (same pattern as Master Outline)
+- Add link to Founders Vault sidebar labeled "Jo Fertier Brief"
 
 ## Out of scope
-- Founder/admin/SSOT/whitepaper pages (technical audiences keep precise terminology)
-- Business logic, tokenomics math, ledger code
-- New routes (reuse existing `/how-it-works`)
 
-## Technical notes
-- Reuse `Card`, `Button`, semantic tokens from index.css
-- Use `lucide-react` icons already in the project
-- `framer-motion` for entrance animations matching existing how-it-works sections
-- Link component from `react-router-dom` with `useBasePath()` where applicable (demo route awareness)
+- No changes to v8.1 Lyndon one-pager
+- No new competitive data — strictly reuse what's already in AdminCompetitiveIntel
+- No traction numbers beyond what's already documented (no fabricated user counts)
+- No business-logic changes

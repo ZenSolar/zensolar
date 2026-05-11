@@ -72,6 +72,7 @@ const FoundersDeasonUtilityAI = lazy(() => import("./pages/FoundersDeasonUtility
 const FoundersProofOfGenesis = lazy(() => import("./pages/FoundersProofOfGenesis"));
 const V2App = lazy(() => import("./pages/V2App"));
 const FounderSeedAsk = lazy(() => import("./pages/FounderSeedAsk"));
+const FoundersJoBrief = lazy(() => import("./pages/FoundersJoBrief"));
 const FoundersChangelog = lazy(() => import("./pages/FoundersChangelog"));
 const FoundersCatchup = lazy(() => import("./pages/FoundersCatchup"));
 const FoundersLyndonOnePager = lazy(() => import("./pages/FoundersLyndonOnePager"));
@@ -1146,6 +1147,7 @@ const App = () => {
                     <Route path="/founders/deason-utility-ai-revstream" element={<FounderRoute><FoundersDeasonUtilityAI /></FounderRoute>} />
                     <Route path="/founders/vault/deason-utility-ai-revstream" element={<Navigate to="/founders/deason-utility-ai-revstream" replace />} />
                     <Route path="/founders/seed-ask" element={<FounderRoute><FounderSeedAsk /></FounderRoute>} />
+                    <Route path="/founders/jo-brief" element={<FounderRoute><FoundersJoBrief /></FounderRoute>} />
                     <Route path="/founders/changelog" element={<FounderRoute><FoundersChangelog /></FounderRoute>} />
                     <Route path="/founders/catchup" element={<FounderRoute><FoundersCatchup /></FounderRoute>} />
                     <Route path="/founders/lyndon" element={<FounderRoute><FoundersLyndonOnePager /></FounderRoute>} />
