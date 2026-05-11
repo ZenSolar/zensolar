@@ -74,6 +74,7 @@ const V2App = lazy(() => import("./pages/V2App"));
 
 const FoundersCompetitiveLandscape = lazy(() => import("./pages/FoundersCompetitiveLandscape"));
 const FoundersTheAsk = lazy(() => import("./pages/FoundersTheAsk"));
+const FoundersSeedAllocation = lazy(() => import("./pages/FoundersSeedAllocation"));
 const FoundersCurrentStatus = lazy(() => import("./pages/FoundersCurrentStatus"));
 const FoundersChangelog = lazy(() => import("./pages/FoundersChangelog"));
 const FoundersCatchup = lazy(() => import("./pages/FoundersCatchup"));
@@ -1151,6 +1152,7 @@ const App = () => {
                     <Route path="/founders/seed-ask" element={<Navigate to="/founders/the-ask" replace />} />
                     <Route path="/founders/competitive-landscape" element={<FounderRoute><FoundersCompetitiveLandscape /></FounderRoute>} />
                     <Route path="/founders/the-ask" element={<FounderRoute><FoundersTheAsk /></FounderRoute>} />
+                    <Route path="/founders/seed-allocation" element={<FounderRoute><FoundersSeedAllocation /></FounderRoute>} />
                     <Route path="/founders/current-status" element={<FounderRoute><FoundersCurrentStatus /></FounderRoute>} />
                     <Route path="/founders/changelog" element={<FounderRoute><FoundersChangelog /></FounderRoute>} />
                     <Route path="/founders/catchup" element={<FounderRoute><FoundersCatchup /></FounderRoute>} />
