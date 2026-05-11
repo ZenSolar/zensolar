@@ -3,14 +3,14 @@ import { ArrowLeft, ExternalLink, Loader2, Lock, Activity, Zap, Shield, Cpu, Roc
 import { useAuth } from "@/hooks/useAuth";
 import { useIsFounder } from "@/hooks/useIsFounder";
 import { isPreviewMode } from "@/lib/previewMode";
-import { useBetaMetrics } from "@/hooks/useBetaMetrics";
+import { useOnChainMintCount } from "@/hooks/useOnChainMintCount";
 import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_NFT_ADDRESS, ZSOLAR_CONTROLLER_ADDRESS } from "@/lib/wagmi";
 
 export default function FoundersCurrentStatus() {
   const { user, isLoading } = useAuth();
   const { isFounder, ready } = useIsFounder();
   const preview = isPreviewMode();
-  const { metrics } = useBetaMetrics();
+  const { stats } = useOnChainMintCount();
 
   if (!preview && (isLoading || !ready)) {
     return (
@@ -56,14 +56,19 @@ export default function FoundersCurrentStatus() {
       <section className="max-w-5xl mx-auto px-5 md:px-6 pb-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <Stat
-            kpi={metrics.isLoading ? "…" : metrics.mintTransactionCount.toLocaleString()}
-            label="Confirmed beta mints"
-            sub="On-chain · Base L2"
+            kpi={stats.isLoading ? "…" : stats.mintCount.toLocaleString()}
+            label="Confirmed on-chain mints"
+            sub="Base L2 · since Jan 2026"
           />
           <Stat
-            kpi={metrics.isLoading ? "…" : `${Math.round(metrics.totalMinted).toLocaleString()}`}
+            kpi={stats.isLoading ? "…" : Math.round(stats.totalMinted).toLocaleString()}
             label="$ZSOLAR minted"
             sub="From verified energy"
+          />
+          <Stat
+            kpi={stats.isLoading ? "…" : stats.uniqueMinters.toLocaleString()}
+            label="Beta minters"
+            sub="Unique wallets"
           />
           <Stat
             kpi="4"
