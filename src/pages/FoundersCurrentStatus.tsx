@@ -10,7 +10,7 @@ export default function FoundersCurrentStatus() {
   const { user, isLoading } = useAuth();
   const { isFounder, ready } = useIsFounder();
   const preview = isPreviewMode();
-  const metrics = useBetaMetrics();
+  const { metrics } = useBetaMetrics();
 
   if (!preview && (isLoading || !ready)) {
     return (
