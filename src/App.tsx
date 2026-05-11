@@ -71,7 +71,7 @@ const FoundersDeasonV3 = lazy(() => import("./pages/FoundersDeasonV3"));
 const FoundersDeasonUtilityAI = lazy(() => import("./pages/FoundersDeasonUtilityAI"));
 const FoundersProofOfGenesis = lazy(() => import("./pages/FoundersProofOfGenesis"));
 const V2App = lazy(() => import("./pages/V2App"));
-const FounderSeedAsk = lazy(() => import("./pages/FounderSeedAsk"));
+
 const FoundersCompetitiveLandscape = lazy(() => import("./pages/FoundersCompetitiveLandscape"));
 const FoundersTheAsk = lazy(() => import("./pages/FoundersTheAsk"));
 const FoundersCurrentStatus = lazy(() => import("./pages/FoundersCurrentStatus"));
@@ -1148,7 +1148,7 @@ const App = () => {
                     <Route path="/founders/deason-v3" element={<FounderRoute><FoundersDeasonV3 /></FounderRoute>} />
                     <Route path="/founders/deason-utility-ai-revstream" element={<FounderRoute><FoundersDeasonUtilityAI /></FounderRoute>} />
                     <Route path="/founders/vault/deason-utility-ai-revstream" element={<Navigate to="/founders/deason-utility-ai-revstream" replace />} />
-                    <Route path="/founders/seed-ask" element={<FounderRoute><FounderSeedAsk /></FounderRoute>} />
+                    <Route path="/founders/seed-ask" element={<Navigate to="/founders/the-ask" replace />} />
                     <Route path="/founders/competitive-landscape" element={<FounderRoute><FoundersCompetitiveLandscape /></FounderRoute>} />
                     <Route path="/founders/the-ask" element={<FounderRoute><FoundersTheAsk /></FounderRoute>} />
                     <Route path="/founders/current-status" element={<FounderRoute><FoundersCurrentStatus /></FounderRoute>} />
