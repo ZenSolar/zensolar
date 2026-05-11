@@ -1,68 +1,65 @@
 ## Goal
 
-Jo Fertier asked 3 specific questions before getting the Lyndon meeting on the calendar. Build a single, forwardable brief that answers all three crisply — separate from the Lyndon one-pager so that artifact stays clean as the in-meeting pitch.
+Tear down the Jo Fertier brief (page + PDF + route + hub card) and replace it with **three focused, scrollable founder pages** — one per question. Web-only for now; PDFs come later when content is locked. Lyndon one-pager edits = separate next task.
 
-## Deliverables
+## Step 1 — Delete the Jo brief
 
-1. New gated page: `/founders/jo-brief` (`src/pages/FoundersJoBrief.tsx`) — founder-only, behind `<FounderRoute>` + `<VaultPinGate>`.
-2. New PDF: `public/founder-docs/jo-fertier-prebrief-v1.pdf` — generated via reportlab, downloadable from the page.
-3. Sidebar link in Founders Vault.
+- Delete `src/pages/FoundersJoBrief.tsx`
+- Delete `public/founder-docs/jo-fertier-prebrief-v1.pdf`
+- Remove the route from `src/App.tsx` (lazy import + `<Route path="/founders/jo-brief" ...>`)
+- Remove the "Jo Fertier — Lyndon Brief" card from `src/components/founders/HubCardList.tsx`
 
-## Brief structure (single page, scannable in 90 seconds)
+## Step 2 — Build three new founder pages
 
-**Header**
-- Title: "Jo Fertier — Pre-Meeting Brief: Lyndon Rive"
-- Subtitle: "Answers to the 3 questions before the calendar invite"
-- ZenSolar logo + date
+All three follow the same pattern: gated by `<FounderRoute>`, mobile-first, semantic tokens only, header strip with back-to-Vault link, and a hub card on the Founders Vault landing.
 
-**Q1 — Competitive Landscape (vs SolarCoin et al.)**
-- Lead with a 5-row comparison table sourced from `AdminCompetitiveIntel.tsx`:
-  - Columns: Project | Verification | Supply Model | Liquidity | Patent IP | Status
-  - Rows: ZenSolar, SolarCoin, GridPay, Power Ledger, C+Charge
-- Followed by "3 reasons SolarCoin is not us":
-  1. **Verification** — SolarCoin = unverified self-report (upload a screenshot). ZenSolar = SEGI + Proof-of-Delta™ cryptographic verification at the device API layer.
-  2. **Supply** — SolarCoin = 98B pre-minted pool drained by claims. ZenSolar = Mint-on-Proof™ — tokens only exist when verified energy is produced. 1T hard cap, 20% burn-per-mint.
-  3. **Liquidity & moat** — SolarCoin = no real LP, no patents, dead since 2014. ZenSolar = POL flywheel, 5 trademarks filed, patent-pending SEGI architecture, live OEM integrations.
-- One-liner on GridPay: "ERCOT-only solo founder hackathon project, no verification IP, March 2026 launch — confirms the category is real, validates our nationwide multi-vertical moat."
+### Page 1 — Competitive Landscape
+- Route: `/founders/competitive-landscape`
+- File: `src/pages/FoundersCompetitiveLandscape.tsx`
+- Hero: "Why we're not SolarCoin (or anyone else)"
+- Sections:
+  1. **Comparison table** — ZenSolar vs SolarCoin, GridPay, Power Ledger, C+Charge, DeCharge, PowerPod (sourced from existing `AdminCompetitiveIntel.tsx` competitor data)
+  2. **Three reasons we're different** — Verification, Supply, Moat (cards)
+  3. **Per-competitor deep-dive cards** — one card each: what they do, where they fall short, our wedge
+  4. **Category validation** — GridPay launching March 2026 proves the category is real; our nationwide multi-vertical scope is the moat
+- Refactor: pull the `competitors` array out of `AdminCompetitiveIntel.tsx` into `src/data/competitors.ts` so both pages use one source
 
-**Q2 — The Ask from Lyndon**
-- Verbatim from v8.1 (locked, do not modify): **"Board seat — co-shape the tokenized energy economy from day one."**
-- One supporting line: why a board seat (not capital) — Lyndon's operator credibility + Tesla/SolarCity network unlocks utility partnerships and OEM rails faster than any check.
+### Page 2 — The Ask
+- Route: `/founders/the-ask`
+- File: `src/pages/FoundersTheAsk.tsx`
+- Hero: the v8.1 verbatim line — "Board seat — co-shape the tokenized energy economy from day one."
+- Sections:
+  1. **What we're asking for** — board seat (not capital). Big highlight card.
+  2. **Why a board seat instead of a check** — Lyndon's operator credibility + SolarCity/Tesla network unlocks utility partnerships and OEM rails faster than money
+  3. **What we offer in return** — early board influence on a category-defining protocol; equity terms TBD with him
+  4. **What we're not asking for** — explicit "not raising from Lyndon" framing (avoids confusion with the $5M seed ask)
+  5. **Cross-link** to `/founders/seed-ask` for the separate $5M lead-investor conversation
 
-**Q3 — Going Live to See Traction**
-Three proof pillars:
-- **Live product**: beta.zen.solar — fully functional, embedded wallet, Tap-to-Mint™ working today
-- **OEM integrations live**: Tesla ✅, Enphase ✅, Wallbox ✅, SolarEdge (code-ready) — real production data flowing for 4+ real users (Joseph, Tschida, Pessah, Golson)
-- **IP filed**: SEGI™ provisional patent (Q1 2025), 5 trademarks filed (Mint-on-Proof™, Proof-of-Delta™, Proof-of-Origin™, Proof-of-Genesis™, Tap-to-Mint™), Device Watermark Registry on-chain spec
+### Page 3 — Current Status (Live & Building)
+- Route: `/founders/current-status`
+- File: `src/pages/FoundersCurrentStatus.tsx`
+- Hero: "We're not pitching a deck. We're shipping."
+- Sections:
+  1. **Live on Base L2** — contract address, real $ZSOLAR token, real on-chain mints (link to BaseScan if address available)
+  2. **Live product** — beta.zen.solar, embedded Coinbase Wallet, Tap-to-Mint™ working today
+  3. **Beta users** — pull live count from `useBetaMetrics` hook if available; otherwise show qualitative ("active beta users across solar/EV/battery"). Will not fabricate numbers.
+  4. **OEM rails live** — Tesla ✓ · Enphase ✓ · Wallbox ✓ · SolarEdge (code-ready). Real production data flowing for Joseph, Tschida, Pessah, Golson.
+  5. **IP filed** — SEGI™ provisional patent (Q1 2025) + 5 trademarks (Mint-on-Proof™, Proof-of-Delta™, Proof-of-Origin™, Proof-of-Genesis™, Tap-to-Mint™) + Device Watermark Registry on-chain spec
+  6. **What's next** — short bulleted roadmap pulled from existing memory (mainnet launch tranches, Genesis Halving, Deason AI Phase 1)
 
-**Footer**
-- "Live demo: https://beta.zen.solar"
-- "Full competitive intel: internal admin"
-- Confidential — for Jo Fertier only
+## Step 3 — Founders Vault hub cards
 
-## Technical approach
+Add three cards to `src/components/founders/HubCardList.tsx`, grouped together near the top so Joseph/Michael can hand-pick which to send Jo:
 
-**Page (`FoundersJoBrief.tsx`)**
-- Mirror layout patterns from `FounderSeedAsk.tsx` (header, version badge, download button, prose sections, comparison table using shadcn `Table`)
-- Pull competitor data by importing the array from `AdminCompetitiveIntel.tsx` (refactor the `competitors` const into a small shared module `src/data/competitors.ts` so both pages use one source of truth — no duplication)
-- Pull OEM live status from a new tiny constant `src/data/oemLiveStatus.ts` mirroring the memory file, so the page and PDF both render from one source
-- Use semantic tokens only (no hard-coded colors)
-
-**PDF (`/tmp/gen_jo_brief.py`)**
-- reportlab, US Letter, 1" margins
-- Same font + visual approach as v8.1 one-pager (Liberation Sans, 2-column cards where appropriate, ZenSolar logo at top)
-- Single page if possible, max 2 pages
-- Output → `public/founder-docs/jo-fertier-prebrief-v1.pdf`
-- Mandatory QA: pdftoppm → inspect → fix → re-verify before declaring done
-
-**Routing & access**
-- Add route in `src/App.tsx` (or wherever Founders routes live)
-- Wrap in `<FounderRoute>` + `<VaultPinGate>` (same pattern as Master Outline)
-- Add link to Founders Vault sidebar labeled "Jo Fertier Brief"
+| Card | Eyebrow | Tone | Icon |
+|------|---------|------|------|
+| Competitive Landscape | "Pre-Meeting · Q1" | primary | Shield |
+| The Ask | "Pre-Meeting · Q2" | amber | Banknote |
+| Current Status | "Pre-Meeting · Q3" | eco | Activity |
 
 ## Out of scope
 
-- No changes to v8.1 Lyndon one-pager
-- No new competitive data — strictly reuse what's already in AdminCompetitiveIntel
-- No traction numbers beyond what's already documented (no fabricated user counts)
-- No business-logic changes
+- No PDF generation (per your call: "Pages now, PDFs later")
+- No edits to the v8.1 Lyndon one-pager (separate next task — you'll send the change list)
+- No new business logic, no DB changes, no auth changes
+- No fabricated metrics — anything not in the codebase or memory gets shown qualitatively or omitted
