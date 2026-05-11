@@ -78,6 +78,7 @@ const FoundersSeedAllocation = lazy(() => import("./pages/FoundersSeedAllocation
 const FoundersCurrentStatus = lazy(() => import("./pages/FoundersCurrentStatus"));
 const FoundersChangelog = lazy(() => import("./pages/FoundersChangelog"));
 const FoundersCatchup = lazy(() => import("./pages/FoundersCatchup"));
+const FoundersCreative1to1Tokenomics = lazy(() => import("./pages/FoundersCreative1to1Tokenomics"));
 const FoundersLyndonOnePager = lazy(() => import("./pages/FoundersLyndonOnePager"));
 const FoundersLyndonPitchV2 = lazy(() => import("./pages/FoundersLyndonPitchV2"));
 const FoundersVPPRoadmap = lazy(() => import("./pages/FoundersVPPRoadmap"));
@@ -1155,6 +1156,7 @@ const App = () => {
                     <Route path="/founders/seed-allocation" element={<FounderRoute><FoundersSeedAllocation /></FounderRoute>} />
                     <Route path="/founders/current-status" element={<FounderRoute><FoundersCurrentStatus /></FounderRoute>} />
                     <Route path="/founders/changelog" element={<FounderRoute><FoundersChangelog /></FounderRoute>} />
+                    <Route path="/founders/creative-1to1-tokenomics-ideas" element={<FounderRoute><FoundersCreative1to1Tokenomics /></FounderRoute>} />
                     <Route path="/founders/catchup" element={<FounderRoute><FoundersCatchup /></FounderRoute>} />
                     <Route path="/founders/lyndon" element={<FounderRoute><FoundersLyndonOnePager /></FounderRoute>} />
                     <Route path="/founders/lyndon-pitch-v2" element={<FounderRoute><FoundersLyndonPitchV2 /></FounderRoute>} />

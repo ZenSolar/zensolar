@@ -49,6 +49,16 @@ export type HubCardDef = {
 // Newest first by createdAt. Edit dates here to re-order.
 export const HUB_CARDS: HubCardDef[] = [
   {
+    id: "creative-1to1-tokenomics",
+    to: "/founders/creative-1to1-tokenomics-ideas",
+    eyebrow: "Tokenomics · 1:1 kWh → $ZSOLAR",
+    title: "Creative 1:1 Tokenomics Ideas",
+    blurb: "9 smart contract rules to enable a true 1:1 mint ratio while keeping UX simple for Tesla/solar/EV users.",
+    icon: Lightbulb,
+    tone: "primary",
+    createdAt: "2026-05-11",
+  },
+  {
     id: "funded-lp",
     to: "/founders/funded-lp",
     eyebrow: "LP Strategy · Founder-Funded",
