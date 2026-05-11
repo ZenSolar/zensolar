@@ -1,5 +1,5 @@
 import { Navigate, Link } from "react-router-dom";
-import { ArrowLeft, ExternalLink, Loader2, Lock, Shield, Fingerprint, Hexagon, TrendingUp, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, ExternalLink, Loader2, Lock, Shield, Fingerprint, Hexagon, TrendingUp, AlertTriangle, CheckCircle2, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsFounder } from "@/hooks/useIsFounder";
 import { isPreviewMode } from "@/lib/previewMode";
@@ -45,6 +45,32 @@ export default function FoundersCompetitiveLandscape() {
         <p className="mt-5 text-base md:text-lg text-muted-foreground max-w-2xl leading-relaxed">
           Every energy-to-crypto attempt has fallen short on one of three things: verification, supply discipline, or moat. We did all three.
         </p>
+      </section>
+
+      {/* Executive Summary */}
+      <section className="max-w-5xl mx-auto px-5 md:px-6 pb-10">
+        <div className="rounded-2xl border-2 border-primary/40 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-6 md:p-8">
+          <p className="text-[10px] uppercase tracking-[0.28em] text-primary mb-3 inline-flex items-center gap-2">
+            <Sparkles className="h-3 w-3" /> Executive Summary
+          </p>
+          <h2 className="font-serif text-2xl md:text-3xl leading-tight text-foreground mb-4">
+            We're not competing in a category. <span className="italic text-primary">We're building a new asset class.</span>
+          </h2>
+          <div className="space-y-3 text-sm md:text-base text-muted-foreground leading-relaxed">
+            <p>
+              Every name on this page — Daylight, GridPay, Glow, SolarCoin, EVearn — is solving a <span className="text-foreground font-semibold">slice</span> of the energy-to-token problem. Daylight finances the panels. GridPay tokenizes ERCOT exports. Glow subsidizes commercial solar farms. SolarCoin pre-minted 98B tokens in 2014 and went dormant. Each one picked a vertical, a chain, or a financing model — and stopped there.
+            </p>
+            <p>
+              <span className="text-foreground font-semibold">ZenSolar is the protocol layer underneath all of them.</span> We don't own the panels, the chargers, the batteries, or the grid. We sign every verified kilowatt-hour — solar, battery, EV mileage, EV charging — into a cryptographic proof, then mint a token only when that proof exists. No proof, no token. Ever.
+            </p>
+            <p>
+              That's why this is a new asset class, not a new coin: <span className="text-foreground font-semibold">the unit of account is a verified physical event</span>, not a pre-minted pool, not a yield wrapper, not a hardware subsidy. Bitcoin tokenized computational work. We tokenize clean energy work — and we did it with a 1T hard cap, 20% burn-per-mint, founders pact-locked, and patent-pending verification IP (SEGI™, Proof-of-Delta™, Proof-of-Origin™, Mint-on-Proof™).
+            </p>
+            <p>
+              The competitors below are useful — they prove the category is real and that capital is flowing in ($75M into Daylight, $30M+ into Glow, $5M ask from GridPay). <span className="text-foreground font-semibold">None of them can mint our token, and we can absorb their verticals.</span> That's the asymmetry.
+            </p>
+          </div>
+        </div>
       </section>
 
       {/* Three Reasons */}
