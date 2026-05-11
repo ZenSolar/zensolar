@@ -72,6 +72,7 @@ const FoundersDeasonUtilityAI = lazy(() => import("./pages/FoundersDeasonUtility
 const FoundersProofOfGenesis = lazy(() => import("./pages/FoundersProofOfGenesis"));
 const V2App = lazy(() => import("./pages/V2App"));
 const FounderSeedAsk = lazy(() => import("./pages/FounderSeedAsk"));
+const FoundersJoBrief = lazy(() => import("./pages/FoundersJoBrief"));
 const FoundersChangelog = lazy(() => import("./pages/FoundersChangelog"));
 const FoundersCatchup = lazy(() => import("./pages/FoundersCatchup"));
 const FoundersLyndonOnePager = lazy(() => import("./pages/FoundersLyndonOnePager"));
