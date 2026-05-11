@@ -3,14 +3,14 @@ import { ArrowLeft, ExternalLink, Loader2, Lock, Activity, Zap, Shield, Cpu, Roc
 import { useAuth } from "@/hooks/useAuth";
 import { useIsFounder } from "@/hooks/useIsFounder";
 import { isPreviewMode } from "@/lib/previewMode";
-import { useBetaMetrics } from "@/hooks/useBetaMetrics";
+import { useOnChainMintCount } from "@/hooks/useOnChainMintCount";
 import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_NFT_ADDRESS, ZSOLAR_CONTROLLER_ADDRESS } from "@/lib/wagmi";
 
 export default function FoundersCurrentStatus() {
   const { user, isLoading } = useAuth();
   const { isFounder, ready } = useIsFounder();
   const preview = isPreviewMode();
-  const { metrics } = useBetaMetrics();
+  const { stats } = useOnChainMintCount();
 
   if (!preview && (isLoading || !ready)) {
     return (
