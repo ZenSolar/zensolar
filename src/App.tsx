@@ -74,6 +74,7 @@ const V2App = lazy(() => import("./pages/V2App"));
 
 const FoundersCompetitiveLandscape = lazy(() => import("./pages/FoundersCompetitiveLandscape"));
 const FoundersTheAsk = lazy(() => import("./pages/FoundersTheAsk"));
+const FoundersSeedAllocation = lazy(() => import("./pages/FoundersSeedAllocation"));
 const FoundersCurrentStatus = lazy(() => import("./pages/FoundersCurrentStatus"));
 const FoundersChangelog = lazy(() => import("./pages/FoundersChangelog"));
 const FoundersCatchup = lazy(() => import("./pages/FoundersCatchup"));
