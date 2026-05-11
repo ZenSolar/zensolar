@@ -185,7 +185,7 @@ export default function FoundersSeedAllocation() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-5 md:px-8 py-8 md:py-10 print:py-2 print:px-6">
+      <main ref={mainRef} className="max-w-5xl mx-auto px-5 md:px-8 py-8 md:py-10 print:py-2 print:px-6">
         {/* Logo + eyebrow */}
         <div className="flex items-center justify-between gap-4 border-b-2 border-primary pb-3 mb-6">
           <img src={zenLogo} alt="ZenSolar" className="h-10 md:h-11 w-auto" />
