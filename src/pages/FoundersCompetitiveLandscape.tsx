@@ -1,5 +1,5 @@
 import { Navigate, Link } from "react-router-dom";
-import { ArrowLeft, ExternalLink, Loader2, Lock, Shield, Fingerprint, Hexagon, TrendingUp, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, ExternalLink, Loader2, Lock, Shield, Fingerprint, Hexagon, TrendingUp, AlertTriangle, CheckCircle2, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsFounder } from "@/hooks/useIsFounder";
 import { isPreviewMode } from "@/lib/previewMode";
