@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Navigate, Link } from "react-router-dom";
-import { ArrowLeft, Loader2, Lock, Printer, RotateCcw, Pencil, Eye } from "lucide-react";
+import { ArrowLeft, Download, Loader2, Lock, Printer, RotateCcw, Pencil, Eye } from "lucide-react";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsFounder } from "@/hooks/useIsFounder";
 import { isPreviewMode } from "@/lib/previewMode";
@@ -97,6 +99,53 @@ export default function FoundersSeedAllocation() {
     });
   const reset = () => { if (confirm("Reset all edits to canonical defaults?")) { setState(DEFAULTS); localStorage.removeItem(STORAGE_KEY); } };
   const doPrint = () => window.print();
+  const mainRef = useRef<HTMLElement>(null);
+  const [exporting, setExporting] = useState(false);
+
+  const downloadPdf = async () => {
+    if (!mainRef.current) return;
+    setExporting(true);
+    const wasEditing = editing;
+    setEditing(false);
+    await new Promise((r) => setTimeout(r, 80));
+    try {
+      const node = mainRef.current;
+      const bg = getComputedStyle(document.body).backgroundColor || "#ffffff";
+      const canvas = await html2canvas(node, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: bg,
+        windowWidth: node.scrollWidth,
+      });
+      const PAGE_W = 612, PAGE_H = 792, MARGIN = 24;
+      const contentW = PAGE_W - MARGIN * 2;
+      const ratio = contentW / canvas.width;
+      const pageContentH = PAGE_H - MARGIN * 2;
+      const sliceHpx = Math.floor(pageContentH / ratio);
+      const pdf = new jsPDF({ orientation: "portrait", unit: "pt", format: "letter" });
+      let yPx = 0, pageIndex = 0;
+      while (yPx < canvas.height) {
+        const hPx = Math.min(sliceHpx, canvas.height - yPx);
+        const slice = document.createElement("canvas");
+        slice.width = canvas.width;
+        slice.height = hPx;
+        const ctx = slice.getContext("2d");
+        if (!ctx) break;
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, slice.width, slice.height);
+        ctx.drawImage(canvas, 0, yPx, canvas.width, hPx, 0, 0, canvas.width, hPx);
+        const img = slice.toDataURL("image/jpeg", 0.92);
+        if (pageIndex > 0) pdf.addPage();
+        pdf.addImage(img, "JPEG", MARGIN, MARGIN, contentW, hPx * ratio);
+        yPx += hPx;
+        pageIndex += 1;
+      }
+      pdf.save("ZenSolar_Seed_Allocation_v2.pdf");
+    } finally {
+      setEditing(wasEditing);
+      setExporting(false);
+    }
+  };
 
   return (
     <div className="min-h-[100svh] bg-background text-foreground pb-safe print:bg-white">
@@ -118,8 +167,16 @@ export default function FoundersSeedAllocation() {
             <button onClick={reset} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/40 px-3 py-1.5 text-[11px] font-medium hover:bg-card">
               <RotateCcw className="h-3.5 w-3.5" /> Reset
             </button>
-            <button onClick={doPrint} className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-3 py-1.5 text-[11px] font-medium hover:bg-primary/90">
-              <Printer className="h-3.5 w-3.5" /> Print / PDF
+            <button onClick={doPrint} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/40 px-3 py-1.5 text-[11px] font-medium hover:bg-card">
+              <Printer className="h-3.5 w-3.5" /> Print
+            </button>
+            <button
+              onClick={downloadPdf}
+              disabled={exporting}
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-3 py-1.5 text-[11px] font-medium hover:bg-primary/90 disabled:opacity-60"
+            >
+              {exporting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+              {exporting ? "Generating…" : "Download PDF"}
             </button>
             <div className="hidden sm:inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-amber-400">
               <Lock className="h-3 w-3" /> Founders
@@ -128,7 +185,7 @@ export default function FoundersSeedAllocation() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-5 md:px-8 py-8 md:py-10 print:py-2 print:px-6">
+      <main ref={mainRef} className="max-w-5xl mx-auto px-5 md:px-8 py-8 md:py-10 print:py-2 print:px-6">
         {/* Logo + eyebrow */}
         <div className="flex items-center justify-between gap-4 border-b-2 border-primary pb-3 mb-6">
           <img src={zenLogo} alt="ZenSolar" className="h-10 md:h-11 w-auto" />
