@@ -21,6 +21,7 @@ import {
   History,
   LayoutDashboard,
   Droplets,
+  Lightbulb,
   type LucideIcon,
 } from "lucide-react";
 
