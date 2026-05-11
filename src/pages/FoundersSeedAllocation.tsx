@@ -211,14 +211,12 @@ export default function FoundersSeedAllocation() {
           </table>
         </div>
 
-        {/* Why Option B + Self-Funding */}
-        <div className="grid md:grid-cols-2 gap-4 mb-10">
-          <div className="rounded-xl border-t-2 border-primary bg-primary/5 p-5">
-            <h3 className="text-[11px] font-bold tracking-widest text-primary mb-3">THE SELF-FUNDING MOMENT</h3>
-            <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-line">
-              <Editable on={editing} value={state.selfFunding} onChange={(v) => update("selfFunding", v)} multiline />
-            </p>
-          </div>
+        {/* Self-Funding */}
+        <div className="mb-10 rounded-xl border-t-2 border-primary bg-primary/5 p-5">
+          <h3 className="text-[11px] font-bold tracking-widest text-primary mb-3">THE SELF-FUNDING MOMENT</h3>
+          <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-line">
+            <Editable on={editing} value={state.selfFunding} onChange={(v) => update("selfFunding", v)} multiline />
+          </p>
         </div>
 
         {/* Milestones */}
