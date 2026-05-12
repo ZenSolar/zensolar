@@ -1,8 +1,11 @@
 import { Navigate, Link } from "react-router-dom";
-import { ArrowLeft, Loader2, Lock, Lightbulb } from "lucide-react";
+import { ArrowLeft, Loader2, Lock, Lightbulb, FileDown } from "lucide-react";
+import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsFounder } from "@/hooks/useIsFounder";
 import { isPreviewMode } from "@/lib/previewMode";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface Rule {
   n: number;
@@ -92,6 +95,105 @@ export default function FoundersCreative1to1Tokenomics() {
   const { user, isLoading } = useAuth();
   const { isFounder, ready } = useIsFounder();
   const preview = isPreviewMode();
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownloadPDF = async () => {
+    setDownloading(true);
+    try {
+      const { jsPDF } = await import("jspdf");
+      const doc = new jsPDF({ unit: "pt", format: "letter" });
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+      const margin = 56;
+      const maxW = pageW - margin * 2;
+      let y = margin;
+
+      const ensureSpace = (need: number) => {
+        if (y + need > pageH - margin) {
+          doc.addPage();
+          y = margin;
+        }
+      };
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor(120);
+      doc.text("1:1 TOKENOMICS · INTERNAL · FOUNDERS ONLY", margin, y);
+      y += 22;
+
+      doc.setFont("times", "bold");
+      doc.setFontSize(22);
+      doc.setTextColor(20);
+      const title = doc.splitTextToSize("9 rules for a true 1:1 kWh -> $ZSOLAR mint", maxW);
+      doc.text(title, margin, y);
+      y += title.length * 26;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(11);
+      doc.setTextColor(90);
+      const sub = doc.splitTextToSize(
+        "Smart-contract levers that protect the 1:1 ratio while keeping the user-facing math dead simple.",
+        maxW
+      );
+      doc.text(sub, margin, y);
+      y += sub.length * 15 + 18;
+
+      RULES.forEach((r) => {
+        ensureSpace(80);
+        doc.setDrawColor(220);
+        doc.line(margin, y, margin + maxW, y);
+        y += 16;
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(13);
+        doc.setTextColor(20);
+        const heading = doc.splitTextToSize(`${String(r.n).padStart(2, "0")}.  ${r.title}`, maxW);
+        ensureSpace(heading.length * 17);
+        doc.text(heading, margin, y);
+        y += heading.length * 17 + 4;
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10.5);
+        doc.setTextColor(50);
+        const tldr = doc.splitTextToSize(r.tldr, maxW);
+        ensureSpace(tldr.length * 14 + 6);
+        doc.text(tldr, margin, y);
+        y += tldr.length * 14 + 8;
+
+        const rows: Array<[string, string]> = [["UX", r.ux], ["Pro", r.pro], ["Con", r.con]];
+        rows.forEach(([label, value]) => {
+          const wrapped = doc.splitTextToSize(value, maxW - 48);
+          ensureSpace(wrapped.length * 13 + 4);
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(9);
+          doc.setTextColor(110);
+          doc.text(label.toUpperCase(), margin, y);
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(10);
+          doc.setTextColor(60);
+          doc.text(wrapped, margin + 48, y);
+          y += wrapped.length * 13 + 4;
+        });
+        y += 12;
+      });
+
+      const total = doc.getNumberOfPages();
+      for (let i = 1; i <= total; i++) {
+        doc.setPage(i);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(150);
+        doc.text(`ZenSolar · Founders · Confidential   ·   ${i} / ${total}`, pageW / 2, pageH - 24, { align: "center" });
+      }
+
+      doc.save("zensolar-creative-1to1-tokenomics.pdf");
+    } catch (e) {
+      console.error(e);
+      toast.error("PDF export failed");
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   if (!preview && (isLoading || !ready)) {
     return (
@@ -110,8 +212,20 @@ export default function FoundersCreative1to1Tokenomics() {
           <Link to="/founders" className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-muted-foreground hover:text-primary">
             <ArrowLeft className="h-3 w-3" /> Vault
           </Link>
-          <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-amber-400">
-            <Lock className="h-3 w-3" /> Founders Only
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleDownloadPDF}
+              disabled={downloading}
+              className="h-7 gap-1.5 text-[11px] border-eco/40 text-eco hover:bg-eco/10 hover:text-eco"
+            >
+              {downloading ? <Loader2 className="h-3 w-3 animate-spin" /> : <FileDown className="h-3 w-3" />}
+              PDF
+            </Button>
+            <div className="hidden sm:flex items-center gap-2 text-[10px] uppercase tracking-widest text-amber-400">
+              <Lock className="h-3 w-3" /> Founders Only
+            </div>
           </div>
         </div>
       </header>
