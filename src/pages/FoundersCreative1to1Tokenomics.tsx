@@ -1,8 +1,11 @@
 import { Navigate, Link } from "react-router-dom";
-import { ArrowLeft, Loader2, Lock, Lightbulb } from "lucide-react";
+import { ArrowLeft, Loader2, Lock, Lightbulb, FileDown } from "lucide-react";
+import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsFounder } from "@/hooks/useIsFounder";
 import { isPreviewMode } from "@/lib/previewMode";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface Rule {
   n: number;
