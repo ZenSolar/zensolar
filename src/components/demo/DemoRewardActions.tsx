@@ -109,23 +109,33 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
   }>({ open: false });
 
   /** Single shared "celebrate this mint" entrypoint — handles first vs repeat.
-   *  Demo uses a per-session flag so every fresh demo visit gets Cinematic D
-   *  on the first mint (investor walkthroughs replay across sessions). */
-  const DEMO_SESSION_KEY = 'zen:demoCinematicDShown:session';
-  const hasPlayedThisSession = () => {
-    try { return sessionStorage.getItem(DEMO_SESSION_KEY) === '1'; } catch { return false; }
+   *  Demo uses a per-session counter so the first N mints of every fresh demo
+   *  visit play the full Cinematic D (investor walkthroughs replay across
+   *  sessions). After the threshold, repeat mints use the quick transmit flow. */
+  const DEMO_SESSION_KEY = 'zen:demoCinematicDCount:session';
+  const CINEMATIC_MINT_THRESHOLD = 3; // first 3 mints get the cinematic
+  const getSessionCinematicCount = (): number => {
+    try {
+      const raw = sessionStorage.getItem(DEMO_SESSION_KEY);
+      const n = raw ? parseInt(raw, 10) : 0;
+      return Number.isFinite(n) ? n : 0;
+    } catch { return 0; }
   };
+  const hasPlayedThisSession = () => getSessionCinematicCount() >= CINEMATIC_MINT_THRESHOLD;
   const markPlayedThisSession = () => {
-    try { sessionStorage.setItem(DEMO_SESSION_KEY, '1'); } catch { /* ignore */ }
+    try {
+      const next = getSessionCinematicCount() + 1;
+      sessionStorage.setItem(DEMO_SESSION_KEY, String(next));
+    } catch { /* ignore */ }
   };
 
   const celebrateMint = (pending: NonNullable<typeof cinematicD.pending>) => {
     if (!hasPlayedThisSession()) {
-      // First mint of this demo session: play full Cinematic D
+      // Early mints of this demo session: play full Cinematic D
       markPlayedThisSession();
       setCinematicD({ open: true, pending });
     } else {
-      // Repeat mint: Variant C already played during transmit — straight to result.
+      // Threshold reached: Variant C already played during transmit — straight to result.
       triggerConfetti();
       setResultDialog({
         open: true,
