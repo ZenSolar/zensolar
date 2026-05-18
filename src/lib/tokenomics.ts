@@ -133,10 +133,11 @@ export const TRANSFER_TAX = {
   total: 7,
 } as const;
 
-// === REWARD RATES (v2.1 — 10:1 Economic Win Model) ===
-// 1 / MINT_RATIO_KWH_PER_TOKEN = 0.1 token per kWh / mile of verified activity.
-// Live Beta multiplier (10×) compensates so beta still mints visibly.
-const PER_UNIT = 1 / MINT_RATIO_KWH_PER_TOKEN; // 0.1
+// === REWARD RATES (v3.0 — 1:1 ratio restored) ===
+// 1 / MINT_RATIO_KWH_PER_TOKEN = 1.0 token per kWh / mile of verified activity.
+// Live Beta multiplier (10×) is retained for now but is effectively redundant
+// at 1:1 — flagged for review in next levers pass.
+const PER_UNIT = 1 / MINT_RATIO_KWH_PER_TOKEN; // 1.0
 export const BASE_REWARD_RATES = {
   solarProduction: PER_UNIT,
   batteryDischarge: PER_UNIT,
