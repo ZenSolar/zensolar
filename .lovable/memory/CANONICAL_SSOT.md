@@ -104,18 +104,19 @@ Michael: 50B locked until $20 crossover
 
 ---
 
-## 6. Liquidity Pool Strategy & Strategic Expansion (LOCKED 2026-05)
+## 6. Liquidity Pool Strategy & Strategic Expansion (UNDER REVIEW v3.0 — scaling toward ~$10M seed)
 
-**Total liquidity reserve required in seed round: $1.7M**
+**Prior plan ($1.7M LP reserve)** was sized for 10:1 issuance. At 1:1 the issuance per user is 10× higher, so the LP reserve and seed ask are being scaled up. Working target: **~$10M seed**, with roughly half allocated to LP across tranches. Final sizing is the #1 question for Greg Falesnik's feedback session.
 
-| Round | Trigger | USDC to LP | Tokens to LP | Funding Source |
-|-------|---------|------------|--------------|----------------|
-| OG | Day 0 | $200,000 | 2,000,000 | Seed round |
-| Round 2 | 25,000 users | $500,000 | 5,000,000 | Seed round |
-| Round 3 | 100,000 users | $1,000,000 | 8,000,000 | Seed round |
-| Round 4+ | 250,000+ users | $2M+ | Scaling | **100% self-funded from 50% subscription revenue** |
+| Round | Trigger | USDC to LP (working) | Tokens to LP | Funding Source |
+|-------|---------|----------------------|--------------|----------------|
+| OG | Day 0 | ~$1.0M | 10,000,000 | Seed round |
+| Round 2 | 25,000 users | ~$1.5M | 15,000,000 | Seed round |
+| Round 3 | 100,000 users | ~$2.5M | 25,000,000 | Seed round |
+| Round 4+ | 250,000+ users | scaling | scaling | **Self-funded from 50% subscription revenue** |
 
-**Self-funding milestone:** By ~100k paying users the flywheel is fully self-sustaining. No further capital raises needed for liquidity.
+**Self-funding milestone:** still targeted at ~100k paying users.
+**Open:** exact tranche sizes pending Greg + Tschida review.
 
 ---
 
