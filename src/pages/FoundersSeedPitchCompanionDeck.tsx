@@ -34,8 +34,12 @@ const PRIMARY_SOFT = "hsl(158,84%,52% / 0.10)";
 
 function Brand() {
   return (
-    <div className="absolute top-10 right-16 flex items-center gap-3">
-      <img src={zenLogo} alt="ZenSolar" className="h-9 w-auto opacity-90" />
+    <div className="absolute top-8 left-16 z-20 flex items-center gap-3">
+      <img
+        src={zenLogo}
+        alt="ZenSolar"
+        className="h-12 w-auto drop-shadow-[0_0_24px_hsl(158_84%_52%_/_0.35)]"
+      />
     </div>
   );
 }
