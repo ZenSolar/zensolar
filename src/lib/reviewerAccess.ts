@@ -4,8 +4,11 @@
 // Add an email here once they've signed the NDA on /demo. The check passes if
 // the saved NDA email in localStorage matches an allowlist entry.
 
+export const GREG_REVIEWER_CODE = 'GREG2026';
+export const GREG_REVIEWER_EMAIL = 'limitedonlybyvision@gmail.com';
+
 const REVIEWER_ALLOWLIST: ReadonlyArray<string> = [
-  'limitedonlybyvision@gmail.com', // Active reviewer test link
+  GREG_REVIEWER_EMAIL, // Active reviewer test link
 ];
 
 const NDA_EMAIL_KEY = 'zen_nda_email';
@@ -46,6 +49,24 @@ export function getReviewerEmail(): string | null {
   const email = getSavedNdaEmail();
   if (!email) return null;
   return REVIEWER_ALLOWLIST.includes(email) ? email : null;
+}
+
+export function getReviewerInviteFromUrl(): { code: string; email: string } | null {
+  if (typeof window === 'undefined') return null;
+
+  const params = new URLSearchParams(window.location.search);
+  const code = (params.get('code') || params.get('access_code') || '').trim().toUpperCase();
+  const email = (params.get('email') || '').trim().toLowerCase();
+
+  if (code === GREG_REVIEWER_CODE && email === GREG_REVIEWER_EMAIL) {
+    return { code, email };
+  }
+
+  return null;
+}
+
+export function isGregReviewerCode(code: string | null | undefined): boolean {
+  return (code || '').trim().toUpperCase() === GREG_REVIEWER_CODE;
 }
 
 /** True if the visitor has signed the NDA, holds demo access, AND is on the reviewer allowlist. */
