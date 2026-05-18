@@ -38,17 +38,18 @@ export const LIVE_BETA_MULTIPLIER = 10;
 
 // === MODEL METADATA ===
 export const MODEL_NAME = '1T Trillionaire Strategy';
-export const MODEL_VERSION = 2.1; // v2.1 — Mint ratio switched 1:1 → 10:1 (Economic Win Model)
+export const MODEL_VERSION = 3.0; // v3.0 — Reverted to 1:1 mint ratio + Hybrid stake-to-unlock sell-throttle
 
-// === MINT RATIO (v2.1 LOCKED — 2026-05-02) ===
-// 10 kWh (or 10 miles) of verified clean-energy activity = 1 $ZSOLAR minted.
-// Switched from 1:1 to 10:1 to create a positive flywheel from day one:
-//   • ~10× lower sell pressure on LP at every user count
-//   • Same narrative ("clean energy = currency"), denser per-token value
-//   • Genesis Halving at 250k users still applies on top
-// Realistic average: 700 kWh/user/month → 70 $ZSOLAR minted → 52.5 received (75% user share)
-export const MINT_RATIO_KWH_PER_TOKEN = 10;
-export const MINT_RATIO_LABEL = '10 kWh = 1 $ZSOLAR';
+// === MINT RATIO (v3.0 LOCKED — 2026-05-18) ===
+// 1 kWh (or 1 mile) of verified clean-energy activity = 1 $ZSOLAR minted.
+// Reverted from 10:1 back to 1:1 to restore the original narrative integrity
+// ("1 kWh of clean energy = 1 unit of currency"). The 10× higher issuance is
+// counter-balanced by mandatory Hybrid sell-throttle levers (vesting + stake-to-unlock),
+// NOT by diluting the ratio. See FoundersCreative1to1Tokenomics for full lever menu.
+// Realistic average: 700 kWh/user/month → 700 $ZSOLAR minted → 525 received (75% user share)
+// Of those 525, only a fraction is liquid at any time (vesting + stake gates).
+export const MINT_RATIO_KWH_PER_TOKEN = 1;
+export const MINT_RATIO_LABEL = '1 kWh = 1 $ZSOLAR';
 
 // === TOKEN SUPPLY ===
 export const MAX_SUPPLY = 1_000_000_000_000; // 1 TRILLION hard cap
@@ -132,10 +133,11 @@ export const TRANSFER_TAX = {
   total: 7,
 } as const;
 
-// === REWARD RATES (v2.1 — 10:1 Economic Win Model) ===
-// 1 / MINT_RATIO_KWH_PER_TOKEN = 0.1 token per kWh / mile of verified activity.
-// Live Beta multiplier (10×) compensates so beta still mints visibly.
-const PER_UNIT = 1 / MINT_RATIO_KWH_PER_TOKEN; // 0.1
+// === REWARD RATES (v3.0 — 1:1 ratio restored) ===
+// 1 / MINT_RATIO_KWH_PER_TOKEN = 1.0 token per kWh / mile of verified activity.
+// Live Beta multiplier (10×) is retained for now but is effectively redundant
+// at 1:1 — flagged for review in next levers pass.
+const PER_UNIT = 1 / MINT_RATIO_KWH_PER_TOKEN; // 1.0
 export const BASE_REWARD_RATES = {
   solarProduction: PER_UNIT,
   batteryDischarge: PER_UNIT,
@@ -300,10 +302,9 @@ export function getEffectiveRewardRate(activityType: keyof typeof BASE_REWARD_RA
 }
 
 /**
- * v2.1 — Convert raw activity (kWh or miles) into raw $ZSOLAR minted at the 10:1 ratio.
- * Live Beta multiplier (10×) is applied on top so beta users still see visible mints.
- *   • Mainnet: 700 kWh → 70 $ZSOLAR raw → 52.5 received (75% user share)
- *   • Live Beta: 700 kWh × 10× / 10 ratio = 700 raw
+ * v3.0 — Convert raw activity (kWh or miles) into raw $ZSOLAR minted at the 1:1 ratio.
+ *   • Mainnet: 700 kWh → 700 $ZSOLAR raw → 525 received (75% user share)
+ *   • Liquid portion gated by Hybrid sell-throttle (vesting + stake-to-unlock)
  */
 export function calculateRawTokensFromActivity(activityUnits: number): number {
   const tokens = (activityUnits * getRewardMultiplier()) / MINT_RATIO_KWH_PER_TOKEN;
@@ -315,7 +316,7 @@ export function calculatePendingTokens(activityUnits: number): number {
   return Math.floor(rawTokens * (MINT_DISTRIBUTION.user / 100));
 }
 
-/** v2.1 helper — convert kWh / miles to mintable tokens at the 10:1 ratio (no live-beta multiplier). */
+/** v3.0 helper — convert kWh / miles to mintable tokens at the 1:1 ratio (no live-beta multiplier). */
 export function kwhToTokens(units: number): number {
   return units / MINT_RATIO_KWH_PER_TOKEN;
 }

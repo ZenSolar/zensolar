@@ -8,36 +8,47 @@ type: feature
 
 > **Read this first.** This file overrides every other memory, doc, slide, code comment, and contract draft. If something conflicts, fix the other file — never edit around this one.
 
-> **Last locked:** 2026-05-02 (v2.1 — 10:1 mint ratio, liquidity plan, dashboard UI rules)
+> **Last locked:** 2026-05-18 (v3.0 — reverted to 1:1 mint ratio; Hybrid sell-throttle with stake-to-unlock as leading lever; LP seed scaling under review toward ~$10M seed ask)
 
 ---
 
-## 0. v2.1 Mint Ratio Decision — Switched to 10:1 (Economic Win Model) — 2026-05-02
+## 0. v3.0 Mint Ratio Decision — Reverted to 1:1 (Narrative Integrity Model) — 2026-05-18
 
-**Decision:** The mint ratio is officially **10 kWh = 1 $ZSOLAR** (and **10 EV miles = 1 $ZSOLAR**).
+**Decision:** The mint ratio is officially **1 kWh = 1 $ZSOLAR** (and **1 EV mile = 1 $ZSOLAR**, **1 FSD mile = 1 $ZSOLAR**).
 
-### Rationale
+### Why we reverted from 10:1
 
-| Lever | 1:1 (old) | **10:1 (new)** | Effect |
-|---|---|---|---|
-| Tokens minted from 700 kWh/user/mo | 700 | **70** | 10× lower issuance |
-| Tokens received (75% user share) | 525 | **52.5** | 10× lower sell pressure |
-| Sell pressure at 100k users | very high | manageable from day one | flywheel positive immediately |
+- The "1 kWh of clean energy = 1 unit of currency" story is the entire pitch. Diluting the ratio diluted the narrative.
+- SolarCoin convergence: their relaunch uses 1:1 — confirms 1:1 is the schelling point for this category.
+- Sell pressure is better solved with **on-chain sell-throttle levers** than with a denominator change.
 
 ### Realistic baseline (use everywhere)
 
 - Average user activity: **700 kWh/month**
-- Tokens received per user/month: **52.5**
-- At $0.10 launch price: ~$5.25/mo token value back to user
+- Tokens minted per user/month: **700**
+- Tokens received per user/month (75% user share): **525**
+- **Liquid portion at any moment is materially lower** — gated by the sell-throttle stack below.
 
-### Dashboard UI Rule (Locked)
+### Sell-Throttle Stack — Hybrid (LOCKED direction, individual lever values TBD)
 
-- Clean Energy Center headline must show **"X tokens eligible for minting"** (10:1 ratio).
-- Raw kWh remains visible as secondary text / tooltip.
+Leading design: **Vesting + Stake-to-Unlock + (optional) Sell Cap**.
+
+- **Vesting:** ~25% liquid on mint, balance vests linearly (target window 6–12 mo, TBD)
+- **Stake-to-Unlock:** users can accelerate vesting by staking; staking also earns LP fees + revenue share
+- **Optional sell cap:** % of unlocked holdings sellable per 30-day window (TBD)
+- Full menu of 9 candidate levers maintained on `/founders/creative-1to1-tokenomics`
+- Final lever values to be finalized with Tschida + Greg Falesnik feedback
+
+### Dashboard UI Rule (Updated v3.0)
+
+- Clean Energy Center headline: **"X tokens eligible for minting"** at **1:1**
+- Wallet view should show **Liquid / Vesting / Stakeable** breakdown
+- Raw kWh still visible as secondary text / tooltip
 
 ### Code state
 
-- `src/lib/tokenomics.ts` uses `MINT_RATIO_KWH_PER_TOKEN = 10`
+- `src/lib/tokenomics.ts` uses `MINT_RATIO_KWH_PER_TOKEN = 1` (v3.0)
+- Sell-throttle lever values: not yet wired on-chain — UI/contract spec pending
 
 ---
 
@@ -93,18 +104,19 @@ Michael: 50B locked until $20 crossover
 
 ---
 
-## 6. Liquidity Pool Strategy & Strategic Expansion (LOCKED 2026-05)
+## 6. Liquidity Pool Strategy & Strategic Expansion (UNDER REVIEW v3.0 — scaling toward ~$10M seed)
 
-**Total liquidity reserve required in seed round: $1.7M**
+**Prior plan ($1.7M LP reserve)** was sized for 10:1 issuance. At 1:1 the issuance per user is 10× higher, so the LP reserve and seed ask are being scaled up. Working target: **~$10M seed**, with roughly half allocated to LP across tranches. Final sizing is the #1 question for Greg Falesnik's feedback session.
 
-| Round | Trigger | USDC to LP | Tokens to LP | Funding Source |
-|-------|---------|------------|--------------|----------------|
-| OG | Day 0 | $200,000 | 2,000,000 | Seed round |
-| Round 2 | 25,000 users | $500,000 | 5,000,000 | Seed round |
-| Round 3 | 100,000 users | $1,000,000 | 8,000,000 | Seed round |
-| Round 4+ | 250,000+ users | $2M+ | Scaling | **100% self-funded from 50% subscription revenue** |
+| Round | Trigger | USDC to LP (working) | Tokens to LP | Funding Source |
+|-------|---------|----------------------|--------------|----------------|
+| OG | Day 0 | ~$1.0M | 10,000,000 | Seed round |
+| Round 2 | 25,000 users | ~$1.5M | 15,000,000 | Seed round |
+| Round 3 | 100,000 users | ~$2.5M | 25,000,000 | Seed round |
+| Round 4+ | 250,000+ users | scaling | scaling | **Self-funded from 50% subscription revenue** |
 
-**Self-funding milestone:** By ~100k paying users the flywheel is fully self-sustaining. No further capital raises needed for liquidity.
+**Self-funding milestone:** still targeted at ~100k paying users.
+**Open:** exact tranche sizes pending Greg + Tschida review.
 
 ---
 
@@ -140,36 +152,47 @@ Michael: 50B locked until $20 crossover
 
 ## 10. Dashboard / Clean Energy Center UI Rules
 
-- Headline metric: **"X tokens eligible for minting"** (10:1)
+- Headline metric: **"X tokens eligible for minting"** at **1:1** (v3.0)
+- Wallet view should show **Liquid / Vesting / Stakeable** breakdown
 - Raw kWh shown as secondary text/tooltip only
 
 ---
 
-## 11. Staking / Locking Incentives (Planned)
+## 11. Staking / Locking Incentives (Hybrid sell-throttle — leading design)
 
-Regular + Power tiers will offer:
+Stake-to-Unlock + voluntary lock multipliers on top of Hybrid vesting.
 
 - 3-month lock → 1.2× mint multiplier
 - 6-month lock → 1.5×
 - 12-month lock → 2.0×
 - 24-month lock → 3.0×
 
+Staking additionally:
+- Accelerates vesting on minted balance (stake-to-unlock)
+- Earns share of LP trading fees
+- Earns share of subscription revenue (Power tier emphasis)
+
+Full menu of 9 candidate levers lives at `/founders/creative-1to1-tokenomics` — kept current as we iterate.
+
 ---
 
-## 12. Open Questions (Updated)
+## 12. Open Questions (Updated v3.0)
 
-1. Final binding mechanism for founder pact-lock
-2. Exact on-chain implementation details for Genesis Halving
-3. ZK-Proof-of-Genesis provisional filing timeline
+1. Final sell-throttle lever **values** (vesting window, stake-to-unlock curve, sell-cap %) — pending Tschida + Greg
+2. Final **seed ask size** (~$10M working) and LP tranche sizing — pending Greg feedback
+3. Headline framing for Greg deck: scarcity-first ("1:1 + 12mo vest") vs. yield-first ("1:1 + stake-to-earn")
+4. Final binding mechanism for founder pact-lock
+5. Exact on-chain implementation details for Genesis Halving
+6. ZK-Proof-of-Genesis provisional filing timeline
 
 ---
 
 ## 13. Forbidden Statements
 
-- ❌ "1 kWh = 1 $ZSOLAR"
 - ❌ "Launch at $1"
 - ❌ "10B supply"
 - ❌ "Anyone can buy at launch"
+- ❌ "10 kWh = 1 $ZSOLAR" (reverted in v3.0 — always 1:1)
 
 ---
 
@@ -182,7 +205,7 @@ Regular + Power tiers will offer:
 - **In-App Personalized Energy Insights Page** — `/energy-insights` (or inside Clean Energy Center). Charts, savings forecasts, one-tap actions. Home base for the premium Deason experience.
 
 **Phase 2 — Tesla FSD / Autonomous Miles** (Lyndon-pitch "cherry on top")
-- Tokenize FSD / autonomous miles at **10 miles = 1 $ZSOLAR** (same 10:1 ratio).
+- Tokenize FSD / autonomous miles at **1 mile = 1 $ZSOLAR** (same 1:1 ratio).
 - Included in latest patent application.
 - Not yet in Clean Energy Center dashboard.
 
