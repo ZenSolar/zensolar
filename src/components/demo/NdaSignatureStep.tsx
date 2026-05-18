@@ -80,7 +80,7 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned, requiredEmail }: Nd
   const lastPosRef = useRef({ x: 0, y: 0 });
 
   const normalizedEmail = email.trim().toLowerCase();
-  const hasValidEmail = normalizedEmail.length === 0 || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
+  const hasValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
   const emailMatchesInvite = !requiredEmail || normalizedEmail === requiredEmail.toLowerCase();
   const typedSignature = signatureText.trim() || fullName.trim();
 
