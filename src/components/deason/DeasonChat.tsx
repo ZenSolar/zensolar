@@ -20,6 +20,16 @@ const INNER_CIRCLE_PROMPTS = [
   "What's the pitch to Lyndon → Elon?",
 ];
 
+// Reviewer/investor prompts — used on any /demo* route. Investor-grade
+// (capital plan, moat, traction), not raw insider strategy. Safe for NDA'd
+// reviewers like Greg without exposing the full founder strategy set.
+const REVIEWER_PROMPTS = [
+  "What problem is ZenSolar actually solving?",
+  "How does the $0.10 LP-tranche launch work?",
+  "What's the patent moat — and why now?",
+  "Walk me through the 24-month capital plan.",
+];
+
 // Beginner-friendly prompts: intriguing enough to pull people in,
 // but answerable without any crypto / tokenomics background.
 const PUBLIC_PROMPTS = [
