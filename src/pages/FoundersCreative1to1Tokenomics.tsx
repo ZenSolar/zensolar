@@ -243,6 +243,25 @@ export default function FoundersCreative1to1Tokenomics() {
         </p>
       </section>
 
+      {/* Current direction callout */}
+      <section className="max-w-3xl mx-auto px-5 pb-2">
+        <div className="rounded-2xl border border-primary/40 bg-primary/5 p-4 md:p-5">
+          <p className="text-[10px] uppercase tracking-[0.24em] text-primary mb-2">
+            Current direction · v3.0 · 2026-05-18
+          </p>
+          <p className="text-sm md:text-base text-foreground/90 leading-relaxed">
+            Locked back to <span className="font-semibold text-primary">1 kWh = 1 $ZSOLAR</span>.
+            Leading sell-throttle: <span className="font-semibold">Hybrid</span> — Rule 01 (12-mo vesting)
+            + Rule 02 (<span className="italic">stake-to-unlock</span> + LP fees + revenue share),
+            with Rule 06 (25% monthly sell cap) as optional backstop.
+          </p>
+          <p className="mt-2 text-[12px] text-muted-foreground leading-relaxed">
+            All 9 rules below remain live candidates. Final lever values pending Tschida + Greg Falesnik
+            review. Seed ask scaling toward ~$10M (was $1.7M LP) under the new 1:1 issuance.
+          </p>
+        </div>
+      </section>
+
       {/* Rules — compact list */}
       <section className="max-w-3xl mx-auto px-5 pb-12 space-y-3">
         {RULES.map((r) => (
