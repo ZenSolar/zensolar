@@ -292,12 +292,18 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned, requiredEmail }: Nd
           <Input
             value={email}
             onChange={e => setEmail(e.target.value)}
-            placeholder="Email address (optional)"
+            placeholder={requiredEmail ? 'Reviewer email' : 'Email address (optional)'}
             type="email"
             className="text-sm h-10"
             autoComplete="email"
+            readOnly={!!requiredEmail}
           />
         </div>
+        {!emailMatchesInvite && (
+          <p className="text-[11px] text-destructive">
+            This invite must be signed with {requiredEmail}.
+          </p>
+        )}
 
         {/* Signature method toggle */}
         <div className="flex items-center gap-2">
