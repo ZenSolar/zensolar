@@ -119,14 +119,16 @@ export default function FoundersSeedPitch() {
           <Sparkles className="h-3 w-3" /> Seed Narrative Review · v3.0 Draft
         </p>
         <h1 className="font-serif text-3xl sm:text-5xl leading-[1.05] tracking-tight">
-          1 kWh = <span className="italic text-primary">1 $ZSOLAR</span>
-          <span className="block mt-2 text-2xl sm:text-3xl text-foreground/85 not-italic">
-            Hybrid stake-to-unlock throttle.
-          </span>
+          Seed Narrative Review · v3.0 Draft
         </h1>
-        <p className="mt-6 text-base md:text-lg text-muted-foreground leading-relaxed max-w-3xl">
+        <p className="mt-5 text-base md:text-lg text-muted-foreground leading-relaxed max-w-3xl">
+          1 kWh = 1 $ZSOLAR · Hybrid stake-to-unlock throttle
+        </p>
+        <p className="mt-4 text-sm md:text-base text-foreground/75 leading-relaxed max-w-3xl">
           $0.10 launch · 1:1 mint ratio · Stake-to-unlock sell throttle ·
-          Self-funding flywheel by month 18.
+          Self-funding flywheel by month 18. This is a working draft — we'd
+          value your candid perspective before we finalize numbers or
+          structure.
         </p>
       </section>
 
@@ -141,16 +143,13 @@ export default function FoundersSeedPitch() {
               $40B in clean energy incentives — repealed.
             </h3>
             <p className="text-sm md:text-base text-foreground/85 leading-relaxed">
-              The <span className="font-semibold">30% Solar ITC</span> and{" "}
-              <span className="font-semibold">$7,500 federal EV credit</span> are
-              being eliminated. State net-metering is rolling back. 50M+ American
-              households just lost the financial reason to go — or stay — green.{" "}
+              The 30% Solar ITC and $7,500 EV credit are being eliminated.
+              50M+ households just lost the financial reason to go — or stay —
+              green.{" "}
               <span className="text-primary font-semibold">
                 ZenSolar replaces a one-time government check with a permanent,
-                market-backed reward per kWh
-              </span>{" "}
-              — paid forever, in $ZSOLAR. The SolarCity playbook, evolved for
-              the tokenization era.
+                market-backed reward per kWh.
+              </span>
             </p>
           </div>
 
@@ -181,8 +180,7 @@ export default function FoundersSeedPitch() {
             <p className="text-sm md:text-base text-foreground/85 leading-relaxed">
               Produce or consume clean energy → Proof-of-Genesis™ verifies →
               mint <span className="font-mono text-primary">1 kWh = 1 $ZSOLAR</span>.
-              20% of every mint is permanently burned. 3% auto-seeds the LP.
-              Halving every 4 years.
+              20% burned · 3% to LP · halving every 4 years.
             </p>
           </div>
 
