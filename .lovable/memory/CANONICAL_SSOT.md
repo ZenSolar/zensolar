@@ -8,36 +8,47 @@ type: feature
 
 > **Read this first.** This file overrides every other memory, doc, slide, code comment, and contract draft. If something conflicts, fix the other file — never edit around this one.
 
-> **Last locked:** 2026-05-02 (v2.1 — 10:1 mint ratio, liquidity plan, dashboard UI rules)
+> **Last locked:** 2026-05-18 (v3.0 — reverted to 1:1 mint ratio; Hybrid sell-throttle with stake-to-unlock as leading lever; LP seed scaling under review toward ~$10M seed ask)
 
 ---
 
-## 0. v2.1 Mint Ratio Decision — Switched to 10:1 (Economic Win Model) — 2026-05-02
+## 0. v3.0 Mint Ratio Decision — Reverted to 1:1 (Narrative Integrity Model) — 2026-05-18
 
-**Decision:** The mint ratio is officially **10 kWh = 1 $ZSOLAR** (and **10 EV miles = 1 $ZSOLAR**).
+**Decision:** The mint ratio is officially **1 kWh = 1 $ZSOLAR** (and **1 EV mile = 1 $ZSOLAR**, **1 FSD mile = 1 $ZSOLAR**).
 
-### Rationale
+### Why we reverted from 10:1
 
-| Lever | 1:1 (old) | **10:1 (new)** | Effect |
-|---|---|---|---|
-| Tokens minted from 700 kWh/user/mo | 700 | **70** | 10× lower issuance |
-| Tokens received (75% user share) | 525 | **52.5** | 10× lower sell pressure |
-| Sell pressure at 100k users | very high | manageable from day one | flywheel positive immediately |
+- The "1 kWh of clean energy = 1 unit of currency" story is the entire pitch. Diluting the ratio diluted the narrative.
+- SolarCoin convergence: their relaunch uses 1:1 — confirms 1:1 is the schelling point for this category.
+- Sell pressure is better solved with **on-chain sell-throttle levers** than with a denominator change.
 
 ### Realistic baseline (use everywhere)
 
 - Average user activity: **700 kWh/month**
-- Tokens received per user/month: **52.5**
-- At $0.10 launch price: ~$5.25/mo token value back to user
+- Tokens minted per user/month: **700**
+- Tokens received per user/month (75% user share): **525**
+- **Liquid portion at any moment is materially lower** — gated by the sell-throttle stack below.
 
-### Dashboard UI Rule (Locked)
+### Sell-Throttle Stack — Hybrid (LOCKED direction, individual lever values TBD)
 
-- Clean Energy Center headline must show **"X tokens eligible for minting"** (10:1 ratio).
-- Raw kWh remains visible as secondary text / tooltip.
+Leading design: **Vesting + Stake-to-Unlock + (optional) Sell Cap**.
+
+- **Vesting:** ~25% liquid on mint, balance vests linearly (target window 6–12 mo, TBD)
+- **Stake-to-Unlock:** users can accelerate vesting by staking; staking also earns LP fees + revenue share
+- **Optional sell cap:** % of unlocked holdings sellable per 30-day window (TBD)
+- Full menu of 9 candidate levers maintained on `/founders/creative-1to1-tokenomics`
+- Final lever values to be finalized with Tschida + Greg Falesnik feedback
+
+### Dashboard UI Rule (Updated v3.0)
+
+- Clean Energy Center headline: **"X tokens eligible for minting"** at **1:1**
+- Wallet view should show **Liquid / Vesting / Stakeable** breakdown
+- Raw kWh still visible as secondary text / tooltip
 
 ### Code state
 
-- `src/lib/tokenomics.ts` uses `MINT_RATIO_KWH_PER_TOKEN = 10`
+- `src/lib/tokenomics.ts` uses `MINT_RATIO_KWH_PER_TOKEN = 1` (v3.0)
+- Sell-throttle lever values: not yet wired on-chain — UI/contract spec pending
 
 ---
 
