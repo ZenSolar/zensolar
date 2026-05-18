@@ -231,6 +231,80 @@ export default function FoundersSeedPitch() {
         </div>
       </section>
 
+      {/* How It Works · Live Product Flow */}
+      <section className="max-w-4xl mx-auto px-5 pb-10">
+        <div className="border-t border-border/40 pt-8 space-y-5">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.24em] text-eco mb-2">
+              How It Works · Live Today
+            </p>
+            <h3 className="font-serif text-2xl md:text-3xl leading-tight mb-2">
+              Three taps from sunlight to $ZSOLAR.
+            </h3>
+            <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
+              This isn't a deck-only concept. The flow below is shipping in the
+              live beta — Greg / Lyndon can run it themselves on{" "}
+              <span className="font-mono text-primary">beta.zen.solar</span>{" "}
+              right now.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-4">
+            {[
+              {
+                icon: PlugZap,
+                step: "01",
+                title: "Connect Tesla / Enphase",
+                body: "OAuth into Tesla, Enphase, SolarEdge, or Wallbox in under 30 seconds. No hardware, no installer, no truck roll. Real production data starts flowing on the next interval.",
+                tag: "OEM APIs live",
+              },
+              {
+                icon: ShieldCheck,
+                step: "02",
+                title: "Verify each kWh on-chain",
+                body: "Proof-of-Genesis™ engine signs every kWh against the Device Watermark Registry and writes a cryptographic proof to Base L2. 10-layer verification stack — no oracle, no trust, no double-mint.",
+                tag: "Patent-pending",
+              },
+              {
+                icon: Coins,
+                step: "03",
+                title: "Tap-to-Mint™ rewards",
+                body: "One tap mints 1 $ZSOLAR per verified kWh into the embedded Coinbase Wallet. 75% to user · 20% burned · 3% LP · 2% treasury. No gas, no seed phrase, no MetaMask.",
+                tag: "Live on Base",
+              },
+            ].map((s) => (
+              <div
+                key={s.step}
+                className="rounded-lg border border-border/60 bg-card/40 p-4 space-y-2"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 rounded-md bg-primary/10">
+                      <s.icon className="h-4 w-4 text-primary" />
+                    </div>
+                    <span className="font-mono text-xs text-primary">{s.step}</span>
+                  </div>
+                  <span className="text-[9px] uppercase tracking-wider text-eco">
+                    {s.tag}
+                  </span>
+                </div>
+                <h4 className="font-serif text-lg leading-tight">{s.title}</h4>
+                <p className="text-xs text-foreground/75 leading-relaxed">
+                  {s.body}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="rounded-md border border-primary/30 bg-primary/5 px-4 py-3 text-xs text-foreground/85">
+            <span className="font-semibold text-primary">Try it live: </span>
+            beta.zen.solar/demo — pre-seeded Tesla + Enphase data, real
+            Proof-of-Genesis™ verification, real Tap-to-Mint™ into a
+            sandbox wallet. End-to-end in under 60 seconds.
+          </div>
+        </div>
+      </section>
+
       {/* New Asset Class */}
       <section className="max-w-4xl mx-auto px-5 pb-10">
         <div className="rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/10 to-transparent p-5 md:p-7">
