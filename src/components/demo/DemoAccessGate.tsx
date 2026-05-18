@@ -1206,17 +1206,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     if (email) saveNdaEmail(email);
     if (name) saveNdaName(name);
 
-    // Reviewer path: trigger by email match OR by reviewer code in URL.
-    // This lets Greg start at plain /demo, enter any valid demo code, and
-    // get routed to his reviewer materials automatically once we see his
-    // email on the NDA.
-    const signedEmail = (email || '').trim().toLowerCase();
-    const isReviewerEmail = signedEmail === GREG_REVIEWER_EMAIL.toLowerCase();
-    if (isReviewerEmail || isGregReviewerCode(verifiedCode)) {
-      setGranted(true);
-      navigate('/demo/reviewer', { replace: true });
-      return;
-    }
+    // Reviewer path: Greg signs the NDA → land on the normal demo dashboard
+    // just like every other reviewer. The persistent ReviewerWelcomeBanner
+    // at the top of the dashboard surfaces his private docs (single tap
+    // away). We intentionally do NOT auto-route to /demo/reviewer so he
+    // experiences the full product first.
 
     // VIP-mirror codes (TODD-2026, etc.) — mirror is unwired but flag kept for compat
     if (isVipMirrorCode(verifiedCode)) {

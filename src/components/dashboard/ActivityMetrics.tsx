@@ -169,8 +169,9 @@ export function ActivityMetrics({
   // Sound preference — respects global toggle
   const { soundEnabled } = useSoundPreference();
 
-  // Lightsaber ambient hum — synced with shimmer sweep
-  useShimmerSound({ cycleDuration: 5, volume: 0.03, enabled: !isNewUserView && soundEnabled });
+  // Lightsaber ambient hum — disabled by default on the dashboard. Tap/mint
+  // SFX still respect `soundEnabled`; only the continuous hum is muted.
+  useShimmerSound({ cycleDuration: 5, volume: 0.03, enabled: false });
 
   // Check if provider is connected for each category (locked = cannot hide)
   const hasSolarConnected = effectiveConnectedProviders.some(p => ['tesla', 'enphase', 'solaredge'].includes(p)) && solarDevices.length > 0;
