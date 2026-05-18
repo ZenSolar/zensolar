@@ -78,8 +78,8 @@ export default function FoundersSeedPitch() {
   return (
     <div className="min-h-[100svh] bg-background text-foreground pb-safe">
       <Helmet>
-        <title>Seed Pitch · Greg Falesnik (MZ Group) · ZenSolar Founders</title>
-        <meta name="description" content="ZenSolar v3.0 seed pitch review copy for Greg Falesnik / MZ Group — $10M ask, 1:1 kWh, hybrid stake-to-unlock." />
+        <title>Seed Narrative · Review Draft · Greg Falesnik (MZ Group)</title>
+        <meta name="description" content="ZenSolar seed narrative review draft — collaborative feedback copy prepared for Greg Falesnik / MZ Group." />
         <meta name="robots" content="noindex,nofollow" />
       </Helmet>
       {/* Header */}
@@ -92,27 +92,43 @@ export default function FoundersSeedPitch() {
             <ArrowLeft className="h-3 w-3" /> Vault
           </Link>
           <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-amber-400">
-            <Lock className="h-3 w-3" /> Founders Only · v3.0 DRAFT
+            <Lock className="h-3 w-3" /> Review Draft · For Greg Falesnik
           </div>
         </div>
       </header>
 
+      {/* Intro feedback box */}
+      <section className="max-w-4xl mx-auto px-5 pt-8">
+        <div className="rounded-2xl border border-primary/30 bg-primary/[0.04] p-5 md:p-6 backdrop-blur-sm">
+          <p className="text-[10px] uppercase tracking-[0.28em] text-primary mb-3 inline-flex items-center gap-2">
+            <Sparkles className="h-3 w-3" /> A Note to Greg
+          </p>
+          <p className="text-sm md:text-base text-foreground/90 leading-relaxed">
+            Greg — this is a working draft of our seed narrative and capital
+            plan. We'd love your candid feedback on the{" "}
+            <span className="font-semibold text-foreground">story, positioning, tokenomics clarity, sell-pressure mechanics, and overall investor appeal.</span>{" "}
+            No formal ask at this stage — purely looking for your perspective
+            before we finalize.
+          </p>
+        </div>
+      </section>
+
       {/* Hero */}
-      <section className="max-w-4xl mx-auto px-5 pt-10 pb-6">
-        <p className="text-[11px] uppercase tracking-[0.28em] text-primary mb-3 inline-flex items-center gap-2">
-          <Sparkles className="h-3 w-3" /> Seed Allocation · v3.0 Draft · 1:1 kWh Rescope
+      <section className="max-w-4xl mx-auto px-5 pt-12 pb-8">
+        <p className="text-[11px] uppercase tracking-[0.28em] text-primary mb-4 inline-flex items-center gap-2">
+          <Sparkles className="h-3 w-3" /> Seed Narrative · Working Draft
         </p>
         <h1 className="font-serif text-3xl sm:text-5xl leading-[1.05] tracking-tight">
-          $10M Seed.{" "}
-          <span className="italic text-primary">One check.</span>{" "}
-          1 kWh = 1 $ZSOLAR. Hybrid stake-to-unlock.
+          Currency, minted from{" "}
+          <span className="italic text-primary">clean energy.</span>
         </h1>
-        <p className="mt-5 text-base md:text-lg text-muted-foreground leading-relaxed max-w-3xl">
-          $0.10 launch · 3 LP tranches pre-funded by seed · 10× user issuance
-          absorbed by an on-chain stake-to-unlock sell-throttle. Round 4 onward
-          funded entirely by subscription revenue. By month 18, ZenSolar is the
-          rare crypto-energy company with a real-world utility floor — not just
-          a chart.
+        <p className="mt-5 text-lg md:text-xl text-foreground/80 leading-relaxed max-w-3xl">
+          1 kWh = 1 $ZSOLAR. Live on Base L2. Verified by Proof-of-Genesis™.
+        </p>
+        <p className="mt-4 text-base text-muted-foreground leading-relaxed max-w-3xl">
+          A real product, real mints, and a scarcity model engineered to
+          outlive every grid we touch — built by two operators while most of
+          the category is still on testnet.
         </p>
       </section>
 
