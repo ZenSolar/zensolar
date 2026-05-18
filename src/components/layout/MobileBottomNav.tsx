@@ -2,6 +2,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { Home, Zap, Wallet, Image as ImageIcon, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { isAuthorizedReviewer } from "@/lib/reviewerAccess";
 import {
   Sheet,
   SheetContent,
@@ -75,9 +76,12 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
 
   const tabs =
     variant === "demo" ? DEMO_TABS : variant === "marketing" ? MARKETING_TABS : APP_TABS;
+  const reviewerLinks = variant === "demo" && isAuthorizedReviewer()
+    ? [{ to: "/demo/reviewer", label: "Greg Review Materials" }]
+    : [];
   const moreLinks =
     variant === "demo"
-      ? MORE_LINKS_DEMO
+      ? [...reviewerLinks, ...MORE_LINKS_DEMO]
       : variant === "marketing"
         ? MORE_LINKS_MARKETING
         : MORE_LINKS_APP;
