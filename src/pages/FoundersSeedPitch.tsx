@@ -18,8 +18,8 @@ const ALLOCATION = [
     bucket: "Team & Ops (24 mo)",
     amount: "$4.50M",
     pct: "45%",
-    detail:
-      "Joseph $275K Y1 / $300K Y2 · Michael + 3 eng + growth lead Y1 · +data/ML, support, designer, BD Y2 · tools & contractors",
+      detail:
+      "Joseph $300K Y1 / $325K Y2 · Michael + 3 eng + growth lead Y1 · +data/ML, support, designer, BD Y2 · tools & contractors",
   },
   {
     bucket: "LP Reserve (3 tranches)",
