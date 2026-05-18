@@ -113,7 +113,7 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
    *  visit play the full Cinematic D (investor walkthroughs replay across
    *  sessions). After the threshold, repeat mints use the quick transmit flow. */
   const DEMO_SESSION_KEY = 'zen:demoCinematicDCount:session';
-  const CINEMATIC_MINT_THRESHOLD = 3; // first 3 mints get the cinematic
+  const CINEMATIC_MINT_THRESHOLD = 1; // first mint gets the cinematic
   const getSessionCinematicCount = (): number => {
     try {
       const raw = sessionStorage.getItem(DEMO_SESSION_KEY);
