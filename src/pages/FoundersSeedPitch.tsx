@@ -184,9 +184,24 @@ export default function FoundersSeedPitch() {
               Produce or consume clean energy → Proof-of-Genesis™ verifies →
               mint <span className="font-mono text-primary">1 kWh = 1 $ZSOLAR</span>.
               20% of every mint is permanently burned. 3% auto-seeds the LP.
-              Halving every 4 years. Stake-to-unlock caps how much of a user's
-              minted balance can hit the market at once — bounded sell pressure,
-              compounding scarcity.
+              Halving every 4 years.
+            </p>
+          </div>
+
+          {/* Stake-to-unlock callout */}
+          <div className="rounded-xl border border-primary/40 bg-primary/[0.06] p-4 md:p-5">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-primary mb-2 inline-flex items-center gap-2">
+              <ShieldCheck className="h-3 w-3" /> How Sell Pressure Is Capped
+            </p>
+            <h4 className="font-serif text-lg md:text-xl leading-tight mb-2">
+              1:1 narrative + stake-to-unlock throttle.
+            </h4>
+            <p className="text-sm text-foreground/85 leading-relaxed">
+              Minted tokens vest into a user's wallet through an on-chain
+              stake-to-unlock curve — only a bounded slice is liquid at any
+              moment. The 1:1 ratio keeps the story unmistakable; the throttle
+              keeps the order book honest. Float grows with conviction, not
+              with panic.
             </p>
           </div>
 
