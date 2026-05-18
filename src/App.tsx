@@ -82,6 +82,7 @@ const FoundersCreative1to1Tokenomics = lazy(() => import("./pages/FoundersCreati
 const FoundersLyndonOnePager = lazy(() => import("./pages/FoundersLyndonOnePager"));
 const FoundersLyndonPitchV2 = lazy(() => import("./pages/FoundersLyndonPitchV2"));
 const FoundersSeedPitch = lazy(() => import("./pages/FoundersSeedPitch"));
+const FoundersSecondaryRevenue = lazy(() => import("./pages/FoundersSecondaryRevenue"));
 const FoundersVPPRoadmap = lazy(() => import("./pages/FoundersVPPRoadmap"));
 const FoundersEnergyOracle = lazy(() => import("./pages/FoundersEnergyOracle"));
 const FoundersPatentExpansion = lazy(() => import("./pages/FoundersPatentExpansion"));
