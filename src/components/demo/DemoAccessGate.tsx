@@ -1204,7 +1204,13 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     if (email) saveNdaEmail(email);
     if (name) saveNdaName(name);
 
-    if (isGregReviewerCode(verifiedCode)) {
+    // Reviewer path: trigger by email match OR by reviewer code in URL.
+    // This lets Greg start at plain /demo, enter any valid demo code, and
+    // get routed to his reviewer materials automatically once we see his
+    // email on the NDA.
+    const signedEmail = (email || '').trim().toLowerCase();
+    const isReviewerEmail = signedEmail === GREG_REVIEWER_EMAIL.toLowerCase();
+    if (isReviewerEmail || isGregReviewerCode(verifiedCode)) {
       setGranted(true);
       navigate('/demo/reviewer', { replace: true });
       return;
