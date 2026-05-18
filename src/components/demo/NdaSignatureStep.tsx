@@ -45,7 +45,9 @@ This Confidentiality Agreement ("Agreement") is entered into as of the date of e
 type SignatureMethod = 'type' | 'draw';
 
 export function NdaSignatureStep({ accessCodeUsed, onSigned, requiredEmail }: NdaSignatureStepProps) {
-  const [fullName, setFullName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
   const [email, setEmail] = useState(requiredEmail ?? '');
   const [signatureText, setSignatureText] = useState('');
   const [signatureMethod, setSignatureMethod] = useState<SignatureMethod>('type');
