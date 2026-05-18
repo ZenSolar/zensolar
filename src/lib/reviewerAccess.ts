@@ -5,7 +5,7 @@
 // the saved NDA email in localStorage matches an allowlist entry.
 
 export const GREG_REVIEWER_CODE = 'GILI2026';
-export const GREG_REVIEWER_EMAIL = 'limitedonlybyvision@gmail.com';
+export const GREG_REVIEWER_EMAIL = 'greg@mzgroup.us';
 
 const REVIEWER_ALLOWLIST: ReadonlyArray<string> = [
   GREG_REVIEWER_EMAIL, // Active reviewer test link
