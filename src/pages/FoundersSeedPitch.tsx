@@ -67,6 +67,11 @@ const MILESTONES = [
 export default function FoundersSeedPitch() {
   return (
     <div className="min-h-[100svh] bg-background text-foreground pb-safe">
+      <Helmet>
+        <title>Seed Pitch · Greg Falesnik (MZ Group) · ZenSolar Founders</title>
+        <meta name="description" content="ZenSolar seed pitch review copy for Greg Falesnik / MZ Group — Option B one-pager." />
+        <meta name="robots" content="noindex,nofollow" />
+      </Helmet>
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-border/40 bg-background/92 pt-safe backdrop-blur-xl">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
