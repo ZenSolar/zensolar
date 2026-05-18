@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { ArrowLeft, Lock, Sparkles, PlugZap, ShieldCheck, Coins } from "lucide-react";
-import demoFlowVideo from "@/assets/minting-flow-demo.mp4";
 
 /**
  * Seed Pitch URL — Greg Falesnik (MZ Group) review copy.
