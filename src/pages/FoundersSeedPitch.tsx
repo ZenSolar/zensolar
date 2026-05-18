@@ -635,28 +635,6 @@ export default function FoundersSeedPitch() {
         </div>
       </section>
 
-      {/* Secondary revenue link card */}
-      <section className="max-w-4xl mx-auto px-5 pb-8">
-        <Link
-          to="/founders/secondary-revenue"
-          className="block rounded-2xl border border-eco/30 bg-eco/[0.05] p-5 md:p-6 hover:bg-eco/[0.08] transition-colors"
-        >
-          <div className="flex items-start gap-4">
-            <Sparkles className="h-5 w-5 text-eco flex-shrink-0 mt-1" />
-            <div className="flex-1">
-              <div className="text-[10px] uppercase tracking-widest text-eco mb-1">
-                Future Revenue Streams (Beyond Subscription)
-              </div>
-              <h3 className="text-base md:text-lg font-semibold text-foreground mb-1">
-                Seven additional monetization surfaces →
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Patent licensing · Data licensing · Deason AI · VPP · OEM ads · $ZSOLAR store · REC/carbon brokerage
-              </p>
-            </div>
-          </div>
-        </Link>
-      </section>
 
       {/* Closer */}
       <section className="max-w-4xl mx-auto px-5 pb-16">
