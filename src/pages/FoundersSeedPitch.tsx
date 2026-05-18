@@ -180,8 +180,7 @@ export default function FoundersSeedPitch() {
             <p className="text-sm md:text-base text-foreground/85 leading-relaxed">
               Produce or consume clean energy → Proof-of-Genesis™ verifies →
               mint <span className="font-mono text-primary">1 kWh = 1 $ZSOLAR</span>.
-              20% of every mint is permanently burned. 3% auto-seeds the LP.
-              Halving every 4 years.
+              20% burned · 3% to LP · halving every 4 years.
             </p>
           </div>
 
