@@ -50,6 +50,16 @@ export type HubCardDef = {
 // Newest first by createdAt. Edit dates here to re-order.
 export const HUB_CARDS: HubCardDef[] = [
   {
+    id: "seed-pitch-greg",
+    to: "/founders/seed-pitch-greg",
+    eyebrow: "Seed Pitch · Greg (MZ Group) Review Copy",
+    title: "Seed Pitch — Greg / Lyndon",
+    blurb: "v3.0 draft pitch deck: $10M ask, 1:1 kWh, Proof-of-Genesis, moat, allocation. The deck Greg reviews and Lyndon ultimately sees.",
+    icon: Presentation,
+    tone: "amber",
+    createdAt: "2026-05-18",
+  },
+  {
     id: "creative-1to1-tokenomics",
     to: "/founders/creative-1to1-tokenomics-ideas",
     eyebrow: "Tokenomics · 1:1 kWh → $ZSOLAR",
