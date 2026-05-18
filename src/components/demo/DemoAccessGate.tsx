@@ -21,6 +21,8 @@ import { HumLoopDiagnosticsOverlay } from '@/components/demo/HumLoopDiagnostics'
 import { NdaSignatureStep } from '@/components/demo/NdaSignatureStep';
 import { VipWelcomeScreen, getVipWelcomeForCode } from '@/components/demo/VipWelcomeScreen';
 import { activateVipMirror, isVipMirrorCode, clearVipMirror, isVipCode, activateVipCode, clearVipCode } from '@/lib/vipDemo';
+import { getReviewerInviteFromUrl, isGregReviewerCode } from '@/lib/reviewerAccess';
+import { useNavigate } from 'react-router-dom';
 import { getSafeAudioStartTime, getSharedAudioContext, IMMEDIATE_SOUND_LEAD, runWhenAudioContextRunning, useMintSound } from '@/hooks/useMintSound';
 
 
@@ -270,6 +272,8 @@ function isPreviewDemoQaRoute() {
 }
 
 export function DemoAccessGate({ children }: DemoAccessGateProps) {
+  const navigate = useNavigate();
+  const [reviewerInvite] = useState(() => getReviewerInviteFromUrl());
   const [granted, setGranted] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.has('reset')) {
@@ -278,6 +282,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       const nextSearch = params.toString();
       const nextUrl = `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ''}${window.location.hash}`;
       window.history.replaceState({}, '', nextUrl);
+      return false;
+    }
+    if (reviewerInvite) {
+      removeStoredValue(LS_KEY);
+      writeStoredValue(NDA_EMAIL_KEY, JSON.stringify({ email: reviewerInvite.email, ts: Date.now() }), TTL_MS);
       return false;
     }
     if (GATE_BYPASS_PATHS.includes(window.location.pathname)) return true;
