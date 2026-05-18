@@ -310,6 +310,29 @@ function PitchContent() {
           <SubscriptionTransparencyPanel />
         </section>
 
+        {/* Secondary revenue link card */}
+        <section className="mb-10">
+          <Link
+            to="/founders/secondary-revenue"
+            className="block rounded-xl border border-eco/30 bg-eco/[0.05] p-5 hover:bg-eco/[0.08] transition-colors"
+          >
+            <div className="flex items-start gap-3">
+              <Sparkles className="h-5 w-5 text-eco flex-shrink-0 mt-0.5" />
+              <div>
+                <div className="text-[10px] uppercase tracking-widest text-eco mb-1">
+                  Future Revenue Streams (Beyond Subscription)
+                </div>
+                <h3 className="text-base font-semibold text-foreground mb-1">
+                  Seven additional monetization surfaces →
+                </h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Patent licensing · Data licensing · Deason AI · VPP · OEM ads · $ZSOLAR store · REC/carbon brokerage
+                </p>
+              </div>
+            </div>
+          </Link>
+        </section>
+
         {/* The closer */}
         <section className="rounded-xl border border-eco/40 bg-gradient-to-br from-eco/[0.08] to-primary/[0.05] p-6">
           <h2 className="text-xs font-semibold uppercase tracking-widest text-eco mb-3">
