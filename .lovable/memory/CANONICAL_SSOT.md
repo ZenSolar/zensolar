@@ -152,36 +152,47 @@ Michael: 50B locked until $20 crossover
 
 ## 10. Dashboard / Clean Energy Center UI Rules
 
-- Headline metric: **"X tokens eligible for minting"** (10:1)
+- Headline metric: **"X tokens eligible for minting"** at **1:1** (v3.0)
+- Wallet view should show **Liquid / Vesting / Stakeable** breakdown
 - Raw kWh shown as secondary text/tooltip only
 
 ---
 
-## 11. Staking / Locking Incentives (Planned)
+## 11. Staking / Locking Incentives (Hybrid sell-throttle — leading design)
 
-Regular + Power tiers will offer:
+Stake-to-Unlock + voluntary lock multipliers on top of Hybrid vesting.
 
 - 3-month lock → 1.2× mint multiplier
 - 6-month lock → 1.5×
 - 12-month lock → 2.0×
 - 24-month lock → 3.0×
 
+Staking additionally:
+- Accelerates vesting on minted balance (stake-to-unlock)
+- Earns share of LP trading fees
+- Earns share of subscription revenue (Power tier emphasis)
+
+Full menu of 9 candidate levers lives at `/founders/creative-1to1-tokenomics` — kept current as we iterate.
+
 ---
 
-## 12. Open Questions (Updated)
+## 12. Open Questions (Updated v3.0)
 
-1. Final binding mechanism for founder pact-lock
-2. Exact on-chain implementation details for Genesis Halving
-3. ZK-Proof-of-Genesis provisional filing timeline
+1. Final sell-throttle lever **values** (vesting window, stake-to-unlock curve, sell-cap %) — pending Tschida + Greg
+2. Final **seed ask size** (~$10M working) and LP tranche sizing — pending Greg feedback
+3. Headline framing for Greg deck: scarcity-first ("1:1 + 12mo vest") vs. yield-first ("1:1 + stake-to-earn")
+4. Final binding mechanism for founder pact-lock
+5. Exact on-chain implementation details for Genesis Halving
+6. ZK-Proof-of-Genesis provisional filing timeline
 
 ---
 
 ## 13. Forbidden Statements
 
-- ❌ "1 kWh = 1 $ZSOLAR"
 - ❌ "Launch at $1"
 - ❌ "10B supply"
 - ❌ "Anyone can buy at launch"
+- ❌ "10 kWh = 1 $ZSOLAR" (reverted in v3.0 — always 1:1)
 
 ---
 
@@ -194,7 +205,7 @@ Regular + Power tiers will offer:
 - **In-App Personalized Energy Insights Page** — `/energy-insights` (or inside Clean Energy Center). Charts, savings forecasts, one-tap actions. Home base for the premium Deason experience.
 
 **Phase 2 — Tesla FSD / Autonomous Miles** (Lyndon-pitch "cherry on top")
-- Tokenize FSD / autonomous miles at **10 miles = 1 $ZSOLAR** (same 10:1 ratio).
+- Tokenize FSD / autonomous miles at **1 mile = 1 $ZSOLAR** (same 1:1 ratio).
 - Included in latest patent application.
 - Not yet in Clean Energy Center dashboard.
 
