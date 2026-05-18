@@ -119,14 +119,16 @@ export default function FoundersSeedPitch() {
           <Sparkles className="h-3 w-3" /> Seed Narrative Review · v3.0 Draft
         </p>
         <h1 className="font-serif text-3xl sm:text-5xl leading-[1.05] tracking-tight">
-          1 kWh = <span className="italic text-primary">1 $ZSOLAR</span>
-          <span className="block mt-2 text-2xl sm:text-3xl text-foreground/85 not-italic">
-            Hybrid stake-to-unlock throttle.
-          </span>
+          Seed Narrative Review · v3.0 Draft
         </h1>
-        <p className="mt-6 text-base md:text-lg text-muted-foreground leading-relaxed max-w-3xl">
+        <p className="mt-5 text-base md:text-lg text-muted-foreground leading-relaxed max-w-3xl">
+          1 kWh = 1 $ZSOLAR · Hybrid stake-to-unlock throttle
+        </p>
+        <p className="mt-4 text-sm md:text-base text-foreground/75 leading-relaxed max-w-3xl">
           $0.10 launch · 1:1 mint ratio · Stake-to-unlock sell throttle ·
-          Self-funding flywheel by month 18.
+          Self-funding flywheel by month 18. This is a working draft — we'd
+          value your candid perspective before we finalize numbers or
+          structure.
         </p>
       </section>
 
