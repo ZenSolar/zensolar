@@ -116,6 +116,100 @@ export default function FoundersSeedPitch() {
         </p>
       </section>
 
+      {/* Story / Vision — adapted from Lyndon v8 one-pager, updated to v3.0 */}
+      <section className="max-w-4xl mx-auto px-5 pb-10">
+        <div className="rounded-2xl border border-border/60 bg-card/30 p-5 md:p-7 space-y-6">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.24em] text-eco mb-2">
+              The Opportunity
+            </p>
+            <h3 className="font-serif text-xl md:text-2xl leading-tight mb-2">
+              The energy economy is the next $10T shift.
+            </h3>
+            <p className="text-sm md:text-base text-foreground/85 leading-relaxed">
+              Tesla, solar and EVs scale faster than the grid can settle. Yet a
+              kilowatt-hour still has no native asset.{" "}
+              <span className="text-primary font-semibold">
+                $10T+ market. No native asset — until now.
+              </span>{" "}
+              We're the rails before the rails exist.
+            </p>
+          </div>
+
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.24em] text-eco mb-2">
+              The Compounding Flywheel
+            </p>
+            <h3 className="font-serif text-xl md:text-2xl leading-tight mb-2">
+              Every kWh tightens the loop.
+            </h3>
+            <p className="text-sm md:text-base text-foreground/85 leading-relaxed">
+              Produce or consume clean energy → Proof-of-Genesis™ verifies →
+              mint <span className="font-mono text-primary">1 kWh = 1 $ZSOLAR</span>.
+              20% of every mint is permanently burned. 3% auto-seeds the LP.
+              Halving every 4 years. Stake-to-unlock caps how much of a user's
+              minted balance can hit the market at once — bounded sell pressure,
+              compounding scarcity.
+            </p>
+          </div>
+
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.24em] text-eco mb-2">
+              The Product
+            </p>
+            <h3 className="font-serif text-xl md:text-2xl leading-tight mb-2">
+              One tap. Real tokens. Zero crypto friction.
+            </h3>
+            <p className="text-sm md:text-base text-foreground/85 leading-relaxed">
+              Connect Tesla, solar, battery, EV — done. Embedded Coinbase
+              Wallet, mobile-first, Apple-grade simplicity. Live on Base L2.{" "}
+              <span className="font-semibold">Proof-of-Genesis™</span> is the
+              cryptographic trust layer no competitor can replicate without
+              years of utility data.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2 border-t border-border/40">
+            <div>
+              <div className="font-mono text-primary text-lg">1T</div>
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Hard cap</div>
+            </div>
+            <div>
+              <div className="font-mono text-primary text-lg">1 : 1</div>
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground">kWh per token</div>
+            </div>
+            <div>
+              <div className="font-mono text-primary text-lg">$0.10</div>
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Launch price</div>
+            </div>
+            <div>
+              <div className="font-mono text-primary text-lg">75 / 20 / 3 / 2</div>
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground">User · Burn · LP · Treasury</div>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground italic">
+            Founders pact-locked: Joseph 150B until $6.67 · Michael 50B until $20.
+          </p>
+
+          <div className="pt-2 border-t border-border/40">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-eco mb-2">
+              Vision & Traction
+            </p>
+            <h3 className="font-serif text-xl md:text-2xl leading-tight mb-2">
+              A 100–200 year energy company.
+            </h3>
+            <p className="text-sm md:text-base text-foreground/85 leading-relaxed">
+              Live beta. Real users. Real mints. Tesla, SolarEdge, Wallbox
+              connected. Patent-pending Proof of Genesis.{" "}
+              <span className="text-primary font-semibold">
+                Energy Price Oracle = Series A moat.
+              </span>{" "}
+              Built to outlast every grid we touch.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Review banner */}
       <section className="max-w-4xl mx-auto px-5 pb-6">
         <div className="rounded-2xl border border-amber-500/40 bg-amber-500/5 p-4 md:p-5">
