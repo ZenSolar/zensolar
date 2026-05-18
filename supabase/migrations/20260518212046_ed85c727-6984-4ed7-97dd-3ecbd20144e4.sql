@@ -1,0 +1,1 @@
+INSERT INTO public.demo_access_codes (code, is_active, uses) VALUES ('GILI2026', true, 0) ON CONFLICT (code) DO UPDATE SET is_active = true;
