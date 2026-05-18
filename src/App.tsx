@@ -1161,7 +1161,7 @@ const App = () => {
                     <Route path="/founders/catchup" element={<FounderRoute><FoundersCatchup /></FounderRoute>} />
                     <Route path="/founders/lyndon" element={<FounderRoute><FoundersLyndonOnePager /></FounderRoute>} />
                     <Route path="/founders/lyndon-pitch-v2" element={<FounderRoute><FoundersLyndonPitchV2 /></FounderRoute>} />
-                    <Route path="/founders/seed-pitch" element={<FounderRoute><FoundersSeedPitch /></FounderRoute>} />
+                    <Route path="/founders/seed-pitch-greg" element={<FounderRoute><FoundersSeedPitch /></FounderRoute>} />
                     <Route path="/founders/vpp-roadmap" element={<FounderRoute><FoundersVPPRoadmap /></FounderRoute>} />
                     <Route path="/founders/energy-oracle" element={<FounderRoute><FoundersEnergyOracle /></FounderRoute>} />
                     <Route path="/founders/patent-expansion" element={<FounderRoute><FoundersPatentExpansion /></FounderRoute>} />
