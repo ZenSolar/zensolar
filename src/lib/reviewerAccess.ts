@@ -4,7 +4,7 @@
 // Add an email here once they've signed the NDA on /demo. The check passes if
 // the saved NDA email in localStorage matches an allowlist entry.
 
-export const GREG_REVIEWER_CODE = 'GREG2026';
+export const GREG_REVIEWER_CODE = 'GILI2026';
 export const GREG_REVIEWER_EMAIL = 'limitedonlybyvision@gmail.com';
 
 const REVIEWER_ALLOWLIST: ReadonlyArray<string> = [
