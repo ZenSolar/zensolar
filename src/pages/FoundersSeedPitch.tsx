@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { ArrowLeft, Lock, Sparkles } from "lucide-react";
 
 /**
- * Seed Pitch URL — web version of the Option B one-pager.
+ * Seed Pitch URL — Greg Falesnik (MZ Group) review copy.
  *
- * Lives in-app at /founders/seed-pitch so it can be shared with
+ * Lives in-app at /founders/seed-pitch-greg so it can be shared with
  * Greg Falesnik (and any subsequent strategic eyeballs) without
  * passing around a PDF. Numbers below mirror Option B v2 FINAL;
  * a banner flags the pending v3.0 (1:1 / ~$10M) rescope.
