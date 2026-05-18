@@ -538,27 +538,26 @@ export default function FoundersSeedPitch() {
       </section>
 
       {/* Review banner */}
-      <section className="max-w-4xl mx-auto px-5 pb-6">
-        <div className="rounded-2xl border border-amber-500/40 bg-amber-500/5 p-4 md:p-5">
+      <section className="max-w-4xl mx-auto px-5 pb-8">
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/[0.04] p-5 md:p-6">
           <p className="text-[10px] uppercase tracking-[0.24em] text-amber-400 mb-2">
-            For Greg Falesnik review · v3.0 Draft · 2026-05-18
+            Capital Plan · Directional · For Discussion
           </p>
           <p className="text-sm md:text-base text-foreground/90 leading-relaxed">
-            Rescoped from $5M / 10:1 to{" "}
-            <span className="font-semibold text-primary">$10M / 1:1</span> to absorb
-            10× user token issuance with deeper LP and a{" "}
-            <span className="font-semibold">hybrid stake-to-unlock</span> sell-throttle
-            (current preferred lever — full menu lives on the 1:1 Levers page).
-            Allocation %s and LP tranche sizing are directional pending Greg's
-            feedback on ask size, dilution targets, and milestone pacing.
+            The figures below sketch a roughly{" "}
+            <span className="font-semibold text-foreground">$10M working envelope</span>{" "}
+            sized to absorb 1:1 issuance with deeper LP and a hybrid
+            stake-to-unlock throttle. Everything — ask size, allocation mix,
+            tranche pacing — is directional and shown to invite your
+            perspective, not to anchor it.
           </p>
         </div>
       </section>
 
       {/* Allocation */}
-      <section className="max-w-4xl mx-auto px-5 pb-10">
+      <section className="max-w-4xl mx-auto px-5 pb-12">
         <h2 className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground mb-3">
-          The $10M Allocation · Draft
+          Illustrative Use of Funds · ~$10M Envelope
         </h2>
         <div className="rounded-2xl border border-border/60 overflow-hidden">
           <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-3 bg-card/60 text-[10px] uppercase tracking-wider text-muted-foreground">
