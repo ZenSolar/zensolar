@@ -78,8 +78,8 @@ export default function FoundersSeedPitch() {
   return (
     <div className="min-h-[100svh] bg-background text-foreground pb-safe">
       <Helmet>
-        <title>Seed Pitch · Greg Falesnik (MZ Group) · ZenSolar Founders</title>
-        <meta name="description" content="ZenSolar v3.0 seed pitch review copy for Greg Falesnik / MZ Group — $10M ask, 1:1 kWh, hybrid stake-to-unlock." />
+        <title>Seed Narrative · Review Draft · Greg Falesnik (MZ Group)</title>
+        <meta name="description" content="ZenSolar seed narrative review draft — collaborative feedback copy prepared for Greg Falesnik / MZ Group." />
         <meta name="robots" content="noindex,nofollow" />
       </Helmet>
       {/* Header */}
@@ -92,27 +92,43 @@ export default function FoundersSeedPitch() {
             <ArrowLeft className="h-3 w-3" /> Vault
           </Link>
           <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-amber-400">
-            <Lock className="h-3 w-3" /> Founders Only · v3.0 DRAFT
+            <Lock className="h-3 w-3" /> Review Draft · For Greg Falesnik
           </div>
         </div>
       </header>
 
+      {/* Intro feedback box */}
+      <section className="max-w-4xl mx-auto px-5 pt-8">
+        <div className="rounded-2xl border border-primary/30 bg-primary/[0.04] p-5 md:p-6 backdrop-blur-sm">
+          <p className="text-[10px] uppercase tracking-[0.28em] text-primary mb-3 inline-flex items-center gap-2">
+            <Sparkles className="h-3 w-3" /> A Note to Greg
+          </p>
+          <p className="text-sm md:text-base text-foreground/90 leading-relaxed">
+            Greg — this is a working draft of our seed narrative and capital
+            plan. We'd love your candid feedback on the{" "}
+            <span className="font-semibold text-foreground">story, positioning, tokenomics clarity, sell-pressure mechanics, and overall investor appeal.</span>{" "}
+            No formal ask at this stage — purely looking for your perspective
+            before we finalize.
+          </p>
+        </div>
+      </section>
+
       {/* Hero */}
-      <section className="max-w-4xl mx-auto px-5 pt-10 pb-6">
-        <p className="text-[11px] uppercase tracking-[0.28em] text-primary mb-3 inline-flex items-center gap-2">
-          <Sparkles className="h-3 w-3" /> Seed Allocation · v3.0 Draft · 1:1 kWh Rescope
+      <section className="max-w-4xl mx-auto px-5 pt-12 pb-8">
+        <p className="text-[11px] uppercase tracking-[0.28em] text-primary mb-4 inline-flex items-center gap-2">
+          <Sparkles className="h-3 w-3" /> Seed Narrative · Working Draft
         </p>
         <h1 className="font-serif text-3xl sm:text-5xl leading-[1.05] tracking-tight">
-          $10M Seed.{" "}
-          <span className="italic text-primary">One check.</span>{" "}
-          1 kWh = 1 $ZSOLAR. Hybrid stake-to-unlock.
+          Currency, minted from{" "}
+          <span className="italic text-primary">clean energy.</span>
         </h1>
-        <p className="mt-5 text-base md:text-lg text-muted-foreground leading-relaxed max-w-3xl">
-          $0.10 launch · 3 LP tranches pre-funded by seed · 10× user issuance
-          absorbed by an on-chain stake-to-unlock sell-throttle. Round 4 onward
-          funded entirely by subscription revenue. By month 18, ZenSolar is the
-          rare crypto-energy company with a real-world utility floor — not just
-          a chart.
+        <p className="mt-5 text-lg md:text-xl text-foreground/80 leading-relaxed max-w-3xl">
+          1 kWh = 1 $ZSOLAR. Live on Base L2. Verified by Proof-of-Genesis™.
+        </p>
+        <p className="mt-4 text-base text-muted-foreground leading-relaxed max-w-3xl">
+          A real product, real mints, and a scarcity model engineered to
+          outlive every grid we touch — built by two operators while most of
+          the category is still on testnet.
         </p>
       </section>
 
@@ -168,9 +184,24 @@ export default function FoundersSeedPitch() {
               Produce or consume clean energy → Proof-of-Genesis™ verifies →
               mint <span className="font-mono text-primary">1 kWh = 1 $ZSOLAR</span>.
               20% of every mint is permanently burned. 3% auto-seeds the LP.
-              Halving every 4 years. Stake-to-unlock caps how much of a user's
-              minted balance can hit the market at once — bounded sell pressure,
-              compounding scarcity.
+              Halving every 4 years.
+            </p>
+          </div>
+
+          {/* Stake-to-unlock callout */}
+          <div className="rounded-xl border border-primary/40 bg-primary/[0.06] p-4 md:p-5">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-primary mb-2 inline-flex items-center gap-2">
+              <ShieldCheck className="h-3 w-3" /> How Sell Pressure Is Capped
+            </p>
+            <h4 className="font-serif text-lg md:text-xl leading-tight mb-2">
+              1:1 narrative + stake-to-unlock throttle.
+            </h4>
+            <p className="text-sm text-foreground/85 leading-relaxed">
+              Minted tokens vest into a user's wallet through an on-chain
+              stake-to-unlock curve — only a bounded slice is liquid at any
+              moment. The 1:1 ratio keeps the story unmistakable; the throttle
+              keeps the order book honest. Float grows with conviction, not
+              with panic.
             </p>
           </div>
 
@@ -507,27 +538,26 @@ export default function FoundersSeedPitch() {
       </section>
 
       {/* Review banner */}
-      <section className="max-w-4xl mx-auto px-5 pb-6">
-        <div className="rounded-2xl border border-amber-500/40 bg-amber-500/5 p-4 md:p-5">
+      <section className="max-w-4xl mx-auto px-5 pb-8">
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/[0.04] p-5 md:p-6">
           <p className="text-[10px] uppercase tracking-[0.24em] text-amber-400 mb-2">
-            For Greg Falesnik review · v3.0 Draft · 2026-05-18
+            Capital Plan · Directional · For Discussion
           </p>
           <p className="text-sm md:text-base text-foreground/90 leading-relaxed">
-            Rescoped from $5M / 10:1 to{" "}
-            <span className="font-semibold text-primary">$10M / 1:1</span> to absorb
-            10× user token issuance with deeper LP and a{" "}
-            <span className="font-semibold">hybrid stake-to-unlock</span> sell-throttle
-            (current preferred lever — full menu lives on the 1:1 Levers page).
-            Allocation %s and LP tranche sizing are directional pending Greg's
-            feedback on ask size, dilution targets, and milestone pacing.
+            The figures below sketch a roughly{" "}
+            <span className="font-semibold text-foreground">$10M working envelope</span>{" "}
+            sized to absorb 1:1 issuance with deeper LP and a hybrid
+            stake-to-unlock throttle. Everything — ask size, allocation mix,
+            tranche pacing — is directional and shown to invite your
+            perspective, not to anchor it.
           </p>
         </div>
       </section>
 
       {/* Allocation */}
-      <section className="max-w-4xl mx-auto px-5 pb-10">
+      <section className="max-w-4xl mx-auto px-5 pb-12">
         <h2 className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground mb-3">
-          The $10M Allocation · Draft
+          Illustrative Use of Funds · ~$10M Envelope
         </h2>
         <div className="rounded-2xl border border-border/60 overflow-hidden">
           <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-3 bg-card/60 text-[10px] uppercase tracking-wider text-muted-foreground">
@@ -645,33 +675,35 @@ export default function FoundersSeedPitch() {
         </div>
       </section>
 
-      {/* Open questions for Greg */}
-      <section className="max-w-4xl mx-auto px-5 pb-10">
-        <div className="rounded-2xl border border-border/60 bg-card/30 p-5">
-          <h3 className="text-[11px] uppercase tracking-[0.24em] text-amber-400 mb-3">Open Questions for Greg</h3>
-          <ul className="space-y-2 text-sm text-foreground/85 leading-relaxed list-disc pl-5">
-            <li>Is $10M the right ask, or do market conditions push us to $7.5M / $12.5M?</li>
-            <li>Does the stake-to-unlock throttle hold up to institutional scrutiny, or do we need a hard vesting layer on top?</li>
-            <li>LP tranche cadence — three in seed feels right; is the $0.10 → $0.50 price ladder defensible?</li>
-            <li>Energy Oracle R&D in seed vs deferring to Series A — moat now, or runway now?</li>
+      {/* Questions we'd love Greg's perspective on */}
+      <section className="max-w-4xl mx-auto px-5 pb-12">
+        <div className="rounded-2xl border border-border/60 bg-card/30 p-5 md:p-6">
+          <h3 className="text-[11px] uppercase tracking-[0.24em] text-amber-400 mb-3">
+            Where Your Perspective Would Help Most
+          </h3>
+          <ul className="space-y-2.5 text-sm text-foreground/85 leading-relaxed list-disc pl-5">
+            <li>Does the overall narrative land for an institutional audience — and where does it lose them?</li>
+            <li>Is the 1:1 + stake-to-unlock framing clear, or does sell-pressure mechanics need a tighter explanation?</li>
+            <li>Round-size instinct: does a working envelope in the ~$10M range feel right, low, or high for this stage?</li>
+            <li>LP tranche cadence and the $0.10 → $0.50 price ladder — defensible, or worth restructuring?</li>
+            <li>Energy Price Oracle R&D in seed vs. deferring to Series A — moat now, or runway now?</li>
+            <li>Anything we're under-emphasizing (or over-claiming) relative to what serious investors actually weigh?</li>
           </ul>
         </div>
       </section>
 
-
       {/* Closer */}
       <section className="max-w-4xl mx-auto px-5 pb-16">
         <blockquote className="rounded-2xl border-l-4 border-primary bg-card/40 p-6 md:p-8 text-base md:text-lg leading-relaxed text-foreground/90 italic">
-          “$10M. One check. 1 kWh = 1 $ZSOLAR — the cleanest narrative in
-          crypto-energy. Stake-to-unlock keeps sell pressure bounded; three
-          LP tranches absorb the float; by month eighteen, our subscribers —
-          not our investors — are funding every dollar of liquidity that
-          follows.”
+          "1 kWh = 1 $ZSOLAR. Verified on-chain. Throttled by design.
+          Real product, real mints, and by month eighteen our subscribers —
+          not our investors — fund every dollar of liquidity that follows.
+          Grateful for any sharpening you'd offer before we take this out."
         </blockquote>
       </section>
 
       <footer className="max-w-4xl mx-auto px-5 py-8 border-t border-border/40 text-[10px] uppercase tracking-widest text-muted-foreground text-center">
-        ZenSolar · Confidential · Founders Only · v3.0 DRAFT · For Greg Falesnik Review
+        ZenSolar · Confidential · Review Draft · Prepared for Greg Falesnik (MZ Group)
       </footer>
     </div>
   );
