@@ -21,7 +21,7 @@ import { HumLoopDiagnosticsOverlay } from '@/components/demo/HumLoopDiagnostics'
 import { NdaSignatureStep } from '@/components/demo/NdaSignatureStep';
 import { VipWelcomeScreen, getVipWelcomeForCode } from '@/components/demo/VipWelcomeScreen';
 import { activateVipMirror, isVipMirrorCode, clearVipMirror, isVipCode, activateVipCode, clearVipCode } from '@/lib/vipDemo';
-import { getReviewerInviteFromUrl, isGregReviewerCode } from '@/lib/reviewerAccess';
+import { getReviewerInviteFromUrl, isGregReviewerCode, GREG_REVIEWER_EMAIL } from '@/lib/reviewerAccess';
 import { useNavigate } from 'react-router-dom';
 import { getSafeAudioStartTime, getSharedAudioContext, IMMEDIATE_SOUND_LEAD, runWhenAudioContextRunning, useMintSound } from '@/hooks/useMintSound';
 
