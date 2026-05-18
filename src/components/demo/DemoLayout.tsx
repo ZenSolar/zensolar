@@ -9,6 +9,7 @@ import { DemoProvider } from '@/contexts/DemoContext';
 import { useDemoScreenshotDetector } from '@/hooks/useDemoScreenshotDetector';
 import { FeedbackFab } from '@/components/FeedbackFab';
 import { Badge } from '@/components/ui/badge';
+import { ReviewerWelcomeBanner } from '@/components/demo/ReviewerWelcomeBanner';
 import { resetFirstMintCelebration } from '@/lib/firstMintCelebration';
 import { toast } from 'sonner';
 
@@ -90,6 +91,7 @@ export function DemoLayout() {
                   </div>
                 </div>
               )}
+              <ReviewerWelcomeBanner />
               <Outlet />
             </main>
           </div>
