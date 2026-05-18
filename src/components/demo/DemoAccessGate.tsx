@@ -831,7 +831,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     let gongPrewarmed = false;
     let fallbackArmed = false;
     if (!s.hexAwake) {
-      fallbackArmed = !!armDemoEntryFallbackGestureAudio({ gong: true, hum: true });
+      // Ambient lightsaber hum is muted by default on /demo — keep the gong + all
+      // other tap/mint SFX enabled. Users can re-enable hum via sound preferences.
+      fallbackArmed = !!armDemoEntryFallbackGestureAudio({ gong: true, hum: false });
       gongPrewarmed = prewarmSingingBowl();
       updateReleaseAudioDiagnostics({
         fallbackArmed: fallbackArmed ? 'armed' : 'failed',
