@@ -5,7 +5,7 @@
 // the saved NDA email in localStorage matches an allowlist entry.
 
 const REVIEWER_ALLOWLIST: ReadonlyArray<string> = [
-  'jmaushart123@gmail.com', // Greg Falesnik (MZ Group)
+  'limitedonlybyvision@gmail.com', // Active reviewer test link
 ];
 
 const NDA_EMAIL_KEY = 'zen_nda_email';
@@ -55,7 +55,7 @@ export function isAuthorizedReviewer(): boolean {
 
 export const REVIEWER_PAGES = [
   {
-    title: 'Seed Pitch — Greg Falesnik',
+    title: 'Seed Pitch',
     description: 'The full investor narrative: catalyst, flywheel, moat, capital plan, and 24-month milestone path.',
     path: '/founders/seed-pitch-greg',
   },
