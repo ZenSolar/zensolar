@@ -302,10 +302,9 @@ export function getEffectiveRewardRate(activityType: keyof typeof BASE_REWARD_RA
 }
 
 /**
- * v2.1 — Convert raw activity (kWh or miles) into raw $ZSOLAR minted at the 10:1 ratio.
- * Live Beta multiplier (10×) is applied on top so beta users still see visible mints.
- *   • Mainnet: 700 kWh → 70 $ZSOLAR raw → 52.5 received (75% user share)
- *   • Live Beta: 700 kWh × 10× / 10 ratio = 700 raw
+ * v3.0 — Convert raw activity (kWh or miles) into raw $ZSOLAR minted at the 1:1 ratio.
+ *   • Mainnet: 700 kWh → 700 $ZSOLAR raw → 525 received (75% user share)
+ *   • Liquid portion gated by Hybrid sell-throttle (vesting + stake-to-unlock)
  */
 export function calculateRawTokensFromActivity(activityUnits: number): number {
   const tokens = (activityUnits * getRewardMultiplier()) / MINT_RATIO_KWH_PER_TOKEN;
@@ -317,7 +316,7 @@ export function calculatePendingTokens(activityUnits: number): number {
   return Math.floor(rawTokens * (MINT_DISTRIBUTION.user / 100));
 }
 
-/** v2.1 helper — convert kWh / miles to mintable tokens at the 10:1 ratio (no live-beta multiplier). */
+/** v3.0 helper — convert kWh / miles to mintable tokens at the 1:1 ratio (no live-beta multiplier). */
 export function kwhToTokens(units: number): number {
   return units / MINT_RATIO_KWH_PER_TOKEN;
 }
