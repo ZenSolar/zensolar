@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Send, Sparkles, RotateCcw, X, Paperclip, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,6 +18,16 @@ const INNER_CIRCLE_PROMPTS = [
   "Walk me through the LP tranche launch.",
   "Why does the patent now cover Starlink + SpaceX?",
   "What's the pitch to Lyndon → Elon?",
+];
+
+// Reviewer/investor prompts — used on any /demo* route. Investor-grade
+// (capital plan, moat, traction), not raw insider strategy. Safe for NDA'd
+// reviewers like Greg without exposing the full founder strategy set.
+const REVIEWER_PROMPTS = [
+  "What problem is ZenSolar actually solving?",
+  "How does the $0.10 LP-tranche launch work?",
+  "What's the patent moat — and why now?",
+  "Walk me through the 24-month capital plan.",
 ];
 
 // Beginner-friendly prompts: intriguing enough to pull people in,
@@ -67,10 +78,33 @@ export function DeasonChat({ onClose, compact = false }: DeasonChatProps) {
     void send(text, image ?? undefined);
   };
 
-  const prompts = isInnerCircle ? INNER_CIRCLE_PROMPTS : PUBLIC_PROMPTS;
-  const headerSubtitle = isInnerCircle ? "Inner circle · ephemeral" : "ZenSolar concierge · ephemeral";
-  const welcomeTitle = isInnerCircle ? "Ask me anything." : "Hey 👋 — how can I help?";
-  const welcomeBody = isInnerCircle
+  // /demo* surface is the investor/reviewer context. Force reviewer prompts
+  // there regardless of who's logged in (founders viewing the demo see what
+  // reviewers see, not the raw insider set).
+  const location = useLocation();
+  const isDemoSurface = useMemo(
+    () => location.pathname === "/demo" || location.pathname.startsWith("/demo/"),
+    [location.pathname]
+  );
+
+  const prompts = isDemoSurface
+    ? REVIEWER_PROMPTS
+    : isInnerCircle
+    ? INNER_CIRCLE_PROMPTS
+    : PUBLIC_PROMPTS;
+  const headerSubtitle = isDemoSurface
+    ? "Investor preview · ephemeral"
+    : isInnerCircle
+    ? "Inner circle · ephemeral"
+    : "ZenSolar concierge · ephemeral";
+  const welcomeTitle = isDemoSurface
+    ? "Ask the founder anything."
+    : isInnerCircle
+    ? "Ask me anything."
+    : "Hey 👋 — how can I help?";
+  const welcomeBody = isDemoSurface
+    ? "I'm Joe's AI twin. I'll walk you through the thesis, the tokenomics, the patent moat, and the capital plan — in plain English, on your time."
+    : isInnerCircle
     ? "I'm Joe's AI twin. I know the app inside-out — the pivot, the 1T tokenomics, the patent expansion, the LP rounds, the Lyndon/Elon plan, the vault, all of it."
     : "I'm Deason, your ZenSolar guide. Ask me about your tokens, your utility rate plan, or upload a bill and I'll find ways to save you money.";
 
