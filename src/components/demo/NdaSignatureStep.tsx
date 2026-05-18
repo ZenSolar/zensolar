@@ -80,7 +80,7 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned, requiredEmail }: Nd
   const lastPosRef = useRef({ x: 0, y: 0 });
 
   const normalizedEmail = email.trim().toLowerCase();
-  const hasValidEmail = normalizedEmail.length === 0 || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
+  const hasValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
   const emailMatchesInvite = !requiredEmail || normalizedEmail === requiredEmail.toLowerCase();
   const typedSignature = signatureText.trim() || fullName.trim();
 
@@ -304,7 +304,7 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned, requiredEmail }: Nd
         <Input
           value={email}
           onChange={e => setEmail(e.target.value)}
-          placeholder={requiredEmail ? 'Reviewer email' : 'Email address (optional)'}
+          placeholder={requiredEmail ? 'Reviewer email' : 'Email address (required)'}
           type="email"
           className="text-sm h-10"
           autoComplete="email"
