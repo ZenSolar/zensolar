@@ -2018,30 +2018,28 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               aria-label="Access code"
             />
 
-            {/* Unlock / tap hint */}
-            {!isIOSKeyboardMode && (
-              <div className={cn("flex justify-center transition-all duration-200", inputFocused ? 'h-5' : 'h-10')}>
-                {inputFocused ? (
-                  <span className="text-[11px] font-medium text-foreground/55 flex items-center gap-1">
-                    <Lock className="h-3 w-3" />
-                    tap return to verify
-                  </span>
-                ) : showUnlockHint ? (
-                  <span
-                    className="text-sm font-semibold text-primary flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/40 shadow-[0_0_18px_hsl(var(--primary)/0.35)] animate-pulse"
-                    style={{ animation: 'zenSymbolFadeIn 300ms ease-out both, pulse 2s ease-in-out infinite' }}
-                  >
-                    <Lock className="h-3.5 w-3.5" />
-                    {showTapAgain ? '↑ Double-tap the $Z above to enter' : hexAwake ? '↑ Double-tap the $Z above to enter' : '↑ Press & hold the $Z above, then double-tap'}
-                  </span>
-                ) : (
-                  <span className="text-xs font-medium text-primary/80 flex items-center gap-1.5">
-                    <Sparkles className="h-3 w-3" />
-                    {showTapAgain ? 'double tap grants access' : hexAwake ? 'single tap sparks • double tap grants access' : 'press & hold $Z'}
-                  </span>
-                )}
-              </div>
-            )}
+            {/* Unlock / tap hint — always shown so reviewers know the next step */}
+            <div className={cn("flex justify-center transition-all duration-200", isIOSKeyboardMode ? 'h-6 mt-1' : inputFocused ? 'h-5' : 'h-10')}>
+              {inputFocused && !code.trim() ? (
+                <span className="text-[11px] font-medium text-foreground/55 flex items-center gap-1">
+                  <Lock className="h-3 w-3" />
+                  tap return to verify
+                </span>
+              ) : showUnlockHint ? (
+                <span
+                  className="text-sm font-semibold text-primary flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/40 shadow-[0_0_18px_hsl(var(--primary)/0.35)] animate-pulse text-center"
+                  style={{ animation: 'zenSymbolFadeIn 300ms ease-out both, pulse 2s ease-in-out infinite' }}
+                >
+                  <Lock className="h-3.5 w-3.5 shrink-0" />
+                  ↑ Double-tap the $Z above to enter
+                </span>
+              ) : (
+                <span className="text-xs font-medium text-primary/80 flex items-center gap-1.5">
+                  <Sparkles className="h-3 w-3" />
+                  {showTapAgain ? 'double tap grants access' : hexAwake ? 'single tap sparks • double tap grants access' : 'press & hold $Z'}
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Pre-tap hint — visible only before first tap, hidden after */}
