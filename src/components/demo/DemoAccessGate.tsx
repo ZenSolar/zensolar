@@ -476,6 +476,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
   useEffect(() => {
     if (granted) return;
+    if (reviewerInvite) return;
 
     const recentEmail = parseRecentEmailRecord(readStoredValue(NDA_EMAIL_KEY));
     if (!recentEmail) return;
@@ -495,7 +496,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     return () => {
       cancelled = true;
     };
-  }, [granted]);
+  }, [granted, reviewerInvite]);
 
   useEffect(() => {
     if (!showReleaseAudioDiagnostics) return;
