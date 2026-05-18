@@ -1,0 +1,2 @@
+DELETE FROM public.demo_access_log WHERE nda_signature_id IN (SELECT id FROM public.nda_signatures WHERE lower(email) = 'limitedonlybyvision@gmail.com');
+DELETE FROM public.nda_signatures WHERE lower(email) = 'limitedonlybyvision@gmail.com';
