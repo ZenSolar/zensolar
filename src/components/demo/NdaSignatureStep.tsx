@@ -84,7 +84,7 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned, requiredEmail }: Nd
   const emailMatchesInvite = !requiredEmail || normalizedEmail === requiredEmail.toLowerCase();
   const typedSignature = signatureText.trim() || fullName.trim();
 
-  const isValid = fullName.trim().length >= 2
+  const isValid = firstName.trim().length >= 1 && lastName.trim().length >= 1
     && hasValidEmail
     && emailMatchesInvite
     && agreed
