@@ -21,6 +21,8 @@ import { HumLoopDiagnosticsOverlay } from '@/components/demo/HumLoopDiagnostics'
 import { NdaSignatureStep } from '@/components/demo/NdaSignatureStep';
 import { VipWelcomeScreen, getVipWelcomeForCode } from '@/components/demo/VipWelcomeScreen';
 import { activateVipMirror, isVipMirrorCode, clearVipMirror, isVipCode, activateVipCode, clearVipCode } from '@/lib/vipDemo';
+import { getReviewerInviteFromUrl, isGregReviewerCode } from '@/lib/reviewerAccess';
+import { useNavigate } from 'react-router-dom';
 import { getSafeAudioStartTime, getSharedAudioContext, IMMEDIATE_SOUND_LEAD, runWhenAudioContextRunning, useMintSound } from '@/hooks/useMintSound';
 
 
@@ -270,6 +272,8 @@ function isPreviewDemoQaRoute() {
 }
 
 export function DemoAccessGate({ children }: DemoAccessGateProps) {
+  const navigate = useNavigate();
+  const [reviewerInvite] = useState(() => getReviewerInviteFromUrl());
   const [granted, setGranted] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.has('reset')) {
@@ -278,6 +282,11 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       const nextSearch = params.toString();
       const nextUrl = `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ''}${window.location.hash}`;
       window.history.replaceState({}, '', nextUrl);
+      return false;
+    }
+    if (reviewerInvite) {
+      removeStoredValue(LS_KEY);
+      writeStoredValue(NDA_EMAIL_KEY, JSON.stringify({ email: reviewerInvite.email, ts: Date.now() }), TTL_MS);
       return false;
     }
     if (GATE_BYPASS_PATHS.includes(window.location.pathname)) return true;
@@ -321,6 +330,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     const params = new URLSearchParams(window.location.search);
     const emailParam = (params.get('email') || '').trim().toLowerCase();
     if (!emailParam) return;
+    if (reviewerInvite?.email === emailParam) return;
     if (getSavedNdaEmail()?.toLowerCase() === emailParam) return;
     let cancelled = false;
     (async () => {
@@ -331,10 +341,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       if (!cancelled && name) saveNdaName(name);
     })();
     return () => { cancelled = true; };
-  }, [granted]);
+  }, [granted, reviewerInvite]);
   const [code, setCode] = useState(prefillCodeFromUrl);
-  const [showNda, setShowNda] = useState(false);
-  const [verifiedCode, setVerifiedCode] = useState('');
+  const [showNda, setShowNda] = useState(() => !!reviewerInvite);
+  const [verifiedCode, setVerifiedCode] = useState(() => reviewerInvite?.code ?? '');
   const [inputFocused, setInputFocused] = useState(false);
   // Detect Android once — we apply Android-only keyboard tweaks below without
   // changing the iOS code path (iOS flow was already polished and approved).
@@ -466,6 +476,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
   useEffect(() => {
     if (granted) return;
+    if (reviewerInvite) return;
 
     const recentEmail = parseRecentEmailRecord(readStoredValue(NDA_EMAIL_KEY));
     if (!recentEmail) return;
@@ -485,7 +496,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     return () => {
       cancelled = true;
     };
-  }, [granted]);
+  }, [granted, reviewerInvite]);
 
   useEffect(() => {
     if (!showReleaseAudioDiagnostics) return;
@@ -518,6 +529,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const autoSubmittedRef = useRef(false);
   useEffect(() => {
     if (granted) return;
+    if (reviewerInvite) return;
     if (autoSubmittedRef.current) return;
     if (!prefillCodeFromUrl) return;
     autoSubmittedRef.current = true;
@@ -533,7 +545,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       void submitCodeRef.current?.();
     }, 250);
     return () => clearTimeout(t);
-  }, [granted, prefillCodeFromUrl]);
+  }, [granted, prefillCodeFromUrl, reviewerInvite]);
   const submitCodeRef = useRef<(() => Promise<void>) | null>(null);
 
   const logGestureDebug = useCallback((eventName: string, details?: Record<string, unknown>) => {
@@ -1192,6 +1204,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     if (email) saveNdaEmail(email);
     if (name) saveNdaName(name);
 
+    if (isGregReviewerCode(verifiedCode)) {
+      setGranted(true);
+      navigate('/demo/reviewer', { replace: true });
+      return;
+    }
+
     // VIP-mirror codes (TODD-2026, etc.) — mirror is unwired but flag kept for compat
     if (isVipMirrorCode(verifiedCode)) {
       activateVipMirror(verifiedCode);
@@ -1212,7 +1230,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     } else {
       setGranted(true);
     }
-  }, [verifiedCode]);
+  }, [navigate, verifiedCode]);
 
   const handlePreviewBypass = () => {
     grantAccess();
@@ -2069,6 +2087,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           <NdaSignatureStep
             accessCodeUsed={verifiedCode}
             onSigned={handleNdaSigned}
+            requiredEmail={reviewerInvite?.email}
           />
         </div>
       )}

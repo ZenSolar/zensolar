@@ -19,6 +19,7 @@ interface GeoInfo {
 interface NdaSignatureStepProps {
   accessCodeUsed: string;
   onSigned: (email?: string, fullName?: string) => void;
+  requiredEmail?: string;
 }
 
 const NDA_VERSION = '1.0';
@@ -43,9 +44,9 @@ This Confidentiality Agreement ("Agreement") is entered into as of the date of e
 
 type SignatureMethod = 'type' | 'draw';
 
-export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepProps) {
+export function NdaSignatureStep({ accessCodeUsed, onSigned, requiredEmail }: NdaSignatureStepProps) {
   const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(requiredEmail ?? '');
   const [signatureText, setSignatureText] = useState('');
   const [signatureMethod, setSignatureMethod] = useState<SignatureMethod>('type');
   const [agreed, setAgreed] = useState(false);
@@ -76,11 +77,14 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
   const isDrawingRef = useRef(false);
   const lastPosRef = useRef({ x: 0, y: 0 });
 
-  const hasValidEmail = email.trim().length === 0 || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const normalizedEmail = email.trim().toLowerCase();
+  const hasValidEmail = normalizedEmail.length === 0 || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
+  const emailMatchesInvite = !requiredEmail || normalizedEmail === requiredEmail.toLowerCase();
   const typedSignature = signatureText.trim() || fullName.trim();
 
   const isValid = fullName.trim().length >= 2
     && hasValidEmail
+    && emailMatchesInvite
     && agreed
     && scrolledToBottom
     && (signatureMethod === 'type' ? typedSignature.length >= 2 : hasDrawn);
@@ -288,12 +292,18 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned }: NdaSignatureStepP
           <Input
             value={email}
             onChange={e => setEmail(e.target.value)}
-            placeholder="Email address (optional)"
+            placeholder={requiredEmail ? 'Reviewer email' : 'Email address (optional)'}
             type="email"
             className="text-sm h-10"
             autoComplete="email"
+            readOnly={!!requiredEmail}
           />
         </div>
+        {!emailMatchesInvite && (
+          <p className="text-[11px] text-destructive">
+            This invite must be signed with {requiredEmail}.
+          </p>
+        )}
 
         {/* Signature method toggle */}
         <div className="flex items-center gap-2">
