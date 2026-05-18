@@ -245,10 +245,10 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned, requiredEmail }: Nd
   };
 
   return (
-    <div className="flex flex-col h-full max-h-[100dvh] overflow-hidden">
+    <div className="flex flex-col h-full max-h-[100dvh] overflow-y-auto md:overflow-hidden md:max-w-2xl md:mx-auto md:my-6 md:rounded-2xl md:border md:border-border md:bg-card md:shadow-2xl md:max-h-[calc(100dvh-3rem)]">
       {/* Header */}
       <div className="flex flex-col items-center px-5 pt-5 pb-3 shrink-0">
-        <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+        <h2 className="text-base md:text-lg font-semibold text-foreground flex items-center gap-2">
           <FileText className="h-4 w-4 text-secondary" />
           Confidentiality Agreement
         </h2>
@@ -258,12 +258,12 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned, requiredEmail }: Nd
       </p>
 
       {/* NDA Text - scrollable */}
-      <div className="flex-1 min-h-0 px-5 pb-2">
+      <div className="md:flex-1 md:min-h-0 px-5 pb-2">
         <div
-          className="h-full overflow-y-auto rounded-lg border border-border bg-card/50 p-4"
+          className="max-h-[40vh] md:max-h-none md:h-full overflow-y-auto rounded-lg border border-border bg-card/50 p-4"
           onScroll={handleScroll}
         >
-          <pre className="whitespace-pre-wrap text-[11px] leading-relaxed text-foreground/80 font-sans">
+          <pre className="whitespace-pre-wrap text-[11px] md:text-xs leading-relaxed text-foreground/80 font-sans">
             {NDA_TEXT}
           </pre>
           {!scrolledToBottom && (
@@ -276,6 +276,7 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned, requiredEmail }: Nd
           </p>
         )}
       </div>
+
 
       {/* Signature form — only interactive after scrolling to bottom */}
       <div className={cn(
