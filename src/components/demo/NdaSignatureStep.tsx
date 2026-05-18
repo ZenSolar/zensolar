@@ -282,25 +282,33 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned, requiredEmail }: Nd
         "shrink-0 px-5 pb-5 pt-2 space-y-3 transition-opacity duration-300",
         scrolledToBottom ? 'opacity-100' : 'opacity-40 pointer-events-none'
       )}>
-        {/* Name & Email */}
+        {/* Name fields */}
         <div className="grid grid-cols-2 gap-2">
           <Input
-            value={fullName}
-            onChange={e => setFullName(e.target.value)}
-            placeholder="Full name"
+            value={firstName}
+            onChange={e => setFirstName(e.target.value)}
+            placeholder="First name"
             className="text-sm h-10"
-            autoComplete="name"
+            autoComplete="given-name"
           />
           <Input
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            placeholder={requiredEmail ? 'Reviewer email' : 'Email address (optional)'}
-            type="email"
+            value={lastName}
+            onChange={e => setLastName(e.target.value)}
+            placeholder="Last name"
             className="text-sm h-10"
-            autoComplete="email"
-            readOnly={!!requiredEmail}
+            autoComplete="family-name"
           />
         </div>
+        {/* Email */}
+        <Input
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          placeholder={requiredEmail ? 'Reviewer email' : 'Email address (optional)'}
+          type="email"
+          className="text-sm h-10"
+          autoComplete="email"
+          readOnly={!!requiredEmail}
+        />
         {!emailMatchesInvite && (
           <p className="text-[11px] text-destructive">
             This invite must be signed with {requiredEmail}.
