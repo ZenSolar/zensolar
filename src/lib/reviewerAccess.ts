@@ -55,7 +55,7 @@ export function isAuthorizedReviewer(): boolean {
 
 export const REVIEWER_PAGES = [
   {
-    title: 'Seed Pitch — Greg Falesnik',
+    title: 'Seed Pitch',
     description: 'The full investor narrative: catalyst, flywheel, moat, capital plan, and 24-month milestone path.',
     path: '/founders/seed-pitch-greg',
   },
