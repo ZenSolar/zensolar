@@ -116,19 +116,17 @@ export default function FoundersSeedPitch() {
       {/* Hero */}
       <section className="max-w-4xl mx-auto px-5 pt-12 pb-8">
         <p className="text-[11px] uppercase tracking-[0.28em] text-primary mb-4 inline-flex items-center gap-2">
-          <Sparkles className="h-3 w-3" /> Seed Narrative · Working Draft
+          <Sparkles className="h-3 w-3" /> Seed Narrative Review · v3.0 Draft
         </p>
         <h1 className="font-serif text-3xl sm:text-5xl leading-[1.05] tracking-tight">
-          Currency, minted from{" "}
-          <span className="italic text-primary">clean energy.</span>
+          1 kWh = <span className="italic text-primary">1 $ZSOLAR</span>
+          <span className="block mt-2 text-2xl sm:text-3xl text-foreground/85 not-italic">
+            Hybrid stake-to-unlock throttle.
+          </span>
         </h1>
-        <p className="mt-5 text-lg md:text-xl text-foreground/80 leading-relaxed max-w-3xl">
-          1 kWh = 1 $ZSOLAR. Live on Base L2. Verified by Proof-of-Genesis™.
-        </p>
-        <p className="mt-4 text-base text-muted-foreground leading-relaxed max-w-3xl">
-          A real product, real mints, and a scarcity model engineered to
-          outlive every grid we touch — built by two operators while most of
-          the category is still on testnet.
+        <p className="mt-6 text-base md:text-lg text-muted-foreground leading-relaxed max-w-3xl">
+          $0.10 launch · 1:1 mint ratio · Stake-to-unlock sell throttle ·
+          Self-funding flywheel by month 18.
         </p>
       </section>
 
