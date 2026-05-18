@@ -29,6 +29,8 @@ import Home from "./pages/Home";
 // Lazy load layout and auth components to reduce main bundle size
 const ProtectedRoute = lazy(() => import("@/components/ProtectedRoute").then(m => ({ default: m.ProtectedRoute })));
 const FounderRoute = lazy(() => import("@/components/FounderRoute").then(m => ({ default: m.FounderRoute })));
+const ReviewerOrFounderRoute = lazy(() => import("@/components/ReviewerOrFounderRoute").then(m => ({ default: m.ReviewerOrFounderRoute })));
+const DemoReviewerHub = lazy(() => import("./pages/DemoReviewerHub"));
 const AppLayout = lazy(() => import("@/components/layout/AppLayout").then(m => ({ default: m.AppLayout })));
 const Auth = lazy(() => import("./pages/Auth"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
@@ -305,6 +307,7 @@ const App = () => {
                       <Route path="terms" element={<Terms />} />
                       <Route path="privacy" element={<Privacy />} />
                       <Route path="blog" element={<Blog />} />
+                      <Route path="reviewer" element={<DemoReviewerHub />} />
                     </Route>
                     <Route path="/home" element={<Home />} />
                     {/* Subscribe wrapped in AppLayout so it inherits the
@@ -1163,8 +1166,8 @@ const App = () => {
                     <Route path="/founders/catchup" element={<FounderRoute><FoundersCatchup /></FounderRoute>} />
                     <Route path="/founders/lyndon" element={<FounderRoute><FoundersLyndonOnePager /></FounderRoute>} />
                     <Route path="/founders/lyndon-pitch-v2" element={<FounderRoute><FoundersLyndonPitchV2 /></FounderRoute>} />
-                    <Route path="/founders/seed-pitch-greg" element={<FounderRoute><FoundersSeedPitch /></FounderRoute>} />
-                    <Route path="/founders/seed-pitch-companion-deck" element={<FounderRoute><FoundersSeedPitchCompanionDeck /></FounderRoute>} />
+                   <Route path="/founders/seed-pitch-greg" element={<ReviewerOrFounderRoute><FoundersSeedPitch /></ReviewerOrFounderRoute>} />
+                   <Route path="/founders/seed-pitch-companion-deck" element={<ReviewerOrFounderRoute><FoundersSeedPitchCompanionDeck /></ReviewerOrFounderRoute>} />
                     <Route path="/founders/secondary-revenue" element={<FounderRoute><FoundersSecondaryRevenue /></FounderRoute>} />
                     <Route path="/founders/vpp-roadmap" element={<FounderRoute><FoundersVPPRoadmap /></FounderRoute>} />
                     <Route path="/founders/energy-oracle" element={<FounderRoute><FoundersEnergyOracle /></FounderRoute>} />

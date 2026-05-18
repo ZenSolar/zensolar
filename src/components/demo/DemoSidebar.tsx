@@ -17,7 +17,9 @@ import {
   Cpu,
   Wrench,
   Sparkles,
+  ShieldCheck,
 } from "lucide-react";
+import { isAuthorizedReviewer } from "@/lib/reviewerAccess";
 import { isPreviewMode } from "@/lib/previewMode";
 import { useTheme } from "next-themes";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
@@ -122,6 +124,33 @@ export function DemoSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Reviewer-only group (NDA-signed allowlisted reviewers, e.g. Greg) */}
+        {isAuthorizedReviewer() && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Reviewer</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Reviewer Materials">
+                    <NavLink
+                      to="/demo/reviewer"
+                      onClick={handleNavClick}
+                      className={({ isActive }) =>
+                        isActive
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                          : "hover:bg-sidebar-accent/50"
+                      }
+                    >
+                      <ShieldCheck className="h-4 w-4 text-primary" />
+                      <span>Reviewer Materials</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         {/* Secondary Navigation */}
         <SidebarGroup>
