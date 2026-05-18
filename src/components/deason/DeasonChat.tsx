@@ -78,10 +78,33 @@ export function DeasonChat({ onClose, compact = false }: DeasonChatProps) {
     void send(text, image ?? undefined);
   };
 
-  const prompts = isInnerCircle ? INNER_CIRCLE_PROMPTS : PUBLIC_PROMPTS;
-  const headerSubtitle = isInnerCircle ? "Inner circle · ephemeral" : "ZenSolar concierge · ephemeral";
-  const welcomeTitle = isInnerCircle ? "Ask me anything." : "Hey 👋 — how can I help?";
-  const welcomeBody = isInnerCircle
+  // /demo* surface is the investor/reviewer context. Force reviewer prompts
+  // there regardless of who's logged in (founders viewing the demo see what
+  // reviewers see, not the raw insider set).
+  const location = useLocation();
+  const isDemoSurface = useMemo(
+    () => location.pathname === "/demo" || location.pathname.startsWith("/demo/"),
+    [location.pathname]
+  );
+
+  const prompts = isDemoSurface
+    ? REVIEWER_PROMPTS
+    : isInnerCircle
+    ? INNER_CIRCLE_PROMPTS
+    : PUBLIC_PROMPTS;
+  const headerSubtitle = isDemoSurface
+    ? "Investor preview · ephemeral"
+    : isInnerCircle
+    ? "Inner circle · ephemeral"
+    : "ZenSolar concierge · ephemeral";
+  const welcomeTitle = isDemoSurface
+    ? "Ask the founder anything."
+    : isInnerCircle
+    ? "Ask me anything."
+    : "Hey 👋 — how can I help?";
+  const welcomeBody = isDemoSurface
+    ? "I'm Joe's AI twin. I'll walk you through the thesis, the tokenomics, the patent moat, and the capital plan — in plain English, on your time."
+    : isInnerCircle
     ? "I'm Joe's AI twin. I know the app inside-out — the pivot, the 1T tokenomics, the patent expansion, the LP rounds, the Lyndon/Elon plan, the vault, all of it."
     : "I'm Deason, your ZenSolar guide. Ask me about your tokens, your utility rate plan, or upload a bill and I'll find ways to save you money.";
 
