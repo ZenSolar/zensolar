@@ -2086,6 +2086,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           <NdaSignatureStep
             accessCodeUsed={verifiedCode}
             onSigned={handleNdaSigned}
+            requiredEmail={reviewerInvite?.email}
           />
         </div>
       )}
