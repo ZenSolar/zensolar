@@ -304,7 +304,7 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned, requiredEmail }: Nd
         <Input
           value={email}
           onChange={e => setEmail(e.target.value)}
-          placeholder={requiredEmail ? 'Reviewer email' : 'Email address (optional)'}
+          placeholder={requiredEmail ? 'Reviewer email' : 'Email address (required)'}
           type="email"
           className="text-sm h-10"
           autoComplete="email"
