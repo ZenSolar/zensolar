@@ -2079,7 +2079,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       {/* NDA Signature Overlay */}
       {showNda && (
         <div
-          className="absolute inset-0 z-[110] bg-background/95 backdrop-blur-sm"
+          className="absolute inset-0 z-[110] bg-background/95 backdrop-blur-sm overflow-y-auto"
           style={{
             animation: 'zenSymbolFadeIn 400ms ease-out both',
           }}
