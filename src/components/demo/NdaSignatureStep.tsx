@@ -45,7 +45,9 @@ This Confidentiality Agreement ("Agreement") is entered into as of the date of e
 type SignatureMethod = 'type' | 'draw';
 
 export function NdaSignatureStep({ accessCodeUsed, onSigned, requiredEmail }: NdaSignatureStepProps) {
-  const [fullName, setFullName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
   const [email, setEmail] = useState(requiredEmail ?? '');
   const [signatureText, setSignatureText] = useState('');
   const [signatureMethod, setSignatureMethod] = useState<SignatureMethod>('type');
@@ -82,7 +84,7 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned, requiredEmail }: Nd
   const emailMatchesInvite = !requiredEmail || normalizedEmail === requiredEmail.toLowerCase();
   const typedSignature = signatureText.trim() || fullName.trim();
 
-  const isValid = fullName.trim().length >= 2
+  const isValid = firstName.trim().length >= 1 && lastName.trim().length >= 1
     && hasValidEmail
     && emailMatchesInvite
     && agreed
@@ -243,10 +245,10 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned, requiredEmail }: Nd
   };
 
   return (
-    <div className="flex flex-col h-full max-h-[100dvh] overflow-hidden">
+    <div className="flex flex-col h-full max-h-[100dvh] overflow-y-auto md:overflow-hidden md:max-w-2xl md:mx-auto md:my-6 md:rounded-2xl md:border md:border-border md:bg-card md:shadow-2xl md:max-h-[calc(100dvh-3rem)]">
       {/* Header */}
       <div className="flex flex-col items-center px-5 pt-5 pb-3 shrink-0">
-        <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+        <h2 className="text-base md:text-lg font-semibold text-foreground flex items-center gap-2">
           <FileText className="h-4 w-4 text-secondary" />
           Confidentiality Agreement
         </h2>
@@ -256,12 +258,12 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned, requiredEmail }: Nd
       </p>
 
       {/* NDA Text - scrollable */}
-      <div className="flex-1 min-h-0 px-5 pb-2">
+      <div className="md:flex-1 md:min-h-0 px-5 pb-2">
         <div
-          className="h-full overflow-y-auto rounded-lg border border-border bg-card/50 p-4"
+          className="max-h-[40vh] md:max-h-none md:h-full overflow-y-auto rounded-lg border border-border bg-card/50 p-4"
           onScroll={handleScroll}
         >
-          <pre className="whitespace-pre-wrap text-[11px] leading-relaxed text-foreground/80 font-sans">
+          <pre className="whitespace-pre-wrap text-[11px] md:text-xs leading-relaxed text-foreground/80 font-sans">
             {NDA_TEXT}
           </pre>
           {!scrolledToBottom && (
@@ -275,30 +277,39 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned, requiredEmail }: Nd
         )}
       </div>
 
+
       {/* Signature form — only interactive after scrolling to bottom */}
       <div className={cn(
         "shrink-0 px-5 pb-5 pt-2 space-y-3 transition-opacity duration-300",
         scrolledToBottom ? 'opacity-100' : 'opacity-40 pointer-events-none'
       )}>
-        {/* Name & Email */}
+        {/* Name fields */}
         <div className="grid grid-cols-2 gap-2">
           <Input
-            value={fullName}
-            onChange={e => setFullName(e.target.value)}
-            placeholder="Full name"
+            value={firstName}
+            onChange={e => setFirstName(e.target.value)}
+            placeholder="First name"
             className="text-sm h-10"
-            autoComplete="name"
+            autoComplete="given-name"
           />
           <Input
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            placeholder={requiredEmail ? 'Reviewer email' : 'Email address (optional)'}
-            type="email"
+            value={lastName}
+            onChange={e => setLastName(e.target.value)}
+            placeholder="Last name"
             className="text-sm h-10"
-            autoComplete="email"
-            readOnly={!!requiredEmail}
+            autoComplete="family-name"
           />
         </div>
+        {/* Email */}
+        <Input
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          placeholder={requiredEmail ? 'Reviewer email' : 'Email address (optional)'}
+          type="email"
+          className="text-sm h-10"
+          autoComplete="email"
+          readOnly={!!requiredEmail}
+        />
         {!emailMatchesInvite && (
           <p className="text-[11px] text-destructive">
             This invite must be signed with {requiredEmail}.
