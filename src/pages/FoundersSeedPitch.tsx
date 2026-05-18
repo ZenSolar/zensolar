@@ -120,6 +120,27 @@ export default function FoundersSeedPitch() {
       <section className="max-w-4xl mx-auto px-5 pb-10">
         <div className="rounded-2xl border border-border/60 bg-card/30 p-5 md:p-7 space-y-6">
           <div>
+            <p className="text-[10px] uppercase tracking-[0.24em] text-destructive mb-2">
+              The Catalyst · Why Now
+            </p>
+            <h3 className="font-serif text-xl md:text-2xl leading-tight mb-2">
+              $40B in clean energy incentives — repealed.
+            </h3>
+            <p className="text-sm md:text-base text-foreground/85 leading-relaxed">
+              The <span className="font-semibold">30% Solar ITC</span> and{" "}
+              <span className="font-semibold">$7,500 federal EV credit</span> are
+              being eliminated. State net-metering is rolling back. 50M+ American
+              households just lost the financial reason to go — or stay — green.{" "}
+              <span className="text-primary font-semibold">
+                ZenSolar replaces a one-time government check with a permanent,
+                market-backed reward per kWh
+              </span>{" "}
+              — paid forever, in $ZSOLAR. The SolarCity playbook, evolved for
+              the tokenization era.
+            </p>
+          </div>
+
+          <div className="pt-2 border-t border-border/40">
             <p className="text-[10px] uppercase tracking-[0.24em] text-eco mb-2">
               The Opportunity
             </p>
