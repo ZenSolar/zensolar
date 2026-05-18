@@ -330,6 +330,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     const params = new URLSearchParams(window.location.search);
     const emailParam = (params.get('email') || '').trim().toLowerCase();
     if (!emailParam) return;
+    if (reviewerInvite?.email === emailParam) return;
     if (getSavedNdaEmail()?.toLowerCase() === emailParam) return;
     let cancelled = false;
     (async () => {
@@ -340,10 +341,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       if (!cancelled && name) saveNdaName(name);
     })();
     return () => { cancelled = true; };
-  }, [granted]);
+  }, [granted, reviewerInvite]);
   const [code, setCode] = useState(prefillCodeFromUrl);
-  const [showNda, setShowNda] = useState(false);
-  const [verifiedCode, setVerifiedCode] = useState('');
+  const [showNda, setShowNda] = useState(() => !!reviewerInvite);
+  const [verifiedCode, setVerifiedCode] = useState(() => reviewerInvite?.code ?? '');
   const [inputFocused, setInputFocused] = useState(false);
   // Detect Android once — we apply Android-only keyboard tweaks below without
   // changing the iOS code path (iOS flow was already polished and approved).
