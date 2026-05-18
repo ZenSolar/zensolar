@@ -19,7 +19,7 @@ const ALLOCATION = [
     amount: "$4.50M",
     pct: "45%",
       detail:
-      "Joseph $300K Y1 / $325K Y2 · Michael + 3 eng + growth lead Y1 · +data/ML, support, designer, BD Y2 · tools & contractors",
+      "Joseph $300K Y1 / $300K Y2 · Michael + 3 eng + growth lead Y1 · +data/ML, support, designer, BD Y2 · tools & contractors trimmed to hold bucket flat",
   },
   {
     bucket: "LP Reserve (3 tranches)",
