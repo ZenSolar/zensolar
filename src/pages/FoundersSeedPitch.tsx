@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { ArrowLeft, Lock, Sparkles } from "lucide-react";
+import { ArrowLeft, Lock, Sparkles, PlugZap, ShieldCheck, Coins } from "lucide-react";
 
 /**
  * Seed Pitch URL — Greg Falesnik (MZ Group) review copy.
