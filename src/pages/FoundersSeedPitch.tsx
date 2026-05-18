@@ -231,6 +231,183 @@ export default function FoundersSeedPitch() {
         </div>
       </section>
 
+      {/* New Asset Class */}
+      <section className="max-w-4xl mx-auto px-5 pb-10">
+        <div className="rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/10 to-transparent p-5 md:p-7">
+          <p className="text-[10px] uppercase tracking-[0.28em] text-primary mb-2">
+            Category Creation · The Thesis
+          </p>
+          <h2 className="font-serif text-2xl md:text-3xl leading-tight mb-4">
+            We're not building a token. We're minting a{" "}
+            <span className="italic text-primary">new asset class.</span>
+          </h2>
+          <div className="grid md:grid-cols-3 gap-4 mb-5">
+            <div className="rounded-xl border border-border/50 bg-background/40 p-4">
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Gold</div>
+              <div className="font-serif text-base mb-1">Store of value</div>
+              <div className="text-xs text-foreground/70">Backed by a finite stockpile dug from the earth.</div>
+            </div>
+            <div className="rounded-xl border border-border/50 bg-background/40 p-4">
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Bitcoin</div>
+              <div className="font-serif text-base mb-1">Digital scarcity</div>
+              <div className="text-xs text-foreground/70">Backed by burned electricity securing a ledger.</div>
+            </div>
+            <div className="rounded-xl border border-primary/50 bg-primary/10 p-4">
+              <div className="text-[10px] uppercase tracking-wider text-primary mb-1">$ZSOLAR</div>
+              <div className="font-serif text-base mb-1">Productive energy</div>
+              <div className="text-xs text-foreground/85">Backed by clean kWh produced — the only commodity that compounds with civilization itself.</div>
+            </div>
+          </div>
+          <p className="text-sm md:text-base text-foreground/90 leading-relaxed">
+            Every prior commodity-backed token — oil, gold, carbon — is backed
+            by a <span className="italic">stockpile</span>. $ZSOLAR is the first
+            asset backed by{" "}
+            <span className="text-primary font-semibold">
+              ongoing, physically verifiable, infinitely useful human productivity
+            </span>
+            . Gold sits in a vault. Bitcoin sits on a ledger. $ZSOLAR is{" "}
+            <span className="italic">produced</span>, every hour the sun rises and
+            every mile an EV rolls.
+          </p>
+        </div>
+      </section>
+
+      {/* Proof-of-Genesis vs PoW / PoS */}
+      <section className="max-w-4xl mx-auto px-5 pb-10">
+        <p className="text-[10px] uppercase tracking-[0.24em] text-eco mb-2">
+          The Third Consensus Primitive
+        </p>
+        <h2 className="font-serif text-2xl md:text-3xl leading-tight mb-2">
+          PoW burned energy. PoS staked capital.{" "}
+          <span className="italic text-primary">PoG produces energy.</span>
+        </h2>
+        <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4 max-w-3xl">
+          Crypto has had two consensus primitives in 17 years. Proof-of-Genesis™
+          is the third — and the first one where the work <span className="italic">is</span> the value,
+          not a tax paid to secure the ledger.
+        </p>
+        <div className="rounded-2xl border border-border/60 overflow-hidden">
+          <div className="hidden md:grid grid-cols-12 gap-3 px-4 py-3 bg-card/60 text-[10px] uppercase tracking-wider text-muted-foreground">
+            <div className="col-span-3">Primitive</div>
+            <div className="col-span-3">Anchor</div>
+            <div className="col-span-3">What it does</div>
+            <div className="col-span-3">The critique</div>
+          </div>
+          {[
+            { p: "Proof-of-Work", a: "Bitcoin · 2009", d: "Burns electricity to secure a ledger", c: "Energy is wasted to prove trust" },
+            { p: "Proof-of-Stake", a: "Ethereum · 2022", d: "Stakes capital to secure a ledger", c: "Rewards the already-wealthy; plutocratic" },
+            { p: "Proof-of-Genesis™", a: "ZenSolar · 2026", d: "Produces clean energy to mint the asset", c: "The work IS the value. Energy isn't burned to secure — energy IS the asset.", highlight: true },
+          ].map((row) => (
+            <div
+              key={row.p}
+              className={`grid grid-cols-1 md:grid-cols-12 gap-1 md:gap-3 px-4 py-4 border-t border-border/40 ${
+                row.highlight ? "bg-primary/10" : "bg-card/30"
+              }`}
+            >
+              <div className={`md:col-span-3 font-semibold ${row.highlight ? "text-primary" : "text-foreground"}`}>{row.p}</div>
+              <div className="md:col-span-3 text-sm font-mono text-muted-foreground">{row.a}</div>
+              <div className="md:col-span-3 text-sm text-foreground/85">{row.d}</div>
+              <div className={`md:col-span-3 text-sm italic ${row.highlight ? "text-foreground/90" : "text-muted-foreground"}`}>{row.c}</div>
+            </div>
+          ))}
+        </div>
+        <p className="text-sm md:text-base text-foreground/90 leading-relaxed mt-4 max-w-3xl italic">
+          "Bitcoin proved you can tokenize trust. We're tokenizing the thing
+          trust was always for — <span className="text-primary not-italic font-semibold">productive work.</span>"
+        </p>
+      </section>
+
+      {/* The Moat — IP, Scarcity Stack, Verification Stack */}
+      <section className="max-w-4xl mx-auto px-5 pb-10">
+        <p className="text-[10px] uppercase tracking-[0.24em] text-eco mb-2">
+          The Moat · Why We're Uncopyable
+        </p>
+        <h2 className="font-serif text-2xl md:text-3xl leading-tight mb-4">
+          Three walls competitors would need years to climb.
+        </h2>
+
+        <div className="grid md:grid-cols-3 gap-4 mb-5">
+          {/* IP Wall */}
+          <div className="rounded-2xl border border-border/60 bg-card/40 p-5">
+            <div className="text-[10px] uppercase tracking-wider text-primary mb-2">Wall 1 · IP</div>
+            <h3 className="font-serif text-lg mb-2">The TM Stack</h3>
+            <ul className="text-xs text-foreground/85 leading-relaxed space-y-1.5">
+              <li>• <span className="font-semibold">Patent Track 1</span> — Mint-on-Proof™</li>
+              <li>• <span className="font-semibold">Patent Track 2</span> — Proof-of-Delta™ / SEGI™</li>
+              <li>• <span className="font-semibold">Patent Track 2.5</span> — Energy Price Oracle</li>
+              <li>• <span className="font-semibold">Patent Track 3</span> — Device Watermark Registry</li>
+              <li>• <span className="font-semibold">Patent Track 4</span> — ZK-Proof-of-Genesis</li>
+              <li className="pt-1.5 border-t border-border/40 mt-2">TMs: Proof-of-Genesis™, Tap-to-Mint™, Proof-of-Permanence™ ("The Eternal Ledger"), Genesis Anchor™, Proof-of-Custody™, SEGI™, ZPPA</li>
+            </ul>
+          </div>
+
+          {/* Scarcity Stack */}
+          <div className="rounded-2xl border border-border/60 bg-card/40 p-5">
+            <div className="text-[10px] uppercase tracking-wider text-primary mb-2">Wall 2 · Scarcity</div>
+            <h3 className="font-serif text-lg mb-2">5-Layer Scarcity Stack</h3>
+            <ul className="text-xs text-foreground/85 leading-relaxed space-y-1.5">
+              <li>1. <span className="font-semibold">1T hard cap</span> (contract-enforced)</li>
+              <li>2. <span className="font-semibold">20% burn-per-mint</span> (novel)</li>
+              <li>3. <span className="font-semibold">4-year halving</span> (Bitcoin cadence)</li>
+              <li>4. <span className="font-semibold">Founder pact-lock</span> (200B until $6.67/$20)</li>
+              <li>5. <span className="font-semibold">Protocol-Owned Liquidity</span> (no mercenary LP)</li>
+              <li className="pt-1.5 border-t border-border/40 mt-2 italic text-primary">Bitcoin has 1 layer. We stacked 5. Net-deflationary by year ~16 — Bitcoin reaches it at year ~116.</li>
+            </ul>
+          </div>
+
+          {/* Verification Stack */}
+          <div className="rounded-2xl border border-border/60 bg-card/40 p-5">
+            <div className="text-[10px] uppercase tracking-wider text-primary mb-2">Wall 3 · Trust</div>
+            <h3 className="font-serif text-lg mb-2">10-Layer Verification</h3>
+            <ul className="text-xs text-foreground/85 leading-relaxed space-y-1.5">
+              <li>• Multi-OEM OAuth (Tesla, SolarEdge, Enphase, Wallbox)</li>
+              <li>• Device Watermark Registry (on-chain, one device → one wallet)</li>
+              <li>• Server-side mint reconciliation</li>
+              <li>• Weather + irradiance cross-reference</li>
+              <li>• Bidirectional EV proofs (charge/discharge/miles/FSD)</li>
+              <li>• Subscription dual-gate · Producer-gated LP · VPP settlement</li>
+              <li className="pt-1.5 border-t border-border/40 mt-2 italic text-primary">10 layers shipping or specified — before we even add Chainlink (Series A) or ZK (Series B).</li>
+            </ul>
+          </div>
+        </div>
+
+        <p className="text-sm md:text-base text-foreground/90 leading-relaxed max-w-3xl">
+          Even if Tesla or Coinbase shipped tomorrow, they'd face a{" "}
+          <span className="text-primary font-semibold">patent wall, a five-layer scarcity wall, and a verification stack built on years of multi-OEM utility data</span>{" "}
+          they don't have. The seed funds the patents that lock this in.
+        </p>
+      </section>
+
+      {/* Why Us · Why Now */}
+      <section className="max-w-4xl mx-auto px-5 pb-10">
+        <p className="text-[10px] uppercase tracking-[0.24em] text-eco mb-2">
+          Why Us · Why Now
+        </p>
+        <h2 className="font-serif text-2xl md:text-3xl leading-tight mb-4">
+          Five things converged. The window just opened.
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {[
+            { k: "ITC + EV credit repeal", v: "$40B in incentives just vanished. 50M+ households need a new reason to go green. We are it." },
+            { k: "Base L2 maturity", v: "Sub-cent gas, Coinbase-grade reliability. The first L2 where consumer crypto actually works." },
+            { k: "Embedded Coinbase Wallet", v: "Zero seed phrases. Zero MetaMask. Apple-grade onboarding for non-crypto users." },
+            { k: "Tesla / OEM API opening", v: "Tesla, SolarEdge, Enphase, Wallbox all OAuth-live in our beta. The data rails finally exist." },
+            { k: "Founder skin-in-the-game", v: "Joseph 150B pact-locked until $6.67 · Michael 50B until $20. No cliff dumps. Ever. No VC has seen this." },
+            { k: "Two operators, not theorists", v: "Joseph + Michael Tschida — shipping a live beta, real OEM mints, patents filed, while most crypto teams are still on testnet." },
+          ].map((row) => (
+            <div key={row.k} className="rounded-xl border border-border/60 bg-card/40 p-4">
+              <div className="text-[10px] uppercase tracking-wider text-primary mb-1">{row.k}</div>
+              <div className="text-sm text-foreground/85 leading-relaxed">{row.v}</div>
+            </div>
+          ))}
+        </div>
+        <p className="text-sm md:text-base text-foreground/90 leading-relaxed mt-5 max-w-3xl italic">
+          "Every prior energy-token attempt failed because <span className="not-italic">one</span> of
+          these five wasn't ready. In 2026 all five are live at the same time —
+          for the first and probably only time."
+        </p>
+      </section>
+
       {/* Review banner */}
       <section className="max-w-4xl mx-auto px-5 pb-6">
         <div className="rounded-2xl border border-amber-500/40 bg-amber-500/5 p-4 md:p-5">
