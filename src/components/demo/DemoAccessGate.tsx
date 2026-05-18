@@ -528,6 +528,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
   const autoSubmittedRef = useRef(false);
   useEffect(() => {
     if (granted) return;
+    if (reviewerInvite) return;
     if (autoSubmittedRef.current) return;
     if (!prefillCodeFromUrl) return;
     autoSubmittedRef.current = true;
@@ -543,7 +544,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       void submitCodeRef.current?.();
     }, 250);
     return () => clearTimeout(t);
-  }, [granted, prefillCodeFromUrl]);
+  }, [granted, prefillCodeFromUrl, reviewerInvite]);
   const submitCodeRef = useRef<(() => Promise<void>) | null>(null);
 
   const logGestureDebug = useCallback((eventName: string, details?: Record<string, unknown>) => {
@@ -1202,6 +1203,12 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     if (email) saveNdaEmail(email);
     if (name) saveNdaName(name);
 
+    if (isGregReviewerCode(verifiedCode)) {
+      setGranted(true);
+      navigate('/demo/reviewer', { replace: true });
+      return;
+    }
+
     // VIP-mirror codes (TODD-2026, etc.) — mirror is unwired but flag kept for compat
     if (isVipMirrorCode(verifiedCode)) {
       activateVipMirror(verifiedCode);
@@ -1222,7 +1229,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     } else {
       setGranted(true);
     }
-  }, [verifiedCode]);
+  }, [navigate, verifiedCode]);
 
   const handlePreviewBypass = () => {
     grantAccess();
