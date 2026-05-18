@@ -250,34 +250,6 @@ export default function FoundersSeedPitch() {
             </p>
           </div>
 
-          {/* Embedded product demo — autoplay, loop, no interaction required */}
-          <figure className="rounded-xl overflow-hidden border border-primary/30 bg-gradient-to-br from-card to-muted/20 shadow-lg shadow-primary/10">
-            <div className="bg-muted/40 border-b border-border/60 px-3 py-2 flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <div className="h-2.5 w-2.5 rounded-full bg-destructive/60" />
-                <div className="h-2.5 w-2.5 rounded-full bg-accent/60" />
-                <div className="h-2.5 w-2.5 rounded-full bg-secondary/60" />
-              </div>
-              <div className="font-mono text-[10px] text-muted-foreground">
-                beta.zen.solar/demo
-              </div>
-              <span className="text-[9px] uppercase tracking-wider text-eco">
-                Live capture
-              </span>
-            </div>
-            <video
-              src={demoFlowVideo}
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="metadata"
-              className="w-full h-auto block bg-background"
-            />
-            <figcaption className="px-4 py-2.5 text-[11px] text-muted-foreground border-t border-border/40 bg-card/60">
-              45-second loop · Connect Tesla/Enphase → Proof-of-Genesis™ verifies kWh → Tap-to-Mint™ $ZSOLAR. No edits, no mockups — recorded directly from the live beta.
-            </figcaption>
-          </figure>
 
           <div className="grid md:grid-cols-3 gap-4">
             {[
