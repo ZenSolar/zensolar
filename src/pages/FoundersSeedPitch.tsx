@@ -675,33 +675,35 @@ export default function FoundersSeedPitch() {
         </div>
       </section>
 
-      {/* Open questions for Greg */}
-      <section className="max-w-4xl mx-auto px-5 pb-10">
-        <div className="rounded-2xl border border-border/60 bg-card/30 p-5">
-          <h3 className="text-[11px] uppercase tracking-[0.24em] text-amber-400 mb-3">Open Questions for Greg</h3>
-          <ul className="space-y-2 text-sm text-foreground/85 leading-relaxed list-disc pl-5">
-            <li>Is $10M the right ask, or do market conditions push us to $7.5M / $12.5M?</li>
-            <li>Does the stake-to-unlock throttle hold up to institutional scrutiny, or do we need a hard vesting layer on top?</li>
-            <li>LP tranche cadence — three in seed feels right; is the $0.10 → $0.50 price ladder defensible?</li>
-            <li>Energy Oracle R&D in seed vs deferring to Series A — moat now, or runway now?</li>
+      {/* Questions we'd love Greg's perspective on */}
+      <section className="max-w-4xl mx-auto px-5 pb-12">
+        <div className="rounded-2xl border border-border/60 bg-card/30 p-5 md:p-6">
+          <h3 className="text-[11px] uppercase tracking-[0.24em] text-amber-400 mb-3">
+            Where Your Perspective Would Help Most
+          </h3>
+          <ul className="space-y-2.5 text-sm text-foreground/85 leading-relaxed list-disc pl-5">
+            <li>Does the overall narrative land for an institutional audience — and where does it lose them?</li>
+            <li>Is the 1:1 + stake-to-unlock framing clear, or does sell-pressure mechanics need a tighter explanation?</li>
+            <li>Round-size instinct: does a working envelope in the ~$10M range feel right, low, or high for this stage?</li>
+            <li>LP tranche cadence and the $0.10 → $0.50 price ladder — defensible, or worth restructuring?</li>
+            <li>Energy Price Oracle R&D in seed vs. deferring to Series A — moat now, or runway now?</li>
+            <li>Anything we're under-emphasizing (or over-claiming) relative to what serious investors actually weigh?</li>
           </ul>
         </div>
       </section>
 
-
       {/* Closer */}
       <section className="max-w-4xl mx-auto px-5 pb-16">
         <blockquote className="rounded-2xl border-l-4 border-primary bg-card/40 p-6 md:p-8 text-base md:text-lg leading-relaxed text-foreground/90 italic">
-          “$10M. One check. 1 kWh = 1 $ZSOLAR — the cleanest narrative in
-          crypto-energy. Stake-to-unlock keeps sell pressure bounded; three
-          LP tranches absorb the float; by month eighteen, our subscribers —
-          not our investors — are funding every dollar of liquidity that
-          follows.”
+          "1 kWh = 1 $ZSOLAR. Verified on-chain. Throttled by design.
+          Real product, real mints, and by month eighteen our subscribers —
+          not our investors — fund every dollar of liquidity that follows.
+          Grateful for any sharpening you'd offer before we take this out."
         </blockquote>
       </section>
 
       <footer className="max-w-4xl mx-auto px-5 py-8 border-t border-border/40 text-[10px] uppercase tracking-widest text-muted-foreground text-center">
-        ZenSolar · Confidential · Founders Only · v3.0 DRAFT · For Greg Falesnik Review
+        ZenSolar · Confidential · Review Draft · Prepared for Greg Falesnik (MZ Group)
       </footer>
     </div>
   );
