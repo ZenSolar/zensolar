@@ -20,6 +20,19 @@ export interface Competitor {
 
 export const competitors: Competitor[] = [
   {
+    name: "SolarCoin",
+    website: "https://solarcoin.org",
+    blockchain: "Base L2 (relaunch 2026)",
+    focus: ["Solar Production"],
+    tokenModel: "kSLR · 1 kSLR per kWh (relaunch, post-98B legacy pool)",
+    funding: "Community/Foundation",
+    stage: "Relaunched 2026 (legacy since 2014)",
+    threatLevel: "high",
+    patentStatus: "No patents found",
+    keyDifferentiator: "Convergent relaunch on Base L2 with a 1 kSLR / kWh ratio — mirrors our chain + ratio choice, validating the category.",
+    ourWedge: "No app, no embedded wallet, no paid subscription, no verification stack — just honor-system uploads sitting on top of a 98B legacy pool. With zero demand sink and unbounded supply, SLR has traded at ~$0.06 on ~$1/day volume. We have an embedded Coinbase Smart Wallet, Tap-to-Mint™ UX, Proof-of-Delta™ verification, a paid subscription flywheel, 1T hard cap, and 20% burn-per-mint — that's how a token holds value.",
+  },
+  {
     name: "EVearn (VeBetterDAO)",
     website: "https://evearn.io",
     blockchain: "VeChainThor",
@@ -70,19 +83,6 @@ export const competitors: Competitor[] = [
     patentStatus: "No patents found",
     keyDifferentiator: "Carbon credit rewards for EV charging",
     ourWedge: "Carbon-credit narrative without verification stack. We have Proof-of-Delta™ + Proof-of-Origin™ patent-pending IP.",
-  },
-  {
-    name: "SolarCoin",
-    website: "https://solarcoin.org",
-    blockchain: "Custom PoS",
-    focus: ["Solar Production"],
-    tokenModel: "SLR Token (1 SLR per MWh)",
-    funding: "Community/Foundation",
-    stage: "Legacy (Since 2014)",
-    threatLevel: "low",
-    patentStatus: "No patents found",
-    keyDifferentiator: "Longest-running solar crypto project",
-    ourWedge: "Honor-system uploads from a 98B pre-minted pool. Dormant since 2014. We are Mint-on-Proof™ on Base L2 with live mints today.",
   },
   {
     name: "DeCharge",
