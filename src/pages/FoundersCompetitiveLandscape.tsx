@@ -1,14 +1,59 @@
+import { useMemo, useState } from "react";
 import { Navigate, Link } from "react-router-dom";
-import { ArrowLeft, ExternalLink, Loader2, Lock, Shield, Fingerprint, Hexagon, TrendingUp, AlertTriangle, CheckCircle2, Sparkles } from "lucide-react";
+import { ArrowLeft, ExternalLink, Loader2, Lock, Shield, Fingerprint, Hexagon, TrendingUp, AlertTriangle, CheckCircle2, Sparkles, Search, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsFounder } from "@/hooks/useIsFounder";
 import { isPreviewMode } from "@/lib/previewMode";
 import { competitors } from "@/data/competitors";
+import { Input } from "@/components/ui/input";
 
 export default function FoundersCompetitiveLandscape() {
   const { user, isLoading } = useAuth();
   const { isFounder, ready } = useIsFounder();
   const preview = isPreviewMode();
+
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState<string>("all");
+  const [status, setStatus] = useState<string>("all");
+  const [threat, setThreat] = useState<string>("all");
+
+  const categories = useMemo(() => {
+    const set = new Set<string>();
+    competitors.forEach((c) => c.focus.forEach((f) => set.add(f)));
+    return Array.from(set).sort();
+  }, []);
+
+  const statuses = useMemo(() => {
+    const set = new Set<string>();
+    competitors.forEach((c) => set.add(c.stage));
+    return Array.from(set).sort();
+  }, []);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return competitors.filter((c) => {
+      if (category !== "all" && !c.focus.includes(category)) return false;
+      if (status !== "all" && c.stage !== status) return false;
+      if (threat !== "all" && c.threatLevel !== threat) return false;
+      if (!q) return true;
+      return (
+        c.name.toLowerCase().includes(q) ||
+        c.tokenModel.toLowerCase().includes(q) ||
+        c.blockchain.toLowerCase().includes(q) ||
+        c.focus.join(" ").toLowerCase().includes(q) ||
+        c.keyDifferentiator.toLowerCase().includes(q) ||
+        (c.ourWedge ?? "").toLowerCase().includes(q)
+      );
+    });
+  }, [query, category, status, threat]);
+
+  const hasFilters = query || category !== "all" || status !== "all" || threat !== "all";
+  const clearFilters = () => {
+    setQuery("");
+    setCategory("all");
+    setStatus("all");
+    setThreat("all");
+  };
 
   if (!preview && (isLoading || !ready)) {
     return (
@@ -98,6 +143,46 @@ export default function FoundersCompetitiveLandscape() {
         </div>
       </section>
 
+      {/* Filters */}
+      <section className="max-w-5xl mx-auto px-5 md:px-6 pb-4">
+        <div className="rounded-2xl border border-border/60 bg-card p-4 md:p-5">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Search &amp; filter</p>
+            {hasFilters && (
+              <button
+                onClick={clearFilters}
+                className="inline-flex items-center gap-1 text-[10px] uppercase tracking-widest text-muted-foreground hover:text-primary"
+              >
+                <X className="h-3 w-3" /> Clear
+              </button>
+            )}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-2 md:gap-3">
+            <div className="relative md:col-span-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Company or token…"
+                className="pl-8 h-9 text-sm"
+              />
+            </div>
+            <FilterSelect value={category} onChange={setCategory} label="Category" options={categories} />
+            <FilterSelect value={status} onChange={setStatus} label="Status" options={statuses} />
+            <FilterSelect
+              value={threat}
+              onChange={setThreat}
+              label="Threat"
+              options={["high", "medium", "low"]}
+              format={(v) => v.charAt(0).toUpperCase() + v.slice(1)}
+            />
+          </div>
+          <p className="mt-3 text-[11px] text-muted-foreground">
+            Showing <span className="text-foreground font-semibold">{filtered.length}</span> of {competitors.length} competitors
+          </p>
+        </div>
+      </section>
+
       {/* Comparison Table */}
       <section className="max-w-5xl mx-auto px-5 md:px-6 pb-10">
         <h2 className="text-xl font-bold mb-4 text-foreground">Side-by-side</h2>
@@ -111,16 +196,18 @@ export default function FoundersCompetitiveLandscape() {
               </tr>
             </thead>
             <tbody>
-              <tr className="border-t border-border/50 bg-primary/5">
-                <td className="px-3 py-2.5 font-semibold text-primary">ZenSolar</td>
-                <td className="px-3 py-2.5 text-muted-foreground">Solar + Battery + EV + Charging</td>
-                <td className="px-3 py-2.5 text-muted-foreground">Base L2</td>
-                <td className="px-3 py-2.5 text-muted-foreground">Mint-on-Proof™ (1T cap)</td>
-                <td className="px-3 py-2.5 text-muted-foreground">Live beta · real mints</td>
-                <td className="px-3 py-2.5 text-muted-foreground">Patent + 5 TMs filed</td>
-                <td className="px-3 py-2.5"><ThreatBadge level="us" /></td>
-              </tr>
-              {competitors.map((c) => (
+              {!hasFilters && (
+                <tr className="border-t border-border/50 bg-primary/5">
+                  <td className="px-3 py-2.5 font-semibold text-primary">ZenSolar</td>
+                  <td className="px-3 py-2.5 text-muted-foreground">Solar + Battery + EV + Charging</td>
+                  <td className="px-3 py-2.5 text-muted-foreground">Base L2</td>
+                  <td className="px-3 py-2.5 text-muted-foreground">Mint-on-Proof™ (1T cap)</td>
+                  <td className="px-3 py-2.5 text-muted-foreground">Live beta · real mints</td>
+                  <td className="px-3 py-2.5 text-muted-foreground">Patent + 5 TMs filed</td>
+                  <td className="px-3 py-2.5"><ThreatBadge level="us" /></td>
+                </tr>
+              )}
+              {filtered.map((c) => (
                 <tr key={c.name} className="border-t border-border/50">
                   <td className="px-3 py-2.5 font-semibold text-foreground">{c.name}</td>
                   <td className="px-3 py-2.5 text-muted-foreground">{c.focus.join(", ")}</td>
@@ -131,6 +218,13 @@ export default function FoundersCompetitiveLandscape() {
                   <td className="px-3 py-2.5"><ThreatBadge level={c.threatLevel} /></td>
                 </tr>
               ))}
+              {filtered.length === 0 && (
+                <tr className="border-t border-border/50">
+                  <td colSpan={7} className="px-3 py-6 text-center text-xs text-muted-foreground">
+                    No competitors match these filters.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -139,29 +233,35 @@ export default function FoundersCompetitiveLandscape() {
       {/* Per-competitor deep dive */}
       <section className="max-w-5xl mx-auto px-5 md:px-6 pb-10">
         <h2 className="text-xl font-bold mb-4 text-foreground">Per-competitor wedge</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {competitors.map((c) => (
-            <div key={c.name} className="rounded-2xl border border-border/60 bg-card p-5">
-              <div className="flex items-start justify-between gap-3 mb-2">
-                <h3 className="font-semibold text-foreground">{c.name}</h3>
-                <a href={c.website} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary">
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </a>
-              </div>
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2">{c.focus.join(" · ")}</p>
-              <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
-                <span className="font-semibold text-foreground">What they do: </span>
-                {c.keyDifferentiator}
-              </p>
-              {c.ourWedge && (
-                <p className="text-xs text-foreground leading-relaxed border-l-2 border-primary pl-3">
-                  <span className="font-semibold text-primary">Our wedge: </span>
-                  {c.ourWedge}
+        {filtered.length === 0 ? (
+          <div className="rounded-2xl border border-border/60 bg-card p-8 text-center text-sm text-muted-foreground">
+            No competitors match these filters.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {filtered.map((c) => (
+              <div key={c.name} className="rounded-2xl border border-border/60 bg-card p-5">
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <h3 className="font-semibold text-foreground">{c.name}</h3>
+                  <a href={c.website} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary">
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                </div>
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2">{c.focus.join(" · ")}</p>
+                <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
+                  <span className="font-semibold text-foreground">What they do: </span>
+                  {c.keyDifferentiator}
                 </p>
-              )}
-            </div>
-          ))}
-        </div>
+                {c.ourWedge && (
+                  <p className="text-xs text-foreground leading-relaxed border-l-2 border-primary pl-3">
+                    <span className="font-semibold text-primary">Our wedge: </span>
+                    {c.ourWedge}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Category validation */}
@@ -181,6 +281,36 @@ export default function FoundersCompetitiveLandscape() {
         ZenSolar · Founders · Confidential
       </footer>
     </div>
+  );
+}
+
+function FilterSelect({
+  value,
+  onChange,
+  label,
+  options,
+  format,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  label: string;
+  options: string[];
+  format?: (v: string) => string;
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      aria-label={label}
+    >
+      <option value="all">All {label.toLowerCase()}</option>
+      {options.map((opt) => (
+        <option key={opt} value={opt}>
+          {format ? format(opt) : opt}
+        </option>
+      ))}
+    </select>
   );
 }
 
