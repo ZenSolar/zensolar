@@ -294,7 +294,16 @@ export function ActivityMetrics({
   // Only show if there's at least one field that can be hidden (not connected)
   const hasHideableFields = !hasSolarConnected || !hasBatteryConnected || !hasEvConnected || !hasSuperchargerConnected || !hasHomeChargerConnected;
 
-  return (
+  // Bottom-sheet "receipts" log — tapping a KPI opens the log of
+  // individual activities that built the pending total. MINT moves into
+  // the sheet's sticky footer so users see proof before minting.
+  const [sheetState, setSheetState] = useState<KpiSheetState>({
+    open: false, category: null, label: '', unit: 'kWh', pending: 0,
+  });
+  const openSheet = useCallback((s: Omit<KpiSheetState, 'open'>) => {
+    setSheetState({ ...s, open: true });
+  }, []);
+
     <div className="relative">
       {/* Outer ambient glow — lives outside the card */}
       {activityUnits > 0 && (
