@@ -304,7 +304,9 @@ export function ActivityMetrics({
     setSheetState({ ...s, open: true });
   }, []);
 
+  return (
     <div className="relative">
+
       {/* Outer ambient glow — lives outside the card */}
       {activityUnits > 0 && (
         <div 
