@@ -816,6 +816,12 @@ export function ActivityMetrics({
 
       </CardContent>
     </Card>
+
+    <KpiActivityLogSheet
+      state={sheetState}
+      onOpenChange={(open) => setSheetState((s) => ({ ...s, open }))}
+      onMintRequest={onMintRequest}
+    />
     </div>
   );
 }
