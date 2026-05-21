@@ -43,6 +43,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useDeviceLabels } from '@/hooks/useDeviceLabels';
 import type { HideableField } from '@/hooks/useHiddenActivityFields';
+import { KpiActivityLogSheet, type KpiSheetState } from './KpiActivityLogSheet';
 
 // Import brand logos for connected providers display
 import enphaseLogo from '@/assets/logos/enphase-logo.png';
@@ -293,8 +294,19 @@ export function ActivityMetrics({
   // Only show if there's at least one field that can be hidden (not connected)
   const hasHideableFields = !hasSolarConnected || !hasBatteryConnected || !hasEvConnected || !hasSuperchargerConnected || !hasHomeChargerConnected;
 
+  // Bottom-sheet "receipts" log — tapping a KPI opens the log of
+  // individual activities that built the pending total. MINT moves into
+  // the sheet's sticky footer so users see proof before minting.
+  const [sheetState, setSheetState] = useState<KpiSheetState>({
+    open: false, category: null, label: '', unit: 'kWh', pending: 0,
+  });
+  const openSheet = useCallback((s: Omit<KpiSheetState, 'open'>) => {
+    setSheetState({ ...s, open: true });
+  }, []);
+
   return (
     <div className="relative">
+
       {/* Outer ambient glow — lives outside the card */}
       {activityUnits > 0 && (
         <div 
@@ -532,10 +544,13 @@ export function ActivityMetrics({
                     color="gold"
                     active={pendingKwh > 0}
                     isLoading={isLoading}
-                    onTap={pendingKwh > 0 && onMintRequest ? () => onMintRequest({ 
-                      category: 'solar', 
+                    onTap={pendingKwh > 0 ? () => openSheet({
+                      category: 'solar',
                       deviceId: device.deviceId,
-                      deviceName: device.deviceName 
+                      deviceName: device.deviceName,
+                      label: `${device.deviceName} Solar Production`,
+                      unit: 'kWh',
+                      pending: pendingKwh,
                     }) : undefined}
                   />
                 );
@@ -563,7 +578,7 @@ export function ActivityMetrics({
                   color="gold"
                   active={current.solarKwh > 0}
                   isLoading={isLoading}
-                  onTap={current.solarKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'solar' }) : undefined}
+                  onTap={current.solarKwh > 0 ? () => openSheet({ category: 'solar', label: solarLabel, unit: 'kWh', pending: current.solarKwh }) : undefined}
                 />
               </SwipeableActivityField>
             )
@@ -584,10 +599,13 @@ export function ActivityMetrics({
                     color="teal"
                     active={pendingKwh > 0}
                     isLoading={isLoading}
-                    onTap={pendingKwh > 0 && onMintRequest ? () => onMintRequest({ 
-                      category: 'battery', 
+                    onTap={pendingKwh > 0 ? () => openSheet({
+                      category: 'battery',
                       deviceId: device.deviceId,
-                      deviceName: device.deviceName 
+                      deviceName: device.deviceName,
+                      label: `${device.deviceName} Battery Storage Discharged`,
+                      unit: 'kWh',
+                      pending: pendingKwh,
                     }) : undefined}
                   />
                 );
@@ -615,7 +633,7 @@ export function ActivityMetrics({
                   color="teal"
                   active={current.batteryKwh > 0}
                   isLoading={isLoading}
-                  onTap={current.batteryKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'battery' }) : undefined}
+                  onTap={current.batteryKwh > 0 ? () => openSheet({ category: 'battery', label: batteryLabel, unit: 'kWh', pending: current.batteryKwh }) : undefined}
                 />
               </SwipeableActivityField>
             )
@@ -636,10 +654,13 @@ export function ActivityMetrics({
                     color="green"
                     active={pendingMiles > 0}
                     isLoading={isLoading}
-                    onTap={pendingMiles > 0 && onMintRequest ? () => onMintRequest({ 
-                      category: 'ev_miles', 
+                    onTap={pendingMiles > 0 ? () => openSheet({
+                      category: 'ev_miles',
                       deviceId: device.deviceId,
-                      deviceName: device.deviceName 
+                      deviceName: device.deviceName,
+                      label: `${device.deviceName} EV Miles`,
+                      unit: 'mi',
+                      pending: pendingMiles,
                     }) : undefined}
                   />
                 );
@@ -667,7 +688,7 @@ export function ActivityMetrics({
                   color="green"
                   active={current.evMiles > 0}
                   isLoading={isLoading}
-                  onTap={current.evMiles > 0 && onMintRequest ? () => onMintRequest({ category: 'ev_miles' }) : undefined}
+                  onTap={current.evMiles > 0 ? () => openSheet({ category: 'ev_miles', label: evLabel, unit: 'mi', pending: current.evMiles }) : undefined}
                 />
               </SwipeableActivityField>
             )
@@ -691,7 +712,7 @@ export function ActivityMetrics({
                     color="cyan"
                     active={superchargerKwh > 0}
                     isLoading={isLoading}
-                    onTap={superchargerKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'supercharger' }) : undefined}
+                    onTap={superchargerKwh > 0 ? () => openSheet({ category: 'supercharger', label: superchargerLabel, unit: 'kWh', pending: superchargerKwh }) : undefined}
                   />
                 </SwipeableActivityField>
               )}
@@ -711,10 +732,13 @@ export function ActivityMetrics({
                         active={pendingKwh > 0}
                         isLoading={isLoading}
                         liveIndicator={isCharging}
-                        onTap={pendingKwh > 0 && onMintRequest ? () => onMintRequest({ 
-                          category: 'home_charger', 
+                        onTap={pendingKwh > 0 ? () => openSheet({
+                          category: 'home_charger',
                           deviceId: device.deviceId,
-                          deviceName: device.deviceName 
+                          deviceName: device.deviceName,
+                          label: `${device.deviceName} Home Charger`,
+                          unit: 'kWh',
+                          pending: pendingKwh,
                         }) : undefined}
                       />
                     );
@@ -743,7 +767,7 @@ export function ActivityMetrics({
                       active={homeChargerKwh > 0}
                       isLoading={isLoading}
                       liveIndicator={isCharging}
-                      onTap={homeChargerKwh > 0 && onMintRequest ? () => onMintRequest({ category: 'home_charger' }) : undefined}
+                      onTap={homeChargerKwh > 0 ? () => openSheet({ category: 'home_charger', label: homeChargerLabel, unit: 'kWh', pending: homeChargerKwh }) : undefined}
                     />
                   </SwipeableActivityField>
                 )
@@ -763,7 +787,7 @@ export function ActivityMetrics({
                 color="cyan"
                 active={current.chargingKwh > 0}
                 isLoading={isLoading}
-                onTap={onMintRequest ? () => onMintRequest({ category: 'charging' }) : undefined}
+                onTap={current.chargingKwh > 0 ? () => openSheet({ category: 'charging', label: 'EV Charging', unit: 'kWh', pending: current.chargingKwh }) : undefined}
               />
             </SwipeableActivityField>
           ) : null}
@@ -792,6 +816,12 @@ export function ActivityMetrics({
 
       </CardContent>
     </Card>
+
+    <KpiActivityLogSheet
+      state={sheetState}
+      onOpenChange={(open) => setSheetState((s) => ({ ...s, open }))}
+      onMintRequest={onMintRequest}
+    />
     </div>
   );
 }
