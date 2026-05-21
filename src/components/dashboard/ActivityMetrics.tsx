@@ -43,6 +43,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useDeviceLabels } from '@/hooks/useDeviceLabels';
 import type { HideableField } from '@/hooks/useHiddenActivityFields';
+import { KpiActivityLogSheet, type KpiSheetState } from './KpiActivityLogSheet';
 
 // Import brand logos for connected providers display
 import enphaseLogo from '@/assets/logos/enphase-logo.png';
