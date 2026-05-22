@@ -191,8 +191,13 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
 
   const sumOfRows = rows.reduce((s, r) => s + r.amount, 0);
 
+  const isInterval = !!category && INTERVAL_CATEGORIES.includes(category);
+  const dayGroups = useMemo(() => (isInterval ? groupByDay(rows) : []), [rows, isInterval]);
+
   // Tokens preview — same math as ActivityMetrics
   const eligibleTokens = Math.floor(pending / MINT_RATIO_KWH_PER_TOKEN);
+
+
 
 
   const canMint = pending > 0 && !!onMintRequest;
