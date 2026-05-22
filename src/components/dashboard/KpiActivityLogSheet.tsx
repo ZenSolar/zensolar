@@ -16,14 +16,15 @@
  */
 import { useMemo, useState } from 'react';
 import { format, parseISO } from 'date-fns';
-import { ShieldCheck, MapPin, Zap, ArrowRight, Loader2, Sparkles, ChevronDown } from 'lucide-react';
+import { ShieldCheck, MapPin, Zap, ArrowRight, Loader2, Sparkles, ChevronDown, X } from 'lucide-react';
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from '@/components/ui/sheet';
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerClose,
+} from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
