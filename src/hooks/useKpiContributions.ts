@@ -5,15 +5,19 @@
  * Powers the KPI Activity Log bottom sheet so users see the receipts
  * (Proof-of-Delta™) before they tap MINT (Proof-of-Mint™).
  *
+ * IMPORTANT — "since last mint" semantics:
+ *   The KPI tile shows *pending* kWh (everything not yet minted). The
+ *   receipt list MUST agree with that headline, so every query in this
+ *   hook is lower-bounded by the user's most recent confirmed
+ *   mint_transactions.created_at. If the user has never minted, we show
+ *   everything (genesis case).
+ *
  * Data sources by category:
  *   solar         → energy_production (data_type='solar')
  *   battery       → energy_production (data_type='battery_discharge')
  *   ev_miles      → energy_production (data_type='ev_miles')
- *   supercharger  → charging_sessions (charging_type !== 'home', source !== 'charge_monitor')
+ *   supercharger  → charging_sessions (charging_type !== 'home')
  *   home_charger  → home_charging_sessions (+ charging_sessions where type='home')
- *
- * Returns the most recent ~50 contributions for the connected user,
- * scoped to the optional deviceId when provided.
  */
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,22 +26,54 @@ import type { MintCategory } from '@/components/dashboard/ActivityMetrics';
 
 export interface KpiContributionRow {
   id: string;
-  recordedAt: string;        // ISO timestamp
-  amount: number;            // kWh for energy categories, miles for ev_miles
+  recordedAt: string;            // ISO timestamp (best available)
+  hasRealTime: boolean;          // false when only a date was available (legacy backfill)
+  durationMinutes?: number | null; // session length when start+end are known
+  amount: number;                // kWh for energy categories, miles for ev_miles
   unit: 'kWh' | 'mi';
-  provider: string;          // 'tesla' | 'enphase' | 'solaredge' | 'wallbox' | …
+  provider: string;
   deviceId: string | null;
   deviceName?: string | null;
-  location?: string | null;  // charging only
-  verified: boolean;         // true when row came from an authenticated OEM source
+  location?: string | null;
+  verified: boolean;
 }
 
 const ROW_LIMIT = 50;
 
+async function getLastMintAt(userId: string): Promise<string | null> {
+  const { data } = await supabase
+    .from('mint_transactions')
+    .select('created_at')
+    .eq('user_id', userId)
+    .eq('status', 'confirmed')
+    .order('created_at', { ascending: false })
+    .limit(1);
+  return data?.[0]?.created_at ?? null;
+}
+
+function pickIso(...candidates: Array<string | null | undefined>): { iso: string; hasRealTime: boolean } | null {
+  for (const c of candidates) {
+    if (!c) continue;
+    // Date-only strings like "2026-05-21" should be treated as no real time.
+    const isDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(c);
+    return { iso: c, hasRealTime: !isDateOnly };
+  }
+  return null;
+}
+
+function durationMin(startIso?: string | null, endIso?: string | null): number | null {
+  if (!startIso || !endIso) return null;
+  const a = Date.parse(startIso);
+  const b = Date.parse(endIso);
+  if (Number.isNaN(a) || Number.isNaN(b) || b <= a) return null;
+  return Math.max(1, Math.round((b - a) / 60000));
+}
+
 async function fetchEnergyProductionRows(
   userId: string,
   dataType: 'solar' | 'battery_discharge' | 'ev_miles',
-  deviceId?: string,
+  deviceId: string | undefined,
+  sinceIso: string | null,
 ): Promise<KpiContributionRow[]> {
   let query = supabase
     .from('energy_production')
@@ -48,6 +84,7 @@ async function fetchEnergyProductionRows(
     .limit(ROW_LIMIT);
 
   if (deviceId) query = query.eq('device_id', deviceId);
+  if (sinceIso) query = query.gt('recorded_at', sinceIso);
 
   const { data, error } = await query;
   if (error) throw error;
@@ -56,7 +93,7 @@ async function fetchEnergyProductionRows(
   return (data || []).map((r: any) => ({
     id: String(r.id),
     recordedAt: r.recorded_at,
-    // EV miles stored directly; energy stored in Wh
+    hasRealTime: true,
     amount: isMiles
       ? Math.round(Number(r.production_wh) * 10) / 10
       : Math.round((Number(r.production_wh) / 1000) * 10) / 10,
@@ -67,7 +104,11 @@ async function fetchEnergyProductionRows(
   }));
 }
 
-async function fetchSuperchargerRows(userId: string, deviceId?: string): Promise<KpiContributionRow[]> {
+async function fetchSuperchargerRows(
+  userId: string,
+  deviceId: string | undefined,
+  sinceIso: string | null,
+): Promise<KpiContributionRow[]> {
   let query = supabase
     .from('charging_sessions')
     .select('id, session_date, energy_kwh, location, provider, device_id, charging_type, session_metadata')
@@ -76,22 +117,33 @@ async function fetchSuperchargerRows(userId: string, deviceId?: string): Promise
     .order('session_date', { ascending: false })
     .limit(ROW_LIMIT);
   if (deviceId) query = query.eq('device_id', deviceId);
+  if (sinceIso) query = query.gt('session_date', sinceIso);
   const { data, error } = await query;
   if (error) throw error;
-  return (data || []).map((s: any) => ({
-    id: String(s.id),
-    recordedAt: (s.session_metadata?.start_time as string) || s.session_date,
-    amount: Math.round(Number(s.energy_kwh) * 10) / 10,
-    unit: 'kWh' as const,
-    provider: s.provider || 'tesla',
-    deviceId: s.device_id,
-    location: s.location,
-    verified: true,
-  }));
+  return (data || []).map((s: any) => {
+    const startIso = s.session_metadata?.start_time as string | undefined;
+    const endIso = s.session_metadata?.end_time as string | undefined;
+    const picked = pickIso(startIso, endIso, s.session_date);
+    return {
+      id: String(s.id),
+      recordedAt: picked?.iso ?? s.session_date,
+      hasRealTime: picked?.hasRealTime ?? false,
+      durationMinutes: durationMin(startIso, endIso),
+      amount: Math.round(Number(s.energy_kwh) * 10) / 10,
+      unit: 'kWh' as const,
+      provider: s.provider || 'tesla',
+      deviceId: s.device_id,
+      location: s.location,
+      verified: true,
+    };
+  });
 }
 
-async function fetchHomeChargerRows(userId: string, deviceId?: string): Promise<KpiContributionRow[]> {
-  // home_charging_sessions is the source of truth for monitored home sessions
+async function fetchHomeChargerRows(
+  userId: string,
+  deviceId: string | undefined,
+  sinceIso: string | null,
+): Promise<KpiContributionRow[]> {
   let homeQ = supabase
     .from('home_charging_sessions')
     .select('id, start_time, end_time, total_session_kwh, location, device_id, session_metadata, status')
@@ -99,8 +151,8 @@ async function fetchHomeChargerRows(userId: string, deviceId?: string): Promise<
     .order('start_time', { ascending: false })
     .limit(ROW_LIMIT);
   if (deviceId) homeQ = homeQ.eq('device_id', deviceId);
+  if (sinceIso) homeQ = homeQ.gt('start_time', sinceIso);
 
-  // charging_sessions also stores billing-side home rows when source != charge_monitor
   let billQ = supabase
     .from('charging_sessions')
     .select('id, session_date, energy_kwh, location, provider, device_id, charging_type, session_metadata')
@@ -109,6 +161,7 @@ async function fetchHomeChargerRows(userId: string, deviceId?: string): Promise<
     .order('session_date', { ascending: false })
     .limit(ROW_LIMIT);
   if (deviceId) billQ = billQ.eq('device_id', deviceId);
+  if (sinceIso) billQ = billQ.gt('session_date', sinceIso);
 
   const [homeRes, billRes] = await Promise.all([homeQ, billQ]);
   if (homeRes.error) throw homeRes.error;
@@ -117,6 +170,8 @@ async function fetchHomeChargerRows(userId: string, deviceId?: string): Promise<
   const homeRows: KpiContributionRow[] = (homeRes.data || []).map((h: any) => ({
     id: `home-${h.id}`,
     recordedAt: h.start_time,
+    hasRealTime: true,
+    durationMinutes: durationMin(h.start_time, h.end_time),
     amount: Math.round(Number(h.total_session_kwh || 0) * 10) / 10,
     unit: 'kWh' as const,
     provider: (h.session_metadata?.source === 'wallbox_backfill' ? 'wallbox' : 'tesla') as string,
@@ -127,16 +182,23 @@ async function fetchHomeChargerRows(userId: string, deviceId?: string): Promise<
 
   const billRows: KpiContributionRow[] = ((billRes.data || []) as any[])
     .filter((s) => s.session_metadata?.source !== 'charge_monitor')
-    .map((s: any) => ({
-      id: `bill-${s.id}`,
-      recordedAt: (s.session_metadata?.start_time as string) || s.session_date,
-      amount: Math.round(Number(s.energy_kwh) * 10) / 10,
-      unit: 'kWh' as const,
-      provider: s.provider || 'tesla',
-      deviceId: s.device_id,
-      location: s.location || 'Home',
-      verified: false,
-    }));
+    .map((s: any) => {
+      const startIso = s.session_metadata?.start_time as string | undefined;
+      const endIso = s.session_metadata?.end_time as string | undefined;
+      const picked = pickIso(startIso, endIso, s.session_date);
+      return {
+        id: `bill-${s.id}`,
+        recordedAt: picked?.iso ?? s.session_date,
+        hasRealTime: picked?.hasRealTime ?? false,
+        durationMinutes: durationMin(startIso, endIso),
+        amount: Math.round(Number(s.energy_kwh) * 10) / 10,
+        unit: 'kWh' as const,
+        provider: s.provider || 'tesla',
+        deviceId: s.device_id,
+        location: s.location || 'Home',
+        verified: false,
+      };
+    });
 
   const all = [...homeRows, ...billRows];
   all.sort((a, b) => (a.recordedAt < b.recordedAt ? 1 : -1));
@@ -158,26 +220,28 @@ export function useKpiContributions(
       const userId = viewAsUserId || user?.id;
       if (!userId || !category) return [];
 
+      const sinceIso = await getLastMintAt(userId);
+
       switch (category) {
         case 'solar':
-          return fetchEnergyProductionRows(userId, 'solar', deviceId);
+          return fetchEnergyProductionRows(userId, 'solar', deviceId, sinceIso);
         case 'battery':
-          return fetchEnergyProductionRows(userId, 'battery_discharge', deviceId);
+          return fetchEnergyProductionRows(userId, 'battery_discharge', deviceId, sinceIso);
         case 'ev_miles':
-          return fetchEnergyProductionRows(userId, 'ev_miles', deviceId);
+          return fetchEnergyProductionRows(userId, 'ev_miles', deviceId, sinceIso);
         case 'supercharger':
-          return fetchSuperchargerRows(userId, deviceId);
+          return fetchSuperchargerRows(userId, deviceId, sinceIso);
         case 'home_charger':
-          return fetchHomeChargerRows(userId, deviceId);
-        case 'charging':
-          // Combined fallback (rare) — merge super + home
+          return fetchHomeChargerRows(userId, deviceId, sinceIso);
+        case 'charging': {
           const [sup, home] = await Promise.all([
-            fetchSuperchargerRows(userId, deviceId),
-            fetchHomeChargerRows(userId, deviceId),
+            fetchSuperchargerRows(userId, deviceId, sinceIso),
+            fetchHomeChargerRows(userId, deviceId, sinceIso),
           ]);
           return [...sup, ...home]
             .sort((a, b) => (a.recordedAt < b.recordedAt ? 1 : -1))
             .slice(0, ROW_LIMIT);
+        }
         case 'all':
         default:
           return [];
