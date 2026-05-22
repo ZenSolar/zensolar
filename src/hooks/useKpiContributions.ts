@@ -40,7 +40,53 @@ export interface KpiContributionRow {
 
 const ROW_LIMIT = 50;
 
-async function getLastMintAt(userId: string): Promise<string | null> {
+/**
+ * Resolve the "since last mint" lower-bound for a given category.
+ *
+ * The KPI tile computes pending = lifetime_totals − baseline_data per
+ * device, and baselines are reset to lifetime on every successful mint.
+ * The on-device anchor for that reset is `connected_devices.last_minted_at`,
+ * NOT `mint_transactions.created_at` — they can differ (per-category mints,
+ * partial mints, etc.). To keep the receipt list in lockstep with the
+ * headline, we use the device-level anchor and fall back to the mint table
+ * only when no device has minted yet.
+ */
+async function getSinceIsoForCategory(
+  userId: string,
+  category: MintCategory,
+  deviceId?: string,
+): Promise<string | null> {
+  const typesByCategory: Record<string, string[] | null> = {
+    solar: ['solar', 'tesla_solar', 'enphase_system', 'solaredge_system'],
+    battery: ['battery', 'tesla_battery', 'powerwall'],
+    ev_miles: ['vehicle', 'ev', 'tesla_vehicle'],
+    supercharger: ['vehicle', 'ev', 'tesla_vehicle'],
+    home_charger: ['charger', 'wallbox', 'home_charger', 'vehicle', 'ev', 'tesla_vehicle'],
+    charging: null, // any device
+    all: null,
+  };
+  const types = typesByCategory[category];
+
+  let q = supabase
+    .from('connected_devices')
+    .select('device_id, device_type, last_minted_at')
+    .eq('user_id', userId);
+  if (deviceId) q = q.eq('device_id', deviceId);
+
+  const { data: devices } = await q;
+  const matched = (devices || []).filter((d: any) =>
+    !types ? true : types.includes(String(d.device_type).toLowerCase()),
+  );
+  const stamps = matched
+    .map((d: any) => d.last_minted_at)
+    .filter(Boolean) as string[];
+
+  if (stamps.length > 0) {
+    // Earliest anchor across matching devices — anything newer is pending.
+    return stamps.sort()[0];
+  }
+
+  // Fallback: most recent confirmed mint across the user
   const { data } = await supabase
     .from('mint_transactions')
     .select('created_at')
@@ -50,6 +96,7 @@ async function getLastMintAt(userId: string): Promise<string | null> {
     .limit(1);
   return data?.[0]?.created_at ?? null;
 }
+
 
 function pickIso(...candidates: Array<string | null | undefined>): { iso: string; hasRealTime: boolean } | null {
   for (const c of candidates) {
@@ -220,7 +267,7 @@ export function useKpiContributions(
       const userId = viewAsUserId || user?.id;
       if (!userId || !category) return [];
 
-      const sinceIso = await getLastMintAt(userId);
+      const sinceIso = await getSinceIsoForCategory(userId, category, deviceId);
 
       switch (category) {
         case 'solar':
