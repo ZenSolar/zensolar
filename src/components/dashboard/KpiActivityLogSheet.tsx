@@ -79,11 +79,14 @@ function ContributionRow({ row }: { row: KpiContributionRow }) {
     <div className="flex items-center justify-between gap-3 py-3 border-b border-border/40 last:border-0">
       <div className="flex-1 min-w-0 space-y-0.5">
         <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
-          {formatRowDate(row.recordedAt)}
+          {formatRowDate(row.recordedAt, row.hasRealTime)}
         </p>
         <div className="flex items-center gap-1.5 text-sm text-foreground">
           <span className="truncate">{providerLabel(row.provider)}</span>
           {row.verified && <ShieldCheck className="h-3.5 w-3.5 text-success shrink-0" />}
+          {row.durationMinutes ? (
+            <span className="text-[11px] text-muted-foreground">· {formatDuration(row.durationMinutes)}</span>
+          ) : null}
         </div>
         {row.location && (
           <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
