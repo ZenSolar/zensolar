@@ -274,21 +274,19 @@ const App = () => {
                     {/* Per-device Proof-of-Origin™ — founder + PIN gated (Phase 1) */}
                     <Route path="/devices/:deviceId/origin" element={<DeviceProofOfOrigin />} />
                     
-                    {/* Demo routes — public synthetic showcase, no gate.
-                        Uses DemoProvider/useDemoData fixtures so KPIs always
-                        render non-zero regardless of environment. */}
-                    <Route path="/demo" element={<DemoLayout />}>
+                    {/* Demo routes with full sidebar — gated by access code + NDA */}
+                    <Route path="/demo" element={<DemoAccessGate><DemoLayout /></DemoAccessGate>}>
                       <Route index element={<DemoDashboard />} />
                       <Route path="energy-log" element={<DemoEnergyLog />} />
                       <Route path="nft-collection" element={<DemoNftCollection />} />
                       <Route path="mint-history" element={<MintHistory />} />
-                     <Route path="learn" element={<Learn />} />
-                     <Route path="learn/tour" element={<LearnTour />} />
-                     <Route path="learn/glossary" element={<LearnGlossary />} />
-                     <Route path="learn/how-it-works" element={<LearnHowItWorks />} />
-                     <Route path="learn/tokenomics" element={<LearnTokenomics />} />
-                     <Route path="learn/proof-of-genesis" element={<LearnProofOfGenesis />} />
-                     <Route path="learn/patent-tech" element={<LearnPatentTech />} />
+                      <Route path="learn" element={<Learn />} />
+                      <Route path="learn/tour" element={<LearnTour />} />
+                      <Route path="learn/glossary" element={<LearnGlossary />} />
+                      <Route path="learn/how-it-works" element={<LearnHowItWorks />} />
+                      <Route path="learn/tokenomics" element={<LearnTokenomics />} />
+                      <Route path="learn/proof-of-genesis" element={<LearnProofOfGenesis />} />
+                      <Route path="learn/patent-tech" element={<LearnPatentTech />} />
                       <Route path="proof-of-genesis" element={<ProofOfGenesis />} />
                       <Route path="white-paper" element={<WhitePaper />} />
                       <Route path="engineering" element={<Engineering />} />
@@ -306,6 +304,39 @@ const App = () => {
                       <Route path="help" element={<Navigate to="/demo/help-center?tab=help" replace />} />
                       <Route path="feedback" element={<Navigate to="/demo/help-center?tab=feedback" replace />} />
                       <Route path="about" element={<Navigate to="/demo/profile" replace />} />
+                      <Route path="terms" element={<Terms />} />
+                      <Route path="privacy" element={<Privacy />} />
+                      <Route path="blog" element={<Blog />} />
+                      <Route path="reviewer" element={<DemoReviewerHub />} />
+                    </Route>
+
+                    {/* Leonardo's private ungated demo — same synthetic showcase as /demo
+                        but bypasses the access code + NDA gate. Unlisted URL. */}
+                    <Route path="/demo-leonardo" element={<DemoLayout />}>
+                      <Route index element={<DemoDashboard />} />
+                      <Route path="energy-log" element={<DemoEnergyLog />} />
+                      <Route path="nft-collection" element={<DemoNftCollection />} />
+                      <Route path="mint-history" element={<MintHistory />} />
+                      <Route path="learn" element={<Learn />} />
+                      <Route path="learn/tour" element={<LearnTour />} />
+                      <Route path="learn/glossary" element={<LearnGlossary />} />
+                      <Route path="learn/how-it-works" element={<LearnHowItWorks />} />
+                      <Route path="learn/tokenomics" element={<LearnTokenomics />} />
+                      <Route path="learn/proof-of-genesis" element={<LearnProofOfGenesis />} />
+                      <Route path="learn/patent-tech" element={<LearnPatentTech />} />
+                      <Route path="proof-of-genesis" element={<ProofOfGenesis />} />
+                      <Route path="white-paper" element={<WhitePaper />} />
+                      <Route path="engineering" element={<Engineering />} />
+                      <Route path="technology" element={<Technology />} />
+                      <Route path="store" element={<Store />} />
+                      <Route path="referrals" element={<Referrals />} />
+                      <Route path="notifications" element={<Notifications />} />
+                      <Route path="profile" element={<Profile />} />
+                      <Route path="wallet" element={<DemoWallet />} />
+                      <Route path="settings" element={<Settings />} />
+                      <Route path="help-center" element={<HelpCenter />} />
+                      <Route path="how-it-works" element={<HowItWorks />} />
+                      <Route path="tokenomics" element={<Tokenomics />} />
                       <Route path="terms" element={<Terms />} />
                       <Route path="privacy" element={<Privacy />} />
                       <Route path="blog" element={<Blog />} />
