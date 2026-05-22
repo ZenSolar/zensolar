@@ -532,16 +532,35 @@ Deno.serve(async (req) => {
         if (error) console.error(`Charging upsert error batch ${i}:`, error);
       }
 
-      // Write per-session charging details
+      // Write per-session charging details — de-dupe against existing rows
+      // by chargeStartDateTime so a single duplicate doesn't roll back the batch.
       if (sessionDetailRecords.length > 0) {
-        console.log(`[Tesla Historical] Writing ${sessionDetailRecords.length} charging session records`);
-        for (let i = 0; i < sessionDetailRecords.length; i += EV_BATCH) {
-          const batch = sessionDetailRecords.slice(i, i + EV_BATCH);
+        const { data: existingRows, error: fetchExistingErr } = await supabaseClient
+          .from("charging_sessions")
+          .select("session_metadata")
+          .eq("user_id", targetUserId)
+          .eq("provider", "tesla");
+        if (fetchExistingErr) {
+          console.error("[Tesla Historical] Failed to fetch existing charging_sessions for dedupe:", fetchExistingErr);
+        }
+        const existingStarts = new Set<string>(
+          (existingRows || [])
+            .map((r: any) => r?.session_metadata?.chargeStartDateTime)
+            .filter((v: any): v is string => typeof v === "string" && v.length > 0)
+        );
+        const toInsert = sessionDetailRecords.filter((r: any) => {
+          const start = r?.session_metadata?.chargeStartDateTime;
+          return typeof start === "string" && start.length > 0 && !existingStarts.has(start);
+        });
+        console.log(
+          `[Tesla Historical] Charging sessions: ${sessionDetailRecords.length} fetched, ${existingStarts.size} already in DB, ${toInsert.length} new to write`
+        );
+        for (let i = 0; i < toInsert.length; i += EV_BATCH) {
+          const batch = toInsert.slice(i, i + EV_BATCH);
           const { error } = await supabaseClient
             .from("charging_sessions")
-            .insert(batch)
-            .select();
-          if (error && error.code !== '23505') console.error(`Session insert error batch ${i}:`, error);
+            .insert(batch);
+          if (error) console.error(`[Tesla Historical] Session insert error batch ${i}:`, error);
         }
       }
 
