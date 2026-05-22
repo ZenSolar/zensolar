@@ -5,12 +5,12 @@
  * Powers the KPI Activity Log bottom sheet so users see the receipts
  * (Proof-of-Delta™) before they tap MINT (Proof-of-Mint™).
  *
- * IMPORTANT — "since last mint" semantics:
- *   The KPI tile shows *pending* kWh (everything not yet minted). The
- *   receipt list MUST agree with that headline, so every query in this
- *   hook is lower-bounded by the user's most recent confirmed
- *   mint_transactions.created_at. If the user has never minted, we show
- *   everything (genesis case).
+ * IMPORTANT — pending semantics:
+ *   The KPI tile shows *pending* units (lifetime − mint baseline). The
+ *   receipt list MUST agree with that headline. Most sources can be filtered
+ *   by their device-level mint anchor; Tesla Supercharging may report late
+ *   billing sessions, so it walks backward through newest sessions until the
+ *   visible receipts add up to the pending baseline delta.
  *
  * Data sources by category:
  *   solar         → energy_production (data_type='solar')
@@ -296,7 +296,7 @@ export function useKpiContributions(
           return fetchHomeChargerRows(userId, deviceId, sinceIso);
         case 'charging': {
           const [sup, home] = await Promise.all([
-            fetchSuperchargerRows(userId, deviceId, sinceIso, pendingTarget),
+            fetchSuperchargerRows(userId, deviceId, sinceIso),
             fetchHomeChargerRows(userId, deviceId, sinceIso),
           ]);
           return [...sup, ...home]
