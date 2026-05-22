@@ -101,7 +101,7 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
         aria-hidden
         className="md:hidden pointer-events-none fixed inset-x-0 z-30"
         style={{
-          bottom: "var(--bottom-nav-total-h)",
+          bottom: "var(--bottom-nav-height)",
           height: "24px",
           background:
             "linear-gradient(to top, hsl(var(--background)) 0%, hsl(var(--background) / 0) 100%)",
@@ -119,9 +119,9 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
         className,
       )}
       style={{
-        bottom: 0,
+        bottom: "calc(-1 * var(--bottom-nav-safe))",
         height: "var(--bottom-nav-total-h)",
-        paddingBottom: "env(safe-area-inset-bottom, 0px)",
+        paddingBottom: "var(--bottom-nav-safe)",
       }}
     >
       {/* Icon row sits on top; the safe-area band below inherits the nav's
