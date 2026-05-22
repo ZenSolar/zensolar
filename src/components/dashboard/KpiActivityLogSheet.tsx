@@ -300,7 +300,7 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
               <div className="py-4 text-center">
                 <Badge variant="outline" className="text-[10px] uppercase tracking-wider border-success/30 text-success bg-success/5">
                   <ShieldCheck className="h-3 w-3 mr-1" />
-                  Verified by {apiProviderLabel(rows[1]?.provider || rows[0]?.provider || '')}
+                  Verified by {apiProviderLabel(rows[0]?.provider || '')}
                 </Badge>
               </div>
             </>
