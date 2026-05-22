@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Coins, Award, RefreshCw, Loader2, CheckCircle2, ExternalLink, Trophy, Sparkles, Images, AlertCircle, Sun, Car, BatteryFull, Zap, Copy, Check, Wallet } from 'lucide-react';
+import { Coins, Award, RefreshCw, Loader2, CheckCircle2, ExternalLink, Trophy, Sparkles, Images, AlertCircle, Sun, Car, BatteryFull, Zap, Copy, Check, Wallet, ChevronDown, Clock } from 'lucide-react';
 import { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
 
 import { useToast } from '@/hooks/use-toast';
