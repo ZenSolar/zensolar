@@ -30,6 +30,7 @@ import { getRewardMultiplier, getLiveBetaMode } from '@/lib/tokenomics';
 import { MicroProtocolBadge } from '@/components/proof/MicroProtocolBadge';
 import { ProtocolCinematicSequence } from '@/components/proof/ProtocolCinematicSequence';
 import { hasShownFirstMintCelebration, markFirstMintCelebrationShown } from '@/lib/firstMintCelebration';
+import { MintTokenDialog } from './MintTokenDialog';
 
 // NFT Contract address on Base Sepolia
 const NFT_CONTRACT_ADDRESS = '0xD1d509a48CEbB8f9f9aAA462979D7977c30424E3';
