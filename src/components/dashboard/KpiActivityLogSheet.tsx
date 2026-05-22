@@ -28,7 +28,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useKpiContributions, type KpiContributionRow } from '@/hooks/useKpiContributions';
 import type { MintCategory, MintRequest } from '@/components/dashboard/ActivityMetrics';
-import { MINT_RATIO_KWH_PER_TOKEN, getRewardMultiplier } from '@/lib/tokenomics';
+import { MINT_RATIO_KWH_PER_TOKEN } from '@/lib/tokenomics';
 
 export interface KpiSheetState {
   open: boolean;
