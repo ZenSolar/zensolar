@@ -207,11 +207,11 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
                 className="w-full h-12 text-base font-bold bg-gradient-to-r from-primary to-primary/80 hover:from-primary hover:to-primary text-primary-foreground shadow-[0_0_24px_hsl(var(--primary)/0.4)]"
               >
                 <Sparkles className="h-4 w-4 mr-2" />
-                Mint {userShare.toLocaleString()} $ZSOLAR
+                Mint {eligibleTokens.toLocaleString()} $ZSOLAR
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
               <p className="text-[10px] text-center text-muted-foreground mt-2">
-                75% to you · 20% burned · 3% LP · 2% treasury
+                Split shown on confirm · 75% to you · 20% burned · 3% LP · 2% treasury
               </p>
             </>
           ) : (
