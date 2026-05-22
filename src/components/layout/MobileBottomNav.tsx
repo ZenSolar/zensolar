@@ -94,7 +94,20 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
   };
 
   return (
-    <nav
+    <>
+      {/* Soft fade mask above the tab bar — prevents the next scrolling card
+          from peeking up as a half-rendered sliver against the bottom nav. */}
+      <div
+        aria-hidden
+        className="md:hidden pointer-events-none fixed inset-x-0 z-30"
+        style={{
+          bottom: "var(--bottom-nav-total-h)",
+          height: "24px",
+          background:
+            "linear-gradient(to top, hsl(var(--background)) 0%, hsl(var(--background) / 0) 100%)",
+        }}
+      />
+      <nav
       aria-label="Primary"
       data-fixed-bottom="true"
       className={cn(
@@ -195,6 +208,7 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
         </li>
       </ul>
     </nav>
+    </>
   );
 }
 
