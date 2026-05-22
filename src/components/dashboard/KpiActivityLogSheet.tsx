@@ -114,7 +114,7 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
 
   // Tokens preview — same math as ActivityMetrics
   const eligibleTokens = Math.floor(pending / MINT_RATIO_KWH_PER_TOKEN);
-  const userShare = Math.floor((pending * getRewardMultiplier() / MINT_RATIO_KWH_PER_TOKEN) * 0.75);
+
 
   const canMint = pending > 0 && !!onMintRequest;
 
