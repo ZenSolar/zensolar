@@ -85,10 +85,12 @@ function ContributionRow({ row }: { row: KpiContributionRow }) {
         <div className="flex items-center gap-1.5 text-sm text-foreground">
           <span className="truncate">{providerLabel(row.provider)}</span>
           {row.verified && <ShieldCheck className="h-3.5 w-3.5 text-success shrink-0" />}
-          {row.durationMinutes ? (
-            <span className="text-[11px] text-muted-foreground">· {formatDuration(row.durationMinutes)}</span>
-          ) : null}
         </div>
+        {row.durationMinutes ? (
+          <p className="text-[11px] text-muted-foreground">
+            Session length = {formatDuration(row.durationMinutes)}
+          </p>
+        ) : null}
         {row.location && (
           <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
             <MapPin className="h-3 w-3 shrink-0" />
