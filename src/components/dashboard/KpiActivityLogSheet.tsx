@@ -75,6 +75,18 @@ function providerLabel(p: string): string {
   }
 }
 
+function apiProviderLabel(p: string): string {
+  switch (p) {
+    case 'tesla':
+    case 'tesla_historical':
+      return 'Tesla API';
+    case 'enphase': return 'Enphase API';
+    case 'solaredge': return 'SolarEdge API';
+    case 'wallbox': return 'Wallbox API';
+    default: return 'OEM API';
+  }
+}
+
 function ContributionRow({ row }: { row: KpiContributionRow }) {
   return (
     <div className="flex items-center justify-between gap-3 py-3 border-b border-border/40 last:border-0">
