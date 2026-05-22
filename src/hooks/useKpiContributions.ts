@@ -155,21 +155,22 @@ async function fetchSuperchargerRows(
   userId: string,
   deviceId: string | undefined,
   sinceIso: string | null,
+  pendingTarget?: number,
 ): Promise<KpiContributionRow[]> {
   let query = supabase
     .from('charging_sessions')
     .select('id, session_date, energy_kwh, location, provider, device_id, charging_type, session_metadata')
     .eq('user_id', userId)
-    .neq('charging_type', 'home')
+    .or('charging_type.is.null,charging_type.neq.home')
     .order('session_date', { ascending: false })
     .limit(ROW_LIMIT);
   if (deviceId) query = query.eq('device_id', deviceId);
-  if (sinceIso) query = query.gt('session_date', sinceIso);
+  if (sinceIso && !pendingTarget) query = query.gt('session_date', sinceIso);
   const { data, error } = await query;
   if (error) throw error;
-  return (data || []).map((s: any) => {
-    const startIso = s.session_metadata?.start_time as string | undefined;
-    const endIso = s.session_metadata?.end_time as string | undefined;
+  const mapped = (data || []).map((s: any) => {
+    const startIso = (s.session_metadata?.start_time || s.session_metadata?.chargeStartDateTime) as string | undefined;
+    const endIso = (s.session_metadata?.end_time || s.session_metadata?.chargeStopDateTime) as string | undefined;
     const picked = pickIso(startIso, endIso, s.session_date);
     return {
       id: String(s.id),
@@ -184,6 +185,18 @@ async function fetchSuperchargerRows(
       verified: true,
     };
   });
+
+  if (!pendingTarget || pendingTarget <= 0) return mapped;
+
+  const target = Math.max(0, pendingTarget - 0.5);
+  let running = 0;
+  const pendingRows: KpiContributionRow[] = [];
+  for (const row of mapped) {
+    pendingRows.push(row);
+    running += row.amount;
+    if (running >= target) break;
+  }
+  return pendingRows;
 }
 
 async function fetchHomeChargerRows(
@@ -256,11 +269,12 @@ export function useKpiContributions(
   category: MintCategory | null,
   deviceId?: string,
   enabled: boolean = true,
+  pendingTarget?: number,
 ) {
   const viewAsUserId = useViewAsUserId();
 
   return useQuery({
-    queryKey: ['kpi-contributions', viewAsUserId, category, deviceId ?? null],
+    queryKey: ['kpi-contributions', viewAsUserId, category, deviceId ?? null, Math.floor(pendingTarget ?? 0)],
     enabled: enabled && !!category,
     queryFn: async (): Promise<KpiContributionRow[]> => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -277,12 +291,12 @@ export function useKpiContributions(
         case 'ev_miles':
           return fetchEnergyProductionRows(userId, 'ev_miles', deviceId, sinceIso);
         case 'supercharger':
-          return fetchSuperchargerRows(userId, deviceId, sinceIso);
+          return fetchSuperchargerRows(userId, deviceId, sinceIso, pendingTarget);
         case 'home_charger':
           return fetchHomeChargerRows(userId, deviceId, sinceIso);
         case 'charging': {
           const [sup, home] = await Promise.all([
-            fetchSuperchargerRows(userId, deviceId, sinceIso),
+            fetchSuperchargerRows(userId, deviceId, sinceIso, pendingTarget),
             fetchHomeChargerRows(userId, deviceId, sinceIso),
           ]);
           return [...sup, ...home]
