@@ -1056,30 +1056,80 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
       {/* Token Category Selection Dialog */}
       <Dialog open={tokenMintDialog} onOpenChange={setTokenMintDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-3">
-              <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 shadow-lg shadow-primary/10 ring-1 ring-primary/20">
+        <DialogContent className="sm:max-w-md p-0 overflow-hidden border-border/60">
+          {/* Pull-to-refresh affordance — visible while data is being refreshed */}
+          {isLoading && (
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 opacity-70" aria-label="Refreshing">
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+            </div>
+          )}
+
+          {/* Header: title + sync stamp */}
+          <DialogHeader className="px-5 pt-6 pb-4 flex-row items-start justify-between space-y-0 gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 ring-1 ring-primary/20 flex-shrink-0">
                 <Coins className="h-5 w-5 text-primary" />
               </span>
-              <span className="text-xl">Mint $ZSOLAR Tokens</span>
-            </DialogTitle>
-            <DialogDescription className="pt-1.5 text-muted-foreground/80">
-              Mint your pending rewards by category or all at once.
-            </DialogDescription>
+              <div className="min-w-0">
+                <DialogTitle className="text-lg leading-tight">Mint $ZSOLAR</DialogTitle>
+                <DialogDescription className="sr-only">
+                  Review your pending rewards and mint them to your wallet.
+                </DialogDescription>
+              </div>
+            </div>
+            <div
+              className="flex items-center gap-1.5 bg-muted/40 px-2 py-1 rounded-full border border-border/60 flex-shrink-0"
+              aria-live="polite"
+              aria-label={syncedAgoLabel}
+            >
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75 animate-ping" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
+              </span>
+              <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground tabular-nums">
+                {syncedAgoLabel}
+              </span>
+            </div>
           </DialogHeader>
-          
-          <div className="space-y-3 py-4">
+
+          {/* Hero total + "why" sentence */}
+          {!(isLoading && totalPendingTokens === 0) && totalPendingTokens > 0 && (() => {
+            const sources: string[] = [];
+            if (pendingRewards.solar > 0) sources.push('solar');
+            if (pendingRewards.battery > 0) sources.push('battery');
+            if (pendingRewards.evMiles > 0) sources.push('EV miles');
+            if ((pendingRewards.superchargerKwh ?? 0) > 0) sources.push('supercharging');
+            if ((pendingRewards.homeChargerKwh ?? 0) > 0) sources.push('home charging');
+            const whySentence = sources.length === 0
+              ? 'From your clean-energy activity since your last mint.'
+              : sources.length === 1
+                ? `From your ${sources[0]} activity since your last mint.`
+                : `From your ${sources.slice(0, -1).join(', ')} and ${sources.slice(-1)} since your last mint.`;
+            return (
+              <div className="px-6 pb-5 text-center">
+                <div className="inline-flex items-baseline gap-1.5">
+                  <span className="text-5xl font-bold text-foreground tabular-nums tracking-tight">
+                    {totalPendingTokens.toLocaleString()}
+                  </span>
+                  <span className="text-primary font-semibold text-lg">$ZSOLAR</span>
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground leading-relaxed max-w-[280px] mx-auto">
+                  {whySentence}
+                </p>
+              </div>
+            );
+          })()}
+
+          <div className="px-4 pb-2 space-y-3 max-h-[50vh] overflow-y-auto">
             {isLoading && totalPendingTokens === 0 ? (
-              // Loading skeletons — match the category-row vertical rhythm so layout doesn't jump
               <div className="space-y-2" aria-busy="true" aria-label="Loading mint categories">
                 {[0, 1, 2].map((i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-between p-3.5 rounded-xl border border-border/40 bg-muted/20 animate-pulse"
+                    className="flex items-center justify-between p-3.5 rounded-2xl border border-border/40 bg-muted/20 animate-pulse"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="h-9 w-9 rounded-xl bg-muted/60" />
+                      <div className="h-10 w-10 rounded-xl bg-muted/60" />
                       <div className="space-y-1.5">
                         <div className="h-3 w-24 rounded bg-muted/60" />
                         <div className="h-2.5 w-32 rounded bg-muted/40" />
@@ -1090,7 +1140,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                 ))}
               </div>
             ) : totalPendingTokens === 0 ? (
-              <div className="bg-gradient-to-br from-accent-warm/15 via-accent-warm/10 to-accent-warm/5 border border-accent-warm/30 rounded-xl p-4">
+              <div className="bg-gradient-to-br from-accent-warm/15 via-accent-warm/10 to-accent-warm/5 border border-accent-warm/30 rounded-2xl p-4">
                 <div className="flex items-start gap-3">
                   <div className="h-9 w-9 rounded-lg bg-accent-warm/20 flex items-center justify-center flex-shrink-0">
                     <AlertCircle className="h-5 w-5 text-accent-warm" />
@@ -1098,217 +1148,156 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   <div className="space-y-1">
                     <p className="text-sm font-medium text-foreground">No tokens available to mint</p>
                     <p className="text-xs text-muted-foreground">
-                      Connect devices and generate energy to earn tokens. Try refreshing your dashboard.
+                      Connect devices and generate energy to earn tokens. Pull down to refresh.
                     </p>
                   </div>
                 </div>
               </div>
             ) : (
-              <>
-                {/* Category breakdown */}
-                <div className="space-y-2">
-                  {/* Solar Energy */}
-                  <div className={`flex items-center justify-between p-3.5 rounded-xl border bg-gradient-to-r from-muted/40 to-transparent transition-all ${mintingState.category === 'solar' ? 'border-solar/60 shadow-[0_0_0_3px_hsl(var(--solar)/0.15)]' : 'border-border/60 hover:border-solar/30'}`}>
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="p-2.5 rounded-xl bg-gradient-to-br from-solar/20 to-solar/10 shadow-sm flex-shrink-0">
-                        <Sun className="h-4 w-4 text-solar" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-medium text-sm">Solar Energy</p>
-                        <p className="text-xs text-muted-foreground tabular-nums">
-                          {pendingRewards.solar > 0 ? `${pendingRewards.solar.toLocaleString()} $ZSOLAR` : 'Nothing to mint yet'}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleRequestMint('solar')}
-                      disabled={pendingRewards.solar === 0 || isMinting}
-                      aria-busy={mintingState.category === 'solar'}
-                      aria-label={`Mint ${pendingRewards.solar.toLocaleString()} solar tokens`}
-                      className="rounded-lg h-10 sm:h-9 min-w-[72px] px-4 hover:bg-solar/10 hover:border-solar/30 hover:text-solar active:scale-95 transition-all touch-manipulation flex-shrink-0"
-                    >
-                      {mintingState.category === 'solar' ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        'Mint'
-                      )}
-                    </Button>
-                  </div>
+              (() => {
+                const categories: Array<{
+                  key: MintCategory;
+                  label: string;
+                  amount: number;
+                  icon: typeof Sun;
+                  colorClass: string;
+                  iconBg: string;
+                  hasInvoiceLag?: boolean;
+                  lagLabel?: string;
+                }> = [
+                  { key: 'solar', label: 'Solar Energy', amount: pendingRewards.solar, icon: Sun, colorClass: 'text-solar', iconBg: 'from-solar/20 to-solar/10' },
+                  { key: 'battery', label: 'Battery Storage', amount: pendingRewards.battery, icon: BatteryFull, colorClass: 'text-secondary', iconBg: 'from-secondary/20 to-secondary/10' },
+                  { key: 'ev_miles', label: 'EV Miles', amount: pendingRewards.evMiles, icon: Car, colorClass: 'text-energy', iconBg: 'from-energy/20 to-energy/10' },
+                  { key: 'supercharging', label: 'Tesla Supercharging', amount: pendingRewards.superchargerKwh ?? 0, icon: Zap, colorClass: 'text-destructive', iconBg: 'from-destructive/20 to-destructive/10', hasInvoiceLag: true, lagLabel: 'Pending Tesla invoice — usually posts within 24–48h' },
+                  { key: 'home_charging', label: 'Home Charging', amount: pendingRewards.homeChargerKwh ?? 0, icon: Zap, colorClass: 'text-accent', iconBg: 'from-accent/20 to-accent/10' },
+                ].filter(c => c.amount > 0);
 
-                  {/* Battery Storage */}
-                  <div className={`flex items-center justify-between p-3.5 rounded-xl border bg-gradient-to-r from-muted/40 to-transparent transition-all ${mintingState.category === 'battery' ? 'border-secondary/60 shadow-[0_0_0_3px_hsl(var(--secondary)/0.15)]' : 'border-border/60 hover:border-secondary/30'}`}>
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="p-2.5 rounded-xl bg-gradient-to-br from-secondary/20 to-secondary/10 shadow-sm flex-shrink-0">
-                        <BatteryFull className="h-4 w-4 text-secondary" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-medium text-sm">Battery Storage</p>
-                        <p className="text-xs text-muted-foreground tabular-nums">
-                          {pendingRewards.battery > 0 ? `${pendingRewards.battery.toLocaleString()} $ZSOLAR` : 'Nothing to mint yet'}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleRequestMint('battery')}
-                      disabled={pendingRewards.battery === 0 || isMinting}
-                      aria-busy={mintingState.category === 'battery'}
-                      aria-label={`Mint ${pendingRewards.battery.toLocaleString()} battery tokens`}
-                      className="rounded-lg h-10 sm:h-9 min-w-[72px] px-4 hover:bg-secondary/10 hover:border-secondary/30 hover:text-secondary active:scale-95 transition-all touch-manipulation flex-shrink-0"
+                return categories.map((cat) => {
+                  const Icon = cat.icon;
+                  const expanded = expandedCategory === cat.key;
+                  const isCurrentlyMinting = mintingState.category === cat.key;
+                  return (
+                    <div
+                      key={cat.key}
+                      className={`rounded-2xl border bg-muted/20 overflow-hidden transition-all ${
+                        isCurrentlyMinting ? 'border-primary/60 shadow-[0_0_0_3px_hsl(var(--primary)/0.12)]' : 'border-border/60'
+                      }`}
                     >
-                      {mintingState.category === 'battery' ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        'Mint'
-                      )}
-                    </Button>
-                  </div>
-
-                  {/* EV Miles */}
-                  <div className={`flex items-center justify-between p-3.5 rounded-xl border bg-gradient-to-r from-muted/40 to-transparent transition-all ${mintingState.category === 'ev_miles' ? 'border-energy/60 shadow-[0_0_0_3px_hsl(var(--energy)/0.15)]' : 'border-border/60 hover:border-energy/30'}`}>
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="p-2.5 rounded-xl bg-gradient-to-br from-energy/20 to-energy/10 shadow-sm flex-shrink-0">
-                        <Car className="h-4 w-4 text-energy" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-medium text-sm">EV Miles</p>
-                        <p className="text-xs text-muted-foreground tabular-nums">
-                          {pendingRewards.evMiles > 0 ? `${pendingRewards.evMiles.toLocaleString()} $ZSOLAR` : 'Nothing to mint yet'}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleRequestMint('ev_miles')}
-                      disabled={pendingRewards.evMiles === 0 || isMinting}
-                      aria-busy={mintingState.category === 'ev_miles'}
-                      aria-label={`Mint ${pendingRewards.evMiles.toLocaleString()} EV miles tokens`}
-                      className="rounded-lg h-10 sm:h-9 min-w-[72px] px-4 hover:bg-energy/10 hover:border-energy/30 hover:text-energy active:scale-95 transition-all touch-manipulation flex-shrink-0"
-                    >
-                      {mintingState.category === 'ev_miles' ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        'Mint'
-                      )}
-                    </Button>
-                  </div>
-
-                  {/* Tesla Supercharging */}
-                  {(pendingRewards.superchargerKwh ?? 0) > 0 && (
-                    <div className={`flex items-center justify-between p-3.5 rounded-xl border bg-gradient-to-r from-muted/40 to-transparent transition-all ${mintingState.category === 'supercharging' ? 'border-destructive/60 shadow-[0_0_0_3px_hsl(var(--destructive)/0.15)]' : 'border-border/60 hover:border-destructive/30'}`}>
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-destructive/20 to-destructive/10 shadow-sm flex-shrink-0">
-                          <Zap className="h-4 w-4 text-destructive" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-medium text-sm">Tesla Supercharging</p>
-                          <p className="text-xs text-muted-foreground tabular-nums">{(pendingRewards.superchargerKwh ?? 0).toLocaleString()} $ZSOLAR</p>
-                        </div>
-                      </div>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleRequestMint('supercharging')}
-                        disabled={(pendingRewards.superchargerKwh ?? 0) === 0 || isMinting}
-                        aria-busy={mintingState.category === 'supercharging'}
-                        className="rounded-lg h-10 sm:h-9 min-w-[72px] px-4 hover:bg-destructive/10 hover:border-destructive/30 hover:text-destructive active:scale-95 transition-all touch-manipulation flex-shrink-0"
+                      <button
+                        type="button"
+                        onClick={() => setExpandedCategory(expanded ? null : cat.key)}
+                        className="w-full flex items-center justify-between p-3.5 text-left touch-manipulation active:bg-muted/40 transition-colors"
+                        aria-expanded={expanded}
+                        aria-controls={`mint-cat-${cat.key}`}
                       >
-                        {mintingState.category === 'supercharging' ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          'Mint'
-                        )}
-                      </Button>
-                    </div>
-                  )}
-
-                  {/* Home Charging */}
-                  {(pendingRewards.homeChargerKwh ?? 0) > 0 && (
-                    <div className={`flex items-center justify-between p-3.5 rounded-xl border bg-gradient-to-r from-muted/40 to-transparent transition-all ${mintingState.category === 'home_charging' ? 'border-accent/60 shadow-[0_0_0_3px_hsl(var(--accent)/0.15)]' : 'border-border/60 hover:border-accent/30'}`}>
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-accent/20 to-accent/10 shadow-sm flex-shrink-0">
-                          <Zap className="h-4 w-4 text-accent" />
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className={`p-2.5 rounded-xl bg-gradient-to-br ${cat.iconBg} shadow-sm flex-shrink-0`}>
+                            <Icon className={`h-4 w-4 ${cat.colorClass}`} />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-medium text-sm">{cat.label}</p>
+                            <p className="text-xs text-muted-foreground tabular-nums">
+                              {cat.amount.toLocaleString()} $ZSOLAR
+                            </p>
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <p className="font-medium text-sm">Home Charging</p>
-                          <p className="text-xs text-muted-foreground tabular-nums">{(pendingRewards.homeChargerKwh ?? 0).toLocaleString()} $ZSOLAR</p>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={(e) => { e.stopPropagation(); handleRequestMint(cat.key); }}
+                            disabled={cat.amount === 0 || isMinting}
+                            aria-busy={isCurrentlyMinting}
+                            aria-label={`Mint ${cat.amount.toLocaleString()} ${cat.label} tokens`}
+                            className="rounded-lg h-9 min-w-[64px] px-3 active:scale-95 transition-transform touch-manipulation"
+                          >
+                            {isCurrentlyMinting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Mint'}
+                          </Button>
+                          <ChevronDown
+                            className={`h-4 w-4 text-muted-foreground transition-transform ${expanded ? 'rotate-180' : ''}`}
+                            aria-hidden="true"
+                          />
                         </div>
-                      </div>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleRequestMint('home_charging')}
-                        disabled={(pendingRewards.homeChargerKwh ?? 0) === 0 || isMinting}
-                        aria-busy={mintingState.category === 'home_charging'}
-                        className="rounded-lg h-10 sm:h-9 min-w-[72px] px-4 hover:bg-accent/10 hover:border-accent/30 hover:text-accent active:scale-95 transition-all touch-manipulation flex-shrink-0"
-                      >
-                        {mintingState.category === 'home_charging' ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          'Mint'
-                        )}
-                      </Button>
+                      </button>
+
+                      {expanded && (
+                        <div
+                          id={`mint-cat-${cat.key}`}
+                          className="px-4 pb-4 pt-1 space-y-2 border-t border-border/40 bg-muted/10"
+                        >
+                          {cat.hasInvoiceLag && (
+                            <div className="flex items-center gap-2 p-2.5 rounded-xl border border-dashed border-primary/30 bg-primary/5">
+                              <Clock className="h-3.5 w-3.5 text-primary/70 flex-shrink-0" />
+                              <span className="text-[11px] text-muted-foreground leading-tight">
+                                {cat.lagLabel}
+                              </span>
+                            </div>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setTokenMintDialog(false);
+                              navigate('/clean-energy-center');
+                            }}
+                            className="w-full flex items-center justify-between px-2 py-2 text-[11px] text-muted-foreground hover:text-foreground transition-colors touch-manipulation"
+                          >
+                            <span>View receipt history</span>
+                            <ExternalLink className="h-3 w-3" />
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-
-                {/* Divider */}
-                <div className="relative py-3">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-border/60" />
-                  </div>
-                  <div className="relative flex justify-center">
-                    <span className="bg-background px-3 text-xs text-muted-foreground font-medium">or mint everything</span>
-                  </div>
-                </div>
-
-                {/* Total & Mint All */}
-                <div className="relative p-5 rounded-2xl border-2 border-primary/25 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent pointer-events-none" />
-                  <div className="relative flex items-center justify-between mb-4">
-                    <span className="font-semibold text-foreground">Total Pending</span>
-                    <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                      {totalPendingTokens.toLocaleString()} $ZSOLAR
-                    </span>
-                  </div>
-                  <Button
-                    className="relative w-full h-12 rounded-xl bg-gradient-to-r from-primary via-primary to-primary/90 shadow-lg shadow-primary/25 hover:shadow-primary/35 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 touch-manipulation"
-                    onClick={() => handleRequestMint('all')}
-                    disabled={isMinting}
-                    aria-busy={mintingState.category === 'all'}
-                  >
-                    {mintingState.category === 'all' ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Minting…
-                      </>
-                    ) : (
-                      <>
-                        <Coins className="mr-2 h-4 w-4" />
-                        Mint All Tokens
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </>
+                  );
+                });
+              })()
             )}
           </div>
 
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setTokenMintDialog(false)}
-              className="w-full h-11 rounded-xl border-border/60 hover:bg-muted/60"
-            >
-              Cancel
-            </Button>
-          </DialogFooter>
+          {/* Mint All CTA + Cancel */}
+          {totalPendingTokens > 0 && (
+            <div className="px-5 pt-3 pb-5 space-y-2 border-t border-border/40 bg-background">
+              <Button
+                className="w-full h-12 rounded-2xl bg-gradient-to-r from-primary via-primary to-primary/90 shadow-lg shadow-primary/25 hover:shadow-primary/35 active:scale-[0.99] transition-all touch-manipulation font-semibold"
+                onClick={() => handleRequestMint('all')}
+                disabled={isMinting}
+                aria-busy={mintingState.category === 'all'}
+              >
+                {mintingState.category === 'all' ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Minting…
+                  </>
+                ) : (
+                  <>
+                    <Coins className="mr-2 h-4 w-4" />
+                    Mint All {totalPendingTokens.toLocaleString()} Tokens
+                  </>
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => setTokenMintDialog(false)}
+                className="w-full h-10 rounded-xl text-muted-foreground hover:text-foreground"
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
+
+          {totalPendingTokens === 0 && (
+            <DialogFooter className="px-5 pb-5">
+              <Button
+                variant="outline"
+                onClick={() => setTokenMintDialog(false)}
+                className="w-full h-11 rounded-xl border-border/60 hover:bg-muted/60"
+              >
+                Close
+              </Button>
+            </DialogFooter>
+          )}
         </DialogContent>
       </Dialog>
+
 
       {/* Mint Confirmation Dialog */}
       <Dialog open={confirmMintDialog} onOpenChange={setConfirmMintDialog}>
