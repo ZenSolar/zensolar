@@ -112,20 +112,22 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
       data-fixed-bottom="true"
       className={cn(
         "md:hidden fixed inset-x-0 z-40",
-        // Solid surface (no transparency) so the safe-area band reads as the nav,
-        // never as a black gap under the icons on PWA / standalone mode.
-        "border-t border-border bg-card",
+        // Page-background surface so the iOS home-indicator safe-area band
+        // visually flows into the rest of the screen instead of reading as
+        // a separate dark slab below the tab bar.
+        "bg-background",
         className,
       )}
       style={{
-        // Pin to the very bottom edge of the screen, accounting for the
-        // iOS home indicator / Android gesture inset.
         bottom: 0,
         height: "var(--bottom-nav-total-h)",
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
       }}
     >
-      <ul className="grid grid-cols-5 h-[var(--bottom-nav-height)]">
+      {/* Icon row — the actual nav surface (card color + top border).
+          Everything below it (the safe-area band) inherits bg-background
+          so the home-indicator zone reads as page, not as a dead slab. */}
+      <ul className="grid grid-cols-5 h-[var(--bottom-nav-height)] bg-card border-t border-border">
         {tabs.map((item) => {
           const active = isActive(item);
           const Icon = item.icon;
