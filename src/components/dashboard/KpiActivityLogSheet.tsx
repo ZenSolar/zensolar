@@ -320,7 +320,7 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
             </Button>
           )}
         </div>
-      </SheetContent>
-    </Sheet>
+      </DrawerContent>
+    </Drawer>
   );
 }
