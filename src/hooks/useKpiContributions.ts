@@ -267,7 +267,7 @@ export function useKpiContributions(
       const userId = viewAsUserId || user?.id;
       if (!userId || !category) return [];
 
-      const sinceIso = await getLastMintAt(userId);
+      const sinceIso = await getSinceIsoForCategory(userId, category, deviceId);
 
       switch (category) {
         case 'solar':
