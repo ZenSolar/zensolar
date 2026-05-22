@@ -75,6 +75,18 @@ function providerLabel(p: string): string {
   }
 }
 
+function apiProviderLabel(p: string): string {
+  switch (p) {
+    case 'tesla':
+    case 'tesla_historical':
+      return 'Tesla API';
+    case 'enphase': return 'Enphase API';
+    case 'solaredge': return 'SolarEdge API';
+    case 'wallbox': return 'Wallbox API';
+    default: return 'OEM API';
+  }
+}
+
 function ContributionRow({ row }: { row: KpiContributionRow }) {
   return (
     <div className="flex items-center justify-between gap-3 py-3 border-b border-border/40 last:border-0">
@@ -288,7 +300,7 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
               <div className="py-4 text-center">
                 <Badge variant="outline" className="text-[10px] uppercase tracking-wider border-success/30 text-success bg-success/5">
                   <ShieldCheck className="h-3 w-3 mr-1" />
-                  Verified by OEM API
+                  Verified by {apiProviderLabel(rows[0]?.provider || '')}
                 </Badge>
               </div>
             </>
