@@ -260,13 +260,19 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
           ) : (
             <>
               <div className="flex items-center justify-between py-3 text-[11px] text-muted-foreground border-b border-border/40">
-                <span>{rows.length} contribution{rows.length !== 1 ? 's' : ''}</span>
+                <span>
+                  {isInterval
+                    ? `${dayGroups.length} day${dayGroups.length !== 1 ? 's' : ''} · ${rows.length} sample${rows.length !== 1 ? 's' : ''}`
+                    : `${rows.length} contribution${rows.length !== 1 ? 's' : ''}`}
+                </span>
                 <span className="tabular-nums">
                   Σ {sumOfRows.toLocaleString(undefined, { maximumFractionDigits: 1 })} {unit}
                 </span>
               </div>
               <div>
-                {rows.map((row) => <ContributionRow key={row.id} row={row} />)}
+                {isInterval
+                  ? dayGroups.map((g) => <DayGroupRow key={g.dayKey} group={g} unit={unit} />)
+                  : rows.map((row) => <ContributionRow key={row.id} row={row} />)}
               </div>
               <div className="py-4 text-center">
                 <Badge variant="outline" className="text-[10px] uppercase tracking-wider border-success/30 text-success bg-success/5">
