@@ -208,6 +208,7 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
         </li>
       </ul>
     </nav>
+    </>
   );
 }
 
