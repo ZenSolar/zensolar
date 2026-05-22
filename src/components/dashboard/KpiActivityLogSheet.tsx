@@ -210,38 +210,47 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        side="bottom"
-        className="p-0 border-t border-primary/30 bg-background h-[85svh] flex flex-col rounded-t-2xl"
-      >
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent className="p-0 border-t border-primary/30 bg-background h-[85svh] flex flex-col rounded-t-2xl focus:outline-none">
         {/* Header */}
-        <SheetHeader className="px-5 pt-5 pb-3 space-y-2 text-left border-b border-border/40">
+        <DrawerHeader className="px-5 pt-2 pb-3 space-y-2 text-left border-b border-border/40">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <p className="text-[10px] uppercase tracking-[0.18em] font-semibold text-primary">
                 Proof-of-Delta™
               </p>
-              <SheetTitle className="text-base font-bold text-foreground leading-tight truncate">
+              <DrawerTitle className="text-base font-bold text-foreground leading-tight truncate">
                 {label}
-              </SheetTitle>
-              <SheetDescription className="text-xs text-muted-foreground">
-                Every activity that contributed to your pending total
-              </SheetDescription>
+              </DrawerTitle>
+              <DrawerDescription className="text-xs text-muted-foreground">
+                Swipe down or tap × to close
+              </DrawerDescription>
             </div>
-            <div className="text-right shrink-0">
-              <p className="text-2xl font-bold tabular-nums text-foreground leading-none">
-                {pending.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                <span className="text-xs font-normal text-muted-foreground ml-1">{unit}</span>
-              </p>
-              {eligibleTokens > 0 && (
-                <p className="text-[10px] text-primary font-semibold mt-1">
-                  ≈ {eligibleTokens.toLocaleString()} $ZSOLAR eligible
+            <div className="flex items-start gap-2 shrink-0">
+              <div className="text-right">
+                <p className="text-2xl font-bold tabular-nums text-foreground leading-none">
+                  {pending.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                  <span className="text-xs font-normal text-muted-foreground ml-1">{unit}</span>
                 </p>
-              )}
+                {eligibleTokens > 0 && (
+                  <p className="text-[10px] text-primary font-semibold mt-1">
+                    ≈ {eligibleTokens.toLocaleString()} $ZSOLAR eligible
+                  </p>
+                )}
+              </div>
+              <DrawerClose asChild>
+                <button
+                  type="button"
+                  aria-label="Close"
+                  className="h-7 w-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 active:scale-95 transition touch-manipulation"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </DrawerClose>
             </div>
           </div>
-        </SheetHeader>
+        </DrawerHeader>
+
 
         {/* Body — scrollable activity log */}
         <ScrollArea className="flex-1 px-5">
