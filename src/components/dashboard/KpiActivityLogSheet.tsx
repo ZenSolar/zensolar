@@ -46,12 +46,20 @@ interface Props {
   onMintRequest?: (req: MintRequest) => void;
 }
 
-function formatRowDate(iso: string): string {
+function formatRowDate(iso: string, hasRealTime: boolean): string {
   try {
-    return format(parseISO(iso), 'MMM d · h:mm a');
+    const d = parseISO(iso);
+    return format(d, hasRealTime ? 'MMM d · h:mm a' : 'MMM d');
   } catch {
     try { return format(new Date(iso), 'MMM d'); } catch { return iso; }
   }
+}
+
+function formatDuration(min: number): string {
+  if (min < 60) return `${min} min`;
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return m === 0 ? `${h}h` : `${h}h ${m}m`;
 }
 
 function providerLabel(p: string): string {
