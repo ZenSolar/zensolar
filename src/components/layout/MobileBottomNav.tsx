@@ -119,7 +119,7 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
         className,
       )}
       style={{
-        bottom: "calc(-1 * var(--bottom-nav-safe))",
+        bottom: 0,
         height: "var(--bottom-nav-total-h)",
         paddingBottom: "var(--bottom-nav-safe)",
       }}
