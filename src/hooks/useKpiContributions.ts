@@ -163,7 +163,7 @@ async function fetchSuperchargerRows(
     .eq('user_id', userId)
     .or('charging_type.is.null,charging_type.neq.home')
     .order('session_date', { ascending: false })
-    .limit(ROW_LIMIT);
+    .limit(pendingTarget ? 200 : ROW_LIMIT);
   if (deviceId) query = query.eq('device_id', deviceId);
   if (sinceIso && !pendingTarget) query = query.gt('session_date', sinceIso);
   const { data, error } = await query;
