@@ -20,6 +20,7 @@ import { DemoMintResult } from '@/hooks/useDemoData';
 import { MicroProtocolBadge } from '@/components/proof/MicroProtocolBadge';
 import { ProtocolCinematicSequence } from '@/components/proof/ProtocolCinematicSequence';
 import { hasShownFirstMintCelebration, markFirstMintCelebrationShown } from '@/lib/firstMintCelebration';
+import { MintTokenDialog, type MintTokenCategory } from '@/components/dashboard/MintTokenDialog';
 
 export type MintCategory = 'solar' | 'ev_miles' | 'battery' | 'charging' | 'all';
 
@@ -493,73 +494,18 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
       </Button>
 
       {/* Token Mint Category Dialog */}
-      <Dialog open={tokenMintDialog} onOpenChange={setTokenMintDialog}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Coins className="h-5 w-5 text-primary" />
-              Mint $ZSOLAR Tokens
-            </DialogTitle>
-            <DialogDescription>
-              Choose which activity to mint tokens for. Each category can be minted separately or all at once.
-            </DialogDescription>
-          </DialogHeader>
+      <MintTokenDialog
+        open={tokenMintDialog}
+        onOpenChange={setTokenMintDialog}
+        isLoading={isLoading}
+        isMinting={mintingState.isLoading}
+        mintingCategory={(mintingState.category as MintTokenCategory) ?? null}
+        pendingRewards={pendingRewards}
+        totalPendingTokens={totalPendingTokens}
+        onRequestMint={(cat) => handleRequestMint(cat as MintCategory)}
+        onNavigateHistory={() => navigate('/demo-leonardo/clean-energy-center')}
+      />
 
-          <ScrollArea className="max-h-[50vh]">
-            <div className="space-y-3 p-1">
-              {/* All Categories */}
-              <Button
-                variant="outline"
-                className="w-full justify-between h-auto py-4 px-4"
-                onClick={() => handleRequestMint('all')}
-                disabled={totalPendingTokens === 0}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <Trophy className="h-5 w-5 text-primary" />
-                  </div>
-                  <div className="text-left">
-                    <div className="font-medium">All Categories</div>
-                    <div className="text-xs text-muted-foreground">Mint everything at once</div>
-                  </div>
-                </div>
-                <Badge variant="secondary" className="text-sm">
-                  {totalPendingTokens.toLocaleString()} tokens
-                </Badge>
-              </Button>
-
-              {/* Individual categories */}
-              {(['solar', 'ev_miles', 'battery', 'charging'] as MintCategory[]).map(category => {
-                const tokens = getCategoryTokens(category);
-                return (
-                  <Button
-                    key={category}
-                    variant="outline"
-                    className="w-full justify-between h-auto py-4 px-4"
-                    onClick={() => handleRequestMint(category)}
-                    disabled={tokens === 0}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-muted">
-                        {getCategoryIcon(category)}
-                      </div>
-                      <div className="text-left">
-                        <div className="font-medium">{getCategoryLabel(category)}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {getCategoryActivityUnits(category).toLocaleString()} activity units
-                        </div>
-                      </div>
-                    </div>
-                    <Badge variant={tokens > 0 ? "secondary" : "outline"} className="text-sm">
-                      {tokens.toLocaleString()} tokens
-                    </Badge>
-                  </Button>
-                );
-              })}
-            </div>
-          </ScrollArea>
-        </DialogContent>
-      </Dialog>
 
       {/* Confirm Mint Dialog — center-stacked layout */}
       <Dialog open={confirmMintDialog} onOpenChange={setConfirmMintDialog}>
