@@ -102,11 +102,11 @@ export function MintTokenDialog({
     hasInvoiceLag?: boolean;
     lagLabel?: string;
   }> = [
-    { key: 'solar', label: 'Solar Energy', amount: pendingRewards.solar, icon: Sun, colorClass: 'text-solar', iconBg: 'from-solar/20 to-solar/10' },
-    { key: 'battery', label: 'Battery Storage', amount: pendingRewards.battery, icon: BatteryFull, colorClass: 'text-secondary', iconBg: 'from-secondary/20 to-secondary/10' },
-    { key: 'ev_miles', label: 'EV Miles', amount: pendingRewards.evMiles, icon: Car, colorClass: 'text-energy', iconBg: 'from-energy/20 to-energy/10' },
+    { key: 'solar' as MintTokenCategory, label: 'Solar Energy', amount: pendingRewards.solar, icon: Sun, colorClass: 'text-solar', iconBg: 'from-solar/20 to-solar/10' },
+    { key: 'battery' as MintTokenCategory, label: 'Battery Storage', amount: pendingRewards.battery, icon: BatteryFull, colorClass: 'text-secondary', iconBg: 'from-secondary/20 to-secondary/10' },
+    { key: 'ev_miles' as MintTokenCategory, label: 'EV Miles', amount: pendingRewards.evMiles, icon: Car, colorClass: 'text-energy', iconBg: 'from-energy/20 to-energy/10' },
     {
-      key: 'supercharging',
+      key: 'supercharging' as MintTokenCategory,
       label: 'Tesla Supercharging',
       amount: pendingRewards.superchargerKwh ?? 0,
       icon: Zap,
@@ -115,8 +115,8 @@ export function MintTokenDialog({
       hasInvoiceLag: true,
       lagLabel: 'Pending Tesla invoice — usually posts within 24–48h',
     },
-    { key: 'home_charging', label: 'Home Charging', amount: pendingRewards.homeChargerKwh ?? 0, icon: Zap, colorClass: 'text-accent', iconBg: 'from-accent/20 to-accent/10' },
-    { key: 'charging', label: 'EV Charging', amount: pendingRewards.charging, icon: Zap, colorClass: 'text-accent', iconBg: 'from-accent/20 to-accent/10' },
+    { key: 'home_charging' as MintTokenCategory, label: 'Home Charging', amount: pendingRewards.homeChargerKwh ?? 0, icon: Zap, colorClass: 'text-accent', iconBg: 'from-accent/20 to-accent/10' },
+    { key: 'charging' as MintTokenCategory, label: 'EV Charging', amount: pendingRewards.charging, icon: Zap, colorClass: 'text-accent', iconBg: 'from-accent/20 to-accent/10' },
   ].filter((c) => c.amount > 0);
 
   return (
