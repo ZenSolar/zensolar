@@ -1165,11 +1165,11 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   hasInvoiceLag?: boolean;
                   lagLabel?: string;
                 }> = [
-                  { key: 'solar', label: 'Solar Energy', amount: pendingRewards.solar, icon: Sun, colorClass: 'text-solar', iconBg: 'from-solar/20 to-solar/10' },
-                  { key: 'battery', label: 'Battery Storage', amount: pendingRewards.battery, icon: BatteryFull, colorClass: 'text-secondary', iconBg: 'from-secondary/20 to-secondary/10' },
-                  { key: 'ev_miles', label: 'EV Miles', amount: pendingRewards.evMiles, icon: Car, colorClass: 'text-energy', iconBg: 'from-energy/20 to-energy/10' },
-                  { key: 'supercharging', label: 'Tesla Supercharging', amount: pendingRewards.superchargerKwh ?? 0, icon: Zap, colorClass: 'text-destructive', iconBg: 'from-destructive/20 to-destructive/10', hasInvoiceLag: true, lagLabel: 'Pending Tesla invoice — usually posts within 24–48h' },
-                  { key: 'home_charging', label: 'Home Charging', amount: pendingRewards.homeChargerKwh ?? 0, icon: Zap, colorClass: 'text-accent', iconBg: 'from-accent/20 to-accent/10' },
+                  { key: 'solar' as MintCategory, label: 'Solar Energy', amount: pendingRewards.solar, icon: Sun, colorClass: 'text-solar', iconBg: 'from-solar/20 to-solar/10' },
+                  { key: 'battery' as MintCategory, label: 'Battery Storage', amount: pendingRewards.battery, icon: BatteryFull, colorClass: 'text-secondary', iconBg: 'from-secondary/20 to-secondary/10' },
+                  { key: 'ev_miles' as MintCategory, label: 'EV Miles', amount: pendingRewards.evMiles, icon: Car, colorClass: 'text-energy', iconBg: 'from-energy/20 to-energy/10' },
+                  { key: 'supercharging' as MintCategory, label: 'Tesla Supercharging', amount: pendingRewards.superchargerKwh ?? 0, icon: Zap, colorClass: 'text-destructive', iconBg: 'from-destructive/20 to-destructive/10', hasInvoiceLag: true, lagLabel: 'Pending Tesla invoice — usually posts within 24–48h' },
+                  { key: 'home_charging' as MintCategory, label: 'Home Charging', amount: pendingRewards.homeChargerKwh ?? 0, icon: Zap, colorClass: 'text-accent', iconBg: 'from-accent/20 to-accent/10' },
                 ].filter(c => c.amount > 0);
 
                 return categories.map((cat) => {
