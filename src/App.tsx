@@ -274,8 +274,10 @@ const App = () => {
                     {/* Per-device Proof-of-Origin™ — founder + PIN gated (Phase 1) */}
                     <Route path="/devices/:deviceId/origin" element={<DeviceProofOfOrigin />} />
                     
-                    {/* Demo routes with full sidebar — gated by access code + NDA */}
-                    <Route path="/demo" element={<DemoAccessGate><DemoLayout /></DemoAccessGate>}>
+                    {/* Demo routes — public synthetic showcase, no gate.
+                        Uses DemoProvider/useDemoData fixtures so KPIs always
+                        render non-zero regardless of environment. */}
+                    <Route path="/demo" element={<DemoLayout />}>
                       <Route index element={<DemoDashboard />} />
                       <Route path="energy-log" element={<DemoEnergyLog />} />
                       <Route path="nft-collection" element={<DemoNftCollection />} />
