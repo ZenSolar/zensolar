@@ -28,7 +28,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useKpiContributions, type KpiContributionRow } from '@/hooks/useKpiContributions';
 import type { MintCategory, MintRequest } from '@/components/dashboard/ActivityMetrics';
-import { MINT_RATIO_KWH_PER_TOKEN, getRewardMultiplier } from '@/lib/tokenomics';
+import { MINT_RATIO_KWH_PER_TOKEN } from '@/lib/tokenomics';
 
 export interface KpiSheetState {
   open: boolean;
@@ -46,12 +46,20 @@ interface Props {
   onMintRequest?: (req: MintRequest) => void;
 }
 
-function formatRowDate(iso: string): string {
+function formatRowDate(iso: string, hasRealTime: boolean): string {
   try {
-    return format(parseISO(iso), 'MMM d · h:mm a');
+    const d = parseISO(iso);
+    return format(d, hasRealTime ? 'MMM d · h:mm a' : 'MMM d');
   } catch {
     try { return format(new Date(iso), 'MMM d'); } catch { return iso; }
   }
+}
+
+function formatDuration(min: number): string {
+  if (min < 60) return `${min} min`;
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return m === 0 ? `${h}h` : `${h}h ${m}m`;
 }
 
 function providerLabel(p: string): string {
@@ -71,11 +79,14 @@ function ContributionRow({ row }: { row: KpiContributionRow }) {
     <div className="flex items-center justify-between gap-3 py-3 border-b border-border/40 last:border-0">
       <div className="flex-1 min-w-0 space-y-0.5">
         <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
-          {formatRowDate(row.recordedAt)}
+          {formatRowDate(row.recordedAt, row.hasRealTime)}
         </p>
         <div className="flex items-center gap-1.5 text-sm text-foreground">
           <span className="truncate">{providerLabel(row.provider)}</span>
           {row.verified && <ShieldCheck className="h-3.5 w-3.5 text-success shrink-0" />}
+          {row.durationMinutes ? (
+            <span className="text-[11px] text-muted-foreground">· {formatDuration(row.durationMinutes)}</span>
+          ) : null}
         </div>
         {row.location && (
           <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
@@ -103,7 +114,7 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
 
   // Tokens preview — same math as ActivityMetrics
   const eligibleTokens = Math.floor(pending / MINT_RATIO_KWH_PER_TOKEN);
-  const userShare = Math.floor((pending * getRewardMultiplier() / MINT_RATIO_KWH_PER_TOKEN) * 0.75);
+
 
   const canMint = pending > 0 && !!onMintRequest;
 
@@ -196,11 +207,11 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
                 className="w-full h-12 text-base font-bold bg-gradient-to-r from-primary to-primary/80 hover:from-primary hover:to-primary text-primary-foreground shadow-[0_0_24px_hsl(var(--primary)/0.4)]"
               >
                 <Sparkles className="h-4 w-4 mr-2" />
-                Mint {userShare.toLocaleString()} $ZSOLAR
+                Mint {eligibleTokens.toLocaleString()} $ZSOLAR
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
               <p className="text-[10px] text-center text-muted-foreground mt-2">
-                75% to you · 20% burned · 3% LP · 2% treasury
+                Split shown on confirm · 75% to you · 20% burned · 3% LP · 2% treasury
               </p>
             </>
           ) : (
