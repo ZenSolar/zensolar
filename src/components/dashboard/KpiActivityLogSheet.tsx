@@ -106,6 +106,84 @@ function ContributionRow({ row }: { row: KpiContributionRow }) {
   );
 }
 
+/**
+ * Interval-based KPIs (solar/battery/ev_miles) come in as raw 5–15min
+ * samples. Rolling them up by calendar day keeps the receipt feel without
+ * a wall of rows.
+ */
+const INTERVAL_CATEGORIES: ReadonlyArray<MintCategory> = ['solar', 'battery', 'ev_miles'];
+
+type DayGroup = {
+  dayKey: string;       // "2026-05-21"
+  dayLabel: string;     // "May 21"
+  total: number;
+  count: number;
+  rows: KpiContributionRow[];
+};
+
+function groupByDay(rows: KpiContributionRow[]): DayGroup[] {
+  const map = new Map<string, DayGroup>();
+  for (const r of rows) {
+    let key: string;
+    let label: string;
+    try {
+      const d = parseISO(r.recordedAt);
+      key = format(d, 'yyyy-MM-dd');
+      label = format(d, 'MMM d');
+    } catch {
+      key = r.recordedAt.slice(0, 10);
+      label = key;
+    }
+    const g = map.get(key);
+    if (g) {
+      g.total += r.amount;
+      g.count += 1;
+      g.rows.push(r);
+    } else {
+      map.set(key, { dayKey: key, dayLabel: label, total: r.amount, count: 1, rows: [r] });
+    }
+  }
+  return Array.from(map.values()).sort((a, b) => (a.dayKey < b.dayKey ? 1 : -1));
+}
+
+function DayGroupRow({ group, unit }: { group: DayGroup; unit: 'kWh' | 'mi' }) {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <div className="border-b border-border/40 last:border-0">
+      <button
+        type="button"
+        onClick={() => setExpanded((v) => !v)}
+        className="w-full flex items-center justify-between gap-3 py-3 text-left active:bg-muted/30 transition-colors touch-manipulation"
+        aria-expanded={expanded}
+      >
+        <div className="flex-1 min-w-0">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+            {group.dayLabel}
+          </p>
+          <p className="text-sm text-foreground">
+            {group.count} sample{group.count !== 1 ? 's' : ''}
+          </p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <p className="text-sm font-bold tabular-nums text-foreground">
+            {group.total.toLocaleString(undefined, { maximumFractionDigits: 1 })}
+            <span className="text-xs font-normal text-muted-foreground ml-1">{unit}</span>
+          </p>
+          <ChevronDown
+            className={`h-4 w-4 text-muted-foreground transition-transform ${expanded ? 'rotate-180' : ''}`}
+            aria-hidden="true"
+          />
+        </div>
+      </button>
+      {expanded && (
+        <div className="pb-2 pl-3 border-l border-border/40 ml-1">
+          {group.rows.map((r) => <ContributionRow key={r.id} row={r} />)}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Props) {
   const { open, category, deviceId, deviceName, label, unit, pending } = state;
 
