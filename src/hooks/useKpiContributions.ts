@@ -5,12 +5,12 @@
  * Powers the KPI Activity Log bottom sheet so users see the receipts
  * (Proof-of-Delta™) before they tap MINT (Proof-of-Mint™).
  *
- * IMPORTANT — "since last mint" semantics:
- *   The KPI tile shows *pending* kWh (everything not yet minted). The
- *   receipt list MUST agree with that headline, so every query in this
- *   hook is lower-bounded by the user's most recent confirmed
- *   mint_transactions.created_at. If the user has never minted, we show
- *   everything (genesis case).
+ * IMPORTANT — pending semantics:
+ *   The KPI tile shows *pending* units (lifetime − mint baseline). The
+ *   receipt list MUST agree with that headline. Most sources can be filtered
+ *   by their device-level mint anchor; Tesla Supercharging may report late
+ *   billing sessions, so it walks backward through newest sessions until the
+ *   visible receipts add up to the pending baseline delta.
  *
  * Data sources by category:
  *   solar         → energy_production (data_type='solar')
@@ -155,21 +155,22 @@ async function fetchSuperchargerRows(
   userId: string,
   deviceId: string | undefined,
   sinceIso: string | null,
+  pendingTarget?: number,
 ): Promise<KpiContributionRow[]> {
   let query = supabase
     .from('charging_sessions')
     .select('id, session_date, energy_kwh, location, provider, device_id, charging_type, session_metadata')
     .eq('user_id', userId)
-    .neq('charging_type', 'home')
+    .or('charging_type.is.null,charging_type.neq.home')
     .order('session_date', { ascending: false })
-    .limit(ROW_LIMIT);
+    .limit(pendingTarget ? 200 : ROW_LIMIT);
   if (deviceId) query = query.eq('device_id', deviceId);
-  if (sinceIso) query = query.gt('session_date', sinceIso);
+  if (sinceIso && !pendingTarget) query = query.gt('session_date', sinceIso);
   const { data, error } = await query;
   if (error) throw error;
-  return (data || []).map((s: any) => {
-    const startIso = s.session_metadata?.start_time as string | undefined;
-    const endIso = s.session_metadata?.end_time as string | undefined;
+  const mapped = (data || []).map((s: any) => {
+    const startIso = (s.session_metadata?.start_time || s.session_metadata?.chargeStartDateTime) as string | undefined;
+    const endIso = (s.session_metadata?.end_time || s.session_metadata?.chargeStopDateTime) as string | undefined;
     const picked = pickIso(startIso, endIso, s.session_date);
     return {
       id: String(s.id),
@@ -184,6 +185,18 @@ async function fetchSuperchargerRows(
       verified: true,
     };
   });
+
+  if (!pendingTarget || pendingTarget <= 0) return mapped;
+
+  const target = Math.max(0, pendingTarget - 0.5);
+  let running = 0;
+  const pendingRows: KpiContributionRow[] = [];
+  for (const row of mapped) {
+    pendingRows.push(row);
+    running += row.amount;
+    if (running >= target) break;
+  }
+  return pendingRows;
 }
 
 async function fetchHomeChargerRows(
@@ -256,11 +269,12 @@ export function useKpiContributions(
   category: MintCategory | null,
   deviceId?: string,
   enabled: boolean = true,
+  pendingTarget?: number,
 ) {
   const viewAsUserId = useViewAsUserId();
 
   return useQuery({
-    queryKey: ['kpi-contributions', viewAsUserId, category, deviceId ?? null],
+    queryKey: ['kpi-contributions', viewAsUserId, category, deviceId ?? null, Math.floor(pendingTarget ?? 0)],
     enabled: enabled && !!category,
     queryFn: async (): Promise<KpiContributionRow[]> => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -277,7 +291,7 @@ export function useKpiContributions(
         case 'ev_miles':
           return fetchEnergyProductionRows(userId, 'ev_miles', deviceId, sinceIso);
         case 'supercharger':
-          return fetchSuperchargerRows(userId, deviceId, sinceIso);
+          return fetchSuperchargerRows(userId, deviceId, sinceIso, pendingTarget);
         case 'home_charger':
           return fetchHomeChargerRows(userId, deviceId, sinceIso);
         case 'charging': {

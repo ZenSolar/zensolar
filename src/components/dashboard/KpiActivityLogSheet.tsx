@@ -27,7 +27,6 @@ import {
 } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { useKpiContributions, type KpiContributionRow } from '@/hooks/useKpiContributions';
 import type { MintCategory, MintRequest } from '@/components/dashboard/ActivityMetrics';
 import { MINT_RATIO_KWH_PER_TOKEN } from '@/lib/tokenomics';
@@ -188,7 +187,7 @@ function DayGroupRow({ group, unit }: { group: DayGroup; unit: 'kWh' | 'mi' }) {
 export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Props) {
   const { open, category, deviceId, deviceName, label, unit, pending } = state;
 
-  const { data: rows = [], isLoading } = useKpiContributions(category, deviceId, open);
+  const { data: rows = [], isLoading } = useKpiContributions(category, deviceId, open, pending);
 
   const sumOfRows = rows.reduce((s, r) => s + r.amount, 0);
 
@@ -210,8 +209,8 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
   };
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="p-0 border-t border-primary/30 bg-background h-[85svh] flex flex-col rounded-t-2xl focus:outline-none">
+    <Drawer open={open} onOpenChange={onOpenChange} shouldScaleBackground={false} closeThreshold={0.35}>
+      <DrawerContent className="p-0 border-t border-primary/30 bg-background h-[85svh] min-h-0 flex flex-col rounded-t-2xl focus:outline-none will-change-transform touch-pan-y">
         {/* Header */}
         <DrawerHeader className="px-5 pt-2 pb-3 space-y-2 text-left border-b border-border/40">
           <div className="flex items-start justify-between gap-3">
@@ -253,7 +252,7 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
 
 
         {/* Body — scrollable activity log */}
-        <ScrollArea className="flex-1 px-5">
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-5">
           {isLoading ? (
             <div className="flex items-center justify-center py-10 text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -292,7 +291,7 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
               </div>
             </>
           )}
-        </ScrollArea>
+        </div>
 
         {/* Sticky MINT CTA — proof seen, now mint */}
         <div
