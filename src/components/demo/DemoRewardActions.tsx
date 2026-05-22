@@ -20,6 +20,7 @@ import { DemoMintResult } from '@/hooks/useDemoData';
 import { MicroProtocolBadge } from '@/components/proof/MicroProtocolBadge';
 import { ProtocolCinematicSequence } from '@/components/proof/ProtocolCinematicSequence';
 import { hasShownFirstMintCelebration, markFirstMintCelebrationShown } from '@/lib/firstMintCelebration';
+import { MintTokenDialog, type MintTokenCategory } from '@/components/dashboard/MintTokenDialog';
 
 export type MintCategory = 'solar' | 'ev_miles' | 'battery' | 'charging' | 'all';
 
