@@ -210,6 +210,35 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   const [tokenMintDialog, setTokenMintDialog] = useState(false);
   const [confirmMintDialog, setConfirmMintDialog] = useState(false);
   const [mintingProgressDialog, setMintingProgressDialog] = useState(false);
+
+  // Mint card trust elements: sync stamp + collapsible categories
+  const [lastSyncedAt, setLastSyncedAt] = useState<number>(() => Date.now());
+  const [nowTick, setNowTick] = useState<number>(() => Date.now());
+  const [expandedCategory, setExpandedCategory] = useState<MintCategory | null>('supercharging');
+
+  // Update lastSyncedAt whenever a refresh completes (isLoading transitions to false while dialog open)
+  useEffect(() => {
+    if (!isLoading && tokenMintDialog) {
+      setLastSyncedAt(Date.now());
+    }
+  }, [isLoading, tokenMintDialog]);
+
+  // Tick the "synced Xs ago" label while the dialog is open
+  useEffect(() => {
+    if (!tokenMintDialog) return;
+    const id = setInterval(() => setNowTick(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [tokenMintDialog]);
+
+  const syncedAgoLabel = (() => {
+    const sec = Math.max(0, Math.floor((nowTick - lastSyncedAt) / 1000));
+    if (sec < 5) return 'Synced just now';
+    if (sec < 60) return `Synced ${sec}s ago`;
+    const min = Math.floor(sec / 60);
+    if (min < 60) return `Synced ${min}m ago`;
+    const hr = Math.floor(min / 60);
+    return `Synced ${hr}h ago`;
+  })();
   
   // NFT Selection Dialog state
   const [nftMintDialog, setNftMintDialog] = useState<{
