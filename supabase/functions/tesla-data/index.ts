@@ -725,18 +725,39 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Write per-session charging details to charging_sessions
+    // Write per-session charging details to charging_sessions.
+    // De-dupe against existing rows by chargeStartDateTime (Tesla's stable session id)
+    // before inserting, so a single duplicate doesn't roll back the whole batch.
     if (chargingSessionDetails && chargingSessionDetails.length > 0) {
-      console.log(`Writing ${chargingSessionDetails.length} charging sessions to charging_sessions table`);
-      const batchSize = 500;
-      for (let i = 0; i < chargingSessionDetails.length; i += batchSize) {
-        const batch = chargingSessionDetails.slice(i, i + batchSize);
-        const { error } = await supabaseClient
-          .from("charging_sessions")
-          .insert(batch)
-          .select();
-        // Ignore unique constraint violations (duplicates)
-        if (error && error.code !== '23505') console.error(`Charging sessions insert error batch ${i}:`, error);
+      const { data: existingRows, error: fetchExistingErr } = await supabaseClient
+        .from("charging_sessions")
+        .select("session_metadata")
+        .eq("user_id", targetUserId)
+        .eq("provider", "tesla");
+      if (fetchExistingErr) {
+        console.error("Failed to fetch existing charging_sessions for dedupe:", fetchExistingErr);
+      }
+      const existingStarts = new Set<string>(
+        (existingRows || [])
+          .map((r: any) => r?.session_metadata?.chargeStartDateTime)
+          .filter((v: any): v is string => typeof v === "string" && v.length > 0)
+      );
+      const toInsert = chargingSessionDetails.filter((r: any) => {
+        const start = r?.session_metadata?.chargeStartDateTime;
+        return typeof start === "string" && start.length > 0 && !existingStarts.has(start);
+      });
+      console.log(
+        `Charging sessions: ${chargingSessionDetails.length} fetched, ${existingStarts.size} already in DB, ${toInsert.length} new to write`
+      );
+      if (toInsert.length > 0) {
+        const batchSize = 500;
+        for (let i = 0; i < toInsert.length; i += batchSize) {
+          const batch = toInsert.slice(i, i + batchSize);
+          const { error } = await supabaseClient
+            .from("charging_sessions")
+            .insert(batch);
+          if (error) console.error(`Charging sessions insert error batch ${i}:`, error);
+        }
       }
     }
 
