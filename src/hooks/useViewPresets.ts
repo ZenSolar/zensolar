@@ -55,7 +55,7 @@ export function useViewPresets<F extends Record<string, unknown>>(viewKey: strin
       };
       const { data, error } = await supabase
         .from("user_view_presets")
-        .upsert(payload, { onConflict: "user_id,view_key,name" })
+        .upsert([payload], { onConflict: "user_id,view_key,name" })
         .select("id, name, filters, is_default, created_at")
         .single();
       if (error) throw error;
