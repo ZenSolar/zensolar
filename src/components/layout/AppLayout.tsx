@@ -48,8 +48,11 @@ export function AppLayout({ children }: AppLayoutProps) {
         <MobileBottomNav variant="app" />
         {/* Floating banner when viewing as another user */}
         <ViewAsUserBanner />
-        {/* Global ⌘K command palette */}
+        {/* Global ⌘K command palette + "/" search + "?" shortcuts + g-prefix nav */}
         <CommandPalette />
+        <GlobalSearch />
+        <KeyboardShortcutsSheet />
+        <GNavigation />
       </SidebarProvider>
     </ViewAsUserIdProvider>
   );
