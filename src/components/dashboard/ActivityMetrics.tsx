@@ -1004,10 +1004,13 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
     };
   }, [forceRender]);
 
-  // Pre-compute particles — stable across renders, only regenerate on new burst
+  // Pre-compute particles — stable across renders, only regenerate on new burst.
+  // 9 particles (down from 16) — beyond ~8 the eye can't track them individually
+  // and each one costs a full composite layer + shadow paint per frame.
   const particles = React.useMemo(() => {
-    return Array.from({ length: 16 }, (_, i) => {
-      const angle = (i / 16) * 360 + ((i * 7 + 3) % 20 - 10); // deterministic jitter
+    const N = 9;
+    return Array.from({ length: N }, (_, i) => {
+      const angle = (i / N) * 360 + ((i * 7 + 3) % 20 - 10); // deterministic jitter
       const rad = (angle * Math.PI) / 180;
       const dist = 50 + ((i * 13 + 7) % 70);
       return {
@@ -1015,11 +1018,12 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         ty: Math.sin(rad) * (20 + ((i * 11 + 5) % 30)),
         size: 7 + ((i * 9 + 4) % 6),
         rotation: (i * 37 + 11) % 360,
-        delay: i * 30,
+        delay: i * 35,
       };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stateRef.current.burstKey]);
+
 
   // Cleanup all timers
   React.useEffect(() => {
