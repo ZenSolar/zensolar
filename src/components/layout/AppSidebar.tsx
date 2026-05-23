@@ -63,6 +63,7 @@ import { UserViewToggle } from "./UserViewToggle";
 import { AppThemeSelector } from "./AppThemeSelector";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { SidebarOnboarding } from "./SidebarOnboarding";
+import { SidebarStatus } from "@/components/web/SidebarStatus";
 
 import {
   Sidebar,
