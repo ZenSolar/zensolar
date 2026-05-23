@@ -135,6 +135,13 @@ export function DailyTable({ days, unit }: DailyTableProps) {
                         </span>
                       </div>
                     </TableCell>
+                    <TableCell className="text-right">
+                      {d.kWh > 0 ? (
+                        <SourceBadges providers={d.providers} className="justify-end" />
+                      ) : (
+                        <span className="text-muted-foreground text-xs">—</span>
+                      )}
+                    </TableCell>
                   </TableRow>
                 );
               })
