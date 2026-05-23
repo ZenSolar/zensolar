@@ -323,24 +323,29 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
   // Auto-bypass for shared investor links: /demo?vip=lyndon|todd|greg|jo
   // Maps the slug to an existing VIP code, activates VIP badge, and unlocks gate.
+  // For Greg, ALSO saves his reviewer email so the pitch page + companion deck unlock.
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (granted) return;
     const params = new URLSearchParams(window.location.search);
     const vipSlug = (params.get('vip') || '').toLowerCase().trim();
     if (!vipSlug) return;
-    const VIP_SLUG_MAP: Record<string, string> = {
-      lyndon: 'LOBV-2026',
-      todd: 'TODD-2026',
-      greg: 'LOBV-2026',
-      jo: 'JO-2026',
-      taytay: 'FUCKYEAH-TAYTAY-2026',
-      mtn: 'MTNYOTAS-4L',
+    const VIP_SLUG_MAP: Record<string, { code: string; reviewerEmail?: string }> = {
+      lyndon: { code: 'LOBV-2026' },
+      todd: { code: 'TODD-2026' },
+      greg: { code: 'LOBV-2026', reviewerEmail: 'greg@mzgroup.us' },
+      jo: { code: 'JO-2026' },
+      taytay: { code: 'FUCKYEAH-TAYTAY-2026' },
+      mtn: { code: 'MTNYOTAS-4L' },
     };
-    const mappedCode = VIP_SLUG_MAP[vipSlug];
-    if (!mappedCode) return;
-    activateVipCode(mappedCode);
+    const mapped = VIP_SLUG_MAP[vipSlug];
+    if (!mapped) return;
+    activateVipCode(mapped.code);
     writeStoredValue(LS_KEY, JSON.stringify({ ts: Date.now(), ndaSigned: true }), TTL_MS);
+    if (mapped.reviewerEmail) {
+      // Unlocks REVIEWER_PAGES (pitch + companion deck) via isAuthorizedReviewer()
+      saveNdaEmail(mapped.reviewerEmail);
+    }
     setGranted(true);
     // Clean the URL so refresh stays clean
     const cleaned = new URL(window.location.href);
