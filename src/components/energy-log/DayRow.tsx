@@ -1,6 +1,7 @@
 import { format, isSameDay } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { DailyProduction } from '@/hooks/useEnergyLog';
+import { SourceBadges } from '@/components/energy-log/SourceBadges';
 
 interface DayRowProps {
   day: DailyProduction;
