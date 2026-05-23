@@ -151,7 +151,7 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
                   <Coins className="h-4 w-4 text-primary-foreground" />
                 </div>
                 <Badge variant="outline" className="border-primary/40 text-primary text-[10px] uppercase tracking-wider">
-                  Mint Receipt
+                  Quick View
                 </Badge>
                 <Badge variant="secondary" className="ml-auto text-[10px] capitalize">
                   {tx.status}
@@ -323,23 +323,47 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
             </div>
           </section>
 
-          {/* Bread & butter: Proof-of-Genesis bridge */}
-          <ProofOfGenesisTile
-            variant="compact"
-            verified={typeof tx.tx_hash === 'string' && tx.tx_hash.startsWith('0x') && tx.tx_hash.length >= 10}
-          />
+          {/* Primary CTA — the Proof-of-Genesis receipt is THE receipt.
+              This drawer is just a quick peek; the full audit trail (verified
+              kWh → split → CO₂ tons → device watermark → BTC PoW comparison)
+              lives on one shareable URL. */}
+          <Link
+            to={pogReceiptUrl}
+            onClick={() => onOpenChange(false)}
+            className="group relative block overflow-hidden rounded-xl border border-primary/40 bg-gradient-to-br from-primary/20 via-primary/10 to-accent-warm/15 p-4 transition-all hover:border-primary/70 hover:shadow-[0_0_32px_-8px_hsl(var(--primary)/0.55)] active:scale-[0.99]"
+          >
+            <div className="absolute -top-12 -right-12 h-32 w-32 rounded-full bg-primary/25 blur-3xl pointer-events-none" />
+            <div className="relative flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary to-primary/60 shadow-[0_4px_16px_-4px_hsl(var(--primary)/0.6)] flex-shrink-0">
+                <Sparkles className="h-4 w-4 text-primary-foreground" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <p className="text-[10px] uppercase tracking-[0.15em] text-primary font-semibold">Proof-of-Genesis™</p>
+                  <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/15 text-primary border border-primary/30 leading-none">IP</span>
+                </div>
+                <p className="text-sm font-bold text-foreground leading-tight mt-0.5">
+                  Open the full receipt
+                </p>
+                <p className="text-[11px] text-muted-foreground leading-tight mt-1">
+                  Verified kWh → split math → CO₂ tons offset → device watermark
+                </p>
+              </div>
+              <ArrowUpRight className="h-5 w-5 text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform flex-shrink-0" />
+            </div>
+          </Link>
 
-          {/* Actions */}
-          <div className="flex flex-col gap-2 pt-2">
-            <Button asChild className="w-full" variant="default">
+          {/* Secondary actions */}
+          <div className="flex gap-2 pt-1">
+            <Button asChild variant="outline" className="flex-1" size="sm">
               <a href={getExplorerUrl(tx.tx_hash)} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="h-4 w-4 mr-2" />
-                Verify on BaseScan
+                <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
+                BaseScan
               </a>
             </Button>
-            <Button variant="outline" className="w-full" onClick={handleShare}>
-              <Share2 className="h-4 w-4 mr-2" />
-              Share receipt
+            <Button variant="outline" size="sm" className="flex-1" onClick={handleShare}>
+              <Share2 className="h-3.5 w-3.5 mr-1.5" />
+              Quick share
             </Button>
           </div>
           </div>
