@@ -478,7 +478,6 @@ export default function ProofOfGenesisReceiptPreview() {
               </Link>
             </div>
           </div>
-          </div>
         </div>
 
         <div className="container max-w-4xl mx-auto px-4 pt-6 sm:pt-10 space-y-6 sm:space-y-8">
