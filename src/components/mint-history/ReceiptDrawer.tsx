@@ -73,6 +73,7 @@ function shortHash(hash: string) {
 }
 
 export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
+  const basePath = useBasePath();
   if (!tx) return null;
 
   const meta = ACTION_META[tx.action] ?? { label: tx.action, description: "On-chain transaction." };
@@ -80,6 +81,7 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
   // tokens_minted is already the 75% user share — derive grand total for split viz
   const grandTotal = userTokens > 0 ? userTokens / 0.75 : 0;
   const hasSplit = userTokens > 0;
+  const pogReceiptUrl = `${basePath}/proof-of-genesis-receipt-preview`;
 
   const buildReceiptText = () => {
     const lines = [
