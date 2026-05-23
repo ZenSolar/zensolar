@@ -319,6 +319,9 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
             </div>
           </section>
 
+          {/* Bread & butter: Proof-of-Genesis bridge */}
+          <ProofOfGenesisTile variant="compact" />
+
           {/* Actions */}
           <div className="flex flex-col gap-2 pt-2">
             <Button asChild className="w-full" variant="default">
