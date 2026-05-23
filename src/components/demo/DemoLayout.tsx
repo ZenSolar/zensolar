@@ -90,6 +90,8 @@ export function DemoLayout() {
             the dashboard chrome per stakeholder request. */}
         {/* Mobile-only sticky bottom tab bar */}
         <MobileBottomNav variant="demo" />
+        {/* Global ⌘K command palette — demo-scoped */}
+        <CommandPalette basePath="/demo" isDemo />
       </SidebarProvider>
     </DemoProvider>
   );
