@@ -223,13 +223,12 @@
   }
 
   /* ----- Mobile bottom nav geometry (single source of truth) ----- */
-  /* Visible nav row + iOS bottom inset. The inset is painted as part of the
-     tab bar surface so the installed PWA reaches the physical bottom edge
-     instead of showing a dead slab under Home/Mint/Wallet. */
+  /* Visible nav row only. The installed iOS PWA is already fullscreen; reserving
+     env(safe-area-inset-bottom) creates the unnatural blank slab below the tabs. */
   :root {
     --bottom-nav-height: 56px;
-    --bottom-nav-safe: env(safe-area-inset-bottom, 0px);
-    --bottom-nav-total-h: calc(var(--bottom-nav-height) + var(--bottom-nav-safe));
+    --bottom-nav-safe: 0px;
+    --bottom-nav-total-h: var(--bottom-nav-height);
     /* Standard FAB clearance above the nav */
     --fab-gap: 12px;
     --fab-bottom: calc(var(--bottom-nav-total-h) + var(--fab-gap));
