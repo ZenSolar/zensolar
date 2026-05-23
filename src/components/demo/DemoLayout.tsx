@@ -80,7 +80,7 @@ export function DemoLayout() {
                 </div>
               )}
               <ReviewerWelcomeBanner />
-              <Outlet />
+              <DashboardShell><Outlet /></DashboardShell>
             </main>
           </div>
         </div>
