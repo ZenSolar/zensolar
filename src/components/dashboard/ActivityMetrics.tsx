@@ -267,15 +267,15 @@ export function ActivityMetrics({
       ? `${vehicleName} Home Charging`
       : 'Home Charging';
 
-  // Header subtitle — "Your <Vehicle> · ☀️ <Solar> · 🔋 <Battery> · <Vehicle> EV Charging kWh"
-  // Icons disambiguate when the same device name powers both solar and battery (e.g. ZenCasa).
+  // Header device chips — each dot color matches its KPI field color below.
+  // ev_miles=green, solar=gold/amber, battery=teal/emerald, supercharger/charging=cyan
   const evChargingLabel = vehicleName ? `${vehicleName} EV Charging kWh` : 'EV Charging kWh';
-  const headerSubtitleParts: { label: string; icon?: 'sun' | 'battery' }[] = [
-    vehicleName ? { label: `Your ${vehicleName}` } : null,
-    solarName ? { label: solarName, icon: 'sun' as const } : null,
-    batteryName ? { label: batteryName, icon: 'battery' as const } : null,
-    { label: evChargingLabel },
-  ].filter(Boolean) as { label: string; icon?: 'sun' | 'battery' }[];
+  const headerSubtitleParts: { label: string; dotClass: string }[] = [
+    vehicleName ? { label: vehicleName, dotClass: 'bg-green-400' } : null,
+    solarName ? { label: solarName, dotClass: 'bg-amber-400' } : null,
+    batteryName ? { label: batteryName, dotClass: 'bg-emerald-400' } : null,
+    { label: evChargingLabel, dotClass: 'bg-cyan-400' },
+  ].filter(Boolean) as { label: string; dotClass: string }[];
   const headerSubtitle = headerSubtitleParts.length > 1
     ? headerSubtitleParts.map(p => p.label).join(' · ')
     : 'Your Connected Energy';
@@ -361,36 +361,18 @@ export function ActivityMetrics({
               </div>
             </div>
 
-            {/* Metadata stack: timestamp + Proof-of-Genesis pill */}
+            {/* Metadata: timestamp only */}
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2">
-                <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
-                {isLoading && (
-                  <span className="flex items-center gap-1 text-[10px] font-normal text-muted-foreground animate-pulse">
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                    Updating…
-                  </span>
-                )}
-              </div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.4, ease: 'easeOut' }}
-                className="px-2.5 py-0.5 rounded-full border"
-                style={{
-                  borderColor: 'hsl(var(--primary) / 0.3)',
-                  background: 'hsl(var(--primary) / 0.05)',
-                  boxShadow: 'inset 0 1px 1px hsl(0 0% 100% / 0.05)',
-                }}
-              >
-                <span className="text-[9px] font-bold tracking-[0.2em] uppercase text-primary whitespace-nowrap">
-                  Proof-of-Genesis™
+              <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
+              {isLoading && (
+                <span className="flex items-center gap-1 text-[10px] font-normal text-muted-foreground animate-pulse">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  Updating…
                 </span>
-              </motion.div>
+              )}
             </div>
 
-            {/* Connectivity & source tags */}
+            {/* Connectivity & device chips */}
             {filteredProviders.length > 0 && (
               <div className="flex flex-col items-center gap-2 w-full">
                 {/* Connected status + provider chips */}
@@ -428,20 +410,18 @@ export function ActivityMetrics({
                   </div>
                 </div>
 
-                {/* Source tags — replaces the underlined list */}
+                {/* Your: device chips — colored dot matches KPI field color */}
                 {headerSubtitleParts.length > 1 ? (
-                  <div className="flex flex-wrap justify-center gap-1 px-2">
+                  <div className="flex flex-wrap justify-center items-center gap-1 px-2">
+                    <span className="text-[9px] font-semibold tracking-wider uppercase text-foreground/60 mr-0.5">
+                      Your:
+                    </span>
                     {headerSubtitleParts.map((part, i) => (
                       <div
                         key={i}
                         className="px-2 py-0.5 rounded-md flex items-center gap-1 border border-primary/10 bg-primary/5"
                       >
-                        {part.icon === 'sun' && (
-                          <span className="w-1 h-1 rounded-full bg-amber-400" aria-hidden="true" />
-                        )}
-                        {part.icon === 'battery' && (
-                          <span className="w-1 h-1 rounded-full bg-emerald-400" aria-hidden="true" />
-                        )}
+                        <span className={cn("w-1.5 h-1.5 rounded-full", part.dotClass)} aria-hidden="true" />
                         <span className="text-[9px] font-medium text-foreground/75 whitespace-nowrap">
                           {part.label}
                         </span>
