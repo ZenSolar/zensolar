@@ -384,10 +384,10 @@ export default function AdminCostSavings() {
                   priority: "High"
                 },
                 { 
-                  title: "Native App Distribution", 
-                  description: "iOS App Store and Google Play distribution via Capacitor. Broader reach beyond PWA.",
+                  title: "Web-First Distribution (PWA)", 
+                  description: "Live at beta.zen.solar — installs to any phone's home screen in one tap. No App Store reviews, no 30% Apple tax, instant updates. Native shells optional later if a specific feature demands it.",
                   icon: Smartphone,
-                  priority: "Medium"
+                  priority: "Shipped"
                 },
               ].map((item) => (
                 <div key={item.title} className="flex gap-3 p-4 rounded-lg bg-muted/30">

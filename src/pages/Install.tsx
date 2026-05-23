@@ -32,15 +32,25 @@ export default function Install() {
     const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent);
     setIsIOS(isIOSDevice);
 
+    // Pick up a prompt that was already captured globally in main.tsx.
+    const cached = (window as any).__zsInstallPrompt as BeforeInstallPromptEvent | undefined;
+    if (cached) setDeferredPrompt(cached);
+
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
+    const handleReady = () => {
+      const p = (window as any).__zsInstallPrompt as BeforeInstallPromptEvent | undefined;
+      if (p) setDeferredPrompt(p);
+    };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('zs:install-prompt-ready', handleReady);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('zs:install-prompt-ready', handleReady);
     };
   }, []);
 

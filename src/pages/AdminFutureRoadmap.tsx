@@ -167,7 +167,7 @@ const roadmapPhases = [
       { title: "Multi-OEM Integration", description: "Tesla, Enphase, SolarEdge, Wallbox APIs fully integrated", completed: true },
       { title: "Token Integrity Architecture", description: "Device watermark registry preventing double-issuance across account lifecycles", completed: false },
       { title: "25K Subscriber Tipping Point", description: "Self-sustaining liquidity pool from 50% subscription injection", completed: false },
-      { title: "App Store Launch", description: "iOS and Android native apps with push notifications", completed: false },
+      { title: "Installable Web App (PWA)", description: "Live at beta.zen.solar — installs to any iPhone or Android home screen in one tap. No App Store gatekeeping, no 30% tax, ships updates instantly.", completed: true },
     ]
   },
   {

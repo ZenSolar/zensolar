@@ -79,7 +79,7 @@ const phases = [
       { text: "127+ on-chain mints completed", done: true },
       { text: "50+ active beta users", done: false },
       { text: "Device Watermark Registry stress-tested", done: false },
-      { text: "App Store submission (Q2 2026)", done: false },
+      { text: "Installable web app live at beta.zen.solar (PWA — no app store required)", done: true },
     ],
     tokenRelease: [
       { event: "Testnet activity", tokens: 0, destination: "N/A (testnet only)" },
@@ -111,7 +111,7 @@ const phases = [
       { text: "Round 1 LP tranche live: $200K USDC + 2M $ZSOLAR seeded at $0.10", done: false },
       { text: "1,000 paying subscribers", done: false },
       { text: "Patent filing completed", done: false },
-      { text: "App Store live (iOS + Android)", done: false },
+      { text: "Web-first distribution at scale (PWA on iOS + Android, daily ship cadence)", done: false },
       { text: "First $100K cumulative revenue", done: false },
     ],
     tokenRelease: [

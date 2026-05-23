@@ -27,10 +27,14 @@ const isInIframe = () => {
   }
 };
 
-// Suppress the browser's native PWA install prompt on all pages.
-// The Install page captures and re-triggers it when the user explicitly visits /install.
+// Capture the browser's native PWA install prompt globally so we can
+// re-trigger it from a contextual nudge (post-mint) or the /install page.
+// We still preventDefault() so Chrome's auto mini-infobar doesn't show on
+// its own — we choose the moment.
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
+  (window as any).__zsInstallPrompt = e;
+  window.dispatchEvent(new CustomEvent('zs:install-prompt-ready'));
 });
 
 // Register our custom push service worker only outside Lovable preview/iframe contexts.
@@ -92,10 +96,6 @@ if (typeof window !== 'undefined' && typeof (window as any).hideSplashScreen ===
     requestAnimationFrame(() => {
       (window as any).__zensolarBooted = true;
       (window as any).hideSplashScreen();
-      // Initialize Capacitor native polish (no-op on web).
-      import('./lib/capacitorBoot')
-        .then(({ initCapacitorRuntime }) => initCapacitorRuntime())
-        .catch(() => {});
     });
   });
 }

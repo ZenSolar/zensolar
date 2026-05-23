@@ -166,8 +166,8 @@ const initialTodos: TodoItem[] = [
   },
   {
     id: "native-app",
-    title: "Native Mobile App (iOS/Android)",
-    description: "Deploy as native apps via Capacitor for App Store and Play Store.",
+    title: "Native Shell (Optional, Post-Traction)",
+    description: "Deferred. Web-first via PWA is the primary distribution channel. Only revisit if a feature requires native-only APIs (Apple Wallet pass, deep HealthKit, etc.).",
     category: "ux",
     priority: "low",
     status: "not-started",
