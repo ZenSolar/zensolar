@@ -45,6 +45,18 @@ export default function EnergyLog() {
   const [showSessions, setShowSessions] = useState(true);
   const [providerStatuses, setProviderStatuses] = useState<ProviderStatus[]>([]);
   const deviceLabels = useDeviceLabels();
+  // Pass D · #1 — view mode toggle. Default to table on xl:+ (desktop),
+  // cards everywhere else. Persisted per user in localStorage.
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>(() => {
+    if (typeof window === 'undefined') return 'cards';
+    const stored = localStorage.getItem('energyLog.viewMode');
+    if (stored === 'cards' || stored === 'table') return stored;
+    return window.matchMedia('(min-width: 1280px)').matches ? 'table' : 'cards';
+  });
+  const setViewModeAndPersist = (mode: 'cards' | 'table') => {
+    setViewMode(mode);
+    try { localStorage.setItem('energyLog.viewMode', mode); } catch { /* noop */ }
+  };
 
   // Fetch per-provider freshness so we can render the fallback panel.
   // Reads connected_devices.updated_at — written every successful sync.
