@@ -1344,7 +1344,8 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       {isBursting && (
         <>
           {/* Expanding energy rings — 4 staggered waves */}
-          {[0, 1, 2, 3].map(i => (
+          {/* Expanding energy rings — 3 staggered waves (was 4; the 4th overlapped the pressure wave) */}
+          {[0, 1, 2].map(i => (
             <div
               key={`ring-${burstKey}-${i}`}
               className="absolute pointer-events-none"
