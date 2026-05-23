@@ -89,6 +89,10 @@ export function DemoDashboard() {
     });
   };
 
+  const handleMintTokens = () => {
+    rewardActionsRef.current?.openTokenMintDialog();
+  };
+
   const demoMintHandler: DemoMintHandler = useMemo(() => ({
     simulateMintTokens,
     getEligibility,
