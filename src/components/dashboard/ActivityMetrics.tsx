@@ -1303,7 +1303,10 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         </svg>
       )}
 
-      {(isPressing || isBursting) && touchPoint && (
+      {/* Press ripple — only during the press, not during burst.
+          During burst, the radial-release + pressure-wave + ring stack already
+          paint the same region; layering this ripple on top just doubles paint cost. */}
+      {isPressing && !isBursting && touchPoint && (
         <div
           className="absolute pointer-events-none rounded-full"
           style={{
@@ -1312,18 +1315,14 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             width: '200%',
             height: '200%',
             background: `radial-gradient(circle, hsl(${styles.rgba} / 0.35) 0%, transparent 70%)`,
-            animation: isBursting 
-              ? 'zenTouchRipple 900ms ease-out forwards' 
-              : undefined,
-            transform: isPressing && !isBursting 
-              ? 'translate(-50%, -50%) scale(0.3)' 
-              : undefined,
-            opacity: isPressing && !isBursting ? 0.4 : undefined,
-            transition: !isBursting ? 'transform 0.15s ease-out, opacity 0.15s ease-out' : undefined,
+            transform: 'translate(-50%, -50%) scale(0.3)',
+            opacity: 0.4,
+            transition: 'transform 0.15s ease-out, opacity 0.15s ease-out',
             willChange: 'transform, opacity',
           }}
         />
       )}
+
 
       {/* ⚡ Pressure shockwave ring — from touch point on release */}
       {isBursting && touchPoint && (
