@@ -228,10 +228,11 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
       </div>
       
       <PerfProbe id="ZenSolarDashboard">
-      <AnimatedContainer className="relative z-10 w-full max-w-lg min-w-0 mx-auto px-3 sm:px-4 py-6 space-y-6 box-border md:my-6 md:rounded-3xl md:border md:border-border/40 md:bg-background/40 md:backdrop-blur-sm md:shadow-[0_0_60px_-20px_hsl(var(--primary)/0.25)] md:px-6 md:py-8">
+      <AnimatedContainer className="relative z-10 w-full max-w-lg min-w-0 mx-auto px-3 sm:px-4 py-6 space-y-6 box-border md:my-6 md:rounded-3xl md:border md:border-border/40 md:bg-background/40 md:backdrop-blur-sm md:shadow-[0_0_60px_-20px_hsl(var(--primary)/0.25)] md:px-6 md:py-8 xl:max-w-6xl xl:grid xl:grid-cols-2 xl:gap-x-6 xl:gap-y-6 xl:space-y-0 xl:auto-rows-min xl:items-start">
+        {/* xl:+ bento — hero cards span both columns; tighter cards pair up. Mobile/lg unchanged. */}
         {/* Dashboard Header with Logo - fixed height to prevent layout shifts */}
         {!isFirstRun && (
-          <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center">
+          <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center xl:col-span-2">
              <div className="space-y-1.5">
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">{dashboardTitle}</h1>
               <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-md mx-auto">
@@ -252,7 +253,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         )}
 
         {/* Token Price Card - Prominent at top */}
-        <AnimatedItem>
+        <AnimatedItem className="xl:col-span-2">
           <TokenPriceCard 
             tokensHeld={isNewUserView ? 0 : activityData.lifetimeMinted} 
             defaultPrice={0.10}
@@ -264,7 +265,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         {/* First-run: cinematic 2-step hero (wallet → energy). */}
         {isFirstRun ? (
-          <AnimatedItem>
+          <AnimatedItem className="xl:col-span-2">
             <FirstRunHero
               firstName={firstName}
               hasWallet={hasWalletConnected}
@@ -276,12 +277,12 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         ) : (
           <>
             {showWalletPrompt && (
-              <AnimatedItem>
+              <AnimatedItem className="xl:col-span-2">
                 <CompactWalletPrompt />
               </AnimatedItem>
             )}
             {showEnergyPrompt && (
-              <AnimatedItem>
+              <AnimatedItem className="xl:col-span-2">
                 <CompactSetupPrompt onConnectEnergy={() => window.location.href = '/profile'} />
               </AnimatedItem>
             )}
@@ -290,7 +291,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         
         
         {/* ENERGY COMMAND CENTER - The Hero Section */}
-        <AnimatedItem>
+        <AnimatedItem className="xl:col-span-2">
           <PerfProbe id="ActivityMetrics">
             <ActivityMetrics
               data={activityData}
@@ -313,7 +314,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         </AnimatedItem>
 
         {/* Prominent CO₂ Offset card — matches the new sidebar accent styling */}
-        <AnimatedItem>
+        <AnimatedItem className="xl:col-span-1">
           <CO2OffsetCard
             co2Pounds={isNewUserView ? 0 : activityData.co2OffsetPounds}
             isLoading={dataLoading && !isNewUserView}
@@ -321,28 +322,28 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         </AnimatedItem>
 
         {/* Subscription Status — current tier, 50/50 split, mint cap (mocked v2.1) */}
-        <AnimatedItem>
+        <AnimatedItem className="xl:col-span-1">
           <SubscriptionStatusCard />
         </AnimatedItem>
 
         {/* Subscription-Fee Flywheel — live cumulative LP/Treasury contribution
             from the active mock subscription. Renders nothing if no plan. */}
-        <AnimatedItem>
+        <AnimatedItem className="xl:col-span-1">
           <FlywheelContributionCard />
         </AnimatedItem>
 
         {/* Persistent discoverability hint → Mint History (Proof-of-Mint receipts) */}
-        <AnimatedItem>
+        <AnimatedItem className="xl:col-span-1">
           <MintReceiptsHint />
         </AnimatedItem>
 
         {/* Newbie-friendly tokenomics summary → links to /how-it-works hub */}
-        <AnimatedItem>
+        <AnimatedItem className="xl:col-span-1">
           <Tokenomics101Card />
         </AnimatedItem>
 
         {!isViewer && (
-          <AnimatedItem>
+          <AnimatedItem className="xl:col-span-1">
             <Suspense fallback={<CardSkeleton height="h-48" />}>
               <PerfProbe id="RewardActions">
                 <RewardActions 
@@ -370,12 +371,12 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         )}
 
         {/* Live Energy Flow Diagram */}
-        <AnimatedItem>
+        <AnimatedItem className="xl:col-span-2">
           <EnergyFlowGlowCard />
         </AnimatedItem>
 
         {/* Aesthetic Section Divider */}
-        <AnimatedItem className="py-2">
+        <AnimatedItem className="py-2 xl:col-span-2">
           <div className="relative flex items-center justify-center">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
@@ -389,7 +390,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         </AnimatedItem>
 
         {/* NFT Milestones - Beta */}
-        <AnimatedItem id="reward-progress">
+        <AnimatedItem id="reward-progress" className="xl:col-span-2">
           <Suspense fallback={<CardSkeleton height="h-56" />}>
             <RewardProgress
               tokensEarned={isNewUserView ? 0 : activityData.tokensEarned}
@@ -406,7 +407,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         {/* NFT Mint Button - Below NFT Card with Glow Animation */}
         {!isViewer && (
-          <AnimatedItem className="space-y-3">
+          <AnimatedItem className="space-y-3 xl:col-span-2">
             <Button
               onClick={() => nftQuickMintRef.current?.openDialog()}
               disabled={dataLoading}
@@ -454,7 +455,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         
         {/* Admin-only Baseline Reset Tool - Hidden in New User View */}
         {isAdminView && !isNewUserView && (
-          <AnimatedItem>
+          <AnimatedItem className="xl:col-span-2">
             <Suspense fallback={<CardSkeleton height="h-32" />}>
               <AdminBaselineReset onResetComplete={refreshDashboard} />
             </Suspense>
@@ -463,7 +464,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         {/* Admin-only NFT Reset Tool - Hidden in New User View */}
         {isAdminView && !isNewUserView && (
-          <AnimatedItem>
+          <AnimatedItem className="xl:col-span-2">
             <Suspense fallback={<CardSkeleton height="h-32" />}>
               <NFTResetPanel />
             </Suspense>
