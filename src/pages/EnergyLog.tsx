@@ -3,7 +3,7 @@ import { useEnergyLog } from '@/hooks/useEnergyLog';
 import { useChargingSessions } from '@/hooks/useChargingSessions';
 import { useDeviceLabels, getEnergyLogTitle } from '@/hooks/useDeviceLabels';
 import { format } from 'date-fns';
-import { ChevronLeft, ChevronRight, Sun, Calendar, Loader2, ChevronDown } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sun, Calendar, Loader2, ChevronDown, LayoutGrid, Table as TableIcon } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AnimatedContainer, AnimatedItem } from '@/components/ui/animated-section';
@@ -14,6 +14,7 @@ import { ActivityTabs } from '@/components/energy-log/ActivityTabs';
 import { ComingSoon } from '@/components/energy-log/ComingSoon';
 import { TodayHero } from '@/components/energy-log/TodayHero';
 import { DailyList } from '@/components/energy-log/DailyList';
+import { DailyTable } from '@/components/energy-log/DailyTable';
 import { ChargingSessionList } from '@/components/energy-log/ChargingSessionList';
 import { EnergyLogFallback, type ProviderStatus } from '@/components/energy-log/EnergyLogFallback';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,6 +22,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { PageLoader } from '@/components/ui/empty-state';
+import { ExportCsvButton } from '@/components/ui/export-csv-button';
+import { todayStamp } from '@/lib/csvExport';
 
 export default function EnergyLog() {
   const {
