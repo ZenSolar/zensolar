@@ -377,20 +377,27 @@ export default function ProofOfGenesisReceiptPreview() {
         url="https://beta.zen.solar/proof-of-genesis-receipt-preview"
       />
 
-      <div className="min-h-screen bg-background pb-[calc(3rem+env(safe-area-inset-bottom))]">
-        {/* Preview banner */}
-        <div className="sticky top-0 z-40 border-b border-primary/20 bg-primary/5 backdrop-blur-md">
+      <div className="min-h-[100svh] bg-background pb-[calc(3rem+env(safe-area-inset-bottom))]">
+        {/* Preview banner — respects iOS Dynamic Island via safe-area top inset */}
+        <div
+          className="sticky top-0 z-40 border-b border-primary/20 bg-primary/90 supports-[backdrop-filter]:bg-primary/20 backdrop-blur-md"
+          style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+        >
           <div className="container max-w-4xl mx-auto px-4 py-2 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 min-w-0">
               <Badge variant="outline" className="border-primary/40 text-primary text-[10px] uppercase tracking-wider shrink-0">
                 Preview
               </Badge>
-              <span className="text-xs text-muted-foreground truncate">
+              <span className="text-xs text-muted-foreground truncate hidden sm:inline">
                 Proof-of-Genesis receipt — not linked from nav, mocked data
               </span>
             </div>
-            <Link to="/" className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 shrink-0">
-              <ArrowLeft className="h-3 w-3" /> Exit
+            <Link
+              to="/"
+              aria-label="Close receipt and return to app"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground/90 hover:text-foreground transition-colors px-3 py-1.5 rounded-full border border-border/60 bg-background/60 active:scale-95 shrink-0"
+            >
+              <X className="h-3.5 w-3.5" /> Close
             </Link>
           </div>
         </div>
