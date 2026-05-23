@@ -230,24 +230,26 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
       <PerfProbe id="ZenSolarDashboard">
       <AnimatedContainer className="relative z-10 w-full max-w-lg min-w-0 mx-auto px-3 sm:px-4 py-6 space-y-6 box-border md:my-6 md:rounded-3xl md:border md:border-border/40 md:bg-background/40 md:backdrop-blur-sm md:shadow-[0_0_60px_-20px_hsl(var(--primary)/0.25)] md:px-6 md:py-8">
         {/* Dashboard Header with Logo - fixed height to prevent layout shifts */}
-        <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center">
-           <div className="space-y-1.5">
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">{dashboardTitle}</h1>
-            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-md mx-auto">
-              Real energy. Real Tokens.
-              <br />
-              All on-chain with{' '}
-              <Link 
-                to="/technology" 
-                className="text-primary hover:text-primary/80 font-semibold underline underline-offset-2 transition-all duration-300 hover:drop-shadow-[0_0_8px_hsl(var(--primary)/0.6)]"
-              >
-                Proof-of-Genesis™
-              </Link>
-              .
-            </p>
-          </div>
-          
-        </AnimatedItem>
+        {!isFirstRun && (
+          <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center">
+             <div className="space-y-1.5">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">{dashboardTitle}</h1>
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-md mx-auto">
+                Real energy. Real Tokens.
+                <br />
+                All on-chain with{' '}
+                <Link 
+                  to="/technology" 
+                  className="text-primary hover:text-primary/80 font-semibold underline underline-offset-2 transition-all duration-300 hover:drop-shadow-[0_0_8px_hsl(var(--primary)/0.6)]"
+                >
+                  Proof-of-Genesis™
+                </Link>
+                .
+              </p>
+            </div>
+            
+          </AnimatedItem>
+        )}
 
         {/* Token Price Card - Prominent at top */}
         <AnimatedItem>
@@ -267,7 +269,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
               firstName={firstName}
               hasWallet={hasWalletConnected}
               hasEnergy={hasEnergyConnected}
-              onConnectWallet={() => setShowWalletModal(true)}
+              onConnectWallet={() => { window.location.href = '/onboarding?step=wallet'; }}
               onConnectEnergy={() => { window.location.href = '/profile'; }}
             />
           </AnimatedItem>
