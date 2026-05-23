@@ -11,6 +11,7 @@ import { FeedbackFab } from '@/components/FeedbackFab';
 import { Badge } from '@/components/ui/badge';
 import { ReviewerWelcomeBanner } from '@/components/demo/ReviewerWelcomeBanner';
 import { DashboardShell } from '@/components/web/DashboardShell';
+import { CommandPalette } from '@/components/web/CommandPalette';
 import { resetFirstMintCelebration } from '@/lib/firstMintCelebration';
 import { toast } from 'sonner';
 
