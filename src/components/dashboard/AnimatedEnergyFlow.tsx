@@ -595,7 +595,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
             </div>
           </foreignObject>
           <text x={nodes.solar.x} y={nodes.solar.y - (compact ? 20 : 26)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.5">SOLAR</text>
-          <text x={nodes.solar.x} y={nodes.solar.y - (compact ? 29 : 37)} textAnchor="middle" fill={colors.solar} fontSize={valueFs} fontWeight="800" filter="url(#valueGlow)">
+          <text x={nodes.solar.x} y={nodes.solar.y - (compact ? 29 : 37)} textAnchor="middle" fill={colors.solar} fontSize={valueFs} fontWeight="700">
             {flow.solarPower.toFixed(1)} kW
           </text>
           {/* Manufacturer — quiet monochrome tag */}
@@ -605,7 +605,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
         {/* ── HOME ── centered in house body */}
         <g>
           {/* Compact: house body y=180-253, center~216. Desktop: y=192-295, center~243 */}
-          <text x={nodes.home.x} y={compact ? 220 : 248} textAnchor="middle" fill="white" fontSize={valueFs} fontWeight="800" filter="url(#valueGlow)">
+          <text x={nodes.home.x} y={compact ? 220 : 248} textAnchor="middle" fill="white" fontSize={valueFs} fontWeight="700">
             {flow.homePower.toFixed(1)} kW
           </text>
           <text x={nodes.home.x} y={compact ? 232 : 261} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.5">HOME</text>
@@ -617,7 +617,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           <BatteryIcon percent={flow.batteryPercent} color={colors.battery} cx={nodes.battery.x} cy={nodes.battery.y} />
           <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 22 : 28)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.2">POWERWALL</text>
           <text x={nodes.battery.x} y={nodes.battery.y - (compact ? 18 : 22)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 5.5 : 6.5} fontWeight="500" letterSpacing="0.6">tesla</text>
-          <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 35 : 43)} textAnchor="middle" fill={colors.battery} fontSize={subValueFs} fontWeight="800" filter="url(#valueGlow)">
+          <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 35 : 43)} textAnchor="middle" fill={colors.battery} fontSize={subValueFs} fontWeight="700">
             {Math.abs(flow.batteryPower).toFixed(1)} kW
           </text>
           <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 45 : 55)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 8 : 10}>
@@ -640,7 +640,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
             </div>
           </foreignObject>
           <text x={nodes.grid.x} y={nodes.grid.y + (compact ? 22 : 28)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.2">GRID</text>
-          <text x={nodes.grid.x} y={nodes.grid.y + (compact ? 35 : 43)} textAnchor="middle" fill={colors.grid} fontSize={subValueFs} fontWeight="800" filter="url(#valueGlow)">
+          <text x={nodes.grid.x} y={nodes.grid.y + (compact ? 35 : 43)} textAnchor="middle" fill={colors.grid} fontSize={subValueFs} fontWeight="700">
             {Math.abs(flow.gridPower).toFixed(1)} kW
           </text>
           {flow.gridPower !== 0 && (
@@ -672,7 +672,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           )}
           <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 22 : 28)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.2">EV CHARGER</text>
           <text x={nodes.ev.x} y={nodes.ev.y - (compact ? 18 : 22)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 5.5 : 6.5} fontWeight="500" letterSpacing="0.6">wallbox</text>
-          <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 35 : 43)} textAnchor="middle" fill={colors.ev} fontSize={subValueFs} fontWeight="800" filter="url(#valueGlow)">
+          <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 35 : 43)} textAnchor="middle" fill={colors.ev} fontSize={subValueFs} fontWeight="700">
             {flow.evPower.toFixed(1)} kW
           </text>
           {flow.evPower > 0 && (
