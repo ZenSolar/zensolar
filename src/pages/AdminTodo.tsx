@@ -170,7 +170,7 @@ const initialTodos: TodoItem[] = [
     description: "Deferred. Web-first via PWA is the primary distribution channel. Only revisit if a feature requires native-only APIs (Apple Wallet pass, deep HealthKit, etc.).",
     category: "ux",
     priority: "low",
-    status: "deferred",
+    status: "not-started",
     icon: Smartphone
   },
 
