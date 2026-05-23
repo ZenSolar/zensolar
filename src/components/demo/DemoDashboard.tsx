@@ -217,6 +217,13 @@ export function DemoDashboard() {
           </AnimatedItem>
         )}
 
+        {/* Ready-to-mint celebration: wallet + energy done, but never minted */}
+        {hasWalletConnected && hasEnergyConnected && activityData.lifetimeMinted === 0 && (
+          <AnimatedItem>
+            <ReadyToMintCard onMint={handleMintTokens} firstName={firstName} />
+          </AnimatedItem>
+        )}
+
         {/* ENERGY COMMAND CENTER - matches real dashboard */}
         <AnimatedItem>
           <div className="emerald-glow-card overflow-hidden">
