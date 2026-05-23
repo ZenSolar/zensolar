@@ -26,7 +26,7 @@ interface UserViewSelectorProps {
 interface ProfileRow {
   user_id: string;
   display_name: string | null;
-  email: string | null;
+  email?: string | null;
 }
 
 /**
@@ -67,7 +67,7 @@ export function UserViewSelector({ collapsed = false }: UserViewSelectorProps) {
       setLoading(true);
       const { data, error } = await supabase
         .from("profiles")
-        .select("user_id, display_name, email")
+        .select("user_id, display_name")
         .order("display_name", { ascending: true, nullsFirst: false })
         .limit(500);
       if (!cancelled && !error && data) {
@@ -101,7 +101,7 @@ export function UserViewSelector({ collapsed = false }: UserViewSelectorProps) {
       setNewUserViewMode(false);
       setIsNewUserView(false);
     }
-    startViewingAs(p.user_id, p.display_name, p.email);
+    startViewingAs(p.user_id, p.display_name, p.email ?? null);
     setOpen(false);
   };
 
@@ -217,8 +217,8 @@ export function UserViewSelector({ collapsed = false }: UserViewSelectorProps) {
             <CommandSeparator />
             <CommandGroup heading="View as registered user (read-only)">
               {profiles.map((p) => {
-                const label = p.display_name || p.email || p.user_id.slice(0, 8);
-                const sub = p.display_name && p.email ? p.email : null;
+                const label = p.display_name || p.user_id.slice(0, 8);
+                const sub = p.email ?? null;
                 const isSelected = targetUserId === p.user_id;
                 return (
                   <CommandItem
