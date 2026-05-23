@@ -1004,10 +1004,13 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
     };
   }, [forceRender]);
 
-  // Pre-compute particles — stable across renders, only regenerate on new burst
+  // Pre-compute particles — stable across renders, only regenerate on new burst.
+  // 9 particles (down from 16) — beyond ~8 the eye can't track them individually
+  // and each one costs a full composite layer + shadow paint per frame.
   const particles = React.useMemo(() => {
-    return Array.from({ length: 16 }, (_, i) => {
-      const angle = (i / 16) * 360 + ((i * 7 + 3) % 20 - 10); // deterministic jitter
+    const N = 9;
+    return Array.from({ length: N }, (_, i) => {
+      const angle = (i / N) * 360 + ((i * 7 + 3) % 20 - 10); // deterministic jitter
       const rad = (angle * Math.PI) / 180;
       const dist = 50 + ((i * 13 + 7) % 70);
       return {
@@ -1015,11 +1018,12 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         ty: Math.sin(rad) * (20 + ((i * 11 + 5) % 30)),
         size: 7 + ((i * 9 + 4) % 6),
         rotation: (i * 37 + 11) % 360,
-        delay: i * 30,
+        delay: i * 35,
       };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stateRef.current.burstKey]);
+
 
   // Cleanup all timers
   React.useEffect(() => {
@@ -1236,7 +1240,9 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             : isTappable
               ? `0 0 12px hsl(${styles.rgba} / 0.18), 0 0 5px hsl(${styles.rgba} / 0.12), 0 0 24px hsl(${styles.rgba} / 0.06), inset 0 0 6px hsl(${styles.rgba} / 0.06)`
               : shadowRest,
-        transition: 'box-shadow 0.4s ease-out',
+        // box-shadow transitions are paint-heavy on mobile; snap, don't tween.
+        // The keyframe burst already provides the visual fade through the rings.
+        transition: 'none',
         // Promote each tile to its own GPU compositor layer so bursts, rings,
         // and ripples don't trigger sibling tile repaints. Big win on iOS.
         transform: 'translateZ(0)',
@@ -1297,7 +1303,10 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         </svg>
       )}
 
-      {(isPressing || isBursting) && touchPoint && (
+      {/* Press ripple — only during the press, not during burst.
+          During burst, the radial-release + pressure-wave + ring stack already
+          paint the same region; layering this ripple on top just doubles paint cost. */}
+      {isPressing && !isBursting && touchPoint && (
         <div
           className="absolute pointer-events-none rounded-full"
           style={{
@@ -1306,18 +1315,14 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             width: '200%',
             height: '200%',
             background: `radial-gradient(circle, hsl(${styles.rgba} / 0.35) 0%, transparent 70%)`,
-            animation: isBursting 
-              ? 'zenTouchRipple 900ms ease-out forwards' 
-              : undefined,
-            transform: isPressing && !isBursting 
-              ? 'translate(-50%, -50%) scale(0.3)' 
-              : undefined,
-            opacity: isPressing && !isBursting ? 0.4 : undefined,
-            transition: !isBursting ? 'transform 0.15s ease-out, opacity 0.15s ease-out' : undefined,
+            transform: 'translate(-50%, -50%) scale(0.3)',
+            opacity: 0.4,
+            transition: 'transform 0.15s ease-out, opacity 0.15s ease-out',
             willChange: 'transform, opacity',
           }}
         />
       )}
+
 
       {/* ⚡ Pressure shockwave ring — from touch point on release */}
       {isBursting && touchPoint && (
@@ -1339,7 +1344,8 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
       {isBursting && (
         <>
           {/* Expanding energy rings — 4 staggered waves */}
-          {[0, 1, 2, 3].map(i => (
+          {/* Expanding energy rings — 3 staggered waves (was 4; the 4th overlapped the pressure wave) */}
+          {[0, 1, 2].map(i => (
             <div
               key={`ring-${burstKey}-${i}`}
               className="absolute pointer-events-none"
@@ -1368,7 +1374,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
                 width: p.size,
                 height: p.size,
                 background: `hsl(${styles.rgba} / 1)`,
-                boxShadow: `0 0 16px hsl(${styles.rgba} / 1), 0 0 32px hsl(${styles.rgba} / 0.5)`,
+                boxShadow: `0 0 14px hsl(${styles.rgba} / 0.85)`,
                 clipPath: shape,
                 transform: `rotate(${p.rotation}deg)`,
                 animation: `zenFlareParticle 900ms ${p.delay}ms ease-out forwards`,
@@ -1641,7 +1647,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
                 <span className={cn(
                   "transition-all duration-300",
                   active ? "text-foreground" : "text-muted-foreground"
-                )} style={isBursting ? { textShadow: styles.textGlow, transition: 'text-shadow 200ms ease-out' } : { transition: 'text-shadow 200ms ease-out' }}>
+                )} style={isBursting ? { textShadow: styles.textGlow } : undefined}>
                   {value.toLocaleString()}
                 </span>
                 <span className="text-base font-semibold ml-1 text-muted-foreground">{unit}</span>
