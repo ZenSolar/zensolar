@@ -96,7 +96,7 @@ export function DemoSidebar() {
           </Badge>
         </div>
 
-        <SidebarStatus walletHref="/demo/wallet" />
+        <SidebarStatus />
 
         {/* Main Navigation */}
         <SidebarGroup>

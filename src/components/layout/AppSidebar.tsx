@@ -58,8 +58,7 @@ import { toast } from "sonner";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LiveBetaIndicator } from "./LiveBetaIndicator";
-import { LiveBetaToggle } from "./LiveBetaToggle";
-import { UserViewToggle } from "./UserViewToggle";
+import { UserViewSelector } from "./UserViewSelector";
 import { AppThemeSelector } from "./AppThemeSelector";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { SidebarOnboarding } from "./SidebarOnboarding";
@@ -282,15 +281,14 @@ export function AppSidebar() {
           )}
         </div>
 
-        {/* Live Beta Toggle + User View Toggle - visible to admins only */}
+        {/* Admin-only: switch which user's dashboard you're viewing */}
         {isAdmin && (
-          <div className="px-3 pb-2 space-y-2">
-            <LiveBetaToggle collapsed={collapsed} />
-            <UserViewToggle collapsed={collapsed} />
+          <div className="px-3 pb-2">
+            <UserViewSelector collapsed={collapsed} />
           </div>
         )}
 
-        <SidebarStatus walletHref="/wallet" />
+        <SidebarStatus />
 
         {/* Main Navigation */}
         <SidebarGroup className="px-1">
