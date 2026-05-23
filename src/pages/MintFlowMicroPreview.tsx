@@ -51,12 +51,16 @@ export default function MintFlowMicroPreview() {
   };
 
   return (
-    <div className="min-h-[100svh] bg-background text-foreground pb-24">
+    <div className="min-h-[100svh] bg-background text-foreground pb-[calc(6rem+env(safe-area-inset-bottom))]">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-border/50 bg-background/80 backdrop-blur">
+      <header className="sticky top-0 z-10 border-b border-border/50 bg-background/80 backdrop-blur pt-safe">
         <div className="mx-auto max-w-2xl px-4 py-3 flex items-center gap-3">
-          <Link to="/" className="text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-5 w-5" />
+          <Link
+            to="/"
+            aria-label="Close and return to app"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground/90 hover:text-foreground transition-colors px-3 py-1.5 rounded-full border border-border/60 bg-background/60 active:scale-95 shrink-0"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" /> Close
           </Link>
           <div className="min-w-0">
             <h1 className="text-sm font-semibold truncate">Mint Flow — Default Flow Candidates</h1>
@@ -66,6 +70,7 @@ export default function MintFlowMicroPreview() {
           </div>
         </div>
       </header>
+
 
       <main className="mx-auto max-w-2xl px-4 pt-6 space-y-6">
         {/* Replay rail */}

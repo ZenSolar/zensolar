@@ -258,9 +258,9 @@ const pillars: { title: string; intro: string; items: Capability[] }[] = [
 
 function DeasonV3Content() {
   return (
-    <div className="min-h-[100svh] bg-background">
+    <div className="min-h-[100svh] bg-background pb-safe">
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-border/40 bg-background/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-30 border-b border-border/40 bg-background/80 backdrop-blur-xl pt-safe">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link
             to="/founders"

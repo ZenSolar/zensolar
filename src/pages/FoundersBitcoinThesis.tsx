@@ -277,9 +277,9 @@ const ONBOARDING: OnboardingPhase[] = [
 
 function ThesisContent() {
   return (
-    <div className="min-h-[100svh] bg-background text-foreground">
+    <div className="min-h-[100svh] bg-background text-foreground pb-safe">
       {/* Header */}
-      <div className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+      <div className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 pt-safe">
         <div className="mx-auto max-w-4xl px-4 py-3 flex items-center justify-between gap-3">
           <Link
             to="/founders"
