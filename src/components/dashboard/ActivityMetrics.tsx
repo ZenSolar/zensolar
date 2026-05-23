@@ -336,14 +336,6 @@ export function ActivityMetrics({
             boxShadow: 'inset 0 -1px 8px hsl(142 76% 36% / 0.06), inset 0 1px 8px hsl(142 76% 36% / 0.04)',
           }}
         >
-          {/* Shimmer sweep — vivid electric blue */}
-          <ShimmerOverlay
-            gradient="linear-gradient(90deg, transparent 0%, hsl(210 100% 62% / 0.55) 15%, hsl(200 100% 55% / 0.7) 35%, hsl(215 100% 60% / 0.75) 50%, hsl(200 100% 55% / 0.65) 65%, hsl(210 100% 62% / 0.5) 85%, transparent 100%)"
-            glowColor="hsla(210, 100%, 58%, 0.35)"
-            duration="4s"
-            idleDelay="0.5s"
-          />
-
           <div className="relative space-y-3">
             {/* Centered title row with Tesla wordmark */}
             <div className="flex flex-col items-center text-center">
