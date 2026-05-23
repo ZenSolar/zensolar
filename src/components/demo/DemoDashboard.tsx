@@ -4,6 +4,7 @@ import { useDemoContext } from '@/contexts/DemoContext';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { CompactSetupPrompt } from '@/components/dashboard/CompactSetupPrompt';
 import { CompactWalletPrompt } from '@/components/dashboard/CompactWalletPrompt';
+import { ReadyToMintCard } from '@/components/dashboard/ReadyToMintCard';
 import { ActivityMetrics, MintRequest } from '@/components/dashboard/ActivityMetrics';
 import { RewardActions, RewardActionsRef, MintCategory as RewardMintCategory, DemoMintHandler } from '@/components/dashboard/RewardActions';
 import { RewardProgress } from '@/components/dashboard/RewardProgress';
