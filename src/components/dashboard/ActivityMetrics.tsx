@@ -267,15 +267,15 @@ export function ActivityMetrics({
       ? `${vehicleName} Home Charging`
       : 'Home Charging';
 
-  // Header subtitle — "Your <Vehicle> · ☀️ <Solar> · 🔋 <Battery> · <Vehicle> EV Charging kWh"
-  // Icons disambiguate when the same device name powers both solar and battery (e.g. ZenCasa).
+  // Header device chips — each dot color matches its KPI field color below.
+  // ev_miles=green, solar=gold/amber, battery=teal/emerald, supercharger/charging=cyan
   const evChargingLabel = vehicleName ? `${vehicleName} EV Charging kWh` : 'EV Charging kWh';
-  const headerSubtitleParts: { label: string; icon?: 'sun' | 'battery' }[] = [
-    vehicleName ? { label: `Your ${vehicleName}` } : null,
-    solarName ? { label: solarName, icon: 'sun' as const } : null,
-    batteryName ? { label: batteryName, icon: 'battery' as const } : null,
-    { label: evChargingLabel },
-  ].filter(Boolean) as { label: string; icon?: 'sun' | 'battery' }[];
+  const headerSubtitleParts: { label: string; dotClass: string }[] = [
+    vehicleName ? { label: vehicleName, dotClass: 'bg-green-400' } : null,
+    solarName ? { label: solarName, dotClass: 'bg-amber-400' } : null,
+    batteryName ? { label: batteryName, dotClass: 'bg-emerald-400' } : null,
+    { label: evChargingLabel, dotClass: 'bg-cyan-400' },
+  ].filter(Boolean) as { label: string; dotClass: string }[];
   const headerSubtitle = headerSubtitleParts.length > 1
     ? headerSubtitleParts.map(p => p.label).join(' · ')
     : 'Your Connected Energy';
