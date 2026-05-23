@@ -10,7 +10,19 @@ import { LazyWeb3Provider } from "@/components/providers/LazyWeb3Provider";
 
 // Single shared QueryClient — must wrap everything that may use react-query,
 // including components that render before LazyWeb3Provider mounts wagmi.
-const queryClient = new QueryClient();
+// Pass G · #2 — tuned defaults so cross-page nav (Dashboard ↔ Energy Log ↔
+// Mint History) feels instant. Data stays fresh for 60s, cached for 5min,
+// no refetch on window focus to avoid surprise spinners.
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000,
+      gcTime: 5 * 60_000,
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 import { DemoAccessGate } from "@/components/demo/DemoAccessGate";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { BotProtection } from "@/components/BotProtection";
