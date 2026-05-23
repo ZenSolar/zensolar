@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+  DrawerClose,
+} from '@/components/ui/drawer';
+import { X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Check, Copy, ExternalLink, Hash, Shield, Sparkles, Fingerprint, Anchor, Hand } from 'lucide-react';
@@ -179,29 +181,39 @@ export function VerifyOnChainDrawer({
   const focusedKey: VerifyFocusKey | undefined = focus;
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
+    <Drawer open={open} onOpenChange={setOpen}>
+      <DrawerTrigger asChild>
         {trigger ?? (
           <Button variant="outline" size="sm" className="gap-1.5">
             <Shield className="h-3.5 w-3.5" aria-hidden />
             Verify on-chain
           </Button>
         )}
-      </SheetTrigger>
-      <SheetContent
-        side="bottom"
-        className="h-[88vh] sm:h-[80vh] overflow-y-auto rounded-t-2xl bg-background border-border/60"
+      </DrawerTrigger>
+      <DrawerContent
+        className="max-h-[92dvh] focus:outline-none bg-background border-border/60"
+        style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
         aria-label="Verify mint on-chain"
       >
-        <SheetHeader className="text-left space-y-2 mb-4">
-          <SheetTitle className="text-xl flex items-center gap-2">
-            <Shield className="h-5 w-5 text-primary" aria-hidden />
-            Verify on-chain
-          </SheetTitle>
-          <SheetDescription className="text-sm">
-            Every primitive that produced this mint, exposed for public verification.
-          </SheetDescription>
-        </SheetHeader>
+        <div
+          className="overflow-y-auto overscroll-contain px-6 pb-8 pt-2"
+          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 2rem)' }}
+        >
+          <DrawerClose
+            aria-label="Close"
+            className="absolute right-3 top-3 z-10 rounded-full p-2 bg-background/70 backdrop-blur border border-border/60 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </DrawerClose>
+          <DrawerHeader className="text-left space-y-2 mb-4 p-0 pr-10">
+            <DrawerTitle className="text-xl flex items-center gap-2">
+              <Shield className="h-5 w-5 text-primary" aria-hidden />
+              Verify on-chain
+            </DrawerTitle>
+            <DrawerDescription className="text-sm">
+              Every primitive that produced this mint, exposed for public verification.
+            </DrawerDescription>
+          </DrawerHeader>
 
         {/* PoA face hash */}
         <div
@@ -311,10 +323,11 @@ export function VerifyOnChainDrawer({
           )}
         </div>
 
-        <p className="text-[10px] text-muted-foreground italic text-center mt-6">
-          Patent-pending. App. 19/634,402. All marks are trademarks of ZenCorp Inc.
-        </p>
-      </SheetContent>
-    </Sheet>
+          <p className="text-[10px] text-muted-foreground italic text-center mt-6">
+            Patent-pending. App. 19/634,402. All marks are trademarks of ZenCorp Inc.
+          </p>
+        </div>
+      </DrawerContent>
+    </Drawer>
   );
 }
