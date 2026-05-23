@@ -800,20 +800,23 @@
 
 }
 
-/* Shimmer sweep with afterglow trail — quick sweep, long idle */
+/* Shimmer sweep with afterglow trail — graceful, unhurried sweep with long idle */
 @keyframes zenHeaderShimmer {
-  0%, 1% { transform: translateX(-100%) skewX(-2deg); filter: brightness(1); }
-  4% { filter: brightness(1.15); }
-  8% { transform: translateX(200%) skewX(-2deg); filter: brightness(1); }
+  0%, 2% { transform: translateX(-100%) skewX(-2deg); filter: brightness(1); }
+  10% { filter: brightness(1.1); }
+  18% { filter: brightness(1.15); }
+  26% { filter: brightness(1.08); }
+  34% { transform: translateX(200%) skewX(-2deg); filter: brightness(1); }
   100% { transform: translateX(200%) skewX(-2deg); filter: brightness(1); }
 }
 
-/* Synchronized card glow — quick pulse during the brief sweep pass */
+/* Synchronized card glow — gentle pulse that rises and fades with the sweep */
 @keyframes zenCardGlow {
-  1%, 8%, 100% { box-shadow: inset 0 0 0 0 transparent; }
-  4% { box-shadow: inset 0 0 40px 4px var(--shimmer-glow, hsla(142, 76%, 36%, 0.12)); }
-  5% { box-shadow: inset 0 0 25px 2px var(--shimmer-glow, hsla(142, 76%, 36%, 0.08)); }
-  6% { box-shadow: inset 0 0 10px 0 var(--shimmer-glow, hsla(142, 76%, 36%, 0.04)); }
+  0%, 2%, 34%, 100% { box-shadow: inset 0 0 0 0 transparent; }
+  12% { box-shadow: inset 0 0 30px 3px var(--shimmer-glow, hsla(142, 76%, 36%, 0.08)); }
+  18% { box-shadow: inset 0 0 45px 5px var(--shimmer-glow, hsla(142, 76%, 36%, 0.14)); }
+  24% { box-shadow: inset 0 0 30px 3px var(--shimmer-glow, hsla(142, 76%, 36%, 0.08)); }
+  30% { box-shadow: inset 0 0 15px 1px var(--shimmer-glow, hsla(142, 76%, 36%, 0.04)); }
 }
 
 /* Static dark glow border for dashboard cards — bold & vivid */
