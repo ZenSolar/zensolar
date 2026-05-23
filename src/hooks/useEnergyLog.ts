@@ -9,6 +9,8 @@ export type ActivityType = 'solar' | 'battery' | 'ev-charging' | 'ev-miles';
 export interface DailyProduction {
   date: Date;
   kWh: number;
+  /** Pass E · #3 — verified data providers that contributed on this day */
+  providers: string[];
 }
 
 export interface MonthData {
