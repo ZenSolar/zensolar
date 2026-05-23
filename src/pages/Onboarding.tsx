@@ -544,7 +544,8 @@ export default function Onboarding() {
 
   const handleEnergySkip = () => {
     trackEvent('onboarding_energy_skipped', { connectedProviders });
-    navigate('/');
+    const returnTo = searchParams.get('returnTo') || '/';
+    navigate(returnTo);
   };
 
   const handleEnergyBack = () => {
@@ -598,7 +599,8 @@ export default function Onboarding() {
     }
     
     // Navigate immediately (sync runs in background)
-    navigate('/');
+    const returnTo = searchParams.get('returnTo') || '/';
+    navigate(returnTo);
   };
 
   const handleBack = () => {

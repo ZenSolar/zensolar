@@ -353,7 +353,7 @@ const App = () => {
                         investors who already have the old link. Will be merged back
                         into /demo once we're happy. */}
                     <Route path="/v2" element={<DemoLayout />}>
-                      <Route index element={<ZenSolarDashboard isDemo />} />
+                      <Route index element={<V2Dashboard />} />
                       <Route path="energy-log" element={<DemoEnergyLog />} />
                       <Route path="nft-collection" element={<DemoNftCollection />} />
                       <Route path="mint-history" element={<MintHistory />} />
