@@ -271,6 +271,14 @@ export default function EnergyLog() {
               getRows={exportCurrentMonth}
               label="Export"
             />
+            <SavedViewsMenu<EnergyLogFilters>
+              viewKey="energy-log"
+              currentFilters={{ tab: activeTab, month: format(startOfMonth(currentMonth), 'yyyy-MM'), viewMode }}
+              onApply={(f) => {
+                if (f.tab) setActiveTab(f.tab);
+                if (f.viewMode) setViewModeAndPersist(f.viewMode);
+              }}
+            />
           </div>
         </div>
       </AnimatedItem>
