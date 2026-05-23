@@ -13,6 +13,8 @@ import { ActivityMetrics, MintCategory, MintRequest } from './dashboard/Activity
 import type { RewardActionsRef, MintCategory as RewardMintCategory } from './dashboard/RewardActions';
 import { CompactSetupPrompt } from './dashboard/CompactSetupPrompt';
 import { CompactWalletPrompt } from './dashboard/CompactWalletPrompt';
+import { FirstRunHero } from './dashboard/FirstRunHero';
+import { DashboardSkeleton } from './dashboard/DashboardSkeleton';
 import { TokenPriceCard } from './dashboard/TokenPriceCard';
 import { CO2OffsetCard } from './dashboard/CO2OffsetCard';
 import { SubscriptionStatusCard } from './dashboard/SubscriptionStatusCard';
@@ -51,7 +53,7 @@ import { AnimatedContainer, AnimatedItem } from './ui/animated-section';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Loader2, Images, RefreshCw } from 'lucide-react';
-import { BrandedSpinner } from '@/components/ui/BrandedSpinner';
+
 import {
   SOLAR_MILESTONES,
   EV_MILES_MILESTONES,
@@ -200,12 +202,13 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   };
 
   if (profileLoading) {
-    return (
-      <div className="min-h-[50vh] flex items-center justify-center">
-        <BrandedSpinner size="lg" />
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
+
+  // First-run state: brand-new beta user with neither wallet nor energy.
+  // Show the cinematic FirstRunHero in place of the two stacked Compact prompts.
+  const isFirstRun =
+    !isViewer && !isNewUserView && !hasWalletConnected && !hasEnergyConnected;
 
   return (
     <PageTransition>
@@ -257,18 +260,32 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           />
         </AnimatedItem>
 
-        {/* Onboarding Cards - Show until both wallet AND energy are connected (or in New User View mode) */}
-        {showWalletPrompt && (
+        {/* First-run: cinematic 2-step hero (wallet → energy). */}
+        {isFirstRun ? (
           <AnimatedItem>
-            <CompactWalletPrompt />
+            <FirstRunHero
+              firstName={firstName}
+              hasWallet={hasWalletConnected}
+              hasEnergy={hasEnergyConnected}
+              onConnectWallet={() => setShowWalletModal(true)}
+              onConnectEnergy={() => { window.location.href = '/profile'; }}
+            />
           </AnimatedItem>
+        ) : (
+          <>
+            {showWalletPrompt && (
+              <AnimatedItem>
+                <CompactWalletPrompt />
+              </AnimatedItem>
+            )}
+            {showEnergyPrompt && (
+              <AnimatedItem>
+                <CompactSetupPrompt onConnectEnergy={() => window.location.href = '/profile'} />
+              </AnimatedItem>
+            )}
+          </>
         )}
         
-        {showEnergyPrompt && (
-          <AnimatedItem>
-            <CompactSetupPrompt onConnectEnergy={() => window.location.href = '/profile'} />
-          </AnimatedItem>
-        )}
         
         {/* ENERGY COMMAND CENTER - The Hero Section */}
         <AnimatedItem>
