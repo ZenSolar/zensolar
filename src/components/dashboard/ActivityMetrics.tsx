@@ -336,14 +336,6 @@ export function ActivityMetrics({
             boxShadow: 'inset 0 -1px 8px hsl(142 76% 36% / 0.06), inset 0 1px 8px hsl(142 76% 36% / 0.04)',
           }}
         >
-          {/* Shimmer sweep — vivid electric blue */}
-          <ShimmerOverlay
-            gradient="linear-gradient(90deg, transparent 0%, hsl(210 100% 62% / 0.55) 15%, hsl(200 100% 55% / 0.7) 35%, hsl(215 100% 60% / 0.75) 50%, hsl(200 100% 55% / 0.65) 65%, hsl(210 100% 62% / 0.5) 85%, transparent 100%)"
-            glowColor="hsla(210, 100%, 58%, 0.35)"
-            duration="4s"
-            idleDelay="0.5s"
-          />
-
           <div className="relative space-y-3">
             {/* Centered title row with Tesla wordmark */}
             <div className="flex flex-col items-center text-center">
@@ -375,10 +367,10 @@ export function ActivityMetrics({
             {/* Proof badges — 2x2 grid */}
             <div className="grid grid-cols-2 justify-center gap-x-0 gap-y-0 mx-auto w-fit">
               {[
-                { label: 'Tap-to-Mint™', color: 'hsl(var(--primary))', glow: 'hsl(var(--primary) / 0.5)', glowFar: 'hsl(var(--primary) / 0.25)', useClass: true },
-                { label: 'Proof-of-Mint™', color: 'hsl(142 76% 50% / 0.85)', glow: 'hsl(142 76% 45% / 0.6)', glowFar: 'hsl(142 76% 45% / 0.3)' },
-                { label: 'Proof-of-Origin™', color: 'hsl(25 95% 60% / 0.85)', glow: 'hsl(25 95% 55% / 0.6)', glowFar: 'hsl(25 95% 55% / 0.3)' },
-                { label: 'Proof-of-Delta™', color: 'hsl(270 80% 68% / 0.85)', glow: 'hsl(270 80% 60% / 0.6)', glowFar: 'hsl(270 80% 60% / 0.3)' },
+                { label: 'Tap-to-Mint™', color: 'hsl(var(--primary))', useClass: true },
+                { label: 'Proof-of-Mint™', color: 'hsl(142 76% 50% / 0.85)' },
+                { label: 'Proof-of-Origin™', color: 'hsl(25 95% 60% / 0.85)' },
+                { label: 'Proof-of-Delta™', color: 'hsl(270 80% 68% / 0.85)' },
               ].map((badge, i) => (
                 <motion.span
                   key={badge.label}
@@ -391,19 +383,11 @@ export function ActivityMetrics({
                   )}
                   style={{
                     ...(badge.useClass ? {} : { color: badge.color }),
-                    textShadow: `0 0 10px ${badge.glow}, 0 0 20px ${badge.glowFar}`,
-                    animation: `badge-pulse-${i} 3s ease-in-out ${0.3 + i * 0.12 + 0.4}s infinite`,
                   }}
                 >
                   {badge.label}
                 </motion.span>
               ))}
-              <style>{`
-                @keyframes badge-pulse-0 { 0%, 100% { text-shadow: 0 0 10px hsl(var(--primary) / 0.5), 0 0 20px hsl(var(--primary) / 0.25); } 50% { text-shadow: 0 0 14px hsl(var(--primary) / 0.7), 0 0 28px hsl(var(--primary) / 0.4); } }
-                @keyframes badge-pulse-1 { 0%, 100% { text-shadow: 0 0 10px hsl(142 76% 45% / 0.6), 0 0 20px hsl(142 76% 45% / 0.3); } 50% { text-shadow: 0 0 14px hsl(142 76% 45% / 0.8), 0 0 28px hsl(142 76% 45% / 0.5); } }
-                @keyframes badge-pulse-2 { 0%, 100% { text-shadow: 0 0 10px hsl(25 95% 55% / 0.6), 0 0 20px hsl(25 95% 55% / 0.3); } 50% { text-shadow: 0 0 14px hsl(25 95% 55% / 0.8), 0 0 28px hsl(25 95% 55% / 0.5); } }
-                @keyframes badge-pulse-3 { 0%, 100% { text-shadow: 0 0 10px hsl(270 80% 60% / 0.6), 0 0 20px hsl(270 80% 60% / 0.3); } 50% { text-shadow: 0 0 14px hsl(270 80% 60% / 0.8), 0 0 28px hsl(270 80% 60% / 0.3); } }
-              `}</style>
             </div>
 
             {/* Connected providers — centered below */}
@@ -414,7 +398,6 @@ export function ActivityMetrics({
                     className="text-[10px] uppercase tracking-wider font-medium"
                     style={{ 
                       color: 'hsl(var(--primary) / 0.8)',
-                      textShadow: '0 0 8px hsl(var(--primary) / 0.5), 0 0 16px hsl(var(--primary) / 0.2)',
                     }}
                   >Connected</span>
                   <div className="flex items-center gap-1.5">
@@ -424,7 +407,6 @@ export function ActivityMetrics({
                           key={provider}
                           className="h-6 rounded-md flex items-center justify-center border border-primary/30 bg-primary/5 px-1.5"
                           title="Tesla"
-                          style={{ boxShadow: '0 0 8px hsl(var(--primary) / 0.2)' }}
                         >
                           <img 
                             src={teslaWordmark} 
@@ -438,7 +420,6 @@ export function ActivityMetrics({
                           key={provider}
                           className="h-6 w-6 rounded-md flex items-center justify-center border border-primary/30 bg-primary/5"
                           title={provider.charAt(0).toUpperCase() + provider.slice(1)}
-                          style={{ boxShadow: '0 0 8px hsl(var(--primary) / 0.2)' }}
                         >
                           <img 
                             src={providerLogos[provider]} 
@@ -453,8 +434,7 @@ export function ActivityMetrics({
                 <span 
                   className="text-[9px] font-medium tracking-wide inline-flex flex-wrap justify-center items-baseline gap-x-1 gap-y-0.5 px-1 leading-snug"
                   style={{ 
-                    color: 'hsl(38 92% 65% / 0.9)',
-                    textShadow: '0 0 8px hsl(38 92% 55% / 0.4)',
+                    color: 'hsl(38 92% 65% / 1.0)',
                   }}
                 >
                   {headerSubtitleParts.length > 1 ? (
