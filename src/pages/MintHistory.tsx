@@ -359,6 +359,16 @@ export default function MintHistory() {
                                 {tx.tokens_minted > 0 && <p className="font-semibold text-xs sm:text-sm tabular-nums">{tx.tokens_minted.toLocaleString()}<span className="text-muted-foreground font-normal ml-1">$ZSOLAR</span></p>}
                                 {tx.nft_names?.length > 0 && <p className="text-[11px] sm:text-xs text-muted-foreground">{tx.nft_names.length} NFT{tx.nft_names.length > 1 ? 's' : ''}</p>}
                               </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 px-2 text-[11px] text-muted-foreground hover:text-primary"
+                                onClick={(e) => { e.stopPropagation(); e.preventDefault(); setReceiptTx(tx); }}
+                                aria-label="Open mint receipt"
+                              >
+                                <Receipt className="h-3.5 w-3.5 sm:mr-1" />
+                                <span className="hidden sm:inline">Receipt</span>
+                              </Button>
                               {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />}
                             </div>
                           </div>
