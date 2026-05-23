@@ -14,6 +14,7 @@ import type { RewardActionsRef, MintCategory as RewardMintCategory } from './das
 import { CompactSetupPrompt } from './dashboard/CompactSetupPrompt';
 import { CompactWalletPrompt } from './dashboard/CompactWalletPrompt';
 import { FirstRunHero } from './dashboard/FirstRunHero';
+import { ReadyToMintCard } from './dashboard/ReadyToMintCard';
 import { DashboardSkeleton } from './dashboard/DashboardSkeleton';
 import { TokenPriceCard } from './dashboard/TokenPriceCard';
 import { CO2OffsetCard } from './dashboard/CO2OffsetCard';
