@@ -330,28 +330,49 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     const params = new URLSearchParams(window.location.search);
     const vipSlug = (params.get('vip') || '').toLowerCase().trim();
     if (!vipSlug) return;
-    const VIP_SLUG_MAP: Record<string, { code: string; reviewerEmail?: string }> = {
+    const VIP_SLUG_MAP: Record<string, { code: string; reviewerEmail?: string; requiresNda?: boolean }> = {
       lyndon: { code: 'LOBV-2026' },
       todd: { code: 'TODD-2026' },
-      greg: { code: 'LOBV-2026', reviewerEmail: 'greg@mzgroup.us' },
+      greg: { code: 'LOBV-2026', reviewerEmail: 'greg@mzgroup.us', requiresNda: true },
       jo: { code: 'JO-2026' },
       taytay: { code: 'FUCKYEAH-TAYTAY-2026' },
       mtn: { code: 'MTNYOTAS-4L' },
     };
     const mapped = VIP_SLUG_MAP[vipSlug];
     if (!mapped) return;
-    activateVipCode(mapped.code);
-    writeStoredValue(LS_KEY, JSON.stringify({ ts: Date.now(), ndaSigned: true }), TTL_MS);
-    if (mapped.reviewerEmail) {
-      // Unlocks REVIEWER_PAGES (pitch + companion deck) via isAuthorizedReviewer()
-      saveNdaEmail(mapped.reviewerEmail);
-    }
-    setGranted(true);
-    // Clean the URL so refresh stays clean
-    const cleaned = new URL(window.location.href);
-    cleaned.searchParams.delete('vip');
-    window.history.replaceState({}, '', cleaned.pathname + (cleaned.search ? cleaned.search : '') + cleaned.hash);
+    let cancelled = false;
+    (async () => {
+      activateVipCode(mapped.code);
+      // Clean the URL so refresh stays clean
+      const cleaned = new URL(window.location.href);
+      cleaned.searchParams.delete('vip');
+      window.history.replaceState({}, '', cleaned.pathname + (cleaned.search ? cleaned.search : '') + cleaned.hash);
+
+      // Greg's link: enforce NDA. If signed → full access; if not → show NDA modal.
+      if (mapped.requiresNda && mapped.reviewerEmail) {
+        saveNdaEmail(mapped.reviewerEmail);
+        const alreadySigned = await checkExistingNda(mapped.reviewerEmail);
+        if (cancelled) return;
+        if (alreadySigned) {
+          const name = await fetchNdaName(mapped.reviewerEmail);
+          if (!cancelled && name) saveNdaName(name);
+          writeStoredValue(LS_KEY, JSON.stringify({ ts: Date.now(), ndaSigned: true }), TTL_MS);
+          setGranted(true);
+        } else {
+          // Trigger the NDA modal — it will grantAccess() on completion.
+          setVerifiedCode(mapped.code);
+          setShowNda(true);
+        }
+        return;
+      }
+
+      // Non-Greg VIPs: original zero-friction bypass (no NDA required).
+      writeStoredValue(LS_KEY, JSON.stringify({ ts: Date.now(), ndaSigned: true }), TTL_MS);
+      setGranted(true);
+    })();
+    return () => { cancelled = true; };
   }, [granted]);
+
 
   // Zero-friction deep link: ?email=<addr> on /demo. If that email already has
   // a signed NDA in the database (e.g. pre-authorized strategic partner),
