@@ -321,7 +321,10 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
           </section>
 
           {/* Bread & butter: Proof-of-Genesis bridge */}
-          <ProofOfGenesisTile variant="compact" />
+          <ProofOfGenesisTile
+            variant="compact"
+            verified={typeof tx.tx_hash === 'string' && tx.tx_hash.startsWith('0x') && tx.tx_hash.length >= 10}
+          />
 
           {/* Actions */}
           <div className="flex flex-col gap-2 pt-2">
