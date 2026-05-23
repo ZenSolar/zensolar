@@ -223,14 +223,13 @@
   }
 
   /* ----- Mobile bottom nav geometry (single source of truth) ----- */
-  /* Visible nav row height. Icons sit flush to the bottom of the screen — we
-     do NOT reserve iOS home-indicator safe-area below the bar (per design
-     decision: there is no bottom island to clear on this device family, and
-     reserving it creates a visible empty slab under the icons). */
+  /* Visible nav row + iOS bottom inset. The inset is painted as part of the
+     tab bar surface so the installed PWA reaches the physical bottom edge
+     instead of showing a dead slab under Home/Mint/Wallet. */
   :root {
     --bottom-nav-height: 56px;
-    --bottom-nav-safe: 0px;
-    --bottom-nav-total-h: var(--bottom-nav-height);
+    --bottom-nav-safe: env(safe-area-inset-bottom, 0px);
+    --bottom-nav-total-h: calc(var(--bottom-nav-height) + var(--bottom-nav-safe));
     /* Standard FAB clearance above the nav */
     --fab-gap: 12px;
     --fab-bottom: calc(var(--bottom-nav-total-h) + var(--fab-gap));

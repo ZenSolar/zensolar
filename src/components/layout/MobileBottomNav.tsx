@@ -112,9 +112,8 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
       data-fixed-bottom="true"
       className={cn(
         "md:hidden fixed inset-x-0 z-40",
-        // Card surface on the whole nav (including the iOS home-indicator
-        // safe-area band) so the bottom of the screen reads as one solid
-        // tab bar instead of a black slab under the icons.
+        // Paint the entire bottom area as one tab bar surface, including the
+        // iOS home-indicator inset, so there is no separate dark dead slab.
         "bg-card border-t border-border",
         className,
       )}
@@ -124,8 +123,7 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
         paddingBottom: "var(--bottom-nav-safe)",
       }}
     >
-      {/* Icon row sits on top; the safe-area band below inherits the nav's
-          bg-card so the home-indicator zone visually belongs to the tab bar. */}
+      {/* Icon row sits above the inset; the inset below shares the same surface. */}
       <ul className="grid grid-cols-5 h-[var(--bottom-nav-height)]">
         {tabs.map((item) => {
           const active = isActive(item);
