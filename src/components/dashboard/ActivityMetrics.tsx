@@ -1374,7 +1374,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
                 width: p.size,
                 height: p.size,
                 background: `hsl(${styles.rgba} / 1)`,
-                boxShadow: `0 0 16px hsl(${styles.rgba} / 1), 0 0 32px hsl(${styles.rgba} / 0.5)`,
+                boxShadow: `0 0 14px hsl(${styles.rgba} / 0.85)`,
                 clipPath: shape,
                 transform: `rotate(${p.rotation}deg)`,
                 animation: `zenFlareParticle 900ms ${p.delay}ms ease-out forwards`,
