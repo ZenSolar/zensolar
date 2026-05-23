@@ -128,6 +128,51 @@ export default function Settings() {
         </Card>
       </motion.div>
 
+      {/* Density (desktop-only effect; setting is still saved on mobile) */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.075 }}
+      >
+        <Card className="overflow-hidden border-border/50">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-muted/50">
+                  <Rows3 className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Density</p>
+                  <p className="text-xs text-muted-foreground">Desktop spacing &amp; card padding</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-0.5">
+                <Button
+                  variant={density === 'comfortable' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setDensity('comfortable')}
+                  className="h-8 px-3 gap-1.5 text-xs"
+                >
+                  <Rows3 className="h-3.5 w-3.5" />
+                  Comfortable
+                </Button>
+                <Button
+                  variant={density === 'compact' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setDensity('compact')}
+                  className="h-8 px-3 gap-1.5 text-xs"
+                >
+                  <Rows4 className="h-3.5 w-3.5" />
+                  Compact
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+
+
       {/* Notifications */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
