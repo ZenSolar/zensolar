@@ -262,7 +262,27 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
               </DrawerClose>
             </div>
           </div>
+          {rows.length > 0 && (() => {
+            const provider = rows[0]?.provider || '';
+            const isTesla = provider.startsWith('tesla');
+            return (
+              <div className="pt-1">
+                <Badge
+                  variant="outline"
+                  className={
+                    isTesla
+                      ? "text-[10px] uppercase tracking-wider border-[hsl(0_85%_55%/0.5)] text-[hsl(0_85%_65%)] bg-[hsl(0_85%_45%/0.08)]"
+                      : "text-[10px] uppercase tracking-wider border-success/30 text-success bg-success/5"
+                  }
+                >
+                  <ShieldCheck className="h-3 w-3 mr-1" />
+                  Verified by {apiProviderLabel(provider)}
+                </Badge>
+              </div>
+            );
+          })()}
         </DrawerHeader>
+
 
 
         {/* Body — scrollable activity log */}
