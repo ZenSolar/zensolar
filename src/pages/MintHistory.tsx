@@ -21,6 +21,9 @@ import { JargonTip } from '@/components/ui/jargon-tip';
 import { Tokenomics101Card } from '@/components/tokenomics/Tokenomics101Card';
 import { ExportCsvButton } from '@/components/ui/export-csv-button';
 import { todayStamp } from '@/lib/csvExport';
+import { ReceiptDrawer } from '@/components/mint-history/ReceiptDrawer';
+import { Button } from '@/components/ui/button';
+import { Receipt } from 'lucide-react';
 
 interface MintTransaction {
   id: string;
