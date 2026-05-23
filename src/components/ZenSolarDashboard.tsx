@@ -14,6 +14,7 @@ import type { RewardActionsRef, MintCategory as RewardMintCategory } from './das
 import { CompactSetupPrompt } from './dashboard/CompactSetupPrompt';
 import { CompactWalletPrompt } from './dashboard/CompactWalletPrompt';
 import { FirstRunHero } from './dashboard/FirstRunHero';
+import { ReadyToMintCard } from './dashboard/ReadyToMintCard';
 import { DashboardSkeleton } from './dashboard/DashboardSkeleton';
 import { TokenPriceCard } from './dashboard/TokenPriceCard';
 import { CO2OffsetCard } from './dashboard/CO2OffsetCard';
@@ -288,8 +289,14 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             )}
           </>
         )}
-        
-        
+
+        {/* Ready-to-mint celebration: wallet + energy done, but never minted */}
+        {!isViewer && !isNewUserView && hasWalletConnected && hasEnergyConnected && activityData.lifetimeMinted === 0 && (
+          <AnimatedItem className="xl:col-span-2">
+            <ReadyToMintCard onMint={handleMintTokens} firstName={firstName} />
+          </AnimatedItem>
+        )}
+
         {/* ENERGY COMMAND CENTER - The Hero Section */}
         <AnimatedItem className="xl:col-span-2">
           <PerfProbe id="ActivityMetrics">

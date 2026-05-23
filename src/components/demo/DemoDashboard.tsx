@@ -4,6 +4,7 @@ import { useDemoContext } from '@/contexts/DemoContext';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { CompactSetupPrompt } from '@/components/dashboard/CompactSetupPrompt';
 import { CompactWalletPrompt } from '@/components/dashboard/CompactWalletPrompt';
+import { ReadyToMintCard } from '@/components/dashboard/ReadyToMintCard';
 import { ActivityMetrics, MintRequest } from '@/components/dashboard/ActivityMetrics';
 import { RewardActions, RewardActionsRef, MintCategory as RewardMintCategory, DemoMintHandler } from '@/components/dashboard/RewardActions';
 import { RewardProgress } from '@/components/dashboard/RewardProgress';
@@ -86,6 +87,10 @@ export function DemoDashboard() {
       deviceId: request.deviceId,
       deviceName: request.deviceName 
     });
+  };
+
+  const handleMintTokens = () => {
+    rewardActionsRef.current?.openTokenMintDialog();
   };
 
   const demoMintHandler: DemoMintHandler = useMemo(() => ({
@@ -209,6 +214,13 @@ export function DemoDashboard() {
             <CompactSetupPrompt onConnectEnergy={() => {
               toast.info('Demo Mode: Navigate to Profile to connect energy accounts');
             }} />
+          </AnimatedItem>
+        )}
+
+        {/* Ready-to-mint celebration: wallet + energy done, but never minted */}
+        {hasWalletConnected && hasEnergyConnected && activityData.lifetimeMinted === 0 && (
+          <AnimatedItem>
+            <ReadyToMintCard onMint={handleMintTokens} firstName={firstName} />
           </AnimatedItem>
         )}
 
