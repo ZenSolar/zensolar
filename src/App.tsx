@@ -42,6 +42,7 @@ const Demo = lazy(() => import("./pages/Demo"));
 const DwightPreview = lazy(() => import("./pages/DwightPreview"));
 const TaylorPreview = lazy(() => import("./pages/TaylorPreview"));
 const DemoLayout = lazy(() => import("./components/demo/DemoLayout").then(m => ({ default: m.DemoLayout })));
+const ZenSolarDashboard = lazy(() => import("./components/ZenSolarDashboard").then(m => ({ default: m.ZenSolarDashboard })));
 const DemoDashboard = lazy(() => import("./components/demo/DemoDashboardSwitcher").then(m => ({ default: m.DemoDashboardSwitcher })));
 const DemoNftCollection = lazy(() => import("./components/demo/DemoNftCollection").then(m => ({ default: m.DemoNftCollection })));
 const DemoEnergyLog = lazy(() => import("./components/demo/DemoEnergyLog").then(m => ({ default: m.DemoEnergyLog })));
@@ -344,6 +345,44 @@ const App = () => {
                       <Route path="blog" element={<Blog />} />
                       <Route path="reviewer" element={<DemoReviewerHub />} />
                     </Route>
+
+                    {/* /v2 — sandbox for the redesigned beta app experience.
+                        Mirrors /demo-leonardo's sub-pages but the index renders the
+                        NEW ZenSolarDashboard (first-run hero, skeleton, polished
+                        empty-state). Keeps /demo frozen for Lyndon/Greg & existing
+                        investors who already have the old link. Will be merged back
+                        into /demo once we're happy. */}
+                    <Route path="/v2" element={<DemoLayout />}>
+                      <Route index element={<ZenSolarDashboard isDemo />} />
+                      <Route path="energy-log" element={<DemoEnergyLog />} />
+                      <Route path="nft-collection" element={<DemoNftCollection />} />
+                      <Route path="mint-history" element={<MintHistory />} />
+                      <Route path="learn" element={<Learn />} />
+                      <Route path="learn/tour" element={<LearnTour />} />
+                      <Route path="learn/glossary" element={<LearnGlossary />} />
+                      <Route path="learn/how-it-works" element={<LearnHowItWorks />} />
+                      <Route path="learn/tokenomics" element={<LearnTokenomics />} />
+                      <Route path="learn/proof-of-genesis" element={<LearnProofOfGenesis />} />
+                      <Route path="learn/patent-tech" element={<LearnPatentTech />} />
+                      <Route path="proof-of-genesis" element={<ProofOfGenesis />} />
+                      <Route path="white-paper" element={<WhitePaper />} />
+                      <Route path="engineering" element={<Engineering />} />
+                      <Route path="technology" element={<Technology />} />
+                      <Route path="store" element={<Store />} />
+                      <Route path="referrals" element={<Referrals />} />
+                      <Route path="notifications" element={<Notifications />} />
+                      <Route path="profile" element={<Profile />} />
+                      <Route path="wallet" element={<DemoWallet />} />
+                      <Route path="settings" element={<Settings />} />
+                      <Route path="help-center" element={<HelpCenter />} />
+                      <Route path="how-it-works" element={<HowItWorks />} />
+                      <Route path="tokenomics" element={<Tokenomics />} />
+                      <Route path="terms" element={<Terms />} />
+                      <Route path="privacy" element={<Privacy />} />
+                      <Route path="blog" element={<Blog />} />
+                      <Route path="reviewer" element={<DemoReviewerHub />} />
+                    </Route>
+
                     <Route path="/home" element={<Home />} />
                     {/* Subscribe wrapped in AppLayout so it inherits the
                         global top nav (back button + safe-area-top) and bottom nav. */}
