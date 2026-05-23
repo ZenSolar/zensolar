@@ -371,6 +371,61 @@ export default function ProofOfGenesisReceiptPreview() {
     return () => clearTimeout(t);
   }, [isReceiptSuccess]);
 
+  // ===== Share + Save-as-image =====
+  const captureRef = useRef<HTMLDivElement>(null);
+
+  const handleShareLink = async () => {
+    const url = typeof window !== 'undefined' ? window.location.href : '';
+    const title = 'Proof-of-Genesis Receipt';
+    const text = `${formatKwh(receipt.tokens_minted)} $ZSOLAR minted from ${formatKwh(receipt.total_kwh)} kWh of verified clean energy.`;
+    try {
+      if (typeof navigator !== 'undefined' && (navigator as any).share) {
+        await (navigator as any).share({ title, text, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      toast.success('Link copied', { description: 'Proof-of-Genesis receipt link is on your clipboard.' });
+    } catch (err: any) {
+      if (err?.name === 'AbortError') return;
+      toast.error('Could not share', { description: 'Try copying the URL manually.' });
+    }
+  };
+
+  const handleSaveImage = async () => {
+    if (!captureRef.current) return;
+    const t = toast.loading('Rendering image…');
+    try {
+      const canvas = await html2canvas(captureRef.current, {
+        backgroundColor: getComputedStyle(document.body).backgroundColor || '#000',
+        scale: Math.min(2, window.devicePixelRatio || 1.5),
+        useCORS: true,
+        logging: false,
+      });
+      const blob: Blob | null = await new Promise((res) => canvas.toBlob(res, 'image/png'));
+      if (!blob) throw new Error('toBlob failed');
+
+      const file = new File([blob], `proof-of-genesis-${receipt.mint_id}.png`, { type: 'image/png' });
+      const navAny = navigator as any;
+      if (navAny.canShare && navAny.canShare({ files: [file] })) {
+        await navAny.share({ files: [file], title: 'Proof-of-Genesis Receipt' });
+        toast.dismiss(t);
+        return;
+      }
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      toast.success('Image saved', { id: t });
+    } catch (e) {
+      toast.error('Could not capture image', { id: t });
+    }
+  };
+
   return (
     <>
       <SEO
