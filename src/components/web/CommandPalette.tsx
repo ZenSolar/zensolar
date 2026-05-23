@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "next-themes";
-import { useAccount } from "wagmi";
+import { useSafeAccount } from "@/hooks/useSafeWagmi";
 import {
   Bell,
   BookOpen,
@@ -58,7 +58,7 @@ export function CommandPalette({ basePath = "", isDemo = false }: CommandPalette
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
-  const { address } = useAccount();
+  const { address } = useSafeAccount();
 
   useEffect(() => {
     const isEditable = (el: Element | null): boolean => {
