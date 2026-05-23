@@ -9,7 +9,6 @@ import {
   Award,
   Play,
   BarChart3,
-  Wallet,
   Sun,
   Moon,
   History,
@@ -59,7 +58,6 @@ const previewOnlyNavItems = [
 ];
 
 const secondaryNavItems = [
-  { title: "Wallet", url: "/demo/wallet", icon: Wallet },
   { title: "Profile & Settings", url: "/demo/profile", icon: User },
   { title: "Help & Feedback", url: "/demo/help-center", icon: MessageSquarePlus },
 ];
