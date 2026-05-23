@@ -326,7 +326,7 @@ export function ActivityMetrics({
         {/* Header — Clean Energy Center Hero (Technical Glass) */}
         <div 
           id="cec-header"
-          className="relative -mx-2.5 px-4 py-5 overflow-hidden"
+          className="relative -mx-2.5 px-4 py-2.5 overflow-hidden"
           style={{
             background: 'linear-gradient(135deg, hsl(var(--primary) / 0.05) 0%, transparent 50%, hsl(142 76% 36% / 0.03) 100%)',
             borderBottom: '1px solid hsl(142 76% 36% / 0.18)',
@@ -343,26 +343,26 @@ export function ActivityMetrics({
             }}
           />
 
-          <header className="relative flex flex-col items-center gap-5">
+          <header className="relative flex flex-col items-center gap-2">
             {/* Title + Gauge */}
-            <div className="flex items-center gap-3">
-              <h2 className="text-base font-semibold tracking-tight leading-tight text-foreground/95">
+            <div className="flex items-center gap-2">
+              <h2 className="text-[13px] font-semibold tracking-tight leading-tight text-foreground/95">
                 Clean Energy Center
               </h2>
               <div
-                className="h-8 w-8 rounded-xl flex items-center justify-center flex-shrink-0 border"
+                className="h-6 w-6 rounded-lg flex items-center justify-center flex-shrink-0 border"
                 style={{
                   background: 'hsl(var(--primary) / 0.10)',
                   borderColor: 'hsl(var(--primary) / 0.25)',
                   boxShadow: '0 0 15px -3px hsl(var(--primary) / 0.35)',
                 }}
               >
-                <Gauge className="h-4 w-4 text-primary" />
+                <Gauge className="h-3 w-3 text-primary" />
               </div>
             </div>
 
             {/* Metadata stack: timestamp + Proof-of-Genesis pill */}
-            <div className="flex flex-col items-center gap-2.5">
+            <div className="flex items-center gap-2">
               <div className="flex items-center gap-2">
                 <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
                 {isLoading && (
@@ -377,7 +377,7 @@ export function ActivityMetrics({
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.4, ease: 'easeOut' }}
-                className="px-3.5 py-1 rounded-full border"
+                className="px-2.5 py-0.5 rounded-full border"
                 style={{
                   borderColor: 'hsl(var(--primary) / 0.3)',
                   background: 'hsl(var(--primary) / 0.05)',
@@ -392,10 +392,10 @@ export function ActivityMetrics({
 
             {/* Connectivity & source tags */}
             {filteredProviders.length > 0 && (
-              <div className="flex flex-col items-center gap-3.5 w-full">
+              <div className="flex flex-col items-center gap-2 w-full">
                 {/* Connected status + provider chips */}
-                <div className="flex items-center gap-3">
-                  <span className="text-[10px] font-bold tracking-widest uppercase text-primary flex items-center gap-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold tracking-widest uppercase text-primary flex items-center gap-1">
                     <span
                       className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"
                       style={{ boxShadow: '0 0 6px hsl(var(--primary) / 0.7)' }}
@@ -406,21 +406,21 @@ export function ActivityMetrics({
                     {filteredProviders.map((provider) => (
                       <div
                         key={provider}
-                        className="h-7 w-7 rounded-full bg-background border border-border/60 flex items-center justify-center shadow-lg"
+                        className="h-6 w-6 rounded-full bg-background border border-border/60 flex items-center justify-center shadow-md"
                         title={provider.charAt(0).toUpperCase() + provider.slice(1)}
                       >
                         {provider === 'tesla' ? (
                           <img
                             src={teslaLogo}
                             alt="Tesla"
-                            className="h-3.5 w-3.5 object-contain"
+                            className="h-3 w-3 object-contain"
                             style={{ filter: 'brightness(2.2)' }}
                           />
                         ) : (
                           <img
                             src={providerLogos[provider]}
                             alt={provider}
-                            className="h-3.5 w-3.5 object-contain"
+                            className="h-3 w-3 object-contain"
                           />
                         )}
                       </div>
@@ -430,26 +430,26 @@ export function ActivityMetrics({
 
                 {/* Source tags — replaces the underlined list */}
                 {headerSubtitleParts.length > 1 ? (
-                  <div className="flex flex-wrap justify-center gap-1.5 px-2">
+                  <div className="flex flex-wrap justify-center gap-1 px-2">
                     {headerSubtitleParts.map((part, i) => (
                       <div
                         key={i}
-                        className="px-2.5 py-1 rounded-md flex items-center gap-1.5 border border-primary/10 bg-primary/5"
+                        className="px-2 py-0.5 rounded-md flex items-center gap-1 border border-primary/10 bg-primary/5"
                       >
                         {part.icon === 'sun' && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" aria-hidden="true" />
+                          <span className="w-1 h-1 rounded-full bg-amber-400" aria-hidden="true" />
                         )}
                         {part.icon === 'battery' && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
+                          <span className="w-1 h-1 rounded-full bg-emerald-400" aria-hidden="true" />
                         )}
-                        <span className="text-[10px] font-medium text-foreground/75 whitespace-nowrap">
+                        <span className="text-[9px] font-medium text-foreground/75 whitespace-nowrap">
                           {part.label}
                         </span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <span className="text-[10px] font-medium text-foreground/65 px-2 text-center">
+                  <span className="text-[9px] font-medium text-foreground/65 px-2 text-center">
                     {headerSubtitle}
                   </span>
                 )}
