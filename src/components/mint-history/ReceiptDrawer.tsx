@@ -127,32 +127,47 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto p-0">
-        <div className="bg-gradient-to-br from-primary/15 via-card to-accent-warm/10 px-6 pt-6 pb-5 border-b">
-          <SheetHeader className="text-left space-y-2">
-            <div className="flex items-center gap-2">
-              <div className="p-2 rounded-xl bg-gradient-to-br from-primary to-primary/60">
-                <Coins className="h-4 w-4 text-primary-foreground" />
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent
+        className="max-h-[92dvh] focus:outline-none"
+        style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
+      >
+        {/* Scrollable inner column so the drag-handle + safe area stay pinned */}
+        <div className="overflow-y-auto overscroll-contain">
+          <div className="relative bg-gradient-to-br from-primary/15 via-card to-accent-warm/10 px-6 pt-4 pb-5 border-b">
+            <DrawerClose
+              aria-label="Close receipt"
+              className="absolute right-3 top-3 z-10 rounded-full p-2 bg-background/70 backdrop-blur border border-border/60 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </DrawerClose>
+            <DrawerHeader className="p-0 text-left space-y-2">
+              <div className="flex items-center gap-2 pr-10">
+                <div className="p-2 rounded-xl bg-gradient-to-br from-primary to-primary/60">
+                  <Coins className="h-4 w-4 text-primary-foreground" />
+                </div>
+                <Badge variant="outline" className="border-primary/40 text-primary text-[10px] uppercase tracking-wider">
+                  Mint Receipt
+                </Badge>
+                <Badge variant="secondary" className="ml-auto text-[10px] capitalize">
+                  {tx.status}
+                </Badge>
               </div>
-              <Badge variant="outline" className="border-primary/40 text-primary text-[10px] uppercase tracking-wider">
-                Mint Receipt
-              </Badge>
-              <Badge variant="secondary" className="ml-auto text-[10px] capitalize">
-                {tx.status}
-              </Badge>
-            </div>
-            <SheetTitle className="text-xl tracking-tight">{meta.label}</SheetTitle>
-            <SheetDescription className="text-xs leading-relaxed">
-              {meta.description}
-            </SheetDescription>
-            <p className="text-[11px] text-muted-foreground tabular-nums pt-1">
-              {format(new Date(tx.created_at), "PPpp")}
-            </p>
-          </SheetHeader>
-        </div>
+              <DrawerTitle className="text-xl tracking-tight">{meta.label}</DrawerTitle>
+              <DrawerDescription className="text-xs leading-relaxed">
+                {meta.description}
+              </DrawerDescription>
+              <p className="text-[11px] text-muted-foreground tabular-nums pt-1">
+                {format(new Date(tx.created_at), "PPpp")}
+              </p>
+            </DrawerHeader>
+          </div>
 
-        <div className="px-6 py-6 space-y-6">
+          <div
+            className="px-6 py-6 space-y-6"
+            style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1.5rem)" }}
+          >
+
           {/* Headline numbers */}
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-xl border bg-card p-3">
