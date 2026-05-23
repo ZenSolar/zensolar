@@ -28,6 +28,7 @@ import { NavLink } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AppThemeSelector } from "@/components/layout/AppThemeSelector";
+import { SidebarStatus } from "@/components/web/SidebarStatus";
 
 import {
   Sidebar,
@@ -96,6 +97,8 @@ export function DemoSidebar() {
             Demo Mode
           </Badge>
         </div>
+
+        <SidebarStatus walletHref="/demo/wallet" />
 
         {/* Main Navigation */}
         <SidebarGroup>
