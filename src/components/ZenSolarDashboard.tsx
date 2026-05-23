@@ -202,12 +202,13 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   };
 
   if (profileLoading) {
-    return (
-      <div className="min-h-[50vh] flex items-center justify-center">
-        <BrandedSpinner size="lg" />
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
+
+  // First-run state: brand-new beta user with neither wallet nor energy.
+  // Show the cinematic FirstRunHero in place of the two stacked Compact prompts.
+  const isFirstRun =
+    !isViewer && !isNewUserView && !hasWalletConnected && !hasEnergyConnected;
 
   return (
     <PageTransition>
