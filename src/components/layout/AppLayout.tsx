@@ -2,6 +2,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { TopNav } from "./TopNav";
 import { MobileBottomNav } from "./MobileBottomNav";
+import { DashboardShell } from "@/components/web/DashboardShell";
 
 import { ViewAsUserBanner } from "@/components/admin/ViewAsUserBanner";
 import { useViewAsUser } from "@/contexts/ViewAsUserContext";
