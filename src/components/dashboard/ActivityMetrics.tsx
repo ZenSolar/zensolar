@@ -361,30 +361,16 @@ export function ActivityMetrics({
               </div>
             </div>
 
-            {/* Proof badges — 2x2 grid */}
-            <div className="grid grid-cols-2 justify-center gap-x-0 gap-y-0 mx-auto w-fit">
-              {[
-                { label: 'Tap-to-Mint™', color: 'hsl(var(--primary))', useClass: true },
-                { label: 'Proof-of-Mint™', color: 'hsl(142 76% 50% / 0.85)' },
-                { label: 'Proof-of-Origin™', color: 'hsl(25 95% 60% / 0.85)' },
-                { label: 'Proof-of-Delta™', color: 'hsl(270 80% 68% / 0.85)' },
-              ].map((badge, i) => (
-                <motion.span
-                  key={badge.label}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 + i * 0.12, duration: 0.4, ease: 'easeOut' }}
-                  className={cn(
-                    "flex min-w-[105px] justify-center text-center text-[8px] font-semibold tracking-[0.12em] uppercase whitespace-nowrap",
-                    badge.useClass && "text-primary"
-                  )}
-                  style={{
-                    ...(badge.useClass ? {} : { color: badge.color }),
-                  }}
-                >
-                  {badge.label}
-                </motion.span>
-              ))}
+            {/* Proof badge */}
+            <div className="flex justify-center mx-auto w-fit">
+              <motion.span
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.4, ease: 'easeOut' }}
+                className="text-[8px] font-semibold tracking-[0.12em] uppercase whitespace-nowrap text-primary"
+              >
+                Proof-of-Genesis™
+              </motion.span>
             </div>
 
             {/* Connected providers — centered below */}
