@@ -24,6 +24,7 @@ import { PathNormalizer } from "./components/PathNormalizer";
 import { AppHistoryTracker } from "./components/AppHistoryTracker";
 import { ScrollManager } from "./components/ScrollManager";
 import { SwipeBackHandler } from "./components/SwipeBackHandler";
+import { InstallNudge } from "./components/install/InstallNudge";
 import Home from "./pages/Home";
 
 // Lazy load layout and auth components to reduce main bundle size
@@ -242,6 +243,7 @@ const App = () => {
               <BotProtection blockBots>
                 <Toaster />
                 <Sonner />
+                <InstallNudge />
                 <BrowserRouter>
                   <GoogleAnalytics />
                   <PathNormalizer />

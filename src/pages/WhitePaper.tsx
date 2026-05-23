@@ -1732,7 +1732,7 @@ export default function WhitePaper() {
                     'Mainnet deployment on Base L2',
                     'Seed liquidity pool ($10K+ USDC initial)',
                     'Beta launch with first 100 households',
-                    'App Store and Google Play distribution',
+                    'Installable web app (PWA) — one-tap install on any iPhone or Android, no app store required',
                     'Scale to 1,000+ subscribers within 6 months',
                   ],
                 },

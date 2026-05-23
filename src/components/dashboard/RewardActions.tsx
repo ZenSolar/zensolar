@@ -177,6 +177,10 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   const celebrateMint = (pending: NonNullable<typeof cinematicD.pending>) => {
     // Success haptic on every mint confirmation (light vibration fallback on web)
     if (pending.success) hapticSuccess(); else hapticError();
+    // Notify global listeners (e.g. InstallNudge) that a mint just succeeded.
+    if (pending.success && typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('zs:mint-success', { detail: pending }));
+    }
     if (!hasShownFirstMintCelebration()) {
       markFirstMintCelebrationShown();
       setCinematicD({ open: true, pending });
