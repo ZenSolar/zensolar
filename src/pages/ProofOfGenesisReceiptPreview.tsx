@@ -374,26 +374,38 @@ export default function ProofOfGenesisReceiptPreview() {
   // ===== Share + Save-as-image =====
   const captureRef = useRef<HTMLDivElement>(null);
 
-  const handleShareLink = async () => {
-    const url = typeof window !== 'undefined' ? window.location.href : '';
-    const title = 'Proof-of-Genesis Receipt';
-    const text = `${formatKwh(receipt.tokens_minted)} $ZSOLAR minted from ${formatKwh(receipt.total_kwh)} kWh of verified clean energy.`;
-    try {
-      if (typeof navigator !== 'undefined' && (navigator as any).share) {
-        await (navigator as any).share({ title, text, url });
-        return;
-      }
-      await navigator.clipboard.writeText(url);
-      toast.success('Link copied', { description: 'Proof-of-Genesis receipt link is on your clipboard.' });
-    } catch (err: any) {
-      if (err?.name === 'AbortError') return;
-      toast.error('Could not share', { description: 'Try copying the URL manually.' });
-    }
+  /**
+   * Build a rich, share-sheet-friendly preview payload:
+   *   Title  → leads with the CO₂ tons avoided (the headline win)
+   *   Text   → tokens + verified energy + vs-Bitcoin chip in plain English
+   *   Image  → the rendered PoG tile thumbnail (attached as File when supported)
+   *
+   * On iOS/Android this populates the share sheet with a real preview card.
+   */
+  const buildShareText = () => {
+    const co2KgRaw =
+      receipt.primary_source === 'ev_charging' && receipt.miles_driven
+        ? receipt.miles_driven * CO2_KG_PER_EV_MILE_AVOIDED
+        : receipt.total_kwh * CO2_KG_PER_KWH_GRID;
+    const co2Tons = co2KgRaw / 1000;
+    const co2Headline =
+      co2Tons >= 0.01
+        ? `${co2Tons.toFixed(2)} tons CO₂`
+        : `${co2KgRaw.toFixed(2)} kg CO₂`;
+    const energyLine =
+      receipt.primary_source === 'ev_charging' && receipt.miles_driven
+        ? `${receipt.miles_driven.toLocaleString()} EV miles on verified clean energy`
+        : `${formatKwh(receipt.total_kwh)} kWh of verified clean energy`;
+    return {
+      co2Headline,
+      title: `Proof-of-Genesis™ — ${co2Headline} avoided`,
+      text: `I just minted ${formatKwh(receipt.tokens_minted)} $ZSOLAR from ${energyLine}, offsetting ${co2Headline}. One Bitcoin tx emits ~${BTC_TX_CO2_KG} kg CO₂. Mine emitted essentially zero. → zen.solar`,
+    };
   };
 
-  const handleSaveImage = async () => {
-    if (!captureRef.current) return;
-    const t = toast.loading('Rendering image…');
+  /** Render the visible receipt body to a PNG for share-sheet thumbnails. */
+  const renderReceiptImage = async (): Promise<File | null> => {
+    if (!captureRef.current) return null;
     try {
       const canvas = await html2canvas(captureRef.current, {
         backgroundColor: getComputedStyle(document.body).backgroundColor || '#000',
@@ -402,36 +414,86 @@ export default function ProofOfGenesisReceiptPreview() {
         logging: false,
       });
       const blob: Blob | null = await new Promise((res) => canvas.toBlob(res, 'image/png'));
-      if (!blob) throw new Error('toBlob failed');
+      if (!blob) return null;
+      return new File([blob], `proof-of-genesis-${receipt.mint_id}.png`, { type: 'image/png' });
+    } catch {
+      return null;
+    }
+  };
 
-      const file = new File([blob], `proof-of-genesis-${receipt.mint_id}.png`, { type: 'image/png' });
-      const navAny = navigator as any;
-      if (navAny.canShare && navAny.canShare({ files: [file] })) {
-        await navAny.share({ files: [file], title: 'Proof-of-Genesis Receipt' });
+  const handleShareLink = async () => {
+    const url = typeof window !== 'undefined' ? window.location.href : 'https://beta.zen.solar/proof-of-genesis-receipt-preview';
+    const { title, text } = buildShareText();
+    const navAny = navigator as any;
+
+    // 1. Try the rich share-sheet path: title + text + url + image file thumbnail.
+    //    Most modern iOS Safari + Android Chrome support this and will render
+    //    a beautiful preview card with the receipt PNG.
+    const t = toast.loading('Preparing share…');
+    try {
+      const file = await renderReceiptImage();
+      if (file && navAny.canShare?.({ files: [file], title, text, url })) {
         toast.dismiss(t);
+        await navAny.share({ files: [file], title, text, url });
         return;
       }
 
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = file.name;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-      toast.success('Image saved', { id: t });
-    } catch (e) {
-      toast.error('Could not capture image', { id: t });
+      // 2. Fall back to URL-only share (still rich on platforms that fetch OG tags)
+      if (typeof navigator !== 'undefined' && navAny.share) {
+        toast.dismiss(t);
+        await navAny.share({ title, text, url });
+        return;
+      }
+
+      // 3. Final fallback: copy link
+      await navigator.clipboard.writeText(`${text}\n\n${url}`);
+      toast.success('Link + preview copied', { id: t, description: 'Paste it anywhere — recipients will see the receipt preview.' });
+    } catch (err: any) {
+      toast.dismiss(t);
+      if (err?.name === 'AbortError') return;
+      toast.error('Could not share', { description: 'Try copying the URL manually.' });
     }
   };
+
+  const handleSaveImage = async () => {
+    const t = toast.loading('Rendering image…');
+    const file = await renderReceiptImage();
+    if (!file) {
+      toast.error('Could not capture image', { id: t });
+      return;
+    }
+    const navAny = navigator as any;
+    if (navAny.canShare && navAny.canShare({ files: [file] })) {
+      toast.dismiss(t);
+      const { title, text } = buildShareText();
+      try {
+        await navAny.share({ files: [file], title, text });
+      } catch (err: any) {
+        if (err?.name !== 'AbortError') toast.error('Could not share image');
+      }
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file.name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast.success('Image saved', { id: t });
+  };
+
+  // Richer SEO description that includes the CO₂ headline for OG previews
+  const shareMeta = useMemo(() => buildShareText(), [receipt]);
 
   return (
     <>
       <SEO
-        title="Proof-of-Genesis Receipt — Preview"
-        description="Per-mint receipt showing the exact verified energy readings and CO2 offset for a $ZSOLAR mint."
+        title={`Proof-of-Genesis — ${shareMeta.co2Headline} avoided`}
+        description={shareMeta.text}
         url="https://beta.zen.solar/proof-of-genesis-receipt-preview"
+        type="article"
       />
 
       <div className="min-h-[100svh] bg-background pb-[calc(3rem+env(safe-area-inset-bottom))]">
