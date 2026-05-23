@@ -85,7 +85,6 @@ const mainNavItems = [
   { title: "$ZSOLAR Store", url: "/store", icon: ShoppingBag, desc: "Spend $ZSOLAR on rewards" },
   { title: "My Energy Logs", url: "/energy-log", icon: BarChart3, desc: "Detailed kWh production & charging" },
   { title: "Learn", url: "/learn", icon: BookOpen, desc: "How ZenSolar works, in plain English" },
-  { title: "Wallet", url: "/wallet", icon: Wallet, desc: "Your $ZSOLAR balance and tokens" },
 ];
 
 const previewOnlyNavItems = [
