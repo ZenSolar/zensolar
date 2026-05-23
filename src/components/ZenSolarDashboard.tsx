@@ -269,7 +269,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
               firstName={firstName}
               hasWallet={hasWalletConnected}
               hasEnergy={hasEnergyConnected}
-              onConnectWallet={() => setShowWalletModal(true)}
+              onConnectWallet={() => { window.location.href = '/onboarding?step=wallet'; }}
               onConnectEnergy={() => { window.location.href = '/profile'; }}
             />
           </AnimatedItem>
