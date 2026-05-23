@@ -2035,6 +2035,7 @@ export type Database = {
           provider: string
         }[]
       }
+      get_live_earnings_stats: { Args: never; Returns: Json }
       get_mintable_status_filter: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["genesis_status"][]
