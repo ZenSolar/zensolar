@@ -16,12 +16,14 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerClose,
+} from "@/components/ui/drawer";
+import { X } from "lucide-react";
 import { ZSOLAR_NFT_ADDRESS, ZSOLAR_TOKEN_ADDRESS } from "@/lib/wagmi";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
