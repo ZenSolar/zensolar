@@ -380,7 +380,7 @@ export default function ProofOfGenesisReceiptPreview() {
       <div className="min-h-[100svh] bg-background pb-[calc(3rem+env(safe-area-inset-bottom))]">
         {/* Preview banner — respects iOS Dynamic Island via safe-area top inset */}
         <div
-          className="sticky top-0 z-40 border-b border-primary/20 bg-primary/90 supports-[backdrop-filter]:bg-primary/20 backdrop-blur-md"
+          className="sticky top-0 z-40 border-b border-primary/20 bg-background/85 supports-[backdrop-filter]:bg-background/60 backdrop-blur-md"
           style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
         >
           <div className="container max-w-4xl mx-auto px-4 py-2 flex items-center justify-between gap-3">
