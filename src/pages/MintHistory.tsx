@@ -59,6 +59,7 @@ export default function MintHistory() {
   const { profile } = useProfile();
   const [transactions, setTransactions] = useState<MintTransaction[]>([]);
   const [expandedTx, setExpandedTx] = useState<string | null>(null);
+  const [receiptTx, setReceiptTx] = useState<MintTransaction | null>(null);
   const [pendingActivity, setPendingActivity] = useState<PendingActivity>({
     solarKwh: 0, batteryKwh: 0, evMiles: 0, evChargingKwh: 0, totalTokens: 0,
   });
