@@ -1,7 +1,6 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { Coins, Sparkles, ArrowRight, X } from 'lucide-react';
-import { Button }  from '@/components/ui/button';
-import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 
 interface ReadyToMintCardProps {
   onMint: () => void;
