@@ -450,8 +450,8 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
   // Meter position (right side of house)
   const meter = compact ? { x: 263, y: 217 } : { x: 287, y: 254 };
 
-  const vb = compact ? '0 0 400 490' : '0 0 400 570';
-  const maxH = compact ? '500px' : '680px';
+    const vb = compact ? '0 0 400 390' : '0 0 400 470';
+    const maxH = compact ? '420px' : '560px';
   const labelFs = compact ? 8 : 10;
   const valueFs = compact ? 20 : 26;
   const subValueFs = compact ? 15 : 20;
