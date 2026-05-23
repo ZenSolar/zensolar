@@ -440,7 +440,7 @@ export default function ProofOfGenesisReceiptPreview() {
           className="sticky top-0 z-40 border-b border-primary/20 bg-background/85 supports-[backdrop-filter]:bg-background/60 backdrop-blur-md"
           style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
         >
-          <div className="container max-w-4xl mx-auto px-4 py-2 flex items-center justify-between gap-3">
+          <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-2 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
               <Badge variant="outline" className="border-primary/40 text-primary text-[10px] uppercase tracking-wider shrink-0">
                 Preview
@@ -449,13 +449,35 @@ export default function ProofOfGenesisReceiptPreview() {
                 Proof-of-Genesis receipt — not linked from nav, mocked data
               </span>
             </div>
-            <Link
-              to="/"
-              aria-label="Close receipt and return to app"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground/90 hover:text-foreground transition-colors px-3 py-1.5 rounded-full border border-border/60 bg-background/60 active:scale-95 shrink-0"
-            >
-              <X className="h-3.5 w-3.5" /> Close
-            </Link>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={handleShareLink}
+                aria-label="Share Proof-of-Genesis link"
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground/90 hover:text-foreground transition-colors px-2.5 sm:px-3 py-1.5 rounded-full border border-border/60 bg-background/60 active:scale-95"
+              >
+                <Link2 className="h-3.5 w-3.5" />
+                <span className="hidden xs:inline sm:inline">Share</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveImage}
+                aria-label="Save Proof-of-Genesis as image"
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground/90 hover:text-foreground transition-colors px-2.5 sm:px-3 py-1.5 rounded-full border border-border/60 bg-background/60 active:scale-95"
+              >
+                <ImageDown className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Image</span>
+              </button>
+              <Link
+                to="/"
+                aria-label="Close receipt and return to app"
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground/90 hover:text-foreground transition-colors px-2.5 sm:px-3 py-1.5 rounded-full border border-border/60 bg-background/60 active:scale-95"
+              >
+                <X className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Close</span>
+              </Link>
+            </div>
+          </div>
           </div>
         </div>
 
