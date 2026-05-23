@@ -323,34 +323,47 @@ export function ActivityMetrics({
       >
         {/* KPI area rainbow shimmer — moved inside body so it doesn't bleed into the header */}
       <CardContent className="p-2.5 pt-0 space-y-2">
-        {/* Header — Clean Energy Center Hero */}
+        {/* Header — Clean Energy Center Hero (Technical Glass) */}
         <div 
           id="cec-header"
-          className="relative -mx-2.5 px-4 py-3.5 overflow-hidden"
+          className="relative -mx-2.5 px-4 py-5 overflow-hidden"
           style={{
             background: 'linear-gradient(135deg, hsl(var(--primary) / 0.05) 0%, transparent 50%, hsl(142 76% 36% / 0.03) 100%)',
-            borderBottom: '1px solid hsl(142 76% 36% / 0.2)',
+            borderBottom: '1px solid hsl(142 76% 36% / 0.18)',
             boxShadow: 'inset 0 -1px 8px hsl(142 76% 36% / 0.06), inset 0 1px 8px hsl(142 76% 36% / 0.04)',
           }}
         >
-          <div className="relative space-y-3">
-            {/* Centered title row with Tesla wordmark */}
-            <div className="flex flex-col items-center text-center">
-              <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold text-foreground tracking-tight leading-tight">
-                  Clean Energy Center
-                </h2>
-                <div 
-                  className="h-7 w-7 rounded-md flex items-center justify-center flex-shrink-0"
-                  style={{
-                    background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(142 76% 36%))',
-                    boxShadow: '0 0 10px hsl(var(--primary) / 0.35), 0 0 20px hsl(var(--primary) / 0.12)',
-                  }}
-                >
-                  <Gauge className="h-4 w-4 text-white" />
-                </div>
+          {/* Soft top-left emerald glow */}
+          <div
+            aria-hidden="true"
+            className="absolute -top-20 -left-16 w-48 h-48 rounded-full pointer-events-none"
+            style={{
+              background: 'hsl(var(--primary) / 0.08)',
+              filter: 'blur(48px)',
+            }}
+          />
+
+          <header className="relative flex flex-col items-center gap-5">
+            {/* Title + Gauge */}
+            <div className="flex items-center gap-3">
+              <h2 className="text-base font-semibold tracking-tight leading-tight text-foreground/95">
+                Clean Energy Center
+              </h2>
+              <div
+                className="h-8 w-8 rounded-xl flex items-center justify-center flex-shrink-0 border"
+                style={{
+                  background: 'hsl(var(--primary) / 0.10)',
+                  borderColor: 'hsl(var(--primary) / 0.25)',
+                  boxShadow: '0 0 15px -3px hsl(var(--primary) / 0.35)',
+                }}
+              >
+                <Gauge className="h-4 w-4 text-primary" />
               </div>
-              <div className="flex items-center gap-2 mt-0.5">
+            </div>
+
+            {/* Metadata stack: timestamp + Proof-of-Genesis pill */}
+            <div className="flex flex-col items-center gap-2.5">
+              <div className="flex items-center gap-2">
                 <RefreshIndicators lastUpdatedAt={refreshInfo?.lastUpdatedAt} />
                 {isLoading && (
                   <span className="flex items-center gap-1 text-[10px] font-normal text-muted-foreground animate-pulse">
@@ -359,95 +372,92 @@ export function ActivityMetrics({
                   </span>
                 )}
               </div>
-            </div>
 
-            {/* Proof badge */}
-            <div className="flex justify-center mx-auto w-fit">
-              <motion.span
+              <motion.div
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.4, ease: 'easeOut' }}
-                className="text-[8px] font-semibold tracking-[0.12em] uppercase whitespace-nowrap text-primary"
+                className="px-3.5 py-1 rounded-full border"
+                style={{
+                  borderColor: 'hsl(var(--primary) / 0.3)',
+                  background: 'hsl(var(--primary) / 0.05)',
+                  boxShadow: 'inset 0 1px 1px hsl(0 0% 100% / 0.05)',
+                }}
               >
-                Proof-of-Genesis™
-              </motion.span>
+                <span className="text-[9px] font-bold tracking-[0.2em] uppercase text-primary whitespace-nowrap">
+                  Proof-of-Genesis™
+                </span>
+              </motion.div>
             </div>
 
-            {/* Connected providers — centered below */}
+            {/* Connectivity & source tags */}
             {filteredProviders.length > 0 && (
-              <div className="flex flex-col items-center gap-1.5">
-                <div className="flex items-center gap-2">
-                  <span 
-                    className="text-[10px] uppercase tracking-wider font-medium"
-                    style={{ 
-                      color: 'hsl(var(--primary) / 0.8)',
-                    }}
-                  >Connected</span>
-                  <div className="flex items-center gap-1.5">
+              <div className="flex flex-col items-center gap-3.5 w-full">
+                {/* Connected status + provider chips */}
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] font-bold tracking-widest uppercase text-primary flex items-center gap-1.5">
+                    <span
+                      className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"
+                      style={{ boxShadow: '0 0 6px hsl(var(--primary) / 0.7)' }}
+                    />
+                    Connected
+                  </span>
+                  <div className="flex -space-x-1.5">
                     {filteredProviders.map((provider) => (
-                      provider === 'tesla' ? (
-                        <div 
-                          key={provider}
-                          className="h-6 rounded-md flex items-center justify-center border border-primary/30 bg-primary/5 px-1.5"
-                          title="Tesla"
-                        >
-                          <img 
-                            src={teslaWordmark} 
-                            alt="Tesla" 
-                            className="h-3 object-contain"
-                            style={{ filter: 'brightness(2.5) grayscale(0.1)', opacity: 0.85 }}
+                      <div
+                        key={provider}
+                        className="h-7 w-7 rounded-full bg-background border border-border/60 flex items-center justify-center shadow-lg"
+                        title={provider.charAt(0).toUpperCase() + provider.slice(1)}
+                      >
+                        {provider === 'tesla' ? (
+                          <img
+                            src={teslaLogo}
+                            alt="Tesla"
+                            className="h-3.5 w-3.5 object-contain"
+                            style={{ filter: 'brightness(2.2)' }}
                           />
-                        </div>
-                      ) : (
-                        <div 
-                          key={provider}
-                          className="h-6 w-6 rounded-md flex items-center justify-center border border-primary/30 bg-primary/5"
-                          title={provider.charAt(0).toUpperCase() + provider.slice(1)}
-                        >
-                          <img 
-                            src={providerLogos[provider]} 
+                        ) : (
+                          <img
+                            src={providerLogos[provider]}
                             alt={provider}
                             className="h-3.5 w-3.5 object-contain"
                           />
-                        </div>
-                      )
+                        )}
+                      </div>
                     ))}
                   </div>
                 </div>
-                <span 
-                  className="text-[9px] font-medium tracking-wide inline-flex flex-wrap justify-center items-baseline gap-x-1 gap-y-0.5 px-1 leading-snug"
-                  style={{ 
-                    color: 'hsl(38 92% 65% / 1.0)',
-                  }}
-                >
-                  {headerSubtitleParts.length > 1 ? (
-                    headerSubtitleParts.map((part, i) => (
-                      <span key={i} className="inline-flex items-baseline whitespace-nowrap">
+
+                {/* Source tags — replaces the underlined list */}
+                {headerSubtitleParts.length > 1 ? (
+                  <div className="flex flex-wrap justify-center gap-1.5 px-2">
+                    {headerSubtitleParts.map((part, i) => (
+                      <div
+                        key={i}
+                        className="px-2.5 py-1 rounded-md flex items-center gap-1.5 border border-primary/10 bg-primary/5"
+                      >
                         {part.icon === 'sun' && (
-                          <span className="mr-0.5 no-underline" aria-hidden="true">☀️</span>
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" aria-hidden="true" />
                         )}
                         {part.icon === 'battery' && (
-                          <span className="mr-0.5 no-underline" aria-hidden="true">🔋</span>
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
                         )}
-                        <span
-                          className="underline decoration-[0.5px] underline-offset-[3px]"
-                          style={{ textDecorationColor: 'hsl(38 92% 60% / 0.5)' }}
-                        >
+                        <span className="text-[10px] font-medium text-foreground/75 whitespace-nowrap">
                           {part.label}
                         </span>
-                        {i < headerSubtitleParts.length - 1 && (
-                          <span className="ml-1 no-underline opacity-70" aria-hidden="true">·</span>
-                        )}
-                      </span>
-                    ))
-                  ) : (
-                    headerSubtitle
-                  )}
-                </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-[10px] font-medium text-foreground/65 px-2 text-center">
+                    {headerSubtitle}
+                  </span>
+                )}
               </div>
             )}
-          </div>
+          </header>
         </div>
+
 
         {/* Tesla Reconnect CTA - shown when token expired */}
         {teslaNeedsReauth && (
