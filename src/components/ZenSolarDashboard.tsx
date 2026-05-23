@@ -260,18 +260,32 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           />
         </AnimatedItem>
 
-        {/* Onboarding Cards - Show until both wallet AND energy are connected (or in New User View mode) */}
-        {showWalletPrompt && (
+        {/* First-run: cinematic 2-step hero (wallet → energy). */}
+        {isFirstRun ? (
           <AnimatedItem>
-            <CompactWalletPrompt />
+            <FirstRunHero
+              firstName={firstName}
+              hasWallet={hasWalletConnected}
+              hasEnergy={hasEnergyConnected}
+              onConnectWallet={() => setShowWalletModal(true)}
+              onConnectEnergy={() => { window.location.href = '/profile'; }}
+            />
           </AnimatedItem>
+        ) : (
+          <>
+            {showWalletPrompt && (
+              <AnimatedItem>
+                <CompactWalletPrompt />
+              </AnimatedItem>
+            )}
+            {showEnergyPrompt && (
+              <AnimatedItem>
+                <CompactSetupPrompt onConnectEnergy={() => window.location.href = '/profile'} />
+              </AnimatedItem>
+            )}
+          </>
         )}
         
-        {showEnergyPrompt && (
-          <AnimatedItem>
-            <CompactSetupPrompt onConnectEnergy={() => window.location.href = '/profile'} />
-          </AnimatedItem>
-        )}
         
         {/* ENERGY COMMAND CENTER - The Hero Section */}
         <AnimatedItem>
