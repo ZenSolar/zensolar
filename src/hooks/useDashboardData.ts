@@ -1384,9 +1384,15 @@ export function useDashboardData() {
 
   // Pass C: global event bus so the command palette / shortcuts can trigger
   // a manual refresh from anywhere in the app.
+  // Pass G · #1: wrap with toast.promise so the user gets instant feedback
+  // (loading → success/error) instead of a silent network round-trip.
   useEffect(() => {
     const onRefresh = () => {
-      refreshDashboard();
+      toast.promise(refreshDashboard(), {
+        loading: 'Refreshing your energy data…',
+        success: 'Dashboard updated',
+        error: 'Refresh failed — try again',
+      });
     };
     window.addEventListener('zen:refresh-dashboard', onRefresh);
     return () => window.removeEventListener('zen:refresh-dashboard', onRefresh);
