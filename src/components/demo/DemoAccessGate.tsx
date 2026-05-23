@@ -340,7 +340,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     const mappedCode = VIP_SLUG_MAP[vipSlug];
     if (!mappedCode) return;
     activateVipCode(mappedCode);
-    writeStoredValue(LS_KEY, JSON.stringify({ ts: Date.now() }), TTL_MS);
+    writeStoredValue(LS_KEY, JSON.stringify({ ts: Date.now(), ndaSigned: true }), TTL_MS);
     setGranted(true);
     // Clean the URL so refresh stays clean
     const cleaned = new URL(window.location.href);
