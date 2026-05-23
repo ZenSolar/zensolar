@@ -984,8 +984,36 @@ html {
     opacity: 1 !important;
     transform: none !important;
   }
-}
 
+/* ============================================================
+ * Phase 4 — Density toggle.
+ * Driven by `<html data-density="compact|comfortable">`. Comfortable is
+ * the default — no overrides needed. Compact tightens card padding and
+ * vertical rhythm at lg+ only, so the mobile PWA experience is unchanged.
+ * ============================================================ */
+@media (min-width: 1024px) {
+  html[data-density="compact"] [data-slot="card-content"],
+  html[data-density="compact"] .card-dense-target {
+    padding: 0.875rem !important;
+  }
+  html[data-density="compact"] [data-slot="card-header"] {
+    padding: 0.875rem 0.875rem 0.5rem !important;
+  }
+  html[data-density="compact"] [data-slot="card-title"] {
+    font-size: 0.95rem !important;
+    line-height: 1.2 !important;
+  }
+  html[data-density="compact"] main {
+    --density-gap: 0.75rem;
+  }
+  html[data-density="compact"] main .space-y-6 > * + * {
+    margin-top: 1rem !important;
+  }
+  html[data-density="compact"] main .space-y-4 > * + * {
+    margin-top: 0.625rem !important;
+  }
+}
 
 /* Learn-section themes (scoped via [data-learn-theme]) */
 @import "./styles/learn-themes.css";
+
