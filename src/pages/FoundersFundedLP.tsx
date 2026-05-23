@@ -401,9 +401,9 @@ function Dashboard() {
   }, [rounds]);
 
   return (
-    <div className="min-h-[100svh] bg-background text-foreground pb-24">
+    <div className="min-h-[100svh] bg-background text-foreground pb-[calc(6rem+env(safe-area-inset-bottom))]">
       {/* Header */}
-      <header className="sticky top-0 z-30 backdrop-blur-xl bg-background/80 border-b border-border/40">
+      <header className="sticky top-0 z-30 backdrop-blur-xl bg-background/80 border-b border-border/40 pt-safe">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link
             to="/founders"
