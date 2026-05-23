@@ -31,10 +31,10 @@ export function V2Dashboard() {
   const hasWallet = !!profile?.wallet_address;
   const hasEnergy = connectedAccounts.some((a) => a.connected);
   const balanceUsd = useMemo(() => {
-    const tokens = Number(activityData?.totalMintedTokens ?? 0);
-    return (tokens * 0.1).toFixed(2);
+    const t = Number(activityData?.tokensEarned ?? 0);
+    return (t * 0.1).toFixed(2);
   }, [activityData]);
-  const tokens = Number(activityData?.totalMintedTokens ?? 0);
+  const tokens = Number(activityData?.tokensEarned ?? 0);
 
   const steps = [
     {
