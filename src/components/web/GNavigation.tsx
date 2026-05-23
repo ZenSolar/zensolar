@@ -86,6 +86,29 @@ export function GNavigation() {
         }, SEQUENCE_TIMEOUT_MS);
         // Warm up likely chunks while user picks the second key.
         Object.values(ROUTES).forEach((r) => prefetchRoute(r.path));
+        return;
+      }
+
+      // Pass C: standalone single-key power shortcuts.
+      //   M → trigger Mint (scroll dashboard mint button into view)
+      //   R → trigger device refresh
+      if (e.key === "m" || e.key === "M") {
+        e.preventDefault();
+        navigate("/");
+        window.setTimeout(() => {
+          const target =
+            document.getElementById("mint") ||
+            document.querySelector("[data-mint-button]") ||
+            document.querySelector("[data-energy-command-center]");
+          if (target) target.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 120);
+        return;
+      }
+      if (e.key === "r" || e.key === "R") {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent("zen:refresh-dashboard"));
+        toast.success("Refreshing devices…", { duration: 1500 });
+        return;
       }
     };
 
