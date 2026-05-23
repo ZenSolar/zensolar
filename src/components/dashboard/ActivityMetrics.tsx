@@ -11,11 +11,11 @@ const analyticsCategoryByColor: Record<string, string> = {
   cyan: 'supercharger',
   greenGold: 'home_charger',
 };
-import { ShimmerOverlay } from './ShimmerOverlay';
+
 import { MintEffectButton } from './MintEffectButton';
 import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
 import { useMintSound } from '@/hooks/useMintSound';
-import { useShimmerSound } from '@/hooks/useShimmerSound';
+
 import { useSoundPreference } from '@/hooks/useSoundPreference';
 import { ActivityData, SolarDeviceData, BatteryDeviceData, EVDeviceData, ChargerDeviceData } from '@/types/dashboard';
 import { getRewardMultiplier, MINT_RATIO_KWH_PER_TOKEN } from '@/lib/tokenomics';
@@ -159,7 +159,7 @@ export function ActivityMetrics({
   const hasMultipleEvDevices = evDevices.length > 1;
   const hasMultipleChargerDevices = chargerDevices.length > 1;
 
-  // shimmerBurstDone removed — ShimmerOverlay handles burst→idle crossfade internally
+  
 
   // Swipe hint for first-time users
   const { shouldShowHint, markHintSeen } = useSwipeHintShown();
@@ -170,9 +170,6 @@ export function ActivityMetrics({
   // Sound preference — respects global toggle
   const { soundEnabled } = useSoundPreference();
 
-  // Lightsaber ambient hum — disabled by default on the dashboard. Tap/mint
-  // SFX still respect `soundEnabled`; only the continuous hum is muted.
-  useShimmerSound({ cycleDuration: 5, volume: 0.03, enabled: false });
 
   // Check if provider is connected for each category (locked = cannot hide)
   const hasSolarConnected = effectiveConnectedProviders.some(p => ['tesla', 'enphase', 'solaredge'].includes(p)) && solarDevices.length > 0;
@@ -498,17 +495,7 @@ export function ActivityMetrics({
         {/* Activity Fields - Single Column with Swipe-to-Hide */}
         {/* Order: 1. Solar, 2. Battery, 3. EV Miles, 4. Tesla Supercharger, 5. Home Charger */}
         <div className="relative overflow-hidden rounded-lg" data-hint-target="kpi-cards">
-          {/* Rainbow shimmer — scoped to KPI body only.
-              z-20 + mix-blend-screen lifts the beam ABOVE every tile so
-              the bottom Home Charger row visibly catches the sweep too. */}
-          <ShimmerOverlay
-            gradient="linear-gradient(90deg, transparent 0%, hsl(340 85% 58% / 0.25) 8%, hsl(30 90% 55% / 0.35) 22%, hsl(60 85% 50% / 0.3) 36%, hsl(155 90% 50% / 0.45) 52%, hsl(210 85% 55% / 0.4) 68%, hsl(280 70% 58% / 0.3) 84%, transparent 100%)"
-            glowColor="hsla(155, 85%, 45%, 0.15)"
-            duration="10s"
-            idleDelay="1.0s"
-            className="z-20 inset-0 mix-blend-screen"
-          />
-          <div className="relative z-10 space-y-2">
+          <div className="relative space-y-2">
           {/* 1. Solar Fields - Show individual devices if multiple, otherwise single field */}
           {!isHidden('solar') && (
             hasMultipleSolarDevices ? (
