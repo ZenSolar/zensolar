@@ -24,6 +24,11 @@ import { toast } from 'sonner';
 import { PageLoader } from '@/components/ui/empty-state';
 import { ExportCsvButton } from '@/components/ui/export-csv-button';
 import { todayStamp } from '@/lib/csvExport';
+import { SavedViewsMenu } from '@/components/web/SavedViewsMenu';
+import { startOfMonth } from 'date-fns';
+import type { ActivityType } from '@/hooks/useEnergyLog';
+
+type EnergyLogFilters = { tab: ActivityType; month: string; viewMode: 'cards' | 'table' };
 
 export default function EnergyLog() {
   const {
