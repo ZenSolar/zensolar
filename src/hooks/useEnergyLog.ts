@@ -9,6 +9,8 @@ export type ActivityType = 'solar' | 'battery' | 'ev-charging' | 'ev-miles';
 export interface DailyProduction {
   date: Date;
   kWh: number;
+  /** Pass E · #3 — verified data providers that contributed on this day */
+  providers: string[];
 }
 
 export interface MonthData {
@@ -87,6 +89,12 @@ function computeDailyFromRecords(records: RawRecord[], monthStart: Date, monthEn
 
   // For each device, compute daily production
   const dailyByDay = new Map<string, number>();
+  const providersByDay = new Map<string, Set<string>>();
+
+  const addProvider = (dayKey: string, provider: string) => {
+    if (!providersByDay.has(dayKey)) providersByDay.set(dayKey, new Set());
+    providersByDay.get(dayKey)!.add(provider);
+  };
 
   for (const [, dayMap] of deviceDayMax) {
     const sortedDays = [...dayMap.entries()].sort(([a], [b]) => a.localeCompare(b));
@@ -109,9 +117,11 @@ function computeDailyFromRecords(records: RawRecord[], monthStart: Date, monthEn
           if (delta > MAX_DAILY_MILES) continue;
           // Miles stored directly — no conversion
           dailyByDay.set(dayKey, (dailyByDay.get(dayKey) || 0) + Math.round(delta * 10) / 10);
+          if (delta > 0) addProvider(dayKey, provider);
         } else {
           if (delta > MAX_DAILY_WH) continue;
           dailyByDay.set(dayKey, (dailyByDay.get(dayKey) || 0) + delta / 1000);
+          if (delta > 0) addProvider(dayKey, provider);
         }
       }
     } else {
@@ -120,9 +130,11 @@ function computeDailyFromRecords(records: RawRecord[], monthStart: Date, monthEn
         if (isEvMiles) {
           if (max > MAX_DAILY_MILES) continue;
           dailyByDay.set(dayKey, (dailyByDay.get(dayKey) || 0) + Math.round(max * 10) / 10);
+          if (max > 0 && provider) addProvider(dayKey, provider);
         } else {
           if (max > MAX_DAILY_WH) continue;
           dailyByDay.set(dayKey, (dailyByDay.get(dayKey) || 0) + max / 1000);
+          if (max > 0 && provider) addProvider(dayKey, provider);
         }
       }
     }
@@ -134,10 +146,14 @@ function computeDailyFromRecords(records: RawRecord[], monthStart: Date, monthEn
 
   return allDays
     .filter(day => !isAfter(day, today))
-    .map(day => ({
-      date: day,
-      kWh: Math.round((dailyByDay.get(format(day, 'yyyy-MM-dd')) || 0) * 10) / 10,
-    }));
+    .map(day => {
+      const dayKey = format(day, 'yyyy-MM-dd');
+      return {
+        date: day,
+        kWh: Math.round((dailyByDay.get(dayKey) || 0) * 10) / 10,
+        providers: Array.from(providersByDay.get(dayKey) || []),
+      };
+    });
 }
 
 function computeMonthData(days: DailyProduction[]): MonthData {

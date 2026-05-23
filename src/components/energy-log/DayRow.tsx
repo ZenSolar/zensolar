@@ -1,6 +1,7 @@
 import { format, isSameDay } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { DailyProduction } from '@/hooks/useEnergyLog';
+import { SourceBadges } from '@/components/energy-log/SourceBadges';
 
 interface DayRowProps {
   day: DailyProduction;
@@ -43,10 +44,11 @@ export function DayRow({ day, maxKwh, isBestDay }: DayRowProps) {
       </div>
 
       {/* Spacer */}
-      <div className="relative flex-1 flex items-center">
+      <div className="relative flex-1 flex items-center gap-2 min-w-0">
         {isBestDay && day.kWh > 0 && (
-          <span className="text-[10px] font-semibold text-warning/80">⭐ Best</span>
+          <span className="text-[10px] font-semibold text-warning/80 shrink-0">⭐ Best</span>
         )}
+        {day.kWh > 0 && <SourceBadges providers={day.providers} />}
       </div>
 
       {/* Value */}

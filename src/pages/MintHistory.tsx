@@ -21,6 +21,9 @@ import { JargonTip } from '@/components/ui/jargon-tip';
 import { Tokenomics101Card } from '@/components/tokenomics/Tokenomics101Card';
 import { ExportCsvButton } from '@/components/ui/export-csv-button';
 import { todayStamp } from '@/lib/csvExport';
+import { ReceiptDrawer } from '@/components/mint-history/ReceiptDrawer';
+import { Button } from '@/components/ui/button';
+import { Receipt } from 'lucide-react';
 
 interface MintTransaction {
   id: string;
@@ -56,6 +59,7 @@ export default function MintHistory() {
   const { profile } = useProfile();
   const [transactions, setTransactions] = useState<MintTransaction[]>([]);
   const [expandedTx, setExpandedTx] = useState<string | null>(null);
+  const [receiptTx, setReceiptTx] = useState<MintTransaction | null>(null);
   const [pendingActivity, setPendingActivity] = useState<PendingActivity>({
     solarKwh: 0, batteryKwh: 0, evMiles: 0, evChargingKwh: 0, totalTokens: 0,
   });
@@ -355,6 +359,16 @@ export default function MintHistory() {
                                 {tx.tokens_minted > 0 && <p className="font-semibold text-xs sm:text-sm tabular-nums">{tx.tokens_minted.toLocaleString()}<span className="text-muted-foreground font-normal ml-1">$ZSOLAR</span></p>}
                                 {tx.nft_names?.length > 0 && <p className="text-[11px] sm:text-xs text-muted-foreground">{tx.nft_names.length} NFT{tx.nft_names.length > 1 ? 's' : ''}</p>}
                               </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 px-2 text-[11px] text-muted-foreground hover:text-primary"
+                                onClick={(e) => { e.stopPropagation(); e.preventDefault(); setReceiptTx(tx); }}
+                                aria-label="Open mint receipt"
+                              >
+                                <Receipt className="h-3.5 w-3.5 sm:mr-1" />
+                                <span className="hidden sm:inline">Receipt</span>
+                              </Button>
                               {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />}
                             </div>
                           </div>
@@ -504,6 +518,11 @@ export default function MintHistory() {
         </motion.div>
         </div>
       </PageShell>
+      <ReceiptDrawer
+        tx={receiptTx}
+        open={!!receiptTx}
+        onOpenChange={(open) => { if (!open) setReceiptTx(null); }}
+      />
     </PullToRefreshWrapper>
     </PageTransition>
   );

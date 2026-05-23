@@ -12,6 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { DailyProduction } from "@/hooks/useEnergyLog";
 import type { ActivityType } from "@/hooks/useEnergyLog";
+import { SourceBadges } from "@/components/energy-log/SourceBadges";
 
 type SortKey = "date" | "value";
 type SortDir = "asc" | "desc";
@@ -96,12 +97,13 @@ export function DailyTable({ days, unit }: DailyTableProps) {
                 </span>
               </TableHead>
               <TableHead className="text-right w-24">vs. Best</TableHead>
+              <TableHead className="text-right w-[140px]">Verified by</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sorted.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={3} className="text-center py-10 text-muted-foreground text-sm">
+                <TableCell colSpan={4} className="text-center py-10 text-muted-foreground text-sm">
                   No data for this period yet.
                 </TableCell>
               </TableRow>
@@ -132,6 +134,13 @@ export function DailyTable({ days, unit }: DailyTableProps) {
                           {pct}%
                         </span>
                       </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {d.kWh > 0 ? (
+                        <SourceBadges providers={d.providers} className="justify-end" />
+                      ) : (
+                        <span className="text-muted-foreground text-xs">—</span>
+                      )}
                     </TableCell>
                   </TableRow>
                 );
