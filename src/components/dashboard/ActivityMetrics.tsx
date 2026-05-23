@@ -11,11 +11,11 @@ const analyticsCategoryByColor: Record<string, string> = {
   cyan: 'supercharger',
   greenGold: 'home_charger',
 };
-import { ShimmerOverlay } from './ShimmerOverlay';
+
 import { MintEffectButton } from './MintEffectButton';
 import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
 import { useMintSound } from '@/hooks/useMintSound';
-import { useShimmerSound } from '@/hooks/useShimmerSound';
+
 import { useSoundPreference } from '@/hooks/useSoundPreference';
 import { ActivityData, SolarDeviceData, BatteryDeviceData, EVDeviceData, ChargerDeviceData } from '@/types/dashboard';
 import { getRewardMultiplier, MINT_RATIO_KWH_PER_TOKEN } from '@/lib/tokenomics';
@@ -159,7 +159,7 @@ export function ActivityMetrics({
   const hasMultipleEvDevices = evDevices.length > 1;
   const hasMultipleChargerDevices = chargerDevices.length > 1;
 
-  // shimmerBurstDone removed — ShimmerOverlay handles burst→idle crossfade internally
+  
 
   // Swipe hint for first-time users
   const { shouldShowHint, markHintSeen } = useSwipeHintShown();
