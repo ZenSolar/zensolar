@@ -207,15 +207,66 @@ export default function EnergyLog() {
     triggerBackfills();
   }, [queryClient]);
 
+  // Pass D · #3 — Energy Log CSV export (current month, current tab).
+  const unitLabel = activeTab === 'ev-miles' ? 'mi' : 'kWh';
+  const exportCurrentMonth = () => {
+    const rows = currentMonthData.days.map((d) => ({
+      date: format(d.date, 'yyyy-MM-dd'),
+      weekday: format(d.date, 'EEEE'),
+      [unitLabel]: d.kWh,
+      activity: activeTab,
+    }));
+    return { rows, columns: ['date', 'weekday', unitLabel, 'activity'] };
+  };
+
   return (
-    <AnimatedContainer className="w-full max-w-lg mx-auto px-3 sm:px-4 py-5 space-y-3.5">
+    <AnimatedContainer className={cn(
+      "w-full mx-auto px-3 sm:px-4 py-5 space-y-3.5",
+      viewMode === 'table' ? 'max-w-lg xl:max-w-5xl' : 'max-w-lg',
+    )}>
       {/* Header */}
       <AnimatedItem className="space-y-0.5">
-        <div className="flex items-center gap-2">
-          <Sun className="h-5 w-5 text-primary" />
-          <h1 className="text-xl font-bold text-foreground">
-            {getEnergyLogTitle(activeTab, deviceLabels)}
-          </h1>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <Sun className="h-5 w-5 text-primary shrink-0" />
+            <h1 className="text-xl font-bold text-foreground truncate">
+              {getEnergyLogTitle(activeTab, deviceLabels)}
+            </h1>
+          </div>
+          {/* Desktop-only: view toggle + export */}
+          <div className="hidden md:flex items-center gap-2 shrink-0">
+            <div className="inline-flex rounded-md border border-border/60 bg-card/60 p-0.5" role="tablist" aria-label="View mode">
+              <button
+                type="button"
+                onClick={() => setViewModeAndPersist('cards')}
+                aria-pressed={viewMode === 'cards'}
+                className={cn(
+                  "inline-flex items-center gap-1 h-7 px-2 rounded text-xs transition-colors",
+                  viewMode === 'cards' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground',
+                )}
+              >
+                <LayoutGrid className="h-3.5 w-3.5" />
+                Cards
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewModeAndPersist('table')}
+                aria-pressed={viewMode === 'table'}
+                className={cn(
+                  "inline-flex items-center gap-1 h-7 px-2 rounded text-xs transition-colors",
+                  viewMode === 'table' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground',
+                )}
+              >
+                <TableIcon className="h-3.5 w-3.5" />
+                Table
+              </button>
+            </div>
+            <ExportCsvButton
+              filename={`zensolar-energy-${activeTab}-${format(currentMonth, 'yyyy-MM')}-${todayStamp()}`}
+              getRows={exportCurrentMonth}
+              label="Export"
+            />
+          </div>
         </div>
       </AnimatedItem>
 
@@ -262,7 +313,7 @@ export default function EnergyLog() {
                 </span>
                 <span className="text-muted-foreground">·</span>
                 <span className="font-semibold text-foreground">
-                  {currentMonthData.totalKwh.toLocaleString()} {activeTab === 'ev-miles' ? 'mi' : 'kWh'}
+                  {currentMonthData.totalKwh.toLocaleString()} {unitLabel}
                 </span>
               </div>
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={goToNextMonth} disabled={!canGoForward}>
@@ -271,13 +322,17 @@ export default function EnergyLog() {
             </div>
           </AnimatedItem>
 
-          {/* Daily List */}
+          {/* Daily list (mobile / cards mode) or table (desktop table mode) */}
           <AnimatedItem>
-            <Card className="bg-card border-border/50">
-              <CardContent className="px-3 py-1">
-                <DailyList days={currentMonthData.days} unit={activeTab === 'ev-miles' ? 'mi' : 'kWh'} activityType={activeTab} />
-              </CardContent>
-            </Card>
+            {viewMode === 'table' ? (
+              <DailyTable days={currentMonthData.days} unit={unitLabel} activityType={activeTab} />
+            ) : (
+              <Card className="bg-card border-border/50">
+                <CardContent className="px-3 py-1">
+                  <DailyList days={currentMonthData.days} unit={unitLabel} activityType={activeTab} />
+                </CardContent>
+              </Card>
+            )}
           </AnimatedItem>
 
           {/* Charging Sessions Detail — only on EV Charging tab */}
