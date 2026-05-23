@@ -41,6 +41,7 @@ export function LiveMirrorDashboard() {
 
   const { pullDistance, isRefreshing, isReady, containerRef } = usePullToRefresh({
     onRefresh: refresh,
+    enabled: false,
   });
 
   const activityData: ActivityData = useMemo(() => {

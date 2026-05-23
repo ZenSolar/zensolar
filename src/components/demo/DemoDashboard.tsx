@@ -61,6 +61,7 @@ export function DemoDashboard() {
   
   const { pullDistance, isRefreshing, isReady, containerRef } = usePullToRefresh({
     onRefresh: refreshDashboard,
+    enabled: false,
   });
 
   useEffect(() => {

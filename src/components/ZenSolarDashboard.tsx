@@ -128,8 +128,13 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
     installNetworkPerfLogger();
   }, []);
   
+  // Pull-to-refresh disabled: data auto-syncs in the background, and the
+  // gesture was causing a content height collapse that snapped users back
+  // to the top mid-scroll — breaking the "zen-like" flow. Keep the API
+  // shape so the indicator below still compiles as a no-op.
   const { pullDistance, isRefreshing, isReady, containerRef } = usePullToRefresh({
     onRefresh: refreshDashboard,
+    enabled: false,
   });
 
   const handleMintTokens = () => {
