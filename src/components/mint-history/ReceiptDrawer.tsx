@@ -27,6 +27,7 @@ import { X } from "lucide-react";
 import { ZSOLAR_NFT_ADDRESS, ZSOLAR_TOKEN_ADDRESS } from "@/lib/wagmi";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { ProofOfGenesisTile } from "@/components/proof/ProofOfGenesisTile";
 
 export interface MintReceiptTx {
   id: string;

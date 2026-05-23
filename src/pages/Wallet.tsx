@@ -32,6 +32,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { ZppaStatusWidget } from '@/components/wallet/ZppaStatusWidget';
 import { RecentMintProofs } from '@/components/wallet/RecentMintProofs';
+import { ProofOfGenesisTile } from '@/components/proof/ProofOfGenesisTile';
 import { JargonTip } from '@/components/ui/jargon-tip';
 
 // Live token price (testnet simulation)
@@ -329,6 +330,9 @@ export default function Wallet() {
 
       {/* ── View Proof: recent mints ── */}
       <RecentMintProofs />
+
+      {/* ── Proof-of-Genesis: the IP receipt ── */}
+      <ProofOfGenesisTile />
 
       {/* ── NFT Gallery ── */}
       {!holdingsLoading && nftTokenIds.length === 0 && (
