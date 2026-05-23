@@ -51,7 +51,7 @@ export function useViewPresets<F extends Record<string, unknown>>(viewKey: strin
         user_id: user.id,
         view_key: viewKey,
         name: name.trim(),
-        filters: filters as unknown as Record<string, unknown>,
+        filters: JSON.parse(JSON.stringify(filters)) as never,
       };
       const { data, error } = await supabase
         .from("user_view_presets")
