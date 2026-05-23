@@ -75,7 +75,7 @@ const FoundersAppOverhaul = lazy(() => import("./pages/FoundersAppOverhaul"));
 const FoundersDeasonV3 = lazy(() => import("./pages/FoundersDeasonV3"));
 const FoundersDeasonUtilityAI = lazy(() => import("./pages/FoundersDeasonUtilityAI"));
 const FoundersProofOfGenesis = lazy(() => import("./pages/FoundersProofOfGenesis"));
-const V2App = lazy(() => import("./pages/V2App"));
+
 
 const FoundersCompetitiveLandscape = lazy(() => import("./pages/FoundersCompetitiveLandscape"));
 const FoundersTheAsk = lazy(() => import("./pages/FoundersTheAsk"));
@@ -1191,7 +1191,7 @@ const App = () => {
                     <Route path="/founders/spacex" element={<FounderRoute><FoundersSpaceX /></FounderRoute>} />
                     <Route path="/founders/app-overhaul-plan" element={<FounderRoute><FoundersAppOverhaul /></FounderRoute>} />
                     <Route path="/founders/proof-of-genesis" element={<FounderRoute><FoundersProofOfGenesis /></FounderRoute>} />
-                    <Route path="/founders/v2app" element={<FounderRoute><V2App /></FounderRoute>} />
+                    
                     <Route path="/founders/deason-v3" element={<FounderRoute><FoundersDeasonV3 /></FounderRoute>} />
                     <Route path="/founders/deason-utility-ai-revstream" element={<FounderRoute><FoundersDeasonUtilityAI /></FounderRoute>} />
                     <Route path="/founders/vault/deason-utility-ai-revstream" element={<Navigate to="/founders/deason-utility-ai-revstream" replace />} />
