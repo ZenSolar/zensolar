@@ -291,6 +291,8 @@ export function AppSidebar() {
           </div>
         )}
 
+        <SidebarStatus walletHref="/wallet" />
+
         {/* Main Navigation */}
         <SidebarGroup className="px-1">
           <SidebarGroupLabel className="px-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-sidebar-foreground/50">
