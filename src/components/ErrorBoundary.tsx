@@ -1,6 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw, Home } from "lucide-react";
+import { isStaleChunkError, recoverFromStaleChunk } from "@/lib/recoverFromStaleChunk";
 
 interface Props {
   children: ReactNode;
@@ -27,22 +28,11 @@ export class ErrorBoundary extends Component<Props, State> {
     console.error("[ErrorBoundary] Caught error:", error?.message, error?.stack);
     console.error("[ErrorBoundary] Component stack:", errorInfo?.componentStack);
     
-    // Auto-reload on chunk/module import failures (stale cache after rebuild)
-    const msg = error?.message || '';
-    if (
-      msg.includes('Importing a module script failed') ||
-      msg.includes('Failed to fetch dynamically imported module') ||
-      msg.includes('Loading chunk') ||
-      msg.includes('Loading CSS chunk')
-    ) {
-      const reloadKey = 'chunk_error_reload';
-      const lastReload = sessionStorage.getItem(reloadKey);
-      const now = Date.now();
-      if (!lastReload || now - Number(lastReload) > 30000) {
-        sessionStorage.setItem(reloadKey, String(now));
-        window.location.reload();
-        return;
-      }
+    // Auto-recover from stale-chunk / module import failures (after a fresh publish,
+    // the installed PWA holds an old index.html referencing chunks that no longer exist).
+    if (isStaleChunkError(error)) {
+      void recoverFromStaleChunk(`ErrorBoundary: ${error.message}`);
+      return;
     }
   }
 

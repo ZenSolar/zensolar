@@ -6,6 +6,11 @@ import "./index.css";
 import "./styles/learn-themes.css";
 import "./styles/app-themes.css";
 import { getInitialAppTheme, applyAppTheme } from "./lib/appThemes";
+import { installStaleChunkRecovery } from "./lib/recoverFromStaleChunk";
+
+// Catch dynamic-import failures from stale chunks (post-publish PWA recovery)
+// BEFORE any route loads — must run before React mounts.
+installStaleChunkRecovery();
 
 // Apply the persisted (or default) app theme synchronously BEFORE React renders
 // to prevent any flash of the wrong theme.
