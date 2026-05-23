@@ -518,6 +518,11 @@ export default function MintHistory() {
         </motion.div>
         </div>
       </PageShell>
+      <ReceiptDrawer
+        tx={receiptTx}
+        open={!!receiptTx}
+        onOpenChange={(open) => { if (!open) setReceiptTx(null); }}
+      />
     </PullToRefreshWrapper>
     </PageTransition>
   );
