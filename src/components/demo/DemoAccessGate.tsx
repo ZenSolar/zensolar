@@ -24,6 +24,7 @@ import { activateVipMirror, isVipMirrorCode, clearVipMirror, isVipCode, activate
 import { getReviewerInviteFromUrl, isGregReviewerCode, GREG_REVIEWER_EMAIL } from '@/lib/reviewerAccess';
 import { useNavigate } from 'react-router-dom';
 import { getSafeAudioStartTime, getSharedAudioContext, IMMEDIATE_SOUND_LEAD, runWhenAudioContextRunning, useMintSound } from '@/hooks/useMintSound';
+import { LiveEarningsCounter } from '@/components/marketing/LiveEarningsCounter';
 
 
 
