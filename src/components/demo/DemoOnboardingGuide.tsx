@@ -134,7 +134,8 @@ export function DemoOnboardingGuide({ onComplete }: DemoOnboardingGuideProps) {
         variant="outline" 
         size="sm" 
         onClick={handleRestart}
-        className="fixed bottom-20 right-3 z-50 gap-2 shadow-lg max-w-[140px] text-xs pb-safe"
+        className="fixed right-3 z-50 gap-2 shadow-lg max-w-[140px] text-xs"
+        style={{ bottom: 'calc(var(--bottom-nav-total-h) + 12px)' }}
       >
         <Sparkles className="h-3.5 w-3.5 shrink-0" />
         <span className="truncate">Restart Tour</span>
