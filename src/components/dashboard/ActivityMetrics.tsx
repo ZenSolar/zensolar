@@ -1240,7 +1240,9 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             : isTappable
               ? `0 0 12px hsl(${styles.rgba} / 0.18), 0 0 5px hsl(${styles.rgba} / 0.12), 0 0 24px hsl(${styles.rgba} / 0.06), inset 0 0 6px hsl(${styles.rgba} / 0.06)`
               : shadowRest,
-        transition: 'box-shadow 0.4s ease-out',
+        // box-shadow transitions are paint-heavy on mobile; snap, don't tween.
+        // The keyframe burst already provides the visual fade through the rings.
+        transition: 'none',
         // Promote each tile to its own GPU compositor layer so bursts, rings,
         // and ripples don't trigger sibling tile repaints. Big win on iOS.
         transform: 'translateZ(0)',
