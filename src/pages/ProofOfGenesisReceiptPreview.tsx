@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Sun, Battery, Car, Leaf, Hash, Shield, Clock, Zap, Copy, Check, FileText, Play, X } from 'lucide-react';
+import { ArrowLeft, Sun, Battery, Car, Leaf, Hash, Shield, Clock, Zap, Copy, Check, FileText, Play, X, Share2, ImageDown, Link2 } from 'lucide-react';
+import { toast } from 'sonner';
+import html2canvas from 'html2canvas';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -369,6 +371,61 @@ export default function ProofOfGenesisReceiptPreview() {
     return () => clearTimeout(t);
   }, [isReceiptSuccess]);
 
+  // ===== Share + Save-as-image =====
+  const captureRef = useRef<HTMLDivElement>(null);
+
+  const handleShareLink = async () => {
+    const url = typeof window !== 'undefined' ? window.location.href : '';
+    const title = 'Proof-of-Genesis Receipt';
+    const text = `${formatKwh(receipt.tokens_minted)} $ZSOLAR minted from ${formatKwh(receipt.total_kwh)} kWh of verified clean energy.`;
+    try {
+      if (typeof navigator !== 'undefined' && (navigator as any).share) {
+        await (navigator as any).share({ title, text, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      toast.success('Link copied', { description: 'Proof-of-Genesis receipt link is on your clipboard.' });
+    } catch (err: any) {
+      if (err?.name === 'AbortError') return;
+      toast.error('Could not share', { description: 'Try copying the URL manually.' });
+    }
+  };
+
+  const handleSaveImage = async () => {
+    if (!captureRef.current) return;
+    const t = toast.loading('Rendering image…');
+    try {
+      const canvas = await html2canvas(captureRef.current, {
+        backgroundColor: getComputedStyle(document.body).backgroundColor || '#000',
+        scale: Math.min(2, window.devicePixelRatio || 1.5),
+        useCORS: true,
+        logging: false,
+      });
+      const blob: Blob | null = await new Promise((res) => canvas.toBlob(res, 'image/png'));
+      if (!blob) throw new Error('toBlob failed');
+
+      const file = new File([blob], `proof-of-genesis-${receipt.mint_id}.png`, { type: 'image/png' });
+      const navAny = navigator as any;
+      if (navAny.canShare && navAny.canShare({ files: [file] })) {
+        await navAny.share({ files: [file], title: 'Proof-of-Genesis Receipt' });
+        toast.dismiss(t);
+        return;
+      }
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      toast.success('Image saved', { id: t });
+    } catch (e) {
+      toast.error('Could not capture image', { id: t });
+    }
+  };
+
   return (
     <>
       <SEO
@@ -383,7 +440,7 @@ export default function ProofOfGenesisReceiptPreview() {
           className="sticky top-0 z-40 border-b border-primary/20 bg-background/85 supports-[backdrop-filter]:bg-background/60 backdrop-blur-md"
           style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
         >
-          <div className="container max-w-4xl mx-auto px-4 py-2 flex items-center justify-between gap-3">
+          <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-2 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
               <Badge variant="outline" className="border-primary/40 text-primary text-[10px] uppercase tracking-wider shrink-0">
                 Preview
@@ -392,17 +449,38 @@ export default function ProofOfGenesisReceiptPreview() {
                 Proof-of-Genesis receipt — not linked from nav, mocked data
               </span>
             </div>
-            <Link
-              to="/"
-              aria-label="Close receipt and return to app"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground/90 hover:text-foreground transition-colors px-3 py-1.5 rounded-full border border-border/60 bg-background/60 active:scale-95 shrink-0"
-            >
-              <X className="h-3.5 w-3.5" /> Close
-            </Link>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={handleShareLink}
+                aria-label="Share Proof-of-Genesis link"
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground/90 hover:text-foreground transition-colors px-2.5 sm:px-3 py-1.5 rounded-full border border-border/60 bg-background/60 active:scale-95"
+              >
+                <Link2 className="h-3.5 w-3.5" />
+                <span className="hidden xs:inline sm:inline">Share</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveImage}
+                aria-label="Save Proof-of-Genesis as image"
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground/90 hover:text-foreground transition-colors px-2.5 sm:px-3 py-1.5 rounded-full border border-border/60 bg-background/60 active:scale-95"
+              >
+                <ImageDown className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Image</span>
+              </button>
+              <Link
+                to="/"
+                aria-label="Close receipt and return to app"
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground/90 hover:text-foreground transition-colors px-2.5 sm:px-3 py-1.5 rounded-full border border-border/60 bg-background/60 active:scale-95"
+              >
+                <X className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Close</span>
+              </Link>
+            </div>
           </div>
         </div>
 
-        <div className="container max-w-4xl mx-auto px-4 pt-6 sm:pt-10 space-y-6 sm:space-y-8">
+        <div ref={captureRef} className="container max-w-4xl mx-auto px-4 pt-6 sm:pt-10 space-y-6 sm:space-y-8">
           {/* Header */}
           <motion.header
             initial={{ opacity: 0, y: 10 }}
