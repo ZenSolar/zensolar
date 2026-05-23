@@ -616,9 +616,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           <circle cx={nodes.battery.x} cy={nodes.battery.y} r={compact ? 14 : 18} fill={colors.battery} fillOpacity={0.1} stroke={colors.battery} strokeWidth={0.8} strokeOpacity={0.35} />
           <BatteryIcon percent={flow.batteryPercent} color={colors.battery} cx={nodes.battery.x} cy={nodes.battery.y} />
           <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 22 : 28)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.2">POWERWALL</text>
-          {/* Tesla pill */}
-          <rect x={nodes.battery.x + (compact ? 18 : 22)} y={nodes.battery.y - 6} width={compact ? 32 : 38} height={12} rx={6} fill="#E82127" fillOpacity={0.12} stroke="#E82127" strokeWidth={0.5} strokeOpacity={0.4} />
-          <text x={nodes.battery.x + (compact ? 34 : 41)} y={nodes.battery.y + 2} textAnchor="middle" fill="#E82127" fontSize={compact ? 5.5 : 6.5} fontWeight="700" letterSpacing="0.3">TESLA</text>
+          <text x={nodes.battery.x} y={nodes.battery.y - (compact ? 18 : 22)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 5.5 : 6.5} fontWeight="500" letterSpacing="0.6">tesla</text>
           <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 35 : 43)} textAnchor="middle" fill={colors.battery} fontSize={subValueFs} fontWeight="800" filter="url(#valueGlow)">
             {Math.abs(flow.batteryPower).toFixed(1)} kW
           </text>
