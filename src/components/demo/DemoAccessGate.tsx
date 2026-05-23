@@ -24,6 +24,7 @@ import { activateVipMirror, isVipMirrorCode, clearVipMirror, isVipCode, activate
 import { getReviewerInviteFromUrl, isGregReviewerCode, GREG_REVIEWER_EMAIL } from '@/lib/reviewerAccess';
 import { useNavigate } from 'react-router-dom';
 import { getSafeAudioStartTime, getSharedAudioContext, IMMEDIATE_SOUND_LEAD, runWhenAudioContextRunning, useMintSound } from '@/hooks/useMintSound';
+import { LiveEarningsCounter } from '@/components/marketing/LiveEarningsCounter';
 
 
 
@@ -2060,6 +2061,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         {/* Subtle branding footer */}
         {!isIOSKeyboardMode && (
           <div className="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-3 pointer-events-none z-10">
+            <LiveEarningsCounter />
             <div
               className="text-[10px] font-medium tracking-widest uppercase text-center leading-relaxed bg-clip-text text-transparent drop-shadow-[0_0_6px_hsl(var(--primary)/0.3)]"
               style={{
