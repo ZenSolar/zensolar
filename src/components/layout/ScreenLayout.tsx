@@ -56,10 +56,10 @@ export function ScreenLayout({
 
   return (
     <div className="min-h-screen min-h-[100dvh] w-full bg-background flex flex-col">
-      {/* Fixed header — safe-area aware */}
+      {/* Fixed header — safe-area aware via [data-fixed-top] global rule */}
       <header
+        data-fixed-top="true"
         className="fixed inset-x-0 top-0 z-40 bg-background/95 backdrop-blur-md border-b border-border"
-        style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
         <div className="relative flex h-14 items-center px-2">
           <div className="flex items-center min-w-0 flex-1">
@@ -92,16 +92,13 @@ export function ScreenLayout({
         </div>
       </header>
 
-      {/* Content — offset for fixed header (header height + top safe area) */}
+      {/* Content — offset for fixed header via semantic tokens */}
       <main
         className={cn(
-          "flex-1 w-full",
+          "flex-1 w-full pt-header [overscroll-behavior-y:contain]",
           withBottomNavPadding ? "pb-bottom-nav" : "pb-safe",
           className,
         )}
-        style={{
-          paddingTop: "calc(env(safe-area-inset-top, 0px) + 3.5rem)",
-        }}
       >
         {children}
       </main>
