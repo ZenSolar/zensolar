@@ -101,7 +101,7 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
         aria-hidden
         className="md:hidden pointer-events-none fixed inset-x-0 z-30"
         style={{
-          bottom: "var(--bottom-nav-height)",
+          bottom: "var(--bottom-nav-total-h)",
           height: "24px",
           background:
             "linear-gradient(to top, hsl(var(--background)) 0%, hsl(var(--background) / 0) 100%)",
