@@ -51,7 +51,13 @@ function generateDemoMonth(monthStart: Date, monthEnd: Date, tab: ActivityType):
           break;
       }
 
-      return { date: day, kWh };
+      // Demo: assign plausible provider per activity so verification badges render
+      const provider =
+        tab === 'solar' ? (rand > 0.5 ? 'enphase' : 'solaredge')
+        : tab === 'battery' ? 'tesla'
+        : tab === 'ev-charging' ? 'wallbox'
+        : 'tesla';
+      return { date: day, kWh, providers: kWh > 0 ? [provider] : [] };
     });
 }
 
