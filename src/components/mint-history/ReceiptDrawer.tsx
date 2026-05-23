@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import {
   ArrowUpRight,
   Award,
@@ -27,7 +28,7 @@ import { X } from "lucide-react";
 import { ZSOLAR_NFT_ADDRESS, ZSOLAR_TOKEN_ADDRESS } from "@/lib/wagmi";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { ProofOfGenesisTile } from "@/components/proof/ProofOfGenesisTile";
+import { useBasePath } from "@/hooks/useBasePath";
 
 export interface MintReceiptTx {
   id: string;
