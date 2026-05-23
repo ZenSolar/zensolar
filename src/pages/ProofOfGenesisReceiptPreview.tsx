@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Sun, Battery, Car, Leaf, Hash, Shield, Clock, Zap, Copy, Check, FileText, Play, X } from 'lucide-react';
+import { ArrowLeft, Sun, Battery, Car, Leaf, Hash, Shield, Clock, Zap, Copy, Check, FileText, Play, X, Share2, ImageDown, Link2 } from 'lucide-react';
+import { toast } from 'sonner';
+import html2canvas from 'html2canvas';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
