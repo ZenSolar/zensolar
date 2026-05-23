@@ -38,8 +38,10 @@ export function AppLayout({ children }: AppLayoutProps) {
             {/* Fixed header - always visible */}
             <TopNav />
             
-            {/* Main content with padding-top to offset fixed header */}
-            <main className="flex-1 pt-[calc(env(safe-area-inset-top)+3.5rem)] pb-[var(--bottom-nav-total-h)] md:pb-safe min-w-0 overflow-x-hidden">
+            {/* Main content — uses semantic tokens (single source of truth for
+                header + bottom-nav geometry). overscroll-contain keeps the
+                rubber-band feeling tied to the page, not nested scrollers. */}
+            <main className="flex-1 pt-header pb-bottom-nav md:pb-safe min-w-0 overflow-x-hidden [overscroll-behavior-y:contain]">
               <DashboardShell>{children}</DashboardShell>
             </main>
           </div>

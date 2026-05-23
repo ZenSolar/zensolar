@@ -169,11 +169,21 @@
     -webkit-touch-callout: none;
     /* Prevent subtle horizontal drift on iOS/PWA */
     overflow-x: hidden;
+    /* Block horizontal overscroll (no accidental browser back-swipe pull),
+       allow vertical rubber-band so the page feels native on iOS. */
+    overscroll-behavior-x: none;
+    overscroll-behavior-y: auto;
     /* min-height only — no fixed height — so the page can scroll naturally
        and iOS owns the rubber-band physics. */
     min-height: 100vh;
     min-height: 100svh;
     min-height: 100dvh;
+  }
+
+  /* Kill the 300ms tap delay on every interactive element — the single
+     biggest contributor to "this feels like a website, not an app." */
+  a, button, [role="button"], input, select, textarea, label, summary {
+    touch-action: manipulation;
   }
 
   /* Ensure the app root fills the viewport on mobile PWAs */

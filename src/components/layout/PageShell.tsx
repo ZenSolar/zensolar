@@ -61,7 +61,7 @@ export function PageShell({
       </div>
 
       {sticky && (
-        <div className="sticky top-[calc(env(safe-area-inset-top)+3.5rem)] z-40 mt-4 border-b border-border/60 bg-background shadow-[0_1px_0_0_hsl(var(--border)/0.4)]">
+        <div className="sticky top-[var(--header-total-h)] z-40 mt-4 border-b border-border/60 bg-background shadow-[0_1px_0_0_hsl(var(--border)/0.4)]">
           <div className={cn("container mx-auto px-4", widthMap[width])}>
             {sticky}
           </div>
