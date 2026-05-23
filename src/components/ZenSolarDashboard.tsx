@@ -289,8 +289,14 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             )}
           </>
         )}
-        
-        
+
+        {/* Ready-to-mint celebration: wallet + energy done, but never minted */}
+        {!isViewer && !isNewUserView && hasWalletConnected && hasEnergyConnected && activityData.lifetimeMinted === 0 && (
+          <AnimatedItem className="xl:col-span-2">
+            <ReadyToMintCard onMint={handleMintTokens} firstName={firstName} />
+          </AnimatedItem>
+        )}
+
         {/* ENERGY COMMAND CENTER - The Hero Section */}
         <AnimatedItem className="xl:col-span-2">
           <PerfProbe id="ActivityMetrics">
