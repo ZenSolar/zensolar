@@ -704,17 +704,25 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     if (!trimmed || s.phase === 'verifying' || s.phase === 'burst') return;
 
     // Greg's reviewer code (GILI2026) — short-circuits the normal demo-code path.
-    // Saves his email so REVIEWER_PAGES (pitch + companion deck) unlock immediately.
+    // Still enforces NDA: if already signed, grants access; otherwise shows NDA modal.
     if (isGregReviewerCode(trimmed)) {
       saveNdaEmail(GREG_REVIEWER_EMAIL);
-      const name = await fetchNdaName(GREG_REVIEWER_EMAIL);
-      if (name) saveNdaName(name);
-      grantAccess();
-      setGranted(true);
-      playMintSound();
-      toast.success('Welcome, Greg', { description: 'Pitch and companion deck unlocked.' });
+      const alreadySigned = await checkExistingNda(GREG_REVIEWER_EMAIL);
+      if (alreadySigned) {
+        const name = await fetchNdaName(GREG_REVIEWER_EMAIL);
+        if (name) saveNdaName(name);
+        grantAccess();
+        setGranted(true);
+        playMintSound();
+        toast.success('Welcome back, Greg', { description: 'Pitch and companion deck unlocked.' });
+        return;
+      }
+      // Not yet signed — show NDA modal, which will grantAccess on completion.
+      setVerifiedCode(trimmed);
+      setShowNda(true);
       return;
     }
+
 
     updateState({ phase: 'verifying', showTapAgain: false });
     
