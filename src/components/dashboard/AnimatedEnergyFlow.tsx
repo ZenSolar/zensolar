@@ -678,7 +678,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           {flow.evPower > 0 && (
             <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 45 : 55)} textAnchor="middle" fill={colors.ev} fontSize={compact ? 6.5 : 8.5} fontWeight="500">
               <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite" />
-              ⚡ CHARGING
+              charging
             </text>
           )}
         </g>
