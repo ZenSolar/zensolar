@@ -19,6 +19,8 @@ import { PageShell } from '@/components/layout/PageShell';
 import { PageTransition } from '@/components/layout/PageTransition';
 import { JargonTip } from '@/components/ui/jargon-tip';
 import { Tokenomics101Card } from '@/components/tokenomics/Tokenomics101Card';
+import { ExportCsvButton } from '@/components/ui/export-csv-button';
+import { todayStamp } from '@/lib/csvExport';
 
 interface MintTransaction {
   id: string;
@@ -249,11 +251,31 @@ export default function MintHistory() {
                   <Hash className="h-5 w-5 text-primary shrink-0" />
                   Transaction Details
                 </CardTitle>
-                {profile?.wallet_address && (
-                  <a href={`https://sepolia.basescan.org/address/${profile.wallet_address}#tokentxns`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs text-primary hover:underline touch-target px-1 -mx-1">
-                    <ExternalLink className="h-3.5 w-3.5" />BaseScan
-                  </a>
-                )}
+                <div className="flex items-center gap-2">
+                  <ExportCsvButton
+                    filename={`zensolar-mint-history-${todayStamp()}`}
+                    disabled={transactions.length === 0}
+                    getRows={() => ({
+                      rows: transactions.map((tx) => ({
+                        date: format(new Date(tx.created_at), 'yyyy-MM-dd HH:mm'),
+                        action: tx.action,
+                        tokens_minted: tx.tokens_minted,
+                        nfts_minted: (tx.nfts_minted ?? []).join('|'),
+                        nft_names: (tx.nft_names ?? []).join('|'),
+                        wallet_address: tx.wallet_address,
+                        tx_hash: tx.tx_hash,
+                        block_number: tx.block_number ?? '',
+                        status: tx.status,
+                      })),
+                      columns: ['date','action','tokens_minted','nfts_minted','nft_names','wallet_address','tx_hash','block_number','status'],
+                    })}
+                  />
+                  {profile?.wallet_address && (
+                    <a href={`https://sepolia.basescan.org/address/${profile.wallet_address}#tokentxns`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs text-primary hover:underline touch-target px-1 -mx-1">
+                      <ExternalLink className="h-3.5 w-3.5" />BaseScan
+                    </a>
+                  )}
+                </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-2.5 sm:space-y-3">
