@@ -97,6 +97,7 @@ export function DailyTable({ days, unit }: DailyTableProps) {
                 </span>
               </TableHead>
               <TableHead className="text-right w-24">vs. Best</TableHead>
+              <TableHead className="text-right w-[140px]">Verified by</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
