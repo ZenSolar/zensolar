@@ -332,8 +332,9 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
               Share receipt
             </Button>
           </div>
+          </div>
         </div>
-      </SheetContent>
-    </Sheet>
+      </DrawerContent>
+    </Drawer>
   );
 }
