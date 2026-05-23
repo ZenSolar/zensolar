@@ -12,6 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { DailyProduction } from "@/hooks/useEnergyLog";
 import type { ActivityType } from "@/hooks/useEnergyLog";
+import { SourceBadges } from "@/components/energy-log/SourceBadges";
 
 type SortKey = "date" | "value";
 type SortDir = "asc" | "desc";
