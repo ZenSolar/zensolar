@@ -43,7 +43,7 @@ const DwightPreview = lazy(() => import("./pages/DwightPreview"));
 const TaylorPreview = lazy(() => import("./pages/TaylorPreview"));
 const DemoLayout = lazy(() => import("./components/demo/DemoLayout").then(m => ({ default: m.DemoLayout })));
 const ZenSolarDashboard = lazy(() => import("./components/ZenSolarDashboard").then(m => ({ default: m.ZenSolarDashboard })));
-const V2Dashboard = lazy(() => import("./components/v2app/V2Dashboard").then(m => ({ default: m.V2Dashboard })));
+
 const DemoDashboard = lazy(() => import("./components/demo/DemoDashboardSwitcher").then(m => ({ default: m.DemoDashboardSwitcher })));
 const DemoNftCollection = lazy(() => import("./components/demo/DemoNftCollection").then(m => ({ default: m.DemoNftCollection })));
 const DemoEnergyLog = lazy(() => import("./components/demo/DemoEnergyLog").then(m => ({ default: m.DemoEnergyLog })));
