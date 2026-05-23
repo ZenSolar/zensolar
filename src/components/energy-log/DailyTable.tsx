@@ -103,7 +103,7 @@ export function DailyTable({ days, unit }: DailyTableProps) {
           <TableBody>
             {sorted.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={3} className="text-center py-10 text-muted-foreground text-sm">
+                <TableCell colSpan={4} className="text-center py-10 text-muted-foreground text-sm">
                   No data for this period yet.
                 </TableCell>
               </TableRow>
