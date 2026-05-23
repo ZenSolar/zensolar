@@ -101,7 +101,7 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
         aria-hidden
         className="md:hidden pointer-events-none fixed inset-x-0 z-30"
         style={{
-          bottom: "var(--bottom-nav-height)",
+          bottom: "var(--bottom-nav-total-h)",
           height: "24px",
           background:
             "linear-gradient(to top, hsl(var(--background)) 0%, hsl(var(--background) / 0) 100%)",
@@ -112,18 +112,20 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
       data-fixed-bottom="true"
       className={cn(
         "md:hidden fixed inset-x-0 z-40",
-        // Sit flush to the physical bottom edge. No bottom safe-area band —
-        // Joe's installed PWA screenshot shows that band as the problem.
+        // Bar background extends all the way to the physical screen edge so the
+        // home-indicator zone is visually continuous with the nav (no white slab,
+        // no floating bar). The icon row inside is offset upward by the safe area.
         "bg-card border-t border-border",
         className,
       )}
       style={{
         bottom: 0,
-        height: "var(--bottom-nav-height)",
-        paddingBottom: 0,
+        height: "var(--bottom-nav-total-h)",
+        paddingBottom: "var(--bottom-nav-safe)",
       }}
     >
-      {/* Icon row fills the full fixed bar so no lower blank band is rendered. */}
+      {/* Icon row stays at native height; padding-bottom on the nav lifts it
+          above the iOS home indicator so taps feel natural. */}
       <ul className="grid grid-cols-5 h-[var(--bottom-nav-height)]">
         {tabs.map((item) => {
           const active = isActive(item);

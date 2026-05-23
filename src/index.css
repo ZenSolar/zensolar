@@ -223,12 +223,16 @@
   }
 
   /* ----- Mobile bottom nav geometry (single source of truth) ----- */
-  /* Visible nav row only. The installed iOS PWA is already fullscreen; reserving
-     env(safe-area-inset-bottom) creates the unnatural blank slab below the tabs. */
+  /* The visible tab row is --bottom-nav-height. On iOS PWAs with
+     viewport-fit=cover + black-translucent status bar, env(safe-area-inset-bottom)
+     reports the home-indicator gesture zone (~34px on Face ID iPhones). We must
+     reserve it INSIDE the bar so the bar's background extends to the physical
+     screen edge while the tab icons sit comfortably above the home indicator —
+     matching how every native iOS app renders its tab bar. */
   :root {
     --bottom-nav-height: 56px;
-    --bottom-nav-safe: 0px;
-    --bottom-nav-total-h: var(--bottom-nav-height);
+    --bottom-nav-safe: env(safe-area-inset-bottom, 0px);
+    --bottom-nav-total-h: calc(var(--bottom-nav-height) + var(--bottom-nav-safe));
     /* Standard FAB clearance above the nav */
     --fab-gap: 12px;
     --fab-bottom: calc(var(--bottom-nav-total-h) + var(--fab-gap));
