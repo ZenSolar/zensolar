@@ -1,6 +1,6 @@
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, Flame } from "lucide-react";
+import { ChevronLeft, Flame, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { markSidebarOpened } from "@/components/layout/MenuTooltip";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
@@ -112,6 +112,21 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
         </Link>
         
         <div className="flex items-center gap-1 sm:gap-1.5 min-w-0 flex-shrink">
+          {/* Global search trigger — desktop-only, hidden on demo. Click or press "/" */}
+          {!isDemo && (
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent("open-global-search"))}
+              aria-label="Search (press /)"
+              className="hidden md:inline-flex items-center gap-2 h-8 pl-2.5 pr-1.5 rounded-md border border-border/60 bg-muted/30 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+            >
+              <Search className="h-3.5 w-3.5" />
+              <span className="hidden lg:inline">Search</span>
+              <kbd className="rounded border border-border/60 bg-background/60 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+                /
+              </kbd>
+            </button>
+          )}
           {/* Live Beta indicator for admins (hidden on very narrow screens) */}
           {!isDemo && isAdmin && isLiveBeta && (
             <Badge variant="outline" className="hidden min-[480px]:inline-flex gap-1.5 text-xs bg-solar/10 text-solar border-solar/30 whitespace-nowrap">
