@@ -1,65 +1,110 @@
-## Goal
+# Web App Upgrade Spec
 
-Tear down the Jo Fertier brief (page + PDF + route + hub card) and replace it with **three focused, scrollable founder pages** — one per question. Web-only for now; PDFs come later when content is locked. Lyndon one-pager edits = separate next task.
+Goal: take the current beta dashboard (which we like) and give it a real **web-app posture** at `lg:`+ breakpoints — without touching the mobile PWA experience, the emerald brand, or any copy.
 
-## Step 1 — Delete the Jo brief
+Mobile (`< lg`) renders **exactly as today**. Every upgrade below is desktop-only and additive.
 
-- Delete `src/pages/FoundersJoBrief.tsx`
-- Delete `public/founder-docs/jo-fertier-prebrief-v1.pdf`
-- Remove the route from `src/App.tsx` (lazy import + `<Route path="/founders/jo-brief" ...>`)
-- Remove the "Jo Fertier — Lyndon Brief" card from `src/components/founders/HubCardList.tsx`
+---
 
-## Step 2 — Build three new founder pages
+## Sacred — do not touch
 
-All three follow the same pattern: gated by `<FounderRoute>`, mobile-first, semantic tokens only, header strip with back-to-Vault link, and a hub card on the Founders Vault landing.
+- Mobile-first layout, 100svh/100dvh, safe-area insets
+- Emerald palette, "Less is More" tone, all current copy
+- FirstRunHero, Tokenomics 101, Energy Command Center, Token Price, Flywheel, NFT Milestones, Reward Actions
+- `/demo-leonardo` parity (every shared component change mirrors automatically)
+- Auth flow, wallet plumbing, mint logic, RLS, edge functions
 
-### Page 1 — Competitive Landscape
-- Route: `/founders/competitive-landscape`
-- File: `src/pages/FoundersCompetitiveLandscape.tsx`
-- Hero: "Why we're not SolarCoin (or anyone else)"
-- Sections:
-  1. **Comparison table** — ZenSolar vs SolarCoin, GridPay, Power Ledger, C+Charge, DeCharge, PowerPod (sourced from existing `AdminCompetitiveIntel.tsx` competitor data)
-  2. **Three reasons we're different** — Verification, Supply, Moat (cards)
-  3. **Per-competitor deep-dive cards** — one card each: what they do, where they fall short, our wedge
-  4. **Category validation** — GridPay launching March 2026 proves the category is real; our nationwide multi-vertical scope is the moat
-- Refactor: pull the `competitors` array out of `AdminCompetitiveIntel.tsx` into `src/data/competitors.ts` so both pages use one source
+---
 
-### Page 2 — The Ask
-- Route: `/founders/the-ask`
-- File: `src/pages/FoundersTheAsk.tsx`
-- Hero: the v8.1 verbatim line — "Board seat — co-shape the tokenized energy economy from day one."
-- Sections:
-  1. **What we're asking for** — board seat (not capital). Big highlight card.
-  2. **Why a board seat instead of a check** — Lyndon's operator credibility + SolarCity/Tesla network unlocks utility partnerships and OEM rails faster than money
-  3. **What we offer in return** — early board influence on a category-defining protocol; equity terms TBD with him
-  4. **What we're not asking for** — explicit "not raising from Lyndon" framing (avoids confusion with the $5M seed ask)
-  5. **Cross-link** to `/founders/seed-ask` for the separate $5M lead-investor conversation
+## Phase 1 — Desktop layout container
 
-### Page 3 — Current Status (Live & Building)
-- Route: `/founders/current-status`
-- File: `src/pages/FoundersCurrentStatus.tsx`
-- Hero: "We're not pitching a deck. We're shipping."
-- Sections:
-  1. **Live on Base L2** — contract address, real $ZSOLAR token, real on-chain mints (link to BaseScan if address available)
-  2. **Live product** — beta.zen.solar, embedded Coinbase Wallet, Tap-to-Mint™ working today
-  3. **Beta users** — pull live count from `useBetaMetrics` hook if available; otherwise show qualitative ("active beta users across solar/EV/battery"). Will not fabricate numbers.
-  4. **OEM rails live** — Tesla ✓ · Enphase ✓ · Wallbox ✓ · SolarEdge (code-ready). Real production data flowing for Joseph, Tschida, Pessah, Golson.
-  5. **IP filed** — SEGI™ provisional patent (Q1 2025) + 5 trademarks (Mint-on-Proof™, Proof-of-Delta™, Proof-of-Origin™, Proof-of-Genesis™, Tap-to-Mint™) + Device Watermark Registry on-chain spec
-  6. **What's next** — short bulleted roadmap pulled from existing memory (mainnet launch tranches, Genesis Halving, Deason AI Phase 1)
+A single shell wrapper around the dashboard route. Mobile: pass-through. Desktop:
 
-## Step 3 — Founders Vault hub cards
+```text
+┌─────────────────────────────────────────────────────┐
+│ AppSidebar (sticky, enriched)  │  max-w-3xl main   │
+│                                │                    │
+│  • Wallet pill (status + tier) │  Dashboard content │
+│  • Mints ready badge           │  unchanged, just   │
+│  • Last sync timestamp         │  centered with     │
+│  • Nav (current items)         │  breathing room    │
+│                                │                    │
+└─────────────────────────────────────────────────────┘
+```
 
-Add three cards to `src/components/founders/HubCardList.tsx`, grouped together near the top so Joseph/Michael can hand-pick which to send Jo:
+- `max-w-3xl mx-auto px-6` on the main column at `lg:`+
+- Sidebar uses existing `collapsible="icon"` shadcn pattern
+- No reflow of cards, no new tiles — just generous gutters
 
-| Card | Eyebrow | Tone | Icon |
-|------|---------|------|------|
-| Competitive Landscape | "Pre-Meeting · Q1" | primary | Shield |
-| The Ask | "Pre-Meeting · Q2" | amber | Banknote |
-| Current Status | "Pre-Meeting · Q3" | eco | Activity |
+## Phase 2 — Glanceable sidebar (desktop only)
 
-## Out of scope
+Add a **status block** above the existing nav items:
 
-- No PDF generation (per your call: "Pages now, PDFs later")
-- No edits to the v8.1 Lyndon one-pager (separate next task — you'll send the change list)
-- No new business logic, no DB changes, no auth changes
-- No fabricated metrics — anything not in the codebase or memory gets shown qualitatively or omitted
+- Wallet status pill: `Connected · Tier 2` (or `Connect wallet` CTA)
+- Mints ready: `3 mints ready` chip → clicks to mint flow
+- Last energy sync: `Synced 2m ago`
+- Subtle divider, then current nav
+
+Collapsed (icon-only) state shows just dots/icons with tooltips.
+
+## Phase 3 — Keyboard layer
+
+Global shortcuts, registered once at the dashboard shell:
+
+- `M` → open mint sheet
+- `R` → refresh energy sync
+- `⌘K` / `Ctrl+K` → command palette (shadcn `Command` component)
+  - Jump to: Wallet, Mint, Profile, Referrals, NFT Collection, Settings, Energy Log
+  - Quick actions: Connect wallet, Copy address, Sign out
+
+Disabled when typing in inputs. Hint chip in sidebar footer: `⌘K`.
+
+## Phase 4 — Density toggle
+
+User preference, persisted to `profiles.ui_density` (`comfortable` | `compact`).
+
+- Comfortable = current spacing (default)
+- Compact = `-2` on card padding, tighter line-height, smaller card titles
+- Toggle in Settings + sidebar footer
+
+CSS-only via a `data-density` attribute on the dashboard root.
+
+---
+
+## Files touched
+
+**New**
+- `src/components/web/DashboardShell.tsx` — responsive 2-col wrapper
+- `src/components/web/SidebarStatus.tsx` — wallet pill, mints ready, sync time
+- `src/components/web/CommandPalette.tsx` — ⌘K
+- `src/hooks/useKeyboardShortcuts.ts`
+- `src/hooks/useDensity.ts`
+
+**Edited**
+- `src/components/AppSidebar.tsx` — mount `SidebarStatus` on desktop
+- `src/pages/Dashboard.tsx` — wrap in `DashboardShell`, apply `data-density`
+- `src/pages/Settings.tsx` — add density toggle row
+- `supabase/migrations/*` — add `profiles.ui_density text default 'comfortable'`
+
+**Demo mirror**
+- `src/pages/DemoLeonardo.tsx` — same shell wrap (no auth-gated bits)
+
+---
+
+## Out of scope (future passes)
+
+- Bento grid / multi-column main area
+- Multi-pane workspaces (split view, side panels)
+- Drag-to-reorder cards
+- Notification center redesign
+- Marketing site changes
+
+---
+
+## Rollout
+
+1. Ship Phase 1 alone, verify on mobile + desktop + `/demo-leonardo`
+2. Phase 2 + 3 together (sidebar status + ⌘K — they share the same data hooks)
+3. Phase 4 last (needs migration)
+
+Each phase is independently revertable.

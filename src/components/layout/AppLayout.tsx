@@ -2,6 +2,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { TopNav } from "./TopNav";
 import { MobileBottomNav } from "./MobileBottomNav";
+import { DashboardShell } from "@/components/web/DashboardShell";
 
 import { ViewAsUserBanner } from "@/components/admin/ViewAsUserBanner";
 import { useViewAsUser } from "@/contexts/ViewAsUserContext";
@@ -35,7 +36,7 @@ export function AppLayout({ children }: AppLayoutProps) {
             
             {/* Main content with padding-top to offset fixed header */}
             <main className="flex-1 pt-[calc(env(safe-area-inset-top)+3.5rem)] pb-[var(--bottom-nav-total-h)] md:pb-safe min-w-0 overflow-x-hidden">
-              {children}
+              <DashboardShell>{children}</DashboardShell>
             </main>
           </div>
         </div>
