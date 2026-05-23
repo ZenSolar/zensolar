@@ -458,37 +458,36 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
 
   return (
     <div className={`relative ${className}`}>
-      {/* Fully transparent — hex grid shows through */}
-
-      {/* Title header */}
-      <div className="relative z-10 pt-4 pb-1 px-4 text-center">
-        <h3
-          className="text-lg sm:text-xl font-black tracking-wider"
-          style={{
-            color: '#3B82F6',
-            textShadow: '0 0 24px hsla(217, 91%, 60%, 0.6), 0 0 48px hsla(217, 91%, 60%, 0.3), 0 0 72px hsla(217, 91%, 60%, 0.15)',
-            letterSpacing: '0.08em',
-            animation: 'zenEnergyTitlePulse 3s ease-in-out infinite',
-          }}
-        >
-          ⚡ ZenEnergy Monitoring™
-        </h3>
+      {/* Refined header — eyebrow style, no neon */}
+      <div className="relative z-10 pt-4 pb-2 px-5 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span
+            className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0"
+            style={{ boxShadow: '0 0 8px hsla(142, 76%, 50%, 0.7)', animation: 'zenLivePulse 2.2s ease-in-out infinite' }}
+          />
+          <span className="text-[10px] uppercase tracking-[0.18em] font-medium text-muted-foreground/80">
+            Live
+          </span>
+          <span className="hidden sm:inline text-muted-foreground/30">·</span>
+          <h3 className="text-[13px] sm:text-sm font-semibold tracking-tight text-foreground/90 truncate">
+            ZenEnergy Monitoring
+          </h3>
+        </div>
+        <div className="hidden sm:flex items-center gap-1.5 text-[10px] tracking-wide text-muted-foreground/60 font-medium shrink-0">
+          <span>Enphase</span>
+          <span className="text-muted-foreground/25">·</span>
+          <span>Tesla</span>
+          <span className="text-muted-foreground/25">·</span>
+          <span>Wallbox</span>
+        </div>
         <style>{`
-          @keyframes zenEnergyTitlePulse {
-            0%, 100% {
-              text-shadow: 0 0 24px hsla(217, 91%, 60%, 0.6), 0 0 48px hsla(217, 91%, 60%, 0.3), 0 0 72px hsla(217, 91%, 60%, 0.15);
-              filter: brightness(1);
-            }
-            50% {
-              text-shadow: 0 0 32px hsla(217, 91%, 70%, 0.85), 0 0 64px hsla(217, 91%, 60%, 0.5), 0 0 96px hsla(217, 91%, 60%, 0.25);
-              filter: brightness(1.15);
-            }
+          @keyframes zenLivePulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.55; transform: scale(0.85); }
           }
         `}</style>
-        <p className="text-[10px] sm:text-xs mt-0.5 tracking-wide font-medium" style={{ color: '#9ca3af' }}>
-          Live multi-manufacturer energy intelligence
-        </p>
       </div>
+
 
       <svg viewBox={vb} className="relative w-full h-full" style={{ maxHeight: maxH }}>
         <defs>
