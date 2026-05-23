@@ -42,10 +42,16 @@ export interface Crumb {
 
 export function buildCrumbs(pathname: string): Crumb[] {
   const segments = pathname.split("/").filter(Boolean);
-  // Always start with Dashboard
-  const crumbs: Crumb[] = [{ label: "Dashboard", href: "/" }];
-  let acc = "";
-  for (const seg of segments) {
+  // Demo trees get their own root crumb so we don't show "Dashboard › Demo".
+  const isDemo = segments[0] === "demo" || segments[0] === "demo-leonardo";
+  const rootLabel = isDemo
+    ? STATIC_LABELS[segments[0]] ?? "Demo"
+    : "Dashboard";
+  const rootHref = isDemo ? `/${segments[0]}` : "/";
+  const crumbs: Crumb[] = [{ label: rootLabel, href: rootHref }];
+  let acc = isDemo ? rootHref : "";
+  const rest = isDemo ? segments.slice(1) : segments;
+  for (const seg of rest) {
     acc += `/${seg}`;
     const label = STATIC_LABELS[seg] ?? titleCase(seg);
     crumbs.push({ label, href: acc });
