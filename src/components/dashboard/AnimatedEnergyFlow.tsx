@@ -671,9 +671,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
             </g>
           )}
           <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 22 : 28)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.2">EV CHARGER</text>
-          {/* Wallbox pill */}
-          <rect x={nodes.ev.x + (compact ? 18 : 22)} y={nodes.ev.y - 6} width={compact ? 44 : 52} height={12} rx={6} fill="#00B4AA" fillOpacity={0.12} stroke="#00B4AA" strokeWidth={0.5} strokeOpacity={0.4} />
-          <text x={nodes.ev.x + (compact ? 40 : 48)} y={nodes.ev.y + 2} textAnchor="middle" fill="#00B4AA" fontSize={compact ? 5.5 : 6.5} fontWeight="700" letterSpacing="0.3">WALLBOX</text>
+          <text x={nodes.ev.x} y={nodes.ev.y - (compact ? 18 : 22)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 5.5 : 6.5} fontWeight="500" letterSpacing="0.6">wallbox</text>
           <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 35 : 43)} textAnchor="middle" fill={colors.ev} fontSize={subValueFs} fontWeight="800" filter="url(#valueGlow)">
             {flow.evPower.toFixed(1)} kW
           </text>
