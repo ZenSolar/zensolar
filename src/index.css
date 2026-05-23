@@ -223,12 +223,15 @@
   }
 
   /* ----- Mobile bottom nav geometry (single source of truth) ----- */
-  /* Visible nav row height (excludes safe-area). Tweak here only. */
+  /* Visible nav row height. Icons sit flush to the bottom of the screen — we
+     do NOT reserve iOS home-indicator safe-area below the bar (per design
+     decision: there is no bottom island to clear on this device family, and
+     reserving it creates a visible empty slab under the icons). */
   :root {
     --bottom-nav-height: 56px;
-    --bottom-nav-safe: env(safe-area-inset-bottom, 0px);
-    --bottom-nav-total-h: calc(var(--bottom-nav-height) + var(--bottom-nav-safe));
-    /* Standard FAB clearance above the nav (gap between FAB and nav top edge) */
+    --bottom-nav-safe: 0px;
+    --bottom-nav-total-h: var(--bottom-nav-height);
+    /* Standard FAB clearance above the nav */
     --fab-gap: 12px;
     --fab-bottom: calc(var(--bottom-nav-total-h) + var(--fab-gap));
     /* Top safe area (Dynamic Island / notch) — single source of truth */
@@ -237,7 +240,7 @@
     --header-total-h: calc(var(--header-h) + var(--top-safe));
   }
 
-  /* Utility: any FAB anchors itself above the nav + iOS home indicator */
+  /* Utility: any FAB anchors itself above the nav */
   .fab-above-nav {
     bottom: var(--fab-bottom);
   }
@@ -256,11 +259,11 @@
   .fixed-top-safe {
     padding-top: env(safe-area-inset-top, 0px);
   }
-  /* GLOBAL RULE: any element marked as a fixed bottom bar fills through the
-     home-indicator inset so there is never a visible gap. */
+  /* GLOBAL RULE: any element marked as a fixed bottom bar sits flush against
+     the bottom edge — no safe-area padding (see --bottom-nav-safe note). */
   [data-fixed-bottom="true"],
   .fixed-bottom-safe {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-bottom: 0;
   }
 
   /* iOS scroll container */
