@@ -598,9 +598,8 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
           <text x={nodes.solar.x} y={nodes.solar.y - (compact ? 29 : 37)} textAnchor="middle" fill={colors.solar} fontSize={valueFs} fontWeight="800" filter="url(#valueGlow)">
             {flow.solarPower.toFixed(1)} kW
           </text>
-          {/* Enphase pill */}
-          <rect x={nodes.solar.x + (compact ? 18 : 22)} y={nodes.solar.y - 6} width={compact ? 40 : 48} height={12} rx={6} fill="#F26522" fillOpacity={0.12} stroke="#F26522" strokeWidth={0.5} strokeOpacity={0.4} />
-          <text x={nodes.solar.x + (compact ? 38 : 46)} y={nodes.solar.y + 2} textAnchor="middle" fill="#F26522" fontSize={compact ? 5.5 : 6.5} fontWeight="700" letterSpacing="0.3">ENPHASE</text>
+          {/* Manufacturer — quiet monochrome tag */}
+          <text x={nodes.solar.x} y={nodes.solar.y - (compact ? 11 : 15)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 5.5 : 6.5} fontWeight="500" letterSpacing="0.6">enphase</text>
         </g>
 
         {/* ── HOME ── centered in house body */}
