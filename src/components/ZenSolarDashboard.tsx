@@ -228,7 +228,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
       </div>
       
       <PerfProbe id="ZenSolarDashboard">
-      <AnimatedContainer className="relative z-10 w-full max-w-lg min-w-0 mx-auto px-3 sm:px-4 py-6 space-y-6 box-border md:my-6 md:rounded-3xl md:border md:border-border/40 md:bg-background/40 md:backdrop-blur-sm md:shadow-[0_0_60px_-20px_hsl(var(--primary)/0.25)] md:px-6 md:py-8">
+      <AnimatedContainer className="relative z-10 w-full max-w-lg min-w-0 mx-auto px-3 sm:px-4 py-6 space-y-6 box-border md:my-6 md:rounded-3xl md:border md:border-border/40 md:bg-background/40 md:backdrop-blur-sm md:shadow-[0_0_60px_-20px_hsl(var(--primary)/0.25)] md:px-6 md:py-8 xl:max-w-6xl xl:grid xl:grid-cols-2 xl:gap-x-6 xl:gap-y-6 xl:space-y-0 xl:auto-rows-min xl:items-start">
+        {/* xl:+ bento — hero cards span both columns; tighter cards pair up. Mobile/lg unchanged. */}
         {/* Dashboard Header with Logo - fixed height to prevent layout shifts */}
         {!isFirstRun && (
           <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center">
