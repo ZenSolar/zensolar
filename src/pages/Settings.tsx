@@ -37,6 +37,7 @@ export default function Settings() {
   } = usePushNotifications();
   
   const { theme, setTheme } = useTheme();
+  const { density, setDensity } = useDensity();
 
   // Generate helpful message based on device/browser state
   const getPushNotificationMessage = () => {
