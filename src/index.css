@@ -259,11 +259,11 @@
   .fixed-top-safe {
     padding-top: env(safe-area-inset-top, 0px);
   }
-  /* GLOBAL RULE: any element marked as a fixed bottom bar fills through the
-     home-indicator inset so there is never a visible gap. */
+  /* GLOBAL RULE: any element marked as a fixed bottom bar sits flush against
+     the bottom edge — no safe-area padding (see --bottom-nav-safe note). */
   [data-fixed-bottom="true"],
   .fixed-bottom-safe {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-bottom: 0;
   }
 
   /* iOS scroll container */
