@@ -488,22 +488,20 @@ export default function MintHistory() {
                                 </div>
                               )}
 
-                              {/* Proof of Genesis link — preview only */}
-                              {previewMode && (
-                                <Link
-                                  to="/proof-of-genesis-receipt-preview"
-                                  className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-gradient-to-r from-primary/10 to-accent-warm/10 border border-primary/30 hover:border-primary/60 transition-colors group"
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <Sparkles className="h-3.5 w-3.5 text-primary" />
-                                    <div>
-                                      <p className="text-xs font-medium">Proof of Genesis Receipt</p>
-                                      <p className="text-[10px] text-muted-foreground">Verified kWh → tokens → CO₂ offset</p>
-                                    </div>
+                              {/* Proof of Genesis link — the IP receipt */}
+                              <Link
+                                to="/proof-of-genesis-receipt-preview"
+                                className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-gradient-to-r from-primary/10 to-accent-warm/10 border border-primary/30 hover:border-primary/60 transition-colors group"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <Sparkles className="h-3.5 w-3.5 text-primary" />
+                                  <div>
+                                    <p className="text-xs font-medium">Proof of Genesis Receipt</p>
+                                    <p className="text-[10px] text-muted-foreground">Verified kWh → tokens → CO₂ offset</p>
                                   </div>
-                                  <ArrowUpRight className="h-3.5 w-3.5 text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                                </Link>
-                              )}
+                                </div>
+                                <ArrowUpRight className="h-3.5 w-3.5 text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                              </Link>
                             </div>
                           </div>
                         </CollapsibleContent>
