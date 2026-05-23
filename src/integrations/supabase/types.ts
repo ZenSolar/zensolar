@@ -1292,6 +1292,7 @@ export type Database = {
           timezone: string | null
           twitter_connected: boolean | null
           twitter_handle: string | null
+          ui_density: string
           updated_at: string
           user_id: string
           wallbox_connected: boolean | null
@@ -1323,6 +1324,7 @@ export type Database = {
           timezone?: string | null
           twitter_connected?: boolean | null
           twitter_handle?: string | null
+          ui_density?: string
           updated_at?: string
           user_id: string
           wallbox_connected?: boolean | null
@@ -1354,6 +1356,7 @@ export type Database = {
           timezone?: string | null
           twitter_connected?: boolean | null
           twitter_handle?: string | null
+          ui_density?: string
           updated_at?: string
           user_id?: string
           wallbox_connected?: boolean | null
