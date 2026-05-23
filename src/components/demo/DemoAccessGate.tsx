@@ -321,6 +321,33 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     return () => { cancelled = true; };
   }, [granted]);
 
+  // Auto-bypass for shared investor links: /demo?vip=lyndon|todd|greg|jo
+  // Maps the slug to an existing VIP code, activates VIP badge, and unlocks gate.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (granted) return;
+    const params = new URLSearchParams(window.location.search);
+    const vipSlug = (params.get('vip') || '').toLowerCase().trim();
+    if (!vipSlug) return;
+    const VIP_SLUG_MAP: Record<string, string> = {
+      lyndon: 'LOBV-2026',
+      todd: 'TODD-2026',
+      greg: 'LOBV-2026',
+      jo: 'JO-2026',
+      taytay: 'FUCKYEAH-TAYTAY-2026',
+      mtn: 'MTNYOTAS-4L',
+    };
+    const mappedCode = VIP_SLUG_MAP[vipSlug];
+    if (!mappedCode) return;
+    activateVipCode(mappedCode);
+    writeStoredValue(LS_KEY, JSON.stringify({ ts: Date.now(), ndaSigned: true }), TTL_MS);
+    setGranted(true);
+    // Clean the URL so refresh stays clean
+    const cleaned = new URL(window.location.href);
+    cleaned.searchParams.delete('vip');
+    window.history.replaceState({}, '', cleaned.pathname + (cleaned.search ? cleaned.search : '') + cleaned.hash);
+  }, [granted]);
+
   // Zero-friction deep link: ?email=<addr> on /demo. If that email already has
   // a signed NDA in the database (e.g. pre-authorized strategic partner),
   // save it locally so the existing "NDA already on file" branch in
