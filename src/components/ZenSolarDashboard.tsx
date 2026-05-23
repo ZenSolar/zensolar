@@ -232,7 +232,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         {/* xl:+ bento — hero cards span both columns; tighter cards pair up. Mobile/lg unchanged. */}
         {/* Dashboard Header with Logo - fixed height to prevent layout shifts */}
         {!isFirstRun && (
-          <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center">
+          <AnimatedItem className="flex flex-col items-center gap-3 pb-2 text-center xl:col-span-2">
              <div className="space-y-1.5">
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">{dashboardTitle}</h1>
               <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-md mx-auto">
@@ -253,7 +253,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         )}
 
         {/* Token Price Card - Prominent at top */}
-        <AnimatedItem>
+        <AnimatedItem className="xl:col-span-2">
           <TokenPriceCard 
             tokensHeld={isNewUserView ? 0 : activityData.lifetimeMinted} 
             defaultPrice={0.10}
@@ -265,7 +265,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         {/* First-run: cinematic 2-step hero (wallet → energy). */}
         {isFirstRun ? (
-          <AnimatedItem>
+          <AnimatedItem className="xl:col-span-2">
             <FirstRunHero
               firstName={firstName}
               hasWallet={hasWalletConnected}
@@ -277,12 +277,12 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         ) : (
           <>
             {showWalletPrompt && (
-              <AnimatedItem>
+              <AnimatedItem className="xl:col-span-2">
                 <CompactWalletPrompt />
               </AnimatedItem>
             )}
             {showEnergyPrompt && (
-              <AnimatedItem>
+              <AnimatedItem className="xl:col-span-2">
                 <CompactSetupPrompt onConnectEnergy={() => window.location.href = '/profile'} />
               </AnimatedItem>
             )}
@@ -291,7 +291,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         
         
         {/* ENERGY COMMAND CENTER - The Hero Section */}
-        <AnimatedItem>
+        <AnimatedItem className="xl:col-span-2">
           <PerfProbe id="ActivityMetrics">
             <ActivityMetrics
               data={activityData}
