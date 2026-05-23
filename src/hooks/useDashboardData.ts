@@ -1382,6 +1382,16 @@ export function useDashboardData() {
     refreshDashboard();
   }, [isOnDashboard, profileConnections, refreshDashboard]);
 
+  // Pass C: global event bus so the command palette / shortcuts can trigger
+  // a manual refresh from anywhere in the app.
+  useEffect(() => {
+    const onRefresh = () => {
+      refreshDashboard();
+    };
+    window.addEventListener('zen:refresh-dashboard', onRefresh);
+    return () => window.removeEventListener('zen:refresh-dashboard', onRefresh);
+  }, [refreshDashboard]);
+
   const connectAccount = useCallback((service: ConnectedAccount['service']) => {
     setConnectedAccounts(prev => 
       prev.map(acc => 
