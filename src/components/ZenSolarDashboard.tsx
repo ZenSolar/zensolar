@@ -13,6 +13,8 @@ import { ActivityMetrics, MintCategory, MintRequest } from './dashboard/Activity
 import type { RewardActionsRef, MintCategory as RewardMintCategory } from './dashboard/RewardActions';
 import { CompactSetupPrompt } from './dashboard/CompactSetupPrompt';
 import { CompactWalletPrompt } from './dashboard/CompactWalletPrompt';
+import { FirstRunHero } from './dashboard/FirstRunHero';
+import { DashboardSkeleton } from './dashboard/DashboardSkeleton';
 import { TokenPriceCard } from './dashboard/TokenPriceCard';
 import { CO2OffsetCard } from './dashboard/CO2OffsetCard';
 import { SubscriptionStatusCard } from './dashboard/SubscriptionStatusCard';
