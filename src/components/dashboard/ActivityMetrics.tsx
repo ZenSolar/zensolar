@@ -398,7 +398,6 @@ export function ActivityMetrics({
                     className="text-[10px] uppercase tracking-wider font-medium"
                     style={{ 
                       color: 'hsl(var(--primary) / 0.8)',
-                      textShadow: '0 0 8px hsl(var(--primary) / 0.5), 0 0 16px hsl(var(--primary) / 0.2)',
                     }}
                   >Connected</span>
                   <div className="flex items-center gap-1.5">
@@ -408,7 +407,6 @@ export function ActivityMetrics({
                           key={provider}
                           className="h-6 rounded-md flex items-center justify-center border border-primary/30 bg-primary/5 px-1.5"
                           title="Tesla"
-                          style={{ boxShadow: '0 0 8px hsl(var(--primary) / 0.2)' }}
                         >
                           <img 
                             src={teslaWordmark} 
@@ -422,7 +420,6 @@ export function ActivityMetrics({
                           key={provider}
                           className="h-6 w-6 rounded-md flex items-center justify-center border border-primary/30 bg-primary/5"
                           title={provider.charAt(0).toUpperCase() + provider.slice(1)}
-                          style={{ boxShadow: '0 0 8px hsl(var(--primary) / 0.2)' }}
                         >
                           <img 
                             src={providerLogos[provider]} 
@@ -437,8 +434,7 @@ export function ActivityMetrics({
                 <span 
                   className="text-[9px] font-medium tracking-wide inline-flex flex-wrap justify-center items-baseline gap-x-1 gap-y-0.5 px-1 leading-snug"
                   style={{ 
-                    color: 'hsl(38 92% 65% / 0.9)',
-                    textShadow: '0 0 8px hsl(38 92% 55% / 0.4)',
+                    color: 'hsl(38 92% 65% / 1.0)',
                   }}
                 >
                   {headerSubtitleParts.length > 1 ? (
