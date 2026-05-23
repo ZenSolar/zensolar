@@ -148,17 +148,15 @@
   html {
     /* iOS momentum scrolling */
     -webkit-overflow-scrolling: touch;
-    /* Prevent pull-to-refresh in PWA */
-    overscroll-behavior-y: none;
-    /* Prevent subtle horizontal drift on iOS/PWA */
+    /* Allow natural rubber-band bounce on iOS — disabling it is the single
+       biggest thing that makes a webview feel "not native." Horizontal drift
+       is still prevented via overflow-x below. */
     overflow-x: hidden;
-    /* Full viewport height - critical for PWA to avoid white bar at bottom */
-    height: 100%;
-    height: -webkit-fill-available;
-    height: 100dvh;
+    /* Use min-height (not fixed height) so content flows naturally and iOS
+       can rubber-band. Fixed height locks the app into a rigid shell. */
     min-height: 100vh;
     min-height: 100svh;
-    min-height: 100dvh; /* Dynamic viewport height for iOS */
+    min-height: 100dvh;
     /* Ensure the browser chrome/overscroll never reveals white behind the app */
     background: hsl(var(--background));
   }
@@ -171,15 +169,11 @@
     -webkit-touch-callout: none;
     /* Prevent subtle horizontal drift on iOS/PWA */
     overflow-x: hidden;
-    /* Full viewport height - critical for PWA to avoid white bar at bottom */
-    height: 100%;
-    height: -webkit-fill-available;
-    height: 100dvh;
+    /* min-height only — no fixed height — so the page can scroll naturally
+       and iOS owns the rubber-band physics. */
     min-height: 100vh;
     min-height: 100svh;
-    min-height: 100dvh; /* Dynamic viewport height for iOS */
-    /* CRITICAL: Do NOT use padding-bottom for safe area - it creates white bar */
-    /* Instead, content should handle its own safe area insets */
+    min-height: 100dvh;
   }
 
   /* Ensure the app root fills the viewport on mobile PWAs */
@@ -190,11 +184,8 @@
     margin: 0;
     text-align: left;
     overflow-x: hidden;
-    /* Fill the viewport */
-    height: 100%;
-    height: -webkit-fill-available;
-    height: 100dvh;
-    min-height: 100%;
+    /* min-height only — let content determine actual height */
+    min-height: 100vh;
     min-height: 100svh;
     min-height: 100dvh;
     background: hsl(var(--background));
