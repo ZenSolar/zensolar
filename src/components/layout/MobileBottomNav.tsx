@@ -112,20 +112,19 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
       data-fixed-bottom="true"
       className={cn(
         "md:hidden fixed inset-x-0 z-40",
-        // Card surface on the whole nav (including the iOS home-indicator
-        // safe-area band) so the bottom of the screen reads as one solid
-        // tab bar instead of a black slab under the icons.
+        // Keep the visible tab bar flush to the physical bottom edge. Do not
+        // reserve an iOS bottom safe-area band here; it creates the dead slab
+        // under Home/Mint/Wallet in the installed PWA.
         "bg-card border-t border-border",
         className,
       )}
       style={{
         bottom: 0,
-        height: "var(--bottom-nav-total-h)",
-        paddingBottom: "var(--bottom-nav-safe)",
+        height: "var(--bottom-nav-height)",
+        paddingBottom: 0,
       }}
     >
-      {/* Icon row sits on top; the safe-area band below inherits the nav's
-          bg-card so the home-indicator zone visually belongs to the tab bar. */}
+      {/* Icon row occupies the entire visible bar so there is no lower blank band. */}
       <ul className="grid grid-cols-5 h-[var(--bottom-nav-height)]">
         {tabs.map((item) => {
           const active = isActive(item);
