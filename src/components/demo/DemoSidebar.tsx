@@ -98,6 +98,8 @@ export function DemoSidebar() {
           </Badge>
         </div>
 
+        <SidebarStatus walletHref="/demo/wallet" />
+
         {/* Main Navigation */}
         <SidebarGroup>
           <SidebarGroupLabel>Main</SidebarGroupLabel>
