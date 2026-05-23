@@ -1762,6 +1762,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_view_presets: {
+        Row: {
+          created_at: string
+          filters: Json
+          id: string
+          is_default: boolean
+          name: string
+          updated_at: string
+          user_id: string
+          view_key: string
+        }
+        Insert: {
+          created_at?: string
+          filters?: Json
+          id?: string
+          is_default?: boolean
+          name: string
+          updated_at?: string
+          user_id: string
+          view_key: string
+        }
+        Update: {
+          created_at?: string
+          filters?: Json
+          id?: string
+          is_default?: boolean
+          name?: string
+          updated_at?: string
+          user_id?: string
+          view_key?: string
+        }
+        Relationships: []
+      }
       vault_access_log: {
         Row: {
           created_at: string

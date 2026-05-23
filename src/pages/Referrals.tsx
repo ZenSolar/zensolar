@@ -12,6 +12,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { PullToRefreshWrapper } from "@/components/ui/PullToRefreshWrapper";
+import { ExportCsvButton } from "@/components/ui/export-csv-button";
+import { todayStamp } from "@/lib/csvExport";
 
 export default function Referrals() {
   const { user } = useAuth();
@@ -121,11 +123,25 @@ export default function Referrals() {
           transition={{ delay: 0.2 }}
         >
           <Card className="border-border/50">
-            <div className="flex items-center justify-between p-4 pb-2">
+            <div className="flex items-center justify-between p-4 pb-2 gap-2">
               <p className="text-sm font-semibold">Referral History</p>
-              <Badge variant="outline" className="text-[10px] text-primary border-primary/30">
-                {totalReferrals} total
-              </Badge>
+              <div className="flex items-center gap-2">
+                <ExportCsvButton
+                  filename={`zensolar-referrals-${todayStamp()}`}
+                  disabled={!referrals || referrals.length === 0}
+                  getRows={() => ({
+                    rows: (referrals ?? []).map((r) => ({
+                      date: format(new Date(r.created_at), 'yyyy-MM-dd HH:mm'),
+                      tokens_rewarded: Number(r.tokens_rewarded),
+                      referred_user_id: (r as { referred_id?: string }).referred_id ?? '',
+                    })),
+                    columns: ['date', 'tokens_rewarded', 'referred_user_id'],
+                  })}
+                />
+                <Badge variant="outline" className="text-[10px] text-primary border-primary/30">
+                  {totalReferrals} total
+                </Badge>
+              </div>
             </div>
             <CardContent className="px-4 pb-4">
               {referrals && referrals.length > 0 ? (
