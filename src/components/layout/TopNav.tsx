@@ -35,15 +35,18 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
     };
 
     window.addEventListener('liveBetaModeChange', handleModeChange as EventListener);
-    
-    // Poll for changes in case of external updates
-    const interval = setInterval(() => {
-      setIsLiveBeta(getLiveBetaMode());
-    }, 2000);
+
+    // Cross-tab sync: re-read on storage events instead of polling.
+    const handleStorage = (e: StorageEvent) => {
+      if (!e.key || e.key.includes('liveBeta')) {
+        setIsLiveBeta(getLiveBetaMode());
+      }
+    };
+    window.addEventListener('storage', handleStorage);
 
     return () => {
       window.removeEventListener('liveBetaModeChange', handleModeChange as EventListener);
-      clearInterval(interval);
+      window.removeEventListener('storage', handleStorage);
     };
   }, []);
 

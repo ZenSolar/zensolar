@@ -53,6 +53,7 @@ import { openFounderChooser } from "@/lib/founderChooser";
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 import zenFavicon from "@/assets/zen-favicon.png";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import { prefetchRoute } from "@/lib/routePrefetch";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
@@ -304,6 +305,8 @@ export function AppSidebar() {
                       to={item.url}
                       end={item.url === "/"}
                       onClick={handleNavClick}
+                      onMouseEnter={() => prefetchRoute(item.url)}
+                      onFocus={() => prefetchRoute(item.url)}
                       aria-label={`${item.title}${item.desc ? ` — ${item.desc}` : ""}`}
                       className={item.url === "/store" ? navClassWithExtra("text-secondary font-semibold rounded-lg animate-sidebar-glow") : navClass}
                     >
