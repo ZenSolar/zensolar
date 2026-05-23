@@ -4,6 +4,9 @@ import { TopNav } from "./TopNav";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { DashboardShell } from "@/components/web/DashboardShell";
 import { CommandPalette } from "@/components/web/CommandPalette";
+import { GlobalSearch } from "@/components/web/GlobalSearch";
+import { KeyboardShortcutsSheet } from "@/components/web/KeyboardShortcutsSheet";
+import { GNavigation } from "@/components/web/GNavigation";
 
 import { ViewAsUserBanner } from "@/components/admin/ViewAsUserBanner";
 import { useViewAsUser } from "@/contexts/ViewAsUserContext";
@@ -45,8 +48,11 @@ export function AppLayout({ children }: AppLayoutProps) {
         <MobileBottomNav variant="app" />
         {/* Floating banner when viewing as another user */}
         <ViewAsUserBanner />
-        {/* Global ⌘K command palette */}
+        {/* Global ⌘K command palette + "/" search + "?" shortcuts + g-prefix nav */}
         <CommandPalette />
+        <GlobalSearch />
+        <KeyboardShortcutsSheet />
+        <GNavigation />
       </SidebarProvider>
     </ViewAsUserIdProvider>
   );
