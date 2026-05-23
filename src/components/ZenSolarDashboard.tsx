@@ -314,7 +314,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         </AnimatedItem>
 
         {/* Prominent CO₂ Offset card — matches the new sidebar accent styling */}
-        <AnimatedItem>
+        <AnimatedItem className="xl:col-span-1">
           <CO2OffsetCard
             co2Pounds={isNewUserView ? 0 : activityData.co2OffsetPounds}
             isLoading={dataLoading && !isNewUserView}
@@ -322,28 +322,28 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         </AnimatedItem>
 
         {/* Subscription Status — current tier, 50/50 split, mint cap (mocked v2.1) */}
-        <AnimatedItem>
+        <AnimatedItem className="xl:col-span-1">
           <SubscriptionStatusCard />
         </AnimatedItem>
 
         {/* Subscription-Fee Flywheel — live cumulative LP/Treasury contribution
             from the active mock subscription. Renders nothing if no plan. */}
-        <AnimatedItem>
+        <AnimatedItem className="xl:col-span-1">
           <FlywheelContributionCard />
         </AnimatedItem>
 
         {/* Persistent discoverability hint → Mint History (Proof-of-Mint receipts) */}
-        <AnimatedItem>
+        <AnimatedItem className="xl:col-span-1">
           <MintReceiptsHint />
         </AnimatedItem>
 
         {/* Newbie-friendly tokenomics summary → links to /how-it-works hub */}
-        <AnimatedItem>
+        <AnimatedItem className="xl:col-span-1">
           <Tokenomics101Card />
         </AnimatedItem>
 
         {!isViewer && (
-          <AnimatedItem>
+          <AnimatedItem className="xl:col-span-1">
             <Suspense fallback={<CardSkeleton height="h-48" />}>
               <PerfProbe id="RewardActions">
                 <RewardActions 
@@ -371,12 +371,12 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         )}
 
         {/* Live Energy Flow Diagram */}
-        <AnimatedItem>
+        <AnimatedItem className="xl:col-span-2">
           <EnergyFlowGlowCard />
         </AnimatedItem>
 
         {/* Aesthetic Section Divider */}
-        <AnimatedItem className="py-2">
+        <AnimatedItem className="py-2 xl:col-span-2">
           <div className="relative flex items-center justify-center">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
@@ -390,7 +390,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         </AnimatedItem>
 
         {/* NFT Milestones - Beta */}
-        <AnimatedItem id="reward-progress">
+        <AnimatedItem id="reward-progress" className="xl:col-span-2">
           <Suspense fallback={<CardSkeleton height="h-56" />}>
             <RewardProgress
               tokensEarned={isNewUserView ? 0 : activityData.tokensEarned}
@@ -407,7 +407,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         {/* NFT Mint Button - Below NFT Card with Glow Animation */}
         {!isViewer && (
-          <AnimatedItem className="space-y-3">
+          <AnimatedItem className="space-y-3 xl:col-span-2">
             <Button
               onClick={() => nftQuickMintRef.current?.openDialog()}
               disabled={dataLoading}
@@ -455,7 +455,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         
         {/* Admin-only Baseline Reset Tool - Hidden in New User View */}
         {isAdminView && !isNewUserView && (
-          <AnimatedItem>
+          <AnimatedItem className="xl:col-span-2">
             <Suspense fallback={<CardSkeleton height="h-32" />}>
               <AdminBaselineReset onResetComplete={refreshDashboard} />
             </Suspense>
@@ -464,7 +464,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         {/* Admin-only NFT Reset Tool - Hidden in New User View */}
         {isAdminView && !isNewUserView && (
-          <AnimatedItem>
+          <AnimatedItem className="xl:col-span-2">
             <Suspense fallback={<CardSkeleton height="h-32" />}>
               <NFTResetPanel />
             </Suspense>
