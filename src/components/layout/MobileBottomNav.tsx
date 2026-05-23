@@ -112,18 +112,18 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
       data-fixed-bottom="true"
       className={cn(
         "md:hidden fixed inset-x-0 z-40",
-        // Paint the entire bottom area as one tab bar surface, including the
-        // iOS home-indicator inset, so there is no separate dark dead slab.
+        // Sit flush to the physical bottom edge. No bottom safe-area band —
+        // Joe's installed PWA screenshot shows that band as the problem.
         "bg-card border-t border-border",
         className,
       )}
       style={{
         bottom: 0,
-        height: "var(--bottom-nav-total-h)",
-        paddingBottom: "var(--bottom-nav-safe)",
+        height: "var(--bottom-nav-height)",
+        paddingBottom: 0,
       }}
     >
-      {/* Icon row sits above the inset; the inset below shares the same surface. */}
+      {/* Icon row fills the full fixed bar so no lower blank band is rendered. */}
       <ul className="grid grid-cols-5 h-[var(--bottom-nav-height)]">
         {tabs.map((item) => {
           const active = isActive(item);
