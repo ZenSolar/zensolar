@@ -19,22 +19,16 @@ type Step = {
 
 const STEPS: Step[] = [
   {
-    icon: Shield,
-    eyebrow: 'This is yours',
-    title: 'You own this wallet',
-    body: 'No one at ZenSolar can access it, freeze it, or move your funds. It belongs to you alone.',
-  },
-  {
     icon: Fingerprint,
-    eyebrow: 'Locked to your device',
-    title: 'Secured by your Face ID',
-    body: 'Your passkey lives in your device\'s secure enclave. Even we can\'t see it.',
+    eyebrow: 'Yours alone',
+    title: 'Self-custody, secured by Face ID',
+    body: 'Your passkey lives in your device\'s secure enclave. No one at ZenSolar — not even us — can access, freeze, or move your funds.',
   },
   {
     icon: LayoutDashboard,
     eyebrow: 'Always one tap away',
     title: 'Find it in your dashboard',
-    body: 'Your balance, rewards, and address are always visible from the home screen.',
+    body: 'Your balance, rewards, and address live on the home screen. Ready when you are.',
   },
 ];
 
