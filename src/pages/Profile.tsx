@@ -664,6 +664,7 @@ export default function Profile() {
       
       <EnphaseCodeDialog
         open={enphaseDialogOpen}
+        authUrl={enphaseAuthUrl}
         onOpenChange={setEnphaseDialogOpen}
         onSubmit={async (code) => {
           await handleEnphaseCodeSubmit(code);
