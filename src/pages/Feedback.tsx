@@ -121,7 +121,7 @@ export default function Feedback() {
   }
 
   return (
-    <div className="container max-w-2xl mx-auto px-3 sm:px-4 py-5 sm:py-6 space-y-5 sm:space-y-6">
+    <div className="container max-w-2xl lg:max-w-3xl mx-auto px-3 sm:px-4 py-5 sm:py-6 lg:py-10 space-y-5 sm:space-y-6">
       {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -159,7 +159,7 @@ export default function Feedback() {
               {/* Category Selection */}
               <div className="space-y-3">
                 <Label className="text-base">What type of feedback?</Label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
                   {categories.map((cat) => {
                     const Icon = cat.icon;
                     const isSelected = category === cat.value;
@@ -221,11 +221,12 @@ export default function Feedback() {
                 </div>
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full h-12 text-base gap-2" 
-                disabled={isSubmitting || !subject.trim() || !message.trim()}
-              >
+              <div className="flex lg:justify-end">
+                <Button
+                  type="submit"
+                  className="w-full lg:w-auto lg:min-w-[200px] h-12 text-base gap-2"
+                  disabled={isSubmitting || !subject.trim() || !message.trim()}
+                >
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-5 w-5 animate-spin" />
@@ -237,7 +238,8 @@ export default function Feedback() {
                     Submit Feedback
                   </>
                 )}
-              </Button>
+                </Button>
+              </div>
             </form>
           </CardContent>
         </Card>

@@ -232,7 +232,7 @@ export function DeviceSelectionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg lg:max-w-3xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 shadow-sm">

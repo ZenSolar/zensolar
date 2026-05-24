@@ -113,7 +113,7 @@ export function ProofOfMintModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md p-0 overflow-hidden">
+      <DialogContent className="max-w-md lg:max-w-2xl p-0 overflow-hidden">
         {/* Header */}
         <div className="px-6 pt-6 pb-4 border-b border-border/50 bg-gradient-to-b from-primary/[0.06] to-transparent">
           <DialogHeader className="space-y-2">

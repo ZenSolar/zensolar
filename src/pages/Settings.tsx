@@ -60,7 +60,7 @@ export default function Settings() {
   const pushStatus = getPushStatus();
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-5 space-y-4">
+    <div className="max-w-lg lg:max-w-5xl mx-auto px-4 py-5 lg:py-8 space-y-4 lg:space-y-6">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
@@ -68,13 +68,13 @@ export default function Settings() {
         className="space-y-1"
       >
         <div className="flex items-center gap-2.5">
-          <SettingsIcon className="h-5 w-5 text-primary" />
-          <h1 className="text-xl font-bold text-foreground">Settings</h1>
+          <SettingsIcon className="h-5 w-5 lg:h-6 lg:w-6 text-primary" />
+          <h1 className="text-xl lg:text-3xl font-bold text-foreground">Settings</h1>
         </div>
-        <p className="text-sm text-muted-foreground">Customize your ZenSolar experience</p>
+        <p className="text-sm lg:text-base text-muted-foreground">Customize your ZenSolar experience</p>
       </motion.div>
 
-      {/* Wallet Setup */}
+      {/* Wallet Setup — full width (onboarding feature) */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -82,6 +82,9 @@ export default function Settings() {
       >
         <WalletSetupCard />
       </motion.div>
+
+      {/* Two-column grid for setting cards on desktop */}
+      <div className="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-5 lg:items-start">
 
       {/* Appearance — light mode archived; ZenSolar is dark-only (Tesla-style). */}
 
@@ -266,6 +269,7 @@ export default function Settings() {
           </CardContent>
         </Card>
       </motion.div>
+      </div>
     </div>
   );
 }

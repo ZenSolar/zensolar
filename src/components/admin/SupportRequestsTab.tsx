@@ -195,7 +195,7 @@ export function SupportRequestsTab() {
       </Card>
 
       <Dialog open={!!selectedRequest} onOpenChange={() => setSelectedRequest(null)}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg lg:max-w-3xl">
           <DialogHeader>
             <DialogTitle>{selectedRequest?.subject}</DialogTitle>
             <DialogDescription>
