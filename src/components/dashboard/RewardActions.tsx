@@ -28,6 +28,7 @@ import { getNftArtwork } from '@/lib/nftArtwork';
 import { MILESTONE_TO_TOKEN_ID, TOKEN_ID_TO_MILESTONE } from '@/lib/nftTokenMapping';
 import { getRewardMultiplier, getLiveBetaMode } from '@/lib/tokenomics';
 import { MicroProtocolBadge } from '@/components/proof/MicroProtocolBadge';
+import { parseMintError } from '@/lib/mintErrors';
 import { ProtocolCinematicSequence } from '@/components/proof/ProtocolCinematicSequence';
 import { hasShownFirstMintCelebration, markFirstMintCelebrationShown } from '@/lib/firstMintCelebration';
 import { MintTokenDialog } from './MintTokenDialog';
@@ -607,18 +608,17 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       });
 
       if (error) {
-        const errContext = (error as any)?.context;
-        const errJson = errContext?.json || errContext?.body;
-        const errMsg = errJson?.message || errJson?.error || data?.message || data?.error || error.message;
-        throw new Error(errMsg || 'Minting failed');
+        const parsed = parseMintError(error, data);
+        const err = new Error(parsed.message);
+        (err as any).parsed = parsed;
+        throw err;
       }
 
       if (data?.error || data?.success === false) {
-        throw new Error(data?.message || data?.error || 'Minting failed');
-      }
-
-      if (data?.error === 'simulation_failed') {
-        throw new Error(data.message || 'Contract simulation failed. Please contact support.');
+        const parsed = parseMintError(null, data);
+        const err = new Error(parsed.message);
+        (err as any).parsed = parsed;
+        throw err;
       }
 
       setMintingProgress({ step: 'confirming', message: 'Confirming on Base L2...' });
@@ -695,17 +695,28 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
     } catch (error) {
       console.error('Token minting error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Minting failed';
-      
-      setMintingProgress({ step: 'error', message: errorMessage });
-      
+      const parsed = (error as any)?.parsed ?? parseMintError(error);
+      const errorMessage = parsed.message;
+
+      setMintingProgress({
+        step: parsed.isGate ? 'paused' as any : 'error',
+        message: parsed.isGate ? parsed.title : errorMessage,
+      });
+
+      if (parsed.isGate) {
+        toast({
+          title: parsed.title,
+          description: errorMessage,
+        });
+      }
+
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       setMintingProgressDialog(false);
       setResultDialog({
         open: true,
         success: false,
-        message: errorMessage,
+        message: parsed.isGate ? `${parsed.title} — ${errorMessage}` : errorMessage,
         type: 'token',
       });
     } finally {
@@ -735,7 +746,12 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        const parsed = parseMintError(error, data);
+        const err = new Error(parsed.message);
+        (err as any).parsed = parsed;
+        throw err;
+      }
 
       const result = data as MintResult;
 
@@ -762,12 +778,19 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
     } catch (error) {
       console.error('NFT minting error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Minting failed';
-      
+      const parsed = (error as any)?.parsed ?? parseMintError(error);
+
+      if (parsed.isGate) {
+        toast({
+          title: parsed.title,
+          description: parsed.message,
+        });
+      }
+
       setResultDialog({
         open: true,
         success: false,
-        message: errorMessage,
+        message: parsed.isGate ? `${parsed.title} — ${parsed.message}` : parsed.message,
         type: 'nft',
       });
     } finally {
@@ -821,7 +844,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         },
       });
 
-      if (error) throw error;
+      if (error) throw new Error(parseMintError(error, data).message);
 
       const result = data as MintResult;
 
@@ -881,7 +904,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         },
       });
 
-      if (error) throw error;
+      if (error) throw new Error(parseMintError(error, data).message);
 
       const result = data as MintResult;
 
