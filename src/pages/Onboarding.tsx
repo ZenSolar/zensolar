@@ -623,8 +623,9 @@ export default function Onboarding() {
   };
 
   const handleEnergyBack = () => {
-    // Go back to wallet choice screen
-    setStep('wallet-choice');
+    // Go back to the AI concierge (the prior step) — never back to wallet-choice
+    // since the wallet has already been created/skipped.
+    transitionToStep('ai-concierge');
   };
 
   const handleAddAnotherEnergy = () => {
@@ -700,12 +701,13 @@ export default function Onboarding() {
       case 'wallet-choice': return null;
       case 'zensolar-setup':
       case 'external-wallet': return 'wallet-choice';
-      case 'wallet-success': return 'wallet-choice';
-      case 'ai-concierge': return 'wallet-choice';
+      // Once the wallet exists, you can't unwind it — these become forward-only.
+      case 'wallet-success': return null;
+      case 'ai-concierge': return null;
       case 'energy-connect':
       case 'device-selection': return 'ai-concierge';
-      case 'home-charging-setup': return 'energy-connect';
-      case 'energy-success': return 'energy-connect';
+      case 'home-charging-setup': return null;
+      case 'energy-success': return null;
       default: return null;
     }
   };
@@ -779,7 +781,6 @@ export default function Onboarding() {
           <AIConciergeScreen
             onPlanConfirmed={handleConciergePlanConfirmed}
             onSkipToManual={handleConciergeSkip}
-            onBack={() => setStep('wallet-choice')}
           />
         </div>
       )}
@@ -791,7 +792,6 @@ export default function Onboarding() {
           <EnergyConnectionScreen
             onConnect={handleEnergyConnect}
             onSkip={handleEnergySkip}
-            onBack={handleEnergyBack}
             onCancelConnecting={handleCancelConnecting}
             onAskDeason={() => transitionToStep('ai-concierge')}
             isConnecting={connectingProvider}
