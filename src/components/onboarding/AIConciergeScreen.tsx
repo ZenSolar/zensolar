@@ -190,7 +190,7 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Reading your setup…
+                    Deason is reading your setup…
                   </>
                 ) : (
                   <>
