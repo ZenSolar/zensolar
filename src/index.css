@@ -350,6 +350,9 @@
   }
   @media (prefers-reduced-motion: reduce) {
     .page-enter { animation: none; }
+  }
+
+
 
   /* Drawer swipe affordance — pulsing grab handle + fading hint caption.
      Trains first-time users on the swipe-down gesture without leaving
