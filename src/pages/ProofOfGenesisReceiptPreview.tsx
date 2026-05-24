@@ -264,6 +264,7 @@ function liveToReceipt(live: LiveMintReceipt): Receipt {
     id: `live-${live.id}`,
     mint_id: `mint_${live.id.slice(0, 8)}`,
     tx_hash: live.tx_hash,
+    chain_hash: live.chain_hash,
     block_number: live.block_number ?? '—',
     minted_at: live.minted_at,
     tokens_minted: Number(live.tokens_minted.toFixed(2)),
