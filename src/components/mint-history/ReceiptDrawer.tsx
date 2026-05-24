@@ -212,6 +212,31 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
                 </Badge>
               </div>
               <DrawerTitle className="text-xl tracking-tight">{meta.label}</DrawerTitle>
+
+              {/* Source KPI chip — answers "what was this minted for?" at a glance */}
+              {source && (
+                <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                  <span
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider",
+                      source.primaryMeta.accent,
+                    )}
+                  >
+                    <span className={cn("h-1.5 w-1.5 rounded-full", source.primaryMeta.dot)} aria-hidden />
+                    {source.primaryMeta.label}
+                    <span className="ml-1 font-bold tabular-nums normal-case tracking-normal">
+                      {source.primaryValue.toLocaleString(undefined, { maximumFractionDigits: 1 })}
+                      <span className="ml-0.5 opacity-70">{source.primaryMeta.unit}</span>
+                    </span>
+                  </span>
+                  {source.isMixed && (
+                    <Badge variant="outline" className="text-[10px] uppercase tracking-wider border-muted-foreground/30 text-muted-foreground">
+                      + {source.others.length} more source{source.others.length > 1 ? 's' : ''}
+                    </Badge>
+                  )}
+                </div>
+              )}
+
               <DrawerDescription className="text-xs leading-relaxed">
                 {meta.description}
               </DrawerDescription>
