@@ -112,17 +112,20 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
         </Link>
         
         <div className="flex items-center gap-1 sm:gap-1.5 min-w-0 flex-shrink">
-          {/* Global search trigger — desktop-only, hidden on demo. Click or press "/" */}
+          {/* Global search trigger — desktop-only, hidden on demo. Click, press "/" or ⌘K */}
           {!isDemo && (
             <button
               type="button"
               onClick={() => window.dispatchEvent(new CustomEvent("open-global-search"))}
-              aria-label="Search (press /)"
+              aria-label="Search (press / or Cmd+K)"
               className="hidden md:inline-flex items-center gap-2 h-8 pl-2.5 pr-1.5 rounded-md border border-border/60 bg-muted/30 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
             >
               <Search className="h-3.5 w-3.5" />
               <span className="hidden lg:inline">Search</span>
-              <kbd className="rounded border border-border/60 bg-background/60 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+              <kbd className="hidden lg:inline-flex items-center rounded border border-border/60 bg-background/60 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+                ⌘K
+              </kbd>
+              <kbd className="lg:hidden rounded border border-border/60 bg-background/60 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
                 /
               </kbd>
             </button>

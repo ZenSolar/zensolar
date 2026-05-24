@@ -34,24 +34,24 @@ export function EmptyState({
   className,
 }: EmptyStateProps) {
   return (
-    <div className={cn("flex flex-col items-center justify-center py-16 px-4 text-center", className)}>
-      <div className="relative mb-5">
+    <div className={cn("flex flex-col items-center justify-center py-16 lg:py-24 px-4 text-center mx-auto max-w-md lg:max-w-xl", className)}>
+      <div className="relative mb-5 lg:mb-6">
         <div className="absolute inset-0 rounded-2xl bg-primary/10 blur-xl" aria-hidden />
-        <div className="relative h-14 w-14 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/20 flex items-center justify-center">
-          <Icon className="h-6 w-6 text-primary" />
+        <div className="relative h-14 w-14 lg:h-16 lg:w-16 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/20 flex items-center justify-center">
+          <Icon className="h-6 w-6 lg:h-7 lg:w-7 text-primary" />
         </div>
       </div>
-      <h3 className="text-base font-semibold tracking-tight mb-1.5">{title}</h3>
-      <p className="text-sm text-muted-foreground max-w-sm mb-6 leading-relaxed">{description}</p>
+      <h3 className="text-base lg:text-lg font-semibold tracking-tight mb-1.5">{title}</h3>
+      <p className="text-sm lg:text-[15px] text-muted-foreground max-w-sm lg:max-w-md mb-6 leading-relaxed">{description}</p>
       {(action || secondaryAction) && (
         <div className="flex items-center gap-2">
           {action && (
-            <Button onClick={action.onClick} size="sm">
+            <Button onClick={action.onClick} size="sm" className="lg:h-10 lg:px-5">
               {action.label}
             </Button>
           )}
           {secondaryAction && (
-            <Button onClick={secondaryAction.onClick} size="sm" variant="ghost">
+            <Button onClick={secondaryAction.onClick} size="sm" variant="ghost" className="lg:h-10 lg:px-4">
               {secondaryAction.label}
             </Button>
           )}

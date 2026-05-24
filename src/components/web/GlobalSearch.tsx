@@ -79,8 +79,10 @@ export function GlobalSearch() {
       return (el as HTMLElement).isContentEditable;
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "/" || e.metaKey || e.ctrlKey || e.altKey) return;
-      if (isEditable(document.activeElement)) return;
+      const isSlash = e.key === "/" && !e.metaKey && !e.ctrlKey && !e.altKey;
+      const isCmdK = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k";
+      if (!isSlash && !isCmdK) return;
+      if (isSlash && isEditable(document.activeElement)) return;
       e.preventDefault();
       setOpen(true);
     };
