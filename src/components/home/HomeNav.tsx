@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
-import { ThemeToggle } from '@/components/layout/ThemeToggle';
+
 
 export function HomeNav() {
 
@@ -24,7 +24,7 @@ export function HomeNav() {
           <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Blog</Link>
         </nav>
         <div className="flex items-center gap-2 sm:gap-4">
-          <ThemeToggle />
+          
           <Link to="/auth">
             <Button variant="ghost" size="sm" className="px-3">Log In</Button>
           </Link>

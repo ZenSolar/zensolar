@@ -200,16 +200,6 @@ export function DemoSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton 
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              tooltip={theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
-              className="hover:bg-sidebar-accent/50"
-            >
-              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-              <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton 
               asChild
               tooltip="Create Account"
               className="bg-primary text-primary-foreground hover:bg-primary/90"

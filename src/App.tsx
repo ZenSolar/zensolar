@@ -249,7 +249,7 @@ const App = () => {
       attribute="class"
       defaultTheme="dark"
       enableSystem={false}
-      forcedTheme={undefined}
+      forcedTheme="dark"
     >
       <AppThemeProvider>
       <QueryClientProvider client={queryClient}>

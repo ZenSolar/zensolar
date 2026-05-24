@@ -646,17 +646,6 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              tooltip={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              aria-label={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              className="min-h-[2.5rem] rounded-md transition-all duration-200 hover:bg-sidebar-accent/60 active:scale-[0.98]"
-            >
-              {theme === 'dark' ? <Sun className="h-4 w-4" aria-hidden="true" /> : <Moon className="h-4 w-4" aria-hidden="true" />}
-              <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton
               onClick={handleLogout}
               tooltip="Sign out of your account"
               aria-label="Sign out of your account"
