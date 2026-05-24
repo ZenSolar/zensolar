@@ -311,15 +311,15 @@ export function useKpiContributions(
 
       switch (category) {
         case 'solar':
-          return fetchEnergyProductionRows(userId, 'solar', deviceId, sinceIso);
+          return fetchEnergyProductionRows(userId, 'solar', deviceId, sinceIso, pendingTarget);
         case 'battery':
-          return fetchEnergyProductionRows(userId, 'battery_discharge', deviceId, sinceIso);
+          return fetchEnergyProductionRows(userId, 'battery_discharge', deviceId, sinceIso, pendingTarget);
         case 'ev_miles':
-          return fetchEnergyProductionRows(userId, 'ev_miles', deviceId, sinceIso);
+          return fetchEnergyProductionRows(userId, 'ev_miles', deviceId, sinceIso, pendingTarget);
         case 'supercharger':
           return fetchSuperchargerRows(userId, deviceId, sinceIso, pendingTarget);
         case 'home_charger':
-          return fetchHomeChargerRows(userId, deviceId, sinceIso);
+          return fetchHomeChargerRows(userId, deviceId, sinceIso, pendingTarget);
         case 'charging': {
           const [sup, home] = await Promise.all([
             fetchSuperchargerRows(userId, deviceId, sinceIso),
