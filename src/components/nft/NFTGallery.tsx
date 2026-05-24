@@ -339,7 +339,7 @@ export function NFTGallery({ earnedMilestones, allMilestones, onSelectNFT }: NFT
                 <button
                   onClick={() => onSelectNFT(nft)}
                   className={`
-                    group relative w-full overflow-hidden rounded-2xl 
+                    group relative w-full overflow-hidden rounded-2xl hover-lift
                     border-2 transition-all duration-300
                     ${isEarned 
                       ? `${config.border} ${config.bg} hover:shadow-xl hover:${config.glow}` 
