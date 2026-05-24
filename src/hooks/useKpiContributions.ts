@@ -23,6 +23,12 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useViewAsUserId } from '@/hooks/useViewAsUserId';
 import { reconcileReceipts } from '@/lib/kpiReconciliation';
+import {
+  DAILY_PHYSICAL_CAP,
+  dedupeSessionRows,
+  normalizeDailyCounterRows,
+  normalizeDailySolarRows,
+} from '@/lib/kpiNormalization';
 import type { MintCategory } from '@/components/dashboard/ActivityMetrics';
 
 export interface KpiContributionRow {
