@@ -89,11 +89,11 @@ describe('normalizeDailyCounterRows (Powerwall / odometer / supercharger lifetim
       onAnomaly: (a) => anomalies.push(a),
     });
     expect(deltas.every((d) => d.amount > 0)).toBe(true);
-    expect(deltas.find((d) => d.amount < 0)).toBeUndefined();
     expect(anomalies.some((a) => a.kind === 'non_monotonic')).toBe(true);
-    // Only the +100 day mints; the post-reset +25 sits below the original baseline anchor.
+    // +100 before reset, then +25 from the rebased counter post-reset.
+    // The reset rebase prevents the old 10,000 mi being re-minted as 9,925 mi.
     const sum = deltas.reduce((a, r) => a + r.amount, 0);
-    expect(sum).toBe(100);
+    expect(sum).toBe(125);
   });
 
   it('I3 — caps a single-day delta at the physical maximum', () => {
