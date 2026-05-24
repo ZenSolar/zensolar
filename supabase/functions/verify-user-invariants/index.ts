@@ -91,6 +91,8 @@ Deno.serve(async (req) => {
       kpi_criticals: kpiCriticals?.length ?? 0,
       collusion_signals: collusionSignals,
       collusion_criticals: collusionCriticals?.length ?? 0,
+      chain_tampers: chainTampers,
+      anchor_freshness_alerts: anchorFreshnessAlerts,
       started_at: startedAt,
     }));
 
@@ -103,6 +105,8 @@ Deno.serve(async (req) => {
         kpi_criticals: kpiCriticals ?? [],
         collusion_signals: collusionSignals,
         collusion_criticals: collusionCriticals ?? [],
+        chain_tampers: chainTampers,
+        anchor_freshness_alerts: anchorFreshnessAlerts,
         started_at: startedAt,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
