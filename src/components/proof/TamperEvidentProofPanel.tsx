@@ -313,6 +313,9 @@ export function TamperEvidentProofPanel({
               </a>
             </Button>
           )}
+
+          {/* Phase 1 · Per-event line items (Proof-of-Delta sources) */}
+          <ReceiptSourceLines chainHash={cleanHash} defaultOpen={variant === 'standalone'} />
         </div>
       )}
 
