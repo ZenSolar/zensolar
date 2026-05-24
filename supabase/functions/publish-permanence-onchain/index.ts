@@ -11,6 +11,11 @@ import { createWalletClient, createPublicClient, http } from "npm:viem@2.43.5";
 import { privateKeyToAccount } from "npm:viem@2.43.5/accounts";
 import { baseSepolia } from "npm:viem@2.43.5/chains";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
