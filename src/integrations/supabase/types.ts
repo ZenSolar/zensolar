@@ -2406,6 +2406,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_anchor_freshness: { Args: never; Returns: number }
       check_nda_signed: { Args: { _email: string }; Returns: boolean }
       compute_mint_chain_hash: {
         Args: {
@@ -2439,6 +2440,10 @@ export type Database = {
       }
       get_covering_anchor: { Args: { _chain_hash: string }; Returns: Json }
       get_live_earnings_stats: { Args: never; Returns: Json }
+      get_merkle_inclusion_proof: {
+        Args: { _chain_hash: string }
+        Returns: Json
+      }
       get_mint_receipt: { Args: { _chain_hash: string }; Returns: Json }
       get_mintable_status_filter: {
         Args: { _user_id: string }
@@ -2504,6 +2509,7 @@ export type Database = {
           read_ct: number
         }[]
       }
+      verify_chain_integrity: { Args: never; Returns: number }
       verify_demo_code: { Args: { _code: string }; Returns: boolean }
       verify_kpi_reconciliation: { Args: never; Returns: number }
       verify_user_sum_invariant: { Args: never; Returns: number }
