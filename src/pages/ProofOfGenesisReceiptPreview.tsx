@@ -14,6 +14,7 @@ import { ProofOfAuthenticityStamp } from '@/components/proof/ProofOfAuthenticity
 import { VerifiedSourceBadge } from '@/components/proof/VerifiedSourceBadge';
 import { ProtocolCinematicSequence } from '@/components/proof/ProtocolCinematicSequence';
 import { useLatestMintReceipt, type LiveMintReceipt } from '@/hooks/useLatestMintReceipt';
+import { ProofOfGenesisShareCard, type ShareCardData } from '@/components/proof/ProofOfGenesisShareCard';
 
 /**
  * Proof-of-Genesis Receipt — PREVIEW ONLY
