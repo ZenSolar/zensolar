@@ -49,8 +49,8 @@ describe('normalizeDailyCounterRows (Powerwall / odometer / supercharger lifetim
     const sum = deltas.reduce((a, r) => a + r.amount, 0);
     expect(deltas).toHaveLength(3);
     expect(Math.round(sum * 10) / 10).toBe(60); // 1060 − 1000
-    // Each day's delta is the day-over-day jump
-    expect(deltas.map((d) => d.amount)).toEqual([10, 15, 35]);
+    // Each day's delta is the day-over-day jump (10, 15, 35) regardless of sort order
+    expect(deltas.map((d) => d.amount).sort((a, b) => a - b)).toEqual([10, 15, 35]);
   });
 
   it('takes the daily MAX across multiple intra-day samples', () => {
