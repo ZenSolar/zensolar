@@ -7,7 +7,6 @@
 // to be invoked by pg_cron via pg_net every hour, or manually for testing.
 
 import { createClient } from "npm:@supabase/supabase-js@2.45.0";
-import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { createWalletClient, createPublicClient, http } from "npm:viem@2.43.5";
 import { privateKeyToAccount } from "npm:viem@2.43.5/accounts";
 import { baseSepolia } from "npm:viem@2.43.5/chains";
