@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { dispatchProfileUpdated } from "@/hooks/useProfile";
 import { useEnergyOAuth } from "@/hooks/useEnergyOAuth";
+import { useSwipeBack } from "@/hooks/useSwipeBack";
 import { toast } from "sonner";
 import { triggerSuccess } from "@/hooks/useHaptics";
 import { 
