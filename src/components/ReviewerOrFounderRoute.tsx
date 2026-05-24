@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { BrandedSpinner } from '@/components/ui/BrandedSpinner';
+import { BrandSplash } from '@/components/ui/BrandSplash';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsFounder } from '@/hooks/useIsFounder';
 import { isPreviewMode } from '@/lib/previewMode';
@@ -24,11 +24,7 @@ export function ReviewerOrFounderRoute({ children }: Props) {
   if (isAuthorizedReviewer()) return <>{children}</>;
 
   if (authLoading || !ready) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <BrandedSpinner size="lg" />
-      </div>
-    );
+    return <BrandSplash />;
   }
 
   if (!isAuthenticated) return <Navigate to="/auth" replace />;

@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { BrandedSpinner } from '@/components/ui/BrandedSpinner';
+import { BrandSplash } from '@/components/ui/BrandSplash';
 import { isPreviewMode } from '@/lib/previewMode';
 
 interface ProtectedRouteProps {
@@ -18,11 +18,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <BrandedSpinner size="lg" />
-      </div>
-    );
+    return <BrandSplash />;
   }
 
   if (!isAuthenticated) {

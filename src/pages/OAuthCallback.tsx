@@ -310,10 +310,7 @@ export default function OAuthCallback() {
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="text-center space-y-4 max-w-md px-4">
         {status === 'processing' && (
-          <>
-            <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-            <p className="text-muted-foreground">Connecting your account...</p>
-          </>
+          <BrandSplash inline label="Connecting your account..." />
         )}
         {status === 'success' && (
           <p className="text-primary font-medium">Account connected! Redirecting...</p>
