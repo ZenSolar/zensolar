@@ -602,6 +602,16 @@ const App = () => {
                         </ProtectedRoute>
                       }
                     />
+                    <Route
+                      path="/proof-of-genesis/mainnet-readiness"
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <ProofOfGenesisMainnetReadiness />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
+                    />
                     <Route 
                       path="/help-center" 
                       element={
