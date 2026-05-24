@@ -144,42 +144,53 @@ function normalizeDailySolarRows(rows: KpiContributionRow[]): KpiContributionRow
 
 /**
  * Tesla Powerwall (and most battery APIs) report `energy_exported` as a
- * monotonic LIFETIME counter in Wh. A single raw sample therefore contains
- * the lifetime total, not the day's export. To produce a per-day kWh figure
- * we take the day's MAX per device and then diff against the prior day.
+ * monotonic LIFETIME counter in Wh. A single raw sample contains the
+ * lifetime total, not the day's export.
  *
- * `sinceIso` is applied AFTER the diff so we still have the prior-day
- * baseline needed to compute the most recent day's delta.
+ * To make the daily receipts sum to the same headline "pending" the KPI
+ * tile shows (lifetime_now − lifetime_at_last_mint), we:
+ *   1. Establish a per-device BASELINE = the lifetime value at/just before
+ *      `sinceIso` (the last-mint anchor). This is the same anchor the tile
+ *      uses for its baseline.
+ *   2. Chain daily deltas starting from that baseline so
+ *      Σ(deltas) == latest_lifetime − baseline == headline pending.
  */
 function normalizeDailyBatteryRows(
   rows: KpiContributionRow[],
   sinceIso: string | null,
 ): KpiContributionRow[] {
-  const byDevice = new Map<string, Map<string, KpiContributionRow>>();
+  const byDevice = new Map<string, { daily: Map<string, KpiContributionRow>; baseline: number }>();
+
   for (const row of rows) {
     const device = row.deviceId ?? 'unknown';
+    let entry = byDevice.get(device);
+    if (!entry) { entry = { daily: new Map(), baseline: 0 }; byDevice.set(device, entry); }
+
+    // Rows older than sinceIso contribute only to the baseline (max value
+    // seen at or before the mint anchor).
+    if (sinceIso && row.recordedAt <= sinceIso) {
+      if (row.amount > entry.baseline) entry.baseline = row.amount;
+      continue;
+    }
+
     const day = row.recordedAt.slice(0, 10);
-    let m = byDevice.get(device);
-    if (!m) { m = new Map(); byDevice.set(device, m); }
-    const existing = m.get(day);
-    if (!existing || row.amount > existing.amount) m.set(day, row);
+    const existing = entry.daily.get(day);
+    if (!existing || row.amount > existing.amount) entry.daily.set(day, row);
   }
 
-  const sinceDay = sinceIso ? sinceIso.slice(0, 10) : null;
   const deltas: KpiContributionRow[] = [];
-
-  for (const [device, m] of byDevice) {
-    const days = Array.from(m.keys()).sort(); // ascending
-    for (let i = 1; i < days.length; i++) {
-      const prev = m.get(days[i - 1])!;
-      const cur = m.get(days[i])!;
-      const delta = Math.round((cur.amount - prev.amount) * 10) / 10;
+  for (const [device, entry] of byDevice) {
+    const days = Array.from(entry.daily.keys()).sort(); // ascending
+    let prevValue = entry.baseline;
+    for (const day of days) {
+      const cur = entry.daily.get(day)!;
+      const delta = Math.round((cur.amount - prevValue) * 10) / 10;
+      prevValue = cur.amount;
       if (delta <= 0) continue;
-      if (sinceDay && days[i] <= sinceDay) continue;
       deltas.push({
         ...cur,
-        id: `daily-${device}-${days[i]}`,
-        recordedAt: days[i],
+        id: `daily-${device}-${day}`,
+        recordedAt: day,
         hasRealTime: false,
         amount: delta,
       });
