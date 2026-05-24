@@ -1621,6 +1621,42 @@ export type Database = {
           },
         ]
       }
+      proof_of_permanence_anchors: {
+        Row: {
+          block_number: string | null
+          created_at: string
+          details: Json
+          id: string
+          leaf_count: number
+          max_chain_seq_global: number
+          merkle_root: string
+          onchain_tx_hash: string | null
+          snapshot_at: string
+        }
+        Insert: {
+          block_number?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          leaf_count: number
+          max_chain_seq_global: number
+          merkle_root: string
+          onchain_tx_hash?: string | null
+          snapshot_at?: string
+        }
+        Update: {
+          block_number?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          leaf_count?: number
+          max_chain_seq_global?: number
+          merkle_root?: string
+          onchain_tx_hash?: string | null
+          snapshot_at?: string
+        }
+        Relationships: []
+      }
       protocol_settings: {
         Row: {
           beta_overrides_enabled: boolean
@@ -2354,6 +2390,7 @@ export type Database = {
         }
         Returns: string
       }
+      compute_permanence_snapshot: { Args: never; Returns: string }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -2369,6 +2406,7 @@ export type Database = {
           provider: string
         }[]
       }
+      get_covering_anchor: { Args: { _chain_hash: string }; Returns: Json }
       get_live_earnings_stats: { Args: never; Returns: Json }
       get_mint_receipt: { Args: { _chain_hash: string }; Returns: Json }
       get_mintable_status_filter: {
@@ -2417,6 +2455,7 @@ export type Database = {
       is_founder: { Args: { _user_id: string }; Returns: boolean }
       is_viewer: { Args: { _user_id: string }; Returns: boolean }
       lookup_referral_code: { Args: { code: string }; Returns: string }
+      merkle_root_text: { Args: { _leaves: string[] }; Returns: string }
       move_to_dlq: {
         Args: {
           dlq_name: string

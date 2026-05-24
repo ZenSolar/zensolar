@@ -32,6 +32,15 @@ type Receipt = {
   miles_delta?: number | string | null;
   status?: string;
   created_at?: string;
+  covering_anchor?: {
+    id: string;
+    snapshot_at: string;
+    merkle_root: string;
+    leaf_count: number;
+    max_chain_seq_global: number;
+    onchain_tx_hash: string | null;
+    block_number: string | null;
+  } | null;
 };
 
 const MOCK_DEMO: Receipt = {
@@ -189,6 +198,15 @@ export default function VerifyPoA() {
                 />
               )}
 
+              {data.covering_anchor && (
+                <ProofRow
+                  icon={Anchor}
+                  tm="Proof-of-Permanence™"
+                  label={`Merkle root over ${data.covering_anchor.leaf_count} receipts · snapshot ${new Date(data.covering_anchor.snapshot_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}${data.covering_anchor.onchain_tx_hash ? ' · anchored on Base' : ' · DB-anchored (on-chain anchor pending)'}`}
+                  value={data.covering_anchor.merkle_root}
+                  accent="text-amber-400"
+                />
+              )}
               {data.tx_hash && (
                 <div className="pt-2">
                   <Button asChild variant="outline" size="sm" className="w-full gap-1.5">
