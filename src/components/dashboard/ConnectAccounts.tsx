@@ -38,6 +38,7 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
   const { startTeslaOAuth, startEnphaseOAuth, exchangeEnphaseCode, connectSolarEdge, connectWallbox } = useEnergyOAuth();
   const { incompleteSetups, refreshIncompleteSetups } = useIncompleteSetup();
   const [enphaseDialogOpen, setEnphaseDialogOpen] = useState(false);
+  const [enphaseAuthUrl, setEnphaseAuthUrl] = useState<string | null>(null);
   const [solarEdgeDialogOpen, setSolarEdgeDialogOpen] = useState(false);
   const [wallboxDialogOpen, setWallboxDialogOpen] = useState(false);
   const [deviceSelectionOpen, setDeviceSelectionOpen] = useState(false);
@@ -62,6 +63,7 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
     } else if (service === 'enphase') {
       const result = await startEnphaseOAuth();
       if (result?.useManualCode) {
+        setEnphaseAuthUrl(result.authUrl ?? null);
         setEnphaseDialogOpen(true);
       }
     } else if (service === 'solaredge') {
@@ -211,6 +213,7 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
           open={enphaseDialogOpen}
           onOpenChange={setEnphaseDialogOpen}
           onSubmit={handleEnphaseCodeSubmit}
+          authUrl={enphaseAuthUrl}
         />
         <SolarEdgeConnectDialog
           open={solarEdgeDialogOpen}
@@ -343,6 +346,7 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
         open={enphaseDialogOpen}
         onOpenChange={setEnphaseDialogOpen}
         onSubmit={handleEnphaseCodeSubmit}
+        authUrl={enphaseAuthUrl}
       />
       <SolarEdgeConnectDialog
         open={solarEdgeDialogOpen}

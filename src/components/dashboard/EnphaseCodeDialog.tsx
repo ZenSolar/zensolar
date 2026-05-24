@@ -14,6 +14,7 @@ interface EnphaseCodeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (code: string) => Promise<boolean>;
+  authUrl?: string | null;
 }
 
 const steps = [
@@ -26,7 +27,7 @@ const steps = [
 // Regex to match Enphase authorization codes (typically 6-8 alphanumeric characters)
 const ENPHASE_CODE_REGEX = /^[A-Za-z0-9]{5,10}$/;
 
-export function EnphaseCodeDialog({ open, onOpenChange, onSubmit }: EnphaseCodeDialogProps) {
+export function EnphaseCodeDialog({ open, onOpenChange, onSubmit, authUrl }: EnphaseCodeDialogProps) {
   const [code, setCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
@@ -164,15 +165,31 @@ export function EnphaseCodeDialog({ open, onOpenChange, onSubmit }: EnphaseCodeD
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Important note about Enphase's authorization process */}
-          {!autoDetected && currentStep < 4 && (
-            <div className="bg-warning/10 border border-warning/20 rounded-lg p-3">
-              <p className="text-sm text-warning dark:text-warning">
-                <strong>Note:</strong> Enphase will display an authorization code on their page after you approve access. 
-                You'll need to <strong>copy that code</strong> and return here to complete the connection.
-              </p>
+          {/* Primary CTA — user-gesture window.open to bypass popup blockers */}
+          {authUrl && currentStep < 4 && !autoDetected && (
+            <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-3">
+              <div>
+                <p className="text-sm font-semibold text-foreground">Step 1 — Open Enphase</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Tap below to open the Enphase authorization page in a new tab. After you approve,
+                  Enphase will show a code — copy it and come back here.
+                </p>
+              </div>
+              <Button
+                type="button"
+                className="w-full h-11"
+                onClick={() => {
+                  // Direct user gesture → popup blockers will allow this
+                  window.open(authUrl, '_blank', 'noopener,noreferrer');
+                  setCurrentStep(2);
+                }}
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Open Enphase Authorization
+              </Button>
             </div>
           )}
+
 
           {/* Auto-detection notice */}
           {autoDetected && (
