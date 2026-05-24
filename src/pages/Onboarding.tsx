@@ -806,6 +806,7 @@ export default function Onboarding() {
       {/* Enphase code dialog */}
       <EnphaseCodeDialog
         open={showEnphaseDialog}
+        authUrl={enphaseAuthUrl}
         onOpenChange={(open) => {
           setShowEnphaseDialog(open);
           if (!open) setConnectingProvider(null);
