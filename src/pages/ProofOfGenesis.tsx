@@ -197,6 +197,11 @@ const PILLARS: Pillar[] = [
           'mint-combos and claim-milestone-nfts now also claim a 5-min idempotency key, snapshot owned tokens before/after, and write an append-only mint_reconciliation_log row (category combo_nfts / milestone_nfts). Combos that request a token-id which doesn\'t appear on-chain after the tx are flagged_drift.',
       },
       {
+        label: 'Cross-pillar Mint Gate (can_user_mint)',
+        detail:
+          'Before any write action (register, mint-rewards, claim-milestones, mint-combos), mint-onchain calls the can_user_mint(user_id) RPC. Any unresolved critical row in user_invariant_violations or collusion_signals — produced by ANY pillar\'s sweeper — returns allowed:false and the request fails with HTTP 423 Locked / reason=mint_gate_blocked. Admins clear blocks via resolve_invariant_violation / resolve_collusion_signal from /admin/protocol-integrity, with notes captured for audit.',
+      },
+      {
         label: 'Property-tested in CI (50-trial fuzz)',
         detail:
           'src/lib/__tests__/mintReconciliation.test.ts runs golden fixtures + a 50-trial fuzz that proves any three-way drift beyond tolerance is always caught.',
