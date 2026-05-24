@@ -217,15 +217,16 @@ async function fetchHomeChargerRows(
   userId: string,
   deviceId: string | undefined,
   sinceIso: string | null,
+  pendingTarget?: number,
 ): Promise<KpiContributionRow[]> {
   let homeQ = supabase
     .from('home_charging_sessions')
     .select('id, start_time, end_time, total_session_kwh, location, device_id, session_metadata, status')
     .eq('user_id', userId)
     .order('start_time', { ascending: false })
-    .limit(ROW_LIMIT);
+    .limit(pendingTarget ? 200 : ROW_LIMIT);
   if (deviceId) homeQ = homeQ.eq('device_id', deviceId);
-  if (sinceIso) homeQ = homeQ.gt('start_time', sinceIso);
+  if (sinceIso && !pendingTarget) homeQ = homeQ.gt('start_time', sinceIso);
 
   let billQ = supabase
     .from('charging_sessions')
@@ -233,9 +234,9 @@ async function fetchHomeChargerRows(
     .eq('user_id', userId)
     .eq('charging_type', 'home')
     .order('session_date', { ascending: false })
-    .limit(ROW_LIMIT);
+    .limit(pendingTarget ? 200 : ROW_LIMIT);
   if (deviceId) billQ = billQ.eq('device_id', deviceId);
-  if (sinceIso) billQ = billQ.gt('session_date', sinceIso);
+  if (sinceIso && !pendingTarget) billQ = billQ.gt('session_date', sinceIso);
 
   const [homeRes, billRes] = await Promise.all([homeQ, billQ]);
   if (homeRes.error) throw homeRes.error;
@@ -276,7 +277,18 @@ async function fetchHomeChargerRows(
 
   const all = [...homeRows, ...billRows];
   all.sort((a, b) => (a.recordedAt < b.recordedAt ? 1 : -1));
-  return all.slice(0, ROW_LIMIT);
+
+  if (!pendingTarget || pendingTarget <= 0) return all.slice(0, ROW_LIMIT);
+
+  const target = Math.max(0, pendingTarget - 0.5);
+  let running = 0;
+  const pendingRows: KpiContributionRow[] = [];
+  for (const row of all) {
+    pendingRows.push(row);
+    running += row.amount;
+    if (running >= target) break;
+  }
+  return pendingRows;
 }
 
 export function useKpiContributions(
