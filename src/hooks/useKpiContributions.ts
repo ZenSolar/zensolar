@@ -22,6 +22,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useViewAsUserId } from '@/hooks/useViewAsUserId';
+import { reconcileReceipts } from '@/lib/kpiReconciliation';
 import type { MintCategory } from '@/components/dashboard/ActivityMetrics';
 
 export interface KpiContributionRow {
@@ -306,7 +307,10 @@ async function fetchEnergyProductionRows(
     receiptRows = normalizeDailyBatteryRows(mapped, baselines);
   }
 
-  if (!pendingTarget || pendingTarget <= 0) return receiptRows;
+  if (!pendingTarget || pendingTarget <= 0) {
+    reconcileReceipts(`energy/${dataType}`, 0, receiptRows);
+    return receiptRows;
+  }
 
   // Walk newest → oldest until receipts ≈ headline pending (within 0.5)
   const target = Math.max(0, pendingTarget - 0.5);
@@ -317,6 +321,7 @@ async function fetchEnergyProductionRows(
     running += row.amount;
     if (running >= target) break;
   }
+  reconcileReceipts(`energy/${dataType}`, pendingTarget, pendingRows);
   return pendingRows;
 }
 
@@ -355,15 +360,62 @@ async function fetchSuperchargerRows(
     };
   });
 
-  if (!pendingTarget || pendingTarget <= 0) return mapped;
+  // Daily delta normalization: group sessions by day (sum), so receipts
+  // mirror the headline's per-day cadence instead of a noisy session list.
+  const dailyMap = new Map<string, KpiContributionRow>();
+  for (const r of mapped) {
+    const day = r.recordedAt.slice(0, 10);
+    const existing = dailyMap.get(day);
+    if (existing) {
+      existing.amount = Math.round((existing.amount + r.amount) * 10) / 10;
+    } else {
+      dailyMap.set(day, {
+        ...r,
+        id: `daily-sc-${r.deviceId ?? 'unknown'}-${day}`,
+        recordedAt: day,
+        hasRealTime: false,
+        durationMinutes: null,
+      });
+    }
+  }
+  const daily = Array.from(dailyMap.values()).sort((a, b) =>
+    a.recordedAt < b.recordedAt ? 1 : -1,
+  );
 
+  if (!pendingTarget || pendingTarget <= 0) {
+    reconcileReceipts('supercharger', 0, daily);
+    return daily;
+  }
+
+  // Walk newest → oldest until receipts ≈ headline pending.
   const target = Math.max(0, pendingTarget - 0.5);
   let running = 0;
   const pendingRows: KpiContributionRow[] = [];
-  for (const row of mapped) {
+  for (const row of daily) {
     pendingRows.push(row);
     running += row.amount;
     if (running >= target) break;
+  }
+
+  // If session rows undercount the device's lifetime counter delta
+  // (Tesla sometimes drops or never delivers sessions), bridge the gap
+  // with a single "Tesla counter adjustment" residual row so receipts
+  // reconcile with the headline.
+  const recon = reconcileReceipts('supercharger', pendingTarget, pendingRows);
+  if (recon.diff > recon.tolerance) {
+    const today = new Date().toISOString().slice(0, 10);
+    pendingRows.unshift({
+      id: `residual-sc-${today}`,
+      recordedAt: today,
+      hasRealTime: false,
+      durationMinutes: null,
+      amount: recon.diff,
+      unit: 'kWh',
+      provider: 'tesla',
+      deviceId: deviceId ?? null,
+      location: 'Tesla counter adjustment',
+      verified: true,
+    });
   }
   return pendingRows;
 }
@@ -433,7 +485,11 @@ async function fetchHomeChargerRows(
   const all = [...homeRows, ...billRows];
   all.sort((a, b) => (a.recordedAt < b.recordedAt ? 1 : -1));
 
-  if (!pendingTarget || pendingTarget <= 0) return all.slice(0, ROW_LIMIT);
+  if (!pendingTarget || pendingTarget <= 0) {
+    const sliced = all.slice(0, ROW_LIMIT);
+    reconcileReceipts('home_charger', 0, sliced);
+    return sliced;
+  }
 
   const target = Math.max(0, pendingTarget - 0.5);
   let running = 0;
@@ -443,6 +499,7 @@ async function fetchHomeChargerRows(
     running += row.amount;
     if (running >= target) break;
   }
+  reconcileReceipts('home_charger', pendingTarget, pendingRows);
   return pendingRows;
 }
 
