@@ -20,7 +20,8 @@ import {
   ChevronUp,
   AlertCircle,
   CheckCircle2,
-  Info
+  Info,
+  Sparkles
 } from 'lucide-react';
 import {
   Tooltip,
