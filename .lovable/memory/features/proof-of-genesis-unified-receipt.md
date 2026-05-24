@@ -16,4 +16,5 @@ The Proof-of-Genesis™ receipt (owner view) and the Proof-of-Authenticity™ pu
 - `useLatestMintReceipt` selects `chain_hash` and exposes it on `LiveMintReceipt`.
 - The `ProofOfAuthenticityStamp` (embossed corner seal) stays as a brand watermark on both views, but real verification lives in the panel.
 - CO₂ headline + brand shell are the same on both views; public view masks wallet with `0x••…`.
+- Receipt line items must reflect the actual mint attribution, not every telemetry row in the settlement window. Legacy `mint-rewards` rows with no explicit `source_breakdown` are Tesla Supercharging-only; do not infer Home Charging, Solar, or Battery just because rows exist nearby.
 - Never re-introduce a separate "Proof of Authenticity" page with different chrome — that's the redundancy this consolidation removed.
