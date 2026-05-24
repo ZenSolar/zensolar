@@ -38,6 +38,7 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
   const { startTeslaOAuth, startEnphaseOAuth, exchangeEnphaseCode, connectSolarEdge, connectWallbox } = useEnergyOAuth();
   const { incompleteSetups, refreshIncompleteSetups } = useIncompleteSetup();
   const [enphaseDialogOpen, setEnphaseDialogOpen] = useState(false);
+  const [enphaseAuthUrl, setEnphaseAuthUrl] = useState<string | null>(null);
   const [solarEdgeDialogOpen, setSolarEdgeDialogOpen] = useState(false);
   const [wallboxDialogOpen, setWallboxDialogOpen] = useState(false);
   const [deviceSelectionOpen, setDeviceSelectionOpen] = useState(false);
