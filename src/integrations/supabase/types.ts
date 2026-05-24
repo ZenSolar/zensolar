@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      _device_release_archive: {
+        Row: {
+          device_id: string
+          id: string
+          previous_baseline_data: Json | null
+          previous_lifetime_totals: Json | null
+          previous_user_id: string
+          provider: string
+          released_at: string
+        }
+        Insert: {
+          device_id: string
+          id?: string
+          previous_baseline_data?: Json | null
+          previous_lifetime_totals?: Json | null
+          previous_user_id: string
+          provider: string
+          released_at?: string
+        }
+        Update: {
+          device_id?: string
+          id?: string
+          previous_baseline_data?: Json | null
+          previous_lifetime_totals?: Json | null
+          previous_user_id?: string
+          provider?: string
+          released_at?: string
+        }
+        Relationships: []
+      }
       announcement_dismissals: {
         Row: {
           announcement_id: string
@@ -2446,6 +2476,7 @@ export type Database = {
         Returns: boolean
       }
       detect_collusion_signals: { Args: never; Returns: number }
+      detect_cross_source_duplicates: { Args: never; Returns: number }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
