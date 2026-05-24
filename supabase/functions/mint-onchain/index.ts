@@ -63,6 +63,7 @@ function canHaveSolarData(deviceType: string): boolean {
 // Mirrors src/lib/mintReconciliation.ts. Keep in sync.
 // ============================================
 const RECONCILIATION_TOLERANCE_PCT = 1.0;
+const RECONCILIATION_HARD_FAIL_PCT = 5.0; // Above this, mint is flagged_drift (visible in admin + user receipt)
 const RECONCILIATION_ABSOLUTE_FLOOR = 0.5;
 const IDEMPOTENCY_WINDOW_MS = 5 * 60 * 1000; // 5-minute bucket
 
@@ -171,12 +172,18 @@ async function recordTransaction(
   tokensMinted: number = 0,
   nftsMinted: number[] = [],
   status: string = "confirmed",
-  isBetaMint: boolean = false
+  isBetaMint: boolean = false,
+  reconciliation?: {
+    diffPct?: number;
+    kwhDelta?: number;
+    milesDelta?: number;
+    sourceBreakdown?: Record<string, unknown>;
+  },
 ) {
   try {
     const nftNames = nftsMinted.map(id => NFT_NAMES[id] || `Token #${id}`);
-    
-    await supabaseClient.from("mint_transactions").insert({
+
+    const row: Record<string, unknown> = {
       user_id: userId,
       tx_hash: txHash,
       block_number: blockNumber,
@@ -187,8 +194,16 @@ async function recordTransaction(
       nft_names: nftNames,
       status,
       is_beta_mint: isBetaMint,
-    });
-    console.log("Transaction recorded:", txHash, isBetaMint ? "(beta)" : "");
+    };
+    if (reconciliation) {
+      if (typeof reconciliation.diffPct === 'number') row.reconciliation_diff = reconciliation.diffPct;
+      if (typeof reconciliation.kwhDelta === 'number') row.kwh_delta = reconciliation.kwhDelta;
+      if (typeof reconciliation.milesDelta === 'number') row.miles_delta = reconciliation.milesDelta;
+      if (reconciliation.sourceBreakdown) row.source_breakdown = reconciliation.sourceBreakdown;
+    }
+
+    await supabaseClient.from("mint_transactions").insert(row);
+    console.log("Transaction recorded:", txHash, status, isBetaMint ? "(beta)" : "");
   } catch (error) {
     console.error("Failed to record transaction:", error);
   }
@@ -842,6 +857,9 @@ Deno.serve(async (req) => {
 
       const expectedTokens = Number(totalUnits) * 0.93;
       let newNfts: number[] = [];
+      let mintStatus: string = "confirmed";
+      let maxDiffPct = 0;
+      let reconciliationViolations: string[] = [];
 
       // Get NFTs after minting to see what was minted
       if (receipt.status === "success") {
@@ -849,32 +867,19 @@ Deno.serve(async (req) => {
         
         newNfts = nftsAfter.map(id => Number(id)).filter(id => !nftsBeforeSet.has(id));
         
-        await recordTransaction(
-          supabaseClient,
-          user.id,
-          hash,
-          receipt.blockNumber.toString(),
-          "mint-rewards",
-          walletAddress,
-          expectedTokens,
-          newNfts,
-          "confirmed",
-          isBetaMint
-        );
+        // M4/M6 — Three-way reconciliation runs BEFORE recordTransaction so we
+        // can persist reconciliation_diff + drift status atomically on the mint row.
+        const sourceBreakdown: Record<string, unknown> = {
+          solar_kwh: Number(solar),
+          ev_miles: Number(evMiles),
+          battery_kwh: Number(battery),
+          charging_kwh: Number(charging),
+          device_ids: deviceIdsToUpdate,
+          tolerance_pct: RECONCILIATION_TOLERANCE_PCT,
+          hard_fail_pct: RECONCILIATION_HARD_FAIL_PCT,
+        };
+        const logRows: Array<Record<string, unknown>> = [];
 
-        // Update idempotency row with actual tx hash for forensic linking
-        try {
-          await supabaseClient
-            .from("mint_idempotency_keys")
-            .update({ mint_tx_hash: hash })
-            .eq("user_id", user.id)
-            .eq("window_start", windowStart)
-            .eq("action", `mint-rewards:${mintCategory}${deviceId ? `:${deviceId}` : ''}`);
-        } catch (e) {
-          console.warn("Failed to link idempotency key to tx hash:", e);
-        }
-
-        // M4/M6 — Three-way reconciliation + audit log
         try {
           const statsAfter = await publicClient.readContract({
             address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
@@ -901,21 +906,14 @@ Deno.serve(async (req) => {
             battery: Number(battery),
             charging: Number(charging),
           };
-          // In the edge function, headline == rows (single source: connected_devices).
-          // Phase 1.5 will fan out headline from KPI cache vs rows from devices.
-          const sourceBreakdown = {
-            solar_kwh: Number(solar),
-            ev_miles: Number(evMiles),
-            battery_kwh: Number(battery),
-            charging_kwh: Number(charging),
-            device_ids: deviceIdsToUpdate,
-          };
+          (sourceBreakdown as any).on_chain_delta = onChainDelta;
 
-          const logRows: Array<Record<string, unknown>> = [];
           for (const [cat, headline] of Object.entries(headlineByCat)) {
             if (headline === 0 && onChainDelta[cat as keyof typeof onChainDelta] === 0) continue;
             const result = verifyThreeWay(cat, headline, headline, onChainDelta[cat as keyof typeof onChainDelta]);
+            if (result.diffPct > maxDiffPct) maxDiffPct = result.diffPct;
             if (!result.ok) {
+              reconciliationViolations.push(...result.violations);
               console.warn(`[reconciliation] ${cat} mismatch:`, result.violations.join('; '));
             }
             logRows.push({
@@ -931,15 +929,59 @@ Deno.serve(async (req) => {
               passed: result.ok,
             });
           }
-          if (logRows.length > 0) {
-            const { error: logError } = await supabaseClient
-              .from("mint_reconciliation_log")
-              .insert(logRows);
-            if (logError) console.error("Failed to write mint_reconciliation_log:", logError);
-            else console.log(`Wrote ${logRows.length} reconciliation log rows for tx ${hash}`);
+
+          // Drift gate: anything above HARD threshold flags the mint for admin review.
+          // Between SOFT (1%) and HARD (5%) we keep "confirmed" but persist the diff so
+          // dashboards and the PoG receipt can surface it.
+          if (maxDiffPct > RECONCILIATION_HARD_FAIL_PCT) {
+            mintStatus = "flagged_drift";
           }
         } catch (reconcileError) {
           console.error("Post-mint reconciliation failed (non-fatal):", reconcileError);
+          (sourceBreakdown as any).reconciliation_error = String(reconcileError);
+          mintStatus = "flagged_drift"; // can't prove ≤ tolerance → flag for review
+          reconciliationViolations.push("reconciliation_unavailable");
+        }
+
+        // Record the mint with reconciliation_diff + drift status
+        await recordTransaction(
+          supabaseClient,
+          user.id,
+          hash,
+          receipt.blockNumber.toString(),
+          "mint-rewards",
+          walletAddress,
+          expectedTokens,
+          newNfts,
+          mintStatus,
+          isBetaMint,
+          {
+            diffPct: maxDiffPct,
+            kwhDelta: Number(solar) + Number(battery) + Number(charging),
+            milesDelta: Number(evMiles),
+            sourceBreakdown,
+          },
+        );
+
+        // Update idempotency row with actual tx hash for forensic linking
+        try {
+          await supabaseClient
+            .from("mint_idempotency_keys")
+            .update({ mint_tx_hash: hash })
+            .eq("user_id", user.id)
+            .eq("window_start", windowStart)
+            .eq("action", `mint-rewards:${mintCategory}${deviceId ? `:${deviceId}` : ''}`);
+        } catch (e) {
+          console.warn("Failed to link idempotency key to tx hash:", e);
+        }
+
+        // Persist per-category reconciliation log (append-only forensic anchor)
+        if (logRows.length > 0) {
+          const { error: logError } = await supabaseClient
+            .from("mint_reconciliation_log")
+            .insert(logRows);
+          if (logError) console.error("Failed to write mint_reconciliation_log:", logError);
+          else console.log(`Wrote ${logRows.length} reconciliation log rows for tx ${hash} (max diff ${maxDiffPct}%, status=${mintStatus})`);
         }
 
         // CRITICAL: Update baselines ONLY for devices that were minted (in deviceIdsToUpdate)
@@ -1036,6 +1078,7 @@ Deno.serve(async (req) => {
         }
       }
 
+      const driftFlagged = mintStatus === "flagged_drift";
       return new Response(JSON.stringify({
         success: receipt.status === "success",
         txHash: hash,
@@ -1044,8 +1087,18 @@ Deno.serve(async (req) => {
         tokensMinted: Number(totalUnits),
         nftsMinted: newNfts,
         nftNames: newNfts.map(id => NFT_NAMES[id] || `Token #${id}`),
-        message: receipt.status === "success" 
-          ? `Minted ~${expectedTokens.toFixed(0)} $ZSOLAR tokens${newNfts.length > 0 ? ` + ${newNfts.length} NFT(s)!` : '!'}` 
+        status: mintStatus,
+        reconciliation: {
+          diffPct: maxDiffPct,
+          tolerancePct: RECONCILIATION_TOLERANCE_PCT,
+          hardFailPct: RECONCILIATION_HARD_FAIL_PCT,
+          flagged: driftFlagged,
+          violations: reconciliationViolations,
+        },
+        message: receipt.status === "success"
+          ? (driftFlagged
+              ? `Mint completed but flagged for review (reconciliation drift ${maxDiffPct}% exceeds ${RECONCILIATION_HARD_FAIL_PCT}%).`
+              : `Minted ~${expectedTokens.toFixed(0)} $ZSOLAR tokens${newNfts.length > 0 ? ` + ${newNfts.length} NFT(s)!` : '!'}`)
           : "Transaction failed",
         breakdown: {
           solarKwh: Number(solar),
