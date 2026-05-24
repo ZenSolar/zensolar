@@ -59,12 +59,12 @@ export default function AdminProtocolIntegrity() {
       supabase
         .from("kpi_reconciliation_log")
         .select("*")
-        .order("created_at", { ascending: false })
+        .order("detected_at", { ascending: false })
         .limit(100),
       supabase
         .from("user_invariant_violations")
         .select("*")
-        .order("created_at", { ascending: false })
+        .order("detected_at", { ascending: false })
         .limit(100),
       supabase
         .from("collusion_signals")
@@ -181,7 +181,7 @@ export default function AdminProtocolIntegrity() {
                     (<span className="font-mono">{fmt(d.diff_pct)}%</span>)
                   </div>
                   <div className="opacity-70">
-                    user {d.user_id?.slice(0, 8) ?? "—"} · {format(new Date(d.created_at), "MMM d, HH:mm")}
+                    user {d.user_id?.slice(0, 8) ?? "—"} · {format(new Date(d.detected_at), "MMM d, HH:mm")}
                   </div>
                 </CardContent>
               </Card>
@@ -213,7 +213,7 @@ export default function AdminProtocolIntegrity() {
                     </pre>
                   )}
                   <div className="opacity-70">
-                    user {i.user_id?.slice(0, 8) ?? "—"} · {format(new Date(i.created_at), "MMM d, HH:mm")}
+                    user {i.user_id?.slice(0, 8) ?? "—"} · {format(new Date(i.detected_at), "MMM d, HH:mm")}
                   </div>
                 </CardContent>
               </Card>
