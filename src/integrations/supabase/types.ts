@@ -1230,6 +1230,9 @@ export type Database = {
         Row: {
           action: string
           block_number: string | null
+          chain_hash: string | null
+          chain_prev_hash: string | null
+          chain_seq: number | null
           created_at: string
           gas_used: string | null
           id: string
@@ -1249,6 +1252,9 @@ export type Database = {
         Insert: {
           action: string
           block_number?: string | null
+          chain_hash?: string | null
+          chain_prev_hash?: string | null
+          chain_seq?: number | null
           created_at?: string
           gas_used?: string | null
           id?: string
@@ -1268,6 +1274,9 @@ export type Database = {
         Update: {
           action?: string
           block_number?: string | null
+          chain_hash?: string | null
+          chain_prev_hash?: string | null
+          chain_seq?: number | null
           created_at?: string
           gas_used?: string | null
           id?: string
@@ -2332,6 +2341,19 @@ export type Database = {
     }
     Functions: {
       check_nda_signed: { Args: { _email: string }; Returns: boolean }
+      compute_mint_chain_hash: {
+        Args: {
+          _action: string
+          _created_at: string
+          _kwh: number
+          _miles: number
+          _prev: string
+          _tokens: number
+          _tx_hash: string
+          _user_id: string
+        }
+        Returns: string
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -2348,6 +2370,7 @@ export type Database = {
         }[]
       }
       get_live_earnings_stats: { Args: never; Returns: Json }
+      get_mint_receipt: { Args: { _chain_hash: string }; Returns: Json }
       get_mintable_status_filter: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["genesis_status"][]
