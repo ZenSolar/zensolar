@@ -11,18 +11,16 @@ import {
   Globe, 
   Loader2, 
   Zap,
-  Moon,
-  Sun,
   CheckCircle2,
   AlertCircle,
   Settings as SettingsIcon,
-  Palette,
+  
   Rows3,
   Rows4
 } from "lucide-react";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { WalletSetupCard } from "@/components/settings/WalletSetupCard";
-import { useTheme } from "next-themes";
+
 import { useDensity } from "@/hooks/useDensity";
 
 export default function Settings() {
@@ -36,7 +34,7 @@ export default function Settings() {
     toggle 
   } = usePushNotifications();
   
-  const { theme, setTheme } = useTheme();
+  
   const { density, setDensity } = useDensity();
 
   // Generate helpful message based on device/browser state

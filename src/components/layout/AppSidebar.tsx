@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useTheme } from "next-themes";
+
 import { 
   LayoutDashboard, 
   Coins, 
@@ -32,8 +32,6 @@ import {
   Wallet,
   ClipboardList,
   Activity,
-  Sun,
-  Moon,
   Coffee,
   Megaphone,
   Calendar,
@@ -201,7 +199,7 @@ export function AppSidebar() {
   // Admin menu is shown ONLY to admins/editors, never to pure viewers (e.g. Todd, Lyndon).
   // Viewers still get full dashboard data (mirrored from admin) but a clean user-style sidebar.
   const showAdminMenu = isAdmin && !isViewer;
-  const { theme, setTheme } = useTheme();
+  
   
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
