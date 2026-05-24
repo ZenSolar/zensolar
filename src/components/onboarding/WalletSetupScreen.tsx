@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Fingerprint, Sparkles, Shield, ArrowLeft, AlertCircle, RefreshCw, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCoinbaseSmartWallet } from '@/hooks/useCoinbaseSmartWallet';
+import { SecurityVisualizer } from './SecurityVisualizer';
 
 
 interface WalletSetupScreenProps {
@@ -206,59 +207,15 @@ function FeatureBadge({ icon: Icon, label }: { icon: React.ElementType; label: s
 function CreatingStep() {
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="text-center"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
     >
-      {/* Animated wallet icon */}
-      <div className="relative w-24 h-24 mx-auto mb-8">
-        <motion.div
-          className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 border border-primary/20"
-          animate={{ 
-            rotate: [0, 3, -3, 0],
-            scale: [1, 1.02, 1],
-          }}
-          transition={{ duration: 2, repeat: Infinity }}
-        />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-          >
-            <div className="w-14 h-14 rounded-full border-2 border-primary/30 border-t-primary" />
-          </motion.div>
-        </div>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <Sparkles className="w-8 h-8 text-primary" />
-        </div>
-      </div>
-
-      <h2 className="text-xl font-semibold text-foreground mb-2">
-        Creating Your Wallet
-      </h2>
-      <p className="text-muted-foreground text-sm">
-        Connecting to Coinbase Smart Wallet...
-      </p>
-
-      {/* Progress dots */}
-      <div className="flex items-center justify-center gap-2 mt-8">
-        {[0, 1, 2].map((i) => (
-          <motion.div
-            key={i}
-            className="w-2 h-2 rounded-full bg-primary"
-            animate={{ 
-              scale: [1, 1.4, 1],
-              opacity: [0.5, 1, 0.5],
-            }}
-            transition={{ 
-              duration: 0.8, 
-              repeat: Infinity, 
-              delay: i * 0.15,
-            }}
-          />
-        ))}
-      </div>
+      <SecurityVisualizer
+        activeStep={1}
+        title="Creating your wallet"
+        subtitle="Securely connecting to Base. This takes just a moment."
+      />
     </motion.div>
   );
 }
@@ -266,56 +223,17 @@ function CreatingStep() {
 function PasskeyStep() {
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="text-center"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
     >
-      {/* Fingerprint animation */}
-      <motion.div 
-        className="w-24 h-24 mx-auto mb-8 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 border border-primary/20 flex items-center justify-center"
-        animate={{ 
-          boxShadow: [
-            '0 0 0 0 rgba(34, 197, 94, 0.3)',
-            '0 0 0 16px rgba(34, 197, 94, 0)',
-          ],
-        }}
-        transition={{ duration: 1.5, repeat: Infinity }}
-      >
-        <motion.div
-          animate={{ scale: [1, 1.1, 1] }}
-          transition={{ duration: 1, repeat: Infinity }}
-        >
-          <Fingerprint className="w-12 h-12 text-primary" />
-        </motion.div>
-      </motion.div>
-
-      <h2 className="text-xl font-semibold text-foreground mb-2">
-        Authenticate with Passkey
-      </h2>
-      <p className="text-muted-foreground text-sm mb-6">
-        Use Face ID, Touch ID, or your device passkey
-      </p>
-
-      {/* Passkey prompt indicator */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="p-4 rounded-xl bg-muted/50 border border-border max-w-xs mx-auto"
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <Shield className="w-5 h-5 text-primary" />
-          </div>
-          <div className="text-left">
-            <p className="text-sm font-medium">Coinbase Smart Wallet</p>
-            <p className="text-xs text-muted-foreground">Complete authentication in popup...</p>
-          </div>
-        </div>
-      </motion.div>
-
-      <p className="text-xs text-muted-foreground mt-4">
-        A popup window will appear. Please complete the passkey setup there.
+      <SecurityVisualizer
+        activeStep={0}
+        title="Confirm with Face ID"
+        subtitle="A system prompt will ask for your passkey. This proves the wallet is yours — no password required."
+      />
+      <p className="text-[11px] text-muted-foreground/70 mt-6 text-center">
+        Complete the prompt in the popup window.
       </p>
     </motion.div>
   );
