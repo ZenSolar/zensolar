@@ -14,6 +14,7 @@ interface EnphaseCodeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (code: string) => Promise<boolean>;
+  authUrl?: string | null;
 }
 
 const steps = [
