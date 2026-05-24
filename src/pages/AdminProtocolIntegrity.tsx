@@ -112,10 +112,25 @@ export default function AdminProtocolIntegrity() {
     }
   };
 
+  const resolveInvariant = async (id: string) => {
+    const note = prompt("Resolution note?") ?? "";
+    const { error } = await supabase.rpc("resolve_invariant_violation", { _id: id, _note: note });
+    if (error) toast.error(error.message);
+    else { toast.success("Violation resolved · mint gate cleared"); await load(); }
+  };
+
+  const resolveCollusion = async (id: string) => {
+    const note = prompt("Resolution note?") ?? "";
+    const { error } = await supabase.rpc("resolve_collusion_signal", { _id: id, _note: note });
+    if (error) toast.error(error.message);
+    else { toast.success("Signal resolved · mint gate cleared"); await load(); }
+  };
+
   const criticalCount =
     drifts.filter((d) => d.severity === "critical").length +
-    invariants.filter((i) => i.severity === "critical").length +
-    collusion.filter((c) => c.severity === "critical").length;
+    invariants.filter((i) => i.severity === "critical" && !i.resolved_at).length +
+    collusion.filter((c) => c.severity === "critical" && !c.resolved_at).length;
+
 
   return (
     <div className="container mx-auto max-w-6xl px-4 py-6 space-y-6">
