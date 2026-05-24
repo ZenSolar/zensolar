@@ -195,7 +195,9 @@
   </head>
 
   <body>
-    <!-- Inline splash: shows instantly before any JS loads. React removes it on mount. -->
+    <!-- Inline splash: shows instantly before any JS loads. React removes it on mount.
+         Mirrors the in-app <BrandSplash /> component so the cold-boot → React handoff
+         feels like one continuous moment (same logo, same emerald shimmer, dark canvas). -->
     <style>
       #pwa-splash {
         position: fixed;
@@ -206,8 +208,9 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 20px;
-        transition: opacity 0.3s ease;
+        gap: 24px;
+        padding: env(safe-area-inset-top) 24px env(safe-area-inset-bottom);
+        transition: opacity 0.32s ease;
       }
       #pwa-splash.fade-out {
         opacity: 0;
@@ -216,26 +219,31 @@
       #pwa-splash img {
         width: 160px;
         height: auto;
+        user-select: none;
+        -webkit-user-drag: none;
       }
       #pwa-splash-bar-track {
-        width: 120px;
+        width: 128px;
         height: 3px;
-        background: rgba(255,255,255,0.12);
+        background: rgba(255,255,255,0.10);
         border-radius: 99px;
         overflow: hidden;
+        position: relative;
       }
       #pwa-splash-bar {
+        position: absolute;
+        top: 0;
+        left: 0;
         height: 100%;
-        width: 0%;
+        width: 33%;
         background: #22c55e;
         border-radius: 99px;
-        animation: splashProgress 2.5s cubic-bezier(0.4,0,0.2,1) forwards;
+        animation: splashSlide 1.4s ease-in-out infinite;
       }
-      @keyframes splashProgress {
-        0%   { width: 0%; }
-        60%  { width: 75%; }
-        90%  { width: 90%; }
-        100% { width: 95%; }
+      @keyframes splashSlide {
+        0%   { transform: translateX(-100%); }
+        50%  { transform: translateX(150%); }
+        100% { transform: translateX(300%); }
       }
     </style>
 
@@ -250,13 +258,8 @@
       window.hideSplashScreen = function() {
         var el = document.getElementById('pwa-splash');
         if (!el) return;
-        // Complete the progress bar first, then fade
-        var bar = document.getElementById('pwa-splash-bar');
-        if (bar) bar.style.cssText = 'width:100%;transition:width 0.2s ease';
-        setTimeout(function() {
-          el.classList.add('fade-out');
-          setTimeout(function() { el.remove(); }, 320);
-        }, 200);
+        el.classList.add('fade-out');
+        setTimeout(function() { el.remove(); }, 340);
       };
     </script>
 
