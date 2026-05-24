@@ -199,13 +199,29 @@ export default function VerifyPoA() {
               )}
 
               {data.covering_anchor && (
-                <ProofRow
-                  icon={Anchor}
-                  tm="Proof-of-Permanence™"
-                  label={`Merkle root over ${data.covering_anchor.leaf_count} receipts · snapshot ${new Date(data.covering_anchor.snapshot_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}${data.covering_anchor.onchain_tx_hash ? ' · anchored on Base' : ' · DB-anchored (on-chain anchor pending)'}`}
-                  value={data.covering_anchor.merkle_root}
-                  accent="text-amber-400"
-                />
+                <>
+                  <ProofRow
+                    icon={Anchor}
+                    tm="Proof-of-Permanence™"
+                    label={`Merkle root over ${data.covering_anchor.leaf_count} receipts · snapshot ${new Date(data.covering_anchor.snapshot_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}${data.covering_anchor.onchain_tx_hash ? ' · anchored on Base' : ' · DB-anchored (on-chain anchor pending)'}`}
+                    value={data.covering_anchor.merkle_root}
+                    accent="text-amber-400"
+                  />
+                  {data.covering_anchor.onchain_tx_hash && (
+                    <div className="pt-1">
+                      <Button asChild variant="outline" size="sm" className="w-full gap-1.5">
+                        <a
+                          href={`https://sepolia.basescan.org/tx/${data.covering_anchor.onchain_tx_hash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" />
+                          View Merkle anchor on Base
+                        </a>
+                      </Button>
+                    </div>
+                  )}
+                </>
               )}
               {data.tx_hash && (
                 <div className="pt-2">
