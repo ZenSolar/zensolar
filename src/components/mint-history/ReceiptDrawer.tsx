@@ -129,6 +129,7 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
   // tokens_minted is already the 75% user share — derive grand total for split viz
   const grandTotal = userTokens > 0 ? userTokens / 0.75 : 0;
   const hasSplit = userTokens > 0;
+  const source = summarizeSource(tx);
   const pogReceiptUrl = `${basePath}/proof-of-genesis-receipt-preview`;
   const verifyUrl = tx.chain_hash
     ? `${typeof window !== "undefined" ? window.location.origin : "https://beta.zen.solar"}/verify/${tx.chain_hash}`
