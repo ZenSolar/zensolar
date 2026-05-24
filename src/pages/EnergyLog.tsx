@@ -227,7 +227,7 @@ export default function EnergyLog() {
   return (
     <AnimatedContainer className={cn(
       "w-full mx-auto px-3 sm:px-4 py-5 space-y-3.5",
-      viewMode === 'table' ? 'max-w-lg xl:max-w-5xl' : 'max-w-lg',
+      viewMode === 'table' ? 'max-w-lg lg:max-w-5xl' : 'max-w-lg',
     )}>
       {/* Header */}
       <AnimatedItem className="space-y-0.5">
