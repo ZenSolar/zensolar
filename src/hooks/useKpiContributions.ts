@@ -228,7 +228,12 @@ async function fetchEnergyProductionRows(
 
   if (deviceId) query = query.eq('device_id', deviceId);
   else if (solarDeviceIds?.length) query = query.in('device_id', solarDeviceIds);
-  if (sinceIso && !pendingTarget) query = query.gt('recorded_at', sinceIso);
+  // Battery rows are CUMULATIVE lifetime counters — we must keep at least one
+  // sample older than `sinceIso` to compute the first day's delta. Skip the
+  // server-side time filter and apply it after normalization.
+  if (sinceIso && !pendingTarget && dataType !== 'battery_discharge') {
+    query = query.gt('recorded_at', sinceIso);
+  }
   if (solarProviderFilter) query = query.in('provider', solarProviderFilter);
 
   const { data, error } = await query;
@@ -248,9 +253,12 @@ async function fetchEnergyProductionRows(
     verified: ['tesla', 'enphase', 'solaredge', 'tesla_historical'].includes(r.provider),
   }));
 
-  const receiptRows = dataType === 'solar' && solarProviderFilter
-    ? normalizeDailySolarRows(mapped)
-    : mapped;
+  let receiptRows = mapped;
+  if (dataType === 'solar' && solarProviderFilter) {
+    receiptRows = normalizeDailySolarRows(mapped);
+  } else if (dataType === 'battery_discharge') {
+    receiptRows = normalizeDailyBatteryRows(mapped, sinceIso);
+  }
 
   if (!pendingTarget || pendingTarget <= 0) return receiptRows;
 
