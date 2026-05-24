@@ -346,6 +346,7 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
         open={enphaseDialogOpen}
         onOpenChange={setEnphaseDialogOpen}
         onSubmit={handleEnphaseCodeSubmit}
+        authUrl={enphaseAuthUrl}
       />
       <SolarEdgeConnectDialog
         open={solarEdgeDialogOpen}
