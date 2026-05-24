@@ -693,17 +693,52 @@ export default function Onboarding() {
   const showProgress = step !== 'wallet-choice';
   const currentStepNumber = getStepNumber(step);
 
+  // Map each step → its logical "back" target. Returning null means no back nav
+  // (i.e. first screen). Dialogs handle their own dismissal.
+  const getPreviousStep = (s: OnboardingStep): OnboardingStep | null => {
+    switch (s) {
+      case 'wallet-choice': return null;
+      case 'zensolar-setup':
+      case 'external-wallet': return 'wallet-choice';
+      case 'wallet-success': return 'wallet-choice';
+      case 'ai-concierge': return 'wallet-choice';
+      case 'energy-connect':
+      case 'device-selection': return 'ai-concierge';
+      case 'home-charging-setup': return 'energy-connect';
+      case 'energy-success': return 'energy-connect';
+      default: return null;
+    }
+  };
+
+  const handleStepBack = useCallback(() => {
+    // Don't navigate back while a dialog or device selection is open — let them dismiss first.
+    if (showEnphaseDialog || showSolarEdgeDialog || showWallboxDialog || showDeviceSelection) {
+      return;
+    }
+    const prev = getPreviousStep(step);
+    if (prev) transitionToStep(prev);
+  }, [step, showEnphaseDialog, showSolarEdgeDialog, showWallboxDialog, showDeviceSelection]);
+
+  // Swipe-right anywhere on the onboarding surface to go back
+  const swipeContainerRef = useRef<HTMLDivElement>(null);
+  useSwipeBack(swipeContainerRef, handleStepBack, {
+    enabled: getPreviousStep(step) !== null,
+  });
+
+  const backTarget = getPreviousStep(step);
+
   return (
-    <>
+    <div ref={swipeContainerRef}>
       {/* Step transition animation */}
       <OnboardingTransition isTransitioning={isTransitioning} />
 
       {/* Progress indicator */}
       {showProgress && !isTransitioning && (
-        <OnboardingProgress 
-          currentStep={currentStepNumber} 
+        <OnboardingProgress
+          currentStep={currentStepNumber}
           totalSteps={4}
           stepLabels={['Choose Wallet', 'Create Wallet', 'Connect Energy', 'Done']}
+          onBack={backTarget ? handleStepBack : undefined}
         />
       )}
 
