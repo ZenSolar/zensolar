@@ -31,6 +31,7 @@ type InvariantRow = {
   diff_pct: number | null;
   details: Record<string, unknown> | null;
   detected_at: string;
+  resolved_at?: string | null;
 };
 
 type CollusionRow = {
@@ -41,7 +42,9 @@ type CollusionRow = {
   evidence: Record<string, unknown> | null;
   fingerprint: string | null;
   detected_at: string;
+  resolved_at?: string | null;
 };
+
 
 const sevColor = (s: string) =>
   s === "critical" ? "destructive" : s === "warn" ? "secondary" : "outline";
