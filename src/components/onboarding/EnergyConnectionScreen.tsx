@@ -5,9 +5,9 @@ import { triggerLightTap } from '@/hooks/useHaptics';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
 // Brand logos (clean modern marks in brand colors)
-import teslaLogo from '@/assets/logos/tesla-wordmark.svg';
+import teslaLogo from '@/assets/logos/tesla-mark.svg';
 import enphaseLogo from '@/assets/logos/enphase-mark.svg';
-import solaredgeLogo from '@/assets/logos/solaredge-wordmark.svg';
+import solaredgeLogo from '@/assets/logos/solaredge-mark.svg';
 import wallboxLogo from '@/assets/logos/wallbox-mark.svg';
 
 export type EnergyProvider = 'tesla' | 'enphase' | 'solaredge' | 'wallbox';
@@ -220,11 +220,11 @@ export function EnergyConnectionScreen({
                   'linear-gradient(135deg, hsl(var(--card) / 0.7) 0%, hsl(var(--background) / 0.85) 100%)',
               }}
             >
-              <div className="w-14 h-14 rounded-2xl shrink-0 overflow-hidden shadow-md ring-1 ring-white/10">
+              <div className="w-14 h-14 rounded-2xl shrink-0 overflow-hidden shadow-md ring-1 ring-white/10 bg-white/5">
                 <img
                   src={provider.logo}
                   alt={provider.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
               </div>
               <div className="flex-1 min-w-0">

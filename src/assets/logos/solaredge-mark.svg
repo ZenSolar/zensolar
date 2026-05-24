@@ -1,4 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-label="SolarEdge">
-  <rect width="64" height="64" rx="14" fill="#ED1C24"/>
-  <text x="32" y="44" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="34" font-weight="700" fill="#ffffff">SE</text>
+  <rect width="64" height="64" rx="14" fill="#FFFFFF"/>
+  <!-- Compact "se" mark: black 's' + red 'e' echoing the SolarEdge wordmark -->
+  <text x="14" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="800" fill="#1A1A1A" letter-spacing="-1">s</text>
+  <text x="30" y="42" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="800" fill="#E8473A" letter-spacing="-1">e</text>
 </svg>
