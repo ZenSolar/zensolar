@@ -315,18 +315,40 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
             </div>
           ) : (
             <>
-              <div className="flex items-center justify-between py-3 text-[11px] text-muted-foreground border-b border-border/40">
-                <span>
-                  {isInterval
-                    ? category === 'solar'
-                      ? `${dayGroups.length} day${dayGroups.length !== 1 ? 's' : ''} · ${rows.length} daily total${rows.length !== 1 ? 's' : ''}`
-                      : `${dayGroups.length} day${dayGroups.length !== 1 ? 's' : ''} · ${rows.length} sample${rows.length !== 1 ? 's' : ''}`
-                    : `${rows.length} contribution${rows.length !== 1 ? 's' : ''}`}
-                </span>
-                <span className="tabular-nums">
-                  Σ {sumOfRows.toLocaleString(undefined, { maximumFractionDigits: 1 })} {unit}
-                </span>
-              </div>
+              {(() => {
+                const sectionTitle =
+                  category === 'solar' ? 'Daily Production'
+                  : category === 'battery' ? 'Daily Battery Exports'
+                  : category === 'ev_miles' ? 'Daily Miles Driven'
+                  : category === 'supercharger' ? 'Supercharging Sessions'
+                  : category === 'home_charger' ? 'Home Charging Sessions'
+                  : category === 'charging' ? 'Charging Sessions'
+                  : 'Contributions';
+                const meta = isInterval
+                  ? category === 'solar'
+                    ? `${dayGroups.length} day${dayGroups.length !== 1 ? 's' : ''} · ${rows.length} daily total${rows.length !== 1 ? 's' : ''}`
+                    : `${dayGroups.length} day${dayGroups.length !== 1 ? 's' : ''} · ${rows.length} sample${rows.length !== 1 ? 's' : ''}`
+                  : `${rows.length} contribution${rows.length !== 1 ? 's' : ''}`;
+                return (
+                  <div className="pt-4 pb-2.5 border-b border-border/60">
+                    <div className="flex items-end justify-between gap-3">
+                      <div className="min-w-0">
+                        <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground leading-none">
+                          {sectionTitle}
+                        </h3>
+                        <p className="text-[10px] text-muted-foreground mt-1.5">{meta}</p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-[9px] uppercase tracking-wider text-muted-foreground leading-none">Total</p>
+                        <p className="text-sm font-bold tabular-nums text-foreground mt-1">
+                          {sumOfRows.toLocaleString(undefined, { maximumFractionDigits: 1 })}
+                          <span className="text-[10px] font-normal text-muted-foreground ml-1">{unit}</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
               <div>
                 {isInterval
                   ? dayGroups.map((g) => <DayGroupRow key={g.dayKey} group={g} unit={unit} category={category} />)
