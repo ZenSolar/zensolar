@@ -136,10 +136,17 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
               <motion.div
                 initial={{ scale: 0 }} animate={{ scale: 1 }}
                 transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
-                className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-primary/80 flex items-center justify-center shadow-xl shadow-primary/25"
+                className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-primary/80 flex items-center justify-center shadow-xl shadow-primary/25"
               >
                 <Sparkles className="w-10 h-10 text-primary-foreground" />
               </motion.div>
+
+              <div className="text-center mb-1">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-semibold text-primary tracking-wide uppercase">
+                  <Sparkles className="w-3 h-3" />
+                  Deason — Setup Concierge
+                </span>
+              </div>
 
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold text-foreground mb-2 tracking-tight">
@@ -147,7 +154,7 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
                 </h2>
                 <p className="text-muted-foreground text-sm leading-relaxed">
                   Just describe your solar, battery, EV, or home charger in your own words.
-                  I'll figure out what to connect.
+                  Deason will figure out what to connect.
                 </p>
               </div>
 
