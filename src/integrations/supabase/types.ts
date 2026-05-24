@@ -399,6 +399,36 @@ export type Database = {
           },
         ]
       }
+      device_handoff_log: {
+        Row: {
+          device_id: string
+          handoff_at: string
+          id: string
+          new_user_id: string
+          previous_lifetime_totals: Json | null
+          previous_user_id: string
+          provider: string
+        }
+        Insert: {
+          device_id: string
+          handoff_at?: string
+          id?: string
+          new_user_id: string
+          previous_lifetime_totals?: Json | null
+          previous_user_id: string
+          provider: string
+        }
+        Update: {
+          device_id?: string
+          handoff_at?: string
+          id?: string
+          new_user_id?: string
+          previous_lifetime_totals?: Json | null
+          previous_user_id?: string
+          provider?: string
+        }
+        Relationships: []
+      }
       email_link_clicks: {
         Row: {
           clicked_at: string
