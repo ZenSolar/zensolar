@@ -69,6 +69,7 @@ const AdminSubscriptionPanel = lazy(() => import("./pages/AdminSubscriptionPanel
 const FlywheelSimulation = lazy(() => import("./pages/FlywheelSimulation"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const AdminMintRequests = lazy(() => import("./pages/AdminMintRequests"));
+const AdminPageCleanup = lazy(() => import("./pages/AdminPageCleanup"));
 const AdminProtocolIntegrity = lazy(() => import("./pages/AdminProtocolIntegrity"));
 const Tokenomics = lazy(() => import("./pages/Tokenomics"));
 const Subscribe = lazy(() => import("./pages/Subscribe"));
@@ -266,6 +267,7 @@ const App = () => {
                   <AppHistoryTracker />
                   <ScrollManager />
                   <SwipeBackHandler />
+                  <PageCleanupFlagger />
                   <Suspense fallback={<PageLoader />}>
                     <Routes>
                     <Route path="/auth" element={<Auth />} />
@@ -503,6 +505,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminProtocolIntegrity />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/page-cleanup" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminPageCleanup />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
