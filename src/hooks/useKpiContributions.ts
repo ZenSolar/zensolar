@@ -123,87 +123,8 @@ function durationMin(startIso?: string | null, endIso?: string | null): number |
   return Math.max(1, Math.round((b - a) / 60000));
 }
 
-function normalizeDailySolarRows(rows: KpiContributionRow[]): KpiContributionRow[] {
-  const daily = new Map<string, KpiContributionRow>();
-
-  for (const row of rows) {
-    const provider = row.provider?.toLowerCase();
-    if (provider !== 'enphase' && provider !== 'solaredge') continue;
-
-    const dayKey = row.recordedAt.slice(0, 10);
-    const key = `${row.deviceId ?? 'unknown'}|${provider}|${dayKey}`;
-    const existing = daily.get(key);
-
-    // Enphase/SolarEdge writes production_wh as the day's running total. The
-    // receipt must use the daily MAX, not SUM every API sample for that day.
-    if (!existing || row.amount > existing.amount) {
-      daily.set(key, {
-        ...row,
-        id: `daily-${key}`,
-        recordedAt: dayKey,
-        hasRealTime: false,
-      });
-    }
-  }
-
-  return Array.from(daily.values()).sort((a, b) => (a.recordedAt < b.recordedAt ? 1 : -1));
-}
-
-/**
- * Tesla Powerwall (and most battery APIs) report `energy_exported` as a
- * monotonic LIFETIME counter in Wh. A single raw sample contains the
- * lifetime total, not the day's export.
- *
- * To make the daily receipts sum to the same headline "pending" the KPI
- * tile shows (lifetime_now − lifetime_at_last_mint), we:
- *   1. Establish a per-device BASELINE = the lifetime value at/just before
- *      `sinceIso` (the last-mint anchor). This is the same anchor the tile
- *      uses for its baseline.
- *   2. Chain daily deltas starting from that baseline so
- *      Σ(deltas) == latest_lifetime − baseline == headline pending.
- */
-function normalizeDailyBatteryRows(
-  rows: KpiContributionRow[],
-  baselinesByDevice: Map<string, number>,
-): KpiContributionRow[] {
-  const byDevice = new Map<string, Map<string, KpiContributionRow>>();
-
-  for (const row of rows) {
-    const device = row.deviceId ?? 'unknown';
-    let daily = byDevice.get(device);
-    if (!daily) { daily = new Map(); byDevice.set(device, daily); }
-    const day = row.recordedAt.slice(0, 10);
-    const existing = daily.get(day);
-    if (!existing || row.amount > existing.amount) daily.set(day, row);
-  }
-
-  const deltas: KpiContributionRow[] = [];
-  for (const [device, daily] of byDevice) {
-    const days = Array.from(daily.keys()).sort(); // ascending
-    let prevValue = baselinesByDevice.get(device) ?? 0;
-    for (const day of days) {
-      const cur = daily.get(day)!;
-      // Only count days strictly above the device's stored baseline so
-      // Σ(deltas) == lifetime_now − stored_baseline == headline pending.
-      if (cur.amount <= prevValue) {
-        prevValue = Math.max(prevValue, cur.amount);
-        continue;
-      }
-      const delta = Math.round((cur.amount - prevValue) * 10) / 10;
-      prevValue = cur.amount;
-      if (delta <= 0) continue;
-      deltas.push({
-        ...cur,
-        id: `daily-${device}-${day}`,
-        recordedAt: day,
-        hasRealTime: false,
-        amount: delta,
-      });
-    }
-  }
-
-  return deltas.sort((a, b) => (a.recordedAt < b.recordedAt ? 1 : -1));
-}
+// Pure normalization functions (normalizeDailySolarRows, normalizeDailyCounterRows,
+// dedupeSessionRows) live in src/lib/kpiNormalization.ts with golden-fixture tests.
 
 /**
  * Fetch per-device baseline (lifetime value at last mint) from
