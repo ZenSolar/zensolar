@@ -134,6 +134,13 @@ async function fetchEnergyProductionRows(
   if (deviceId) query = query.eq('device_id', deviceId);
   if (sinceIso && !pendingTarget) query = query.gt('recorded_at', sinceIso);
 
+  // Solar is sourced ONLY from dedicated solar inverters (Enphase / SolarEdge).
+  // Tesla provider rows on data_type='solar' come from Powerwall site aggregates
+  // and double-count what the inverter already reports, so we exclude them here.
+  if (dataType === 'solar') {
+    query = query.in('provider', ['enphase', 'solaredge']);
+  }
+
   const { data, error } = await query;
   if (error) throw error;
 
