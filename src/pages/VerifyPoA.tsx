@@ -303,6 +303,8 @@ export default function VerifyPoA() {
                       </Button>
                     </div>
                   )}
+
+                  <InclusionProofCard inclusion={inclusion} />
                 </>
               )}
               {data.tx_hash && (
