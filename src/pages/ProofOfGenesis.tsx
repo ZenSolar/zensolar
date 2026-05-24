@@ -199,24 +199,29 @@ const PILLARS: Pillar[] = [
       'The single largest fraud vector in energy tokens is the same kWh being counted by two systems. We solve it at the database layer, not in a hook.',
     rules: [
       {
-        label: 'DB-level unique fingerprint',
+        label: 'DB-level event_fingerprint uniqueness',
         detail:
-          'Unique indexes on (provider, device_id, source_event_id) across energy_production, home_charging_sessions, and charging_sessions. Re-ingests are idempotent.',
+          'Every row in energy_production, charging_sessions, home_charging_sessions, and bidirectional_mint_events carries a trigger-computed event_fingerprint (md5 of provider + device + timestamp + key fields). A per-user UNIQUE index makes re-ingests idempotent at the database layer — the same physical event physically cannot land twice.',
       },
       {
-        label: 'Cross-source dedup',
+        label: 'One wallet per physical device',
         detail:
-          'Home charging readings from a dedicated charger are deduped against utility bill rows within a tolerance window. The richer source wins.',
+          'UNIQUE(provider, device_id) on connected_devices. A single Tesla VIN, Enphase site, or Wallbox serial can only be claimed by one wallet at a time. Handoffs zero baselines via trigger (Pillar 2 · O4).',
+      },
+      {
+        label: 'Cross-source overlap detection',
+        detail:
+          'verifyNoCrossSourceOverlap() flags the case the DB can\'t catch: the same plug-in reported by two different hardware paths (e.g. Tesla onboard logger + Wallbox meter) within 15 min and 10% kWh tolerance. Dedicated meter wins; vehicle-reported row is dropped.',
       },
       {
         label: 'Bidirectional EV split',
         detail:
-          'Charging, discharging (V2G), miles driven, and FSD all mint separately with separate proofs. A single battery cycle cannot be double-claimed across roles.',
+          'Charging, discharging (V2G), miles driven, and FSD all mint separately with separate proofs and separate fingerprints. A single battery cycle cannot be double-claimed across roles.',
       },
       {
         label: 'Per-session receipts for EV charging',
         detail:
-          'Supercharging and home charging are session-keyed, not day-totaled — making every kWh traceable to a specific plug-in event.',
+          'Supercharging and home charging are session-keyed (not day-totaled) and fingerprinted on (device, start_time) — every kWh is traceable to a specific plug-in event.',
       },
     ],
   },
