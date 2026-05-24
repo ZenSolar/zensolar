@@ -1547,6 +1547,42 @@ export type Database = {
         }
         Relationships: []
       }
+      page_cleanup_flags: {
+        Row: {
+          action: string
+          created_at: string
+          flagged_by: string
+          id: string
+          note: string | null
+          processed_at: string | null
+          route: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          flagged_by: string
+          id?: string
+          note?: string | null
+          processed_at?: string | null
+          route: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          flagged_by?: string
+          id?: string
+          note?: string | null
+          processed_at?: string | null
+          route?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       pending_push_messages: {
         Row: {
           body: string
