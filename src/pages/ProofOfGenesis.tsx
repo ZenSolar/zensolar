@@ -122,7 +122,7 @@ const PILLARS: Pillar[] = [
       {
         label: 'Handoff trigger auto-resets baseline',
         detail:
-          'A BEFORE UPDATE trigger on connected_devices detects user_id changes, snapshots prior lifetime_totals to device_handoff_log, and zeroes lifetime_totals + baseline_data + last_minted_at. The new owner cannot inherit a single watt-hour.',
+          'Device claim is constrained by UNIQUE(provider, device_id), so a handoff is always release → reclaim. A BEFORE DELETE trigger on connected_devices snapshots the prior owner\'s lifetime_totals + baseline_data into _device_release_archive; a BEFORE INSERT trigger detects a reclaim by a different user_id, writes device_handoff_log, zeroes baseline_data + lifetime_totals + last_minted_at, and emits a device_handoff_baseline_reset info event (auto-resolved). The new owner physically cannot inherit a single watt-hour.',
       },
       {
         label: 'Geo-fence sanity check',
