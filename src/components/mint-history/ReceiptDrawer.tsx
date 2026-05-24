@@ -42,6 +42,53 @@ export interface MintReceiptTx {
   status: string;
   created_at: string;
   chain_hash?: string | null;
+  /** Per-source kWh contributions (or miles for ev_miles). Populated by
+   *  recent mints; legacy rows may be null. */
+  source_breakdown?: Record<string, number> | null;
+  kwh_delta?: number | null;
+  miles_delta?: number | null;
+}
+
+/** Visual meta for each mintable energy source — chip color + icon + unit. */
+const SOURCE_META: Record<string, { label: string; unit: 'kWh' | 'mi'; accent: string; dot: string }> = {
+  solar:         { label: 'Solar Production',     unit: 'kWh', accent: 'border-amber-400/40 text-amber-300 bg-amber-400/10',   dot: 'bg-amber-400' },
+  battery:       { label: 'Battery Export',       unit: 'kWh', accent: 'border-emerald-400/40 text-emerald-300 bg-emerald-400/10', dot: 'bg-emerald-400' },
+  supercharger:  { label: 'Tesla Supercharging',  unit: 'kWh', accent: 'border-[hsl(0_85%_55%)]/40 text-[hsl(0_85%_70%)] bg-[hsl(0_85%_45%)]/10', dot: 'bg-[hsl(0_85%_55%)]' },
+  home_charger:  { label: 'Home Charging',        unit: 'kWh', accent: 'border-cyan-400/40 text-cyan-300 bg-cyan-400/10',     dot: 'bg-cyan-400' },
+  charging:      { label: 'EV Charging',          unit: 'kWh', accent: 'border-cyan-400/40 text-cyan-300 bg-cyan-400/10',     dot: 'bg-cyan-400' },
+  ev_charging:   { label: 'EV Charging',          unit: 'kWh', accent: 'border-cyan-400/40 text-cyan-300 bg-cyan-400/10',     dot: 'bg-cyan-400' },
+  ev_miles:      { label: 'EV Miles Driven',      unit: 'mi',  accent: 'border-green-400/40 text-green-300 bg-green-400/10',  dot: 'bg-green-400' },
+};
+
+type SourceSummary = {
+  primaryKey: string;
+  primaryMeta: typeof SOURCE_META[string];
+  primaryValue: number;
+  total: number;
+  isMixed: boolean;
+  others: { key: string; meta: typeof SOURCE_META[string]; value: number; pct: number }[];
+};
+
+function summarizeSource(tx: MintReceiptTx): SourceSummary | null {
+  const breakdown = tx.source_breakdown ?? null;
+  // Fallback: single-source EV from miles_delta when source_breakdown absent
+  if ((!breakdown || Object.keys(breakdown).length === 0)) {
+    if (tx.miles_delta && tx.miles_delta > 0) {
+      const meta = SOURCE_META.ev_miles;
+      return { primaryKey: 'ev_miles', primaryMeta: meta, primaryValue: Number(tx.miles_delta), total: Number(tx.miles_delta), isMixed: false, others: [] };
+    }
+    return null;
+  }
+  const entries = Object.entries(breakdown)
+    .filter(([k, v]) => SOURCE_META[k] && Number(v) > 0)
+    .map(([k, v]) => ({ key: k, meta: SOURCE_META[k], value: Number(v) }))
+    .sort((a, b) => b.value - a.value);
+  if (entries.length === 0) return null;
+  const total = entries.reduce((s, e) => s + e.value, 0);
+  const primary = entries[0];
+  const others = entries.slice(1).map((e) => ({ ...e, pct: Math.round((e.value / total) * 100) }));
+  const isMixed = others.some((o) => o.pct >= 5);
+  return { primaryKey: primary.key, primaryMeta: primary.meta, primaryValue: primary.value, total, isMixed, others };
 }
 
 interface ReceiptDrawerProps {
