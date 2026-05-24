@@ -56,7 +56,7 @@ export default function EnergyLog() {
     if (typeof window === 'undefined') return 'cards';
     const stored = localStorage.getItem('energyLog.viewMode');
     if (stored === 'cards' || stored === 'table') return stored;
-    return window.matchMedia('(min-width: 1280px)').matches ? 'table' : 'cards';
+    return window.matchMedia('(min-width: 1024px)').matches ? 'table' : 'cards';
   });
   const setViewModeAndPersist = (mode: 'cards' | 'table') => {
     setViewMode(mode);
