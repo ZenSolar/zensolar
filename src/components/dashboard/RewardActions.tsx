@@ -904,7 +904,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         },
       });
 
-      if (error) throw error;
+      if (error) throw new Error(parseMintError(error, data).message);
 
       const result = data as MintResult;
 
