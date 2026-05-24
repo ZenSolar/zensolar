@@ -23,6 +23,12 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useViewAsUserId } from '@/hooks/useViewAsUserId';
 import { reconcileReceipts } from '@/lib/kpiReconciliation';
+import {
+  DAILY_PHYSICAL_CAP,
+  dedupeSessionRows,
+  normalizeDailyCounterRows,
+  normalizeDailySolarRows,
+} from '@/lib/kpiNormalization';
 import type { MintCategory } from '@/components/dashboard/ActivityMetrics';
 
 export interface KpiContributionRow {
@@ -117,87 +123,8 @@ function durationMin(startIso?: string | null, endIso?: string | null): number |
   return Math.max(1, Math.round((b - a) / 60000));
 }
 
-function normalizeDailySolarRows(rows: KpiContributionRow[]): KpiContributionRow[] {
-  const daily = new Map<string, KpiContributionRow>();
-
-  for (const row of rows) {
-    const provider = row.provider?.toLowerCase();
-    if (provider !== 'enphase' && provider !== 'solaredge') continue;
-
-    const dayKey = row.recordedAt.slice(0, 10);
-    const key = `${row.deviceId ?? 'unknown'}|${provider}|${dayKey}`;
-    const existing = daily.get(key);
-
-    // Enphase/SolarEdge writes production_wh as the day's running total. The
-    // receipt must use the daily MAX, not SUM every API sample for that day.
-    if (!existing || row.amount > existing.amount) {
-      daily.set(key, {
-        ...row,
-        id: `daily-${key}`,
-        recordedAt: dayKey,
-        hasRealTime: false,
-      });
-    }
-  }
-
-  return Array.from(daily.values()).sort((a, b) => (a.recordedAt < b.recordedAt ? 1 : -1));
-}
-
-/**
- * Tesla Powerwall (and most battery APIs) report `energy_exported` as a
- * monotonic LIFETIME counter in Wh. A single raw sample contains the
- * lifetime total, not the day's export.
- *
- * To make the daily receipts sum to the same headline "pending" the KPI
- * tile shows (lifetime_now − lifetime_at_last_mint), we:
- *   1. Establish a per-device BASELINE = the lifetime value at/just before
- *      `sinceIso` (the last-mint anchor). This is the same anchor the tile
- *      uses for its baseline.
- *   2. Chain daily deltas starting from that baseline so
- *      Σ(deltas) == latest_lifetime − baseline == headline pending.
- */
-function normalizeDailyBatteryRows(
-  rows: KpiContributionRow[],
-  baselinesByDevice: Map<string, number>,
-): KpiContributionRow[] {
-  const byDevice = new Map<string, Map<string, KpiContributionRow>>();
-
-  for (const row of rows) {
-    const device = row.deviceId ?? 'unknown';
-    let daily = byDevice.get(device);
-    if (!daily) { daily = new Map(); byDevice.set(device, daily); }
-    const day = row.recordedAt.slice(0, 10);
-    const existing = daily.get(day);
-    if (!existing || row.amount > existing.amount) daily.set(day, row);
-  }
-
-  const deltas: KpiContributionRow[] = [];
-  for (const [device, daily] of byDevice) {
-    const days = Array.from(daily.keys()).sort(); // ascending
-    let prevValue = baselinesByDevice.get(device) ?? 0;
-    for (const day of days) {
-      const cur = daily.get(day)!;
-      // Only count days strictly above the device's stored baseline so
-      // Σ(deltas) == lifetime_now − stored_baseline == headline pending.
-      if (cur.amount <= prevValue) {
-        prevValue = Math.max(prevValue, cur.amount);
-        continue;
-      }
-      const delta = Math.round((cur.amount - prevValue) * 10) / 10;
-      prevValue = cur.amount;
-      if (delta <= 0) continue;
-      deltas.push({
-        ...cur,
-        id: `daily-${device}-${day}`,
-        recordedAt: day,
-        hasRealTime: false,
-        amount: delta,
-      });
-    }
-  }
-
-  return deltas.sort((a, b) => (a.recordedAt < b.recordedAt ? 1 : -1));
-}
+// Pure normalization functions (normalizeDailySolarRows, normalizeDailyCounterRows,
+// dedupeSessionRows) live in src/lib/kpiNormalization.ts with golden-fixture tests.
 
 /**
  * Fetch per-device baseline (lifetime value at last mint) from
@@ -297,14 +224,24 @@ async function fetchEnergyProductionRows(
     verified: ['tesla', 'enphase', 'solaredge', 'tesla_historical'].includes(r.provider),
   }));
 
-  let receiptRows = mapped;
+  let receiptRows: KpiContributionRow[] = mapped;
   if (dataType === 'solar' && solarProviderFilter) {
-    receiptRows = normalizeDailySolarRows(mapped);
+    receiptRows = normalizeDailySolarRows(mapped) as KpiContributionRow[];
   } else if (dataType === 'battery_discharge' || dataType === 'ev_miles') {
     // EV odometer & battery export are cumulative lifetime counters. Use the
     // device's stored baseline_data so deltas sum to the headline pending.
+    // Physical caps defang Tesla/Enphase backfill storms (invariant I3).
     const baselines = await fetchDeviceBaselines(userId, dataType, deviceId);
-    receiptRows = normalizeDailyBatteryRows(mapped, baselines);
+    const cap = dataType === 'battery_discharge'
+      ? DAILY_PHYSICAL_CAP.battery_kwh
+      : DAILY_PHYSICAL_CAP.ev_miles;
+    receiptRows = normalizeDailyCounterRows(mapped, baselines, {
+      cap,
+      onAnomaly: (a) => {
+         
+        if (import.meta.env?.DEV) console.warn(`[kpi:${dataType}]`, a);
+      },
+    }) as KpiContributionRow[];
   }
 
   if (!pendingTarget || pendingTarget <= 0) {
@@ -469,15 +406,8 @@ async function fetchHomeChargerRows(
   // Dedupe: home_charging_sessions and charging_sessions(type='home') often
   // record the SAME plug-in event from two ingest paths (Tesla SDK session +
   // billing/charge_monitor mirror). Prefer the richer homeRows row and drop
-  // any billRows that match on device + day + kWh (±0.2 kWh tolerance).
-  const dedupedBill = billRows.filter((b) => {
-    const bDay = b.recordedAt.slice(0, 10);
-    return !homeRows.some((h) =>
-      (h.deviceId ?? '') === (b.deviceId ?? '')
-      && h.recordedAt.slice(0, 10) === bDay
-      && Math.abs(h.amount - b.amount) <= 0.2
-    );
-  });
+  // matching billRows. See src/lib/kpiNormalization.ts golden tests.
+  const dedupedBill = dedupeSessionRows(homeRows, billRows);
   const all = [...homeRows, ...dedupedBill];
   all.sort((a, b) => (a.recordedAt < b.recordedAt ? 1 : -1));
 
