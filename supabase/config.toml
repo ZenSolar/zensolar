@@ -73,6 +73,8 @@ project_id = "fcptrpgqkjffgeddajwl"
     verify_jwt = false
   [functions.verify-user-invariants]
     verify_jwt = false
+  [functions.verify-mint-receipt]
+    verify_jwt = false
   [functions.track-email-link]
     verify_jwt = false
   [functions.track-email-open]

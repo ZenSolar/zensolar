@@ -266,6 +266,16 @@ const PILLARS: Pillar[] = [
           'kpi_reconciliation_log captures any drift between headline and receipts across the user base. We see and fix data issues before users do.',
       },
       {
+        label: 'SHA-256 hash-chained mint receipts',
+        detail:
+          'Every row in mint_transactions carries chain_seq, chain_prev_hash, and chain_hash = SHA-256(user, tx_hash, action, tokens, kwh_delta, miles_delta, created_at, prev_hash). A BEFORE INSERT trigger fills the chain; a BEFORE UPDATE trigger blocks any post-hoc tampering (chain fields, tx_hash, user_id, created_at are immutable). Editing any prior receipt breaks every link after it — detectable in one SQL query.',
+      },
+      {
+        label: 'Public verifier — /verify/:hash',
+        detail:
+          'get_mint_receipt(_chain_hash) is granted to anon + authenticated. The /verify/:hash page and verify-mint-receipt edge function recompute the SHA-256 server-side and return is_valid plus prev/next links so an auditor can walk the entire chain without an account.',
+      },
+      {
         label: 'Re-derivable by third parties',
         detail:
           'Every receipt exposes the OEM session/interval ID it came from. A skeptic with API access to Tesla / Enphase can independently verify the mint.',
