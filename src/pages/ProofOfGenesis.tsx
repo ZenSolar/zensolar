@@ -542,6 +542,29 @@ export default function ProofOfGenesis() {
               <PillarCard key={p.mark} pillar={p} index={i} />
             ))}
           </div>
+
+          {/* Mainnet Readiness sub-page CTA */}
+          <a
+            href="/proof-of-genesis/mainnet-readiness"
+            className="group block rounded-xl border border-primary/30 bg-gradient-to-br from-primary/[0.08] via-card to-card px-5 py-4 sm:px-6 sm:py-5 hover:border-primary/50 transition-colors"
+          >
+            <div className="flex items-start gap-3">
+              <div className="inline-flex items-center justify-center h-9 w-9 rounded-xl bg-primary/15 border border-primary/30 shrink-0">
+                <Check className="h-4.5 w-4.5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/80 mb-1">
+                  Sub-page
+                </p>
+                <h3 className="text-[16px] sm:text-lg font-bold leading-tight">
+                  Mainnet Readiness Checklist →
+                </h3>
+                <p className="text-[12.5px] sm:text-[13px] text-muted-foreground leading-snug mt-1">
+                  Every mechanical change required to flip from Base Sepolia to Base mainnet — anchor wallet, token deploy, LP seed, go/no-go criteria, and what we are explicitly <em>not</em> shipping at launch.
+                </p>
+              </div>
+            </div>
+          </a>
         </section>
 
         {/* ===== Additional trademark portfolio (secondary) ===== */}
