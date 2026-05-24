@@ -28,6 +28,7 @@ import { getNftArtwork } from '@/lib/nftArtwork';
 import { MILESTONE_TO_TOKEN_ID, TOKEN_ID_TO_MILESTONE } from '@/lib/nftTokenMapping';
 import { getRewardMultiplier, getLiveBetaMode } from '@/lib/tokenomics';
 import { MicroProtocolBadge } from '@/components/proof/MicroProtocolBadge';
+import { parseMintError } from '@/lib/mintErrors';
 import { ProtocolCinematicSequence } from '@/components/proof/ProtocolCinematicSequence';
 import { hasShownFirstMintCelebration, markFirstMintCelebrationShown } from '@/lib/firstMintCelebration';
 import { MintTokenDialog } from './MintTokenDialog';
