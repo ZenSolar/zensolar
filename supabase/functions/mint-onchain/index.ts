@@ -501,6 +501,43 @@ Deno.serve(async (req) => {
 
     console.log(`Processing ${action} for user ${user.id}, wallet ${walletAddress}`);
 
+    // ============================================
+    // Pillar 2 · Source — optional HMAC origin_proof verification
+    // If the request carries an origin_proof envelope, verify it against the
+    // trusted-key registry and audit-log the outcome. Hard-fail on tampered/
+    // expired/revoked signatures; soft-pass when the envelope is absent so we
+    // don't break legacy clients while providers roll out signing.
+    // ============================================
+    if (body.origin_proof !== undefined && body.origin_proof !== null) {
+      try {
+        const { verifyOriginProof, logOriginProofVerification } =
+          await import("../_shared/originProof.ts");
+        const outcome = await verifyOriginProof(supabaseClient, body.origin_proof);
+        await logOriginProofVerification(supabaseClient, user.id, `mint-onchain:${action}`, outcome);
+        const hardFailResults = new Set(["invalid_signature", "expired", "revoked", "malformed"]);
+        if (hardFailResults.has(outcome.result)) {
+          return new Response(
+            JSON.stringify({
+              error: "origin_proof_rejected",
+              result: outcome.result,
+              provider: outcome.provider,
+              key_id: outcome.key_id,
+            }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          );
+        }
+        // 'unknown_key' is soft — logged but not blocking until all providers have keys registered.
+        console.log(`origin_proof verification: ${outcome.result} (${outcome.provider}/${outcome.key_id ?? '-'})`);
+      } catch (e) {
+        console.error("origin_proof verification threw:", e);
+        // Fail closed on internal verifier errors
+        return new Response(
+          JSON.stringify({ error: "origin_proof_verifier_error" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+    }
+
     // Guardrail: actions that write to chain require the controller owner to match
     // the backend signer (MINTER_PRIVATE_KEY derived address).
     const ownerRequiredActions = new Set([
