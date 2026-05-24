@@ -212,11 +212,19 @@ export default function AdminProtocolIntegrity() {
             <EmptyState label="No invariant violations." />
           ) : (
             invariants.map((i) => (
-              <Card key={i.id}>
+              <Card key={i.id} className={i.resolved_at ? "opacity-60" : ""}>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm flex items-center justify-between gap-2">
                     <span className="font-mono">{i.check_name}</span>
-                    <Badge variant={sevColor(i.severity) as never}>{i.severity}</Badge>
+                    <div className="flex items-center gap-2">
+                      {i.resolved_at && <Badge variant="outline">resolved</Badge>}
+                      <Badge variant={sevColor(i.severity) as never}>{i.severity}</Badge>
+                      {!i.resolved_at && i.severity === "critical" && (
+                        <Button size="sm" variant="outline" onClick={() => resolveInvariant(i.id)}>
+                          Resolve
+                        </Button>
+                      )}
+                    </div>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="text-xs text-muted-foreground space-y-1">
@@ -236,6 +244,30 @@ export default function AdminProtocolIntegrity() {
                 </CardContent>
               </Card>
             ))
+          )}
+        </TabsContent>
+
+        <TabsContent value="collusion" className="space-y-2">
+          {collusion.length === 0 ? (
+            <EmptyState label="No collusion signals detected." />
+          ) : (
+            collusion.map((c) => (
+              <Card key={c.id} className={c.resolved_at ? "opacity-60" : ""}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center justify-between gap-2">
+                    <span className="font-mono">{c.signal_key}</span>
+                    <div className="flex items-center gap-2">
+                      {c.resolved_at && <Badge variant="outline">resolved</Badge>}
+                      <Badge variant={sevColor(c.severity) as never}>{c.severity}</Badge>
+                      {!c.resolved_at && c.severity === "critical" && (
+                        <Button size="sm" variant="outline" onClick={() => resolveCollusion(c.id)}>
+                          Resolve
+                        </Button>
+                      )}
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+
           )}
         </TabsContent>
 
