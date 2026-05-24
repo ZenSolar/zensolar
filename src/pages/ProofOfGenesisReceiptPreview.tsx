@@ -12,6 +12,7 @@ import { VerifyOnChainDrawer, type VerifyOnChainData } from '@/components/proof/
 import { ProtocolJourney, type ProtocolJourneyData } from '@/components/proof/ProtocolJourney';
 import { ProofOfAuthenticityStamp } from '@/components/proof/ProofOfAuthenticityStamp';
 import { TamperEvidentProofPanel } from '@/components/proof/TamperEvidentProofPanel';
+import { MintedForBadge } from '@/components/proof/ReceiptSourceLines';
 import { VerifiedSourceBadge } from '@/components/proof/VerifiedSourceBadge';
 import { ProtocolCinematicSequence } from '@/components/proof/ProtocolCinematicSequence';
 import { useLatestMintReceipt, type LiveMintReceipt } from '@/hooks/useLatestMintReceipt';
@@ -603,6 +604,7 @@ export default function ProofOfGenesisReceiptPreview() {
                 Every $ZSOLAR mint is backed by signed, time-stamped readings from your physical devices. This is the
                 audit trail — the kWh, the device, the signature, the on-chain proof, and the CO₂ you offset.
               </p>
+              {receipt.chain_hash && <MintedForBadge chainHash={receipt.chain_hash} className="pt-1" />}
             </div>
 
             {/* Proof-of-Authenticity™ embossed watermark stamp */}

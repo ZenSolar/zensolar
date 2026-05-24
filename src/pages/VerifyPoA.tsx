@@ -20,6 +20,7 @@ import { SEO } from '@/components/SEO';
 import { supabase } from '@/integrations/supabase/client';
 import { TamperEvidentProofPanel } from '@/components/proof/TamperEvidentProofPanel';
 import { ProofOfAuthenticityStamp } from '@/components/proof/ProofOfAuthenticityStamp';
+import { MintedForBadge } from '@/components/proof/ReceiptSourceLines';
 
 type Receipt = {
   found: boolean;
@@ -121,6 +122,7 @@ export default function VerifyPoA() {
                 <div className="font-mono text-2xl sm:text-3xl font-bold text-primary tracking-tight pt-1">
                   {short}
                 </div>
+                {isHexHash && <MintedForBadge chainHash={poa!} className="pt-1" />}
               </div>
               {isHexHash && (
                 <div className="shrink-0 self-center sm:self-start">

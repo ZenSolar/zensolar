@@ -40,6 +40,7 @@ type ApiResponse = {
   line_count?: number;
   window_start?: string;
   window_end?: string;
+  attributed_sources?: string[];
   lines?: Line[];
 };
 
@@ -53,6 +54,58 @@ const SOURCE_META: Record<string, { label: string; tone: string }> = {
 
 function metaFor(source: string) {
   return SOURCE_META[source] ?? { label: source, tone: 'text-muted-foreground border-border' };
+}
+
+/**
+ * MintedForBadge — renders the source types this mint actually attributed
+ * tokens to. Driven by the same `attributed_sources` array returned from
+ * get_mint_source_lines so the receipt header and line-items always agree.
+ *
+ * Why this exists: a user complained that a Supercharging-only mint receipt
+ * appeared to list Solar Production too, because background solar polling
+ * had rows in the same time window. The RPC now filters those out, and this
+ * badge makes the actual attribution explicit at the top of the receipt.
+ */
+export function MintedForBadge({
+  chainHash,
+  className,
+}: {
+  chainHash?: string | null;
+  className?: string;
+}) {
+  const [sources, setSources] = useState<string[] | null>(null);
+  const cleanHash = chainHash?.replace(/^0x/, '').toLowerCase() ?? null;
+  const isHexHash = !!cleanHash && /^[a-f0-9]{64}$/i.test(cleanHash);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (!isHexHash) return;
+      const { data, error } = await supabase.rpc('get_mint_source_lines', { _chain_hash: cleanHash! });
+      if (cancelled || error || !data) return;
+      const resp = data as ApiResponse;
+      setSources(resp.attributed_sources ?? null);
+    })();
+    return () => { cancelled = true; };
+  }, [cleanHash, isHexHash]);
+
+  if (!sources || sources.length === 0) return null;
+
+  return (
+    <div className={cn('flex items-center gap-2 flex-wrap', className)}>
+      <span className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+        Minted for
+      </span>
+      {sources.map((s) => {
+        const m = metaFor(s);
+        return (
+          <Badge key={s} variant="outline" className={cn('text-[11px] font-semibold', m.tone)}>
+            {m.label}
+          </Badge>
+        );
+      })}
+    </div>
+  );
 }
 
 interface Props {
