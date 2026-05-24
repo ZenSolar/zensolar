@@ -47,6 +47,8 @@ type Receipt = {
   id: string;
   mint_id: string;
   tx_hash: string;
+  /** Per-user SHA-256 hash chain — drives the unified public verify URL. */
+  chain_hash?: string | null;
   block_number: string;
   minted_at: string;
   tokens_minted: number;
