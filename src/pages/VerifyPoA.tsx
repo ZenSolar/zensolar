@@ -58,10 +58,61 @@ const MOCK_DEMO: Receipt = {
   created_at: '2026-04-23T18:42:11Z',
 };
 
+type InclusionSibling = { hash: string; position: 'left' | 'right' };
+type InclusionProof = {
+  found: boolean;
+  reason?: string;
+  chain_hash?: string;
+  leaf_index?: number;
+  leaf_count?: number;
+  siblings?: InclusionSibling[];
+  computed_root?: string;
+  anchor_root?: string;
+  root_match?: boolean;
+};
+
+type InclusionVerdict = {
+  status: 'pending' | 'verified' | 'mismatch' | 'unavailable';
+  serverRootMatch?: boolean;
+  clientComputedRoot?: string;
+  clientRootMatch?: boolean;
+  reason?: string;
+  proof?: InclusionProof;
+};
+
+// hex string -> Uint8Array
+function hexToBytes(hex: string): Uint8Array {
+  const clean = hex.replace(/^0x/, '');
+  const out = new Uint8Array(clean.length / 2);
+  for (let i = 0; i < out.length; i++) out[i] = parseInt(clean.substr(i * 2, 2), 16);
+  return out;
+}
+function bytesToHex(bytes: Uint8Array): string {
+  return Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+async function sha256Concat(a: Uint8Array, b: Uint8Array): Promise<Uint8Array> {
+  const combined = new Uint8Array(a.length + b.length);
+  combined.set(a, 0);
+  combined.set(b, a.length);
+  const digest = await crypto.subtle.digest('SHA-256', combined);
+  return new Uint8Array(digest);
+}
+async function recomputeRoot(leaf: string, siblings: InclusionSibling[]): Promise<string> {
+  let current = hexToBytes(leaf);
+  for (const sib of siblings) {
+    const sibBytes = hexToBytes(sib.hash);
+    current = sib.position === 'left'
+      ? await sha256Concat(sibBytes, current)
+      : await sha256Concat(current, sibBytes);
+  }
+  return bytesToHex(current);
+}
+
 export default function VerifyPoA() {
   const { poa } = useParams<{ poa: string }>();
   const [data, setData] = useState<Receipt | null>(null);
   const [loading, setLoading] = useState(true);
+  const [inclusion, setInclusion] = useState<InclusionVerdict>({ status: 'pending' });
 
   const isHexHash = !!poa && /^[a-f0-9]{64}$/i.test(poa);
 
@@ -74,9 +125,9 @@ export default function VerifyPoA() {
         return;
       }
       if (!isHexHash) {
-        // legacy short demo links → keep mock to avoid breaking shares
         setData(MOCK_DEMO);
         setLoading(false);
+        setInclusion({ status: 'unavailable', reason: 'demo_link' });
         return;
       }
       const { data: rpcData, error } = await supabase.rpc('get_mint_receipt', {
@@ -85,10 +136,41 @@ export default function VerifyPoA() {
       if (cancelled) return;
       if (error) {
         setData({ found: false });
-      } else {
-        setData(rpcData as Receipt);
+        setInclusion({ status: 'unavailable', reason: 'receipt_lookup_failed' });
+        setLoading(false);
+        return;
       }
+      setData(rpcData as Receipt);
       setLoading(false);
+
+      // Independent inclusion-proof fetch + client-side root recomputation
+      const { data: proofData, error: proofErr } = await supabase.rpc(
+        'get_merkle_inclusion_proof',
+        { _chain_hash: poa.toLowerCase() },
+      );
+      if (cancelled) return;
+      if (proofErr || !proofData) {
+        setInclusion({ status: 'unavailable', reason: 'proof_rpc_failed' });
+        return;
+      }
+      const proof = proofData as InclusionProof;
+      if (!proof.found || !proof.siblings || !proof.anchor_root || !proof.chain_hash) {
+        setInclusion({ status: 'unavailable', reason: proof.reason ?? 'no_proof' });
+        return;
+      }
+      try {
+        const clientRoot = await recomputeRoot(proof.chain_hash, proof.siblings);
+        const clientMatch = clientRoot === proof.anchor_root;
+        setInclusion({
+          status: clientMatch && proof.root_match ? 'verified' : 'mismatch',
+          serverRootMatch: proof.root_match,
+          clientComputedRoot: clientRoot,
+          clientRootMatch: clientMatch,
+          proof,
+        });
+      } catch (e) {
+        setInclusion({ status: 'unavailable', reason: `client_hash_failed:${String(e)}` });
+      }
     })();
     return () => {
       cancelled = true;
