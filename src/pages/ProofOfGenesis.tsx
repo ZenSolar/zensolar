@@ -172,6 +172,16 @@ const PILLARS: Pillar[] = [
           'A BEFORE INSERT/UPDATE trigger on connected_devices rejects any state where baseline.{solar_wh, odometer, charging_kwh, …} exceeds lifetime.{…}. Mirrored client-side in verifyBaselineLeLifetime().',
       },
       {
+        label: 'Two-tier drift gate (soft 1% / hard 5%)',
+        detail:
+          'Reconciliation runs BEFORE the transaction is recorded. Drift ≤1% passes silently. Drift >1% is logged. Drift >5% (or a failed on-chain read) records the mint with status="flagged_drift" — visible in the admin console and on the user receipt — so no silent corruption is possible.',
+      },
+      {
+        label: 'NFT actions share the same gate',
+        detail:
+          'mint-combos and claim-milestone-nfts now also claim a 5-min idempotency key, snapshot owned tokens before/after, and write an append-only mint_reconciliation_log row (category combo_nfts / milestone_nfts). Combos that request a token-id which doesn\'t appear on-chain after the tx are flagged_drift.',
+      },
+      {
         label: 'Property-tested in CI (50-trial fuzz)',
         detail:
           'src/lib/__tests__/mintReconciliation.test.ts runs golden fixtures + a 50-trial fuzz that proves any three-way drift beyond tolerance is always caught.',

@@ -1139,6 +1139,34 @@ Deno.serve(async (req) => {
 
       console.log(`Minting combo NFTs: ${tokenIds.join(", ")}`);
 
+      // M2 — Idempotency: prevent the same combo set from being submitted twice in a 5-min window
+      const sortedIds = [...tokenIds].map(Number).sort((a, b) => a - b);
+      const comboActionKey = `mint-combos:${sortedIds.join(',')}`;
+      const { windowStart: comboWindowStart, windowEnd: comboWindowEnd } = currentIdempotencyWindow();
+      const { error: comboIdemError } = await supabaseClient
+        .from("mint_idempotency_keys")
+        .insert({
+          user_id: user.id,
+          action: comboActionKey,
+          window_start: comboWindowStart,
+          window_end: comboWindowEnd,
+        });
+      if (comboIdemError && (comboIdemError.code === '23505' || /duplicate key/i.test(comboIdemError.message))) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'idempotency_collision',
+          message: 'These combo NFTs were already submitted in the current 5-minute window.',
+        }), {
+          status: 409,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (comboIdemError) console.error("Failed to claim combo idempotency key:", comboIdemError);
+
+      // Snapshot owned NFTs BEFORE mint for on-chain reconciliation
+      const comboNftsBefore = await safeGetOwnedTokens(publicClient, walletAddress);
+      const comboNftsBeforeSet = new Set(comboNftsBefore.map(id => Number(id)));
+
       const hash = await walletClient.writeContract({
         address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
         abi: CONTROLLER_ABI,
@@ -1150,7 +1178,22 @@ Deno.serve(async (req) => {
       const receipt = await publicClient.waitForTransactionReceipt({ hash });
       console.log("Mint combos tx confirmed, status:", receipt.status);
 
+      let comboNewIds: number[] = [];
+      let comboMissingIds: number[] = [];
+      let comboReconciled = false;
+
       if (receipt.status === "success") {
+        // M4 — NFT-level reconciliation: requested ids ↔ on-chain new ids
+        const comboNftsAfter = await safeGetOwnedTokens(publicClient, walletAddress);
+        comboNewIds = comboNftsAfter.map(id => Number(id)).filter(id => !comboNftsBeforeSet.has(id));
+        comboMissingIds = sortedIds.filter(id => !comboNewIds.includes(id));
+        comboReconciled = comboMissingIds.length === 0;
+
+        const comboStatus = comboReconciled ? "confirmed" : "flagged_drift";
+        const comboDiffPct = sortedIds.length > 0
+          ? Math.round((comboMissingIds.length / sortedIds.length) * 10000) / 100
+          : 0;
+
         await recordTransaction(
           supabaseClient,
           user.id,
@@ -1159,21 +1202,71 @@ Deno.serve(async (req) => {
           "mint-combos",
           walletAddress,
           0,
-          tokenIds,
-          "confirmed",
-          isBetaMint
+          comboNewIds.length > 0 ? comboNewIds : sortedIds,
+          comboStatus,
+          isBetaMint,
+          {
+            diffPct: comboDiffPct,
+            sourceBreakdown: {
+              requested_ids: sortedIds,
+              on_chain_new_ids: comboNewIds,
+              missing_ids: comboMissingIds,
+              combo_types: comboTypes,
+            },
+          },
         );
+
+        // Link idempotency key to tx hash
+        try {
+          await supabaseClient
+            .from("mint_idempotency_keys")
+            .update({ mint_tx_hash: hash })
+            .eq("user_id", user.id)
+            .eq("window_start", comboWindowStart)
+            .eq("action", comboActionKey);
+        } catch (e) {
+          console.warn("Failed to link combo idempotency key to tx hash:", e);
+        }
+
+        // M6 — Append-only forensic log
+        const { error: comboLogError } = await supabaseClient
+          .from("mint_reconciliation_log")
+          .insert({
+            user_id: user.id,
+            mint_tx_hash: hash,
+            category: "combo_nfts",
+            headline_amount: sortedIds.length,
+            rows_amount: sortedIds.length,
+            on_chain_amount: comboNewIds.length,
+            diff_pct: comboDiffPct,
+            tolerance_pct: 0,
+            passed: comboReconciled,
+            source_breakdown: {
+              requested_ids: sortedIds,
+              on_chain_new_ids: comboNewIds,
+              missing_ids: comboMissingIds,
+            },
+          });
+        if (comboLogError) console.error("Failed to write combo reconciliation log:", comboLogError);
       }
 
       return new Response(JSON.stringify({
         success: receipt.status === "success",
         txHash: hash,
         blockNumber: receipt.blockNumber.toString(),
-        mintedCount: tokenIds.length,
-        nftsMinted: tokenIds,
-        nftNames: tokenIds.map(id => NFT_NAMES[id] || `Token #${id}`),
-        message: receipt.status === "success" 
-          ? `Minted ${tokenIds.length} combo NFT(s)!` 
+        mintedCount: comboNewIds.length || tokenIds.length,
+        nftsMinted: comboNewIds.length > 0 ? comboNewIds : tokenIds,
+        nftNames: (comboNewIds.length > 0 ? comboNewIds : tokenIds).map(id => NFT_NAMES[id] || `Token #${id}`),
+        reconciliation: receipt.status === "success" ? {
+          requestedIds: sortedIds,
+          onChainNewIds: comboNewIds,
+          missingIds: comboMissingIds,
+          flagged: !comboReconciled,
+        } : undefined,
+        message: receipt.status === "success"
+          ? (comboReconciled
+              ? `Minted ${comboNewIds.length} combo NFT(s)!`
+              : `Mint completed but flagged for review (${comboMissingIds.length} requested combo(s) not found on-chain).`)
           : "Transaction failed",
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -1354,6 +1447,29 @@ Deno.serve(async (req) => {
     if (action === "claim-milestone-nfts") {
       console.log("Claiming eligible milestone NFTs for:", walletAddress);
 
+      // M2 — Idempotency: prevent rapid double-claims within a 5-min window
+      const { windowStart: msWindowStart, windowEnd: msWindowEnd } = currentIdempotencyWindow();
+      const msActionKey = "claim-milestone-nfts";
+      const { error: msIdemError } = await supabaseClient
+        .from("mint_idempotency_keys")
+        .insert({
+          user_id: user.id,
+          action: msActionKey,
+          window_start: msWindowStart,
+          window_end: msWindowEnd,
+        });
+      if (msIdemError && (msIdemError.code === '23505' || /duplicate key/i.test(msIdemError.message))) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'idempotency_collision',
+          message: 'A milestone claim was already submitted in the current 5-minute window.',
+        }), {
+          status: 409,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (msIdemError) console.error("Failed to claim milestone idempotency key:", msIdemError);
+
       const nftsBefore = await safeGetOwnedTokens(publicClient, walletAddress);
       const nftsBeforeSet = new Set(nftsBefore.map(id => Number(id)));
 
@@ -1371,7 +1487,6 @@ Deno.serve(async (req) => {
       let newNfts: number[] = [];
       if (receipt.status === "success") {
         const nftsAfter = await safeGetOwnedTokens(publicClient, walletAddress);
-        
         newNfts = nftsAfter.map(id => Number(id)).filter(id => !nftsBeforeSet.has(id));
 
         if (newNfts.length > 0) {
@@ -1385,9 +1500,48 @@ Deno.serve(async (req) => {
             0,
             newNfts,
             "confirmed",
-            isBetaMint
+            isBetaMint,
+            {
+              diffPct: 0,
+              sourceBreakdown: {
+                on_chain_new_ids: newNfts,
+                claim_type: "milestone",
+              },
+            },
           );
         }
+
+        // Link idempotency key to tx hash
+        try {
+          await supabaseClient
+            .from("mint_idempotency_keys")
+            .update({ mint_tx_hash: hash })
+            .eq("user_id", user.id)
+            .eq("window_start", msWindowStart)
+            .eq("action", msActionKey);
+        } catch (e) {
+          console.warn("Failed to link milestone idempotency key to tx hash:", e);
+        }
+
+        // M6 — Append-only forensic log (claim of zero is still a logged event)
+        const { error: msLogError } = await supabaseClient
+          .from("mint_reconciliation_log")
+          .insert({
+            user_id: user.id,
+            mint_tx_hash: hash,
+            category: "milestone_nfts",
+            headline_amount: newNfts.length,
+            rows_amount: newNfts.length,
+            on_chain_amount: newNfts.length,
+            diff_pct: 0,
+            tolerance_pct: 0,
+            passed: true,
+            source_breakdown: {
+              on_chain_new_ids: newNfts,
+              claim_type: "milestone",
+            },
+          });
+        if (msLogError) console.error("Failed to write milestone reconciliation log:", msLogError);
       }
 
       return new Response(JSON.stringify({
@@ -1396,8 +1550,12 @@ Deno.serve(async (req) => {
         blockNumber: receipt.blockNumber.toString(),
         nftsMinted: newNfts,
         nftNames: newNfts.map(id => NFT_NAMES[id] || `Token #${id}`),
-        message: receipt.status === "success" 
-          ? newNfts.length > 0 
+        reconciliation: receipt.status === "success" ? {
+          onChainNewIds: newNfts,
+          flagged: false,
+        } : undefined,
+        message: receipt.status === "success"
+          ? newNfts.length > 0
             ? `Claimed ${newNfts.length} milestone NFT(s)!`
             : "No new NFTs to claim."
           : "Transaction failed",
