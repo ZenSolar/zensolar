@@ -31,6 +31,7 @@ type InvariantRow = {
   diff_pct: number | null;
   details: Record<string, unknown> | null;
   detected_at: string;
+  resolved_at?: string | null;
 };
 
 type CollusionRow = {
@@ -41,7 +42,9 @@ type CollusionRow = {
   evidence: Record<string, unknown> | null;
   fingerprint: string | null;
   detected_at: string;
+  resolved_at?: string | null;
 };
+
 
 const sevColor = (s: string) =>
   s === "critical" ? "destructive" : s === "warn" ? "secondary" : "outline";
@@ -109,10 +112,25 @@ export default function AdminProtocolIntegrity() {
     }
   };
 
+  const resolveInvariant = async (id: string) => {
+    const note = prompt("Resolution note?") ?? "";
+    const { error } = await supabase.rpc("resolve_invariant_violation", { _id: id, _note: note });
+    if (error) toast.error(error.message);
+    else { toast.success("Violation resolved · mint gate cleared"); await load(); }
+  };
+
+  const resolveCollusion = async (id: string) => {
+    const note = prompt("Resolution note?") ?? "";
+    const { error } = await supabase.rpc("resolve_collusion_signal", { _id: id, _note: note });
+    if (error) toast.error(error.message);
+    else { toast.success("Signal resolved · mint gate cleared"); await load(); }
+  };
+
   const criticalCount =
     drifts.filter((d) => d.severity === "critical").length +
-    invariants.filter((i) => i.severity === "critical").length +
-    collusion.filter((c) => c.severity === "critical").length;
+    invariants.filter((i) => i.severity === "critical" && !i.resolved_at).length +
+    collusion.filter((c) => c.severity === "critical" && !c.resolved_at).length;
+
 
   return (
     <div className="container mx-auto max-w-6xl px-4 py-6 space-y-6">
@@ -194,11 +212,19 @@ export default function AdminProtocolIntegrity() {
             <EmptyState label="No invariant violations." />
           ) : (
             invariants.map((i) => (
-              <Card key={i.id}>
+              <Card key={i.id} className={i.resolved_at ? "opacity-60" : ""}>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm flex items-center justify-between gap-2">
                     <span className="font-mono">{i.check_name}</span>
-                    <Badge variant={sevColor(i.severity) as never}>{i.severity}</Badge>
+                    <div className="flex items-center gap-2">
+                      {i.resolved_at && <Badge variant="outline">resolved</Badge>}
+                      <Badge variant={sevColor(i.severity) as never}>{i.severity}</Badge>
+                      {!i.resolved_at && i.severity === "critical" && (
+                        <Button size="sm" variant="outline" onClick={() => resolveInvariant(i.id)}>
+                          Resolve
+                        </Button>
+                      )}
+                    </div>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="text-xs text-muted-foreground space-y-1">
@@ -226,11 +252,19 @@ export default function AdminProtocolIntegrity() {
             <EmptyState label="No collusion signals detected." />
           ) : (
             collusion.map((c) => (
-              <Card key={c.id}>
+              <Card key={c.id} className={c.resolved_at ? "opacity-60" : ""}>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm flex items-center justify-between gap-2">
                     <span className="font-mono">{c.signal_key}</span>
-                    <Badge variant={sevColor(c.severity) as never}>{c.severity}</Badge>
+                    <div className="flex items-center gap-2">
+                      {c.resolved_at && <Badge variant="outline">resolved</Badge>}
+                      <Badge variant={sevColor(c.severity) as never}>{c.severity}</Badge>
+                      {!c.resolved_at && c.severity === "critical" && (
+                        <Button size="sm" variant="outline" onClick={() => resolveCollusion(c.id)}>
+                          Resolve
+                        </Button>
+                      )}
+                    </div>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="text-xs text-muted-foreground space-y-1">
@@ -251,6 +285,7 @@ export default function AdminProtocolIntegrity() {
             ))
           )}
         </TabsContent>
+
       </Tabs>
     </div>
   );

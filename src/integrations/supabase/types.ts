@@ -244,6 +244,9 @@ export type Database = {
           evidence: Json
           fingerprint: string
           id: string
+          resolution_note: string | null
+          resolved_at: string | null
+          resolved_by: string | null
           severity: string
           signal_key: string
           user_ids: string[]
@@ -253,6 +256,9 @@ export type Database = {
           evidence?: Json
           fingerprint: string
           id?: string
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
           severity?: string
           signal_key: string
           user_ids: string[]
@@ -262,6 +268,9 @@ export type Database = {
           evidence?: Json
           fingerprint?: string
           id?: string
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
           severity?: string
           signal_key?: string
           user_ids?: string[]
@@ -2029,6 +2038,9 @@ export type Database = {
           diff_pct: number | null
           expected: number | null
           id: string
+          resolution_note: string | null
+          resolved_at: string | null
+          resolved_by: string | null
           severity: string
           user_id: string
         }
@@ -2040,6 +2052,9 @@ export type Database = {
           diff_pct?: number | null
           expected?: number | null
           id?: string
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
           severity?: string
           user_id: string
         }
@@ -2051,6 +2066,9 @@ export type Database = {
           diff_pct?: number | null
           expected?: number | null
           id?: string
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
           severity?: string
           user_id?: string
         }
@@ -2406,6 +2424,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_user_mint: { Args: { _user_id: string }; Returns: Json }
       check_anchor_freshness: { Args: never; Returns: number }
       check_nda_signed: { Args: { _email: string }; Returns: boolean }
       compute_mint_chain_hash: {
@@ -2508,6 +2527,14 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
+      }
+      resolve_collusion_signal: {
+        Args: { _id: string; _note: string }
+        Returns: boolean
+      }
+      resolve_invariant_violation: {
+        Args: { _id: string; _note: string }
+        Returns: boolean
       }
       verify_chain_integrity: { Args: never; Returns: number }
       verify_demo_code: { Args: { _code: string }; Returns: boolean }
