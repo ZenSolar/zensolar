@@ -170,7 +170,7 @@ export function NFTMintFlow({
           }
         });
 
-        if (fnError) throw fnError;
+        if (fnError) { const p = parseMintError(fnError, data); if (p.isGate) toast.message(p.title, { description: p.message }); throw new Error(p.message); }
         result = data;
       } else if (isCombo) {
         // Mint combo NFT
@@ -195,7 +195,7 @@ export function NFTMintFlow({
           }
         });
 
-        if (fnError) throw fnError;
+        if (fnError) { const p = parseMintError(fnError, data); if (p.isGate) toast.message(p.title, { description: p.message }); throw new Error(p.message); }
         result = data;
       } else {
         // Mint milestone NFT
@@ -208,7 +208,7 @@ export function NFTMintFlow({
           }
         });
 
-        if (fnError) throw fnError;
+        if (fnError) { const p = parseMintError(fnError, data); if (p.isGate) toast.message(p.title, { description: p.message }); throw new Error(p.message); }
         
         // Check if our specific NFT was minted
         const wasMinted = data.nftsMinted?.includes(tokenId);
