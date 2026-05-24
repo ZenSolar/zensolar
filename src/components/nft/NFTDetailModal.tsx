@@ -250,12 +250,14 @@ export function NFTDetailModal({ milestone, isEarned, open, onOpenChange, onMint
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg lg:max-w-3xl p-0 overflow-hidden bg-background/95 backdrop-blur-xl max-h-[90vh]">
         {/* Large Artwork Display */}
-        <div className={`relative w-full aspect-square ${!isEarned && 'grayscale opacity-70'}`}>
+        <div className={`relative w-full aspect-square lg:aspect-[16/9] lg:max-h-[420px] ${!isEarned && 'grayscale opacity-70'}`}>
           {artwork ? (
             <img 
               src={artwork} 
               alt={milestone.name}
-              className="w-full h-full object-cover"
+              loading="lazy"
+              decoding="async"
+              className="w-full h-full object-cover lg:object-center"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-muted">

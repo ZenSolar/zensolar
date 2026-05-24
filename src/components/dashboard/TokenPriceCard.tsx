@@ -303,7 +303,7 @@ export function TokenPriceCard({
           transition: 'box-shadow 0.4s ease-out',
           borderRadius: 'var(--radius)',
         } as React.CSSProperties}
-        className="cursor-pointer touch-manipulation select-none relative"
+        className="cursor-pointer touch-manipulation select-none relative hover-lift rounded-xl"
       >
         {/* Outer ambient glow */}
         <div 
