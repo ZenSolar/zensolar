@@ -713,6 +713,19 @@ export default function Onboarding() {
         </div>
       )}
 
+      {step === 'home-charging-setup' && teslaVehicleForHomeSetup && (
+        <div className="pt-24">
+          <HomeChargingSetupScreen
+            vehicleDeviceId={teslaVehicleForHomeSetup.deviceId}
+            vehicleName={teslaVehicleForHomeSetup.name}
+            onComplete={() => setStep('energy-success')}
+            onSkip={() => setStep('energy-success')}
+          />
+        </div>
+      )}
+
+
+
       {step === 'energy-success' && (
         <div className="pt-24">
           <EnergySuccessScreen
