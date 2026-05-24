@@ -119,7 +119,7 @@ export function ConnectSocialAccounts({ accounts, onConnect, onDisconnect }: Con
         </Collapsible>
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-md lg:max-w-2xl">
             <DialogHeader>
               <DialogTitle>Connect {selectedAccount?.name}</DialogTitle>
               <DialogDescription>
@@ -263,7 +263,7 @@ export function ConnectSocialAccounts({ accounts, onConnect, onDisconnect }: Con
       </Collapsible>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md lg:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Connect {selectedAccount?.name}</DialogTitle>
             <DialogDescription>

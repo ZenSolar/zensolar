@@ -153,7 +153,7 @@ export function EnphaseCodeDialog({ open, onOpenChange, onSubmit }: EnphaseCodeD
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg lg:max-w-3xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
