@@ -238,6 +238,36 @@ export type Database = {
         }
         Relationships: []
       }
+      collusion_signals: {
+        Row: {
+          detected_at: string
+          evidence: Json
+          fingerprint: string
+          id: string
+          severity: string
+          signal_key: string
+          user_ids: string[]
+        }
+        Insert: {
+          detected_at?: string
+          evidence?: Json
+          fingerprint: string
+          id?: string
+          severity?: string
+          signal_key: string
+          user_ids: string[]
+        }
+        Update: {
+          detected_at?: string
+          evidence?: Json
+          fingerprint?: string
+          id?: string
+          severity?: string
+          signal_key?: string
+          user_ids?: string[]
+        }
+        Relationships: []
+      }
       connected_devices: {
         Row: {
           baseline_data: Json | null
@@ -2395,6 +2425,7 @@ export type Database = {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
       }
+      detect_collusion_signals: { Args: never; Returns: number }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
