@@ -3,6 +3,7 @@ import { SEO } from '@/components/SEO';
 import { ProofOfGenesisThesis } from '@/components/tokenomics/ProofOfGenesisThesis';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   Sparkles,
   Zap,
@@ -12,16 +13,206 @@ import {
   Layers,
   Award,
   Lock,
+  Fingerprint,
+  GitBranch,
+  ChevronDown,
+  Check,
 } from 'lucide-react';
+import { useState } from 'react';
 
 /**
- * Proof-of-Genesis™ — dedicated NDA page
+ * Proof-of-Genesis™ — cornerstone page
  *
- * Top: explainer of what PoG is + the BTC contrast (via the existing
- * <ProofOfGenesisThesis /> module).
- * Bottom: trademark portfolio with descriptions of each mark's strategic
- * power to the company.
+ * Structure (top → bottom):
+ *  1. Hero: PoG = the cornerstone
+ *  2. What is PoG (explainer)
+ *  3. BTC vs ZSOLAR thesis (existing module)
+ *  4. The 5 Pillars — each with the actual ENFORCED RULES that make it real
+ *  5. Trademark portfolio (secondary — for IP/legal context)
  */
+
+type Rule = {
+  label: string;
+  detail: string;
+};
+
+type Pillar = {
+  mark: string;
+  tagline: string;
+  icon: typeof Sparkles;
+  category: string;
+  what: string;
+  why: string;
+  rules: Rule[];
+};
+
+const PILLARS: Pillar[] = [
+  {
+    mark: 'Proof-of-Delta™',
+    tagline: 'The math that proves change actually happened.',
+    icon: Layers,
+    category: 'Pillar 1 · Math',
+    what:
+      'Every mint corresponds to a verified change in energy state — kWh produced, kWh delivered, miles driven — signed by the device itself. We don\'t trust totals; we prove deltas.',
+    why:
+      'Without a provable delta, "clean energy crypto" is just a marketing claim. With it, it\'s a settlement layer.',
+    rules: [
+      {
+        label: 'Monotonicity guard (I1)',
+        detail:
+          'Lifetime counters (solar Wh, battery export, odometer, supercharger kWh) can never decrease. A drop is treated as a device reset, not a negative mint.',
+      },
+      {
+        label: 'Baseline anchoring (I2)',
+        detail:
+          'Σ(daily deltas) must equal (lifetime_now − stored_baseline). Any drift is reconciled into a residual row, never silently dropped.',
+      },
+      {
+        label: 'Physical caps (I3)',
+        detail:
+          'Daily deltas are capped by physical plausibility (e.g. solar ≤ system_kW × 14h). API backfills can\'t inflate a day beyond what physics allows.',
+      },
+      {
+        label: 'Counter-rollover handling',
+        detail:
+          'Tesla / Enphase / SolarEdge counters that reset mid-cycle are detected and re-anchored, not interpreted as a giant negative delta.',
+      },
+      {
+        label: 'Property-tested (50 trials)',
+        detail:
+          'Vitest property tests fuzz random monotonic series + baselines and assert the Σ-invariant holds within 0.5 kWh tolerance on every run.',
+      },
+    ],
+  },
+  {
+    mark: 'Proof-of-Origin™',
+    tagline: 'Verifies the source — clean, real, and yours.',
+    icon: Cpu,
+    category: 'Pillar 2 · Source',
+    what:
+      'Every kWh is bound to a specific verified device, owned by a specific verified user, from a clean source. The "where did this energy come from?" question has one cryptographic answer.',
+    why:
+      'Eliminates double-mint, greenwashing, and Sybil attacks at the source — before a single token is minted.',
+    rules: [
+      {
+        label: 'OEM OAuth at the source',
+        detail:
+          'Tesla, SolarEdge, Enphase, Wallbox sign the data at the provider. We never accept client-asserted production.',
+      },
+      {
+        label: 'DeviceWatermarkRegistry.sol',
+        detail:
+          'One device → one wallet, enforced on-chain. A single panel array can never mint to 100 wallets.',
+      },
+      {
+        label: 'Weather cross-reference',
+        detail:
+          'Solar production is checked against irradiance for the location and timestamp. Midnight production or storm-day spikes are flagged.',
+      },
+      {
+        label: 'Device handoff resets baseline',
+        detail:
+          'Sold vehicles, transferred panels, and ownership changes force a baseline reset — the new owner cannot inherit prior lifetime totals.',
+      },
+    ],
+  },
+  {
+    mark: 'Mint-on-Proof™',
+    tagline: 'No proof, no mint. Period.',
+    icon: ShieldCheck,
+    category: 'Pillar 3 · Rule',
+    what:
+      'Minting is a server-side function gated by the proof stack. The client cannot ask for tokens — it can only request that the protocol verify and mint.',
+    why:
+      'This is the line between "promise-based" tokens and physics-backed tokens. Every $ZSOLAR exists because the protocol said yes, never because a wallet asked nicely.',
+    rules: [
+      {
+        label: 'Server-side reconciliation only',
+        detail:
+          'Edge functions compute the mint amount from verified source rows. Wallet-side amounts are ignored.',
+      },
+      {
+        label: 'Subscription dual-gate',
+        detail:
+          'Only paying subscribers can mint. An economic gate on top of the technical gate makes Sybil farming structurally unprofitable.',
+      },
+      {
+        label: 'Three-way reconciliation',
+        detail:
+          'Headline KPI ↔ underlying receipts ↔ on-chain mint amount. The diff is written to mint_transactions.reconciliation_diff for forensic audit.',
+      },
+      {
+        label: 'Baseline ≤ lifetime, always',
+        detail:
+          'If a device\'s stored baseline ever exceeds its current lifetime reading, minting for that category is blocked until the data syncs.',
+      },
+    ],
+  },
+  {
+    mark: 'Anti-Double-Count',
+    tagline: 'One event. One mint. Ever.',
+    icon: Fingerprint,
+    category: 'Pillar 4 · Uniqueness',
+    what:
+      'Every receipt row carries a stable fingerprint. The same charging session, the same solar interval, the same mile — can never be minted twice, even across re-ingests, source overlaps, or provider replays.',
+    why:
+      'The single largest fraud vector in energy tokens is the same kWh being counted by two systems. We solve it at the database layer, not in a hook.',
+    rules: [
+      {
+        label: 'DB-level unique fingerprint',
+        detail:
+          'Unique indexes on (provider, device_id, source_event_id) across energy_production, home_charging_sessions, and charging_sessions. Re-ingests are idempotent.',
+      },
+      {
+        label: 'Cross-source dedup',
+        detail:
+          'Home charging readings from a dedicated charger are deduped against utility bill rows within a tolerance window. The richer source wins.',
+      },
+      {
+        label: 'Bidirectional EV split',
+        detail:
+          'Charging, discharging (V2G), miles driven, and FSD all mint separately with separate proofs. A single battery cycle cannot be double-claimed across roles.',
+      },
+      {
+        label: 'Per-session receipts for EV charging',
+        detail:
+          'Supercharging and home charging are session-keyed, not day-totaled — making every kWh traceable to a specific plug-in event.',
+      },
+    ],
+  },
+  {
+    mark: 'Proof-of-Permanence™',
+    tagline: 'Every mint is forensically auditable. Forever.',
+    icon: GitBranch,
+    category: 'Pillar 5 · Receipts',
+    what:
+      'Every mint produces an on-chain receipt with its source fingerprint, baseline anchor, and CO₂ equivalent. Any third party — auditor, regulator, journalist — can independently re-derive the math.',
+    why:
+      'Trust collapses when the receipts don\'t exist. We make them permanent, on-chain, and re-derivable by people who don\'t trust us.',
+    rules: [
+      {
+        label: 'On-chain mint receipt',
+        detail:
+          'Every mint writes the source fingerprint, baseline anchor timestamp, lifetime delta, and CO₂ tons to the chain. Not in a database we control — on Base.',
+      },
+      {
+        label: 'Baseline anchor shown publicly',
+        detail:
+          'The Proof-of-Genesis receipt displays "minted from X kWh → Y kWh at timestamp Z" so anyone can verify the delta is real.',
+      },
+      {
+        label: 'Reconciliation drift telemetry',
+        detail:
+          'kpi_reconciliation_log captures any drift between headline and receipts across the user base. We see and fix data issues before users do.',
+      },
+      {
+        label: 'Re-derivable by third parties',
+        detail:
+          'Every receipt exposes the OEM session/interval ID it came from. A skeptic with API access to Tesla / Enphase can independently verify the mint.',
+      },
+    ],
+  },
+];
 
 type Trademark = {
   mark: string;
@@ -29,20 +220,9 @@ type Trademark = {
   icon: typeof Sparkles;
   category: string;
   description: string;
-  power: string;
 };
 
-const TRADEMARKS: Trademark[] = [
-  {
-    mark: 'Proof-of-Genesis™',
-    tagline: 'The consensus primitive that eclipses Proof-of-Work.',
-    icon: Sparkles,
-    category: 'Consensus',
-    description:
-      'The unifying cryptographic thesis: Proof-of-Delta + Proof-of-Origin. Mints value when verified clean energy is produced or productively consumed — instead of burning energy to prove waste.',
-    power:
-      'Owns the narrative category. Whoever owns the consensus name owns the conversation. This is our "Proof-of-Work" — the term every analyst, regulator, and competitor will be forced to reference.',
-  },
+const ADDITIONAL_MARKS: Trademark[] = [
   {
     mark: 'Tap-to-Mint™',
     tagline: 'One tap turns real energy into on-chain currency.',
@@ -50,38 +230,6 @@ const TRADEMARKS: Trademark[] = [
     category: 'User Experience',
     description:
       'The signature consumer interaction. A single tap reads verified device data, runs the proof, and mints $ZSOLAR — collapsing crypto\'s complexity into something a 10-year-old can do.',
-    power:
-      'The "iPod click-wheel" of crypto. Defines the category for mainstream adoption and locks competitors out of the simplest possible UX language.',
-  },
-  {
-    mark: 'Mint-on-Proof™',
-    tagline: 'No proof, no mint. Period.',
-    icon: ShieldCheck,
-    category: 'Protocol Rule',
-    description:
-      'The protocol-level guarantee that every $ZSOLAR token is backed by a verified physical event — never a promise, never a faucet, never speculation.',
-    power:
-      'Regulator-friendly by construction. This is the phrase that makes ESG funds, governments, and utilities comfortable holding $ZSOLAR.',
-  },
-  {
-    mark: 'Proof-of-Delta™',
-    tagline: 'The math that proves change actually happened.',
-    icon: Layers,
-    category: 'Cryptographic Primitive',
-    description:
-      'Verifies a measurable change in energy state (kWh produced, kWh delivered) signed by the device itself — not by a centralized API. Half of what makes Proof-of-Genesis work.',
-    power:
-      'The patentable core. This is the technical moat the utility patent is built around — and the foundation of every audit, every proof, every mint.',
-  },
-  {
-    mark: 'Proof-of-Origin™',
-    tagline: 'Verifies the source — clean, real, and yours.',
-    icon: Cpu,
-    category: 'Cryptographic Primitive',
-    description:
-      'Proves the energy came from a specific verified device, owned by a specific verified user, from a clean source. The other half of Proof-of-Genesis.',
-    power:
-      'Eliminates double-mint, fraud, and greenwashing in a single primitive. Without it, "clean energy crypto" is just a marketing claim. With it, it\'s a settlement layer.',
   },
   {
     mark: '$ZSOLAR',
@@ -90,8 +238,6 @@ const TRADEMARKS: Trademark[] = [
     category: 'Token / Brand',
     description:
       'The native token of the ZenSolar protocol. 1 trillion hard cap. Backed by physics. Distributed by proof.',
-    power:
-      'A 4-letter ticker that says exactly what it is. Sits next to $BTC and $ETH on every exchange — and tells the entire story without a whitepaper.',
   },
   {
     mark: 'ZenSolar®',
@@ -99,9 +245,7 @@ const TRADEMARKS: Trademark[] = [
     icon: Award,
     category: 'Master Brand',
     description:
-      'The umbrella brand. Calm, confident, civilizational. Owns the intersection of "energy" and "Zen" — abundance without waste.',
-    power:
-      'A brand that sounds like a religion and reads like a utility. Hard to copy. Easy to remember. Built to outlive the founders.',
+      'The umbrella brand. Calm, confident, civilizational. A brand that sounds like a religion and reads like a utility.',
   },
   {
     mark: 'Family Legacy Pact™',
@@ -110,21 +254,95 @@ const TRADEMARKS: Trademark[] = [
     category: 'Governance',
     description:
       'A public, immutable lockup binding founder allocations (Joseph 150B / Michael 50B) to long-horizon trillionaire price thresholds — not short-term liquidity events.',
-    power:
-      'The strongest possible signal of founder alignment. Investors don\'t have to trust us — the contract enforces it.',
   },
 ];
+
+function PillarCard({ pillar, index }: { pillar: Pillar; index: number }) {
+  const [open, setOpen] = useState(index === 0);
+  const Icon = pillar.icon;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 14 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.45, delay: Math.min(index * 0.05, 0.2) }}
+    >
+      <Card className="border-border/70 hover:border-primary/40 transition-colors duration-300 overflow-hidden">
+        <CardHeader className="px-5 pt-5 pb-3 sm:px-6 sm:pt-6 space-y-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="inline-flex items-center justify-center h-10 w-10 rounded-xl bg-primary/12 border border-primary/25 shrink-0">
+              <Icon className="h-5 w-5 text-primary" />
+            </div>
+            <Badge
+              variant="secondary"
+              className="text-[9.5px] font-bold uppercase tracking-[0.15em] px-2 py-0.5 shrink-0"
+            >
+              {pillar.category}
+            </Badge>
+          </div>
+          <div className="space-y-1">
+            <CardTitle className="text-[18px] sm:text-xl leading-tight">{pillar.mark}</CardTitle>
+            <p className="text-[12.5px] sm:text-[13px] text-primary/90 italic leading-snug">
+              {pillar.tagline}
+            </p>
+          </div>
+        </CardHeader>
+        <CardContent className="px-5 pb-5 sm:px-6 sm:pb-6 space-y-3">
+          <p className="text-[13.5px] sm:text-sm text-foreground/85 leading-relaxed">{pillar.what}</p>
+          <div className="rounded-lg border border-primary/20 bg-primary/[0.04] px-3 py-2.5">
+            <p className="text-[9.5px] font-bold uppercase tracking-[0.18em] text-primary mb-1">
+              Why it matters
+            </p>
+            <p className="text-[12.5px] sm:text-[13px] text-foreground/85 leading-snug">{pillar.why}</p>
+          </div>
+
+          <Collapsible open={open} onOpenChange={setOpen}>
+            <CollapsibleTrigger className="w-full flex items-center justify-between gap-2 rounded-lg border border-border/70 hover:border-primary/40 bg-card/50 px-3 py-2.5 transition-colors group">
+              <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-foreground/80 group-hover:text-primary transition-colors">
+                {pillar.rules.length} enforced rules
+              </span>
+              <ChevronDown
+                className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+              />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
+              <ul className="mt-3 space-y-2.5">
+                {pillar.rules.map((rule) => (
+                  <li
+                    key={rule.label}
+                    className="flex gap-2.5 rounded-lg border border-border/50 bg-background/40 px-3 py-2.5"
+                  >
+                    <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                    <div className="space-y-0.5 min-w-0">
+                      <p className="text-[12.5px] sm:text-[13px] font-semibold text-foreground leading-snug">
+                        {rule.label}
+                      </p>
+                      <p className="text-[12px] sm:text-[12.5px] text-foreground/70 leading-snug">
+                        {rule.detail}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </CollapsibleContent>
+          </Collapsible>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+}
 
 export default function ProofOfGenesis() {
   return (
     <>
       <SEO
-        title="Proof-of-Genesis™ Thesis"
-        url="https://zensolar.lovable.app/demo/proof-of-genesis"
+        title="Proof-of-Genesis™ — The Cornerstone of ZenSolar"
+        url="https://beta.zen.solar/demo/proof-of-genesis"
       />
 
       <div className="container max-w-6xl mx-auto px-4 pt-6 pb-16 space-y-8 sm:space-y-10">
-        {/* ===== Page header ===== */}
+        {/* ===== Hero ===== */}
         <motion.header
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -135,18 +353,20 @@ export default function ProofOfGenesis() {
             variant="outline"
             className="border-primary/40 bg-primary/5 text-primary uppercase tracking-[0.2em] text-[10px] font-bold px-2.5 py-1"
           >
-            NDA · Confidential
+            The Cornerstone
           </Badge>
           <h1 className="text-[26px] sm:text-4xl font-bold tracking-tight leading-[1.1]">
             Proof-of-Genesis™
           </h1>
           <p className="text-[14px] sm:text-base text-muted-foreground leading-snug max-w-2xl">
-            The cryptographic primitive built to eclipse Bitcoin's Proof-of-Work — and the
-            trademark portfolio that protects it.
+            ZenSolar is not a Web3 energy app. It is a verification system that happens to mint a
+            token. Proof-of-Genesis is the cryptographic primitive that makes every $ZSOLAR
+            traceable to a real, verified, clean kWh — and the five pillars below are the rules
+            that make it real.
           </p>
         </motion.header>
 
-        {/* ===== What is Proof-of-Genesis (intro explainer) ===== */}
+        {/* ===== What is PoG ===== */}
         <motion.section
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -173,52 +393,77 @@ export default function ProofOfGenesis() {
             <CardContent className="relative px-5 pb-5 sm:px-6 sm:pb-6 space-y-4 text-[14.5px] sm:text-[15px] leading-relaxed text-foreground/85">
               <p>
                 <span className="font-semibold text-foreground">Proof-of-Genesis (PoG™)</span>{' '}
-                is the consensus mechanism that powers $ZSOLAR. It combines two cryptographic
-                primitives — <span className="font-semibold text-primary">Proof-of-Delta</span>{' '}
-                (verified change in energy state) and{' '}
-                <span className="font-semibold text-primary">Proof-of-Origin</span> (verified
-                physical device + clean source) — into a single, hardware-backed proof.
-              </p>
-              <p>
-                Where Bitcoin's Proof-of-Work secures value by{' '}
+                is the consensus mechanism that powers $ZSOLAR. Where Bitcoin's Proof-of-Work
+                secures value by{' '}
                 <span className="text-foreground font-medium">burning</span> electricity,
                 Proof-of-Genesis mints value by{' '}
                 <span className="text-foreground font-medium">
                   verifying clean electricity was created or productively used
                 </span>
-                . One is extractive. The other is additive. Both are mathematically rigorous —
-                only one is good for civilization.
+                . One is extractive. The other is additive.
+              </p>
+              <p>
+                PoG isn't a slogan. It's a stack of cryptographic, database, and economic rules
+                — every one of which is shipping today. The five pillars below name those rules
+                out loud, so users, auditors, and investors can see the system policing itself.
               </p>
               <p className="italic text-foreground/75 border-l-2 border-primary/40 pl-3">
-                Tagline: <span className="text-primary font-semibold not-italic">digital photosynthesis.</span>
+                Tagline:{' '}
+                <span className="text-primary font-semibold not-italic">digital photosynthesis.</span>
               </p>
             </CardContent>
           </Card>
         </motion.section>
 
-        {/* ===== Existing thesis module: BTC vs ZSOLAR + 5–10x math ===== */}
+        {/* ===== BTC vs ZSOLAR thesis ===== */}
         <ProofOfGenesisThesis />
 
-        {/* ===== Trademark portfolio ===== */}
+        {/* ===== The 5 Pillars ===== */}
         <section className="space-y-5 sm:space-y-6 pt-4">
           <div className="space-y-2">
             <Badge
               variant="outline"
               className="border-primary/40 bg-primary/5 text-primary uppercase tracking-[0.2em] text-[10px] font-bold px-2.5 py-1"
             >
-              Trademark Portfolio
+              The Five Pillars
             </Badge>
             <h2 className="text-[22px] sm:text-3xl font-bold tracking-tight leading-tight">
-              The names we own.
+              The rules that make PoG real.
             </h2>
             <p className="text-[13.5px] sm:text-[15px] text-muted-foreground leading-snug max-w-2xl">
-              Every category-defining technology needs category-defining language. These are the
-              marks ZenSolar owns — and the strategic power each one delivers to the company.
+              Tap any pillar to see the enforced rules behind it. These are not marketing
+              claims — they are the invariants, indexes, and reconciliation checks shipping in
+              production today.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5 sm:gap-4">
+            {PILLARS.map((p, i) => (
+              <PillarCard key={p.mark} pillar={p} index={i} />
+            ))}
+          </div>
+        </section>
+
+        {/* ===== Additional trademark portfolio (secondary) ===== */}
+        <section className="space-y-5 sm:space-y-6 pt-6 border-t border-border/50">
+          <div className="space-y-2 pt-2">
+            <Badge
+              variant="outline"
+              className="border-border bg-card text-muted-foreground uppercase tracking-[0.2em] text-[10px] font-bold px-2.5 py-1"
+            >
+              Supporting Marks
+            </Badge>
+            <h2 className="text-[20px] sm:text-2xl font-bold tracking-tight leading-tight">
+              The brand portfolio around PoG.
+            </h2>
+            <p className="text-[13.5px] sm:text-[14.5px] text-muted-foreground leading-snug max-w-2xl">
+              Beyond the five pillars, these are the additional marks ZenSolar owns to protect
+              the product, the token, the brand, and founder alignment.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
-            {TRADEMARKS.map((tm, i) => {
+            {ADDITIONAL_MARKS.map((tm, i) => {
               const Icon = tm.icon;
               return (
                 <motion.div
@@ -226,7 +471,7 @@ export default function ProofOfGenesis() {
                   initial={{ opacity: 0, y: 12 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-40px' }}
-                  transition={{ duration: 0.4, delay: Math.min(i * 0.04, 0.2) }}
+                  transition={{ duration: 0.4, delay: Math.min(i * 0.04, 0.16) }}
                 >
                   <Card className="h-full border-border/70 hover:border-primary/40 transition-colors duration-300">
                     <CardHeader className="px-5 pt-5 pb-2.5 sm:px-6 sm:pt-6 space-y-2.5">
@@ -242,26 +487,16 @@ export default function ProofOfGenesis() {
                         </Badge>
                       </div>
                       <div className="space-y-1">
-                        <CardTitle className="text-[17px] sm:text-lg leading-tight">
-                          {tm.mark}
-                        </CardTitle>
+                        <CardTitle className="text-[17px] sm:text-lg leading-tight">{tm.mark}</CardTitle>
                         <p className="text-[12.5px] sm:text-[13px] text-primary/90 italic leading-snug">
                           {tm.tagline}
                         </p>
                       </div>
                     </CardHeader>
-                    <CardContent className="px-5 pb-5 sm:px-6 sm:pb-6 space-y-3">
+                    <CardContent className="px-5 pb-5 sm:px-6 sm:pb-6">
                       <p className="text-[13.5px] sm:text-sm text-foreground/85 leading-relaxed">
                         {tm.description}
                       </p>
-                      <div className="rounded-lg border border-primary/20 bg-primary/[0.04] px-3 py-2.5">
-                        <p className="text-[9.5px] font-bold uppercase tracking-[0.18em] text-primary mb-1">
-                          Strategic Power
-                        </p>
-                        <p className="text-[12.5px] sm:text-[13px] text-foreground/85 leading-snug">
-                          {tm.power}
-                        </p>
-                      </div>
                     </CardContent>
                   </Card>
                 </motion.div>
