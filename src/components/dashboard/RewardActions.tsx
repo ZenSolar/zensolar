@@ -608,18 +608,17 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
       });
 
       if (error) {
-        const errContext = (error as any)?.context;
-        const errJson = errContext?.json || errContext?.body;
-        const errMsg = errJson?.message || errJson?.error || data?.message || data?.error || error.message;
-        throw new Error(errMsg || 'Minting failed');
+        const parsed = parseMintError(error, data);
+        const err = new Error(parsed.message);
+        (err as any).parsed = parsed;
+        throw err;
       }
 
       if (data?.error || data?.success === false) {
-        throw new Error(data?.message || data?.error || 'Minting failed');
-      }
-
-      if (data?.error === 'simulation_failed') {
-        throw new Error(data.message || 'Contract simulation failed. Please contact support.');
+        const parsed = parseMintError(null, data);
+        const err = new Error(parsed.message);
+        (err as any).parsed = parsed;
+        throw err;
       }
 
       setMintingProgress({ step: 'confirming', message: 'Confirming on Base L2...' });
