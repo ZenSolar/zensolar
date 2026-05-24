@@ -755,9 +755,11 @@ export default function Onboarding() {
             onSkip={handleEnergySkip}
             onBack={handleEnergyBack}
             onCancelConnecting={handleCancelConnecting}
+            onAskDeason={() => transitionToStep('ai-concierge')}
             isConnecting={connectingProvider}
             connectedProviders={connectedProviders}
           />
+
         </div>
       )}
 
