@@ -158,67 +158,154 @@ export default function AdminMintRequests() {
               </CardContent>
             </Card>
           ) : (
-            filtered.map((r) => (
-              <Card key={r.id} className={r.resolved ? "opacity-70" : ""}>
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between gap-3 flex-wrap">
-                    <div className="space-y-1">
-                      <CardTitle className="text-base flex items-center gap-2 flex-wrap">
-                        {r.requester_name || r.requester_email || r.access_code || "Anonymous"}
-                        {r.access_code && (
-                          <Badge variant="outline" className="font-mono text-xs">
-                            {r.access_code}
-                          </Badge>
-                        )}
-                        {r.resolved ? (
-                          <Badge variant="secondary" className="gap-1">
-                            <CheckCircle2 className="h-3 w-3" /> Resolved
-                          </Badge>
-                        ) : (
-                          <Badge className="gap-1">
-                            <Clock className="h-3 w-3" /> Open
-                          </Badge>
-                        )}
-                      </CardTitle>
-                      <p className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
-                        {r.requester_email && ` · ${r.requester_email}`}
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        asChild
-                      >
-                        <a
-                          href={`sms:+17202246234?&body=${encodeURIComponent(
-                            `Hey ${r.requester_name || "there"} — saw your mint request. Let's get you set up.`,
-                          )}`}
-                        >
-                          <ExternalLink className="h-3.5 w-3.5 mr-1" />
-                          Text
-                        </a>
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={r.resolved ? "outline" : "default"}
-                        onClick={() => toggleResolved(r)}
-                      >
-                        {r.resolved ? "Reopen" : "Mark resolved"}
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0 text-xs text-muted-foreground space-y-1">
-                  <div>Source: <span className="font-mono">{r.source}</span></div>
-                  {r.ip_address && <div>IP: <span className="font-mono">{r.ip_address}</span></div>}
-                  {r.user_agent && (
-                    <div className="line-clamp-1">UA: <span className="font-mono">{r.user_agent}</span></div>
-                  )}
-                </CardContent>
+            <>
+              {/* Mobile: card layout (unchanged) */}
+              <div className="space-y-3 lg:hidden">
+                {filtered.map((r) => (
+                  <Card key={r.id} className={r.resolved ? "opacity-70" : ""}>
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between gap-3 flex-wrap">
+                        <div className="space-y-1">
+                          <CardTitle className="text-base flex items-center gap-2 flex-wrap">
+                            {r.requester_name || r.requester_email || r.access_code || "Anonymous"}
+                            {r.access_code && (
+                              <Badge variant="outline" className="font-mono text-xs">
+                                {r.access_code}
+                              </Badge>
+                            )}
+                            {r.resolved ? (
+                              <Badge variant="secondary" className="gap-1">
+                                <CheckCircle2 className="h-3 w-3" /> Resolved
+                              </Badge>
+                            ) : (
+                              <Badge className="gap-1">
+                                <Clock className="h-3 w-3" /> Open
+                              </Badge>
+                            )}
+                          </CardTitle>
+                          <p className="text-xs text-muted-foreground">
+                            {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
+                            {r.requester_email && ` · ${r.requester_email}`}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" asChild>
+                            <a
+                              href={`sms:+17202246234?&body=${encodeURIComponent(
+                                `Hey ${r.requester_name || "there"} — saw your mint request. Let's get you set up.`,
+                              )}`}
+                            >
+                              <ExternalLink className="h-3.5 w-3.5 mr-1" />
+                              Text
+                            </a>
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant={r.resolved ? "outline" : "default"}
+                            onClick={() => toggleResolved(r)}
+                          >
+                            {r.resolved ? "Reopen" : "Mark resolved"}
+                          </Button>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0 text-xs text-muted-foreground space-y-1">
+                      <div>Source: <span className="font-mono">{r.source}</span></div>
+                      {r.ip_address && <div>IP: <span className="font-mono">{r.ip_address}</span></div>}
+                      {r.user_agent && (
+                        <div className="line-clamp-1">UA: <span className="font-mono">{r.user_agent}</span></div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Desktop (lg+): real table */}
+              <Card className="hidden lg:block">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="min-w-[200px]">Requester</TableHead>
+                        <TableHead className="min-w-[110px]">Code</TableHead>
+                        <TableHead className="min-w-[100px]">Status</TableHead>
+                        <TableHead className="min-w-[140px]">Source</TableHead>
+                        <TableHead className="min-w-[140px]">Requested</TableHead>
+                        <TableHead className="text-right min-w-[220px]">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filtered.map((r) => (
+                        <TableRow key={r.id} className={r.resolved ? "opacity-60" : ""}>
+                          <TableCell>
+                            <div className="font-medium text-foreground">
+                              {r.requester_name || r.requester_email || "Anonymous"}
+                            </div>
+                            {r.requester_email && r.requester_name && (
+                              <div className="text-xs text-muted-foreground">{r.requester_email}</div>
+                            )}
+                            {r.ip_address && (
+                              <div className="text-[10px] text-muted-foreground/70 font-mono mt-0.5">
+                                {r.ip_address}
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {r.access_code ? (
+                              <Badge variant="outline" className="font-mono text-xs">
+                                {r.access_code}
+                              </Badge>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {r.resolved ? (
+                              <Badge variant="secondary" className="gap-1">
+                                <CheckCircle2 className="h-3 w-3" /> Resolved
+                              </Badge>
+                            ) : (
+                              <Badge className="gap-1">
+                                <Clock className="h-3 w-3" /> Open
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <span className="text-xs font-mono text-muted-foreground">{r.source}</span>
+                          </TableCell>
+                          <TableCell>
+                            <span className="text-xs text-muted-foreground">
+                              {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="inline-flex gap-2">
+                              <Button size="sm" variant="outline" asChild>
+                                <a
+                                  href={`sms:+17202246234?&body=${encodeURIComponent(
+                                    `Hey ${r.requester_name || "there"} — saw your mint request. Let's get you set up.`,
+                                  )}`}
+                                >
+                                  <ExternalLink className="h-3.5 w-3.5 mr-1" />
+                                  Text
+                                </a>
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant={r.resolved ? "outline" : "default"}
+                                onClick={() => toggleResolved(r)}
+                              >
+                                {r.resolved ? "Reopen" : "Resolve"}
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </Card>
-            ))
+            </>
           )}
         </TabsContent>
       </Tabs>
