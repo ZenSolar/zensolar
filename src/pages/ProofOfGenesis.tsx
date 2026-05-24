@@ -87,6 +87,11 @@ const PILLARS: Pillar[] = [
         detail:
           'verify_user_sum_invariant() runs every night via pg_cron. It scans every connected device for baseline > lifetime (negative-pending) and every confirmed mint whose reconciliation drift exceeded 1%. Violations land in user_invariant_violations with a critical flag — observable by admins and the user themselves.',
       },
+      {
+        label: 'KPI-level drift log for production alerts',
+        detail:
+          'verify_kpi_reconciliation() runs in the same nightly sweep. For every user it recomputes the canonical KPIs (solar_kwh, home_charger_kwh, lifetime_tokens, …) from the source rows and compares them to the headline value the dashboard would emit. Drifts >1% are warn, >5% are critical, and every mismatch is appended to kpi_reconciliation_log (RLS-locked: users see own, dashboard staff see all, only the service role writes). This is the single feed wired into production drift alerts.',
+      },
     ],
   },
   {
