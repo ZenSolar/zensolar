@@ -123,6 +123,24 @@ async function fetchEnergyProductionRows(
   sinceIso: string | null,
   pendingTarget?: number,
 ): Promise<KpiContributionRow[]> {
+  // Solar source preference: if the user has a dedicated solar inverter
+  // (Enphase / SolarEdge), we exclude Tesla `data_type='solar'` rows because
+  // those come from Powerwall site aggregates that read the same production
+  // via CT and double-count what the inverter already reports.
+  // Users whose solar was installed by Tesla (no Enphase/SolarEdge) keep
+  // Tesla as their solar source.
+  let solarProviderFilter: string[] | null = null;
+  if (dataType === 'solar') {
+    const { data: solarDevices } = await supabase
+      .from('connected_devices')
+      .select('provider')
+      .eq('user_id', userId)
+      .in('provider', ['enphase', 'solaredge']);
+    if ((solarDevices?.length ?? 0) > 0) {
+      solarProviderFilter = ['enphase', 'solaredge'];
+    }
+  }
+
   let query = supabase
     .from('energy_production')
     .select('id, production_wh, recorded_at, device_id, provider, data_type')
@@ -133,13 +151,7 @@ async function fetchEnergyProductionRows(
 
   if (deviceId) query = query.eq('device_id', deviceId);
   if (sinceIso && !pendingTarget) query = query.gt('recorded_at', sinceIso);
-
-  // Solar is sourced ONLY from dedicated solar inverters (Enphase / SolarEdge).
-  // Tesla provider rows on data_type='solar' come from Powerwall site aggregates
-  // and double-count what the inverter already reports, so we exclude them here.
-  if (dataType === 'solar') {
-    query = query.in('provider', ['enphase', 'solaredge']);
-  }
+  if (solarProviderFilter) query = query.in('provider', solarProviderFilter);
 
   const { data, error } = await query;
   if (error) throw error;
