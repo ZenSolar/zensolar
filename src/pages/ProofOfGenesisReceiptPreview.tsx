@@ -940,6 +940,24 @@ export default function ProofOfGenesisReceiptPreview() {
           permanence: receipt.minted_at,
         }}
       />
+
+      {/* Off-screen compact share card — captured to PNG for share-sheet thumbnails.
+          Positioned far off-screen so it never affects layout or scrolling, but
+          still rendered into the DOM so html2canvas can read it. */}
+      <div
+        aria-hidden
+        style={{
+          position: 'fixed',
+          left: -10000,
+          top: 0,
+          width: 1080,
+          height: 1350,
+          pointerEvents: 'none',
+          opacity: 0,
+        }}
+      >
+        <ProofOfGenesisShareCard ref={shareCardRef} data={shareCardData} />
+      </div>
     </>
   );
 }
