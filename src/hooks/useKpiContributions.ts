@@ -116,6 +116,32 @@ function durationMin(startIso?: string | null, endIso?: string | null): number |
   return Math.max(1, Math.round((b - a) / 60000));
 }
 
+function normalizeDailySolarRows(rows: KpiContributionRow[]): KpiContributionRow[] {
+  const daily = new Map<string, KpiContributionRow>();
+
+  for (const row of rows) {
+    const provider = row.provider?.toLowerCase();
+    if (provider !== 'enphase' && provider !== 'solaredge') continue;
+
+    const dayKey = row.recordedAt.slice(0, 10);
+    const key = `${row.deviceId ?? 'unknown'}|${provider}|${dayKey}`;
+    const existing = daily.get(key);
+
+    // Enphase/SolarEdge writes production_wh as the day's running total. The
+    // receipt must use the daily MAX, not SUM every API sample for that day.
+    if (!existing || row.amount > existing.amount) {
+      daily.set(key, {
+        ...row,
+        id: `daily-${key}`,
+        recordedAt: dayKey,
+        hasRealTime: false,
+      });
+    }
+  }
+
+  return Array.from(daily.values()).sort((a, b) => (a.recordedAt < b.recordedAt ? 1 : -1));
+}
+
 async function fetchEnergyProductionRows(
   userId: string,
   dataType: 'solar' | 'battery_discharge' | 'ev_miles',
@@ -130,14 +156,18 @@ async function fetchEnergyProductionRows(
   // Users whose solar was installed by Tesla (no Enphase/SolarEdge) keep
   // Tesla as their solar source.
   let solarProviderFilter: string[] | null = null;
+  let solarDeviceIds: string[] | null = null;
   if (dataType === 'solar') {
     const { data: solarDevices } = await supabase
       .from('connected_devices')
-      .select('provider')
+      .select('provider, device_id')
       .eq('user_id', userId)
       .in('provider', ['enphase', 'solaredge']);
     if ((solarDevices?.length ?? 0) > 0) {
       solarProviderFilter = ['enphase', 'solaredge'];
+      solarDeviceIds = solarDevices
+        .map((device: any) => String(device.device_id || ''))
+        .filter(Boolean);
     }
   }
 
@@ -150,6 +180,7 @@ async function fetchEnergyProductionRows(
     .limit(pendingTarget ? 500 : ROW_LIMIT);
 
   if (deviceId) query = query.eq('device_id', deviceId);
+  else if (solarDeviceIds?.length) query = query.in('device_id', solarDeviceIds);
   if (sinceIso && !pendingTarget) query = query.gt('recorded_at', sinceIso);
   if (solarProviderFilter) query = query.in('provider', solarProviderFilter);
 
@@ -170,13 +201,17 @@ async function fetchEnergyProductionRows(
     verified: ['tesla', 'enphase', 'solaredge', 'tesla_historical'].includes(r.provider),
   }));
 
-  if (!pendingTarget || pendingTarget <= 0) return mapped;
+  const receiptRows = dataType === 'solar' && solarProviderFilter
+    ? normalizeDailySolarRows(mapped)
+    : mapped;
+
+  if (!pendingTarget || pendingTarget <= 0) return receiptRows;
 
   // Walk newest → oldest until receipts ≈ headline pending (within 0.5)
   const target = Math.max(0, pendingTarget - 0.5);
   let running = 0;
   const pendingRows: KpiContributionRow[] = [];
-  for (const row of mapped) {
+  for (const row of receiptRows) {
     pendingRows.push(row);
     running += row.amount;
     if (running >= target) break;
