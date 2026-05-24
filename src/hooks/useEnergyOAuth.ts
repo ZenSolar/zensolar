@@ -68,25 +68,18 @@ export function useEnergyOAuth() {
         throw new Error(response.error.message || 'Failed to get auth URL');
       }
 
-      const { authUrl, useManualCode } = response.data;
-      
-      // Open Enphase auth in new window - user will copy code manually
-      // Use noopener,noreferrer for security but still allow window to open
-      const popup = window.open(authUrl, 'enphase_auth', 'width=600,height=700,noopener');
-      
-      // If popup was blocked, try opening in a new tab
-      if (!popup) {
-        window.open(authUrl, '_blank');
-        toast.info('Enphase authorization opened in a new tab');
-      }
-      
-      return { useManualCode: true };
+      const { authUrl } = response.data;
+
+      // Don't auto-open — popups are almost always blocked.
+      // Return the URL so the dialog can render a real button the user taps.
+      return { useManualCode: true, authUrl };
     } catch (error) {
       console.error('Enphase OAuth error:', error);
       toast.error('Failed to start Enphase authorization');
       return null;
     }
   }, []);
+
 
   const exchangeTeslaCode = useCallback(async (code: string) => {
     try {
