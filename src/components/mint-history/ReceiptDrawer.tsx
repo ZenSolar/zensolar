@@ -41,6 +41,7 @@ export interface MintReceiptTx {
   nft_names: string[];
   status: string;
   created_at: string;
+  chain_hash?: string | null;
 }
 
 interface ReceiptDrawerProps {
