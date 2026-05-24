@@ -172,12 +172,18 @@ async function recordTransaction(
   tokensMinted: number = 0,
   nftsMinted: number[] = [],
   status: string = "confirmed",
-  isBetaMint: boolean = false
+  isBetaMint: boolean = false,
+  reconciliation?: {
+    diffPct?: number;
+    kwhDelta?: number;
+    milesDelta?: number;
+    sourceBreakdown?: Record<string, unknown>;
+  },
 ) {
   try {
     const nftNames = nftsMinted.map(id => NFT_NAMES[id] || `Token #${id}`);
-    
-    await supabaseClient.from("mint_transactions").insert({
+
+    const row: Record<string, unknown> = {
       user_id: userId,
       tx_hash: txHash,
       block_number: blockNumber,
@@ -188,8 +194,16 @@ async function recordTransaction(
       nft_names: nftNames,
       status,
       is_beta_mint: isBetaMint,
-    });
-    console.log("Transaction recorded:", txHash, isBetaMint ? "(beta)" : "");
+    };
+    if (reconciliation) {
+      if (typeof reconciliation.diffPct === 'number') row.reconciliation_diff = reconciliation.diffPct;
+      if (typeof reconciliation.kwhDelta === 'number') row.kwh_delta = reconciliation.kwhDelta;
+      if (typeof reconciliation.milesDelta === 'number') row.miles_delta = reconciliation.milesDelta;
+      if (reconciliation.sourceBreakdown) row.source_breakdown = reconciliation.sourceBreakdown;
+    }
+
+    await supabaseClient.from("mint_transactions").insert(row);
+    console.log("Transaction recorded:", txHash, status, isBetaMint ? "(beta)" : "");
   } catch (error) {
     console.error("Failed to record transaction:", error);
   }
