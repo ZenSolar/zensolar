@@ -1,21 +1,41 @@
 import { motion } from 'framer-motion';
-import { Check } from 'lucide-react';
+import { Check, ChevronLeft } from 'lucide-react';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+import { triggerLightTap } from '@/hooks/useHaptics';
 
 interface OnboardingProgressProps {
   currentStep: number;
   totalSteps: number;
   stepLabels?: string[];
+  onBack?: () => void;
 }
 
-export function OnboardingProgress({ 
-  currentStep, 
+export function OnboardingProgress({
+  currentStep,
   totalSteps,
-  stepLabels = ['Wallet', 'Energy', 'Done']
+  stepLabels = ['Wallet', 'Energy', 'Done'],
+  onBack,
 }: OnboardingProgressProps) {
+  const handleBack = () => {
+    triggerLightTap?.();
+    onBack?.();
+  };
+
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border/50 pt-safe">
-      <div className="w-full max-w-sm mx-auto px-6 py-3">
+      <div className="w-full max-w-sm mx-auto px-6 py-3 relative">
+        {/* Back chevron */}
+        {onBack && (
+          <button
+            type="button"
+            onClick={handleBack}
+            aria-label="Go back"
+            className="absolute left-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full flex items-center justify-center text-foreground/80 hover:text-foreground active:bg-muted/60 transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+        )}
+
         {/* ZenSolar Logo */}
         <div className="flex justify-center mb-2.5">
           <img
