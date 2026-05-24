@@ -161,11 +161,11 @@ export function SolarEdgeConnectDialog({
             Connect SolarEdge
           </DialogTitle>
           <DialogDescription>
-            Paste your API key — we'll find your site automatically.
+            Two quick steps — open SolarEdge, then paste your key.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-5 py-2">
+        <form onSubmit={handleSubmit} className="space-y-4 py-2">
           {errorMessage && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
@@ -173,12 +173,52 @@ export function SolarEdgeConnectDialog({
             </Alert>
           )}
 
-          {/* Step 1: API key */}
-          <div className="space-y-2">
-            <Label htmlFor="apiKey" className="flex items-center gap-2">
-              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 text-[10px] font-bold text-primary">1</span>
-              SolarEdge API Key
-            </Label>
+          {/* STEP 1 — Open SolarEdge portal directly to API Access */}
+          <div className="rounded-xl border border-primary/40 bg-primary/5 p-4 shadow-[0_0_20px_hsl(var(--primary)/0.12)]">
+            <div className="flex items-start gap-3">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary text-sm font-bold ring-2 ring-primary/40">
+                1
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground">Open SolarEdge & grab your API key</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  We'll send you to the SolarEdge Monitoring Portal. Log in, then go to{' '}
+                  <strong>Admin → Site Access → API Access</strong> and copy the key.
+                </p>
+                <Button
+                  type="button"
+                  size="lg"
+                  className="w-full mt-3 h-12 text-sm font-semibold"
+                  onClick={() => {
+                    window.open(
+                      'https://monitoring.solaredge.com/solaredge-web/p/login',
+                      '_blank',
+                      'noopener,noreferrer'
+                    );
+                  }}
+                  disabled={isSubmitting}
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Open SolarEdge Portal
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* STEP 2 — Paste API key */}
+          <div className="rounded-xl border border-border bg-card/40 p-4 space-y-3">
+            <div className="flex items-start gap-3">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-bold text-muted-foreground">
+                2
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground">Paste your API key</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  We'll auto-detect your site — no Site ID hunting required.
+                </p>
+              </div>
+            </div>
+
             <div className="relative">
               <Input
                 id="apiKey"
