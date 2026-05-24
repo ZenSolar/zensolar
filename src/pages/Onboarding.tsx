@@ -623,8 +623,9 @@ export default function Onboarding() {
   };
 
   const handleEnergyBack = () => {
-    // Go back to wallet choice screen
-    setStep('wallet-choice');
+    // Go back to the AI concierge (the prior step) — never back to wallet-choice
+    // since the wallet has already been created/skipped.
+    transitionToStep('ai-concierge');
   };
 
   const handleAddAnotherEnergy = () => {
