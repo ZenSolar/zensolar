@@ -20,7 +20,8 @@ import {
   ChevronUp,
   AlertCircle,
   CheckCircle2,
-  Info
+  Info,
+  Sparkles
 } from 'lucide-react';
 import {
   Tooltip,
@@ -186,8 +187,34 @@ export function SolarEdgeConnectDialog({
             </ol>
           </div>
 
+          {/* Smart URL paste — auto-extracts Site ID */}
+          <div className="space-y-2">
+            <Label htmlFor="smartUrl" className="flex items-center gap-2">
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
+              Shortcut: paste your monitoring URL
+            </Label>
+            <Input
+              id="smartUrl"
+              placeholder="https://monitoring.solaredge.com/.../site/1234567/..."
+              onChange={(e) => {
+                const match = e.target.value.match(/\/site\/(\d{4,10})/);
+                if (match) {
+                  setSiteId(match[1]);
+                  setTouched((t) => ({ ...t, siteId: true }));
+                  apiKeyRef.current?.focus();
+                }
+              }}
+              disabled={isSubmitting}
+              className="text-xs"
+            />
+            <p className="text-[11px] text-muted-foreground">
+              We'll pull your Site ID out automatically — then just paste your API key below.
+            </p>
+          </div>
+
           {/* Site ID Input */}
           <div className="space-y-2">
+
             <Label htmlFor="siteId" className="flex items-center gap-2">
               Site ID
               <Tooltip>
