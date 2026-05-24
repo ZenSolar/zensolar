@@ -157,33 +157,31 @@ function normalizeDailySolarRows(rows: KpiContributionRow[]): KpiContributionRow
  */
 function normalizeDailyBatteryRows(
   rows: KpiContributionRow[],
-  sinceIso: string | null,
+  baselinesByDevice: Map<string, number>,
 ): KpiContributionRow[] {
-  const byDevice = new Map<string, { daily: Map<string, KpiContributionRow>; baseline: number }>();
+  const byDevice = new Map<string, Map<string, KpiContributionRow>>();
 
   for (const row of rows) {
     const device = row.deviceId ?? 'unknown';
-    let entry = byDevice.get(device);
-    if (!entry) { entry = { daily: new Map(), baseline: 0 }; byDevice.set(device, entry); }
-
-    // Rows older than sinceIso contribute only to the baseline (max value
-    // seen at or before the mint anchor).
-    if (sinceIso && row.recordedAt <= sinceIso) {
-      if (row.amount > entry.baseline) entry.baseline = row.amount;
-      continue;
-    }
-
+    let daily = byDevice.get(device);
+    if (!daily) { daily = new Map(); byDevice.set(device, daily); }
     const day = row.recordedAt.slice(0, 10);
-    const existing = entry.daily.get(day);
-    if (!existing || row.amount > existing.amount) entry.daily.set(day, row);
+    const existing = daily.get(day);
+    if (!existing || row.amount > existing.amount) daily.set(day, row);
   }
 
   const deltas: KpiContributionRow[] = [];
-  for (const [device, entry] of byDevice) {
-    const days = Array.from(entry.daily.keys()).sort(); // ascending
-    let prevValue = entry.baseline;
+  for (const [device, daily] of byDevice) {
+    const days = Array.from(daily.keys()).sort(); // ascending
+    let prevValue = baselinesByDevice.get(device) ?? 0;
     for (const day of days) {
-      const cur = entry.daily.get(day)!;
+      const cur = daily.get(day)!;
+      // Only count days strictly above the device's stored baseline so
+      // Σ(deltas) == lifetime_now − stored_baseline == headline pending.
+      if (cur.amount <= prevValue) {
+        prevValue = Math.max(prevValue, cur.amount);
+        continue;
+      }
       const delta = Math.round((cur.amount - prevValue) * 10) / 10;
       prevValue = cur.amount;
       if (delta <= 0) continue;
@@ -199,6 +197,40 @@ function normalizeDailyBatteryRows(
 
   return deltas.sort((a, b) => (a.recordedAt < b.recordedAt ? 1 : -1));
 }
+
+/**
+ * Fetch per-device baseline (lifetime value at last mint) from
+ * connected_devices. This is the SAME baseline the KPI tile uses, so the
+ * receipt deltas chained from it sum exactly to the headline pending.
+ */
+async function fetchDeviceBaselines(
+  userId: string,
+  dataType: 'battery_discharge' | 'ev_miles',
+  deviceId: string | undefined,
+): Promise<Map<string, number>> {
+  let q = supabase
+    .from('connected_devices')
+    .select('device_id, baseline_data')
+    .eq('user_id', userId);
+  if (deviceId) q = q.eq('device_id', deviceId);
+  const { data } = await q;
+  const map = new Map<string, number>();
+  for (const d of data || []) {
+    const b: any = (d as any).baseline_data || {};
+    let val = 0;
+    if (dataType === 'battery_discharge') {
+      // Stored in Wh; rows in normalizeDailyBatteryRows are kWh.
+      const wh = Number(b.battery_discharge_wh || b.total_energy_discharged_wh || b.lifetime_battery_discharge_wh || 0);
+      val = wh / 1000;
+    } else {
+      // ev_miles: odometer is already miles
+      val = Number(b.odometer || 0);
+    }
+    map.set(String((d as any).device_id), val);
+  }
+  return map;
+}
+
 
 async function fetchEnergyProductionRows(
   userId: string,
@@ -268,8 +300,10 @@ async function fetchEnergyProductionRows(
   if (dataType === 'solar' && solarProviderFilter) {
     receiptRows = normalizeDailySolarRows(mapped);
   } else if (dataType === 'battery_discharge' || dataType === 'ev_miles') {
-    // EV odometer is a cumulative lifetime counter just like battery export.
-    receiptRows = normalizeDailyBatteryRows(mapped, sinceIso);
+    // EV odometer & battery export are cumulative lifetime counters. Use the
+    // device's stored baseline_data so deltas sum to the headline pending.
+    const baselines = await fetchDeviceBaselines(userId, dataType, deviceId);
+    receiptRows = normalizeDailyBatteryRows(mapped, baselines);
   }
 
   if (!pendingTarget || pendingTarget <= 0) return receiptRows;
