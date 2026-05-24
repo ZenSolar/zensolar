@@ -307,7 +307,10 @@ async function fetchEnergyProductionRows(
     receiptRows = normalizeDailyBatteryRows(mapped, baselines);
   }
 
-  if (!pendingTarget || pendingTarget <= 0) return receiptRows;
+  if (!pendingTarget || pendingTarget <= 0) {
+    reconcileReceipts(`energy/${dataType}`, 0, receiptRows);
+    return receiptRows;
+  }
 
   // Walk newest → oldest until receipts ≈ headline pending (within 0.5)
   const target = Math.max(0, pendingTarget - 0.5);
@@ -318,6 +321,7 @@ async function fetchEnergyProductionRows(
     running += row.amount;
     if (running >= target) break;
   }
+  reconcileReceipts(`energy/${dataType}`, pendingTarget, pendingRows);
   return pendingRows;
 }
 
