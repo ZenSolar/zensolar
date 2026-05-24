@@ -170,8 +170,11 @@ function groupByDay(rows: KpiContributionRow[]): DayGroup[] {
   return Array.from(map.values()).sort((a, b) => (a.dayKey < b.dayKey ? 1 : -1));
 }
 
-function DayGroupRow({ group, unit }: { group: DayGroup; unit: 'kWh' | 'mi' }) {
+function DayGroupRow({ group, unit, category }: { group: DayGroup; unit: 'kWh' | 'mi'; category: MintCategory | null }) {
   const [expanded, setExpanded] = useState(false);
+  const descriptor = category === 'solar'
+    ? group.count === 1 ? 'daily production total' : `${group.count} system totals`
+    : `${group.count} sample${group.count !== 1 ? 's' : ''}`;
   return (
     <div className="border-b border-border/40 last:border-0">
       <button
@@ -185,7 +188,7 @@ function DayGroupRow({ group, unit }: { group: DayGroup; unit: 'kWh' | 'mi' }) {
             {group.dayLabel}
           </p>
           <p className="text-sm text-foreground">
-            {group.count} sample{group.count !== 1 ? 's' : ''}
+            {descriptor}
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -315,7 +318,9 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
               <div className="flex items-center justify-between py-3 text-[11px] text-muted-foreground border-b border-border/40">
                 <span>
                   {isInterval
-                    ? `${dayGroups.length} day${dayGroups.length !== 1 ? 's' : ''} · ${rows.length} sample${rows.length !== 1 ? 's' : ''}`
+                    ? category === 'solar'
+                      ? `${dayGroups.length} day${dayGroups.length !== 1 ? 's' : ''} · ${rows.length} daily total${rows.length !== 1 ? 's' : ''}`
+                      : `${dayGroups.length} day${dayGroups.length !== 1 ? 's' : ''} · ${rows.length} sample${rows.length !== 1 ? 's' : ''}`
                     : `${rows.length} contribution${rows.length !== 1 ? 's' : ''}`}
                 </span>
                 <span className="tabular-nums">
@@ -324,7 +329,7 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
               </div>
               <div>
                 {isInterval
-                  ? dayGroups.map((g) => <DayGroupRow key={g.dayKey} group={g} unit={unit} />)
+                  ? dayGroups.map((g) => <DayGroupRow key={g.dayKey} group={g} unit={unit} category={category} />)
                   : rows.map((row) => <ContributionRow key={row.id} row={row} />)}
               </div>
               <div className="py-4" />
