@@ -119,7 +119,7 @@ export function FeedbackFab() {
       <motion.button
         whileTap={{ scale: 0.9 }}
         onClick={() => setOpen((o) => !o)}
-        className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
+        className="flex h-12 w-12 lg:h-14 lg:w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-all"
         aria-label="Send feedback"
       >
         {open ? <X className="h-5 w-5" /> : <MessageSquarePlus className="h-5 w-5" />}
