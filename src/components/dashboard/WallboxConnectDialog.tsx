@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, Eye, EyeOff, CheckCircle2, AlertCircle, Zap } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { DialogSwipeHandle } from '@/components/onboarding/DialogSwipeHandle';
 
 interface WallboxConnectDialogProps {
   open: boolean;
