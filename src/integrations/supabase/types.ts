@@ -1070,6 +1070,7 @@ export type Database = {
           miles_delta: number | null
           nft_names: string[] | null
           nfts_minted: number[] | null
+          reconciliation_diff: number | null
           source_breakdown: Json | null
           status: string
           tokens_minted: number | null
@@ -1088,6 +1089,7 @@ export type Database = {
           miles_delta?: number | null
           nft_names?: string[] | null
           nfts_minted?: number[] | null
+          reconciliation_diff?: number | null
           source_breakdown?: Json | null
           status?: string
           tokens_minted?: number | null
@@ -1106,6 +1108,7 @@ export type Database = {
           miles_delta?: number | null
           nft_names?: string[] | null
           nfts_minted?: number[] | null
+          reconciliation_diff?: number | null
           source_breakdown?: Json | null
           status?: string
           tokens_minted?: number | null
