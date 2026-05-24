@@ -2531,6 +2531,7 @@ export type Database = {
         Returns: Json
       }
       get_mint_receipt: { Args: { _chain_hash: string }; Returns: Json }
+      get_mint_source_lines: { Args: { _chain_hash: string }; Returns: Json }
       get_mintable_status_filter: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["genesis_status"][]
