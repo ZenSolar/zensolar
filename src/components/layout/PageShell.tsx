@@ -100,18 +100,18 @@ export function SectionHeader({
   icon?: LucideIcon;
 }) {
   return (
-    <header id={id} className="scroll-mt-28 mb-6">
+    <header id={id} className="scroll-mt-28 mb-6 lg:mb-8">
       {eyebrow && (
-        <p className="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary/80 mb-2">
+        <p className="text-[11px] lg:text-xs uppercase tracking-[0.14em] font-semibold text-primary/80 mb-2">
           {eyebrow}
         </p>
       )}
-      <div className="flex items-center gap-2">
-        {Icon && <Icon className="h-5 w-5 text-primary" aria-hidden />}
-        <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">{title}</h2>
+      <div className="flex items-center gap-2 lg:gap-2.5">
+        {Icon && <Icon className="h-5 w-5 lg:h-6 lg:w-6 text-primary" aria-hidden />}
+        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-foreground">{title}</h2>
       </div>
       {description && (
-        <p className="text-sm text-muted-foreground mt-1.5 max-w-2xl">{description}</p>
+        <p className="text-sm lg:text-base text-muted-foreground mt-1.5 lg:mt-2 max-w-2xl">{description}</p>
       )}
     </header>
   );
