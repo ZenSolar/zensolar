@@ -360,38 +360,21 @@ async function fetchSuperchargerRows(
     };
   });
 
-  // Daily delta normalization: group sessions by day (sum), so receipts
-  // mirror the headline's per-day cadence instead of a noisy session list.
-  const dailyMap = new Map<string, KpiContributionRow>();
-  for (const r of mapped) {
-    const day = r.recordedAt.slice(0, 10);
-    const existing = dailyMap.get(day);
-    if (existing) {
-      existing.amount = Math.round((existing.amount + r.amount) * 10) / 10;
-    } else {
-      dailyMap.set(day, {
-        ...r,
-        id: `daily-sc-${r.deviceId ?? 'unknown'}-${day}`,
-        recordedAt: day,
-        hasRealTime: false,
-        durationMinutes: null,
-      });
-    }
-  }
-  const daily = Array.from(dailyMap.values()).sort((a, b) =>
-    a.recordedAt < b.recordedAt ? 1 : -1,
-  );
+  // Charging is event-based: each plug-in session is its own receipt.
+  // (Unlike solar/battery which are cumulative counters needing daily deltas.)
+  mapped.sort((a, b) => (a.recordedAt < b.recordedAt ? 1 : -1));
 
   if (!pendingTarget || pendingTarget <= 0) {
-    reconcileReceipts('supercharger', 0, daily);
-    return daily;
+    const sliced = mapped.slice(0, ROW_LIMIT);
+    reconcileReceipts('supercharger', 0, sliced);
+    return sliced;
   }
 
   // Walk newest → oldest until receipts ≈ headline pending.
   const target = Math.max(0, pendingTarget - 0.5);
   let running = 0;
   const pendingRows: KpiContributionRow[] = [];
-  for (const row of daily) {
+  for (const row of mapped) {
     pendingRows.push(row);
     running += row.amount;
     if (running >= target) break;
@@ -419,6 +402,7 @@ async function fetchSuperchargerRows(
   }
   return pendingRows;
 }
+
 
 async function fetchHomeChargerRows(
   userId: string,
