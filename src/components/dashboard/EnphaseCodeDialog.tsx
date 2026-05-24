@@ -17,6 +17,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { DialogSwipeHandle } from '@/components/onboarding/DialogSwipeHandle';
 
 interface EnphaseCodeDialogProps {
   open: boolean;
@@ -136,6 +137,7 @@ export function EnphaseCodeDialog({ open, onOpenChange, onSubmit, authUrl }: Enp
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogSwipeHandle onDismiss={() => onOpenChange(false)} />
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">

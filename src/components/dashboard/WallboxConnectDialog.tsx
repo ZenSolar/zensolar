@@ -60,6 +60,7 @@ export function WallboxConnectDialog({ open, onOpenChange, onSubmit }: WallboxCo
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md lg:max-w-2xl">
+        <DialogSwipeHandle onDismiss={() => handleClose(false)} />
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 shadow-sm">

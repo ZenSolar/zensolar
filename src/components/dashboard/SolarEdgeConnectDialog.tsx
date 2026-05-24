@@ -37,6 +37,7 @@ import {
 } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useEnergyOAuth } from '@/hooks/useEnergyOAuth';
+import { DialogSwipeHandle } from '@/components/onboarding/DialogSwipeHandle';
 
 interface SolarEdgeConnectDialogProps {
   open: boolean;
@@ -153,6 +154,7 @@ export function SolarEdgeConnectDialog({
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogSwipeHandle onDismiss={() => handleClose(false)} />
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
