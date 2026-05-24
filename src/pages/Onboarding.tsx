@@ -520,6 +520,38 @@ export default function Onboarding() {
       }
     })();
     
+    // For Tesla connections, route through Home Charging Setup before energy-success.
+    // Fetch the user's most recent vehicle row so the setup screen knows which device to write to.
+    if (provider === 'tesla') {
+      (async () => {
+        try {
+          const { data: { user: currentUser } } = await supabase.auth.getUser();
+          if (!currentUser) {
+            setStep('energy-success');
+            return;
+          }
+          const { data: vehicles } = await supabase
+            .from('connected_devices')
+            .select('device_id, device_name')
+            .eq('user_id', currentUser.id)
+            .eq('provider', 'tesla')
+            .in('device_type', ['vehicle', 'ev', 'tesla_vehicle'])
+            .order('claimed_at', { ascending: false })
+            .limit(1);
+          const veh = vehicles?.[0];
+          if (veh) {
+            setTeslaVehicleForHomeSetup({ deviceId: veh.device_id, name: veh.device_name ?? undefined });
+            setStep('home-charging-setup');
+            return;
+          }
+        } catch (err) {
+          console.warn('[Onboarding] Failed to load Tesla vehicle for home setup:', err);
+        }
+        setStep('energy-success');
+      })();
+      return;
+    }
+
     // Move to energy success screen
     setStep('energy-success');
   };
