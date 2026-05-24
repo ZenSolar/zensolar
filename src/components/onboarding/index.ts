@@ -11,3 +11,5 @@ export { OnboardingTransition } from './OnboardingTransition';
 export { OnboardingAnimatedContent, OnboardingAnimatedItem } from './OnboardingAnimatedContent';
 export { HomeChargingSetupScreen } from './HomeChargingSetupScreen';
 export type { HomeChargingSource, HomeSetupType } from './HomeChargingSetupScreen';
+export { AIConciergeScreen } from './AIConciergeScreen';
+export type { SetupProfile, ConciergeBrand } from './AIConciergeScreen';

@@ -7,6 +7,7 @@ import { OnboardingSuccessScreen } from "@/components/onboarding/OnboardingSucce
 import { EnergyConnectionScreen, EnergyProvider } from "@/components/onboarding/EnergyConnectionScreen";
 import { EnergySuccessScreen } from "@/components/onboarding/EnergySuccessScreen";
 import { HomeChargingSetupScreen } from "@/components/onboarding/HomeChargingSetupScreen";
+import { AIConciergeScreen, SetupProfile, ConciergeBrand } from "@/components/onboarding/AIConciergeScreen";
 import { OnboardingProgress } from "@/components/onboarding/OnboardingProgress";
 import { OnboardingTransition } from "@/components/onboarding/OnboardingTransition";
 import { EnphaseCodeDialog } from "@/components/dashboard/EnphaseCodeDialog";
@@ -33,6 +34,7 @@ type OnboardingStep =
   | 'zensolar-setup' 
   | 'external-wallet' 
   | 'wallet-success'
+  | 'ai-concierge'
   | 'energy-connect'
   | 'home-charging-setup'
   | 'energy-success'
