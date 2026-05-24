@@ -480,6 +480,7 @@ export default function Onboarding() {
           localStorage.setItem('onboarding_energy_flow', 'true');
           const result = await startEnphaseOAuth();
           if (result?.useManualCode) {
+            setEnphaseAuthUrl(result.authUrl ?? null);
             setShowEnphaseDialog(true);
           }
           break;
