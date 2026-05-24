@@ -340,7 +340,10 @@ export default function MintHistory() {
                   </div>
                 </motion.div>
               ) : (
-                transactions.map((tx) => {
+                <>
+                  {/* Mobile / tablet: collapsible cards with full on-chain drill-down */}
+                  <div className="lg:hidden space-y-2.5 sm:space-y-3">
+                    {transactions.map((tx) => {
                   const actionInfo = ACTION_LABELS[tx.action] || { label: tx.action, icon: <Coins className="h-4 w-4" />, gradient: 'from-muted to-muted', description: 'Transaction' };
                   const isExpanded = expandedTx === tx.id;
                   return (
@@ -510,7 +513,91 @@ export default function MintHistory() {
                       </div>
                     </Collapsible>
                   );
-                })
+                })}
+                  </div>
+
+                  {/* Desktop (lg+): real table — Receipt drawer becomes a right-side sheet for the drill-down */}
+                  <div className="hidden lg:block overflow-x-auto -mx-2">
+                    <table className="w-full text-sm">
+                      <thead className="text-xs uppercase tracking-wider text-muted-foreground border-b border-border/60">
+                        <tr>
+                          <th className="text-left font-medium px-3 py-2.5">Activity</th>
+                          <th className="text-right font-medium px-3 py-2.5 min-w-[140px]">$ZSOLAR</th>
+                          <th className="text-right font-medium px-3 py-2.5 min-w-[80px]">NFTs</th>
+                          <th className="text-left font-medium px-3 py-2.5 min-w-[110px]">Block</th>
+                          <th className="text-left font-medium px-3 py-2.5 min-w-[160px]">Date</th>
+                          <th className="text-right font-medium px-3 py-2.5 min-w-[140px]">Proof</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {transactions.map((tx) => {
+                          const actionInfo = ACTION_LABELS[tx.action] || { label: tx.action, icon: <Coins className="h-4 w-4" />, gradient: 'from-muted to-muted', description: 'Transaction' };
+                          return (
+                            <tr
+                              key={tx.id}
+                              onClick={() => setReceiptTx(tx)}
+                              className="border-b border-border/40 cursor-pointer hover:bg-muted/30 transition-colors"
+                            >
+                              <td className="px-3 py-3">
+                                <div className="flex items-center gap-3">
+                                  <div className={`p-1.5 rounded-md bg-gradient-to-br ${actionInfo.gradient} text-primary-foreground shrink-0`}>{actionInfo.icon}</div>
+                                  <div className="min-w-0">
+                                    <p className="font-medium text-foreground truncate">{actionInfo.label}</p>
+                                    <p className="text-[11px] text-muted-foreground truncate">{actionInfo.description}</p>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-3 py-3 text-right tabular-nums font-semibold">
+                                {tx.tokens_minted > 0 ? tx.tokens_minted.toLocaleString() : <span className="text-muted-foreground/60 font-normal">—</span>}
+                              </td>
+                              <td className="px-3 py-3 text-right">
+                                {tx.nft_names?.length > 0 ? (
+                                  <span className="inline-flex items-center gap-1 text-foreground">
+                                    <ImageIcon className="h-3 w-3 text-accent-rare" />
+                                    {tx.nft_names.length}
+                                  </span>
+                                ) : (
+                                  <span className="text-muted-foreground/60">—</span>
+                                )}
+                              </td>
+                              <td className="px-3 py-3 font-mono text-xs text-muted-foreground">
+                                {tx.block_number || 'Pending'}
+                              </td>
+                              <td className="px-3 py-3 text-muted-foreground">
+                                <div className="text-xs">{format(new Date(tx.created_at), 'MMM d, yyyy')}</div>
+                                <div className="text-[10px] text-muted-foreground/70">{formatDistanceToNow(new Date(tx.created_at), { addSuffix: true })}</div>
+                              </td>
+                              <td className="px-3 py-3 text-right">
+                                <div className="inline-flex items-center gap-1.5">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 px-2 text-xs"
+                                    onClick={(e) => { e.stopPropagation(); setReceiptTx(tx); }}
+                                  >
+                                    <Receipt className="h-3.5 w-3.5 mr-1" />
+                                    Receipt
+                                  </Button>
+                                  <a
+                                    href={getExplorerUrl(tx.tx_hash)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="inline-flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
+                                    aria-label="View on BaseScan"
+                                    title="View on BaseScan"
+                                  >
+                                    <ExternalLink className="h-3.5 w-3.5" />
+                                  </a>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               )}
             </CardContent>
           </Card>
