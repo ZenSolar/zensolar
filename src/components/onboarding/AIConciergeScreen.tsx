@@ -259,11 +259,18 @@ function PlanReview({
         <Check className="w-10 h-10 text-primary-foreground" />
       </motion.div>
 
+      <div className="text-center mb-1">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-semibold text-primary tracking-wide uppercase">
+          <Sparkles className="w-3 h-3" />
+          Deason built this
+        </span>
+      </div>
+
       <div className="text-center mb-5">
         <h2 className="text-2xl font-bold text-foreground mb-2 tracking-tight">Here's your plan</h2>
         <p className="text-sm text-muted-foreground italic">{profile.summary}</p>
         {profile.confidence === 'low' && (
-          <p className="text-xs text-amber-500 mt-2">Low confidence — please double-check before continuing.</p>
+          <p className="text-xs text-amber-500 mt-2">Deason isn't sure about this — please double-check before continuing.</p>
         )}
       </div>
 
