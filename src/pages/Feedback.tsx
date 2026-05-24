@@ -121,7 +121,7 @@ export default function Feedback() {
   }
 
   return (
-    <div className="container max-w-2xl mx-auto px-3 sm:px-4 py-5 sm:py-6 space-y-5 sm:space-y-6">
+    <div className="container max-w-2xl lg:max-w-3xl mx-auto px-3 sm:px-4 py-5 sm:py-6 lg:py-10 space-y-5 sm:space-y-6">
       {/* Header */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
