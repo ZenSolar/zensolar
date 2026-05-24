@@ -52,6 +52,8 @@ function getStepNumber(step: OnboardingStep): number {
       return 2;
     case 'wallet-success':
       return 2; // Still step 2 (completing wallet)
+    case 'ai-concierge':
+      return 3;
     case 'energy-connect':
       return 3;
     case 'device-selection':
