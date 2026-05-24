@@ -52,51 +52,14 @@ export function EnphaseCodeDialog({ open, onOpenChange, onSubmit, authUrl }: Enp
     }
   };
 
-  // Auto-detect clipboard content that looks like an Enphase code
-  const checkClipboard = useCallback(async () => {
-    if (!open || isSubmitting || code.length > 0) return;
-    try {
-      const text = await navigator.clipboard.readText();
-      const trimmed = text?.trim();
-      if (trimmed && trimmed !== lastClipboardContent.current) {
-        lastClipboardContent.current = trimmed;
-        if (ENPHASE_CODE_REGEX.test(trimmed)) {
-          setCode(trimmed);
-          setStep(2);
-          setAutoDetected(true);
-          toast.success('Authorization code detected!', {
-            description: 'Tap "Connect Enphase" to finish.',
-            icon: <Sparkles className="h-4 w-4" />,
-          });
-        }
-      }
-    } catch {
-      // Clipboard access denied — paste manually
-    }
-  }, [open, isSubmitting, code.length]);
+  // NOTE: We intentionally do NOT auto-poll the clipboard.
+  // iOS Safari shows a system "Allow Paste?" prompt on every
+  // navigator.clipboard.readText() call that isn't a direct user gesture.
+  // The explicit Paste button below handles clipboard reads on user tap only.
 
   useEffect(() => {
-    if (open) {
-      const initial = setTimeout(() => checkClipboard(), 500);
-      pollIntervalRef.current = setInterval(checkClipboard, 1500);
-      return () => {
-        clearTimeout(initial);
-        if (pollIntervalRef.current) {
-          clearInterval(pollIntervalRef.current);
-          pollIntervalRef.current = null;
-        }
-      };
-    } else {
-      reset();
-    }
-  }, [open, checkClipboard]);
-
-  useEffect(() => {
-    if (code.length > 0 && pollIntervalRef.current) {
-      clearInterval(pollIntervalRef.current);
-      pollIntervalRef.current = null;
-    }
-  }, [code.length]);
+    if (!open) reset();
+  }, [open]);
 
   const handleOpenEnphase = () => {
     if (!authUrl) {
