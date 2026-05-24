@@ -70,6 +70,7 @@ export default function Onboarding() {
   const [connectingProvider, setConnectingProvider] = useState<EnergyProvider | null>(null);
   const [showDeviceSelection, setShowDeviceSelection] = useState(false);
   const [deviceSelectionProvider, setDeviceSelectionProvider] = useState<'tesla' | 'enphase'>('tesla');
+  const [teslaVehicleForHomeSetup, setTeslaVehicleForHomeSetup] = useState<{ deviceId: string; name?: string } | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   
   // Dialog states for credential-based providers
