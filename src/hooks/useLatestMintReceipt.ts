@@ -33,6 +33,8 @@ const EV_MI_PER_KWH = 3.0;
 export type LiveMintReceipt = {
   id: string;
   tx_hash: string;
+  /** Per-user SHA-256 chain hash. Used to build the unified public verify URL. */
+  chain_hash: string | null;
   block_number: string | null;
   minted_at: string;
   action: string;
