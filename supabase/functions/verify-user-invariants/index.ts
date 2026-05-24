@@ -104,6 +104,7 @@ Deno.serve(async (req) => {
       collusion_criticals: collusionCriticals?.length ?? 0,
       chain_tampers: chainTampers,
       anchor_freshness_alerts: anchorFreshnessAlerts,
+      cross_source_dups: crossSourceDups,
       started_at: startedAt,
     }));
 
@@ -118,6 +119,7 @@ Deno.serve(async (req) => {
         collusion_criticals: collusionCriticals ?? [],
         chain_tampers: chainTampers,
         anchor_freshness_alerts: anchorFreshnessAlerts,
+        cross_source_dups: crossSourceDups,
         started_at: startedAt,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
