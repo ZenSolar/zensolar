@@ -125,9 +125,14 @@ const PILLARS: Pillar[] = [
           'Same device emitting events from locations >500 mph apart (Haversine, sorted chronologically) is physically implausible and flagged. Stationary devices and normal EV travel pass cleanly.',
       },
       {
-        label: 'Property-tested in CI (50-trial fuzz)',
+        label: 'HMAC-signed origin_proof envelope',
         detail:
-          'src/lib/__tests__/originVerification.test.ts runs golden fixtures + a 50-trial fuzz that proves random claim graphs always surface cross-user device collisions.',
+          'Provider ingests may carry an origin_proof = { provider, key_id, signed_at, payload, signature } envelope. Edge functions verify HMAC-SHA256 against the trusted-key registry in origin_proof_keys, reject expired (>10 min) or replayed signatures, and append-only log every check to origin_proof_verifications. Canonical JSON serialization is byte-identical between src/lib/originProof.ts and supabase/functions/_shared/originProof.ts so a signature minted client-side verifies edge-side without ambiguity.',
+      },
+      {
+        label: 'Property-tested in CI (50-trial fuzz + HMAC round-trip)',
+        detail:
+          'src/lib/__tests__/originVerification.test.ts runs golden fixtures + a 50-trial fuzz that proves random claim graphs always surface cross-user device collisions. originProof.test.ts adds canonicalization, freshness, constant-time comparison, and Web Crypto round-trip coverage.',
       },
     ],
   },

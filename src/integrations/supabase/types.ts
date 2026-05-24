@@ -1349,6 +1349,75 @@ export type Database = {
         }
         Relationships: []
       }
+      origin_proof_keys: {
+        Row: {
+          algorithm: string
+          created_at: string
+          description: string | null
+          id: string
+          key_id: string
+          provider: string
+          revoked_at: string | null
+          secret_hash: string
+        }
+        Insert: {
+          algorithm?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          key_id: string
+          provider: string
+          revoked_at?: string | null
+          secret_hash: string
+        }
+        Update: {
+          algorithm?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          key_id?: string
+          provider?: string
+          revoked_at?: string | null
+          secret_hash?: string
+        }
+        Relationships: []
+      }
+      origin_proof_verifications: {
+        Row: {
+          action: string
+          details: Json
+          id: string
+          key_id: string | null
+          payload_hash: string | null
+          provider: string
+          result: string
+          user_id: string | null
+          verified_at: string
+        }
+        Insert: {
+          action: string
+          details?: Json
+          id?: string
+          key_id?: string | null
+          payload_hash?: string | null
+          provider: string
+          result: string
+          user_id?: string | null
+          verified_at?: string
+        }
+        Update: {
+          action?: string
+          details?: Json
+          id?: string
+          key_id?: string | null
+          payload_hash?: string | null
+          provider?: string
+          result?: string
+          user_id?: string | null
+          verified_at?: string
+        }
+        Relationships: []
+      }
       pending_push_messages: {
         Row: {
           body: string
