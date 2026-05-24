@@ -891,6 +891,20 @@ export default function ProofOfGenesisReceiptPreview() {
             </CardContent>
           </Card>
 
+          {/* Tamper-Evident Proof — promotes the formerly tiny Proof-of-Authenticity
+              corner stamp into a first-class, share-friendly section. Same data &
+              UI used on the public /verify/:poa page, so owner view and public
+              view stay in lock-step. */}
+          {receipt.chain_hash && (
+            <TamperEvidentProofPanel
+              chainHash={receipt.chain_hash}
+              txHashFallback={receipt.tx_hash}
+              variant="compact"
+            />
+          )}
+
+
+
           {/* CO2 storytelling */}
           <Card className="border-secondary/30 bg-secondary/5">
             <CardContent className="p-4 sm:p-5 space-y-2">
