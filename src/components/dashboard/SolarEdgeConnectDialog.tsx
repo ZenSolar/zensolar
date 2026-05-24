@@ -255,20 +255,9 @@ export function SolarEdgeConnectDialog({
                 </Button>
               </div>
             </div>
-            <p className="text-[11px] text-muted-foreground">
-              Get it from{' '}
-              <a
-                href="https://monitoring.solaredge.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary underline inline-flex items-center gap-1"
-              >
-                monitoring.solaredge.com
-                <ExternalLink className="h-3 w-3" />
-              </a>
-              {' '}→ Admin → Site Access → API Access.
-            </p>
           </div>
+
+
 
           {/* Step 2: site discovery / picker */}
           {(discovering || discovered || manualMode) && (
