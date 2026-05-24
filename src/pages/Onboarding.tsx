@@ -34,6 +34,7 @@ type OnboardingStep =
   | 'external-wallet' 
   | 'wallet-success'
   | 'energy-connect'
+  | 'home-charging-setup'
   | 'energy-success'
   | 'device-selection';
 
