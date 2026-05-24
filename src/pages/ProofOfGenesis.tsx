@@ -261,6 +261,11 @@ const PILLARS: Pillar[] = [
           'The Proof-of-Genesis receipt displays "minted from X kWh → Y kWh at timestamp Z" so anyone can verify the delta is real.',
       },
       {
+        label: 'Proof-of-Permanence™ Merkle anchors',
+        detail:
+          'Every 6 hours, anchor-permanence-snapshot computes a SHA-256 binary Merkle root (duplicate-last for odd nodes) over every chain_hash ordered by (user_id, chain_seq) and inserts it into proof_of_permanence_anchors. get_mint_receipt returns the covering anchor (oldest snapshot ≥ receipt.created_at) so any auditor can verify a receipt against a fixed, immutable root. Phase 2 publishes each root on Base L2 via DeviceWatermarkRegistry; the on-chain tx hash slots into the same row.',
+      },
+      {
         label: 'Reconciliation drift telemetry',
         detail:
           'kpi_reconciliation_log captures any drift between headline and receipts across the user base. We see and fix data issues before users do.',
