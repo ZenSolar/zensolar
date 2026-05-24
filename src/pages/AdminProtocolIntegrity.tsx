@@ -18,7 +18,7 @@ type DriftRow = {
   diff: number | null;
   diff_pct: number | null;
   passed: boolean;
-  created_at: string;
+  detected_at: string;
 };
 
 type InvariantRow = {
@@ -30,7 +30,7 @@ type InvariantRow = {
   actual: number | null;
   diff_pct: number | null;
   details: Record<string, unknown> | null;
-  created_at: string;
+  detected_at: string;
 };
 
 type CollusionRow = {
