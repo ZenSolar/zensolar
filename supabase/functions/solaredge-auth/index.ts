@@ -40,6 +40,38 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { action, apiKey, siteId } = body;
 
+    // NEW: discover sites by API key alone — eliminates the Site ID field
+    if (action === "list-sites") {
+      if (!apiKey) {
+        return new Response(JSON.stringify({ error: "API key is required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const listUrl = `${SOLAREDGE_API_BASE}/sites/list?api_key=${encodeURIComponent(apiKey)}`;
+      const listRes = await fetch(listUrl);
+      if (!listRes.ok) {
+        const txt = await listRes.text();
+        console.error("SolarEdge list-sites failed:", listRes.status, txt);
+        return new Response(JSON.stringify({
+          error: listRes.status === 403
+            ? "Invalid API key. Double-check the key from your SolarEdge portal."
+            : "Could not fetch sites from SolarEdge.",
+        }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      const listJson = await listRes.json();
+      const sites = (listJson?.sites?.site ?? []).map((s: any) => ({
+        id: String(s.id),
+        name: s.name,
+        status: s.status,
+        peakPower: s.peakPower,
+      }));
+      return new Response(JSON.stringify({ sites }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (action === "validate-and-store") {
       if (!apiKey || !siteId) {
         return new Response(JSON.stringify({ error: "API key and Site ID are required" }), {
