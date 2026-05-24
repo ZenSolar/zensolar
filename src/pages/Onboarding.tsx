@@ -6,6 +6,7 @@ import { ExternalWalletScreen } from "@/components/onboarding/ExternalWalletScre
 import { OnboardingSuccessScreen } from "@/components/onboarding/OnboardingSuccessScreen";
 import { EnergyConnectionScreen, EnergyProvider } from "@/components/onboarding/EnergyConnectionScreen";
 import { EnergySuccessScreen } from "@/components/onboarding/EnergySuccessScreen";
+import { HomeChargingSetupScreen } from "@/components/onboarding/HomeChargingSetupScreen";
 import { OnboardingProgress } from "@/components/onboarding/OnboardingProgress";
 import { OnboardingTransition } from "@/components/onboarding/OnboardingTransition";
 import { EnphaseCodeDialog } from "@/components/dashboard/EnphaseCodeDialog";
@@ -33,6 +34,7 @@ type OnboardingStep =
   | 'external-wallet' 
   | 'wallet-success'
   | 'energy-connect'
+  | 'home-charging-setup'
   | 'energy-success'
   | 'device-selection';
 
@@ -68,6 +70,7 @@ export default function Onboarding() {
   const [connectingProvider, setConnectingProvider] = useState<EnergyProvider | null>(null);
   const [showDeviceSelection, setShowDeviceSelection] = useState(false);
   const [deviceSelectionProvider, setDeviceSelectionProvider] = useState<'tesla' | 'enphase'>('tesla');
+  const [teslaVehicleForHomeSetup, setTeslaVehicleForHomeSetup] = useState<{ deviceId: string; name?: string } | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   
   // Dialog states for credential-based providers
@@ -517,6 +520,38 @@ export default function Onboarding() {
       }
     })();
     
+    // For Tesla connections, route through Home Charging Setup before energy-success.
+    // Fetch the user's most recent vehicle row so the setup screen knows which device to write to.
+    if (provider === 'tesla') {
+      (async () => {
+        try {
+          const { data: { user: currentUser } } = await supabase.auth.getUser();
+          if (!currentUser) {
+            setStep('energy-success');
+            return;
+          }
+          const { data: vehicles } = await supabase
+            .from('connected_devices')
+            .select('device_id, device_name')
+            .eq('user_id', currentUser.id)
+            .eq('provider', 'tesla')
+            .in('device_type', ['vehicle', 'ev', 'tesla_vehicle'])
+            .order('claimed_at', { ascending: false })
+            .limit(1);
+          const veh = vehicles?.[0];
+          if (veh) {
+            setTeslaVehicleForHomeSetup({ deviceId: veh.device_id, name: veh.device_name ?? undefined });
+            setStep('home-charging-setup');
+            return;
+          }
+        } catch (err) {
+          console.warn('[Onboarding] Failed to load Tesla vehicle for home setup:', err);
+        }
+        setStep('energy-success');
+      })();
+      return;
+    }
+
     // Move to energy success screen
     setStep('energy-success');
   };
@@ -677,6 +712,19 @@ export default function Onboarding() {
           />
         </div>
       )}
+
+      {step === 'home-charging-setup' && teslaVehicleForHomeSetup && (
+        <div className="pt-24">
+          <HomeChargingSetupScreen
+            vehicleDeviceId={teslaVehicleForHomeSetup.deviceId}
+            vehicleName={teslaVehicleForHomeSetup.name}
+            onComplete={() => setStep('energy-success')}
+            onSkip={() => setStep('energy-success')}
+          />
+        </div>
+      )}
+
+
 
       {step === 'energy-success' && (
         <div className="pt-24">
