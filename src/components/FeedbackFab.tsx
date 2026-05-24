@@ -70,7 +70,7 @@ export function FeedbackFab() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.85, y: 16 }}
             transition={{ duration: 0.2 }}
-            className="mb-3 w-72 rounded-xl border border-border/60 bg-card p-4 shadow-xl"
+            className="mb-3 w-72 lg:w-96 rounded-xl border border-border/60 bg-card p-4 lg:p-5 shadow-xl"
           >
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-semibold text-foreground">Send Feedback</p>
