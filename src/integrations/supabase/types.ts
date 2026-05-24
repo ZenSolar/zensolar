@@ -316,6 +316,10 @@ export type Database = {
           device_metadata: Json | null
           device_name: string | null
           device_type: string
+          home_charger_brand: string | null
+          home_charging_source: string | null
+          home_location: Json | null
+          home_setup_type: string | null
           id: string
           last_minted_at: string | null
           lifetime_totals: Json | null
@@ -331,6 +335,10 @@ export type Database = {
           device_metadata?: Json | null
           device_name?: string | null
           device_type: string
+          home_charger_brand?: string | null
+          home_charging_source?: string | null
+          home_location?: Json | null
+          home_setup_type?: string | null
           id?: string
           last_minted_at?: string | null
           lifetime_totals?: Json | null
@@ -346,6 +354,10 @@ export type Database = {
           device_metadata?: Json | null
           device_name?: string | null
           device_type?: string
+          home_charger_brand?: string | null
+          home_charging_source?: string | null
+          home_location?: Json | null
+          home_setup_type?: string | null
           id?: string
           last_minted_at?: string | null
           lifetime_totals?: Json | null
