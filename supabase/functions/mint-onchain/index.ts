@@ -58,6 +58,48 @@ function canHaveSolarData(deviceType: string): boolean {
 
 // ============================================
 
+// ============================================
+// Mint-on-Proof reconciliation (Pillar 3, M4/M6/M7)
+// Mirrors src/lib/mintReconciliation.ts. Keep in sync.
+// ============================================
+const RECONCILIATION_TOLERANCE_PCT = 1.0;
+const RECONCILIATION_ABSOLUTE_FLOOR = 0.5;
+const IDEMPOTENCY_WINDOW_MS = 5 * 60 * 1000; // 5-minute bucket
+
+function reconciliationDiffPct(a: number, b: number): number {
+  const denom = Math.max(Math.abs(a), Math.abs(b), RECONCILIATION_ABSOLUTE_FLOOR);
+  return Math.round(((a - b) / denom) * 10000) / 100;
+}
+
+function verifyThreeWay(category: string, headline: number, rows: number, onChain: number) {
+  const rowsDiff = reconciliationDiffPct(headline, rows);
+  const onChainDiff = reconciliationDiffPct(onChain, headline);
+  const violations: string[] = [];
+  if (Math.abs(rowsDiff) > RECONCILIATION_TOLERANCE_PCT) {
+    violations.push(`${category}: headline ${headline} vs rows ${rows} (${rowsDiff}%)`);
+  }
+  if (Math.abs(onChainDiff) > RECONCILIATION_TOLERANCE_PCT) {
+    violations.push(`${category}: on-chain ${onChain} vs headline ${headline} (${onChainDiff}%)`);
+  }
+  return {
+    ok: violations.length === 0,
+    diffPct: Math.max(Math.abs(rowsDiff), Math.abs(onChainDiff)),
+    rowsDiffPct: rowsDiff,
+    onChainDiffPct: onChainDiff,
+    violations,
+  };
+}
+
+function currentIdempotencyWindow(now = Date.now()) {
+  const start = Math.floor(now / IDEMPOTENCY_WINDOW_MS) * IDEMPOTENCY_WINDOW_MS;
+  return {
+    windowStart: new Date(start).toISOString(),
+    windowEnd: new Date(start + IDEMPOTENCY_WINDOW_MS).toISOString(),
+  };
+}
+
+// ============================================
+
 // Contract addresses (Base Sepolia - deployed 2026-01-16 with setMinter + transferOwnership)
 const ZSOLAR_TOKEN_ADDRESS = "0xAb13cc345C8a3e88B876512A3fdD93cE334B20FE";
 const ZSOLAR_NFT_ADDRESS = "0xD1d509a48CEbB8f9f9aAA462979D7977c30424E3";
