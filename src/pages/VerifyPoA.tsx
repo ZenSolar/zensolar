@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Shield, Anchor, Hash, Fingerprint, Sparkles, ExternalLink, CheckCircle2, XCircle } from 'lucide-react';
+import { ArrowLeft, Shield, Anchor, Hash, Fingerprint, ExternalLink, CheckCircle2, XCircle, GitBranch } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
