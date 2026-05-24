@@ -229,9 +229,9 @@ const PILLARS: Pillar[] = [
           'UNIQUE(provider, device_id) on connected_devices. A single Tesla VIN, Enphase site, or Wallbox serial can only be claimed by one wallet at a time. Handoffs zero baselines via trigger (Pillar 2 · O4).',
       },
       {
-        label: 'Cross-source overlap detection',
+        label: 'Cross-source duplicate detector (DB-enforced + auto mint-block)',
         detail:
-          'verifyNoCrossSourceOverlap() flags the case the DB can\'t catch: the same plug-in reported by two different hardware paths (e.g. Tesla onboard logger + Wallbox meter) within 15 min and 10% kWh tolerance. Dedicated meter wins; vehicle-reported row is dropped.',
+          'detect_cross_source_duplicates() runs in the nightly sweep and scans the last 24h of home_charging_sessions × charging_sessions × energy_production for same-user, different-provider rows that overlap within 15 min and ±10% kWh. Each hit writes a critical cross_source_dup row to user_invariant_violations with both source row ids and provider names — which immediately blocks the user from minting via the cross-pillar Mint Gate (Pillar 3) until staff resolves it. Client-side verifyNoCrossSourceOverlap() catches the same case at write time so the row never lands; the server sweep is the belt-and-suspenders backstop.',
       },
       {
         label: 'Bidirectional EV split',
