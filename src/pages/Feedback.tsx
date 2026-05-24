@@ -238,7 +238,8 @@ export default function Feedback() {
                     Submit Feedback
                   </>
                 )}
-              </Button>
+                </Button>
+              </div>
             </form>
           </CardContent>
         </Card>
