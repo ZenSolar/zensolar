@@ -466,7 +466,19 @@ async function fetchHomeChargerRows(
       };
     });
 
-  const all = [...homeRows, ...billRows];
+  // Dedupe: home_charging_sessions and charging_sessions(type='home') often
+  // record the SAME plug-in event from two ingest paths (Tesla SDK session +
+  // billing/charge_monitor mirror). Prefer the richer homeRows row and drop
+  // any billRows that match on device + day + kWh (±0.2 kWh tolerance).
+  const dedupedBill = billRows.filter((b) => {
+    const bDay = b.recordedAt.slice(0, 10);
+    return !homeRows.some((h) =>
+      (h.deviceId ?? '') === (b.deviceId ?? '')
+      && h.recordedAt.slice(0, 10) === bDay
+      && Math.abs(h.amount - b.amount) <= 0.2
+    );
+  });
+  const all = [...homeRows, ...dedupedBill];
   all.sort((a, b) => (a.recordedAt < b.recordedAt ? 1 : -1));
 
   if (!pendingTarget || pendingTarget <= 0) {
