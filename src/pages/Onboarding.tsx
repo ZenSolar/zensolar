@@ -781,7 +781,6 @@ export default function Onboarding() {
           <AIConciergeScreen
             onPlanConfirmed={handleConciergePlanConfirmed}
             onSkipToManual={handleConciergeSkip}
-            onBack={() => setStep('wallet-choice')}
           />
         </div>
       )}
@@ -793,7 +792,6 @@ export default function Onboarding() {
           <EnergyConnectionScreen
             onConnect={handleEnergyConnect}
             onSkip={handleEnergySkip}
-            onBack={handleEnergyBack}
             onCancelConnecting={handleCancelConnecting}
             onAskDeason={() => transitionToStep('ai-concierge')}
             isConnecting={connectingProvider}
