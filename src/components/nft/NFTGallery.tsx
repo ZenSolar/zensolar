@@ -354,6 +354,9 @@ export function NFTGallery({ earnedMilestones, allMilestones, onSelectNFT }: NFT
                       <img
                         src={artwork}
                         alt={nft.name}
+                        loading="lazy"
+                        decoding="async"
+                        sizes="(min-width: 1280px) 280px, (min-width: 1024px) 240px, (min-width: 640px) 33vw, 50vw"
                         className={`
                           w-full h-full object-cover
                           transition-transform duration-500 group-hover:scale-110
