@@ -14,6 +14,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { parseMintError } from '@/lib/mintErrors';
 import { supabase } from '@/integrations/supabase/client';
 import { useSafeAccount } from '@/hooks/useSafeWagmi';
 import { motion, AnimatePresence } from 'framer-motion';
