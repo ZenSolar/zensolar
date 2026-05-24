@@ -107,7 +107,7 @@ export default function AdminMintRequests() {
   const openCount = requests.filter((r) => !r.resolved).length;
 
   return (
-    <div className="container max-w-4xl py-6 space-y-6">
+    <div className="container max-w-4xl lg:max-w-6xl py-6 lg:py-8 space-y-6">
       <Helmet>
         <title>Mint Access Requests | Admin</title>
         <meta name="description" content="Manage incoming mint access requests from VIP demo viewers." />
