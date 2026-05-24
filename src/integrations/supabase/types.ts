@@ -989,6 +989,57 @@ export type Database = {
         }
         Relationships: []
       }
+      kpi_reconciliation_log: {
+        Row: {
+          computed_value: number
+          details: Json
+          detected_at: string
+          diff: number
+          diff_pct: number
+          headline_value: number
+          id: string
+          kpi_key: string
+          passed: boolean
+          scope: string
+          severity: string
+          source_breakdown: Json
+          tolerance_pct: number
+          user_id: string | null
+        }
+        Insert: {
+          computed_value: number
+          details?: Json
+          detected_at?: string
+          diff: number
+          diff_pct: number
+          headline_value: number
+          id?: string
+          kpi_key: string
+          passed?: boolean
+          scope?: string
+          severity?: string
+          source_breakdown?: Json
+          tolerance_pct?: number
+          user_id?: string | null
+        }
+        Update: {
+          computed_value?: number
+          details?: Json
+          detected_at?: string
+          diff?: number
+          diff_pct?: number
+          headline_value?: number
+          id?: string
+          kpi_key?: string
+          passed?: boolean
+          scope?: string
+          severity?: string
+          source_breakdown?: Json
+          tolerance_pct?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       kpi_tap_events: {
         Row: {
           category: string
@@ -2361,6 +2412,7 @@ export type Database = {
         }[]
       }
       verify_demo_code: { Args: { _code: string }; Returns: boolean }
+      verify_kpi_reconciliation: { Args: never; Returns: number }
       verify_user_sum_invariant: { Args: never; Returns: number }
     }
     Enums: {
