@@ -36,6 +36,7 @@ import { PathNormalizer } from "./components/PathNormalizer";
 import { AppHistoryTracker } from "./components/AppHistoryTracker";
 import { ScrollManager } from "./components/ScrollManager";
 import { SwipeBackHandler } from "./components/SwipeBackHandler";
+import { PageCleanupFlagger } from "./components/admin/PageCleanupFlagger";
 import { InstallNudge } from "./components/install/InstallNudge";
 import Home from "./pages/Home";
 
