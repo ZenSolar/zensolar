@@ -58,6 +58,48 @@ function canHaveSolarData(deviceType: string): boolean {
 
 // ============================================
 
+// ============================================
+// Mint-on-Proof reconciliation (Pillar 3, M4/M6/M7)
+// Mirrors src/lib/mintReconciliation.ts. Keep in sync.
+// ============================================
+const RECONCILIATION_TOLERANCE_PCT = 1.0;
+const RECONCILIATION_ABSOLUTE_FLOOR = 0.5;
+const IDEMPOTENCY_WINDOW_MS = 5 * 60 * 1000; // 5-minute bucket
+
+function reconciliationDiffPct(a: number, b: number): number {
+  const denom = Math.max(Math.abs(a), Math.abs(b), RECONCILIATION_ABSOLUTE_FLOOR);
+  return Math.round(((a - b) / denom) * 10000) / 100;
+}
+
+function verifyThreeWay(category: string, headline: number, rows: number, onChain: number) {
+  const rowsDiff = reconciliationDiffPct(headline, rows);
+  const onChainDiff = reconciliationDiffPct(onChain, headline);
+  const violations: string[] = [];
+  if (Math.abs(rowsDiff) > RECONCILIATION_TOLERANCE_PCT) {
+    violations.push(`${category}: headline ${headline} vs rows ${rows} (${rowsDiff}%)`);
+  }
+  if (Math.abs(onChainDiff) > RECONCILIATION_TOLERANCE_PCT) {
+    violations.push(`${category}: on-chain ${onChain} vs headline ${headline} (${onChainDiff}%)`);
+  }
+  return {
+    ok: violations.length === 0,
+    diffPct: Math.max(Math.abs(rowsDiff), Math.abs(onChainDiff)),
+    rowsDiffPct: rowsDiff,
+    onChainDiffPct: onChainDiff,
+    violations,
+  };
+}
+
+function currentIdempotencyWindow(now = Date.now()) {
+  const start = Math.floor(now / IDEMPOTENCY_WINDOW_MS) * IDEMPOTENCY_WINDOW_MS;
+  return {
+    windowStart: new Date(start).toISOString(),
+    windowEnd: new Date(start + IDEMPOTENCY_WINDOW_MS).toISOString(),
+  };
+}
+
+// ============================================
+
 // Contract addresses (Base Sepolia - deployed 2026-01-16 with setMinter + transferOwnership)
 const ZSOLAR_TOKEN_ADDRESS = "0xAb13cc345C8a3e88B876512A3fdD93cE334B20FE";
 const ZSOLAR_NFT_ADDRESS = "0xD1d509a48CEbB8f9f9aAA462979D7977c30424E3";
@@ -703,11 +745,55 @@ Deno.serve(async (req) => {
         });
       }
 
+      // M2 — Idempotency claim: prevents double-mints within the same 5-min window
+      const { windowStart, windowEnd } = currentIdempotencyWindow();
+      const { error: idemError } = await supabaseClient
+        .from("mint_idempotency_keys")
+        .insert({
+          user_id: user.id,
+          action: `mint-rewards:${mintCategory}${deviceId ? `:${deviceId}` : ''}`,
+          window_start: windowStart,
+          window_end: windowEnd,
+        });
+      if (idemError && (idemError.code === '23505' || /duplicate key/i.test(idemError.message))) {
+        console.warn("Idempotency collision — duplicate mint blocked:", idemError.message);
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'idempotency_collision',
+          message: 'A mint for this category was already submitted in the current 5-minute window.',
+        }), {
+          status: 409,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (idemError) {
+        console.error("Failed to claim idempotency key:", idemError);
+        // Don't block mint on infra error, but log loudly
+      }
+
+      // Snapshot on-chain stats BEFORE mint so we can compute on-chain delta after
+      let onChainStatsBefore: { solar: bigint; evMiles: bigint; battery: bigint; charging: bigint } | null = null;
+      try {
+        const statsBefore = await publicClient.readContract({
+          address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
+          abi: CONTROLLER_ABI,
+          functionName: "getUserStats",
+          args: [walletAddress as `0x${string}`],
+        }) as readonly [bigint, bigint, bigint, bigint, boolean];
+        onChainStatsBefore = {
+          solar: statsBefore[0],
+          evMiles: statsBefore[1],
+          battery: statsBefore[2],
+          charging: statsBefore[3],
+        };
+      } catch (e) {
+        console.warn("Could not snapshot on-chain stats before mint:", e);
+      }
+
       // Get NFTs before minting to compare after
       const nftsBefore = await safeGetOwnedTokens(publicClient, walletAddress);
       const nftsBeforeSet = new Set(nftsBefore.map(id => Number(id)));
 
-      console.log(`Minting rewards: solar=${solar}, evMiles=${evMiles}, battery=${battery}, charging=${charging}`);
 
       // Simulate the transaction first to catch errors before sending
       try {
@@ -775,6 +861,86 @@ Deno.serve(async (req) => {
           "confirmed",
           isBetaMint
         );
+
+        // Update idempotency row with actual tx hash for forensic linking
+        try {
+          await supabaseClient
+            .from("mint_idempotency_keys")
+            .update({ mint_tx_hash: hash })
+            .eq("user_id", user.id)
+            .eq("window_start", windowStart)
+            .eq("action", `mint-rewards:${mintCategory}${deviceId ? `:${deviceId}` : ''}`);
+        } catch (e) {
+          console.warn("Failed to link idempotency key to tx hash:", e);
+        }
+
+        // M4/M6 — Three-way reconciliation + audit log
+        try {
+          const statsAfter = await publicClient.readContract({
+            address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
+            abi: CONTROLLER_ABI,
+            functionName: "getUserStats",
+            args: [walletAddress as `0x${string}`],
+          }) as readonly [bigint, bigint, bigint, bigint, boolean];
+
+          const onChainDelta = onChainStatsBefore ? {
+            solar: Number(statsAfter[0] - onChainStatsBefore.solar),
+            ev_miles: Number(statsAfter[1] - onChainStatsBefore.evMiles),
+            battery: Number(statsAfter[2] - onChainStatsBefore.battery),
+            charging: Number(statsAfter[3] - onChainStatsBefore.charging),
+          } : {
+            solar: Number(statsAfter[0]),
+            ev_miles: Number(statsAfter[1]),
+            battery: Number(statsAfter[2]),
+            charging: Number(statsAfter[3]),
+          };
+
+          const headlineByCat: Record<string, number> = {
+            solar: Number(solar),
+            ev_miles: Number(evMiles),
+            battery: Number(battery),
+            charging: Number(charging),
+          };
+          // In the edge function, headline == rows (single source: connected_devices).
+          // Phase 1.5 will fan out headline from KPI cache vs rows from devices.
+          const sourceBreakdown = {
+            solar_kwh: Number(solar),
+            ev_miles: Number(evMiles),
+            battery_kwh: Number(battery),
+            charging_kwh: Number(charging),
+            device_ids: deviceIdsToUpdate,
+          };
+
+          const logRows: Array<Record<string, unknown>> = [];
+          for (const [cat, headline] of Object.entries(headlineByCat)) {
+            if (headline === 0 && onChainDelta[cat as keyof typeof onChainDelta] === 0) continue;
+            const result = verifyThreeWay(cat, headline, headline, onChainDelta[cat as keyof typeof onChainDelta]);
+            if (!result.ok) {
+              console.warn(`[reconciliation] ${cat} mismatch:`, result.violations.join('; '));
+            }
+            logRows.push({
+              user_id: user.id,
+              mint_tx_hash: hash,
+              category: cat,
+              headline_amount: headline,
+              rows_amount: headline,
+              on_chain_amount: onChainDelta[cat as keyof typeof onChainDelta],
+              diff_pct: result.diffPct,
+              tolerance_pct: RECONCILIATION_TOLERANCE_PCT,
+              source_breakdown: sourceBreakdown,
+              passed: result.ok,
+            });
+          }
+          if (logRows.length > 0) {
+            const { error: logError } = await supabaseClient
+              .from("mint_reconciliation_log")
+              .insert(logRows);
+            if (logError) console.error("Failed to write mint_reconciliation_log:", logError);
+            else console.log(`Wrote ${logRows.length} reconciliation log rows for tx ${hash}`);
+          }
+        } catch (reconcileError) {
+          console.error("Post-mint reconciliation failed (non-fatal):", reconcileError);
+        }
 
         // CRITICAL: Update baselines ONLY for devices that were minted (in deviceIdsToUpdate)
         // This prevents double-minting by setting baseline = current lifetime totals
