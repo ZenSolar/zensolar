@@ -4,10 +4,18 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, ExternalLink, Copy, CheckCircle2, Circle, Clipboard, Sparkles } from 'lucide-react';
+import {
+  Loader2,
+  ExternalLink,
+  CheckCircle2,
+  Clipboard,
+  Sparkles,
+  ArrowRight,
+} from 'lucide-react';
 import { toast } from 'sonner';
 
 interface EnphaseCodeDialogProps {
@@ -17,92 +25,71 @@ interface EnphaseCodeDialogProps {
   authUrl?: string | null;
 }
 
-const steps = [
-  { id: 1, text: 'Log in to your Enphase account' },
-  { id: 2, text: 'Authorize ZenSolar to access your data' },
-  { id: 3, text: 'Copy the authorization code shown' },
-  { id: 4, text: 'Code detected! Click Connect' },
-];
-
-// Regex to match Enphase authorization codes (typically 6-8 alphanumeric characters)
+// Enphase authorization codes are 5-10 alphanumeric chars
 const ENPHASE_CODE_REGEX = /^[A-Za-z0-9]{5,10}$/;
 
 export function EnphaseCodeDialog({ open, onOpenChange, onSubmit, authUrl }: EnphaseCodeDialogProps) {
   const [code, setCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1);
+  // Steps: 1 = open Enphase, 2 = paste code, 3 = done
+  const [step, setStep] = useState<1 | 2>(1);
+  const [openedAuth, setOpenedAuth] = useState(false);
   const [autoDetected, setAutoDetected] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const lastClipboardContent = useRef<string>('');
-  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const reset = () => {
+    setCode('');
+    setStep(1);
+    setOpenedAuth(false);
+    setAutoDetected(false);
+    lastClipboardContent.current = '';
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+  };
 
   // Auto-detect clipboard content that looks like an Enphase code
   const checkClipboard = useCallback(async () => {
     if (!open || isSubmitting || code.length > 0) return;
-    
     try {
-      // Only works if user has granted clipboard permission
       const text = await navigator.clipboard.readText();
       const trimmed = text?.trim();
-      
-      // Avoid re-processing the same content
       if (trimmed && trimmed !== lastClipboardContent.current) {
         lastClipboardContent.current = trimmed;
-        
-        // Check if it looks like an Enphase auth code
         if (ENPHASE_CODE_REGEX.test(trimmed)) {
           setCode(trimmed);
-          setCurrentStep(4);
+          setStep(2);
           setAutoDetected(true);
           toast.success('Authorization code detected!', {
-            description: 'Click "Connect Account" to complete the connection.',
+            description: 'Tap "Connect Enphase" to finish.',
             icon: <Sparkles className="h-4 w-4" />,
           });
         }
       }
     } catch {
-      // Clipboard access denied - that's fine, user can paste manually
+      // Clipboard access denied — paste manually
     }
   }, [open, isSubmitting, code.length]);
 
-  // Start polling clipboard when dialog opens
   useEffect(() => {
     if (open) {
-      setCurrentStep(1);
-      setAutoDetected(false);
-      lastClipboardContent.current = '';
-      
-      // Initial clipboard check after a short delay
-      const initialCheck = setTimeout(() => checkClipboard(), 500);
-      
-      // Poll clipboard every 1.5 seconds
+      const initial = setTimeout(() => checkClipboard(), 500);
       pollIntervalRef.current = setInterval(checkClipboard, 1500);
-      
-      // Progress through steps automatically
-      const timer1 = setTimeout(() => setCurrentStep(2), 2000);
-      const timer2 = setTimeout(() => setCurrentStep(3), 5000);
-      
       return () => {
-        clearTimeout(initialCheck);
-        clearTimeout(timer1);
-        clearTimeout(timer2);
+        clearTimeout(initial);
         if (pollIntervalRef.current) {
           clearInterval(pollIntervalRef.current);
           pollIntervalRef.current = null;
         }
       };
     } else {
-      setCode('');
-      setCurrentStep(1);
-      setAutoDetected(false);
-      if (pollIntervalRef.current) {
-        clearInterval(pollIntervalRef.current);
-        pollIntervalRef.current = null;
-      }
+      reset();
     }
   }, [open, checkClipboard]);
 
-  // Stop polling once code is entered
   useEffect(() => {
     if (code.length > 0 && pollIntervalRef.current) {
       clearInterval(pollIntervalRef.current);
@@ -110,32 +97,16 @@ export function EnphaseCodeDialog({ open, onOpenChange, onSubmit, authUrl }: Enp
     }
   }, [code.length]);
 
-  // Auto-advance to step 4 when code is pasted
-  useEffect(() => {
-    if (code.length > 0) {
-      setCurrentStep(4);
+  const handleOpenEnphase = () => {
+    if (!authUrl) {
+      toast.error('Authorization link not ready — close and tap Enphase again.');
+      return;
     }
-  }, [code]);
-
-  // Focus input when reaching step 3 or 4
-  useEffect(() => {
-    if (currentStep >= 3 && inputRef.current && !autoDetected) {
-      inputRef.current.focus();
-    }
-  }, [currentStep, autoDetected]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!code.trim()) return;
-    
-    setIsSubmitting(true);
-    const success = await onSubmit(code.trim());
-    setIsSubmitting(false);
-    
-    if (success) {
-      setCode('');
-      onOpenChange(false);
-    }
+    // Direct user gesture → bypasses popup blockers
+    window.open(authUrl, '_blank', 'noopener,noreferrer');
+    setOpenedAuth(true);
+    setStep(2);
+    setTimeout(() => inputRef.current?.focus(), 300);
   };
 
   const handlePaste = async () => {
@@ -143,18 +114,28 @@ export function EnphaseCodeDialog({ open, onOpenChange, onSubmit, authUrl }: Enp
       const text = await navigator.clipboard.readText();
       if (text) {
         setCode(text.trim());
-        setCurrentStep(4);
         setAutoDetected(false);
       }
     } catch {
-      // Clipboard access denied, user can paste manually
       inputRef.current?.focus();
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!code.trim()) return;
+    setIsSubmitting(true);
+    const success = await onSubmit(code.trim());
+    setIsSubmitting(false);
+    if (success) {
+      setCode('');
+      onOpenChange(false);
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg lg:max-w-3xl">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
@@ -162,148 +143,154 @@ export function EnphaseCodeDialog({ open, onOpenChange, onSubmit, authUrl }: Enp
             </span>
             Connect Enphase
           </DialogTitle>
+          <DialogDescription>
+            Two quick steps — we'll guide you through it.
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
-          {/* Primary CTA — user-gesture window.open to bypass popup blockers */}
-          {authUrl && currentStep < 4 && !autoDetected && (
-            <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-3">
-              <div>
-                <p className="text-sm font-semibold text-foreground">Step 1 — Open Enphase</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Tap below to open the Enphase authorization page in a new tab. After you approve,
-                  Enphase will show a code — copy it and come back here.
-                </p>
-              </div>
-              <Button
-                type="button"
-                className="w-full h-11"
-                onClick={() => {
-                  // Direct user gesture → popup blockers will allow this
-                  window.open(authUrl, '_blank', 'noopener,noreferrer');
-                  setCurrentStep(2);
-                }}
-              >
-                <ExternalLink className="h-4 w-4 mr-2" />
-                Open Enphase Authorization
-              </Button>
-            </div>
-          )}
-
-
-          {/* Auto-detection notice */}
-          {autoDetected && (
-            <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 flex items-center gap-3">
-              <Sparkles className="h-5 w-5 text-primary shrink-0" />
-              <div>
-                <p className="text-sm font-medium text-primary">Code auto-detected!</p>
-                <p className="text-xs text-muted-foreground">We found your authorization code in your clipboard.</p>
-              </div>
-            </div>
-          )}
-
-          {/* Progress Steps */}
-          <div className="space-y-3">
-            {steps.map((step) => (
+        <div className="space-y-4 py-2">
+          {/* STEP 1 — Open Enphase */}
+          <div
+            className={`rounded-xl border p-4 transition-all ${
+              step === 1
+                ? 'border-primary/40 bg-primary/5 shadow-[0_0_20px_hsl(var(--primary)/0.12)]'
+                : 'border-border bg-card/40 opacity-80'
+            }`}
+          >
+            <div className="flex items-start gap-3">
               <div
-                key={step.id}
-                className={`flex items-center gap-3 transition-all duration-300 ${
-                  step.id < currentStep
-                    ? 'text-primary'
-                    : step.id === currentStep
-                    ? 'text-foreground'
-                    : 'text-muted-foreground/50'
+                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                  openedAuth
+                    ? 'bg-primary text-primary-foreground'
+                    : step === 1
+                    ? 'bg-primary/20 text-primary ring-2 ring-primary/40'
+                    : 'bg-muted text-muted-foreground'
                 }`}
               >
-                {step.id < currentStep ? (
-                  <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
-                ) : step.id === currentStep ? (
-                  <div className="relative">
-                    <Circle className="h-5 w-5 shrink-0" />
-                    <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold">
-                      {step.id}
-                    </span>
-                  </div>
-                ) : (
-                  <Circle className="h-5 w-5 shrink-0 opacity-40" />
-                )}
-                <span className={`text-sm ${step.id === currentStep ? 'font-medium' : ''}`}>
-                  {step.id === 4 && autoDetected ? 'Code detected! Click Connect' : step.text}
-                </span>
+                {openedAuth ? <CheckCircle2 className="h-4 w-4" /> : '1'}
               </div>
-            ))}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground">Open Enphase & approve access</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  We'll send you straight to Enphase. Log in, tap <strong>Allow</strong>, and Enphase will
+                  show you a short code to copy.
+                </p>
+                <Button
+                  type="button"
+                  size="lg"
+                  className="w-full mt-3 h-12 text-sm font-semibold"
+                  onClick={handleOpenEnphase}
+                  disabled={!authUrl || isSubmitting}
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  {openedAuth ? 'Re-open Enphase' : 'Open Enphase Login'}
+                </Button>
+                {openedAuth && (
+                  <p className="text-[11px] text-primary mt-2 flex items-center gap-1">
+                    <ArrowRight className="h-3 w-3" />
+                    Enphase opened in a new tab. Come back here after copying the code.
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
 
-          {/* Code Input Section */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="relative">
-              <Input
-                ref={inputRef}
-                placeholder="Paste authorization code here..."
-                value={code}
-                onChange={(e) => {
-                  setCode(e.target.value);
-                  setAutoDetected(false);
-                }}
-                disabled={isSubmitting}
-                className={`pr-20 font-mono text-sm h-12 ${autoDetected ? 'border-primary bg-primary/5' : ''}`}
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 px-3 text-xs"
-                onClick={handlePaste}
-                disabled={isSubmitting}
+          {/* STEP 2 — Paste the code */}
+          <div
+            className={`rounded-xl border p-4 transition-all ${
+              step === 2
+                ? 'border-primary/40 bg-primary/5 shadow-[0_0_20px_hsl(var(--primary)/0.12)]'
+                : 'border-border bg-card/40 opacity-60'
+            }`}
+          >
+            <div className="flex items-start gap-3">
+              <div
+                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                  code
+                    ? 'bg-primary text-primary-foreground'
+                    : step === 2
+                    ? 'bg-primary/20 text-primary ring-2 ring-primary/40'
+                    : 'bg-muted text-muted-foreground'
+                }`}
               >
-                <Clipboard className="h-3 w-3 mr-1" />
-                Paste
-              </Button>
-            </div>
+                {code ? <CheckCircle2 className="h-4 w-4" /> : '2'}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-foreground">Paste the authorization code</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Tap <strong>Paste</strong> below — or just copy it on the Enphase tab and we'll grab it
+                  automatically.
+                </p>
 
-            <div className="flex gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                className="flex-1"
-                onClick={() => onOpenChange(false)}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              <Button 
-                type="submit" 
-                className="flex-1"
-                disabled={!code.trim() || isSubmitting}
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Connecting...
-                  </>
-                ) : (
-                  'Connect Account'
+                {autoDetected && (
+                  <div className="mt-3 flex items-center gap-2 rounded-md bg-primary/10 border border-primary/30 p-2">
+                    <Sparkles className="h-4 w-4 text-primary shrink-0" />
+                    <p className="text-xs font-medium text-primary">Code detected from your clipboard</p>
+                  </div>
                 )}
-              </Button>
-            </div>
-          </form>
 
-          {/* Help Text */}
-          <div className="text-xs text-muted-foreground text-center space-y-1">
-            <p className="flex items-center justify-center gap-1">
-              <Clipboard className="h-3 w-3" />
-              We'll automatically detect when you copy the code
-            </p>
-            <p>
-              The Enphase authorization window should have opened. If not,{' '}
-              <button
-                type="button"
-                className="text-primary underline hover:no-underline"
-                onClick={() => onOpenChange(false)}
-              >
-                try again
-              </button>
-            </p>
+                <form onSubmit={handleSubmit} className="mt-3 space-y-3">
+                  <div className="relative">
+                    <Input
+                      ref={inputRef}
+                      placeholder="e.g., AbCd1234"
+                      value={code}
+                      onChange={(e) => {
+                        setCode(e.target.value);
+                        setAutoDetected(false);
+                      }}
+                      disabled={isSubmitting || step !== 2}
+                      className={`pr-20 font-mono h-12 text-center text-base tracking-wider ${
+                        autoDetected ? 'border-primary bg-primary/5' : ''
+                      }`}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-1 top-1/2 -translate-y-1/2 h-9 px-3 text-xs"
+                      onClick={handlePaste}
+                      disabled={isSubmitting || step !== 2}
+                    >
+                      <Clipboard className="h-3 w-3 mr-1" />
+                      Paste
+                    </Button>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    size="lg"
+                    className="w-full h-12 font-semibold"
+                    disabled={!code.trim() || isSubmitting || step !== 2}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Connecting…
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Connect Enphase
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-center pt-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
+              className="text-muted-foreground"
+            >
+              Cancel
+            </Button>
           </div>
         </div>
       </DialogContent>

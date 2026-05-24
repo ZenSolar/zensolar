@@ -79,6 +79,7 @@ export default function Onboarding() {
   
   // Dialog states for credential-based providers
   const [showEnphaseDialog, setShowEnphaseDialog] = useState(false);
+  const [enphaseAuthUrl, setEnphaseAuthUrl] = useState<string | null>(null);
   const [showSolarEdgeDialog, setShowSolarEdgeDialog] = useState(false);
   const [showWallboxDialog, setShowWallboxDialog] = useState(false);
   
@@ -479,6 +480,7 @@ export default function Onboarding() {
           localStorage.setItem('onboarding_energy_flow', 'true');
           const result = await startEnphaseOAuth();
           if (result?.useManualCode) {
+            setEnphaseAuthUrl(result.authUrl ?? null);
             setShowEnphaseDialog(true);
           }
           break;
@@ -804,6 +806,7 @@ export default function Onboarding() {
       {/* Enphase code dialog */}
       <EnphaseCodeDialog
         open={showEnphaseDialog}
+        authUrl={enphaseAuthUrl}
         onOpenChange={(open) => {
           setShowEnphaseDialog(open);
           if (!open) setConnectingProvider(null);

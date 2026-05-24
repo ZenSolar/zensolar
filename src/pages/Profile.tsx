@@ -105,6 +105,7 @@ export default function Profile() {
   const [solarEdgeDialogOpen, setSolarEdgeDialogOpen] = useState(false);
   const [wallboxDialogOpen, setWallboxDialogOpen] = useState(false);
   const [enphaseDialogOpen, setEnphaseDialogOpen] = useState(false);
+  const [enphaseAuthUrl, setEnphaseAuthUrl] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
   const [disconnectConfirm, setDisconnectConfirm] = useState<'tesla' | 'enphase' | 'solaredge' | 'wallbox' | null>(null);
   const [homeAddress, setHomeAddress] = useState('');
@@ -152,6 +153,7 @@ export default function Profile() {
         case 'enphase':
           const result = await startEnphaseOAuth();
           if (result?.useManualCode) {
+            setEnphaseAuthUrl(result.authUrl ?? null);
             setEnphaseDialogOpen(true);
           }
           break;
@@ -662,6 +664,7 @@ export default function Profile() {
       
       <EnphaseCodeDialog
         open={enphaseDialogOpen}
+        authUrl={enphaseAuthUrl}
         onOpenChange={setEnphaseDialogOpen}
         onSubmit={async (code) => {
           await handleEnphaseCodeSubmit(code);
