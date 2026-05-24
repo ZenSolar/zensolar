@@ -248,8 +248,8 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
               <DrawerTitle className="text-base font-bold text-foreground leading-tight truncate">
                 {label}
               </DrawerTitle>
-              <DrawerDescription className="text-xs text-muted-foreground">
-                Swipe down or tap × to close
+              <DrawerDescription className="sr-only">
+                Activity receipts for {label}
               </DrawerDescription>
             </div>
             <div className="flex items-start gap-2 shrink-0">
