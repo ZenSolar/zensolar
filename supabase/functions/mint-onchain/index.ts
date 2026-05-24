@@ -1078,6 +1078,7 @@ Deno.serve(async (req) => {
         }
       }
 
+      const driftFlagged = mintStatus === "flagged_drift";
       return new Response(JSON.stringify({
         success: receipt.status === "success",
         txHash: hash,
@@ -1086,8 +1087,18 @@ Deno.serve(async (req) => {
         tokensMinted: Number(totalUnits),
         nftsMinted: newNfts,
         nftNames: newNfts.map(id => NFT_NAMES[id] || `Token #${id}`),
-        message: receipt.status === "success" 
-          ? `Minted ~${expectedTokens.toFixed(0)} $ZSOLAR tokens${newNfts.length > 0 ? ` + ${newNfts.length} NFT(s)!` : '!'}` 
+        status: mintStatus,
+        reconciliation: {
+          diffPct: maxDiffPct,
+          tolerancePct: RECONCILIATION_TOLERANCE_PCT,
+          hardFailPct: RECONCILIATION_HARD_FAIL_PCT,
+          flagged: driftFlagged,
+          violations: reconciliationViolations,
+        },
+        message: receipt.status === "success"
+          ? (driftFlagged
+              ? `Mint completed but flagged for review (reconciliation drift ${maxDiffPct}% exceeds ${RECONCILIATION_HARD_FAIL_PCT}%).`
+              : `Minted ~${expectedTokens.toFixed(0)} $ZSOLAR tokens${newNfts.length > 0 ? ` + ${newNfts.length} NFT(s)!` : '!'}`)
           : "Transaction failed",
         breakdown: {
           solarKwh: Number(solar),
