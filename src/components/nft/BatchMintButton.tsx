@@ -210,7 +210,7 @@ export function BatchMintButton({ earnedMilestones, onMintComplete }: BatchMintB
           }
         });
 
-        if (fnError) throw fnError;
+        if (fnError) { const p = parseMintError(fnError, data); if (p.isGate) toast.message(p.title, { description: p.message }); throw new Error(p.message); }
         if (!data?.success) {
           throw new Error(data?.message || 'Welcome NFT minting failed');
         }
@@ -245,7 +245,7 @@ export function BatchMintButton({ earnedMilestones, onMintComplete }: BatchMintB
           }
         });
 
-        if (fnError) throw fnError;
+        if (fnError) { const p = parseMintError(fnError, data); if (p.isGate) toast.message(p.title, { description: p.message }); throw new Error(p.message); }
         
         setMintResult({
           success: true,
@@ -266,7 +266,7 @@ export function BatchMintButton({ earnedMilestones, onMintComplete }: BatchMintB
           }
         });
 
-        if (fnError) throw fnError;
+        if (fnError) { const p = parseMintError(fnError, data); if (p.isGate) toast.message(p.title, { description: p.message }); throw new Error(p.message); }
         
         // Check if our specific NFT was minted
         const wasMinted = data.nftsMinted?.includes(currentNFT.tokenId);
