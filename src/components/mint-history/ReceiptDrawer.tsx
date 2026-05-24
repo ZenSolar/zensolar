@@ -326,6 +326,21 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
                   <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary" />
                 </a>
               )}
+
+              {verifyUrl && (
+                <Link
+                  to={`/verify/${tx.chain_hash}`}
+                  onClick={() => onOpenChange(false)}
+                  className="flex items-center gap-2 px-3 py-2.5 hover:bg-muted/40 transition-colors group"
+                >
+                  <ShieldCheck className="h-3.5 w-3.5 text-primary shrink-0" />
+                  <span className="text-xs flex-1">
+                    Tamper-evident receipt
+                    <span className="ml-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">public</span>
+                  </span>
+                  <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary" />
+                </Link>
+              )}
             </div>
           </section>
 
