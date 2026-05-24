@@ -485,7 +485,11 @@ async function fetchHomeChargerRows(
   const all = [...homeRows, ...billRows];
   all.sort((a, b) => (a.recordedAt < b.recordedAt ? 1 : -1));
 
-  if (!pendingTarget || pendingTarget <= 0) return all.slice(0, ROW_LIMIT);
+  if (!pendingTarget || pendingTarget <= 0) {
+    const sliced = all.slice(0, ROW_LIMIT);
+    reconcileReceipts('home_charger', 0, sliced);
+    return sliced;
+  }
 
   const target = Math.max(0, pendingTarget - 0.5);
   let running = 0;
@@ -495,6 +499,7 @@ async function fetchHomeChargerRows(
     running += row.amount;
     if (running >= target) break;
   }
+  reconcileReceipts('home_charger', pendingTarget, pendingRows);
   return pendingRows;
 }
 
