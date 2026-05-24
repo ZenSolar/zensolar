@@ -242,7 +242,7 @@ async function fetchEnergyProductionRows(
   // Battery rows are CUMULATIVE lifetime counters — we must keep at least one
   // sample older than `sinceIso` to compute the first day's delta. Skip the
   // server-side time filter and apply it after normalization.
-  if (sinceIso && !pendingTarget && dataType !== 'battery_discharge') {
+  if (sinceIso && !pendingTarget && dataType !== 'battery_discharge' && dataType !== 'ev_miles') {
     query = query.gt('recorded_at', sinceIso);
   }
   if (solarProviderFilter) query = query.in('provider', solarProviderFilter);
