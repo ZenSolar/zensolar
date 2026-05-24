@@ -167,7 +167,7 @@ export default function MintHistory() {
         title="Mint History"
         description="Every $ZSOLAR and NFT you've earned, with on-chain proof."
         icon={Clock}
-        width="4xl"
+        width="5xl"
       >
         <div className="space-y-5 sm:space-y-8">
 
