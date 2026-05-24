@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { BrandedSpinner } from '@/components/ui/BrandedSpinner';
+import { BrandSplash } from '@/components/ui/BrandSplash';
 import { isPreviewMode } from '@/lib/previewMode';
 
 const AppLayout = lazy(() => import('@/components/layout/AppLayout').then(m => ({ default: m.AppLayout })));
@@ -14,11 +14,7 @@ import('@/components/layout/AppLayout').catch(() => {});
 import('@/pages/Index').catch(() => {});
 
 function RouteLoader() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <BrandedSpinner size="lg" />
-    </div>
-  );
+  return <BrandSplash />;
 }
 
 export function RootRoute() {

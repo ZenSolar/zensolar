@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useEnergyOAuth } from '@/hooks/useEnergyOAuth';
 import { DeviceSelectionDialog } from '@/components/dashboard/DeviceSelectionDialog';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2 } from 'lucide-react';
+import { BrandSplash } from '@/components/ui/BrandSplash';
 import { Button } from '@/components/ui/button';
 
 // Module-level flag to survive component remounts during the same page session
@@ -310,10 +310,7 @@ export default function OAuthCallback() {
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="text-center space-y-4 max-w-md px-4">
         {status === 'processing' && (
-          <>
-            <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-            <p className="text-muted-foreground">Connecting your account...</p>
-          </>
+          <BrandSplash inline label="Connecting your account..." />
         )}
         {status === 'success' && (
           <p className="text-primary font-medium">Account connected! Redirecting...</p>
