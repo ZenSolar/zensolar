@@ -373,3 +373,69 @@ function ProofRow({
     </Card>
   );
 }
+
+function InclusionProofCard({ inclusion }: { inclusion: InclusionVerdict }) {
+  if (inclusion.status === 'pending') {
+    return (
+      <Card className="border-border/60">
+        <CardContent className="p-3 text-[11px] text-muted-foreground">
+          Recomputing Merkle inclusion proof locally…
+        </CardContent>
+      </Card>
+    );
+  }
+  if (inclusion.status === 'unavailable') {
+    return (
+      <Card className="border-border/60">
+        <CardContent className="p-3 text-[11px] text-muted-foreground">
+          Inclusion proof unavailable ({inclusion.reason ?? 'unknown'}).
+        </CardContent>
+      </Card>
+    );
+  }
+  const ok = inclusion.status === 'verified';
+  const proof = inclusion.proof;
+  return (
+    <Card className={ok ? 'border-eco/40 bg-eco/[0.04]' : 'border-destructive/40 bg-destructive/[0.04]'}>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm flex items-center gap-2">
+          {ok ? (
+            <><CheckCircle2 className="h-4 w-4 text-eco" /> Merkle inclusion verified in-browser</>
+          ) : (
+            <><XCircle className="h-4 w-4 text-destructive" /> Merkle inclusion MISMATCH</>
+          )}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2 text-[11px]">
+        <div className="flex items-center gap-1.5 text-muted-foreground">
+          <GitBranch className="h-3 w-3" />
+          <span>
+            Leaf {proof?.leaf_index} of {proof?.leaf_count} · {proof?.siblings?.length ?? 0} sibling hashes ·
+            SHA-256 recomputed by your browser
+          </span>
+        </div>
+        <div>
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
+            Recomputed root (this browser)
+          </div>
+          <div className="font-mono text-[11px] text-foreground/80 break-all bg-muted/30 rounded p-2">
+            {inclusion.clientComputedRoot}
+          </div>
+        </div>
+        <div>
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
+            Anchored root (on-chain)
+          </div>
+          <div className="font-mono text-[11px] text-foreground/80 break-all bg-muted/30 rounded p-2">
+            {proof?.anchor_root}
+          </div>
+        </div>
+        <div className="pt-1 text-muted-foreground italic">
+          {ok
+            ? 'No database trust required: this proof can be reverified offline against the on-chain anchor.'
+            : 'Root mismatch — this receipt does not provably belong to the anchored tree. Treat as suspect.'}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
