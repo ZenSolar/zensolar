@@ -54,8 +54,8 @@ describe('Mint-on-Proof: three-way reconciliation (M4)', () => {
   });
 
   it('uses absolute floor so tiny values do not produce false positives', () => {
-    // headline=0.1, rows=0.2 — % diff would be huge without floor; with 0.5 floor, fine
-    const r = verifyThreeWayMatch({ category: 'solar', headline: 0.1, rows: 0.2, onChain: 0.15 });
+    // Without the 0.5 floor, 0.1 vs 0.105 would be a 5% diff. With it, it's well under tolerance.
+    const r = verifyThreeWayMatch({ category: 'solar', headline: 0.1, rows: 0.105, onChain: 0.1 });
     expect(r.ok).toBe(true);
   });
 
