@@ -82,6 +82,11 @@ const PILLARS: Pillar[] = [
         detail:
           'Vitest property tests fuzz random monotonic series + baselines and assert the Σ-invariant holds within 0.5 kWh tolerance on every run.',
       },
+      {
+        label: 'Nightly per-user invariant sweep',
+        detail:
+          'verify_user_sum_invariant() runs every night via pg_cron. It scans every connected device for baseline > lifetime (negative-pending) and every confirmed mint whose reconciliation drift exceeded 1%. Violations land in user_invariant_violations with a critical flag — observable by admins and the user themselves.',
+      },
     ],
   },
   {
