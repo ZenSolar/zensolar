@@ -45,30 +45,38 @@ export function PageShell({
 }: PageShellProps) {
   return (
     <div className={cn("w-full", className)}>
-      <div className={cn("container mx-auto px-4", widthMap[width], dense ? "pt-4" : "pt-6")}>
-        <div className="flex items-start justify-between gap-3">
+      <div className={cn("container mx-auto px-4", widthMap[width], dense ? "pt-4 lg:pt-6" : "pt-6 lg:pt-10")}>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
           <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              {Icon && <Icon className="h-5 w-5 text-primary flex-shrink-0" aria-hidden />}
-              <h1 className="text-2xl font-bold tracking-tight text-foreground truncate">{title}</h1>
+            <div className="flex items-center gap-2 lg:gap-2.5">
+              {Icon && <Icon className="h-5 w-5 lg:h-6 lg:w-6 text-primary flex-shrink-0" aria-hidden />}
+              <h1 className="text-2xl lg:text-3xl xl:text-4xl font-bold tracking-tight text-foreground truncate">
+                {title}
+              </h1>
             </div>
             {description && (
-              <p className="text-sm text-muted-foreground mt-1">{description}</p>
+              <p className="text-sm lg:text-base text-muted-foreground mt-1 lg:mt-2 lg:max-w-2xl">
+                {description}
+              </p>
             )}
           </div>
-          {actions && <div className="flex-shrink-0">{actions}</div>}
+          {actions && (
+            <div className="flex-shrink-0 sm:self-start">
+              {actions}
+            </div>
+          )}
         </div>
       </div>
 
       {sticky && (
-        <div className="sticky top-[var(--header-total-h)] z-40 mt-4 border-b border-border/60 bg-background shadow-[0_1px_0_0_hsl(var(--border)/0.4)]">
+        <div className="sticky top-[var(--header-total-h)] z-40 mt-4 lg:mt-6 border-b border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 shadow-[0_1px_0_0_hsl(var(--border)/0.4)]">
           <div className={cn("container mx-auto px-4", widthMap[width])}>
             {sticky}
           </div>
         </div>
       )}
 
-      <div className={cn("container mx-auto px-4", widthMap[width], dense ? "py-4" : "py-6")}>
+      <div className={cn("container mx-auto px-4", widthMap[width], dense ? "py-4" : "py-6 lg:py-8")}>
         {children}
       </div>
     </div>
@@ -92,18 +100,18 @@ export function SectionHeader({
   icon?: LucideIcon;
 }) {
   return (
-    <header id={id} className="scroll-mt-28 mb-6">
+    <header id={id} className="scroll-mt-28 mb-6 lg:mb-8">
       {eyebrow && (
-        <p className="text-[11px] uppercase tracking-[0.14em] font-semibold text-primary/80 mb-2">
+        <p className="text-[11px] lg:text-xs uppercase tracking-[0.14em] font-semibold text-primary/80 mb-2">
           {eyebrow}
         </p>
       )}
-      <div className="flex items-center gap-2">
-        {Icon && <Icon className="h-5 w-5 text-primary" aria-hidden />}
-        <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">{title}</h2>
+      <div className="flex items-center gap-2 lg:gap-2.5">
+        {Icon && <Icon className="h-5 w-5 lg:h-6 lg:w-6 text-primary" aria-hidden />}
+        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-foreground">{title}</h2>
       </div>
       {description && (
-        <p className="text-sm text-muted-foreground mt-1.5 max-w-2xl">{description}</p>
+        <p className="text-sm lg:text-base text-muted-foreground mt-1.5 lg:mt-2 max-w-2xl">{description}</p>
       )}
     </header>
   );
