@@ -83,6 +83,9 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
   const grandTotal = userTokens > 0 ? userTokens / 0.75 : 0;
   const hasSplit = userTokens > 0;
   const pogReceiptUrl = `${basePath}/proof-of-genesis-receipt-preview`;
+  const verifyUrl = tx.chain_hash
+    ? `${typeof window !== "undefined" ? window.location.origin : "https://beta.zen.solar"}/verify/${tx.chain_hash}`
+    : null;
 
   const buildReceiptText = () => {
     const lines = [
@@ -96,6 +99,7 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
       `Tx: ${tx.tx_hash}`,
       tx.block_number ? `Block: ${tx.block_number}` : null,
       "",
+      verifyUrl ? `Tamper-evident receipt: ${verifyUrl}` : null,
       `Verify on BaseScan: ${getExplorerUrl(tx.tx_hash)}`,
       "",
       "Currency from Energy · zen.solar",
@@ -105,7 +109,8 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
 
   const handleShare = async () => {
     const text = buildReceiptText();
-    const url = getExplorerUrl(tx.tx_hash);
+    // Prefer the hash-chained verify link — independently auditable, no PII.
+    const url = verifyUrl ?? getExplorerUrl(tx.tx_hash);
     try {
       if (navigator.share) {
         await navigator.share({ title: "ZenSolar Mint Receipt", text, url });
