@@ -133,6 +133,33 @@ export function useEnergyOAuth() {
     }
   }, []);
 
+  const listSolarEdgeSites = useCallback(async (apiKey: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Please log in first');
+        return null;
+      }
+      const response = await supabase.functions.invoke('solaredge-auth', {
+        body: { action: 'list-sites', apiKey },
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      if (response.error) {
+        toast.error(response.error.message || 'Could not look up your SolarEdge sites');
+        return null;
+      }
+      if (response.data?.error) {
+        toast.error(response.data.error);
+        return null;
+      }
+      return (response.data?.sites ?? []) as Array<{ id: string; name: string; status?: string; peakPower?: number }>;
+    } catch (error) {
+      console.error('SolarEdge list-sites error:', error);
+      toast.error('Could not look up your SolarEdge sites');
+      return null;
+    }
+  }, []);
+
   const connectSolarEdge = useCallback(async (apiKey: string, siteId: string) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
