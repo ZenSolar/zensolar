@@ -116,6 +116,32 @@ function durationMin(startIso?: string | null, endIso?: string | null): number |
   return Math.max(1, Math.round((b - a) / 60000));
 }
 
+function normalizeDailySolarRows(rows: KpiContributionRow[]): KpiContributionRow[] {
+  const daily = new Map<string, KpiContributionRow>();
+
+  for (const row of rows) {
+    const provider = row.provider?.toLowerCase();
+    if (provider !== 'enphase' && provider !== 'solaredge') continue;
+
+    const dayKey = row.recordedAt.slice(0, 10);
+    const key = `${row.deviceId ?? 'unknown'}|${provider}|${dayKey}`;
+    const existing = daily.get(key);
+
+    // Enphase/SolarEdge writes production_wh as the day's running total. The
+    // receipt must use the daily MAX, not SUM every API sample for that day.
+    if (!existing || row.amount > existing.amount) {
+      daily.set(key, {
+        ...row,
+        id: `daily-${key}`,
+        recordedAt: dayKey,
+        hasRealTime: false,
+      });
+    }
+  }
+
+  return Array.from(daily.values()).sort((a, b) => (a.recordedAt < b.recordedAt ? 1 : -1));
+}
+
 async function fetchEnergyProductionRows(
   userId: string,
   dataType: 'solar' | 'battery_discharge' | 'ev_miles',
@@ -170,13 +196,17 @@ async function fetchEnergyProductionRows(
     verified: ['tesla', 'enphase', 'solaredge', 'tesla_historical'].includes(r.provider),
   }));
 
-  if (!pendingTarget || pendingTarget <= 0) return mapped;
+  const receiptRows = dataType === 'solar'
+    ? normalizeDailySolarRows(mapped)
+    : mapped;
+
+  if (!pendingTarget || pendingTarget <= 0) return receiptRows;
 
   // Walk newest → oldest until receipts ≈ headline pending (within 0.5)
   const target = Math.max(0, pendingTarget - 0.5);
   let running = 0;
   const pendingRows: KpiContributionRow[] = [];
-  for (const row of mapped) {
+  for (const row of receiptRows) {
     pendingRows.push(row);
     running += row.amount;
     if (running >= target) break;
