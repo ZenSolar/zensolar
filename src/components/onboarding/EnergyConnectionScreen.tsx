@@ -4,11 +4,11 @@ import { Button } from '@/components/ui/button';
 import { triggerLightTap } from '@/hooks/useHaptics';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
-// Brand logos
-import teslaLogo from '@/assets/logos/tesla-logo.png';
-import enphaseLogo from '@/assets/logos/enphase-logo.png';
-import solaredgeLogo from '@/assets/logos/solaredge-logo.png';
-import wallboxLogo from '@/assets/logos/wallbox-logo.png';
+// Brand logos (clean modern marks in brand colors)
+import teslaLogo from '@/assets/logos/tesla-mark.svg';
+import enphaseLogo from '@/assets/logos/enphase-mark.svg';
+import solaredgeLogo from '@/assets/logos/solaredge-mark.svg';
+import wallboxLogo from '@/assets/logos/wallbox-mark.svg';
 
 export type EnergyProvider = 'tesla' | 'enphase' | 'solaredge' | 'wallbox';
 
