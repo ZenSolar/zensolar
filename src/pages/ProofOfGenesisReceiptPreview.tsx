@@ -373,15 +373,16 @@ export default function ProofOfGenesisReceiptPreview() {
   }, [isReceiptSuccess]);
 
   // ===== Share + Save-as-image =====
+  // We capture a dedicated compact share card (rendered off-screen) — NOT
+  // the long scrolling page. This keeps shared images legible and on-brand.
   const captureRef = useRef<HTMLDivElement>(null);
+  const shareCardRef = useRef<HTMLDivElement>(null);
 
   /**
    * Build a rich, share-sheet-friendly preview payload:
    *   Title  → leads with the CO₂ tons avoided (the headline win)
    *   Text   → tokens + verified energy + vs-Bitcoin chip in plain English
-   *   Image  → the rendered PoG tile thumbnail (attached as File when supported)
-   *
-   * On iOS/Android this populates the share sheet with a real preview card.
+   *   Image  → the compact ProofOfGenesisShareCard (1080×1350)
    */
   const buildShareText = () => {
     const co2KgRaw =
@@ -404,15 +405,51 @@ export default function ProofOfGenesisReceiptPreview() {
     };
   };
 
-  /** Render the visible receipt body to a PNG for share-sheet thumbnails. */
+  /** Data passed into the off-screen share card for image capture. */
+  const shareCardData: ShareCardData = useMemo(() => {
+    const co2KgRaw =
+      receipt.primary_source === 'ev_charging' && receipt.miles_driven
+        ? receipt.miles_driven * CO2_KG_PER_EV_MILE_AVOIDED
+        : receipt.total_kwh * CO2_KG_PER_KWH_GRID;
+    const co2Tons = co2KgRaw / 1000;
+    const co2Headline =
+      co2Tons >= 0.01 ? `${co2Tons.toFixed(2)} tons CO₂` : `${co2KgRaw.toFixed(2)} kg CO₂`;
+    const co2Sub =
+      receipt.primary_source === 'ev_charging'
+        ? 'avoided vs. an average gas car'
+        : 'displaced from the grid';
+    const isEv = receipt.primary_source === 'ev_charging' && receipt.miles_driven;
+    return {
+      co2Headline,
+      co2Sub,
+      tokensMinted: formatKwh(receipt.tokens_minted),
+      primaryStatLabel: isEv ? 'Miles Driven' : 'Verified Energy',
+      primaryStatValue: isEv ? `${receipt.miles_driven}` : formatKwh(receipt.total_kwh),
+      primaryStatSuffix: isEv ? 'mi' : 'kWh',
+      primarySource: receipt.primary_source,
+      provider: receipt.readings[0]?.provider ?? 'ZenSolar Device',
+      deviceLabel: receipt.readings[0]?.device_id ?? '—',
+      mintedAt: receipt.minted_at,
+      txHashShort: shortHash(receipt.tx_hash, 8, 8),
+      vsBtcKg: BTC_TX_CO2_KG,
+      isLive: receipt.id.startsWith('live-'),
+    };
+  }, [receipt]);
+
+  /** Render the compact share card to a PNG for share-sheet thumbnails. */
   const renderReceiptImage = async (): Promise<File | null> => {
-    if (!captureRef.current) return null;
+    const node = shareCardRef.current;
+    if (!node) return null;
     try {
-      const canvas = await html2canvas(captureRef.current, {
-        backgroundColor: getComputedStyle(document.body).backgroundColor || '#000',
-        scale: Math.min(2, window.devicePixelRatio || 1.5),
+      const canvas = await html2canvas(node, {
+        backgroundColor: '#000',
+        scale: 2,
         useCORS: true,
         logging: false,
+        width: 1080,
+        height: 1350,
+        windowWidth: 1080,
+        windowHeight: 1350,
       });
       const blob: Blob | null = await new Promise((res) => canvas.toBlob(res, 'image/png'));
       if (!blob) return null;
