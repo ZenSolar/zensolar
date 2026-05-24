@@ -44,7 +44,7 @@ export function PageShell({
   children,
 }: PageShellProps) {
   return (
-    <div className={cn("w-full", className)}>
+    <div className={cn("w-full page-enter", className)}>
       <div className={cn("container mx-auto px-4", widthMap[width], dense ? "pt-4 lg:pt-6" : "pt-6 lg:pt-10")}>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
           <div className="min-w-0">
