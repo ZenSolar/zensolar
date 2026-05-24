@@ -37,19 +37,12 @@ export function EnphaseCodeDialog({ open, onOpenChange, onSubmit, authUrl }: Enp
   const [openedAuth, setOpenedAuth] = useState(false);
   const [autoDetected, setAutoDetected] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const lastClipboardContent = useRef<string>('');
-  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const reset = () => {
     setCode('');
     setStep(1);
     setOpenedAuth(false);
     setAutoDetected(false);
-    lastClipboardContent.current = '';
-    if (pollIntervalRef.current) {
-      clearInterval(pollIntervalRef.current);
-      pollIntervalRef.current = null;
-    }
   };
 
   // NOTE: We intentionally do NOT auto-poll the clipboard.
