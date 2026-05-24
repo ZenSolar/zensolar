@@ -122,7 +122,7 @@ const PILLARS: Pillar[] = [
       {
         label: 'Handoff trigger auto-resets baseline',
         detail:
-          'A BEFORE UPDATE trigger on connected_devices detects user_id changes, snapshots prior lifetime_totals to device_handoff_log, and zeroes lifetime_totals + baseline_data + last_minted_at. The new owner cannot inherit a single watt-hour.',
+          'Device claim is constrained by UNIQUE(provider, device_id), so a handoff is always release → reclaim. A BEFORE DELETE trigger on connected_devices snapshots the prior owner\'s lifetime_totals + baseline_data into _device_release_archive; a BEFORE INSERT trigger detects a reclaim by a different user_id, writes device_handoff_log, zeroes baseline_data + lifetime_totals + last_minted_at, and emits a device_handoff_baseline_reset info event (auto-resolved). The new owner physically cannot inherit a single watt-hour.',
       },
       {
         label: 'Geo-fence sanity check',
@@ -197,6 +197,11 @@ const PILLARS: Pillar[] = [
           'mint-combos and claim-milestone-nfts now also claim a 5-min idempotency key, snapshot owned tokens before/after, and write an append-only mint_reconciliation_log row (category combo_nfts / milestone_nfts). Combos that request a token-id which doesn\'t appear on-chain after the tx are flagged_drift.',
       },
       {
+        label: 'Cross-pillar Mint Gate (can_user_mint)',
+        detail:
+          'Before any write action (register, mint-rewards, claim-milestones, mint-combos), mint-onchain calls the can_user_mint(user_id) RPC. Any unresolved critical row in user_invariant_violations or collusion_signals — produced by ANY pillar\'s sweeper — returns allowed:false and the request fails with HTTP 423 Locked / reason=mint_gate_blocked. Admins clear blocks via resolve_invariant_violation / resolve_collusion_signal from /admin/protocol-integrity, with notes captured for audit.',
+      },
+      {
         label: 'Property-tested in CI (50-trial fuzz)',
         detail:
           'src/lib/__tests__/mintReconciliation.test.ts runs golden fixtures + a 50-trial fuzz that proves any three-way drift beyond tolerance is always caught.',
@@ -224,9 +229,9 @@ const PILLARS: Pillar[] = [
           'UNIQUE(provider, device_id) on connected_devices. A single Tesla VIN, Enphase site, or Wallbox serial can only be claimed by one wallet at a time. Handoffs zero baselines via trigger (Pillar 2 · O4).',
       },
       {
-        label: 'Cross-source overlap detection',
+        label: 'Cross-source duplicate detector (DB-enforced + auto mint-block)',
         detail:
-          'verifyNoCrossSourceOverlap() flags the case the DB can\'t catch: the same plug-in reported by two different hardware paths (e.g. Tesla onboard logger + Wallbox meter) within 15 min and 10% kWh tolerance. Dedicated meter wins; vehicle-reported row is dropped.',
+          'detect_cross_source_duplicates() runs in the nightly sweep and scans the last 24h of home_charging_sessions × charging_sessions × energy_production for same-user, different-provider rows that overlap within 15 min and ±10% kWh. Each hit writes a critical cross_source_dup row to user_invariant_violations with both source row ids and provider names — which immediately blocks the user from minting via the cross-pillar Mint Gate (Pillar 3) until staff resolves it. Client-side verifyNoCrossSourceOverlap() catches the same case at write time so the row never lands; the server sweep is the belt-and-suspenders backstop.',
       },
       {
         label: 'Bidirectional EV split',
@@ -279,6 +284,26 @@ const PILLARS: Pillar[] = [
         label: 'Public verifier — /verify/:hash',
         detail:
           'get_mint_receipt(_chain_hash) is granted to anon + authenticated. The /verify/:hash page and verify-mint-receipt edge function recompute the SHA-256 server-side and return is_valid plus prev/next links so an auditor can walk the entire chain without an account.',
+      },
+      {
+        label: 'Browser-recomputed Merkle inclusion proof',
+        detail:
+          'get_merkle_inclusion_proof(_chain_hash) returns the sibling path for any receipt. /verify/:hash uses crypto.subtle.digest to recompute the Merkle root in the user\'s own browser from the leaf hash + sibling path and compares against the anchored root — green check on match, red mismatch banner on tamper. The auditor never has to trust the server response.',
+      },
+      {
+        label: 'Nightly chain-integrity sweep',
+        detail:
+          'verify_chain_integrity() runs in the nightly sweep, recomputes chain_hash for every mint_transactions row from raw inputs, and writes a chain_hash_tamper critical row to user_invariant_violations on any drift. Mint Gate auto-blocks the affected user. Smoke run on the latest sweep: 0 tampers.',
+      },
+      {
+        label: 'Anchor-freshness watchdog',
+        detail:
+          'check_anchor_freshness() logs a critical alert to kpi_reconciliation_log if proof_of_permanence_anchors hasn\'t advanced in 120 min — surfaces a stalled snapshot job before the on-chain trail goes cold.',
+      },
+      {
+        label: 'Mainnet promotion (TODO at launch)',
+        detail:
+          'Anchors currently publish to Base Sepolia for testnet. At production launch the anchor wallet is funded, RPC + DeviceWatermarkRegistry address flip to Base mainnet (chain 8453), and the public verifier links switch from sepolia.basescan.org to basescan.org. Tracked in mem://roadmap/mainnet-anchor-switch.',
       },
       {
         label: 'Re-derivable by third parties',
