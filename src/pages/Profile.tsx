@@ -153,6 +153,7 @@ export default function Profile() {
         case 'enphase':
           const result = await startEnphaseOAuth();
           if (result?.useManualCode) {
+            setEnphaseAuthUrl(result.authUrl ?? null);
             setEnphaseDialogOpen(true);
           }
           break;
