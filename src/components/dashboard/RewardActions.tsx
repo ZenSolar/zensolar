@@ -778,12 +778,19 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
     } catch (error) {
       console.error('NFT minting error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Minting failed';
-      
+      const parsed = (error as any)?.parsed ?? parseMintError(error);
+
+      if (parsed.isGate) {
+        toast({
+          title: parsed.title,
+          description: parsed.message,
+        });
+      }
+
       setResultDialog({
         open: true,
         success: false,
-        message: errorMessage,
+        message: parsed.isGate ? `${parsed.title} — ${parsed.message}` : parsed.message,
         type: 'nft',
       });
     } finally {
