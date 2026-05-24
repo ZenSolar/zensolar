@@ -73,7 +73,7 @@ export function useLatestMintReceipt(): State {
         // 1. Most recent mint for this user
         const { data: mints, error: mintErr } = await supabase
           .from('mint_transactions')
-          .select('id, tx_hash, block_number, created_at, action, tokens_minted, miles_delta, kwh_delta, source_breakdown')
+          .select('id, tx_hash, chain_hash, block_number, created_at, action, tokens_minted, miles_delta, kwh_delta, source_breakdown')
           .eq('user_id', session.user.id)
           .order('created_at', { ascending: false })
           .limit(2); // 2 so we can compute prior odometer for legacy rows
