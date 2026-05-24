@@ -240,6 +240,7 @@ export function useEnergyOAuth() {
     exchangeTeslaCode,
     exchangeEnphaseCode,
     connectSolarEdge,
+    listSolarEdgeSites,
     connectWallbox,
   };
 }
