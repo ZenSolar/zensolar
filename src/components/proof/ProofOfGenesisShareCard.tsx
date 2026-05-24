@@ -236,6 +236,33 @@ export const ProofOfGenesisShareCard = forwardRef<HTMLDivElement, { data: ShareC
           </div>
         </div>
 
+        {/* ===== TM stack strip — plants every mark in every share ===== */}
+        <div
+          style={{
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 10,
+            padding: '10px 16px',
+            borderRadius: 12,
+            border: '1px solid rgba(52,211,153,0.12)',
+            background: 'rgba(52,211,153,0.04)',
+            fontFamily: 'ui-monospace, "SF Mono", Menlo, monospace',
+            fontSize: 11,
+            letterSpacing: 0.5,
+            color: '#a1a1aa',
+          }}
+        >
+          <span>Proof-of-Origin™</span>
+          <span style={{ color: 'rgba(255,255,255,0.15)' }}>·</span>
+          <span>Proof-of-Delta™</span>
+          <span style={{ color: 'rgba(255,255,255,0.15)' }}>·</span>
+          <span>Proof-of-Permanence™</span>
+          <span style={{ color: 'rgba(255,255,255,0.15)' }}>·</span>
+          <span>Mint-on-Proof™</span>
+        </div>
+
         {/* ===== Footer: tx hash + brand ===== */}
         <div
           style={{
