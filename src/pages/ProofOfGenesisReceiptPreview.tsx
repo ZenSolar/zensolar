@@ -12,7 +12,7 @@ import { VerifyOnChainDrawer, type VerifyOnChainData } from '@/components/proof/
 import { ProtocolJourney, type ProtocolJourneyData } from '@/components/proof/ProtocolJourney';
 import { ProofOfAuthenticityStamp } from '@/components/proof/ProofOfAuthenticityStamp';
 import { TamperEvidentProofPanel } from '@/components/proof/TamperEvidentProofPanel';
-import { MintedForBadge } from '@/components/proof/ReceiptSourceLines';
+import { MintedForBadge, ReceiptSourceLines } from '@/components/proof/ReceiptSourceLines';
 import { VerifiedSourceBadge } from '@/components/proof/VerifiedSourceBadge';
 import { ProtocolCinematicSequence } from '@/components/proof/ProtocolCinematicSequence';
 import { useLatestMintReceipt, type LiveMintReceipt } from '@/hooks/useLatestMintReceipt';
@@ -785,57 +785,82 @@ export default function ProofOfGenesisReceiptPreview() {
             />
           </div>
 
-          {/* Readings */}
-          <Card className="border-border/60">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-                <Shield className="h-4 w-4 text-primary" />
-                Source readings
-              </CardTitle>
-              <p className="text-xs text-muted-foreground">
-                Every reading below was signed by the device, time-stamped, and bundled into the on-chain proof.
-              </p>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {receipt.readings.map((r, i) => {
-                const meta = SOURCE_META[r.source];
-                const Icon = meta.icon;
-                const delta = r.end_kwh - r.start_kwh;
-                return (
-                  <div
-                    key={i}
-                    className={`rounded-lg border ${meta.border} ${meta.bg} p-3 sm:p-4 space-y-2`}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <Icon className={`h-4 w-4 ${meta.accent} shrink-0`} />
-                        <div className="min-w-0">
-                          <div className="text-sm font-medium leading-tight">{meta.label}</div>
-                          <div className="text-[11px] text-muted-foreground truncate">{r.provider}</div>
+          {/* Source readings — for live mints we render the authoritative
+              RPC-driven line items (one row per device-signed energy event
+              in the Proof-of-Delta window). Never fabricate a synthetic
+              "EV Charging" reading for a live mint — the sources are
+              whatever get_mint_source_lines returns (which honors the
+              actual source_breakdown stored at mint time and defaults
+              legacy mint-rewards rows to supercharger-only). */}
+          {isLive ? (
+            <Card className="border-border/60">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-primary" />
+                  Source readings
+                </CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  Every event below was device-signed, time-stamped, and rolled into this mint's
+                  on-chain proof. Sources are derived from the immutable energy log — not inferred.
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <MintedForBadge chainHash={receipt.chain_hash} />
+                <ReceiptSourceLines chainHash={receipt.chain_hash} defaultOpen />
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="border-border/60">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-primary" />
+                  Source readings
+                </CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  Every reading below was signed by the device, time-stamped, and bundled into the on-chain proof.
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {receipt.readings.map((r, i) => {
+                  const meta = SOURCE_META[r.source];
+                  const Icon = meta.icon;
+                  const delta = r.end_kwh - r.start_kwh;
+                  return (
+                    <div
+                      key={i}
+                      className={`rounded-lg border ${meta.border} ${meta.bg} p-3 sm:p-4 space-y-2`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Icon className={`h-4 w-4 ${meta.accent} shrink-0`} />
+                          <div className="min-w-0">
+                            <div className="text-sm font-medium leading-tight">{meta.label}</div>
+                            <div className="text-[11px] text-muted-foreground truncate">{r.provider}</div>
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <div className={`text-sm font-semibold ${meta.accent}`}>+{formatKwh(delta)} kWh</div>
+                          <div className="text-[11px] text-muted-foreground flex items-center gap-1 justify-end">
+                            <Clock className="h-3 w-3" />
+                            {new Date(r.recorded_at).toLocaleString(undefined, {
+                              month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
+                            })}
+                          </div>
                         </div>
                       </div>
-                      <div className="text-right shrink-0">
-                        <div className={`text-sm font-semibold ${meta.accent}`}>+{formatKwh(delta)} kWh</div>
-                        <div className="text-[11px] text-muted-foreground flex items-center gap-1 justify-end">
-                          <Clock className="h-3 w-3" />
-                          {new Date(r.recorded_at).toLocaleString(undefined, {
-                            month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
-                          })}
-                        </div>
-                      </div>
-                    </div>
 
-                    <div className="grid grid-cols-2 gap-2 text-[11px] pt-1 border-t border-border/40">
-                      <KV label="Start reading" value={`${formatKwh(r.start_kwh)} kWh`} />
-                      <KV label="End reading" value={`${formatKwh(r.end_kwh)} kWh`} />
-                      <KV label="Device ID" value={r.device_id} mono />
-                      <KV label="Device signature" value={r.signature} mono copy />
+                      <div className="grid grid-cols-2 gap-2 text-[11px] pt-1 border-t border-border/40">
+                        <KV label="Start reading" value={`${formatKwh(r.start_kwh)} kWh`} />
+                        <KV label="End reading" value={`${formatKwh(r.end_kwh)} kWh`} />
+                        <KV label="Device ID" value={r.device_id} mono />
+                        <KV label="Device signature" value={r.signature} mono copy />
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </CardContent>
-          </Card>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          )}
 
           {/* On-chain proof */}
           <Card className="border-border/60">
