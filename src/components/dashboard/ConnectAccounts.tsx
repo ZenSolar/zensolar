@@ -63,6 +63,7 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
     } else if (service === 'enphase') {
       const result = await startEnphaseOAuth();
       if (result?.useManualCode) {
+        setEnphaseAuthUrl(result.authUrl ?? null);
         setEnphaseDialogOpen(true);
       }
     } else if (service === 'solaredge') {
