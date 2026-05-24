@@ -695,17 +695,28 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
 
     } catch (error) {
       console.error('Token minting error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Minting failed';
-      
-      setMintingProgress({ step: 'error', message: errorMessage });
-      
+      const parsed = (error as any)?.parsed ?? parseMintError(error);
+      const errorMessage = parsed.message;
+
+      setMintingProgress({
+        step: parsed.isGate ? 'paused' as any : 'error',
+        message: parsed.isGate ? parsed.title : errorMessage,
+      });
+
+      if (parsed.isGate) {
+        toast({
+          title: parsed.title,
+          description: errorMessage,
+        });
+      }
+
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       setMintingProgressDialog(false);
       setResultDialog({
         open: true,
         success: false,
-        message: errorMessage,
+        message: parsed.isGate ? `${parsed.title} — ${errorMessage}` : errorMessage,
         type: 'token',
       });
     } finally {
