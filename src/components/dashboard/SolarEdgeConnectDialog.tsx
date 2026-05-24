@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -9,31 +9,34 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { 
-  Loader2, 
-  Sun, 
-  ExternalLink, 
-  Eye, 
-  EyeOff, 
-  HelpCircle,
+import {
+  Loader2,
+  Sun,
+  ExternalLink,
+  Eye,
+  EyeOff,
   ChevronDown,
   ChevronUp,
   AlertCircle,
   CheckCircle2,
   Info,
-  Sparkles
+  Sparkles,
+  Clipboard,
 } from 'lucide-react';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useEnergyOAuth } from '@/hooks/useEnergyOAuth';
 
 interface SolarEdgeConnectDialogProps {
   open: boolean;
@@ -41,92 +44,115 @@ interface SolarEdgeConnectDialogProps {
   onSubmit: (apiKey: string, siteId: string) => Promise<boolean>;
 }
 
-// Validation helpers
-function validateSiteId(siteId: string): { valid: boolean; error?: string } {
-  const trimmed = siteId.trim();
-  if (!trimmed) {
-    return { valid: false, error: 'Site ID is required' };
-  }
-  if (!/^\d+$/.test(trimmed)) {
-    return { valid: false, error: 'Site ID should contain only numbers (e.g., 1234567)' };
-  }
-  if (trimmed.length < 5 || trimmed.length > 10) {
-    return { valid: false, error: 'Site ID is typically 5-10 digits long' };
-  }
-  return { valid: true };
+type SiteOption = { id: string; name: string; status?: string; peakPower?: number };
+
+function isLikelyApiKey(s: string) {
+  const t = s.trim();
+  return /^[A-Za-z0-9]{20,}$/.test(t);
 }
 
-function validateApiKey(apiKey: string): { valid: boolean; error?: string } {
-  const trimmed = apiKey.trim();
-  if (!trimmed) {
-    return { valid: false, error: 'API key is required' };
-  }
-  if (trimmed.length < 20) {
-    return { valid: false, error: 'API key appears too short. It should be a 32-character alphanumeric string.' };
-  }
-  if (!/^[A-Za-z0-9]+$/.test(trimmed)) {
-    return { valid: false, error: 'API key should only contain letters and numbers' };
-  }
-  return { valid: true };
-}
-
-export function SolarEdgeConnectDialog({ 
-  open, 
-  onOpenChange, 
-  onSubmit 
+export function SolarEdgeConnectDialog({
+  open,
+  onOpenChange,
+  onSubmit,
 }: SolarEdgeConnectDialogProps) {
+  const { listSolarEdgeSites } = useEnergyOAuth();
   const [apiKey, setApiKey] = useState('');
-  const [siteId, setSiteId] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showApiKey, setShowApiKey] = useState(false);
-  const [helpOpen, setHelpOpen] = useState(false);
-  const [troubleshootOpen, setTroubleshootOpen] = useState(false);
+  const [discovering, setDiscovering] = useState(false);
+  const [discovered, setDiscovered] = useState(false);
+  const [sites, setSites] = useState<SiteOption[]>([]);
+  const [siteId, setSiteId] = useState('');
+  const [manualMode, setManualMode] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [touched, setTouched] = useState({ siteId: false, apiKey: false });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
   const apiKeyRef = useRef<HTMLInputElement>(null);
-  const siteIdRef = useRef<HTMLInputElement>(null);
 
-  const siteIdValidation = validateSiteId(siteId);
-  const apiKeyValidation = validateApiKey(apiKey);
+  const reset = () => {
+    setApiKey('');
+    setShowApiKey(false);
+    setDiscovering(false);
+    setDiscovered(false);
+    setSites([]);
+    setSiteId('');
+    setManualMode(false);
+    setErrorMessage(null);
+    setHelpOpen(false);
+  };
+
+  const discoverSites = useCallback(async (key: string) => {
+    if (!isLikelyApiKey(key)) return;
+    setDiscovering(true);
+    setErrorMessage(null);
+    const result = await listSolarEdgeSites(key.trim());
+    setDiscovering(false);
+    if (!result) {
+      // Lookup failed entirely → let user enter Site ID manually as fallback
+      setManualMode(true);
+      return;
+    }
+    setSites(result);
+    setDiscovered(true);
+    if (result.length === 1) {
+      setSiteId(result[0].id);
+    } else if (result.length === 0) {
+      setManualMode(true);
+    }
+  }, [listSolarEdgeSites]);
+
+  const handlePasteKey = async () => {
+    try {
+      const text = (await navigator.clipboard.readText())?.trim() ?? '';
+      if (text) {
+        setApiKey(text);
+        if (isLikelyApiKey(text)) await discoverSites(text);
+      }
+    } catch {
+      apiKeyRef.current?.focus();
+    }
+  };
+
+  const handleKeyChange = (v: string) => {
+    setApiKey(v);
+    setDiscovered(false);
+    setSites([]);
+    setSiteId('');
+    setManualMode(false);
+    setErrorMessage(null);
+  };
+
+  const handleKeyBlur = () => {
+    if (isLikelyApiKey(apiKey) && !discovered && !discovering) {
+      discoverSites(apiKey);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setTouched({ siteId: true, apiKey: true });
     setErrorMessage(null);
-    
-    if (!siteIdValidation.valid || !apiKeyValidation.valid) {
-      return;
-    }
-    
+    if (!apiKey.trim() || !siteId.trim()) return;
     setIsSubmitting(true);
     const success = await onSubmit(apiKey.trim(), siteId.trim());
     setIsSubmitting(false);
-    
     if (success) {
-      setApiKey('');
-      setSiteId('');
-      setTouched({ siteId: false, apiKey: false });
+      reset();
       onOpenChange(false);
     } else {
-      setErrorMessage('Could not connect to SolarEdge. Please verify your Site ID and API key are correct, and that API access is enabled for your site.');
+      setErrorMessage('Could not connect. Verify the API key and Site ID, then try again.');
     }
   };
 
-  const handleClose = (open: boolean) => {
-    if (!open) {
-      setApiKey('');
-      setSiteId('');
-      setErrorMessage(null);
-      setTouched({ siteId: false, apiKey: false });
-      setHelpOpen(false);
-      setTroubleshootOpen(false);
-    }
-    onOpenChange(open);
+  const handleClose = (next: boolean) => {
+    if (!next) reset();
+    onOpenChange(next);
   };
+
+  const canSubmit = !!apiKey.trim() && !!siteId.trim() && !isSubmitting;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-lg lg:max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
@@ -135,12 +161,11 @@ export function SolarEdgeConnectDialog({
             Connect SolarEdge
           </DialogTitle>
           <DialogDescription>
-            Connect your SolarEdge solar system to start earning rewards.
+            Paste your API key — we'll find your site automatically.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-5 py-4">
-          {/* Error Alert */}
+        <form onSubmit={handleSubmit} className="space-y-5 py-2">
           {errorMessage && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
@@ -148,287 +173,170 @@ export function SolarEdgeConnectDialog({
             </Alert>
           )}
 
-          {/* Quick Start Instructions */}
-          <div className="rounded-lg border bg-muted/50 p-4 space-y-3">
-            <h4 className="font-medium text-sm">Quick Setup (3 steps)</h4>
-            <ol className="text-sm text-muted-foreground space-y-2.5 ml-0 list-none">
-              <li className="flex gap-3">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary">1</span>
-                <span>
-                  Open the{' '}
-                  <a 
-                    href="https://monitoring.solaredge.com" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-primary underline hover:no-underline inline-flex items-center gap-1"
-                  >
-                    SolarEdge Monitoring Portal
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                  {' '}and log in
-                </span>
-              </li>
-              <li className="flex gap-3">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary">2</span>
-                <span>
-                  Your <strong>Site ID</strong> is in the URL after you log in
-                  <br />
-                  <code className="text-xs bg-muted px-1 py-0.5 rounded">
-                    monitoring.solaredge.com/.../site/<strong className="text-primary">1234567</strong>/...
-                  </code>
-                </span>
-              </li>
-              <li className="flex gap-3">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary">3</span>
-                <span>
-                  For <strong>API Key</strong>: Click <strong>Admin</strong> → <strong>Site Access</strong> → <strong>API Access</strong> → Generate or copy your key
-                </span>
-              </li>
-            </ol>
-          </div>
-
-          {/* Smart URL paste — auto-extracts Site ID */}
-          <div className="space-y-2">
-            <Label htmlFor="smartUrl" className="flex items-center gap-2">
-              <Sparkles className="h-3.5 w-3.5 text-primary" />
-              Shortcut: paste your monitoring URL
-            </Label>
-            <Input
-              id="smartUrl"
-              placeholder="https://monitoring.solaredge.com/.../site/1234567/..."
-              onChange={(e) => {
-                const match = e.target.value.match(/\/site\/(\d{4,10})/);
-                if (match) {
-                  setSiteId(match[1]);
-                  setTouched((t) => ({ ...t, siteId: true }));
-                  apiKeyRef.current?.focus();
-                }
-              }}
-              disabled={isSubmitting}
-              className="text-xs"
-            />
-            <p className="text-[11px] text-muted-foreground">
-              We'll pull your Site ID out automatically — then just paste your API key below.
-            </p>
-          </div>
-
-          {/* Site ID Input */}
-          <div className="space-y-2">
-
-            <Label htmlFor="siteId" className="flex items-center gap-2">
-              Site ID
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent side="right" className="max-w-xs">
-                  <p>A numeric ID (e.g., 1234567) found in your SolarEdge portal URL after logging in.</p>
-                </TooltipContent>
-              </Tooltip>
-            </Label>
-            <div className="relative">
-              <Input
-                id="siteId"
-                ref={siteIdRef}
-                placeholder="e.g., 1234567"
-                value={siteId}
-                onChange={(e) => setSiteId(e.target.value)}
-                onBlur={() => setTouched(t => ({ ...t, siteId: true }))}
-                disabled={isSubmitting}
-                className={`font-mono ${touched.siteId && !siteIdValidation.valid ? 'border-destructive focus-visible:ring-destructive' : ''}`}
-              />
-              {touched.siteId && siteId && (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2">
-                  {siteIdValidation.valid ? (
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  ) : (
-                    <AlertCircle className="h-4 w-4 text-destructive" />
-                  )}
-                </span>
-              )}
-            </div>
-            {touched.siteId && !siteIdValidation.valid && siteIdValidation.error && (
-              <p className="text-xs text-destructive flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" />
-                {siteIdValidation.error}
-              </p>
-            )}
-          </div>
-
-          {/* API Key Input */}
+          {/* Step 1: API key */}
           <div className="space-y-2">
             <Label htmlFor="apiKey" className="flex items-center gap-2">
-              API Key
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent side="right" className="max-w-xs">
-                  <p>A 32-character alphanumeric key generated from your SolarEdge portal.</p>
-                </TooltipContent>
-              </Tooltip>
+              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 text-[10px] font-bold text-primary">1</span>
+              SolarEdge API Key
             </Label>
             <div className="relative">
               <Input
                 id="apiKey"
                 ref={apiKeyRef}
                 type={showApiKey ? 'text' : 'password'}
-                placeholder="Enter your 32-character API key"
+                placeholder="Paste your 32-character API key"
                 value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                onBlur={() => setTouched(t => ({ ...t, apiKey: true }))}
+                onChange={(e) => handleKeyChange(e.target.value)}
+                onBlur={handleKeyBlur}
                 disabled={isSubmitting}
-                className={`pr-20 font-mono text-sm ${touched.apiKey && !apiKeyValidation.valid ? 'border-destructive focus-visible:ring-destructive' : ''}`}
+                className="pr-28 font-mono text-sm h-11"
               />
               <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                {touched.apiKey && apiKey && (
-                  apiKeyValidation.valid ? (
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  ) : (
-                    <AlertCircle className="h-4 w-4 text-destructive" />
-                  )
-                )}
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="h-7 w-7 p-0"
-                  onClick={() => setShowApiKey(!showApiKey)}
+                  className="h-8 px-2 text-xs"
+                  onClick={handlePasteKey}
                   disabled={isSubmitting}
                 >
-                  {showApiKey ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                  )}
+                  <Clipboard className="h-3 w-3 mr-1" />
+                  Paste
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => setShowApiKey((v) => !v)}
+                  disabled={isSubmitting}
+                >
+                  {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
               </div>
             </div>
-            {touched.apiKey && !apiKeyValidation.valid && apiKeyValidation.error && (
-              <p className="text-xs text-destructive flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" />
-                {apiKeyValidation.error}
-              </p>
-            )}
+            <p className="text-[11px] text-muted-foreground">
+              Get it from{' '}
+              <a
+                href="https://monitoring.solaredge.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline inline-flex items-center gap-1"
+              >
+                monitoring.solaredge.com
+                <ExternalLink className="h-3 w-3" />
+              </a>
+              {' '}→ Admin → Site Access → API Access.
+            </p>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-3 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              className="flex-1"
-              onClick={() => handleClose(false)}
-              disabled={isSubmitting}
-            >
+          {/* Step 2: site discovery / picker */}
+          {(discovering || discovered || manualMode) && (
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 text-[10px] font-bold text-primary">2</span>
+                Your site
+              </Label>
+
+              {discovering && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground rounded-md border border-dashed border-border p-3">
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  Looking up your SolarEdge sites…
+                </div>
+              )}
+
+              {!discovering && discovered && sites.length === 1 && (
+                <div className="flex items-center gap-3 rounded-md border border-primary/30 bg-primary/5 p-3">
+                  <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">{sites[0].name}</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Site ID {sites[0].id}
+                      {sites[0].peakPower ? ` · ${sites[0].peakPower} kW` : ''}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {!discovering && discovered && sites.length > 1 && (
+                <Select value={siteId} onValueChange={setSiteId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={`Pick one of ${sites.length} sites`} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sites.map((s) => (
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.name} — {s.id}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+
+              {!discovering && manualMode && (
+                <>
+                  <Input
+                    placeholder="Site ID (e.g., 1234567)"
+                    value={siteId}
+                    onChange={(e) => setSiteId(e.target.value.replace(/\D/g, ''))}
+                    disabled={isSubmitting}
+                    className="font-mono"
+                  />
+                  <p className="text-[11px] text-muted-foreground">
+                    Auto-discovery didn't find a site for this key. You can paste the Site ID from your monitoring URL ({' '}
+                    <code className="bg-muted px-1 rounded">.../site/<strong>1234567</strong>/…</code>).
+                  </p>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Action */}
+          <div className="flex gap-3 pt-1">
+            <Button type="button" variant="outline" className="flex-1" onClick={() => handleClose(false)} disabled={isSubmitting}>
               Cancel
             </Button>
-            <Button 
-              type="submit" 
-              className="flex-1"
-              disabled={!siteIdValidation.valid || !apiKeyValidation.valid || isSubmitting}
-            >
+            <Button type="submit" className="flex-1" disabled={!canSubmit}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Connecting...
+                  Connecting…
                 </>
               ) : (
-                'Connect SolarEdge'
+                <>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Connect SolarEdge
+                </>
               )}
             </Button>
           </div>
 
-          {/* Expandable Help Section */}
+          {/* Compact help */}
           <Collapsible open={helpOpen} onOpenChange={setHelpOpen}>
             <CollapsibleTrigger asChild>
-              <Button 
-                type="button" 
-                variant="ghost" 
-                className="w-full justify-between text-sm text-muted-foreground hover:text-foreground"
-              >
+              <Button type="button" variant="ghost" className="w-full justify-between text-xs text-muted-foreground">
                 <span className="flex items-center gap-2">
-                  <Info className="h-4 w-4" />
-                  Need help finding your credentials?
+                  <Info className="h-3.5 w-3.5" />
+                  How to find your API key
                 </span>
                 {helpOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </Button>
             </CollapsibleTrigger>
-            <CollapsibleContent className="space-y-4 pt-2">
-              <div className="rounded-lg border p-4 space-y-3 text-sm">
-                <h5 className="font-medium">Finding your Site ID</h5>
-                <ol className="list-decimal ml-4 space-y-1 text-muted-foreground">
-                  <li>Log in to <a href="https://monitoring.solaredge.com" target="_blank" rel="noopener noreferrer" className="text-primary underline">monitoring.solaredge.com</a></li>
-                  <li>Once logged in, look at your browser's address bar</li>
-                  <li>The Site ID is the number in the URL, e.g., <code className="bg-muted px-1 rounded">.../site/<strong>1234567</strong>/...</code></li>
-                  <li>Alternatively: Click on any site → the Site ID appears in the site details</li>
-                </ol>
-              </div>
-
-              <div className="rounded-lg border p-4 space-y-3 text-sm">
-                <h5 className="font-medium">Generating your API Key</h5>
-                <ol className="list-decimal ml-4 space-y-1 text-muted-foreground">
-                  <li>In the SolarEdge portal, click <strong>Admin</strong> in the top menu</li>
-                  <li>Select <strong>Site Access</strong> from the dropdown</li>
-                  <li>Scroll down to find the <strong>API Access</strong> section</li>
-                  <li>If you see an existing key, copy it. If not, click <strong>Generate API Key</strong></li>
-                  <li>Accept the terms if prompted, then copy the generated key</li>
-                </ol>
-              </div>
+            <CollapsibleContent className="pt-2">
+              <ol className="text-xs text-muted-foreground space-y-1.5 list-decimal ml-5">
+                <li>Log in to <a href="https://monitoring.solaredge.com" target="_blank" rel="noopener noreferrer" className="text-primary underline">monitoring.solaredge.com</a></li>
+                <li>Click <strong>Admin</strong> → <strong>Site Access</strong> → <strong>API Access</strong></li>
+                <li>Accept the terms, click <strong>Generate API Key</strong>, then copy it</li>
+                <li>Paste here — we'll find your site automatically</li>
+              </ol>
+              <p className="text-[11px] text-muted-foreground mt-2">
+                If API Access isn't visible, ask your installer to enable it on your account.
+              </p>
             </CollapsibleContent>
           </Collapsible>
 
-          {/* Troubleshooting Section */}
-          <Collapsible open={troubleshootOpen} onOpenChange={setTroubleshootOpen}>
-            <CollapsibleTrigger asChild>
-              <Button 
-                type="button" 
-                variant="ghost" 
-                className="w-full justify-between text-sm text-muted-foreground hover:text-foreground"
-              >
-                <span className="flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4" />
-                  Troubleshooting
-                </span>
-                {troubleshootOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-              </Button>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="space-y-3 pt-2">
-              <div className="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30 p-4 space-y-2 text-sm">
-                <h5 className="font-medium text-amber-800 dark:text-amber-200">Can't find API Access?</h5>
-                <p className="text-amber-700 dark:text-amber-300">
-                  API access may not be enabled for your account. This depends on your installer's settings. 
-                  Contact your solar installer or SolarEdge support to request API access for your site.
-                </p>
-              </div>
-
-              <div className="rounded-lg border p-4 space-y-2 text-sm">
-                <h5 className="font-medium">Connection Failed?</h5>
-                <ul className="list-disc ml-4 space-y-1 text-muted-foreground">
-                  <li>Double-check that your Site ID contains only numbers</li>
-                  <li>Ensure the API key is copied completely (32 characters)</li>
-                  <li>Make sure your SolarEdge system is online and reporting data</li>
-                  <li>Try generating a new API key if the current one isn't working</li>
-                </ul>
-              </div>
-
-              <div className="text-center">
-                <a 
-                  href="https://www.solaredge.com/service/support" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-sm text-primary underline hover:no-underline inline-flex items-center gap-1"
-                >
-                  Contact SolarEdge Support
-                  <ExternalLink className="h-3 w-3" />
-                </a>
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
-
-          {/* Security Note */}
-          <p className="text-xs text-muted-foreground text-center">
-            🔒 Your API key is securely stored and only used to fetch your solar production data.
+          <p className="text-[11px] text-muted-foreground text-center">
+            🔒 Your API key is encrypted and only used to fetch your production data.
           </p>
         </form>
       </DialogContent>
