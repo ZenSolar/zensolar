@@ -23,18 +23,38 @@ Deno.serve(async (req) => {
     if (error) throw error;
     const violations = typeof data === 'number' ? data : 0;
 
-    // Best-effort: surface critical violations from the last run
-    const { data: criticals } = await supabase
-      .from('user_invariant_violations')
-      .select('user_id, check_name, severity, details, detected_at')
-      .gte('detected_at', startedAt)
-      .eq('severity', 'critical')
-      .limit(50);
+    // KPI-level drift sweep — writes to kpi_reconciliation_log
+    let kpiDrifts = 0;
+    try {
+      const { data: kpiData, error: kpiErr } = await supabase.rpc('verify_kpi_reconciliation');
+      if (kpiErr) console.error('verify_kpi_reconciliation rpc error', kpiErr);
+      else kpiDrifts = typeof kpiData === 'number' ? kpiData : 0;
+    } catch (e) {
+      console.error('verify_kpi_reconciliation threw', e);
+    }
+
+    // Best-effort: surface critical violations + KPI criticals from the last run
+    const [{ data: criticals }, { data: kpiCriticals }] = await Promise.all([
+      supabase
+        .from('user_invariant_violations')
+        .select('user_id, check_name, severity, details, detected_at')
+        .gte('detected_at', startedAt)
+        .eq('severity', 'critical')
+        .limit(50),
+      supabase
+        .from('kpi_reconciliation_log')
+        .select('user_id, kpi_key, severity, headline_value, computed_value, diff_pct, detected_at')
+        .gte('detected_at', startedAt)
+        .eq('severity', 'critical')
+        .limit(50),
+    ]);
 
     console.log(JSON.stringify({
       event: 'verify_user_invariants_complete',
       violations,
       criticals: criticals?.length ?? 0,
+      kpi_drifts: kpiDrifts,
+      kpi_criticals: kpiCriticals?.length ?? 0,
       started_at: startedAt,
     }));
 
@@ -43,6 +63,8 @@ Deno.serve(async (req) => {
         ok: true,
         violations,
         criticals: criticals ?? [],
+        kpi_drifts: kpiDrifts,
+        kpi_criticals: kpiCriticals ?? [],
         started_at: startedAt,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
