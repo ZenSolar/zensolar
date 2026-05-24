@@ -59,7 +59,10 @@ export function FeedbackFab() {
   };
 
   return (
-    <div className="fixed right-4 z-50 flex flex-col items-end" style={{ bottom: 'calc(var(--bottom-nav-total-h) + 12px)' }}>
+    <div
+      className="fixed right-4 lg:right-6 z-50 flex flex-col items-end"
+      style={{ bottom: 'max(calc(var(--bottom-nav-total-h) + 12px), 24px)' }}
+    >
       <AnimatePresence>
         {open && (
           <motion.div
@@ -67,7 +70,7 @@ export function FeedbackFab() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.85, y: 16 }}
             transition={{ duration: 0.2 }}
-            className="mb-3 w-72 rounded-xl border border-border/60 bg-card p-4 shadow-xl"
+            className="mb-3 w-72 lg:w-96 rounded-xl border border-border/60 bg-card p-4 lg:p-5 shadow-xl"
           >
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-semibold text-foreground">Send Feedback</p>
@@ -116,10 +119,10 @@ export function FeedbackFab() {
       <motion.button
         whileTap={{ scale: 0.9 }}
         onClick={() => setOpen((o) => !o)}
-        className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
+        className="flex h-12 w-12 lg:h-14 lg:w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-all"
         aria-label="Send feedback"
       >
-        {open ? <X className="h-5 w-5" /> : <MessageSquarePlus className="h-5 w-5" />}
+        {open ? <X className="h-5 w-5 lg:h-6 lg:w-6" /> : <MessageSquarePlus className="h-5 w-5 lg:h-6 lg:w-6" />}
       </motion.button>
     </div>
   );

@@ -31,7 +31,10 @@ const DrawerContent = React.forwardRef<
     <DrawerPrimitive.Content
       ref={ref}
       className={cn(
+        // Mobile: bottom sheet (unchanged PWA behavior)
         "fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-background",
+        // Desktop (lg+): right-side sheet — feels native on web
+        "lg:inset-y-0 lg:right-0 lg:left-auto lg:bottom-auto lg:mt-0 lg:h-full lg:w-[440px] lg:max-w-[92vw] lg:rounded-none lg:border-l lg:border-r-0 lg:border-t-0 lg:border-b-0 lg:shadow-2xl",
         className,
       )}
       style={{
@@ -43,7 +46,8 @@ const DrawerContent = React.forwardRef<
       }}
       {...props}
     >
-      <div className="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted" />
+      {/* Drag handle: only meaningful on mobile bottom-sheet */}
+      <div className="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted lg:hidden" />
       {children}
     </DrawerPrimitive.Content>
   </DrawerPortal>
