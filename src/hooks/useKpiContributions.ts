@@ -224,14 +224,24 @@ async function fetchEnergyProductionRows(
     verified: ['tesla', 'enphase', 'solaredge', 'tesla_historical'].includes(r.provider),
   }));
 
-  let receiptRows = mapped;
+  let receiptRows: KpiContributionRow[] = mapped;
   if (dataType === 'solar' && solarProviderFilter) {
-    receiptRows = normalizeDailySolarRows(mapped);
+    receiptRows = normalizeDailySolarRows(mapped) as KpiContributionRow[];
   } else if (dataType === 'battery_discharge' || dataType === 'ev_miles') {
     // EV odometer & battery export are cumulative lifetime counters. Use the
     // device's stored baseline_data so deltas sum to the headline pending.
+    // Physical caps defang Tesla/Enphase backfill storms (invariant I3).
     const baselines = await fetchDeviceBaselines(userId, dataType, deviceId);
-    receiptRows = normalizeDailyBatteryRows(mapped, baselines);
+    const cap = dataType === 'battery_discharge'
+      ? DAILY_PHYSICAL_CAP.battery_kwh
+      : DAILY_PHYSICAL_CAP.ev_miles;
+    receiptRows = normalizeDailyCounterRows(mapped, baselines, {
+      cap,
+      onAnomaly: (a) => {
+         
+        if (import.meta.env?.DEV) console.warn(`[kpi:${dataType}]`, a);
+      },
+    }) as KpiContributionRow[];
   }
 
   if (!pendingTarget || pendingTarget <= 0) {
