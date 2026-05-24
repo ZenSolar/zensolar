@@ -61,6 +61,17 @@ Deno.serve(async (req) => {
       console.error('check_anchor_freshness threw', e);
     }
 
+    // Pillar 4 · Anti-Double-Count — cross-source duplicate detector
+    let crossSourceDups = 0;
+    try {
+      const { data: xData, error: xErr } = await supabase.rpc('detect_cross_source_duplicates');
+      if (xErr) console.error('detect_cross_source_duplicates rpc error', xErr);
+      else crossSourceDups = typeof xData === 'number' ? xData : 0;
+    } catch (e) {
+      console.error('detect_cross_source_duplicates threw', e);
+    }
+
+
     // Best-effort: surface critical violations + KPI criticals + collusion signals from this run
     const [{ data: criticals }, { data: kpiCriticals }, { data: collusionCriticals }] = await Promise.all([
       supabase
