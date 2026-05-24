@@ -1088,6 +1088,81 @@ export type Database = {
         }
         Relationships: []
       }
+      mint_idempotency_keys: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          mint_tx_hash: string | null
+          user_id: string
+          window_end: string
+          window_start: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          mint_tx_hash?: string | null
+          user_id: string
+          window_end: string
+          window_start: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          mint_tx_hash?: string | null
+          user_id?: string
+          window_end?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      mint_reconciliation_log: {
+        Row: {
+          category: string
+          created_at: string
+          diff_pct: number
+          headline_amount: number
+          id: string
+          mint_tx_hash: string
+          on_chain_amount: number
+          passed: boolean
+          rows_amount: number
+          source_breakdown: Json
+          tolerance_pct: number
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          diff_pct: number
+          headline_amount: number
+          id?: string
+          mint_tx_hash: string
+          on_chain_amount: number
+          passed: boolean
+          rows_amount: number
+          source_breakdown?: Json
+          tolerance_pct?: number
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          diff_pct?: number
+          headline_amount?: number
+          id?: string
+          mint_tx_hash?: string
+          on_chain_amount?: number
+          passed?: boolean
+          rows_amount?: number
+          source_breakdown?: Json
+          tolerance_pct?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       mint_transactions: {
         Row: {
           action: string
