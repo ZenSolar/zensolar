@@ -139,7 +139,7 @@ const PILLARS: Pillar[] = [
       {
         label: 'Server-side reconciliation only',
         detail:
-          'Edge functions compute the mint amount from verified source rows. Wallet-side amounts are ignored.',
+          'The mint-onchain edge function computes the mint amount from verified source rows. Wallet-side amounts are ignored.',
       },
       {
         label: 'Subscription dual-gate',
@@ -147,14 +147,34 @@ const PILLARS: Pillar[] = [
           'Only paying subscribers can mint. An economic gate on top of the technical gate makes Sybil farming structurally unprofitable.',
       },
       {
-        label: 'Three-way reconciliation',
+        label: 'Three-way reconciliation (headline ↔ rows ↔ on-chain)',
         detail:
-          'Headline KPI ↔ underlying receipts ↔ on-chain mint amount. The diff is written to mint_transactions.reconciliation_diff for forensic audit.',
+          'Every mint runs verifyThreeWayMatch(). All three numbers must agree within 1% (with a 0.5 kWh absolute floor for tiny values). Diff and source_breakdown are persisted to mint_reconciliation_log for forensic audit.',
       },
       {
-        label: 'Baseline ≤ lifetime, always',
+        label: 'Non-negative amount guard (DB CHECK)',
         detail:
-          'If a device\'s stored baseline ever exceeds its current lifetime reading, minting for that category is blocked until the data syncs.',
+          'mint_transactions enforces tokens_minted, kwh_delta, and miles_delta ≥ 0 at the database. A negative-amount mint is physically impossible to record.',
+      },
+      {
+        label: 'tx_hash uniqueness (DB unique index)',
+        detail:
+          'A single on-chain transaction can never produce two receipts. The same hash inserted twice is rejected at write time.',
+      },
+      {
+        label: 'Idempotency keys per mint window',
+        detail:
+          'mint_idempotency_keys enforces UNIQUE(user_id, action, window_start). Two parallel taps for the same kWh window can produce at most one mint, ever.',
+      },
+      {
+        label: 'Baseline ≤ lifetime trigger',
+        detail:
+          'A BEFORE INSERT/UPDATE trigger on connected_devices rejects any state where baseline.{solar_wh, odometer, charging_kwh, …} exceeds lifetime.{…}. Mirrored client-side in verifyBaselineLeLifetime().',
+      },
+      {
+        label: 'Property-tested in CI (50-trial fuzz)',
+        detail:
+          'src/lib/__tests__/mintReconciliation.test.ts runs golden fixtures + a 50-trial fuzz that proves any three-way drift beyond tolerance is always caught.',
       },
     ],
   },
