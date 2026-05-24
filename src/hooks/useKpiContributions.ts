@@ -267,7 +267,8 @@ async function fetchEnergyProductionRows(
   let receiptRows = mapped;
   if (dataType === 'solar' && solarProviderFilter) {
     receiptRows = normalizeDailySolarRows(mapped);
-  } else if (dataType === 'battery_discharge') {
+  } else if (dataType === 'battery_discharge' || dataType === 'ev_miles') {
+    // EV odometer is a cumulative lifetime counter just like battery export.
     receiptRows = normalizeDailyBatteryRows(mapped, sinceIso);
   }
 
