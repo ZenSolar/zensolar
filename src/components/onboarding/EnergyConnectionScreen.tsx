@@ -5,9 +5,9 @@ import { triggerLightTap } from '@/hooks/useHaptics';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
 // Brand logos (clean modern marks in brand colors)
-import teslaLogo from '@/assets/logos/tesla-mark.svg';
+import teslaLogo from '@/assets/logos/tesla-wordmark.svg';
 import enphaseLogo from '@/assets/logos/enphase-mark.svg';
-import solaredgeLogo from '@/assets/logos/solaredge-mark.svg';
+import solaredgeLogo from '@/assets/logos/solaredge-wordmark.svg';
 import wallboxLogo from '@/assets/logos/wallbox-mark.svg';
 
 export type EnergyProvider = 'tesla' | 'enphase' | 'solaredge' | 'wallbox';
