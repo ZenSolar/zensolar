@@ -869,9 +869,6 @@ Deno.serve(async (req) => {
         
         // M4/M6 — Three-way reconciliation runs BEFORE recordTransaction so we
         // can persist reconciliation_diff + drift status atomically on the mint row.
-        let mintStatus: string = "confirmed";
-        let maxDiffPct = 0;
-        let reconciliationViolations: string[] = [];
         const sourceBreakdown: Record<string, unknown> = {
           solar_kwh: Number(solar),
           ev_miles: Number(evMiles),
