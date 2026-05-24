@@ -724,6 +724,18 @@ export default function Onboarding() {
         </div>
       )}
 
+      {step === 'ai-concierge' && (
+        <div className="pt-24">
+          <AIConciergeScreen
+            onPlanConfirmed={handleConciergePlanConfirmed}
+            onSkipToManual={handleConciergeSkip}
+            onBack={() => setStep('wallet-choice')}
+          />
+        </div>
+      )}
+
+
+
       {(step === 'energy-connect' || step === 'device-selection') && (
         <div className="pt-24">
           <EnergyConnectionScreen
