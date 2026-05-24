@@ -238,8 +238,8 @@ export default function Onboarding() {
       case 'skip':
         setWalletType('skipped');
         trackWalletSkipped();
-        // Skip directly to energy connection
-        setStep('energy-connect');
+        // Skip directly to AI concierge
+        setStep('ai-concierge');
         break;
     }
   };
@@ -422,11 +422,31 @@ export default function Onboarding() {
   };
 
   const handleWalletSuccessContinue = () => {
-    // Track completion and proceed to energy connection with animation
+    // Track completion and proceed to AI concierge with animation
     trackOnboardingComplete({ 
       walletType: walletType as 'zensolar' | 'external', 
       hasWallet: true 
     });
+    transitionToStep('ai-concierge');
+  };
+
+  // AI Concierge handlers
+  const handleConciergePlanConfirmed = (plan: { providers: ConciergeBrand[]; profile: SetupProfile }) => {
+    // Persist the AI-extracted profile so downstream screens (e.g. HomeChargingSetup) can prefill.
+    try {
+      localStorage.setItem('onboarding_setup_profile', JSON.stringify(plan.profile));
+      localStorage.setItem('onboarding_planned_providers', JSON.stringify(plan.providers));
+    } catch {}
+    trackEvent('onboarding_concierge_plan_confirmed', {
+      provider_count: plan.providers.length,
+      confidence: plan.profile.confidence,
+    });
+    toast.success(plan.profile.summary, { duration: 4500 });
+    transitionToStep('energy-connect');
+  };
+
+  const handleConciergeSkip = () => {
+    trackEvent('onboarding_concierge_skipped', {});
     transitionToStep('energy-connect');
   };
 
