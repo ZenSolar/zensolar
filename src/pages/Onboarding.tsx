@@ -205,6 +205,17 @@ export default function Onboarding() {
       setStep('wallet-choice');
     }
 
+    // Demo/preview deep-link — jump straight to any onboarding step.
+    // Usage: /onboarding?preview=energy-connect (or ai-concierge, wallet-success, energy-success, home-charging-setup)
+    const preview = searchParams.get('preview') as OnboardingStep | null;
+    const validPreviewSteps: OnboardingStep[] = [
+      'wallet-choice', 'zensolar-setup', 'external-wallet', 'wallet-success',
+      'ai-concierge', 'energy-connect', 'home-charging-setup', 'energy-success', 'device-selection'
+    ];
+    if (preview && validPreviewSteps.includes(preview)) {
+      setStep(preview);
+    }
+
     // Optional deep-links into a specific wallet path (used by Dashboard/Profile CTAs)
     if (choice === 'zensolar') {
       setStep('zensolar-setup');
@@ -212,6 +223,7 @@ export default function Onboarding() {
     if (choice === 'external') {
       setStep('external-wallet');
     }
+
     
     // Handle return from OAuth callback - show device selection then success
     if (oauthSuccess === 'true' && provider) {
