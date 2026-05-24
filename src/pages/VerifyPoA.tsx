@@ -32,6 +32,15 @@ type Receipt = {
   miles_delta?: number | string | null;
   status?: string;
   created_at?: string;
+  covering_anchor?: {
+    id: string;
+    snapshot_at: string;
+    merkle_root: string;
+    leaf_count: number;
+    max_chain_seq_global: number;
+    onchain_tx_hash: string | null;
+    block_number: string | null;
+  } | null;
 };
 
 const MOCK_DEMO: Receipt = {
