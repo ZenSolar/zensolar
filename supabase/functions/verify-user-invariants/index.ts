@@ -43,6 +43,24 @@ Deno.serve(async (req) => {
       console.error('detect_collusion_signals threw', e);
     }
 
+    // Pillar 3 · Proof of Permanence — chain-integrity sweep + anchor freshness
+    let chainTampers = 0;
+    let anchorFreshnessAlerts = 0;
+    try {
+      const { data: tData, error: tErr } = await supabase.rpc('verify_chain_integrity');
+      if (tErr) console.error('verify_chain_integrity rpc error', tErr);
+      else chainTampers = typeof tData === 'number' ? tData : 0;
+    } catch (e) {
+      console.error('verify_chain_integrity threw', e);
+    }
+    try {
+      const { data: fData, error: fErr } = await supabase.rpc('check_anchor_freshness');
+      if (fErr) console.error('check_anchor_freshness rpc error', fErr);
+      else anchorFreshnessAlerts = typeof fData === 'number' ? fData : 0;
+    } catch (e) {
+      console.error('check_anchor_freshness threw', e);
+    }
+
     // Best-effort: surface critical violations + KPI criticals + collusion signals from this run
     const [{ data: criticals }, { data: kpiCriticals }, { data: collusionCriticals }] = await Promise.all([
       supabase
