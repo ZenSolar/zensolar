@@ -1,6 +1,6 @@
 ---
-name: AI Setup Concierge (onboarding)
-description: Lovable AI tool-call extracts SetupProfile from plain-English description, then routes user to energy-connect with planned providers
+name: AI Setup Concierge (onboarding) — Deason
+description: Named AI assistant "Deason" uses Lovable AI tool-call to extract SetupProfile from plain-English description, then routes user to energy-connect with planned providers
 type: feature
 ---
 After `wallet-success` (or wallet skip), users land on `AIConciergeScreen` before `energy-connect`.
