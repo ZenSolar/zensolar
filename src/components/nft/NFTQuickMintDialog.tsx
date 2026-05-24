@@ -272,8 +272,20 @@ export const NFTQuickMintDialog = forwardRef<NFTQuickMintDialogRef, NFTQuickMint
           },
         });
 
-        if (error) throw error;
-        if (data?.error) throw new Error(data.error);
+        if (error) {
+          const parsed = parseMintError(error, data);
+          if (parsed.isGate) {
+            toast.message(parsed.title, { description: parsed.message });
+          }
+          throw new Error(parsed.message);
+        }
+        if (data?.error) {
+          const parsed = parseMintError(null, data);
+          if (parsed.isGate) {
+            toast.message(parsed.title, { description: parsed.message });
+          }
+          throw new Error(parsed.message);
+        }
 
         // Success!
         triggerGoldBurst();
