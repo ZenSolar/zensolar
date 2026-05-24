@@ -269,6 +269,7 @@ export default function Settings() {
           </CardContent>
         </Card>
       </motion.div>
+      </div>
     </div>
   );
 }
