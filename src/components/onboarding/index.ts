@@ -9,3 +9,5 @@ export { EnergySuccessScreen } from './EnergySuccessScreen';
 export { OnboardingProgress } from './OnboardingProgress';
 export { OnboardingTransition } from './OnboardingTransition';
 export { OnboardingAnimatedContent, OnboardingAnimatedItem } from './OnboardingAnimatedContent';
+export { HomeChargingSetupScreen } from './HomeChargingSetupScreen';
+export type { HomeChargingSource, HomeSetupType } from './HomeChargingSetupScreen';
