@@ -44,8 +44,28 @@ Deno.serve(async (req) => {
     anchor,
   }));
 
+  // Pillar 5b · on-chain publication. Fire the publisher (best-effort) so the
+  // newest anchor (and any backlog of unpublished anchors) lands on Base.
+  let onchain: unknown = null;
+  try {
+    const url = `${Deno.env.get('SUPABASE_URL')!}/functions/v1/publish-permanence-onchain`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!}`,
+      },
+      body: '{}',
+    });
+    onchain = await res.json().catch(() => null);
+    console.log(JSON.stringify({ event: 'permanence_onchain_publish', ok: res.ok, onchain }));
+  } catch (e) {
+    console.error('publish-permanence-onchain invocation failed', e);
+    onchain = { error: String((e as Error).message ?? e) };
+  }
+
   return new Response(
-    JSON.stringify({ ok: true, new_anchor: !!newId, anchor }),
+    JSON.stringify({ ok: true, new_anchor: !!newId, anchor, onchain }),
     { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
   );
 });
