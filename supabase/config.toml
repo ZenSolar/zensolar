@@ -97,3 +97,5 @@ project_id = "fcptrpgqkjffgeddajwl"
     verify_jwt = false
   [functions.wallbox-refresh-tokens]
     verify_jwt = false
+  [functions.onboarding-concierge]
+    verify_jwt = false

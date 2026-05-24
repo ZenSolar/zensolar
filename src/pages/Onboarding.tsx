@@ -7,6 +7,7 @@ import { OnboardingSuccessScreen } from "@/components/onboarding/OnboardingSucce
 import { EnergyConnectionScreen, EnergyProvider } from "@/components/onboarding/EnergyConnectionScreen";
 import { EnergySuccessScreen } from "@/components/onboarding/EnergySuccessScreen";
 import { HomeChargingSetupScreen } from "@/components/onboarding/HomeChargingSetupScreen";
+import { AIConciergeScreen, SetupProfile, ConciergeBrand } from "@/components/onboarding/AIConciergeScreen";
 import { OnboardingProgress } from "@/components/onboarding/OnboardingProgress";
 import { OnboardingTransition } from "@/components/onboarding/OnboardingTransition";
 import { EnphaseCodeDialog } from "@/components/dashboard/EnphaseCodeDialog";
@@ -33,6 +34,7 @@ type OnboardingStep =
   | 'zensolar-setup' 
   | 'external-wallet' 
   | 'wallet-success'
+  | 'ai-concierge'
   | 'energy-connect'
   | 'home-charging-setup'
   | 'energy-success'
@@ -50,6 +52,8 @@ function getStepNumber(step: OnboardingStep): number {
       return 2;
     case 'wallet-success':
       return 2; // Still step 2 (completing wallet)
+    case 'ai-concierge':
+      return 3;
     case 'energy-connect':
       return 3;
     case 'device-selection':
@@ -234,8 +238,8 @@ export default function Onboarding() {
       case 'skip':
         setWalletType('skipped');
         trackWalletSkipped();
-        // Skip directly to energy connection
-        setStep('energy-connect');
+        // Skip directly to AI concierge
+        setStep('ai-concierge');
         break;
     }
   };
@@ -418,11 +422,31 @@ export default function Onboarding() {
   };
 
   const handleWalletSuccessContinue = () => {
-    // Track completion and proceed to energy connection with animation
+    // Track completion and proceed to AI concierge with animation
     trackOnboardingComplete({ 
       walletType: walletType as 'zensolar' | 'external', 
       hasWallet: true 
     });
+    transitionToStep('ai-concierge');
+  };
+
+  // AI Concierge handlers
+  const handleConciergePlanConfirmed = (plan: { providers: ConciergeBrand[]; profile: SetupProfile }) => {
+    // Persist the AI-extracted profile so downstream screens (e.g. HomeChargingSetup) can prefill.
+    try {
+      localStorage.setItem('onboarding_setup_profile', JSON.stringify(plan.profile));
+      localStorage.setItem('onboarding_planned_providers', JSON.stringify(plan.providers));
+    } catch {}
+    trackEvent('onboarding_concierge_plan_confirmed', {
+      provider_count: plan.providers.length,
+      confidence: plan.profile.confidence,
+    });
+    toast.success(plan.profile.summary, { duration: 4500 });
+    transitionToStep('energy-connect');
+  };
+
+  const handleConciergeSkip = () => {
+    trackEvent('onboarding_concierge_skipped', {});
     transitionToStep('energy-connect');
   };
 
@@ -699,6 +723,18 @@ export default function Onboarding() {
           />
         </div>
       )}
+
+      {step === 'ai-concierge' && (
+        <div className="pt-24">
+          <AIConciergeScreen
+            onPlanConfirmed={handleConciergePlanConfirmed}
+            onSkipToManual={handleConciergeSkip}
+            onBack={() => setStep('wallet-choice')}
+          />
+        </div>
+      )}
+
+
 
       {(step === 'energy-connect' || step === 'device-selection') && (
         <div className="pt-24">
