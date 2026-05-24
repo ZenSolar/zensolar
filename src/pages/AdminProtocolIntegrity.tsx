@@ -267,22 +267,6 @@ export default function AdminProtocolIntegrity() {
                     </div>
                   </CardTitle>
                 </CardHeader>
-
-          )}
-        </TabsContent>
-
-        <TabsContent value="collusion" className="space-y-2">
-          {collusion.length === 0 ? (
-            <EmptyState label="No collusion signals detected." />
-          ) : (
-            collusion.map((c) => (
-              <Card key={c.id}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center justify-between gap-2">
-                    <span className="font-mono">{c.signal_key}</span>
-                    <Badge variant={sevColor(c.severity) as never}>{c.severity}</Badge>
-                  </CardTitle>
-                </CardHeader>
                 <CardContent className="text-xs text-muted-foreground space-y-1">
                   <div>
                     {c.user_ids?.length ?? 0} users involved · fp{" "}
@@ -301,6 +285,7 @@ export default function AdminProtocolIntegrity() {
             ))
           )}
         </TabsContent>
+
       </Tabs>
     </div>
   );
