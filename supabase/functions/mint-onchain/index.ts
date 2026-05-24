@@ -857,6 +857,9 @@ Deno.serve(async (req) => {
 
       const expectedTokens = Number(totalUnits) * 0.93;
       let newNfts: number[] = [];
+      let mintStatus: string = "confirmed";
+      let maxDiffPct = 0;
+      let reconciliationViolations: string[] = [];
 
       // Get NFTs after minting to see what was minted
       if (receipt.status === "success") {
