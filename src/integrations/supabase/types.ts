@@ -110,6 +110,7 @@ export type Database = {
           direction: string
           ended_at: string | null
           energy_kwh: number
+          event_fingerprint: string | null
           flow_type: string
           genesis_reason: string | null
           genesis_status: Database["public"]["Enums"]["genesis_status"]
@@ -134,6 +135,7 @@ export type Database = {
           direction: string
           ended_at?: string | null
           energy_kwh?: number
+          event_fingerprint?: string | null
           flow_type: string
           genesis_reason?: string | null
           genesis_status?: Database["public"]["Enums"]["genesis_status"]
@@ -158,6 +160,7 @@ export type Database = {
           direction?: string
           ended_at?: string | null
           energy_kwh?: number
+          event_fingerprint?: string | null
           flow_type?: string
           genesis_reason?: string | null
           genesis_status?: Database["public"]["Enums"]["genesis_status"]
@@ -184,6 +187,7 @@ export type Database = {
           created_at: string
           device_id: string
           energy_kwh: number
+          event_fingerprint: string | null
           fee_amount: number | null
           fee_currency: string | null
           genesis_reason: string | null
@@ -201,6 +205,7 @@ export type Database = {
           created_at?: string
           device_id: string
           energy_kwh?: number
+          event_fingerprint?: string | null
           fee_amount?: number | null
           fee_currency?: string | null
           genesis_reason?: string | null
@@ -218,6 +223,7 @@ export type Database = {
           created_at?: string
           device_id?: string
           energy_kwh?: number
+          event_fingerprint?: string | null
           fee_amount?: number | null
           fee_currency?: string | null
           genesis_reason?: string | null
@@ -627,6 +633,7 @@ export type Database = {
           created_at: string
           data_type: string
           device_id: string
+          event_fingerprint: string | null
           genesis_reason: string | null
           genesis_status: Database["public"]["Enums"]["genesis_status"]
           id: string
@@ -642,6 +649,7 @@ export type Database = {
           created_at?: string
           data_type?: string
           device_id: string
+          event_fingerprint?: string | null
           genesis_reason?: string | null
           genesis_status?: Database["public"]["Enums"]["genesis_status"]
           id?: string
@@ -657,6 +665,7 @@ export type Database = {
           created_at?: string
           data_type?: string
           device_id?: string
+          event_fingerprint?: string | null
           genesis_reason?: string | null
           genesis_status?: Database["public"]["Enums"]["genesis_status"]
           id?: string
@@ -910,6 +919,7 @@ export type Database = {
           device_id: string
           end_kwh_added: number
           end_time: string | null
+          event_fingerprint: string | null
           genesis_reason: string | null
           genesis_status: Database["public"]["Enums"]["genesis_status"]
           id: string
@@ -934,6 +944,7 @@ export type Database = {
           device_id: string
           end_kwh_added?: number
           end_time?: string | null
+          event_fingerprint?: string | null
           genesis_reason?: string | null
           genesis_status?: Database["public"]["Enums"]["genesis_status"]
           id?: string
@@ -958,6 +969,7 @@ export type Database = {
           device_id?: string
           end_kwh_added?: number
           end_time?: string | null
+          event_fingerprint?: string | null
           genesis_reason?: string | null
           genesis_status?: Database["public"]["Enums"]["genesis_status"]
           id?: string
