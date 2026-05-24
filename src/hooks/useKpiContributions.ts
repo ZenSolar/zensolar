@@ -196,7 +196,7 @@ async function fetchEnergyProductionRows(
     verified: ['tesla', 'enphase', 'solaredge', 'tesla_historical'].includes(r.provider),
   }));
 
-  const receiptRows = dataType === 'solar'
+  const receiptRows = dataType === 'solar' && solarProviderFilter
     ? normalizeDailySolarRows(mapped)
     : mapped;
 
