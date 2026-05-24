@@ -300,8 +300,10 @@ async function fetchEnergyProductionRows(
   if (dataType === 'solar' && solarProviderFilter) {
     receiptRows = normalizeDailySolarRows(mapped);
   } else if (dataType === 'battery_discharge' || dataType === 'ev_miles') {
-    // EV odometer is a cumulative lifetime counter just like battery export.
-    receiptRows = normalizeDailyBatteryRows(mapped, sinceIso);
+    // EV odometer & battery export are cumulative lifetime counters. Use the
+    // device's stored baseline_data so deltas sum to the headline pending.
+    const baselines = await fetchDeviceBaselines(userId, dataType, deviceId);
+    receiptRows = normalizeDailyBatteryRows(mapped, baselines);
   }
 
   if (!pendingTarget || pendingTarget <= 0) return receiptRows;
