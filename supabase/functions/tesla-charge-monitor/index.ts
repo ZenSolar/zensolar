@@ -666,19 +666,27 @@ async function recoverCompletedHomeSession(
   userTimezone: string | null,
 ) {
   const now = new Date();
-  const since = new Date(now.getTime() - 36 * 60 * 60 * 1000).toISOString();
+  // Pillar 4 (same-provider replay guard): widened from 36h → 7d. Tesla's
+  // chargeEnergyAdded counter resets on unplug, so the *same physical session*
+  // can re-surface for days under a different timestamp if the vehicle stays
+  // plugged in. Without this, the recovery path double-mints. Tolerance is
+  // tight (±0.5 kWh) so genuinely separate same-size sessions still record.
+  const since = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
   const { data: duplicate } = await supabase
     .from("home_charging_sessions")
-    .select("id")
+    .select("id, start_time, total_session_kwh")
     .eq("user_id", userId)
     .eq("device_id", vin)
     .gte("start_time", since)
-    .gte("total_session_kwh", Math.max(0, totalKwh - 0.2))
-    .lte("total_session_kwh", totalKwh + 0.2)
+    .gte("total_session_kwh", Math.max(0, totalKwh - 0.5))
+    .lte("total_session_kwh", totalKwh + 0.5)
     .limit(1);
 
   if (duplicate && duplicate.length > 0) {
-    console.log(`[ChargeMonitor] Skipped duplicate recovered session for ${vin}: ${totalKwh.toFixed(1)} kWh`);
+    console.log(
+      `[ChargeMonitor] Skipped duplicate recovered session for ${vin}: ${totalKwh.toFixed(1)} kWh ` +
+      `(matches existing ${duplicate[0].id} from ${duplicate[0].start_time} @ ${duplicate[0].total_session_kwh} kWh, within 7d window)`
+    );
     return { action: "duplicate_recovered_session", total_kwh: totalKwh };
   }
 
