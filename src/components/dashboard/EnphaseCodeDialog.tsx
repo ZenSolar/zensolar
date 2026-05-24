@@ -27,7 +27,7 @@ const steps = [
 // Regex to match Enphase authorization codes (typically 6-8 alphanumeric characters)
 const ENPHASE_CODE_REGEX = /^[A-Za-z0-9]{5,10}$/;
 
-export function EnphaseCodeDialog({ open, onOpenChange, onSubmit }: EnphaseCodeDialogProps) {
+export function EnphaseCodeDialog({ open, onOpenChange, onSubmit, authUrl }: EnphaseCodeDialogProps) {
   const [code, setCode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
