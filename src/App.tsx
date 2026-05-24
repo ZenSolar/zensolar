@@ -496,6 +496,16 @@ const App = () => {
                         </ProtectedRoute>
                       } 
                     />
+                    <Route 
+                      path="/admin/protocol-integrity" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminProtocolIntegrity />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
                     {/* Root route - shows Landing for guests, Dashboard for auth users */}
                     <Route path="/" element={<RootRoute />} />
                     {/* Consolidated routes */}
