@@ -121,6 +121,7 @@ async function fetchEnergyProductionRows(
   dataType: 'solar' | 'battery_discharge' | 'ev_miles',
   deviceId: string | undefined,
   sinceIso: string | null,
+  pendingTarget?: number,
 ): Promise<KpiContributionRow[]> {
   let query = supabase
     .from('energy_production')
@@ -128,27 +129,40 @@ async function fetchEnergyProductionRows(
     .eq('user_id', userId)
     .eq('data_type', dataType)
     .order('recorded_at', { ascending: false })
-    .limit(ROW_LIMIT);
+    .limit(pendingTarget ? 500 : ROW_LIMIT);
 
   if (deviceId) query = query.eq('device_id', deviceId);
-  if (sinceIso) query = query.gt('recorded_at', sinceIso);
+  if (sinceIso && !pendingTarget) query = query.gt('recorded_at', sinceIso);
 
   const { data, error } = await query;
   if (error) throw error;
 
   const isMiles = dataType === 'ev_miles';
-  return (data || []).map((r: any) => ({
+  const mapped = (data || []).map((r: any) => ({
     id: String(r.id),
     recordedAt: r.recorded_at,
     hasRealTime: true,
     amount: isMiles
       ? Math.round(Number(r.production_wh) * 10) / 10
       : Math.round((Number(r.production_wh) / 1000) * 10) / 10,
-    unit: isMiles ? 'mi' : 'kWh',
+    unit: (isMiles ? 'mi' : 'kWh') as 'kWh' | 'mi',
     provider: r.provider,
     deviceId: r.device_id,
     verified: ['tesla', 'enphase', 'solaredge', 'tesla_historical'].includes(r.provider),
   }));
+
+  if (!pendingTarget || pendingTarget <= 0) return mapped;
+
+  // Walk newest → oldest until receipts ≈ headline pending (within 0.5)
+  const target = Math.max(0, pendingTarget - 0.5);
+  let running = 0;
+  const pendingRows: KpiContributionRow[] = [];
+  for (const row of mapped) {
+    pendingRows.push(row);
+    running += row.amount;
+    if (running >= target) break;
+  }
+  return pendingRows;
 }
 
 async function fetchSuperchargerRows(
