@@ -538,8 +538,54 @@ Deno.serve(async (req) => {
       }
     }
 
+    // ============================================
+    // Cross-pillar Mint Gate · block users with open critical violations / collusion signals
+    // (Pillars 2 & 4 enforcement). Only blocks write actions; reads still flow.
+    // ============================================
+    const writeActions = new Set([
+      "register",
+      "mint-rewards",
+      "mint-combos",
+      "claim-milestone-nfts",
+      "mint-specific-nft",
+    ]);
+    if (writeActions.has(action)) {
+      try {
+        const { data: gate, error: gateErr } = await supabaseClient
+          .rpc("can_user_mint", { _user_id: user.id });
+        if (gateErr) {
+          console.error("can_user_mint rpc error", gateErr);
+          // Fail closed on infra error for write actions
+          return new Response(
+            JSON.stringify({ error: "mint_gate_check_failed" }),
+            { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          );
+        }
+        if (gate && gate.allowed === false) {
+          console.warn(`mint_gate_blocked user=${user.id} reason=${gate.reason}`);
+          return new Response(
+            JSON.stringify({
+              error: "mint_gate_blocked",
+              reason: gate.reason,
+              violations: gate.violations,
+              signals: gate.signals,
+              message: "Your account has an open protocol-integrity issue. An admin must review before you can mint again.",
+            }),
+            { status: 423, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          );
+        }
+      } catch (e) {
+        console.error("mint gate threw", e);
+        return new Response(
+          JSON.stringify({ error: "mint_gate_exception" }),
+          { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+    }
+
     // Guardrail: actions that write to chain require the controller owner to match
     // the backend signer (MINTER_PRIVATE_KEY derived address).
+
     const ownerRequiredActions = new Set([
       "register",
       "mint-rewards",
