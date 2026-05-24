@@ -746,7 +746,12 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        const parsed = parseMintError(error, data);
+        const err = new Error(parsed.message);
+        (err as any).parsed = parsed;
+        throw err;
+      }
 
       const result = data as MintResult;
 
