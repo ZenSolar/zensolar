@@ -33,6 +33,8 @@ const EV_MI_PER_KWH = 3.0;
 export type LiveMintReceipt = {
   id: string;
   tx_hash: string;
+  /** Per-user SHA-256 chain hash. Used to build the unified public verify URL. */
+  chain_hash: string | null;
   block_number: string | null;
   minted_at: string;
   action: string;
@@ -71,7 +73,7 @@ export function useLatestMintReceipt(): State {
         // 1. Most recent mint for this user
         const { data: mints, error: mintErr } = await supabase
           .from('mint_transactions')
-          .select('id, tx_hash, block_number, created_at, action, tokens_minted, miles_delta, kwh_delta, source_breakdown')
+          .select('id, tx_hash, chain_hash, block_number, created_at, action, tokens_minted, miles_delta, kwh_delta, source_breakdown')
           .eq('user_id', session.user.id)
           .order('created_at', { ascending: false })
           .limit(2); // 2 so we can compute prior odometer for legacy rows
@@ -143,6 +145,7 @@ export function useLatestMintReceipt(): State {
         const receipt: LiveMintReceipt = {
           id: last.id,
           tx_hash: last.tx_hash,
+          chain_hash: (last as { chain_hash?: string | null }).chain_hash ?? null,
           block_number: last.block_number,
           minted_at: last.created_at,
           action: last.action,

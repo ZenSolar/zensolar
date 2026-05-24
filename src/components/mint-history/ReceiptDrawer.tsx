@@ -130,7 +130,11 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
   const grandTotal = userTokens > 0 ? userTokens / 0.75 : 0;
   const hasSplit = userTokens > 0;
   const source = summarizeSource(tx);
-  const pogReceiptUrl = `${basePath}/proof-of-genesis-receipt-preview`;
+  // Prefer the unified /verify/:chain_hash URL — one canonical receipt link.
+  // Falls back to the owner-only preview for legacy mints without a chain hash.
+  const pogReceiptUrl = tx.chain_hash
+    ? `/verify/${tx.chain_hash}`
+    : `${basePath}/proof-of-genesis-receipt-preview`;
   const verifyUrl = tx.chain_hash
     ? `${typeof window !== "undefined" ? window.location.origin : "https://beta.zen.solar"}/verify/${tx.chain_hash}`
     : null;

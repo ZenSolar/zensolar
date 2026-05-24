@@ -11,6 +11,7 @@ import { SEO } from '@/components/SEO';
 import { VerifyOnChainDrawer, type VerifyOnChainData } from '@/components/proof/VerifyOnChainDrawer';
 import { ProtocolJourney, type ProtocolJourneyData } from '@/components/proof/ProtocolJourney';
 import { ProofOfAuthenticityStamp } from '@/components/proof/ProofOfAuthenticityStamp';
+import { TamperEvidentProofPanel } from '@/components/proof/TamperEvidentProofPanel';
 import { VerifiedSourceBadge } from '@/components/proof/VerifiedSourceBadge';
 import { ProtocolCinematicSequence } from '@/components/proof/ProtocolCinematicSequence';
 import { useLatestMintReceipt, type LiveMintReceipt } from '@/hooks/useLatestMintReceipt';
@@ -47,6 +48,8 @@ type Receipt = {
   id: string;
   mint_id: string;
   tx_hash: string;
+  /** Per-user SHA-256 hash chain — drives the unified public verify URL. */
+  chain_hash?: string | null;
   block_number: string;
   minted_at: string;
   tokens_minted: number;
@@ -262,6 +265,7 @@ function liveToReceipt(live: LiveMintReceipt): Receipt {
     id: `live-${live.id}`,
     mint_id: `mint_${live.id.slice(0, 8)}`,
     tx_hash: live.tx_hash,
+    chain_hash: live.chain_hash,
     block_number: live.block_number ?? '—',
     minted_at: live.minted_at,
     tokens_minted: Number(live.tokens_minted.toFixed(2)),
@@ -886,6 +890,20 @@ export default function ProofOfGenesisReceiptPreview() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Tamper-Evident Proof — promotes the formerly tiny Proof-of-Authenticity
+              corner stamp into a first-class, share-friendly section. Same data &
+              UI used on the public /verify/:poa page, so owner view and public
+              view stay in lock-step. */}
+          {receipt.chain_hash && (
+            <TamperEvidentProofPanel
+              chainHash={receipt.chain_hash}
+              txHashFallback={receipt.tx_hash}
+              variant="compact"
+            />
+          )}
+
+
 
           {/* CO2 storytelling */}
           <Card className="border-secondary/30 bg-secondary/5">
