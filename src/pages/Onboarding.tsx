@@ -6,6 +6,7 @@ import { ExternalWalletScreen } from "@/components/onboarding/ExternalWalletScre
 import { OnboardingSuccessScreen } from "@/components/onboarding/OnboardingSuccessScreen";
 import { EnergyConnectionScreen, EnergyProvider } from "@/components/onboarding/EnergyConnectionScreen";
 import { EnergySuccessScreen } from "@/components/onboarding/EnergySuccessScreen";
+import { HomeChargingSetupScreen } from "@/components/onboarding/HomeChargingSetupScreen";
 import { OnboardingProgress } from "@/components/onboarding/OnboardingProgress";
 import { OnboardingTransition } from "@/components/onboarding/OnboardingTransition";
 import { EnphaseCodeDialog } from "@/components/dashboard/EnphaseCodeDialog";
