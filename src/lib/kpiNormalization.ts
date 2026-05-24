@@ -94,19 +94,27 @@ export function normalizeDailyCounterRows(
   const deltas: DeltaRow[] = [];
   for (const [device, daily] of byDevice) {
     const days = Array.from(daily.keys()).sort();
-    let prevValue = baselinesByDevice.get(device) ?? 0;
+    const initialBaseline = baselinesByDevice.get(device) ?? 0;
+    let prevValue = initialBaseline;
+    let advancedPastBaseline = false;
     for (const day of days) {
       const cur = daily.get(day)!;
 
-      // I1 — Monotonicity: a counter that decreased = device reset / replacement.
-      // Don't emit a negative delta; advance the cursor without minting.
-      if (cur.amount < prevValue) {
+      // A sample at or below the stored baseline is either a late-arriving
+      // historical sample (already minted) or noise — skip without resetting.
+      if (!advancedPastBaseline && cur.amount <= initialBaseline) {
+        continue;
+      }
+
+      // I1 — Monotonicity: a counter that decreased AFTER we've already
+      // advanced past baseline = device reset / replacement. Don't emit a
+      // negative delta; rebase forward so we don't double-mint old kWh.
+      if (advancedPastBaseline && cur.amount < prevValue) {
         opts.onAnomaly?.({ kind: 'non_monotonic', device, day, prev: prevValue, cur: cur.amount });
-        // Treat the new lower value as the new baseline going forward so we
-        // don't re-mint the same kWh after a swap.
         prevValue = cur.amount;
         continue;
       }
+
       if (cur.amount <= prevValue) {
         prevValue = Math.max(prevValue, cur.amount);
         continue;
@@ -114,6 +122,7 @@ export function normalizeDailyCounterRows(
 
       let delta = Math.round((cur.amount - prevValue) * 10) / 10;
       prevValue = cur.amount;
+      advancedPastBaseline = true;
       if (delta <= 0) continue;
 
       // I3 — Physical cap: clip implausible jumps from backfill storms.
