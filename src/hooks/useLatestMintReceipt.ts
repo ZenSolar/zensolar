@@ -145,6 +145,7 @@ export function useLatestMintReceipt(): State {
         const receipt: LiveMintReceipt = {
           id: last.id,
           tx_hash: last.tx_hash,
+          chain_hash: (last as { chain_hash?: string | null }).chain_hash ?? null,
           block_number: last.block_number,
           minted_at: last.created_at,
           action: last.action,
