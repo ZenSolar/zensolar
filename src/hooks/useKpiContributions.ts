@@ -156,14 +156,18 @@ async function fetchEnergyProductionRows(
   // Users whose solar was installed by Tesla (no Enphase/SolarEdge) keep
   // Tesla as their solar source.
   let solarProviderFilter: string[] | null = null;
+  let solarDeviceIds: string[] | null = null;
   if (dataType === 'solar') {
     const { data: solarDevices } = await supabase
       .from('connected_devices')
-      .select('provider')
+      .select('provider, device_id')
       .eq('user_id', userId)
       .in('provider', ['enphase', 'solaredge']);
     if ((solarDevices?.length ?? 0) > 0) {
       solarProviderFilter = ['enphase', 'solaredge'];
+      solarDeviceIds = solarDevices
+        .map((device: any) => String(device.device_id || ''))
+        .filter(Boolean);
     }
   }
 
@@ -176,6 +180,7 @@ async function fetchEnergyProductionRows(
     .limit(pendingTarget ? 500 : ROW_LIMIT);
 
   if (deviceId) query = query.eq('device_id', deviceId);
+  else if (solarDeviceIds?.length) query = query.in('device_id', solarDeviceIds);
   if (sinceIso && !pendingTarget) query = query.gt('recorded_at', sinceIso);
   if (solarProviderFilter) query = query.in('provider', solarProviderFilter);
 
