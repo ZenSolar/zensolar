@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Check, ChevronLeft } from 'lucide-react';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
-import { triggerLight } from '@/hooks/useHaptics';
+import { triggerLightTap } from '@/hooks/useHaptics';
 
 interface OnboardingProgressProps {
   currentStep: number;
@@ -17,7 +17,7 @@ export function OnboardingProgress({
   onBack,
 }: OnboardingProgressProps) {
   const handleBack = () => {
-    triggerLight?.();
+    triggerLightTap?.();
     onBack?.();
   };
 
