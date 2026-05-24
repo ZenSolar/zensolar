@@ -389,6 +389,7 @@ Deno.serve(async (req) => {
         pending_solar_wh: pendingSolarWh,
         energy_today_wh: todayEnergyWh,
         current_power_w: currentPowerW,
+        lifetime_battery_discharge_wh: lifetimeBatteryDischargeWh,
       },
     };
 
