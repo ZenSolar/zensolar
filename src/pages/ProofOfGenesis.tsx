@@ -97,22 +97,32 @@ const PILLARS: Pillar[] = [
       {
         label: 'OEM OAuth at the source',
         detail:
-          'Tesla, SolarEdge, Enphase, Wallbox sign the data at the provider. We never accept client-asserted production.',
+          'Tesla, SolarEdge, Enphase, and Wallbox sign the data at the provider. We never accept client-asserted production.',
       },
       {
-        label: 'DeviceWatermarkRegistry.sol',
+        label: 'Provider whitelist enforced in the database',
         detail:
-          'One device → one wallet, enforced on-chain. A single panel array can never mint to 100 wallets.',
+          'connected_devices.provider and energy_production.provider are CHECK-constrained to the known integration set. A row from any other source is rejected at write time, not at read time.',
       },
       {
-        label: 'Weather cross-reference',
+        label: 'Device fingerprint uniqueness (DB unique index)',
         detail:
-          'Solar production is checked against irradiance for the location and timestamp. Midnight production or storm-day spikes are flagged.',
+          'A unique index on (provider, device_id) makes it physically impossible for two wallets to claim the same Tesla VIN, Enphase site, SolarEdge inverter, or Wallbox unit. Mirrored client-side in originVerification.ts and on-chain in DeviceWatermarkRegistry.sol.',
       },
       {
-        label: 'Device handoff resets baseline',
+        label: 'Handoff trigger auto-resets baseline',
         detail:
-          'Sold vehicles, transferred panels, and ownership changes force a baseline reset — the new owner cannot inherit prior lifetime totals.',
+          'A BEFORE UPDATE trigger on connected_devices detects user_id changes, snapshots prior lifetime_totals to device_handoff_log, and zeroes lifetime_totals + baseline_data + last_minted_at. The new owner cannot inherit a single watt-hour.',
+      },
+      {
+        label: 'Geo-fence sanity check',
+        detail:
+          'Same device emitting events from locations >500 mph apart (Haversine, sorted chronologically) is physically implausible and flagged. Stationary devices and normal EV travel pass cleanly.',
+      },
+      {
+        label: 'Property-tested in CI (50-trial fuzz)',
+        detail:
+          'src/lib/__tests__/originVerification.test.ts runs golden fixtures + a 50-trial fuzz that proves random claim graphs always surface cross-user device collisions.',
       },
     ],
   },
