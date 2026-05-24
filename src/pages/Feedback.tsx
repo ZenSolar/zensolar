@@ -221,11 +221,12 @@ export default function Feedback() {
                 </div>
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full h-12 text-base gap-2" 
-                disabled={isSubmitting || !subject.trim() || !message.trim()}
-              >
+              <div className="flex lg:justify-end">
+                <Button
+                  type="submit"
+                  className="w-full lg:w-auto lg:min-w-[200px] h-12 text-base gap-2"
+                  disabled={isSubmitting || !subject.trim() || !message.trim()}
+                >
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-5 w-5 animate-spin" />
