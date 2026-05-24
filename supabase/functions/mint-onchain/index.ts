@@ -862,6 +862,86 @@ Deno.serve(async (req) => {
           isBetaMint
         );
 
+        // Update idempotency row with actual tx hash for forensic linking
+        try {
+          await supabaseClient
+            .from("mint_idempotency_keys")
+            .update({ mint_tx_hash: hash })
+            .eq("user_id", user.id)
+            .eq("window_start", windowStart)
+            .eq("action", `mint-rewards:${mintCategory}${deviceId ? `:${deviceId}` : ''}`);
+        } catch (e) {
+          console.warn("Failed to link idempotency key to tx hash:", e);
+        }
+
+        // M4/M6 — Three-way reconciliation + audit log
+        try {
+          const statsAfter = await publicClient.readContract({
+            address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
+            abi: CONTROLLER_ABI,
+            functionName: "getUserStats",
+            args: [walletAddress as `0x${string}`],
+          }) as readonly [bigint, bigint, bigint, bigint, boolean];
+
+          const onChainDelta = onChainStatsBefore ? {
+            solar: Number(statsAfter[0] - onChainStatsBefore.solar),
+            ev_miles: Number(statsAfter[1] - onChainStatsBefore.evMiles),
+            battery: Number(statsAfter[2] - onChainStatsBefore.battery),
+            charging: Number(statsAfter[3] - onChainStatsBefore.charging),
+          } : {
+            solar: Number(statsAfter[0]),
+            ev_miles: Number(statsAfter[1]),
+            battery: Number(statsAfter[2]),
+            charging: Number(statsAfter[3]),
+          };
+
+          const headlineByCat: Record<string, number> = {
+            solar: Number(solar),
+            ev_miles: Number(evMiles),
+            battery: Number(battery),
+            charging: Number(charging),
+          };
+          // In the edge function, headline == rows (single source: connected_devices).
+          // Phase 1.5 will fan out headline from KPI cache vs rows from devices.
+          const sourceBreakdown = {
+            solar_kwh: Number(solar),
+            ev_miles: Number(evMiles),
+            battery_kwh: Number(battery),
+            charging_kwh: Number(charging),
+            device_ids: deviceIdsToUpdate,
+          };
+
+          const logRows: Array<Record<string, unknown>> = [];
+          for (const [cat, headline] of Object.entries(headlineByCat)) {
+            if (headline === 0 && onChainDelta[cat as keyof typeof onChainDelta] === 0) continue;
+            const result = verifyThreeWay(cat, headline, headline, onChainDelta[cat as keyof typeof onChainDelta]);
+            if (!result.ok) {
+              console.warn(`[reconciliation] ${cat} mismatch:`, result.violations.join('; '));
+            }
+            logRows.push({
+              user_id: user.id,
+              mint_tx_hash: hash,
+              category: cat,
+              headline_amount: headline,
+              rows_amount: headline,
+              on_chain_amount: onChainDelta[cat as keyof typeof onChainDelta],
+              diff_pct: result.diffPct,
+              tolerance_pct: RECONCILIATION_TOLERANCE_PCT,
+              source_breakdown: sourceBreakdown,
+              passed: result.ok,
+            });
+          }
+          if (logRows.length > 0) {
+            const { error: logError } = await supabaseClient
+              .from("mint_reconciliation_log")
+              .insert(logRows);
+            if (logError) console.error("Failed to write mint_reconciliation_log:", logError);
+            else console.log(`Wrote ${logRows.length} reconciliation log rows for tx ${hash}`);
+          }
+        } catch (reconcileError) {
+          console.error("Post-mint reconciliation failed (non-fatal):", reconcileError);
+        }
+
         // CRITICAL: Update baselines ONLY for devices that were minted (in deviceIdsToUpdate)
         // This prevents double-minting by setting baseline = current lifetime totals
         if (deviceIdsToUpdate.length > 0) {
