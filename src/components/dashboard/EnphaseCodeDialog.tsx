@@ -26,8 +26,6 @@ interface EnphaseCodeDialogProps {
   authUrl?: string | null;
 }
 
-// Enphase authorization codes are 5-10 alphanumeric chars
-const ENPHASE_CODE_REGEX = /^[A-Za-z0-9]{5,10}$/;
 
 export function EnphaseCodeDialog({ open, onOpenChange, onSubmit, authUrl }: EnphaseCodeDialogProps) {
   const [code, setCode] = useState('');
