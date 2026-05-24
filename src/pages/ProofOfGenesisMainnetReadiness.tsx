@@ -247,6 +247,16 @@ const MAINNET_GROUPS: Group[] = [
         detail: 'Launch price ($0.10 via LP rounds) and kWh-floor (utility + carbon + REC) stay independent at seed. Floor is narrative-only until oracle ships.',
         state: 'todo',
       },
+      {
+        label: 'Receipt line items · Phase 2 — snapshot leaves at mint time',
+        detail: 'Persist each per-event row (charging session, daily solar, battery export) into a new mint_receipt_line_items table at the moment of mint, keyed by chain_hash + event_fingerprint. Today Phase 1 reads them live from the source tables inside the Proof-of-Delta window; Phase 2 makes the line items tamper-evident so a later edit or delete to a source row cannot break a historical receipt.',
+        state: 'todo',
+      },
+      {
+        label: 'Receipt line items · Phase 3 — per-event Merkle inclusion',
+        detail: 'Roll each event_fingerprint into the Merkle leaf set committed on Base alongside the per-receipt chain_hash. Public /verify/:hash will then prove inclusion of an individual Tesla supercharging session or a single day of solar production, not just the aggregate mint. Pairs with the Energy Price Oracle for the Series A moat.',
+        state: 'todo',
+      },
     ],
   },
 ];
