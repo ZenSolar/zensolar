@@ -259,13 +259,16 @@ export function SolarEdgeConnectDialog({
 
 
 
-          {/* Step 2: site discovery / picker */}
+          {/* STEP 3 — site discovery / picker */}
           {(discovering || discovered || manualMode) && (
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 text-[10px] font-bold text-primary">2</span>
-                Your site
-              </Label>
+            <div className="rounded-xl border border-border bg-card/40 p-4 space-y-2">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-bold">
+                  3
+                </span>
+                <p className="text-sm font-semibold text-foreground">Your site</p>
+              </div>
+
 
               {discovering && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground rounded-md border border-dashed border-border p-3">
