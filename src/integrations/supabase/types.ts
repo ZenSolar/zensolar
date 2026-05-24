@@ -1825,6 +1825,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_invariant_violations: {
+        Row: {
+          actual: number | null
+          check_name: string
+          details: Json
+          detected_at: string
+          diff_pct: number | null
+          expected: number | null
+          id: string
+          severity: string
+          user_id: string
+        }
+        Insert: {
+          actual?: number | null
+          check_name: string
+          details?: Json
+          detected_at?: string
+          diff_pct?: number | null
+          expected?: number | null
+          id?: string
+          severity?: string
+          user_id: string
+        }
+        Update: {
+          actual?: number | null
+          check_name?: string
+          details?: Json
+          detected_at?: string
+          diff_pct?: number | null
+          expected?: number | null
+          id?: string
+          severity?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_rewards: {
         Row: {
           calculated_at: string
@@ -2256,6 +2292,7 @@ export type Database = {
         }[]
       }
       verify_demo_code: { Args: { _code: string }; Returns: boolean }
+      verify_user_sum_invariant: { Args: never; Returns: number }
     }
     Enums: {
       app_role: "admin" | "user" | "editor" | "viewer" | "founder"
