@@ -8,7 +8,7 @@ import {
   ChevronRight, Sparkles, Hexagon, ArrowRight,
 } from 'lucide-react';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
-import { ThemeToggle } from '@/components/layout/ThemeToggle';
+
 
 /* ── Background orbs with parallax ── */
 function ParallaxOrbs({ scrollYProgress }: { scrollYProgress: MotionValue<number> }) {
@@ -65,7 +65,7 @@ export function LandingNav() {
           <Link to="/demo" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Demo</Link>
         </nav>
         <div className="flex items-center gap-2 sm:gap-4">
-          <ThemeToggle />
+          
           <Link to="/auth">
             <Button variant="ghost" size="sm" className="px-3">Log In</Button>
           </Link>

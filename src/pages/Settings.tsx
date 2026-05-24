@@ -11,18 +11,16 @@ import {
   Globe, 
   Loader2, 
   Zap,
-  Moon,
-  Sun,
   CheckCircle2,
   AlertCircle,
   Settings as SettingsIcon,
-  Palette,
+  
   Rows3,
   Rows4
 } from "lucide-react";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { WalletSetupCard } from "@/components/settings/WalletSetupCard";
-import { useTheme } from "next-themes";
+
 import { useDensity } from "@/hooks/useDensity";
 
 export default function Settings() {
@@ -36,7 +34,7 @@ export default function Settings() {
     toggle 
   } = usePushNotifications();
   
-  const { theme, setTheme } = useTheme();
+  
   const { density, setDensity } = useDensity();
 
   // Generate helpful message based on device/browser state
@@ -85,48 +83,7 @@ export default function Settings() {
         <WalletSetupCard />
       </motion.div>
 
-      {/* Appearance */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.05 }}
-      >
-        <Card className="overflow-hidden border-border/50">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-muted/50">
-                  <Palette className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Theme</p>
-                  <p className="text-xs text-muted-foreground">Light or dark mode</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-0.5">
-                <Button
-                  variant={theme === 'light' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setTheme('light')}
-                  className="h-8 px-3 gap-1.5 text-xs"
-                >
-                  <Sun className="h-3.5 w-3.5" />
-                  Light
-                </Button>
-                <Button
-                  variant={theme === 'dark' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setTheme('dark')}
-                  className="h-8 px-3 gap-1.5 text-xs"
-                >
-                  <Moon className="h-3.5 w-3.5" />
-                  Dark
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+      {/* Appearance — light mode archived; ZenSolar is dark-only (Tesla-style). */}
 
       {/* Density (desktop-only effect; setting is still saved on mobile) */}
       <motion.div

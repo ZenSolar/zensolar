@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useTheme } from "next-themes";
+
 import { 
   LayoutDashboard, 
   Coins, 
@@ -32,8 +32,6 @@ import {
   Wallet,
   ClipboardList,
   Activity,
-  Sun,
-  Moon,
   Coffee,
   Megaphone,
   Calendar,
@@ -201,7 +199,7 @@ export function AppSidebar() {
   // Admin menu is shown ONLY to admins/editors, never to pure viewers (e.g. Todd, Lyndon).
   // Viewers still get full dashboard data (mirrored from admin) but a clean user-style sidebar.
   const showAdminMenu = isAdmin && !isViewer;
-  const { theme, setTheme } = useTheme();
+  
   
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -644,17 +642,6 @@ export function AppSidebar() {
         </div>
         <AppThemeSelector />
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              tooltip={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              aria-label={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              className="min-h-[2.5rem] rounded-md transition-all duration-200 hover:bg-sidebar-accent/60 active:scale-[0.98]"
-            >
-              {theme === 'dark' ? <Sun className="h-4 w-4" aria-hidden="true" /> : <Moon className="h-4 w-4" aria-hidden="true" />}
-              <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={handleLogout}

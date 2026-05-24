@@ -10,7 +10,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { WeatherWidget } from "@/components/dashboard/WeatherWidget";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
-import { ThemeToggle } from "@/components/layout/ThemeToggle";
+
 import { SoundToggle } from "@/components/layout/SoundToggle";
 import { useAppBack } from "@/hooks/useAppHistory";
 import { Button } from "@/components/ui/button";
@@ -135,7 +135,7 @@ export function TopNav({ isDemo = false, className }: TopNavProps) {
             </Badge>
           )}
           {!isDemo && <SoundToggle />}
-          {!isDemo && <ThemeToggle />}
+          
           {!isDemo && <NotificationBell />}
         </div>
       </div>

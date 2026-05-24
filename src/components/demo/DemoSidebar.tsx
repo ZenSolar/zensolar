@@ -9,8 +9,6 @@ import {
   Award,
   Play,
   BarChart3,
-  Sun,
-  Moon,
   History,
   FileText,
   Cpu,
@@ -20,7 +18,7 @@ import {
 } from "lucide-react";
 import { isAuthorizedReviewer } from "@/lib/reviewerAccess";
 import { isPreviewMode } from "@/lib/previewMode";
-import { useTheme } from "next-themes";
+
 import zenLogo from "@/assets/zen-logo-horizontal-new.png";
 import zenFavicon from "@/assets/zen-favicon.png";
 import { NavLink } from "react-router-dom";
@@ -65,7 +63,7 @@ const secondaryNavItems = [
 export function DemoSidebar() {
   const { state, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
-  const { theme, setTheme } = useTheme();
+  
 
   const handleNavClick = () => {
     setOpenMobile(false);
@@ -198,16 +196,6 @@ export function DemoSidebar() {
         </div>
         <AppThemeSelector />
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton 
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              tooltip={theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
-              className="hover:bg-sidebar-accent/50"
-            >
-              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-              <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton 
               asChild

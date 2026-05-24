@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "next-themes";
+
 import { useSafeAccount } from "@/hooks/useSafeWagmi";
 import {
   Bell,
@@ -57,7 +57,7 @@ interface CommandPaletteProps {
 export function CommandPalette({ basePath = "", isDemo = false }: CommandPaletteProps) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-  const { theme, setTheme } = useTheme();
+  
   const { address } = useSafeAccount();
 
   useEffect(() => {
@@ -139,12 +139,7 @@ export function CommandPalette({ basePath = "", isDemo = false }: CommandPalette
     }
   };
 
-  const toggleTheme = () => {
-    setOpen(false);
-    const next = theme === "dark" ? "light" : "dark";
-    setTheme(next);
-    toast.success(`Switched to ${next} mode`, { duration: 1500 });
-  };
+  // Light-mode toggle removed — ZenSolar is dark-only.
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
@@ -166,14 +161,6 @@ export function CommandPalette({ basePath = "", isDemo = false }: CommandPalette
           <CommandItem onSelect={copyWallet} value="copy wallet address clipboard">
             <Copy className="mr-2 h-4 w-4" />
             <span>Copy wallet address</span>
-          </CommandItem>
-          <CommandItem onSelect={toggleTheme} value="toggle theme dark light mode appearance">
-            {theme === "dark" ? (
-              <Sun className="mr-2 h-4 w-4" />
-            ) : (
-              <Moon className="mr-2 h-4 w-4" />
-            )}
-            <span>Toggle theme</span>
           </CommandItem>
         </CommandGroup>
 
