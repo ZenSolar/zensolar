@@ -37,6 +37,7 @@ interface MintTransaction {
   status: string;
   created_at: string;
   gas_used: string | null;
+  chain_hash: string | null;
 }
 
 interface PendingActivity {

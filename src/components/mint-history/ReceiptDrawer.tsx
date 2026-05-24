@@ -41,6 +41,7 @@ export interface MintReceiptTx {
   nft_names: string[];
   status: string;
   created_at: string;
+  chain_hash?: string | null;
 }
 
 interface ReceiptDrawerProps {
@@ -82,6 +83,9 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
   const grandTotal = userTokens > 0 ? userTokens / 0.75 : 0;
   const hasSplit = userTokens > 0;
   const pogReceiptUrl = `${basePath}/proof-of-genesis-receipt-preview`;
+  const verifyUrl = tx.chain_hash
+    ? `${typeof window !== "undefined" ? window.location.origin : "https://beta.zen.solar"}/verify/${tx.chain_hash}`
+    : null;
 
   const buildReceiptText = () => {
     const lines = [
@@ -95,6 +99,7 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
       `Tx: ${tx.tx_hash}`,
       tx.block_number ? `Block: ${tx.block_number}` : null,
       "",
+      verifyUrl ? `Tamper-evident receipt: ${verifyUrl}` : null,
       `Verify on BaseScan: ${getExplorerUrl(tx.tx_hash)}`,
       "",
       "Currency from Energy · zen.solar",
@@ -104,7 +109,8 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
 
   const handleShare = async () => {
     const text = buildReceiptText();
-    const url = getExplorerUrl(tx.tx_hash);
+    // Prefer the hash-chained verify link — independently auditable, no PII.
+    const url = verifyUrl ?? getExplorerUrl(tx.tx_hash);
     try {
       if (navigator.share) {
         await navigator.share({ title: "ZenSolar Mint Receipt", text, url });
@@ -319,6 +325,21 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
                   <span className="text-xs flex-1">NFT contract</span>
                   <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary" />
                 </a>
+              )}
+
+              {verifyUrl && (
+                <Link
+                  to={`/verify/${tx.chain_hash}`}
+                  onClick={() => onOpenChange(false)}
+                  className="flex items-center gap-2 px-3 py-2.5 hover:bg-muted/40 transition-colors group"
+                >
+                  <ShieldCheck className="h-3.5 w-3.5 text-primary shrink-0" />
+                  <span className="text-xs flex-1">
+                    Tamper-evident receipt
+                    <span className="ml-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">public</span>
+                  </span>
+                  <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary" />
+                </Link>
               )}
             </div>
           </section>
