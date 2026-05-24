@@ -46,8 +46,16 @@ const DrawerContent = React.forwardRef<
       }}
       {...props}
     >
-      {/* Drag handle: only meaningful on mobile bottom-sheet */}
-      <div className="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted lg:hidden" />
+      {/* Drag handle + swipe affordance: mobile bottom-sheet only.
+          Handle is brighter & wider than default vaul, with a subtle pulse,
+          and a "Swipe down to close" caption that auto-fades after ~3s so
+          first-time users learn the gesture without permanent UI noise. */}
+      <div className="lg:hidden flex flex-col items-center gap-1 pt-3 pb-1 select-none pointer-events-none">
+        <div className="h-1.5 w-12 rounded-full bg-primary/50 shadow-[0_0_10px_hsl(var(--primary)/0.35)] animate-drawer-handle-pulse" />
+        <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground/80 animate-drawer-hint-fade">
+          Swipe down to close
+        </span>
+      </div>
       {children}
     </DrawerPrimitive.Content>
   </DrawerPortal>

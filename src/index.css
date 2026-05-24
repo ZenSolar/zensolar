@@ -351,6 +351,33 @@
   @media (prefers-reduced-motion: reduce) {
     .page-enter { animation: none; }
   }
+
+
+
+  /* Drawer swipe affordance — pulsing grab handle + fading hint caption.
+     Trains first-time users on the swipe-down gesture without leaving
+     permanent UI noise on screen. */
+  @keyframes drawer-handle-pulse {
+    0%, 100% { opacity: 0.55; transform: scaleX(1); }
+    50%      { opacity: 1;    transform: scaleX(1.15); }
+  }
+  .animate-drawer-handle-pulse {
+    animation: drawer-handle-pulse 1.8s ease-in-out infinite;
+    transform-origin: center;
+  }
+  @keyframes drawer-hint-fade {
+    0%   { opacity: 0; transform: translateY(-2px); }
+    15%  { opacity: 1; transform: translateY(0); }
+    70%  { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(0); }
+  }
+  .animate-drawer-hint-fade {
+    animation: drawer-hint-fade 3.6s ease-out forwards;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-drawer-handle-pulse { animation: none; opacity: 0.6; }
+    .animate-drawer-hint-fade    { animation: none; opacity: 0; }
+  }
 }
 
 @keyframes scanner-sweep {

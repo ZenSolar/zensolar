@@ -38,6 +38,9 @@ interface MintTransaction {
   created_at: string;
   gas_used: string | null;
   chain_hash: string | null;
+  source_breakdown?: Record<string, number> | null;
+  kwh_delta?: number | null;
+  miles_delta?: number | null;
 }
 
 interface PendingActivity {
