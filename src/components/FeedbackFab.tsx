@@ -59,7 +59,10 @@ export function FeedbackFab() {
   };
 
   return (
-    <div className="fixed right-4 z-50 flex flex-col items-end" style={{ bottom: 'calc(var(--bottom-nav-total-h) + 12px)' }}>
+    <div
+      className="fixed right-4 lg:right-6 z-50 flex flex-col items-end"
+      style={{ bottom: 'max(calc(var(--bottom-nav-total-h) + 12px), 24px)' }}
+    >
       <AnimatePresence>
         {open && (
           <motion.div
