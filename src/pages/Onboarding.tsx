@@ -887,6 +887,6 @@ export default function Onboarding() {
           return success;
         }}
       />
-    </>
+    </div>
   );
 }
