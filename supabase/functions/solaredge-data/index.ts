@@ -276,6 +276,97 @@ Deno.serve(async (req) => {
         .eq("provider", "solaredge");
     }
 
+    // ── Battery (StorEdge / Home Battery) ──────────────────────────────────
+    // Only pull battery data if powerFlow indicates a STORAGE node, OR we already
+    // have battery numbers cached on the device row (idempotent self-heal).
+    let lifetimeBatteryDischargeWh = 0;
+    let batteryPresent = false;
+    try {
+      const hasStorageNode = !!powerFlowData?.siteCurrentPowerFlow?.STORAGE;
+      const cachedBatt = Number(
+        (deviceData?.baseline_data as any)?.battery_discharge_wh ?? 0
+      );
+      if (hasStorageNode || cachedBatt > 0) {
+        batteryPresent = true;
+        // Window: last 7 days (SolarEdge cap is 1 week per call). We just need
+        // the most recent telemetry's lifeTimeEnergyDischarged — it's cumulative.
+        const end = new Date();
+        const start = new Date(end.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const fmt = (d: Date) =>
+          `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}`;
+        const storageUrl = `${SOLAREDGE_API_BASE}/site/${siteId}/storageData?startTime=${encodeURIComponent(fmt(start))}&endTime=${encodeURIComponent(fmt(end))}&api_key=${apiKey}`;
+        const storageResp = await fetch(storageUrl);
+        if (storageResp.ok) {
+          const storageJson = await storageResp.json();
+          const batteries = storageJson?.storageData?.batteries || [];
+          for (const batt of batteries) {
+            const telems = batt?.telemetries || [];
+            // Latest non-zero lifeTimeEnergyDischarged wins (it's monotonic-increasing in Wh)
+            for (let i = telems.length - 1; i >= 0; i--) {
+              const v = Number(telems[i]?.lifeTimeEnergyDischarged ?? 0);
+              if (v > 0) {
+                lifetimeBatteryDischargeWh += v;
+                break;
+              }
+            }
+          }
+          console.log(`[SolarEdge battery] lifetime discharge: ${lifetimeBatteryDischargeWh} Wh across ${batteries.length} battery(ies)`);
+        } else {
+          console.warn(`SolarEdge storageData fetch failed: ${storageResp.status}`);
+        }
+      }
+    } catch (err) {
+      console.warn("SolarEdge battery fetch error:", err);
+    }
+
+    if (batteryPresent && lifetimeBatteryDischargeWh > 0) {
+      // Proof-of-Delta row for battery
+      const now = new Date();
+      const recordedAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()).toISOString();
+      const tsNow = now.toISOString();
+      const { prevHash, prevValue } = await getPreviousProof(supabaseClient, siteId, "battery", targetUserId);
+      const battHash = await buildEnergyHash(siteId, tsNow, lifetimeBatteryDischargeWh, prevHash);
+      await supabaseClient
+        .from("energy_production")
+        .upsert({
+          user_id: targetUserId,
+          device_id: siteId,
+          provider: "solaredge",
+          production_wh: lifetimeBatteryDischargeWh,
+          data_type: "battery",
+          recorded_at: recordedAt,
+          proof_metadata: {
+            hash: battHash,
+            prev_hash: prevHash,
+            device_id: siteId,
+            value: lifetimeBatteryDischargeWh,
+            prev_value: prevValue,
+            delta: Math.max(0, lifetimeBatteryDischargeWh - prevValue),
+            data_type: "battery",
+            unit: "wh",
+            timestamp: tsNow,
+            algorithm: "SHA-256",
+            preimage_format: "device_id|timestamp|value|prevHash",
+          },
+        }, { onConflict: "device_id,provider,recorded_at,data_type" });
+
+      // Merge battery into existing lifetime_totals
+      await supabaseClient
+        .from("connected_devices")
+        .update({
+          lifetime_totals: {
+            solar_wh: lifetimeEnergyWh,
+            lifetime_solar_wh: lifetimeEnergyWh,
+            battery_discharge_wh: lifetimeBatteryDischargeWh,
+            lifetime_battery_discharge_wh: lifetimeBatteryDischargeWh,
+            updated_at: new Date().toISOString(),
+          },
+        })
+        .eq("user_id", targetUserId)
+        .eq("device_id", siteId)
+        .eq("provider", "solaredge");
+    }
+
     const responseData = {
       site: {
         id: siteId,
@@ -298,6 +389,7 @@ Deno.serve(async (req) => {
         pending_solar_wh: pendingSolarWh,
         energy_today_wh: todayEnergyWh,
         current_power_w: currentPowerW,
+        lifetime_battery_discharge_wh: lifetimeBatteryDischargeWh,
       },
     };
 

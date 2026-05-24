@@ -473,6 +473,101 @@ Deno.serve(async (req) => {
           .eq("provider", "enphase");
       }
 
+      // ── Battery (IQ Battery / Encharge) ────────────────────────────────────
+      // Only call telemetry/battery if summary indicates a battery is present
+      // (avoids burning the rate-limit budget on solar-only sites).
+      const batteryCount = Number(
+        summaryData?.battery_count ?? summaryData?.battery_storage?.count ?? 0
+      );
+      const hadBatteryBefore = Number(
+        (deviceRow?.lifetime_totals as any)?.battery_discharge_wh ?? 0
+      ) > 0;
+      if (batteryCount > 0 || hadBatteryBefore) {
+        try {
+          // Incremental window: since last battery sync (or last 24h on first run).
+          const lastBattSync = (extraData.battery_last_sync_at as string | undefined);
+          const sinceMs = lastBattSync
+            ? new Date(lastBattSync).getTime()
+            : Date.now() - 24 * 60 * 60 * 1000;
+          const startAt = Math.floor(sinceMs / 1000);
+          const battResp = await fetch(
+            `${ENPHASE_API_BASE}/systems/${systemId}/telemetry/battery?key=${apiKey}&granularity=day&start_at=${startAt}`,
+            { headers: { "Authorization": `Bearer ${accessToken}` } }
+          );
+          if (battResp.ok) {
+            const battJson = await battResp.json();
+            const intervals = battJson?.intervals || [];
+            let windowDischargeWh = 0;
+            for (const iv of intervals) {
+              windowDischargeWh += Number(iv?.discharge ?? 0);
+            }
+            const prevLifetime = Number(
+              (deviceRow?.lifetime_totals as any)?.battery_discharge_wh ?? 0
+            );
+            const newLifetime = prevLifetime + windowDischargeWh;
+            console.log(`[Enphase battery] system ${systemId}: +${windowDischargeWh} Wh this window → lifetime ${newLifetime} Wh`);
+
+            if (windowDischargeWh > 0) {
+              // Proof-of-Delta row
+              const now = new Date();
+              const recordedAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()).toISOString();
+              const tsNow = now.toISOString();
+              const devId = String(systemId);
+              const { prevHash, prevValue } = await getPreviousProof(supabaseClient, devId, "battery", targetUserId);
+              const battHash = await buildEnergyHash(devId, tsNow, newLifetime, prevHash);
+              await supabaseClient
+                .from("energy_production")
+                .upsert({
+                  user_id: targetUserId,
+                  device_id: devId,
+                  provider: "enphase",
+                  production_wh: newLifetime,
+                  data_type: "battery",
+                  recorded_at: recordedAt,
+                  proof_metadata: {
+                    hash: battHash,
+                    prev_hash: prevHash,
+                    device_id: devId,
+                    value: newLifetime,
+                    prev_value: prevValue,
+                    delta: windowDischargeWh,
+                    data_type: "battery",
+                    unit: "wh",
+                    timestamp: tsNow,
+                    algorithm: "SHA-256",
+                    preimage_format: "device_id|timestamp|value|prevHash",
+                  },
+                }, { onConflict: "device_id,provider,recorded_at,data_type" });
+            }
+
+            // Merge battery total into lifetime_totals (preserve solar)
+            await supabaseClient
+              .from("connected_devices")
+              .update({
+                lifetime_totals: {
+                  solar_wh: lifetimeEnergyWh,
+                  lifetime_solar_wh: lifetimeEnergyWh,
+                  battery_discharge_wh: newLifetime,
+                  lifetime_battery_discharge_wh: newLifetime,
+                  updated_at: new Date().toISOString(),
+                },
+              })
+              .eq("user_id", targetUserId)
+              .eq("device_id", String(systemId))
+              .eq("provider", "enphase");
+
+            // Persist marker so next sync only ingests new intervals
+            extraData.battery_last_sync_at = new Date().toISOString();
+          } else if (battResp.status === 429) {
+            console.warn(`Enphase battery telemetry rate limited for system ${systemId}; will retry next sync.`);
+          } else {
+            console.warn(`Enphase battery telemetry fetch failed (${battResp.status}) for system ${systemId}`);
+          }
+        } catch (err) {
+          console.warn(`Enphase battery telemetry error for system ${systemId}:`, err);
+        }
+      }
+
       // --- Historical backfill verification ---
       // Check if this user has sufficient historical data. If not, trigger backfill.
       // This is a self-healing mechanism: if the initial backfill failed or was incomplete,
