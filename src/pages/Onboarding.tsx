@@ -701,12 +701,13 @@ export default function Onboarding() {
       case 'wallet-choice': return null;
       case 'zensolar-setup':
       case 'external-wallet': return 'wallet-choice';
-      case 'wallet-success': return 'wallet-choice';
-      case 'ai-concierge': return 'wallet-choice';
+      // Once the wallet exists, you can't unwind it — these become forward-only.
+      case 'wallet-success': return null;
+      case 'ai-concierge': return null;
       case 'energy-connect':
       case 'device-selection': return 'ai-concierge';
-      case 'home-charging-setup': return 'energy-connect';
-      case 'energy-success': return 'energy-connect';
+      case 'home-charging-setup': return null;
+      case 'energy-success': return null;
       default: return null;
     }
   };
