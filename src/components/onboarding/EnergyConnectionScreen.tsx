@@ -4,11 +4,14 @@ import { Button } from '@/components/ui/button';
 import { triggerLightTap } from '@/hooks/useHaptics';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
-// Brand logos — authentic assets sourced from each OEM's official site
-import teslaLogo from '@/assets/logos/tesla-wordmark.png';
-import enphaseLogo from '@/assets/logos/enphase-logo.png';
-import solaredgeLogo from '@/assets/logos/solaredge-logo.svg';
-import wallboxLogo from '@/assets/logos/wallbox-icon.svg';
+// Brand logos — official square favicons served from each OEM's domain
+// via Google's S2 favicon service. Guaranteed authentic + uniform 1:1 aspect.
+const brandIcon = (domain: string) =>
+  `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+const teslaLogo = brandIcon('tesla.com');
+const enphaseLogo = brandIcon('enphase.com');
+const solaredgeLogo = brandIcon('solaredge.com');
+const wallboxLogo = brandIcon('wallbox.com');
 
 export type EnergyProvider = 'tesla' | 'enphase' | 'solaredge' | 'wallbox';
 
@@ -220,11 +223,12 @@ export function EnergyConnectionScreen({
                   'linear-gradient(135deg, hsl(var(--card) / 0.7) 0%, hsl(var(--background) / 0.85) 100%)',
               }}
             >
-              <div className="w-14 h-14 rounded-2xl shrink-0 overflow-hidden shadow-md ring-1 ring-white/10 bg-white/5">
+              <div className="w-14 h-14 rounded-2xl shrink-0 shadow-md ring-1 ring-white/10 bg-white flex items-center justify-center p-2">
                 <img
                   src={provider.logo}
-                  alt={provider.name}
-                  className="w-full h-full object-contain"
+                  alt={`${provider.name} logo`}
+                  className="max-w-full max-h-full object-contain"
+                  loading="lazy"
                 />
               </div>
               <div className="flex-1 min-w-0">
