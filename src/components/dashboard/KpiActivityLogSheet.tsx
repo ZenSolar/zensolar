@@ -125,7 +125,17 @@ function ContributionRow({ row }: { row: KpiContributionRow }) {
  * samples. Rolling them up by calendar day keeps the receipt feel without
  * a wall of rows.
  */
-const INTERVAL_CATEGORIES: ReadonlyArray<MintCategory> = ['solar', 'battery', 'ev_miles'];
+// Every mintable category now rolls up by calendar day in the receipt sheet
+// so users see "May 21 — 18.4 kWh" instead of a wall of individual samples or
+// sessions. Tap a day to expand into its underlying contributions.
+const INTERVAL_CATEGORIES: ReadonlyArray<MintCategory> = [
+  'solar',
+  'battery',
+  'ev_miles',
+  'supercharger',
+  'home_charger',
+  'charging',
+];
 
 type DayGroup = {
   dayKey: string;       // "2026-05-21"

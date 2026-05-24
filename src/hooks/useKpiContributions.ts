@@ -121,6 +121,7 @@ async function fetchEnergyProductionRows(
   dataType: 'solar' | 'battery_discharge' | 'ev_miles',
   deviceId: string | undefined,
   sinceIso: string | null,
+  pendingTarget?: number,
 ): Promise<KpiContributionRow[]> {
   let query = supabase
     .from('energy_production')
@@ -128,27 +129,40 @@ async function fetchEnergyProductionRows(
     .eq('user_id', userId)
     .eq('data_type', dataType)
     .order('recorded_at', { ascending: false })
-    .limit(ROW_LIMIT);
+    .limit(pendingTarget ? 500 : ROW_LIMIT);
 
   if (deviceId) query = query.eq('device_id', deviceId);
-  if (sinceIso) query = query.gt('recorded_at', sinceIso);
+  if (sinceIso && !pendingTarget) query = query.gt('recorded_at', sinceIso);
 
   const { data, error } = await query;
   if (error) throw error;
 
   const isMiles = dataType === 'ev_miles';
-  return (data || []).map((r: any) => ({
+  const mapped = (data || []).map((r: any) => ({
     id: String(r.id),
     recordedAt: r.recorded_at,
     hasRealTime: true,
     amount: isMiles
       ? Math.round(Number(r.production_wh) * 10) / 10
       : Math.round((Number(r.production_wh) / 1000) * 10) / 10,
-    unit: isMiles ? 'mi' : 'kWh',
+    unit: (isMiles ? 'mi' : 'kWh') as 'kWh' | 'mi',
     provider: r.provider,
     deviceId: r.device_id,
     verified: ['tesla', 'enphase', 'solaredge', 'tesla_historical'].includes(r.provider),
   }));
+
+  if (!pendingTarget || pendingTarget <= 0) return mapped;
+
+  // Walk newest → oldest until receipts ≈ headline pending (within 0.5)
+  const target = Math.max(0, pendingTarget - 0.5);
+  let running = 0;
+  const pendingRows: KpiContributionRow[] = [];
+  for (const row of mapped) {
+    pendingRows.push(row);
+    running += row.amount;
+    if (running >= target) break;
+  }
+  return pendingRows;
 }
 
 async function fetchSuperchargerRows(
@@ -203,15 +217,16 @@ async function fetchHomeChargerRows(
   userId: string,
   deviceId: string | undefined,
   sinceIso: string | null,
+  pendingTarget?: number,
 ): Promise<KpiContributionRow[]> {
   let homeQ = supabase
     .from('home_charging_sessions')
     .select('id, start_time, end_time, total_session_kwh, location, device_id, session_metadata, status')
     .eq('user_id', userId)
     .order('start_time', { ascending: false })
-    .limit(ROW_LIMIT);
+    .limit(pendingTarget ? 200 : ROW_LIMIT);
   if (deviceId) homeQ = homeQ.eq('device_id', deviceId);
-  if (sinceIso) homeQ = homeQ.gt('start_time', sinceIso);
+  if (sinceIso && !pendingTarget) homeQ = homeQ.gt('start_time', sinceIso);
 
   let billQ = supabase
     .from('charging_sessions')
@@ -219,9 +234,9 @@ async function fetchHomeChargerRows(
     .eq('user_id', userId)
     .eq('charging_type', 'home')
     .order('session_date', { ascending: false })
-    .limit(ROW_LIMIT);
+    .limit(pendingTarget ? 200 : ROW_LIMIT);
   if (deviceId) billQ = billQ.eq('device_id', deviceId);
-  if (sinceIso) billQ = billQ.gt('session_date', sinceIso);
+  if (sinceIso && !pendingTarget) billQ = billQ.gt('session_date', sinceIso);
 
   const [homeRes, billRes] = await Promise.all([homeQ, billQ]);
   if (homeRes.error) throw homeRes.error;
@@ -262,7 +277,18 @@ async function fetchHomeChargerRows(
 
   const all = [...homeRows, ...billRows];
   all.sort((a, b) => (a.recordedAt < b.recordedAt ? 1 : -1));
-  return all.slice(0, ROW_LIMIT);
+
+  if (!pendingTarget || pendingTarget <= 0) return all.slice(0, ROW_LIMIT);
+
+  const target = Math.max(0, pendingTarget - 0.5);
+  let running = 0;
+  const pendingRows: KpiContributionRow[] = [];
+  for (const row of all) {
+    pendingRows.push(row);
+    running += row.amount;
+    if (running >= target) break;
+  }
+  return pendingRows;
 }
 
 export function useKpiContributions(
@@ -285,15 +311,15 @@ export function useKpiContributions(
 
       switch (category) {
         case 'solar':
-          return fetchEnergyProductionRows(userId, 'solar', deviceId, sinceIso);
+          return fetchEnergyProductionRows(userId, 'solar', deviceId, sinceIso, pendingTarget);
         case 'battery':
-          return fetchEnergyProductionRows(userId, 'battery_discharge', deviceId, sinceIso);
+          return fetchEnergyProductionRows(userId, 'battery_discharge', deviceId, sinceIso, pendingTarget);
         case 'ev_miles':
-          return fetchEnergyProductionRows(userId, 'ev_miles', deviceId, sinceIso);
+          return fetchEnergyProductionRows(userId, 'ev_miles', deviceId, sinceIso, pendingTarget);
         case 'supercharger':
           return fetchSuperchargerRows(userId, deviceId, sinceIso, pendingTarget);
         case 'home_charger':
-          return fetchHomeChargerRows(userId, deviceId, sinceIso);
+          return fetchHomeChargerRows(userId, deviceId, sinceIso, pendingTarget);
         case 'charging': {
           const [sup, home] = await Promise.all([
             fetchSuperchargerRows(userId, deviceId, sinceIso),
