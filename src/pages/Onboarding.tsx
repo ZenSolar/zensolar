@@ -79,6 +79,7 @@ export default function Onboarding() {
   
   // Dialog states for credential-based providers
   const [showEnphaseDialog, setShowEnphaseDialog] = useState(false);
+  const [enphaseAuthUrl, setEnphaseAuthUrl] = useState<string | null>(null);
   const [showSolarEdgeDialog, setShowSolarEdgeDialog] = useState(false);
   const [showWallboxDialog, setShowWallboxDialog] = useState(false);
   
