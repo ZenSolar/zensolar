@@ -63,6 +63,7 @@ function canHaveSolarData(deviceType: string): boolean {
 // Mirrors src/lib/mintReconciliation.ts. Keep in sync.
 // ============================================
 const RECONCILIATION_TOLERANCE_PCT = 1.0;
+const RECONCILIATION_HARD_FAIL_PCT = 5.0; // Above this, mint is flagged_drift (visible in admin + user receipt)
 const RECONCILIATION_ABSOLUTE_FLOOR = 0.5;
 const IDEMPOTENCY_WINDOW_MS = 5 * 60 * 1000; // 5-minute bucket
 
