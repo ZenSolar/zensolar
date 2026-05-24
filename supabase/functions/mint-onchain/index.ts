@@ -745,11 +745,55 @@ Deno.serve(async (req) => {
         });
       }
 
+      // M2 — Idempotency claim: prevents double-mints within the same 5-min window
+      const { windowStart, windowEnd } = currentIdempotencyWindow();
+      const { error: idemError } = await supabaseClient
+        .from("mint_idempotency_keys")
+        .insert({
+          user_id: user.id,
+          action: `mint-rewards:${mintCategory}${deviceId ? `:${deviceId}` : ''}`,
+          window_start: windowStart,
+          window_end: windowEnd,
+        });
+      if (idemError && (idemError.code === '23505' || /duplicate key/i.test(idemError.message))) {
+        console.warn("Idempotency collision — duplicate mint blocked:", idemError.message);
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'idempotency_collision',
+          message: 'A mint for this category was already submitted in the current 5-minute window.',
+        }), {
+          status: 409,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (idemError) {
+        console.error("Failed to claim idempotency key:", idemError);
+        // Don't block mint on infra error, but log loudly
+      }
+
+      // Snapshot on-chain stats BEFORE mint so we can compute on-chain delta after
+      let onChainStatsBefore: { solar: bigint; evMiles: bigint; battery: bigint; charging: bigint } | null = null;
+      try {
+        const statsBefore = await publicClient.readContract({
+          address: ZENSOLAR_CONTROLLER_ADDRESS as `0x${string}`,
+          abi: CONTROLLER_ABI,
+          functionName: "getUserStats",
+          args: [walletAddress as `0x${string}`],
+        }) as readonly [bigint, bigint, bigint, bigint, boolean];
+        onChainStatsBefore = {
+          solar: statsBefore[0],
+          evMiles: statsBefore[1],
+          battery: statsBefore[2],
+          charging: statsBefore[3],
+        };
+      } catch (e) {
+        console.warn("Could not snapshot on-chain stats before mint:", e);
+      }
+
       // Get NFTs before minting to compare after
       const nftsBefore = await safeGetOwnedTokens(publicClient, walletAddress);
       const nftsBeforeSet = new Set(nftsBefore.map(id => Number(id)));
 
-      console.log(`Minting rewards: solar=${solar}, evMiles=${evMiles}, battery=${battery}, charging=${charging}`);
 
       // Simulate the transaction first to catch errors before sending
       try {
