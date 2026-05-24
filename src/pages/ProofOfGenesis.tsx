@@ -286,6 +286,26 @@ const PILLARS: Pillar[] = [
           'get_mint_receipt(_chain_hash) is granted to anon + authenticated. The /verify/:hash page and verify-mint-receipt edge function recompute the SHA-256 server-side and return is_valid plus prev/next links so an auditor can walk the entire chain without an account.',
       },
       {
+        label: 'Browser-recomputed Merkle inclusion proof',
+        detail:
+          'get_merkle_inclusion_proof(_chain_hash) returns the sibling path for any receipt. /verify/:hash uses crypto.subtle.digest to recompute the Merkle root in the user\'s own browser from the leaf hash + sibling path and compares against the anchored root — green check on match, red mismatch banner on tamper. The auditor never has to trust the server response.',
+      },
+      {
+        label: 'Nightly chain-integrity sweep',
+        detail:
+          'verify_chain_integrity() runs in the nightly sweep, recomputes chain_hash for every mint_transactions row from raw inputs, and writes a chain_hash_tamper critical row to user_invariant_violations on any drift. Mint Gate auto-blocks the affected user. Smoke run on the latest sweep: 0 tampers.',
+      },
+      {
+        label: 'Anchor-freshness watchdog',
+        detail:
+          'check_anchor_freshness() logs a critical alert to kpi_reconciliation_log if proof_of_permanence_anchors hasn\'t advanced in 120 min — surfaces a stalled snapshot job before the on-chain trail goes cold.',
+      },
+      {
+        label: 'Mainnet promotion (TODO at launch)',
+        detail:
+          'Anchors currently publish to Base Sepolia for testnet. At production launch the anchor wallet is funded, RPC + DeviceWatermarkRegistry address flip to Base mainnet (chain 8453), and the public verifier links switch from sepolia.basescan.org to basescan.org. Tracked in mem://roadmap/mainnet-anchor-switch.',
+      },
+      {
         label: 'Re-derivable by third parties',
         detail:
           'Every receipt exposes the OEM session/interval ID it came from. A skeptic with API access to Tesla / Enphase can independently verify the mint.',
