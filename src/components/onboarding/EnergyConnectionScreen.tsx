@@ -232,25 +232,84 @@ export function EnergyConnectionScreen({
           className="mt-8 text-center"
         >
           <h1 className="text-3xl font-semibold tracking-tight bg-gradient-to-b from-foreground to-foreground/55 bg-clip-text text-transparent">
-            Connect your energy
+            {hasConnected ? 'Connect another device' : 'Connect everything that earns'}
           </h1>
-          <p className="mt-2.5 text-[15px] text-muted-foreground leading-relaxed max-w-[300px] mx-auto">
-            Link your solar, battery, or EV to start earning{' '}
-            <span className="text-primary font-semibold">$ZSOLAR</span>.
+          <p className="mt-2.5 text-[15px] text-muted-foreground leading-relaxed max-w-[320px] mx-auto">
+            {hasConnected
+              ? <>Got more solar, battery, or EV gear? Link it now to earn more <span className="text-primary font-semibold">$ZSOLAR</span>.</>
+              : <>Link <span className="text-foreground/90">each</span> solar, battery, or EV account you own — one tap each.</>}
           </p>
         </motion.div>
       </section>
 
       {/* Provider tiles */}
-      <section className="relative z-10 flex-1 px-5 pt-6 pb-44 space-y-3 overflow-y-auto">
+      <section className="relative z-10 flex-1 px-5 pt-5 pb-44 space-y-3 overflow-y-auto">
+        {/* Connected accounts row */}
+        {hasConnected && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-wrap gap-2 pb-1"
+          >
+            {connectedProviders.map((p) => (
+              <span
+                key={p}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 text-[11px] font-semibold"
+              >
+                <CheckCircle2 className="w-3 h-3" />
+                {providerShortName[p as EnergyProvider] ?? p}
+              </span>
+            ))}
+          </motion.div>
+        )}
+
+        {/* Planned checklist from AI Concierge */}
+        {planned.length > 0 && plannedRemaining.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-3 rounded-2xl bg-primary/5 border border-primary/15"
+          >
+            <div className="flex items-start gap-2.5">
+              <Sparkles className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] font-semibold text-foreground">
+                  Your setup plan — {connectedProviders.filter((p) => planned.includes(p as EnergyProvider)).length} of {planned.length} linked
+                </p>
+                <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
+                  Still to add: {plannedRemaining.map((p) => providerShortName[p]).join(', ')}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Smart suggestion when no concierge plan but user just connected one */}
+        {hasConnected && planned.length === 0 && availableProviders.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-3 rounded-2xl bg-card/60 border border-border/60 flex items-start gap-2.5"
+          >
+            <Info className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+            <p className="text-[12px] text-muted-foreground leading-relaxed">
+              Many homes have more than one — solar + battery + EV charger.
+              Add any other gear below, or tap{' '}
+              <span className="text-foreground font-medium">I'll do this later</span>{' '}
+              — you can always add more from your Clean Energy Center.
+            </p>
+          </motion.div>
+        )}
+
         {availableProviders.map((provider, index) => {
           const isLoading = isConnecting === provider.id;
+          const isPlanned = planned.includes(provider.id);
           return (
             <motion.button
               key={provider.id}
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 + index * 0.07 }}
+              transition={{ delay: 0.15 + index * 0.06 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => handleProviderClick(provider.id)}
               disabled={!!isConnecting}
