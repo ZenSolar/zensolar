@@ -490,7 +490,42 @@ export default function Onboarding() {
       oem_count: oems.length,
       oems: oems.join(','),
     });
+
+    // Route through Solar installer question ONLY if Solar ownership is
+    // actually ambiguous: Tesla + (Enphase OR SolarEdge). Otherwise skip
+    // straight to device pairing.
+    const solarAmbiguous =
+      oems.includes('tesla') && (oems.includes('enphase') || oems.includes('solaredge'));
+    if (solarAmbiguous) {
+      setSolarInstaller(undefined);
+      transitionToStep('solar-installer');
+    } else {
+      setSolarInstaller(undefined);
+      transitionToStep('device-pairing');
+    }
+  };
+
+  const handleSolarInstallerSelect = async (choice: SolarInstaller) => {
+    setSolarInstaller(choice);
+    trackEvent('onboarding_solar_installer_selected', { installer: choice });
+    // Best-effort persistence to profile so Profile page reflects it immediately.
+    try {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (currentUser) {
+        await supabase
+          .from('profiles')
+          .update({ solar_installer: choice, updated_at: new Date().toISOString() })
+          .eq('user_id', currentUser.id);
+        dispatchProfileUpdated();
+      }
+    } catch (err) {
+      console.warn('[Onboarding] Failed to persist solar_installer:', err);
+    }
     transitionToStep('device-pairing');
+  };
+
+  const handleSolarInstallerBack = () => {
+    transitionToStep('oem-select');
   };
 
   const handleOemSelectionSkip = () => {
