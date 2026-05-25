@@ -180,6 +180,20 @@ function playbook(provider: Provider, stage: OAuthStage, code: string, raw?: str
 }
 
 /**
+ * Severity check — only auto-open Deason for hard failures the user is
+ * actively staring at (popup blocked, bad creds, wrong account, outage).
+ * Skip auto-open for transient/background issues so we don't hijack the screen.
+ */
+function isCriticalCode(code: string): boolean {
+  return (
+    code === 'popup_blocked' ||
+    code === 'unauthorized' ||
+    code === 'no_sites' ||
+    code === 'provider_down'
+  );
+}
+
+/**
  * Open the Deason floating bubble and seed it with a hand-written diagnosis
  * + fix for the given OAuth failure. Safe to call from anywhere.
  */
@@ -193,6 +207,9 @@ export function openDeasonWithError(opts: {
 
   if (typeof window === 'undefined') return;
 
+  // Clear any pending nudge — we're opening now.
+  window.dispatchEvent(new Event('deason:nudge:clear'));
+
   // Open the bubble first
   window.dispatchEvent(new Event('deason:open'));
 
@@ -204,4 +221,63 @@ export function openDeasonWithError(opts: {
       }),
     );
   }, 60);
+}
+
+/**
+ * Auto-open Deason immediately when an error is "critical" (something the
+ * user can't proceed past without help — popup blocked, bad creds, wrong
+ * account, provider outage). For softer errors (network blip, rate limit,
+ * unknown) we stay quiet and let the toast handle it.
+ *
+ * Returns true if Deason was auto-opened.
+ */
+export function maybeAutoOpenDeason(opts: {
+  provider: Provider;
+  stage: OAuthStage;
+  rawMessage?: string;
+}): boolean {
+  const code = classify(opts.rawMessage);
+  if (opts.stage === 'status') return false; // background check, never auto-open
+  if (!isCriticalCode(code)) return false;
+  openDeasonWithError(opts);
+  return true;
+}
+
+/**
+ * Schedule a proactive nudge: if the user hasn't taken action on a failed
+ * connection within `delayMs`, pulse the Deason bubble with a badge so they
+ * know help is one tap away. Returns a cancel function.
+ *
+ * The nudge does NOT auto-open the chat (that would hijack the screen).
+ * Tapping the bubble opens it and seeds the same playbook.
+ */
+export function scheduleDeasonNudge(opts: {
+  provider: Provider;
+  stage: OAuthStage;
+  rawMessage?: string;
+  delayMs?: number;
+}): () => void {
+  if (typeof window === 'undefined') return () => {};
+  const delay = opts.delayMs ?? 30_000;
+  const code = classify(opts.rawMessage);
+  const { body } = playbook(opts.provider, opts.stage, code, opts.rawMessage);
+
+  const timer = window.setTimeout(() => {
+    window.dispatchEvent(
+      new CustomEvent('deason:nudge', {
+        detail: {
+          assistant: body,
+          meta: { provider: opts.provider, stage: opts.stage, code },
+        },
+      }),
+    );
+  }, delay);
+
+  const cancel = () => {
+    window.clearTimeout(timer);
+    window.removeEventListener('deason:nudge:clear', cancel);
+  };
+  window.addEventListener('deason:nudge:clear', cancel, { once: true });
+
+  return cancel;
 }
