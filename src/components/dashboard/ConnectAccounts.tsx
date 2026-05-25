@@ -16,7 +16,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 // Import brand logos
 import teslaLogo from '@/assets/logos/tesla-logo.png';
-import enphaseLogo from '@/assets/logos/enphase-logo.png';
+import enphaseLogo from '@/assets/logos/enphase-wordmark.svg';
 import solaredgeLogo from '@/assets/logos/solaredge-logo.png';
 import wallboxLogo from '@/assets/logos/wallbox-logo.png';
 

@@ -46,7 +46,7 @@ import type { HideableField } from '@/hooks/useHiddenActivityFields';
 import { KpiActivityLogSheet, type KpiSheetState } from './KpiActivityLogSheet';
 
 // Import brand logos for connected providers display
-import enphaseLogo from '@/assets/logos/enphase-logo.png';
+import enphaseLogo from '@/assets/logos/enphase-wordmark.svg';
 import teslaLogo from '@/assets/logos/tesla-t-icon.png';
 import teslaWordmark from '@/assets/logos/tesla-wordmark.png';
 

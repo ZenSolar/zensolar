@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import { triggerLightTap, triggerSuccess } from '@/hooks/useHaptics';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import teslaLogo from '@/assets/logos/tesla-t-icon.png';
-import enphaseLogo from '@/assets/logos/enphase-brand.png';
+import enphaseLogo from '@/assets/logos/enphase-wordmark.svg';
 import solaredgeLogo from '@/assets/logos/solaredge-logo.png';
 import wallboxLogo from '@/assets/logos/wallbox-logo.png';
 
