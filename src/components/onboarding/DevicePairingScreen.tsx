@@ -120,6 +120,27 @@ export function DevicePairingScreen({
 
   const [pairing, setPairing] = useState<DevicePairing>(initial);
 
+  /**
+   * Per-OEM available capabilities, filtered by solarInstaller pre-resolution.
+   * If Tesla didn't install the PV system, hide Solar from the Tesla card
+   * (user only has Powerwall and/or a Tesla EV). Conversely, if Tesla DID
+   * install it, hide Solar from Enphase/SolarEdge. Also reorders Tesla as
+   * EV → Battery when Solar is removed so the most relevant device is first.
+   */
+  const availableFor = (oem: EnergyProvider): DeviceCapability[] => {
+    const base = OEMS[oem].available;
+    if (solarInstaller === 'other' && oem === 'tesla') {
+      return base.filter((c) => c !== 'solar').sort((a, b) => {
+        const order: DeviceCapability[] = ['ev', 'battery', 'solar'];
+        return order.indexOf(a) - order.indexOf(b);
+      });
+    }
+    if (solarInstaller === 'tesla' && (oem === 'enphase' || oem === 'solaredge')) {
+      return base.filter((c) => c !== 'solar');
+    }
+    return base;
+  };
+
   const toggle = async (oem: EnergyProvider, cap: DeviceCapability) => {
     await triggerLightTap();
     setPairing((prev) => {
