@@ -55,6 +55,7 @@ export function MintTokenDialog({
   totalPendingTokens,
   onRequestMint,
   onNavigateHistory,
+  dailyBreakdown,
 }: MintTokenDialogProps) {
   const [lastSyncedAt, setLastSyncedAt] = useState<number>(() => Date.now());
   const [nowTick, setNowTick] = useState<number>(() => Date.now());
