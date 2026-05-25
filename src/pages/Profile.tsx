@@ -310,7 +310,7 @@ export default function Profile() {
   ];
 
   return (
-    <PullToRefreshWrapper onRefresh={handleRefresh}>
+    <>
       <div className="max-w-lg mx-auto px-4 py-5 space-y-4">
         {/* Hero Header — compact */}
         <motion.div 
