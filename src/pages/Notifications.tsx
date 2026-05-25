@@ -242,6 +242,6 @@ export default function Notifications() {
           </Tabs>
         </motion.div>
       </div>
-    </PullToRefreshWrapper>
+    </>
   );
 }
