@@ -761,7 +761,9 @@ export default function Onboarding() {
       )}
 
       {step === 'wallet-choice' && (
-        <WalletChoiceScreen onChoice={handleWalletChoice} />
+        <div className="pt-24">
+          <WalletChoiceScreen onChoice={handleWalletChoice} />
+        </div>
       )}
       
       {step === 'zensolar-setup' && (
