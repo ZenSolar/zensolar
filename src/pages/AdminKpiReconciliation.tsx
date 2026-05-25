@@ -52,7 +52,7 @@ const CATEGORY_LABEL: Record<string, string> = {
   ev_miles: "EV miles",
   supercharger: "Supercharger kWh",
   home_charging: "Home charging kWh",
-  charging: "Charging kWh (super + home)",
+  charging: "Charging kWh (legacy combined — pre-split)",
 };
 
 function fmt(n: number | null | undefined, digits = 2): string {
