@@ -707,7 +707,7 @@ export default function Onboarding() {
   }, []);
 
   // Determine if we should show progress indicator (not on wallet-choice)
-  const showProgress = step !== 'wallet-choice';
+  const showProgress = true;
   const currentStepNumber = getStepNumber(step);
 
   // Map each step → its logical "back" target. Returning null means no back nav
@@ -761,7 +761,9 @@ export default function Onboarding() {
       )}
 
       {step === 'wallet-choice' && (
-        <WalletChoiceScreen onChoice={handleWalletChoice} />
+        <div className="pt-24">
+          <WalletChoiceScreen onChoice={handleWalletChoice} />
+        </div>
       )}
       
       {step === 'zensolar-setup' && (

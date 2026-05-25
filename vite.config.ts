@@ -8,6 +8,13 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    // Coinbase Smart Wallet popup (keys.coinbase.com) needs window.opener
+    // access. Default COOP `same-origin` blocks it ("This app doesn't support
+    // smart wallets"). `same-origin-allow-popups` keeps isolation but allows
+    // the popup to talk back.
+    headers: {
+      "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
+    },
   },
   plugins: [
     react(),
