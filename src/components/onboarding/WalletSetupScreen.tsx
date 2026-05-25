@@ -22,8 +22,20 @@ export function WalletSetupScreen({ onComplete, onBack }: WalletSetupScreenProps
 
   const handleRetry = useCallback(async () => {
     reset();
+    setHasStarted(true);
     await createWallet();
   }, [reset, createWallet]);
+
+  // Auto-fire the passkey prompt on mount — the user already confirmed intent
+  // on the previous choice screen, so the interstitial "Create Wallet" pitch
+  // is redundant. Status / error states still render below.
+  useEffect(() => {
+    if (!hasStarted && step === 'idle') {
+      handleStart();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   const getDisplayStep = (): 'ready' | 'creating' | 'passkey' | 'error' => {
     if (!hasStarted) return 'ready';
