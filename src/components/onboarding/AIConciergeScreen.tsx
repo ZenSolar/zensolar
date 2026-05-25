@@ -476,6 +476,8 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
                     <Sparkles className="w-4 h-4" />
                     {chips.size === 0 && description.trim().length === 0
                       ? 'Tap what you have to continue'
+                      : hasOnlyUnsupportedDevices
+                      ? 'Pick a supported device to continue'
                       : 'Build my plan'}
                     {canSubmit && <ArrowRight className="w-4 h-4" />}
                   </>
