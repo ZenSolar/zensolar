@@ -39,6 +39,17 @@ const PUBLIC_PROMPTS = [
   "How big could this get one day?",
 ];
 
+// Shown when Deason is opened *during* onboarding. Scoped to questions
+// a user is most likely to have mid-setup — wallet, OEM connections,
+// what gets minted, what's safe. Replaces the founder/insider set
+// regardless of persona, since the user is actively setting up.
+const ONBOARDING_PROMPTS = [
+  "What is a wallet, and is mine safe?",
+  "Which OEM should I connect first?",
+  "I don't know which brand of inverter I have — help.",
+  "What happens after I connect my devices?",
+];
+
 /**
  * Deason chat surface — used by both the full /deason page and the floating bubble.
  * Persona-aware: shows different welcome copy + suggested prompts depending on
