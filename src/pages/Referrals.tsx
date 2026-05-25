@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { PullToRefreshWrapper } from "@/components/ui/PullToRefreshWrapper";
+// PullToRefreshWrapper retired — relying on auto-refresh on login + post-mint sync.
 import { ExportCsvButton } from "@/components/ui/export-csv-button";
 import { todayStamp } from "@/lib/csvExport";
 
