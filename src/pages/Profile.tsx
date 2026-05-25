@@ -49,7 +49,7 @@ import {
 import { toast } from "sonner";
 import { PullToRefreshWrapper } from "@/components/ui/PullToRefreshWrapper";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { InstallerCard } from "@/components/profile/InstallerCard";
+
 
 // Import brand logos
 import teslaLogo from '@/assets/logos/tesla-logo.png';
@@ -383,8 +383,7 @@ export default function Profile() {
         </motion.div>
 
 
-        {/* Solar Installer — deterministic source-of-truth + contact info */}
-        <InstallerCard />
+
 
 
         {/* Wallet Management */}
