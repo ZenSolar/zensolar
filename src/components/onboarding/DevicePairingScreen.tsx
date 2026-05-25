@@ -152,6 +152,17 @@ export function DevicePairingScreen({
   // Must have at least one device AND no unresolved overlaps.
   const canContinue = totalDevices > 0 && conflicts.length === 0;
 
+  // Per-capability ownership map — confirms back to the user which OEM feeds what.
+  // Resolves the "Enphase solar + Tesla Powerwall" split-capability case visibly.
+  const ownership = useMemo(() => {
+    const map: Partial<Record<DeviceCapability, EnergyProvider>> = {};
+    (['solar', 'battery', 'ev'] as const).forEach((cap) => {
+      const owner = selectedOems.find((oem) => (pairing[oem] ?? []).includes(cap));
+      if (owner) map[cap] = owner;
+    });
+    return map;
+  }, [pairing, selectedOems]);
+
   // Detect Wallbox without Tesla EV — Wallbox pairs with Tesla, useful hint.
   const wallboxNoTesla =
     selectedOems.includes('wallbox') &&
