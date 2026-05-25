@@ -674,7 +674,7 @@ export default function Profile() {
           return true;
         }}
       />
-    </PullToRefreshWrapper>
+    </>
   );
 }
 
