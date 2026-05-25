@@ -741,6 +741,7 @@ Deno.serve(async (req) => {
       let batteryDeltaKwh = 0;
       let chargingDeltaKwh = 0;
       const deviceIdsToUpdate: string[] = [];
+      const batteryCandidates: { deviceId: string; provider: string; delta: number }[] = [];
 
       // Calculate real deltas from device data, filtering by category
       // Uses normalized device type matching for consistency across providers
