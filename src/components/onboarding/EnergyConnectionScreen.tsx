@@ -270,12 +270,18 @@ export function EnergyConnectionScreen({
           className="mt-8 text-center"
         >
           <h1 className="text-3xl font-semibold tracking-tight bg-gradient-to-b from-foreground to-foreground/55 bg-clip-text text-transparent">
-            {hasConnected ? 'Connect another' : 'Connect what earns'}
+            {titleOverride ?? (hasConnected ? 'Connect another' : 'Connect what earns')}
           </h1>
           <p className="mt-2 text-[14px] text-muted-foreground max-w-[300px] mx-auto">
-            {hasConnected
-              ? <>More gear = more <span className="text-primary font-semibold">$ZSOLAR</span>.</>
-              : <>One tap each. You can always add more later.</>}
+            {subtitleOverride ? (
+              subtitleOverride
+            ) : selectionMode ? (
+              <>Tap every brand you own. We&apos;ll map devices next.</>
+            ) : hasConnected ? (
+              <>More gear = more <span className="text-primary font-semibold">$ZSOLAR</span>.</>
+            ) : (
+              <>One tap each. You can always add more later.</>
+            )}
           </p>
         </motion.div>
       </section>
