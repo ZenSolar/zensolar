@@ -344,36 +344,42 @@ async function fetchEvMilesRows(userId: string, monthStart: Date, monthEnd: Date
   return (data || []) as ProductionRow[];
 }
 
-async function fetchChargingSources(
+async function fetchSuperchargerRows(
   userId: string,
   monthStart: Date,
   monthEnd: Date,
-): Promise<{ supercharger: ChargingSessionRow[]; home: HomeSessionRow[] }> {
+): Promise<ChargingSessionRow[]> {
   const startDate = format(monthStart, 'yyyy-MM-dd');
   const endDate = format(monthEnd, 'yyyy-MM-dd');
-  const [superRes, homeRes] = await Promise.all([
-    supabase
-      .from('charging_sessions')
-      .select('energy_kwh, session_date, charging_type, provider')
-      .eq('user_id', userId)
-      .eq('charging_type', 'supercharger')
-      .gte('session_date', startDate)
-      .lte('session_date', endDate),
-    supabase
-      .from('home_charging_sessions')
-      .select('total_session_kwh, start_time, device_id')
-      .eq('user_id', userId)
-      .eq('status', 'completed')
-      .gte('start_time', monthStart.toISOString())
-      .lte('start_time', monthEnd.toISOString()),
-  ]);
-  if (superRes.error) throw superRes.error;
-  if (homeRes.error) throw homeRes.error;
-  return {
-    supercharger: (superRes.data || []) as ChargingSessionRow[],
-    home: (homeRes.data || []) as HomeSessionRow[],
-  };
+  const { data, error } = await supabase
+    .from('charging_sessions')
+    .select('energy_kwh, session_date, charging_type, provider')
+    .eq('user_id', userId)
+    .eq('charging_type', 'supercharger')
+    .gte('session_date', startDate)
+    .lte('session_date', endDate);
+  if (error) throw error;
+  return (data || []) as ChargingSessionRow[];
 }
+
+async function fetchHomeChargingRows(
+  userId: string,
+  monthStart: Date,
+  monthEnd: Date,
+): Promise<HomeSessionRow[]> {
+  const { data, error } = await supabase
+    .from('home_charging_sessions')
+    .select('total_session_kwh, start_time, device_id')
+    .eq('user_id', userId)
+    .eq('status', 'completed')
+    .gte('start_time', monthStart.toISOString())
+    .lte('start_time', monthEnd.toISOString());
+  if (error) throw error;
+  return (data || []) as HomeSessionRow[];
+}
+
+  async function loadMonthInternal() { /* removed */ }
+
 
 // ── hook ───────────────────────────────────────────────────────────────────
 
