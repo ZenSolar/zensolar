@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Loader2, X, ArrowLeft, Sparkles, Zap, CheckCircle2, Info } from 'lucide-react';
+import { ArrowRight, Loader2, X, ArrowLeft, Sparkles, Zap, CheckCircle2, Info, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { triggerLightTap } from '@/hooks/useHaptics';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
