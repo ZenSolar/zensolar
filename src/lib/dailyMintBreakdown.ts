@@ -93,7 +93,8 @@ function shapeWeights(category: DailyCategory, days: number, rand: () => number)
     out.push(Math.max(0, base * jitter));
   }
   // Guarantee at least one non-zero point (sparse supercharging case)
-  if (out.every((w) => w === 0)) out[out.length - 1] = 1 as number;
+  const allZero = out.reduce((a, b) => a + b, 0) === 0;
+  if (allZero) out[out.length - 1] = 1;
   return out;
 }
 
