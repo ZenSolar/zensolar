@@ -181,7 +181,7 @@ export function EnergySuccessScreen({
             You're earning.
           </h2>
           <p className="text-muted-foreground text-[14px]">
-            {name} is now minting <span className="text-primary font-medium">$ZSOLAR</span>.
+            {name} is now earning <span className="text-primary font-medium">rewards</span>.
           </p>
         </motion.div>
 

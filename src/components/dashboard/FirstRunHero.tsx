@@ -46,7 +46,7 @@ export function FirstRunHero({
   // Rotating value-prop ticker — keeps the card feeling "alive" before
   // any real data exists.
   const tickerLines = [
-    'Average member earns ~47 $ZSOLAR per day from solar alone.',
+    'Average member earns ~$5 in rewards per day from solar alone.',
     'Every kWh you produce becomes a verified, on-chain token.',
     'Your EV miles count. Your battery discharge counts. All of it.',
     'No crypto experience required. Tap once to mint.',

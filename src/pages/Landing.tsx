@@ -11,7 +11,7 @@ export default function Landing() {
   return (
     <>
       <SEO
-        title="Earn $ZSOLAR For Your Clean Energy Use"
+        title="Earn Rewards For Your Clean Energy Use"
         description="Turn your solar panels, batteries, and EVs into digital income. ZenSolar rewards every kWh with blockchain tokens — no crypto experience needed."
         url="https://zensolar.com"
         image="https://zensolar.com/og-image.png"
@@ -21,7 +21,7 @@ export default function Landing() {
           name: 'ZenSolar',
           url: 'https://zensolar.com',
           logo: 'https://zensolar.com/logos/zen-logo-horizontal-new.png',
-          description: 'ZenSolar rewards clean energy production with blockchain tokens. Connect solar panels, batteries, or EVs and earn $ZSOLAR automatically.',
+          description: 'ZenSolar rewards clean energy production with verifiable on-chain tokens. Connect solar panels, batteries, or EVs and earn automatically.',
           sameAs: ['https://twitter.com/ZenSolar'],
           foundingDate: '2024',
           contactPoint: {

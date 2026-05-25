@@ -32,7 +32,7 @@ export default function Home() {
     <>
       <SEO
         title="ZenSolar — Tokenize Your Clean Energy Into Digital Income"
-        description="Tokenize your solar production, battery storage, and EV driving into $ZSOLAR rewards. The world's first physics-backed clean energy token."
+        description="Turn your solar production, battery storage, and EV driving into verified rewards. The world's first physics-backed clean energy token."
         url="https://zensolar.com/home"
         image="https://zensolar.com/og-image.png"
         jsonLd={{
@@ -42,7 +42,7 @@ export default function Home() {
           url: 'https://zensolar.com',
           applicationCategory: 'FinanceApplication',
           operatingSystem: 'Web, iOS, Android',
-          description: 'Earn $ZSOLAR tokens and NFTs for every kWh your solar panels produce, every EV mile you drive, and every battery cycle.',
+          description: 'Earn rewards and NFTs for every kWh your solar panels produce, every EV mile you drive, and every battery cycle.',
           offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
           aggregateRating: { '@type': 'AggregateRating', ratingValue: '4.8', ratingCount: '124' },
         }}

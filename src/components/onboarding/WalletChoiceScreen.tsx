@@ -51,7 +51,7 @@ export function WalletChoiceScreen({ onChoice, isLoading = false }: WalletChoice
             Your rewards wallet
           </h1>
           <p className="text-muted-foreground text-[15px] max-w-[280px] mx-auto leading-relaxed">
-            Where your <span className="text-foreground">$ZSOLAR</span> lives. Pick how you want to hold it.
+            Where your <span className="text-foreground">rewards</span> live. Pick how you want to hold them.
           </p>
         </div>
 
