@@ -43,6 +43,26 @@ export function EnergySuccessScreen({
 }: EnergySuccessScreenProps) {
   const { triggerCelebration } = useConfetti();
 
+  // Read concierge plan (if any) to know what's still unconnected.
+  const plannedRemaining = useMemo<string[]>(() => {
+    try {
+      const raw = localStorage.getItem('onboarding_planned_providers');
+      if (!raw) return [];
+      const arr = JSON.parse(raw);
+      if (!Array.isArray(arr)) return [];
+      return arr.filter(
+        (p: string) =>
+          ['tesla', 'enphase', 'solaredge', 'wallbox'].includes(p) &&
+          !connectedProviders.includes(p)
+      );
+    } catch {
+      return [];
+    }
+  }, [connectedProviders]);
+
+  const moreToAdd = plannedRemaining.length > 0;
+  const nextProviderName = moreToAdd ? providerNames[plannedRemaining[0]] : null;
+
   useEffect(() => {
     const timer = setTimeout(() => {
       triggerCelebration();
@@ -53,7 +73,10 @@ export function EnergySuccessScreen({
 
   const handleAddAnother = async () => {
     await triggerLightTap();
-    trackEvent('onboarding_add_another_energy_clicked', { currentProvider: provider });
+    trackEvent('onboarding_add_another_energy_clicked', {
+      currentProvider: provider,
+      suggestedNext: plannedRemaining[0] ?? null,
+    });
     onAddAnother();
   };
 
@@ -61,7 +84,8 @@ export function EnergySuccessScreen({
     await triggerLightTap();
     trackEvent('onboarding_energy_continue_to_dashboard', { 
       provider, 
-      totalConnected: connectedProviders.length 
+      totalConnected: connectedProviders.length,
+      skippedRemaining: plannedRemaining,
     });
     onContinue();
   };
