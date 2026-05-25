@@ -132,25 +132,53 @@ export const CO2_LBS_PER_GAS_MILE = 0.891;
 // Simple national-average EV efficiency assumption (kWh per mile)
 export const EV_KWH_PER_MILE = 0.27;
 
-export function calculateCO2Offset(data: ActivityData): number {
-  // 1) Solar: each kWh produced is assumed to displace 1 kWh of average grid electricity
-  const solarOffsetLbs = data.solarEnergyProduced * EPA_CO2_LBS_PER_KWH;
+export interface CO2Breakdown {
+  solarLbs: number;
+  batteryLbs: number;
+  evLbs: number;
+  totalLbs: number;
+  /** Inputs preserved so drill-downs can show the underlying activity values. */
+  inputs: {
+    solarKwh: number;
+    batteryKwh: number;
+    evMiles: number;
+    evKwhUsed: number;
+    evGasBaselineLbs: number;
+    evElectricityEmissionsLbs: number;
+  };
+}
 
-  // 2) Battery storage exported: assume exported kWh served load that would otherwise come from the grid
-  // (If your solar metric already includes all self-consumed energy, this can double-count. Keeping it
-  // in because the UI tracks battery storage exported as its own metric.)
-  const batteryOffsetLbs = data.batteryStorageDischarged * EPA_CO2_LBS_PER_KWH;
+export function calculateCO2Breakdown(data: ActivityData): CO2Breakdown {
+  // 1) Solar: each kWh produced displaces 1 kWh of average grid electricity
+  const solarLbs = data.solarEnergyProduced * EPA_CO2_LBS_PER_KWH;
+
+  // 2) Battery storage exported: served load that would otherwise come from the grid
+  const batteryLbs = data.batteryStorageDischarged * EPA_CO2_LBS_PER_KWH;
 
   // 3) EV driving: net CO2 avoided vs a typical gasoline vehicle
-  // avoided_gas = miles * (gas lbs/mile)
-  // emitted_electricity = kWh_charged * (grid lbs/kWh)
-  // net_avoided = max(0, avoided_gas - emitted_electricity)
-  const evKwhUsed = (data.teslaSuperchargerKwh + data.homeChargerKwh) > 0 
-    ? (data.teslaSuperchargerKwh + data.homeChargerKwh) 
+  const evKwhUsed = (data.teslaSuperchargerKwh + data.homeChargerKwh) > 0
+    ? (data.teslaSuperchargerKwh + data.homeChargerKwh)
     : data.evMilesDriven * EV_KWH_PER_MILE;
   const evGasBaselineLbs = data.evMilesDriven * CO2_LBS_PER_GAS_MILE;
   const evElectricityEmissionsLbs = evKwhUsed * EPA_CO2_LBS_PER_KWH;
-  const evNetOffsetLbs = Math.max(0, evGasBaselineLbs - evElectricityEmissionsLbs);
+  const evLbs = Math.max(0, evGasBaselineLbs - evElectricityEmissionsLbs);
 
-  return Math.round(solarOffsetLbs + batteryOffsetLbs + evNetOffsetLbs);
+  return {
+    solarLbs,
+    batteryLbs,
+    evLbs,
+    totalLbs: solarLbs + batteryLbs + evLbs,
+    inputs: {
+      solarKwh: data.solarEnergyProduced,
+      batteryKwh: data.batteryStorageDischarged,
+      evMiles: data.evMilesDriven,
+      evKwhUsed,
+      evGasBaselineLbs,
+      evElectricityEmissionsLbs,
+    },
+  };
+}
+
+export function calculateCO2Offset(data: ActivityData): number {
+  return Math.round(calculateCO2Breakdown(data).totalLbs);
 }
