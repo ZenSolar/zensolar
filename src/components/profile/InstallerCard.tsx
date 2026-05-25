@@ -148,7 +148,19 @@ export function InstallerCard() {
             </div>
           </div>
 
+          {/* Type-ahead search — pre-fills the contact fields below */}
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+              Quick-fill from common installers
+            </Label>
+            <InstallerSearch value={name} onPick={handleInstallerPick} onTextChange={setName} />
+            <p className="text-[10px] text-muted-foreground/80">
+              Pick yours to auto-fill name, company &amp; phone — or just type it in below.
+            </p>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
             <div className="space-y-1.5">
               <Label htmlFor="installer-name" className="text-xs flex items-center gap-1.5">
                 <UserIcon className="h-3 w-3 text-muted-foreground" />
