@@ -69,35 +69,50 @@ const CHIPS: { id: ChipId; emoji: string; label: string; phrase: string; group: 
 // than "I have solar." Each option carries an ID + a natural-language phrase
 // the prompt composer slots in.
 type BrandOption = { id: string; label: string; phrase: string };
+type BrandOption = { id: string; label: string; phrase: string; supported?: boolean };
+// Per-category OEM drill-down. ONLY brands we actually OAuth into today are
+// shown as primary options. Unsupported brands are explicitly labeled so the
+// user knows what to expect (e.g. "Other EV — coming soon"). EV is Tesla-only
+// at launch; everything else lists exactly the providers we connect with.
 const BRAND_OPTIONS: Record<'solar' | 'battery' | 'ev' | 'charger', BrandOption[]> = {
   solar: [
-    { id: 'tesla',     label: 'Tesla',     phrase: 'Tesla solar' },
-    { id: 'enphase',   label: 'Enphase',   phrase: 'Enphase solar' },
-    { id: 'solaredge', label: 'SolarEdge', phrase: 'SolarEdge solar' },
-    { id: 'other',     label: 'Other',     phrase: 'rooftop solar (other brand)' },
-    { id: 'unknown',   label: 'Not sure',  phrase: "rooftop solar (I'm not sure of the brand)" },
+    { id: 'tesla',     label: 'Tesla',          phrase: 'Tesla solar',                                     supported: true },
+    { id: 'enphase',   label: 'Enphase',        phrase: 'Enphase solar',                                   supported: true },
+    { id: 'solaredge', label: 'SolarEdge',      phrase: 'SolarEdge solar',                                 supported: true },
+    { id: 'other',     label: 'Other brand',    phrase: 'rooftop solar (other brand, not yet supported)' },
+    { id: 'unknown',   label: 'Not sure',       phrase: "rooftop solar (I'm not sure of the brand)" },
   ],
   battery: [
-    { id: 'tesla',     label: 'Tesla Powerwall',     phrase: 'a Tesla Powerwall' },
-    { id: 'enphase',   label: 'Enphase IQ Battery',  phrase: 'an Enphase IQ Battery' },
-    { id: 'solaredge', label: 'SolarEdge Battery',   phrase: 'a SolarEdge Home Battery' },
-    { id: 'other',     label: 'Other',               phrase: 'a home battery (other brand)' },
+    { id: 'tesla',     label: 'Tesla Powerwall',     phrase: 'a Tesla Powerwall',                              supported: true },
+    { id: 'enphase',   label: 'Enphase IQ Battery',  phrase: 'an Enphase IQ Battery',                          supported: true },
+    { id: 'solaredge', label: 'SolarEdge Battery',   phrase: 'a SolarEdge Home Battery',                       supported: true },
+    { id: 'other',     label: 'Other brand',         phrase: 'a home battery (other brand, not yet supported)' },
     { id: 'unknown',   label: 'Not sure',            phrase: "a home battery (I'm not sure of the brand)" },
   ],
+  // Tesla-only at launch. "Other EV" is shown so the user can flag it, but it
+  // won't add any provider to the OAuth queue — Deason will say so on the plan
+  // review screen.
   ev: [
-    { id: 'tesla',   label: 'Tesla',    phrase: 'a Tesla' },
-    { id: 'other',   label: 'Other EV', phrase: 'a non-Tesla EV' },
-    { id: 'unknown', label: 'Not sure', phrase: 'an EV' },
+    { id: 'tesla',   label: 'Tesla',                phrase: 'a Tesla',                                          supported: true },
+    { id: 'other',   label: 'Other EV (coming soon)', phrase: 'a non-Tesla EV (not yet supported for telemetry)' },
   ],
   charger: [
-    { id: 'tesla_wall_connector', label: 'Tesla Wall Connector', phrase: 'a Tesla Wall Connector' },
-    { id: 'wallbox',              label: 'Wallbox',              phrase: 'a Wallbox charger' },
-    { id: 'enphase',              label: 'Enphase',              phrase: 'an Enphase home charger' },
-    { id: 'solaredge',            label: 'SolarEdge',            phrase: 'a SolarEdge home charger' },
-    { id: 'chargepoint',          label: 'ChargePoint',          phrase: 'a ChargePoint charger' },
-    { id: 'other',                label: 'Other L2',             phrase: 'another L2 home charger' },
-    { id: 'vehicle_telemetry',    label: 'Standard outlet',      phrase: 'a standard garage outlet' },
+    { id: 'tesla_wall_connector', label: 'Tesla Wall Connector', phrase: 'a Tesla Wall Connector',                                     supported: true },
+    { id: 'wallbox',              label: 'Wallbox',              phrase: 'a Wallbox charger',                                          supported: true },
+    { id: 'enphase',              label: 'Enphase L2',           phrase: 'an Enphase home charger',                                    supported: true },
+    { id: 'solaredge',            label: 'SolarEdge L2',         phrase: 'a SolarEdge home charger',                                   supported: true },
+    { id: 'vehicle_telemetry',    label: 'Standard outlet',      phrase: "a standard garage outlet (we'll read kWh from the car)" },
+    { id: 'other',                label: 'Other L2',             phrase: "another L2 home charger (we'll read kWh from the car)" },
   ],
+};
+
+// Plain-English helper text shown under each gear category so users
+// understand exactly which OEMs we connect with today.
+const BRAND_HELP: Record<'solar' | 'battery' | 'ev' | 'charger', string> = {
+  solar:   'We connect with Tesla, Enphase, and SolarEdge.',
+  battery: 'We connect with Tesla Powerwall, Enphase IQ Battery, and SolarEdge Home Battery.',
+  ev:      'Tesla is the only EV we connect with today. More brands coming.',
+  charger: 'Direct OAuth: Tesla Wall Connector, Wallbox, Enphase, SolarEdge. Others read kWh from your car.',
 };
 
 function composeFromChips(selected: Set<ChipId>, brands: Partial<Record<ChipId, string>>): string {
