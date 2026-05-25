@@ -68,6 +68,10 @@ export function WalletChoiceScreen({ onChoice, isLoading = false }: WalletChoice
               : 'border-border/70 hover:border-primary/50',
           )}
         >
+          {/* Popup heads-up — sets expectation before the Coinbase interstitial */}
+          <div className="absolute -top-2.5 left-4 px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-[10px] text-primary font-medium tracking-wide">
+            Secure popup opens next
+          </div>
           <div className="flex items-center gap-4 mb-4">
             <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
               <Fingerprint className="w-6 h-6 text-primary" />
