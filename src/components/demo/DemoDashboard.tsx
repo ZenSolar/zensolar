@@ -250,6 +250,11 @@ export function DemoDashboard() {
           </div>
         </AnimatedItem>
 
+        {/* Prominent CO₂ Offset card with per-activity drill-down — mirrors live beta */}
+        <AnimatedItem>
+          <CO2OffsetCard activityData={activityData} isLoading={isLoading} />
+        </AnimatedItem>
+
         {/* DEMO ONLY: Tap-to-Mint preview card — opens existing Mint Rewards flow */}
         <AnimatedItem>
           <TapToMintCard
