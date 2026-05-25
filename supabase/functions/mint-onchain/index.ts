@@ -839,7 +839,32 @@ Deno.serve(async (req) => {
         console.log(`Per-device minting for deviceId=${deviceId}: category=${mintCategory}`);
       }
 
-      const solar = BigInt(solarDeltaKwh);
+      // Battery provider-priority de-dup (mirrors useDashboardData KPI logic):
+      // tesla > enphase > solaredge. One OEM per battery — never summed.
+      if (batteryCandidates.length > 0) {
+        const priority = ['tesla', 'enphase', 'solaredge'];
+        let chosenProvider: string | null = null;
+        for (const p of priority) {
+          if (batteryCandidates.some((c) => c.provider === p)) {
+            chosenProvider = p;
+            break;
+          }
+        }
+        // Fallback: any non-priority provider (defensive)
+        if (!chosenProvider) chosenProvider = batteryCandidates[0].provider;
+
+        const chosen = batteryCandidates.filter((c) => c.provider === chosenProvider);
+        batteryDeltaKwh = chosen.reduce((sum, c) => sum + c.delta, 0);
+        for (const c of chosen) {
+          if (!deviceIdsToUpdate.includes(c.deviceId)) deviceIdsToUpdate.push(c.deviceId);
+        }
+        const skipped = batteryCandidates.filter((c) => c.provider !== chosenProvider);
+        if (skipped.length > 0) {
+          console.log(`Battery provider priority: chose=${chosenProvider} (${batteryDeltaKwh}kWh), skipped=${JSON.stringify(skipped)}`);
+        }
+      }
+
+
       const evMiles = BigInt(evMilesDelta);
       const battery = BigInt(batteryDeltaKwh);
       const charging = BigInt(chargingDeltaKwh);
