@@ -210,7 +210,11 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
 
   const extract = async () => {
     if (!canSubmit) {
-      toast.error('Tap what you have, or describe your setup in a sentence.');
+      if (hasOnlyUnsupportedDevices) {
+        toast.error('Tesla is the only EV we connect with today. Pick a supported device to continue.');
+      } else {
+        toast.error('Tap what you have, or describe your setup in a sentence.');
+      }
       return;
     }
     await triggerLightTap();
