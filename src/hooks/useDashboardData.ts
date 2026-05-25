@@ -1141,6 +1141,14 @@ export function useDashboardData() {
         pendingSolar = fallback.solarPendingKwh;
       }
 
+      // Enphase/SolarEdge battery: if Tesla isn't supplying battery data (not connected, or no Powerwall),
+      // pull battery discharge from the dedicated solar provider that owns the storage hardware (IQ Battery, etc.).
+      if (batteryDischarge <= 0 && fallback.batteryLifetimeKwh > 0 && fallback.batteryProvider && fallback.batteryProvider !== 'tesla') {
+        batteryDischarge = fallback.batteryLifetimeKwh;
+        pendingBattery = fallback.batteryPendingKwh;
+        console.log(`Battery KPI sourced from ${fallback.batteryProvider}:`, { batteryDischarge, pendingBattery });
+      }
+
       // Total lifetime tokens (calculated from all activity - 1:1 rate)
       const tokensEarned =
         Math.floor(evMiles) +
