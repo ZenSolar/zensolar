@@ -1,7 +1,13 @@
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { openDeasonWithError, type Provider, type OAuthStage } from '@/lib/deasonHandoff';
+import {
+  openDeasonWithError,
+  maybeAutoOpenDeason,
+  scheduleDeasonNudge,
+  type Provider,
+  type OAuthStage,
+} from '@/lib/deasonHandoff';
 
 const REDIRECT_URI = `${window.location.origin}/oauth/callback`;
 
