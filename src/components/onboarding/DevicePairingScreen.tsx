@@ -21,7 +21,7 @@ import type { EnergyProvider } from './EnergyConnectionScreen';
  * Tesla is the only supported EV OEM — there is no "Other EV" path.
  */
 
-export type DeviceCapability = 'solar' | 'battery' | 'ev';
+export type DeviceCapability = 'solar' | 'battery' | 'ev' | 'charger';
 
 export type DevicePairing = Record<EnergyProvider, DeviceCapability[]>;
 
@@ -34,6 +34,8 @@ interface OEMConfig {
   available: DeviceCapability[];
   // Pre-checked by default (what users with this OEM most commonly own).
   defaults: DeviceCapability[];
+  // OEM-specific product names per capability (e.g. Tesla battery → "Powerwall").
+  productNames: Partial<Record<DeviceCapability, string>>;
 }
 
 const OEMS: Record<EnergyProvider, OEMConfig> = {
@@ -41,33 +43,52 @@ const OEMS: Record<EnergyProvider, OEMConfig> = {
     id: 'tesla',
     name: 'Tesla',
     logo: teslaLogo,
-    blurb: 'Powerwall, Solar Roof/Panels & Vehicles',
-    available: ['solar', 'battery', 'ev'],
+    blurb: 'Powerwall, Solar Roof, Vehicles & Wall Connector',
+    available: ['solar', 'battery', 'ev', 'charger'],
     defaults: ['battery', 'ev'],
+    productNames: {
+      solar: 'Solar Roof / Solar Panels',
+      battery: 'Powerwall',
+      ev: 'Tesla Vehicle',
+      charger: 'Wall Connector',
+    },
   },
   enphase: {
     id: 'enphase',
     name: 'Enphase',
     logo: enphaseLogo,
-    blurb: 'Microinverters & IQ Battery',
-    available: ['solar', 'battery'],
+    blurb: 'IQ Microinverters, IQ Battery & IQ EV Charger',
+    available: ['solar', 'battery', 'charger'],
     defaults: ['solar'],
+    productNames: {
+      solar: 'IQ Microinverters',
+      battery: 'IQ Battery',
+      charger: 'IQ EV Charger',
+    },
   },
   solaredge: {
     id: 'solaredge',
     name: 'SolarEdge',
     logo: solaredgeLogo,
-    blurb: 'PV Inverters, Battery & EV Charger',
-    available: ['solar', 'battery', 'ev'],
+    blurb: 'Home Hub Inverter, Home Battery & Home EV Charger',
+    available: ['solar', 'battery', 'charger'],
     defaults: ['solar'],
+    productNames: {
+      solar: 'Home Hub Inverter',
+      battery: 'Home Battery',
+      charger: 'Home EV Charger',
+    },
   },
   wallbox: {
     id: 'wallbox',
     name: 'Wallbox',
     logo: wallboxLogo,
-    blurb: 'Home EV charger',
-    available: ['ev'],
-    defaults: ['ev'],
+    blurb: 'Pulsar Plus home EV charger',
+    available: ['charger'],
+    defaults: ['charger'],
+    productNames: {
+      charger: 'Pulsar Plus',
+    },
   },
 };
 
@@ -75,6 +96,7 @@ const CAPABILITY_META: Record<DeviceCapability, { label: string; emoji: string; 
   solar: { label: 'Solar', emoji: '☀️', tint: 'text-blue-300 border-blue-500/30 bg-blue-500/10' },
   battery: { label: 'Battery', emoji: '🔋', tint: 'text-purple-300 border-purple-500/30 bg-purple-500/10' },
   ev: { label: 'EV', emoji: '🚗', tint: 'text-emerald-300 border-emerald-500/30 bg-emerald-500/10' },
+  charger: { label: 'Home Charger', emoji: '🔌', tint: 'text-amber-300 border-amber-500/30 bg-amber-500/10' },
 };
 
 interface DevicePairingScreenProps {
