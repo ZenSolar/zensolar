@@ -269,6 +269,13 @@ export function MintTokenDialog({
                           <span className="text-[11px] text-muted-foreground leading-tight">{cat.lagLabel}</span>
                         </div>
                       )}
+                      {dailyBreakdown?.[cat.key] && (
+                        <DailyBreakdownPanel
+                          breakdown={dailyBreakdown[cat.key]!}
+                          accentClass={cat.colorClass}
+                          label={cat.label}
+                        />
+                      )}
                       {onNavigateHistory && (
                         <button
                           type="button"
