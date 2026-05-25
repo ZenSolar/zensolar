@@ -38,21 +38,19 @@ const DrawerContent = React.forwardRef<
         className,
       )}
       style={{
-        // Respect iPhone Dynamic Island / notch when the drawer expands tall,
-        // and the home indicator at the bottom. Per-instance style overrides win.
-        paddingTop: "max(env(safe-area-inset-top, 0px), 0px)",
+        // Bottom sheet — only the home indicator needs safe-area padding.
+        // Top safe-area was creating ~50px of dead space above the handle
+        // because the sheet's top edge is nowhere near the notch at 85svh.
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
         ...style,
       }}
       {...props}
     >
-      {/* Drag handle + swipe affordance: mobile bottom-sheet only.
-          Handle is brighter & wider than default vaul, with a subtle pulse,
-          and a "Swipe down to close" caption that auto-fades after ~3s so
-          first-time users learn the gesture without permanent UI noise. */}
-      <div className="lg:hidden flex flex-col items-center gap-1 pt-3 pb-1 select-none pointer-events-none">
-        <div className="h-1.5 w-12 rounded-full bg-primary/50 shadow-[0_0_10px_hsl(var(--primary)/0.35)] animate-drawer-handle-pulse" />
-        <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground/80 animate-drawer-hint-fade">
+      {/* Drag handle: tight, centered, with a brief auto-fading caption
+          underneath that teaches the gesture without permanently taking a row. */}
+      <div className="lg:hidden flex flex-col items-center gap-0.5 pt-2 pb-0.5 select-none pointer-events-none">
+        <div className="h-1.5 w-10 rounded-full bg-primary/50 shadow-[0_0_10px_hsl(var(--primary)/0.35)] animate-drawer-handle-pulse" />
+        <span className="text-[9px] font-medium uppercase tracking-[0.14em] text-muted-foreground/70 animate-drawer-hint-fade leading-none">
           Swipe down to close
         </span>
       </div>
