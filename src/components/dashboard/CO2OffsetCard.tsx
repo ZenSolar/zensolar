@@ -235,6 +235,31 @@ export function CO2OffsetCard({ activityData, co2Pounds, isLoading, className }:
               );
             })}
           </div>
+
+          {/* EV miles summary — full width, biggest contributor */}
+          {breakdown.inputs.evMiles > 0 && (
+            <div className="mt-2 rounded-lg border border-border/60 border-l-2 border-l-eco/70 bg-gradient-to-r from-eco/10 via-card/40 to-card/40 p-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-eco/15 text-eco shrink-0">
+                  <Car className="h-4 w-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                    EV Miles Driven (Lifetime)
+                  </p>
+                  <div className="mt-0.5 flex items-baseline gap-2 flex-wrap">
+                    <p className="text-xl font-bold leading-none tabular-nums text-foreground">
+                      {breakdown.inputs.evMiles.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      <span className="ml-1 text-xs font-medium text-muted-foreground">mi</span>
+                    </p>
+                    <span className="text-[11px] text-muted-foreground tabular-nums">
+                      = {formatTons(breakdown.evLbs)} t CO₂ avoided
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
