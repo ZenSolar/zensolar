@@ -22,6 +22,7 @@ import { SubscriptionStatusCard } from './dashboard/SubscriptionStatusCard';
 import { FlywheelContributionCard } from './dashboard/FlywheelContributionCard';
 import { Tokenomics101Card } from './tokenomics/Tokenomics101Card';
 import { MintReceiptsHint } from './dashboard/MintReceiptsHint';
+import { ChargingDriftBreakdownCard } from './dashboard/ChargingDriftBreakdownCard';
 import { DashboardHexBackground } from './dashboard/DashboardHexBackground';
 import { PageTransition } from './layout/PageTransition';
 
