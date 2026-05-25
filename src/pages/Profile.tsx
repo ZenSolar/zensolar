@@ -52,7 +52,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 
 
 // Import brand logos
-import teslaLogo from '@/assets/logos/tesla-logo.png';
+import teslaLogo from '@/assets/logos/tesla-t-icon.png';
 import enphaseLogo from '@/assets/logos/enphase-wordmark.svg';
 import solaredgeLogo from '@/assets/logos/solaredge-logo.png';
 import wallboxLogo from '@/assets/logos/wallbox-logo.png';

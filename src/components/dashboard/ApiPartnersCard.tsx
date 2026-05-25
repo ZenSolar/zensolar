@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { ShimmerOverlay } from './ShimmerOverlay';
-import teslaLogo from '@/assets/logos/tesla-wordmark-red.png';
+import teslaLogo from '@/assets/logos/tesla-t-icon.png';
 import enphaseLogo from '@/assets/logos/enphase-wordmark.svg';
 import solaredgeLogo from '@/assets/logos/solaredge-cropped.svg';
 import wallboxLogo from '@/assets/logos/wallbox-white.png';

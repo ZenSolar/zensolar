@@ -1,5 +1,5 @@
 import { ShieldCheck, Sun, Battery, Car, Zap, Clock } from 'lucide-react';
-import teslaIcon from '@/assets/logos/tesla-t-icon.svg';
+import teslaIcon from '@/assets/logos/tesla-t-icon.png';
 import enphaseLogo from '@/assets/logos/enphase-e-icon.svg';
 import solaredgeLogo from '@/assets/logos/solaredge-logo.svg';
 import wallboxLogo from '@/assets/logos/wallbox-icon.svg';

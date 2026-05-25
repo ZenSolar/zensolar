@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Sun, BatteryFull, Car, Plug, CheckCircle2 } from 'lucide-react';
-import teslaLogo from '@/assets/logos/tesla-logo.png';
+import teslaLogo from '@/assets/logos/tesla-t-icon.png';
 import enphaseLogo from '@/assets/logos/enphase-wordmark.svg';
 import solarEdgeLogo from '@/assets/logos/solaredge-logo.png';
 import wallboxLogo from '@/assets/logos/wallbox-logo.png';

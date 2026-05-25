@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
-import teslaLogo from '@/assets/logos/tesla-logo.png';
+import teslaLogo from '@/assets/logos/tesla-t-icon.png';
 import enphaseLogo from '@/assets/logos/enphase-wordmark.svg';
 import solaredgeLogo from '@/assets/logos/solaredge-logo.svg';
 import wallboxLogo from '@/assets/logos/wallbox-icon.svg';
