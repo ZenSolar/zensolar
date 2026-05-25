@@ -514,6 +514,16 @@ const App = () => {
                       } 
                     />
                     <Route 
+                      path="/admin/kpi-reconciliation" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminKpiReconciliation />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
                       path="/admin/page-cleanup" 
                       element={
                         <ProtectedRoute>
