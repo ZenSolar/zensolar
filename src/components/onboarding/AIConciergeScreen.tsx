@@ -354,13 +354,13 @@ function PlanReview({
       <motion.div
         initial={{ scale: 0 }} animate={{ scale: 1 }}
         transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-        className="w-20 h-20 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-primary/80 flex items-center justify-center shadow-xl shadow-primary/25"
+        className="w-20 h-20 mx-auto mb-5 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-xl shadow-amber-500/30 ring-2 ring-amber-300/40"
       >
-        <Check className="w-10 h-10 text-primary-foreground" />
+        <Check className="w-10 h-10 text-black" />
       </motion.div>
 
       <div className="text-center mb-1">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-semibold text-primary tracking-wide uppercase">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-xs font-semibold text-amber-500 tracking-wide uppercase">
           <Sparkles className="w-3 h-3" />
           Deason built this
         </span>
