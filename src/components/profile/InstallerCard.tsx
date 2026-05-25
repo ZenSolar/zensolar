@@ -69,6 +69,18 @@ export function InstallerCard() {
     setInstaller(choice);
   };
 
+  const handleInstallerPick = (inst: KnownInstaller) => {
+    // Pre-populate every field we have a hint for. User can still edit.
+    setName(inst.name);
+    if (inst.company) setCompany(inst.company);
+    if (inst.phone) setPhone(inst.phone);
+    if (inst.email) setEmail(inst.email);
+    // Auto-route source-of-truth when picking Tesla Energy itself.
+    if (inst.name === "Tesla Energy") setInstaller("tesla");
+    else if (installer === "") setInstaller("other");
+  };
+
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
