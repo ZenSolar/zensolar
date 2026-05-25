@@ -67,6 +67,8 @@ interface RewardActionsProps {
   walletAddress?: string | null;
   pendingRewards?: PendingRewards;
   demoMintHandler?: DemoMintHandler;
+  /** Optional per-category daily breakdown of pending amounts (demo mode). */
+  dailyBreakdown?: Partial<Record<import('./MintTokenDialog').MintTokenCategory, import('@/lib/dailyMintBreakdown').DailyBreakdown>>;
 }
 
 export interface RewardActionsRef {
@@ -126,6 +128,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   walletAddress, 
   pendingRewards = { solar: 0, evMiles: 0, battery: 0, charging: 0 },
   demoMintHandler,
+  dailyBreakdown,
 }, ref) {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -1065,6 +1068,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         totalPendingTokens={totalPendingTokens}
         onRequestMint={(cat) => handleRequestMint(cat)}
         onNavigateHistory={() => navigate('/clean-energy-center')}
+        dailyBreakdown={dailyBreakdown}
       />
 
 

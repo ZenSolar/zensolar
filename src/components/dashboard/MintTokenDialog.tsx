@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import type { DailyBreakdown } from '@/lib/dailyMintBreakdown';
 
 export type MintTokenCategory = 'solar' | 'ev_miles' | 'battery' | 'charging' | 'home_charging' | 'supercharging' | 'all';
 
@@ -33,6 +34,8 @@ interface MintTokenDialogProps {
   onRequestMint: (cat: MintTokenCategory) => void;
   /** Optional — called when user taps "View receipt history" inside an expanded row. */
   onNavigateHistory?: () => void;
+  /** Optional per-category daily breakdown of how the pending amount was earned. */
+  dailyBreakdown?: Partial<Record<MintTokenCategory, DailyBreakdown>>;
 }
 
 /**
@@ -52,6 +55,7 @@ export function MintTokenDialog({
   totalPendingTokens,
   onRequestMint,
   onNavigateHistory,
+  dailyBreakdown,
 }: MintTokenDialogProps) {
   const [lastSyncedAt, setLastSyncedAt] = useState<number>(() => Date.now());
   const [nowTick, setNowTick] = useState<number>(() => Date.now());
@@ -265,6 +269,13 @@ export function MintTokenDialog({
                           <span className="text-[11px] text-muted-foreground leading-tight">{cat.lagLabel}</span>
                         </div>
                       )}
+                      {dailyBreakdown?.[cat.key] && (
+                        <DailyBreakdownPanel
+                          breakdown={dailyBreakdown[cat.key]!}
+                          accentClass={cat.colorClass}
+                          label={cat.label}
+                        />
+                      )}
                       {onNavigateHistory && (
                         <button
                           type="button"
@@ -329,5 +340,71 @@ export function MintTokenDialog({
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+function DailyBreakdownPanel({
+  breakdown,
+  accentClass,
+  label,
+}: {
+  breakdown: DailyBreakdown;
+  accentClass: string;
+  label: string;
+}) {
+  const { points, unit, total } = breakdown;
+  const max = Math.max(1, ...points.map((p) => p.value));
+  const nonZero = points.filter((p) => p.value > 0).length;
+  const avg = nonZero > 0 ? Math.round(total / nonZero) : 0;
+  const best = points.reduce((acc, p) => (p.value > acc.value ? p : acc), points[0]);
+
+  return (
+    <div className="rounded-xl border border-border/40 bg-background/40 p-3 space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+            Last {points.length} days · {label}
+          </p>
+          <p className="text-[11px] text-muted-foreground mt-0.5 tabular-nums">
+            Avg {avg.toLocaleString()} {unit}/active day · Best {best.value.toLocaleString()} {unit} ({best.weekday})
+          </p>
+        </div>
+      </div>
+
+      {/* Mini bar chart */}
+      <div className="flex items-end justify-between gap-[2px] h-14" aria-hidden="true">
+        {points.map((p) => {
+          const h = p.value > 0 ? Math.max(8, (p.value / max) * 100) : 4;
+          return (
+            <div key={p.date} className="flex-1 flex flex-col items-center gap-1 min-w-0">
+              <div
+                className={`w-full rounded-sm ${p.value > 0 ? accentClass.replace('text-', 'bg-') : 'bg-muted/40'} transition-all`}
+                style={{ height: `${h}%` }}
+                title={`${p.weekday} ${p.date}: ${p.value.toLocaleString()} ${unit}`}
+              />
+              <span className="text-[8px] text-muted-foreground/70 leading-none">
+                {p.weekday[0]}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Compact day list — most recent first, only non-zero days */}
+      <div className="max-h-40 overflow-y-auto -mx-1 px-1">
+        <ul className="text-[11px] divide-y divide-border/30">
+          {[...points].reverse().filter((p) => p.value > 0).slice(0, 10).map((p) => (
+            <li key={p.date} className="flex items-center justify-between py-1.5">
+              <span className="text-muted-foreground">
+                {p.weekday}, {p.date.slice(5)}
+              </span>
+              <span className="font-semibold text-foreground tabular-nums">
+                {p.value.toLocaleString()} {unit}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
   );
 }

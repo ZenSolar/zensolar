@@ -25,6 +25,8 @@ import { DashboardHexBackground } from '@/components/dashboard/DashboardHexBackg
 import { DemoOnboardingHints } from '@/components/demo/DemoOnboardingHints';
 import { TapToMintCard } from '@/components/demo/TapToMintCard';
 import { CO2OffsetCard } from '@/components/dashboard/CO2OffsetCard';
+import { generateDailyBreakdown, type DailyBreakdown } from '@/lib/dailyMintBreakdown';
+import type { MintTokenCategory } from '@/components/dashboard/MintTokenDialog';
 import { isVipActive } from '@/lib/vipDemo';
 
 import {
@@ -122,6 +124,15 @@ export function DemoDashboard() {
     superchargerKwh: Math.max(0, Math.floor(activityData.pendingSuperchargerKwh || 0)),
     homeChargerKwh: Math.max(0, Math.floor(activityData.pendingHomeChargerKwh || 0)),
   };
+
+  const dailyBreakdownMap = useMemo<Partial<Record<MintTokenCategory, DailyBreakdown>>>(() => ({
+    solar: generateDailyBreakdown('solar', currentActivity.solarKwh, { seed: 'demo-solar', unit: 'kWh' }),
+    battery: generateDailyBreakdown('battery', currentActivity.batteryKwh, { seed: 'demo-battery', unit: 'kWh' }),
+    ev_miles: generateDailyBreakdown('ev_miles', currentActivity.evMiles, { seed: 'demo-ev', unit: 'mi' }),
+    charging: generateDailyBreakdown('charging', currentActivity.chargingKwh, { seed: 'demo-charging', unit: 'kWh' }),
+    supercharging: generateDailyBreakdown('supercharging', currentActivity.superchargerKwh, { seed: 'demo-super', unit: 'kWh' }),
+    home_charging: generateDailyBreakdown('home_charging', currentActivity.homeChargerKwh, { seed: 'demo-home', unit: 'kWh' }),
+  }), [currentActivity.solarKwh, currentActivity.batteryKwh, currentActivity.evMiles, currentActivity.chargingKwh, currentActivity.superchargerKwh, currentActivity.homeChargerKwh]);
 
   // Calculate total NFTs available (same logic as real dashboard)
   const solarEarned = calculateEarnedMilestones(activityData.solarEnergyProduced, SOLAR_MILESTONES);
@@ -287,6 +298,7 @@ export function DemoDashboard() {
               homeChargerKwh: currentActivity.homeChargerKwh,
             }}
             demoMintHandler={demoMintHandler}
+            dailyBreakdown={dailyBreakdownMap}
           />
         </AnimatedItem>
 

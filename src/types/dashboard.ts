@@ -135,7 +135,12 @@ export const EV_KWH_PER_MILE = 0.27;
 export interface CO2Breakdown {
   solarLbs: number;
   batteryLbs: number;
+  /** Total EV-driving net offset (lbs). */
   evLbs: number;
+  /** Net EV offset attributed proportionally to Tesla Supercharging (lbs). */
+  evSuperchargerLbs: number;
+  /** Net EV offset attributed proportionally to home charging (lbs). */
+  evHomeChargerLbs: number;
   totalLbs: number;
   /** Inputs preserved so drill-downs can show the underlying activity values. */
   inputs: {
@@ -145,6 +150,8 @@ export interface CO2Breakdown {
     evKwhUsed: number;
     evGasBaselineLbs: number;
     evElectricityEmissionsLbs: number;
+    superchargerKwh: number;
+    homeChargerKwh: number;
   };
 }
 
@@ -156,17 +163,27 @@ export function calculateCO2Breakdown(data: ActivityData): CO2Breakdown {
   const batteryLbs = data.batteryStorageDischarged * EPA_CO2_LBS_PER_KWH;
 
   // 3) EV driving: net CO2 avoided vs a typical gasoline vehicle
-  const evKwhUsed = (data.teslaSuperchargerKwh + data.homeChargerKwh) > 0
-    ? (data.teslaSuperchargerKwh + data.homeChargerKwh)
+  const superchargerKwh = data.teslaSuperchargerKwh;
+  const homeChargerKwh = data.homeChargerKwh;
+  const totalChargerKwh = superchargerKwh + homeChargerKwh;
+  const evKwhUsed = totalChargerKwh > 0
+    ? totalChargerKwh
     : data.evMilesDriven * EV_KWH_PER_MILE;
   const evGasBaselineLbs = data.evMilesDriven * CO2_LBS_PER_GAS_MILE;
   const evElectricityEmissionsLbs = evKwhUsed * EPA_CO2_LBS_PER_KWH;
   const evLbs = Math.max(0, evGasBaselineLbs - evElectricityEmissionsLbs);
 
+  // Allocate EV offset proportionally to charger kWh share (falls back to 50/50)
+  const superShare = totalChargerKwh > 0 ? superchargerKwh / totalChargerKwh : 0.5;
+  const evSuperchargerLbs = evLbs * superShare;
+  const evHomeChargerLbs = evLbs * (1 - superShare);
+
   return {
     solarLbs,
     batteryLbs,
     evLbs,
+    evSuperchargerLbs,
+    evHomeChargerLbs,
     totalLbs: solarLbs + batteryLbs + evLbs,
     inputs: {
       solarKwh: data.solarEnergyProduced,
@@ -175,6 +192,8 @@ export function calculateCO2Breakdown(data: ActivityData): CO2Breakdown {
       evKwhUsed,
       evGasBaselineLbs,
       evElectricityEmissionsLbs,
+      superchargerKwh,
+      homeChargerKwh,
     },
   };
 }
