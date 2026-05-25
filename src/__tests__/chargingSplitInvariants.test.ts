@@ -65,7 +65,7 @@ describe("charging split invariants — /admin/kpi-reconciliation", () => {
   it("does not relabel 'charging' as a first-class active category", () => {
     // Legacy combined bucket may exist for historical rows but MUST be marked
     // pre-split / legacy so it can never masquerade as a current provider.
-    const chargingLabel = src.match(/charging:\s*["']([^"']+)["']/)?.[1] ?? "";
+    const chargingLabel = src.match(/(?<![_a-zA-Z])charging:\s*["']([^"']+)["']/)?.[1] ?? "";
     if (chargingLabel) {
       expect(chargingLabel.toLowerCase()).toMatch(/legacy|pre-split|combined/);
     }
