@@ -44,12 +44,12 @@ const OEMS: Record<EnergyProvider, OEMConfig> = {
     name: 'Tesla',
     logo: teslaLogo,
     blurb: 'Powerwall, Solar Roof, Vehicles & Wall Connector',
-    available: ['solar', 'battery', 'ev', 'charger'],
-    defaults: ['battery', 'ev'],
+    available: ['ev', 'solar', 'battery', 'charger'],
+    defaults: ['ev', 'battery'],
     productNames: {
       solar: 'Solar Roof / Solar Panels',
       battery: 'Powerwall',
-      ev: 'Tesla Vehicle',
+      ev: 'Electric Vehicle',
       charger: 'Wall Connector',
     },
   },
@@ -153,7 +153,7 @@ export function DevicePairingScreen({
     const base = OEMS[oem].available;
     if (solarInstaller === 'other' && oem === 'tesla') {
       return base.filter((c) => c !== 'solar').sort((a, b) => {
-        const order: DeviceCapability[] = ['ev', 'battery', 'solar'];
+        const order: DeviceCapability[] = ['ev', 'battery', 'charger'];
         return order.indexOf(a) - order.indexOf(b);
       });
     }
