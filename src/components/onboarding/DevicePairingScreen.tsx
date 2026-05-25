@@ -227,10 +227,6 @@ export function DevicePairingScreen({
     return map;
   }, [pairing, selectedOems]);
 
-  // Detect Wallbox without Tesla EV — Wallbox pairs with Tesla, useful hint.
-  const wallboxNoTesla =
-    selectedOems.includes('wallbox') &&
-    (!selectedOems.includes('tesla') || !(pairing.tesla ?? []).includes('ev'));
 
   const handleContinue = async () => {
     if (!canContinue) return;
@@ -482,20 +478,8 @@ export function DevicePairingScreen({
           );
         })}
 
-        {/* Wallbox-without-Tesla advisory */}
-        {wallboxNoTesla && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="p-3 rounded-2xl bg-amber-500/8 border border-amber-500/25 flex items-start gap-2.5"
-          >
-            <AlertTriangle className="w-4 h-4 text-amber-300 mt-0.5 shrink-0" />
-            <p className="text-[12px] text-amber-100/85 leading-relaxed">
-              Wallbox pairs best with Tesla today. We'll still connect it — just
-              know that Tesla is the only EV brand Deason can verify right now.
-            </p>
-          </motion.div>
-        )}
+
+
       </section>
 
       {/* Sticky bottom CTA */}
