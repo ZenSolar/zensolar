@@ -94,7 +94,7 @@ export function SolarInstallerScreen({ onSelect, onBack }: SolarInstallerScreenP
           className="mt-5 text-center"
         >
           <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-amber-300/80">
-            Deason · solar source
+            Deason AI · solar source
           </p>
           <h1 className="mt-1 text-[26px] leading-tight font-semibold tracking-tight bg-gradient-to-b from-foreground to-foreground/55 bg-clip-text text-transparent">
             Did Tesla install your<br />PV solar system?
