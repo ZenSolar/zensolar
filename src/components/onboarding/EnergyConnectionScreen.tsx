@@ -452,6 +452,34 @@ export function EnergyConnectionScreen({
               </Button>
               <p className="text-xs text-muted-foreground mt-1">Waiting for authorization…</p>
             </motion.div>
+          ) : selectionMode ? (
+            <motion.div
+              key="select-continue"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              <Button
+                onClick={handleContinueSelection}
+                disabled={selected.length === 0}
+                className="w-full h-12 text-base font-semibold rounded-2xl bg-gradient-to-br from-primary to-primary/80 hover:from-primary hover:to-primary text-primary-foreground shadow-[0_0_28px_hsl(var(--primary)/0.35)] disabled:opacity-40 disabled:shadow-none"
+              >
+                {selected.length === 0
+                  ? 'Pick at least one brand'
+                  : `Continue with ${selected.length} selected`}
+                <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
+              <div className="mt-3 flex justify-center">
+                <Button
+                  variant="ghost"
+                  onClick={handleSkip}
+                  className="text-muted-foreground hover:text-foreground gap-2 h-9 text-xs"
+                >
+                  I don&apos;t have any of these yet
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+            </motion.div>
           ) : (
             <motion.div
               key="assist"
