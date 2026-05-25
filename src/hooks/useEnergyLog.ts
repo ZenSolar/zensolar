@@ -412,9 +412,13 @@ export function useEnergyLog() {
       const rows = await fetchEvMilesRows(userId, mStart, mEnd);
       return buildMonthDays(computeEvMilesDaily(rows), mStart, mEnd);
     }
-    // ev-charging
-    const { supercharger, home } = await fetchChargingSources(userId, mStart, mEnd);
-    return buildMonthDays(computeChargingDaily(supercharger, home), mStart, mEnd);
+    if (tab === 'supercharger') {
+      const rows = await fetchSuperchargerRows(userId, mStart, mEnd);
+      return buildMonthDays(computeSuperchargerDaily(rows), mStart, mEnd);
+    }
+    // home-charging — Wall Connector / Wallbox / Tesla AC at home
+    const rows = await fetchHomeChargingRows(userId, mStart, mEnd);
+    return buildMonthDays(computeHomeChargingDaily(rows), mStart, mEnd);
   }
 
   const { data: currentDays = [], isLoading: currentLoading } = useQuery({
