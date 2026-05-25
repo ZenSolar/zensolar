@@ -4,15 +4,11 @@ import { ArrowRight, Loader2, X, ArrowLeft, Sparkles, Zap, CheckCircle2, Info } 
 import { Button } from '@/components/ui/button';
 import { triggerLightTap } from '@/hooks/useHaptics';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
-
-// Brand logos — official square favicons served from each OEM's domain
-// via Google's S2 favicon service. Guaranteed authentic + uniform 1:1 aspect.
-const brandIcon = (domain: string) =>
-  `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
-const teslaLogo = brandIcon('tesla.com');
-const enphaseLogo = brandIcon('enphase.com');
-const solaredgeLogo = brandIcon('solaredge.com');
-const wallboxLogo = brandIcon('wallbox.com');
+// Brand logos — local assets, matched to EnergySuccessScreen for visual consistency.
+import teslaLogo from '@/assets/logos/tesla-logo.png';
+import enphaseLogo from '@/assets/logos/enphase-logo.png';
+import solaredgeLogo from '@/assets/logos/solaredge-logo.png';
+import wallboxLogo from '@/assets/logos/wallbox-logo.png';
 
 export type EnergyProvider = 'tesla' | 'enphase' | 'solaredge' | 'wallbox';
 
