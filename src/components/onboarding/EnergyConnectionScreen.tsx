@@ -392,27 +392,28 @@ export function EnergyConnectionScreen({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
             >
-              {/* Deason AI assist */}
+              {/* Deason AI assist — IDENTICAL amber/Sparkles styling to the floating
+                  bubble that appears on the dashboard, so users recognize it later. */}
               {onAskDeason && (
                 <motion.button
                   whileTap={{ scale: 0.98 }}
                   onClick={handleAskDeason}
-                  className="w-full flex items-center justify-between gap-3 p-3 rounded-2xl bg-primary/5 border border-primary/15 backdrop-blur-md hover:bg-primary/10 hover:border-primary/25 transition-all"
+                  className="w-full flex items-center justify-between gap-3 p-3 rounded-2xl bg-amber-500/5 border border-amber-500/25 backdrop-blur-md hover:bg-amber-500/10 hover:border-amber-500/40 transition-all"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-emerald-400 flex items-center justify-center shadow-lg shadow-primary/25 shrink-0">
-                      <Sparkles className="w-5 h-5 text-primary-foreground" />
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-amber-600 shadow-lg ring-2 ring-amber-300/40 shrink-0">
+                      <Sparkles className="h-5 w-5 text-black" />
                     </div>
                     <div className="text-left">
                       <p className="text-[12px] font-semibold text-foreground tracking-wide">
-                        Need help? Ask Deason
+                        Ask Deason
                       </p>
                       <p className="text-[10px] text-muted-foreground">
-                        AI-powered setup assistant
+                        Your AI energy assistant
                       </p>
                     </div>
                   </div>
-                  <span className="h-8 px-3 inline-flex items-center bg-primary hover:bg-primary/90 text-primary-foreground text-[10px] font-bold rounded-lg shadow-lg shadow-primary/25 tracking-wider">
+                  <span className="h-8 px-3 inline-flex items-center bg-gradient-to-br from-amber-400 to-amber-600 text-black text-[10px] font-bold rounded-lg shadow-lg shadow-amber-500/25 tracking-wider">
                     ASK
                   </span>
                 </motion.button>
