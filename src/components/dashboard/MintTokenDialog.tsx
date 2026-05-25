@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import type { DailyBreakdown } from '@/lib/dailyMintBreakdown';
 
 export type MintTokenCategory = 'solar' | 'ev_miles' | 'battery' | 'charging' | 'home_charging' | 'supercharging' | 'all';
 
