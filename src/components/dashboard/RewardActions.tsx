@@ -67,6 +67,8 @@ interface RewardActionsProps {
   walletAddress?: string | null;
   pendingRewards?: PendingRewards;
   demoMintHandler?: DemoMintHandler;
+  /** Optional per-category daily breakdown of pending amounts (demo mode). */
+  dailyBreakdown?: Partial<Record<import('./MintTokenDialog').MintTokenCategory, import('@/lib/dailyMintBreakdown').DailyBreakdown>>;
 }
 
 export interface RewardActionsRef {
