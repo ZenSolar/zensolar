@@ -348,6 +348,7 @@ export function EnergyConnectionScreen({
         {availableProviders.map((provider, index) => {
           const isLoading = isConnecting === provider.id;
           const isPlanned = planned.includes(provider.id);
+          const isSelected = selectionMode && selected.includes(provider.id);
           return (
             <motion.button
               key={provider.id}
@@ -357,13 +358,21 @@ export function EnergyConnectionScreen({
               whileTap={{ scale: 0.98 }}
               onClick={() => handleProviderClick(provider.id)}
               disabled={!!isConnecting}
-              className={`group relative w-full p-4 rounded-3xl flex items-center gap-4 text-left transition-all duration-200 border ${isPlanned ? 'border-primary/40 shadow-[0_0_22px_hsl(var(--primary)/0.18)]' : 'border-white/5 hover:border-primary/40 hover:shadow-[0_0_25px_hsl(var(--primary)/0.15)]'} disabled:opacity-50 disabled:cursor-not-allowed`}
+              aria-pressed={selectionMode ? isSelected : undefined}
+              className={`group relative w-full p-4 rounded-3xl flex items-center gap-4 text-left transition-all duration-200 border ${
+                isSelected
+                  ? 'border-primary shadow-[0_0_30px_hsl(var(--primary)/0.35)]'
+                  : isPlanned
+                    ? 'border-primary/40 shadow-[0_0_22px_hsl(var(--primary)/0.18)]'
+                    : 'border-white/5 hover:border-primary/40 hover:shadow-[0_0_25px_hsl(var(--primary)/0.15)]'
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
               style={{
-                background:
-                  'linear-gradient(135deg, hsl(var(--card) / 0.7) 0%, hsl(var(--background) / 0.85) 100%)',
+                background: isSelected
+                  ? 'linear-gradient(135deg, hsl(var(--primary) / 0.12) 0%, hsl(var(--background) / 0.9) 100%)'
+                  : 'linear-gradient(135deg, hsl(var(--card) / 0.7) 0%, hsl(var(--background) / 0.85) 100%)',
               }}
             >
-              {isPlanned && (
+              {isPlanned && !selectionMode && (
                 <span className="absolute -top-2 left-4 px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-[9px] font-bold uppercase tracking-wider shadow-md shadow-primary/30">
                   Recommended for you
                 </span>
@@ -396,7 +405,17 @@ export function EnergyConnectionScreen({
                   {provider.description}
                 </p>
               </div>
-              {isLoading ? (
+              {selectionMode ? (
+                <div
+                  className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 border-2 transition-all ${
+                    isSelected
+                      ? 'bg-primary border-primary shadow-[0_0_14px_hsl(var(--primary)/0.55)]'
+                      : 'border-white/20 bg-transparent'
+                  }`}
+                >
+                  {isSelected && <Check className="w-4 h-4 text-primary-foreground" strokeWidth={3} />}
+                </div>
+              ) : isLoading ? (
                 <Loader2 className="w-5 h-5 text-primary animate-spin shrink-0" />
               ) : (
                 <ArrowRight className="w-5 h-5 text-muted-foreground/60 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
