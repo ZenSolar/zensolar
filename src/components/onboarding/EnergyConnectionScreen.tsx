@@ -24,6 +24,21 @@ interface EnergyConnectionScreenProps {
   onAskDeason?: () => void;
   isConnecting?: EnergyProvider | null;
   connectedProviders?: string[];
+  /**
+   * Selection mode: tapping tiles toggles selection instead of launching OAuth.
+   * Used by the new OEM-first onboarding flow (Connect What Earns → Deason pairing → OAuth).
+   */
+  selectionMode?: boolean;
+  /** Pre-selected OEMs in selection mode (e.g. from a prior visit). */
+  initialSelection?: EnergyProvider[];
+  /** Called when the user taps the "Continue" CTA in selection mode. */
+  onContinueSelection?: (selected: EnergyProvider[]) => void;
+  /** Restrict the tile list to a subset of OEMs (used in OAuth phase after pairing). */
+  restrictTo?: EnergyProvider[];
+  /** Override the headline title (e.g. "Connect your gear" during OAuth phase). */
+  titleOverride?: string;
+  /** Override the subtitle. */
+  subtitleOverride?: string;
 }
 
 const capabilityStyles: Record<Capability, string> = {
