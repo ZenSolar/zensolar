@@ -739,7 +739,11 @@ Deno.serve(async (req) => {
       let solarDeltaKwh = 0;
       let evMilesDelta = 0;
       let batteryDeltaKwh = 0;
-      let chargingDeltaKwh = 0;
+      // Charging is tracked as TWO independent buckets and NEVER combined in UX/recon.
+      // On-chain contract has a single `charging` counter, so we sum them only at the
+      // contract call boundary — every dashboard/log/recon view keeps them split.
+      let superchargerDeltaKwh = 0; // vehicle device (Tesla Supercharger)
+      let homeChargingDeltaKwh = 0; // charger device (Wall Connector, Wallbox)
       const deviceIdsToUpdate: string[] = [];
       const batteryCandidates: { deviceId: string; provider: string; delta: number }[] = [];
 
@@ -812,7 +816,7 @@ Deno.serve(async (req) => {
             const baselineChargingKwh = baseline?.charging_kwh || (baseline?.charging_wh ? baseline.charging_wh / 1000 : 0);
             const delta = Math.max(0, Math.floor(lifetimeChargingKwh - baselineChargingKwh));
             if (delta > 0) {
-              chargingDeltaKwh += delta;
+              superchargerDeltaKwh += delta;
               if (!deviceIdsToUpdate.includes(device.id)) {
                 deviceIdsToUpdate.push(device.id);
               }
@@ -826,7 +830,7 @@ Deno.serve(async (req) => {
           const baselineChargingKwh = baseline?.charging_kwh || (baseline?.charging_wh ? baseline.charging_wh / 1000 : 0) || (baseline?.wall_connector_wh ? baseline.wall_connector_wh / 1000 : 0);
           const delta = Math.max(0, Math.floor(lifetimeChargingKwh - baselineChargingKwh));
           if (delta > 0) {
-            chargingDeltaKwh += delta;
+            homeChargingDeltaKwh += delta;
             if (!deviceIdsToUpdate.includes(device.id)) {
               deviceIdsToUpdate.push(device.id);
             }
@@ -867,6 +871,8 @@ Deno.serve(async (req) => {
       const solar = BigInt(solarDeltaKwh);
       const evMiles = BigInt(evMilesDelta);
       const battery = BigInt(batteryDeltaKwh);
+      // Contract has one charging counter — sum at boundary only. Split everywhere else.
+      const chargingDeltaKwh = superchargerDeltaKwh + homeChargingDeltaKwh;
       const charging = BigInt(chargingDeltaKwh);
 
       const totalUnits = solar + evMiles + battery + charging;
@@ -993,7 +999,9 @@ Deno.serve(async (req) => {
           solar_kwh: Number(solar),
           ev_miles: Number(evMiles),
           battery_kwh: Number(battery),
-          charging_kwh: Number(charging),
+          supercharger_kwh: superchargerDeltaKwh,
+          home_charging_kwh: homeChargingDeltaKwh,
+          charging_kwh_combined_onchain: Number(charging), // contract-level sum only
           device_ids: deviceIdsToUpdate,
           tolerance_pct: RECONCILIATION_TOLERANCE_PCT,
           hard_fail_pct: RECONCILIATION_HARD_FAIL_PCT,
@@ -1020,17 +1028,39 @@ Deno.serve(async (req) => {
             charging: Number(statsAfter[3]),
           };
 
-          const headlineByCat: Record<string, number> = {
-            solar: Number(solar),
-            ev_miles: Number(evMiles),
-            battery: Number(battery),
-            charging: Number(charging),
-          };
-          (sourceBreakdown as any).on_chain_delta = onChainDelta;
+          // Split charging into supercharger + home_charging at the recon layer.
+          // On-chain has a single combined counter, so we allocate the on-chain
+          // delta proportionally to each headline. If both headlines are zero we
+          // attribute the on-chain delta to home_charging by default (residual).
+          const totalChargingHeadline = superchargerDeltaKwh + homeChargingDeltaKwh;
+          const onChainChargingDelta = onChainDelta.charging;
+          let superchargerOnChain = 0;
+          let homeChargingOnChain = 0;
+          if (totalChargingHeadline > 0) {
+            superchargerOnChain = Math.round(
+              (superchargerDeltaKwh / totalChargingHeadline) * onChainChargingDelta,
+            );
+            homeChargingOnChain = onChainChargingDelta - superchargerOnChain;
+          } else {
+            homeChargingOnChain = onChainChargingDelta;
+          }
 
-          for (const [cat, headline] of Object.entries(headlineByCat)) {
-            if (headline === 0 && onChainDelta[cat as keyof typeof onChainDelta] === 0) continue;
-            const result = verifyThreeWay(cat, headline, headline, onChainDelta[cat as keyof typeof onChainDelta]);
+          const perCatRows: Array<{ cat: string; headline: number; onChain: number }> = [
+            { cat: 'solar', headline: Number(solar), onChain: onChainDelta.solar },
+            { cat: 'ev_miles', headline: Number(evMiles), onChain: onChainDelta.ev_miles },
+            { cat: 'battery', headline: Number(battery), onChain: onChainDelta.battery },
+            { cat: 'supercharger', headline: superchargerDeltaKwh, onChain: superchargerOnChain },
+            { cat: 'home_charging', headline: homeChargingDeltaKwh, onChain: homeChargingOnChain },
+          ];
+          (sourceBreakdown as any).on_chain_delta = onChainDelta;
+          (sourceBreakdown as any).on_chain_delta_split = {
+            supercharger: superchargerOnChain,
+            home_charging: homeChargingOnChain,
+          };
+
+          for (const { cat, headline, onChain } of perCatRows) {
+            if (headline === 0 && onChain === 0) continue;
+            const result = verifyThreeWay(cat, headline, headline, onChain);
             if (result.diffPct > maxDiffPct) maxDiffPct = result.diffPct;
             if (!result.ok) {
               reconciliationViolations.push(...result.violations);
@@ -1042,7 +1072,7 @@ Deno.serve(async (req) => {
               category: cat,
               headline_amount: headline,
               rows_amount: headline,
-              on_chain_amount: onChainDelta[cat as keyof typeof onChainDelta],
+              on_chain_amount: onChain,
               diff_pct: result.diffPct,
               tolerance_pct: RECONCILIATION_TOLERANCE_PCT,
               source_breakdown: sourceBreakdown,
