@@ -322,7 +322,7 @@ export function EnergyConnectionScreen({
                   Recommended for you
                 </span>
               )}
-              <div className="w-14 h-14 rounded-2xl shrink-0 shadow-md ring-1 ring-white/10 bg-[#141414] flex items-center justify-center p-2">
+              <div className="w-14 h-14 rounded-2xl shrink-0 shadow-md ring-1 ring-black/5 bg-white flex items-center justify-center p-2">
                 <img
                   src={provider.logo}
                   alt={`${provider.name} logo`}
