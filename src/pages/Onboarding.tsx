@@ -197,11 +197,11 @@ export default function Onboarding() {
   }, [connectingProvider, showEnphaseDialog, showDeviceSelection]);
 
   // Check if we should skip to a specific step or handle OAuth callback
-  // Hide global Deason bubble during the full-screen AI Concierge intake
+  // Hide global Deason bubble during the full-screen pairing step
   // (the screen IS Deason — bubble would be redundant). All other onboarding
   // steps keep the bubble available as a minimizable helper.
   useEffect(() => {
-    if (step === 'ai-concierge') {
+    if (step === 'device-pairing') {
       document.body.dataset.hideDeasonBubble = '1';
     } else {
       delete document.body.dataset.hideDeasonBubble;
