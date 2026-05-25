@@ -200,7 +200,7 @@ export function DemoEnergyLog() {
         </Card>
       </AnimatedItem>
 
-      {activeTab === 'ev-charging' && chargingSessions.length > 0 && (
+      {(activeTab === 'supercharger' || activeTab === 'home-charging') && chargingSessions.length > 0 && (
         <AnimatedItem>
           <button
             onClick={() => setShowSessions(prev => !prev)}
