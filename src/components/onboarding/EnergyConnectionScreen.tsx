@@ -66,10 +66,33 @@ const providers: Array<{
     id: 'wallbox',
     name: 'Wallbox',
     logo: wallboxLogo,
-    description: 'Smart EV charging solutions',
+    description: 'Home EV charging — pairs with Tesla, Ford, GM',
     capabilities: ['EV'],
   },
 ];
+
+// Read the AI Concierge's planned providers (if user went through that step)
+// so we can sort planned ones first, show a checklist, and detect "all done".
+function readPlannedProviders(): EnergyProvider[] {
+  try {
+    const raw = localStorage.getItem('onboarding_planned_providers');
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) return [];
+    return arr.filter((x): x is EnergyProvider =>
+      x === 'tesla' || x === 'enphase' || x === 'solaredge' || x === 'wallbox'
+    );
+  } catch {
+    return [];
+  }
+}
+
+const providerShortName: Record<EnergyProvider, string> = {
+  tesla: 'Tesla',
+  enphase: 'Enphase',
+  solaredge: 'SolarEdge',
+  wallbox: 'Wallbox',
+};
 
 export function EnergyConnectionScreen({
   onConnect,
