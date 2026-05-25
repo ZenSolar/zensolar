@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useDemoData } from '@/hooks/useDemoData';
-import { PullToRefreshWrapper } from '@/components/ui/PullToRefreshWrapper';
+// PullToRefreshWrapper retired — relying on auto-refresh on login + post-mint sync.
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
