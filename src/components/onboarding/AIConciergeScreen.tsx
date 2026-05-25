@@ -64,8 +64,51 @@ const CHIPS: { id: ChipId; emoji: string; label: string; phrase: string; group: 
   { id: 'apartment', emoji: '🏢', label: 'Apartment',    phrase: 'I live in an apartment',         group: 'home' },
 ];
 
-function composeFromChips(selected: Set<ChipId>): string {
-  const gear = CHIPS.filter((c) => c.group === 'gear' && selected.has(c.id)).map((c) => c.phrase);
+// Per-category OEM drill-down. After the user taps a gear chip, we surface the
+// small set of brands we actually support so Deason gets a much better signal
+// than "I have solar." Each option carries an ID + a natural-language phrase
+// the prompt composer slots in.
+type BrandOption = { id: string; label: string; phrase: string };
+const BRAND_OPTIONS: Record<'solar' | 'battery' | 'ev' | 'charger', BrandOption[]> = {
+  solar: [
+    { id: 'tesla',     label: 'Tesla',     phrase: 'Tesla solar' },
+    { id: 'enphase',   label: 'Enphase',   phrase: 'Enphase solar' },
+    { id: 'solaredge', label: 'SolarEdge', phrase: 'SolarEdge solar' },
+    { id: 'other',     label: 'Other',     phrase: 'rooftop solar (other brand)' },
+    { id: 'unknown',   label: 'Not sure',  phrase: "rooftop solar (I'm not sure of the brand)" },
+  ],
+  battery: [
+    { id: 'tesla',     label: 'Tesla Powerwall',     phrase: 'a Tesla Powerwall' },
+    { id: 'enphase',   label: 'Enphase IQ Battery',  phrase: 'an Enphase IQ Battery' },
+    { id: 'solaredge', label: 'SolarEdge Battery',   phrase: 'a SolarEdge Home Battery' },
+    { id: 'other',     label: 'Other',               phrase: 'a home battery (other brand)' },
+    { id: 'unknown',   label: 'Not sure',            phrase: "a home battery (I'm not sure of the brand)" },
+  ],
+  ev: [
+    { id: 'tesla',   label: 'Tesla',    phrase: 'a Tesla' },
+    { id: 'other',   label: 'Other EV', phrase: 'a non-Tesla EV' },
+    { id: 'unknown', label: 'Not sure', phrase: 'an EV' },
+  ],
+  charger: [
+    { id: 'tesla_wall_connector', label: 'Tesla Wall Connector', phrase: 'a Tesla Wall Connector' },
+    { id: 'wallbox',              label: 'Wallbox',              phrase: 'a Wallbox charger' },
+    { id: 'enphase',              label: 'Enphase',              phrase: 'an Enphase home charger' },
+    { id: 'solaredge',            label: 'SolarEdge',            phrase: 'a SolarEdge home charger' },
+    { id: 'chargepoint',          label: 'ChargePoint',          phrase: 'a ChargePoint charger' },
+    { id: 'other',                label: 'Other L2',             phrase: 'another L2 home charger' },
+    { id: 'vehicle_telemetry',    label: 'Standard outlet',      phrase: 'a standard garage outlet' },
+  ],
+};
+
+function composeFromChips(selected: Set<ChipId>, brands: Partial<Record<ChipId, string>>): string {
+  const gearOrder: ChipId[] = ['solar', 'battery', 'ev', 'charger'];
+  const gear = gearOrder
+    .filter((id) => selected.has(id))
+    .map((id) => {
+      const brandId = brands[id];
+      const brand = brandId ? BRAND_OPTIONS[id as 'solar' | 'battery' | 'ev' | 'charger'].find((b) => b.id === brandId) : undefined;
+      return brand?.phrase ?? CHIPS.find((c) => c.id === id)!.phrase;
+    });
   const home = CHIPS.filter((c) => c.group === 'home' && selected.has(c.id)).map((c) => c.phrase);
   const parts: string[] = [];
   if (gear.length) {
@@ -81,6 +124,7 @@ function composeFromChips(selected: Set<ChipId>): string {
 export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: AIConciergeScreenProps) {
   const [description, setDescription] = useState('');
   const [chips, setChips] = useState<Set<ChipId>>(new Set());
+  const [brands, setBrands] = useState<Partial<Record<ChipId, string>>>({});
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<SetupProfile | null>(null);
 
@@ -88,13 +132,27 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
     await triggerLightTap();
     setChips((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+        setBrands((b) => {
+          const nb = { ...b };
+          delete nb[id];
+          return nb;
+        });
+      } else {
+        next.add(id);
+      }
       return next;
     });
   };
 
-  // Typed description wins; otherwise compose from chips.
-  const effectivePrompt = description.trim() || composeFromChips(chips);
+  const pickBrand = async (id: ChipId, brandId: string) => {
+    await triggerLightTap();
+    setBrands((b) => ({ ...b, [id]: b[id] === brandId ? undefined : brandId }));
+  };
+
+  // Typed description wins; otherwise compose from chips + per-category brand picks.
+  const effectivePrompt = description.trim() || composeFromChips(chips, brands);
   const canSubmit = effectivePrompt.length >= 3;
 
   const extract = async () => {
@@ -222,6 +280,53 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
                   })}
                 </div>
 
+                {/* OEM drill-down: appears once a gear category is selected so
+                    Deason can target the right OAuth provider. */}
+                <AnimatePresence initial={false}>
+                  {(['solar', 'battery', 'ev', 'charger'] as const)
+                    .filter((id) => chips.has(id))
+                    .map((id) => {
+                      const cat = CHIPS.find((c) => c.id === id)!;
+                      const options = BRAND_OPTIONS[id];
+                      const selected = brands[id];
+                      return (
+                        <motion.div
+                          key={`brand-${id}`}
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="mb-3 overflow-hidden"
+                        >
+                          <p className="text-[11px] font-medium text-muted-foreground mb-1.5 px-1 flex items-center gap-1.5">
+                            <span aria-hidden>{cat.emoji}</span>
+                            Which {cat.label.toLowerCase()}?
+                          </p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {options.map((opt) => {
+                              const isOn = selected === opt.id;
+                              return (
+                                <button
+                                  key={opt.id}
+                                  type="button"
+                                  onClick={() => pickBrand(id, opt.id)}
+                                  disabled={loading}
+                                  className={`text-[12px] px-2.5 py-1.5 rounded-full border transition-all ${
+                                    isOn
+                                      ? 'bg-amber-500/15 border-amber-500/60 text-amber-200'
+                                      : 'bg-card/40 border-border/50 text-muted-foreground hover:text-foreground hover:border-amber-500/30'
+                                  }`}
+                                >
+                                  {opt.label}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                </AnimatePresence>
+
                 <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-1">
                   Where do you live?
                 </p>
@@ -248,6 +353,7 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
                   })}
                 </div>
               </div>
+
 
               {/* Optional power-user textarea */}
               <details className="mb-4 group">

@@ -39,6 +39,17 @@ const PUBLIC_PROMPTS = [
   "How big could this get one day?",
 ];
 
+// Shown when Deason is opened *during* onboarding. Scoped to questions
+// a user is most likely to have mid-setup — wallet, OEM connections,
+// what gets minted, what's safe. Replaces the founder/insider set
+// regardless of persona, since the user is actively setting up.
+const ONBOARDING_PROMPTS = [
+  "What is a wallet, and is mine safe?",
+  "Which OEM should I connect first?",
+  "I don't know which brand of inverter I have — help.",
+  "What happens after I connect my devices?",
+];
+
 /**
  * Deason chat surface — used by both the full /deason page and the floating bubble.
  * Persona-aware: shows different welcome copy + suggested prompts depending on
@@ -87,22 +98,35 @@ export function DeasonChat({ onClose, compact = false }: DeasonChatProps) {
     [location.pathname]
   );
 
-  const prompts = isDemoSurface
+  const isOnboardingSurface = useMemo(
+    () => location.pathname.startsWith("/onboarding"),
+    [location.pathname]
+  );
+
+  const prompts = isOnboardingSurface
+    ? ONBOARDING_PROMPTS
+    : isDemoSurface
     ? REVIEWER_PROMPTS
     : isInnerCircle
     ? INNER_CIRCLE_PROMPTS
     : PUBLIC_PROMPTS;
-  const headerSubtitle = isDemoSurface
+  const headerSubtitle = isOnboardingSurface
+    ? "Setup helper · ephemeral"
+    : isDemoSurface
     ? "Investor preview · ephemeral"
     : isInnerCircle
     ? "Inner circle · ephemeral"
     : "ZenSolar concierge · ephemeral";
-  const welcomeTitle = isDemoSurface
+  const welcomeTitle = isOnboardingSurface
+    ? "Need a hand setting up?"
+    : isDemoSurface
     ? "Ask the founder anything."
     : isInnerCircle
     ? "Ask me anything."
     : "Hey 👋 — how can I help?";
-  const welcomeBody = isDemoSurface
+  const welcomeBody = isOnboardingSurface
+    ? "I'll walk you through wallets, picking the right OEM, and what happens once your devices are connected. Ask anything — your spot in setup is saved."
+    : isDemoSurface
     ? "I'm Joe's AI twin. I'll walk you through the thesis, the tokenomics, the patent moat, and the capital plan — in plain English, on your time."
     : isInnerCircle
     ? "I'm Joe's AI twin. I know the app inside-out — the pivot, the 1T tokenomics, the patent expansion, the LP rounds, the Lyndon/Elon plan, the vault, all of it."
