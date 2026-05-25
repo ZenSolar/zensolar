@@ -4,7 +4,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { startOfMonth, endOfMonth, format, subMonths, addMonths, eachDayOfInterval, isAfter } from 'date-fns';
 import { useViewAsUserId } from '@/hooks/useViewAsUserId';
 
-export type ActivityType = 'solar' | 'battery' | 'ev-charging' | 'ev-miles';
+// Charging is split — supercharger (Tesla DC fast / billing) and home-charging
+// (Wall Connector / Wallbox / Tesla home AC) are ALWAYS separate. Never combine.
+export type ActivityType = 'solar' | 'battery' | 'supercharger' | 'home-charging' | 'ev-miles';
 
 export interface DailyProduction {
   date: Date;
