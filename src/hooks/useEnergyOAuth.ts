@@ -406,6 +406,7 @@ export function useEnergyOAuth() {
         return false;
       }
 
+      trackConnectSuccess('solaredge');
       toast.success(`SolarEdge connected: ${response.data?.site?.name || 'Your solar site'}`);
       return true;
     } catch (error) {
