@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface IncompleteSetup {
   provider: 'tesla' | 'enphase';
@@ -58,6 +59,18 @@ export function useIncompleteSetup() {
     } catch (error) {
       console.error('[useIncompleteSetup] Error checking setups:', error);
       setIncompleteSetups([]);
+      toast.error("Couldn't check your account status", {
+        description:
+          "We couldn't load the status of your connected accounts. Your data is safe — try again.",
+        duration: 10_000,
+        action: {
+          label: 'Retry',
+          onClick: () => {
+            setIsLoading(true);
+            checkIncompleteSetups();
+          },
+        },
+      });
     } finally {
       setIsLoading(false);
     }
