@@ -1,4 +1,4 @@
-import { Sun, BatteryFull, Zap, Car } from 'lucide-react';
+import { Sun, BatteryFull, Zap, Car, Home } from 'lucide-react';
 import type { ActivityType } from '@/hooks/useEnergyLog';
 import { PillNav } from '@/components/layout/PillNav';
 
@@ -7,10 +7,12 @@ interface ActivityTabsProps {
   onTabChange: (tab: ActivityType) => void;
 }
 
+// Charging is ALWAYS split — Supercharger and Home are independent tabs.
 const tabs = [
   { id: 'solar' as const, label: 'Solar', icon: Sun },
   { id: 'battery' as const, label: 'Battery', icon: BatteryFull },
-  { id: 'ev-charging' as const, label: 'Charging', icon: Zap },
+  { id: 'supercharger' as const, label: 'Supercharger', icon: Zap },
+  { id: 'home-charging' as const, label: 'Home', icon: Home },
   { id: 'ev-miles' as const, label: 'EV Miles', icon: Car },
 ];
 

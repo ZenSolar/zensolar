@@ -34,28 +34,29 @@ function generateDemoMonth(monthStart: Date, monthEnd: Date, tab: ActivityType):
       let kWh: number;
       switch (tab) {
         case 'solar':
-          // 25-65 kWh, slightly less on cloudy days (seeded), zero on ~10% of days
           kWh = rand < 0.1 ? 0 : Math.round((25 + rand * 40) * 10) / 10;
           break;
         case 'battery':
-          // 3-18 kWh discharge, ~20% zero days
           kWh = rand < 0.2 ? 0 : Math.round((3 + rand * 15) * 10) / 10;
           break;
-        case 'ev-charging':
-          // 0-45 kWh, many zero days (charge every 3-4 days)
-          kWh = rand < 0.6 ? 0 : Math.round((8 + rand * 37) * 10) / 10;
+        case 'supercharger':
+          // Less frequent, higher-power sessions
+          kWh = rand < 0.75 ? 0 : Math.round((15 + rand * 40) * 10) / 10;
+          break;
+        case 'home-charging':
+          // More frequent, lower-power sessions
+          kWh = rand < 0.55 ? 0 : Math.round((6 + rand * 22) * 10) / 10;
           break;
         case 'ev-miles':
-          // 15-85 miles on most days, ~15% zero
           kWh = rand < 0.15 ? 0 : Math.round((15 + rand * 70) * 10) / 10;
           break;
       }
 
-      // Demo: assign plausible provider per activity so verification badges render
       const provider =
         tab === 'solar' ? (rand > 0.5 ? 'enphase' : 'solaredge')
         : tab === 'battery' ? 'tesla'
-        : tab === 'ev-charging' ? 'wallbox'
+        : tab === 'supercharger' ? 'tesla_supercharger'
+        : tab === 'home-charging' ? 'wallbox'
         : 'tesla';
       return { date: day, kWh, providers: kWh > 0 ? [provider] : [] };
     });
@@ -118,7 +119,8 @@ function generateDemoChargingSessions(monthStart: Date, monthEnd: Date): Chargin
 const tabTitles: Record<ActivityType, string> = {
   solar: 'Solar Production',
   battery: 'Battery Storage Exported',
-  'ev-charging': 'EV Charging',
+  supercharger: 'Supercharger',
+  'home-charging': 'Home Charging',
   'ev-miles': 'EV Miles',
 };
 
@@ -145,7 +147,13 @@ export function DemoEnergyLog() {
   }, [prevMonthStart.getTime(), activeTab]);
 
   const chargingSessions = useMemo(() => {
-    return activeTab === 'ev-charging' ? generateDemoChargingSessions(monthStart, monthEnd) : [];
+    if (activeTab !== 'supercharger' && activeTab !== 'home-charging') return [];
+    const all = generateDemoChargingSessions(monthStart, monthEnd);
+    return all.filter((s) =>
+      activeTab === 'supercharger'
+        ? s.charging_type === 'supercharger' || s.charging_type === 'fast'
+        : s.charging_type === 'home' || s.charging_type === 'other_ac',
+    );
   }, [monthStart.getTime(), activeTab]);
 
   const unit = activeTab === 'ev-miles' ? 'mi' : 'kWh';
@@ -192,7 +200,7 @@ export function DemoEnergyLog() {
         </Card>
       </AnimatedItem>
 
-      {activeTab === 'ev-charging' && chargingSessions.length > 0 && (
+      {(activeTab === 'supercharger' || activeTab === 'home-charging') && chargingSessions.length > 0 && (
         <AnimatedItem>
           <button
             onClick={() => setShowSessions(prev => !prev)}

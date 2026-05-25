@@ -348,22 +348,30 @@ export default function EnergyLog() {
             )}
           </AnimatedItem>
 
-          {/* Charging Sessions Detail — only on EV Charging tab */}
-          {activeTab === 'ev-charging' && chargingSessions.length > 0 && (
-            <AnimatedItem>
-              <button
-                onClick={() => setShowSessions(prev => !prev)}
-                className="w-full flex items-center justify-center gap-1.5 py-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <span>{showSessions ? 'Hide' : 'View'} session details</span>
-                <ChevronDown className={cn(
-                  "h-3.5 w-3.5 transition-transform duration-200",
-                  showSessions && "rotate-180"
-                )} />
-              </button>
-              {showSessions && <ChargingSessionList sessions={chargingSessions} />}
-            </AnimatedItem>
-          )}
+          {/* Charging Sessions Detail — only on charging tabs, filtered to the active tab */}
+          {(activeTab === 'supercharger' || activeTab === 'home-charging') && chargingSessions.length > 0 && (() => {
+            const filtered = chargingSessions.filter((s) =>
+              activeTab === 'supercharger'
+                ? s.charging_type === 'supercharger' || s.charging_type === 'fast'
+                : s.charging_type === 'home' || s.charging_type === 'other_ac',
+            );
+            if (filtered.length === 0) return null;
+            return (
+              <AnimatedItem>
+                <button
+                  onClick={() => setShowSessions(prev => !prev)}
+                  className="w-full flex items-center justify-center gap-1.5 py-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <span>{showSessions ? 'Hide' : 'View'} session details</span>
+                  <ChevronDown className={cn(
+                    "h-3.5 w-3.5 transition-transform duration-200",
+                    showSessions && "rotate-180"
+                  )} />
+                </button>
+                {showSessions && <ChargingSessionList sessions={filtered} />}
+              </AnimatedItem>
+            );
+          })()}
 
           <AnimatedItem>
             <button
