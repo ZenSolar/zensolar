@@ -24,6 +24,7 @@ import { MintEffectButton } from '@/components/dashboard/MintEffectButton';
 import { DashboardHexBackground } from '@/components/dashboard/DashboardHexBackground';
 import { DemoOnboardingHints } from '@/components/demo/DemoOnboardingHints';
 import { TapToMintCard } from '@/components/demo/TapToMintCard';
+import { CO2OffsetCard } from '@/components/dashboard/CO2OffsetCard';
 import { isVipActive } from '@/lib/vipDemo';
 
 import {
@@ -247,6 +248,11 @@ export function DemoDashboard() {
               lifetimeMinted={activityData.lifetimeMinted}
             />
           </div>
+        </AnimatedItem>
+
+        {/* Prominent CO₂ Offset card with per-activity drill-down — mirrors live beta */}
+        <AnimatedItem>
+          <CO2OffsetCard activityData={activityData} isLoading={isLoading} />
         </AnimatedItem>
 
         {/* DEMO ONLY: Tap-to-Mint preview card — opens existing Mint Rewards flow */}

@@ -11,12 +11,58 @@ export interface MintReceipt {
   type: 'token' | 'nft';
 }
 
-// Demo data based on real user KPIs - substantial values showing active usage
-// Values chosen to demonstrate realistic achievements across all categories
-const DEMO_SOLAR_KWH = 12847;      // Earns: Sunspark, Photonic, Rayforge, Solaris, Helios
-const DEMO_EV_MILES = 24532;       // Earns: Ignitor, Velocity, Autobahn, Hyperdrive, Electra
-const DEMO_BATTERY_KWH = 3218;     // Earns: Voltbank, Gridpulse, Megacell
-const DEMO_CHARGING_KWH = 5019;    // Combined supercharger + home = Ignite thru Gigacharge
+// Demo data based on realistic ranges for an active Tesla solar + EV household.
+// Numbers are randomized PER SESSION (stable via sessionStorage) so every demo
+// visitor sees believable, distinct KPIs — but they don't change mid-session
+// (which would break mint receipts / pending math).
+const DEMO_SEED_KEY = 'zen_demo_seed_v2';
+
+function getSessionSeed(): number {
+  try {
+    const existing = sessionStorage.getItem(DEMO_SEED_KEY);
+    if (existing) return parseInt(existing, 10);
+    const seed = Math.floor(Math.random() * 2_147_483_647);
+    sessionStorage.setItem(DEMO_SEED_KEY, String(seed));
+    return seed;
+  } catch {
+    return Math.floor(Math.random() * 2_147_483_647);
+  }
+}
+
+// Simple deterministic PRNG (mulberry32) so the same seed yields the same
+// numbers — values stay stable across re-renders within a session.
+function mulberry32(seed: number) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const rand = mulberry32(getSessionSeed());
+const between = (min: number, max: number) =>
+  Math.round(min + rand() * (max - min));
+
+// Realistic per-household lifetime ranges (12–36 months of ownership)
+const DEMO_SOLAR_KWH = between(8200, 17800);    // Earns multiple solar NFTs
+const DEMO_EV_MILES = between(14500, 34200);     // Earns multiple EV-miles NFTs
+const DEMO_BATTERY_KWH = between(2100, 4900);    // Earns multiple battery NFTs
+const DEMO_SUPERCHARGER_KWH = between(620, 1480);
+const DEMO_HOME_CHARGER_KWH = between(2800, 5800);
+const DEMO_CHARGING_KWH = DEMO_SUPERCHARGER_KWH + DEMO_HOME_CHARGER_KWH;
+
+// 25–35% of lifetime is pending (since last mint)
+const PENDING_RATIO = 0.25 + rand() * 0.10;
+
+// 1 token ≈ 1 kWh-equivalent. Lifetime tokens earned ≈ sum of activities,
+// minus what's still pending; user-share applied (75% post-split).
+const lifetimeKwhEquivalent =
+  DEMO_SOLAR_KWH + DEMO_BATTERY_KWH + DEMO_CHARGING_KWH + Math.round(DEMO_EV_MILES * 0.27);
+const DEMO_TOKENS_EARNED = Math.round(lifetimeKwhEquivalent * 0.75);
+const DEMO_REFERRAL_TOKENS = between(800, 3600);
 
 // Calculate NFTs earned based on actual milestone thresholds
 const demoNftsEarned = getAllEarnedNFTNames(
@@ -34,23 +80,23 @@ const createDemoActivityData = (): ActivityData => ({
   solarEnergyProduced: DEMO_SOLAR_KWH,
   evMilesDriven: DEMO_EV_MILES,
   batteryStorageDischarged: DEMO_BATTERY_KWH,
-  teslaSuperchargerKwh: 892,
-  homeChargerKwh: 4127,
+  teslaSuperchargerKwh: DEMO_SUPERCHARGER_KWH,
+  homeChargerKwh: DEMO_HOME_CHARGER_KWH,
   fsdSupervisedMiles: 0,
   fsdUnsupervisedMiles: 0,
-  // Pending rewards (simulating 30% pending since last mint)
-  pendingSolarKwh: Math.round(DEMO_SOLAR_KWH * 0.3),
-  pendingEvMiles: Math.round(DEMO_EV_MILES * 0.3),
-  pendingBatteryKwh: Math.round(DEMO_BATTERY_KWH * 0.3),
-  pendingChargingKwh: Math.round(5019 * 0.3),
-  pendingSuperchargerKwh: Math.round(892 * 0.3),
-  pendingHomeChargerKwh: Math.round(4127 * 0.3),
+  // Pending rewards (simulating PENDING_RATIO pending since last mint)
+  pendingSolarKwh: Math.round(DEMO_SOLAR_KWH * PENDING_RATIO),
+  pendingEvMiles: Math.round(DEMO_EV_MILES * PENDING_RATIO),
+  pendingBatteryKwh: Math.round(DEMO_BATTERY_KWH * PENDING_RATIO),
+  pendingChargingKwh: Math.round(DEMO_CHARGING_KWH * PENDING_RATIO),
+  pendingSuperchargerKwh: Math.round(DEMO_SUPERCHARGER_KWH * PENDING_RATIO),
+  pendingHomeChargerKwh: Math.round(DEMO_HOME_CHARGER_KWH * PENDING_RATIO),
   pendingFsdSupervisedMiles: 0,
   pendingFsdUnsupervisedMiles: 0,
   // Reward totals
-  tokensEarned: 45616,
-  pendingTokens: Math.round(45616 * 0.3),
-  referralTokens: 2500,
+  tokensEarned: DEMO_TOKENS_EARNED,
+  pendingTokens: Math.round(DEMO_TOKENS_EARNED * PENDING_RATIO),
+  referralTokens: DEMO_REFERRAL_TOKENS,
   nftsEarned: demoNftsEarned,
   co2OffsetPounds: 0,
   deviceLabels: {
