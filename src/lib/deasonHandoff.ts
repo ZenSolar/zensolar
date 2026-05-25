@@ -275,6 +275,11 @@ export function maybeAutoOpenDeason(opts: {
   const code = classify(opts.rawMessage);
   if (opts.stage === 'status') return false; // background check, never auto-open
   if (!isCriticalCode(code)) return false;
+  trackEvent('deason_auto_opened', {
+    provider: opts.provider,
+    stage: opts.stage,
+    code,
+  });
   openDeasonWithError(opts);
   return true;
 }
@@ -297,8 +302,16 @@ export function scheduleDeasonNudge(opts: {
   const delay = opts.delayMs ?? 30_000;
   const code = classify(opts.rawMessage);
   const { body } = playbook(opts.provider, opts.stage, code, opts.rawMessage);
+  let fired = false;
 
   const timer = window.setTimeout(() => {
+    fired = true;
+    trackEvent('deason_nudge_shown', {
+      provider: opts.provider,
+      stage: opts.stage,
+      code,
+    });
+    markSeed(opts.provider);
     window.dispatchEvent(
       new CustomEvent('deason:nudge', {
         detail: {
@@ -312,6 +325,14 @@ export function scheduleDeasonNudge(opts: {
   const cancel = () => {
     window.clearTimeout(timer);
     window.removeEventListener('deason:nudge:clear', cancel);
+    if (fired) {
+      // Nudge was visible but is now being cleared without a tap.
+      trackEvent('deason_nudge_dismissed', {
+        provider: opts.provider,
+        stage: opts.stage,
+        code,
+      });
+    }
   };
   window.addEventListener('deason:nudge:clear', cancel, { once: true });
 
