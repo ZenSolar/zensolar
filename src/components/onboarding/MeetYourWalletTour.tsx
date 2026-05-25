@@ -106,8 +106,25 @@ export function MeetYourWalletTour({ walletAddress, onComplete }: MeetYourWallet
           <p className="text-sm text-muted-foreground max-w-xs mx-auto leading-relaxed">
             {current.body}
           </p>
+
+          {/* Proof chips — concrete tech under the marketing */}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5">
+            {current.proof.map((p) => (
+              <span
+                key={p}
+                className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-2 py-0.5 text-[10px] font-mono text-primary/85 tracking-tight"
+              >
+                {p}
+              </span>
+            ))}
+          </div>
         </motion.div>
       </AnimatePresence>
+
+      {/* Always-visible "How we protect you" entry point */}
+      <div className="mt-5 flex justify-center">
+        <SecurityBadge variant="inline" label="See how we protect you" />
+      </div>
 
       {/* Progress dots */}
       <div className="mt-8 mb-6 flex items-center justify-center gap-2">
