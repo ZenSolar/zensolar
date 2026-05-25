@@ -299,7 +299,7 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
 
               <div className="text-center mb-5">
                 <p className="text-[11px] font-semibold text-amber-500 uppercase tracking-[0.18em] mb-2">
-                  Deason · AI Setup
+                  Deason AI · AI Setup
                 </p>
                 <h2 className="text-3xl font-semibold text-foreground mb-2 tracking-tight">
                   What do you have?
