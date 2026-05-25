@@ -8,6 +8,7 @@ import { EnergyConnectionScreen, EnergyProvider } from "@/components/onboarding/
 import { EnergySuccessScreen } from "@/components/onboarding/EnergySuccessScreen";
 import { HomeChargingSetupScreen } from "@/components/onboarding/HomeChargingSetupScreen";
 import { DevicePairingScreen, DevicePairing } from "@/components/onboarding/DevicePairingScreen";
+import { SolarInstallerScreen, SolarInstaller } from "@/components/onboarding/SolarInstallerScreen";
 import { OnboardingProgress } from "@/components/onboarding/OnboardingProgress";
 import { OnboardingTransition } from "@/components/onboarding/OnboardingTransition";
 import { EnphaseCodeDialog } from "@/components/dashboard/EnphaseCodeDialog";
@@ -36,6 +37,7 @@ type OnboardingStep =
   | 'external-wallet' 
   | 'wallet-success'
   | 'oem-select'
+  | 'solar-installer'
   | 'device-pairing'
   | 'energy-connect'
   | 'home-charging-setup'
@@ -55,6 +57,7 @@ function getStepNumber(step: OnboardingStep): number {
     case 'wallet-success':
       return 2; // Still step 2 (completing wallet)
     case 'oem-select':
+    case 'solar-installer':
     case 'device-pairing':
     case 'energy-connect':
     case 'device-selection':
@@ -79,6 +82,9 @@ export default function Onboarding() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   // OEMs the user picked on Connect What Earns — drives the OAuth phase tile list.
   const [selectedOems, setSelectedOems] = useState<EnergyProvider[]>([]);
+  // Pre-resolved Solar source-of-truth (Tesla installer vs anyone else).
+  // Asked only when the user picked Tesla AND at least one of Enphase/SolarEdge.
+  const [solarInstaller, setSolarInstaller] = useState<SolarInstaller | undefined>(undefined);
   
   // Dialog states for credential-based providers
   const [showEnphaseDialog, setShowEnphaseDialog] = useState(false);
