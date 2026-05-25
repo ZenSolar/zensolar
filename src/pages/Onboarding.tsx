@@ -491,12 +491,12 @@ export default function Onboarding() {
       oems: oems.join(','),
     });
 
-    // Route through Solar installer question ONLY if Solar ownership is
-    // actually ambiguous: Tesla + (Enphase OR SolarEdge). Otherwise skip
-    // straight to device pairing.
-    const solarAmbiguous =
-      oems.includes('tesla') && (oems.includes('enphase') || oems.includes('solaredge'));
-    if (solarAmbiguous) {
+    // Route through Solar installer question whenever Tesla is selected.
+    // - Tesla + Enphase/SolarEdge → resolves the source-of-truth conflict.
+    // - Tesla alone → also confirms whether they actually have Tesla-installed
+    //   PV (vs. only a Powerwall battery) so we don't auto-add Solar to Tesla.
+    const needsSolarQuestion = oems.includes('tesla');
+    if (needsSolarQuestion) {
       setSolarInstaller(undefined);
       transitionToStep('solar-installer');
     } else {
