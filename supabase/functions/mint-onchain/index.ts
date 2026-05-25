@@ -871,6 +871,8 @@ Deno.serve(async (req) => {
       const solar = BigInt(solarDeltaKwh);
       const evMiles = BigInt(evMilesDelta);
       const battery = BigInt(batteryDeltaKwh);
+      // Contract has one charging counter — sum at boundary only. Split everywhere else.
+      const chargingDeltaKwh = superchargerDeltaKwh + homeChargingDeltaKwh;
       const charging = BigInt(chargingDeltaKwh);
 
       const totalUnits = solar + evMiles + battery + charging;
