@@ -4,7 +4,8 @@ import type { ActivityType } from '@/hooks/useEnergyLog';
 const labels: Record<ActivityType, string> = {
   solar: 'Solar Energy',
   battery: 'Battery Storage',
-  'ev-charging': 'EV Charging',
+  supercharger: 'Supercharger',
+  'home-charging': 'Home Charging',
   'ev-miles': 'EV Miles',
 };
 
