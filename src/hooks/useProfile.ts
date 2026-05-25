@@ -37,6 +37,14 @@ interface Profile {
   linkedin_connected: boolean;
   linkedin_handle: string | null;
   timezone: string | null;
+  // Solar installer (deterministic data-source routing).
+  // 'tesla' → solar production pulled via Tesla API.
+  // 'other' → pulled from Enphase or SolarEdge (whichever is connected).
+  solar_installer: 'tesla' | 'other' | null;
+  installer_name: string | null;
+  installer_company: string | null;
+  installer_phone: string | null;
+  installer_email: string | null;
 }
 
 /**

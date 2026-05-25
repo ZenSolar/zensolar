@@ -8,6 +8,7 @@ import { EnergyConnectionScreen, EnergyProvider } from "@/components/onboarding/
 import { EnergySuccessScreen } from "@/components/onboarding/EnergySuccessScreen";
 import { HomeChargingSetupScreen } from "@/components/onboarding/HomeChargingSetupScreen";
 import { DevicePairingScreen, DevicePairing } from "@/components/onboarding/DevicePairingScreen";
+import { SolarInstallerScreen, SolarInstaller } from "@/components/onboarding/SolarInstallerScreen";
 import { OnboardingProgress } from "@/components/onboarding/OnboardingProgress";
 import { OnboardingTransition } from "@/components/onboarding/OnboardingTransition";
 import { EnphaseCodeDialog } from "@/components/dashboard/EnphaseCodeDialog";
@@ -36,6 +37,7 @@ type OnboardingStep =
   | 'external-wallet' 
   | 'wallet-success'
   | 'oem-select'
+  | 'solar-installer'
   | 'device-pairing'
   | 'energy-connect'
   | 'home-charging-setup'
@@ -55,6 +57,7 @@ function getStepNumber(step: OnboardingStep): number {
     case 'wallet-success':
       return 2; // Still step 2 (completing wallet)
     case 'oem-select':
+    case 'solar-installer':
     case 'device-pairing':
     case 'energy-connect':
     case 'device-selection':
@@ -79,6 +82,9 @@ export default function Onboarding() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   // OEMs the user picked on Connect What Earns — drives the OAuth phase tile list.
   const [selectedOems, setSelectedOems] = useState<EnergyProvider[]>([]);
+  // Pre-resolved Solar source-of-truth (Tesla installer vs anyone else).
+  // Asked only when the user picked Tesla AND at least one of Enphase/SolarEdge.
+  const [solarInstaller, setSolarInstaller] = useState<SolarInstaller | undefined>(undefined);
   
   // Dialog states for credential-based providers
   const [showEnphaseDialog, setShowEnphaseDialog] = useState(false);
@@ -242,7 +248,7 @@ export default function Onboarding() {
     const preview = searchParams.get('preview') as OnboardingStep | null;
     const validPreviewSteps: OnboardingStep[] = [
       'wallet-choice', 'zensolar-setup', 'external-wallet', 'wallet-success',
-      'oem-select', 'device-pairing', 'energy-connect', 'home-charging-setup', 'energy-success', 'device-selection'
+      'oem-select', 'solar-installer', 'device-pairing', 'energy-connect', 'home-charging-setup', 'energy-success', 'device-selection'
     ];
     if (preview && validPreviewSteps.includes(preview)) {
       setStep(preview);
@@ -484,7 +490,42 @@ export default function Onboarding() {
       oem_count: oems.length,
       oems: oems.join(','),
     });
+
+    // Route through Solar installer question ONLY if Solar ownership is
+    // actually ambiguous: Tesla + (Enphase OR SolarEdge). Otherwise skip
+    // straight to device pairing.
+    const solarAmbiguous =
+      oems.includes('tesla') && (oems.includes('enphase') || oems.includes('solaredge'));
+    if (solarAmbiguous) {
+      setSolarInstaller(undefined);
+      transitionToStep('solar-installer');
+    } else {
+      setSolarInstaller(undefined);
+      transitionToStep('device-pairing');
+    }
+  };
+
+  const handleSolarInstallerSelect = async (choice: SolarInstaller) => {
+    setSolarInstaller(choice);
+    trackEvent('onboarding_solar_installer_selected', { installer: choice });
+    // Best-effort persistence to profile so Profile page reflects it immediately.
+    try {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (currentUser) {
+        await supabase
+          .from('profiles')
+          .update({ solar_installer: choice, updated_at: new Date().toISOString() })
+          .eq('user_id', currentUser.id);
+        dispatchProfileUpdated();
+      }
+    } catch (err) {
+      console.warn('[Onboarding] Failed to persist solar_installer:', err);
+    }
     transitionToStep('device-pairing');
+  };
+
+  const handleSolarInstallerBack = () => {
+    transitionToStep('oem-select');
   };
 
   const handleOemSelectionSkip = () => {
@@ -501,7 +542,11 @@ export default function Onboarding() {
   };
 
   const handleDevicePairingBack = () => {
-    transitionToStep('oem-select');
+    // If we asked the solar installer question, go back to it; otherwise to OEM select.
+    const solarAmbiguous =
+      selectedOems.includes('tesla') &&
+      (selectedOems.includes('enphase') || selectedOems.includes('solaredge'));
+    transitionToStep(solarAmbiguous ? 'solar-installer' : 'oem-select');
   };
 
 
@@ -764,7 +809,12 @@ export default function Onboarding() {
       // Wallet exists — can't unwind wallet creation itself, but can step back through later screens.
       case 'wallet-success': return null;
       case 'oem-select': return 'wallet-success';
-      case 'device-pairing': return 'oem-select';
+      case 'solar-installer': return 'oem-select';
+      case 'device-pairing': {
+        const ambig = selectedOems.includes('tesla') &&
+          (selectedOems.includes('enphase') || selectedOems.includes('solaredge'));
+        return ambig ? 'solar-installer' : 'oem-select';
+      }
       case 'energy-connect':
       case 'device-selection': return 'device-pairing';
       case 'home-charging-setup': return 'energy-connect';
@@ -852,10 +902,20 @@ export default function Onboarding() {
         </div>
       )}
 
+      {step === 'solar-installer' && (
+        <div className="pt-24">
+          <SolarInstallerScreen
+            onSelect={handleSolarInstallerSelect}
+            onBack={handleSolarInstallerBack}
+          />
+        </div>
+      )}
+
       {step === 'device-pairing' && (
         <div className="pt-24">
           <DevicePairingScreen
             selectedOems={selectedOems.length > 0 ? selectedOems : ['tesla']}
+            solarInstaller={solarInstaller}
             onContinue={handleDevicePairingContinue}
             onBack={handleDevicePairingBack}
           />

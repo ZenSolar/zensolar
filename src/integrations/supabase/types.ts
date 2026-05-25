@@ -1644,6 +1644,10 @@ export type Database = {
           id: string
           instagram_connected: boolean | null
           instagram_handle: string | null
+          installer_company: string | null
+          installer_email: string | null
+          installer_name: string | null
+          installer_phone: string | null
           last_login_at: string | null
           last_seen_at: string | null
           linkedin_connected: boolean | null
@@ -1651,6 +1655,7 @@ export type Database = {
           login_count: number
           referral_code: string | null
           referred_by: string | null
+          solar_installer: string | null
           solaredge_connected: boolean | null
           tesla_connected: boolean | null
           tiktok_connected: boolean | null
@@ -1676,6 +1681,10 @@ export type Database = {
           id?: string
           instagram_connected?: boolean | null
           instagram_handle?: string | null
+          installer_company?: string | null
+          installer_email?: string | null
+          installer_name?: string | null
+          installer_phone?: string | null
           last_login_at?: string | null
           last_seen_at?: string | null
           linkedin_connected?: boolean | null
@@ -1683,6 +1692,7 @@ export type Database = {
           login_count?: number
           referral_code?: string | null
           referred_by?: string | null
+          solar_installer?: string | null
           solaredge_connected?: boolean | null
           tesla_connected?: boolean | null
           tiktok_connected?: boolean | null
@@ -1708,6 +1718,10 @@ export type Database = {
           id?: string
           instagram_connected?: boolean | null
           instagram_handle?: string | null
+          installer_company?: string | null
+          installer_email?: string | null
+          installer_name?: string | null
+          installer_phone?: string | null
           last_login_at?: string | null
           last_seen_at?: string | null
           linkedin_connected?: boolean | null
@@ -1715,6 +1729,7 @@ export type Database = {
           login_count?: number
           referral_code?: string | null
           referred_by?: string | null
+          solar_installer?: string | null
           solaredge_connected?: boolean | null
           tesla_connected?: boolean | null
           tiktok_connected?: boolean | null
