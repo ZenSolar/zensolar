@@ -228,12 +228,12 @@ export function EnergyConnectionScreen({
           className="mt-8 text-center"
         >
           <h1 className="text-3xl font-semibold tracking-tight bg-gradient-to-b from-foreground to-foreground/55 bg-clip-text text-transparent">
-            {hasConnected ? 'Connect another device' : 'Connect everything that earns'}
+            {hasConnected ? 'Connect another' : 'Connect what earns'}
           </h1>
-          <p className="mt-2.5 text-[15px] text-muted-foreground leading-relaxed max-w-[320px] mx-auto">
+          <p className="mt-2 text-[14px] text-muted-foreground max-w-[300px] mx-auto">
             {hasConnected
-              ? <>Got more solar, battery, or EV gear? Link it now to earn more <span className="text-primary font-semibold">$ZSOLAR</span>.</>
-              : <>Link <span className="text-foreground/90">each</span> solar, battery, or EV account you own — one tap each.</>}
+              ? <>More gear = more <span className="text-primary font-semibold">$ZSOLAR</span>.</>
+              : <>One tap each. You can always add more later.</>}
           </p>
         </motion.div>
       </section>
