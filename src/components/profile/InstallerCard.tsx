@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Wrench, Phone, Mail, Building2, User as UserIcon, CheckCircle2, Sun } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { toast } from "sonner";
+import { InstallerSearch } from "./InstallerSearch";
+import type { KnownInstaller } from "@/data/solarInstallers";
 
 /**
  * InstallerCard — Profile section for the customer's local PV installer.
