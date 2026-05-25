@@ -227,10 +227,6 @@ export function DevicePairingScreen({
     return map;
   }, [pairing, selectedOems]);
 
-  // Detect Wallbox without Tesla EV — Wallbox pairs with Tesla, useful hint.
-  const wallboxNoTesla =
-    selectedOems.includes('wallbox') &&
-    (!selectedOems.includes('tesla') || !(pairing.tesla ?? []).includes('ev'));
 
   const handleContinue = async () => {
     if (!canContinue) return;
