@@ -445,6 +445,7 @@ export function useEnergyOAuth() {
         return false;
       }
 
+      trackConnectSuccess('wallbox');
       toast.success('Wallbox account connected successfully!');
       return true;
     } catch (error) {
