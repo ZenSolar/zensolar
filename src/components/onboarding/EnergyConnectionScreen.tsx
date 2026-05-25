@@ -65,8 +65,8 @@ const providers: Array<{
     id: 'enphase',
     name: 'Enphase',
     logo: enphaseLogo,
-    description: 'Microinverters & IQ Battery',
-    capabilities: ['Solar', 'Battery'],
+    description: 'Microinverters, IQ Battery & EV Charger',
+    capabilities: ['Solar', 'Battery', 'EV'],
   },
   {
     id: 'solaredge',
