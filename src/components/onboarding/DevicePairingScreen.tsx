@@ -153,7 +153,7 @@ export function DevicePairingScreen({
     const base = OEMS[oem].available;
     if (solarInstaller === 'other' && oem === 'tesla') {
       return base.filter((c) => c !== 'solar').sort((a, b) => {
-        const order: DeviceCapability[] = ['ev', 'battery', 'solar'];
+        const order: DeviceCapability[] = ['ev', 'battery', 'charger'];
         return order.indexOf(a) - order.indexOf(b);
       });
     }
