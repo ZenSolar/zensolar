@@ -4,6 +4,7 @@ import { Shield, Fingerprint, LayoutDashboard, Copy, Check, ArrowRight } from 'l
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { triggerLightTap } from '@/hooks/useHaptics';
+import { SecurityBadge } from '@/components/security/SecurityBadge';
 
 interface MeetYourWalletTourProps {
   walletAddress: string;
