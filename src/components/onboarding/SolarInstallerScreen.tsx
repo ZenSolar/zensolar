@@ -123,7 +123,7 @@ export function SolarInstallerScreen({ onSelect, onBack }: SolarInstallerScreenP
               <img src={teslaLogo} alt="Tesla" className="max-w-full max-h-full object-contain" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-base text-foreground">Yes, Tesla installed it</h3>
+              <h3 className="font-semibold text-base text-foreground">Tesla installed my solar panels</h3>
               <p className="text-[11px] text-muted-foreground mt-0.5">
                 We'll pull solar production via the Tesla API
               </p>

@@ -114,11 +114,22 @@ interface DevicePairingScreenProps {
 }
 
 export function DevicePairingScreen({
-  selectedOems,
+  selectedOems: rawSelectedOems,
   solarInstaller,
   onContinue,
   onBack,
 }: DevicePairingScreenProps) {
+  // If Tesla installed the solar panels, the customer will never log into
+  // Enphase or SolarEdge (we only use Tesla's API for solar production).
+  // Drop those OEMs entirely from the pairing screen.
+  const selectedOems = useMemo<EnergyProvider[]>(
+    () =>
+      solarInstaller === 'tesla'
+        ? rawSelectedOems.filter((o) => o !== 'enphase' && o !== 'solaredge')
+        : rawSelectedOems,
+    [rawSelectedOems, solarInstaller]
+  );
+
   // Seed state from defaults — honoring solarInstaller pre-resolution so Solar
   // capability is already routed to the correct OEM and locked off the others.
   const initial = useMemo<DevicePairing>(() => {
