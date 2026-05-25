@@ -34,6 +34,8 @@ interface MintTokenDialogProps {
   onRequestMint: (cat: MintTokenCategory) => void;
   /** Optional — called when user taps "View receipt history" inside an expanded row. */
   onNavigateHistory?: () => void;
+  /** Optional per-category daily breakdown of how the pending amount was earned. */
+  dailyBreakdown?: Partial<Record<MintTokenCategory, DailyBreakdown>>;
 }
 
 /**
