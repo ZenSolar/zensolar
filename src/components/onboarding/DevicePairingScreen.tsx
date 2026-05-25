@@ -79,23 +79,44 @@ const CAPABILITY_META: Record<DeviceCapability, { label: string; emoji: string; 
 
 interface DevicePairingScreenProps {
   selectedOems: EnergyProvider[];
+  /**
+   * Pre-resolved Solar source-of-truth from SolarInstallerScreen.
+   * - 'tesla' → Tesla owns Solar (auto-checked on Tesla, locked off on Enphase/SolarEdge)
+   * - 'other' → Enphase or SolarEdge owns Solar (locked off on Tesla)
+   * - undefined → no pre-resolution; user picks freely & the conflict resolver
+   *   appears if 2+ OEMs both claim Solar.
+   */
+  solarInstaller?: 'tesla' | 'other';
   onContinue: (pairing: DevicePairing) => void;
   onBack?: () => void;
 }
 
 export function DevicePairingScreen({
   selectedOems,
+  solarInstaller,
   onContinue,
   onBack,
 }: DevicePairingScreenProps) {
-  // Seed state from defaults for every selected OEM.
+  // Seed state from defaults — honoring solarInstaller pre-resolution so Solar
+  // capability is already routed to the correct OEM and locked off the others.
   const initial = useMemo<DevicePairing>(() => {
     const m: Partial<DevicePairing> = {};
     selectedOems.forEach((oem) => {
       m[oem] = [...OEMS[oem].defaults];
     });
+    if (solarInstaller === 'tesla' && selectedOems.includes('tesla')) {
+      selectedOems.forEach((oem) => {
+        if (oem === 'tesla') {
+          if (!(m[oem] ?? []).includes('solar')) m[oem] = [...(m[oem] ?? []), 'solar'];
+        } else {
+          m[oem] = (m[oem] ?? []).filter((c) => c !== 'solar');
+        }
+      });
+    } else if (solarInstaller === 'other' && selectedOems.includes('tesla')) {
+      m.tesla = (m.tesla ?? []).filter((c) => c !== 'solar');
+    }
     return m as DevicePairing;
-  }, [selectedOems]);
+  }, [selectedOems, solarInstaller]);
 
   const [pairing, setPairing] = useState<DevicePairing>(initial);
 
