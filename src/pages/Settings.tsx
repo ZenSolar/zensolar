@@ -85,6 +85,33 @@ export default function Settings() {
         <WalletSetupCard />
       </motion.div>
 
+      {/* Security entry — full-width, above the two-column grid */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.06 }}
+      >
+        <Card className="overflow-hidden border-primary/25 bg-gradient-to-br from-primary/5 via-card to-card">
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
+              <Shield className="h-4 w-4 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-foreground leading-tight">Security & Encryption</p>
+              <p className="text-xs text-muted-foreground leading-tight mt-0.5">
+                Face ID · AES-256 · self-custody · Base L2 anchoring
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <SecurityBadge variant="pill" label="Quick view" />
+              <Button asChild size="sm" variant="outline" className="h-8 text-xs">
+                <Link to="/security">Details</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
       {/* Two-column grid for setting cards on desktop */}
       <div className="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-5 lg:items-start">
 
