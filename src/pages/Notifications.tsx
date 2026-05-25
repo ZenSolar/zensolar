@@ -10,7 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Bell, Users, Zap, Info, Trash2, CheckCheck, Sparkles, Inbox } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
-import { PullToRefreshWrapper } from "@/components/ui/PullToRefreshWrapper";
+// PullToRefreshWrapper retired — relying on auto-refresh on login + post-mint sync.
 
 interface NotificationLog {
   id: string;
