@@ -192,7 +192,6 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent
         className="max-h-[92dvh] focus:outline-none"
-        style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
         {/* Scrollable inner column so the drag-handle + safe area stay pinned */}
         <div className="overflow-y-auto overscroll-contain">
