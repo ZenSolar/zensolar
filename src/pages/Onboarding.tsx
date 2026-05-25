@@ -85,7 +85,7 @@ export default function Onboarding() {
   const [showWallboxDialog, setShowWallboxDialog] = useState(false);
   
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const { startTeslaOAuth, startEnphaseOAuth, connectSolarEdge, connectWallbox, exchangeEnphaseCode } = useEnergyOAuth();
 
@@ -202,7 +202,23 @@ export default function Onboarding() {
     const choice = searchParams.get('choice');
     const oauthSuccess = searchParams.get('oauth_success');
     const provider = searchParams.get('provider');
-    
+    const reset = searchParams.get('reset');
+
+    // ?reset=1 — wipe local onboarding state and start at wallet-choice.
+    if (reset === '1' || reset === 'true') {
+      try {
+        localStorage.removeItem('onboarding_energy_flow');
+        localStorage.removeItem('onboarding_setup_profile');
+        localStorage.removeItem('onboarding_planned_providers');
+      } catch { /* ignore */ }
+      setStep('wallet-choice');
+      // Strip the param so a refresh doesn't keep resetting.
+      const next = new URLSearchParams(searchParams);
+      next.delete('reset');
+      setSearchParams(next, { replace: true });
+      return;
+    }
+
     if (skipTo === 'wallet') {
       setStep('wallet-choice');
     }
