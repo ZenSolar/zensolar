@@ -427,6 +427,13 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
                 )}
               </Button>
 
+              {/* Tiny preview of the flow so the user isn't surprised by what comes next. */}
+              {canSubmit && !loading && (
+                <p className="text-center text-[11px] text-muted-foreground mt-2 px-4 leading-snug">
+                  Next: Deason confirms your setup, then you'll tap each brand to securely connect it.
+                </p>
+              )}
+
               <div className="text-center mt-4">
                 <Button variant="ghost" size="sm" onClick={onSkipToManual} disabled={loading} className="text-muted-foreground text-xs">
                   I'm not sure yet — show me my options
