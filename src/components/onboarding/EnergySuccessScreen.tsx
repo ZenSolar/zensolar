@@ -177,11 +177,11 @@ export function EnergySuccessScreen({
           transition={{ delay: 0.5 }}
           className="text-center mb-8"
         >
-          <h2 className="text-2xl font-semibold text-foreground mb-2 tracking-tight">
-            {name} connected
+          <h2 className="text-3xl font-semibold text-foreground mb-1 tracking-tight">
+            You're earning.
           </h2>
-          <p className="text-muted-foreground text-[15px] leading-relaxed">
-            Your energy data is linked and earning <span className="text-primary font-medium">$ZSOLAR</span>.
+          <p className="text-muted-foreground text-[14px]">
+            {name} is now minting <span className="text-primary font-medium">$ZSOLAR</span>.
           </p>
         </motion.div>
 

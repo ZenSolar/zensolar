@@ -588,8 +588,26 @@ export default function Onboarding() {
     })();
     
     // For Tesla connections, route through Home Charging Setup before energy-success.
-    // Fetch the user's most recent vehicle row so the setup screen knows which device to write to.
+    // BUT: skip the screen entirely when the AI Concierge already learned how the user
+    // charges at home (any known brand). Fewer screens = more "it just works."
     if (provider === 'tesla') {
+      let conciergeKnowsCharger = false;
+      try {
+        const raw = localStorage.getItem('onboarding_setup_profile');
+        if (raw) {
+          const p = JSON.parse(raw);
+          const brand = p?.home_charger?.brand;
+          conciergeKnowsCharger =
+            !!brand && brand !== 'unknown' && p?.home_charger?.present !== undefined;
+        }
+      } catch { /* ignore */ }
+
+      if (conciergeKnowsCharger) {
+        // Skip the setup screen — concierge already captured it.
+        setStep('energy-success');
+        return;
+      }
+
       (async () => {
         try {
           const { data: { user: currentUser } } = await supabase.auth.getUser();
