@@ -713,6 +713,16 @@ const App = () => {
                       } 
                     />
                     <Route 
+                      path="/security" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <Security />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
                       path="/notifications" 
                       element={
                         <ProtectedRoute>
