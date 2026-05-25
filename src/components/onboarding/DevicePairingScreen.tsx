@@ -290,6 +290,10 @@ export function DevicePairingScreen({
           const claimants = selectedOems.filter((oem) =>
             (pairing[oem] ?? []).includes(cap)
           );
+          // Installer framing only applies to solar when Tesla is a claimant.
+          // It's a more concrete question than "which app do you open?" because
+          // every customer remembers who installed their panels.
+          const useInstallerFraming = cap === 'solar' && claimants.includes('tesla');
           const verb = cap === 'solar' ? 'see your solar production' : 'view your battery';
           return (
             <motion.div
@@ -302,12 +306,25 @@ export function DevicePairingScreen({
                 <AlertTriangle className="w-4 h-4 text-amber-300 mt-0.5 shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-[12px] font-bold text-amber-100 uppercase tracking-wider">
-                    Heads up · pick your {meta.label.toLowerCase()} app
+                    {useInstallerFraming
+                      ? 'Quick question · who installed your panels?'
+                      : `Heads up · pick your ${meta.label.toLowerCase()} app`}
                   </p>
                   <p className="text-[12px] text-amber-100/85 mt-1 leading-relaxed">
-                    You picked {claimants.map((c) => OEMS[c].name).join(' and ')} for{' '}
-                    {meta.label.toLowerCase()}. To avoid double-counting kWh, which app do
-                    you actually open to {verb}?
+                    {useInstallerFraming ? (
+                      <>
+                        If <span className="font-semibold">Tesla</span> installed your PV
+                        system, your solar production flows through the Tesla app — even
+                        if the inverters are SolarEdge or Enphase. Any other installer and
+                        you'd open the {claimants.filter((c) => c !== 'tesla').map((c) => OEMS[c].name).join(' / ')} app instead.
+                      </>
+                    ) : (
+                      <>
+                        You picked {claimants.map((c) => OEMS[c].name).join(' and ')} for{' '}
+                        {meta.label.toLowerCase()}. To avoid double-counting kWh, which app
+                        do you actually open to {verb}?
+                      </>
+                    )}
                   </p>
                 </div>
               </div>
@@ -326,7 +343,11 @@ export function DevicePairingScreen({
                       />
                     </div>
                     <span className="flex-1 text-[13px] font-semibold text-foreground">
-                      I use the {OEMS[oem].name} app
+                      {useInstallerFraming
+                        ? oem === 'tesla'
+                          ? 'Tesla installed my panels'
+                          : `${OEMS[oem].name} (or my local installer)`
+                        : `I use the ${OEMS[oem].name} app`}
                     </span>
                     <ArrowRight className="w-3.5 h-3.5 text-amber-300 shrink-0" />
                   </button>
