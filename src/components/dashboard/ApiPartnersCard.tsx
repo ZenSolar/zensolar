@@ -29,32 +29,18 @@ export function ApiPartnersCard() {
         />
         <div className="relative grid grid-cols-2 gap-6 place-items-center">
           {brandLogos.map(({ src, alt }, idx) => (
-            alt === 'Enphase' ? (
-              <motion.div
-                key={alt}
-                className="text-foreground/60 hover:text-foreground/100 transition-all duration-500"
-                initial={{ opacity: 0, y: 8 }}
-                whileInView={{ opacity: 0.6, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 + idx * 0.1, duration: 0.5 }}
-                whileHover={{ scale: 1.05 }}
-              >
-                <EnphaseLogo className="w-[180px] h-auto" />
-              </motion.div>
-            ) : (
-              <motion.img
-                key={alt}
-                src={src!}
-                alt={alt}
-                className={`w-auto object-contain opacity-60 hover:opacity-100 transition-all duration-500 dark:brightness-100 brightness-0 ${alt === 'Tesla' ? 'max-w-[400px] max-h-20' : 'max-w-[120px] max-h-10'}`}
-                initial={{ opacity: 0, y: 8 }}
-                whileInView={{ opacity: 0.6, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 + idx * 0.1, duration: 0.5 }}
-                whileHover={{ scale: 1.05 }}
-                loading="lazy"
-              />
-            )
+            <motion.img
+              key={alt}
+              src={src!}
+              alt={alt}
+              className={`w-auto object-contain opacity-60 hover:opacity-100 transition-all duration-500 dark:brightness-100 brightness-1 ${alt === 'Tesla' ? 'max-w-[400px] max-h-20' : 'max-w-[180px] max-h-10'}`}
+              initial={{ opacity: 1, y: 8 }}
+              whileInView={{ opacity: 0.6, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 + idx * 0.1, duration: 0.5 }}
+              whileHover={{ scale: 1.05 }}
+              loading="lazy"
+            />
           ))}
         </div>
       </div>
