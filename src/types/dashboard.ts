@@ -23,7 +23,7 @@ export interface SolarDeviceData {
 export interface BatteryDeviceData {
   deviceId: string;
   deviceName: string;
-  provider: 'tesla';
+  provider: 'tesla' | 'enphase' | 'solaredge';
   lifetimeKwh: number;
   pendingKwh: number;
 }
