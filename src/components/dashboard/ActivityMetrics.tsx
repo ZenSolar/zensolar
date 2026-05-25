@@ -47,7 +47,7 @@ import { KpiActivityLogSheet, type KpiSheetState } from './KpiActivityLogSheet';
 
 // Import brand logos for connected providers display
 import enphaseLogo from '@/assets/logos/enphase-e-icon.svg';
-import teslaLogo from '@/assets/logos/tesla-wordmark-red.png';
+import teslaLogo from '@/assets/logos/tesla-t-icon.png';
 import teslaWordmark from '@/assets/logos/tesla-wordmark.png';
 
 const providerLogos: Record<string, string> = {
@@ -388,25 +388,14 @@ export function ActivityMetrics({
                     {filteredProviders.map((provider) => (
                       <div
                         key={provider}
-                        className={cn(
-                          "h-6 flex items-center justify-center rounded-md bg-background border border-border/60 shadow-md px-1.5",
-                          provider === 'tesla' ? 'min-w-[44px]' : 'w-6'
-                        )}
+                        className="h-6 w-6 flex items-center justify-center rounded-md bg-background border border-border/60 shadow-md px-1"
                         title={provider.charAt(0).toUpperCase() + provider.slice(1)}
                       >
-                        {provider === 'tesla' ? (
-                          <img
-                            src={teslaLogo}
-                            alt="Tesla"
-                            className="h-3 w-auto object-contain"
-                          />
-                        ) : (
-                          <img
-                            src={providerLogos[provider]}
-                            alt={provider}
-                            className="h-3.5 w-3.5 object-contain"
-                          />
-                        )}
+                        <img
+                          src={providerLogos[provider]}
+                          alt={provider}
+                          className="h-3.5 w-3.5 object-contain"
+                        />
                       </div>
                     ))}
                   </div>
