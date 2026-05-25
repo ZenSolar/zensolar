@@ -60,15 +60,23 @@ export function useIncompleteSetup() {
     } catch (error) {
       console.error('[useIncompleteSetup] Error checking setups:', error);
       setIncompleteSetups([]);
+      const rawMessage = error instanceof Error ? error.message : undefined;
       toast.error("Couldn't check your account status", {
         description:
           "We couldn't load the status of your connected accounts. Your data is safe — try again.",
-        duration: 10_000,
+        duration: 12_000,
         action: {
           label: 'Retry',
           onClick: () => {
             setIsLoading(true);
             checkIncompleteSetups();
+          },
+        },
+        cancel: {
+          label: 'Ask Deason',
+          onClick: () => {
+            // status check spans all providers — surface the generic status playbook
+            openDeasonWithError({ provider: 'tesla', stage: 'status', rawMessage });
           },
         },
       });
