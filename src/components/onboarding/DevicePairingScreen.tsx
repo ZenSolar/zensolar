@@ -110,14 +110,47 @@ export function DevicePairingScreen({
     });
   };
 
+  /**
+   * Conflict resolver: only ONE OEM may own each capability (Solar, Battery).
+   * Source of truth = whichever app the customer actually opens.
+   * EV is Tesla-only so it never conflicts.
+   * Resolves by unchecking the capability on every OEM EXCEPT the chosen one.
+   */
+  const resolveConflict = async (cap: DeviceCapability, keepOem: EnergyProvider) => {
+    await triggerLightTap();
+    setPairing((prev) => {
+      const next = { ...prev };
+      selectedOems.forEach((oem) => {
+        if (oem === keepOem) {
+          // Make sure the kept OEM actually has the cap checked.
+          const current = next[oem] ?? [];
+          if (!current.includes(cap)) next[oem] = [...current, cap];
+        } else {
+          next[oem] = (next[oem] ?? []).filter((c) => c !== cap);
+        }
+      });
+      return next;
+    });
+  };
+
+  // Detect which capabilities are claimed by 2+ OEMs (Solar / Battery only — EV is Tesla-only).
+  const conflicts = useMemo<DeviceCapability[]>(() => {
+    const out: DeviceCapability[] = [];
+    (['solar', 'battery'] as const).forEach((cap) => {
+      const owners = selectedOems.filter((oem) => (pairing[oem] ?? []).includes(cap));
+      if (owners.length > 1) out.push(cap);
+    });
+    return out;
+  }, [pairing, selectedOems]);
+
   // Total number of devices the user has mapped across all OEMs.
   const totalDevices = selectedOems.reduce(
     (sum, oem) => sum + (pairing[oem]?.length ?? 0),
     0
   );
 
-  // At least one OEM must have at least one device checked.
-  const canContinue = totalDevices > 0;
+  // Must have at least one device AND no unresolved overlaps.
+  const canContinue = totalDevices > 0 && conflicts.length === 0;
 
   // Detect Wallbox without Tesla EV — Wallbox pairs with Tesla, useful hint.
   const wallboxNoTesla =
@@ -211,6 +244,61 @@ export function DevicePairingScreen({
 
       {/* OEM cards */}
       <section className="relative z-10 flex-1 px-5 pt-5 pb-44 space-y-3 overflow-y-auto">
+        {/* Conflict resolver — appears when 2+ OEMs both claim Solar or Battery.
+            Source of truth = whichever app the customer actually opens. Prevents
+            double-counting kWh (see mem://features/data-source-of-truth.md). */}
+        {conflicts.map((cap) => {
+          const meta = CAPABILITY_META[cap];
+          const claimants = selectedOems.filter((oem) =>
+            (pairing[oem] ?? []).includes(cap)
+          );
+          const verb = cap === 'solar' ? 'see your solar production' : 'view your battery';
+          return (
+            <motion.div
+              key={`conflict-${cap}`}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-4 rounded-2xl bg-amber-500/8 border border-amber-500/30 shadow-[0_0_22px_rgba(251,191,36,0.15)]"
+            >
+              <div className="flex items-start gap-2.5">
+                <AlertTriangle className="w-4 h-4 text-amber-300 mt-0.5 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-bold text-amber-100 uppercase tracking-wider">
+                    Heads up · pick your {meta.label.toLowerCase()} app
+                  </p>
+                  <p className="text-[12px] text-amber-100/85 mt-1 leading-relaxed">
+                    You picked {claimants.map((c) => OEMS[c].name).join(' and ')} for{' '}
+                    {meta.label.toLowerCase()}. To avoid double-counting kWh, which app do
+                    you actually open to {verb}?
+                  </p>
+                </div>
+              </div>
+              <div className="mt-3 grid grid-cols-1 gap-2">
+                {claimants.map((oem) => (
+                  <button
+                    key={oem}
+                    onClick={() => resolveConflict(cap, oem)}
+                    className="w-full flex items-center gap-2.5 p-2.5 rounded-xl border border-white/10 bg-background/40 hover:border-amber-400/60 hover:bg-amber-500/10 transition-all text-left"
+                  >
+                    <div className="w-8 h-8 rounded-lg shrink-0 ring-1 ring-white/10 bg-[#1a1a1a] flex items-center justify-center p-1">
+                      <img
+                        src={OEMS[oem].logo}
+                        alt={`${OEMS[oem].name} logo`}
+                        className="max-w-full max-h-full object-contain"
+                      />
+                    </div>
+                    <span className="flex-1 text-[13px] font-semibold text-foreground">
+                      I use the {OEMS[oem].name} app
+                    </span>
+                    <ArrowRight className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          );
+        })}
+
+
         {selectedOems.map((oemId, idx) => {
           const oem = OEMS[oemId];
           const checked = pairing[oemId] ?? [];
@@ -314,9 +402,11 @@ export function DevicePairingScreen({
           disabled={!canContinue}
           className="w-full h-12 text-base font-semibold rounded-2xl bg-gradient-to-br from-primary to-primary/80 hover:from-primary hover:to-primary text-primary-foreground shadow-[0_0_28px_hsl(var(--primary)/0.35)] disabled:opacity-40 disabled:shadow-none"
         >
-          {canContinue
-            ? `Connect ${totalDevices} device${totalDevices === 1 ? '' : 's'}`
-            : 'Check at least one device'}
+          {conflicts.length > 0
+            ? `Pick your ${conflicts.map((c) => CAPABILITY_META[c].label.toLowerCase()).join(' & ')} app above`
+            : canContinue
+              ? `Connect ${totalDevices} device${totalDevices === 1 ? '' : 's'}`
+              : 'Check at least one device'}
           <ArrowRight className="w-4 h-4 ml-1" />
         </Button>
       </div>
