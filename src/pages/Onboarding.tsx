@@ -543,10 +543,8 @@ export default function Onboarding() {
 
   const handleDevicePairingBack = () => {
     // If we asked the solar installer question, go back to it; otherwise to OEM select.
-    const solarAmbiguous =
-      selectedOems.includes('tesla') &&
-      (selectedOems.includes('enphase') || selectedOems.includes('solaredge'));
-    transitionToStep(solarAmbiguous ? 'solar-installer' : 'oem-select');
+    const needsSolarQuestion = selectedOems.includes('tesla');
+    transitionToStep(needsSolarQuestion ? 'solar-installer' : 'oem-select');
   };
 
 
