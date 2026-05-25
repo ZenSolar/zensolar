@@ -47,7 +47,7 @@ import {
   Home
 } from "lucide-react";
 import { toast } from "sonner";
-import { PullToRefreshWrapper } from "@/components/ui/PullToRefreshWrapper";
+// PullToRefreshWrapper retired — relying on auto-refresh on login + post-mint sync.
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 
