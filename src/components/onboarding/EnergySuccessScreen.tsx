@@ -1,11 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Plus, ArrowRight, Zap } from 'lucide-react';
+import { CheckCircle2, Plus, ArrowRight, Zap, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useConfetti } from '@/hooks/useConfetti';
 import { triggerSuccess, triggerLightTap } from '@/hooks/useHaptics';
 import { trackEvent } from '@/hooks/useGoogleAnalytics';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+
 
 // Import brand logos
 import teslaLogo from '@/assets/logos/tesla-logo.png';
