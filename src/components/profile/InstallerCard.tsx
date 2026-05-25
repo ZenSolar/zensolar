@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Wrench, Phone, Mail, Building2, User as UserIcon, CheckCircle2, Sun } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { toast } from "sonner";
+import { InstallerSearch } from "./InstallerSearch";
+import type { KnownInstaller } from "@/data/solarInstallers";
 
 /**
  * InstallerCard — Profile section for the customer's local PV installer.
@@ -66,6 +68,18 @@ export function InstallerCard() {
   const handleQuickPick = (choice: "tesla" | "other") => {
     setInstaller(choice);
   };
+
+  const handleInstallerPick = (inst: KnownInstaller) => {
+    // Pre-populate every field we have a hint for. User can still edit.
+    setName(inst.name);
+    if (inst.company) setCompany(inst.company);
+    if (inst.phone) setPhone(inst.phone);
+    if (inst.email) setEmail(inst.email);
+    // Auto-route source-of-truth when picking Tesla Energy itself.
+    if (inst.name === "Tesla Energy") setInstaller("tesla");
+    else if (installer === "") setInstaller("other");
+  };
+
 
   return (
     <motion.div
@@ -134,7 +148,19 @@ export function InstallerCard() {
             </div>
           </div>
 
+          {/* Type-ahead search — pre-fills the contact fields below */}
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+              Quick-fill from common installers
+            </Label>
+            <InstallerSearch value={name} onPick={handleInstallerPick} onTextChange={setName} />
+            <p className="text-[10px] text-muted-foreground/80">
+              Pick yours to auto-fill name, company &amp; phone — or just type it in below.
+            </p>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
             <div className="space-y-1.5">
               <Label htmlFor="installer-name" className="text-xs flex items-center gap-1.5">
                 <UserIcon className="h-3 w-3 text-muted-foreground" />

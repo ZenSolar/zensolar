@@ -13,8 +13,9 @@ import teslaLogo from '@/assets/logos/tesla-t-icon.png';
  * the Tesla app (even when the underlying inverters are SolarEdge or Enphase).
  * If anyone else installed, the customer logs into Enphase or SolarEdge.
  *
- * Only rendered when the user selected Tesla AND at least one of Enphase /
- * SolarEdge — i.e. when there's actually an ambiguity to resolve.
+ * Rendered whenever the user selected Tesla — even alone — so we can tell
+ * Tesla-installed PV apart from a Tesla customer who only has a Powerwall.
+
  *
  * Persists `onboarding_solar_installer` = 'tesla' | 'other' to localStorage so
  * DevicePairingScreen can auto-route Solar capability without showing the
@@ -149,9 +150,9 @@ export function SolarInstallerScreen({ onSelect, onBack }: SolarInstallerScreenP
               <Wrench className="w-6 h-6 text-amber-300" strokeWidth={2.25} />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-base text-foreground">A local installer did</h3>
+              <h3 className="font-semibold text-base text-foreground">Someone else did (or no PV)</h3>
               <p className="text-[11px] text-muted-foreground mt-0.5">
-                We'll pull solar from your Enphase or SolarEdge app
+                We'll pull solar from Enphase / SolarEdge — or skip if you only have a Powerwall
               </p>
             </div>
             <div className="w-7 h-7 rounded-full border-2 border-white/20 group-hover:border-primary group-hover:bg-primary/20 flex items-center justify-center shrink-0 transition-all">

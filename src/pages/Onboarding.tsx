@@ -491,12 +491,12 @@ export default function Onboarding() {
       oems: oems.join(','),
     });
 
-    // Route through Solar installer question ONLY if Solar ownership is
-    // actually ambiguous: Tesla + (Enphase OR SolarEdge). Otherwise skip
-    // straight to device pairing.
-    const solarAmbiguous =
-      oems.includes('tesla') && (oems.includes('enphase') || oems.includes('solaredge'));
-    if (solarAmbiguous) {
+    // Route through Solar installer question whenever Tesla is selected.
+    // - Tesla + Enphase/SolarEdge → resolves the source-of-truth conflict.
+    // - Tesla alone → also confirms whether they actually have Tesla-installed
+    //   PV (vs. only a Powerwall battery) so we don't auto-add Solar to Tesla.
+    const needsSolarQuestion = oems.includes('tesla');
+    if (needsSolarQuestion) {
       setSolarInstaller(undefined);
       transitionToStep('solar-installer');
     } else {
@@ -543,10 +543,8 @@ export default function Onboarding() {
 
   const handleDevicePairingBack = () => {
     // If we asked the solar installer question, go back to it; otherwise to OEM select.
-    const solarAmbiguous =
-      selectedOems.includes('tesla') &&
-      (selectedOems.includes('enphase') || selectedOems.includes('solaredge'));
-    transitionToStep(solarAmbiguous ? 'solar-installer' : 'oem-select');
+    const needsSolarQuestion = selectedOems.includes('tesla');
+    transitionToStep(needsSolarQuestion ? 'solar-installer' : 'oem-select');
   };
 
 
@@ -811,9 +809,8 @@ export default function Onboarding() {
       case 'oem-select': return 'wallet-success';
       case 'solar-installer': return 'oem-select';
       case 'device-pairing': {
-        const ambig = selectedOems.includes('tesla') &&
-          (selectedOems.includes('enphase') || selectedOems.includes('solaredge'));
-        return ambig ? 'solar-installer' : 'oem-select';
+        const needsSolarQuestion = selectedOems.includes('tesla');
+        return needsSolarQuestion ? 'solar-installer' : 'oem-select';
       }
       case 'energy-connect':
       case 'device-selection': return 'device-pairing';
