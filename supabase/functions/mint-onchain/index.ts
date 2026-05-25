@@ -830,7 +830,7 @@ Deno.serve(async (req) => {
           const baselineChargingKwh = baseline?.charging_kwh || (baseline?.charging_wh ? baseline.charging_wh / 1000 : 0) || (baseline?.wall_connector_wh ? baseline.wall_connector_wh / 1000 : 0);
           const delta = Math.max(0, Math.floor(lifetimeChargingKwh - baselineChargingKwh));
           if (delta > 0) {
-            chargingDeltaKwh += delta;
+            homeChargingDeltaKwh += delta;
             if (!deviceIdsToUpdate.includes(device.id)) {
               deviceIdsToUpdate.push(device.id);
             }
