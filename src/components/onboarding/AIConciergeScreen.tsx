@@ -592,6 +592,14 @@ function PlanReview({
         )}
       </div>
 
+      {profile.vehicle.present && profile.vehicle.brand === 'other' && (
+        <div className="mb-4 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30">
+          <p className="text-xs text-amber-400 font-medium">
+            Tesla is the only EV we connect with today. Your vehicle won't be linked to OAuth, but you can still connect your other supported devices below.
+          </p>
+        </div>
+      )}
+
       {providers.length > 0 && (
         <div className="mb-5 p-3.5 rounded-2xl bg-primary/5 border border-primary/20">
           <div className="flex items-center justify-between gap-3 mb-1.5">
