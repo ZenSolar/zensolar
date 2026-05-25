@@ -402,9 +402,11 @@ export function DevicePairingScreen({
           disabled={!canContinue}
           className="w-full h-12 text-base font-semibold rounded-2xl bg-gradient-to-br from-primary to-primary/80 hover:from-primary hover:to-primary text-primary-foreground shadow-[0_0_28px_hsl(var(--primary)/0.35)] disabled:opacity-40 disabled:shadow-none"
         >
-          {canContinue
-            ? `Connect ${totalDevices} device${totalDevices === 1 ? '' : 's'}`
-            : 'Check at least one device'}
+          {conflicts.length > 0
+            ? `Pick your ${conflicts.map((c) => CAPABILITY_META[c].label.toLowerCase()).join(' & ')} app above`
+            : canContinue
+              ? `Connect ${totalDevices} device${totalDevices === 1 ? '' : 's'}`
+              : 'Check at least one device'}
           <ArrowRight className="w-4 h-4 ml-1" />
         </Button>
       </div>
