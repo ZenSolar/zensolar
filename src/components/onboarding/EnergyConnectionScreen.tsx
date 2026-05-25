@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button';
 import { triggerLightTap } from '@/hooks/useHaptics';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 // Brand logos — local assets, matched to EnergySuccessScreen for visual consistency.
-import teslaLogo from '@/assets/logos/tesla-logo.png';
-import enphaseLogo from '@/assets/logos/enphase-logo.png';
+// Brand logos — local assets. Use the *modern* official marks so the manual
+// picker matches the polish of the AI Concierge OEM drill-down chips.
+import teslaLogo from '@/assets/logos/tesla-t-icon.png';
+import enphaseLogo from '@/assets/logos/enphase-brand.png';
 import solaredgeLogo from '@/assets/logos/solaredge-logo.png';
 import wallboxLogo from '@/assets/logos/wallbox-logo.png';
 
@@ -320,7 +322,7 @@ export function EnergyConnectionScreen({
                   Recommended for you
                 </span>
               )}
-              <div className="w-14 h-14 rounded-2xl shrink-0 shadow-md ring-1 ring-white/10 bg-[#141414] flex items-center justify-center p-2">
+              <div className="w-14 h-14 rounded-2xl shrink-0 shadow-md ring-1 ring-black/5 bg-white flex items-center justify-center p-2">
                 <img
                   src={provider.logo}
                   alt={`${provider.name} logo`}
