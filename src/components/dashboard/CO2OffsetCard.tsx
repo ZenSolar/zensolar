@@ -7,7 +7,7 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from '@/components/ui/drawer';
-import { Leaf, TreePine, Sun, BatteryCharging, Zap, Home, ChevronRight } from 'lucide-react';
+import { Leaf, TreePine, Sun, BatteryCharging, Zap, Home, ChevronRight, Car } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   ActivityData,
