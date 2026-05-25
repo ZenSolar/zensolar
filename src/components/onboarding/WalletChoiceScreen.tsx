@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Fingerprint, ChevronRight, Wallet, Check, ShieldCheck } from 'lucide-react';
+import { Fingerprint, ChevronRight, Wallet, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { triggerMediumTap } from '@/hooks/useHaptics';
+import { SecurityBadge } from '@/components/security/SecurityBadge';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
 export type WalletChoice = 'zensolar' | 'external' | 'skip';
@@ -122,10 +123,9 @@ export function WalletChoiceScreen({ onChoice, isLoading = false }: WalletChoice
           </div>
         </motion.button>
 
-        {/* Trust line */}
-        <div className="mt-8 flex items-center justify-center gap-2 text-[11px] text-muted-foreground/70">
-          <ShieldCheck className="w-3.5 h-3.5" />
-          <span>ZenSolar never holds your keys</span>
+        {/* Trust line — tappable, opens full security breakdown */}
+        <div className="mt-8 flex justify-center">
+          <SecurityBadge variant="inline" label="How we protect your wallet & data" />
         </div>
 
         {/* Skip — text only, low priority */}

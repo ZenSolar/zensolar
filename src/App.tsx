@@ -76,6 +76,7 @@ const Tokenomics = lazy(() => import("./pages/Tokenomics"));
 const Subscribe = lazy(() => import("./pages/Subscribe"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Settings = lazy(() => import("./pages/Settings"));
+const Security = lazy(() => import("./pages/Security"));
 const Help = lazy(() => import("./pages/Help"));
 const MintHistory = lazy(() => import("./pages/MintHistory"));
 const Feedback = lazy(() => import("./pages/Feedback"));
@@ -707,6 +708,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <Settings />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/security" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <Security />
                           </AppLayout>
                         </ProtectedRoute>
                       } 

@@ -10,9 +10,9 @@ interface SecurityVisualizerProps {
 }
 
 const NODES = [
-  { icon: Fingerprint, label: 'Face ID', sub: 'on your device' },
-  { icon: KeyRound, label: 'Encrypted Key', sub: 'never leaves device' },
-  { icon: BaseMark, label: 'Base Network', sub: 'your wallet, on-chain' },
+  { icon: Fingerprint, label: 'Face ID', sub: 'Secure Enclave' },
+  { icon: KeyRound, label: 'Your Key', sub: 'AES-256 encrypted' },
+  { icon: BaseMark, label: 'Base L2', sub: 'publicly anchored' },
 ];
 
 function BaseMark({ className }: { className?: string }) {

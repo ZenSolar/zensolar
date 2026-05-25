@@ -7,6 +7,7 @@ import { Wallet, Coins, Images, ExternalLink, RefreshCw, ShieldCheck, TrendingUp
 import { Link } from 'react-router-dom';
 import { useBasePath } from '@/hooks/useBasePath';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { SecurityBadge } from '@/components/security/SecurityBadge';
 
 interface WalletHoldingsCardProps {
   walletAddress?: string;
@@ -44,6 +45,7 @@ export function WalletHoldingsCard({ walletAddress }: WalletHoldingsCardProps) {
           <div className="flex items-center gap-2">
             <Wallet className="h-4 w-4 text-primary" />
             <span className="text-sm font-medium">ZenSolar Holdings</span>
+            <SecurityBadge variant="pill" label="Secured" />
           </div>
           <div className="flex items-center gap-1">
             <Button
@@ -115,12 +117,9 @@ export function WalletHoldingsCard({ walletAddress }: WalletHoldingsCardProps) {
           </div>
         </div>
 
-        {/* Privacy notice */}
+        {/* Security entry point — taps open full breakdown */}
         <div className="mt-3 pt-3 border-t border-border/50">
-          <div className="flex items-start gap-2 text-xs text-muted-foreground">
-            <ShieldCheck className="h-3.5 w-3.5 mt-0.5 flex-shrink-0 text-primary/70" />
-            <span>Only showing your ZenSolar tokens & NFTs. We cannot see your other wallet holdings.</span>
-          </div>
+          <SecurityBadge variant="card" />
         </div>
       </CardContent>
     </Card>

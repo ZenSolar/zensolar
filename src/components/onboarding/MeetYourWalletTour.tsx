@@ -4,6 +4,7 @@ import { Shield, Fingerprint, LayoutDashboard, Copy, Check, ArrowRight } from 'l
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { triggerLightTap } from '@/hooks/useHaptics';
+import { SecurityBadge } from '@/components/security/SecurityBadge';
 
 interface MeetYourWalletTourProps {
   walletAddress: string;
@@ -15,6 +16,7 @@ type Step = {
   eyebrow: string;
   title: string;
   body: string;
+  proof: string[];
 };
 
 const STEPS: Step[] = [
@@ -22,13 +24,15 @@ const STEPS: Step[] = [
     icon: Fingerprint,
     eyebrow: 'Yours alone',
     title: 'Self-custody, secured by Face ID',
-    body: 'Your passkey lives in your device\'s secure enclave. No one at ZenSolar — not even us — can access, freeze, or move your funds.',
+    body: 'Your passkey lives in your device\'s Secure Enclave — the same hardware chip that protects Apple Pay. No one at ZenSolar can access, freeze, or move your funds.',
+    proof: ['Hardware-backed passkey', 'AES-256 at rest', 'TLS 1.3 in transit'],
   },
   {
     icon: LayoutDashboard,
     eyebrow: 'Always one tap away',
     title: 'Find it in your dashboard',
-    body: 'Your balance, rewards, and address live on the home screen. Ready when you are.',
+    body: 'Your balance, rewards, and address live on the home screen. Every mint is anchored on Base — publicly verifiable, forever.',
+    proof: ['On-chain on Base L2', 'Publicly auditable', 'Cannot be altered'],
   },
 ];
 
@@ -102,8 +106,25 @@ export function MeetYourWalletTour({ walletAddress, onComplete }: MeetYourWallet
           <p className="text-sm text-muted-foreground max-w-xs mx-auto leading-relaxed">
             {current.body}
           </p>
+
+          {/* Proof chips — concrete tech under the marketing */}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-1.5">
+            {current.proof.map((p) => (
+              <span
+                key={p}
+                className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-2 py-0.5 text-[10px] font-mono text-primary/85 tracking-tight"
+              >
+                {p}
+              </span>
+            ))}
+          </div>
         </motion.div>
       </AnimatePresence>
+
+      {/* Always-visible "How we protect you" entry point */}
+      <div className="mt-5 flex justify-center">
+        <SecurityBadge variant="inline" label="See how we protect you" />
+      </div>
 
       {/* Progress dots */}
       <div className="mt-8 mb-6 flex items-center justify-center gap-2">
