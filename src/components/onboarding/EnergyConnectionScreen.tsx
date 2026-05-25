@@ -223,7 +223,7 @@ export function EnergyConnectionScreen({
                   'linear-gradient(135deg, hsl(var(--card) / 0.7) 0%, hsl(var(--background) / 0.85) 100%)',
               }}
             >
-              <div className="w-14 h-14 rounded-2xl shrink-0 shadow-md ring-1 ring-white/10 bg-white flex items-center justify-center p-2">
+              <div className="w-14 h-14 rounded-2xl shrink-0 shadow-md ring-1 ring-white/10 bg-[#141414] flex items-center justify-center p-2">
                 <img
                   src={provider.logo}
                   alt={`${provider.name} logo`}
