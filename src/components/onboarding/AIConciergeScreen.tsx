@@ -180,11 +180,41 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
 
   // Typed description wins; otherwise compose from chips + per-category brand picks.
   const effectivePrompt = description.trim() || composeFromChips(chips, brands);
-  const canSubmit = effectivePrompt.length >= 3;
+
+  // Determine which providers the current chip+brand selections would yield.
+  function getSelectedProviders(): ConciergeBrand[] {
+    const set = new Set<ConciergeBrand>();
+    if (chips.has('solar') && brands.solar) {
+      if (['tesla', 'enphase', 'solaredge'].includes(brands.solar)) set.add(brands.solar as ConciergeBrand);
+    }
+    if (chips.has('battery') && brands.battery) {
+      if (['tesla', 'enphase', 'solaredge'].includes(brands.battery)) set.add(brands.battery as ConciergeBrand);
+    }
+    if (chips.has('ev') && brands.ev === 'tesla') set.add('tesla');
+    if (chips.has('charger') && brands.charger) {
+      if (brands.charger === 'tesla_wall_connector') set.add('tesla');
+      else if (brands.charger === 'wallbox') set.add('wallbox');
+      else if (brands.charger === 'enphase') set.add('enphase');
+      else if (brands.charger === 'solaredge') set.add('solaredge');
+    }
+    return Array.from(set);
+  }
+
+  const selectedProviders = getSelectedProviders();
+  const hasUnsupportedEV = chips.has('ev') && brands['ev'] === 'other';
+  const hasOnlyUnsupportedDevices =
+    chips.size >  0 &&
+    selectedProviders.length === 0 &&
+    !description.trim();
+  const canSubmit = effectivePrompt.length >= 3 && (!hasOnlyUnsupportedDevices || description.trim().length > 0);
 
   const extract = async () => {
     if (!canSubmit) {
-      toast.error('Tap what you have, or describe your setup in a sentence.');
+      if (hasOnlyUnsupportedDevices) {
+        toast.error('Tesla is the only EV we connect with today. Pick a supported device to continue.');
+      } else {
+        toast.error('Tap what you have, or describe your setup in a sentence.');
+      }
       return;
     }
     await triggerLightTap();
@@ -358,12 +388,17 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
                                    {opt.label}
                                  </button>
                                );
-                            })}
-                          </div>
-                          <p className="text-[10.5px] text-muted-foreground/80 mt-1.5 px-1 leading-snug">
-                            {BRAND_HELP[id]}
-                          </p>
-                        </motion.div>
+                             })}
+                           </div>
+                           {id === 'ev' && brands['ev'] === 'other' && (
+                             <p className="text-[11px] text-amber-400 mt-1.5 px-1 leading-snug font-medium">
+                               Tesla is the only EV we connect with today. Remove EV or pick Tesla to continue.
+                             </p>
+                           )}
+                           <p className="text-[10.5px] text-muted-foreground/80 mt-1.5 px-1 leading-snug">
+                             {BRAND_HELP[id]}
+                           </p>
+                         </motion.div>
                       );
                     })}
                 </AnimatePresence>
@@ -441,6 +476,8 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
                     <Sparkles className="w-4 h-4" />
                     {chips.size === 0 && description.trim().length === 0
                       ? 'Tap what you have to continue'
+                      : hasOnlyUnsupportedDevices
+                      ? 'Pick a supported device to continue'
                       : 'Build my plan'}
                     {canSubmit && <ArrowRight className="w-4 h-4" />}
                   </>
@@ -556,6 +593,14 @@ function PlanReview({
           />
         )}
       </div>
+
+      {profile.vehicle.present && profile.vehicle.brand === 'other' && (
+        <div className="mb-4 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30">
+          <p className="text-xs text-amber-400 font-medium">
+            Tesla is the only EV we connect with today. Your vehicle won't be linked to OAuth, but you can still connect your other supported devices below.
+          </p>
+        </div>
+      )}
 
       {providers.length > 0 && (
         <div className="mb-5 p-3.5 rounded-2xl bg-primary/5 border border-primary/20">
