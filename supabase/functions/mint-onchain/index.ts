@@ -767,17 +767,28 @@ Deno.serve(async (req) => {
           }
         } 
         
-        // Battery devices (Tesla Powerwall, battery, energy_storage, etc.)
-        if (isBatteryDevice(device.device_type) && (mintCategory === 'all' || mintCategory === 'battery')) {
+        // Battery (Tesla Powerwall has its own device row; Enphase/SolarEdge merge
+        // battery_discharge_wh onto their SOLAR device row — no separate device).
+        // We accept battery deltas from EITHER a dedicated battery device OR a
+        // solar device that carries battery_discharge_wh. Provider-priority
+        // de-dup (tesla > enphase > solaredge) is enforced in a second pass below.
+        const hasBatteryField =
+          (lifetime.battery_discharge_wh || lifetime.lifetime_battery_discharge_wh || 0) > 0;
+        const isBatteryCandidate =
+          isBatteryDevice(device.device_type) ||
+          (isSolarDevice(device.device_type) && hasBatteryField);
+
+        if (isBatteryCandidate && (mintCategory === 'all' || mintCategory === 'battery')) {
           const lifetimeBatteryWh = lifetime.battery_discharge_wh || lifetime.lifetime_battery_discharge_wh || 0;
-          const baselineBatteryWh = baseline?.total_energy_discharged_wh || baseline?.battery_discharge_wh || 0;
+          const baselineBatteryWh = baseline?.total_energy_discharged_wh || baseline?.battery_discharge_wh || baseline?.lifetime_battery_discharge_wh || 0;
           const delta = Math.max(0, Math.floor((lifetimeBatteryWh - baselineBatteryWh) / 1000));
-          console.log(`Battery device ${device.id} (${device.device_type}): lifetime=${lifetimeBatteryWh}Wh, baseline=${baselineBatteryWh}Wh, delta=${delta}kWh`);
+          console.log(`Battery candidate ${device.id} provider=${device.provider} type=${device.device_type}: lifetime=${lifetimeBatteryWh}Wh, baseline=${baselineBatteryWh}Wh, delta=${delta}kWh`);
           if (delta > 0) {
-            batteryDeltaKwh += delta;
-            if (!deviceIdsToUpdate.includes(device.id)) {
-              deviceIdsToUpdate.push(device.id);
-            }
+            batteryCandidates.push({
+              deviceId: device.id,
+              provider: String(device.provider || '').toLowerCase(),
+              delta,
+            });
           }
         }
         
