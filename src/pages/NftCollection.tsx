@@ -1174,6 +1174,6 @@ export default function NftCollection() {
         </Card>
       </motion.div>
       </div>
-    </PullToRefreshWrapper>
+    </div>
   );
 }
