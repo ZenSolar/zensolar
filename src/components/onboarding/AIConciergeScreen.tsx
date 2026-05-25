@@ -469,7 +469,7 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Deason is building your plan…
+                    Deason AI is building your plan…
                   </>
                 ) : (
                   <>
@@ -487,7 +487,7 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
               {/* Tiny preview of the flow so the user isn't surprised by what comes next. */}
               {canSubmit && !loading && (
                 <p className="text-center text-[11px] text-muted-foreground mt-2 px-4 leading-snug">
-                  Next: Deason confirms your setup, then you'll tap each brand to securely connect it.
+                  Next: Deason AI confirms your setup, then you'll tap each brand to securely connect it.
                 </p>
               )}
 
@@ -553,7 +553,7 @@ function PlanReview({
       <div className="text-center mb-1">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-xs font-semibold text-amber-500 tracking-wide uppercase">
           <Sparkles className="w-3 h-3" />
-          Deason built this
+          Deason AI built this
         </span>
       </div>
 
@@ -561,7 +561,7 @@ function PlanReview({
         <h2 className="text-2xl font-bold text-foreground mb-2 tracking-tight">Here's your plan</h2>
         <p className="text-sm text-muted-foreground italic">{profile.summary}</p>
         {profile.confidence === 'low' && (
-          <p className="text-xs text-amber-500 mt-2">Deason isn't sure about this — please double-check before continuing.</p>
+          <p className="text-xs text-amber-500 mt-2">Deason AI isn't sure about this — please double-check before continuing.</p>
         )}
       </div>
 
