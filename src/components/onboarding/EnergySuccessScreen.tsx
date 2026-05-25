@@ -109,7 +109,7 @@ export function EnergySuccessScreen({
           
           {/* Provider logo */}
           {logo && (
-            <div className="absolute inset-2 rounded-xl bg-white/95 flex items-center justify-center">
+            <div className="absolute inset-2 rounded-xl bg-[#141414] ring-1 ring-white/10 flex items-center justify-center">
               <img src={logo} alt={name} className="w-10 h-10 object-contain" />
             </div>
           )}
@@ -152,11 +152,11 @@ export function EnergySuccessScreen({
           transition={{ delay: 0.5 }}
           className="text-center mb-8"
         >
-          <h2 className="text-2xl font-bold text-foreground mb-3 tracking-tight">
-            {name} Connected! 🎉
+          <h2 className="text-2xl font-semibold text-foreground mb-2 tracking-tight">
+            {name} connected
           </h2>
-          <p className="text-muted-foreground text-sm leading-relaxed">
-            Your energy data is now linked and earning <span className="text-primary font-medium">$ZSOLAR</span> rewards
+          <p className="text-muted-foreground text-[15px] leading-relaxed">
+            Your energy data is linked and earning <span className="text-primary font-medium">$ZSOLAR</span>.
           </p>
         </motion.div>
 
@@ -168,7 +168,7 @@ export function EnergySuccessScreen({
             transition={{ delay: 0.6 }}
             className="p-4 rounded-xl bg-card/80 backdrop-blur-sm border border-border/60 mb-6"
           >
-            <p className="text-xs text-muted-foreground mb-3 text-center">Connected Energy Accounts</p>
+            <p className="text-xs text-muted-foreground mb-3 text-center">Connected accounts</p>
             <div className="flex justify-center gap-3 flex-wrap">
               {connectedProviders.map((p) => (
                 <div key={p} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/60 border border-border/50">
@@ -198,7 +198,7 @@ export function EnergySuccessScreen({
             className="w-full gap-2 bg-gradient-to-r from-primary to-primary/85 hover:from-primary/95 hover:to-primary/80 shadow-lg shadow-primary/20 h-14 text-base font-semibold"
           >
             <Zap className="w-5 h-5" />
-            Go to Dashboard
+            Open your Clean Energy Center
             <ArrowRight className="w-5 h-5" />
           </Button>
 
@@ -210,7 +210,7 @@ export function EnergySuccessScreen({
             className="w-full gap-2 h-12 border-border/60"
           >
             <Plus className="w-4 h-4" />
-            Add Another Energy Account
+            Add another account
           </Button>
         </motion.div>
       </motion.div>
