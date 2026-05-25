@@ -68,7 +68,7 @@ const CHIPS: { id: ChipId; emoji: string; label: string; phrase: string; group: 
 // small set of brands we actually support so Deason gets a much better signal
 // than "I have solar." Each option carries an ID + a natural-language phrase
 // the prompt composer slots in.
-type BrandOption = { id: string; label: string; phrase: string };
+
 type BrandOption = { id: string; label: string; phrase: string; supported?: boolean };
 // Per-category OEM drill-down. ONLY brands we actually OAuth into today are
 // shown as primary options. Unsupported brands are explicitly labeled so the
