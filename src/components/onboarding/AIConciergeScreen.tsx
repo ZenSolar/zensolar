@@ -352,27 +352,8 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
                     );
                   })}
                 </div>
-                    const active = chips.has(c.id);
-                    return (
-                      <button
-                        key={c.id}
-                        type="button"
-                        onClick={() => toggleChip(c.id)}
-                        disabled={loading}
-                        className={`text-[13px] px-3 py-2 rounded-2xl border transition-all flex items-center gap-1.5 ${
-                          active
-                            ? 'bg-primary/15 border-primary/50 text-foreground shadow-[0_0_18px_hsl(var(--primary)/0.25)]'
-                            : 'bg-card/60 border-border/60 text-muted-foreground hover:text-foreground hover:border-primary/30'
-                        }`}
-                      >
-                        <span aria-hidden>{c.emoji}</span>
-                        <span className="font-medium">{c.label}</span>
-                        {active && <Check className="w-3.5 h-3.5 text-primary" />}
-                      </button>
-                    );
-                  })}
-                </div>
               </div>
+
 
               {/* Optional power-user textarea */}
               <details className="mb-4 group">
