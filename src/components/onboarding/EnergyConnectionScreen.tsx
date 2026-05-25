@@ -103,7 +103,20 @@ export function EnergyConnectionScreen({
   isConnecting,
   connectedProviders = [],
 }: EnergyConnectionScreenProps) {
-  const availableProviders = providers.filter((p) => !connectedProviders.includes(p.id));
+  const planned = useMemo(readPlannedProviders, []);
+
+  // Sort: planned (and not yet connected) first, then the rest.
+  const availableProviders = useMemo(() => {
+    const remaining = providers.filter((p) => !connectedProviders.includes(p.id));
+    return [...remaining].sort((a, b) => {
+      const ai = planned.includes(a.id) ? 0 : 1;
+      const bi = planned.includes(b.id) ? 0 : 1;
+      return ai - bi;
+    });
+  }, [connectedProviders, planned]);
+
+  const plannedRemaining = planned.filter((p) => !connectedProviders.includes(p));
+  const hasConnected = connectedProviders.length > 0;
 
   const handleProviderClick = async (provider: EnergyProvider) => {
     await triggerLightTap();
