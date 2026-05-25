@@ -16,6 +16,7 @@ type Step = {
   eyebrow: string;
   title: string;
   body: string;
+  proof: string[];
 };
 
 const STEPS: Step[] = [
@@ -23,13 +24,15 @@ const STEPS: Step[] = [
     icon: Fingerprint,
     eyebrow: 'Yours alone',
     title: 'Self-custody, secured by Face ID',
-    body: 'Your passkey lives in your device\'s secure enclave. No one at ZenSolar — not even us — can access, freeze, or move your funds.',
+    body: 'Your passkey lives in your device\'s Secure Enclave — the same hardware chip that protects Apple Pay. No one at ZenSolar can access, freeze, or move your funds.',
+    proof: ['Hardware-backed passkey', 'AES-256 at rest', 'TLS 1.3 in transit'],
   },
   {
     icon: LayoutDashboard,
     eyebrow: 'Always one tap away',
     title: 'Find it in your dashboard',
-    body: 'Your balance, rewards, and address live on the home screen. Ready when you are.',
+    body: 'Your balance, rewards, and address live on the home screen. Every mint is anchored on Base — publicly verifiable, forever.',
+    proof: ['On-chain on Base L2', 'Publicly auditable', 'Cannot be altered'],
   },
 ];
 
