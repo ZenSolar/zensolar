@@ -466,33 +466,45 @@ export default function Onboarding() {
   };
 
   const handleWalletSuccessContinue = () => {
-    // Track completion and proceed to AI concierge with animation
+    // Track completion and proceed to OEM selection (Connect What Earns).
     trackOnboardingComplete({ 
       walletType: walletType as 'zensolar' | 'external', 
       hasWallet: true 
     });
-    transitionToStep('ai-concierge');
+    transitionToStep('oem-select');
   };
 
-  // AI Concierge handlers
-  const handleConciergePlanConfirmed = (plan: { providers: ConciergeBrand[]; profile: SetupProfile }) => {
-    // Persist the AI-extracted profile so downstream screens (e.g. HomeChargingSetup) can prefill.
+  // OEM-first flow handlers
+  const handleOemSelectionContinue = (oems: EnergyProvider[]) => {
+    setSelectedOems(oems);
     try {
-      localStorage.setItem('onboarding_setup_profile', JSON.stringify(plan.profile));
-      localStorage.setItem('onboarding_planned_providers', JSON.stringify(plan.providers));
+      localStorage.setItem('onboarding_planned_providers', JSON.stringify(oems));
     } catch {}
-    trackEvent('onboarding_concierge_plan_confirmed', {
-      provider_count: plan.providers.length,
-      confidence: plan.profile.confidence,
+    trackEvent('onboarding_oem_select_continue', {
+      oem_count: oems.length,
+      oems: oems.join(','),
     });
-    toast.success(plan.profile.summary, { duration: 4500 });
+    transitionToStep('device-pairing');
+  };
+
+  const handleOemSelectionSkip = () => {
+    trackEvent('onboarding_oem_select_skipped', {});
+    const returnTo = searchParams.get('returnTo') || '/';
+    navigate(returnTo);
+  };
+
+  const handleDevicePairingContinue = (pairing: DevicePairing) => {
+    trackEvent('onboarding_device_pairing_confirmed', {
+      total_devices: Object.values(pairing).reduce((s, arr) => s + (arr?.length ?? 0), 0),
+    });
     transitionToStep('energy-connect');
   };
 
-  const handleConciergeSkip = () => {
-    trackEvent('onboarding_concierge_skipped', {});
-    transitionToStep('energy-connect');
+  const handleDevicePairingBack = () => {
+    transitionToStep('oem-select');
   };
+
+
 
   const handleEnergyConnect = async (provider: EnergyProvider) => {
     setConnectingProvider(provider);
