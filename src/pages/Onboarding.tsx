@@ -7,7 +7,7 @@ import { OnboardingSuccessScreen } from "@/components/onboarding/OnboardingSucce
 import { EnergyConnectionScreen, EnergyProvider } from "@/components/onboarding/EnergyConnectionScreen";
 import { EnergySuccessScreen } from "@/components/onboarding/EnergySuccessScreen";
 import { HomeChargingSetupScreen } from "@/components/onboarding/HomeChargingSetupScreen";
-import { AIConciergeScreen, SetupProfile, ConciergeBrand } from "@/components/onboarding/AIConciergeScreen";
+import { DevicePairingScreen, DevicePairing } from "@/components/onboarding/DevicePairingScreen";
 import { OnboardingProgress } from "@/components/onboarding/OnboardingProgress";
 import { OnboardingTransition } from "@/components/onboarding/OnboardingTransition";
 import { EnphaseCodeDialog } from "@/components/dashboard/EnphaseCodeDialog";
@@ -35,7 +35,8 @@ type OnboardingStep =
   | 'zensolar-setup' 
   | 'external-wallet' 
   | 'wallet-success'
-  | 'ai-concierge'
+  | 'oem-select'
+  | 'device-pairing'
   | 'energy-connect'
   | 'home-charging-setup'
   | 'energy-success'
@@ -53,10 +54,9 @@ function getStepNumber(step: OnboardingStep): number {
       return 2;
     case 'wallet-success':
       return 2; // Still step 2 (completing wallet)
-    case 'ai-concierge':
-      return 3;
+    case 'oem-select':
+    case 'device-pairing':
     case 'energy-connect':
-      return 3;
     case 'device-selection':
       return 3;
     case 'energy-success':
@@ -77,6 +77,8 @@ export default function Onboarding() {
   const [deviceSelectionProvider, setDeviceSelectionProvider] = useState<'tesla' | 'enphase'>('tesla');
   const [teslaVehicleForHomeSetup, setTeslaVehicleForHomeSetup] = useState<{ deviceId: string; name?: string } | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  // OEMs the user picked on Connect What Earns — drives the OAuth phase tile list.
+  const [selectedOems, setSelectedOems] = useState<EnergyProvider[]>([]);
   
   // Dialog states for credential-based providers
   const [showEnphaseDialog, setShowEnphaseDialog] = useState(false);
@@ -197,11 +199,11 @@ export default function Onboarding() {
   }, [connectingProvider, showEnphaseDialog, showDeviceSelection]);
 
   // Check if we should skip to a specific step or handle OAuth callback
-  // Hide global Deason bubble during the full-screen AI Concierge intake
+  // Hide global Deason bubble during the full-screen pairing step
   // (the screen IS Deason — bubble would be redundant). All other onboarding
   // steps keep the bubble available as a minimizable helper.
   useEffect(() => {
-    if (step === 'ai-concierge') {
+    if (step === 'device-pairing') {
       document.body.dataset.hideDeasonBubble = '1';
     } else {
       delete document.body.dataset.hideDeasonBubble;
@@ -236,11 +238,11 @@ export default function Onboarding() {
     }
 
     // Demo/preview deep-link — jump straight to any onboarding step.
-    // Usage: /onboarding?preview=energy-connect (or ai-concierge, wallet-success, energy-success, home-charging-setup)
+    // Usage: /onboarding?preview=oem-select (or device-pairing, energy-connect, wallet-success, energy-success, home-charging-setup)
     const preview = searchParams.get('preview') as OnboardingStep | null;
     const validPreviewSteps: OnboardingStep[] = [
       'wallet-choice', 'zensolar-setup', 'external-wallet', 'wallet-success',
-      'ai-concierge', 'energy-connect', 'home-charging-setup', 'energy-success', 'device-selection'
+      'oem-select', 'device-pairing', 'energy-connect', 'home-charging-setup', 'energy-success', 'device-selection'
     ];
     if (preview && validPreviewSteps.includes(preview)) {
       setStep(preview);
@@ -280,8 +282,8 @@ export default function Onboarding() {
       case 'skip':
         setWalletType('skipped');
         trackWalletSkipped();
-        // Skip directly to AI concierge
-        setStep('ai-concierge');
+        // Skip directly to OEM selection (Connect What Earns).
+        setStep('oem-select');
         break;
     }
   };
@@ -464,33 +466,45 @@ export default function Onboarding() {
   };
 
   const handleWalletSuccessContinue = () => {
-    // Track completion and proceed to AI concierge with animation
+    // Track completion and proceed to OEM selection (Connect What Earns).
     trackOnboardingComplete({ 
       walletType: walletType as 'zensolar' | 'external', 
       hasWallet: true 
     });
-    transitionToStep('ai-concierge');
+    transitionToStep('oem-select');
   };
 
-  // AI Concierge handlers
-  const handleConciergePlanConfirmed = (plan: { providers: ConciergeBrand[]; profile: SetupProfile }) => {
-    // Persist the AI-extracted profile so downstream screens (e.g. HomeChargingSetup) can prefill.
+  // OEM-first flow handlers
+  const handleOemSelectionContinue = (oems: EnergyProvider[]) => {
+    setSelectedOems(oems);
     try {
-      localStorage.setItem('onboarding_setup_profile', JSON.stringify(plan.profile));
-      localStorage.setItem('onboarding_planned_providers', JSON.stringify(plan.providers));
+      localStorage.setItem('onboarding_planned_providers', JSON.stringify(oems));
     } catch {}
-    trackEvent('onboarding_concierge_plan_confirmed', {
-      provider_count: plan.providers.length,
-      confidence: plan.profile.confidence,
+    trackEvent('onboarding_oem_select_continue', {
+      oem_count: oems.length,
+      oems: oems.join(','),
     });
-    toast.success(plan.profile.summary, { duration: 4500 });
+    transitionToStep('device-pairing');
+  };
+
+  const handleOemSelectionSkip = () => {
+    trackEvent('onboarding_oem_select_skipped', {});
+    const returnTo = searchParams.get('returnTo') || '/';
+    navigate(returnTo);
+  };
+
+  const handleDevicePairingContinue = (pairing: DevicePairing) => {
+    trackEvent('onboarding_device_pairing_confirmed', {
+      total_devices: Object.values(pairing).reduce((s, arr) => s + (arr?.length ?? 0), 0),
+    });
     transitionToStep('energy-connect');
   };
 
-  const handleConciergeSkip = () => {
-    trackEvent('onboarding_concierge_skipped', {});
-    transitionToStep('energy-connect');
+  const handleDevicePairingBack = () => {
+    transitionToStep('oem-select');
   };
+
+
 
   const handleEnergyConnect = async (provider: EnergyProvider) => {
     setConnectingProvider(provider);
@@ -669,9 +683,9 @@ export default function Onboarding() {
   };
 
   const handleEnergyBack = () => {
-    // Go back to the AI concierge (the prior step) — never back to wallet-choice
+    // Go back to the Deason pairing step — never back to wallet-choice
     // since the wallet has already been created/skipped.
-    transitionToStep('ai-concierge');
+    transitionToStep('device-pairing');
   };
 
   const handleAddAnotherEnergy = () => {
@@ -749,9 +763,10 @@ export default function Onboarding() {
       case 'external-wallet': return 'wallet-choice';
       // Wallet exists — can't unwind wallet creation itself, but can step back through later screens.
       case 'wallet-success': return null;
-      case 'ai-concierge': return 'wallet-success';
+      case 'oem-select': return 'wallet-success';
+      case 'device-pairing': return 'oem-select';
       case 'energy-connect':
-      case 'device-selection': return 'ai-concierge';
+      case 'device-selection': return 'device-pairing';
       case 'home-charging-setup': return 'energy-connect';
       case 'energy-success': return null;
       default: return null;
@@ -824,16 +839,28 @@ export default function Onboarding() {
         </div>
       )}
 
-      {step === 'ai-concierge' && (
+      {step === 'oem-select' && (
         <div className="pt-24">
-          <AIConciergeScreen
-            onPlanConfirmed={handleConciergePlanConfirmed}
-            onSkipToManual={handleConciergeSkip}
+          <EnergyConnectionScreen
+            onConnect={() => { /* selection mode — handled via onContinueSelection */ }}
+            onSkip={handleOemSelectionSkip}
+            selectionMode
+            initialSelection={selectedOems}
+            onContinueSelection={handleOemSelectionContinue}
+            connectedProviders={connectedProviders}
           />
         </div>
       )}
 
-
+      {step === 'device-pairing' && (
+        <div className="pt-24">
+          <DevicePairingScreen
+            selectedOems={selectedOems.length > 0 ? selectedOems : ['tesla']}
+            onContinue={handleDevicePairingContinue}
+            onBack={handleDevicePairingBack}
+          />
+        </div>
+      )}
 
       {(step === 'energy-connect' || step === 'device-selection') && (
         <div className="pt-24">
@@ -844,6 +871,13 @@ export default function Onboarding() {
             onAskDeason={() => window.dispatchEvent(new Event('deason:open'))}
             isConnecting={connectingProvider}
             connectedProviders={connectedProviders}
+            restrictTo={selectedOems.length > 0 ? selectedOems : undefined}
+            titleOverride={connectedProviders.length === 0 ? 'Connect your gear' : undefined}
+            subtitleOverride={
+              connectedProviders.length === 0 && selectedOems.length > 0
+                ? 'Tap each brand to sign in. We\u2019ll do the rest.'
+                : undefined
+            }
           />
 
         </div>

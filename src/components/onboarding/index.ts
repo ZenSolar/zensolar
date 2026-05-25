@@ -11,5 +11,8 @@ export { OnboardingTransition } from './OnboardingTransition';
 export { OnboardingAnimatedContent, OnboardingAnimatedItem } from './OnboardingAnimatedContent';
 export { HomeChargingSetupScreen } from './HomeChargingSetupScreen';
 export type { HomeChargingSource, HomeSetupType } from './HomeChargingSetupScreen';
-export { AIConciergeScreen } from './AIConciergeScreen';
-export type { SetupProfile, ConciergeBrand } from './AIConciergeScreen';
+export { DevicePairingScreen } from './DevicePairingScreen';
+export type { DevicePairing, DeviceCapability } from './DevicePairingScreen';
+// NOTE: AIConciergeScreen has been retired from the active onboarding flow
+// (replaced by Connect What Earns \u2192 Deason device pairing). The file is kept
+// in this directory in case we ever want to revive the manual/dictated intake.

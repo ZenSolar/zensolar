@@ -1,0 +1,325 @@
+import { useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
+import { ArrowRight, ArrowLeft, Check, Sparkles, AlertTriangle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { triggerLightTap } from '@/hooks/useHaptics';
+import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+import teslaLogo from '@/assets/logos/tesla-t-icon.png';
+import enphaseLogo from '@/assets/logos/enphase-brand.png';
+import solaredgeLogo from '@/assets/logos/solaredge-logo.png';
+import wallboxLogo from '@/assets/logos/wallbox-logo.png';
+import type { EnergyProvider } from './EnergyConnectionScreen';
+
+/**
+ * DevicePairingScreen — The "Deason" pairing step.
+ *
+ * After the user multi-selects OEMs on Connect What Earns, they land here.
+ * Deason asks: "which devices do you actually have from each brand?"
+ * The user checks the boxes (Solar / Battery / EV) for each selected OEM.
+ * The result is persisted to localStorage so the OAuth phase can use it.
+ *
+ * Tesla is the only supported EV OEM — there is no "Other EV" path.
+ */
+
+export type DeviceCapability = 'solar' | 'battery' | 'ev';
+
+export type DevicePairing = Record<EnergyProvider, DeviceCapability[]>;
+
+interface OEMConfig {
+  id: EnergyProvider;
+  name: string;
+  logo: string;
+  blurb: string;
+  // Capabilities the OEM can connect — only these checkboxes render.
+  available: DeviceCapability[];
+  // Pre-checked by default (what users with this OEM most commonly own).
+  defaults: DeviceCapability[];
+}
+
+const OEMS: Record<EnergyProvider, OEMConfig> = {
+  tesla: {
+    id: 'tesla',
+    name: 'Tesla',
+    logo: teslaLogo,
+    blurb: 'Powerwall, Solar Roof/Panels & Vehicles',
+    available: ['solar', 'battery', 'ev'],
+    defaults: ['battery', 'ev'],
+  },
+  enphase: {
+    id: 'enphase',
+    name: 'Enphase',
+    logo: enphaseLogo,
+    blurb: 'Microinverters & IQ Battery',
+    available: ['solar', 'battery'],
+    defaults: ['solar'],
+  },
+  solaredge: {
+    id: 'solaredge',
+    name: 'SolarEdge',
+    logo: solaredgeLogo,
+    blurb: 'PV Inverters, Battery & EV Charger',
+    available: ['solar', 'battery', 'ev'],
+    defaults: ['solar'],
+  },
+  wallbox: {
+    id: 'wallbox',
+    name: 'Wallbox',
+    logo: wallboxLogo,
+    blurb: 'Home EV charger',
+    available: ['ev'],
+    defaults: ['ev'],
+  },
+};
+
+const CAPABILITY_META: Record<DeviceCapability, { label: string; emoji: string; tint: string }> = {
+  solar: { label: 'Solar', emoji: '☀️', tint: 'text-blue-300 border-blue-500/30 bg-blue-500/10' },
+  battery: { label: 'Battery', emoji: '🔋', tint: 'text-purple-300 border-purple-500/30 bg-purple-500/10' },
+  ev: { label: 'EV', emoji: '🚗', tint: 'text-emerald-300 border-emerald-500/30 bg-emerald-500/10' },
+};
+
+interface DevicePairingScreenProps {
+  selectedOems: EnergyProvider[];
+  onContinue: (pairing: DevicePairing) => void;
+  onBack?: () => void;
+}
+
+export function DevicePairingScreen({
+  selectedOems,
+  onContinue,
+  onBack,
+}: DevicePairingScreenProps) {
+  // Seed state from defaults for every selected OEM.
+  const initial = useMemo<DevicePairing>(() => {
+    const m: Partial<DevicePairing> = {};
+    selectedOems.forEach((oem) => {
+      m[oem] = [...OEMS[oem].defaults];
+    });
+    return m as DevicePairing;
+  }, [selectedOems]);
+
+  const [pairing, setPairing] = useState<DevicePairing>(initial);
+
+  const toggle = async (oem: EnergyProvider, cap: DeviceCapability) => {
+    await triggerLightTap();
+    setPairing((prev) => {
+      const current = prev[oem] ?? [];
+      const next = current.includes(cap)
+        ? current.filter((c) => c !== cap)
+        : [...current, cap];
+      return { ...prev, [oem]: next };
+    });
+  };
+
+  // Total number of devices the user has mapped across all OEMs.
+  const totalDevices = selectedOems.reduce(
+    (sum, oem) => sum + (pairing[oem]?.length ?? 0),
+    0
+  );
+
+  // At least one OEM must have at least one device checked.
+  const canContinue = totalDevices > 0;
+
+  // Detect Wallbox without Tesla EV — Wallbox pairs with Tesla, useful hint.
+  const wallboxNoTesla =
+    selectedOems.includes('wallbox') &&
+    (!selectedOems.includes('tesla') || !(pairing.tesla ?? []).includes('ev'));
+
+  const handleContinue = async () => {
+    if (!canContinue) return;
+    await triggerLightTap();
+    try {
+      localStorage.setItem('onboarding_device_pairing', JSON.stringify(pairing));
+      // Keep planned_providers in sync so downstream screens (EnergyConnectionScreen)
+      // still get their "Recommended for you" highlights & checklist.
+      localStorage.setItem(
+        'onboarding_planned_providers',
+        JSON.stringify(selectedOems)
+      );
+    } catch {
+      /* ignore quota / privacy mode */
+    }
+    onContinue(pairing);
+  };
+
+  const handleBack = async () => {
+    await triggerLightTap();
+    onBack?.();
+  };
+
+  return (
+    <div className="min-h-screen bg-background text-foreground flex flex-col relative overflow-hidden">
+      {/* Ambient glow */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <motion.div
+          className="absolute -top-24 left-1/2 -translate-x-1/2 w-80 h-80 rounded-full bg-amber-500/10 blur-[110px]"
+          animate={{ opacity: [0.4, 0.7, 0.4], scale: [1, 1.05, 1] }}
+          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      </div>
+
+      {/* Header */}
+      <header className="relative z-10 flex items-center justify-between px-5 pt-6">
+        {onBack ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleBack}
+            className="gap-1 -ml-2 text-muted-foreground hover:text-foreground h-9"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </Button>
+        ) : (
+          <div className="w-16" />
+        )}
+        <img
+          src={zenLogo}
+          alt="ZenSolar"
+          className="h-6 w-auto opacity-90 dark:drop-shadow-[0_0_18px_rgba(34,197,94,0.25)]"
+        />
+        <div className="w-16" />
+      </header>
+
+      {/* Deason hero */}
+      <section className="relative z-10 flex flex-col items-center pt-4 pb-1 px-6">
+        <motion.div
+          initial={{ scale: 0.6, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 200, damping: 18 }}
+          className="relative w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-[0_0_40px_rgba(251,191,36,0.45)] ring-2 ring-amber-300/40"
+        >
+          <Sparkles className="w-7 h-7 text-black" strokeWidth={2.25} />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.12 }}
+          className="mt-5 text-center"
+        >
+          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-amber-300/80">
+            Deason · pairing
+          </p>
+          <h1 className="mt-1 text-[26px] leading-tight font-semibold tracking-tight bg-gradient-to-b from-foreground to-foreground/55 bg-clip-text text-transparent">
+            What do you have from each?
+          </h1>
+          <p className="mt-2 text-[13px] text-muted-foreground max-w-[320px] mx-auto">
+            Check every device you own. I'll connect them in the next step.
+          </p>
+        </motion.div>
+      </section>
+
+      {/* OEM cards */}
+      <section className="relative z-10 flex-1 px-5 pt-5 pb-44 space-y-3 overflow-y-auto">
+        {selectedOems.map((oemId, idx) => {
+          const oem = OEMS[oemId];
+          const checked = pairing[oemId] ?? [];
+          return (
+            <motion.div
+              key={oemId}
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 + idx * 0.07 }}
+              className="p-4 rounded-3xl border border-white/8"
+              style={{
+                background:
+                  'linear-gradient(135deg, hsl(var(--card) / 0.7) 0%, hsl(var(--background) / 0.85) 100%)',
+              }}
+            >
+              {/* OEM header */}
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl shrink-0 shadow-md ring-1 ring-white/10 bg-[#1a1a1a] flex items-center justify-center p-1.5">
+                  <img
+                    src={oem.logo}
+                    alt={`${oem.name} logo`}
+                    className="max-w-full max-h-full object-contain"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-base text-foreground truncate">
+                    {oem.name}
+                  </h3>
+                  <p className="text-[11px] text-muted-foreground truncate">
+                    {oem.blurb}
+                  </p>
+                </div>
+              </div>
+
+              {/* Capability checkboxes */}
+              <div className="mt-3 grid grid-cols-1 gap-2">
+                {oem.available.map((cap) => {
+                  const isChecked = checked.includes(cap);
+                  const meta = CAPABILITY_META[cap];
+                  return (
+                    <button
+                      key={cap}
+                      onClick={() => toggle(oemId, cap)}
+                      aria-pressed={isChecked}
+                      className={`w-full flex items-center gap-3 p-3 rounded-2xl border text-left transition-all ${
+                        isChecked
+                          ? 'border-primary bg-primary/10 shadow-[0_0_18px_hsl(var(--primary)/0.22)]'
+                          : 'border-white/8 bg-white/2 hover:border-primary/40'
+                      }`}
+                    >
+                      <span className="text-xl shrink-0" aria-hidden="true">
+                        {meta.emoji}
+                      </span>
+                      <span className="flex-1 text-[14px] font-medium text-foreground">
+                        {meta.label}
+                        {cap === 'ev' && oemId === 'tesla' && (
+                          <span className="ml-2 text-[10px] font-semibold text-emerald-300 uppercase tracking-wider">
+                            Tesla EVs only
+                          </span>
+                        )}
+                      </span>
+                      <div
+                        className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 border-2 transition-all ${
+                          isChecked
+                            ? 'bg-primary border-primary'
+                            : 'border-white/25 bg-transparent'
+                        }`}
+                      >
+                        {isChecked && (
+                          <Check className="w-3.5 h-3.5 text-primary-foreground" strokeWidth={3} />
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          );
+        })}
+
+        {/* Wallbox-without-Tesla advisory */}
+        {wallboxNoTesla && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-3 rounded-2xl bg-amber-500/8 border border-amber-500/25 flex items-start gap-2.5"
+          >
+            <AlertTriangle className="w-4 h-4 text-amber-300 mt-0.5 shrink-0" />
+            <p className="text-[12px] text-amber-100/85 leading-relaxed">
+              Wallbox pairs best with Tesla today. We'll still connect it — just
+              know that Tesla is the only EV brand Deason can verify right now.
+            </p>
+          </motion.div>
+        )}
+      </section>
+
+      {/* Sticky bottom CTA */}
+      <div className="absolute bottom-0 inset-x-0 z-20 px-5 pb-6 pt-12 bg-gradient-to-t from-background via-background/95 to-transparent">
+        <Button
+          onClick={handleContinue}
+          disabled={!canContinue}
+          className="w-full h-12 text-base font-semibold rounded-2xl bg-gradient-to-br from-primary to-primary/80 hover:from-primary hover:to-primary text-primary-foreground shadow-[0_0_28px_hsl(var(--primary)/0.35)] disabled:opacity-40 disabled:shadow-none"
+        >
+          {canContinue
+            ? `Connect ${totalDevices} device${totalDevices === 1 ? '' : 's'}`
+            : 'Check at least one device'}
+          <ArrowRight className="w-4 h-4 ml-1" />
+        </Button>
+      </div>
+    </div>
+  );
+}

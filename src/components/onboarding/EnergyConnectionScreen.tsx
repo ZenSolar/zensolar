@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Loader2, X, ArrowLeft, Sparkles, Zap, CheckCircle2, Info } from 'lucide-react';
+import { ArrowRight, Loader2, X, ArrowLeft, Sparkles, Zap, CheckCircle2, Info, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { triggerLightTap } from '@/hooks/useHaptics';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
@@ -24,6 +24,21 @@ interface EnergyConnectionScreenProps {
   onAskDeason?: () => void;
   isConnecting?: EnergyProvider | null;
   connectedProviders?: string[];
+  /**
+   * Selection mode: tapping tiles toggles selection instead of launching OAuth.
+   * Used by the new OEM-first onboarding flow (Connect What Earns → Deason pairing → OAuth).
+   */
+  selectionMode?: boolean;
+  /** Pre-selected OEMs in selection mode (e.g. from a prior visit). */
+  initialSelection?: EnergyProvider[];
+  /** Called when the user taps the "Continue" CTA in selection mode. */
+  onContinueSelection?: (selected: EnergyProvider[]) => void;
+  /** Restrict the tile list to a subset of OEMs (used in OAuth phase after pairing). */
+  restrictTo?: EnergyProvider[];
+  /** Override the headline title (e.g. "Connect your gear" during OAuth phase). */
+  titleOverride?: string;
+  /** Override the subtitle. */
+  subtitleOverride?: string;
 }
 
 const capabilityStyles: Record<Capability, string> = {
@@ -100,25 +115,50 @@ export function EnergyConnectionScreen({
   onAskDeason,
   isConnecting,
   connectedProviders = [],
+  selectionMode = false,
+  initialSelection = [],
+  onContinueSelection,
+  restrictTo,
+  titleOverride,
+  subtitleOverride,
 }: EnergyConnectionScreenProps) {
   const planned = useMemo(readPlannedProviders, []);
+  const [selected, setSelected] = useState<EnergyProvider[]>(initialSelection);
 
   // Sort: planned (and not yet connected) first, then the rest.
+  // Also apply restrictTo filter if provided (OAuth phase shows only chosen OEMs).
   const availableProviders = useMemo(() => {
-    const remaining = providers.filter((p) => !connectedProviders.includes(p.id));
+    let remaining = providers.filter((p) => !connectedProviders.includes(p.id));
+    if (restrictTo && restrictTo.length > 0) {
+      remaining = remaining.filter((p) => restrictTo.includes(p.id));
+    }
     return [...remaining].sort((a, b) => {
       const ai = planned.includes(a.id) ? 0 : 1;
       const bi = planned.includes(b.id) ? 0 : 1;
       return ai - bi;
     });
-  }, [connectedProviders, planned]);
+  }, [connectedProviders, planned, restrictTo]);
 
   const plannedRemaining = planned.filter((p) => !connectedProviders.includes(p));
   const hasConnected = connectedProviders.length > 0;
 
   const handleProviderClick = async (provider: EnergyProvider) => {
     await triggerLightTap();
+    if (selectionMode) {
+      setSelected((prev) =>
+        prev.includes(provider)
+          ? prev.filter((p) => p !== provider)
+          : [...prev, provider]
+      );
+      return;
+    }
     onConnect(provider);
+  };
+
+  const handleContinueSelection = async () => {
+    if (selected.length === 0) return;
+    await triggerLightTap();
+    onContinueSelection?.(selected);
   };
 
   const handleSkip = async () => {
@@ -230,12 +270,18 @@ export function EnergyConnectionScreen({
           className="mt-8 text-center"
         >
           <h1 className="text-3xl font-semibold tracking-tight bg-gradient-to-b from-foreground to-foreground/55 bg-clip-text text-transparent">
-            {hasConnected ? 'Connect another' : 'Connect what earns'}
+            {titleOverride ?? (hasConnected ? 'Connect another' : 'Connect what earns')}
           </h1>
           <p className="mt-2 text-[14px] text-muted-foreground max-w-[300px] mx-auto">
-            {hasConnected
-              ? <>More gear = more <span className="text-primary font-semibold">$ZSOLAR</span>.</>
-              : <>One tap each. You can always add more later.</>}
+            {subtitleOverride ? (
+              subtitleOverride
+            ) : selectionMode ? (
+              <>Tap every brand you own. We&apos;ll map devices next.</>
+            ) : hasConnected ? (
+              <>More gear = more <span className="text-primary font-semibold">$ZSOLAR</span>.</>
+            ) : (
+              <>One tap each. You can always add more later.</>
+            )}
           </p>
         </motion.div>
       </section>
@@ -302,6 +348,7 @@ export function EnergyConnectionScreen({
         {availableProviders.map((provider, index) => {
           const isLoading = isConnecting === provider.id;
           const isPlanned = planned.includes(provider.id);
+          const isSelected = selectionMode && selected.includes(provider.id);
           return (
             <motion.button
               key={provider.id}
@@ -311,13 +358,21 @@ export function EnergyConnectionScreen({
               whileTap={{ scale: 0.98 }}
               onClick={() => handleProviderClick(provider.id)}
               disabled={!!isConnecting}
-              className={`group relative w-full p-4 rounded-3xl flex items-center gap-4 text-left transition-all duration-200 border ${isPlanned ? 'border-primary/40 shadow-[0_0_22px_hsl(var(--primary)/0.18)]' : 'border-white/5 hover:border-primary/40 hover:shadow-[0_0_25px_hsl(var(--primary)/0.15)]'} disabled:opacity-50 disabled:cursor-not-allowed`}
+              aria-pressed={selectionMode ? isSelected : undefined}
+              className={`group relative w-full p-4 rounded-3xl flex items-center gap-4 text-left transition-all duration-200 border ${
+                isSelected
+                  ? 'border-primary shadow-[0_0_30px_hsl(var(--primary)/0.35)]'
+                  : isPlanned
+                    ? 'border-primary/40 shadow-[0_0_22px_hsl(var(--primary)/0.18)]'
+                    : 'border-white/5 hover:border-primary/40 hover:shadow-[0_0_25px_hsl(var(--primary)/0.15)]'
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
               style={{
-                background:
-                  'linear-gradient(135deg, hsl(var(--card) / 0.7) 0%, hsl(var(--background) / 0.85) 100%)',
+                background: isSelected
+                  ? 'linear-gradient(135deg, hsl(var(--primary) / 0.12) 0%, hsl(var(--background) / 0.9) 100%)'
+                  : 'linear-gradient(135deg, hsl(var(--card) / 0.7) 0%, hsl(var(--background) / 0.85) 100%)',
               }}
             >
-              {isPlanned && (
+              {isPlanned && !selectionMode && (
                 <span className="absolute -top-2 left-4 px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-[9px] font-bold uppercase tracking-wider shadow-md shadow-primary/30">
                   Recommended for you
                 </span>
@@ -350,7 +405,17 @@ export function EnergyConnectionScreen({
                   {provider.description}
                 </p>
               </div>
-              {isLoading ? (
+              {selectionMode ? (
+                <div
+                  className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 border-2 transition-all ${
+                    isSelected
+                      ? 'bg-primary border-primary shadow-[0_0_14px_hsl(var(--primary)/0.55)]'
+                      : 'border-white/20 bg-transparent'
+                  }`}
+                >
+                  {isSelected && <Check className="w-4 h-4 text-primary-foreground" strokeWidth={3} />}
+                </div>
+              ) : isLoading ? (
                 <Loader2 className="w-5 h-5 text-primary animate-spin shrink-0" />
               ) : (
                 <ArrowRight className="w-5 h-5 text-muted-foreground/60 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
@@ -386,6 +451,34 @@ export function EnergyConnectionScreen({
                 Cancel
               </Button>
               <p className="text-xs text-muted-foreground mt-1">Waiting for authorization…</p>
+            </motion.div>
+          ) : selectionMode ? (
+            <motion.div
+              key="select-continue"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              <Button
+                onClick={handleContinueSelection}
+                disabled={selected.length === 0}
+                className="w-full h-12 text-base font-semibold rounded-2xl bg-gradient-to-br from-primary to-primary/80 hover:from-primary hover:to-primary text-primary-foreground shadow-[0_0_28px_hsl(var(--primary)/0.35)] disabled:opacity-40 disabled:shadow-none"
+              >
+                {selected.length === 0
+                  ? 'Pick at least one brand'
+                  : `Continue with ${selected.length} selected`}
+                <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
+              <div className="mt-3 flex justify-center">
+                <Button
+                  variant="ghost"
+                  onClick={handleSkip}
+                  className="text-muted-foreground hover:text-foreground gap-2 h-9 text-xs"
+                >
+                  I don&apos;t have any of these yet
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Button>
+              </div>
             </motion.div>
           ) : (
             <motion.div
