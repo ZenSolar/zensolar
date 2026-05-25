@@ -7,6 +7,18 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { triggerLightTap, triggerSuccess } from '@/hooks/useHaptics';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+import teslaLogo from '@/assets/logos/tesla-t-icon.png';
+import enphaseLogo from '@/assets/logos/enphase-brand.png';
+import solaredgeLogo from '@/assets/logos/solaredge-logo.png';
+import wallboxLogo from '@/assets/logos/wallbox-logo.png';
+
+const BRAND_LOGOS: Record<string, string> = {
+  tesla: teslaLogo,
+  tesla_wall_connector: teslaLogo,
+  enphase: enphaseLogo,
+  solaredge: solaredgeLogo,
+  wallbox: wallboxLogo,
+};
 
 export type ConciergeBrand = 'tesla' | 'enphase' | 'solaredge' | 'wallbox' | null;
 
@@ -321,23 +333,31 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
                             {options.map((opt) => {
                               const isOn = selected === opt.id;
                               const isSupported = opt.supported === true;
-                              return (
-                                <button
-                                  key={opt.id}
-                                  type="button"
-                                  onClick={() => pickBrand(id, opt.id)}
-                                  disabled={loading}
-                                  className={`text-[12px] px-2.5 py-1.5 rounded-full border transition-all ${
-                                    isOn
-                                      ? 'bg-amber-500/15 border-amber-500/60 text-amber-200'
-                                      : isSupported
-                                      ? 'bg-card/40 border-border/50 text-muted-foreground hover:text-foreground hover:border-amber-500/30'
-                                      : 'bg-card/20 border-dashed border-border/40 text-muted-foreground/70 hover:text-muted-foreground'
-                                  }`}
-                                >
-                                  {opt.label}
-                                </button>
-                              );
+                               const logo = BRAND_LOGOS[opt.id];
+                               return (
+                                 <button
+                                   key={opt.id}
+                                   type="button"
+                                   onClick={() => pickBrand(id, opt.id)}
+                                   disabled={loading}
+                                   className={`text-[12px] pl-1 pr-2.5 py-1 rounded-full border transition-all flex items-center gap-1.5 ${
+                                     isOn
+                                       ? 'bg-amber-500/15 border-amber-500/60 text-amber-200'
+                                       : isSupported
+                                       ? 'bg-card/40 border-border/50 text-muted-foreground hover:text-foreground hover:border-amber-500/30'
+                                       : 'bg-card/20 border-dashed border-border/40 text-muted-foreground/70 hover:text-muted-foreground'
+                                   }`}
+                                 >
+                                   {logo ? (
+                                     <span className="w-5 h-5 rounded-full bg-[#1a1a1a] ring-1 ring-white/10 flex items-center justify-center overflow-hidden shrink-0">
+                                       <img src={logo} alt="" loading="lazy" className="w-3.5 h-3.5 object-contain" />
+                                     </span>
+                                   ) : (
+                                     <span className="w-5 h-5" />
+                                   )}
+                                   {opt.label}
+                                 </button>
+                               );
                             })}
                           </div>
                           <p className="text-[10.5px] text-muted-foreground/80 mt-1.5 px-1 leading-snug">
