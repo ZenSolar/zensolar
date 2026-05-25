@@ -924,6 +924,12 @@ export function useDashboardData() {
         const teslaBatteryWhTotal = sum(teslaDevices.filter((d) => isBatteryDevice(d.device_type)), (d) => lifetimeBatteryWh(d.lifetime_totals));
         const teslaBatteryWhPending = sum(teslaDevices.filter((d) => isBatteryDevice(d.device_type)), (d) => Math.max(0, lifetimeBatteryWh(d.lifetime_totals) - baselineBatteryWh(d.baseline_data)));
 
+        // Enphase/SolarEdge merge battery_discharge_wh onto the solar device row (no separate battery device).
+        const enphaseBatteryWhTotal = sum(enphaseSolarDevices, (d) => lifetimeBatteryWh(d.lifetime_totals));
+        const enphaseBatteryWhPending = sum(enphaseSolarDevices, (d) => Math.max(0, lifetimeBatteryWh(d.lifetime_totals) - baselineBatteryWh(d.baseline_data)));
+        const solaredgeBatteryWhTotal = sum(solaredgeSolarDevices, (d) => lifetimeBatteryWh(d.lifetime_totals));
+        const solaredgeBatteryWhPending = sum(solaredgeSolarDevices, (d) => Math.max(0, lifetimeBatteryWh(d.lifetime_totals) - baselineBatteryWh(d.baseline_data)));
+
         const teslaVehicleMilesTotal = sum(teslaDevices.filter((d) => isVehicleDevice(d.device_type)), (d) => Number(d.lifetime_totals?.odometer || 0));
         const teslaVehicleMilesPending = sum(teslaDevices.filter((d) => isVehicleDevice(d.device_type)), (d) => Math.max(0, Number(d.lifetime_totals?.odometer || 0) - Number(d.baseline_data?.odometer || 0)));
 
@@ -943,11 +949,32 @@ export function useDashboardData() {
             ? solaredgePendingWh
             : teslaSolarWhPending;
 
+        // Battery provider priority: Tesla (Powerwall) > Enphase (IQ Battery) > SolarEdge.
+        // Source of truth = whichever OEM actually owns the storage hardware. Never sum across providers.
+        const batteryLifetimeWh = profileConnections?.tesla_connected && teslaBatteryWhTotal > 0
+          ? teslaBatteryWhTotal
+          : profileConnections?.enphase_connected && enphaseBatteryWhTotal > 0
+            ? enphaseBatteryWhTotal
+            : solaredgeBatteryWhTotal;
+
+        const batteryPendingWh = profileConnections?.tesla_connected && teslaBatteryWhTotal > 0
+          ? teslaBatteryWhPending
+          : profileConnections?.enphase_connected && enphaseBatteryWhTotal > 0
+            ? enphaseBatteryWhPending
+            : solaredgeBatteryWhPending;
+
+        const batteryProvider: 'tesla' | 'enphase' | 'solaredge' | null =
+          (profileConnections?.tesla_connected && teslaBatteryWhTotal > 0) ? 'tesla'
+          : (profileConnections?.enphase_connected && enphaseBatteryWhTotal > 0) ? 'enphase'
+          : solaredgeBatteryWhTotal > 0 ? 'solaredge'
+          : null;
+
         return {
           solarLifetimeKwh: solarLifetimeWh / 1000,
           solarPendingKwh: solarPendingWh / 1000,
-          batteryLifetimeKwh: teslaBatteryWhTotal / 1000,
-          batteryPendingKwh: teslaBatteryWhPending / 1000,
+          batteryLifetimeKwh: batteryLifetimeWh / 1000,
+          batteryPendingKwh: batteryPendingWh / 1000,
+          batteryProvider,
           evMilesLifetime: teslaVehicleMilesTotal,
           evMilesPending: teslaVehicleMilesPending,
           chargingKwhLifetime: teslaChargingKwhTotal,
