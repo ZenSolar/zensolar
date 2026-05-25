@@ -221,13 +221,12 @@ function computeEvMilesDaily(rows: ProductionRow[]): Map<string, { kwh: number; 
 }
 
 /**
- * EV CHARGING: Supercharger from `charging_sessions` + Home AC from
- * `home_charging_sessions`. Matches the KPI exactly — does NOT read from
- * `energy_production` to avoid double-counting (Tesla writes both).
+ * SUPERCHARGER: Tesla DC fast-charging only — from `charging_sessions`
+ * (rows with charging_type='supercharger'). Mirrors the dashboard's
+ * "Supercharger kWh" KPI exactly.
  */
-function computeChargingDaily(
+function computeSuperchargerDaily(
   superchargerRows: ChargingSessionRow[],
-  homeRows: HomeSessionRow[],
 ): Map<string, { kwh: number; providers: Set<string> }> {
   const dailyByDay = new Map<string, number>();
   const providersByDay = new Map<string, Set<string>>();
@@ -240,13 +239,24 @@ function computeChargingDaily(
     addToDay(dailyByDay, providersByDay, dayKey, kwh, 'tesla_supercharger');
   }
 
+  return mergeMaps(dailyByDay, providersByDay);
+}
+
+/**
+ * HOME CHARGING: Wall Connector / Wallbox / Tesla AC at home only — from
+ * `home_charging_sessions`. Mirrors the dashboard's "Home Charging kWh" KPI.
+ * Never combined with supercharger anywhere in UX or data pulls.
+ */
+function computeHomeChargingDaily(
+  homeRows: HomeSessionRow[],
+): Map<string, { kwh: number; providers: Set<string> }> {
+  const dailyByDay = new Map<string, number>();
+  const providersByDay = new Map<string, Set<string>>();
+
   for (const h of homeRows) {
     const kwh = Number(h.total_session_kwh || 0);
     if (kwh <= 0) continue;
     const dayKey = format(new Date(h.start_time), 'yyyy-MM-dd');
-    // Provider tag for the badge — we treat all home sessions as "home" since
-    // they can be Tesla AC, Wallbox, or wall-connector and we don't always
-    // know which without an extra device lookup.
     addToDay(dailyByDay, providersByDay, dayKey, kwh, 'home');
   }
 
