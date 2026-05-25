@@ -49,7 +49,7 @@ export default function Referrals() {
   }
 
   return (
-    <PullToRefreshWrapper onRefresh={handleRefresh}>
+    <>
       <div className="max-w-lg mx-auto px-4 py-5 space-y-4">
         {/* Header */}
         <motion.div
