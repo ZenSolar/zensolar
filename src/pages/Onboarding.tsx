@@ -280,8 +280,8 @@ export default function Onboarding() {
       case 'skip':
         setWalletType('skipped');
         trackWalletSkipped();
-        // Skip directly to AI concierge
-        setStep('ai-concierge');
+        // Skip directly to OEM selection (Connect What Earns).
+        setStep('oem-select');
         break;
     }
   };
