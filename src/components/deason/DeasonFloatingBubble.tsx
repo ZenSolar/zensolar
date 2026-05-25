@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,12 +11,26 @@ import { cn } from "@/lib/utils";
  *   • Demo + beta users get the warm ZenSolar concierge persona
  * Persona is decided server-side by the deason-chat edge function.
  *
- * Hidden on /deason (full page), /auth, and on unauthenticated marketing routes.
+ * Hidden on /deason (full page), /auth, and on the /onboarding ai-concierge
+ * step (would be redundant with the full-screen intake). Other onboarding
+ * steps (energy-connect, home-charging-setup) DO show the bubble so users can
+ * ask quick questions ("which SolarEdge model do I have?") without leaving
+ * the flow — it minimizes back to a bubble and reopens on tap.
+ *
+ * External code can open the bubble by dispatching `window`-level event
+ * `deason:open` (used by onboarding "Ask Deason" CTA).
  */
 export function DeasonFloatingBubble() {
   const { user, isLoading } = useAuth();
   const [open, setOpen] = useState(false);
   const location = useLocation();
+
+  // Listen for programmatic open requests from anywhere in the app.
+  useEffect(() => {
+    const handler = () => setOpen(true);
+    window.addEventListener('deason:open', handler);
+    return () => window.removeEventListener('deason:open', handler);
+  }, []);
 
   // Allow on /demo even without auth (concierge persona handles unauthenticated demo visitors).
   const isDemoRoute = location.pathname === '/demo' || location.pathname.startsWith('/demo/');
@@ -24,6 +38,8 @@ export function DeasonFloatingBubble() {
   if (!user && !isDemoRoute) return null;
   if (location.pathname.startsWith("/deason")) return null;
   if (location.pathname.startsWith("/auth")) return null;
+  // Hide during the full-screen AI Concierge intake (signaled by Onboarding.tsx).
+  if (typeof document !== 'undefined' && document.body.dataset.hideDeasonBubble === '1') return null;
 
   return (
     <>
