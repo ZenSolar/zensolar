@@ -180,7 +180,33 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
 
   // Typed description wins; otherwise compose from chips + per-category brand picks.
   const effectivePrompt = description.trim() || composeFromChips(chips, brands);
-  const canSubmit = effectivePrompt.length >= 3;
+
+  // Determine which providers the current chip+brand selections would yield.
+  function getSelectedProviders(): ConciergeBrand[] {
+    const set = new Set<ConciergeBrand>();
+    if (chips.has('solar') && brands.solar) {
+      if (['tesla', 'enphase', 'solaredge'].includes(brands.solar)) set.add(brands.solar as ConciergeBrand);
+    }
+    if (chips.has('battery') && brands.battery) {
+      if (['tesla', 'enphase', 'solaredge'].includes(brands.battery)) set.add(brands.battery as ConciergeBrand);
+    }
+    if (chips.has('ev') && brands.ev === 'tesla') set.add('tesla');
+    if (chips.has('charger') && brands.charger) {
+      if (brands.charger === 'tesla_wall_connector') set.add('tesla');
+      else if (brands.charger === 'wallbox') set.add('wallbox');
+      else if (brands.charger === 'enphase') set.add('enphase');
+      else if (brands.charger === 'solaredge') set.add('solaredge');
+    }
+    return Array.from(set);
+  }
+
+  const selectedProviders = getSelectedProviders();
+  const hasUnsupportedEV = chips.has('ev') && brands['ev'] === 'other';
+  const hasOnlyUnsupportedDevices =
+    chips.size >  0 &&
+    selectedProviders.length === 0 &&
+    !description.trim();
+  const canSubmit = effectivePrompt.length >= 3 && (!hasOnlyUnsupportedDevices || description.trim().length > 0);
 
   const extract = async () => {
     if (!canSubmit) {
