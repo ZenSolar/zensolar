@@ -192,7 +192,7 @@ export default function AdminKpiReconciliation() {
             <AlertTriangle className="h-5 w-5 text-destructive" />
             <span className="text-sm">
               <strong>{criticalRows.length}</strong> user/category pair{criticalRows.length === 1 ? "" : "s"} have
-              KPI ↔ on-chain drift > 5% in the last 7 days. Investigate before broad rollout.
+              KPI ↔ on-chain drift over 5% in the last 7 days. Investigate before broad rollout.
             </span>
           </CardContent>
         </Card>
