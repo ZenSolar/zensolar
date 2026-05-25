@@ -1,3 +1,50 @@
+# Phase 2: Deason In-Chat Commerce (Stripe)
+
+When Stripe payments are enabled, Deason becomes a conversational sales channel — recommending plans, add-ons, and upgrades inside chat, then completing checkout without the user leaving the conversation.
+
+## Why this works
+- Deason already knows the user's context (battery just added, panel upgrade, etc.)
+- The assisted-purchase pattern is proven: Shopify, Klarna, and Intercom all ship AI-led checkout
+- The analytics foundation is already wired (`deason_seeded_connection_success` is the same pattern as `deason_assisted_purchase`)
+
+## Products Deason can sell
+| Product | Trigger | Price (est.) |
+|---------|---------|-------------|
+| Battery Boost add-on | "I just added a battery" | $4/mo |
+| Premium Analytics tier | "How do I earn more?" | $9.99/mo |
+| Panel Expansion pack | "I want more panels" | One-time |
+| Founders Pack (if still available) | "What's the best way to invest?" | $1,000 |
+| Subscription annual (save 2 months) | "Can I pay yearly?" | $99/yr |
+
+## Technical shape
+- **Stripe Checkout** via payment link or `stripe.checkout.sessions.create` with `client_reference_id = user_id`
+- **Metadata** on each session: `{ deason_recommended: true, product_sku, chat_thread_id }` for attribution
+- **Webhook** (`checkout.session.completed`) → grant entitlement, fire `deason_assisted_purchase` analytics event
+- **Refund guard** — if checkout fails or user cancels, Deason gracefully offers help instead of pushing again
+
+## UX rules
+- Deason only recommends in response to explicit user intent or clear contextual signal
+- No hard-sell: one recommendation per conversation, max
+- Price shown before checkout link (no surprise)
+- Checkout opens in modal/overlay, not full redirect, so chat context is preserved
+
+## Analytics events to add
+- `deason_product_recommended` — which SKU, which trigger phrase
+- `deason_checkout_started` — user clicked the payment link
+- `deason_assisted_purchase` — webhook confirms payment (the key conversion metric)
+- `deason_purchase_declined` — user said "no thanks" (train model on objections)
+
+## Dependencies
+- Stripe payments enabled (Lovable built-in, test mode first)
+- Products + prices created in Stripe/Paddle catalog
+- Webhook endpoint to handle `checkout.session.completed`
+
+## Out of scope
+- Deason does NOT store or see card numbers (Stripe hosted checkout handles all PCI)
+- No in-chat subscription management (pause/cancel) — that stays in Settings for now
+
+---
+
 # Wire Enphase + SolarEdge batteries into the Battery Exported KPI
 
 Today only Tesla Powerwall flows into `battery_discharge_wh`. We'll extend the existing `enphase-data` and `solaredge-data` edge functions so an Enphase IQ Battery or SolarEdge Home Battery pulls discharge data into the same KPI field — no schema changes needed.
