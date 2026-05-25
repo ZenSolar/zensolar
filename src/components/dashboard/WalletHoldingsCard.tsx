@@ -7,6 +7,7 @@ import { Wallet, Coins, Images, ExternalLink, RefreshCw, ShieldCheck, TrendingUp
 import { Link } from 'react-router-dom';
 import { useBasePath } from '@/hooks/useBasePath';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { SecurityBadge } from '@/components/security/SecurityBadge';
 
 interface WalletHoldingsCardProps {
   walletAddress?: string;
