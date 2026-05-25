@@ -1126,6 +1126,6 @@ export function DemoNftCollection() {
           </Card>
         </motion.div>
       </div>
-    </PullToRefreshWrapper>
+    </div>
   );
 }
