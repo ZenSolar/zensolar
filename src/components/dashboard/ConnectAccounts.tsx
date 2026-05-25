@@ -197,7 +197,7 @@ export function ConnectAccounts({ accounts, onConnect, onDisconnect }: ConnectAc
           </div>
           
           <div className="space-y-3">
-            {accounts.map((account) => (
+            {disconnectedAccounts.map((account) => (
               <ConnectAccountButton
                 key={account.service}
                 service={account.service}
