@@ -59,7 +59,7 @@ function hashString(s: string): number {
 }
 
 function shapeWeights(category: DailyCategory, days: number, rand: () => number): number[] {
-  const out: number[] = [];
+  const out: number[] = [] as number[];
   const today = new Date();
   for (let i = days - 1; i >= 0; i--) {
     const d = new Date(today);
