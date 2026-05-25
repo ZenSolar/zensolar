@@ -811,7 +811,7 @@ export default function Onboarding() {
             onConnect={handleEnergyConnect}
             onSkip={handleEnergySkip}
             onCancelConnecting={handleCancelConnecting}
-            onAskDeason={() => transitionToStep('ai-concierge')}
+            onAskDeason={() => window.dispatchEvent(new Event('deason:open'))}
             isConnecting={connectingProvider}
             connectedProviders={connectedProviders}
           />
