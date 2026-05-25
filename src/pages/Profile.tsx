@@ -47,7 +47,7 @@ import {
   Home
 } from "lucide-react";
 import { toast } from "sonner";
-import { PullToRefreshWrapper } from "@/components/ui/PullToRefreshWrapper";
+// PullToRefreshWrapper retired — relying on auto-refresh on login + post-mint sync.
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 
@@ -310,7 +310,7 @@ export default function Profile() {
   ];
 
   return (
-    <PullToRefreshWrapper onRefresh={handleRefresh}>
+    <>
       <div className="max-w-lg mx-auto px-4 py-5 space-y-4">
         {/* Hero Header — compact */}
         <motion.div 
@@ -674,7 +674,7 @@ export default function Profile() {
           return true;
         }}
       />
-    </PullToRefreshWrapper>
+    </>
   );
 }
 

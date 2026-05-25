@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { PageLoader } from '@/components/ui/empty-state';
 import { useProfile } from '@/hooks/useProfile';
-import { PullToRefreshWrapper } from '@/components/ui/PullToRefreshWrapper';
+// PullToRefreshWrapper retired — relying on auto-refresh on login + post-mint sync.
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -890,7 +890,7 @@ export default function NftCollection() {
   }
 
   return (
-    <PullToRefreshWrapper onRefresh={handleRefresh} className="h-full">
+    <div className="h-full">
       <div className="container max-w-5xl mx-auto px-4 py-8 space-y-8">
       {/* Modals */}
       <NFTDetailModal
@@ -1174,6 +1174,6 @@ export default function NftCollection() {
         </Card>
       </motion.div>
       </div>
-    </PullToRefreshWrapper>
+    </div>
   );
 }

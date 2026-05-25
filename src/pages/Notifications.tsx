@@ -10,7 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Bell, Users, Zap, Info, Trash2, CheckCheck, Sparkles, Inbox } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
-import { PullToRefreshWrapper } from "@/components/ui/PullToRefreshWrapper";
+// PullToRefreshWrapper retired — relying on auto-refresh on login + post-mint sync.
 
 interface NotificationLog {
   id: string;
@@ -94,7 +94,7 @@ export default function Notifications() {
   const unreadCount = notifications.length;
 
   return (
-    <PullToRefreshWrapper onRefresh={handleRefresh}>
+    <>
       <div className="container max-w-3xl mx-auto px-4 py-6 space-y-6">
         {/* Header */}
         <motion.div
@@ -242,6 +242,6 @@ export default function Notifications() {
           </Tabs>
         </motion.div>
       </div>
-    </PullToRefreshWrapper>
+    </>
   );
 }

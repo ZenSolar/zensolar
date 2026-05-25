@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useDemoData } from '@/hooks/useDemoData';
-import { PullToRefreshWrapper } from '@/components/ui/PullToRefreshWrapper';
+// PullToRefreshWrapper retired — relying on auto-refresh on login + post-mint sync.
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -841,7 +841,7 @@ export function DemoNftCollection() {
   };
 
   return (
-    <PullToRefreshWrapper onRefresh={handleRefresh} className="h-full">
+    <div className="h-full">
       <div className="container max-w-5xl mx-auto px-4 py-8 space-y-8">
         {/* Demo Banner */}
         <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-center">
@@ -1126,6 +1126,6 @@ export function DemoNftCollection() {
           </Card>
         </motion.div>
       </div>
-    </PullToRefreshWrapper>
+    </div>
   );
 }
