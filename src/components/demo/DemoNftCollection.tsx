@@ -841,7 +841,7 @@ export function DemoNftCollection() {
   };
 
   return (
-    <PullToRefreshWrapper onRefresh={handleRefresh} className="h-full">
+    <div className="h-full">
       <div className="container max-w-5xl mx-auto px-4 py-8 space-y-8">
         {/* Demo Banner */}
         <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-center">
