@@ -115,25 +115,50 @@ export function EnergyConnectionScreen({
   onAskDeason,
   isConnecting,
   connectedProviders = [],
+  selectionMode = false,
+  initialSelection = [],
+  onContinueSelection,
+  restrictTo,
+  titleOverride,
+  subtitleOverride,
 }: EnergyConnectionScreenProps) {
   const planned = useMemo(readPlannedProviders, []);
+  const [selected, setSelected] = useState<EnergyProvider[]>(initialSelection);
 
   // Sort: planned (and not yet connected) first, then the rest.
+  // Also apply restrictTo filter if provided (OAuth phase shows only chosen OEMs).
   const availableProviders = useMemo(() => {
-    const remaining = providers.filter((p) => !connectedProviders.includes(p.id));
+    let remaining = providers.filter((p) => !connectedProviders.includes(p.id));
+    if (restrictTo && restrictTo.length > 0) {
+      remaining = remaining.filter((p) => restrictTo.includes(p.id));
+    }
     return [...remaining].sort((a, b) => {
       const ai = planned.includes(a.id) ? 0 : 1;
       const bi = planned.includes(b.id) ? 0 : 1;
       return ai - bi;
     });
-  }, [connectedProviders, planned]);
+  }, [connectedProviders, planned, restrictTo]);
 
   const plannedRemaining = planned.filter((p) => !connectedProviders.includes(p));
   const hasConnected = connectedProviders.length > 0;
 
   const handleProviderClick = async (provider: EnergyProvider) => {
     await triggerLightTap();
+    if (selectionMode) {
+      setSelected((prev) =>
+        prev.includes(provider)
+          ? prev.filter((p) => p !== provider)
+          : [...prev, provider]
+      );
+      return;
+    }
     onConnect(provider);
+  };
+
+  const handleContinueSelection = async () => {
+    if (selected.length === 0) return;
+    await triggerLightTap();
+    onContinueSelection?.(selected);
   };
 
   const handleSkip = async () => {
