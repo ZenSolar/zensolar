@@ -52,7 +52,7 @@ function describeError(
           provider === 'solaredge'
             ? 'Double-check your API key and Site ID, then try again.'
             : provider === 'wallbox'
-              ? 'Your Wallbox email or password didn't match. Try again.'
+              ? "Your Wallbox email or password didn't match. Try again."
               : `Your ${brand} session may have expired. Sign in again to reconnect.`,
       };
     }
