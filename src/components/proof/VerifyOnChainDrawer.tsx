@@ -192,7 +192,6 @@ export function VerifyOnChainDrawer({
       </DrawerTrigger>
       <DrawerContent
         className="max-h-[92dvh] focus:outline-none bg-background border-border/60"
-        style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
         aria-label="Verify mint on-chain"
       >
         <div
