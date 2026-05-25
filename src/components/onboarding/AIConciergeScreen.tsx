@@ -183,65 +183,128 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
               <div className="text-center mb-1">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-semibold text-primary tracking-wide uppercase">
                   <Sparkles className="w-3 h-3" />
-                  Deason — Setup Concierge
+                  Setup in 30 seconds
                 </span>
               </div>
 
-              <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-foreground mb-2 tracking-tight">
-                  Tell me about your setup
+              <div className="text-center mb-5">
+                <h2 className="text-2xl font-semibold text-foreground mb-2 tracking-tight">
+                  Tell us what you have — we'll handle the rest
                 </h2>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  Just describe your solar, battery, EV, or home charger in your own words.
-                  Deason will figure out what to connect.
+                <p className="text-muted-foreground text-[15px] leading-relaxed">
+                  Tap everything that applies. Deason will line up the right accounts to connect.
                 </p>
               </div>
 
-              <Textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="e.g. I have Enphase solar with an IQ Battery and a Tesla Model Y in my garage..."
-                disabled={loading}
-                rows={4}
-                className="mb-3 resize-none bg-card/80 backdrop-blur-sm border-border/60"
-                maxLength={2000}
-              />
+              {/* One-tap intake chips */}
+              <div className="mb-4">
+                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-1">
+                  What energy gear do you have?
+                </p>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {CHIPS.filter((c) => c.group === 'gear').map((c) => {
+                    const active = chips.has(c.id);
+                    return (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => toggleChip(c.id)}
+                        disabled={loading}
+                        className={`text-[13px] px-3 py-2 rounded-2xl border transition-all flex items-center gap-1.5 ${
+                          active
+                            ? 'bg-primary/15 border-primary/50 text-foreground shadow-[0_0_18px_hsl(var(--primary)/0.25)]'
+                            : 'bg-card/60 border-border/60 text-muted-foreground hover:text-foreground hover:border-primary/30'
+                        }`}
+                      >
+                        <span aria-hidden>{c.emoji}</span>
+                        <span className="font-medium">{c.label}</span>
+                        {active && <Check className="w-3.5 h-3.5 text-primary" />}
+                      </button>
+                    );
+                  })}
+                </div>
 
-              <div className="flex flex-wrap gap-1.5 mb-5">
-                {SAMPLES.map((s, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => setDescription(s)}
-                    disabled={loading}
-                    className="text-xs px-2.5 py-1 rounded-full bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
-                  >
-                    {s.length > 38 ? s.slice(0, 38) + '…' : s}
-                  </button>
-                ))}
+                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-1">
+                  Where do you live?
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {CHIPS.filter((c) => c.group === 'home').map((c) => {
+                    const active = chips.has(c.id);
+                    return (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => toggleChip(c.id)}
+                        disabled={loading}
+                        className={`text-[13px] px-3 py-2 rounded-2xl border transition-all flex items-center gap-1.5 ${
+                          active
+                            ? 'bg-primary/15 border-primary/50 text-foreground shadow-[0_0_18px_hsl(var(--primary)/0.25)]'
+                            : 'bg-card/60 border-border/60 text-muted-foreground hover:text-foreground hover:border-primary/30'
+                        }`}
+                      >
+                        <span aria-hidden>{c.emoji}</span>
+                        <span className="font-medium">{c.label}</span>
+                        {active && <Check className="w-3.5 h-3.5 text-primary" />}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
+
+              {/* Optional power-user textarea */}
+              <details className="mb-4 group">
+                <summary className="cursor-pointer list-none flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground transition-colors px-1">
+                  <Edit3 className="w-3 h-3" />
+                  Or add details (brand, model, notes)
+                </summary>
+                <Textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="e.g. Enphase solar with IQ Battery and a Tesla Model Y…"
+                  disabled={loading}
+                  rows={3}
+                  className="mt-2 resize-none bg-card/80 backdrop-blur-sm border-border/60 text-[14px]"
+                  maxLength={2000}
+                />
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {SAMPLES.map((s, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setDescription(s)}
+                      disabled={loading}
+                      className="text-[11px] px-2 py-0.5 rounded-full bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+                    >
+                      {s.length > 34 ? s.slice(0, 34) + '…' : s}
+                    </button>
+                  ))}
+                </div>
+              </details>
 
               <Button
                 onClick={extract}
-                disabled={loading || description.trim().length < 3}
+                disabled={loading || !canSubmit}
                 className="w-full h-12 gap-2 bg-gradient-to-r from-primary to-primary/80 hover:opacity-90"
               >
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Deason is reading your setup…
+                    Deason is building your plan…
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4" />
-                    Build my plan
+                    {chips.size === 0 && description.trim().length === 0
+                      ? 'Tap what you have to continue'
+                      : 'Build my plan'}
+                    {canSubmit && <ArrowRight className="w-4 h-4" />}
                   </>
                 )}
               </Button>
 
               <div className="text-center mt-4">
                 <Button variant="ghost" size="sm" onClick={onSkipToManual} disabled={loading} className="text-muted-foreground text-xs">
-                  Or pick providers manually
+                  I'm not sure yet — show me my options
                 </Button>
               </div>
             </motion.div>
