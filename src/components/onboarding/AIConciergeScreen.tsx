@@ -280,11 +280,78 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
                   })}
                 </div>
 
+                {/* OEM drill-down: appears once a gear category is selected so
+                    Deason can target the right OAuth provider. */}
+                <AnimatePresence initial={false}>
+                  {(['solar', 'battery', 'ev', 'charger'] as const)
+                    .filter((id) => chips.has(id))
+                    .map((id) => {
+                      const cat = CHIPS.find((c) => c.id === id)!;
+                      const options = BRAND_OPTIONS[id];
+                      const selected = brands[id];
+                      return (
+                        <motion.div
+                          key={`brand-${id}`}
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="mb-3 overflow-hidden"
+                        >
+                          <p className="text-[11px] font-medium text-muted-foreground mb-1.5 px-1 flex items-center gap-1.5">
+                            <span aria-hidden>{cat.emoji}</span>
+                            Which {cat.label.toLowerCase()}?
+                          </p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {options.map((opt) => {
+                              const isOn = selected === opt.id;
+                              return (
+                                <button
+                                  key={opt.id}
+                                  type="button"
+                                  onClick={() => pickBrand(id, opt.id)}
+                                  disabled={loading}
+                                  className={`text-[12px] px-2.5 py-1.5 rounded-full border transition-all ${
+                                    isOn
+                                      ? 'bg-amber-500/15 border-amber-500/60 text-amber-200'
+                                      : 'bg-card/40 border-border/50 text-muted-foreground hover:text-foreground hover:border-amber-500/30'
+                                  }`}
+                                >
+                                  {opt.label}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                </AnimatePresence>
+
                 <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-1">
                   Where do you live?
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {CHIPS.filter((c) => c.group === 'home').map((c) => {
+                    const active = chips.has(c.id);
+                    return (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => toggleChip(c.id)}
+                        disabled={loading}
+                        className={`text-[13px] px-3 py-2 rounded-2xl border transition-all flex items-center gap-1.5 ${
+                          active
+                            ? 'bg-primary/15 border-primary/50 text-foreground shadow-[0_0_18px_hsl(var(--primary)/0.25)]'
+                            : 'bg-card/60 border-border/60 text-muted-foreground hover:text-foreground hover:border-primary/30'
+                        }`}
+                      >
+                        <span aria-hidden>{c.emoji}</span>
+                        <span className="font-medium">{c.label}</span>
+                        {active && <Check className="w-3.5 h-3.5 text-primary" />}
+                      </button>
+                    );
+                  })}
+                </div>
                     const active = chips.has(c.id);
                     return (
                       <button
