@@ -406,10 +406,18 @@ function PlanReview({
       </div>
 
       {providers.length > 0 && (
-        <div className="mb-5 p-3 rounded-xl bg-primary/5 border border-primary/20">
-          <p className="text-xs text-muted-foreground mb-1">I'll connect, in order:</p>
+        <div className="mb-5 p-3.5 rounded-2xl bg-primary/5 border border-primary/20">
+          <div className="flex items-center justify-between gap-3 mb-1.5">
+            <p className="text-[11px] font-semibold text-primary uppercase tracking-wider">Your plan</p>
+            <span className="text-[11px] font-medium text-muted-foreground">
+              ~{Math.max(1, providers.length)} min · {providers.length} {providers.length === 1 ? 'account' : 'accounts'}
+            </span>
+          </div>
           <p className="text-sm font-medium text-foreground">
-            {providers.map((p) => brandLabel(p!)).join(' → ')}
+            We'll connect: {providers.map((p) => brandLabel(p!)).join(' → ')}
+          </p>
+          <p className="text-[11px] text-muted-foreground mt-1.5">
+            You can always add more devices later from your Clean Energy Center.
           </p>
         </div>
       )}
