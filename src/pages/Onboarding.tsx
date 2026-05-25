@@ -683,9 +683,9 @@ export default function Onboarding() {
   };
 
   const handleEnergyBack = () => {
-    // Go back to the AI concierge (the prior step) — never back to wallet-choice
+    // Go back to the Deason pairing step — never back to wallet-choice
     // since the wallet has already been created/skipped.
-    transitionToStep('ai-concierge');
+    transitionToStep('device-pairing');
   };
 
   const handleAddAnotherEnergy = () => {
