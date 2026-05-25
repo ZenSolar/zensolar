@@ -147,7 +147,13 @@ export function DemoEnergyLog() {
   }, [prevMonthStart.getTime(), activeTab]);
 
   const chargingSessions = useMemo(() => {
-    return activeTab === 'ev-charging' ? generateDemoChargingSessions(monthStart, monthEnd) : [];
+    if (activeTab !== 'supercharger' && activeTab !== 'home-charging') return [];
+    const all = generateDemoChargingSessions(monthStart, monthEnd);
+    return all.filter((s) =>
+      activeTab === 'supercharger'
+        ? s.charging_type === 'supercharger' || s.charging_type === 'fast'
+        : s.charging_type === 'home' || s.charging_type === 'other_ac',
+    );
   }, [monthStart.getTime(), activeTab]);
 
   const unit = activeTab === 'ev-miles' ? 'mi' : 'kWh';
