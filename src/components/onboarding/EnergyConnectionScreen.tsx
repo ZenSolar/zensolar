@@ -313,12 +313,17 @@ export function EnergyConnectionScreen({
               whileTap={{ scale: 0.98 }}
               onClick={() => handleProviderClick(provider.id)}
               disabled={!!isConnecting}
-              className="group w-full p-4 rounded-3xl flex items-center gap-4 text-left transition-all duration-200 border border-white/5 hover:border-primary/40 hover:shadow-[0_0_25px_hsl(var(--primary)/0.15)] disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`group relative w-full p-4 rounded-3xl flex items-center gap-4 text-left transition-all duration-200 border ${isPlanned ? 'border-primary/40 shadow-[0_0_22px_hsl(var(--primary)/0.18)]' : 'border-white/5 hover:border-primary/40 hover:shadow-[0_0_25px_hsl(var(--primary)/0.15)]'} disabled:opacity-50 disabled:cursor-not-allowed`}
               style={{
                 background:
                   'linear-gradient(135deg, hsl(var(--card) / 0.7) 0%, hsl(var(--background) / 0.85) 100%)',
               }}
             >
+              {isPlanned && (
+                <span className="absolute -top-2 left-4 px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-[9px] font-bold uppercase tracking-wider shadow-md shadow-primary/30">
+                  Recommended for you
+                </span>
+              )}
               <div className="w-14 h-14 rounded-2xl shrink-0 shadow-md ring-1 ring-white/10 bg-[#141414] flex items-center justify-center p-2">
                 <img
                   src={provider.logo}
