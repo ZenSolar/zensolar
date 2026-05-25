@@ -297,6 +297,7 @@ export function useEnergyOAuth() {
       const errMsg = extractError(response);
       if (errMsg) throw new Error(errMsg);
 
+      trackConnectSuccess('tesla');
       toast.success('Tesla account connected!');
       return true;
     } catch (error) {
