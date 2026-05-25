@@ -763,9 +763,10 @@ export default function Onboarding() {
       case 'external-wallet': return 'wallet-choice';
       // Wallet exists — can't unwind wallet creation itself, but can step back through later screens.
       case 'wallet-success': return null;
-      case 'ai-concierge': return 'wallet-success';
+      case 'oem-select': return 'wallet-success';
+      case 'device-pairing': return 'oem-select';
       case 'energy-connect':
-      case 'device-selection': return 'ai-concierge';
+      case 'device-selection': return 'device-pairing';
       case 'home-charging-setup': return 'energy-connect';
       case 'energy-success': return null;
       default: return null;
