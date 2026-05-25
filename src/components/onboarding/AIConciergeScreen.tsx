@@ -53,21 +53,60 @@ function brandsFromProfile(p: SetupProfile): ConciergeBrand[] {
   return Array.from(set);
 }
 
+// One-tap intake chips. Tapping composes a natural-language description Deason can parse.
+type ChipId = 'solar' | 'battery' | 'ev' | 'charger' | 'house' | 'apartment';
+const CHIPS: { id: ChipId; emoji: string; label: string; phrase: string; group: 'gear' | 'home' }[] = [
+  { id: 'solar',     emoji: '☀️', label: 'Solar',        phrase: 'rooftop solar',                  group: 'gear' },
+  { id: 'battery',   emoji: '🔋', label: 'Battery',      phrase: 'a home battery',                 group: 'gear' },
+  { id: 'ev',        emoji: '🚗', label: 'EV',           phrase: 'an electric vehicle',            group: 'gear' },
+  { id: 'charger',   emoji: '⚡', label: 'Home charger', phrase: 'a home EV charger',              group: 'gear' },
+  { id: 'house',     emoji: '🏠', label: 'House',        phrase: 'I live in a single-family home', group: 'home' },
+  { id: 'apartment', emoji: '🏢', label: 'Apartment',    phrase: 'I live in an apartment',         group: 'home' },
+];
+
+function composeFromChips(selected: Set<ChipId>): string {
+  const gear = CHIPS.filter((c) => c.group === 'gear' && selected.has(c.id)).map((c) => c.phrase);
+  const home = CHIPS.filter((c) => c.group === 'home' && selected.has(c.id)).map((c) => c.phrase);
+  const parts: string[] = [];
+  if (gear.length) {
+    const joined = gear.length === 1
+      ? gear[0]
+      : gear.slice(0, -1).join(', ') + ' and ' + gear[gear.length - 1];
+    parts.push(`I have ${joined}.`);
+  }
+  if (home.length) parts.push(home[0] + '.');
+  return parts.join(' ');
+}
+
 export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: AIConciergeScreenProps) {
   const [description, setDescription] = useState('');
+  const [chips, setChips] = useState<Set<ChipId>>(new Set());
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<SetupProfile | null>(null);
 
+  const toggleChip = async (id: ChipId) => {
+    await triggerLightTap();
+    setChips((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  // Typed description wins; otherwise compose from chips.
+  const effectivePrompt = description.trim() || composeFromChips(chips);
+  const canSubmit = effectivePrompt.length >= 3;
+
   const extract = async () => {
-    if (description.trim().length < 3) {
-      toast.error('Tell me a bit more about your setup.');
+    if (!canSubmit) {
+      toast.error('Tap what you have, or describe your setup in a sentence.');
       return;
     }
     await triggerLightTap();
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('onboarding-concierge', {
-        body: { description: description.trim() },
+        body: { description: effectivePrompt },
       });
       if (error || !data?.profile) {
         const status = (error as any)?.context?.status;
