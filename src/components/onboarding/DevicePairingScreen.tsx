@@ -455,7 +455,7 @@ export function DevicePairingScreen({
                         {meta.emoji}
                       </span>
                       <span className="flex-1 text-[14px] font-medium text-foreground">
-                        {meta.label}
+                        {oem.productNames[cap] ?? meta.label}
                         {cap === 'ev' && oemId === 'tesla' && (
                           <span className="ml-2 text-[10px] font-semibold text-emerald-300 uppercase tracking-wider">
                             Tesla EVs only
