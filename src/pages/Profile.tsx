@@ -383,8 +383,7 @@ export default function Profile() {
         </motion.div>
 
 
-        {/* Solar Installer — deterministic source-of-truth + contact info */}
-        <InstallerCard />
+
 
 
         {/* Wallet Management */}
