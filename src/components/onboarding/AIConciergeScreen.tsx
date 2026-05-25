@@ -172,27 +172,25 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
             >
+              {/* Amber Sparkles — identical to the floating Deason bubble on the dashboard
+                  so users recognize the same assistant after onboarding. */}
               <motion.div
                 initial={{ scale: 0 }} animate={{ scale: 1 }}
                 transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
-                className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-primary/80 flex items-center justify-center shadow-xl shadow-primary/25"
+                className="w-20 h-20 mx-auto mb-5 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-xl shadow-amber-500/30 ring-2 ring-amber-300/40"
               >
-                <Sparkles className="w-10 h-10 text-primary-foreground" />
+                <Sparkles className="w-10 h-10 text-black" />
               </motion.div>
 
-              <div className="text-center mb-1">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-semibold text-primary tracking-wide uppercase">
-                  <Sparkles className="w-3 h-3" />
-                  Setup in 30 seconds
-                </span>
-              </div>
-
               <div className="text-center mb-5">
-                <h2 className="text-2xl font-semibold text-foreground mb-2 tracking-tight">
-                  Tell us what you have — we'll handle the rest
+                <p className="text-[11px] font-semibold text-amber-500 uppercase tracking-[0.18em] mb-2">
+                  Deason · AI Setup
+                </p>
+                <h2 className="text-3xl font-semibold text-foreground mb-2 tracking-tight">
+                  What do you have?
                 </h2>
-                <p className="text-muted-foreground text-[15px] leading-relaxed">
-                  Tap everything that applies. Deason will line up the right accounts to connect.
+                <p className="text-muted-foreground text-[14px]">
+                  Tap all that apply.
                 </p>
               </div>
 
