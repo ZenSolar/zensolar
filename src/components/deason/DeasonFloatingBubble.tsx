@@ -17,20 +17,52 @@ import { cn } from "@/lib/utils";
  * ask quick questions ("which SolarEdge model do I have?") without leaving
  * the flow — it minimizes back to a bubble and reopens on tap.
  *
- * External code can open the bubble by dispatching `window`-level event
- * `deason:open` (used by onboarding "Ask Deason" CTA).
+ * External code can:
+ *   • dispatch `deason:open` to open the bubble
+ *   • dispatch `deason:nudge` (with a {assistant, meta} detail payload) to
+ *     pulse the bubble + show a badge. Tapping the bubble opens it and
+ *     replays the queued seed message.
  */
 export function DeasonFloatingBubble() {
   const { user, isLoading } = useAuth();
   const [open, setOpen] = useState(false);
+  const [pendingSeed, setPendingSeed] = useState<string | null>(null);
   const location = useLocation();
 
   // Listen for programmatic open requests from anywhere in the app.
   useEffect(() => {
-    const handler = () => setOpen(true);
-    window.addEventListener('deason:open', handler);
-    return () => window.removeEventListener('deason:open', handler);
+    const openHandler = () => {
+      setOpen(true);
+      setPendingSeed(null);
+    };
+    const nudgeHandler = (e: Event) => {
+      const detail = (e as CustomEvent<{ assistant?: string }>).detail;
+      if (detail?.assistant) setPendingSeed(detail.assistant);
+    };
+    const clearHandler = () => setPendingSeed(null);
+    window.addEventListener("deason:open", openHandler);
+    window.addEventListener("deason:nudge", nudgeHandler as EventListener);
+    window.addEventListener("deason:nudge:clear", clearHandler);
+    return () => {
+      window.removeEventListener("deason:open", openHandler);
+      window.removeEventListener("deason:nudge", nudgeHandler as EventListener);
+      window.removeEventListener("deason:nudge:clear", clearHandler);
+    };
   }, []);
+
+  // When the user opens the bubble after a nudge, replay the seed so
+  // DeasonChat picks it up via the `deason:seed` listener.
+  useEffect(() => {
+    if (open && pendingSeed) {
+      const body = pendingSeed;
+      setPendingSeed(null);
+      window.setTimeout(() => {
+        window.dispatchEvent(
+          new CustomEvent("deason:seed", { detail: { assistant: body } }),
+        );
+      }, 60);
+    }
+  }, [open, pendingSeed]);
 
   // Allow on /demo even without auth (concierge persona handles unauthenticated demo visitors).
   const isDemoRoute = location.pathname === '/demo' || location.pathname.startsWith('/demo/');
@@ -41,21 +73,35 @@ export function DeasonFloatingBubble() {
   // Hide during the full-screen AI Concierge intake (signaled by Onboarding.tsx).
   if (typeof document !== 'undefined' && document.body.dataset.hideDeasonBubble === '1') return null;
 
+  const isNudging = !!pendingSeed && !open;
+
   return (
     <>
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          aria-label="Open Deason"
+          aria-label={isNudging ? "Deason can help with that error" : "Open Deason"}
           style={{ bottom: 'calc(var(--bottom-nav-total-h) + 12px)' }}
           className={cn(
             "fixed right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full",
             "bg-gradient-to-br from-amber-400 to-amber-600 text-black shadow-lg ring-2 ring-amber-300/40",
             "transition-transform hover:scale-105 active:scale-95",
             "md:!bottom-6",
+            isNudging && "animate-pulse ring-4 ring-amber-300/70 shadow-amber-500/50",
           )}
         >
           <Sparkles className="h-6 w-6" />
+          {isNudging && (
+            <>
+              {/* Ping ring for attention */}
+              <span className="pointer-events-none absolute inset-0 rounded-full bg-amber-400/40 animate-ping" />
+              {/* Red dot badge */}
+              <span
+                aria-hidden
+                className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-destructive ring-2 ring-background"
+              />
+            </>
+          )}
         </button>
       )}
 
