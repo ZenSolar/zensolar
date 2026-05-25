@@ -1,24 +1,13 @@
 import { motion } from 'framer-motion';
 import { ShimmerOverlay } from './ShimmerOverlay';
 import teslaLogo from '@/assets/logos/tesla-wordmark-red.png';
+import enphaseLogo from '@/assets/logos/enphase-wordmark.svg';
 import solaredgeLogo from '@/assets/logos/solaredge-cropped.svg';
 import wallboxLogo from '@/assets/logos/wallbox-white.png';
 
-/** Inline SVG Enphase logo — matches official branding, crisp at any size on dark bg */
-function EnphaseLogo({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 220 40" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      <circle cx="20" cy="20" r="16" stroke="#F26522" strokeWidth="3" fill="none" />
-      <path d="M10 22h20" stroke="#F26522" strokeWidth="3" strokeLinecap="round" />
-      <path d="M30 18c0-5.5-4.5-10-10-10s-10 4.5-10 10" stroke="#F26522" strokeWidth="3" strokeLinecap="round" fill="none" />
-      <text x="48" y="27" fill="currentColor" fontSize="22" fontWeight="600" fontFamily="system-ui, -apple-system, sans-serif" letterSpacing="3">ENPHASE</text>
-    </svg>
-  );
-}
-
 const brandLogos = [
   { src: teslaLogo, alt: 'Tesla' },
-  { src: null, alt: 'Enphase' },
+  { src: enphaseLogo, alt: 'Enphase' },
   { src: solaredgeLogo, alt: 'SolarEdge' },
   { src: wallboxLogo, alt: 'Wallbox' },
 ];
