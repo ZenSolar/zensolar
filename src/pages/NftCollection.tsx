@@ -890,7 +890,7 @@ export default function NftCollection() {
   }
 
   return (
-    <PullToRefreshWrapper onRefresh={handleRefresh} className="h-full">
+    <div className="h-full">
       <div className="container max-w-5xl mx-auto px-4 py-8 space-y-8">
       {/* Modals */}
       <NFTDetailModal
