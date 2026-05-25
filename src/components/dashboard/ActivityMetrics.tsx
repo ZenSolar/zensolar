@@ -46,8 +46,8 @@ import type { HideableField } from '@/hooks/useHiddenActivityFields';
 import { KpiActivityLogSheet, type KpiSheetState } from './KpiActivityLogSheet';
 
 // Import brand logos for connected providers display
-import enphaseLogo from '@/assets/logos/enphase-wordmark.svg';
-import teslaLogo from '@/assets/logos/tesla-t-icon.png';
+import enphaseLogo from '@/assets/logos/enphase-e-icon.svg';
+import teslaLogo from '@/assets/logos/tesla-wordmark-red.png';
 import teslaWordmark from '@/assets/logos/tesla-wordmark.png';
 
 const providerLogos: Record<string, string> = {
@@ -384,25 +384,27 @@ export function ActivityMetrics({
                     />
                     Connected
                   </span>
-                  <div className="flex -space-x-1.5">
+                  <div className="flex items-center gap-1.5">
                     {filteredProviders.map((provider) => (
                       <div
                         key={provider}
-                        className="h-6 w-6 rounded-full bg-background border border-border/60 flex items-center justify-center shadow-md"
+                        className={cn(
+                          "h-6 flex items-center justify-center rounded-md bg-background border border-border/60 shadow-md px-1.5",
+                          provider === 'tesla' ? 'min-w-[44px]' : 'w-6'
+                        )}
                         title={provider.charAt(0).toUpperCase() + provider.slice(1)}
                       >
                         {provider === 'tesla' ? (
                           <img
                             src={teslaLogo}
                             alt="Tesla"
-                            className="h-3 w-3 object-contain"
-                            style={{ filter: 'brightness(2.2)' }}
+                            className="h-3 w-auto object-contain"
                           />
                         ) : (
                           <img
                             src={providerLogos[provider]}
                             alt={provider}
-                            className="h-3 w-3 object-contain"
+                            className="h-3.5 w-3.5 object-contain"
                           />
                         )}
                       </div>
