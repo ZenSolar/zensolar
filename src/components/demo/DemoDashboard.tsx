@@ -25,6 +25,8 @@ import { DashboardHexBackground } from '@/components/dashboard/DashboardHexBackg
 import { DemoOnboardingHints } from '@/components/demo/DemoOnboardingHints';
 import { TapToMintCard } from '@/components/demo/TapToMintCard';
 import { CO2OffsetCard } from '@/components/dashboard/CO2OffsetCard';
+import { generateDailyBreakdown, type DailyBreakdown } from '@/lib/dailyMintBreakdown';
+import type { MintTokenCategory } from '@/components/dashboard/MintTokenDialog';
 import { isVipActive } from '@/lib/vipDemo';
 
 import {
