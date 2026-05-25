@@ -18,8 +18,10 @@ import {
   Rows3,
   Rows4
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { WalletSetupCard } from "@/components/settings/WalletSetupCard";
+import { SecurityBadge } from "@/components/security/SecurityBadge";
 
 import { useDensity } from "@/hooks/useDensity";
 
