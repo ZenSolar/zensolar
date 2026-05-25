@@ -739,7 +739,11 @@ Deno.serve(async (req) => {
       let solarDeltaKwh = 0;
       let evMilesDelta = 0;
       let batteryDeltaKwh = 0;
-      let chargingDeltaKwh = 0;
+      // Charging is tracked as TWO independent buckets and NEVER combined in UX/recon.
+      // On-chain contract has a single `charging` counter, so we sum them only at the
+      // contract call boundary — every dashboard/log/recon view keeps them split.
+      let superchargerDeltaKwh = 0; // vehicle device (Tesla Supercharger)
+      let homeChargingDeltaKwh = 0; // charger device (Wall Connector, Wallbox)
       const deviceIdsToUpdate: string[] = [];
       const batteryCandidates: { deviceId: string; provider: string; delta: number }[] = [];
 
