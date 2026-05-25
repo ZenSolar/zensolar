@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Sparkles, Zap, Sun, BatteryFull, Car, Navigation } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import enphaseLogo from '@/assets/logos/enphase-wordmark.svg';
-import teslaLogo from '@/assets/logos/tesla-wordmark-red.png';
+import teslaLogo from '@/assets/logos/tesla-t-icon.png';
 import solaredgeLogo from '@/assets/logos/solaredge-cropped.svg';
 import wallboxLogo from '@/assets/logos/wallbox-white.png';
 
