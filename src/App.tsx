@@ -142,6 +142,7 @@ const LearnProofOfGenesis = lazy(() => import("./pages/learn/LearnProofOfGenesis
 const LearnPatentTech = lazy(() => import("./pages/learn/LearnPatentTech"));
 const LearnTour = lazy(() => import("./pages/learn/LearnTour"));
 const LearnGlossary = lazy(() => import("./pages/learn/LearnGlossary"));
+const Glossary = lazy(() => import("./pages/Glossary"));
 const LearnThemes = lazy(() => import("./pages/LearnThemes"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const InvestmentThesis = lazy(() => import("./pages/InvestmentThesis"));
@@ -553,6 +554,14 @@ const App = () => {
                             <LearnGlossary />
                           </AppLayout>
                         </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="/glossary"
+                      element={
+                        <AppLayout>
+                          <Glossary />
+                        </AppLayout>
                       }
                     />
                     <Route

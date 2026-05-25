@@ -52,6 +52,7 @@ const MORE_LINKS_APP = [
   { to: "/devices", label: "Devices" },
   { to: "/subscribe", label: "Subscription" },
   { to: "/tokenomics", label: "Tokenomics" },
+  { to: "/glossary", label: "Glossary" },
   { to: "/help", label: "Help" },
   { to: "/feedback", label: "Feedback" },
 ];
@@ -61,11 +62,13 @@ const MORE_LINKS_DEMO = [
   { to: "/", label: "Exit Demo" },
   { to: "/subscribe", label: "Subscription Plans" },
   { to: "/tokenomics", label: "Tokenomics" },
+  { to: "/glossary", label: "Glossary" },
 ];
 
 const MORE_LINKS_MARKETING = [
   { to: "/auth", label: "Sign in" },
   { to: "/install", label: "Install app" },
+  { to: "/glossary", label: "Glossary" },
   { to: "/help", label: "Help" },
   { to: "/feedback", label: "Feedback" },
 ];
