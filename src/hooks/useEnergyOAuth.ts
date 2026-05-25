@@ -328,6 +328,7 @@ export function useEnergyOAuth() {
       const errMsg = extractError(response);
       if (errMsg) throw new Error(errMsg);
 
+      trackConnectSuccess('enphase');
       toast.success('Enphase account connected!');
       return true;
     } catch (error) {
