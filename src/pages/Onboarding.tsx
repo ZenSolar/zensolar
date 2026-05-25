@@ -839,16 +839,28 @@ export default function Onboarding() {
         </div>
       )}
 
-      {step === 'ai-concierge' && (
+      {step === 'oem-select' && (
         <div className="pt-24">
-          <AIConciergeScreen
-            onPlanConfirmed={handleConciergePlanConfirmed}
-            onSkipToManual={handleConciergeSkip}
+          <EnergyConnectionScreen
+            onConnect={() => { /* selection mode — handled via onContinueSelection */ }}
+            onSkip={handleOemSelectionSkip}
+            selectionMode
+            initialSelection={selectedOems}
+            onContinueSelection={handleOemSelectionContinue}
+            connectedProviders={connectedProviders}
           />
         </div>
       )}
 
-
+      {step === 'device-pairing' && (
+        <div className="pt-24">
+          <DevicePairingScreen
+            selectedOems={selectedOems.length > 0 ? selectedOems : ['tesla']}
+            onContinue={handleDevicePairingContinue}
+            onBack={handleDevicePairingBack}
+          />
+        </div>
+      )}
 
       {(step === 'energy-connect' || step === 'device-selection') && (
         <div className="pt-24">
@@ -859,6 +871,13 @@ export default function Onboarding() {
             onAskDeason={() => window.dispatchEvent(new Event('deason:open'))}
             isConnecting={connectingProvider}
             connectedProviders={connectedProviders}
+            restrictTo={selectedOems.length > 0 ? selectedOems : undefined}
+            titleOverride={connectedProviders.length === 0 ? 'Connect your gear' : undefined}
+            subtitleOverride={
+              connectedProviders.length === 0 && selectedOems.length > 0
+                ? 'Tap each brand to sign in. We\u2019ll do the rest.'
+                : undefined
+            }
           />
 
         </div>
