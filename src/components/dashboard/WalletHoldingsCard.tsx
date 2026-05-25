@@ -45,6 +45,7 @@ export function WalletHoldingsCard({ walletAddress }: WalletHoldingsCardProps) {
           <div className="flex items-center gap-2">
             <Wallet className="h-4 w-4 text-primary" />
             <span className="text-sm font-medium">ZenSolar Holdings</span>
+            <SecurityBadge variant="pill" label="Secured" />
           </div>
           <div className="flex items-center gap-1">
             <Button
