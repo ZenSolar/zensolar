@@ -999,7 +999,9 @@ Deno.serve(async (req) => {
           solar_kwh: Number(solar),
           ev_miles: Number(evMiles),
           battery_kwh: Number(battery),
-          charging_kwh: Number(charging),
+          supercharger_kwh: superchargerDeltaKwh,
+          home_charging_kwh: homeChargingDeltaKwh,
+          charging_kwh_combined_onchain: Number(charging), // contract-level sum only
           device_ids: deviceIdsToUpdate,
           tolerance_pct: RECONCILIATION_TOLERANCE_PCT,
           hard_fail_pct: RECONCILIATION_HARD_FAIL_PCT,
