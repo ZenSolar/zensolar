@@ -85,7 +85,7 @@ export default function Onboarding() {
   const [showWallboxDialog, setShowWallboxDialog] = useState(false);
   
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const { startTeslaOAuth, startEnphaseOAuth, connectSolarEdge, connectWallbox, exchangeEnphaseCode } = useEnergyOAuth();
 
