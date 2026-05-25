@@ -77,6 +77,8 @@ export default function Onboarding() {
   const [deviceSelectionProvider, setDeviceSelectionProvider] = useState<'tesla' | 'enphase'>('tesla');
   const [teslaVehicleForHomeSetup, setTeslaVehicleForHomeSetup] = useState<{ deviceId: string; name?: string } | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  // OEMs the user picked on Connect What Earns — drives the OAuth phase tile list.
+  const [selectedOems, setSelectedOems] = useState<EnergyProvider[]>([]);
   
   // Dialog states for credential-based providers
   const [showEnphaseDialog, setShowEnphaseDialog] = useState(false);
