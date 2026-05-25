@@ -7,6 +7,18 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { triggerLightTap, triggerSuccess } from '@/hooks/useHaptics';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+import teslaLogo from '@/assets/logos/tesla-t-icon.png';
+import enphaseLogo from '@/assets/logos/enphase-brand.png';
+import solaredgeLogo from '@/assets/logos/solaredge-logo.png';
+import wallboxLogo from '@/assets/logos/wallbox-logo.png';
+
+const BRAND_LOGOS: Record<string, string> = {
+  tesla: teslaLogo,
+  tesla_wall_connector: teslaLogo,
+  enphase: enphaseLogo,
+  solaredge: solaredgeLogo,
+  wallbox: wallboxLogo,
+};
 
 export type ConciergeBrand = 'tesla' | 'enphase' | 'solaredge' | 'wallbox' | null;
 
