@@ -110,14 +110,47 @@ export function DevicePairingScreen({
     });
   };
 
+  /**
+   * Conflict resolver: only ONE OEM may own each capability (Solar, Battery).
+   * Source of truth = whichever app the customer actually opens.
+   * EV is Tesla-only so it never conflicts.
+   * Resolves by unchecking the capability on every OEM EXCEPT the chosen one.
+   */
+  const resolveConflict = async (cap: DeviceCapability, keepOem: EnergyProvider) => {
+    await triggerLightTap();
+    setPairing((prev) => {
+      const next = { ...prev };
+      selectedOems.forEach((oem) => {
+        if (oem === keepOem) {
+          // Make sure the kept OEM actually has the cap checked.
+          const current = next[oem] ?? [];
+          if (!current.includes(cap)) next[oem] = [...current, cap];
+        } else {
+          next[oem] = (next[oem] ?? []).filter((c) => c !== cap);
+        }
+      });
+      return next;
+    });
+  };
+
+  // Detect which capabilities are claimed by 2+ OEMs (Solar / Battery only — EV is Tesla-only).
+  const conflicts = useMemo<DeviceCapability[]>(() => {
+    const out: DeviceCapability[] = [];
+    (['solar', 'battery'] as const).forEach((cap) => {
+      const owners = selectedOems.filter((oem) => (pairing[oem] ?? []).includes(cap));
+      if (owners.length > 1) out.push(cap);
+    });
+    return out;
+  }, [pairing, selectedOems]);
+
   // Total number of devices the user has mapped across all OEMs.
   const totalDevices = selectedOems.reduce(
     (sum, oem) => sum + (pairing[oem]?.length ?? 0),
     0
   );
 
-  // At least one OEM must have at least one device checked.
-  const canContinue = totalDevices > 0;
+  // Must have at least one device AND no unresolved overlaps.
+  const canContinue = totalDevices > 0 && conflicts.length === 0;
 
   // Detect Wallbox without Tesla EV — Wallbox pairs with Tesla, useful hint.
   const wallboxNoTesla =
