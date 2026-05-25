@@ -254,7 +254,10 @@ export function openDeasonWithError(opts: {
       }),
     );
   }, 60);
+
+  markSeed(opts.provider);
 }
+
 
 /**
  * Auto-open Deason immediately when an error is "critical" (something the
