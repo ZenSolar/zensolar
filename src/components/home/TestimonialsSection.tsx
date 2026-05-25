@@ -7,9 +7,9 @@ const testimonials = [
   {
     name: 'Mike R.',
     role: 'Tesla Solar + Powerwall Owner',
-    quote: "I connected my Tesla account in under a minute. Within 24 hours, I had my first $ZSOLAR tokens. It's like getting paid for something I was already doing.",
+    quote: "I connected my Tesla account in under a minute. Within 24 hours, I had my first rewards. It's like getting paid for something I was already doing.",
     avatar: '☀️',
-    highlight: 'First tokens in 24h',
+    highlight: 'First rewards in 24h',
   },
   {
     name: 'Sarah K.',

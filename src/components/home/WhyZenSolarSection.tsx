@@ -126,7 +126,7 @@ export function WhyZenSolarSection() {
                   <span className="text-lg text-muted-foreground font-normal">/year</span>
                 </p>
                 <p className="text-xs text-muted-foreground mt-2">
-                  Based on average US solar production, battery cycling, and EV usage at projected $1.00 $ZSOLAR target price
+                  Based on average US solar production, battery cycling, and EV usage at a projected $1.00 token target price
                 </p>
               </motion.div>
             </CardContent>
