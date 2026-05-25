@@ -1028,17 +1028,39 @@ Deno.serve(async (req) => {
             charging: Number(statsAfter[3]),
           };
 
-          const headlineByCat: Record<string, number> = {
-            solar: Number(solar),
-            ev_miles: Number(evMiles),
-            battery: Number(battery),
-            charging: Number(charging),
-          };
-          (sourceBreakdown as any).on_chain_delta = onChainDelta;
+          // Split charging into supercharger + home_charging at the recon layer.
+          // On-chain has a single combined counter, so we allocate the on-chain
+          // delta proportionally to each headline. If both headlines are zero we
+          // attribute the on-chain delta to home_charging by default (residual).
+          const totalChargingHeadline = superchargerDeltaKwh + homeChargingDeltaKwh;
+          const onChainChargingDelta = onChainDelta.charging;
+          let superchargerOnChain = 0;
+          let homeChargingOnChain = 0;
+          if (totalChargingHeadline > 0) {
+            superchargerOnChain = Math.round(
+              (superchargerDeltaKwh / totalChargingHeadline) * onChainChargingDelta,
+            );
+            homeChargingOnChain = onChainChargingDelta - superchargerOnChain;
+          } else {
+            homeChargingOnChain = onChainChargingDelta;
+          }
 
-          for (const [cat, headline] of Object.entries(headlineByCat)) {
-            if (headline === 0 && onChainDelta[cat as keyof typeof onChainDelta] === 0) continue;
-            const result = verifyThreeWay(cat, headline, headline, onChainDelta[cat as keyof typeof onChainDelta]);
+          const perCatRows: Array<{ cat: string; headline: number; onChain: number }> = [
+            { cat: 'solar', headline: Number(solar), onChain: onChainDelta.solar },
+            { cat: 'ev_miles', headline: Number(evMiles), onChain: onChainDelta.ev_miles },
+            { cat: 'battery', headline: Number(battery), onChain: onChainDelta.battery },
+            { cat: 'supercharger', headline: superchargerDeltaKwh, onChain: superchargerOnChain },
+            { cat: 'home_charging', headline: homeChargingDeltaKwh, onChain: homeChargingOnChain },
+          ];
+          (sourceBreakdown as any).on_chain_delta = onChainDelta;
+          (sourceBreakdown as any).on_chain_delta_split = {
+            supercharger: superchargerOnChain,
+            home_charging: homeChargingOnChain,
+          };
+
+          for (const { cat, headline, onChain } of perCatRows) {
+            if (headline === 0 && onChain === 0) continue;
+            const result = verifyThreeWay(cat, headline, headline, onChain);
             if (result.diffPct > maxDiffPct) maxDiffPct = result.diffPct;
             if (!result.ok) {
               reconciliationViolations.push(...result.violations);
@@ -1050,7 +1072,7 @@ Deno.serve(async (req) => {
               category: cat,
               headline_amount: headline,
               rows_amount: headline,
-              on_chain_amount: onChainDelta[cat as keyof typeof onChainDelta],
+              on_chain_amount: onChain,
               diff_pct: result.diffPct,
               tolerance_pct: RECONCILIATION_TOLERANCE_PCT,
               source_breakdown: sourceBreakdown,
