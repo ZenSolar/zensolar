@@ -93,6 +93,7 @@ const previewOnlyNavItems = [
 const resourcesNavItems = [
   { title: "NFT Collection", url: "/nft-collection", icon: Award, desc: "Browse the ZenSolar NFT collection" },
   { title: "Proof-of-Genesis™", url: "/proof-of-genesis", icon: Sparkles, desc: "How we verify real clean energy" },
+  { title: "Glossary", url: "/glossary", icon: BookOpen, desc: "Every ZenSolar word, in plain English" },
   { title: "White Paper", url: "/white-paper", icon: FileText, desc: "The full ZenSolar thesis" },
   { title: "Patent Technology", url: "/technology", icon: Cpu, desc: "Mint-on-Proof™ patent stack" },
 ];
