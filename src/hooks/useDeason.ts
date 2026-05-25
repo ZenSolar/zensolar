@@ -36,6 +36,19 @@ export function useDeason() {
     setStreaming(false);
   }, []);
 
+  /**
+   * Seed Deason with a static assistant message (no model call). Used when
+   * something else in the app — like an OAuth failure — wants Deason to open
+   * with a specific diagnosis + fix script already on screen. Safe to call
+   * multiple times; each call appends.
+   */
+  const seedAssistant = useCallback((text: string) => {
+    if (!text?.trim()) return;
+    setMessages((prev) => [...prev, { role: "assistant", content: text }]);
+    setError(null);
+  }, []);
+
+
   const send = useCallback(
     async (text: string, imageDataUrl?: string) => {
       const trimmed = text.trim();
@@ -184,5 +197,5 @@ export function useDeason() {
     [messages, streaming],
   );
 
-  return { messages, streaming, error, send, reset };
+  return { messages, streaming, error, send, reset, seedAssistant };
 }

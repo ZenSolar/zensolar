@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { openDeasonWithError, type Provider, type OAuthStage } from '@/lib/deasonHandoff';
 
 const REDIRECT_URI = `${window.location.origin}/oauth/callback`;
 
@@ -114,15 +115,15 @@ function describeError(
 }
 
 function showOAuthError(opts: {
-  provider: keyof typeof PROVIDER_LABEL;
-  stage: 'start' | 'exchange' | 'sites' | 'validate' | 'login';
+  provider: Provider;
+  stage: Exclude<OAuthStage, 'status'>;
   rawMessage?: string;
   retry?: () => void;
 }) {
   const { title, description } = describeError(opts.provider, opts.rawMessage, opts.stage);
   toast.error(title, {
     description,
-    duration: 10_000,
+    duration: 12_000,
     action: opts.retry
       ? {
           label: 'Try again',
@@ -131,6 +132,17 @@ function showOAuthError(opts: {
           },
         }
       : undefined,
+    // Secondary button — opens Deason with a seeded diagnosis + fix script.
+    cancel: {
+      label: 'Ask Deason',
+      onClick: () => {
+        openDeasonWithError({
+          provider: opts.provider,
+          stage: opts.stage,
+          rawMessage: opts.rawMessage,
+        });
+      },
+    },
   });
 }
 
