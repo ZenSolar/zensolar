@@ -72,6 +72,7 @@ const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const AdminMintRequests = lazy(() => import("./pages/AdminMintRequests"));
 const AdminPageCleanup = lazy(() => import("./pages/AdminPageCleanup"));
 const AdminProtocolIntegrity = lazy(() => import("./pages/AdminProtocolIntegrity"));
+const AdminKpiReconciliation = lazy(() => import("./pages/AdminKpiReconciliation"));
 const Tokenomics = lazy(() => import("./pages/Tokenomics"));
 const Subscribe = lazy(() => import("./pages/Subscribe"));
 const Profile = lazy(() => import("./pages/Profile"));
