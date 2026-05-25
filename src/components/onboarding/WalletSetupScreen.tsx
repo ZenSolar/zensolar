@@ -105,8 +105,8 @@ export function WalletSetupScreen({ onComplete, onBack }: WalletSetupScreenProps
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Back button — hidden during active ceremony & celebration */}
-      {!isConnecting && !showCelebrating && (
+      {/* Back / Cancel — always available except during the brief celebration */}
+      {!showCelebrating && (
         <motion.div
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
@@ -119,7 +119,7 @@ export function WalletSetupScreen({ onComplete, onBack }: WalletSetupScreenProps
             className="gap-2 text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back
+            {isConnecting ? 'Cancel' : 'Back'}
           </Button>
         </motion.div>
       )}
@@ -174,8 +174,48 @@ export function WalletSetupScreen({ onComplete, onBack }: WalletSetupScreenProps
             />
           )}
         </AnimatePresence>
+
+        {/* Popup-blocked / delayed helper — appears after ~6s of waiting */}
+        {(displayStep === 'creating' || displayStep === 'passkey') && (
+          <PopupHelp onRetry={handleRetry} />
+        )}
       </motion.div>
     </div>
+  );
+}
+
+function PopupHelp({ onRetry }: { onRetry: () => void }) {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setShow(true), 6000);
+    return () => clearTimeout(t);
+  }, []);
+  if (!show) return null;
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="mt-8 mx-auto max-w-sm p-4 rounded-xl border border-border/60 bg-card/50 backdrop-blur-sm text-center"
+    >
+      <p className="text-xs text-foreground/90 font-medium mb-1.5">
+        Popup didn't open?
+      </p>
+      <p className="text-[11px] text-muted-foreground leading-relaxed mb-3">
+        Your browser may have blocked it. Allow popups for{' '}
+        <span className="text-foreground/90 font-mono">zen.solar</span>{' '}
+        in the address bar, then retry.
+      </p>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={onRetry}
+        className="gap-2 h-9 text-xs"
+      >
+        <RefreshCw className="w-3.5 h-3.5" />
+        Retry passkey
+      </Button>
+    </motion.div>
   );
 }
 

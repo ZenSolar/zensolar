@@ -100,6 +100,21 @@ export function WalletChoiceScreen({ onChoice, isLoading = false }: WalletChoice
               <Check className="w-3 h-3 text-primary" /> Gasless
             </span>
           </div>
+
+          {/* What happens next + popup-blocked help */}
+          <div className="mt-4 pt-4 border-t border-border/50 space-y-2">
+            <p className="text-[11px] text-muted-foreground/90 leading-relaxed">
+              <span className="text-foreground/90 font-medium">What happens:</span>{' '}
+              A secure Coinbase popup opens, your device prompts for Face ID / Touch ID,
+              then you're back here automatically — usually under 10 seconds.
+            </p>
+            <p className="text-[11px] text-muted-foreground/70 leading-relaxed">
+              <span className="text-foreground/80 font-medium">Popup blocked or didn't appear?</span>{' '}
+              Tap the address-bar icon and allow popups for{' '}
+              <span className="text-foreground/90 font-mono">zen.solar</span>, then tap{' '}
+              <span className="text-foreground/90">Create ZenSolar Wallet</span> again.
+            </p>
+          </div>
         </motion.button>
 
         {/* Secondary — quieter row */}
