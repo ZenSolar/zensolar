@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Link2, Zap, Sparkles, Wallet, Sun, BatteryFull, Car, Plug } from 'lucide-react';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import teslaLogo from '@/assets/logos/tesla-logo.png';
-import enphaseLogo from '@/assets/logos/enphase-logo.png';
+import enphaseLogo from '@/assets/logos/enphase-wordmark.svg';
 import solarEdgeLogo from '@/assets/logos/solaredge-logo.png';
 import wallboxLogo from '@/assets/logos/wallbox-logo.png';
 

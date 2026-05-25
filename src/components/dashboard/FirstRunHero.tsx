@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 import teslaLogo from '@/assets/logos/tesla-t-icon.svg';
-import enphaseLogo from '@/assets/logos/enphase-logo.png';
+import enphaseLogo from '@/assets/logos/enphase-wordmark.svg';
 import solaredgeLogo from '@/assets/logos/solaredge-cropped.svg';
 import wallboxLogo from '@/assets/logos/wallbox-icon.svg';
 
