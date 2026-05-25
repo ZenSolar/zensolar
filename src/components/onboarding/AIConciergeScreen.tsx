@@ -64,8 +64,51 @@ const CHIPS: { id: ChipId; emoji: string; label: string; phrase: string; group: 
   { id: 'apartment', emoji: '🏢', label: 'Apartment',    phrase: 'I live in an apartment',         group: 'home' },
 ];
 
-function composeFromChips(selected: Set<ChipId>): string {
-  const gear = CHIPS.filter((c) => c.group === 'gear' && selected.has(c.id)).map((c) => c.phrase);
+// Per-category OEM drill-down. After the user taps a gear chip, we surface the
+// small set of brands we actually support so Deason gets a much better signal
+// than "I have solar." Each option carries an ID + a natural-language phrase
+// the prompt composer slots in.
+type BrandOption = { id: string; label: string; phrase: string };
+const BRAND_OPTIONS: Record<'solar' | 'battery' | 'ev' | 'charger', BrandOption[]> = {
+  solar: [
+    { id: 'tesla',     label: 'Tesla',     phrase: 'Tesla solar' },
+    { id: 'enphase',   label: 'Enphase',   phrase: 'Enphase solar' },
+    { id: 'solaredge', label: 'SolarEdge', phrase: 'SolarEdge solar' },
+    { id: 'other',     label: 'Other',     phrase: 'rooftop solar (other brand)' },
+    { id: 'unknown',   label: 'Not sure',  phrase: "rooftop solar (I'm not sure of the brand)" },
+  ],
+  battery: [
+    { id: 'tesla',     label: 'Tesla Powerwall',     phrase: 'a Tesla Powerwall' },
+    { id: 'enphase',   label: 'Enphase IQ Battery',  phrase: 'an Enphase IQ Battery' },
+    { id: 'solaredge', label: 'SolarEdge Battery',   phrase: 'a SolarEdge Home Battery' },
+    { id: 'other',     label: 'Other',               phrase: 'a home battery (other brand)' },
+    { id: 'unknown',   label: 'Not sure',            phrase: "a home battery (I'm not sure of the brand)" },
+  ],
+  ev: [
+    { id: 'tesla',   label: 'Tesla',    phrase: 'a Tesla' },
+    { id: 'other',   label: 'Other EV', phrase: 'a non-Tesla EV' },
+    { id: 'unknown', label: 'Not sure', phrase: 'an EV' },
+  ],
+  charger: [
+    { id: 'tesla_wall_connector', label: 'Tesla Wall Connector', phrase: 'a Tesla Wall Connector' },
+    { id: 'wallbox',              label: 'Wallbox',              phrase: 'a Wallbox charger' },
+    { id: 'enphase',              label: 'Enphase',              phrase: 'an Enphase home charger' },
+    { id: 'solaredge',            label: 'SolarEdge',            phrase: 'a SolarEdge home charger' },
+    { id: 'chargepoint',          label: 'ChargePoint',          phrase: 'a ChargePoint charger' },
+    { id: 'other',                label: 'Other L2',             phrase: 'another L2 home charger' },
+    { id: 'vehicle_telemetry',    label: 'Standard outlet',      phrase: 'a standard garage outlet' },
+  ],
+};
+
+function composeFromChips(selected: Set<ChipId>, brands: Partial<Record<ChipId, string>>): string {
+  const gearOrder: ChipId[] = ['solar', 'battery', 'ev', 'charger'];
+  const gear = gearOrder
+    .filter((id) => selected.has(id))
+    .map((id) => {
+      const brandId = brands[id];
+      const brand = brandId ? BRAND_OPTIONS[id as 'solar' | 'battery' | 'ev' | 'charger'].find((b) => b.id === brandId) : undefined;
+      return brand?.phrase ?? CHIPS.find((c) => c.id === id)!.phrase;
+    });
   const home = CHIPS.filter((c) => c.group === 'home' && selected.has(c.id)).map((c) => c.phrase);
   const parts: string[] = [];
   if (gear.length) {
