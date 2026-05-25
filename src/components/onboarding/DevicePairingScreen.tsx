@@ -415,7 +415,7 @@ export function DevicePairingScreen({
 
               {/* Capability checkboxes */}
               <div className="mt-3 grid grid-cols-1 gap-2">
-                {oem.available.map((cap) => {
+                {availableFor(oemId).map((cap) => {
                   const isChecked = checked.includes(cap);
                   const meta = CAPABILITY_META[cap];
                   return (
