@@ -236,11 +236,11 @@ export default function Onboarding() {
     }
 
     // Demo/preview deep-link — jump straight to any onboarding step.
-    // Usage: /onboarding?preview=energy-connect (or ai-concierge, wallet-success, energy-success, home-charging-setup)
+    // Usage: /onboarding?preview=oem-select (or device-pairing, energy-connect, wallet-success, energy-success, home-charging-setup)
     const preview = searchParams.get('preview') as OnboardingStep | null;
     const validPreviewSteps: OnboardingStep[] = [
       'wallet-choice', 'zensolar-setup', 'external-wallet', 'wallet-success',
-      'ai-concierge', 'energy-connect', 'home-charging-setup', 'energy-success', 'device-selection'
+      'oem-select', 'device-pairing', 'energy-connect', 'home-charging-setup', 'energy-success', 'device-selection'
     ];
     if (preview && validPreviewSteps.includes(preview)) {
       setStep(preview);
