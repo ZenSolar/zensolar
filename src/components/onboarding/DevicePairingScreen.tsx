@@ -324,17 +324,18 @@ export function DevicePairingScreen({
       {Object.keys(ownership).length > 0 && conflicts.length === 0 && (
         <section className="relative z-10 px-5 mt-3">
           <div className="flex flex-wrap items-center justify-center gap-1.5">
-            {(['solar', 'battery', 'ev'] as const).map((cap) => {
+            {(['solar', 'battery', 'ev', 'charger'] as const).map((cap) => {
               const owner = ownership[cap];
               if (!owner) return null;
               const meta = CAPABILITY_META[cap];
+              const label = OEMS[owner].productNames[cap] ?? meta.label;
               return (
                 <div
                   key={cap}
                   className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-medium ${meta.tint}`}
                 >
                   <span aria-hidden="true">{meta.emoji}</span>
-                  <span className="opacity-90">{meta.label}</span>
+                  <span className="opacity-90">{label}</span>
                   <span className="opacity-50">·</span>
                   <span className="font-semibold">{OEMS[owner].name}</span>
                 </div>
