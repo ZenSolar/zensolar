@@ -24,6 +24,7 @@ import { MintEffectButton } from '@/components/dashboard/MintEffectButton';
 import { DashboardHexBackground } from '@/components/dashboard/DashboardHexBackground';
 import { DemoOnboardingHints } from '@/components/demo/DemoOnboardingHints';
 import { TapToMintCard } from '@/components/demo/TapToMintCard';
+import { CO2OffsetCard } from '@/components/dashboard/CO2OffsetCard';
 import { isVipActive } from '@/lib/vipDemo';
 
 import {
