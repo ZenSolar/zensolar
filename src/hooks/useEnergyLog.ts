@@ -9,7 +9,7 @@ export type ActivityType = 'solar' | 'battery' | 'ev-charging' | 'ev-miles';
 export interface DailyProduction {
   date: Date;
   kWh: number;
-  /** Pass E · #3 — verified data providers that contributed on this day */
+  /** Verified data providers that contributed on this day (for badges) */
   providers: string[];
 }
 
@@ -21,62 +21,63 @@ export interface MonthData {
   daysWithData: number;
 }
 
-interface RawRecord {
+// ── shared types & helpers ─────────────────────────────────────────────────
+
+interface ProductionRow {
   production_wh: number;
-  consumption_wh: number | null;
   recorded_at: string;
   device_id: string;
   provider: string;
   data_type: string;
 }
 
-/** Map UI tab to data_type stored in energy_production */
-function tabToDataType(tab: ActivityType): string {
-  switch (tab) {
-    case 'solar': return 'solar';
-    case 'battery': return 'battery_discharge';
-    case 'ev-charging': return 'ev_charging';
-    case 'ev-miles': return 'ev_miles';
-  }
+interface ChargingSessionRow {
+  energy_kwh: number;
+  session_date: string;
+  charging_type: string;
+  provider: string;
+}
+
+interface HomeSessionRow {
+  total_session_kwh: number;
+  start_time: string;
+  device_id: string;
+}
+
+const MAX_DAILY_WH = 500_000; // 500 kWh/day per device sanity cap
+const MAX_DAILY_MILES = 1_000;
+
+function round1(n: number) {
+  return Math.round(n * 10) / 10;
+}
+
+function addToDay(
+  dailyByDay: Map<string, number>,
+  providersByDay: Map<string, Set<string>>,
+  dayKey: string,
+  value: number,
+  provider: string,
+) {
+  if (value <= 0) return;
+  dailyByDay.set(dayKey, (dailyByDay.get(dayKey) || 0) + value);
+  if (!providersByDay.has(dayKey)) providersByDay.set(dayKey, new Set());
+  providersByDay.get(dayKey)!.add(provider);
 }
 
 /**
- * Compute daily kWh from raw energy_production records.
- *
- * Provider-aware logic:
- * - Enphase / SolarEdge: production_wh = today's running total (resets daily).
- *   Daily production = MAX(production_wh) per device per day.
- * - Tesla: production_wh = cumulative pending since last mint.
- *   Daily production = delta between consecutive day maxes per device.
- *   Negative deltas (mint resets) are clamped to 0.
+ * Compute per-day deltas for cumulative provider rows (Tesla, Enphase battery,
+ * SolarEdge battery — all of which store cumulative `production_wh`).
+ * - Groups by device+provider then sorts by day.
+ * - delta = todayMax − prevDayMax, clamped at zero (mints reset the counter).
  */
-function computeDailyFromRecords(records: RawRecord[], monthStart: Date, monthEnd: Date, activeTab: ActivityType): DailyProduction[] {
-  let filteredRecords = records;
-  const providers = new Set(records.map(r => r.provider));
-
-  if (activeTab === 'solar') {
-    // Solar priority: if a dedicated solar provider exists, skip Tesla solar data
-    const hasDedicatedSolar = providers.has('enphase') || providers.has('solaredge');
-    if (hasDedicatedSolar) {
-      filteredRecords = records.filter(r => r.provider !== 'tesla' && r.provider !== 'tesla_historical');
-    }
-  }
-
-  // Prevent double-counting: when both tesla (cumulative) and tesla_historical (daily)
-  // exist for the same data type, prefer tesla_historical and skip cumulative tesla records
-  if (providers.has('tesla') && providers.has('tesla_historical')) {
-    filteredRecords = filteredRecords.filter(r => r.provider !== 'tesla');
-  }
-
-  // EV miles stores raw odometer (miles), not Wh — no /1000 conversion
-  const isEvMiles = activeTab === 'ev-miles';
-
-  // Group by device+provider, then by day → max production_wh
-  // Grouping by provider is critical: tesla (cumulative) and tesla_historical (daily)
-  // use different calculation methods and must not be mixed.
+function reduceCumulativeRows(
+  rows: ProductionRow[],
+  dailyByDay: Map<string, number>,
+  providersByDay: Map<string, Set<string>>,
+  unit: 'kwh' | 'miles',
+) {
   const deviceDayMax = new Map<string, Map<string, { max: number; provider: string }>>();
-
-  for (const r of filteredRecords) {
+  for (const r of rows) {
     const dayKey = format(new Date(r.recorded_at), 'yyyy-MM-dd');
     const groupKey = `${r.device_id}|${r.provider}`;
     if (!deviceDayMax.has(groupKey)) deviceDayMax.set(groupKey, new Map());
@@ -87,100 +88,282 @@ function computeDailyFromRecords(records: RawRecord[], monthStart: Date, monthEn
     }
   }
 
-  // For each device, compute daily production
-  const dailyByDay = new Map<string, number>();
-  const providersByDay = new Map<string, Set<string>>();
-
-  const addProvider = (dayKey: string, provider: string) => {
-    if (!providersByDay.has(dayKey)) providersByDay.set(dayKey, new Set());
-    providersByDay.get(dayKey)!.add(provider);
-  };
-
   for (const [, dayMap] of deviceDayMax) {
     const sortedDays = [...dayMap.entries()].sort(([a], [b]) => a.localeCompare(b));
-    const provider = sortedDays[0]?.[1].provider;
-
-    // Cap daily values to filter out anomalous jumps
-    const MAX_DAILY_WH = 500_000;
-    const MAX_DAILY_MILES = 1_000; // no one drives 1000 miles in a day
-
-    // Tesla (cumulative) always uses day-over-day deltas
-    // tesla_historical uses daily values (like Enphase) — MAX per day IS daily production
-    if (provider === 'tesla') {
-      // Tesla: cumulative → day-over-day deltas
-      for (let i = 0; i < sortedDays.length; i++) {
-        const [dayKey, { max }] = sortedDays[i];
-        if (i === 0) continue;
-        const prevMax = sortedDays[i - 1][1].max;
-        const delta = Math.max(0, max - prevMax); // clamp negative (mint reset)
-        if (isEvMiles) {
-          if (delta > MAX_DAILY_MILES) continue;
-          // Miles stored directly — no conversion
-          dailyByDay.set(dayKey, (dailyByDay.get(dayKey) || 0) + Math.round(delta * 10) / 10);
-          if (delta > 0) addProvider(dayKey, provider);
-        } else {
-          if (delta > MAX_DAILY_WH) continue;
-          dailyByDay.set(dayKey, (dailyByDay.get(dayKey) || 0) + delta / 1000);
-          if (delta > 0) addProvider(dayKey, provider);
-        }
-      }
-    } else {
-      // Enphase / SolarEdge: MAX per day IS daily production
-      for (const [dayKey, { max }] of sortedDays) {
-        if (isEvMiles) {
-          if (max > MAX_DAILY_MILES) continue;
-          dailyByDay.set(dayKey, (dailyByDay.get(dayKey) || 0) + Math.round(max * 10) / 10);
-          if (max > 0 && provider) addProvider(dayKey, provider);
-        } else {
-          if (max > MAX_DAILY_WH) continue;
-          dailyByDay.set(dayKey, (dailyByDay.get(dayKey) || 0) + max / 1000);
-          if (max > 0 && provider) addProvider(dayKey, provider);
-        }
+    for (let i = 1; i < sortedDays.length; i++) {
+      const [dayKey, { max, provider }] = sortedDays[i];
+      const prevMax = sortedDays[i - 1][1].max;
+      const delta = Math.max(0, max - prevMax);
+      if (unit === 'miles') {
+        if (delta > MAX_DAILY_MILES) continue;
+        addToDay(dailyByDay, providersByDay, dayKey, round1(delta), provider);
+      } else {
+        if (delta > MAX_DAILY_WH) continue;
+        addToDay(dailyByDay, providersByDay, dayKey, delta / 1000, provider);
       }
     }
   }
+}
 
-  // Build array for every day in the month up to today
+/**
+ * Compute per-day values for daily-reset provider rows (Enphase solar,
+ * SolarEdge solar, `tesla_historical` backfill). Day total = MAX per day.
+ */
+function reduceDailyResetRows(
+  rows: ProductionRow[],
+  dailyByDay: Map<string, number>,
+  providersByDay: Map<string, Set<string>>,
+) {
+  const deviceDayMax = new Map<string, Map<string, { max: number; provider: string }>>();
+  for (const r of rows) {
+    const dayKey = format(new Date(r.recorded_at), 'yyyy-MM-dd');
+    const groupKey = `${r.device_id}|${r.provider}`;
+    if (!deviceDayMax.has(groupKey)) deviceDayMax.set(groupKey, new Map());
+    const dayMap = deviceDayMax.get(groupKey)!;
+    const existing = dayMap.get(dayKey);
+    if (!existing || r.production_wh > existing.max) {
+      dayMap.set(dayKey, { max: r.production_wh, provider: r.provider });
+    }
+  }
+  for (const [, dayMap] of deviceDayMax) {
+    for (const [dayKey, { max, provider }] of dayMap) {
+      if (max <= 0 || max > MAX_DAILY_WH) continue;
+      addToDay(dailyByDay, providersByDay, dayKey, max / 1000, provider);
+    }
+  }
+}
+
+// ── tab-specific reducers (mirror useDashboardData KPI logic) ─────────────
+
+/**
+ * SOLAR: Enphase > SolarEdge > Tesla priority. One OEM per home, never summed.
+ * Matches `useDashboardData.buildFastPathData` solar branch exactly.
+ */
+function computeSolarDaily(rows: ProductionRow[]): Map<string, { kwh: number; providers: Set<string> }> {
+  const providers = new Set(rows.map((r) => r.provider));
+  let chosen: 'enphase' | 'solaredge' | 'tesla' | null = null;
+  if (providers.has('enphase')) chosen = 'enphase';
+  else if (providers.has('solaredge')) chosen = 'solaredge';
+  else if (providers.has('tesla') || providers.has('tesla_historical')) chosen = 'tesla';
+
+  const dailyByDay = new Map<string, number>();
+  const providersByDay = new Map<string, Set<string>>();
+
+  if (chosen === 'enphase') {
+    reduceDailyResetRows(rows.filter((r) => r.provider === 'enphase'), dailyByDay, providersByDay);
+  } else if (chosen === 'solaredge') {
+    reduceDailyResetRows(rows.filter((r) => r.provider === 'solaredge'), dailyByDay, providersByDay);
+  } else if (chosen === 'tesla') {
+    // tesla_historical = daily backfill (max per day = daily total)
+    reduceDailyResetRows(rows.filter((r) => r.provider === 'tesla_historical'), dailyByDay, providersByDay);
+    // tesla = cumulative pending (day-over-day deltas), but skip if backfill covers the period
+    const teslaRows = rows.filter((r) => r.provider === 'tesla');
+    if (!providers.has('tesla_historical')) {
+      reduceCumulativeRows(teslaRows, dailyByDay, providersByDay, 'kwh');
+    }
+  }
+
+  return mergeMaps(dailyByDay, providersByDay);
+}
+
+/**
+ * BATTERY: Tesla > Enphase > SolarEdge priority. Mirrors the KPI's
+ * "one OEM per battery, never summed" rule.
+ * - Tesla writes data_type='battery_discharge' (cumulative).
+ * - Enphase/SolarEdge write data_type='battery' (cumulative lifetime).
+ * All three use day-over-day deltas for the daily view.
+ */
+function computeBatteryDaily(rows: ProductionRow[]): Map<string, { kwh: number; providers: Set<string> }> {
+  const providers = new Set(rows.map((r) => r.provider));
+  const hasTesla = providers.has('tesla') || providers.has('tesla_historical');
+  let chosen: 'tesla' | 'enphase' | 'solaredge' | null = null;
+  if (hasTesla) chosen = 'tesla';
+  else if (providers.has('enphase')) chosen = 'enphase';
+  else if (providers.has('solaredge')) chosen = 'solaredge';
+
+  const dailyByDay = new Map<string, number>();
+  const providersByDay = new Map<string, Set<string>>();
+
+  if (chosen === 'tesla') {
+    reduceDailyResetRows(rows.filter((r) => r.provider === 'tesla_historical'), dailyByDay, providersByDay);
+    if (!providers.has('tesla_historical')) {
+      reduceCumulativeRows(rows.filter((r) => r.provider === 'tesla'), dailyByDay, providersByDay, 'kwh');
+    }
+  } else if (chosen === 'enphase') {
+    reduceCumulativeRows(rows.filter((r) => r.provider === 'enphase'), dailyByDay, providersByDay, 'kwh');
+  } else if (chosen === 'solaredge') {
+    reduceCumulativeRows(rows.filter((r) => r.provider === 'solaredge'), dailyByDay, providersByDay, 'kwh');
+  }
+
+  return mergeMaps(dailyByDay, providersByDay);
+}
+
+/**
+ * EV MILES: Tesla odometer deltas. Matches KPI which reads
+ * `connected_devices.lifetime_totals.odometer`.
+ */
+function computeEvMilesDaily(rows: ProductionRow[]): Map<string, { kwh: number; providers: Set<string> }> {
+  const dailyByDay = new Map<string, number>();
+  const providersByDay = new Map<string, Set<string>>();
+  // tesla_historical: daily granularity already
+  reduceDailyResetRows(rows.filter((r) => r.provider === 'tesla_historical'), dailyByDay, providersByDay);
+  // tesla cumulative odometer: day-over-day deltas (only if no historical backfill)
+  const providers = new Set(rows.map((r) => r.provider));
+  if (!providers.has('tesla_historical')) {
+    reduceCumulativeRows(rows.filter((r) => r.provider === 'tesla'), dailyByDay, providersByDay, 'miles');
+  }
+  // ev_miles is stored in MILES already (not Wh), so reduceCumulativeRows'/1000 path
+  // would be wrong if we accidentally use kwh mode. Re-scale: divide by 1000 → undo.
+  // (reduceCumulativeRows with 'miles' already returns delta directly.)
+  return mergeMaps(dailyByDay, providersByDay);
+}
+
+/**
+ * EV CHARGING: Supercharger from `charging_sessions` + Home AC from
+ * `home_charging_sessions`. Matches the KPI exactly — does NOT read from
+ * `energy_production` to avoid double-counting (Tesla writes both).
+ */
+function computeChargingDaily(
+  superchargerRows: ChargingSessionRow[],
+  homeRows: HomeSessionRow[],
+): Map<string, { kwh: number; providers: Set<string> }> {
+  const dailyByDay = new Map<string, number>();
+  const providersByDay = new Map<string, Set<string>>();
+
+  for (const s of superchargerRows) {
+    if (s.charging_type !== 'supercharger') continue;
+    const kwh = Number(s.energy_kwh || 0);
+    if (kwh <= 0) continue;
+    const dayKey = format(new Date(s.session_date), 'yyyy-MM-dd');
+    addToDay(dailyByDay, providersByDay, dayKey, kwh, 'tesla_supercharger');
+  }
+
+  for (const h of homeRows) {
+    const kwh = Number(h.total_session_kwh || 0);
+    if (kwh <= 0) continue;
+    const dayKey = format(new Date(h.start_time), 'yyyy-MM-dd');
+    // Provider tag for the badge — we treat all home sessions as "home" since
+    // they can be Tesla AC, Wallbox, or wall-connector and we don't always
+    // know which without an extra device lookup.
+    addToDay(dailyByDay, providersByDay, dayKey, kwh, 'home');
+  }
+
+  return mergeMaps(dailyByDay, providersByDay);
+}
+
+function mergeMaps(
+  dailyByDay: Map<string, number>,
+  providersByDay: Map<string, Set<string>>,
+): Map<string, { kwh: number; providers: Set<string> }> {
+  const out = new Map<string, { kwh: number; providers: Set<string> }>();
+  for (const [k, v] of dailyByDay) {
+    out.set(k, { kwh: v, providers: providersByDay.get(k) ?? new Set() });
+  }
+  return out;
+}
+
+function buildMonthDays(
+  byDay: Map<string, { kwh: number; providers: Set<string> }>,
+  monthStart: Date,
+  monthEnd: Date,
+): DailyProduction[] {
   const today = new Date();
-  const allDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
-
-  return allDays
-    .filter(day => !isAfter(day, today))
-    .map(day => {
+  return eachDayOfInterval({ start: monthStart, end: monthEnd })
+    .filter((day) => !isAfter(day, today))
+    .map((day) => {
       const dayKey = format(day, 'yyyy-MM-dd');
+      const entry = byDay.get(dayKey);
       return {
         date: day,
-        kWh: Math.round((dailyByDay.get(dayKey) || 0) * 10) / 10,
-        providers: Array.from(providersByDay.get(dayKey) || []),
+        kWh: round1(entry?.kwh ?? 0),
+        providers: Array.from(entry?.providers ?? []),
       };
     });
 }
 
 function computeMonthData(days: DailyProduction[]): MonthData {
-  const daysWithData = days.filter(d => d.kWh > 0).length;
-  const totalKwh = Math.round(days.reduce((sum, d) => sum + d.kWh, 0) * 10) / 10;
-  const avgKwh = daysWithData > 0 ? Math.round((totalKwh / daysWithData) * 10) / 10 : 0;
-  const bestDay = days.reduce<DailyProduction | null>((best, d) => {
-    if (!best || d.kWh > best.kWh) return d;
-    return best;
-  }, null);
-
+  const daysWithData = days.filter((d) => d.kWh > 0).length;
+  const totalKwh = round1(days.reduce((sum, d) => sum + d.kWh, 0));
+  const avgKwh = daysWithData > 0 ? round1(totalKwh / daysWithData) : 0;
+  const bestDay = days.reduce<DailyProduction | null>((best, d) => (!best || d.kWh > best.kWh ? d : best), null);
   return { days, totalKwh, avgKwh, bestDay, daysWithData };
 }
 
-async function fetchMonthRecords(userId: string, monthStart: Date, monthEnd: Date, dataType: string): Promise<RawRecord[]> {
+// ── data fetchers ──────────────────────────────────────────────────────────
+
+async function fetchSolarRows(userId: string, monthStart: Date, monthEnd: Date): Promise<ProductionRow[]> {
   const { data, error } = await supabase
     .from('energy_production')
-    .select('production_wh, consumption_wh, recorded_at, device_id, provider, data_type')
+    .select('production_wh, recorded_at, device_id, provider, data_type')
     .eq('user_id', userId)
-    .eq('data_type', dataType)
+    .eq('data_type', 'solar')
     .gte('recorded_at', monthStart.toISOString())
     .lte('recorded_at', monthEnd.toISOString())
     .order('recorded_at', { ascending: true });
-
   if (error) throw error;
-  return (data || []) as RawRecord[];
+  return (data || []) as ProductionRow[];
 }
+
+async function fetchBatteryRows(userId: string, monthStart: Date, monthEnd: Date): Promise<ProductionRow[]> {
+  // Tesla writes data_type='battery_discharge', Enphase/SolarEdge write 'battery'.
+  // We pull BOTH so the priority filter has everything it needs.
+  const { data, error } = await supabase
+    .from('energy_production')
+    .select('production_wh, recorded_at, device_id, provider, data_type')
+    .eq('user_id', userId)
+    .in('data_type', ['battery', 'battery_discharge'])
+    .gte('recorded_at', monthStart.toISOString())
+    .lte('recorded_at', monthEnd.toISOString())
+    .order('recorded_at', { ascending: true });
+  if (error) throw error;
+  return (data || []) as ProductionRow[];
+}
+
+async function fetchEvMilesRows(userId: string, monthStart: Date, monthEnd: Date): Promise<ProductionRow[]> {
+  const { data, error } = await supabase
+    .from('energy_production')
+    .select('production_wh, recorded_at, device_id, provider, data_type')
+    .eq('user_id', userId)
+    .eq('data_type', 'ev_miles')
+    .gte('recorded_at', monthStart.toISOString())
+    .lte('recorded_at', monthEnd.toISOString())
+    .order('recorded_at', { ascending: true });
+  if (error) throw error;
+  return (data || []) as ProductionRow[];
+}
+
+async function fetchChargingSources(
+  userId: string,
+  monthStart: Date,
+  monthEnd: Date,
+): Promise<{ supercharger: ChargingSessionRow[]; home: HomeSessionRow[] }> {
+  const startDate = format(monthStart, 'yyyy-MM-dd');
+  const endDate = format(monthEnd, 'yyyy-MM-dd');
+  const [superRes, homeRes] = await Promise.all([
+    supabase
+      .from('charging_sessions')
+      .select('energy_kwh, session_date, charging_type, provider')
+      .eq('user_id', userId)
+      .eq('charging_type', 'supercharger')
+      .gte('session_date', startDate)
+      .lte('session_date', endDate),
+    supabase
+      .from('home_charging_sessions')
+      .select('total_session_kwh, start_time, device_id')
+      .eq('user_id', userId)
+      .eq('status', 'completed')
+      .gte('start_time', monthStart.toISOString())
+      .lte('start_time', monthEnd.toISOString()),
+  ]);
+  if (superRes.error) throw superRes.error;
+  if (homeRes.error) throw homeRes.error;
+  return {
+    supercharger: (superRes.data || []) as ChargingSessionRow[],
+    home: (homeRes.data || []) as HomeSessionRow[],
+  };
+}
+
+// ── hook ───────────────────────────────────────────────────────────────────
 
 export function useEnergyLog() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -193,45 +376,51 @@ export function useEnergyLog() {
   const compareMonthEnd = endOfMonth(subMonths(currentMonth, 1));
 
   const canGoForward = isAfter(startOfMonth(addMonths(currentMonth, 1)), new Date()) === false;
-
-  const goToPreviousMonth = () => setCurrentMonth(prev => subMonths(prev, 1));
+  const goToPreviousMonth = () => setCurrentMonth((prev) => subMonths(prev, 1));
   const goToNextMonth = () => {
-    if (canGoForward) setCurrentMonth(prev => addMonths(prev, 1));
+    if (canGoForward) setCurrentMonth((prev) => addMonths(prev, 1));
   };
 
-  const dataType = tabToDataType(activeTab);
+  async function loadMonth(userId: string, mStart: Date, mEnd: Date, tab: ActivityType): Promise<DailyProduction[]> {
+    if (tab === 'solar') {
+      const rows = await fetchSolarRows(userId, mStart, mEnd);
+      return buildMonthDays(computeSolarDaily(rows), mStart, mEnd);
+    }
+    if (tab === 'battery') {
+      const rows = await fetchBatteryRows(userId, mStart, mEnd);
+      return buildMonthDays(computeBatteryDaily(rows), mStart, mEnd);
+    }
+    if (tab === 'ev-miles') {
+      const rows = await fetchEvMilesRows(userId, mStart, mEnd);
+      return buildMonthDays(computeEvMilesDaily(rows), mStart, mEnd);
+    }
+    // ev-charging
+    const { supercharger, home } = await fetchChargingSources(userId, mStart, mEnd);
+    return buildMonthDays(computeChargingDaily(supercharger, home), mStart, mEnd);
+  }
 
-  // Current month raw records
-  const { data: currentRecords = [], isLoading: currentLoading } = useQuery({
-    queryKey: ['energy-log-records', viewAsUserId, format(monthStart, 'yyyy-MM'), dataType],
+  const { data: currentDays = [], isLoading: currentLoading } = useQuery({
+    queryKey: ['energy-log-v2', viewAsUserId, format(monthStart, 'yyyy-MM'), activeTab],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       const userId = viewAsUserId || user?.id;
       if (!userId) return [];
-      return fetchMonthRecords(userId, monthStart, monthEnd, dataType);
+      return loadMonth(userId, monthStart, monthEnd, activeTab);
     },
   });
 
-  // Previous month raw records (for comparison)
-  const { data: compareRecords = [], isLoading: compareLoading } = useQuery({
-    queryKey: ['energy-log-records', viewAsUserId, format(compareMonthStart, 'yyyy-MM'), dataType],
+  const { data: compareDays = [], isLoading: compareLoading } = useQuery({
+    queryKey: ['energy-log-v2', viewAsUserId, format(compareMonthStart, 'yyyy-MM'), activeTab],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       const userId = viewAsUserId || user?.id;
       if (!userId) return [];
-      return fetchMonthRecords(userId, compareMonthStart, compareMonthEnd, dataType);
+      return loadMonth(userId, compareMonthStart, compareMonthEnd, activeTab);
     },
   });
 
-  const currentMonthData = useMemo(() => {
-    const days = computeDailyFromRecords(currentRecords, monthStart, monthEnd, activeTab);
-    return computeMonthData(days);
-  }, [currentRecords, monthStart, monthEnd, activeTab]);
-
-  const compareMonthData = useMemo(() => {
-    const days = computeDailyFromRecords(compareRecords, compareMonthStart, compareMonthEnd, activeTab);
-    return computeMonthData(days);
-  }, [compareRecords, compareMonthStart, compareMonthEnd, activeTab]);
+  const currentMonthData = useMemo(() => computeMonthData(currentDays), [currentDays]);
+  const compareMonthData = useMemo(() => computeMonthData(compareDays), [compareDays]);
 
   return {
     currentMonth,
