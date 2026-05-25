@@ -8,6 +8,39 @@
  * assistant message. The user can then ask follow-up questions naturally.
  */
 
+import { trackEvent } from '@/hooks/useGoogleAnalytics';
+
+/** sessionStorage key used to remember a recent seed per provider so the
+ *  OAuth success path can fire a `deason_seeded_connection_success` event. */
+const SEED_TS_KEY = (provider: string) => `deason_seed_ts_${provider}`;
+const SEED_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
+
+/** Note that Deason just seeded a playbook for this provider. */
+function markSeed(provider: string) {
+  try {
+    sessionStorage.setItem(SEED_TS_KEY(provider), String(Date.now()));
+  } catch {
+    /* private mode / storage disabled — ignore */
+  }
+}
+
+/** Returns true if Deason seeded a playbook for this provider in the last
+ *  5 minutes. Consumed (and cleared) by the OAuth success path so we only
+ *  count one assisted success per failure. */
+export function consumeRecentDeasonSeed(provider: string): boolean {
+  try {
+    const raw = sessionStorage.getItem(SEED_TS_KEY(provider));
+    if (!raw) return false;
+    const ts = Number(raw);
+    sessionStorage.removeItem(SEED_TS_KEY(provider));
+    return Number.isFinite(ts) && Date.now() - ts < SEED_WINDOW_MS;
+  } catch {
+    return false;
+  }
+}
+
+
+
 export type Provider = 'tesla' | 'enphase' | 'solaredge' | 'wallbox';
 export type OAuthStage = 'start' | 'exchange' | 'sites' | 'validate' | 'login' | 'status';
 
