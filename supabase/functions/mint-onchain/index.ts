@@ -865,6 +865,7 @@ Deno.serve(async (req) => {
       }
 
       const solar = BigInt(solarDeltaKwh);
+      const evMiles = BigInt(evMilesDelta);
       const battery = BigInt(batteryDeltaKwh);
       const charging = BigInt(chargingDeltaKwh);
 
