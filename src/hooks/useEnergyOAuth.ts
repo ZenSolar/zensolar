@@ -5,9 +5,22 @@ import {
   openDeasonWithError,
   maybeAutoOpenDeason,
   scheduleDeasonNudge,
+  consumeRecentDeasonSeed,
   type Provider,
   type OAuthStage,
 } from '@/lib/deasonHandoff';
+import { trackEvent } from '@/hooks/useGoogleAnalytics';
+
+/** Fire a success event, attributing the connect to Deason if the user
+ *  saw a seeded playbook (auto-open or nudge) in the last 5 min. */
+function trackConnectSuccess(provider: Provider) {
+  const deasonAssisted = consumeRecentDeasonSeed(provider);
+  trackEvent('energy_account_connected', { provider, deason_assisted: deasonAssisted });
+  if (deasonAssisted) {
+    trackEvent('deason_seeded_connection_success', { provider });
+  }
+}
+
 
 const REDIRECT_URI = `${window.location.origin}/oauth/callback`;
 
