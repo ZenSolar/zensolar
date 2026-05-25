@@ -124,6 +124,7 @@ function composeFromChips(selected: Set<ChipId>, brands: Partial<Record<ChipId, 
 export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: AIConciergeScreenProps) {
   const [description, setDescription] = useState('');
   const [chips, setChips] = useState<Set<ChipId>>(new Set());
+  const [brands, setBrands] = useState<Partial<Record<ChipId, string>>>({});
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<SetupProfile | null>(null);
 
@@ -131,13 +132,27 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
     await triggerLightTap();
     setChips((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+        setBrands((b) => {
+          const nb = { ...b };
+          delete nb[id];
+          return nb;
+        });
+      } else {
+        next.add(id);
+      }
       return next;
     });
   };
 
-  // Typed description wins; otherwise compose from chips.
-  const effectivePrompt = description.trim() || composeFromChips(chips);
+  const pickBrand = async (id: ChipId, brandId: string) => {
+    await triggerLightTap();
+    setBrands((b) => ({ ...b, [id]: b[id] === brandId ? undefined : brandId }));
+  };
+
+  // Typed description wins; otherwise compose from chips + per-category brand picks.
+  const effectivePrompt = description.trim() || composeFromChips(chips, brands);
   const canSubmit = effectivePrompt.length >= 3;
 
   const extract = async () => {
