@@ -350,6 +350,11 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           <MintReceiptsHint />
         </AnimatedItem>
 
+        {/* Per-provider charging drift — Supercharger vs Home charging, never combined */}
+        <AnimatedItem className="xl:col-span-2">
+          <ChargingDriftBreakdownCard />
+        </AnimatedItem>
+
         {/* Newbie-friendly tokenomics summary → links to /how-it-works hub */}
         <AnimatedItem className="xl:col-span-1">
           <Tokenomics101Card />
