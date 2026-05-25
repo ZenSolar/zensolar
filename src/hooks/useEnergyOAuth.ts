@@ -127,13 +127,36 @@ function showOAuthError(opts: {
   retry?: () => void;
 }) {
   const { title, description } = describeError(opts.provider, opts.rawMessage, opts.stage);
+
+  // 1. Try auto-opening Deason for critical failures (popup blocked, bad
+  //    creds, wrong account, outage). If we did, skip the soft nudge — the
+  //    chat is already open with the fix.
+  const autoOpened = maybeAutoOpenDeason({
+    provider: opts.provider,
+    stage: opts.stage,
+    rawMessage: opts.rawMessage,
+  });
+
+  // 2. For non-critical errors (or as a safety net), schedule a 30s nudge:
+  //    if the user hasn't tapped Retry / Ask Deason in 30s, pulse the bubble.
+  const cancelNudge = autoOpened
+    ? () => {}
+    : scheduleDeasonNudge({
+        provider: opts.provider,
+        stage: opts.stage,
+        rawMessage: opts.rawMessage,
+      });
+
   toast.error(title, {
     description,
     duration: 12_000,
+    onDismiss: cancelNudge,
+    onAutoClose: cancelNudge,
     action: opts.retry
       ? {
           label: 'Try again',
           onClick: () => {
+            cancelNudge();
             opts.retry?.();
           },
         }
@@ -142,6 +165,7 @@ function showOAuthError(opts: {
     cancel: {
       label: 'Ask Deason',
       onClick: () => {
+        cancelNudge();
         openDeasonWithError({
           provider: opts.provider,
           stage: opts.stage,
