@@ -194,12 +194,12 @@ export function EnergyConnectionScreen({
           transition={{ delay: 0.15 }}
           className="mt-8 text-center"
         >
-          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-b from-foreground to-foreground/55 bg-clip-text text-transparent">
-            Connect Your Energy
+          <h1 className="text-3xl font-semibold tracking-tight bg-gradient-to-b from-foreground to-foreground/55 bg-clip-text text-transparent">
+            Connect your energy
           </h1>
-          <p className="mt-2.5 text-sm text-muted-foreground leading-relaxed max-w-[300px] mx-auto">
-            Link your solar, battery, or EV charging to start earning{' '}
-            <span className="text-primary font-semibold">$ZSOLAR</span> rewards.
+          <p className="mt-2.5 text-[15px] text-muted-foreground leading-relaxed max-w-[300px] mx-auto">
+            Link your solar, battery, or EV to start earning{' '}
+            <span className="text-primary font-semibold">$ZSOLAR</span>.
           </p>
         </motion.div>
       </section>

@@ -51,20 +51,20 @@ export function OnboardingSuccessScreen({ walletAddress, walletType, onContinue 
       case 'zensolar':
         return {
           icon: <Sparkles className="w-6 h-6 text-primary" />,
-          title: 'ZenSolar Wallet Ready!',
-          subtitle: 'Your rewards wallet is secured with biometrics',
+          title: 'ZenSolar wallet ready',
+          subtitle: 'Secured with Face ID on this device',
         };
       case 'external':
         return {
           icon: <Wallet className="w-6 h-6 text-primary" />,
-          title: 'Wallet Connected!',
+          title: 'Wallet connected',
           subtitle: 'Your external wallet is linked to your account',
         };
       case 'skipped':
         return {
           icon: <Zap className="w-6 h-6 text-muted-foreground" />,
-          title: 'Account Created!',
-          subtitle: 'You can connect a wallet anytime from Settings',
+          title: 'Account created',
+          subtitle: 'Connect a wallet anytime from Settings',
         };
     }
   };
@@ -140,7 +140,7 @@ export function OnboardingSuccessScreen({ walletAddress, walletType, onContinue 
                       transition={{ delay: 0.6 }}
                       className="mt-6 p-4 rounded-xl bg-card/80 backdrop-blur-sm border border-border/60"
                     >
-                      <p className="text-xs text-muted-foreground mb-1.5 text-center">Your Wallet Address</p>
+                      <p className="text-xs text-muted-foreground mb-1.5 text-center">Wallet address</p>
                       <p className="font-mono text-sm text-foreground text-center">{shortAddress}</p>
                     </motion.div>
                   )}
@@ -156,7 +156,7 @@ export function OnboardingSuccessScreen({ walletAddress, walletType, onContinue 
                       className="w-full gap-2 bg-gradient-to-r from-primary to-primary/85 hover:from-primary/95 hover:to-primary/80 shadow-lg shadow-primary/20 h-14 text-base font-semibold"
                     >
                       <Zap className="w-5 h-5" />
-                      Connect Your Energy
+                      Connect your energy
                       <ArrowRight className="w-5 h-5" />
                     </Button>
                   </motion.div>
