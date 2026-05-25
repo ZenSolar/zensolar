@@ -8,7 +8,7 @@ import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 // Brand logos — local assets. Use the *modern* official marks so the manual
 // picker matches the polish of the AI Concierge OEM drill-down chips.
 import teslaLogo from '@/assets/logos/tesla-t-icon.png';
-import enphaseLogo from '@/assets/logos/enphase-wordmark.svg';
+import enphaseLogo from '@/assets/logos/enphase-e-icon.svg';
 import solaredgeLogo from '@/assets/logos/solaredge-logo.png';
 import wallboxLogo from '@/assets/logos/wallbox-logo.png';
 
@@ -65,8 +65,8 @@ const providers: Array<{
     id: 'enphase',
     name: 'Enphase',
     logo: enphaseLogo,
-    description: 'Microinverters & IQ Battery',
-    capabilities: ['Solar', 'Battery'],
+    description: 'Microinverters, IQ Battery & EV Charger',
+    capabilities: ['Solar', 'Battery', 'EV'],
   },
   {
     id: 'solaredge',
