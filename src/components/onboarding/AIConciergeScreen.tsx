@@ -388,12 +388,17 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
                                    {opt.label}
                                  </button>
                                );
-                            })}
-                          </div>
-                          <p className="text-[10.5px] text-muted-foreground/80 mt-1.5 px-1 leading-snug">
-                            {BRAND_HELP[id]}
-                          </p>
-                        </motion.div>
+                             })}
+                           </div>
+                           {id === 'ev' && brands['ev'] === 'other' && (
+                             <p className="text-[11px] text-amber-400 mt-1.5 px-1 leading-snug font-medium">
+                               Tesla is the only EV we connect with today. Remove EV or pick Tesla to continue.
+                             </p>
+                           )}
+                           <p className="text-[10.5px] text-muted-foreground/80 mt-1.5 px-1 leading-snug">
+                             {BRAND_HELP[id]}
+                           </p>
+                         </motion.div>
                       );
                     })}
                 </AnimatePresence>
