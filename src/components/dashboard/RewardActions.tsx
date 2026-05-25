@@ -1068,6 +1068,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
         totalPendingTokens={totalPendingTokens}
         onRequestMint={(cat) => handleRequestMint(cat)}
         onNavigateHistory={() => navigate('/clean-energy-center')}
+        dailyBreakdown={dailyBreakdown}
       />
 
 
