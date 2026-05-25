@@ -94,7 +94,7 @@ export default function Notifications() {
   const unreadCount = notifications.length;
 
   return (
-    <PullToRefreshWrapper onRefresh={handleRefresh}>
+    <>
       <div className="container max-w-3xl mx-auto px-4 py-6 space-y-6">
         {/* Header */}
         <motion.div
