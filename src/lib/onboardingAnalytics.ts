@@ -67,3 +67,83 @@ export function trackWalletSetupResumed(source: 'dashboard' | 'profile' | 'setti
     timestamp: new Date().toISOString(),
   });
 }
+
+// ---------------------------------------------------------------------------
+// Passkey ceremony funnel — measure wallet-choice → passkey-complete drop-off.
+// Stages: viewed → selected → setup_viewed → passkey_started → (succeeded |
+// cancelled | failed) → completed (post-success branded screen dismissed).
+// ---------------------------------------------------------------------------
+
+let _passkeySessionId: string | null = null;
+let _passkeyStartedAt: number | null = null;
+
+function newPasskeySession() {
+  _passkeySessionId =
+    typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID()
+      : `pk_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  _passkeyStartedAt = Date.now();
+  return _passkeySessionId;
+}
+
+function elapsedMs() {
+  return _passkeyStartedAt ? Date.now() - _passkeyStartedAt : null;
+}
+
+export function trackWalletSetupViewed() {
+  trackEvent('wallet_setup_viewed', {
+    session_id: _passkeySessionId,
+    timestamp: new Date().toISOString(),
+  });
+}
+
+export function trackPasskeyStarted() {
+  newPasskeySession();
+  trackEvent('passkey_started', {
+    session_id: _passkeySessionId,
+    timestamp: new Date().toISOString(),
+  });
+}
+
+export function trackPasskeySucceeded(walletAddress: string) {
+  trackEvent('passkey_succeeded', {
+    session_id: _passkeySessionId,
+    elapsed_ms: elapsedMs(),
+    wallet_address_prefix: walletAddress.slice(0, 10),
+    timestamp: new Date().toISOString(),
+  });
+}
+
+export function trackPasskeyCancelled(reason?: string | null) {
+  trackEvent('passkey_cancelled', {
+    session_id: _passkeySessionId,
+    elapsed_ms: elapsedMs(),
+    reason: reason ?? 'user_cancelled',
+    timestamp: new Date().toISOString(),
+  });
+}
+
+export function trackPasskeyFailed(error: string | null) {
+  trackEvent('passkey_failed', {
+    session_id: _passkeySessionId,
+    elapsed_ms: elapsedMs(),
+    error: error?.slice(0, 200) ?? 'unknown',
+    timestamp: new Date().toISOString(),
+  });
+}
+
+export function trackPasskeyRetried() {
+  trackEvent('passkey_retried', {
+    session_id: _passkeySessionId,
+    timestamp: new Date().toISOString(),
+  });
+}
+
+export function trackPasskeyCompleted(walletAddress: string) {
+  trackEvent('passkey_completed', {
+    session_id: _passkeySessionId,
+    elapsed_ms: elapsedMs(),
+    wallet_address_prefix: walletAddress.slice(0, 10),
+    timestamp: new Date().toISOString(),
+  });
+}
