@@ -741,6 +741,7 @@ Deno.serve(async (req) => {
       let batteryDeltaKwh = 0;
       let chargingDeltaKwh = 0;
       const deviceIdsToUpdate: string[] = [];
+      const batteryCandidates: { deviceId: string; provider: string; delta: number }[] = [];
 
       // Calculate real deltas from device data, filtering by category
       // Uses normalized device type matching for consistency across providers
@@ -767,17 +768,28 @@ Deno.serve(async (req) => {
           }
         } 
         
-        // Battery devices (Tesla Powerwall, battery, energy_storage, etc.)
-        if (isBatteryDevice(device.device_type) && (mintCategory === 'all' || mintCategory === 'battery')) {
+        // Battery (Tesla Powerwall has its own device row; Enphase/SolarEdge merge
+        // battery_discharge_wh onto their SOLAR device row — no separate device).
+        // We accept battery deltas from EITHER a dedicated battery device OR a
+        // solar device that carries battery_discharge_wh. Provider-priority
+        // de-dup (tesla > enphase > solaredge) is enforced in a second pass below.
+        const hasBatteryField =
+          (lifetime.battery_discharge_wh || lifetime.lifetime_battery_discharge_wh || 0) > 0;
+        const isBatteryCandidate =
+          isBatteryDevice(device.device_type) ||
+          (isSolarDevice(device.device_type) && hasBatteryField);
+
+        if (isBatteryCandidate && (mintCategory === 'all' || mintCategory === 'battery')) {
           const lifetimeBatteryWh = lifetime.battery_discharge_wh || lifetime.lifetime_battery_discharge_wh || 0;
-          const baselineBatteryWh = baseline?.total_energy_discharged_wh || baseline?.battery_discharge_wh || 0;
+          const baselineBatteryWh = baseline?.total_energy_discharged_wh || baseline?.battery_discharge_wh || baseline?.lifetime_battery_discharge_wh || 0;
           const delta = Math.max(0, Math.floor((lifetimeBatteryWh - baselineBatteryWh) / 1000));
-          console.log(`Battery device ${device.id} (${device.device_type}): lifetime=${lifetimeBatteryWh}Wh, baseline=${baselineBatteryWh}Wh, delta=${delta}kWh`);
+          console.log(`Battery candidate ${device.id} provider=${device.provider} type=${device.device_type}: lifetime=${lifetimeBatteryWh}Wh, baseline=${baselineBatteryWh}Wh, delta=${delta}kWh`);
           if (delta > 0) {
-            batteryDeltaKwh += delta;
-            if (!deviceIdsToUpdate.includes(device.id)) {
-              deviceIdsToUpdate.push(device.id);
-            }
+            batteryCandidates.push({
+              deviceId: device.id,
+              provider: String(device.provider || '').toLowerCase(),
+              delta,
+            });
           }
         }
         
@@ -825,6 +837,31 @@ Deno.serve(async (req) => {
       // Log per-device minting info
       if (deviceId) {
         console.log(`Per-device minting for deviceId=${deviceId}: category=${mintCategory}`);
+      }
+
+      // Battery provider-priority de-dup (mirrors useDashboardData KPI logic):
+      // tesla > enphase > solaredge. One OEM per battery — never summed.
+      if (batteryCandidates.length > 0) {
+        const priority = ['tesla', 'enphase', 'solaredge'];
+        let chosenProvider: string | null = null;
+        for (const p of priority) {
+          if (batteryCandidates.some((c) => c.provider === p)) {
+            chosenProvider = p;
+            break;
+          }
+        }
+        // Fallback: any non-priority provider (defensive)
+        if (!chosenProvider) chosenProvider = batteryCandidates[0].provider;
+
+        const chosen = batteryCandidates.filter((c) => c.provider === chosenProvider);
+        batteryDeltaKwh = chosen.reduce((sum, c) => sum + c.delta, 0);
+        for (const c of chosen) {
+          if (!deviceIdsToUpdate.includes(c.deviceId)) deviceIdsToUpdate.push(c.deviceId);
+        }
+        const skipped = batteryCandidates.filter((c) => c.provider !== chosenProvider);
+        if (skipped.length > 0) {
+          console.log(`Battery provider priority: chose=${chosenProvider} (${batteryDeltaKwh}kWh), skipped=${JSON.stringify(skipped)}`);
+        }
       }
 
       const solar = BigInt(solarDeltaKwh);
