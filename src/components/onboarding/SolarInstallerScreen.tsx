@@ -94,7 +94,7 @@ export function SolarInstallerScreen({ onSelect, onBack }: SolarInstallerScreenP
           className="mt-5 text-center"
         >
           <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-amber-300/80">
-            Deason · solar source
+            Deason AI · solar source
           </p>
           <h1 className="mt-1 text-[26px] leading-tight font-semibold tracking-tight bg-gradient-to-b from-foreground to-foreground/55 bg-clip-text text-transparent">
             Did Tesla install your<br />PV solar system?
@@ -150,10 +150,7 @@ export function SolarInstallerScreen({ onSelect, onBack }: SolarInstallerScreenP
               <Wrench className="w-6 h-6 text-amber-300" strokeWidth={2.25} />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-base text-foreground">Someone else did (or no PV)</h3>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
-                We'll pull solar from Enphase / SolarEdge — or skip if you only have a Powerwall
-              </p>
+              <h3 className="font-semibold text-base text-foreground">Someone else installed my solar</h3>
             </div>
             <div className="w-7 h-7 rounded-full border-2 border-white/20 group-hover:border-primary group-hover:bg-primary/20 flex items-center justify-center shrink-0 transition-all">
               <Check className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" strokeWidth={3} />
