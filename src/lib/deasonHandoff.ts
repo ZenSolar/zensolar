@@ -8,6 +8,39 @@
  * assistant message. The user can then ask follow-up questions naturally.
  */
 
+import { trackEvent } from '@/hooks/useGoogleAnalytics';
+
+/** sessionStorage key used to remember a recent seed per provider so the
+ *  OAuth success path can fire a `deason_seeded_connection_success` event. */
+const SEED_TS_KEY = (provider: string) => `deason_seed_ts_${provider}`;
+const SEED_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
+
+/** Note that Deason just seeded a playbook for this provider. */
+function markSeed(provider: string) {
+  try {
+    sessionStorage.setItem(SEED_TS_KEY(provider), String(Date.now()));
+  } catch {
+    /* private mode / storage disabled — ignore */
+  }
+}
+
+/** Returns true if Deason seeded a playbook for this provider in the last
+ *  5 minutes. Consumed (and cleared) by the OAuth success path so we only
+ *  count one assisted success per failure. */
+export function consumeRecentDeasonSeed(provider: string): boolean {
+  try {
+    const raw = sessionStorage.getItem(SEED_TS_KEY(provider));
+    if (!raw) return false;
+    const ts = Number(raw);
+    sessionStorage.removeItem(SEED_TS_KEY(provider));
+    return Number.isFinite(ts) && Date.now() - ts < SEED_WINDOW_MS;
+  } catch {
+    return false;
+  }
+}
+
+
+
 export type Provider = 'tesla' | 'enphase' | 'solaredge' | 'wallbox';
 export type OAuthStage = 'start' | 'exchange' | 'sites' | 'validate' | 'login' | 'status';
 
@@ -221,7 +254,10 @@ export function openDeasonWithError(opts: {
       }),
     );
   }, 60);
+
+  markSeed(opts.provider);
 }
+
 
 /**
  * Auto-open Deason immediately when an error is "critical" (something the
@@ -239,6 +275,11 @@ export function maybeAutoOpenDeason(opts: {
   const code = classify(opts.rawMessage);
   if (opts.stage === 'status') return false; // background check, never auto-open
   if (!isCriticalCode(code)) return false;
+  trackEvent('deason_auto_opened', {
+    provider: opts.provider,
+    stage: opts.stage,
+    code,
+  });
   openDeasonWithError(opts);
   return true;
 }
@@ -261,8 +302,16 @@ export function scheduleDeasonNudge(opts: {
   const delay = opts.delayMs ?? 30_000;
   const code = classify(opts.rawMessage);
   const { body } = playbook(opts.provider, opts.stage, code, opts.rawMessage);
+  let fired = false;
 
   const timer = window.setTimeout(() => {
+    fired = true;
+    trackEvent('deason_nudge_shown', {
+      provider: opts.provider,
+      stage: opts.stage,
+      code,
+    });
+    markSeed(opts.provider);
     window.dispatchEvent(
       new CustomEvent('deason:nudge', {
         detail: {
@@ -276,6 +325,14 @@ export function scheduleDeasonNudge(opts: {
   const cancel = () => {
     window.clearTimeout(timer);
     window.removeEventListener('deason:nudge:clear', cancel);
+    if (fired) {
+      // Nudge was visible but is now being cleared without a tap.
+      trackEvent('deason_nudge_dismissed', {
+        provider: opts.provider,
+        stage: opts.stage,
+        code,
+      });
+    }
   };
   window.addEventListener('deason:nudge:clear', cancel, { once: true });
 

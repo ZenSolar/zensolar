@@ -5,9 +5,22 @@ import {
   openDeasonWithError,
   maybeAutoOpenDeason,
   scheduleDeasonNudge,
+  consumeRecentDeasonSeed,
   type Provider,
   type OAuthStage,
 } from '@/lib/deasonHandoff';
+import { trackEvent } from '@/hooks/useGoogleAnalytics';
+
+/** Fire a success event, attributing the connect to Deason if the user
+ *  saw a seeded playbook (auto-open or nudge) in the last 5 min. */
+function trackConnectSuccess(provider: Provider) {
+  const deasonAssisted = consumeRecentDeasonSeed(provider);
+  trackEvent('energy_account_connected', { provider, deason_assisted: deasonAssisted });
+  if (deasonAssisted) {
+    trackEvent('deason_seeded_connection_success', { provider });
+  }
+}
+
 
 const REDIRECT_URI = `${window.location.origin}/oauth/callback`;
 
@@ -284,6 +297,7 @@ export function useEnergyOAuth() {
       const errMsg = extractError(response);
       if (errMsg) throw new Error(errMsg);
 
+      trackConnectSuccess('tesla');
       toast.success('Tesla account connected!');
       return true;
     } catch (error) {
@@ -314,6 +328,7 @@ export function useEnergyOAuth() {
       const errMsg = extractError(response);
       if (errMsg) throw new Error(errMsg);
 
+      trackConnectSuccess('enphase');
       toast.success('Enphase account connected!');
       return true;
     } catch (error) {
@@ -391,6 +406,7 @@ export function useEnergyOAuth() {
         return false;
       }
 
+      trackConnectSuccess('solaredge');
       toast.success(`SolarEdge connected: ${response.data?.site?.name || 'Your solar site'}`);
       return true;
     } catch (error) {
@@ -429,6 +445,7 @@ export function useEnergyOAuth() {
         return false;
       }
 
+      trackConnectSuccess('wallbox');
       toast.success('Wallbox account connected successfully!');
       return true;
     } catch (error) {
