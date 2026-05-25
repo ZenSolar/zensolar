@@ -2634,6 +2634,7 @@ export type Database = {
       verify_chain_integrity: { Args: never; Returns: number }
       verify_demo_code: { Args: { _code: string }; Returns: boolean }
       verify_kpi_reconciliation: { Args: never; Returns: number }
+      verify_kpi_vs_mint_window_7d: { Args: never; Returns: number }
       verify_user_sum_invariant: { Args: never; Returns: number }
     }
     Enums: {
