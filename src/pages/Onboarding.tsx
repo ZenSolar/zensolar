@@ -248,7 +248,7 @@ export default function Onboarding() {
     const preview = searchParams.get('preview') as OnboardingStep | null;
     const validPreviewSteps: OnboardingStep[] = [
       'wallet-choice', 'zensolar-setup', 'external-wallet', 'wallet-success',
-      'oem-select', 'device-pairing', 'energy-connect', 'home-charging-setup', 'energy-success', 'device-selection'
+      'oem-select', 'solar-installer', 'device-pairing', 'energy-connect', 'home-charging-setup', 'energy-success', 'device-selection'
     ];
     if (preview && validPreviewSteps.includes(preview)) {
       setStep(preview);
@@ -809,7 +809,12 @@ export default function Onboarding() {
       // Wallet exists — can't unwind wallet creation itself, but can step back through later screens.
       case 'wallet-success': return null;
       case 'oem-select': return 'wallet-success';
-      case 'device-pairing': return 'oem-select';
+      case 'solar-installer': return 'oem-select';
+      case 'device-pairing': {
+        const ambig = selectedOems.includes('tesla') &&
+          (selectedOems.includes('enphase') || selectedOems.includes('solaredge'));
+        return ambig ? 'solar-installer' : 'oem-select';
+      }
       case 'energy-connect':
       case 'device-selection': return 'device-pairing';
       case 'home-charging-setup': return 'energy-connect';
@@ -897,10 +902,20 @@ export default function Onboarding() {
         </div>
       )}
 
+      {step === 'solar-installer' && (
+        <div className="pt-24">
+          <SolarInstallerScreen
+            onSelect={handleSolarInstallerSelect}
+            onBack={handleSolarInstallerBack}
+          />
+        </div>
+      )}
+
       {step === 'device-pairing' && (
         <div className="pt-24">
           <DevicePairingScreen
             selectedOems={selectedOems.length > 0 ? selectedOems : ['tesla']}
+            solarInstaller={solarInstaller}
             onContinue={handleDevicePairingContinue}
             onBack={handleDevicePairingBack}
           />
