@@ -47,7 +47,7 @@ import { KpiActivityLogSheet, type KpiSheetState } from './KpiActivityLogSheet';
 
 // Import brand logos for connected providers display
 import enphaseLogo from '@/assets/logos/enphase-e-icon.svg';
-import teslaLogo from '@/assets/logos/tesla-wordmark-red.png';
+import teslaLogo from '@/assets/logos/tesla-t-icon.png';
 import teslaWordmark from '@/assets/logos/tesla-wordmark.png';
 
 const providerLogos: Record<string, string> = {
