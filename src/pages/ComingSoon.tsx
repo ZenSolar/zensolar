@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { trackEvent } from '@/hooks/useGoogleAnalytics';
 import teslaLogo from '@/assets/logos/tesla-wordmark-red.png';
-import enphaseLogo from '@/assets/logos/enphase-logo.png';
+import enphaseLogo from '@/assets/logos/enphase-wordmark.svg';
 import solarEdgeLogo from '@/assets/logos/solaredge-cropped.svg';
 import wallboxLogo from '@/assets/logos/wallbox-white.png';
 

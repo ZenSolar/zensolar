@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { triggerLightTap } from '@/hooks/useHaptics';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import teslaLogo from '@/assets/logos/tesla-t-icon.png';
-import enphaseLogo from '@/assets/logos/enphase-brand.png';
+import enphaseLogo from '@/assets/logos/enphase-wordmark.svg';
 import solaredgeLogo from '@/assets/logos/solaredge-logo.png';
 import wallboxLogo from '@/assets/logos/wallbox-logo.png';
 import type { EnergyProvider } from './EnergyConnectionScreen';
