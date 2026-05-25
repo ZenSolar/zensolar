@@ -1238,31 +1238,37 @@ export function useDashboardData() {
           }
         }
         
-        // Battery devices (Powerwalls) - aggregate all batteries at the same site into one entry
-        // Tesla provides individual Powerwall data, but for customers with multiple Powerwalls
-        // at the same location, we should aggregate them into one "battery system" entry
-        if (isBatteryDevice(device.device_type) && device.provider) {
+        // Battery devices - Tesla exposes batteries as their own device_type (Powerwall).
+        // Enphase/SolarEdge merge battery_discharge_wh onto the solar device row, so detect via field presence.
+        const hasBatteryField = extractBatteryWh(device.lifetime_totals) > 0
+          || extractBatteryWh(device.baseline_data) > 0;
+        const isBatteryRow = isBatteryDevice(device.device_type)
+          || (device.provider !== 'tesla' && hasBatteryField);
+
+        if (isBatteryRow && device.provider) {
           const lifetimeWh = extractBatteryWh(device.lifetime_totals);
           const baselineWh = extractBatteryWh(device.baseline_data);
           const pendingWh = Math.max(0, lifetimeWh - baselineWh);
-          
-          // Check if we already have a battery device entry (aggregate multiple Powerwalls)
-          // Use the first battery device's name as the system name
-          if (batteryDevices.length > 0) {
-            // Aggregate into existing entry
-            batteryDevices[0].lifetimeKwh += lifetimeWh / 1000;
-            batteryDevices[0].pendingKwh += pendingWh / 1000;
-          } else {
-            // First battery device - create the entry
-            batteryDevices.push({
-              deviceId: device.device_id,
-              deviceName,
-              provider: 'tesla',
-              lifetimeKwh: lifetimeWh / 1000,
-              pendingKwh: pendingWh / 1000,
-            });
+
+          if (lifetimeWh > 0) {
+            // Aggregate multiple battery rows from the SAME provider into one system entry.
+            // Different providers stay separate (shouldn't happen in practice — one OEM per battery).
+            const existing = batteryDevices.find(b => b.provider === device.provider);
+            if (existing) {
+              existing.lifetimeKwh += lifetimeWh / 1000;
+              existing.pendingKwh += pendingWh / 1000;
+            } else {
+              batteryDevices.push({
+                deviceId: device.device_id,
+                deviceName,
+                provider: device.provider as 'tesla' | 'enphase' | 'solaredge',
+                lifetimeKwh: lifetimeWh / 1000,
+                pendingKwh: pendingWh / 1000,
+              });
+            }
           }
         }
+
         
         // Vehicle devices (EVs)
         if (isVehicleDevice(device.device_type) && device.provider) {
