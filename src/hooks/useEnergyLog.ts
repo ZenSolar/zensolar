@@ -378,7 +378,7 @@ async function fetchHomeChargingRows(
   return (data || []) as HomeSessionRow[];
 }
 
-  async function loadMonthInternal() { /* removed */ }
+  
 
 
 // ── hook ───────────────────────────────────────────────────────────────────
