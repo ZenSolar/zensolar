@@ -809,9 +809,8 @@ export default function Onboarding() {
       case 'oem-select': return 'wallet-success';
       case 'solar-installer': return 'oem-select';
       case 'device-pairing': {
-        const ambig = selectedOems.includes('tesla') &&
-          (selectedOems.includes('enphase') || selectedOems.includes('solaredge'));
-        return ambig ? 'solar-installer' : 'oem-select';
+        const needsSolarQuestion = selectedOems.includes('tesla');
+        return needsSolarQuestion ? 'solar-installer' : 'oem-select';
       }
       case 'energy-connect':
       case 'device-selection': return 'device-pairing';
