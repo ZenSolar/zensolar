@@ -18,3 +18,8 @@
 
 /pwa-sw.js
   Cache-Control: no-cache, no-store, must-revalidate
+
+# Coinbase Smart Wallet popup (keys.coinbase.com) requires window.opener.
+# Default `same-origin` COOP triggers "This app doesn't support smart wallets".
+/*
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
