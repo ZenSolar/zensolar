@@ -924,6 +924,12 @@ export function useDashboardData() {
         const teslaBatteryWhTotal = sum(teslaDevices.filter((d) => isBatteryDevice(d.device_type)), (d) => lifetimeBatteryWh(d.lifetime_totals));
         const teslaBatteryWhPending = sum(teslaDevices.filter((d) => isBatteryDevice(d.device_type)), (d) => Math.max(0, lifetimeBatteryWh(d.lifetime_totals) - baselineBatteryWh(d.baseline_data)));
 
+        // Enphase/SolarEdge merge battery_discharge_wh onto the solar device row (no separate battery device).
+        const enphaseBatteryWhTotal = sum(enphaseSolarDevices, (d) => lifetimeBatteryWh(d.lifetime_totals));
+        const enphaseBatteryWhPending = sum(enphaseSolarDevices, (d) => Math.max(0, lifetimeBatteryWh(d.lifetime_totals) - baselineBatteryWh(d.baseline_data)));
+        const solaredgeBatteryWhTotal = sum(solaredgeSolarDevices, (d) => lifetimeBatteryWh(d.lifetime_totals));
+        const solaredgeBatteryWhPending = sum(solaredgeSolarDevices, (d) => Math.max(0, lifetimeBatteryWh(d.lifetime_totals) - baselineBatteryWh(d.baseline_data)));
+
         const teslaVehicleMilesTotal = sum(teslaDevices.filter((d) => isVehicleDevice(d.device_type)), (d) => Number(d.lifetime_totals?.odometer || 0));
         const teslaVehicleMilesPending = sum(teslaDevices.filter((d) => isVehicleDevice(d.device_type)), (d) => Math.max(0, Number(d.lifetime_totals?.odometer || 0) - Number(d.baseline_data?.odometer || 0)));
 
@@ -943,11 +949,32 @@ export function useDashboardData() {
             ? solaredgePendingWh
             : teslaSolarWhPending;
 
+        // Battery provider priority: Tesla (Powerwall) > Enphase (IQ Battery) > SolarEdge.
+        // Source of truth = whichever OEM actually owns the storage hardware. Never sum across providers.
+        const batteryLifetimeWh = profileConnections?.tesla_connected && teslaBatteryWhTotal > 0
+          ? teslaBatteryWhTotal
+          : profileConnections?.enphase_connected && enphaseBatteryWhTotal > 0
+            ? enphaseBatteryWhTotal
+            : solaredgeBatteryWhTotal;
+
+        const batteryPendingWh = profileConnections?.tesla_connected && teslaBatteryWhTotal > 0
+          ? teslaBatteryWhPending
+          : profileConnections?.enphase_connected && enphaseBatteryWhTotal > 0
+            ? enphaseBatteryWhPending
+            : solaredgeBatteryWhPending;
+
+        const batteryProvider: 'tesla' | 'enphase' | 'solaredge' | null =
+          (profileConnections?.tesla_connected && teslaBatteryWhTotal > 0) ? 'tesla'
+          : (profileConnections?.enphase_connected && enphaseBatteryWhTotal > 0) ? 'enphase'
+          : solaredgeBatteryWhTotal > 0 ? 'solaredge'
+          : null;
+
         return {
           solarLifetimeKwh: solarLifetimeWh / 1000,
           solarPendingKwh: solarPendingWh / 1000,
-          batteryLifetimeKwh: teslaBatteryWhTotal / 1000,
-          batteryPendingKwh: teslaBatteryWhPending / 1000,
+          batteryLifetimeKwh: batteryLifetimeWh / 1000,
+          batteryPendingKwh: batteryPendingWh / 1000,
+          batteryProvider,
           evMilesLifetime: teslaVehicleMilesTotal,
           evMilesPending: teslaVehicleMilesPending,
           chargingKwhLifetime: teslaChargingKwhTotal,
@@ -1114,6 +1141,14 @@ export function useDashboardData() {
         pendingSolar = fallback.solarPendingKwh;
       }
 
+      // Enphase/SolarEdge battery: if Tesla isn't supplying battery data (not connected, or no Powerwall),
+      // pull battery discharge from the dedicated solar provider that owns the storage hardware (IQ Battery, etc.).
+      if (batteryDischarge <= 0 && fallback.batteryLifetimeKwh > 0 && fallback.batteryProvider && fallback.batteryProvider !== 'tesla') {
+        batteryDischarge = fallback.batteryLifetimeKwh;
+        pendingBattery = fallback.batteryPendingKwh;
+        console.log(`Battery KPI sourced from ${fallback.batteryProvider}:`, { batteryDischarge, pendingBattery });
+      }
+
       // Total lifetime tokens (calculated from all activity - 1:1 rate)
       const tokensEarned =
         Math.floor(evMiles) +
@@ -1203,31 +1238,37 @@ export function useDashboardData() {
           }
         }
         
-        // Battery devices (Powerwalls) - aggregate all batteries at the same site into one entry
-        // Tesla provides individual Powerwall data, but for customers with multiple Powerwalls
-        // at the same location, we should aggregate them into one "battery system" entry
-        if (isBatteryDevice(device.device_type) && device.provider) {
+        // Battery devices - Tesla exposes batteries as their own device_type (Powerwall).
+        // Enphase/SolarEdge merge battery_discharge_wh onto the solar device row, so detect via field presence.
+        const hasBatteryField = extractBatteryWh(device.lifetime_totals) > 0
+          || extractBatteryWh(device.baseline_data) > 0;
+        const isBatteryRow = isBatteryDevice(device.device_type)
+          || (device.provider !== 'tesla' && hasBatteryField);
+
+        if (isBatteryRow && device.provider) {
           const lifetimeWh = extractBatteryWh(device.lifetime_totals);
           const baselineWh = extractBatteryWh(device.baseline_data);
           const pendingWh = Math.max(0, lifetimeWh - baselineWh);
-          
-          // Check if we already have a battery device entry (aggregate multiple Powerwalls)
-          // Use the first battery device's name as the system name
-          if (batteryDevices.length > 0) {
-            // Aggregate into existing entry
-            batteryDevices[0].lifetimeKwh += lifetimeWh / 1000;
-            batteryDevices[0].pendingKwh += pendingWh / 1000;
-          } else {
-            // First battery device - create the entry
-            batteryDevices.push({
-              deviceId: device.device_id,
-              deviceName,
-              provider: 'tesla',
-              lifetimeKwh: lifetimeWh / 1000,
-              pendingKwh: pendingWh / 1000,
-            });
+
+          if (lifetimeWh > 0) {
+            // Aggregate multiple battery rows from the SAME provider into one system entry.
+            // Different providers stay separate (shouldn't happen in practice — one OEM per battery).
+            const existing = batteryDevices.find(b => b.provider === device.provider);
+            if (existing) {
+              existing.lifetimeKwh += lifetimeWh / 1000;
+              existing.pendingKwh += pendingWh / 1000;
+            } else {
+              batteryDevices.push({
+                deviceId: device.device_id,
+                deviceName,
+                provider: device.provider as 'tesla' | 'enphase' | 'solaredge',
+                lifetimeKwh: lifetimeWh / 1000,
+                pendingKwh: pendingWh / 1000,
+              });
+            }
           }
         }
+
         
         // Vehicle devices (EVs)
         if (isVehicleDevice(device.device_type) && device.provider) {
