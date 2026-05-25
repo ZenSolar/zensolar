@@ -220,7 +220,7 @@ export function DevicePairingScreen({
   // Resolves the "Enphase solar + Tesla Powerwall" split-capability case visibly.
   const ownership = useMemo(() => {
     const map: Partial<Record<DeviceCapability, EnergyProvider>> = {};
-    (['solar', 'battery', 'ev'] as const).forEach((cap) => {
+    (['solar', 'battery', 'ev', 'charger'] as const).forEach((cap) => {
       const owner = selectedOems.find((oem) => (pairing[oem] ?? []).includes(cap));
       if (owner) map[cap] = owner;
     });
