@@ -128,6 +128,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   walletAddress, 
   pendingRewards = { solar: 0, evMiles: 0, battery: 0, charging: 0 },
   demoMintHandler,
+  dailyBreakdown,
 }, ref) {
   const navigate = useNavigate();
   const { toast } = useToast();
