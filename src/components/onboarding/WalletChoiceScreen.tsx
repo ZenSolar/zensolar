@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Fingerprint, ChevronRight, Wallet, Check, ShieldCheck } from 'lucide-react';
+import { Fingerprint, ChevronRight, Wallet, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { triggerMediumTap } from '@/hooks/useHaptics';
+import { SecurityBadge } from '@/components/security/SecurityBadge';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
 export type WalletChoice = 'zensolar' | 'external' | 'skip';
