@@ -87,7 +87,7 @@ function describeError(
   }
 
   // Stage-specific generic fallbacks
-  const fallback: Record<typeof stage, { title: string; description: string }> = {
+  const fallback: Record<string, { title: string; description: string }> = {
     start: {
       title: `Couldn't start ${brand} connection`,
       description: 'Something went wrong before we could open the login. Try again.',
