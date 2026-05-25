@@ -320,6 +320,7 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
                           <div className="flex flex-wrap gap-1.5">
                             {options.map((opt) => {
                               const isOn = selected === opt.id;
+                              const isSupported = opt.supported === true;
                               return (
                                 <button
                                   key={opt.id}
@@ -329,7 +330,9 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
                                   className={`text-[12px] px-2.5 py-1.5 rounded-full border transition-all ${
                                     isOn
                                       ? 'bg-amber-500/15 border-amber-500/60 text-amber-200'
-                                      : 'bg-card/40 border-border/50 text-muted-foreground hover:text-foreground hover:border-amber-500/30'
+                                      : isSupported
+                                      ? 'bg-card/40 border-border/50 text-muted-foreground hover:text-foreground hover:border-amber-500/30'
+                                      : 'bg-card/20 border-dashed border-border/40 text-muted-foreground/70 hover:text-muted-foreground'
                                   }`}
                                 >
                                   {opt.label}
@@ -337,6 +340,9 @@ export function AIConciergeScreen({ onPlanConfirmed, onSkipToManual, onBack }: A
                               );
                             })}
                           </div>
+                          <p className="text-[10.5px] text-muted-foreground/80 mt-1.5 px-1 leading-snug">
+                            {BRAND_HELP[id]}
+                          </p>
                         </motion.div>
                       );
                     })}
