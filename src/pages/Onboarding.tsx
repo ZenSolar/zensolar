@@ -707,7 +707,7 @@ export default function Onboarding() {
   }, []);
 
   // Determine if we should show progress indicator (not on wallet-choice)
-  const showProgress = step !== 'wallet-choice';
+  const showProgress = true;
   const currentStepNumber = getStepNumber(step);
 
   // Map each step → its logical "back" target. Returning null means no back nav
