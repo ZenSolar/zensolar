@@ -1,11 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Plus, ArrowRight, Zap } from 'lucide-react';
+import { CheckCircle2, Plus, ArrowRight, Zap, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useConfetti } from '@/hooks/useConfetti';
 import { triggerSuccess, triggerLightTap } from '@/hooks/useHaptics';
 import { trackEvent } from '@/hooks/useGoogleAnalytics';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+
 
 // Import brand logos
 import teslaLogo from '@/assets/logos/tesla-logo.png';
@@ -42,6 +43,26 @@ export function EnergySuccessScreen({
 }: EnergySuccessScreenProps) {
   const { triggerCelebration } = useConfetti();
 
+  // Read concierge plan (if any) to know what's still unconnected.
+  const plannedRemaining = useMemo<string[]>(() => {
+    try {
+      const raw = localStorage.getItem('onboarding_planned_providers');
+      if (!raw) return [];
+      const arr = JSON.parse(raw);
+      if (!Array.isArray(arr)) return [];
+      return arr.filter(
+        (p: string) =>
+          ['tesla', 'enphase', 'solaredge', 'wallbox'].includes(p) &&
+          !connectedProviders.includes(p)
+      );
+    } catch {
+      return [];
+    }
+  }, [connectedProviders]);
+
+  const moreToAdd = plannedRemaining.length > 0;
+  const nextProviderName = moreToAdd ? providerNames[plannedRemaining[0]] : null;
+
   useEffect(() => {
     const timer = setTimeout(() => {
       triggerCelebration();
@@ -52,7 +73,10 @@ export function EnergySuccessScreen({
 
   const handleAddAnother = async () => {
     await triggerLightTap();
-    trackEvent('onboarding_add_another_energy_clicked', { currentProvider: provider });
+    trackEvent('onboarding_add_another_energy_clicked', {
+      currentProvider: provider,
+      suggestedNext: plannedRemaining[0] ?? null,
+    });
     onAddAnother();
   };
 
@@ -60,7 +84,8 @@ export function EnergySuccessScreen({
     await triggerLightTap();
     trackEvent('onboarding_energy_continue_to_dashboard', { 
       provider, 
-      totalConnected: connectedProviders.length 
+      totalConnected: connectedProviders.length,
+      skippedRemaining: plannedRemaining,
     });
     onContinue();
   };
@@ -184,34 +209,78 @@ export function EnergySuccessScreen({
           </motion.div>
         )}
 
-        {/* Action buttons */}
+        {/* Smart "more to add" suggestion from concierge plan */}
+        {moreToAdd && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.65 }}
+            className="mb-4 p-3 rounded-2xl bg-primary/5 border border-primary/15 flex items-start gap-2.5"
+          >
+            <Sparkles className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+            <p className="text-[12px] text-muted-foreground leading-relaxed">
+              You told us you also have <span className="text-foreground font-medium">{nextProviderName}</span>
+              {plannedRemaining.length > 1 ? ` (+${plannedRemaining.length - 1} more)` : ''}.
+              Linking it now takes about 30 seconds.
+            </p>
+          </motion.div>
+        )}
+
+        {/* Action buttons — primary swaps based on whether more is planned */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
           className="space-y-3"
         >
-          {/* Go to Dashboard - Primary action */}
-          <Button 
-            size="lg"
-            onClick={handleContinue}
-            className="w-full gap-2 bg-gradient-to-r from-primary to-primary/85 hover:from-primary/95 hover:to-primary/80 shadow-lg shadow-primary/20 h-14 text-base font-semibold"
-          >
-            <Zap className="w-5 h-5" />
-            Open your Clean Energy Center
-            <ArrowRight className="w-5 h-5" />
-          </Button>
+          {moreToAdd ? (
+            <>
+              <Button
+                size="lg"
+                onClick={handleAddAnother}
+                className="w-full gap-2 bg-gradient-to-r from-primary to-primary/85 hover:from-primary/95 hover:to-primary/80 shadow-lg shadow-primary/20 h-14 text-base font-semibold"
+              >
+                <Plus className="w-5 h-5" />
+                Add {nextProviderName} next
+                <ArrowRight className="w-5 h-5" />
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={handleContinue}
+                className="w-full gap-2 h-12 border-border/60"
+              >
+                <Zap className="w-4 h-4" />
+                I'm done — open dashboard
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                size="lg"
+                onClick={handleContinue}
+                className="w-full gap-2 bg-gradient-to-r from-primary to-primary/85 hover:from-primary/95 hover:to-primary/80 shadow-lg shadow-primary/20 h-14 text-base font-semibold"
+              >
+                <Zap className="w-5 h-5" />
+                Open your Clean Energy Center
+                <ArrowRight className="w-5 h-5" />
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={handleAddAnother}
+                className="w-full gap-2 h-12 border-border/60"
+              >
+                <Plus className="w-4 h-4" />
+                Add another account
+              </Button>
+            </>
+          )}
 
-          {/* Add another energy account */}
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={handleAddAnother}
-            className="w-full gap-2 h-12 border-border/60"
-          >
-            <Plus className="w-4 h-4" />
-            Add another account
-          </Button>
+          {/* Subtle "add later" assurance */}
+          <p className="text-center text-[11px] text-muted-foreground/80 pt-1">
+            You can add or manage devices anytime from your Clean Energy Center.
+          </p>
         </motion.div>
       </motion.div>
     </div>
