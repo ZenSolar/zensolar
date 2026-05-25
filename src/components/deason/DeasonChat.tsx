@@ -56,7 +56,7 @@ const ONBOARDING_PROMPTS = [
  * whether the viewer is inner-circle or a regular demo/beta user.
  */
 export function DeasonChat({ onClose, compact = false }: DeasonChatProps) {
-  const { messages, streaming, error, send, reset } = useDeason();
+  const { messages, streaming, error, send, reset, seedAssistant } = useDeason();
   const { isInnerCircle } = useUserPersona();
   const [input, setInput] = useState("");
   const [attachedImage, setAttachedImage] = useState<string | null>(null);
@@ -66,6 +66,19 @@ export function DeasonChat({ onClose, compact = false }: DeasonChatProps) {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, streaming]);
+
+  // Listen for `deason:seed` events from elsewhere in the app (e.g. the
+  // OAuth error toast's "Ask Deason" handoff). Pushes a hand-written
+  // assistant message into the transcript without a model call.
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<{ assistant?: string }>).detail;
+      if (detail?.assistant) seedAssistant(detail.assistant);
+    };
+    window.addEventListener("deason:seed", handler as EventListener);
+    return () => window.removeEventListener("deason:seed", handler as EventListener);
+  }, [seedAssistant]);
+
 
   const onPickFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
