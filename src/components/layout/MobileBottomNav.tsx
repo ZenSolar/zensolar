@@ -94,9 +94,10 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
 
   const tabs =
     variant === "demo" ? DEMO_TABS : variant === "marketing" ? MARKETING_TABS : APP_TABS;
-  const reviewerLinks = variant === "demo" && isAuthorizedReviewer()
-    ? [{ to: "/demo/reviewer", label: "Greg Review Materials" }]
+  const reviewerLinks: MoreLink[] = variant === "demo" && isAuthorizedReviewer()
+    ? [{ to: "/demo/reviewer", label: "Greg Review Materials", icon: ShieldCheck, description: "Reviewer-only docs", group: "primary" }]
     : [];
+
   const moreLinks =
     variant === "demo"
       ? [...reviewerLinks, ...MORE_LINKS_DEMO]
