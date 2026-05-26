@@ -36,15 +36,19 @@ export function Slide01Title() {
 
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.75 }}
           className="text-[18px] font-mono tracking-[0.18em] uppercase text-white/35 mt-6 text-center">
-          From SolarCity rep to Solidity dev · Solo founder, full stack
+          Co-founded by Joseph &amp; Michael Tschida · ex-SolarCity operators
         </motion.p>
 
 
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }}
-          className="flex items-center gap-8 mt-16">
+          className="flex items-center gap-6 mt-16">
           <div className="px-6 py-3 rounded-xl border border-white/10 bg-white/5">
             <p className="text-[13px] text-white/40 uppercase tracking-wider mb-1">Raising</p>
-            <p className="text-[28px] font-bold text-[hsl(45,93%,47%)]">$500K</p>
+            <p className="text-[28px] font-bold text-[hsl(45,93%,47%)]">$3M <span className="text-[18px] font-medium text-white/50">· Cap $5M</span></p>
+          </div>
+          <div className="px-6 py-3 rounded-xl border border-white/10 bg-white/5">
+            <p className="text-[13px] text-white/40 uppercase tracking-wider mb-1">Round</p>
+            <p className="text-[28px] font-bold text-white/90">Strategic Seed</p>
           </div>
           <div className="px-6 py-3 rounded-xl border border-white/10 bg-white/5">
             <p className="text-[13px] text-white/40 uppercase tracking-wider mb-1">Type</p>

@@ -1,6 +1,6 @@
 import { SlideLayout, SlideHeader, SlideFooter } from '../SlideLayout';
 import { motion } from 'framer-motion';
-import { Rocket, Target, Users, Globe } from 'lucide-react';
+import { Droplets, Code2, DollarSign, Scale, Megaphone, Shield } from 'lucide-react';
 
 export function Slide13TheAsk() {
   return (
@@ -11,59 +11,76 @@ export function Slide13TheAsk() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-[hsl(207,90%,54%)]/10 blur-[150px]" />
 
       <div className="absolute inset-0 flex flex-col justify-center px-16 pt-20 pb-16">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center mb-10">
-          <h2 className="text-[56px] font-bold mb-3">
-            Raising <span className="text-[hsl(45,93%,47%)]">$500K</span> Pre-Seed
+        {/* Headline ask */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center mb-8">
+          <p className="text-[15px] font-mono tracking-[0.3em] uppercase text-white/35 mb-3">Strategic Seed · SAFE</p>
+          <h2 className="text-[64px] font-bold leading-none">
+            Raising <span className="text-[hsl(45,93%,47%)]">$3M</span>
+            <span className="text-white/40 text-[44px] font-light"> · </span>
+            <span className="text-white/70 text-[44px] font-light">Hard cap </span>
+            <span className="text-[hsl(142,76%,50%)] text-[56px] font-bold">$5M</span>
           </h2>
-          <p className="text-[22px] text-white/50">
-            To scale from live beta to 10,000 paying subscribers
+          <p className="text-[20px] text-white/50 mt-4">
+            18–24 month runway to mainnet TGE, first revenue, and Series A readiness
           </p>
         </motion.div>
 
-        {/* Use of Funds */}
-        <div className="grid grid-cols-4 gap-5 mb-10">
+        {/* Use of Funds — 6 buckets at $3M */}
+        <div className="grid grid-cols-6 gap-3 mb-6">
           {[
-            { pct: '40%', label: 'Engineering', desc: 'SEGI expansion, smart contracts, mobile app', icon: Rocket, color: 'hsl(207,90%,54%)' },
-            { pct: '25%', label: 'LP Seeding', desc: 'Initial USDC/ZSOLAR liquidity pool', icon: Target, color: 'hsl(142,76%,50%)' },
-            { pct: '20%', label: 'Growth', desc: 'Community, partnerships, installer network', icon: Users, color: 'hsl(45,93%,47%)' },
-            { pct: '15%', label: 'Operations', desc: 'Legal, compliance, infrastructure', icon: Globe, color: 'hsl(280,68%,60%)' },
+            { pct: '20%', dollars: '$600K', label: 'LP Seeding', desc: '2–3 tranches @ $0.10', icon: Droplets, color: 'hsl(207,90%,54%)' },
+            { pct: '37%', dollars: '$1.1M', label: 'Engineering', desc: 'Mainnet, audit, 2 hires', icon: Code2, color: 'hsl(142,76%,50%)' },
+            { pct: '17%', dollars: '$500K', label: 'Deason Revenue', desc: '$4.99/mo, first 1K paid', icon: DollarSign, color: 'hsl(45,93%,47%)' },
+            { pct: '10%', dollars: '$300K', label: 'Legal + IP', desc: 'Token opinion, audits', icon: Scale, color: 'hsl(280,68%,60%)' },
+            { pct: '10%', dollars: '$300K', label: 'Growth + BD', desc: 'OEMs, content, community', icon: Megaphone, color: 'hsl(15,90%,55%)' },
+            { pct: '6%', dollars: '$200K', label: 'Reserve', desc: 'Opportunistic top-up', icon: Shield, color: 'hsl(220,15%,60%)' },
           ].map((item, i) => (
             <motion.div key={item.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 + i * 0.1 }}
-              className="p-5 rounded-xl border border-white/10 bg-white/5 text-center">
-              <item.icon className="w-7 h-7 mx-auto mb-3" style={{ color: item.color }} />
-              <p className="text-[32px] font-black" style={{ color: item.color }}>{item.pct}</p>
-              <p className="text-[16px] font-semibold mt-1">{item.label}</p>
-              <p className="text-[13px] text-white/40 mt-1">{item.desc}</p>
+              transition={{ delay: 0.3 + i * 0.08 }}
+              className="p-4 rounded-xl border border-white/10 bg-white/5 text-center">
+              <item.icon className="w-6 h-6 mx-auto mb-2" style={{ color: item.color }} />
+              <p className="text-[22px] font-black" style={{ color: item.color }}>{item.dollars}</p>
+              <p className="text-[12px] text-white/40 -mt-0.5">{item.pct}</p>
+              <p className="text-[14px] font-semibold mt-1.5 text-white/85">{item.label}</p>
+              <p className="text-[11px] text-white/40 mt-0.5 leading-tight">{item.desc}</p>
             </motion.div>
           ))}
         </div>
 
-        {/* Roadmap */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
-          className="p-6 rounded-2xl border border-white/10 bg-white/5 mb-8">
-          <p className="text-[14px] font-mono tracking-wider text-white/30 mb-4">UNICORN TRAJECTORY</p>
-          <div className="grid grid-cols-4 gap-4">
-            {[
-              { phase: 'Pre-Seed', raise: '$500K', target: '10K users', valuation: '$5M', timeline: 'Now' },
-              { phase: 'Seed', raise: '$2M', target: '50K users', valuation: '$20M', timeline: 'Q4 2026' },
-              { phase: 'Series A', raise: '$10M', target: '250K users', valuation: '$100M', timeline: '2027' },
-              { phase: 'Series C', raise: '$50M+', target: '1M users', valuation: '$1.2B–$2.4B', timeline: '2029' },
-            ].map((item, i) => (
-              <div key={item.phase} className={`p-4 rounded-xl border ${i === 0 ? 'border-[hsl(45,93%,47%)]/30 bg-[hsl(45,93%,47%)]/5' : 'border-white/10 bg-white/[0.02]'}`}>
-                <p className={`text-[14px] font-bold mb-2 ${i === 0 ? 'text-[hsl(45,93%,47%)]' : 'text-white/60'}`}>{item.phase}</p>
-                <p className="text-[20px] font-black text-white">{item.raise}</p>
-                <p className="text-[13px] text-white/40 mt-2">{item.target}</p>
-                <p className="text-[13px] font-semibold text-[hsl(142,76%,50%)] mt-1">{item.valuation}</p>
-                <p className="text-[12px] text-white/30 mt-1">{item.timeline}</p>
-              </div>
-            ))}
-          </div>
-        </motion.div>
+        {/* Two-column: Milestones + Anchor slot */}
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }}
+            className="p-5 rounded-xl border border-white/10 bg-white/5">
+            <p className="text-[13px] font-mono tracking-wider text-white/35 mb-3">MILESTONES FUNDED</p>
+            <ul className="space-y-2">
+              {[
+                'Mainnet TGE on Base (chain 8453)',
+                '1,000 verified homes · 50M kWh on-chain',
+                'Deason subscription live at $4.99/mo ARR',
+                '2nd LP tranche seeded · circulating supply expanded',
+                'Series A-ready in 18–24 months',
+              ].map((m) => (
+                <li key={m} className="flex items-start gap-2 text-[15px] text-white/75">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[hsl(142,76%,50%)] mt-2 shrink-0" />
+                  {m}
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.0 }}
+            className="p-5 rounded-xl border border-dashed border-[hsl(45,93%,47%)]/30 bg-[hsl(45,93%,47%)]/[0.04] flex flex-col justify-center items-center text-center">
+            <p className="text-[13px] font-mono tracking-wider text-[hsl(45,93%,47%)]/70 mb-3">ANCHOR · LEAD INVESTOR</p>
+            <p className="text-[28px] font-light text-white/40 italic mb-2">Anchor slot open</p>
+            <p className="text-[13px] text-white/40 max-w-[380px]">
+              Strategic Seed structured to welcome a single operator-aligned lead. Conversations in progress.
+            </p>
+          </motion.div>
+        </div>
 
         {/* Walk-off line */}
-        <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.1 }}
-          className="text-center text-[38px] font-light tracking-tight leading-[1.15] text-white/90">
+        <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }}
+          className="text-center text-[36px] font-light tracking-tight leading-[1.15] text-white/90">
           Bitcoin tokenized <span className="text-white/50">scarcity</span>.{' '}
           We're tokenizing <span className="text-[hsl(142,76%,50%)] font-semibold">abundance</span>.
         </motion.p>
