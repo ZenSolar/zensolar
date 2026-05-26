@@ -305,6 +305,7 @@ const App = () => {
                     <Route path="/taylor-preview" element={<TaylorPreview />} />
                     <Route path="/proof-of-genesis-receipt-preview" element={<ProofOfGenesisReceiptPreview />} />
                     <Route path="/demo/proof-of-genesis-receipt-preview" element={<ProofOfGenesisReceiptPreview />} />
+                    <Route path="/mock/mint-all-receipt" element={<Suspense fallback={<PageLoader />}><MintAllReceiptMock /></Suspense>} />
                     <Route path="/preview/mint-flow-micro" element={<Suspense fallback={<PageLoader />}><MintFlowMicroPreview /></Suspense>} />
                     <Route path="/demo/mint-flow-micro" element={<Suspense fallback={<PageLoader />}><MintFlowMicroPreview /></Suspense>} />
                     {/* Resilient aliases — catch common typos / old paths so the link never 404s */}
