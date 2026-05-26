@@ -1693,8 +1693,9 @@ interface TotalTokensCardProps {
 
 function TotalTokensCard({ tokensToReceive, tokensEligible, activityUnits, tokenPrice, onMintRequest }: TotalTokensCardProps) {
   const isTappable = activityUnits > 0 && !!onMintRequest;
-  // v2.1 — token-first display: lead with eligible tokens, kWh shown as small secondary text.
+  // v3 — "Obsidian glass tactile": hero token number, compact metadata row, share progress rail.
   const eligible = tokensEligible ?? Math.floor(activityUnits / MINT_RATIO_KWH_PER_TOKEN);
+  const usdValue = tokensToReceive * tokenPrice;
 
   const handleMint = () => {
     if (onMintRequest) {
@@ -1704,48 +1705,74 @@ function TotalTokensCard({ tokensToReceive, tokensEligible, activityUnits, token
 
   const content = (
     <>
-      {/* Animated background glow for active state */}
+      {/* Brand-toned glass overlays (uses primary/success tokens to match Clean Energy Center palette) */}
       {activityUnits > 0 && (
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-success/5 animate-pulse-glow" />
+        <>
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-success/5" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent -translate-x-full animate-mint-shimmer" />
+        </>
       )}
-      
-      <div className={cn(
-        "relative p-3 rounded-xl transition-all",
-        activityUnits > 0 
-          ? "bg-gradient-to-br from-primary to-success shadow-lg shadow-primary/30" 
-          : "bg-muted"
-      )}>
-        <Coins className={cn(
-          "h-6 w-6",
-          activityUnits > 0 ? "text-white" : "text-muted-foreground"
-        )} />
-      </div>
-      <div className="flex-1 min-w-0 relative">
-        <p
-          className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground/80 font-semibold"
-          title={`${activityUnits.toLocaleString()} kWh / miles tracked at the 10:1 mint ratio`}
-        >
-          {eligible.toLocaleString()} tokens eligible
-          <span className="ml-1.5 normal-case tracking-normal text-muted-foreground/60 font-normal">
-            · {activityUnits.toLocaleString()} kWh
-          </span>
-        </p>
-        <p className="text-sm text-muted-foreground font-medium">You receive (75%)</p>
-        <p className="text-2xl font-bold text-foreground tracking-tight">
-          {tokensToReceive.toLocaleString()}
-          <span className="text-lg font-semibold text-muted-foreground ml-1.5">$ZSOLAR</span>
-        </p>
-        <p className={cn(
-          "text-sm font-medium",
-          activityUnits > 0 ? "text-primary" : "text-muted-foreground"
+
+      <div className="relative z-10 flex w-full items-center gap-3 px-4 py-3">
+        {/* Token icon — primary/success bordered glass tile */}
+        <div className={cn(
+          "flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-xl border transition-colors",
+          activityUnits > 0
+            ? "bg-primary/20 border-primary/40 shadow-[inset_0_0_12px_hsl(var(--primary)/0.25)]"
+            : "bg-muted border-border/40"
         )}>
-          ≈ ${(tokensToReceive * tokenPrice).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} @ ${tokenPrice.toFixed(2)}
-        </p>
+          <Coins className={cn(
+            "h-6 w-6 transition-all",
+            activityUnits > 0
+              ? "text-primary drop-shadow-[0_0_8px_hsl(var(--primary)/0.55)]"
+              : "text-muted-foreground"
+          )} />
+        </div>
+
+        {/* Hero number + compact metadata row */}
+        <div className="flex-1 min-w-0 flex flex-col items-start text-left">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-2xl font-bold text-foreground tracking-tight tabular-nums font-mono">
+              {tokensToReceive.toLocaleString()}
+            </span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary/90">
+              $ZSOLAR
+            </span>
+          </div>
+
+          <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+            <div className="flex items-center gap-1">
+              <span className="text-[10px] uppercase tracking-tight text-muted-foreground/70 font-medium">Share</span>
+              <span className="text-[10px] font-semibold text-foreground/80">75%</span>
+            </div>
+            <div className="w-px h-2 bg-border/50" />
+            <span className="text-[10px] font-medium text-muted-foreground">
+              ≈ ${usdValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+            <div className="w-px h-2 bg-border/50" />
+            <span className="text-[10px] text-muted-foreground/70 tabular-nums">
+              {eligible.toLocaleString()} eligible · {activityUnits.toLocaleString()} kWh
+            </span>
+          </div>
+        </div>
+
+        {/* CTA pill — divider + Mint All + circular arrow */}
+        {isTappable && (
+          <div className="flex flex-col items-center justify-center pl-3 ml-1 border-l border-border/40">
+            <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary mb-1 whitespace-nowrap">
+              Mint All
+            </span>
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center transition-colors">
+              <ChevronRight className="h-4 w-4 text-primary" strokeWidth={2.5} />
+            </div>
+          </div>
+        )}
       </div>
-      {isTappable && (
-        <div className="relative flex items-center gap-1 text-primary">
-          <span className="text-xs font-bold uppercase tracking-wide whitespace-nowrap">Mint All</span>
-          <ChevronRight className="h-5 w-5" />
+
+      {/* Bottom 75% share rail */}
+      {activityUnits > 0 && (
+        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-border/40">
+          <div className="h-full w-[75%] bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.6)]" />
         </div>
       )}
     </>
@@ -1756,9 +1783,9 @@ function TotalTokensCard({ tokensToReceive, tokensEligible, activityUnits, token
       <MintEffectButton
         onClick={handleMint}
         className={cn(
-          "p-3 rounded-lg border flex items-center gap-3 transition-all relative overflow-hidden w-full",
-          "border-primary/40 bg-primary/5 hover:border-primary/60",
-          // Pending-kWh ready glow (matches MintRequestFAB on the live mirror)
+          "relative overflow-hidden rounded-2xl border flex items-center w-full min-h-[96px] transition-all",
+          "border-primary/30 bg-card/50 backdrop-blur-sm",
+          "shadow-[0_8px_32px_-12px_hsl(var(--primary)/0.4)] active:brightness-110",
           "animate-mint-ready-glow"
         )}
       >
@@ -1768,7 +1795,7 @@ function TotalTokensCard({ tokensToReceive, tokensEligible, activityUnits, token
   }
 
   return (
-    <div className="p-3 rounded-lg border flex items-center gap-3 transition-all relative overflow-hidden border-border/30 bg-muted/20 w-full">
+    <div className="relative overflow-hidden rounded-2xl border flex items-center w-full min-h-[96px] border-border/30 bg-muted/20">
       {content}
     </div>
   );
