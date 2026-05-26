@@ -86,7 +86,7 @@ export function RecentMintProofs() {
 
       const { data, error } = await supabase
         .from('mint_transactions')
-        .select('id, tx_hash, action, tokens_minted, nfts_minted, nft_names, created_at')
+        .select('id, tx_hash, chain_hash, action, tokens_minted, nfts_minted, nft_names, created_at, source_breakdown')
         .order('created_at', { ascending: false })
         .limit(3);
 
