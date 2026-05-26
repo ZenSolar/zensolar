@@ -106,10 +106,10 @@ function buildSourceRows(r: VerifyReceipt): SourceRow[] {
   const kwhExplicit = Number(r.kwh_delta ?? 0);
   const kwh = kwhExplicit > 0 ? kwhExplicit : (milesExplicit === 0 ? tokens : 0);
   if (milesExplicit > 0) {
-    return [{ key: 'ev_miles', label: 'EV Driving', Icon: Car, amount: `+${fmt(milesExplicit, 0)} mi`, accentClass: 'text-primary', ringClass: 'border-primary/30' }];
+    return [{ key: 'ev_miles', label: 'EV Driving', Icon: Car, amount: `+${fmt(milesExplicit, 0)} mi`, accentClass: 'text-primary', ringClass: 'border-primary/30', lineSources: [] }];
   }
   if (kwh > 0) {
-    return [{ key: 'supercharging_kwh', label: 'Tesla Supercharging', Icon: Zap, amount: `+${fmt(kwh, 2)} kWh`, accentClass: 'text-primary', ringClass: 'border-primary/30' }];
+    return [{ key: 'supercharging_kwh', label: 'Tesla Supercharging', Icon: Zap, amount: `+${fmt(kwh, 2)} kWh`, accentClass: 'text-primary', ringClass: 'border-primary/30', lineSources: ['supercharger'] }];
   }
   return [];
 }
