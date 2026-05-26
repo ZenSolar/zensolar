@@ -402,6 +402,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           </AnimatedItem>
         )}
 
+        <SectionDivider className="xl:hidden" />
+
         {/* Live Energy Flow Diagram */}
         <AnimatedItem className="xl:col-span-2">
           <EnergyFlowGlowCard />
