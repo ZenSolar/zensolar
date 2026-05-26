@@ -58,7 +58,7 @@ function mkLines(source: string, provider: string, totalKwh: number, count: numb
 
 const MOCK_SOURCE_LINES: SourceLinesResponse = {
   found: true,
-  attributed_sources: ['solar', 'bidir_export', 'home_charger'],
+  attributed_sources: ['solar', 'bidir_export', 'home_charger', 'ev_miles'],
   window_start: new Date(now - 7 * 24 * HOUR).toISOString(),
   window_end: new Date(now).toISOString(),
   lines: [

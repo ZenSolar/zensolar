@@ -52,6 +52,7 @@ const SOURCE_META: Record<string, { label: string; tone: string }> = {
   solar:           { label: 'Solar Production',    tone: 'text-amber-400 border-amber-400/40' },
   bidir_export:    { label: 'Battery Export',      tone: 'text-fuchsia-400 border-fuchsia-400/40' },
   bidir_import:    { label: 'Grid Import',         tone: 'text-muted-foreground border-border' },
+  ev_miles:        { label: 'EV Miles Driven',     tone: 'text-primary border-primary/40' },
 };
 
 function metaFor(source: string) {
