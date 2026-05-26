@@ -177,11 +177,19 @@ export function RecentMintProofs() {
               const label = ACTION_LABEL[tx.action] || tx.action;
               const nftCount = tx.nfts_minted?.length || 0;
               const source = inferSource(tx);
+              const hasChainHash = !!tx.chain_hash;
+              const RowTag: any = hasChainHash ? 'button' : Link;
+              const rowProps = hasChainHash
+                ? {
+                    type: 'button' as const,
+                    onClick: () => setPogSheetHash(tx.chain_hash!),
+                  }
+                : { to: `/mint-history#tx-${tx.id}` };
               return (
-                <Link
+                <RowTag
                   key={tx.id}
-                  to={tx.chain_hash ? `/verify/${tx.chain_hash}` : `/mint-history#tx-${tx.id}`}
-                  className="flex flex-col gap-2 p-3 rounded-xl bg-muted/30 border border-border/50 hover:border-primary/40 hover:bg-primary/[0.03] transition-all group"
+                  {...rowProps}
+                  className="flex w-full flex-col gap-2 p-3 rounded-xl bg-muted/30 border border-border/50 hover:border-primary/40 hover:bg-primary/[0.03] transition-all group text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
@@ -217,9 +225,16 @@ export function RecentMintProofs() {
                           </p>
                         )}
                       </div>
-                      <button
-                        type="button"
-                        onClick={(e) => handleShare(e, tx, source)}
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => handleShare(e as any, tx, source)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleShare(e as any, tx, source);
+                          }
+                        }}
                         aria-label="Share mint proof"
                         className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
                       >
@@ -228,7 +243,7 @@ export function RecentMintProofs() {
                         ) : (
                           <Share2 className="h-4 w-4" aria-hidden />
                         )}
-                      </button>
+                      </span>
                       <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
                     </div>
                   </div>
@@ -245,7 +260,7 @@ export function RecentMintProofs() {
                       />
                     </div>
                   )}
-                </Link>
+                </RowTag>
               );
             })
           )}
@@ -269,6 +284,13 @@ export function RecentMintProofs() {
           />
         );
       })()}
+      })()}
+
+      <VerifyPoASheet
+        chainHash={pogSheetHash ?? undefined}
+        open={!!pogSheetHash}
+        onOpenChange={(v) => !v && setPogSheetHash(null)}
+      />
     </motion.div>
   );
 }
