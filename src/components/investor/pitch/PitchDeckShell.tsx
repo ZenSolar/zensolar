@@ -72,19 +72,29 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
     };
   }, [isFullscreen]);
 
-  // Scale calculation
-  const [scale, setScale] = useState(1);
+  // Scale calculation — fit to container with letterboxing
+  const [scale, setScale] = useState(0.2);
   useEffect(() => {
     const observe = () => {
       if (!containerRef.current) return;
       const { width, height } = containerRef.current.getBoundingClientRect();
+      if (width === 0 || height === 0) return;
       setScale(Math.min(width / 1920, height / 1080));
     };
     observe();
     const ro = new ResizeObserver(observe);
     if (containerRef.current) ro.observe(containerRef.current);
-    return () => ro.disconnect();
+    window.addEventListener('orientationchange', observe);
+    window.addEventListener('resize', observe);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('orientationchange', observe);
+      window.removeEventListener('resize', observe);
+    };
   }, []);
+
+  const scaledW = 1920 * scale;
+  const scaledH = 1080 * scale;
 
   if (showGrid) {
     return (
@@ -123,35 +133,38 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
   return (
     <div
       ref={containerRef}
-      className="w-full h-screen bg-[hsl(220,20%,6%)] relative overflow-hidden select-none"
+      className="w-screen bg-[hsl(220,20%,6%)] relative overflow-hidden select-none touch-pan-y"
+      style={{ height: '100dvh' }}
       onClick={(e) => {
-        // Click left/right halves to navigate
-        const rect = (e.target as HTMLElement).closest('[data-slide-container]')?.getBoundingClientRect();
-        if (!rect) return;
+        // Click left/right thirds to navigate
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
         if (e.clientX < rect.left + rect.width / 3) prev();
         else if (e.clientX > rect.left + (rect.width * 2) / 3) next();
       }}
     >
-      {/* Scaled slide */}
-      <div data-slide-container className="absolute inset-0 flex items-center justify-center">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={current}
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -40 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-            style={{
-              width: 1920,
-              height: 1080,
-              transform: `scale(${scale})`,
-              transformOrigin: 'center center',
-            }}
-          >
-            {slides[current]}
-          </motion.div>
-        </AnimatePresence>
+      {/* Scaled slide — wrapper sized to visible scaled dimensions so layout box matches what the eye sees */}
+      <div data-slide-container className="absolute inset-0 flex items-center justify-center overflow-hidden">
+        <div style={{ width: scaledW, height: scaledH, position: 'relative', overflow: 'hidden' }}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={current}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              style={{
+                width: 1920,
+                height: 1080,
+                transform: `scale(${scale})`,
+                transformOrigin: 'top left',
+              }}
+            >
+              {slides[current]}
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
+
 
       {/* Controls overlay */}
       <AnimatePresence>
