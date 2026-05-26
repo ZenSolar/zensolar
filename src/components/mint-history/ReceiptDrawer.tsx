@@ -195,7 +195,7 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
       >
         {/* Scrollable inner column so the drag-handle + safe area stay pinned */}
         <div className="overflow-y-auto overscroll-contain">
-          <div className="relative bg-gradient-to-br from-primary/15 via-card to-accent-warm/10 px-6 pt-4 pb-5 border-b">
+          <div className="relative bg-gradient-to-br from-primary/15 via-card to-accent-warm/10 px-5 pt-2 pb-4 border-b">
             <DrawerClose
               aria-label="Close receipt"
               className="absolute right-3 top-3 z-10 rounded-full p-2 bg-background/70 backdrop-blur border border-border/60 text-muted-foreground hover:text-foreground transition-colors"
