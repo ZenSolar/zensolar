@@ -33,6 +33,8 @@ type Line = {
   fingerprint: string;
   kwh: number;
   occurred_at: string;
+  provider?: string | null;
+  device_watermark?: string | null;
 };
 
 type ApiResponse = {
