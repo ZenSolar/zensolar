@@ -131,14 +131,19 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
 
   const stats = useMemo(() => {
     const tokens = Number(data?.tokens_minted ?? 0);
-    const kwh = Number(data?.kwh_delta ?? 0);
-    const miles = Number(data?.miles_delta ?? 0);
+    const milesRaw = Number(data?.miles_delta ?? 0);
+    // Legacy mint-rewards rows often have null kwh_delta but mint at the
+    // canonical 1 token ≈ 1 kWh Tesla-Supercharging ratio — derive from
+    // tokens when the explicit delta is missing so the receipt never
+    // shows "0 kWh / 0 kg CO₂" for a real mint.
+    const kwhExplicit = Number(data?.kwh_delta ?? 0);
+    const kwh = kwhExplicit > 0 ? kwhExplicit : (milesRaw === 0 && tokens > 0 ? tokens : 0);
     // CO₂ avoided headline — EV miles get ICE-comparison framing; everything
     // else uses grid-displacement math.
-    const co2Kg = miles > 0
-      ? miles * CO2_KG_PER_EV_MILE
+    const co2Kg = milesRaw > 0
+      ? milesRaw * CO2_KG_PER_EV_MILE
       : kwh * GRID_KG_PER_KWH;
-    return { tokens, kwh, miles, co2Kg };
+    return { tokens, kwh, miles: milesRaw, co2Kg };
   }, [data]);
 
   const sourceRows = useMemo(() => (data ? buildSourceRows(data) : []), [data]);
