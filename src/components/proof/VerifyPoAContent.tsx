@@ -92,6 +92,7 @@ function buildSourceRows(r: VerifyReceipt): SourceRow[] {
       amount: def.unit === 'mi' ? `+${fmt(n, 0)} mi` : `+${fmt(n, 2)} kWh`,
       accentClass: def.accent,
       ringClass: def.ring,
+      lineSources: def.lineSources,
     });
   }
   if (rows.length > 0) return rows;
