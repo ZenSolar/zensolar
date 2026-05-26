@@ -294,15 +294,14 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
       <div className="px-6 pb-6">
         <div className="flex justify-between gap-2 bg-muted/40 p-3 rounded-2xl border border-border/40">
           <TmBadge
-            Icon={MapPin} label="Origin" tint="primary"
-            active={!!sourceRows.length}
-            onClick={() => scrollToRef(sessionsRef)}
-            title="Jump to contributing sessions"
+            Icon={MapPin} label="Origin" tint="primary" active
+            onClick={() => { setSessionsOpen(true); scrollToRef(sessionsRef); }}
+            title="Show contributing sessions (Proof-of-Origin)"
           />
           <TmBadge
             Icon={Sparkles} label="Delta" tint="eco" active
-            onClick={() => scrollToRef(sessionsRef)}
-            title="Jump to verified energy deltas"
+            onClick={() => { setSessionsOpen(true); scrollToRef(sessionsRef); }}
+            title="Show verified energy deltas per session"
           />
           <TmBadge
             Icon={Fingerprint} label="Authentic" tint="accent-cool" active
