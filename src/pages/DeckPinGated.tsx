@@ -5,8 +5,7 @@ import { toast } from "sonner";
 import { PitchDeckShell } from "@/components/investor/pitch/PitchDeckShell";
 import { Slide01Title } from "@/components/investor/pitch/slides/Slide01Title";
 import { Slide02Catalyst } from "@/components/investor/pitch/slides/Slide02Catalyst";
-
-
+import { Slide04Opportunity } from "@/components/investor/pitch/slides/Slide04Opportunity";
 import { Slide05Solution } from "@/components/investor/pitch/slides/Slide05Solution";
 import { Slide06Technology } from "@/components/investor/pitch/slides/Slide06Technology";
 import { Slide07ThirdPrimitive } from "@/components/investor/pitch/slides/Slide07ThirdPrimitive";
