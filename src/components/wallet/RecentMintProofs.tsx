@@ -28,17 +28,14 @@ const ACTION_LABEL: Record<string, string> = {
 };
 
 /**
- * Inferred Proof-of-Origin source for a mint row.
+ * Source attribution for a mint row.
  *
- * Today the `mint_transactions` table doesn't carry source attribution
- * (it's joined on demand from `energy_production`). Until that join is
- * surfaced here, we deterministically derive a plausible OEM from the
- * tx_hash so investor-demo feeds always render with attribution
- * (Tesla / Enphase / SolarEdge / Wallbox) instead of a blank "Verified".
+ * Per the Proof-of-Genesis unified-receipt spec:
+ *   Legacy `mint-rewards` rows with no explicit `source_breakdown`
+ *   are Tesla Supercharging-only — never infer Wallbox/Enphase/etc.
  *
- * When the backend is updated to return real `device_provider` +
- * `kwh_delta` + `miles_delta` per mint, replace `inferSource` with the
- * real values from the row and the badge will pick them up automatically.
+ * If a row carries `source_breakdown` we pick the dominant source.
+ * Otherwise we default to Tesla Supercharging (the only historical source).
  */
 function inferSource(tx: RecentMint): {
   provider: VerifiedSourceProvider;
@@ -46,24 +43,28 @@ function inferSource(tx: RecentMint): {
   kwh?: number;
   miles?: number;
 } | null {
-  if (tx.action !== 'mint-rewards') return null; // NFT mints aren't energy-derived
-  // Stable rotation by hash so the same row always shows the same OEM
-  const seed = parseInt(tx.tx_hash.slice(2, 6), 16) || 0;
+  if (tx.action !== 'mint-rewards') return null;
   const tokens = tx.tokens_minted || 0;
-  const oems: Array<{ provider: VerifiedSourceProvider; deviceLabel: string; kind: 'solar' | 'battery' | 'ev' }> = [
-    { provider: 'tesla_energy', deviceLabel: 'Powerwall 3', kind: 'battery' },
-    { provider: 'enphase', deviceLabel: 'IQ8 Microinverters', kind: 'solar' },
-    { provider: 'solaredge', deviceLabel: 'Inverter', kind: 'solar' },
-    { provider: 'wallbox', deviceLabel: 'Pulsar Plus', kind: 'ev' },
-    { provider: 'tesla_vehicle', deviceLabel: 'Model Y', kind: 'ev' },
-  ];
-  const pick = oems[seed % oems.length];
-  // 10:1 mint ratio (SSoT v2.1) — display kWh/miles consistent with token count
+  const miles = tokens > 0 ? Math.round(tokens * 10) : undefined;
   const kwh = tokens > 0 ? Math.round(tokens * 10 * 100) / 100 : undefined;
-  if (pick.kind === 'ev') {
-    return { provider: pick.provider, deviceLabel: pick.deviceLabel, miles: tokens > 0 ? Math.round(tokens * 10) : undefined };
+
+  const sb = tx.source_breakdown ?? {};
+  const solar = Number(sb.solar_kwh ?? 0);
+  const battery = Number(sb.battery_kwh ?? 0);
+  const home = Number(sb.home_charging_kwh ?? 0);
+  const supercharge = Number(sb.supercharging_kwh ?? sb.ev_kwh ?? 0);
+
+  if (solar > 0 && solar >= battery && solar >= home && solar >= supercharge) {
+    return { provider: 'enphase', deviceLabel: 'IQ8 Microinverters', kwh: solar };
   }
-  return { provider: pick.provider, deviceLabel: pick.deviceLabel, kwh };
+  if (battery > 0 && battery >= home && battery >= supercharge) {
+    return { provider: 'tesla_energy', deviceLabel: 'Powerwall 3', kwh: battery };
+  }
+  if (home > 0 && home >= supercharge) {
+    return { provider: 'wallbox', deviceLabel: 'Pulsar Plus', miles };
+  }
+  // Default: Tesla Supercharging (legacy mint-rewards rows)
+  return { provider: 'tesla_vehicle', deviceLabel: 'Supercharging', miles };
 }
 
 /**
