@@ -12,7 +12,7 @@ const layers = [
 export function Slide06Technology() {
   return (
     <SlideLayout variant="dark">
-      <SlideHeader label="Proprietary Tech & IP" number={7} />
+      <SlideHeader label="Proprietary Tech & IP" number={6} />
 
       <div className="absolute inset-0 flex px-16 pt-24 pb-16">
         <div className="w-full flex gap-16">

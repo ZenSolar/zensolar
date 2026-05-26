@@ -6,7 +6,7 @@ import { PitchDeckShell } from "@/components/investor/pitch/PitchDeckShell";
 import { Slide01Title } from "@/components/investor/pitch/slides/Slide01Title";
 import { Slide02Catalyst } from "@/components/investor/pitch/slides/Slide02Catalyst";
 import { Slide03Supercycle } from "@/components/investor/pitch/slides/Slide03Supercycle";
-import { Slide04Opportunity } from "@/components/investor/pitch/slides/Slide04Opportunity";
+
 import { Slide05Solution } from "@/components/investor/pitch/slides/Slide05Solution";
 import { Slide06Technology } from "@/components/investor/pitch/slides/Slide06Technology";
 import { Slide07ValueMechanism } from "@/components/investor/pitch/slides/Slide07ValueMechanism";
@@ -25,7 +25,6 @@ const slides = [
   <Slide02Catalyst />,
   <Slide11Traction />,
   <Slide03Supercycle />,
-  <Slide04Opportunity />,
   <Slide05Solution />,
   <Slide06Technology />,
   <Slide07ValueMechanism />,
@@ -39,7 +38,7 @@ const slides = [
 
 const slideLabels = [
   "Title", "The Catalyst", "Traction & Beta", "Tokenization Supercycle",
-  "The Opportunity", "The Solution", "Proprietary Tech & IP", "Value Mechanism",
+  "The Solution", "Proprietary Tech & IP", "Value Mechanism",
   "POL Defense", "Revenue Model", "Unit Economics", "Competition",
   "Risk Mitigation", "The Ask",
 ];

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 export function Slide07ValueMechanism() {
   return (
     <SlideLayout variant="dark">
-      <SlideHeader label="Value Mechanism" number={8} />
+      <SlideHeader label="Value Mechanism" number={7} />
 
       <div className="absolute inset-0 flex flex-col justify-center px-16 pt-20 pb-16">
         <motion.h2 initial={{ opacity: 0 }} animate={{ opacity: 1 }}
