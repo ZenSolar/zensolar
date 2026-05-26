@@ -423,7 +423,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           </Suspense>
           {!isViewer && (
             <Button
-              onClick={() => nftQuickMintRef.current?.openDialog()}
+              onClick={() => navigate('/nft-collection')}
               disabled={dataLoading}
               className="w-full mt-3 bg-primary hover:bg-primary/90 animate-pulse-glow zen-btn-glow shadow-lg shadow-primary/20"
               size="lg"
@@ -435,6 +435,11 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
               </Badge>
             </Button>
           )}
+        </AnimatedItem>
+
+        {/* API Partners — thin strip under milestones */}
+        <AnimatedItem className="xl:col-span-2">
+          <ApiPartnersCard />
         </AnimatedItem>
 
 
