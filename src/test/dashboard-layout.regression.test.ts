@@ -28,14 +28,15 @@ const partners = read("src/components/dashboard/ApiPartnersCard.tsx");
 
 describe("ApiPartnersCard — logo sizing snapshot", () => {
   it("locks per-brand logo sizing classes", () => {
+    const pick = (brand: string) =>
+      new RegExp(`alt === '${brand}'\\s*\\?\\s*'([^']+)'`).exec(partners)?.[1];
+    // Wallbox is the final fallback branch (no explicit alt check).
+    const wallboxMatches = [...partners.matchAll(/'(h-\d+ max-w-\[\d+px\])'/g)];
     const sizing = {
-      Tesla: /alt === 'Tesla'\s*\?\s*'([^']+)'/.exec(partners)?.[1],
-      Enphase: /alt === 'Enphase'\s*\?\s*'([^']+)'/.exec(partners)?.[1],
-      SolarEdge: /alt === 'SolarEdge'\s*\?\s*'([^']+)'/.exec(partners)?.[1],
-      // Wallbox is the final fallback branch
-      Wallbox: /:\s*'(h-\d+ max-w-\[\d+px\])'/.exec(
-        partners.split("SolarEdge")[1] ?? "",
-      )?.[1],
+      Tesla: pick("Tesla"),
+      Enphase: pick("Enphase"),
+      SolarEdge: pick("SolarEdge"),
+      Wallbox: wallboxMatches[wallboxMatches.length - 1]?.[1],
     };
     expect(sizing).toMatchInlineSnapshot(`
       {
