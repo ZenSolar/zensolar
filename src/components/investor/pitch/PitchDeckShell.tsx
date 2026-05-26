@@ -200,10 +200,10 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
           : 'w-screen'
       }`}
       style={{
-        // In fauxscreen, 100vh extends behind iOS Safari's chrome (URL bar
-        // collapses when the page is non-scrollable). Otherwise use 100dvh
-        // so the deck fits visible area cleanly.
-        height: fauxFullscreen ? '100vh' : '100dvh',
+        // 100dvh tracks iOS Safari's visible area as the URL bar collapses,
+        // and stays correct across orientation changes.
+        height: '100dvh',
+        width: '100vw',
         touchAction: 'pan-y',
       }}
       onTouchStart={onTouchStart}
