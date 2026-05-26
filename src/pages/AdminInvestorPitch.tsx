@@ -17,9 +17,11 @@ import { Slide11Traction } from "@/components/investor/pitch/slides/Slide11Tract
 import { Slide12RiskMitigation } from "@/components/investor/pitch/slides/Slide12RiskMitigation";
 import { Slide13TheAsk } from "@/components/investor/pitch/slides/Slide13TheAsk";
 
+// Concorda-style structure: Traction promoted to slide 3 (right after the catalyst).
 const slides = [
   <Slide01Title />,
   <Slide02Catalyst />,
+  <Slide11Traction />,
   <Slide03Supercycle />,
   <Slide04Opportunity />,
   <Slide05Solution />,
@@ -28,7 +30,6 @@ const slides = [
   <Slide08POLDefense />,
   <Slide09Revenue />,
   <Slide10UnitEconomics />,
-  <Slide11Traction />,
   <Slide12RiskMitigation />,
   <Slide13TheAsk />,
 ];
@@ -36,6 +37,7 @@ const slides = [
 const slideLabels = [
   'Title',
   'The Catalyst',
+  'Traction & Beta',
   'Tokenization Supercycle',
   'The Opportunity',
   'The Solution',
@@ -44,7 +46,6 @@ const slideLabels = [
   'POL Defense',
   'Revenue Model',
   'Unit Economics',
-  'Traction & Beta',
   'Risk Mitigation',
   'The Ask',
 ];

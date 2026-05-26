@@ -1,5 +1,6 @@
 import { SlideLayout, SlideFooter } from '../SlideLayout';
 import { motion } from 'framer-motion';
+import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
 export function Slide01Title() {
   return (
@@ -18,10 +19,15 @@ export function Slide01Title() {
           <span className="text-[15px] font-mono tracking-[0.3em] uppercase text-white/40">Pre-Seed · Confidential</span>
         </motion.div>
 
-        <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-          className="text-[88px] font-black tracking-tight leading-[0.95] text-center">
-          Zen<span className="text-[hsl(207,90%,54%)]">Solar</span>
-        </motion.h1>
+        <motion.div initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.35, duration: 0.8 }}
+          className="flex items-center justify-center">
+          <img
+            src={zenLogo}
+            alt="ZenSolar"
+            className="h-[180px] w-auto object-contain"
+            style={{ filter: 'drop-shadow(0 0 60px hsl(142, 76%, 50%, 0.35)) drop-shadow(0 0 20px hsl(207, 90%, 54%, 0.25))' }}
+          />
+        </motion.div>
 
         <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
           className="text-[34px] font-light text-white/75 mt-8 text-center max-w-[1200px] leading-[1.2]">

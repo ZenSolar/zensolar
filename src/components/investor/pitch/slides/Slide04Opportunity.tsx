@@ -5,7 +5,7 @@ import { Building2, Zap, Wrench } from 'lucide-react';
 export function Slide04Opportunity() {
   return (
     <SlideLayout variant="dark">
-      <SlideHeader label="The Opportunity" number={4} />
+      <SlideHeader label="The Opportunity" number={5} />
 
       <div className="absolute inset-0 flex flex-col justify-center px-16 pt-20 pb-16">
         {/* TAM section */}

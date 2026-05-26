@@ -5,7 +5,7 @@ import { Sun, Zap, Coins, Lock } from 'lucide-react';
 export function Slide05Solution() {
   return (
     <SlideLayout variant="gradient">
-      <SlideHeader label="The Solution" number={5} />
+      <SlideHeader label="The Solution" number={6} />
 
       {/* Large glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[hsl(45,93%,47%)]/8 blur-[120px]" />

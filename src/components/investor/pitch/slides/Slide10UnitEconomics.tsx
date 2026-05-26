@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 export function Slide10UnitEconomics() {
   return (
     <SlideLayout variant="dark">
-      <SlideHeader label="Unit Economics" number={10} />
+      <SlideHeader label="Unit Economics" number={11} />
 
       <div className="absolute inset-0 flex flex-col justify-center px-16 pt-20 pb-16">
         <motion.h2 initial={{ opacity: 0 }} animate={{ opacity: 1 }}
