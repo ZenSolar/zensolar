@@ -255,9 +255,21 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
       </div>
 
       {/* ============== HERO ============== */}
-      <div className="relative px-6 pt-8 pb-6 text-center overflow-hidden">
+      <div className="relative px-6 pt-6 pb-6 text-center overflow-hidden">
         <div className="absolute -top-24 -left-16 h-56 w-56 rounded-full bg-eco/15 blur-3xl pointer-events-none" />
         <div className="absolute -top-24 -right-16 h-56 w-56 rounded-full bg-primary/15 blur-3xl pointer-events-none" />
+
+        {/* ============== PoA SEAL — moved to top so it reads as the notary mark ============== */}
+        {data.chain_hash && data.created_at && (
+          <div className="relative flex justify-center mb-4">
+            <ProofOfAuthenticityStamp
+              poaHashShort={data.chain_hash.slice(0, 7)}
+              poaHashFull={data.chain_hash}
+              issuedAt={data.created_at}
+              variant="stamp"
+            />
+          </div>
+        )}
 
         <Badge
           variant="outline"
@@ -275,7 +287,13 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
         </h1>
         <p className="relative mt-1 text-base font-medium text-muted-foreground">$ZSOLAR Minted</p>
 
-        {sourceRows[0] && (() => {
+        {/*
+          Single-source "Minted from <X>" pill — ONLY render when there is
+          exactly one source row. With multiple sources the pill below
+          (`MintedForBadge`) lists them all; the single pill was miscrediting
+          multi-source mints to whichever source sorted first (usually Solar).
+        */}
+        {sourceRows.length === 1 && (() => {
           const TopIcon = sourceRows[0].Icon;
           return (
             <div className="relative mt-3 flex justify-center">
@@ -309,19 +327,8 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
             <MintedForBadge chainHash={data.chain_hash} className="justify-center" mockResponse={mockSourceLines} />
           </div>
         )}
-
-        {/* ============== PoA SEAL (notarization mark) ============== */}
-        {data.chain_hash && data.created_at && (
-          <div className="relative mt-6 flex justify-center">
-            <ProofOfAuthenticityStamp
-              poaHashShort={data.chain_hash.slice(0, 7)}
-              poaHashFull={data.chain_hash}
-              issuedAt={data.created_at}
-              variant="stamp"
-            />
-          </div>
-        )}
       </div>
+
 
       {/* ============== TM PROOF BADGE STRIP — tap to jump to evidence ============== */}
       <div className="px-6 pb-6">
