@@ -186,14 +186,19 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
   const sourceRows = useMemo(() => (data ? buildSourceRows(data) : []), [data]);
   const payoff = useMemo(() => payoffFor(sourceRows, stats), [sourceRows, stats]);
 
-  function scrollToRef(ref: React.RefObject<HTMLDivElement>, openProof = false) {
+  function scrollToRef(ref: React.RefObject<HTMLDivElement>, openProof = false, offset: ScrollLogicalPosition = 'start') {
     if (openProof) setProofOpen(true);
     // wait one frame so the collapsed panel is in the DOM before scrolling
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        ref.current?.scrollIntoView({ behavior: 'smooth', block: offset });
       });
     });
+  }
+
+  function openSourceEvidence() {
+    setSessionsOpen(true);
+    scrollToRef(sessionsRef, false, 'center');
   }
 
 
@@ -295,13 +300,13 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
         <div className="flex justify-between gap-2 bg-muted/40 p-3 rounded-2xl border border-border/40">
           <TmBadge
             Icon={MapPin} label="Origin" tint="primary" active
-            onClick={() => { setSessionsOpen(true); scrollToRef(sessionsRef); }}
-            title="Show contributing sessions (Proof-of-Origin)"
+            onClick={openSourceEvidence}
+            title="Open device watermark evidence for Proof-of-Origin"
           />
           <TmBadge
             Icon={Sparkles} label="Delta" tint="eco" active
-            onClick={() => { setSessionsOpen(true); scrollToRef(sessionsRef); }}
-            title="Show verified energy deltas per session"
+            onClick={openSourceEvidence}
+            title="Open individual sessions for Proof-of-Delta"
           />
           <TmBadge
             Icon={Fingerprint} label="Authentic" tint="accent-cool" active
@@ -440,6 +445,7 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
               chainHash={poa!}
               txHashFallback={data.tx_hash ?? null}
               variant="standalone"
+              showSourceLines={false}
             />
 
             <p className="text-[10px] text-muted-foreground italic text-center pt-1">
