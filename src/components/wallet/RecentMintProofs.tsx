@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, Hash, Coins, Image as ImageIcon, ShieldCheck } from 'lucide-react';
+import { ArrowUpRight, Hash, Coins, Image as ImageIcon, ShieldCheck, Share2, Check } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VerifiedSourceBadge, type VerifiedSourceProvider } from '@/components/proof/VerifiedSourceBadge';
 import { ProofOfMintModal } from '@/components/proof/ProofOfMintModal';
+import { toast } from '@/hooks/use-toast';
 
 interface RecentMint {
   id: string;
