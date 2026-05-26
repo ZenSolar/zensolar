@@ -264,14 +264,7 @@ export function DemoDashboard() {
           </div>
         </AnimatedItem>
 
-        {/* Section break + Mint Receipts CTA between CEC and CO₂ */}
-        <AnimatedItem className="py-1">
-          <div className="relative flex items-center justify-center">
-            <div className="absolute inset-1 flex items-center">
-              <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-            </div>
-          </div>
-        </AnimatedItem>
+        <SectionDivider />
 
         <AnimatedItem>
           <Link to="/demo/mint-history" className="block w-full">
