@@ -141,7 +141,7 @@ export function RecentMintProofs() {
               return (
                 <Link
                   key={tx.id}
-                  to={`/mint-history#tx-${tx.id}`}
+                  to={tx.chain_hash ? `/verify/${tx.chain_hash}` : `/mint-history#tx-${tx.id}`}
                   className="flex flex-col gap-2 p-3 rounded-xl bg-muted/30 border border-border/50 hover:border-primary/40 hover:bg-primary/[0.03] transition-all group"
                 >
                   <div className="flex items-center justify-between gap-3">
