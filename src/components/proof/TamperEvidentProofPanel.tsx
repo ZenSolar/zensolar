@@ -277,9 +277,6 @@ export function TamperEvidentProofPanel({
       {/* Hash rows — only when we actually have a receipt */}
       {receipt?.found && (
         <div className="space-y-2">
-          {receipt.chain_prev_hash && (
-            <HashRow icon={Hash}        tm="Previous receipt" label="SHA-256 of the prior mint in this chain"  value={receipt.chain_prev_hash} accent="text-primary"     onCopy={handleCopy} />
-          )}
           <HashRow   icon={Fingerprint} tm="This receipt"     label="SHA-256 of (user, tx, action, amounts, ts, prev_hash)" value={receipt.chain_hash ?? '—'} accent="text-secondary" onCopy={handleCopy} highlight />
           {receipt.chain_next_hash && (
             <HashRow icon={Anchor}      tm="Next receipt"     label="SHA-256 of the next mint built on this one" value={receipt.chain_next_hash} accent="text-amber-400" onCopy={handleCopy} />
