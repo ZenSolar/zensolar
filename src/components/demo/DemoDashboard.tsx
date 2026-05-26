@@ -14,7 +14,7 @@ import { PullToRefreshIndicator } from '@/components/ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from '@/components/ui/animated-section';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Images, RefreshCw } from 'lucide-react';
+import { Loader2, Images, RefreshCw, Receipt } from 'lucide-react';
 import { DashboardTopControls } from '@/components/dashboard/DashboardTopControls';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
