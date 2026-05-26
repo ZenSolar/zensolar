@@ -245,8 +245,20 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
       charging: 'tesla',
     };
     const provider = providerByCategory[category] || 'tesla';
+    // Scale window to keep daily values realistic (avoids 400 mi/day spikes
+    // when pending is large). Cap at ~90 days for legibility.
+    const typicalPerDay: Record<string, number> = {
+      solar: 30,         // kWh/day
+      battery: 10,       // kWh/day
+      ev_miles: 38,      // mi/day
+      supercharger: 25,  // kWh/day avg (sparse, big spikes)
+      home_charger: 14,  // kWh/day
+      charging: 18,      // kWh/day
+    };
+    const tpd = typicalPerDay[category] || 20;
+    const days = Math.min(90, Math.max(7, Math.ceil(pending / tpd)));
     const seed = `demo|${category}|${deviceId ?? 'all'}|${Math.round(pending)}`;
-    const { points, unit: u } = generateDailyBreakdown(dCat, Math.round(pending), { seed, days: 14, unit });
+    const { points, unit: u } = generateDailyBreakdown(dCat, Math.round(pending), { seed, days, unit });
     return points
       .filter((p) => p.value > 0)
       .map((p, i) => ({
