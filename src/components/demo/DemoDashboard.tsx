@@ -300,7 +300,7 @@ export function DemoDashboard() {
 
         <SectionDivider />
 
-        {/* NFT Milestones */}
+        {/* NFT Milestones (with integrated Mint CTA) */}
         <AnimatedItem id="reward-progress">
           <div className="emerald-glow-card overflow-hidden">
             <RewardProgress
@@ -315,6 +315,19 @@ export function DemoDashboard() {
               initialCategory="ev_miles"
               featuredNftId="ev_8"
             />
+            <div id="demo-mint-button" data-hint-target="mint" className="px-4 pb-4 pt-2">
+              <MintEffectButton
+                onClick={() => rewardActionsRef.current?.openTokenMintDialog()}
+                disabled={isLoading}
+                className="w-full bg-primary hover:bg-primary/90 animate-pulse-glow h-11 rounded-md px-8 text-primary-foreground font-medium"
+              >
+                <Images className="mr-2 h-4 w-4" />
+                MINT ZENSOLAR NFTs
+                <Badge variant="secondary" className="ml-2 bg-white/20 text-white hover:bg-white/30">
+                  {totalNftsAvailable}
+                </Badge>
+              </MintEffectButton>
+            </div>
           </div>
         </AnimatedItem>
 
@@ -341,24 +354,6 @@ export function DemoDashboard() {
           dailyBreakdown={dailyBreakdownMap}
         />
 
-        <SectionDivider />
-
-        {/* Big Mint CTA */}
-        <AnimatedItem>
-          <div id="demo-mint-button" data-hint-target="mint">
-            <MintEffectButton
-              onClick={() => rewardActionsRef.current?.openTokenMintDialog()}
-              disabled={isLoading}
-              className="w-full bg-primary hover:bg-primary/90 animate-pulse-glow h-11 rounded-md px-8 text-primary-foreground font-medium"
-            >
-              <Images className="mr-2 h-4 w-4" />
-              MINT ZENSOLAR NFTs
-              <Badge variant="secondary" className="ml-2 bg-white/20 text-white hover:bg-white/30">
-                {totalNftsAvailable}
-              </Badge>
-            </MintEffectButton>
-          </div>
-        </AnimatedItem>
 
 
         {/* Got Questions CTA */}
