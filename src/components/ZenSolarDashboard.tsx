@@ -56,6 +56,8 @@ import { SectionDivider }  from './ui/SectionDivider';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Images } from 'lucide-react';
+import { ApiPartnersCard } from './dashboard/ApiPartnersCard';
+import { Link, useNavigate } from 'react-router-dom';
 
 import {
   SOLAR_MILESTONES,
@@ -65,7 +67,7 @@ import {
   calculateEarnedMilestones,
   calculateComboAchievements,
 } from '@/lib/nftMilestones';
-import { Link } from 'react-router-dom';
+
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { PerfProbe } from '@/components/dev/PerfProbe';
 import { installNetworkPerfLogger } from '@/lib/perfProfiler';
@@ -108,6 +110,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   } = useHiddenActivityFields();
   const rewardActionsRef = useRef<RewardActionsRef>(null);
   const nftQuickMintRef = useRef<NFTQuickMintDialogRef>(null);
+  const navigate = useNavigate();
   
   // Shared token price state
   const [tokenPrice, setTokenPrice] = useState(0.10);
@@ -368,8 +371,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         </AnimatedItem>
 
         {!isViewer && (
-          <AnimatedItem className="xl:col-span-1">
-            <Suspense fallback={<CardSkeleton height="h-48" />}>
+          <div className="hidden xl:col-span-1" aria-hidden="true">
+            <Suspense fallback={null}>
               <PerfProbe id="RewardActions">
                 <RewardActions 
                   ref={rewardActionsRef}
@@ -392,7 +395,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
                 />
               </PerfProbe>
             </Suspense>
-          </AnimatedItem>
+          </div>
         )}
 
         <SectionDivider className="xl:hidden" />
@@ -420,7 +423,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           </Suspense>
           {!isViewer && (
             <Button
-              onClick={() => nftQuickMintRef.current?.openDialog()}
+              onClick={() => navigate('/nft-collection')}
               disabled={dataLoading}
               className="w-full mt-3 bg-primary hover:bg-primary/90 animate-pulse-glow zen-btn-glow shadow-lg shadow-primary/20"
               size="lg"
@@ -432,6 +435,11 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
               </Badge>
             </Button>
           )}
+        </AnimatedItem>
+
+        {/* API Partners — thin strip under milestones */}
+        <AnimatedItem className="xl:col-span-2">
+          <ApiPartnersCard />
         </AnimatedItem>
 
 
