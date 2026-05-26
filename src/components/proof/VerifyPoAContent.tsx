@@ -177,6 +177,22 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
 
   return (
     <div className="rounded-[32px] overflow-hidden border border-border/60 bg-card/80 shadow-2xl shadow-eco/5 backdrop-blur-sm">
+      {/* ============== PROOF-OF-AUTHENTICITY HEADER (V1 carryover) ============== */}
+      <div className="relative px-5 py-3 bg-gradient-to-r from-eco/15 via-primary/10 to-accent-cool/15 border-b border-border/40 flex items-center gap-3">
+        <div className="w-9 h-9 rounded-xl bg-background/70 border border-eco/30 flex items-center justify-center shrink-0 shadow-inner">
+          <Fingerprint className="h-4.5 w-4.5 text-eco" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-bold">
+            Proof-of-Authenticity™
+          </div>
+          <div className="text-xs font-semibold text-foreground/90 truncate">
+            Cryptographically signed · Anchored on Base
+          </div>
+        </div>
+        <ShieldCheck className="h-5 w-5 text-eco shrink-0" />
+      </div>
+
       {/* ============== HERO ============== */}
       <div className="relative px-6 pt-8 pb-6 text-center overflow-hidden">
         <div className="absolute -top-24 -left-16 h-56 w-56 rounded-full bg-eco/15 blur-3xl pointer-events-none" />
