@@ -47,9 +47,8 @@ export type VerifyReceipt = {
   created_at?: string;
 };
 
-// ---- CO₂ math (mirrors the preview page constants) ----
-const GRID_KG_PER_KWH = 0.709;            // U.S. EIA avg grid
-const CO2_KG_PER_EV_MILE = 0.364;         // EV vs 24.4-mpg ICE
+// ---- CO₂ math (per-source; see src/lib/co2Math.ts) ----
+import { computeCo2, CO2_KG_PER_EV_MILE } from '@/lib/co2Math';
 const BTC_TX_CO2_KG = 707;                // Cambridge CCAF / Digiconomist anchor
 
 function fmt(n: number, digits = 1): string {
@@ -178,16 +177,12 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
     return () => { cancelled = true; };
   }, [poa, isHexHash, mockReceipt]);
 
-  const stats = useMemo(() => {
-    const tokens = Number(data?.tokens_minted ?? 0);
-    const milesRaw = Number(data?.miles_delta ?? 0);
-    const kwhExplicit = Number(data?.kwh_delta ?? 0);
-    const kwh = kwhExplicit > 0 ? kwhExplicit : (milesRaw === 0 && tokens > 0 ? tokens : 0);
-    const co2Kg = milesRaw > 0
-      ? milesRaw * CO2_KG_PER_EV_MILE
-      : kwh * GRID_KG_PER_KWH;
-    return { tokens, kwh, miles: milesRaw, co2Kg };
-  }, [data]);
+  const stats = useMemo(() => computeCo2({
+    tokens_minted: data?.tokens_minted,
+    kwh_delta: data?.kwh_delta,
+    miles_delta: data?.miles_delta,
+    source_breakdown: data?.source_breakdown,
+  }), [data]);
 
   const sourceRows = useMemo(() => (data ? buildSourceRows(data) : []), [data]);
   const payoff = useMemo(() => payoffFor(sourceRows, stats), [sourceRows, stats]);
