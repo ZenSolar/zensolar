@@ -110,15 +110,23 @@ export function MintedForBadge({
 
 interface Props {
   chainHash?: string | null;
-  /** Compact = collapsed by default. Standalone = open. */
+  /** Compact = collapsed by default. Standalone = open. Ignored if `open` is provided. */
   defaultOpen?: boolean;
+  /** Controlled open state (overrides internal state when provided). */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   className?: string;
 }
 
-export function ReceiptSourceLines({ chainHash, defaultOpen = false, className }: Props) {
+export function ReceiptSourceLines({ chainHash, defaultOpen = false, open: openProp, onOpenChange, className }: Props) {
   const [data, setData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(defaultOpen);
+  const [internalOpen, setInternalOpen] = useState(defaultOpen);
+  const open = openProp ?? internalOpen;
+  const setOpen = (v: boolean) => {
+    if (openProp === undefined) setInternalOpen(v);
+    onOpenChange?.(v);
+  };
   const [showAll, setShowAll] = useState(false);
 
   const cleanHash = chainHash?.replace(/^0x/, '').toLowerCase() ?? null;
