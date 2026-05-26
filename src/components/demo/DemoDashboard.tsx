@@ -272,11 +272,13 @@ export function DemoDashboard() {
               variant="outline"
               className="w-full h-11 rounded-xl border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary font-medium transition-all"
             >
-              <Receipt className="mr-2 h-4 w-4" />
+            <Receipt className="mr-2 h-4 w-4" />
               Your Mint Receipts
             </Button>
           </Link>
         </AnimatedItem>
+
+        <SectionDivider />
 
         {/* Prominent CO₂ Offset card with per-activity drill-down — mirrors live beta */}
         <AnimatedItem>
