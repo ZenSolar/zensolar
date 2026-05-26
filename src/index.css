@@ -787,6 +787,14 @@
   to   { stroke-dashoffset: 100; opacity: 0.4; }
 }
 
+/* Per-source Mint pill — gentle idle breathing so users notice each KPI is its own button */
+@keyframes zenMintPillBreathe {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50%      { transform: scale(1.04); filter: brightness(1.15); }
+}
+
+
+
 
 @keyframes zenGridFlash {
   0% {
