@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VerifiedSourceBadge, type VerifiedSourceProvider } from '@/components/proof/VerifiedSourceBadge';
 import { ProofOfMintModal } from '@/components/proof/ProofOfMintModal';
+import { VerifyPoASheet } from '@/components/proof/VerifyPoASheet';
 import { toast } from '@/hooks/use-toast';
 
 interface RecentMint {
