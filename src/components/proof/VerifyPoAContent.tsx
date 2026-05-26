@@ -94,11 +94,15 @@ function buildSourceRows(r: VerifyReceipt): SourceRow[] {
   if (rows.length > 0) return rows;
 
   // Fallback: no source_breakdown stored (legacy mint-rewards rows).
-  // Per the unified-receipt spec, treat as Tesla Supercharging-only.
-  const kwh = Number(r.kwh_delta ?? 0);
-  const miles = Number(r.miles_delta ?? 0);
-  if (miles > 0) {
-    return [{ key: 'ev_miles', label: 'EV Driving', Icon: Car, amount: `+${fmt(miles, 0)} mi`, accentClass: 'text-primary', ringClass: 'border-primary/30' }];
+  // Per the unified-receipt spec, treat as Tesla Supercharging-only and
+  // derive kWh from tokens_minted (canonical 1 token ≈ 1 kWh) when the
+  // explicit kwh_delta column is null.
+  const tokens = Number(r.tokens_minted ?? 0);
+  const milesExplicit = Number(r.miles_delta ?? 0);
+  const kwhExplicit = Number(r.kwh_delta ?? 0);
+  const kwh = kwhExplicit > 0 ? kwhExplicit : (milesExplicit === 0 ? tokens : 0);
+  if (milesExplicit > 0) {
+    return [{ key: 'ev_miles', label: 'EV Driving', Icon: Car, amount: `+${fmt(milesExplicit, 0)} mi`, accentClass: 'text-primary', ringClass: 'border-primary/30' }];
   }
   if (kwh > 0) {
     return [{ key: 'supercharging_kwh', label: 'Tesla Supercharging', Icon: Zap, amount: `+${fmt(kwh, 2)} kWh`, accentClass: 'text-primary', ringClass: 'border-primary/30' }];
