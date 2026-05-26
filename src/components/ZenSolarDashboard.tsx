@@ -332,6 +332,14 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         <SectionDivider className="xl:hidden" />
 
+        {/* Mint receipts peek — sits directly under the Clean Energy Center so
+            users see their receipts before scrolling to CO₂ context. */}
+        <AnimatedItem className="xl:col-span-1">
+          <MintReceiptsHint />
+        </AnimatedItem>
+
+        <SectionDivider className="xl:hidden" />
+
         {/* Prominent CO₂ Offset card — matches the new sidebar accent styling */}
         <AnimatedItem className="xl:col-span-1">
           <CO2OffsetCard
@@ -345,13 +353,6 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             from the active mock subscription. Renders nothing if no plan. */}
         <AnimatedItem className="xl:col-span-1">
           <FlywheelContributionCard />
-        </AnimatedItem>
-
-        <SectionDivider className="xl:hidden" />
-
-        {/* Persistent discoverability hint → Mint History (Proof-of-Mint receipts) */}
-        <AnimatedItem className="xl:col-span-1">
-          <MintReceiptsHint />
         </AnimatedItem>
 
         {!isViewer && (
