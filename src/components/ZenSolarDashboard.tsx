@@ -340,6 +340,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           />
         </AnimatedItem>
 
+        <SectionDivider className="xl:hidden" />
+
         {/* Subscription Status — current tier, 50/50 split, mint cap (mocked v2.1) */}
         <AnimatedItem className="xl:col-span-1">
           <SubscriptionStatusCard />
