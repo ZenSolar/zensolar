@@ -107,6 +107,7 @@ function lbsOf(breakdown: CO2Breakdown, key: CategoryKey): number {
   if (key === 'solar') return breakdown.solarLbs;
   if (key === 'battery') return breakdown.batteryLbs;
   if (key === 'supercharger') return breakdown.evSuperchargerLbs;
+  if (key === 'ev_miles') return breakdown.evLbs;
   return breakdown.evHomeChargerLbs;
 }
 
