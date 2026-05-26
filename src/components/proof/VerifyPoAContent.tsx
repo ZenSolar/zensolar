@@ -64,15 +64,17 @@ type SourceRow = {
   amount: string;            // "+17.33 kWh" or "+52 mi"
   accentClass: string;       // semantic-token text color
   ringClass: string;         // semantic-token border color
+  /** Line.source keys this row maps to inside get_mint_source_lines() */
+  lineSources: string[];
 };
 
-const SOURCE_DEFS: Record<string, { label: string; Icon: typeof Sun; accent: string; ring: string; unit: 'kwh' | 'mi' }> = {
-  solar_kwh:           { label: 'Solar Production',  Icon: Sun,     accent: 'text-accent',       ring: 'border-accent/30',       unit: 'kwh' },
-  battery_kwh:         { label: 'Battery Discharge', Icon: Battery, accent: 'text-eco',          ring: 'border-eco/30',          unit: 'kwh' },
-  home_charging_kwh:   { label: 'Home Charging',     Icon: Plug,    accent: 'text-accent-cool',  ring: 'border-accent-cool/30',  unit: 'kwh' },
-  supercharging_kwh:   { label: 'Tesla Supercharging', Icon: Zap,   accent: 'text-primary',      ring: 'border-primary/30',      unit: 'kwh' },
-  ev_kwh:              { label: 'EV Charging',       Icon: Zap,     accent: 'text-primary',      ring: 'border-primary/30',      unit: 'kwh' },
-  ev_miles:            { label: 'EV Driving',        Icon: Car,     accent: 'text-primary',      ring: 'border-primary/30',      unit: 'mi'  },
+const SOURCE_DEFS: Record<string, { label: string; Icon: typeof Sun; accent: string; ring: string; unit: 'kwh' | 'mi'; lineSources: string[] }> = {
+  solar_kwh:           { label: 'Solar Production',  Icon: Sun,     accent: 'text-accent',       ring: 'border-accent/30',       unit: 'kwh', lineSources: ['solar'] },
+  battery_kwh:         { label: 'Battery Discharge', Icon: Battery, accent: 'text-eco',          ring: 'border-eco/30',          unit: 'kwh', lineSources: ['bidir_export', 'bidir_out'] },
+  home_charging_kwh:   { label: 'Home Charging',     Icon: Plug,    accent: 'text-accent-cool',  ring: 'border-accent-cool/30',  unit: 'kwh', lineSources: ['home_charger'] },
+  supercharging_kwh:   { label: 'Tesla Supercharging', Icon: Zap,   accent: 'text-primary',      ring: 'border-primary/30',      unit: 'kwh', lineSources: ['supercharger'] },
+  ev_kwh:              { label: 'EV Charging',       Icon: Zap,     accent: 'text-primary',      ring: 'border-primary/30',      unit: 'kwh', lineSources: ['supercharger', 'home_charger'] },
+  ev_miles:            { label: 'EV Driving',        Icon: Car,     accent: 'text-primary',      ring: 'border-primary/30',      unit: 'mi',  lineSources: [] },
 };
 
 function buildSourceRows(r: VerifyReceipt): SourceRow[] {
