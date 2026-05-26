@@ -475,23 +475,66 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
       </div>
 
 
-      {/* ============== vs-BITCOIN CHIP ============== */}
+      {/* ============== vs-BITCOIN: Proof-of-Work vs Proof-of-Genesis ============== */}
       <div ref={vsBtcRef} className="px-6 pb-6 scroll-mt-4">
-        <div className="rounded-2xl border border-accent-warm/25 bg-accent-warm/[0.06] p-4">
-          <div className="flex items-center gap-2 mb-1">
+        <div className="rounded-2xl border border-accent-warm/25 bg-gradient-to-br from-accent-warm/[0.08] via-card/40 to-eco/[0.06] p-4 space-y-3">
+          <div className="flex items-center gap-2">
             <Bitcoin className="h-3.5 w-3.5 text-accent-warm" />
             <span className="text-[10px] uppercase tracking-[0.18em] text-accent-warm font-bold">
-              vs. Bitcoin Proof-of-Work
+              Proof-of-Work vs. Proof-of-Genesis™
             </span>
           </div>
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            One equivalent BTC transaction would have emitted{' '}
-            <span className="text-accent-warm font-semibold">~{BTC_TX_CO2_KG} kg CO₂</span>.
-            This mint emitted essentially{' '}
-            <span className="text-eco font-semibold">zero</span>.
+
+          {/* Side-by-side comparison */}
+          <div className="grid grid-cols-2 gap-2">
+            <div className="rounded-xl border border-accent-warm/20 bg-background/40 p-3">
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <Bitcoin className="h-3 w-3 text-accent-warm" />
+                <span className="text-[9px] uppercase tracking-wider text-accent-warm/90 font-bold">
+                  Bitcoin · PoW
+                </span>
+              </div>
+              <div className="text-sm font-bold text-foreground leading-tight">
+                Burns energy
+              </div>
+              <div className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
+                ~{BTC_TX_CO2_KG} kg CO₂ per tx · solves nothing physical
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-eco/25 bg-background/40 p-3">
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <Sparkles className="h-3 w-3 text-eco" />
+                <span className="text-[9px] uppercase tracking-wider text-eco/90 font-bold">
+                  ZenSolar · PoG
+                </span>
+              </div>
+              <div className="text-sm font-bold text-foreground leading-tight">
+                Rewards energy
+              </div>
+              <div className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
+                {stats.kwh > 0 ? `${fmt(stats.kwh, 0)} kWh` : `${fmt(stats.miles, 0)} mi`} of clean energy verified on chain
+              </div>
+            </div>
+          </div>
+
+          {/* Punchline */}
+          <p className="text-xs text-muted-foreground leading-relaxed pt-1">
+            This mint didn't burn energy to exist — it{' '}
+            <span className="text-eco font-semibold">put clean energy on the grid</span>
+            {stats.co2Kg >= BTC_TX_CO2_KG && (
+              <>
+                {' '}and offset roughly{' '}
+                <span className="text-accent-warm font-semibold">
+                  {fmt(stats.co2Kg / BTC_TX_CO2_KG, 1)}× a BTC transaction
+                </span>
+              </>
+            )}
+            .
           </p>
         </div>
       </div>
+
 
       {/* ============== VERIFICATION DETAILS (collapsed) ============== */}
       <div ref={verifyRef} className="border-t border-border/40 scroll-mt-4">
