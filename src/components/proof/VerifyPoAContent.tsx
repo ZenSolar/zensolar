@@ -306,7 +306,7 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
 
         {data.chain_hash && (
           <div className="relative mt-4">
-            <MintedForBadge chainHash={data.chain_hash} className="justify-center" />
+            <MintedForBadge chainHash={data.chain_hash} className="justify-center" mockResponse={mockSourceLines} />
           </div>
         )}
 
