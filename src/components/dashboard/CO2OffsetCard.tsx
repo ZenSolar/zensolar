@@ -287,7 +287,7 @@ export function CO2OffsetCard({ activityData, co2Pounds, isLoading, className }:
                       <span className="ml-1 text-xs font-medium text-muted-foreground">mi</span>
                     </p>
                     <span className="text-[11px] text-muted-foreground tabular-nums">
-                      = {formatTons(breakdown.evLbs)} tons offset
+                      = {formatTons(breakdown.evLbs)} tons of CO₂ offset
                     </span>
                   </div>
                 </div>
