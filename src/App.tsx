@@ -23,7 +23,11 @@ const queryClient = new QueryClient({
     },
   },
 });
-import { DemoAccessGate } from "@/components/demo/DemoAccessGate";
+// DemoAccessGate is a 2,000+ line component used only on /demo/*; lazy it
+// out of the entry bundle.
+const DemoAccessGate = lazy(() =>
+  import("@/components/demo/DemoAccessGate").then((m) => ({ default: m.DemoAccessGate })),
+);
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { BotProtection } from "@/components/BotProtection";
 import { BrandedSpinner } from "@/components/ui/BrandedSpinner";
@@ -36,9 +40,16 @@ import { PathNormalizer } from "./components/PathNormalizer";
 import { AppHistoryTracker } from "./components/AppHistoryTracker";
 import { ScrollManager } from "./components/ScrollManager";
 import { SwipeBackHandler } from "./components/SwipeBackHandler";
-import { PageCleanupFlagger } from "./components/admin/PageCleanupFlagger";
-import { InstallNudge } from "./components/install/InstallNudge";
-import Home from "./pages/Home";
+import { DeferredMount } from "./components/util/DeferredMount";
+// Non-critical chrome — lazy + deferred-mount past first paint
+const PageCleanupFlagger = lazy(() =>
+  import("./components/admin/PageCleanupFlagger").then((m) => ({ default: m.PageCleanupFlagger })),
+);
+const InstallNudge = lazy(() =>
+  import("./components/install/InstallNudge").then((m) => ({ default: m.InstallNudge })),
+);
+// Home only renders on `/` for unauthed visitors — keep it out of entry bundle
+const Home = lazy(() => import("./pages/Home"));
 
 // Lazy load layout and auth components to reduce main bundle size
 const ProtectedRoute = lazy(() => import("@/components/ProtectedRoute").then(m => ({ default: m.ProtectedRoute })));
@@ -118,7 +129,9 @@ const FoundersTschida = lazy(() => import("./pages/FoundersTschida"));
 const Transparency = lazy(() => import("./pages/Transparency"));
 const Pulse = lazy(() => import("./pages/Pulse"));
 const Deason = lazy(() => import("./pages/Deason"));
-import { DeasonFloatingBubble } from "./components/deason/DeasonFloatingBubble";
+const DeasonFloatingBubble = lazy(() =>
+  import("./components/deason/DeasonFloatingBubble").then((m) => ({ default: m.DeasonFloatingBubble })),
+);
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
@@ -265,14 +278,22 @@ const App = () => {
               <BotProtection blockBots>
                 <Toaster />
                 <Sonner />
-                <InstallNudge />
+                <DeferredMount>
+                  <Suspense fallback={null}>
+                    <InstallNudge />
+                  </Suspense>
+                </DeferredMount>
                 <BrowserRouter>
                   <GoogleAnalytics />
                   <PathNormalizer />
                   <AppHistoryTracker />
                   <ScrollManager />
                   <SwipeBackHandler />
-                  <PageCleanupFlagger />
+                  <DeferredMount>
+                    <Suspense fallback={null}>
+                      <PageCleanupFlagger />
+                    </Suspense>
+                  </DeferredMount>
                   <Suspense fallback={<PageLoader />}>
                     <Routes>
                     <Route path="/auth" element={<Auth />} />
@@ -1317,7 +1338,11 @@ const App = () => {
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                     </Routes>
-                    <DeasonFloatingBubble />
+                    <DeferredMount timeout={2000}>
+                      <Suspense fallback={null}>
+                        <DeasonFloatingBubble />
+                      </Suspense>
+                    </DeferredMount>
                   </Suspense>
                 </BrowserRouter>
               </BotProtection>
