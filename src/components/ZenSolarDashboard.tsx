@@ -55,7 +55,7 @@ import { AnimatedContainer, AnimatedItem } from './ui/animated-section';
 import { SectionDivider }  from './ui/SectionDivider';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { Loader2, Images, RefreshCw } from 'lucide-react';
+import { Images } from 'lucide-react';
 
 import {
   SOLAR_MILESTONES,
@@ -404,7 +404,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         <SectionDivider className="xl:hidden" />
 
-        {/* NFT Milestones - Beta */}
+        {/* NFT Milestones - Beta (with integrated Mint CTA) */}
         <AnimatedItem id="reward-progress" className="xl:col-span-2">
           <Suspense fallback={<CardSkeleton height="h-56" />}>
             <RewardProgress
@@ -418,17 +418,11 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
               isNewUser={true}
             />
           </Suspense>
-        </AnimatedItem>
-
-        <SectionDivider className="xl:hidden" />
-
-        {/* NFT Mint Button - Below NFT Card with Glow Animation */}
-        {!isViewer && (
-          <AnimatedItem className="space-y-3 xl:col-span-2">
+          {!isViewer && (
             <Button
               onClick={() => nftQuickMintRef.current?.openDialog()}
               disabled={dataLoading}
-              className="w-full bg-primary hover:bg-primary/90 animate-pulse-glow zen-btn-glow shadow-lg shadow-primary/20"
+              className="w-full mt-3 bg-primary hover:bg-primary/90 animate-pulse-glow zen-btn-glow shadow-lg shadow-primary/20"
               size="lg"
             >
               <Images className="mr-2 h-4 w-4" />
@@ -437,28 +431,9 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
                 {totalNftsAvailable}
               </Badge>
             </Button>
-            
-            <Button
-              onClick={refreshDashboard}
-              disabled={dataLoading || isAutoSyncing}
-              variant="outline"
-              className="w-full zen-btn-glow shadow-sm"
-              size="lg"
-            >
-              {dataLoading || isAutoSyncing ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {isAutoSyncing ? 'SYNCING DATA...' : 'REFRESHING...'}
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  REFRESH DASHBOARD
-                </>
-              )}
-            </Button>
-          </AnimatedItem>
-        )}
+          )}
+        </AnimatedItem>
+
 
         {/* NFT Quick Mint Dialog (lazy — only the dialog chunk is fetched the first time it opens) */}
         <Suspense fallback={null}>
