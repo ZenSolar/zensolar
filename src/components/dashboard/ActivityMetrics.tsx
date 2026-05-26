@@ -798,6 +798,7 @@ const hapticPattern: Record<string, number[]> = {
   green: [8, 20, 8, 20, 8], // EV Miles: rapid road-rumble
   cyan: [30, 15, 30],       // Supercharger: electric zap
   greenGold: [20, 10, 20],  // Home charger: steady pulse
+  token: [18, 28, 18],      // Total tokens: majestic triple pulse
 };
 
 // Semantic-token color styles — restores original Clean Energy Center palette.
