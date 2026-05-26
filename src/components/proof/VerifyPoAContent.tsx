@@ -111,10 +111,47 @@ function buildSourceRows(r: VerifyReceipt): SourceRow[] {
   return [];
 }
 
+/**
+ * Per-source Impact-Payoff copy. The CO₂ number is the same grid-displacement
+ * math, but the SUBLINE must reflect where the energy actually came from —
+ * Tesla Supercharger kWh did NOT "stay off the grid"; they came FROM the
+ * Supercharger network (100% renewable-matched per Tesla's REC purchases).
+ */
+type PayoffCopy = { headline: string; subline: string | null };
+
+function payoffFor(
+  rows: SourceRow[],
+  stats: { tokens: number; kwh: number; miles: number; co2Kg: number },
+): PayoffCopy {
+  const dom = rows[0]?.key ?? (stats.miles > 0 ? 'ev_miles' : stats.kwh > 0 ? 'supercharging_kwh' : '');
+  const co2 = `${fmt(stats.co2Kg, 2)} kg CO₂ Avoided`;
+  switch (dom) {
+    case 'solar_kwh':
+      return { headline: co2, subline: `≈ ${fmt(stats.kwh, 2)} kWh of clean solar generated` };
+    case 'battery_kwh':
+      return { headline: co2, subline: `≈ ${fmt(stats.kwh, 2)} kWh dispatched from your battery` };
+    case 'home_charging_kwh':
+      return { headline: co2, subline: `≈ ${fmt(stats.kwh, 2)} kWh charged at home from your system` };
+    case 'supercharging_kwh':
+    case 'ev_kwh':
+      return {
+        headline: co2,
+        subline: `≈ ${fmt(stats.kwh, 2)} kWh delivered via Supercharger · 100% renewable-matched`,
+      };
+    case 'ev_miles':
+      return { headline: co2, subline: `≈ ${fmt(stats.miles, 0)} mi driven on sunshine` };
+    default:
+      return { headline: co2, subline: null };
+  }
+}
+
 export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
   const [data, setData] = useState<VerifyReceipt | null>(null);
   const [loading, setLoading] = useState(true);
   const [proofOpen, setProofOpen] = useState(false);
+  const sessionsRef = useRef<HTMLDivElement | null>(null);
+  const vsBtcRef = useRef<HTMLDivElement | null>(null);
+  const verifyRef = useRef<HTMLDivElement | null>(null);
 
   const isHexHash = !!poa && /^[a-f0-9]{64}$/i.test(poa);
 
@@ -137,14 +174,8 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
   const stats = useMemo(() => {
     const tokens = Number(data?.tokens_minted ?? 0);
     const milesRaw = Number(data?.miles_delta ?? 0);
-    // Legacy mint-rewards rows often have null kwh_delta but mint at the
-    // canonical 1 token ≈ 1 kWh Tesla-Supercharging ratio — derive from
-    // tokens when the explicit delta is missing so the receipt never
-    // shows "0 kWh / 0 kg CO₂" for a real mint.
     const kwhExplicit = Number(data?.kwh_delta ?? 0);
     const kwh = kwhExplicit > 0 ? kwhExplicit : (milesRaw === 0 && tokens > 0 ? tokens : 0);
-    // CO₂ avoided headline — EV miles get ICE-comparison framing; everything
-    // else uses grid-displacement math.
     const co2Kg = milesRaw > 0
       ? milesRaw * CO2_KG_PER_EV_MILE
       : kwh * GRID_KG_PER_KWH;
@@ -152,6 +183,18 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
   }, [data]);
 
   const sourceRows = useMemo(() => (data ? buildSourceRows(data) : []), [data]);
+  const payoff = useMemo(() => payoffFor(sourceRows, stats), [sourceRows, stats]);
+
+  function scrollToRef(ref: React.RefObject<HTMLDivElement>, openProof = false) {
+    if (openProof) setProofOpen(true);
+    // wait one frame so the collapsed panel is in the DOM before scrolling
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  }
+
 
   // ---- invalid / loading / not-found shells -------------------------------
   if (!isHexHash) {
