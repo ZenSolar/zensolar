@@ -212,6 +212,22 @@ export function ReceiptSourceLines({ chainHash, defaultOpen = false, open: openP
                       })}
                     </span>
                   </div>
+                  {(line.provider || line.device_watermark) && (
+                    <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                      <ShieldCheck className="h-3 w-3 shrink-0 text-eco" />
+                      <span className="font-semibold uppercase tracking-wide text-foreground/80">
+                        {line.provider ?? 'device'}
+                      </span>
+                      {line.device_watermark && (
+                        <span
+                          className="font-mono text-foreground/70"
+                          title={`On-chain device watermark · ${line.device_watermark}`}
+                        >
+                          · wm:{line.device_watermark}
+                        </span>
+                      )}
+                    </div>
+                  )}
                   <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-mono">
                     <Fingerprint className="h-3 w-3 shrink-0" />
                     <span className="truncate" title={line.fingerprint}>{line.fingerprint}</span>
