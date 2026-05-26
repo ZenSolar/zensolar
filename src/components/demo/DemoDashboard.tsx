@@ -14,7 +14,7 @@ import { PullToRefreshIndicator } from '@/components/ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from '@/components/ui/animated-section';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Images, RefreshCw } from 'lucide-react';
+import { Loader2, Images, RefreshCw, Receipt } from 'lucide-react';
 import { DashboardTopControls } from '@/components/dashboard/DashboardTopControls';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -259,6 +259,27 @@ export function DemoDashboard() {
               lifetimeMinted={activityData.lifetimeMinted}
             />
           </div>
+        </AnimatedItem>
+
+        {/* Section break + Mint Receipts CTA between CEC and CO₂ */}
+        <AnimatedItem className="py-1">
+          <div className="relative flex items-center justify-center">
+            <div className="absolute inset-1 flex items-center">
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+            </div>
+          </div>
+        </AnimatedItem>
+
+        <AnimatedItem>
+          <Link to="/demo/mint-history" className="block w-full">
+            <Button
+              variant="outline"
+              className="w-full h-11 rounded-xl border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary font-medium transition-all"
+            >
+              <Receipt className="mr-2 h-4 w-4" />
+              Your Mint Receipts
+            </Button>
+          </Link>
         </AnimatedItem>
 
         {/* Prominent CO₂ Offset card with per-activity drill-down — mirrors live beta */}
