@@ -24,8 +24,8 @@ const SESSION_KEY = "zen.deck-pin-unlocked";
 const slides = [
   <Slide01Title />,
   <Slide02Catalyst />,
-  <Slide11Traction />,
   <Slide04Opportunity />,
+  <Slide11Traction />,
   <Slide05Solution />,
   <Slide06Technology />,
   <Slide07ThirdPrimitive />,
@@ -40,7 +40,7 @@ const slides = [
 ];
 
 const slideLabels = [
-  "Title", "The Catalyst", "Traction & Beta", "The Opportunity",
+  "Title", "The Catalyst", "The Opportunity", "Traction & Beta",
   "The Solution", "Proprietary Tech & IP", "Third Consensus Primitive",
   "Value Mechanism", "Sell-Pressure Defense", "The Moat",
   "Revenue Model", "Unit Economics", "Competition",
