@@ -265,15 +265,9 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
           <div className="mt-1 text-2xl font-semibold text-foreground">
             {fmt(stats.co2Kg, 2)} kg CO₂ <span className="text-muted-foreground font-normal">Avoided</span>
           </div>
-          {stats.miles > 0 ? (
-            <p className="mt-1 text-xs text-muted-foreground italic">
-              ≈ {fmt(stats.miles, 0)} mi driven on sunshine
-            </p>
-          ) : stats.kwh > 0 ? (
-            <p className="mt-1 text-xs text-muted-foreground italic">
-              ≈ {fmt(stats.kwh, 2)} kWh kept off the grid
-            </p>
-          ) : null}
+          {payoff.subline && (
+            <p className="mt-1 text-xs text-muted-foreground italic">{payoff.subline}</p>
+          )}
         </div>
 
         {data.chain_hash && (
@@ -281,15 +275,44 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
             <MintedForBadge chainHash={data.chain_hash} className="justify-center" />
           </div>
         )}
+
+        {/* ============== PoA SEAL (notarization mark) ============== */}
+        {data.chain_hash && data.created_at && (
+          <div className="relative mt-6 flex justify-center">
+            <ProofOfAuthenticityStamp
+              poaHashShort={data.chain_hash.slice(0, 7)}
+              poaHashFull={data.chain_hash}
+              issuedAt={data.created_at}
+              variant="stamp"
+            />
+          </div>
+        )}
       </div>
 
-      {/* ============== TM PROOF BADGE STRIP ============== */}
+      {/* ============== TM PROOF BADGE STRIP — tap to jump to evidence ============== */}
       <div className="px-6 pb-6">
         <div className="flex justify-between gap-2 bg-muted/40 p-3 rounded-2xl border border-border/40">
-          <TmBadge Icon={MapPin}      label="Origin"      tint="primary"     active={!!sourceRows.length} />
-          <TmBadge Icon={Sparkles}    label="Delta"       tint="eco"         active />
-          <TmBadge Icon={Fingerprint} label="Authentic"   tint="accent-cool" active />
-          <TmBadge Icon={Bitcoin}     label="vs-BTC"      tint="accent-warm" active />
+          <TmBadge
+            Icon={MapPin} label="Origin" tint="primary"
+            active={!!sourceRows.length}
+            onClick={() => scrollToRef(sessionsRef)}
+            title="Jump to contributing sessions"
+          />
+          <TmBadge
+            Icon={Sparkles} label="Delta" tint="eco" active
+            onClick={() => scrollToRef(sessionsRef)}
+            title="Jump to verified energy deltas"
+          />
+          <TmBadge
+            Icon={Fingerprint} label="Authentic" tint="accent-cool" active
+            onClick={() => scrollToRef(verifyRef, true)}
+            title="Open cryptographic verification details"
+          />
+          <TmBadge
+            Icon={Bitcoin} label="vs-BTC" tint="accent-warm" active
+            onClick={() => scrollToRef(vsBtcRef)}
+            title="Jump to vs-Bitcoin comparison"
+          />
         </div>
       </div>
 
