@@ -197,16 +197,6 @@ export function CO2OffsetCard({ activityData, co2Pounds, isLoading, className }:
             </div>
           </div>
 
-          {/* 2x2 grid — drillable */}
-          <div className="mt-4 grid grid-cols-2 gap-2">
-            {CATEGORIES.map((cat) => {
-              const lbs = lbsOf(breakdown, cat.key);
-              const pct = totalLbs > 0 ? Math.round((lbs / totalLbs) * 100) : 0;
-              const Icon = cat.icon;
-              return (
-                <button
-                  key={cat.key}
-                  type="button"
           {/* 2x2 grid — drillable (EV miles is shown below as a full-width banner) */}
           <div className="mt-4 grid grid-cols-2 gap-2">
             {CATEGORIES.filter((c) => c.key !== 'ev_miles').map((cat) => {
