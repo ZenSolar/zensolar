@@ -26,22 +26,26 @@ type: feature
 4. Lyndon's name unlocks MZ Group's investor network + Volo Earth Ventures + climate angels.
 5. If Lyndon passes: Greg activates his network as Plan B; drop cap to $12M, re-frame as "operator-led" instead of "Rive-anchored".
 
-## Use of funds @ $3M (with salary load — corrected)
-| Bucket | $ | Purpose |
-|---|---|---|
-| **Team** (2 founders + 1 protocol eng, 18 mo, w/ ~22% burden) | **$950K** | Joseph $225K/yr · Michael $125K/yr · Protocol eng $200K/yr (month 3–18) |
-| LP seeding (2–3 tranches) | $600K | Real $ZSOLAR liquidity at $0.10 launch |
-| Growth + BD | $500K | OEM partnerships, content, community, Deason paid acquisition |
-| Legal + IP | $300K | Token legal opinion, patent continuations, corp/HR |
-| Audits + infra | $250K | Trail-of-Bits-tier audit, RPC, monitoring, tooling |
-| Reserve | $400K | Buffer + opportunistic LP top-up |
-| **Total** | **$3.0M** | |
+## Use of funds @ $3M (Option B — LP-heavy, flexible reserve)
+Real costs audited down (Deason build = ~$0 via Lovable credits; growth/legal previously inflated). Surplus dumped into LP for 2× launch depth + price stability. Reserve kept flexible — can flow to extra LP, a 2nd hire, or BD as conditions demand.
 
-**Hiring pace decision**: Only ONE engineering hire this round (senior protocol/Solidity eng, starts month 3). Joseph + Michael handle product, full-stack, BD, growth themselves. Saves ~$200K vs. 2-hire plan.
+| Bucket | $ | % | Purpose |
+|---|---|---|---|
+| **LP Seeding** | **$1.1M** | 37% | 2× depth at $0.10 launch · price stability · less early-dump risk |
+| **Team** (2 founders + 1 protocol eng, 18 mo, ~22% burden) | **$950K** | 32% | Joseph $225K/yr · Michael $125K/yr · Protocol eng $200K/yr (month 3–18) |
+| **Strategic Reserve** (FLEXIBLE) | **$300K** | 10% | Opportunistic: extra LP tranche, 2nd eng hire, BD acceleration, or buffer |
+| Audits + infra | $250K | 8% | Trail-of-Bits-tier audit, RPC, monitoring, tooling |
+| Growth + BD | $200K | 7% | OEM partnerships, Deason paid acquisition (~1K subs @ $30 CAC + content) |
+| Legal + IP | $200K | 7% | Token legal opinion, patent continuations, corp/HR |
+| **Total** | **$3.0M** | 100% | |
 
-**Salary detail (NOT shown on deck — kept internal)**: Joseph $225K, Michael $125K. Asymmetric per founder agreement. On Slide 13 these are rolled into a single "Team" bucket per user direction.
+**Why LP-heavy plays well**: Crypto-native investors discount fluffy "growth" line items; oversized LP signals capital efficiency + reduces post-TGE price volatility. Makes the $5M hard cap easy to justify (extra $2M → 3rd LP tranche + 2nd eng + founder retention).
 
-At $5M: extra $2M → +$400K LP (3rd tranche), +$500K eng (2nd hire + Energy Oracle MVP), +$400K founder retention/bonus, +$400K growth scale, +$300K reserve.
+**Hiring pace**: Only ONE engineering hire (senior protocol/Solidity, month 3). Joseph + Michael handle full-stack, product, BD, growth. Reserve can fund 2nd hire if traction demands.
+
+**Salary detail (NOT shown on deck)**: Joseph $225K, Michael $125K. Asymmetric per founder agreement. Rolled into "Team" bucket on Slide 13.
+
+**Surplus flexibility (internal)**: Reserve is intentionally fungible. Don't pre-commit. Default lean = top up LP at month 12 if token price holds. If a key BD deal needs cash → reallocate. If Deason traction explodes → 2nd full-stack hire.
 
 ## Milestones the round funds
 - Mainnet TGE (Base 8453)
