@@ -1,5 +1,5 @@
 /**
- * Shared body of the Proof-of-Genesis receipt.
+ * Shared body of the Proof-of-Genesis receipt — beginner-first redesign.
  *
  * Rendered in TWO contexts:
  *   1. `/verify/:poa` standalone page (variant="page") — full SEO shell.
@@ -7,16 +7,27 @@
  *      drawer (variant="sheet") — no page chrome; the parent Drawer owns
  *      the back/close affordance.
  *
- * Both contexts hit the same `get_mint_receipt` RPC, render the same hero,
- * stats, metadata strip, and TamperEvidentProofPanel, so the share URL,
- * SEO meta, and the in-app peek stay byte-for-byte identical.
+ * Design intent (Apple-Wallet-pass feel):
+ *   - Hero: ONE big number ($ZSOLAR minted) + ONE emotional payoff (CO₂ avoided)
+ *   - Trademark proof badges (Origin / Delta / Authenticity / vs-BTC) as a
+ *     compact 4-up strip — the whole TM stack visible at a glance
+ *   - Per-source contributing-session rows (Proof-of-Delta) — the audit
+ *     trail behind the number, but readable by a normal human
+ *   - Cryptographic internals (hashes, Merkle root, Basescan, chain anchor)
+ *     all collapse behind ONE "Verification details" toggle
+ *
+ * Brand: ZenSolar logo gradient (eco green → primary blue), accent amber
+ * for milestone/energy moments, accent-warm orange reserved for the
+ * vs-Bitcoin PoW comparison.
  */
 import { useEffect, useMemo, useState } from 'react';
-import { ShieldCheck, Sparkles, Zap, Flame, Wallet } from 'lucide-react';
+import {
+  ShieldCheck, Sparkles, Zap, Sun, Battery, Car, Plug, Bitcoin,
+  ChevronDown, MapPin, Fingerprint, Award, Hash,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { TamperEvidentProofPanel } from '@/components/proof/TamperEvidentProofPanel';
-import { ProofOfAuthenticityStamp } from '@/components/proof/ProofOfAuthenticityStamp';
 import { MintedForBadge } from '@/components/proof/ReceiptSourceLines';
 
 export type VerifyReceipt = {
@@ -30,24 +41,75 @@ export type VerifyReceipt = {
   tokens_minted?: number | string;
   kwh_delta?: number | string | null;
   miles_delta?: number | string | null;
+  source_breakdown?: Record<string, number> | null;
   status?: string;
   created_at?: string;
 };
 
-const USER_SHARE = 0.75;
-const GRID_KG_PER_KWH = 0.709;
-
-function maskWallet(): string {
-  return '0x••••••••••••••••••••';
-}
+// ---- CO₂ math (mirrors the preview page constants) ----
+const GRID_KG_PER_KWH = 0.709;            // U.S. EIA avg grid
+const CO2_KG_PER_EV_MILE = 0.364;         // EV vs 24.4-mpg ICE
+const BTC_TX_CO2_KG = 707;                // Cambridge CCAF / Digiconomist anchor
 
 function fmt(n: number, digits = 1): string {
   return n.toLocaleString(undefined, { maximumFractionDigits: digits });
 }
 
+// ---- Source row inference from `source_breakdown` JSON ----
+type SourceRow = {
+  key: string;
+  label: string;
+  Icon: typeof Sun;
+  amount: string;            // "+17.33 kWh" or "+52 mi"
+  accentClass: string;       // semantic-token text color
+  ringClass: string;         // semantic-token border color
+};
+
+const SOURCE_DEFS: Record<string, { label: string; Icon: typeof Sun; accent: string; ring: string; unit: 'kwh' | 'mi' }> = {
+  solar_kwh:           { label: 'Solar Production',  Icon: Sun,     accent: 'text-accent',       ring: 'border-accent/30',       unit: 'kwh' },
+  battery_kwh:         { label: 'Battery Discharge', Icon: Battery, accent: 'text-eco',          ring: 'border-eco/30',          unit: 'kwh' },
+  home_charging_kwh:   { label: 'Home Charging',     Icon: Plug,    accent: 'text-accent-cool',  ring: 'border-accent-cool/30',  unit: 'kwh' },
+  supercharging_kwh:   { label: 'Tesla Supercharging', Icon: Zap,   accent: 'text-primary',      ring: 'border-primary/30',      unit: 'kwh' },
+  ev_kwh:              { label: 'EV Charging',       Icon: Zap,     accent: 'text-primary',      ring: 'border-primary/30',      unit: 'kwh' },
+  ev_miles:            { label: 'EV Driving',        Icon: Car,     accent: 'text-primary',      ring: 'border-primary/30',      unit: 'mi'  },
+};
+
+function buildSourceRows(r: VerifyReceipt): SourceRow[] {
+  const sb = r.source_breakdown ?? {};
+  const rows: SourceRow[] = [];
+  for (const [key, raw] of Object.entries(sb)) {
+    const n = Number(raw);
+    if (!n || n <= 0) continue;
+    const def = SOURCE_DEFS[key];
+    if (!def) continue;
+    rows.push({
+      key,
+      label: def.label,
+      Icon: def.Icon,
+      amount: def.unit === 'mi' ? `+${fmt(n, 0)} mi` : `+${fmt(n, 2)} kWh`,
+      accentClass: def.accent,
+      ringClass: def.ring,
+    });
+  }
+  if (rows.length > 0) return rows;
+
+  // Fallback: no source_breakdown stored (legacy mint-rewards rows).
+  // Per the unified-receipt spec, treat as Tesla Supercharging-only.
+  const kwh = Number(r.kwh_delta ?? 0);
+  const miles = Number(r.miles_delta ?? 0);
+  if (miles > 0) {
+    return [{ key: 'ev_miles', label: 'EV Driving', Icon: Car, amount: `+${fmt(miles, 0)} mi`, accentClass: 'text-primary', ringClass: 'border-primary/30' }];
+  }
+  if (kwh > 0) {
+    return [{ key: 'supercharging_kwh', label: 'Tesla Supercharging', Icon: Zap, amount: `+${fmt(kwh, 2)} kWh`, accentClass: 'text-primary', ringClass: 'border-primary/30' }];
+  }
+  return [];
+}
+
 export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
   const [data, setData] = useState<VerifyReceipt | null>(null);
   const [loading, setLoading] = useState(true);
+  const [proofOpen, setProofOpen] = useState(false);
 
   const isHexHash = !!poa && /^[a-f0-9]{64}$/i.test(poa);
 
@@ -67,110 +129,190 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
     return () => { cancelled = true; };
   }, [poa, isHexHash]);
 
-  const short = poa?.slice(0, 7) ?? '';
-
   const stats = useMemo(() => {
     const tokens = Number(data?.tokens_minted ?? 0);
     const kwh = Number(data?.kwh_delta ?? 0);
     const miles = Number(data?.miles_delta ?? 0);
-    const grossTokens = tokens > 0 ? tokens / USER_SHARE : 0;
-    const burned = grossTokens * 0.20;
-    const co2KgAvoided = kwh > 0 ? kwh * GRID_KG_PER_KWH : 0;
-    return { tokens, kwh, miles, grossTokens, burned, co2KgAvoided };
+    // CO₂ avoided headline — EV miles get ICE-comparison framing; everything
+    // else uses grid-displacement math.
+    const co2Kg = miles > 0
+      ? miles * CO2_KG_PER_EV_MILE
+      : kwh * GRID_KG_PER_KWH;
+    return { tokens, kwh, miles, co2Kg };
   }, [data]);
 
+  const sourceRows = useMemo(() => (data ? buildSourceRows(data) : []), [data]);
+
+  // ---- invalid / loading / not-found shells -------------------------------
+  if (!isHexHash) {
+    return (
+      <div className="rounded-2xl border border-destructive/30 bg-destructive/[0.04] p-6 text-sm text-muted-foreground">
+        That verification link is invalid. Receipt hashes are 64-character SHA-256 hex.
+      </div>
+    );
+  }
+  if (loading) {
+    return (
+      <div className="rounded-3xl border border-border/60 bg-card/60 p-10 text-center text-sm text-muted-foreground">
+        Loading receipt…
+      </div>
+    );
+  }
+  if (!data?.found) {
+    return (
+      <div className="rounded-2xl border border-destructive/30 bg-destructive/[0.04] p-6 text-center text-sm text-muted-foreground">
+        No mint found with this receipt hash.
+      </div>
+    );
+  }
+
   return (
-    <>
-      <header className="relative overflow-hidden rounded-3xl border border-primary/25 bg-gradient-to-br from-primary/15 via-card to-accent-warm/10 p-6 sm:p-8 mb-6">
-        <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
-        <div className="relative flex flex-col-reverse sm:flex-row sm:items-start sm:justify-between gap-5">
-          <div className="space-y-3 min-w-0 flex-1">
-            <Badge variant="outline" className="border-primary/40 text-primary text-[10px] uppercase tracking-[0.16em]">
-              <ShieldCheck className="h-3 w-3 mr-1" /> Public Verification · No Account Needed
-            </Badge>
-            <h1 className="text-2xl sm:text-4xl font-bold tracking-tight leading-[1.1]">
-              Proof-of-Genesis™ Receipt
-            </h1>
-            <p className="text-sm sm:text-base text-muted-foreground leading-snug max-w-2xl">
-              This is a verified ZenSolar mint receipt. Every $ZSOLAR token shown was earned
-              from real, signed energy readings — and the entire receipt is hash-chained and
-              Merkle-anchored on Base, so you can re-verify it independently below.
-            </p>
-            <div className="font-mono text-2xl sm:text-3xl font-bold text-primary tracking-tight pt-1">
-              {short}
-            </div>
-            {isHexHash && <MintedForBadge chainHash={poa!} className="pt-1" />}
+    <div className="rounded-[32px] overflow-hidden border border-border/60 bg-card/80 shadow-2xl shadow-eco/5 backdrop-blur-sm">
+      {/* ============== HERO ============== */}
+      <div className="relative px-6 pt-8 pb-6 text-center overflow-hidden">
+        <div className="absolute -top-24 -left-16 h-56 w-56 rounded-full bg-eco/15 blur-3xl pointer-events-none" />
+        <div className="absolute -top-24 -right-16 h-56 w-56 rounded-full bg-primary/15 blur-3xl pointer-events-none" />
+
+        <Badge
+          variant="outline"
+          className="relative border-eco/40 bg-eco/10 text-eco text-[10px] uppercase tracking-[0.18em] font-semibold gap-1.5"
+        >
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="absolute inline-flex h-full w-full rounded-full bg-eco opacity-60 animate-ping" />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-eco" />
+          </span>
+          Mint Verified
+        </Badge>
+
+        <h1 className="relative mt-4 text-5xl sm:text-6xl font-bold tracking-tight bg-gradient-to-br from-eco via-primary to-accent-cool bg-clip-text text-transparent leading-none">
+          {fmt(stats.tokens, stats.tokens >= 100 ? 0 : 2)}
+        </h1>
+        <p className="relative mt-1 text-base font-medium text-muted-foreground">$ZSOLAR Minted</p>
+
+        <div className="relative mt-7">
+          <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/80 font-semibold">
+            Impact Payoff
           </div>
-          {isHexHash && (
-            <div className="shrink-0 self-center sm:self-start">
-              <ProofOfAuthenticityStamp
-                poaHashShort={short}
-                poaHashFull={poa!}
-                issuedAt={data?.created_at ?? new Date().toISOString()}
-                variant="stamp"
-              />
+          <div className="mt-1 text-2xl font-semibold text-foreground">
+            {fmt(stats.co2Kg, 2)} kg CO₂ <span className="text-muted-foreground font-normal">Avoided</span>
+          </div>
+          {stats.miles > 0 ? (
+            <p className="mt-1 text-xs text-muted-foreground italic">
+              ≈ {fmt(stats.miles, 0)} mi driven on sunshine
+            </p>
+          ) : stats.kwh > 0 ? (
+            <p className="mt-1 text-xs text-muted-foreground italic">
+              ≈ {fmt(stats.kwh, 2)} kWh kept off the grid
+            </p>
+          ) : null}
+        </div>
+
+        {data.chain_hash && (
+          <div className="relative mt-4">
+            <MintedForBadge chainHash={data.chain_hash} className="justify-center" />
+          </div>
+        )}
+      </div>
+
+      {/* ============== TM PROOF BADGE STRIP ============== */}
+      <div className="px-6 pb-6">
+        <div className="flex justify-between gap-2 bg-muted/40 p-3 rounded-2xl border border-border/40">
+          <TmBadge Icon={MapPin}      label="Origin"      tint="primary"     active={!!sourceRows.length} />
+          <TmBadge Icon={Sparkles}    label="Delta"       tint="eco"         active />
+          <TmBadge Icon={Fingerprint} label="Authentic"   tint="accent-cool" active />
+          <TmBadge Icon={Bitcoin}     label="vs-BTC"      tint="accent-warm" active />
+        </div>
+      </div>
+
+      {/* ============== CONTRIBUTING SESSIONS (Proof-of-Delta) ============== */}
+      {sourceRows.length > 0 && (
+        <div className="px-6 pb-6 space-y-3">
+          <h3 className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold px-1">
+            Contributing Sessions
+          </h3>
+          {sourceRows.map((row) => {
+            const Icon = row.Icon;
+            return (
+              <div
+                key={row.key}
+                className={`bg-muted/40 rounded-2xl p-4 border border-border/40 flex items-center gap-4`}
+              >
+                <div className={`w-10 h-10 rounded-xl bg-background/60 flex items-center justify-center border ${row.ringClass} shrink-0`}>
+                  <Icon className={`h-5 w-5 ${row.accentClass}`} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-1 gap-2">
+                    <p className="text-sm font-semibold truncate">{row.label}</p>
+                    <p className={`text-sm font-bold tabular-nums whitespace-nowrap ${row.accentClass}`}>
+                      {row.amount}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1 px-1.5 py-0.5 bg-eco/10 rounded-md">
+                      <Award className="w-2.5 h-2.5 text-eco" />
+                      <span className="text-[9px] font-bold text-eco uppercase tracking-wider">Verified Delta</span>
+                    </div>
+                    {data.created_at && (
+                      <span className="text-[10px] text-muted-foreground">
+                        {new Date(data.created_at).toLocaleString(undefined, {
+                          month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
+                        })}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ============== vs-BITCOIN CHIP ============== */}
+      <div className="px-6 pb-6">
+        <div className="rounded-2xl border border-accent-warm/25 bg-accent-warm/[0.06] p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <Bitcoin className="h-3.5 w-3.5 text-accent-warm" />
+            <span className="text-[10px] uppercase tracking-[0.18em] text-accent-warm font-bold">
+              vs. Bitcoin Proof-of-Work
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            One equivalent BTC transaction would have emitted{' '}
+            <span className="text-accent-warm font-semibold">~{BTC_TX_CO2_KG} kg CO₂</span>.
+            This mint emitted essentially{' '}
+            <span className="text-eco font-semibold">zero</span>.
+          </p>
+        </div>
+      </div>
+
+      {/* ============== VERIFICATION DETAILS (collapsed) ============== */}
+      <div className="border-t border-border/40">
+        <button
+          type="button"
+          onClick={() => setProofOpen((v) => !v)}
+          aria-expanded={proofOpen}
+          className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-muted/40 active:bg-muted/60 transition-colors"
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+              <ShieldCheck className="h-4 w-4 text-primary" />
             </div>
-          )}
-        </div>
-      </header>
+            <div className="min-w-0">
+              <div className="text-sm font-semibold text-foreground">Verification details</div>
+              <div className="text-[10px] text-muted-foreground uppercase tracking-[0.16em] mt-0.5">
+                Hashes · Merkle root · Basescan
+              </div>
+            </div>
+          </div>
+          <ChevronDown
+            className={`h-5 w-5 text-muted-foreground transition-transform ${proofOpen ? 'rotate-180' : ''}`}
+          />
+        </button>
 
-      {!isHexHash ? (
-        <div className="rounded-2xl border border-destructive/30 bg-destructive/[0.04] p-6 text-sm text-muted-foreground">
-          That verification link is invalid. Receipt hashes are 64-character SHA-256 hex.
-        </div>
-      ) : loading ? (
-        <div className="rounded-2xl border border-border/60 bg-card p-6 text-center text-sm text-muted-foreground">
-          Loading receipt…
-        </div>
-      ) : !data?.found ? (
-        <div className="rounded-2xl border border-destructive/30 bg-destructive/[0.04] p-6 text-center text-sm text-muted-foreground">
-          No mint found with this receipt hash.
-        </div>
-      ) : (
-        <div className="space-y-6">
-          <section className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <StatTile
-              Icon={Sparkles}
-              label="$ZSOLAR minted"
-              value={fmt(stats.tokens, 4)}
-              sub={stats.grossTokens > 0 ? `of ${fmt(stats.grossTokens, 0)} gross` : undefined}
-              accent="text-primary"
-            />
-            <StatTile
-              Icon={Zap}
-              label="Energy verified"
-              value={fmt(stats.kwh, 2)}
-              sub="kWh"
-              accent="text-amber-400"
-            />
-            {stats.miles > 0 ? (
-              <StatTile
-                Icon={Zap}
-                label="EV miles"
-                value={fmt(stats.miles, 0)}
-                sub="driven"
-                accent="text-green-400"
-              />
-            ) : (
-              <StatTile
-                Icon={Flame}
-                label="Burned"
-                value={fmt(stats.burned, 2)}
-                sub="20% of mint"
-                accent="text-destructive"
-              />
-            )}
-            <StatTile
-              Icon={ShieldCheck}
-              label="CO₂ displaced"
-              value={fmt(stats.co2KgAvoided, 1)}
-              sub="kg vs U.S. grid"
-              accent="text-eco"
-            />
-          </section>
-
-          <section className="rounded-2xl border border-border/60 bg-card p-4 sm:p-5">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {proofOpen && (
+          <div className="px-4 sm:px-6 pb-6 pt-1 space-y-3">
+            {/* compact at-a-glance metadata strip before the deep panel */}
+            <div className="rounded-xl border border-border/40 bg-card/60 p-4 grid grid-cols-2 gap-3 text-[11px]">
               <Meta label="Receipt #" value={`${data.chain_seq ?? '—'}`} />
               <Meta label="Status" value={data.status ?? '—'} />
               <Meta label="Block" value={data.block_number ?? 'Pending'} />
@@ -180,45 +322,64 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
                   ? new Date(data.created_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
                   : '—'}
               />
-              <Meta label="Wallet" value={maskWallet()} mono />
               {data.tx_hash && (
-                <Meta label="Tx" value={`${data.tx_hash.slice(0, 10)}…${data.tx_hash.slice(-6)}`} mono />
+                <Meta
+                  label="Tx"
+                  value={`${data.tx_hash.slice(0, 8)}…${data.tx_hash.slice(-6)}`}
+                  mono
+                />
               )}
+              <Meta label="Wallet" value="0x••…" mono />
             </div>
-            <p className="mt-3 text-[10px] text-muted-foreground flex items-center gap-1.5">
-              <Wallet className="h-3 w-3" />
-              Wallet address is masked on the public view — the receipt owner can see it from their dashboard.
+
+            <TamperEvidentProofPanel
+              chainHash={poa!}
+              txHashFallback={data.tx_hash ?? null}
+              variant="standalone"
+            />
+
+            <p className="text-[10px] text-muted-foreground italic text-center pt-1">
+              Patent-pending. App. 19/634,402. SEGI™, Mint-on-Proof™, Proof-of-Delta™,
+              Proof-of-Origin™, Proof-of-Permanence™, Proof-of-Authenticity™,
+              Proof-of-Genesis™ are trademarks of ZenCorp Inc.
             </p>
-          </section>
+          </div>
+        )}
+      </div>
 
-          <TamperEvidentProofPanel
-            chainHash={poa!}
-            txHashFallback={data.tx_hash ?? null}
-            variant="standalone"
-          />
-
-          <p className="text-[10px] text-muted-foreground italic text-center pt-2">
-            Patent-pending. App. 19/634,402. SEGI™, Mint-on-Proof™, Proof-of-Delta™,
-            Proof-of-Origin™, Proof-of-Permanence™, Proof-of-Authenticity™,
-            Proof-of-Genesis™ are trademarks of ZenCorp Inc.
-          </p>
-        </div>
-      )}
-    </>
+      {/* Brand gradient hairline footer */}
+      <div className="h-1 w-full bg-gradient-to-r from-eco via-primary to-accent-cool" />
+    </div>
   );
 }
 
-function StatTile({
-  Icon, label, value, sub, accent,
-}: { Icon: typeof Zap; label: string; value: string; sub?: string; accent: string }) {
+/**
+ * Compact 4-up Trademark proof badge.
+ * Uses semantic tokens so dark/light/branded themes stay consistent.
+ */
+function TmBadge({
+  Icon, label, tint, active,
+}: {
+  Icon: typeof Sparkles;
+  label: string;
+  tint: 'primary' | 'eco' | 'accent-cool' | 'accent-warm';
+  active: boolean;
+}) {
+  const tintMap: Record<typeof tint, { bg: string; text: string; ring: string }> = {
+    primary:       { bg: 'bg-primary/15',      text: 'text-primary',      ring: 'border-primary/30' },
+    eco:           { bg: 'bg-eco/15',          text: 'text-eco',          ring: 'border-eco/30' },
+    'accent-cool': { bg: 'bg-accent-cool/15',  text: 'text-accent-cool',  ring: 'border-accent-cool/30' },
+    'accent-warm': { bg: 'bg-accent-warm/15',  text: 'text-accent-warm',  ring: 'border-accent-warm/30' },
+  };
+  const t = tintMap[tint];
   return (
-    <div className="rounded-xl border border-border/60 bg-card p-3 space-y-1">
-      <div className="flex items-center gap-1.5">
-        <Icon className={`h-3.5 w-3.5 ${accent}`} />
-        <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</span>
+    <div className={`flex flex-col items-center gap-1.5 flex-1 ${active ? '' : 'opacity-50 grayscale'}`}>
+      <div className={`w-9 h-9 rounded-xl ${t.bg} border ${t.ring} flex items-center justify-center`}>
+        <Icon className={`h-4 w-4 ${t.text}`} />
       </div>
-      <div className="text-xl sm:text-2xl font-bold tabular-nums leading-tight">{value}</div>
-      {sub && <div className="text-[10px] text-muted-foreground">{sub}</div>}
+      <span className={`text-[9px] font-bold uppercase tracking-tight ${active ? t.text : 'text-muted-foreground'}`}>
+        {label}
+      </span>
     </div>
   );
 }
@@ -226,10 +387,13 @@ function StatTile({
 function Meta({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) {
   return (
     <div>
-      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className={`text-sm font-semibold text-foreground/90 mt-0.5 truncate ${mono ? 'font-mono' : ''}`}>
+      <div className="text-[9px] uppercase tracking-[0.16em] text-muted-foreground font-semibold">{label}</div>
+      <div className={`text-[12px] font-semibold text-foreground/90 mt-0.5 truncate ${mono ? 'font-mono' : ''}`}>
         {value}
       </div>
     </div>
   );
 }
+
+// kept for backwards-compat with the StatTile import in older callers
+export {};
