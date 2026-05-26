@@ -110,6 +110,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   } = useHiddenActivityFields();
   const rewardActionsRef = useRef<RewardActionsRef>(null);
   const nftQuickMintRef = useRef<NFTQuickMintDialogRef>(null);
+  const navigate = useNavigate();
   
   // Shared token price state
   const [tokenPrice, setTokenPrice] = useState(0.10);
