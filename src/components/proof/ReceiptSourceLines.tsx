@@ -21,7 +21,7 @@
  * Both parked items are tracked on /proof-of-genesis/mainnet-readiness.
  */
 import { useEffect, useState } from 'react';
-import { ChevronDown, ChevronUp, Fingerprint, ListTree } from 'lucide-react';
+import { ChevronDown, ChevronUp, Fingerprint, ListTree, ShieldCheck } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
