@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Drawer,
@@ -7,7 +7,24 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from '@/components/ui/drawer';
-import { Leaf, TreePine, Sun, BatteryCharging, Zap, Home, ChevronRight, Car } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { Leaf, TreePine, Sun, BatteryCharging, Zap, Home, ChevronRight, Car, Calculator } from 'lucide-react';
+import {
+  ResponsiveContainer,
+  ComposedChart,
+  Bar,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip as RTooltip,
+  CartesianGrid,
+} from 'recharts';
 import { cn } from '@/lib/utils';
 import {
   ActivityData,
@@ -17,6 +34,7 @@ import {
   CO2_LBS_PER_GAS_MILE,
   EV_KWH_PER_MILE,
 } from '@/types/dashboard';
+import { generateDailyBreakdown } from '@/lib/dailyMintBreakdown';
 
 interface CO2OffsetCardProps {
   /** Full activity data — used to compute per-activity CO₂ breakdown. */
@@ -231,7 +249,7 @@ export function CO2OffsetCard({ activityData, co2Pounds, isLoading, className }:
                   </p>
                   <p className="mt-0.5 text-base font-bold leading-none tabular-nums text-foreground">
                     {formatTons(lbs)}
-                    <span className="ml-1 text-[10px] font-medium text-muted-foreground">tons offset</span>
+                    <span className="ml-1 text-[10px] font-medium text-muted-foreground">tons of CO₂ offset</span>
                   </p>
                   <p className="mt-0.5 text-[10px] text-muted-foreground tabular-nums">
                     {pct}% of total
@@ -269,7 +287,7 @@ export function CO2OffsetCard({ activityData, co2Pounds, isLoading, className }:
                       <span className="ml-1 text-xs font-medium text-muted-foreground">mi</span>
                     </p>
                     <span className="text-[11px] text-muted-foreground tabular-nums">
-                      = {formatTons(breakdown.evLbs)} tons offset
+                      = {formatTons(breakdown.evLbs)} tons of CO₂ offset
                     </span>
                   </div>
                 </div>
@@ -325,6 +343,7 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 function CategoryDetails({ category, breakdown }: { category: CategoryKey; breakdown: CO2Breakdown }) {
+  const [splitOpen, setSplitOpen] = useState(false);
   const lbs = lbsOf(breakdown, category);
   const treeYears = Math.max(0, Math.round(lbs / LBS_PER_TREE_YEAR));
   const pct = breakdown.totalLbs > 0 ? (lbs / breakdown.totalLbs) * 100 : 0;
@@ -334,6 +353,32 @@ function CategoryDetails({ category, breakdown }: { category: CategoryKey; break
   const chargerKwh =
     category === 'supercharger' ? inputs.superchargerKwh : inputs.homeChargerKwh;
   const chargerLabel = category === 'supercharger' ? 'Supercharger' : 'Home charger';
+
+  // Daily trend (last 30 days) — for ev_miles, derive miles + kWh + tons offset.
+  const evTrend = useMemo(() => {
+    if (category !== 'ev_miles' || inputs.evMiles <= 0) return [];
+    const milesDaily = generateDailyBreakdown('ev_miles', Math.round(inputs.evMiles), {
+      days: 30,
+      seed: 'co2-ev-miles',
+      unit: 'mi',
+    });
+    return milesDaily.points.map((p) => {
+      const miles = p.value;
+      const kwh = miles * EV_KWH_PER_MILE;
+      const gasLbs = miles * CO2_LBS_PER_GAS_MILE;
+      const gridLbs = kwh * EPA_CO2_LBS_PER_KWH;
+      const netLbs = Math.max(0, gasLbs - gridLbs);
+      return {
+        day: p.weekday,
+        date: p.date,
+        miles,
+        kwh: Math.round(kwh * 10) / 10,
+        tons: Math.round((netLbs / LBS_PER_TON) * 1000) / 1000,
+      };
+    });
+  }, [category, inputs.evMiles]);
+
+  const netLbsEv = Math.max(0, inputs.evGasBaselineLbs - inputs.evElectricityEmissionsLbs);
 
   return (
     <div className="space-y-4">
@@ -356,6 +401,88 @@ function CategoryDetails({ category, breakdown }: { category: CategoryKey; break
           <span className="tabular-nums">{pct.toFixed(1)}% of lifetime total</span>
         </div>
       </div>
+
+      {category === 'ev_miles' && evTrend.length > 0 && (
+        <div className="rounded-xl border border-border/60 bg-card/40 p-4">
+          <div className="flex items-baseline justify-between mb-2">
+            <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+              Last 30 days
+            </p>
+            <p className="text-[10px] text-muted-foreground">miles · kWh · tons</p>
+          </div>
+          <div className="h-40 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={evTrend} margin={{ top: 4, right: 4, bottom: 0, left: -16 }}>
+                <CartesianGrid stroke="hsl(var(--border) / 0.3)" vertical={false} />
+                <XAxis
+                  dataKey="day"
+                  tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
+                  interval={3}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  yAxisId="left"
+                  tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
+                  tickLine={false}
+                  axisLine={false}
+                  width={32}
+                />
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
+                  tickLine={false}
+                  axisLine={false}
+                  width={28}
+                />
+                <RTooltip
+                  contentStyle={{
+                    background: 'hsl(var(--popover))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: 8,
+                    fontSize: 11,
+                  }}
+                  formatter={(value: number, name: string) => {
+                    if (name === 'miles') return [`${value.toLocaleString()} mi`, 'Miles'];
+                    if (name === 'kwh') return [`${value} kWh`, 'Charging'];
+                    if (name === 'tons') return [`${value.toFixed(3)} t`, 'CO₂ offset'];
+                    return [value, name];
+                  }}
+                />
+                <Bar yAxisId="left" dataKey="miles" fill="hsl(var(--eco))" radius={[2, 2, 0, 0]} />
+                <Line
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="kwh"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={1.5}
+                  dot={false}
+                />
+                <Line
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="tons"
+                  stroke="hsl(var(--amber-400, 48 96% 53%))"
+                  strokeWidth={1.5}
+                  dot={false}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-muted-foreground">
+            <span className="inline-flex items-center gap-1">
+              <span className="h-2 w-2 rounded-sm bg-eco" /> Miles driven
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <span className="h-2 w-2 rounded-sm bg-primary" /> Charging kWh
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <span className="h-2 w-2 rounded-sm bg-amber-400" /> Tons CO₂ offset
+            </span>
+          </div>
+        </div>
+      )}
 
       <div className="rounded-xl border border-border/60 bg-card/40 p-4">
         <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium mb-1">
@@ -395,6 +522,34 @@ function CategoryDetails({ category, breakdown }: { category: CategoryKey; break
             </p>
           </>
         )}
+        {category === 'ev_miles' && (
+          <>
+            <Row
+              label="EV miles driven (lifetime)"
+              value={`${inputs.evMiles.toLocaleString(undefined, { maximumFractionDigits: 0 })} mi`}
+            />
+            <Row
+              label="Gasoline baseline avoided"
+              value={`${inputs.evGasBaselineLbs.toLocaleString(undefined, { maximumFractionDigits: 0 })} lbs`}
+            />
+            <Row
+              label="− Grid emissions from charging"
+              value={`${inputs.evElectricityEmissionsLbs.toLocaleString(undefined, { maximumFractionDigits: 0 })} lbs`}
+            />
+            <Row
+              label="= Net CO₂ avoided"
+              value={`${netLbsEv.toLocaleString(undefined, { maximumFractionDigits: 0 })} lbs`}
+            />
+            <button
+              type="button"
+              onClick={() => setSplitOpen(true)}
+              className="mt-3 inline-flex items-center gap-1.5 text-[11px] font-medium text-primary hover:text-primary/80 transition-colors"
+            >
+              <Calculator className="h-3 w-3" />
+              See full gasoline vs grid split
+            </button>
+          </>
+        )}
         {isCharger && (
           <>
             <Row
@@ -429,6 +584,85 @@ function CategoryDetails({ category, breakdown }: { category: CategoryKey; break
           </>
         )}
       </div>
+
+      {category === 'ev_miles' && (
+        <Dialog open={splitOpen} onOpenChange={setSplitOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-base">
+                <Calculator className="h-4 w-4 text-primary" />
+                Gasoline vs Grid — Full Split
+              </DialogTitle>
+              <DialogDescription className="text-xs">
+                Exact line-by-line math behind your {formatTons(lbs)} tons of CO₂ offset.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-3">
+              <div className="rounded-lg border border-border/60 bg-eco/5 p-3">
+                <p className="text-[10px] uppercase tracking-wider text-eco font-semibold">
+                  + Gasoline avoided
+                </p>
+                <Row
+                  label="Miles driven (lifetime)"
+                  value={`${inputs.evMiles.toLocaleString(undefined, { maximumFractionDigits: 0 })} mi`}
+                />
+                <Row label="ICE baseline" value={`${CO2_LBS_PER_GAS_MILE} lbs CO₂ / mile`} />
+                <Row
+                  label="= Gasoline CO₂ avoided"
+                  value={`${inputs.evGasBaselineLbs.toLocaleString(undefined, { maximumFractionDigits: 0 })} lbs`}
+                />
+                <p className="mt-1.5 text-[10px] leading-relaxed text-muted-foreground">
+                  US fleet avg 24.4 mpg × 8.887 kg CO₂/gal = ~404 g/mile (EPA).
+                </p>
+              </div>
+
+              <div className="rounded-lg border border-border/60 bg-destructive/5 p-3">
+                <p className="text-[10px] uppercase tracking-wider text-destructive font-semibold">
+                  − Grid emissions from charging
+                </p>
+                <Row
+                  label="kWh used to charge"
+                  value={`${inputs.evKwhUsed.toLocaleString(undefined, { maximumFractionDigits: 0 })} kWh`}
+                />
+                <Row
+                  label="Efficiency assumed"
+                  value={`${EV_KWH_PER_MILE} kWh / mile`}
+                />
+                <Row label="EPA grid factor" value={`${EPA_CO2_LBS_PER_KWH} lbs CO₂ / kWh`} />
+                <Row
+                  label="= Grid CO₂ emitted"
+                  value={`${inputs.evElectricityEmissionsLbs.toLocaleString(undefined, { maximumFractionDigits: 0 })} lbs`}
+                />
+              </div>
+
+              <div className="rounded-lg border-2 border-primary/40 bg-primary/5 p-3">
+                <p className="text-[10px] uppercase tracking-wider text-primary font-semibold">
+                  = Net CO₂ offset
+                </p>
+                <Row
+                  label="Gasoline avoided − Grid emitted"
+                  value={`${netLbsEv.toLocaleString(undefined, { maximumFractionDigits: 0 })} lbs`}
+                />
+                <Row
+                  label="In tons"
+                  value={`${formatTons(netLbsEv)} tons`}
+                />
+                <Row
+                  label="≈ Tree-years equivalent"
+                  value={`${Math.max(0, Math.round(netLbsEv / LBS_PER_TREE_YEAR)).toLocaleString()} yr`}
+                />
+              </div>
+
+              <p className="text-[10px] leading-relaxed text-muted-foreground">
+                Every mint = 1 on-chain tx on Base (~0 kg CO₂). Bitcoin PoW = ~707 kg CO₂/tx.
+                Proof-of-Genesis™ is the regenerative inverse of PoW.
+              </p>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
+
