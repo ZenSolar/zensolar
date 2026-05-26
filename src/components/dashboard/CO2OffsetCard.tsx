@@ -279,7 +279,10 @@ export function CO2OffsetCard({ activityData, co2Pounds, isLoading, className }:
               aria-label="EV Miles CO₂ offset breakdown"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-eco/15 text-eco shrink-0">
+                <div
+                  className="flex h-8 w-8 items-center justify-center rounded-md bg-eco/15 text-eco shrink-0"
+                  style={{ animation: 'zenMintPillBreathe 2.8s ease-in-out infinite', animationDelay: '1.4s' }}
+                >
                   <Car className="h-4 w-4" />
                 </div>
                 <div className="flex-1 min-w-0">
