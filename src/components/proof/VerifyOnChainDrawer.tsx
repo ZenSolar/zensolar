@@ -195,8 +195,8 @@ export function VerifyOnChainDrawer({
         aria-label="Verify mint on-chain"
       >
         <div
-          className="overflow-y-auto overscroll-contain px-6 pb-8 pt-2"
-          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 2rem)' }}
+          className="overflow-y-auto overscroll-contain px-5 pt-1 pb-5"
+          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1.25rem)' }}
         >
           <DrawerClose
             aria-label="Close"
@@ -204,7 +204,7 @@ export function VerifyOnChainDrawer({
           >
             <X className="h-4 w-4" />
           </DrawerClose>
-          <DrawerHeader className="text-left space-y-2 mb-4 p-0 pr-10">
+          <DrawerHeader className="text-left space-y-1.5 mb-3 p-0 pr-10">
             <DrawerTitle className="text-xl flex items-center gap-2">
               <Shield className="h-5 w-5 text-primary" aria-hidden />
               Verify on-chain

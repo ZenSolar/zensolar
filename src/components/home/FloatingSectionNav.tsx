@@ -180,7 +180,7 @@ export function FloatingSectionNav() {
             </DrawerDescription>
           </DrawerHeader>
 
-          <div className="px-4 pb-6 flex flex-col gap-1">
+          <div className="px-4 pb-4 flex flex-col gap-1">
             {sections.map(({ id, label }) => {
               const isActive = activeId === id;
               return (

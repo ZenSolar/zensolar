@@ -266,8 +266,8 @@ export function CO2OffsetCard({ activityData, co2Pounds, isLoading, className }:
       <Drawer open={!!openCategory} onOpenChange={(o) => !o && setOpenCategory(null)}>
         <DrawerContent>
           {activeCategory && (
-            <div className="mx-auto w-full max-w-md px-4 pb-6">
-              <DrawerHeader className="px-0 pt-2 pb-3">
+            <div className="mx-auto w-full max-w-md px-4 pb-4">
+              <DrawerHeader className="px-0 pt-1 pb-2">
                 <div className="flex items-center gap-3">
                   <div
                     className={cn(
