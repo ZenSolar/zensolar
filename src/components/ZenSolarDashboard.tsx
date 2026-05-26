@@ -371,8 +371,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         </AnimatedItem>
 
         {!isViewer && (
-          <AnimatedItem className="xl:col-span-1">
-            <Suspense fallback={<CardSkeleton height="h-48" />}>
+          <div className="hidden xl:col-span-1" aria-hidden="true">
+            <Suspense fallback={null}>
               <PerfProbe id="RewardActions">
                 <RewardActions 
                   ref={rewardActionsRef}
@@ -395,7 +395,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
                 />
               </PerfProbe>
             </Suspense>
-          </AnimatedItem>
+          </div>
         )}
 
         <SectionDivider className="xl:hidden" />
