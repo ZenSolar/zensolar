@@ -25,15 +25,15 @@ export function Slide13TheAsk() {
           </p>
         </motion.div>
 
-        {/* Use of Funds — 6 buckets at $3M (Team includes 2 founders + 1 protocol eng, 18mo) */}
+        {/* Use of Funds — LP-heavy $3M (Option B): max liquidity depth, flexible strategic reserve */}
         <div className="grid grid-cols-6 gap-3 mb-6">
           {[
+            { pct: '37%', dollars: '$1.1M', label: 'LP Seeding', desc: '2× depth · price stability', icon: Droplets, color: 'hsl(142,76%,50%)' },
             { pct: '32%', dollars: '$950K', label: 'Team', desc: 'Founders + protocol eng, 18 mo', icon: Users, color: 'hsl(207,90%,54%)' },
-            { pct: '20%', dollars: '$600K', label: 'LP Seeding', desc: '2–3 tranches @ $0.10', icon: Droplets, color: 'hsl(142,76%,50%)' },
-            { pct: '17%', dollars: '$500K', label: 'Growth + BD', desc: 'OEMs, Deason acquisition', icon: Megaphone, color: 'hsl(45,93%,47%)' },
-            { pct: '10%', dollars: '$300K', label: 'Legal + IP', desc: 'Token opinion, patent', icon: Scale, color: 'hsl(280,68%,60%)' },
+            { pct: '10%', dollars: '$300K', label: 'Strategic Reserve', desc: 'Flexible · LP, hires, or BD', icon: PiggyBank, color: 'hsl(220,15%,60%)' },
             { pct: '8%', dollars: '$250K', label: 'Audits + Infra', desc: 'Trail-of-Bits, RPC, monitoring', icon: ShieldCheck, color: 'hsl(15,90%,55%)' },
-            { pct: '13%', dollars: '$400K', label: 'Reserve', desc: 'Buffer + opportunistic LP', icon: PiggyBank, color: 'hsl(220,15%,60%)' },
+            { pct: '7%', dollars: '$200K', label: 'Growth + BD', desc: 'OEMs, Deason acquisition', icon: Megaphone, color: 'hsl(45,93%,47%)' },
+            { pct: '7%', dollars: '$200K', label: 'Legal + IP', desc: 'Token opinion, patent', icon: Scale, color: 'hsl(280,68%,60%)' },
           ].map((item, i) => (
             <motion.div key={item.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 + i * 0.08 }}
