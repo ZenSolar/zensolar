@@ -50,7 +50,7 @@ const SOURCE_META: Record<string, { label: string; tone: string }> = {
   supercharger:    { label: 'Tesla Supercharging', tone: 'text-red-400 border-red-400/40' },
   home_charger:    { label: 'Home Charging',       tone: 'text-sky-400 border-sky-400/40' },
   solar:           { label: 'Solar Production',    tone: 'text-amber-400 border-amber-400/40' },
-  bidir_export:    { label: 'Battery Export (V2G)',tone: 'text-fuchsia-400 border-fuchsia-400/40' },
+  bidir_export:    { label: 'Battery Export',      tone: 'text-fuchsia-400 border-fuchsia-400/40' },
   bidir_import:    { label: 'Grid Import',         tone: 'text-muted-foreground border-border' },
 };
 
