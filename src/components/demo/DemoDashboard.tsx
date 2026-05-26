@@ -364,6 +364,8 @@ export function DemoDashboard() {
           </div>
         </AnimatedItem>
 
+        <SectionDivider />
+
         {/* NFT Mint Button + Refresh - matches real dashboard */}
         <AnimatedItem className="space-y-3">
           <div id="demo-mint-button" data-hint-target="mint">
