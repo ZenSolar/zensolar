@@ -165,14 +165,29 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
     if (!fauxFullscreen) return;
     const prevOverflow = document.body.style.overflow;
     const prevPosition = document.body.style.position;
+    const prevHeight = document.body.style.height;
+    const prevHtmlHeight = document.documentElement.style.height;
+    document.documentElement.style.height = '100%';
     document.body.style.overflow = 'hidden';
     document.body.style.position = 'fixed';
     document.body.style.width = '100%';
-    window.scrollTo(0, 1);
+    document.body.style.height = '100%';
+    const nudge = () => {
+      window.scrollTo(0, 1);
+      // Re-assert after iOS finishes its rotation animation
+      setTimeout(() => window.scrollTo(0, 1), 350);
+    };
+    nudge();
+    window.addEventListener('orientationchange', nudge);
+    window.addEventListener('resize', nudge);
     return () => {
+      window.removeEventListener('orientationchange', nudge);
+      window.removeEventListener('resize', nudge);
       document.body.style.overflow = prevOverflow;
       document.body.style.position = prevPosition;
       document.body.style.width = '';
+      document.body.style.height = prevHeight;
+      document.documentElement.style.height = prevHtmlHeight;
     };
   }, [fauxFullscreen]);
 
@@ -185,10 +200,10 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
           : 'w-screen'
       }`}
       style={{
-        // In fauxscreen, 100vh extends behind iOS Safari's chrome (URL bar
-        // collapses when the page is non-scrollable). Otherwise use 100dvh
-        // so the deck fits visible area cleanly.
-        height: fauxFullscreen ? '100vh' : '100dvh',
+        // 100dvh tracks iOS Safari's visible area as the URL bar collapses,
+        // and stays correct across orientation changes.
+        height: '100dvh',
+        width: '100vw',
         touchAction: 'pan-y',
       }}
       onTouchStart={onTouchStart}
