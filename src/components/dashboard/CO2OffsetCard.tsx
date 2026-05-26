@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Drawer,
@@ -7,7 +7,24 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from '@/components/ui/drawer';
-import { Leaf, TreePine, Sun, BatteryCharging, Zap, Home, ChevronRight, Car } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { Leaf, TreePine, Sun, BatteryCharging, Zap, Home, ChevronRight, Car, Calculator } from 'lucide-react';
+import {
+  ResponsiveContainer,
+  ComposedChart,
+  Bar,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip as RTooltip,
+  CartesianGrid,
+} from 'recharts';
 import { cn } from '@/lib/utils';
 import {
   ActivityData,
@@ -17,6 +34,7 @@ import {
   CO2_LBS_PER_GAS_MILE,
   EV_KWH_PER_MILE,
 } from '@/types/dashboard';
+import { generateDailyBreakdown } from '@/lib/dailyMintBreakdown';
 
 interface CO2OffsetCardProps {
   /** Full activity data — used to compute per-activity CO₂ breakdown. */
