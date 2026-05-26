@@ -204,7 +204,7 @@ export function VerifyOnChainDrawer({
           >
             <X className="h-4 w-4" />
           </DrawerClose>
-          <DrawerHeader className="text-left space-y-2 mb-4 p-0 pr-10">
+          <DrawerHeader className="text-left space-y-1.5 mb-3 p-0 pr-10">
             <DrawerTitle className="text-xl flex items-center gap-2">
               <Shield className="h-5 w-5 text-primary" aria-hidden />
               Verify on-chain
