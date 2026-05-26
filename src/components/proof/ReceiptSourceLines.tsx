@@ -159,7 +159,7 @@ export function ReceiptSourceLines({ chainHash, defaultOpen = false, open: openP
     <Card className={cn('border-border/60', className)}>
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => setOpen(!open)}
         className="w-full p-3 flex items-center gap-2 text-left hover:bg-muted/30 transition-colors rounded-t-xl"
         aria-expanded={open}
       >
