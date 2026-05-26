@@ -56,6 +56,8 @@ import { SectionDivider }  from './ui/SectionDivider';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Images } from 'lucide-react';
+import { ApiPartnersCard } from './dashboard/ApiPartnersCard';
+import { useNavigate } from 'react-router-dom';
 
 import {
   SOLAR_MILESTONES,
