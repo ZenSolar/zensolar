@@ -86,6 +86,7 @@ export function RecentMintProofs() {
   const [isLoading, setIsLoading] = useState(true);
   const [proofTx, setProofTx] = useState<RecentMint | null>(null);
   const [sharedId, setSharedId] = useState<string | null>(null);
+  const [pogSheetHash, setPogSheetHash] = useState<string | null>(null);
 
   async function handleShare(e: React.MouseEvent, tx: RecentMint, source: ReturnType<typeof inferSource>) {
     e.preventDefault();
