@@ -23,6 +23,7 @@ const slides = [
   <Slide01Title />,
   <Slide02Catalyst />,
   <Slide11Traction />,
+  <Slide04Opportunity />,
   <Slide05Solution />,
   <Slide06Technology />,
   <Slide07ThirdPrimitive />,
