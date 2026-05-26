@@ -264,6 +264,23 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
         </h1>
         <p className="relative mt-1 text-base font-medium text-muted-foreground">$ZSOLAR Minted</p>
 
+        {sourceRows[0] && (() => {
+          const TopIcon = sourceRows[0].Icon;
+          return (
+            <div className="relative mt-3 flex justify-center">
+              <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/60 border ${sourceRows[0].ringClass}`}>
+                <TopIcon className={`h-3.5 w-3.5 ${sourceRows[0].accentClass}`} />
+                <span className="text-[10px] uppercase tracking-[0.18em] font-bold text-muted-foreground">
+                  Minted from
+                </span>
+                <span className={`text-xs font-bold ${sourceRows[0].accentClass}`}>
+                  {sourceRows[0].label}
+                </span>
+              </div>
+            </div>
+          );
+        })()}
+
         <div className="relative mt-7">
           <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/80 font-semibold">
             Impact Payoff
