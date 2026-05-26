@@ -114,10 +114,17 @@ function buildSourceRows(r: VerifyReceipt): SourceRow[] {
 }
 
 /**
- * Per-source Impact-Payoff copy. The CO₂ number is the same grid-displacement
- * math, but the SUBLINE must reflect where the energy actually came from —
- * Tesla Supercharger kWh did NOT "stay off the grid"; they came FROM the
- * Supercharger network (100% renewable-matched per Tesla's REC purchases).
+ * Per-source Impact-Payoff copy.
+ *
+ * Rules:
+ *  - On a SINGLE-source mint, use that source's own kWh/miles in the subline
+ *    (NOT the receipt total — they're the same number, but reading from the
+ *    row keeps the math honest if a fallback path ever diverges).
+ *  - On a MULTI-source mint, do NOT pin the subline to the dominant source
+ *    (that's how "1,500 kWh of clean solar" gets shown when only 748 was
+ *    solar). Instead, describe the combined output across all sources.
+ *  - Tesla Supercharger kWh did NOT "stay off the grid" — they came FROM the
+ *    Supercharger network (100% renewable-matched via Tesla's retired RECs).
  */
 type PayoffCopy = { headline: string; subline: string | null };
 
@@ -125,21 +132,43 @@ function payoffFor(
   rows: SourceRow[],
   stats: { tokens: number; kwh: number; miles: number; co2Kg: number },
 ): PayoffCopy {
-  const dom = rows[0]?.key ?? (stats.miles > 0 ? 'ev_miles' : stats.kwh > 0 ? 'supercharging_kwh' : '');
   const co2 = `${fmt(stats.co2Kg, 2)} kg CO₂ Avoided`;
-  switch (dom) {
+
+  // ----- Multi-source mint: combined frame -----
+  if (rows.length > 1) {
+    const kwhRows = rows.filter((r) => !r.amount.endsWith('mi'));
+    const milesRow = rows.find((r) => r.amount.endsWith('mi'));
+    const parts: string[] = [];
+    if (kwhRows.length > 0 && stats.kwh > 0) {
+      parts.push(`${fmt(stats.kwh, 2)} kWh of clean energy across ${kwhRows.length} sources`);
+    }
+    if (milesRow && stats.miles > 0) {
+      parts.push(`${fmt(stats.miles, 0)} mi driven on sunshine`);
+    }
+    return { headline: co2, subline: parts.length > 0 ? `≈ ${parts.join(' + ')}` : null };
+  }
+
+  // ----- Single-source mint: use that row's own amount -----
+  const dom = rows[0];
+  if (!dom) {
+    if (stats.miles > 0) return { headline: co2, subline: `≈ ${fmt(stats.miles, 0)} mi driven on sunshine` };
+    if (stats.kwh > 0)   return { headline: co2, subline: `≈ ${fmt(stats.kwh, 2)} kWh of clean energy` };
+    return { headline: co2, subline: null };
+  }
+
+  // Pull the row's own number out of its formatted `amount` string (e.g. "+748.00 kWh").
+  const own = Number(dom.amount.replace(/[^0-9.]/g, '')) || stats.kwh;
+
+  switch (dom.key) {
     case 'solar_kwh':
-      return { headline: co2, subline: `≈ ${fmt(stats.kwh, 2)} kWh of clean solar generated` };
+      return { headline: co2, subline: `≈ ${fmt(own, 2)} kWh of clean solar generated` };
     case 'battery_kwh':
-      return { headline: co2, subline: `≈ ${fmt(stats.kwh, 2)} kWh dispatched from your battery` };
+      return { headline: co2, subline: `≈ ${fmt(own, 2)} kWh dispatched from your battery` };
     case 'home_charging_kwh':
-      return { headline: co2, subline: `≈ ${fmt(stats.kwh, 2)} kWh charged at home from your system` };
+      return { headline: co2, subline: `≈ ${fmt(own, 2)} kWh charged at home from your system` };
     case 'supercharging_kwh':
     case 'ev_kwh':
-      return {
-        headline: co2,
-        subline: `≈ ${fmt(stats.kwh, 2)} kWh delivered via Supercharger · 100% renewable-matched`,
-      };
+      return { headline: co2, subline: `≈ ${fmt(own, 2)} kWh delivered via Supercharger · 100% renewable-matched` };
     case 'ev_miles':
       return { headline: co2, subline: `≈ ${fmt(stats.miles, 0)} mi driven on sunshine` };
     default:
