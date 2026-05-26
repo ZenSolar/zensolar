@@ -28,7 +28,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { TamperEvidentProofPanel } from '@/components/proof/TamperEvidentProofPanel';
-import { MintedForBadge, ReceiptSourceLines } from '@/components/proof/ReceiptSourceLines';
+import { MintedForBadge, ReceiptSourceLines, type ApiResponse as SourceLinesResponse } from '@/components/proof/ReceiptSourceLines';
 import { ProofOfAuthenticityStamp } from '@/components/proof/ProofOfAuthenticityStamp';
 
 export type VerifyReceipt = {
