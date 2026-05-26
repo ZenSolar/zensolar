@@ -238,6 +238,8 @@ export function DemoDashboard() {
           </AnimatedItem>
         )}
 
+        <SectionDivider />
+
         {/* ENERGY COMMAND CENTER - matches real dashboard */}
         <AnimatedItem>
           <div className="emerald-glow-card overflow-hidden">
