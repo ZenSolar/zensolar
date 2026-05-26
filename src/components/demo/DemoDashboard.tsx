@@ -13,7 +13,7 @@ import { DashboardFooter } from '@/components/dashboard/DashboardFooter';
 import { PullToRefreshIndicator } from '@/components/ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from '@/components/ui/animated-section';
 import { SectionDivider } from '@/components/ui/SectionDivider';
-import { Button } from '@/components/ui/button';
+
 import { Badge } from '@/components/ui/badge';
 import { Images, Receipt } from 'lucide-react';
 import { DashboardTopControls } from '@/components/dashboard/DashboardTopControls';
