@@ -468,7 +468,7 @@ export function ActivityMetrics({
               style={{ boxShadow: '0 0 6px hsl(var(--primary) / 0.7)' }}
             />
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-primary/90">
-              Double-tap any source to mint it · or Mint All below
+              Double-tap any source to mint it
             </p>
           </div>
         )}
