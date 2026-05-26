@@ -316,9 +316,9 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
         </div>
       </div>
 
-      {/* ============== CONTRIBUTING SESSIONS (Proof-of-Delta) ============== */}
+      {/* ============== CONTRIBUTING SESSIONS (Proof-of-Delta + Proof-of-Origin) ============== */}
       {sourceRows.length > 0 && (
-        <div className="px-6 pb-6 space-y-3">
+        <div ref={sessionsRef} className="px-6 pb-6 space-y-3 scroll-mt-4">
           <h3 className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold px-1">
             Contributing Sessions
           </h3>
@@ -339,7 +339,11 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
                       {row.amount}
                     </p>
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <div className="flex items-center gap-1 px-1.5 py-0.5 bg-primary/10 rounded-md">
+                      <MapPin className="w-2.5 h-2.5 text-primary" />
+                      <span className="text-[9px] font-bold text-primary uppercase tracking-wider">Verified Origin</span>
+                    </div>
                     <div className="flex items-center gap-1 px-1.5 py-0.5 bg-eco/10 rounded-md">
                       <Award className="w-2.5 h-2.5 text-eco" />
                       <span className="text-[9px] font-bold text-eco uppercase tracking-wider">Verified Delta</span>
@@ -360,7 +364,7 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
       )}
 
       {/* ============== vs-BITCOIN CHIP ============== */}
-      <div className="px-6 pb-6">
+      <div ref={vsBtcRef} className="px-6 pb-6 scroll-mt-4">
         <div className="rounded-2xl border border-accent-warm/25 bg-accent-warm/[0.06] p-4">
           <div className="flex items-center gap-2 mb-1">
             <Bitcoin className="h-3.5 w-3.5 text-accent-warm" />
@@ -378,7 +382,7 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
       </div>
 
       {/* ============== VERIFICATION DETAILS (collapsed) ============== */}
-      <div className="border-t border-border/40">
+      <div ref={verifyRef} className="border-t border-border/40 scroll-mt-4">
         <button
           type="button"
           onClick={() => setProofOpen((v) => !v)}
