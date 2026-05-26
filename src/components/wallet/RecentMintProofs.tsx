@@ -211,6 +211,18 @@ export function RecentMintProofs() {
                           </p>
                         )}
                       </div>
+                      <button
+                        type="button"
+                        onClick={(e) => handleShare(e, tx, source)}
+                        aria-label="Share mint proof"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                      >
+                        {sharedId === tx.id ? (
+                          <Check className="h-4 w-4 text-primary" aria-hidden />
+                        ) : (
+                          <Share2 className="h-4 w-4" aria-hidden />
+                        )}
+                      </button>
                       <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
                     </div>
                   </div>
