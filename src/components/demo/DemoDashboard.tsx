@@ -17,7 +17,7 @@ import { SectionDivider } from '@/components/ui/SectionDivider';
 import { Badge } from '@/components/ui/badge';
 import { Images, Receipt } from 'lucide-react';
 import { DashboardTopControls } from '@/components/dashboard/DashboardTopControls';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { AnimatedEnergyFlow } from '@/components/dashboard/AnimatedEnergyFlow';
 import { ApiPartnersCard } from '@/components/dashboard/ApiPartnersCard';
