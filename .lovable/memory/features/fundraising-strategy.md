@@ -26,17 +26,22 @@ type: feature
 4. Lyndon's name unlocks MZ Group's investor network + Volo Earth Ventures + climate angels.
 5. If Lyndon passes: Greg activates his network as Plan B; drop cap to $12M, re-frame as "operator-led" instead of "Rive-anchored".
 
-## Use of funds @ $3M
+## Use of funds @ $3M (with salary load — corrected)
 | Bucket | $ | Purpose |
 |---|---|---|
+| **Team** (2 founders + 1 protocol eng, 18 mo, w/ ~22% burden) | **$950K** | Joseph $225K/yr · Michael $125K/yr · Protocol eng $200K/yr (month 3–18) |
 | LP seeding (2–3 tranches) | $600K | Real $ZSOLAR liquidity at $0.10 launch |
-| Engineering + protocol | $1.1M | Mainnet migration, audits, 1 protocol eng + 1 full-stack |
-| Deason revenue build | $500K | Ship $4.99/mo, first 1,000 paid subs |
-| Legal + IP + audits | $300K | Token legal opinion, Trail-of-Bits-tier audit, patent continuations |
-| Growth + BD | $300K | OEM partnerships, content, community |
-| Reserve | $200K | Buffer / opportunistic LP top-up |
+| Growth + BD | $500K | OEM partnerships, content, community, Deason paid acquisition |
+| Legal + IP | $300K | Token legal opinion, patent continuations, corp/HR |
+| Audits + infra | $250K | Trail-of-Bits-tier audit, RPC, monitoring, tooling |
+| Reserve | $400K | Buffer + opportunistic LP top-up |
+| **Total** | **$3.0M** | |
 
-At $5M: extra $2M → +$400K LP, +$1M eng (Energy Oracle MVP), +$400K growth, +$200K reserve.
+**Hiring pace decision**: Only ONE engineering hire this round (senior protocol/Solidity eng, starts month 3). Joseph + Michael handle product, full-stack, BD, growth themselves. Saves ~$200K vs. 2-hire plan.
+
+**Salary detail (NOT shown on deck — kept internal)**: Joseph $225K, Michael $125K. Asymmetric per founder agreement. On Slide 13 these are rolled into a single "Team" bucket per user direction.
+
+At $5M: extra $2M → +$400K LP (3rd tranche), +$500K eng (2nd hire + Energy Oracle MVP), +$400K founder retention/bonus, +$400K growth scale, +$300K reserve.
 
 ## Milestones the round funds
 - Mainnet TGE (Base 8453)
