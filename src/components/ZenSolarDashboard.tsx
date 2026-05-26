@@ -55,7 +55,7 @@ import { AnimatedContainer, AnimatedItem } from './ui/animated-section';
 import { SectionDivider }  from './ui/SectionDivider';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { Loader2, Images, RefreshCw } from 'lucide-react';
+import { Images } from 'lucide-react';
 
 import {
   SOLAR_MILESTONES,
