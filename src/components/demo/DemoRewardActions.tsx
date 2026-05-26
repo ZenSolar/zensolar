@@ -542,6 +542,37 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
 
               <div className="rounded-xl border border-border/60 p-4 space-y-2">
 
+                {/* Per-source breakdown — Mint All */}
+                {pendingMintCategory === 'all' && (() => {
+                  const rows = [
+                    { key: 'solar', label: 'Solar', icon: Sun, tint: 'text-solar', units: pendingRewards.solar, unit: 'kWh', tokens: getCategoryTokens('solar' as any) },
+                    { key: 'battery', label: 'Battery', icon: BatteryFull, tint: 'text-secondary', units: pendingRewards.battery, unit: 'kWh', tokens: getCategoryTokens('battery' as any) },
+                    { key: 'supercharging', label: 'Supercharging', icon: Zap, tint: 'text-destructive', units: pendingRewards.superchargerKwh ?? 0, unit: 'kWh', tokens: getCategoryTokens('supercharging' as any) },
+                    { key: 'home_charging', label: 'Home Charging', icon: Zap, tint: 'text-accent', units: pendingRewards.homeChargerKwh ?? 0, unit: 'kWh', tokens: getCategoryTokens('home_charging' as any) },
+                    { key: 'ev_miles', label: 'EV Miles', icon: Car, tint: 'text-energy', units: pendingRewards.evMiles, unit: 'mi', tokens: getCategoryTokens('ev_miles' as any) },
+                  ].filter(r => r.units > 0);
+                  if (rows.length === 0) return null;
+                  return (
+                    <ul className="flex flex-col gap-1">
+                      {rows.map(r => {
+                        const Icon = r.icon;
+                        return (
+                          <li key={r.key} className="flex items-center justify-between gap-2 text-[11px]">
+                            <span className="flex items-center gap-1.5 min-w-0 text-muted-foreground">
+                              <Icon className={`h-3 w-3 flex-shrink-0 ${r.tint}`} />
+                              <span className="truncate">{r.label}</span>
+                              <span className="tabular-nums text-foreground/70">· {r.units.toLocaleString()} {r.unit}</span>
+                            </span>
+                            <span className="tabular-nums font-medium text-foreground/90 flex-shrink-0">
+                              {r.tokens.toLocaleString()} $ZSOLAR
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  );
+                })()}
+
                 {/* Supercharger vs Home Charger breakdown for charging category */}
                 {pendingMintCategory === 'charging' && (pendingRewards.superchargerKwh || pendingRewards.homeChargerKwh) ? (
                   <div className="flex flex-col gap-1 text-xs text-muted-foreground pt-1">
@@ -567,7 +598,7 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
                 ) : null}
 
                 {/* Big token amount */}
-                <div className="flex items-baseline justify-between py-0.5">
+                <div className="flex items-baseline justify-between py-0.5 pt-2 border-t border-border/30">
                   <span className="text-xs text-muted-foreground">Tokens to<br />receive:</span>
                   <div className="text-right">
                     <div className="text-xl font-bold text-primary tabular-nums leading-tight">
@@ -576,8 +607,25 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
                   </div>
                 </div>
 
-                <p className="text-[11px] text-muted-foreground text-center pt-1 border-t border-border/30">
-                  You receive 75% of {getCategoryActivityUnits(pendingMintCategory).toLocaleString()} {getCategoryUnit(pendingMintCategory)} (20% burn)
+                {/* Allocation split pills */}
+                <div className="flex items-center justify-between gap-1 pt-1">
+                  {[
+                    { label: 'You', pct: '75%', tone: 'bg-primary/15 text-primary border-primary/30' },
+                    { label: 'Burn', pct: '20%', tone: 'bg-destructive/15 text-destructive border-destructive/30' },
+                    { label: 'LP', pct: '3%', tone: 'bg-secondary/15 text-secondary border-secondary/30' },
+                    { label: 'Treasury', pct: '2%', tone: 'bg-muted/40 text-muted-foreground border-border/60' },
+                  ].map(p => (
+                    <span
+                      key={p.label}
+                      className={`flex-1 text-center text-[10px] px-1.5 py-1 rounded-md border ${p.tone} tabular-nums`}
+                    >
+                      <span className="font-semibold">{p.pct}</span> <span className="opacity-80">{p.label}</span>
+                    </span>
+                  ))}
+                </div>
+
+                <p className="text-[10px] text-muted-foreground/80 text-center pt-0.5">
+                  From {getCategoryActivityUnits(pendingMintCategory).toLocaleString()} {getCategoryUnit(pendingMintCategory)} of verified clean-energy activity
                 </p>
               </div>
 
