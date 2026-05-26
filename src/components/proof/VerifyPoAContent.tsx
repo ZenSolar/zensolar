@@ -148,9 +148,9 @@ function payoffFor(
   }
 }
 
-export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
-  const [data, setData] = useState<VerifyReceipt | null>(null);
-  const [loading, setLoading] = useState(true);
+export function VerifyPoAContent({ poa, mockReceipt }: { poa: string | undefined; mockReceipt?: VerifyReceipt }) {
+  const [data, setData] = useState<VerifyReceipt | null>(mockReceipt ?? null);
+  const [loading, setLoading] = useState(!mockReceipt);
   const [proofOpen, setProofOpen] = useState(false);
   const [sessionsOpen, setSessionsOpen] = useState(true);
   const [expandedSourceKey, setExpandedSourceKey] = useState<string | null>(null);
@@ -162,6 +162,7 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
   const isHexHash = !!poa && /^[a-f0-9]{64}$/i.test(poa);
 
   useEffect(() => {
+    if (mockReceipt) { setData(mockReceipt); setLoading(false); return; }
     let cancelled = false;
     (async () => {
       if (!poa || !isHexHash) { setData(null); setLoading(false); return; }
@@ -175,7 +176,7 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
       setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, [poa, isHexHash]);
+  }, [poa, isHexHash, mockReceipt]);
 
   const stats = useMemo(() => {
     const tokens = Number(data?.tokens_minted ?? 0);
