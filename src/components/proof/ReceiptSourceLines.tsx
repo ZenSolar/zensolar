@@ -37,7 +37,7 @@ type Line = {
   device_watermark?: string | null;
 };
 
-type ApiResponse = {
+export type ApiResponse = {
   found: boolean;
   line_count?: number;
   window_start?: string;
