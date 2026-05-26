@@ -15,6 +15,7 @@ Satoshi-Mirror v2: EIA monthly oracle = guaranteed floor; Treasury auto-buyback 
 Subscriptions v2 (LOCKED 2026-05): Base $9.99 / Regular $19.99 / Power $49.99 — every dollar splits 50% LP / 50% treasury. External names always Base/Regular/Power (never Tier-1/2/3, never "Auto-Mint"/"Pro"/"Elite").
 Genesis Halving (LOCKED 2026-05): 50% mint-rate cut at 250K paying subscribers (fallback: 4-yr cadence). Always called "Genesis Halving." Pre-announce 3–6 months out; existing users get bonus month at pre-halving rate.
 Billing infra not wired yet (no Stripe). `/subscribe` route shows tier picker only — checkout pending Michael sign-off on provider.
+Patent status: ONLY the non-provisional "Gamifying and Tokenizing Sustainable Behaviors" patent is filed. Starlink/SpaceX/Optimus tokenization angle is roadmap/concept only — NOT filed. Never say "Starlink patent filed."
 
 ## Memories
 - [Mint ratio SSoT (1:1)](mem://features/mint-ratio-ssot) — Strictly 1 $ZSOLAR = 1 kWh = 1 mile. Never multiply tokens by 10. Never back-calc via `tokens / USER_SHARE`.
