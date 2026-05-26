@@ -207,6 +207,16 @@ export function CO2OffsetCard({ activityData, co2Pounds, isLoading, className }:
                 <button
                   key={cat.key}
                   type="button"
+          {/* 2x2 grid — drillable (EV miles is shown below as a full-width banner) */}
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            {CATEGORIES.filter((c) => c.key !== 'ev_miles').map((cat) => {
+              const lbs = lbsOf(breakdown, cat.key);
+              const pct = totalLbs > 0 ? Math.round((lbs / totalLbs) * 100) : 0;
+              const Icon = cat.icon;
+              return (
+                <button
+                  key={cat.key}
+                  type="button"
                   onClick={() => setOpenCategory(cat.key)}
                   className={cn(
                     'group relative overflow-hidden rounded-lg border border-border/60 border-l-2 bg-card/40 p-2.5 text-left transition-all hover:bg-card/70 hover:border-border active:scale-[0.98]',
@@ -231,7 +241,7 @@ export function CO2OffsetCard({ activityData, co2Pounds, isLoading, className }:
                   </p>
                   <p className="mt-0.5 text-base font-bold leading-none tabular-nums text-foreground">
                     {formatTons(lbs)}
-                    <span className="ml-1 text-[10px] font-medium text-muted-foreground">t</span>
+                    <span className="ml-1 text-[10px] font-medium text-muted-foreground">tons offset</span>
                   </p>
                   <p className="mt-0.5 text-[10px] text-muted-foreground tabular-nums">
                     {pct}% of total
@@ -247,9 +257,14 @@ export function CO2OffsetCard({ activityData, co2Pounds, isLoading, className }:
             })}
           </div>
 
-          {/* EV miles summary — full width, biggest contributor */}
+          {/* EV miles summary — full width, biggest contributor, drillable */}
           {breakdown.inputs.evMiles > 0 && (
-            <div className="mt-2 rounded-lg border border-border/60 border-l-2 border-l-eco/70 bg-gradient-to-r from-eco/10 via-card/40 to-card/40 p-3">
+            <button
+              type="button"
+              onClick={() => setOpenCategory('ev_miles')}
+              className="mt-2 w-full rounded-lg border border-border/60 border-l-2 border-l-eco/70 bg-gradient-to-r from-eco/10 via-card/40 to-card/40 p-3 text-left transition-all hover:bg-card/60 active:scale-[0.99] group"
+              aria-label="EV Miles CO₂ offset breakdown"
+            >
               <div className="flex items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-md bg-eco/15 text-eco shrink-0">
                   <Car className="h-4 w-4" />
@@ -264,7 +279,14 @@ export function CO2OffsetCard({ activityData, co2Pounds, isLoading, className }:
                       <span className="ml-1 text-xs font-medium text-muted-foreground">mi</span>
                     </p>
                     <span className="text-[11px] text-muted-foreground tabular-nums">
-                      = {formatTons(breakdown.evLbs)} t CO₂ avoided
+                      = {formatTons(breakdown.evLbs)} tons offset
+                    </span>
+                  </div>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground/60 group-hover:text-muted-foreground transition-colors shrink-0" />
+              </div>
+            </button>
+          )}
                     </span>
                   </div>
                 </div>
