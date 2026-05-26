@@ -20,9 +20,9 @@ export function Slide11Traction() {
         <div className="grid grid-cols-4 gap-6 mb-10">
           {[
             { label: 'Beta users', value: '11', sub: 'real wallets, real homes', color: 'hsl(207,90%,54%)' },
-            { label: 'kWh verified', value: '3.34M', sub: 'across Tesla, Enphase, Wallbox', color: 'hsl(142,76%,50%)' },
-            { label: '$ZSOLAR minted', value: '496K', sub: '45 on-chain mint txns', color: 'hsl(45,93%,47%)' },
-            { label: 'Pioneer NFTs', value: '6', sub: 'minted on Base Sepolia', color: 'hsl(280,68%,60%)' },
+            { label: 'kWh verified', value: '3.34M', sub: 'across Tesla, Enphase, Wallbox', color: 'hsl(207,90%,54%)' },
+            { label: '$ZSOLAR minted', value: '496K', sub: '45 on-chain mint txns', color: 'hsl(207,90%,54%)' },
+            { label: 'Pioneer NFTs', value: '6', sub: 'minted on Base Sepolia', color: 'hsl(207,90%,54%)' },
           ].map((item, i) => (
             <motion.div key={item.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 + i * 0.1 }}
