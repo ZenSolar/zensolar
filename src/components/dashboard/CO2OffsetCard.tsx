@@ -478,7 +478,7 @@ function CategoryDetails({ category, breakdown }: { category: CategoryKey; break
               <span className="h-2 w-2 rounded-sm bg-primary" /> Charging kWh
             </span>
             <span className="inline-flex items-center gap-1">
-              <span className="h-2 w-2 rounded-sm bg-amber-400" /> Tons CO₂ offset
+              <span className="h-2 w-2 rounded-sm bg-amber-400" /> Tons of CO₂ offset
             </span>
           </div>
         </div>
