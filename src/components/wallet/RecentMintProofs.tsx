@@ -46,9 +46,9 @@ function inferSource(tx: RecentMint): {
 } | null {
   if (tx.action !== 'mint-rewards') return null;
   const tokens = tx.tokens_minted || 0;
-  // Mint ratio is 1:1 across every source — 1 token per kWh produced,
-  // 1 token per mile driven. Never multiply by 10.
-  const miles = tokens > 0 ? Math.round(tokens * 10) / 10 : undefined;
+  // Mint ratio is 1:1 across every source — 1 token per kWh (solar, battery,
+  // home charging, Supercharging) OR 1 token per mile (EV driving only).
+  // Never multiply by 10. Charging is ALWAYS kWh — never miles.
   const kwh = tokens > 0 ? Math.round(tokens * 10) / 10 : undefined;
 
   const sb = tx.source_breakdown ?? {};
@@ -56,18 +56,22 @@ function inferSource(tx: RecentMint): {
   const battery = Number(sb.battery_kwh ?? 0);
   const home = Number(sb.home_charging_kwh ?? 0);
   const supercharge = Number(sb.supercharging_kwh ?? sb.ev_kwh ?? 0);
+  const driving = Number(sb.ev_miles ?? 0);
 
-  if (solar > 0 && solar >= battery && solar >= home && solar >= supercharge) {
+  if (solar > 0 && solar >= battery && solar >= home && solar >= supercharge && solar >= driving) {
     return { provider: 'enphase', deviceLabel: 'IQ8 Microinverters', kwh: solar };
   }
-  if (battery > 0 && battery >= home && battery >= supercharge) {
+  if (battery > 0 && battery >= home && battery >= supercharge && battery >= driving) {
     return { provider: 'tesla_energy', deviceLabel: 'Powerwall 3', kwh: battery };
   }
-  if (home > 0 && home >= supercharge) {
-    return { provider: 'wallbox', deviceLabel: 'Pulsar Plus', miles };
+  if (home > 0 && home >= supercharge && home >= driving) {
+    return { provider: 'wallbox', deviceLabel: 'Pulsar Plus', kwh: home };
   }
-  // Default: Tesla Supercharging (legacy mint-rewards rows)
-  return { provider: 'tesla_vehicle', deviceLabel: 'Supercharging', miles };
+  if (driving > 0 && driving > supercharge) {
+    return { provider: 'tesla_vehicle', deviceLabel: 'EV Driving', miles: driving };
+  }
+  // Default: Tesla Supercharging (legacy mint-rewards rows) — kWh, not miles.
+  return { provider: 'tesla_vehicle', deviceLabel: 'Supercharging', kwh };
 }
 
 /**
