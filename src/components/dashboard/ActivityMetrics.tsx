@@ -1695,7 +1695,10 @@ function TotalTokensCard({ tokensToReceive, tokensEligible, activityUnits, token
   const isTappable = activityUnits > 0 && !!onMintRequest;
   // v3 — "Obsidian glass tactile": hero token number, compact metadata row, share progress rail.
   const eligible = tokensEligible ?? Math.floor(activityUnits / MINT_RATIO_KWH_PER_TOKEN);
-  const usdValue = tokensToReceive * tokenPrice;
+  // Hero number = full cumulative mintable total (100%). The 75% user share is revealed
+  // on the confirm-mint screen after double-tap, matching per-source KPI behavior.
+  const heroTokens = eligible;
+  const usdValue = heroTokens * tokenPrice;
 
   const handleMint = () => {
     if (onMintRequest) {
@@ -1729,29 +1732,24 @@ function TotalTokensCard({ tokensToReceive, tokensEligible, activityUnits, token
           )} />
         </div>
 
-        {/* Hero number + compact metadata row */}
+        {/* Hero number + compact metadata row — font matches per-source KPI hero (text-xl font-semibold tracking-tight) */}
         <div className="flex-1 min-w-0 flex flex-col items-start text-left">
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-2xl font-bold text-foreground tracking-tight tabular-nums font-mono">
-              {tokensToReceive.toLocaleString()}
+          <p className="text-xl font-semibold tracking-tight">
+            <span className="text-foreground tabular-nums">
+              {heroTokens.toLocaleString()}
             </span>
-            <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary/90">
+            <span className="text-base font-semibold ml-1 text-muted-foreground">
               $ZSOLAR
             </span>
-          </div>
+          </p>
 
           <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
-            <div className="flex items-center gap-1">
-              <span className="text-[10px] uppercase tracking-tight text-muted-foreground/70 font-medium">Share</span>
-              <span className="text-[10px] font-semibold text-foreground/80">75%</span>
-            </div>
-            <div className="w-px h-2 bg-border/50" />
             <span className="text-[10px] font-medium text-muted-foreground">
               ≈ ${usdValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
             <div className="w-px h-2 bg-border/50" />
             <span className="text-[10px] text-muted-foreground/70 tabular-nums">
-              {eligible.toLocaleString()} eligible · {activityUnits.toLocaleString()} kWh
+              {activityUnits.toLocaleString()} kWh eligible
             </span>
           </div>
         </div>
@@ -1769,10 +1767,10 @@ function TotalTokensCard({ tokensToReceive, tokensEligible, activityUnits, token
         )}
       </div>
 
-      {/* Bottom 75% share rail */}
+      {/* Bottom accent rail */}
       {activityUnits > 0 && (
         <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-border/40">
-          <div className="h-full w-[75%] bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.6)]" />
+          <div className="h-full w-full bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.6)]" />
         </div>
       )}
     </>
