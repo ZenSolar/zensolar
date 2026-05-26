@@ -434,6 +434,7 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
                     chainHash={data.chain_hash!}
                     sourceFilter={row.lineSources}
                     embedded
+                    mockResponse={mockSourceLines}
                   />
                 </div>
               )}
