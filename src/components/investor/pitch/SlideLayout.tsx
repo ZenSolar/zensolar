@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
 interface SlideLayoutProps {
   children: ReactNode;
@@ -23,22 +24,36 @@ export function SlideLayout({ children, className = '', variant = 'dark' }: Slid
 
 export function SlideHeader({ label, number }: { label: string; number: number }) {
   return (
-    <div className="absolute top-10 left-16 flex items-center gap-4">
-      <span className="text-[13px] font-mono tracking-[0.2em] uppercase text-white/30">
-        {String(number).padStart(2, '0')}
-      </span>
-      <span className="text-[13px] font-mono tracking-[0.2em] uppercase text-white/50">
-        {label}
-      </span>
-    </div>
+    <>
+      <div className="absolute top-10 left-16 flex items-center gap-4">
+        <span className="text-[13px] font-mono tracking-[0.2em] uppercase text-white/30">
+          {String(number).padStart(2, '0')}
+        </span>
+        <span className="text-[13px] font-mono tracking-[0.2em] uppercase text-white/50">
+          {label}
+        </span>
+      </div>
+      <div className="absolute top-8 right-16 flex items-center">
+        <img
+          src={zenLogo}
+          alt="ZenSolar"
+          className="h-10 w-auto opacity-80"
+          style={{ filter: 'drop-shadow(0 0 12px hsl(142, 76%, 50%, 0.35))' }}
+        />
+      </div>
+    </>
   );
 }
 
 export function SlideFooter() {
   return (
     <div className="absolute bottom-8 left-16 right-16 flex items-center justify-between">
-      <span className="text-[13px] font-medium tracking-wider text-white/25">ZENSOLAR</span>
-      <span className="text-[13px] text-white/20">CONFIDENTIAL</span>
+      <img
+        src={zenLogo}
+        alt="ZenSolar"
+        className="h-6 w-auto opacity-50"
+      />
+      <span className="text-[13px] font-mono tracking-[0.2em] uppercase text-white/25">Confidential · Pre-Seed</span>
     </div>
   );
 }
