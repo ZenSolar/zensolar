@@ -215,8 +215,57 @@ function DayGroupRow({ group, unit, category }: { group: DayGroup; unit: 'kWh' |
 
 export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Props) {
   const { open, category, deviceId, deviceName, label, unit, pending } = state;
+  const demoCtx = useDemoContextSafe();
+  const isDemo = !!demoCtx;
 
-  const { data: rows = [], isLoading } = useKpiContributions(category, deviceId, open, pending);
+  const { data: liveRows = [], isLoading: liveLoading } = useKpiContributions(category, deviceId, open && !isDemo, pending);
+
+  // In demo mode the backend has no real receipts, so synthesize a 14-day
+  // breakdown that sums exactly to the headline `pending`. Stable per
+  // (category, pending, deviceId) so re-opens don't reshuffle.
+  const demoRows = useMemo<KpiContributionRow[]>(() => {
+    if (!isDemo || !category || pending <= 0) return [];
+    const catMap: Record<MintCategory, DailyCategory | null> = {
+      solar: 'solar',
+      battery: 'battery',
+      ev_miles: 'ev_miles',
+      charging: 'charging',
+      supercharger: 'supercharging',
+      home_charger: 'home_charging',
+      all: null,
+    };
+    const dCat = catMap[category];
+    if (!dCat) return [];
+    const providerByCategory: Record<string, string> = {
+      solar: 'solaredge',
+      battery: 'tesla',
+      ev_miles: 'tesla',
+      supercharger: 'tesla',
+      home_charger: 'tesla',
+      charging: 'tesla',
+    };
+    const provider = providerByCategory[category] || 'tesla';
+    const seed = `demo|${category}|${deviceId ?? 'all'}|${Math.round(pending)}`;
+    const { points, unit: u } = generateDailyBreakdown(dCat, Math.round(pending), { seed, days: 14, unit });
+    return points
+      .filter((p) => p.value > 0)
+      .map((p, i) => ({
+        id: `demo-${category}-${p.date}-${i}`,
+        recordedAt: `${p.date}T${category === 'supercharger' ? '14' : category === 'home_charger' ? '22' : '12'}:00:00Z`,
+        hasRealTime: category === 'supercharger' || category === 'home_charger',
+        durationMinutes: category === 'supercharger' ? 25 + ((i * 7) % 20) : category === 'home_charger' ? 240 + ((i * 13) % 120) : null,
+        amount: p.value,
+        unit: u,
+        provider,
+        deviceId: deviceId ?? null,
+        deviceName: deviceName ?? null,
+        location: category === 'supercharger' ? 'Tesla Supercharger' : category === 'home_charger' ? 'Home' : null,
+        verified: true,
+      }));
+  }, [isDemo, category, pending, deviceId, deviceName, unit]);
+
+  const rows = isDemo ? demoRows : liveRows;
+  const isLoading = isDemo ? false : liveLoading;
 
   const sumOfRows = rows.reduce((s, r) => s + r.amount, 0);
 
