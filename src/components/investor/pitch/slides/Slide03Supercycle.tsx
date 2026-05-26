@@ -11,7 +11,7 @@ const logos = [
 export function Slide03Supercycle() {
   return (
     <SlideLayout variant="dark">
-      <SlideHeader label="Tokenization Supercycle" number={3} />
+      <SlideHeader label="Tokenization Supercycle" number={4} />
       
       <div className="absolute inset-0 flex flex-col justify-center px-16 pt-20 pb-16">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-10">

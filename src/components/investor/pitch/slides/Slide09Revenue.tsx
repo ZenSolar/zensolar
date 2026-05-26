@@ -5,7 +5,7 @@ import { DollarSign, Flame, ArrowRight, TrendingUp, Award } from 'lucide-react';
 export function Slide09Revenue() {
   return (
     <SlideLayout variant="dark">
-      <SlideHeader label="Revenue Model" number={9} />
+      <SlideHeader label="Revenue Model" number={10} />
 
       <div className="absolute inset-0 flex flex-col justify-center px-16 pt-20 pb-16">
         <motion.h2 initial={{ opacity: 0 }} animate={{ opacity: 1 }}

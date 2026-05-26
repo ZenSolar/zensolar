@@ -5,7 +5,7 @@ import { Users, Zap, Award, Code } from 'lucide-react';
 export function Slide11Traction() {
   return (
     <SlideLayout variant="dark">
-      <SlideHeader label="Traction & Beta" number={11} />
+      <SlideHeader label="Traction & Beta" number={3} />
 
       <div className="absolute inset-0 flex flex-col justify-center px-16 pt-20 pb-16">
         <motion.h2 initial={{ opacity: 0 }} animate={{ opacity: 1 }}

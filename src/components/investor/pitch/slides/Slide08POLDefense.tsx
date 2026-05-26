@@ -5,7 +5,7 @@ import { Shield, Lock, AlertTriangle } from 'lucide-react';
 export function Slide08POLDefense() {
   return (
     <SlideLayout variant="dark">
-      <SlideHeader label="POL Defense" number={8} />
+      <SlideHeader label="POL Defense" number={9} />
 
       <div className="absolute inset-0 flex flex-col justify-center px-16 pt-20 pb-16">
         <motion.h2 initial={{ opacity: 0 }} animate={{ opacity: 1 }}
