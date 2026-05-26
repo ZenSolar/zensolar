@@ -58,6 +58,7 @@ export function DemoDashboard() {
   } = useDemoContext();
   
   const rewardActionsRef = useRef<RewardActionsRef>(null);
+  const navigate = useNavigate();
   const hasHydratedMintedValueRef = useRef(false);
   const previousLifetimeMintedRef = useRef(0);
   
