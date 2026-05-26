@@ -41,20 +41,31 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
     return () => window.removeEventListener('keydown', handler);
   }, [next, prev, showGrid]);
 
-  // Fullscreen
+  // Fullscreen — uses native Fullscreen API where available, falls back to
+  // a CSS "fauxscreen" on iOS Safari (which doesn't expose requestFullscreen
+  // on non-video elements).
+  const [fauxFullscreen, setFauxFullscreen] = useState(false);
   const toggleFullscreen = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const supportsNative = typeof el.requestFullscreen === 'function';
+    if (!supportsNative) {
+      setFauxFullscreen((v) => !v);
+      return;
+    }
     if (!document.fullscreenElement) {
-      containerRef.current?.requestFullscreen();
+      el.requestFullscreen().catch(() => setFauxFullscreen(true));
     } else {
       document.exitFullscreen();
     }
   }, []);
 
   useEffect(() => {
-    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    const handler = () => setIsFullscreen(!!document.fullscreenElement || fauxFullscreen);
     document.addEventListener('fullscreenchange', handler);
+    handler();
     return () => document.removeEventListener('fullscreenchange', handler);
-  }, []);
+  }, [fauxFullscreen]);
 
   // Auto-hide controls in fullscreen
   useEffect(() => {
@@ -72,21 +83,16 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
     };
   }, [isFullscreen]);
 
-  // Scale + portrait-mobile rotation. On a narrow portrait screen we rotate
-  // the slide 90° so it uses screen-height as the slide width.
+  // Scale to fit. No auto-rotation — users rotate their phone naturally and
+  // the slide re-fits to whatever orientation they're in.
   const [scale, setScale] = useState(0.2);
-  const [rotated, setRotated] = useState(false);
   useEffect(() => {
     const observe = () => {
       if (!containerRef.current) return;
       const { width, height } = containerRef.current.getBoundingClientRect();
       if (width === 0 || height === 0) return;
-      const portraitMobile = width < height && width < 768;
-      setRotated(portraitMobile);
-      const fitW = portraitMobile ? height : width;
-      const fitH = portraitMobile ? width : height;
       // 0.98 safety margin so slide never bleeds to viewport edge
-      setScale(Math.min(fitW / 1920, fitH / 1080) * 0.98);
+      setScale(Math.min(width / 1920, height / 1080) * 0.98);
     };
     observe();
     const ro = new ResizeObserver(observe);
@@ -155,7 +161,11 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
   return (
     <div
       ref={containerRef}
-      className="w-screen bg-[hsl(220,20%,6%)] relative overflow-hidden select-none"
+      className={`bg-[hsl(220,20%,6%)] relative overflow-hidden select-none ${
+        fauxFullscreen
+          ? 'fixed inset-0 z-[9999] w-screen'
+          : 'w-screen'
+      }`}
       style={{ height: '100dvh', touchAction: 'pan-y' }}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
@@ -178,9 +188,7 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
               width: 1920,
               height: 1080,
               flexShrink: 0,
-              transform: rotated
-                ? `scale(${scale}) rotate(90deg)`
-                : `scale(${scale})`,
+              transform: `scale(${scale})`,
               transformOrigin: 'center center',
             }}
           >

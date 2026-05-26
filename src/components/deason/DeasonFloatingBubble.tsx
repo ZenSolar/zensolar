@@ -122,6 +122,7 @@ export function DeasonFloatingBubble() {
   if (!user && !isDemoRoute) return null;
   if (location.pathname.startsWith("/deason")) return null;
   if (location.pathname.startsWith("/auth")) return null;
+  if (location.pathname.startsWith("/deck")) return null;
   // Hide during the full-screen AI Concierge intake (signaled by Onboarding.tsx).
   if (typeof document !== 'undefined' && document.body.dataset.hideDeasonBubble === '1') return null;
 
