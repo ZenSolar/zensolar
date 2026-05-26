@@ -1,7 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { BrandSplash } from '@/components/ui/BrandSplash';
 import { isPreviewMode } from '@/lib/previewMode';
 
 const AppLayout = lazy(() => import('@/components/layout/AppLayout').then(m => ({ default: m.AppLayout })));
@@ -13,8 +12,16 @@ const Index = lazy(() => import('@/pages/Index'));
 import('@/components/layout/AppLayout').catch(() => {});
 import('@/pages/Index').catch(() => {});
 
+/**
+ * Loader for the cold-boot path.
+ *
+ * We render `null` rather than a <BrandSplash /> here because the inline
+ * `#pwa-splash` in index.html is already on-screen and stays visible until
+ * `window.hideSplashScreen()` fires from main.tsx. Rendering a second
+ * brand splash on top caused the "logo → spinner → logo again" flash.
+ */
 function RouteLoader() {
-  return <BrandSplash />;
+  return null;
 }
 
 export function RootRoute() {
@@ -39,3 +46,4 @@ export function RootRoute() {
     </Suspense>
   );
 }
+
