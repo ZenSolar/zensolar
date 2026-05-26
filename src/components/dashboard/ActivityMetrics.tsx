@@ -1744,7 +1744,7 @@ function TotalTokensCard({ tokensToReceive, tokensEligible, activityUnits, token
       </div>
       {isTappable && (
         <div className="relative flex items-center gap-1 text-primary">
-          <span className="text-xs font-semibold uppercase tracking-wide">Mint</span>
+          <span className="text-xs font-bold uppercase tracking-wide whitespace-nowrap">Mint All</span>
           <ChevronRight className="h-5 w-5" />
         </div>
       )}
