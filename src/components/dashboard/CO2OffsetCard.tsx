@@ -384,11 +384,11 @@ function CategoryDetails({ category, breakdown }: { category: CategoryKey; break
     <div className="space-y-4">
       <div className="rounded-xl border border-border/60 bg-card/60 p-4">
         <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
-          Lifetime CO₂ avoided
+          Lifetime CO₂ offset
         </p>
         <p className="mt-1 text-3xl font-bold leading-none tabular-nums text-foreground">
           {formatTons(lbs)}
-          <span className="ml-1.5 text-base font-semibold text-muted-foreground">tons</span>
+          <span className="ml-1.5 text-base font-semibold text-muted-foreground">tons of CO₂ offset</span>
         </p>
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
           <span className="tabular-nums">
