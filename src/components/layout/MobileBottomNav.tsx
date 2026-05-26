@@ -1,8 +1,14 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, Zap, Wallet, Image as ImageIcon, MoreHorizontal } from "lucide-react";
+import {
+  Home, Zap, Wallet, Image as ImageIcon, MoreHorizontal,
+  User, Settings as SettingsIcon, Cpu, CreditCard, BarChart3,
+  BookOpen, LifeBuoy, MessageSquare, LogIn, Download, ChevronRight,
+  ShieldCheck, Sparkles, ArrowLeftRight,
+} from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { isAuthorizedReviewer } from "@/lib/reviewerAccess";
+
 import {
   Sheet,
   SheetContent,
@@ -10,6 +16,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { SwipeDismissWrapper } from "@/components/onboarding/SwipeDismissWrapper";
 
 interface NavItem {
   to: string;
@@ -46,32 +53,41 @@ const MARKETING_TABS: NavItem[] = [
   { to: "/demo", label: "Demo", icon: ImageIcon },
 ];
 
-const MORE_LINKS_APP = [
-  { to: "/profile", label: "Profile" },
-  { to: "/settings", label: "Settings" },
-  { to: "/devices", label: "Devices" },
-  { to: "/subscribe", label: "Subscription" },
-  { to: "/tokenomics", label: "Tokenomics" },
-  { to: "/glossary", label: "Glossary" },
-  { to: "/help", label: "Help" },
-  { to: "/feedback", label: "Feedback" },
+type MoreLink = {
+  to: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  description?: string;
+  group?: "primary" | "secondary";
+};
+
+const MORE_LINKS_APP: MoreLink[] = [
+  { to: "/profile", label: "Profile", icon: User, description: "Account & wallet", group: "primary" },
+  { to: "/settings", label: "Settings", icon: SettingsIcon, description: "Preferences & alerts", group: "primary" },
+  { to: "/devices", label: "Devices", icon: Cpu, description: "Connected energy hardware", group: "primary" },
+  { to: "/subscribe", label: "Subscription", icon: CreditCard, description: "Plan & billing", group: "primary" },
+  { to: "/tokenomics", label: "Tokenomics", icon: BarChart3, description: "Supply, burn & LP", group: "secondary" },
+  { to: "/glossary", label: "Glossary", icon: BookOpen, description: "Definitions", group: "secondary" },
+  { to: "/help", label: "Help", icon: LifeBuoy, description: "Guides & support", group: "secondary" },
+  { to: "/feedback", label: "Feedback", icon: MessageSquare, description: "Send a note", group: "secondary" },
 ];
 
-const MORE_LINKS_DEMO = [
-  { to: "/demo", label: "Demo Home" },
-  { to: "/", label: "Exit Demo" },
-  { to: "/subscribe", label: "Subscription Plans" },
-  { to: "/tokenomics", label: "Tokenomics" },
-  { to: "/glossary", label: "Glossary" },
+const MORE_LINKS_DEMO: MoreLink[] = [
+  { to: "/demo", label: "Demo Home", icon: Sparkles, description: "Back to the demo dashboard", group: "primary" },
+  { to: "/", label: "Exit Demo", icon: ArrowLeftRight, description: "Return to marketing site", group: "primary" },
+  { to: "/subscribe", label: "Subscription Plans", icon: CreditCard, description: "Plan & billing", group: "secondary" },
+  { to: "/tokenomics", label: "Tokenomics", icon: BarChart3, description: "Supply, burn & LP", group: "secondary" },
+  { to: "/glossary", label: "Glossary", icon: BookOpen, description: "Definitions", group: "secondary" },
 ];
 
-const MORE_LINKS_MARKETING = [
-  { to: "/auth", label: "Sign in" },
-  { to: "/install", label: "Install app" },
-  { to: "/glossary", label: "Glossary" },
-  { to: "/help", label: "Help" },
-  { to: "/feedback", label: "Feedback" },
+const MORE_LINKS_MARKETING: MoreLink[] = [
+  { to: "/auth", label: "Sign in", icon: LogIn, description: "Access your account", group: "primary" },
+  { to: "/install", label: "Install app", icon: Download, description: "Add to home screen", group: "primary" },
+  { to: "/glossary", label: "Glossary", icon: BookOpen, description: "Definitions", group: "secondary" },
+  { to: "/help", label: "Help", icon: LifeBuoy, description: "Guides & support", group: "secondary" },
+  { to: "/feedback", label: "Feedback", icon: MessageSquare, description: "Send a note", group: "secondary" },
 ];
+
 
 export function MobileBottomNav({ variant = "app", className }: MobileBottomNavProps) {
   const { pathname } = useLocation();
@@ -79,9 +95,10 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
 
   const tabs =
     variant === "demo" ? DEMO_TABS : variant === "marketing" ? MARKETING_TABS : APP_TABS;
-  const reviewerLinks = variant === "demo" && isAuthorizedReviewer()
-    ? [{ to: "/demo/reviewer", label: "Greg Review Materials" }]
+  const reviewerLinks: MoreLink[] = variant === "demo" && isAuthorizedReviewer()
+    ? [{ to: "/demo/reviewer", label: "Greg Review Materials", icon: ShieldCheck, description: "Reviewer-only docs", group: "primary" }]
     : [];
+
   const moreLinks =
     variant === "demo"
       ? [...reviewerLinks, ...MORE_LINKS_DEMO]
@@ -180,34 +197,92 @@ export function MobileBottomNav({ variant = "app", className }: MobileBottomNavP
             </SheetTrigger>
             <SheetContent
               side="bottom"
-              className="rounded-t-2xl pb-[calc(env(safe-area-inset-bottom,0px)+1rem)]"
+              hideCloseButton
+              className={cn(
+                "border-t border-border/60 bg-card/95 backdrop-blur-xl",
+                "rounded-t-3xl px-0 pt-0 pb-[calc(env(safe-area-inset-bottom,0px)+1.25rem)]",
+                "shadow-[0_-20px_60px_-20px_hsl(var(--primary)/0.25)]",
+                "max-h-[85vh] overflow-hidden",
+              )}
             >
-              <SheetHeader>
-                <SheetTitle>More</SheetTitle>
-              </SheetHeader>
-              <ul className="mt-4 grid gap-1">
-                {moreLinks.map((link) => (
-                  <li key={link.to}>
-                    <NavLink
-                      to={link.to}
-                      onClick={() => setMoreOpen(false)}
-                      className={({ isActive: a }) =>
-                        cn(
-                          "flex items-center justify-between rounded-lg px-4 py-3 text-sm font-medium touch-target",
-                          "transition-colors active:scale-[0.98]",
-                          a
-                            ? "bg-primary/10 text-primary"
-                            : "text-foreground hover:bg-muted",
-                        )
-                      }
-                    >
-                      <span>{link.label}</span>
-                      <span aria-hidden className="text-muted-foreground">›</span>
-                    </NavLink>
-                  </li>
-                ))}
-              </ul>
+              <SwipeDismissWrapper onDismiss={() => setMoreOpen(false)}>
+                <div className="px-5 pb-2">
+                  <SheetHeader className="text-left space-y-1 pb-3">
+                    <SheetTitle className="text-base font-semibold tracking-tight">
+                      More
+                    </SheetTitle>
+                    <p className="text-xs text-muted-foreground">
+                      Account, settings, and protocol info
+                    </p>
+                  </SheetHeader>
+                </div>
+                <div className="px-3 pb-2 max-h-[68vh] overflow-y-auto overscroll-contain">
+                  {(["primary", "secondary"] as const).map((group, gi) => {
+                    const items = moreLinks.filter((l) => (l.group ?? "primary") === group);
+                    if (items.length === 0) return null;
+                    return (
+                      <div key={group} className={cn(gi > 0 && "mt-3 pt-3 border-t border-border/40")}>
+                        <ul className="grid gap-1">
+                          {items.map((link) => {
+                            const Icon = link.icon;
+                            return (
+                              <li key={link.to}>
+                                <NavLink
+                                  to={link.to}
+                                  onClick={() => setMoreOpen(false)}
+                                  className={({ isActive: a }) =>
+                                    cn(
+                                      "group flex items-center gap-3 rounded-xl px-3 py-3 touch-target",
+                                      "transition-all active:scale-[0.98]",
+                                      a
+                                        ? "bg-primary/10 text-primary"
+                                        : "text-foreground hover:bg-muted/60",
+                                    )
+                                  }
+                                >
+                                  {({ isActive: a }) => (
+                                    <>
+                                      <span
+                                        className={cn(
+                                          "flex h-10 w-10 items-center justify-center rounded-xl shrink-0 transition-colors",
+                                          a
+                                            ? "bg-primary/15 text-primary"
+                                            : "bg-muted/60 text-foreground/80 group-hover:bg-muted",
+                                        )}
+                                      >
+                                        <Icon className="h-[18px] w-[18px]" />
+                                      </span>
+                                      <span className="flex-1 min-w-0">
+                                        <span className="block text-sm font-medium leading-tight truncate">
+                                          {link.label}
+                                        </span>
+                                        {link.description && (
+                                          <span className="block text-[11px] text-muted-foreground leading-tight mt-0.5 truncate">
+                                            {link.description}
+                                          </span>
+                                        )}
+                                      </span>
+                                      <ChevronRight
+                                        className={cn(
+                                          "h-4 w-4 shrink-0 transition-transform",
+                                          a ? "text-primary" : "text-muted-foreground/60 group-hover:translate-x-0.5",
+                                        )}
+                                        aria-hidden
+                                      />
+                                    </>
+                                  )}
+                                </NavLink>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
+                    );
+                  })}
+                </div>
+              </SwipeDismissWrapper>
             </SheetContent>
+
           </Sheet>
         </li>
       </ul>

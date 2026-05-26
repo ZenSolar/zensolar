@@ -56,7 +56,7 @@ import { SectionDivider }  from './ui/SectionDivider';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Images } from 'lucide-react';
-import { ApiPartnersCard } from './dashboard/ApiPartnersCard';
+// ApiPartnersCard intentionally not imported — it's demo-only.
 import { Link, useNavigate } from 'react-router-dom';
 
 import {
@@ -437,10 +437,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           )}
         </AnimatedItem>
 
-        {/* API Partners — thin strip under milestones */}
-        <AnimatedItem className="xl:col-span-2">
-          <ApiPartnersCard />
-        </AnimatedItem>
+        {/* API Partners card lives on the demo dashboard only. */}
+
 
 
         {/* NFT Quick Mint Dialog (lazy — only the dialog chunk is fetched the first time it opens) */}
