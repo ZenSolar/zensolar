@@ -452,11 +452,6 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
                         Odometer snapshot · no per-trip rows
                       </span>
                     )}
-                    {!expandable && row.key === 'battery_kwh' && (
-                      <span className="text-[9px] font-semibold text-muted-foreground/80 italic">
-                        Headline only · bi-directional sessions not yet integrated
-                      </span>
-                    )}
                   </div>
                 </div>
                 {expandable && (
