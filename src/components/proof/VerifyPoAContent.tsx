@@ -153,6 +153,7 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
   const [loading, setLoading] = useState(true);
   const [proofOpen, setProofOpen] = useState(false);
   const [sessionsOpen, setSessionsOpen] = useState(true);
+  const [expandedSourceKey, setExpandedSourceKey] = useState<string | null>(null);
   const sessionsRef = useRef<HTMLDivElement | null>(null);
   const deltaProofRef = useRef<HTMLDivElement | null>(null);
   const vsBtcRef = useRef<HTMLDivElement | null>(null);
