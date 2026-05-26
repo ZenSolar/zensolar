@@ -24,7 +24,6 @@ const slides = [
   <Slide02Catalyst />,
   <Slide11Traction />,
   <Slide03Supercycle />,
-  <Slide04Opportunity />,
   <Slide05Solution />,
   <Slide06Technology />,
   <Slide07ValueMechanism />,
