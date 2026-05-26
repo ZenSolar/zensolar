@@ -1,4 +1,5 @@
 import { VerifyPoAContent, type VerifyReceipt } from '@/components/proof/VerifyPoAContent';
+import { type ApiResponse as SourceLinesResponse } from '@/components/proof/ReceiptSourceLines';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, FlaskConical } from 'lucide-react';
 
@@ -12,15 +13,17 @@ import { ArrowLeft, FlaskConical } from 'lucide-react';
  *   ─────────────────────────────────
  *   Total       2,382 units → 1,786 $ZSOLAR
  *
- * No DB rows are written — the receipt component is rendered with a
- * synthetic VerifyReceipt object via the `mockReceipt` prop.
+ * No DB rows are written — the receipt + child source-line components are
+ * rendered with synthetic objects via `mockReceipt` + `mockSourceLines`.
  */
+const MOCK_HASH = 'a0cca0cca0cca0cca0cca0cca0cca0cca0cca0cca0cca0cca0cca0cca0cca0cc';
+
 const MOCK_RECEIPT: VerifyReceipt = {
   found: true,
   is_valid: true,
-  chain_hash: 'a0cka0cka0cka0cka0cka0cka0cka0cka0cka0cka0cka0cka0cka0cka0cka0ck'.replace(/k/g, 'c'),
+  chain_hash: MOCK_HASH,
   chain_seq: 42,
-  tx_hash: '0xmint_all_preview_tx_hash_not_a_real_chain_anchor_000000000000',
+  tx_hash: '0xa11ce0a11ce0a11ce0a11ce0a11ce0a11ce0a11ce0a11ce0a11ce0a11ce0a11c',
   block_number: '12345678',
   action: 'mint-rewards',
   tokens_minted: 1786,
@@ -35,6 +38,35 @@ const MOCK_RECEIPT: VerifyReceipt = {
   },
   status: 'confirmed',
   created_at: new Date().toISOString(),
+};
+
+// ---- Synthetic Proof-of-Delta lines (one per source, evenly split) ----
+const now = Date.now();
+const HOUR = 60 * 60 * 1000;
+
+function mkLines(source: string, provider: string, totalKwh: number, count: number) {
+  const per = totalKwh / count;
+  return Array.from({ length: count }, (_, i) => ({
+    source,
+    fingerprint: `mock-${source}-${i.toString().padStart(2, '0')}-${'0'.repeat(40)}`.slice(0, 64),
+    kwh: Number(per.toFixed(2)),
+    occurred_at: new Date(now - (count - i) * HOUR * 3).toISOString(),
+    provider,
+    device_watermark: `wm-${source.slice(0, 4)}-${i}`,
+  }));
+}
+
+const MOCK_SOURCE_LINES: SourceLinesResponse = {
+  found: true,
+  attributed_sources: ['solar', 'bidir_export', 'home_charger'],
+  window_start: new Date(now - 7 * 24 * HOUR).toISOString(),
+  window_end: new Date(now).toISOString(),
+  lines: [
+    ...mkLines('solar', 'enphase', 748, 6),
+    ...mkLines('bidir_export', 'tesla', 100, 2),
+    ...mkLines('home_charger', 'tesla', 652, 4),
+  ],
+  line_count: 12,
 };
 
 export default function MintAllReceiptMock() {
@@ -58,7 +90,11 @@ export default function MintAllReceiptMock() {
         </div>
       </div>
 
-      <VerifyPoAContent poa={MOCK_RECEIPT.chain_hash} mockReceipt={MOCK_RECEIPT} />
+      <VerifyPoAContent
+        poa={MOCK_HASH}
+        mockReceipt={MOCK_RECEIPT}
+        mockSourceLines={MOCK_SOURCE_LINES}
+      />
     </div>
   );
 }
