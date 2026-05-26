@@ -360,6 +360,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           <MintReceiptsHint />
         </AnimatedItem>
 
+        <SectionDivider className="xl:hidden" />
+
         {/* Per-provider charging drift — Supercharger vs Home charging, never combined */}
         <AnimatedItem className="xl:col-span-2">
           <ChargingDriftBreakdownCard />
