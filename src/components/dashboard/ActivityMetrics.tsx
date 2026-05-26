@@ -1700,49 +1700,451 @@ function TotalTokensCard({ tokensToReceive, tokensEligible, activityUnits, token
   const usdValue = heroTokens * tokenPrice;
   const active = activityUnits > 0;
 
-  const handleMint = () => {
-    if (onMintRequest) {
-      onMintRequest({ category: 'all' });
+  // Mirror ActivityField's tap interaction so visual + audio feedback match.
+  const color = 'gold' as const;
+  const styles = colorStyles[color];
+  const shape = particleShapes[color] || '';
+  const haptic = hapticPattern[color] || [15];
+  const { primeAudio, playMintSound } = useMintSound();
+
+  interface FieldState {
+    phase: 'idle' | 'pressing' | 'charging' | 'burst';
+    touchPoint: { x: number; y: number } | null;
+    showTapAgain: boolean;
+    isSecondTap: boolean;
+    burstKey: number;
+    ringStartedAt: number | null;
+  }
+  const stateRef = useRef<FieldState>({
+    phase: 'idle', touchPoint: null, showTapAgain: false, isSecondTap: false, burstKey: 0, ringStartedAt: null,
+  });
+  const [, setRenderTick] = useState(0);
+  const forceRender = useCallback(() => setRenderTick(t => t + 1), []);
+  const updateState = useCallback((patch: Partial<FieldState>) => {
+    Object.assign(stateRef.current, patch);
+    forceRender();
+  }, [forceRender]);
+
+  const cardRef = useRef<HTMLDivElement>(null);
+  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  const chargeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastTapTimeRef = useRef<number>(0);
+  const doubleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const burstTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const ignoreClickUntilRef = useRef<number>(0);
+  const tapCooldownUntilRef = useRef<number>(0);
+  const DOUBLE_TAP_WINDOW = TAP_GESTURE_TIMINGS.DOUBLE_TAP_WINDOW;
+  const BURST_DURATION = 1200;
+  const GHOST_CLICK_SUPPRESSION = TAP_GESTURE_TIMINGS.GHOST_CLICK_SUPPRESSION;
+  const TAP_DEBOUNCE_MS = TAP_GESTURE_TIMINGS.TAP_DEBOUNCE_MS;
+  const HINT_DURATION_MS = TAP_GESTURE_TIMINGS.HINT_DURATION_MS;
+
+  useEffect(() => {
+    const resync = () => {
+      if (document.visibilityState !== 'visible') return;
+      if (chargeTimerRef.current) { clearTimeout(chargeTimerRef.current); chargeTimerRef.current = null; }
+      if (doubleTapTimerRef.current) { clearTimeout(doubleTapTimerRef.current); doubleTapTimerRef.current = null; }
+      if (burstTimerRef.current) { clearTimeout(burstTimerRef.current); burstTimerRef.current = null; }
+      tapCooldownUntilRef.current = 0;
+      ignoreClickUntilRef.current = 0;
+      touchStartRef.current = null;
+      Object.assign(stateRef.current, {
+        phase: 'idle' as const,
+        touchPoint: null,
+        showTapAgain: false,
+        isSecondTap: false,
+        burstKey: stateRef.current.burstKey + 1,
+      });
+      forceRender();
+    };
+    document.addEventListener('visibilitychange', resync);
+    window.addEventListener('pageshow', resync);
+    window.addEventListener('focus', resync);
+    return () => {
+      document.removeEventListener('visibilitychange', resync);
+      window.removeEventListener('pageshow', resync);
+      window.removeEventListener('focus', resync);
+    };
+  }, [forceRender]);
+
+  const particles = React.useMemo(() => {
+    const N = 9;
+    return Array.from({ length: N }, (_, i) => {
+      const angle = (i / N) * 360 + ((i * 7 + 3) % 20 - 10);
+      const rad = (angle * Math.PI) / 180;
+      const dist = 50 + ((i * 13 + 7) % 70);
+      return {
+        tx: Math.cos(rad) * dist,
+        ty: Math.sin(rad) * (20 + ((i * 11 + 5) % 30)),
+        size: 7 + ((i * 9 + 4) % 6),
+        rotation: (i * 37 + 11) % 360,
+        delay: i * 35,
+      };
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stateRef.current.burstKey]);
+
+  useEffect(() => {
+    return () => {
+      if (chargeTimerRef.current) clearTimeout(chargeTimerRef.current);
+      if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
+      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
+    };
+  }, []);
+
+  const triggerBurst = useCallback((relX?: number, relY?: number) => {
+    if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
+    updateState({
+      phase: 'burst',
+      burstKey: stateRef.current.burstKey + 1,
+      isSecondTap: false,
+      ...(relX !== undefined && relY !== undefined ? { touchPoint: { x: relX, y: relY } } : {}),
+    });
+    playMintSound(color);
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try { navigator.vibrate(haptic); } catch { /* silent */ }
     }
+    import('@capacitor/haptics').then(({ Haptics, ImpactStyle }) => {
+      Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
+      setTimeout(() => Haptics.impact({ style: ImpactStyle.Medium }).catch(() => {}), 120);
+    }).catch(() => {});
+    burstTimerRef.current = setTimeout(() => {
+      updateState({ phase: 'idle', touchPoint: null });
+    }, BURST_DURATION);
+  }, [haptic, playMintSound, updateState]);
+
+  const triggerDoubleBurst = useCallback((relX?: number, relY?: number) => {
+    if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
+    updateState({
+      phase: 'burst',
+      burstKey: stateRef.current.burstKey + 1,
+      isSecondTap: true,
+      ...(relX !== undefined && relY !== undefined ? { touchPoint: { x: relX, y: relY } } : {}),
+    });
+    playMintSound(color);
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try { navigator.vibrate([20, 50, 30]); } catch { /* silent */ }
+    }
+    import('@capacitor/haptics').then(({ Haptics, ImpactStyle }) => {
+      Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
+      setTimeout(() => Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {}), 100);
+    }).catch(() => {});
+    burstTimerRef.current = setTimeout(() => {
+      updateState({ phase: 'idle', touchPoint: null, isSecondTap: false });
+    }, BURST_DURATION);
+  }, [playMintSound, updateState]);
+
+  const getTouchRelativePos = (clientX: number, clientY: number) => {
+    if (!cardRef.current) return { x: 0.5, y: 0.5 };
+    const rect = cardRef.current.getBoundingClientRect();
+    return { x: (clientX - rect.left) / rect.width, y: (clientY - rect.top) / rect.height };
   };
 
-  // Match ActivityField KPI styling: rounded-xl, border-l, icon+label+value layout
+  const handleMint = useCallback(() => {
+    if (onMintRequest) onMintRequest({ category: 'all' });
+  }, [onMintRequest]);
+
+  const processTap = useCallback((posX: number, posY: number) => {
+    primeAudio();
+    const now = Date.now();
+    if (now < tapCooldownUntilRef.current) return;
+    tapCooldownUntilRef.current = now + TAP_DEBOUNCE_MS;
+
+    const timeSinceLastTap = now - lastTapTimeRef.current;
+    if (lastTapTimeRef.current > 0 && timeSinceLastTap < DOUBLE_TAP_WINDOW) {
+      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
+      lastTapTimeRef.current = now;
+      updateState({ showTapAgain: false });
+      triggerDoubleBurst(posX, posY);
+      void recordKpiTapEvent('all', 'double_tap', { ms_between_taps: timeSinceLastTap });
+      void recordKpiTapEvent('all', 'mint_in_window', { ms_between_taps: timeSinceLastTap });
+      handleMint();
+      doubleTapTimerRef.current = setTimeout(() => { lastTapTimeRef.current = 0; }, DOUBLE_TAP_WINDOW);
+    } else {
+      lastTapTimeRef.current = now;
+      triggerBurst(posX, posY);
+      updateState({ showTapAgain: true, ringStartedAt: now });
+      void recordKpiTapEvent('all', 'single_tap');
+      if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
+      setTimeout(() => { if (lastTapTimeRef.current === now) lastTapTimeRef.current = 0; }, DOUBLE_TAP_WINDOW);
+      doubleTapTimerRef.current = setTimeout(() => {
+        updateState({ showTapAgain: false, ringStartedAt: null });
+      }, HINT_DURATION_MS);
+    }
+  }, [primeAudio, triggerBurst, triggerDoubleBurst, updateState, handleMint, DOUBLE_TAP_WINDOW, TAP_DEBOUNCE_MS, HINT_DURATION_MS]);
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (!isTappable) return;
+    if (Date.now() < ignoreClickUntilRef.current) { e.preventDefault(); e.stopPropagation(); return; }
+    const pos = getTouchRelativePos(e.clientX, e.clientY);
+    processTap(pos.x, pos.y);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!isTappable) return;
+    primeAudio();
+    ignoreClickUntilRef.current = Date.now() + GHOST_CLICK_SUPPRESSION;
+    const touch = e.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
+    const pos = getTouchRelativePos(touch.clientX, touch.clientY);
+    updateState({ phase: 'pressing', touchPoint: pos });
+    if (chargeTimerRef.current) clearTimeout(chargeTimerRef.current);
+    chargeTimerRef.current = setTimeout(() => {
+      updateState({ phase: 'charging' });
+      import('@capacitor/haptics').then(({ Haptics, ImpactStyle }) => {
+        Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
+      }).catch(() => {});
+      if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+        try { navigator.vibrate(8); } catch { /* silent */ }
+      }
+    }, 200);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    ignoreClickUntilRef.current = Date.now() + GHOST_CLICK_SUPPRESSION;
+    if (!isTappable || !touchStartRef.current) {
+      updateState({ phase: 'idle', touchPoint: null });
+      if (chargeTimerRef.current) clearTimeout(chargeTimerRef.current);
+      return;
+    }
+    if (chargeTimerRef.current) clearTimeout(chargeTimerRef.current);
+    const touch = e.changedTouches[0];
+    const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
+    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+    if (deltaX < TOUCH_DELTA_THRESHOLD && deltaY < TOUCH_DELTA_THRESHOLD) {
+      e.preventDefault();
+      const pos = getTouchRelativePos(touch.clientX, touch.clientY);
+      processTap(pos.x, pos.y);
+    } else {
+      updateState({ phase: 'idle', touchPoint: null });
+    }
+    touchStartRef.current = null;
+  };
+
+  const handleTouchCancel = () => {
+    updateState({ phase: 'idle', touchPoint: null, showTapAgain: false });
+    if (chargeTimerRef.current) clearTimeout(chargeTimerRef.current);
+    touchStartRef.current = null;
+  };
+
+  const { phase, touchPoint, showTapAgain, isSecondTap, burstKey, ringStartedAt } = stateRef.current;
+  const isBursting = phase === 'burst';
+  const isPressing = phase === 'pressing';
+  const isChargingUp = phase === 'charging';
+
+  const shadowRest = `0 1px 3px rgba(0,0,0,0.1)`;
+  const shadowGlow = `0 0 20px hsl(${styles.rgba} / 0.4), 0 0 40px hsl(${styles.rgba} / 0.15)`;
+
   return (
-    <button
-      onClick={handleMint}
-      disabled={!isTappable}
+    <motion.div
+      ref={cardRef}
+      data-kpi-field
+      onClick={handleClick}
+      onTouchStart={isTappable ? handleTouchStart : undefined}
+      onTouchEnd={isTappable ? handleTouchEnd : undefined}
+      onTouchCancel={isTappable ? handleTouchCancel : undefined}
+      onContextMenu={isTappable ? (e) => e.preventDefault() : undefined}
+      animate={isBursting ? {
+        scale: [0.90, 1.06, 1.02, 1], y: [2, -3, -1, 0],
+      } : isChargingUp ? {
+        scale: [1, 1.015, 1, 1.015, 1], y: 0,
+      } : isPressing ? {
+        scale: 0.93, y: 2,
+      } : isTappable ? {
+        y: [0, 2, 0], scale: [1, 0.98, 1],
+      } : { scale: 1, y: 0 }}
+      transition={isBursting ? { duration: 0.8, ease: [0.22, 1, 0.36, 1] } : isChargingUp ? { duration: 1, repeat: Infinity, ease: 'easeInOut' as const } : isPressing ? { duration: 0.12, ease: 'easeOut' as const } : isTappable ? { duration: 1.6, repeat: Infinity, repeatDelay: 1.2, ease: 'easeInOut' as const } : { duration: 0.12, ease: 'easeOut' as const }}
+      style={{
+        '--zen-shadow-rest': shadowRest,
+        '--zen-shadow-glow': shadowGlow,
+        boxShadow: isBursting
+          ? `0 0 30px hsl(${styles.rgba} / 0.5), 0 0 60px hsl(${styles.rgba} / 0.25), 0 0 90px hsl(${styles.rgba} / 0.1)`
+          : isChargingUp
+            ? `0 0 20px hsl(${styles.rgba} / 0.4), 0 0 40px hsl(${styles.rgba} / 0.2)`
+          : isPressing
+            ? `inset 0 2px 8px rgba(0,0,0,0.25), 0 0 0 1px hsl(${styles.rgba} / 0.3)`
+            : isTappable
+              ? `0 0 12px hsl(${styles.rgba} / 0.18), 0 0 5px hsl(${styles.rgba} / 0.12), 0 0 24px hsl(${styles.rgba} / 0.06), inset 0 0 6px hsl(${styles.rgba} / 0.06)`
+              : shadowRest,
+        transition: 'none',
+        transform: 'translateZ(0)',
+        contain: 'layout paint',
+        touchAction: 'manipulation',
+        WebkitTapHighlightColor: 'transparent',
+      } as React.CSSProperties}
       className={cn(
-        "p-3.5 rounded-xl border-l-[3px] flex items-center gap-3.5 relative overflow-hidden w-full text-left",
-        "transition-all duration-200",
-        active
-          ? "border border-primary/20 border-l-primary bg-card/5 cursor-pointer hover:bg-card/10 zen-glow-idle shadow-[0_0_12px_hsl(var(--primary)/0.12)]"
-          : "border border-border/50 border-l-primary/40 bg-card/3 cursor-default"
+        "p-3.5 rounded-xl border-l-[3px] flex items-center gap-3.5 relative overflow-hidden touch-manipulation select-none",
+        isTappable ? `border border-[hsl(${styles.rgba} / 0.2)]` : "border border-border/50",
+        styles.leftBorder,
+        isTappable
+          ? cn("cursor-pointer bg-card/5 hover:bg-card/12 zen-glow-idle", `hover:shadow-lg ${styles.glow}`)
+          : "bg-card/3"
       )}
     >
-      {/* Subtle gradient overlay for active state */}
       {active && (
-        <div className="absolute inset-0 opacity-[0.04] bg-gradient-to-r from-primary to-primary/50 pointer-events-none" />
+        <div className={cn("absolute inset-0 opacity-[0.03] bg-gradient-to-r", styles.gradient)} />
       )}
 
-      {/* Icon — matches ActivityField icon styling */}
-      <div className="relative p-3 rounded-xl">
+      {/* Double-tap countdown ring */}
+      {showTapAgain && ringStartedAt && (
+        <svg
+          key={`ring-countdown-${ringStartedAt}`}
+          className="absolute inset-0 pointer-events-none z-[6]"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          aria-hidden
+          style={{ overflow: 'visible' }}
+        >
+          <rect
+            x="1.5" y="1.5" width="97" height="97" rx="8" ry="8"
+            fill="none" stroke={`hsl(${styles.rgba} / 0.85)`} strokeWidth="2"
+            vectorEffect="non-scaling-stroke" pathLength={100}
+            style={{
+              filter: `drop-shadow(0 0 6px hsl(${styles.rgba} / 0.55))`,
+              strokeDasharray: 100, strokeDashoffset: 0,
+              animation: `zenTapWindowCountdown ${DOUBLE_TAP_WINDOW}ms linear forwards`,
+            }}
+          />
+        </svg>
+      )}
+
+      {/* Press ripple */}
+      {isPressing && !isBursting && touchPoint && (
+        <div
+          className="absolute pointer-events-none rounded-full"
+          style={{
+            left: `${touchPoint.x * 100}%`, top: `${touchPoint.y * 100}%`,
+            width: '200%', height: '200%',
+            background: `radial-gradient(circle, hsl(${styles.rgba} / 0.35) 0%, transparent 70%)`,
+            transform: 'translate(-50%, -50%) scale(0.3)',
+            opacity: 0.4,
+            transition: 'transform 0.15s ease-out, opacity 0.15s ease-out',
+            willChange: 'transform, opacity',
+          }}
+        />
+      )}
+
+      {/* Pressure shockwave ring */}
+      {isBursting && touchPoint && (
+        <div
+          className="absolute pointer-events-none rounded-full"
+          style={{
+            left: `${touchPoint.x * 100}%`, top: `${touchPoint.y * 100}%`,
+            width: '300%', height: '300%',
+            border: `3px solid hsl(${styles.rgba} / 1)`,
+            animation: 'zenPressureWave 800ms ease-out forwards',
+            willChange: 'transform, opacity',
+          }}
+        />
+      )}
+
+      {/* Flare rings + particles + energy release */}
+      {isBursting && (
+        <>
+          {[0, 1, 2].map(i => (
+            <div
+              key={`ring-${burstKey}-${i}`}
+              className="absolute pointer-events-none"
+              style={{
+                left: touchPoint ? `${touchPoint.x * 100}%` : 28,
+                top: touchPoint ? `${touchPoint.y * 100}%` : '50%',
+                width: 20, height: 20,
+                marginLeft: touchPoint ? -10 : 0, marginTop: -10,
+                borderRadius: '50%',
+                border: `3px solid hsl(${styles.rgba} / ${1 - i * 0.12})`,
+                animation: `zenFlareRing 900ms ${i * 120}ms ease-out forwards`,
+                willChange: 'transform, opacity',
+              }}
+            />
+          ))}
+          {particles.map((p, i) => (
+            <div
+              key={`particle-${burstKey}-${i}`}
+              className="absolute pointer-events-none"
+              style={{
+                left: touchPoint ? `${touchPoint.x * 100}%` : 28,
+                top: touchPoint ? `${touchPoint.y * 100}%` : '50%',
+                width: p.size, height: p.size,
+                background: `hsl(${styles.rgba} / 1)`,
+                boxShadow: `0 0 14px hsl(${styles.rgba} / 0.85)`,
+                clipPath: shape,
+                transform: `rotate(${p.rotation}deg)`,
+                animation: `zenFlareParticle 900ms ${p.delay}ms ease-out forwards`,
+                willChange: 'transform, opacity',
+                '--tx': `${p.tx}px`, '--ty': `${p.ty}px`,
+              } as React.CSSProperties}
+            />
+          ))}
+          <div
+            className="absolute pointer-events-none rounded-full"
+            style={{
+              left: touchPoint ? `${touchPoint.x * 100}%` : 28,
+              top: touchPoint ? `${touchPoint.y * 100}%` : '50%',
+              width: 100, height: 100,
+              marginLeft: touchPoint ? -50 : -22, marginTop: -50,
+              background: `radial-gradient(circle, hsl(${styles.rgba} / 0.9) 0%, hsl(${styles.rgba} / 0.4) 40%, transparent 70%)`,
+              animation: 'zenEnergyRelease 800ms ease-out forwards',
+              willChange: 'transform, opacity',
+            }}
+          />
+          {/* Diagonal energy sweep */}
+          <div
+            className="absolute inset-0 pointer-events-none rounded-xl z-[5]"
+            style={{
+              backgroundImage: `linear-gradient(${isSecondTap ? '-' : ''}135deg, transparent 25%, hsl(${styles.rgba} / 0.3) 42%, hsl(${styles.rgba} / 0.5) 50%, hsl(${styles.rgba} / 0.3) 58%, transparent 75%)`,
+              backgroundSize: '300% 300%',
+              animation: 'zenGridSweep 800ms ease-out forwards',
+              willChange: 'opacity, background-position',
+            }}
+          />
+        </>
+      )}
+
+      {/* Charging-up pulse */}
+      {isChargingUp && (
+        <div
+          className="absolute inset-0 pointer-events-none rounded-xl"
+          style={{
+            border: `2px solid hsl(${styles.rgba} / 0.5)`,
+            animation: 'zenChargeUpPulse 600ms ease-in-out infinite alternate',
+            willChange: 'opacity, box-shadow',
+            boxShadow: `inset 0 0 20px hsl(${styles.rgba} / 0.1), 0 0 25px hsl(${styles.rgba} / 0.3)`,
+          }}
+        />
+      )}
+
+      {/* Icon */}
+      <div className="relative p-3 rounded-xl" style={(isBursting || isChargingUp) ? {
+        filter: `drop-shadow(0 0 ${isBursting ? 8 : 5}px hsl(${styles.rgba} / ${isBursting ? 0.8 : 0.5}))`,
+        transition: 'all 200ms ease-out',
+      } : isPressing ? {
+        filter: `drop-shadow(0 0 4px hsl(${styles.rgba} / 0.4))`,
+        transition: 'all 100ms ease-out',
+      } : { transition: 'all 200ms ease-out' }}>
         <Coins className={cn(
           "h-5 w-5 transition-all",
-          active ? "text-primary" : "text-muted-foreground"
+          active ? styles.text : "text-muted-foreground",
+          isBursting && "scale-125"
         )} />
       </div>
 
-      {/* Label + Value — identical font stack to ActivityField */}
+      {/* Label + Value */}
       <div className="flex-1 min-w-0 relative">
-        <p className="text-[13px] font-medium leading-tight text-foreground">
+        <p className={cn(
+          "text-[13px] font-medium leading-tight transition-all duration-300",
+          active ? "text-foreground" : "text-muted-foreground"
+        )}>
           Total Available Tokens
         </p>
         <div className="flex items-center gap-2">
           <p className="text-xl font-semibold tracking-tight">
-            <span className={cn(
-              "transition-all duration-300 tabular-nums",
-              active ? "text-foreground" : "text-muted-foreground"
-            )}>
+            <span
+              className={cn(
+                "transition-all duration-300 tabular-nums",
+                active ? "text-foreground" : "text-muted-foreground"
+              )}
+              style={isBursting ? { textShadow: styles.textGlow } : undefined}
+            >
               {heroTokens.toLocaleString()}
             </span>
             <span className="text-base font-semibold ml-1 text-muted-foreground">
@@ -1755,10 +2157,13 @@ function TotalTokensCard({ tokensToReceive, tokensEligible, activityUnits, token
         </p>
       </div>
 
-      {/* Mint pill — matches per-source KPI "Mint this" pill styling */}
+      {/* Mint pill — flips to "Tap again" between first and second tap */}
       {isTappable && (
         <div
           className="shrink-0 relative"
+          style={isBursting ? { animation: 'zenMintStamp 400ms ease-out' }
+            : isPressing ? { transform: 'scale(0.92)', opacity: 0.85, transition: 'all 0.1s ease-out' }
+            : { transition: 'all 0.2s ease-out' }}
         >
           <div
             className={cn(
@@ -1766,21 +2171,33 @@ function TotalTokensCard({ tokensToReceive, tokensEligible, activityUnits, token
               "transition-all duration-300"
             )}
             style={{
-              background: 'linear-gradient(90deg, hsl(var(--primary) / 0.18), hsl(var(--primary) / 0.10))',
-              borderColor: 'hsl(var(--primary) / 0.45)',
-              color: 'hsl(var(--primary) / 1)',
-              boxShadow: '0 0 10px hsl(var(--primary) / 0.18), inset 0 0 6px hsl(var(--primary) / 0.08)',
-              animation: 'zenMintPillBreathe 2.2s ease-in-out infinite',
+              background: showTapAgain
+                ? `linear-gradient(90deg, hsl(${styles.rgba} / 0.95), hsl(${styles.rgba} / 0.75))`
+                : `linear-gradient(90deg, hsl(${styles.rgba} / 0.18), hsl(${styles.rgba} / 0.10))`,
+              borderColor: `hsl(${styles.rgba} / ${showTapAgain ? 0.9 : 0.45})`,
+              color: showTapAgain ? '#fff' : `hsl(${styles.rgba} / 1)`,
+              boxShadow: showTapAgain
+                ? `0 0 14px hsl(${styles.rgba} / 0.6), 0 0 28px hsl(${styles.rgba} / 0.3)`
+                : `0 0 10px hsl(${styles.rgba} / 0.18), inset 0 0 6px hsl(${styles.rgba} / 0.08)`,
+              animation: showTapAgain
+                ? 'zenTapAgainPulse 0.55s ease-in-out infinite'
+                : 'zenMintPillBreathe 2.2s ease-in-out infinite',
               minWidth: 92,
               justifyContent: 'center',
             }}
-            aria-label="Double-tap to mint all sources"
+            aria-label={showTapAgain ? 'Tap again to mint all sources' : 'Double-tap to mint all sources'}
           >
-            <Coins className="h-3 w-3 inline -mt-0.5" />
-            <span>Mint All</span>
+            <span
+              aria-hidden
+              className="inline-block"
+              style={showTapAgain ? { animation: 'zenDoubleTapBounce 0.5s ease-in-out infinite' } : undefined}
+            >
+              {showTapAgain ? '➕' : <Coins className="h-3 w-3 inline -mt-0.5" />}
+            </span>
+            <span>{showTapAgain ? 'Tap again' : 'Mint All'}</span>
           </div>
         </div>
       )}
-    </button>
+    </motion.div>
   );
 }
