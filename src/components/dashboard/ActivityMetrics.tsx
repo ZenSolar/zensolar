@@ -787,6 +787,8 @@ const particleShapes: Record<string, string> = {
   teal: 'polygon(20% 10%, 80% 10%, 80% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 20% 0%)',
   // Lightning bolt (charging)
   greenGold: 'polygon(30% 0%, 70% 0%, 55% 40%, 80% 40%, 25% 100%, 40% 55%, 15% 55%)',
+  // Diamond / gem — token sparkle
+  token: 'polygon(50% 0%, 85% 50%, 50% 100%, 15% 50%)',
 };
 
 // Haptic intensity per category for distinct feel
