@@ -336,23 +336,25 @@ export function DemoDashboard() {
           <ApiPartnersCard />
         </AnimatedItem>
 
-        {/* Hidden controller for mint dialogs */}
-        <RewardActions
-          ref={rewardActionsRef}
-          onRefresh={refreshDashboard}
-          isLoading={isLoading}
-          walletAddress={profile.wallet_address}
-          pendingRewards={{
-            solar: currentActivity.solarKwh,
-            evMiles: currentActivity.evMiles,
-            battery: currentActivity.batteryKwh,
-            charging: currentActivity.chargingKwh,
-            superchargerKwh: currentActivity.superchargerKwh,
-            homeChargerKwh: currentActivity.homeChargerKwh,
-          }}
-          demoMintHandler={demoMintHandler}
-          dailyBreakdown={dailyBreakdownMap}
-        />
+        {/* Hidden controller for mint dialogs — visible buttons suppressed; NFT mint CTA lives inside NFT card */}
+        <div className="hidden" aria-hidden="true">
+          <RewardActions
+            ref={rewardActionsRef}
+            onRefresh={refreshDashboard}
+            isLoading={isLoading}
+            walletAddress={profile.wallet_address}
+            pendingRewards={{
+              solar: currentActivity.solarKwh,
+              evMiles: currentActivity.evMiles,
+              battery: currentActivity.batteryKwh,
+              charging: currentActivity.chargingKwh,
+              superchargerKwh: currentActivity.superchargerKwh,
+              homeChargerKwh: currentActivity.homeChargerKwh,
+            }}
+            demoMintHandler={demoMintHandler}
+            dailyBreakdown={dailyBreakdownMap}
+          />
+        </div>
 
 
 
