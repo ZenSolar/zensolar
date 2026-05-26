@@ -304,6 +304,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           </AnimatedItem>
         )}
 
+        <SectionDivider className="xl:hidden" />
+
         {/* ENERGY COMMAND CENTER - The Hero Section */}
         <AnimatedItem className="xl:col-span-2">
           <PerfProbe id="ActivityMetrics">
