@@ -12,11 +12,11 @@ export function Slide02Catalyst() {
           {/* Headline */}
           <motion.h2 initial={{ opacity: 0 }} animate={{ opacity: 1 }} 
             className="text-[56px] font-bold leading-[1.1] mb-4">
-            The Incentive Cliff Is{' '}
-            <span className="text-[hsl(0,84%,60%)]">Here</span>
+            $300B in Tax Credits for Solar, Storage & EVs —{' '}
+            <span className="text-[hsl(0,84%,60%)]">Repealed</span>
           </motion.h2>
           <p className="text-[22px] text-white/50 mb-14 max-w-[800px]">
-            Federal clean energy incentives are being eliminated. 50M+ households face a sudden drop in solar & EV economics.
+            Federal clean energy incentives eliminated. 50M+ households face a sudden collapse in project economics.
           </p>
 
           {/* Two columns */}
@@ -28,7 +28,7 @@ export function Slide02Catalyst() {
                 <span className="text-[18px] font-semibold text-[hsl(0,84%,60%)]">What's Disappearing</span>
               </div>
               {[
-                { label: '30% Solar ITC', desc: 'Investment Tax Credit eliminated via "One Big Beautiful Bill"' },
+                { label: '30% Solar & Storage ITC', desc: 'Investment Tax Credit eliminated via "One Big Beautiful Bill"' },
                 { label: '$7,500 EV Credit', desc: 'Federal EV purchase incentive being removed' },
                 { label: 'Net Metering', desc: 'States rolling back utility buyback rates nationwide' },
               ].map((item, i) => (
