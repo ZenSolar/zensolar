@@ -367,6 +367,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           <ChargingDriftBreakdownCard />
         </AnimatedItem>
 
+        <SectionDivider className="xl:hidden" />
+
         {/* Newbie-friendly tokenomics summary → links to /how-it-works hub */}
         <AnimatedItem className="xl:col-span-1">
           <Tokenomics101Card />
