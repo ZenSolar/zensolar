@@ -9,8 +9,10 @@ import { Slide03Supercycle } from "@/components/investor/pitch/slides/Slide03Sup
 
 import { Slide05Solution } from "@/components/investor/pitch/slides/Slide05Solution";
 import { Slide06Technology } from "@/components/investor/pitch/slides/Slide06Technology";
+import { Slide07ThirdPrimitive } from "@/components/investor/pitch/slides/Slide07ThirdPrimitive";
 import { Slide07ValueMechanism } from "@/components/investor/pitch/slides/Slide07ValueMechanism";
 import { Slide08POLDefense } from "@/components/investor/pitch/slides/Slide08POLDefense";
+import { Slide10ThreeWallsMoat } from "@/components/investor/pitch/slides/Slide10ThreeWallsMoat";
 import { Slide09Revenue } from "@/components/investor/pitch/slides/Slide09Revenue";
 import { Slide10UnitEconomics } from "@/components/investor/pitch/slides/Slide10UnitEconomics";
 import { Slide11Traction } from "@/components/investor/pitch/slides/Slide11Traction";
@@ -18,7 +20,6 @@ import { Slide12RiskMitigation } from "@/components/investor/pitch/slides/Slide1
 import { Slide13TheAsk } from "@/components/investor/pitch/slides/Slide13TheAsk";
 import { SlideCompetition } from "@/components/investor/pitch/slides/SlideCompetition";
 
-// Concorda-style structure: Traction promoted to slide 3 (right after the catalyst).
 const slides = [
   <Slide01Title />,
   <Slide02Catalyst />,
@@ -26,8 +27,10 @@ const slides = [
   <Slide03Supercycle />,
   <Slide05Solution />,
   <Slide06Technology />,
+  <Slide07ThirdPrimitive />,
   <Slide07ValueMechanism />,
   <Slide08POLDefense />,
+  <Slide10ThreeWallsMoat />,
   <Slide09Revenue />,
   <Slide10UnitEconomics />,
   <SlideCompetition />,
@@ -40,11 +43,12 @@ const slideLabels = [
   'The Catalyst',
   'Traction & Beta',
   'Tokenization Supercycle',
-  
   'The Solution',
   'Proprietary Tech & IP',
+  'Third Consensus Primitive',
   'Value Mechanism',
-  'POL Defense',
+  'Sell-Pressure Defense',
+  'The Moat',
   'Revenue Model',
   'Unit Economics',
   'Competition',

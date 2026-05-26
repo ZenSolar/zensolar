@@ -1,20 +1,36 @@
 import { SlideLayout, SlideHeader, SlideFooter } from '../SlideLayout';
 import { motion } from 'framer-motion';
-import { Shield, Lock, AlertTriangle } from 'lucide-react';
+import { Shield, Lock, AlertTriangle, Hourglass } from 'lucide-react';
 
 export function Slide08POLDefense() {
   return (
     <SlideLayout variant="dark">
-      <SlideHeader label="POL Defense" number={8} />
+      <SlideHeader label="Sell-Pressure Defense" number={9} />
 
-      <div className="absolute inset-0 flex flex-col justify-center px-16 pt-20 pb-16">
+      <div className="absolute inset-0 flex flex-col justify-center px-16 pt-20 pb-14">
         <motion.h2 initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-          className="text-[48px] font-bold mb-3">
-          Protocol-Owned Liquidity <span className="text-[hsl(207,90%,54%)]">Defense</span>
+          className="text-[44px] font-bold mb-2">
+          1:1 narrative + <span className="text-[hsl(45,93%,47%)]">stake-to-unlock throttle</span> + POL.
         </motion.h2>
-        <p className="text-[20px] text-white/50 mb-12 max-w-[800px]">
-          We don't rent liquidity from mercenary LPs. We own it — and protect it with circuit breakers.
+        <p className="text-[18px] text-white/50 mb-6 max-w-[1000px]">
+          The 1:1 ratio keeps the story unmistakable. The throttle keeps the order book honest. POL keeps the rails ours.
         </p>
+
+        {/* Stake-to-unlock callout strip */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+          className="flex items-start gap-4 p-4 rounded-xl border border-[hsl(45,93%,47%)]/30 bg-[hsl(45,93%,47%)]/[0.06] mb-7">
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-[hsl(45,93%,47%)]/15 border border-[hsl(45,93%,47%)]/35 shrink-0">
+            <Hourglass className="w-5 h-5 text-[hsl(45,93%,47%)]" />
+          </div>
+          <div className="flex-1">
+            <p className="text-[11px] font-mono tracking-[0.22em] uppercase text-[hsl(45,93%,47%)]/85 mb-1">Stake-to-Unlock Throttle</p>
+            <p className="text-[15px] text-white/85 leading-snug">
+              Minted tokens vest into the user's wallet through an on-chain stake-to-unlock curve — only a bounded
+              slice is liquid at any moment. Float grows with conviction, not panic. No forced lockups; just
+              gravity on the sell button.
+            </p>
+          </div>
+        </motion.div>
 
         <div className="grid grid-cols-2 gap-10">
           {/* Phased Tiers */}
