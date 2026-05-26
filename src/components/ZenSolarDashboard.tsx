@@ -437,10 +437,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           )}
         </AnimatedItem>
 
-        {/* API Partners — thin strip under milestones */}
-        <AnimatedItem className="xl:col-span-2">
-          <ApiPartnersCard />
-        </AnimatedItem>
+        {/* API Partners card lives on the demo dashboard only. */}
+
 
 
         {/* NFT Quick Mint Dialog (lazy — only the dialog chunk is fetched the first time it opens) */}
