@@ -132,6 +132,8 @@ interface Props {
   className?: string;
   /** If true, render the "Share public proof page" button (default true). */
   showShareAction?: boolean;
+  /** If false, parent receipt owns the Proof-of-Origin/Delta source lines. */
+  showSourceLines?: boolean;
 }
 
 // ----- Component ------------------------------------------------------------
@@ -142,6 +144,7 @@ export function TamperEvidentProofPanel({
   variant = 'standalone',
   className,
   showShareAction = true,
+  showSourceLines = true,
 }: Props) {
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [loading, setLoading] = useState(true);
@@ -312,7 +315,9 @@ export function TamperEvidentProofPanel({
           )}
 
           {/* Phase 1 · Per-event line items (Proof-of-Delta sources) */}
-          <ReceiptSourceLines chainHash={cleanHash} defaultOpen={variant === 'standalone'} />
+          {showSourceLines && (
+            <ReceiptSourceLines chainHash={cleanHash} defaultOpen={variant === 'standalone'} />
+          )}
         </div>
       )}
 
