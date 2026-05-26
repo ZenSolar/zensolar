@@ -12,6 +12,7 @@ import { TokenPriceCard } from '@/components/dashboard/TokenPriceCard';
 import { DashboardFooter } from '@/components/dashboard/DashboardFooter';
 import { PullToRefreshIndicator } from '@/components/ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from '@/components/ui/animated-section';
+import { SectionDivider } from '@/components/ui/SectionDivider';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Images, RefreshCw, Receipt } from 'lucide-react';
@@ -237,6 +238,8 @@ export function DemoDashboard() {
           </AnimatedItem>
         )}
 
+        <SectionDivider />
+
         {/* ENERGY COMMAND CENTER - matches real dashboard */}
         <AnimatedItem>
           <div className="emerald-glow-card overflow-hidden">
@@ -261,14 +264,7 @@ export function DemoDashboard() {
           </div>
         </AnimatedItem>
 
-        {/* Section break + Mint Receipts CTA between CEC and CO₂ */}
-        <AnimatedItem className="py-1">
-          <div className="relative flex items-center justify-center">
-            <div className="absolute inset-1 flex items-center">
-              <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-            </div>
-          </div>
-        </AnimatedItem>
+        <SectionDivider />
 
         <AnimatedItem>
           <Link to="/demo/mint-history" className="block w-full">
@@ -276,16 +272,20 @@ export function DemoDashboard() {
               variant="outline"
               className="w-full h-11 rounded-xl border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary font-medium transition-all"
             >
-              <Receipt className="mr-2 h-4 w-4" />
+            <Receipt className="mr-2 h-4 w-4" />
               Your Mint Receipts
             </Button>
           </Link>
         </AnimatedItem>
 
+        <SectionDivider />
+
         {/* Prominent CO₂ Offset card with per-activity drill-down — mirrors live beta */}
         <AnimatedItem>
           <CO2OffsetCard activityData={activityData} isLoading={isLoading} />
         </AnimatedItem>
+
+        <SectionDivider />
 
         {/* DEMO ONLY: Tap-to-Mint preview card — opens existing Mint Rewards flow */}
         <AnimatedItem>
@@ -323,6 +323,8 @@ export function DemoDashboard() {
           />
         </AnimatedItem>
 
+        <SectionDivider />
+
         {/* API Partners Card — between actions and energy flow */}
         <AnimatedItem>
           <div className="emerald-glow-card overflow-hidden">
@@ -335,25 +337,15 @@ export function DemoDashboard() {
           <EnergyFlowGlowCard />
         </AnimatedItem>
 
+        <SectionDivider />
+
         {/* Today's Clean Energy Stats */}
         <AnimatedItem>
           <TodaysCleanEnergyStats />
         </AnimatedItem>
 
-        {/* Aesthetic Section Divider */}
-        <AnimatedItem className="py-2">
-          <div className="relative flex items-center justify-center">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-            </div>
-            <div className="relative flex items-center gap-2 px-4 bg-background/80 backdrop-blur-sm rounded-full">
-              <div className="h-1.5 w-1.5 rounded-full bg-primary/50" />
-              <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-              <div className="h-1.5 w-1.5 rounded-full bg-primary/50" />
-            </div>
-          </div>
-        </AnimatedItem>
-        
+        <SectionDivider />
+
         {/* NFT Milestones */}
         <AnimatedItem id="reward-progress">
           <div className="emerald-glow-card overflow-hidden">
@@ -371,6 +363,8 @@ export function DemoDashboard() {
             />
           </div>
         </AnimatedItem>
+
+        <SectionDivider />
 
         {/* NFT Mint Button + Refresh - matches real dashboard */}
         <AnimatedItem className="space-y-3">

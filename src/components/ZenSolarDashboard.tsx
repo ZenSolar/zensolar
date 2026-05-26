@@ -52,6 +52,7 @@ const NFTQuickMintDialog = lazy(() =>
 
 import { PullToRefreshIndicator } from './ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from './ui/animated-section';
+import { SectionDivider }  from './ui/SectionDivider';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Loader2, Images, RefreshCw } from 'lucide-react';
@@ -303,6 +304,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           </AnimatedItem>
         )}
 
+        <SectionDivider className="xl:hidden" />
+
         {/* ENERGY COMMAND CENTER - The Hero Section */}
         <AnimatedItem className="xl:col-span-2">
           <PerfProbe id="ActivityMetrics">
@@ -326,6 +329,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           </PerfProbe>
         </AnimatedItem>
 
+        <SectionDivider className="xl:hidden" />
+
         {/* Prominent CO₂ Offset card — matches the new sidebar accent styling */}
         <AnimatedItem className="xl:col-span-1">
           <CO2OffsetCard
@@ -334,6 +339,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             isLoading={dataLoading && !isNewUserView}
           />
         </AnimatedItem>
+
+        <SectionDivider className="xl:hidden" />
 
         {/* Subscription Status — current tier, 50/50 split, mint cap (mocked v2.1) */}
         <AnimatedItem className="xl:col-span-1">
@@ -346,15 +353,21 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           <FlywheelContributionCard />
         </AnimatedItem>
 
+        <SectionDivider className="xl:hidden" />
+
         {/* Persistent discoverability hint → Mint History (Proof-of-Mint receipts) */}
         <AnimatedItem className="xl:col-span-1">
           <MintReceiptsHint />
         </AnimatedItem>
 
+        <SectionDivider className="xl:hidden" />
+
         {/* Per-provider charging drift — Supercharger vs Home charging, never combined */}
         <AnimatedItem className="xl:col-span-2">
           <ChargingDriftBreakdownCard />
         </AnimatedItem>
+
+        <SectionDivider className="xl:hidden" />
 
         {/* Newbie-friendly tokenomics summary → links to /how-it-works hub */}
         <AnimatedItem className="xl:col-span-1">
@@ -389,24 +402,14 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           </AnimatedItem>
         )}
 
+        <SectionDivider className="xl:hidden" />
+
         {/* Live Energy Flow Diagram */}
         <AnimatedItem className="xl:col-span-2">
           <EnergyFlowGlowCard />
         </AnimatedItem>
 
-        {/* Aesthetic Section Divider */}
-        <AnimatedItem className="py-2 xl:col-span-2">
-          <div className="relative flex items-center justify-center">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-            </div>
-            <div className="relative flex items-center gap-2 px-4 bg-background/80 backdrop-blur-sm rounded-full">
-              <div className="h-1.5 w-1.5 rounded-full bg-primary/50" />
-              <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-              <div className="h-1.5 w-1.5 rounded-full bg-primary/50" />
-            </div>
-          </div>
-        </AnimatedItem>
+        <SectionDivider className="xl:hidden" />
 
         {/* NFT Milestones - Beta */}
         <AnimatedItem id="reward-progress" className="xl:col-span-2">
@@ -423,6 +426,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             />
           </Suspense>
         </AnimatedItem>
+
+        <SectionDivider className="xl:hidden" />
 
         {/* NFT Mint Button - Below NFT Card with Glow Animation */}
         {!isViewer && (
