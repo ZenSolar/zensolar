@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, Hash, Coins, Image as ImageIcon, ShieldCheck } from 'lucide-react';
+import { ArrowUpRight, Hash, Coins, Image as ImageIcon, ShieldCheck, Share2, Check } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VerifiedSourceBadge, type VerifiedSourceProvider } from '@/components/proof/VerifiedSourceBadge';
 import { ProofOfMintModal } from '@/components/proof/ProofOfMintModal';
+import { toast } from '@/hooks/use-toast';
 
 interface RecentMint {
   id: string;
@@ -45,7 +46,9 @@ function inferSource(tx: RecentMint): {
 } | null {
   if (tx.action !== 'mint-rewards') return null;
   const tokens = tx.tokens_minted || 0;
-  const miles = tokens > 0 ? Math.round(tokens * 10) : undefined;
+  // EV mints are 1:1 — 1 token per mile driven (user-share, post-split).
+  // Solar/battery mints display kWh at 10:1 (mint ratio SSoT v2.1).
+  const miles = tokens > 0 ? Math.round(tokens) : undefined;
   const kwh = tokens > 0 ? Math.round(tokens * 10 * 100) / 100 : undefined;
 
   const sb = tx.source_breakdown ?? {};
@@ -77,6 +80,36 @@ export function RecentMintProofs() {
   const [mints, setMints] = useState<RecentMint[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [proofTx, setProofTx] = useState<RecentMint | null>(null);
+  const [sharedId, setSharedId] = useState<string | null>(null);
+
+  async function handleShare(e: React.MouseEvent, tx: RecentMint, source: ReturnType<typeof inferSource>) {
+    e.preventDefault();
+    e.stopPropagation();
+    const path = tx.chain_hash ? `/verify/${tx.chain_hash}` : `/mint-history#tx-${tx.id}`;
+    const url = `https://beta.zen.solar${path}`;
+    const sourceLine = source
+      ? `\nSource: ${source.deviceLabel}${source.kwh ? ` · ${source.kwh} kWh` : source.miles ? ` · ${source.miles} mi` : ''}`
+      : '';
+    const text = `Verified $ZSOLAR Mint Proof\n${tx.tokens_minted.toLocaleString()} $ZSOLAR minted${sourceLine}\nProof: ${url}`;
+
+    try {
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        await navigator.share({ title: 'ZenSolar Mint Proof', text, url });
+        return;
+      }
+    } catch {
+      // user cancelled or share failed → fall through to clipboard
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      setSharedId(tx.id);
+      toast({ title: 'Proof link copied', description: 'Share it anywhere — opens the public verifier.' });
+      setTimeout(() => setSharedId((curr) => (curr === tx.id ? null : curr)), 2000);
+    } catch {
+      toast({ title: 'Could not copy link', description: url, variant: 'destructive' });
+    }
+  }
+
 
   useEffect(() => {
     let cancelled = false;
@@ -178,6 +211,18 @@ export function RecentMintProofs() {
                           </p>
                         )}
                       </div>
+                      <button
+                        type="button"
+                        onClick={(e) => handleShare(e, tx, source)}
+                        aria-label="Share mint proof"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                      >
+                        {sharedId === tx.id ? (
+                          <Check className="h-4 w-4 text-primary" aria-hidden />
+                        ) : (
+                          <Share2 className="h-4 w-4" aria-hidden />
+                        )}
+                      </button>
                       <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
                     </div>
                   </div>
