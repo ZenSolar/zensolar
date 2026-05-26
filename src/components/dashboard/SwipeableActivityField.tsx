@@ -64,10 +64,10 @@ export function SwipeableActivityField({
 
   const handleDragEnd = (_: unknown, info: PanInfo) => {
     setIsDragging(false);
-    if (info.offset.x < -80) {
-      animate(x, -300, { duration: 0.2 }).then(() => onHide());
+    if (info.offset.x < -80 || info.velocity.x < -500) {
+      animate(x, -340, { type: 'spring', stiffness: 260, damping: 32, velocity: info.velocity.x }).then(() => onHide());
     } else {
-      animate(x, 0, { type: 'spring', stiffness: 500, damping: 30 });
+      animate(x, 0, { type: 'spring', stiffness: 320, damping: 34, velocity: info.velocity.x });
     }
   };
 
