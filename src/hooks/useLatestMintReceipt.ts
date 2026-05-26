@@ -121,8 +121,10 @@ export function useLatestMintReceipt(): State {
           tokensMinted > 0;
 
         if (isEvHeuristic) {
-          milesDelta = grossTokens; // 1 token = 1 mile (pre-split)
-          kwhDelta = milesDelta / EV_MI_PER_KWH;
+          // Mint ratio is 1:1 with the user-share tokens — 1 token per mile.
+          // Do NOT back-calc from gross/pre-split; that was an old assumption.
+          milesDelta = tokensMinted;
+          kwhDelta = tokensMinted; // kWh is also 1:1 across all sources.
         }
 
         const primarySource: LiveMintReceipt['primary_source'] =
