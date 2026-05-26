@@ -47,9 +47,8 @@ export type VerifyReceipt = {
   created_at?: string;
 };
 
-// ---- CO₂ math (mirrors the preview page constants) ----
-const GRID_KG_PER_KWH = 0.709;            // U.S. EIA avg grid
-const CO2_KG_PER_EV_MILE = 0.364;         // EV vs 24.4-mpg ICE
+// ---- CO₂ math (per-source; see src/lib/co2Math.ts) ----
+import { computeCo2, CO2_KG_PER_EV_MILE } from '@/lib/co2Math';
 const BTC_TX_CO2_KG = 707;                // Cambridge CCAF / Digiconomist anchor
 
 function fmt(n: number, digits = 1): string {
