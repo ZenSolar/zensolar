@@ -355,49 +355,92 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
 
       {/* ============== CONTRIBUTING SESSIONS (Proof-of-Delta + Proof-of-Origin) ============== */}
       <div ref={sessionsRef} className="px-6 pb-6 space-y-3 scroll-mt-4">
-        <h3 className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold px-1">
-          Contributing Sessions
-        </h3>
+        <div className="flex items-baseline justify-between px-1">
+          <h3 className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold">
+            Contributing Sessions
+          </h3>
+          {sourceRows.length > 1 && (
+            <span className="text-[9px] uppercase tracking-wider text-muted-foreground/60 font-semibold">
+              Tap a source to expand
+            </span>
+          )}
+        </div>
 
         {sourceRows.length > 0 && sourceRows.map((row) => {
           const Icon = row.Icon;
+          const expandable = row.lineSources.length > 0 && !!data.chain_hash;
+          const isOpen = expandedSourceKey === row.key;
+          const toggle = () =>
+            setExpandedSourceKey((cur) => (cur === row.key ? null : row.key));
+
           return (
             <div
               key={row.key}
-              className={`bg-muted/40 rounded-2xl p-4 border border-border/40 flex items-center gap-4`}
+              className={`bg-muted/40 rounded-2xl border overflow-hidden transition-colors ${
+                isOpen ? 'border-primary/40' : 'border-border/40'
+              }`}
             >
-              <div className={`w-10 h-10 rounded-xl bg-background/60 flex items-center justify-center border ${row.ringClass} shrink-0`}>
-                <Icon className={`h-5 w-5 ${row.accentClass}`} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-1 gap-2">
-                  <p className="text-sm font-semibold truncate">{row.label}</p>
-                  <p className={`text-sm font-bold tabular-nums whitespace-nowrap ${row.accentClass}`}>
-                    {row.amount}
-                  </p>
+              <button
+                type="button"
+                onClick={expandable ? toggle : undefined}
+                disabled={!expandable}
+                aria-expanded={isOpen}
+                aria-controls={`pog-source-${row.key}`}
+                className={`w-full p-4 flex items-center gap-4 text-left ${
+                  expandable ? 'active:bg-muted/60 touch-manipulation' : 'cursor-default'
+                }`}
+              >
+                <div className={`w-10 h-10 rounded-xl bg-background/60 flex items-center justify-center border ${row.ringClass} shrink-0`}>
+                  <Icon className={`h-5 w-5 ${row.accentClass}`} />
                 </div>
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <div className="flex items-center gap-1 px-1.5 py-0.5 bg-primary/10 rounded-md">
-                    <MapPin className="w-2.5 h-2.5 text-primary" />
-                    <span className="text-[9px] font-bold text-primary uppercase tracking-wider">Verified Origin</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-1 gap-2">
+                    <p className="text-sm font-semibold truncate">{row.label}</p>
+                    <p className={`text-sm font-bold tabular-nums whitespace-nowrap ${row.accentClass}`}>
+                      {row.amount}
+                    </p>
                   </div>
-                  <div className="flex items-center gap-1 px-1.5 py-0.5 bg-eco/10 rounded-md">
-                    <Award className="w-2.5 h-2.5 text-eco" />
-                    <span className="text-[9px] font-bold text-eco uppercase tracking-wider">Verified Delta</span>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <div className="flex items-center gap-1 px-1.5 py-0.5 bg-primary/10 rounded-md">
+                      <MapPin className="w-2.5 h-2.5 text-primary" />
+                      <span className="text-[9px] font-bold text-primary uppercase tracking-wider">Verified Origin</span>
+                    </div>
+                    <div className="flex items-center gap-1 px-1.5 py-0.5 bg-eco/10 rounded-md">
+                      <Award className="w-2.5 h-2.5 text-eco" />
+                      <span className="text-[9px] font-bold text-eco uppercase tracking-wider">Verified Delta</span>
+                    </div>
+                    {expandable && (
+                      <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider underline underline-offset-2 decoration-dotted">
+                        {isOpen ? 'Hide sessions' : 'View sessions'}
+                      </span>
+                    )}
                   </div>
-                  {data.created_at && (
-                    <span className="text-[10px] text-muted-foreground">
-                      {new Date(data.created_at).toLocaleString(undefined, {
-                        month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
-                      })}
-                    </span>
-                  )}
                 </div>
-              </div>
+                {expandable && (
+                  <ChevronDown
+                    className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                    aria-hidden="true"
+                  />
+                )}
+              </button>
+
+              {expandable && isOpen && (
+                <div
+                  id={`pog-source-${row.key}`}
+                  className="px-4 pb-4 pt-1 border-t border-border/40 bg-background/30"
+                >
+                  <ReceiptSourceLines
+                    chainHash={data.chain_hash!}
+                    sourceFilter={row.lineSources}
+                    embedded
+                  />
+                </div>
+              )}
             </div>
           );
         })}
       </div>
+
 
       {/* ============== vs-BITCOIN CHIP ============== */}
       <div ref={vsBtcRef} className="px-6 pb-6 scroll-mt-4">
