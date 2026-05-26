@@ -158,6 +158,24 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
     );
   }
 
+  // When fauxscreen turns on (iOS Safari), lock body scroll and nudge the
+  // URL bar away by scrolling. iOS still keeps a thin bar visible in a
+  // standard tab — to fully hide it the user must "Add to Home Screen".
+  useEffect(() => {
+    if (!fauxFullscreen) return;
+    const prevOverflow = document.body.style.overflow;
+    const prevPosition = document.body.style.position;
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    window.scrollTo(0, 1);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.body.style.position = prevPosition;
+      document.body.style.width = '';
+    };
+  }, [fauxFullscreen]);
+
   return (
     <div
       ref={containerRef}
@@ -166,7 +184,13 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
           ? 'fixed inset-0 z-[9999] w-screen'
           : 'w-screen'
       }`}
-      style={{ height: '100dvh', touchAction: 'pan-y' }}
+      style={{
+        // In fauxscreen, 100vh extends behind iOS Safari's chrome (URL bar
+        // collapses when the page is non-scrollable). Otherwise use 100dvh
+        // so the deck fits visible area cleanly.
+        height: fauxFullscreen ? '100vh' : '100dvh',
+        touchAction: 'pan-y',
+      }}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
       onClick={(e) => {

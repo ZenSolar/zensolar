@@ -47,12 +47,7 @@ export function SlideHeader({ label, number }: { label: string; number: number }
 
 export function SlideFooter() {
   return (
-    <div className="absolute bottom-8 left-16 right-16 flex items-center justify-between">
-      <img
-        src={zenLogo}
-        alt="ZenSolar"
-        className="h-6 w-auto opacity-50"
-      />
+    <div className="absolute bottom-8 left-16 right-16 flex items-center justify-end">
       <span className="text-[13px] font-mono tracking-[0.2em] uppercase text-white/25">Confidential · Strategic Seed</span>
     </div>
   );
