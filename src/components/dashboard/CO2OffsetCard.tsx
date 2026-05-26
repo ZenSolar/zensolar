@@ -249,7 +249,7 @@ export function CO2OffsetCard({ activityData, co2Pounds, isLoading, className }:
                   </p>
                   <p className="mt-0.5 text-base font-bold leading-none tabular-nums text-foreground">
                     {formatTons(lbs)}
-                    <span className="ml-1 text-[10px] font-medium text-muted-foreground">tons offset</span>
+                    <span className="ml-1 text-[10px] font-medium text-muted-foreground">tons of CO₂ offset</span>
                   </p>
                   <p className="mt-0.5 text-[10px] text-muted-foreground tabular-nums">
                     {pct}% of total
