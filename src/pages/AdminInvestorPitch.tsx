@@ -40,7 +40,7 @@ const slideLabels = [
   'The Catalyst',
   'Traction & Beta',
   'Tokenization Supercycle',
-  'The Opportunity',
+  
   'The Solution',
   'Proprietary Tech & IP',
   'Value Mechanism',
