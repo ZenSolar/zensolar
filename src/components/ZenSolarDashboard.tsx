@@ -341,8 +341,6 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           />
         </AnimatedItem>
 
-        <SectionDivider className="xl:hidden" />
-
         {/* Subscription-Fee Flywheel — live cumulative LP/Treasury contribution
             from the active mock subscription. Renders nothing if no plan. */}
         <AnimatedItem className="xl:col-span-1">
