@@ -30,6 +30,8 @@ import { Badge } from '@/components/ui/badge';
 import { useKpiContributions, type KpiContributionRow } from '@/hooks/useKpiContributions';
 import type { MintCategory, MintRequest } from '@/components/dashboard/ActivityMetrics';
 import { MINT_RATIO_KWH_PER_TOKEN } from '@/lib/tokenomics';
+import { useDemoContextSafe } from '@/contexts/DemoContext';
+import { generateDailyBreakdown, type DailyCategory } from '@/lib/dailyMintBreakdown';
 
 export interface KpiSheetState {
   open: boolean;
@@ -213,8 +215,69 @@ function DayGroupRow({ group, unit, category }: { group: DayGroup; unit: 'kWh' |
 
 export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Props) {
   const { open, category, deviceId, deviceName, label, unit, pending } = state;
+  const demoCtx = useDemoContextSafe();
+  const isDemo = !!demoCtx;
 
-  const { data: rows = [], isLoading } = useKpiContributions(category, deviceId, open, pending);
+  const { data: liveRows = [], isLoading: liveLoading } = useKpiContributions(category, deviceId, open && !isDemo, pending);
+
+  // In demo mode the backend has no real receipts, so synthesize a 14-day
+  // breakdown that sums exactly to the headline `pending`. Stable per
+  // (category, pending, deviceId) so re-opens don't reshuffle.
+  const demoRows = useMemo<KpiContributionRow[]>(() => {
+    if (!isDemo || !category || pending <= 0) return [];
+    const catMap: Record<MintCategory, DailyCategory | null> = {
+      solar: 'solar',
+      battery: 'battery',
+      ev_miles: 'ev_miles',
+      charging: 'charging',
+      supercharger: 'supercharging',
+      home_charger: 'home_charging',
+      all: null,
+    };
+    const dCat = catMap[category];
+    if (!dCat) return [];
+    const providerByCategory: Record<string, string> = {
+      solar: 'solaredge',
+      battery: 'tesla',
+      ev_miles: 'tesla',
+      supercharger: 'tesla',
+      home_charger: 'tesla',
+      charging: 'tesla',
+    };
+    const provider = providerByCategory[category] || 'tesla';
+    // Scale window to keep daily values realistic (avoids 400 mi/day spikes
+    // when pending is large). Cap at ~90 days for legibility.
+    const typicalPerDay: Record<string, number> = {
+      solar: 30,         // kWh/day
+      battery: 10,       // kWh/day
+      ev_miles: 38,      // mi/day
+      supercharger: 25,  // kWh/day avg (sparse, big spikes)
+      home_charger: 14,  // kWh/day
+      charging: 18,      // kWh/day
+    };
+    const tpd = typicalPerDay[category] || 20;
+    const days = Math.min(90, Math.max(7, Math.ceil(pending / tpd)));
+    const seed = `demo|${category}|${deviceId ?? 'all'}|${Math.round(pending)}`;
+    const { points, unit: u } = generateDailyBreakdown(dCat, Math.round(pending), { seed, days, unit });
+    return points
+      .filter((p) => p.value > 0)
+      .map((p, i) => ({
+        id: `demo-${category}-${p.date}-${i}`,
+        recordedAt: `${p.date}T${category === 'supercharger' ? '14' : category === 'home_charger' ? '22' : '12'}:00:00Z`,
+        hasRealTime: category === 'supercharger' || category === 'home_charger',
+        durationMinutes: category === 'supercharger' ? 25 + ((i * 7) % 20) : category === 'home_charger' ? 240 + ((i * 13) % 120) : null,
+        amount: p.value,
+        unit: u,
+        provider,
+        deviceId: deviceId ?? null,
+        deviceName: deviceName ?? null,
+        location: category === 'supercharger' ? 'Tesla Supercharger' : category === 'home_charger' ? 'Home' : null,
+        verified: true,
+      }));
+  }, [isDemo, category, pending, deviceId, deviceName, unit]);
+
+  const rows = isDemo ? demoRows : liveRows;
+  const isLoading = isDemo ? false : liveLoading;
 
   const sumOfRows = rows.reduce((s, r) => s + r.amount, 0);
 
