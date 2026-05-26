@@ -1,5 +1,5 @@
-import { useId, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useId, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Receipt, ArrowRight, X } from 'lucide-react';
 import {
   Drawer,
@@ -14,26 +14,35 @@ import { useBasePath } from '@/hooks/useBasePath';
 
 /**
  * Lightweight discoverability strip → opens a swipe-down bottom sheet
- * showing the user's most recent Proof-of-Mint receipts inline. Avoids the
- * heavyweight Mint History page (which traps users with no back nav inside
- * the PWA) for the common "where's my receipt?" peek.
+ * showing the user's most recent Proof-of-Mint receipts inline.
  *
- * Accessibility / UX:
- * - vaul (the Drawer primitive) handles focus trap, escape-to-close,
- *   focus restore back to the trigger, and body scroll lock automatically.
- * - The trigger advertises its state via `aria-expanded` / `aria-controls`
- *   so AT users know it opens a panel and that the panel is now open.
- * - The drawer has a visible × close button for keyboard and desktop users
- *   (swipe-down is mobile-only; keyboard users need a focusable affordance).
- * - The scroll container uses `overscroll-contain` so a swipe that starts
- *   at the top of the receipts list cleanly transfers into a drawer drag
- *   instead of getting eaten by scroll inertia. The receipts list itself
- *   can scroll inside the sheet without dismissing it.
+ * Drawer-open state is mirrored to the URL hash (`#receipts`) so that
+ * navigating away to a Proof-of-Genesis receipt and pressing Back lands
+ * the user right back on the dashboard with the drawer re-opened —
+ * instead of dumping them at the top of the dashboard.
  */
 export function MintReceiptsHint() {
   const basePath = useBasePath();
-  const [open, setOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
   const panelId = useId();
+  const [open, setOpen] = useState(() => location.hash === '#receipts');
+
+  // Keep React state in sync when the user navigates (back/forward) and
+  // the hash changes underneath us.
+  useEffect(() => {
+    setOpen(location.hash === '#receipts');
+  }, [location.hash]);
+
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    if (next && location.hash !== '#receipts') {
+      navigate({ pathname: location.pathname, search: location.search, hash: '#receipts' });
+    } else if (!next && location.hash === '#receipts') {
+      // Pop the hash entry so Back doesn't re-open the drawer in a loop.
+      navigate(-1);
+    }
+  };
 
   return (
     <>
