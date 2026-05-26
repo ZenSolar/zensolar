@@ -148,7 +148,7 @@ function payoffFor(
   }
 }
 
-export function VerifyPoAContent({ poa, mockReceipt }: { poa: string | undefined; mockReceipt?: VerifyReceipt }) {
+export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: string | undefined; mockReceipt?: VerifyReceipt; mockSourceLines?: SourceLinesResponse }) {
   const [data, setData] = useState<VerifyReceipt | null>(mockReceipt ?? null);
   const [loading, setLoading] = useState(!mockReceipt);
   const [proofOpen, setProofOpen] = useState(false);
