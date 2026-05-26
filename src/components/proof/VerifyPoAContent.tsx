@@ -20,7 +20,7 @@
  * for milestone/energy moments, accent-warm orange reserved for the
  * vs-Bitcoin PoW comparison.
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ShieldCheck, Sparkles, Zap, Sun, Battery, Car, Plug, Bitcoin,
   ChevronDown, MapPin, Fingerprint, Award, Hash,
@@ -29,6 +29,7 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { TamperEvidentProofPanel } from '@/components/proof/TamperEvidentProofPanel';
 import { MintedForBadge } from '@/components/proof/ReceiptSourceLines';
+import { ProofOfAuthenticityStamp } from '@/components/proof/ProofOfAuthenticityStamp';
 
 export type VerifyReceipt = {
   found: boolean;
