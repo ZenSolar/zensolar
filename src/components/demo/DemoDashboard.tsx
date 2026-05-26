@@ -266,15 +266,14 @@ export function DemoDashboard() {
 
         <SectionDivider />
 
+        {/* Compact mint receipts link — merged from former large button */}
         <AnimatedItem>
-          <Link to="/demo/mint-history" className="block w-full">
-            <Button
-              variant="outline"
-              className="w-full h-11 rounded-xl border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary font-medium transition-all"
-            >
-            <Receipt className="mr-2 h-4 w-4" />
-              Your Mint Receipts
-            </Button>
+          <Link
+            to="/demo/mint-history"
+            className="flex items-center justify-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors py-1"
+          >
+            <Receipt className="h-3.5 w-3.5" />
+            <span>View your mint receipts</span>
           </Link>
         </AnimatedItem>
 
@@ -286,51 +285,6 @@ export function DemoDashboard() {
         </AnimatedItem>
 
         <SectionDivider />
-
-        {/* DEMO ONLY: Tap-to-Mint preview card — opens existing Mint Rewards flow */}
-        <AnimatedItem>
-          <TapToMintCard
-            pending={{
-              solarKwh: currentActivity.solarKwh,
-              evMiles: currentActivity.evMiles,
-              batteryKwh: currentActivity.batteryKwh,
-              chargingKwh: currentActivity.chargingKwh,
-            }}
-            tokenPrice={tokenPrice}
-            hasWallet={hasWalletConnected}
-            disabled={isLoading}
-            onTapToMint={() => rewardActionsRef.current?.openTokenMintDialog()}
-          />
-        </AnimatedItem>
-
-        {/* Reward Actions - same component as real dashboard */}
-        <AnimatedItem>
-          <RewardActions 
-            ref={rewardActionsRef}
-            onRefresh={refreshDashboard} 
-            isLoading={isLoading}
-            walletAddress={profile.wallet_address}
-            pendingRewards={{
-              solar: currentActivity.solarKwh,
-              evMiles: currentActivity.evMiles,
-              battery: currentActivity.batteryKwh,
-              charging: currentActivity.chargingKwh,
-              superchargerKwh: currentActivity.superchargerKwh,
-              homeChargerKwh: currentActivity.homeChargerKwh,
-            }}
-            demoMintHandler={demoMintHandler}
-            dailyBreakdown={dailyBreakdownMap}
-          />
-        </AnimatedItem>
-
-        <SectionDivider />
-
-        {/* API Partners Card — between actions and energy flow */}
-        <AnimatedItem>
-          <div className="emerald-glow-card overflow-hidden">
-            <ApiPartnersCard />
-          </div>
-        </AnimatedItem>
 
         {/* Live Energy Flow Diagram */}
         <AnimatedItem>
@@ -364,10 +318,33 @@ export function DemoDashboard() {
           </div>
         </AnimatedItem>
 
+        {/* API Partners — thin strip under milestones */}
+        <AnimatedItem>
+          <ApiPartnersCard />
+        </AnimatedItem>
+
+        {/* Hidden controller for mint dialogs */}
+        <RewardActions
+          ref={rewardActionsRef}
+          onRefresh={refreshDashboard}
+          isLoading={isLoading}
+          walletAddress={profile.wallet_address}
+          pendingRewards={{
+            solar: currentActivity.solarKwh,
+            evMiles: currentActivity.evMiles,
+            battery: currentActivity.batteryKwh,
+            charging: currentActivity.chargingKwh,
+            superchargerKwh: currentActivity.superchargerKwh,
+            homeChargerKwh: currentActivity.homeChargerKwh,
+          }}
+          demoMintHandler={demoMintHandler}
+          dailyBreakdown={dailyBreakdownMap}
+        />
+
         <SectionDivider />
 
-        {/* NFT Mint Button + Refresh - matches real dashboard */}
-        <AnimatedItem className="space-y-3">
+        {/* Big Mint CTA */}
+        <AnimatedItem>
           <div id="demo-mint-button" data-hint-target="mint">
             <MintEffectButton
               onClick={() => rewardActionsRef.current?.openTokenMintDialog()}
@@ -381,27 +358,8 @@ export function DemoDashboard() {
               </Badge>
             </MintEffectButton>
           </div>
-          
-          <Button
-            onClick={refreshDashboard}
-            disabled={isLoading}
-            variant="outline"
-            className="w-full"
-            size="lg"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                REFRESHING...
-              </>
-            ) : (
-              <>
-                <RefreshCw className="mr-2 h-4 w-4" />
-                REFRESH DASHBOARD
-              </>
-            )}
-          </Button>
         </AnimatedItem>
+
 
         {/* Got Questions CTA */}
         <AnimatedItem>
