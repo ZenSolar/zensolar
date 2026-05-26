@@ -71,15 +71,18 @@ function metaFor(source: string) {
 export function MintedForBadge({
   chainHash,
   className,
+  mockResponse,
 }: {
   chainHash?: string | null;
   className?: string;
+  mockResponse?: ApiResponse;
 }) {
-  const [sources, setSources] = useState<string[] | null>(null);
+  const [sources, setSources] = useState<string[] | null>(mockResponse?.attributed_sources ?? null);
   const cleanHash = chainHash?.replace(/^0x/, '').toLowerCase() ?? null;
   const isHexHash = !!cleanHash && /^[a-f0-9]{64}$/i.test(cleanHash);
 
   useEffect(() => {
+    if (mockResponse) { setSources(mockResponse.attributed_sources ?? null); return; }
     let cancelled = false;
     (async () => {
       if (!isHexHash) return;
@@ -89,7 +92,7 @@ export function MintedForBadge({
       setSources(resp.attributed_sources ?? null);
     })();
     return () => { cancelled = true; };
-  }, [cleanHash, isHexHash]);
+  }, [cleanHash, isHexHash, mockResponse]);
 
   if (!sources || sources.length === 0) return null;
 
