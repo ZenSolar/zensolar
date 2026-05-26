@@ -278,74 +278,7 @@ export function ReceiptSourceLines({
 
       {open && (
         <CardContent className="pt-0 pb-3 space-y-2">
-          <p className="text-[11px] text-muted-foreground leading-snug">
-            Every line below is an individual device-signed energy event that rolled into this mint.
-            Fingerprints are SHA-derived from the raw row and enforced unique at the database level,
-            so the same session can never be double-counted.
-          </p>
-
-          {data.window_start && data.window_end && (
-            <div className="text-[10px] text-muted-foreground/80 font-mono">
-              Window: {new Date(data.window_start).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}
-              {' → '}
-              {new Date(data.window_end).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}
-            </div>
-          )}
-
-          <ul className="divide-y divide-border/40 rounded-lg border border-border/40 bg-muted/10">
-            {visible.map((line) => {
-              const meta = metaFor(line.source);
-              return (
-                <li key={line.fingerprint} className="p-2.5 space-y-1.5">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Badge variant="outline" className={cn('text-[10px]', meta.tone)}>
-                      {meta.label}
-                    </Badge>
-                    <span className="text-xs font-semibold text-foreground tabular-nums">
-                      {Number(line.kwh).toFixed(2)} kWh
-                    </span>
-                    <span className="ml-auto text-[10px] text-muted-foreground">
-                      {new Date(line.occurred_at).toLocaleString(undefined, {
-                        dateStyle: 'short',
-                        timeStyle: 'short',
-                      })}
-                    </span>
-                  </div>
-                  {(line.provider || line.device_watermark) && (
-                    <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                      <ShieldCheck className="h-3 w-3 shrink-0 text-eco" />
-                      <span className="font-semibold uppercase tracking-wide text-foreground/80">
-                        {line.provider ?? 'device'}
-                      </span>
-                      {line.device_watermark && (
-                        <span
-                          className="font-mono text-foreground/70"
-                          title={`On-chain device watermark · ${line.device_watermark}`}
-                        >
-                          · wm:{line.device_watermark}
-                        </span>
-                      )}
-                    </div>
-                  )}
-                  <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-mono">
-                    <Fingerprint className="h-3 w-3 shrink-0" />
-                    <span className="truncate" title={line.fingerprint}>{line.fingerprint}</span>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-
-          {lines.length > 8 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full h-8 text-xs"
-              onClick={() => setShowAll((v) => !v)}
-            >
-              {showAll ? 'Show fewer' : `Show all ${lines.length} events`}
-            </Button>
-          )}
+          {linesList}
         </CardContent>
       )}
     </Card>
