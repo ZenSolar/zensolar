@@ -109,11 +109,13 @@ export function SwipeableActivityField({
       {/* Swipeable content */}
       <motion.div
         drag="x"
-        dragConstraints={{ left: -100, right: 0 }}
-        dragElastic={0.1}
+        dragConstraints={{ left: -120, right: 0 }}
+        dragElastic={{ left: 0.18, right: 0 }}
+        dragMomentum={false}
+        dragTransition={{ power: 0.18, timeConstant: 220, bounceStiffness: 320, bounceDamping: 34 }}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
-        style={{ x }}
+        style={{ x, willChange: 'transform' }}
         className={cn(
           'relative bg-card touch-pan-y',
           isDragging && 'cursor-grabbing',
