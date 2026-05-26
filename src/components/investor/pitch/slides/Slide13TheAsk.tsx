@@ -1,6 +1,6 @@
 import { SlideLayout, SlideHeader, SlideFooter } from '../SlideLayout';
 import { motion } from 'framer-motion';
-import { Droplets, Code2, DollarSign, Scale, Megaphone, Shield } from 'lucide-react';
+import { Users, Droplets, ShieldCheck, Scale, Megaphone, PiggyBank } from 'lucide-react';
 
 export function Slide13TheAsk() {
   return (
@@ -25,15 +25,15 @@ export function Slide13TheAsk() {
           </p>
         </motion.div>
 
-        {/* Use of Funds — 6 buckets at $3M */}
+        {/* Use of Funds — 6 buckets at $3M (Team includes 2 founders + 1 protocol eng, 18mo) */}
         <div className="grid grid-cols-6 gap-3 mb-6">
           {[
-            { pct: '20%', dollars: '$600K', label: 'LP Seeding', desc: '2–3 tranches @ $0.10', icon: Droplets, color: 'hsl(207,90%,54%)' },
-            { pct: '37%', dollars: '$1.1M', label: 'Engineering', desc: 'Mainnet, audit, 2 hires', icon: Code2, color: 'hsl(142,76%,50%)' },
-            { pct: '17%', dollars: '$500K', label: 'Deason Revenue', desc: '$4.99/mo, first 1K paid', icon: DollarSign, color: 'hsl(45,93%,47%)' },
-            { pct: '10%', dollars: '$300K', label: 'Legal + IP', desc: 'Token opinion, audits', icon: Scale, color: 'hsl(280,68%,60%)' },
-            { pct: '10%', dollars: '$300K', label: 'Growth + BD', desc: 'OEMs, content, community', icon: Megaphone, color: 'hsl(15,90%,55%)' },
-            { pct: '6%', dollars: '$200K', label: 'Reserve', desc: 'Opportunistic top-up', icon: Shield, color: 'hsl(220,15%,60%)' },
+            { pct: '32%', dollars: '$950K', label: 'Team', desc: 'Founders + protocol eng, 18 mo', icon: Users, color: 'hsl(207,90%,54%)' },
+            { pct: '20%', dollars: '$600K', label: 'LP Seeding', desc: '2–3 tranches @ $0.10', icon: Droplets, color: 'hsl(142,76%,50%)' },
+            { pct: '17%', dollars: '$500K', label: 'Growth + BD', desc: 'OEMs, Deason acquisition', icon: Megaphone, color: 'hsl(45,93%,47%)' },
+            { pct: '10%', dollars: '$300K', label: 'Legal + IP', desc: 'Token opinion, patent', icon: Scale, color: 'hsl(280,68%,60%)' },
+            { pct: '8%', dollars: '$250K', label: 'Audits + Infra', desc: 'Trail-of-Bits, RPC, monitoring', icon: ShieldCheck, color: 'hsl(15,90%,55%)' },
+            { pct: '13%', dollars: '$400K', label: 'Reserve', desc: 'Buffer + opportunistic LP', icon: PiggyBank, color: 'hsl(220,15%,60%)' },
           ].map((item, i) => (
             <motion.div key={item.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 + i * 0.08 }}
