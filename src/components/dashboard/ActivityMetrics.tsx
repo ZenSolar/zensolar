@@ -1693,12 +1693,12 @@ interface TotalTokensCardProps {
 
 function TotalTokensCard({ tokensToReceive, tokensEligible, activityUnits, tokenPrice, onMintRequest }: TotalTokensCardProps) {
   const isTappable = activityUnits > 0 && !!onMintRequest;
-  // v3 — "Obsidian glass tactile": hero token number, compact metadata row, share progress rail.
   const eligible = tokensEligible ?? Math.floor(activityUnits / MINT_RATIO_KWH_PER_TOKEN);
   // Hero number = full cumulative mintable total (100%). The 75% user share is revealed
   // on the confirm-mint screen after double-tap, matching per-source KPI behavior.
   const heroTokens = eligible;
   const usdValue = heroTokens * tokenPrice;
+  const active = activityUnits > 0;
 
   const handleMint = () => {
     if (onMintRequest) {
@@ -1706,95 +1706,81 @@ function TotalTokensCard({ tokensToReceive, tokensEligible, activityUnits, token
     }
   };
 
-  const content = (
-    <>
-      {/* Brand-toned glass overlays (uses primary/success tokens to match Clean Energy Center palette) */}
-      {activityUnits > 0 && (
-        <>
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-success/5" />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent -translate-x-full animate-shimmer-sweep" />
-        </>
+  // Match ActivityField KPI styling: rounded-xl, border-l, icon+label+value layout
+  return (
+    <button
+      onClick={handleMint}
+      disabled={!isTappable}
+      className={cn(
+        "p-3.5 rounded-xl border-l-[3px] flex items-center gap-3.5 relative overflow-hidden w-full text-left",
+        "transition-all duration-200",
+        active
+          ? "border border-primary/20 border-l-primary bg-card/5 cursor-pointer hover:bg-card/10 zen-glow-idle shadow-[0_0_12px_hsl(var(--primary)/0.12)]"
+          : "border border-border/50 border-l-primary/40 bg-card/3 cursor-default"
+      )}
+    >
+      {/* Subtle gradient overlay for active state */}
+      {active && (
+        <div className="absolute inset-0 opacity-[0.04] bg-gradient-to-r from-primary to-primary/50 pointer-events-none" />
       )}
 
-      <div className="relative z-10 flex w-full items-center gap-3 px-4 py-3">
-        {/* Token icon — primary/success bordered glass tile */}
-        <div className={cn(
-          "flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-xl border transition-colors",
-          activityUnits > 0
-            ? "bg-primary/20 border-primary/40 shadow-[inset_0_0_12px_hsl(var(--primary)/0.25)]"
-            : "bg-muted border-border/40"
-        )}>
-          <Coins className={cn(
-            "h-6 w-6 transition-all",
-            activityUnits > 0
-              ? "text-primary drop-shadow-[0_0_8px_hsl(var(--primary)/0.55)]"
-              : "text-muted-foreground"
-          )} />
-        </div>
+      {/* Icon — matches ActivityField icon styling */}
+      <div className="relative p-3 rounded-xl">
+        <Coins className={cn(
+          "h-5 w-5 transition-all",
+          active ? "text-primary" : "text-muted-foreground"
+        )} />
+      </div>
 
-        {/* Hero number + compact metadata row — font matches per-source KPI hero (text-xl font-semibold tracking-tight) */}
-        <div className="flex-1 min-w-0 flex flex-col items-start text-left">
+      {/* Label + Value — identical font stack to ActivityField */}
+      <div className="flex-1 min-w-0 relative">
+        <p className="text-[13px] font-medium leading-tight text-foreground">
+          Total Available Tokens
+        </p>
+        <div className="flex items-center gap-2">
           <p className="text-xl font-semibold tracking-tight">
-            <span className="text-foreground tabular-nums">
+            <span className={cn(
+              "transition-all duration-300 tabular-nums",
+              active ? "text-foreground" : "text-muted-foreground"
+            )}>
               {heroTokens.toLocaleString()}
             </span>
             <span className="text-base font-semibold ml-1 text-muted-foreground">
               $ZSOLAR
             </span>
           </p>
-
-          <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
-            <span className="text-[10px] font-medium text-muted-foreground">
-              ≈ ${usdValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
-            <div className="w-px h-2 bg-border/50" />
-            <span className="text-[10px] text-muted-foreground/70 tabular-nums">
-              {activityUnits.toLocaleString()} kWh eligible
-            </span>
-          </div>
         </div>
-
-        {/* CTA pill — divider + Mint All + circular arrow */}
-        {isTappable && (
-          <div className="flex flex-col items-center justify-center pl-3 ml-1 border-l border-border/40">
-            <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary mb-1 whitespace-nowrap">
-              Mint All
-            </span>
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center transition-colors">
-              <ChevronRight className="h-4 w-4 text-primary" strokeWidth={2.5} />
-            </div>
-          </div>
-        )}
+        <p className="text-[10px] text-muted-foreground/70 tabular-nums">
+          ≈ ${usdValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </p>
       </div>
 
-      {/* Bottom accent rail */}
-      {activityUnits > 0 && (
-        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-border/40">
-          <div className="h-full w-full bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.6)]" />
+      {/* Mint pill — matches per-source KPI "Mint this" pill styling */}
+      {isTappable && (
+        <div
+          className="shrink-0 relative"
+        >
+          <div
+            className={cn(
+              "relative flex items-center gap-1 rounded-full px-3 py-1.5 border font-extrabold uppercase tracking-wider text-[11px] overflow-hidden",
+              "transition-all duration-300"
+            )}
+            style={{
+              background: 'linear-gradient(90deg, hsl(var(--primary) / 0.18), hsl(var(--primary) / 0.10))',
+              borderColor: 'hsl(var(--primary) / 0.45)',
+              color: 'hsl(var(--primary) / 1)',
+              boxShadow: '0 0 10px hsl(var(--primary) / 0.18), inset 0 0 6px hsl(var(--primary) / 0.08)',
+              animation: 'zenMintPillBreathe 2.2s ease-in-out infinite',
+              minWidth: 92,
+              justifyContent: 'center',
+            }}
+            aria-label="Double-tap to mint all sources"
+          >
+            <Coins className="h-3 w-3 inline -mt-0.5" />
+            <span>Mint All</span>
+          </div>
         </div>
       )}
-    </>
-  );
-
-  if (isTappable) {
-    return (
-      <MintEffectButton
-        onClick={handleMint}
-        className={cn(
-          "relative overflow-hidden rounded-2xl border flex items-center w-full min-h-[96px] transition-all",
-          "border-primary/30 bg-card/50 backdrop-blur-sm",
-          "shadow-[0_8px_32px_-12px_hsl(var(--primary)/0.4)] active:brightness-110",
-          "animate-mint-ready-glow"
-        )}
-      >
-        {content}
-      </MintEffectButton>
-    );
-  }
-
-  return (
-    <div className="relative overflow-hidden rounded-2xl border flex items-center w-full min-h-[96px] border-border/30 bg-muted/20">
-      {content}
-    </div>
+    </button>
   );
 }
