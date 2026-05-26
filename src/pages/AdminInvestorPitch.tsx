@@ -6,7 +6,7 @@ import { PitchDeckShell } from "@/components/investor/pitch/PitchDeckShell";
 import { Slide01Title } from "@/components/investor/pitch/slides/Slide01Title";
 import { Slide02Catalyst } from "@/components/investor/pitch/slides/Slide02Catalyst";
 import { Slide03Supercycle } from "@/components/investor/pitch/slides/Slide03Supercycle";
-import { Slide04Opportunity } from "@/components/investor/pitch/slides/Slide04Opportunity";
+
 import { Slide05Solution } from "@/components/investor/pitch/slides/Slide05Solution";
 import { Slide06Technology } from "@/components/investor/pitch/slides/Slide06Technology";
 import { Slide07ValueMechanism } from "@/components/investor/pitch/slides/Slide07ValueMechanism";
