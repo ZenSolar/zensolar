@@ -293,11 +293,17 @@ Deno.serve(async (req) => {
       });
     if (upErr) return json({ error: "upload_failed", detail: upErr.message }, 500);
 
-    const { data: pub } = admin.storage.from("cheetah-exports").getPublicUrl(path);
+    // Bucket is private — hand back a 7-day signed URL instead of a public link.
+    const { data: signed, error: signErr } = await admin.storage
+      .from("cheetah-exports")
+      .createSignedUrl(path, 60 * 60 * 24 * 7);
+    if (signErr || !signed?.signedUrl) {
+      return json({ error: "sign_failed", detail: signErr?.message ?? "no_url" }, 500);
+    }
 
     return json({
       ok: true,
-      shareUrl: pub.publicUrl,
+      shareUrl: signed.signedUrl,
       path,
       verified: true,
       serverSummary,
