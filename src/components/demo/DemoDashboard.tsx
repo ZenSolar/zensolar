@@ -323,6 +323,8 @@ export function DemoDashboard() {
           />
         </AnimatedItem>
 
+        <SectionDivider />
+
         {/* API Partners Card — between actions and energy flow */}
         <AnimatedItem>
           <div className="emerald-glow-card overflow-hidden">
