@@ -67,7 +67,7 @@ import {
   calculateEarnedMilestones,
   calculateComboAchievements,
 } from '@/lib/nftMilestones';
-import { Link } from 'react-router-dom';
+
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { PerfProbe } from '@/components/dev/PerfProbe';
 import { installNetworkPerfLogger } from '@/lib/perfProfiler';
