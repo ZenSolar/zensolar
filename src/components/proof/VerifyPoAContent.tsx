@@ -151,6 +151,7 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
   const [proofOpen, setProofOpen] = useState(false);
   const [sessionsOpen, setSessionsOpen] = useState(true);
   const sessionsRef = useRef<HTMLDivElement | null>(null);
+  const deltaProofRef = useRef<HTMLDivElement | null>(null);
   const vsBtcRef = useRef<HTMLDivElement | null>(null);
   const verifyRef = useRef<HTMLDivElement | null>(null);
 
@@ -199,6 +200,11 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
   function openSourceEvidence() {
     setSessionsOpen(true);
     scrollToRef(sessionsRef, false, 'center');
+  }
+
+  function openDeltaEvidence() {
+    setSessionsOpen(true);
+    scrollToRef(deltaProofRef, true, 'start');
   }
 
 
@@ -327,7 +333,7 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
           />
           <TmBadge
             Icon={Sparkles} label="Delta" tint="eco" active
-            onClick={openSourceEvidence}
+            onClick={openDeltaEvidence}
             title="Open individual sessions for Proof-of-Delta"
           />
           <TmBadge
@@ -387,15 +393,6 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
             </div>
           );
         })}
-
-        {/* Per-session line items (device-signed events with fingerprints) */}
-        {data.chain_hash && (
-          <ReceiptSourceLines
-            chainHash={data.chain_hash}
-            open={sessionsOpen}
-            onOpenChange={setSessionsOpen}
-          />
-        )}
       </div>
 
       {/* ============== vs-BITCOIN CHIP ============== */}
@@ -469,6 +466,17 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
               variant="standalone"
               showSourceLines={false}
             />
+
+            {/* Per-session line items (device-signed events with fingerprints) */}
+            {data.chain_hash && (
+              <div ref={deltaProofRef} className="scroll-mt-4">
+                <ReceiptSourceLines
+                  chainHash={data.chain_hash}
+                  open={sessionsOpen}
+                  onOpenChange={setSessionsOpen}
+                />
+              </div>
+            )}
 
             <p className="text-[10px] text-muted-foreground italic text-center pt-1">
               Patent-pending. App. 19/634,402. SEGI™, Mint-on-Proof™, Proof-of-Delta™,
