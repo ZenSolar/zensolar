@@ -52,32 +52,41 @@ const MARKETING_TABS: NavItem[] = [
   { to: "/demo", label: "Demo", icon: ImageIcon },
 ];
 
-const MORE_LINKS_APP = [
-  { to: "/profile", label: "Profile" },
-  { to: "/settings", label: "Settings" },
-  { to: "/devices", label: "Devices" },
-  { to: "/subscribe", label: "Subscription" },
-  { to: "/tokenomics", label: "Tokenomics" },
-  { to: "/glossary", label: "Glossary" },
-  { to: "/help", label: "Help" },
-  { to: "/feedback", label: "Feedback" },
+type MoreLink = {
+  to: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  description?: string;
+  group?: "primary" | "secondary";
+};
+
+const MORE_LINKS_APP: MoreLink[] = [
+  { to: "/profile", label: "Profile", icon: User, description: "Account & wallet", group: "primary" },
+  { to: "/settings", label: "Settings", icon: SettingsIcon, description: "Preferences & alerts", group: "primary" },
+  { to: "/devices", label: "Devices", icon: Cpu, description: "Connected energy hardware", group: "primary" },
+  { to: "/subscribe", label: "Subscription", icon: CreditCard, description: "Plan & billing", group: "primary" },
+  { to: "/tokenomics", label: "Tokenomics", icon: BarChart3, description: "Supply, burn & LP", group: "secondary" },
+  { to: "/glossary", label: "Glossary", icon: BookOpen, description: "Definitions", group: "secondary" },
+  { to: "/help", label: "Help", icon: LifeBuoy, description: "Guides & support", group: "secondary" },
+  { to: "/feedback", label: "Feedback", icon: MessageSquare, description: "Send a note", group: "secondary" },
 ];
 
-const MORE_LINKS_DEMO = [
-  { to: "/demo", label: "Demo Home" },
-  { to: "/", label: "Exit Demo" },
-  { to: "/subscribe", label: "Subscription Plans" },
-  { to: "/tokenomics", label: "Tokenomics" },
-  { to: "/glossary", label: "Glossary" },
+const MORE_LINKS_DEMO: MoreLink[] = [
+  { to: "/demo", label: "Demo Home", icon: Sparkles, description: "Back to the demo dashboard", group: "primary" },
+  { to: "/", label: "Exit Demo", icon: ArrowLeftRight, description: "Return to marketing site", group: "primary" },
+  { to: "/subscribe", label: "Subscription Plans", icon: CreditCard, description: "Plan & billing", group: "secondary" },
+  { to: "/tokenomics", label: "Tokenomics", icon: BarChart3, description: "Supply, burn & LP", group: "secondary" },
+  { to: "/glossary", label: "Glossary", icon: BookOpen, description: "Definitions", group: "secondary" },
 ];
 
-const MORE_LINKS_MARKETING = [
-  { to: "/auth", label: "Sign in" },
-  { to: "/install", label: "Install app" },
-  { to: "/glossary", label: "Glossary" },
-  { to: "/help", label: "Help" },
-  { to: "/feedback", label: "Feedback" },
+const MORE_LINKS_MARKETING: MoreLink[] = [
+  { to: "/auth", label: "Sign in", icon: LogIn, description: "Access your account", group: "primary" },
+  { to: "/install", label: "Install app", icon: Download, description: "Add to home screen", group: "primary" },
+  { to: "/glossary", label: "Glossary", icon: BookOpen, description: "Definitions", group: "secondary" },
+  { to: "/help", label: "Help", icon: LifeBuoy, description: "Guides & support", group: "secondary" },
+  { to: "/feedback", label: "Feedback", icon: MessageSquare, description: "Send a note", group: "secondary" },
 ];
+
 
 export function MobileBottomNav({ variant = "app", className }: MobileBottomNavProps) {
   const { pathname } = useLocation();
