@@ -1098,10 +1098,20 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                   {getCategoryLabelWithUnit(pendingMintRequest?.category || 'all')}
                 </p>
                 
-                {pendingMintRequest && (
+                {pendingMintRequest && (() => {
+                  const isAll = pendingMintRequest.category === 'all';
+                  const sourceRows: Array<{ key: MintCategory; label: string; icon: typeof Sun; tint: string; units: number; unit: string; tokens: number }> = isAll ? ([
+                    { key: 'solar' as MintCategory, label: 'Solar', icon: Sun, tint: 'text-solar', units: pendingRewards.solar, unit: 'kWh', tokens: getCategoryTokens('solar') },
+                    { key: 'battery' as MintCategory, label: 'Battery', icon: BatteryFull, tint: 'text-secondary', units: pendingRewards.battery, unit: 'kWh', tokens: getCategoryTokens('battery') },
+                    { key: 'supercharging' as MintCategory, label: 'Supercharging', icon: Zap, tint: 'text-destructive', units: pendingRewards.superchargerKwh ?? 0, unit: 'kWh', tokens: getCategoryTokens('supercharging') },
+                    { key: 'home_charging' as MintCategory, label: 'Home Charging', icon: Zap, tint: 'text-accent', units: pendingRewards.homeChargerKwh ?? 0, unit: 'kWh', tokens: getCategoryTokens('home_charging') },
+                    { key: 'ev_miles' as MintCategory, label: 'EV Miles', icon: Car, tint: 'text-energy', units: pendingRewards.evMiles, unit: 'mi', tokens: getCategoryTokens('ev_miles') },
+                  ].filter(r => r.units > 0)) : [];
+
+                  return (
                   <div className="relative p-4 rounded-xl border-2 border-primary/25 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent pointer-events-none" />
-                    <div className="relative flex flex-col gap-1.5">
+                    <div className="relative flex flex-col gap-2">
                       
                       {pendingMintRequest.deviceName && (
                         <p className="text-xs text-muted-foreground">
@@ -1109,20 +1119,58 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                         </p>
                       )}
 
-                      {/* Activity amount for this specific category */}
-                      
-                      <div className="flex items-center justify-between pt-1.5 border-t border-primary/20">
+                      {/* Per-source breakdown (Mint All only) */}
+                      {isAll && sourceRows.length > 0 && (
+                        <ul className="flex flex-col gap-1 -mt-0.5">
+                          {sourceRows.map(r => {
+                            const Icon = r.icon;
+                            return (
+                              <li key={r.key} className="flex items-center justify-between gap-2 text-[11px]">
+                                <span className="flex items-center gap-1.5 min-w-0 text-muted-foreground">
+                                  <Icon className={`h-3 w-3 flex-shrink-0 ${r.tint}`} />
+                                  <span className="truncate">{r.label}</span>
+                                  <span className="tabular-nums text-foreground/70">· {r.units.toLocaleString()} {r.unit}</span>
+                                </span>
+                                <span className="tabular-nums font-medium text-foreground/90 flex-shrink-0">
+                                  {r.tokens.toLocaleString()} $ZSOLAR
+                                </span>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      )}
+
+                      <div className="flex items-center justify-between pt-2 border-t border-primary/20">
                         <span className="text-xs text-muted-foreground">Tokens to<br/>receive:</span>
                         <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent tabular-nums">
                           $ZSOLAR — {getCategoryTokens(pendingMintRequest.category).toLocaleString()}
                         </span>
                       </div>
-                      <p className="text-[11px] text-muted-foreground">
-                        You receive 75% of {getCategoryActivityUnits(pendingMintRequest.category).toLocaleString()} {getCategoryUnit(pendingMintRequest.category)} (20% burn)
+
+                      {/* Allocation split pills */}
+                      <div className="flex items-center justify-between gap-1 pt-0.5">
+                        {[
+                          { label: 'You', pct: '75%', tone: 'bg-primary/15 text-primary border-primary/30' },
+                          { label: 'Burn', pct: '20%', tone: 'bg-destructive/15 text-destructive border-destructive/30' },
+                          { label: 'LP', pct: '3%', tone: 'bg-secondary/15 text-secondary border-secondary/30' },
+                          { label: 'Treasury', pct: '2%', tone: 'bg-muted/40 text-muted-foreground border-border/60' },
+                        ].map(p => (
+                          <span
+                            key={p.label}
+                            className={`flex-1 text-center text-[10px] px-1.5 py-1 rounded-md border ${p.tone} tabular-nums`}
+                          >
+                            <span className="font-semibold">{p.pct}</span> <span className="opacity-80">{p.label}</span>
+                          </span>
+                        ))}
+                      </div>
+
+                      <p className="text-[10px] text-muted-foreground/80 text-center">
+                        From {getCategoryActivityUnits(pendingMintRequest.category).toLocaleString()} {getCategoryUnit(pendingMintRequest.category)} of verified clean-energy activity
                       </p>
                     </div>
                   </div>
-                )}
+                  );
+                })()}
                 
                 <div className="bg-gradient-to-br from-muted/50 to-muted/30 rounded-lg p-3 border border-border/60">
                   <div className="flex items-start gap-2.5">
