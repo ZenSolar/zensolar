@@ -161,7 +161,11 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
   return (
     <div
       ref={containerRef}
-      className="w-screen bg-[hsl(220,20%,6%)] relative overflow-hidden select-none"
+      className={`bg-[hsl(220,20%,6%)] relative overflow-hidden select-none ${
+        fauxFullscreen
+          ? 'fixed inset-0 z-[9999] w-screen'
+          : 'w-screen'
+      }`}
       style={{ height: '100dvh', touchAction: 'pan-y' }}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
