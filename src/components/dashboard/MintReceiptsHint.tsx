@@ -48,7 +48,7 @@ export function MintReceiptsHint() {
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={() => handleOpenChange(true)}
         className="group flex w-full items-center justify-between gap-3 px-4 py-3 rounded-xl border border-border/50 bg-card/40 hover:bg-card/70 hover:border-primary/40 transition-all text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         aria-label="View your recent mint receipts"
         aria-haspopup="dialog"
@@ -72,7 +72,7 @@ export function MintReceiptsHint() {
         </div>
       </button>
 
-      <Drawer open={open} onOpenChange={setOpen} dismissible>
+      <Drawer open={open} onOpenChange={handleOpenChange} dismissible>
         <DrawerContent
           id={panelId}
           aria-labelledby={`${panelId}-title`}
@@ -106,7 +106,7 @@ export function MintReceiptsHint() {
 
             <Link
               to={`${basePath}/mint-history`}
-              onClick={() => setOpen(false)}
+              onClick={() => handleOpenChange(false)}
               className="mt-4 flex items-center justify-center gap-1.5 w-full px-4 py-2.5 rounded-lg border border-border/60 bg-card/40 hover:bg-card/70 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
             >
               View full mint history
