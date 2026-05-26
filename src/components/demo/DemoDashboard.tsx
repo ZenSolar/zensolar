@@ -285,6 +285,8 @@ export function DemoDashboard() {
           <CO2OffsetCard activityData={activityData} isLoading={isLoading} />
         </AnimatedItem>
 
+        <SectionDivider />
+
         {/* DEMO ONLY: Tap-to-Mint preview card — opens existing Mint Rewards flow */}
         <AnimatedItem>
           <TapToMintCard
