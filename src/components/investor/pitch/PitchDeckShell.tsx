@@ -73,8 +73,7 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
   }, [isFullscreen]);
 
   // Scale + portrait-mobile rotation. On a narrow portrait screen we rotate
-  // the slide 90° so it uses screen-height as the slide width — gives ~3-4x
-  // more readable area than letterboxing a 16:9 slide into a 9:19 viewport.
+  // the slide 90° so it uses screen-height as the slide width.
   const [scale, setScale] = useState(0.2);
   const [rotated, setRotated] = useState(false);
   useEffect(() => {
@@ -86,7 +85,8 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
       setRotated(portraitMobile);
       const fitW = portraitMobile ? height : width;
       const fitH = portraitMobile ? width : height;
-      setScale(Math.min(fitW / 1920, fitH / 1080));
+      // 0.98 safety margin so slide never bleeds to viewport edge
+      setScale(Math.min(fitW / 1920, fitH / 1080) * 0.98);
     };
     observe();
     const ro = new ResizeObserver(observe);
@@ -99,9 +99,6 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
       window.removeEventListener('resize', observe);
     };
   }, []);
-
-  const scaledW = 1920 * scale;
-  const scaledH = 1080 * scale;
 
   // Touch swipe nav
   const touchStart = useRef<{ x: number; y: number } | null>(null);
@@ -168,49 +165,30 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
         else if (e.clientX > rect.left + (rect.width * 2) / 3) next();
       }}
     >
-      {/* Scaled slide. When rotated, the visible bounding box is scaledH×scaledW. */}
-      <div data-slide-container className="absolute inset-0 flex items-center justify-center overflow-hidden">
-        <div
-          style={{
-            width: rotated ? scaledH : scaledW,
-            height: rotated ? scaledW : scaledH,
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-        >
-          <div
+      {/* Scaled slide — single transform from center, flex-centered in viewport. */}
+      <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={current}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
             style={{
-              width: scaledW,
-              height: scaledH,
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
+              width: 1920,
+              height: 1080,
+              flexShrink: 0,
               transform: rotated
-                ? `translate(-50%, -50%) rotate(90deg)`
-                : `translate(-50%, -50%)`,
+                ? `scale(${scale}) rotate(90deg)`
+                : `scale(${scale})`,
               transformOrigin: 'center center',
             }}
           >
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={current}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
-                style={{
-                  width: 1920,
-                  height: 1080,
-                  transform: `scale(${scale})`,
-                  transformOrigin: 'top left',
-                }}
-              >
-                {slides[current]}
-              </motion.div>
-            </AnimatePresence>
-          </div>
-        </div>
+            {slides[current]}
+          </motion.div>
+        </AnimatePresence>
       </div>
+
 
 
       {/* Controls overlay */}
