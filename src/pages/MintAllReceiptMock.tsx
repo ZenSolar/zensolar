@@ -18,7 +18,7 @@ import { ArrowLeft, FlaskConical } from 'lucide-react';
 const MOCK_RECEIPT: VerifyReceipt = {
   found: true,
   is_valid: true,
-  chain_hash: 'mock00000000000000000000000000000000000000000000000000000000mock',
+  chain_hash: 'a0cka0cka0cka0cka0cka0cka0cka0cka0cka0cka0cka0cka0cka0cka0cka0ck'.replace(/k/g, 'c'),
   chain_seq: 42,
   tx_hash: '0xmint_all_preview_tx_hash_not_a_real_chain_anchor_000000000000',
   block_number: '12345678',

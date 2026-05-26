@@ -214,7 +214,7 @@ export function VerifyPoAContent({ poa, mockReceipt }: { poa: string | undefined
 
 
   // ---- invalid / loading / not-found shells -------------------------------
-  if (!isHexHash) {
+  if (!isHexHash && !mockReceipt) {
     return (
       <div className="rounded-2xl border border-destructive/30 bg-destructive/[0.04] p-6 text-sm text-muted-foreground">
         That verification link is invalid. Receipt hashes are 64-character SHA-256 hex.
