@@ -20,7 +20,7 @@
  * for milestone/energy moments, accent-warm orange reserved for the
  * vs-Bitcoin PoW comparison.
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ShieldCheck, Sparkles, Zap, Sun, Battery, Car, Plug, Bitcoin,
   ChevronDown, MapPin, Fingerprint, Award, Hash,
@@ -29,6 +29,7 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { TamperEvidentProofPanel } from '@/components/proof/TamperEvidentProofPanel';
 import { MintedForBadge } from '@/components/proof/ReceiptSourceLines';
+import { ProofOfAuthenticityStamp } from '@/components/proof/ProofOfAuthenticityStamp';
 
 export type VerifyReceipt = {
   found: boolean;
@@ -110,10 +111,47 @@ function buildSourceRows(r: VerifyReceipt): SourceRow[] {
   return [];
 }
 
+/**
+ * Per-source Impact-Payoff copy. The CO₂ number is the same grid-displacement
+ * math, but the SUBLINE must reflect where the energy actually came from —
+ * Tesla Supercharger kWh did NOT "stay off the grid"; they came FROM the
+ * Supercharger network (100% renewable-matched per Tesla's REC purchases).
+ */
+type PayoffCopy = { headline: string; subline: string | null };
+
+function payoffFor(
+  rows: SourceRow[],
+  stats: { tokens: number; kwh: number; miles: number; co2Kg: number },
+): PayoffCopy {
+  const dom = rows[0]?.key ?? (stats.miles > 0 ? 'ev_miles' : stats.kwh > 0 ? 'supercharging_kwh' : '');
+  const co2 = `${fmt(stats.co2Kg, 2)} kg CO₂ Avoided`;
+  switch (dom) {
+    case 'solar_kwh':
+      return { headline: co2, subline: `≈ ${fmt(stats.kwh, 2)} kWh of clean solar generated` };
+    case 'battery_kwh':
+      return { headline: co2, subline: `≈ ${fmt(stats.kwh, 2)} kWh dispatched from your battery` };
+    case 'home_charging_kwh':
+      return { headline: co2, subline: `≈ ${fmt(stats.kwh, 2)} kWh charged at home from your system` };
+    case 'supercharging_kwh':
+    case 'ev_kwh':
+      return {
+        headline: co2,
+        subline: `≈ ${fmt(stats.kwh, 2)} kWh delivered via Supercharger · 100% renewable-matched`,
+      };
+    case 'ev_miles':
+      return { headline: co2, subline: `≈ ${fmt(stats.miles, 0)} mi driven on sunshine` };
+    default:
+      return { headline: co2, subline: null };
+  }
+}
+
 export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
   const [data, setData] = useState<VerifyReceipt | null>(null);
   const [loading, setLoading] = useState(true);
   const [proofOpen, setProofOpen] = useState(false);
+  const sessionsRef = useRef<HTMLDivElement | null>(null);
+  const vsBtcRef = useRef<HTMLDivElement | null>(null);
+  const verifyRef = useRef<HTMLDivElement | null>(null);
 
   const isHexHash = !!poa && /^[a-f0-9]{64}$/i.test(poa);
 
@@ -136,14 +174,8 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
   const stats = useMemo(() => {
     const tokens = Number(data?.tokens_minted ?? 0);
     const milesRaw = Number(data?.miles_delta ?? 0);
-    // Legacy mint-rewards rows often have null kwh_delta but mint at the
-    // canonical 1 token ≈ 1 kWh Tesla-Supercharging ratio — derive from
-    // tokens when the explicit delta is missing so the receipt never
-    // shows "0 kWh / 0 kg CO₂" for a real mint.
     const kwhExplicit = Number(data?.kwh_delta ?? 0);
     const kwh = kwhExplicit > 0 ? kwhExplicit : (milesRaw === 0 && tokens > 0 ? tokens : 0);
-    // CO₂ avoided headline — EV miles get ICE-comparison framing; everything
-    // else uses grid-displacement math.
     const co2Kg = milesRaw > 0
       ? milesRaw * CO2_KG_PER_EV_MILE
       : kwh * GRID_KG_PER_KWH;
@@ -151,6 +183,18 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
   }, [data]);
 
   const sourceRows = useMemo(() => (data ? buildSourceRows(data) : []), [data]);
+  const payoff = useMemo(() => payoffFor(sourceRows, stats), [sourceRows, stats]);
+
+  function scrollToRef(ref: React.RefObject<HTMLDivElement>, openProof = false) {
+    if (openProof) setProofOpen(true);
+    // wait one frame so the collapsed panel is in the DOM before scrolling
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  }
+
 
   // ---- invalid / loading / not-found shells -------------------------------
   if (!isHexHash) {
@@ -221,15 +265,9 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
           <div className="mt-1 text-2xl font-semibold text-foreground">
             {fmt(stats.co2Kg, 2)} kg CO₂ <span className="text-muted-foreground font-normal">Avoided</span>
           </div>
-          {stats.miles > 0 ? (
-            <p className="mt-1 text-xs text-muted-foreground italic">
-              ≈ {fmt(stats.miles, 0)} mi driven on sunshine
-            </p>
-          ) : stats.kwh > 0 ? (
-            <p className="mt-1 text-xs text-muted-foreground italic">
-              ≈ {fmt(stats.kwh, 2)} kWh kept off the grid
-            </p>
-          ) : null}
+          {payoff.subline && (
+            <p className="mt-1 text-xs text-muted-foreground italic">{payoff.subline}</p>
+          )}
         </div>
 
         {data.chain_hash && (
@@ -237,21 +275,50 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
             <MintedForBadge chainHash={data.chain_hash} className="justify-center" />
           </div>
         )}
+
+        {/* ============== PoA SEAL (notarization mark) ============== */}
+        {data.chain_hash && data.created_at && (
+          <div className="relative mt-6 flex justify-center">
+            <ProofOfAuthenticityStamp
+              poaHashShort={data.chain_hash.slice(0, 7)}
+              poaHashFull={data.chain_hash}
+              issuedAt={data.created_at}
+              variant="stamp"
+            />
+          </div>
+        )}
       </div>
 
-      {/* ============== TM PROOF BADGE STRIP ============== */}
+      {/* ============== TM PROOF BADGE STRIP — tap to jump to evidence ============== */}
       <div className="px-6 pb-6">
         <div className="flex justify-between gap-2 bg-muted/40 p-3 rounded-2xl border border-border/40">
-          <TmBadge Icon={MapPin}      label="Origin"      tint="primary"     active={!!sourceRows.length} />
-          <TmBadge Icon={Sparkles}    label="Delta"       tint="eco"         active />
-          <TmBadge Icon={Fingerprint} label="Authentic"   tint="accent-cool" active />
-          <TmBadge Icon={Bitcoin}     label="vs-BTC"      tint="accent-warm" active />
+          <TmBadge
+            Icon={MapPin} label="Origin" tint="primary"
+            active={!!sourceRows.length}
+            onClick={() => scrollToRef(sessionsRef)}
+            title="Jump to contributing sessions"
+          />
+          <TmBadge
+            Icon={Sparkles} label="Delta" tint="eco" active
+            onClick={() => scrollToRef(sessionsRef)}
+            title="Jump to verified energy deltas"
+          />
+          <TmBadge
+            Icon={Fingerprint} label="Authentic" tint="accent-cool" active
+            onClick={() => scrollToRef(verifyRef, true)}
+            title="Open cryptographic verification details"
+          />
+          <TmBadge
+            Icon={Bitcoin} label="vs-BTC" tint="accent-warm" active
+            onClick={() => scrollToRef(vsBtcRef)}
+            title="Jump to vs-Bitcoin comparison"
+          />
         </div>
       </div>
 
-      {/* ============== CONTRIBUTING SESSIONS (Proof-of-Delta) ============== */}
+      {/* ============== CONTRIBUTING SESSIONS (Proof-of-Delta + Proof-of-Origin) ============== */}
       {sourceRows.length > 0 && (
-        <div className="px-6 pb-6 space-y-3">
+        <div ref={sessionsRef} className="px-6 pb-6 space-y-3 scroll-mt-4">
           <h3 className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold px-1">
             Contributing Sessions
           </h3>
@@ -272,7 +339,11 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
                       {row.amount}
                     </p>
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <div className="flex items-center gap-1 px-1.5 py-0.5 bg-primary/10 rounded-md">
+                      <MapPin className="w-2.5 h-2.5 text-primary" />
+                      <span className="text-[9px] font-bold text-primary uppercase tracking-wider">Verified Origin</span>
+                    </div>
                     <div className="flex items-center gap-1 px-1.5 py-0.5 bg-eco/10 rounded-md">
                       <Award className="w-2.5 h-2.5 text-eco" />
                       <span className="text-[9px] font-bold text-eco uppercase tracking-wider">Verified Delta</span>
@@ -293,7 +364,7 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
       )}
 
       {/* ============== vs-BITCOIN CHIP ============== */}
-      <div className="px-6 pb-6">
+      <div ref={vsBtcRef} className="px-6 pb-6 scroll-mt-4">
         <div className="rounded-2xl border border-accent-warm/25 bg-accent-warm/[0.06] p-4">
           <div className="flex items-center gap-2 mb-1">
             <Bitcoin className="h-3.5 w-3.5 text-accent-warm" />
@@ -311,7 +382,7 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
       </div>
 
       {/* ============== VERIFICATION DETAILS (collapsed) ============== */}
-      <div className="border-t border-border/40">
+      <div ref={verifyRef} className="border-t border-border/40 scroll-mt-4">
         <button
           type="button"
           onClick={() => setProofOpen((v) => !v)}
@@ -383,29 +454,39 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
  * Uses semantic tokens so dark/light/branded themes stay consistent.
  */
 function TmBadge({
-  Icon, label, tint, active,
+  Icon, label, tint, active, onClick, title,
 }: {
   Icon: typeof Sparkles;
   label: string;
   tint: 'primary' | 'eco' | 'accent-cool' | 'accent-warm';
   active: boolean;
+  onClick?: () => void;
+  title?: string;
 }) {
-  const tintMap: Record<typeof tint, { bg: string; text: string; ring: string }> = {
-    primary:       { bg: 'bg-primary/15',      text: 'text-primary',      ring: 'border-primary/30' },
-    eco:           { bg: 'bg-eco/15',          text: 'text-eco',          ring: 'border-eco/30' },
-    'accent-cool': { bg: 'bg-accent-cool/15',  text: 'text-accent-cool',  ring: 'border-accent-cool/30' },
-    'accent-warm': { bg: 'bg-accent-warm/15',  text: 'text-accent-warm',  ring: 'border-accent-warm/30' },
+  const tintMap: Record<typeof tint, { bg: string; text: string; ring: string; hover: string }> = {
+    primary:       { bg: 'bg-primary/15',      text: 'text-primary',      ring: 'border-primary/30',      hover: 'hover:bg-primary/25' },
+    eco:           { bg: 'bg-eco/15',          text: 'text-eco',          ring: 'border-eco/30',          hover: 'hover:bg-eco/25' },
+    'accent-cool': { bg: 'bg-accent-cool/15',  text: 'text-accent-cool',  ring: 'border-accent-cool/30',  hover: 'hover:bg-accent-cool/25' },
+    'accent-warm': { bg: 'bg-accent-warm/15',  text: 'text-accent-warm',  ring: 'border-accent-warm/30',  hover: 'hover:bg-accent-warm/25' },
   };
   const t = tintMap[tint];
+  const clickable = active && !!onClick;
   return (
-    <div className={`flex flex-col items-center gap-1.5 flex-1 ${active ? '' : 'opacity-50 grayscale'}`}>
-      <div className={`w-9 h-9 rounded-xl ${t.bg} border ${t.ring} flex items-center justify-center`}>
+    <button
+      type="button"
+      onClick={clickable ? onClick : undefined}
+      disabled={!clickable}
+      title={title}
+      aria-label={title ?? label}
+      className={`group flex flex-col items-center gap-1.5 flex-1 rounded-lg p-1 -m-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${active ? '' : 'opacity-50 grayscale cursor-not-allowed'} ${clickable ? 'cursor-pointer' : ''}`}
+    >
+      <div className={`w-9 h-9 rounded-xl ${t.bg} border ${t.ring} flex items-center justify-center transition-colors ${clickable ? t.hover : ''}`}>
         <Icon className={`h-4 w-4 ${t.text}`} />
       </div>
       <span className={`text-[9px] font-bold uppercase tracking-tight ${active ? t.text : 'text-muted-foreground'}`}>
         {label}
       </span>
-    </div>
+    </button>
   );
 }
 
