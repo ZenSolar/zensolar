@@ -46,10 +46,10 @@ function inferSource(tx: RecentMint): {
 } | null {
   if (tx.action !== 'mint-rewards') return null;
   const tokens = tx.tokens_minted || 0;
-  // EV mints are 1:1 — 1 token per mile driven (user-share, post-split).
-  // Solar/battery mints display kWh at 10:1 (mint ratio SSoT v2.1).
-  const miles = tokens > 0 ? Math.round(tokens) : undefined;
-  const kwh = tokens > 0 ? Math.round(tokens * 10 * 100) / 100 : undefined;
+  // Mint ratio is 1:1 across every source — 1 token per kWh produced,
+  // 1 token per mile driven. Never multiply by 10.
+  const miles = tokens > 0 ? Math.round(tokens * 10) / 10 : undefined;
+  const kwh = tokens > 0 ? Math.round(tokens * 10) / 10 : undefined;
 
   const sb = tx.source_breakdown ?? {};
   const solar = Number(sb.solar_kwh ?? 0);
