@@ -28,7 +28,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { TamperEvidentProofPanel } from '@/components/proof/TamperEvidentProofPanel';
-import { MintedForBadge } from '@/components/proof/ReceiptSourceLines';
+import { MintedForBadge, ReceiptSourceLines } from '@/components/proof/ReceiptSourceLines';
 import { ProofOfAuthenticityStamp } from '@/components/proof/ProofOfAuthenticityStamp';
 
 export type VerifyReceipt = {
@@ -149,6 +149,7 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
   const [data, setData] = useState<VerifyReceipt | null>(null);
   const [loading, setLoading] = useState(true);
   const [proofOpen, setProofOpen] = useState(false);
+  const [sessionsOpen, setSessionsOpen] = useState(true);
   const sessionsRef = useRef<HTMLDivElement | null>(null);
   const vsBtcRef = useRef<HTMLDivElement | null>(null);
   const verifyRef = useRef<HTMLDivElement | null>(null);
@@ -293,15 +294,14 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
       <div className="px-6 pb-6">
         <div className="flex justify-between gap-2 bg-muted/40 p-3 rounded-2xl border border-border/40">
           <TmBadge
-            Icon={MapPin} label="Origin" tint="primary"
-            active={!!sourceRows.length}
-            onClick={() => scrollToRef(sessionsRef)}
-            title="Jump to contributing sessions"
+            Icon={MapPin} label="Origin" tint="primary" active
+            onClick={() => { setSessionsOpen(true); scrollToRef(sessionsRef); }}
+            title="Show contributing sessions (Proof-of-Origin)"
           />
           <TmBadge
             Icon={Sparkles} label="Delta" tint="eco" active
-            onClick={() => scrollToRef(sessionsRef)}
-            title="Jump to verified energy deltas"
+            onClick={() => { setSessionsOpen(true); scrollToRef(sessionsRef); }}
+            title="Show verified energy deltas per session"
           />
           <TmBadge
             Icon={Fingerprint} label="Authentic" tint="accent-cool" active
@@ -317,51 +317,59 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
       </div>
 
       {/* ============== CONTRIBUTING SESSIONS (Proof-of-Delta + Proof-of-Origin) ============== */}
-      {sourceRows.length > 0 && (
-        <div ref={sessionsRef} className="px-6 pb-6 space-y-3 scroll-mt-4">
-          <h3 className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold px-1">
-            Contributing Sessions
-          </h3>
-          {sourceRows.map((row) => {
-            const Icon = row.Icon;
-            return (
-              <div
-                key={row.key}
-                className={`bg-muted/40 rounded-2xl p-4 border border-border/40 flex items-center gap-4`}
-              >
-                <div className={`w-10 h-10 rounded-xl bg-background/60 flex items-center justify-center border ${row.ringClass} shrink-0`}>
-                  <Icon className={`h-5 w-5 ${row.accentClass}`} />
+      <div ref={sessionsRef} className="px-6 pb-6 space-y-3 scroll-mt-4">
+        <h3 className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold px-1">
+          Contributing Sessions
+        </h3>
+
+        {sourceRows.length > 0 && sourceRows.map((row) => {
+          const Icon = row.Icon;
+          return (
+            <div
+              key={row.key}
+              className={`bg-muted/40 rounded-2xl p-4 border border-border/40 flex items-center gap-4`}
+            >
+              <div className={`w-10 h-10 rounded-xl bg-background/60 flex items-center justify-center border ${row.ringClass} shrink-0`}>
+                <Icon className={`h-5 w-5 ${row.accentClass}`} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-1 gap-2">
+                  <p className="text-sm font-semibold truncate">{row.label}</p>
+                  <p className={`text-sm font-bold tabular-nums whitespace-nowrap ${row.accentClass}`}>
+                    {row.amount}
+                  </p>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1 gap-2">
-                    <p className="text-sm font-semibold truncate">{row.label}</p>
-                    <p className={`text-sm font-bold tabular-nums whitespace-nowrap ${row.accentClass}`}>
-                      {row.amount}
-                    </p>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <div className="flex items-center gap-1 px-1.5 py-0.5 bg-primary/10 rounded-md">
+                    <MapPin className="w-2.5 h-2.5 text-primary" />
+                    <span className="text-[9px] font-bold text-primary uppercase tracking-wider">Verified Origin</span>
                   </div>
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <div className="flex items-center gap-1 px-1.5 py-0.5 bg-primary/10 rounded-md">
-                      <MapPin className="w-2.5 h-2.5 text-primary" />
-                      <span className="text-[9px] font-bold text-primary uppercase tracking-wider">Verified Origin</span>
-                    </div>
-                    <div className="flex items-center gap-1 px-1.5 py-0.5 bg-eco/10 rounded-md">
-                      <Award className="w-2.5 h-2.5 text-eco" />
-                      <span className="text-[9px] font-bold text-eco uppercase tracking-wider">Verified Delta</span>
-                    </div>
-                    {data.created_at && (
-                      <span className="text-[10px] text-muted-foreground">
-                        {new Date(data.created_at).toLocaleString(undefined, {
-                          month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
-                        })}
-                      </span>
-                    )}
+                  <div className="flex items-center gap-1 px-1.5 py-0.5 bg-eco/10 rounded-md">
+                    <Award className="w-2.5 h-2.5 text-eco" />
+                    <span className="text-[9px] font-bold text-eco uppercase tracking-wider">Verified Delta</span>
                   </div>
+                  {data.created_at && (
+                    <span className="text-[10px] text-muted-foreground">
+                      {new Date(data.created_at).toLocaleString(undefined, {
+                        month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
+                      })}
+                    </span>
+                  )}
                 </div>
               </div>
-            );
-          })}
-        </div>
-      )}
+            </div>
+          );
+        })}
+
+        {/* Per-session line items (device-signed events with fingerprints) */}
+        {data.chain_hash && (
+          <ReceiptSourceLines
+            chainHash={data.chain_hash}
+            open={sessionsOpen}
+            onOpenChange={setSessionsOpen}
+          />
+        )}
+      </div>
 
       {/* ============== vs-BITCOIN CHIP ============== */}
       <div ref={vsBtcRef} className="px-6 pb-6 scroll-mt-4">
