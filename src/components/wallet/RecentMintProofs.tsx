@@ -93,10 +93,13 @@ export function RecentMintProofs() {
     e.stopPropagation();
     const path = tx.chain_hash ? `/verify/${tx.chain_hash}` : `/mint-history#tx-${tx.id}`;
     const url = `https://beta.zen.solar${path}`;
-    const sourceLine = source
-      ? `\nSource: ${source.deviceLabel}${source.kwh ? ` · ${source.kwh} kWh` : source.miles ? ` · ${source.miles} mi` : ''}`
-      : '';
-    const text = `Verified $ZSOLAR Mint Proof\n${tx.tokens_minted.toLocaleString()} $ZSOLAR minted${sourceLine}\nProof: ${url}`;
+    // Unified share format across every KPI type (solar, battery, supercharging,
+    // home charging, EV miles, etc.). The URL sits on its own trailing line so
+    // iMessage / WhatsApp / Slack auto-unfurl it into a rich link preview —
+    // no "Proof:" label needed.
+    const unit = source?.kwh != null ? `${source.kwh} kWh` : source?.miles != null ? `${source.miles} mi` : null;
+    const sourceLine = source ? `Source: ${source.deviceLabel}${unit ? ` · ${unit}` : ''}\n` : '';
+    const text = `Verified ZenSolar Mint Receipt\n\n${tx.tokens_minted.toLocaleString()} $ZSOLAR minted\n${sourceLine}\n${url}`;
 
     try {
       if (typeof navigator !== 'undefined' && navigator.share) {
