@@ -118,9 +118,24 @@ interface Props {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   className?: string;
+  /** Restrict lines to specific source keys (e.g. ['supercharger']). */
+  sourceFilter?: string[];
+  /**
+   * Embedded mode: skip the outer Card/header chevron and render the list
+   * inline. Used when a parent row already owns the expand/collapse affordance.
+   */
+  embedded?: boolean;
 }
 
-export function ReceiptSourceLines({ chainHash, defaultOpen = false, open: openProp, onOpenChange, className }: Props) {
+export function ReceiptSourceLines({
+  chainHash,
+  defaultOpen = false,
+  open: openProp,
+  onOpenChange,
+  className,
+  sourceFilter,
+  embedded = false,
+}: Props) {
   const [data, setData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
@@ -153,7 +168,13 @@ export function ReceiptSourceLines({ chainHash, defaultOpen = false, open: openP
     return null;
   }
 
-  const lines = data.lines;
+  const allLines = data.lines;
+  const lines = sourceFilter && sourceFilter.length > 0
+    ? allLines.filter((l) => sourceFilter.includes(l.source))
+    : allLines;
+
+  if (lines.length === 0) return null;
+
   const visible = showAll ? lines : lines.slice(0, 8);
   const totalKwh = lines.reduce((sum, l) => sum + (Number(l.kwh) || 0), 0);
 
