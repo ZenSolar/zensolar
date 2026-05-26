@@ -18,9 +18,7 @@ import { ReadyToMintCard } from './dashboard/ReadyToMintCard';
 import { DashboardSkeleton } from './dashboard/DashboardSkeleton';
 import { TokenPriceCard } from './dashboard/TokenPriceCard';
 import { CO2OffsetCard } from './dashboard/CO2OffsetCard';
-import { SubscriptionStatusCard } from './dashboard/SubscriptionStatusCard';
 import { FlywheelContributionCard } from './dashboard/FlywheelContributionCard';
-import { Tokenomics101Card } from './tokenomics/Tokenomics101Card';
 import { MintReceiptsHint } from './dashboard/MintReceiptsHint';
 
 import { DashboardHexBackground } from './dashboard/DashboardHexBackground';
@@ -345,11 +343,6 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         <SectionDivider className="xl:hidden" />
 
-        {/* Subscription Status — current tier, 50/50 split, mint cap (mocked v2.1) */}
-        <AnimatedItem className="xl:col-span-1">
-          <SubscriptionStatusCard />
-        </AnimatedItem>
-
         {/* Subscription-Fee Flywheel — live cumulative LP/Treasury contribution
             from the active mock subscription. Renders nothing if no plan. */}
         <AnimatedItem className="xl:col-span-1">
@@ -361,13 +354,6 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         {/* Persistent discoverability hint → Mint History (Proof-of-Mint receipts) */}
         <AnimatedItem className="xl:col-span-1">
           <MintReceiptsHint />
-        </AnimatedItem>
-
-        <SectionDivider className="xl:hidden" />
-
-        {/* Newbie-friendly tokenomics summary → links to /how-it-works hub */}
-        <AnimatedItem className="xl:col-span-1">
-          <Tokenomics101Card />
         </AnimatedItem>
 
         {!isViewer && (

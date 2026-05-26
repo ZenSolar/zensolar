@@ -13,6 +13,8 @@ import { DashboardFooter } from '@/components/dashboard/DashboardFooter';
 import { PullToRefreshIndicator } from '@/components/ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from '@/components/ui/animated-section';
 import { SectionDivider } from '@/components/ui/SectionDivider';
+import { SubscriptionStatusCard }  from '@/components/dashboard/SubscriptionStatusCard';
+import { Tokenomics101Card }     from '@/components/tokenomics/Tokenomics101Card';
 
 import { Badge } from '@/components/ui/badge';
 import { Images, Receipt } from 'lucide-react';
@@ -297,6 +299,20 @@ export function DemoDashboard() {
         {/* Today's Clean Energy Stats */}
         <AnimatedItem>
           <TodaysCleanEnergyStats />
+        </AnimatedItem>
+
+        <SectionDivider />
+
+        {/* Subscription Status — demo users can explore tiers */}
+        <AnimatedItem>
+          <SubscriptionStatusCard />
+        </AnimatedItem>
+
+        <SectionDivider />
+
+        {/* Tokenomics 101 — educational, demo-only */}
+        <AnimatedItem>
+          <Tokenomics101Card compact />
         </AnimatedItem>
 
         <SectionDivider />
