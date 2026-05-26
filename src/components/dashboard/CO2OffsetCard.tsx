@@ -217,7 +217,7 @@ export function CO2OffsetCard({ activityData, co2Pounds, isLoading, className }:
 
           {/* 2x2 grid — drillable (EV miles is shown below as a full-width banner) */}
           <div className="mt-4 grid grid-cols-2 gap-2">
-            {CATEGORIES.filter((c) => c.key !== 'ev_miles').map((cat) => {
+            {CATEGORIES.filter((c) => c.key !== 'ev_miles').map((cat, idx) => {
               const lbs = lbsOf(breakdown, cat.key);
               const pct = totalLbs > 0 ? Math.round((lbs / totalLbs) * 100) : 0;
               const Icon = cat.icon;
@@ -230,7 +230,7 @@ export function CO2OffsetCard({ activityData, co2Pounds, isLoading, className }:
                     'group relative overflow-hidden rounded-lg border border-border/60 border-l-2 bg-card/40 p-2.5 text-left transition-all hover:bg-card/70 hover:border-border active:scale-[0.98]',
                     cat.accentClass,
                   )}
-                  aria-label={`${cat.label} CO₂ offset breakdown`}
+                  aria-label={`${cat.label} CO₂ offset breakdown — tap to view`}
                 >
                   <div className="flex items-center justify-between">
                     <div
@@ -239,6 +239,10 @@ export function CO2OffsetCard({ activityData, co2Pounds, isLoading, className }:
                         cat.iconBgClass,
                         cat.iconTextClass,
                       )}
+                      style={{
+                        animation: 'zenMintPillBreathe 2.8s ease-in-out infinite',
+                        animationDelay: `${idx * 0.35}s`,
+                      }}
                     >
                       <Icon className="h-3.5 w-3.5" />
                     </div>
@@ -265,6 +269,7 @@ export function CO2OffsetCard({ activityData, co2Pounds, isLoading, className }:
             })}
           </div>
 
+
           {/* EV miles summary — full width, biggest contributor, drillable */}
           {breakdown.inputs.evMiles > 0 && (
             <button
@@ -274,7 +279,10 @@ export function CO2OffsetCard({ activityData, co2Pounds, isLoading, className }:
               aria-label="EV Miles CO₂ offset breakdown"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-eco/15 text-eco shrink-0">
+                <div
+                  className="flex h-8 w-8 items-center justify-center rounded-md bg-eco/15 text-eco shrink-0"
+                  style={{ animation: 'zenMintPillBreathe 2.8s ease-in-out infinite', animationDelay: '1.4s' }}
+                >
                   <Car className="h-4 w-4" />
                 </div>
                 <div className="flex-1 min-w-0">
