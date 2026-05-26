@@ -22,7 +22,7 @@ import { SubscriptionStatusCard } from './dashboard/SubscriptionStatusCard';
 import { FlywheelContributionCard } from './dashboard/FlywheelContributionCard';
 import { Tokenomics101Card } from './tokenomics/Tokenomics101Card';
 import { MintReceiptsHint } from './dashboard/MintReceiptsHint';
-import { ChargingDriftBreakdownCard } from './dashboard/ChargingDriftBreakdownCard';
+
 import { DashboardHexBackground } from './dashboard/DashboardHexBackground';
 import { PageTransition } from './layout/PageTransition';
 
@@ -358,13 +358,6 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         {/* Persistent discoverability hint → Mint History (Proof-of-Mint receipts) */}
         <AnimatedItem className="xl:col-span-1">
           <MintReceiptsHint />
-        </AnimatedItem>
-
-        <SectionDivider className="xl:hidden" />
-
-        {/* Per-provider charging drift — Supercharger vs Home charging, never combined */}
-        <AnimatedItem className="xl:col-span-2">
-          <ChargingDriftBreakdownCard />
         </AnimatedItem>
 
         <SectionDivider className="xl:hidden" />
