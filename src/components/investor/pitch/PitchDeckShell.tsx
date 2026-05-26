@@ -184,9 +184,7 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
               width: 1920,
               height: 1080,
               flexShrink: 0,
-              transform: rotated
-                ? `scale(${scale}) rotate(90deg)`
-                : `scale(${scale})`,
+              transform: `scale(${scale})`,
               transformOrigin: 'center center',
             }}
           >
