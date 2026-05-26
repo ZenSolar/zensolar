@@ -537,7 +537,7 @@ function CategoryDetails({ category, breakdown }: { category: CategoryKey; break
               value={`${inputs.evElectricityEmissionsLbs.toLocaleString(undefined, { maximumFractionDigits: 0 })} lbs`}
             />
             <Row
-              label="= Net CO₂ avoided"
+              label="= Net CO₂ offset"
               value={`${netLbsEv.toLocaleString(undefined, { maximumFractionDigits: 0 })} lbs`}
             />
             <button
