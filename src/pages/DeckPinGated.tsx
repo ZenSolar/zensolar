@@ -40,7 +40,7 @@ const slides = [
 ];
 
 const slideLabels = [
-  "Title", "The Catalyst", "Traction & Beta",
+  "Title", "The Catalyst", "Traction & Beta", "The Opportunity",
   "The Solution", "Proprietary Tech & IP", "Third Consensus Primitive",
   "Value Mechanism", "Sell-Pressure Defense", "The Moat",
   "Revenue Model", "Unit Economics", "Competition",
