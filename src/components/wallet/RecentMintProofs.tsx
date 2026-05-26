@@ -80,6 +80,36 @@ export function RecentMintProofs() {
   const [mints, setMints] = useState<RecentMint[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [proofTx, setProofTx] = useState<RecentMint | null>(null);
+  const [sharedId, setSharedId] = useState<string | null>(null);
+
+  async function handleShare(e: React.MouseEvent, tx: RecentMint, source: ReturnType<typeof inferSource>) {
+    e.preventDefault();
+    e.stopPropagation();
+    const path = tx.chain_hash ? `/verify/${tx.chain_hash}` : `/mint-history#tx-${tx.id}`;
+    const url = `https://beta.zen.solar${path}`;
+    const sourceLine = source
+      ? `\nSource: ${source.deviceLabel}${source.kwh ? ` · ${source.kwh} kWh` : source.miles ? ` · ${source.miles} mi` : ''}`
+      : '';
+    const text = `Verified $ZSOLAR Mint Proof\n${tx.tokens_minted.toLocaleString()} $ZSOLAR minted${sourceLine}\nProof: ${url}`;
+
+    try {
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        await navigator.share({ title: 'ZenSolar Mint Proof', text, url });
+        return;
+      }
+    } catch {
+      // user cancelled or share failed → fall through to clipboard
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      setSharedId(tx.id);
+      toast({ title: 'Proof link copied', description: 'Share it anywhere — opens the public verifier.' });
+      setTimeout(() => setSharedId((curr) => (curr === tx.id ? null : curr)), 2000);
+    } catch {
+      toast({ title: 'Could not copy link', description: url, variant: 'destructive' });
+    }
+  }
+
 
   useEffect(() => {
     let cancelled = false;
