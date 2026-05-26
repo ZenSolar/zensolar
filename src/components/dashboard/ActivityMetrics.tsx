@@ -459,6 +459,20 @@ export function ActivityMetrics({
           />
         )}
 
+        {/* Per-source mint instruction — makes it obvious each KPI is its own mint button */}
+        {activityUnits > 0 && (
+          <div className="flex items-center justify-center gap-1.5 pt-1 pb-0.5">
+            <span
+              aria-hidden
+              className="inline-block h-1.5 w-1.5 rounded-full bg-primary"
+              style={{ boxShadow: '0 0 6px hsl(var(--primary) / 0.7)' }}
+            />
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-primary/90">
+              Double-tap any source to mint it · or Mint All below
+            </p>
+          </div>
+        )}
+
         {/* Activity Fields - Single Column with Swipe-to-Hide */}
         {/* Order: 1. Solar, 2. Battery, 3. EV Miles, 4. Tesla Supercharger, 5. Home Charger */}
         <div className="relative overflow-hidden rounded-lg" data-hint-target="kpi-cards">
