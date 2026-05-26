@@ -16,7 +16,7 @@ export function Slide01Title() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
           className="flex items-center gap-3 mb-8">
           <div className="w-3 h-3 rounded-full bg-[hsl(142,76%,36%)] animate-pulse" />
-          <span className="text-[15px] font-mono tracking-[0.3em] uppercase text-white/40">Pre-Seed · Confidential</span>
+          <span className="text-[15px] font-mono tracking-[0.3em] uppercase text-white/40">Strategic Seed · Confidential</span>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.35, duration: 0.8 }}

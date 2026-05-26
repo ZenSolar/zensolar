@@ -53,7 +53,7 @@ export function SlideFooter() {
         alt="ZenSolar"
         className="h-6 w-auto opacity-50"
       />
-      <span className="text-[13px] font-mono tracking-[0.2em] uppercase text-white/25">Confidential · Pre-Seed</span>
+      <span className="text-[13px] font-mono tracking-[0.2em] uppercase text-white/25">Confidential · Strategic Seed</span>
     </div>
   );
 }
