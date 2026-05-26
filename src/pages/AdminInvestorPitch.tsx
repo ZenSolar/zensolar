@@ -41,6 +41,7 @@ const slideLabels = [
   'Title',
   'The Catalyst',
   'Traction & Beta',
+  'The Opportunity',
   'The Solution',
   'Proprietary Tech & IP',
   'Third Consensus Primitive',
