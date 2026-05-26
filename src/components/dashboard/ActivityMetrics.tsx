@@ -1709,7 +1709,7 @@ function TotalTokensCard({ tokensToReceive, tokensEligible, activityUnits, token
       {activityUnits > 0 && (
         <>
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-success/5" />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent -translate-x-full animate-mint-shimmer" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent -translate-x-full animate-shimmer-sweep" />
         </>
       )}
 
