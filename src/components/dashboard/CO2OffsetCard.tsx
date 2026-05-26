@@ -277,12 +277,6 @@ export function CO2OffsetCard({ activityData, co2Pounds, isLoading, className }:
               </div>
             </button>
           )}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
 
