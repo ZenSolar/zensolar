@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+import zenLogo from '@/assets/zen-logo-horizontal-transparent.png';
 
 interface SlideLayoutProps {
   children: ReactNode;

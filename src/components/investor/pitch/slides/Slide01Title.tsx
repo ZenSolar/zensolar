@@ -1,6 +1,6 @@
 import { SlideLayout, SlideFooter } from '../SlideLayout';
 import { motion } from 'framer-motion';
-import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+import zenLogo from '@/assets/zen-logo-horizontal-transparent.png';
 
 export function Slide01Title() {
   return (
