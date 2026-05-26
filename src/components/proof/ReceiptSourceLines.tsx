@@ -37,7 +37,7 @@ type Line = {
   device_watermark?: string | null;
 };
 
-type ApiResponse = {
+export type ApiResponse = {
   found: boolean;
   line_count?: number;
   window_start?: string;
@@ -71,15 +71,18 @@ function metaFor(source: string) {
 export function MintedForBadge({
   chainHash,
   className,
+  mockResponse,
 }: {
   chainHash?: string | null;
   className?: string;
+  mockResponse?: ApiResponse;
 }) {
-  const [sources, setSources] = useState<string[] | null>(null);
+  const [sources, setSources] = useState<string[] | null>(mockResponse?.attributed_sources ?? null);
   const cleanHash = chainHash?.replace(/^0x/, '').toLowerCase() ?? null;
   const isHexHash = !!cleanHash && /^[a-f0-9]{64}$/i.test(cleanHash);
 
   useEffect(() => {
+    if (mockResponse) { setSources(mockResponse.attributed_sources ?? null); return; }
     let cancelled = false;
     (async () => {
       if (!isHexHash) return;
@@ -89,7 +92,7 @@ export function MintedForBadge({
       setSources(resp.attributed_sources ?? null);
     })();
     return () => { cancelled = true; };
-  }, [cleanHash, isHexHash]);
+  }, [cleanHash, isHexHash, mockResponse]);
 
   if (!sources || sources.length === 0) return null;
 
@@ -125,6 +128,8 @@ interface Props {
    * inline. Used when a parent row already owns the expand/collapse affordance.
    */
   embedded?: boolean;
+  /** Mock data bypass — when provided, skips the RPC call. */
+  mockResponse?: ApiResponse;
 }
 
 export function ReceiptSourceLines({
@@ -135,9 +140,10 @@ export function ReceiptSourceLines({
   className,
   sourceFilter,
   embedded = false,
+  mockResponse,
 }: Props) {
-  const [data, setData] = useState<ApiResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<ApiResponse | null>(mockResponse ?? null);
+  const [loading, setLoading] = useState(!mockResponse);
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
   const open = openProp ?? internalOpen;
   const setOpen = (v: boolean) => {
@@ -150,6 +156,7 @@ export function ReceiptSourceLines({
   const isHexHash = !!cleanHash && /^[a-f0-9]{64}$/i.test(cleanHash);
 
   useEffect(() => {
+    if (mockResponse) { setData(mockResponse); setLoading(false); return; }
     let cancelled = false;
     (async () => {
       if (!isHexHash) { setLoading(false); return; }
@@ -162,7 +169,7 @@ export function ReceiptSourceLines({
       setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, [cleanHash, isHexHash]);
+  }, [cleanHash, isHexHash, mockResponse]);
 
   if (loading || !data?.found || !data.lines || data.lines.length === 0) {
     return null;

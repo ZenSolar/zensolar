@@ -28,7 +28,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { TamperEvidentProofPanel } from '@/components/proof/TamperEvidentProofPanel';
-import { MintedForBadge, ReceiptSourceLines } from '@/components/proof/ReceiptSourceLines';
+import { MintedForBadge, ReceiptSourceLines, type ApiResponse as SourceLinesResponse } from '@/components/proof/ReceiptSourceLines';
 import { ProofOfAuthenticityStamp } from '@/components/proof/ProofOfAuthenticityStamp';
 
 export type VerifyReceipt = {
@@ -148,7 +148,7 @@ function payoffFor(
   }
 }
 
-export function VerifyPoAContent({ poa, mockReceipt }: { poa: string | undefined; mockReceipt?: VerifyReceipt }) {
+export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: string | undefined; mockReceipt?: VerifyReceipt; mockSourceLines?: SourceLinesResponse }) {
   const [data, setData] = useState<VerifyReceipt | null>(mockReceipt ?? null);
   const [loading, setLoading] = useState(!mockReceipt);
   const [proofOpen, setProofOpen] = useState(false);
@@ -306,7 +306,7 @@ export function VerifyPoAContent({ poa, mockReceipt }: { poa: string | undefined
 
         {data.chain_hash && (
           <div className="relative mt-4">
-            <MintedForBadge chainHash={data.chain_hash} className="justify-center" />
+            <MintedForBadge chainHash={data.chain_hash} className="justify-center" mockResponse={mockSourceLines} />
           </div>
         )}
 
@@ -434,6 +434,7 @@ export function VerifyPoAContent({ poa, mockReceipt }: { poa: string | undefined
                     chainHash={data.chain_hash!}
                     sourceFilter={row.lineSources}
                     embedded
+                    mockResponse={mockSourceLines}
                   />
                 </div>
               )}
@@ -522,6 +523,7 @@ export function VerifyPoAContent({ poa, mockReceipt }: { poa: string | undefined
                   chainHash={data.chain_hash}
                   open={sessionsOpen}
                   onOpenChange={setSessionsOpen}
+                  mockResponse={mockSourceLines}
                 />
               </div>
             )}
