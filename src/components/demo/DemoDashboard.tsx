@@ -337,6 +337,8 @@ export function DemoDashboard() {
           <EnergyFlowGlowCard />
         </AnimatedItem>
 
+        <SectionDivider />
+
         {/* Today's Clean Energy Stats */}
         <AnimatedItem>
           <TodaysCleanEnergyStats />
