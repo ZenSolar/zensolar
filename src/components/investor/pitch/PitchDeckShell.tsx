@@ -72,19 +72,54 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
     };
   }, [isFullscreen]);
 
-  // Scale calculation
-  const [scale, setScale] = useState(1);
+  // Scale + portrait-mobile rotation. On a narrow portrait screen we rotate
+  // the slide 90° so it uses screen-height as the slide width — gives ~3-4x
+  // more readable area than letterboxing a 16:9 slide into a 9:19 viewport.
+  const [scale, setScale] = useState(0.2);
+  const [rotated, setRotated] = useState(false);
   useEffect(() => {
     const observe = () => {
       if (!containerRef.current) return;
       const { width, height } = containerRef.current.getBoundingClientRect();
-      setScale(Math.min(width / 1920, height / 1080));
+      if (width === 0 || height === 0) return;
+      const portraitMobile = width < height && width < 768;
+      setRotated(portraitMobile);
+      const fitW = portraitMobile ? height : width;
+      const fitH = portraitMobile ? width : height;
+      setScale(Math.min(fitW / 1920, fitH / 1080));
     };
     observe();
     const ro = new ResizeObserver(observe);
     if (containerRef.current) ro.observe(containerRef.current);
-    return () => ro.disconnect();
+    window.addEventListener('orientationchange', observe);
+    window.addEventListener('resize', observe);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('orientationchange', observe);
+      window.removeEventListener('resize', observe);
+    };
   }, []);
+
+  const scaledW = 1920 * scale;
+  const scaledH = 1080 * scale;
+
+  // Touch swipe nav
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const onTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    touchStart.current = { x: t.clientX, y: t.clientY };
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStart.current) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStart.current.x;
+    const dy = t.clientY - touchStart.current.y;
+    touchStart.current = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) next();
+      else prev();
+    }
+  };
 
   if (showGrid) {
     return (
@@ -123,35 +158,60 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
   return (
     <div
       ref={containerRef}
-      className="w-full h-screen bg-[hsl(220,20%,6%)] relative overflow-hidden select-none"
+      className="w-screen bg-[hsl(220,20%,6%)] relative overflow-hidden select-none"
+      style={{ height: '100dvh', touchAction: 'pan-y' }}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
       onClick={(e) => {
-        // Click left/right halves to navigate
-        const rect = (e.target as HTMLElement).closest('[data-slide-container]')?.getBoundingClientRect();
-        if (!rect) return;
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
         if (e.clientX < rect.left + rect.width / 3) prev();
         else if (e.clientX > rect.left + (rect.width * 2) / 3) next();
       }}
     >
-      {/* Scaled slide */}
-      <div data-slide-container className="absolute inset-0 flex items-center justify-center">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={current}
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -40 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
+      {/* Scaled slide. When rotated, the visible bounding box is scaledH×scaledW. */}
+      <div data-slide-container className="absolute inset-0 flex items-center justify-center overflow-hidden">
+        <div
+          style={{
+            width: rotated ? scaledH : scaledW,
+            height: rotated ? scaledW : scaledH,
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          <div
             style={{
-              width: 1920,
-              height: 1080,
-              transform: `scale(${scale})`,
+              width: scaledW,
+              height: scaledH,
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: rotated
+                ? `translate(-50%, -50%) rotate(90deg)`
+                : `translate(-50%, -50%)`,
               transformOrigin: 'center center',
             }}
           >
-            {slides[current]}
-          </motion.div>
-        </AnimatePresence>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={current}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                style={{
+                  width: 1920,
+                  height: 1080,
+                  transform: `scale(${scale})`,
+                  transformOrigin: 'top left',
+                }}
+              >
+                {slides[current]}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
       </div>
+
 
       {/* Controls overlay */}
       <AnimatePresence>
@@ -163,22 +223,25 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
             className="absolute inset-0 pointer-events-none"
           >
             {/* Bottom bar */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 pointer-events-auto">
+            <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 sm:gap-3 pointer-events-auto max-w-[95vw]">
               <button onClick={(e) => { e.stopPropagation(); prev(); }} disabled={current === 0}
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white disabled:opacity-30 backdrop-blur-sm transition-all">
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white disabled:opacity-30 backdrop-blur-sm transition-all shrink-0">
                 <ChevronLeft className="w-5 h-5" />
               </button>
 
-              {/* Progress dots */}
-              <div className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-black/50 backdrop-blur-sm">
+              {/* Progress: dots on desktop, page counter on mobile */}
+              <div className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-full bg-black/50 backdrop-blur-sm">
                 {slides.map((_, i) => (
                   <button key={i} onClick={(e) => { e.stopPropagation(); goTo(i); }}
                     className={`w-2 h-2 rounded-full transition-all ${i === current ? 'w-6 bg-[hsl(207,90%,54%)]' : 'bg-white/30 hover:bg-white/50'}`} />
                 ))}
               </div>
+              <div className="sm:hidden px-4 py-2 rounded-full bg-black/50 backdrop-blur-sm text-[13px] font-mono text-white/70">
+                {current + 1} / {total}
+              </div>
 
               <button onClick={(e) => { e.stopPropagation(); next(); }} disabled={current === total - 1}
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white disabled:opacity-30 backdrop-blur-sm transition-all">
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white disabled:opacity-30 backdrop-blur-sm transition-all shrink-0">
                 <ChevronRight className="w-5 h-5" />
               </button>
             </div>
