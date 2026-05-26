@@ -84,6 +84,16 @@ const CATEGORIES: CategoryMeta[] = [
     iconTextClass: 'text-eco',
     barBgClass: 'bg-eco',
   },
+  {
+    key: 'ev_miles',
+    label: 'EV Miles Driven',
+    shortLabel: 'EV Miles',
+    icon: Car,
+    accentClass: 'border-l-eco/70',
+    iconBgClass: 'bg-eco/15',
+    iconTextClass: 'text-eco',
+    barBgClass: 'bg-eco',
+  },
 ];
 
 function formatTons(lbs: number): string {
