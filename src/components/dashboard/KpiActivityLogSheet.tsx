@@ -30,6 +30,8 @@ import { Badge } from '@/components/ui/badge';
 import { useKpiContributions, type KpiContributionRow } from '@/hooks/useKpiContributions';
 import type { MintCategory, MintRequest } from '@/components/dashboard/ActivityMetrics';
 import { MINT_RATIO_KWH_PER_TOKEN } from '@/lib/tokenomics';
+import { useDemoContextSafe } from '@/contexts/DemoContext';
+import { generateDailyBreakdown, type DailyCategory } from '@/lib/dailyMintBreakdown';
 
 export interface KpiSheetState {
   open: boolean;
