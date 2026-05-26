@@ -30,7 +30,7 @@ interface CO2OffsetCardProps {
 const LBS_PER_TON = 2000;
 const LBS_PER_TREE_YEAR = 48;
 
-type CategoryKey = 'solar' | 'battery' | 'supercharger' | 'home_charger';
+type CategoryKey = 'solar' | 'battery' | 'supercharger' | 'home_charger' | 'ev_miles';
 
 interface CategoryMeta {
   key: CategoryKey;
