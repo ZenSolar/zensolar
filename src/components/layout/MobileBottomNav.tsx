@@ -16,6 +16,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { SwipeDismissWrapper } from "@/components/onboarding/SwipeDismissWrapper";
 
 interface NavItem {
   to: string;
