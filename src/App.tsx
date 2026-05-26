@@ -211,6 +211,7 @@ const AdminEmailAnalytics = lazy(() => import("./pages/admin/EmailAnalytics"));
 const AdminEmailPreview = lazy(() => import("./pages/admin/EmailPreview"));
 const AdminCoffeePitch = lazy(() => import("./pages/AdminCoffeePitch"));
 const AdminInvestorPitch = lazy(() => import("./pages/AdminInvestorPitch"));
+const DeckPinGated = lazy(() => import("./pages/DeckPinGated"));
 const HeroTest = lazy(() => import("./pages/HeroTest"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogWhatIsSolar = lazy(() => import("./pages/blog/WhatIsSolarBlockchainRewards"));
