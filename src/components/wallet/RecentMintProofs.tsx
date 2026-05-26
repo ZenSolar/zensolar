@@ -284,7 +284,6 @@ export function RecentMintProofs() {
           />
         );
       })()}
-      })()}
 
       <VerifyPoASheet
         chainHash={pogSheetHash ?? undefined}
