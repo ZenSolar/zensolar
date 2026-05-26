@@ -519,7 +519,7 @@ function TmBadge({
       <div className={`w-9 h-9 rounded-xl ${t.bg} border ${t.ring} flex items-center justify-center transition-colors ${clickable ? t.hover : ''}`}>
         <Icon className={`h-4 w-4 ${t.text}`} />
       </div>
-      <span className={`text-[9px] font-bold uppercase tracking-tight ${active ? t.text : 'text-muted-foreground'}`}>
+      <span className={`text-[9px] font-bold uppercase tracking-tight ${active ? t.text : 'text-muted-foreground'} ${clickable ? 'underline underline-offset-2 decoration-dotted' : ''}`}>
         {label}
       </span>
     </button>
