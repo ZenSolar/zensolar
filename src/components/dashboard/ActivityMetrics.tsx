@@ -787,6 +787,8 @@ const particleShapes: Record<string, string> = {
   teal: 'polygon(20% 10%, 80% 10%, 80% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 20% 0%)',
   // Lightning bolt (charging)
   greenGold: 'polygon(30% 0%, 70% 0%, 55% 40%, 80% 40%, 25% 100%, 40% 55%, 15% 55%)',
+  // Diamond / gem — token sparkle
+  token: 'polygon(50% 0%, 85% 50%, 50% 100%, 15% 50%)',
 };
 
 // Haptic intensity per category for distinct feel
@@ -796,6 +798,7 @@ const hapticPattern: Record<string, number[]> = {
   green: [8, 20, 8, 20, 8], // EV Miles: rapid road-rumble
   cyan: [30, 15, 30],       // Supercharger: electric zap
   greenGold: [20, 10, 20],  // Home charger: steady pulse
+  token: [18, 28, 18],      // Total tokens: majestic triple pulse
 };
 
 // Semantic-token color styles — restores original Clean Energy Center palette.
@@ -857,6 +860,17 @@ const colorStyles = {
     leftBorder: 'border-l-solar',
     textGlow: '0 0 8px hsl(var(--solar) / 0.5), 0 0 16px hsl(var(--energy) / 0.25)',
     rgba: 'var(--solar)',
+  },
+  token: {
+    gradient: 'from-token to-token/70',
+    textGradient: 'from-token to-token/80',
+    text: 'text-token',
+    glow: 'shadow-token/30',
+    bg: 'bg-token/10',
+    border: 'border-token/30',
+    leftBorder: 'border-l-token',
+    textGlow: '0 0 8px hsl(var(--token) / 0.5), 0 0 16px hsl(var(--token) / 0.25)',
+    rgba: 'var(--token)',
   },
 };
 
@@ -1701,7 +1715,7 @@ function TotalTokensCard({ tokensToReceive, tokensEligible, activityUnits, token
   const active = activityUnits > 0;
 
   // Mirror ActivityField's tap interaction so visual + audio feedback match.
-  const color = 'gold' as const;
+  const color = 'token' as const;
   const styles = colorStyles[color];
   const shape = particleShapes[color] || '';
   const haptic = hapticPattern[color] || [15];
