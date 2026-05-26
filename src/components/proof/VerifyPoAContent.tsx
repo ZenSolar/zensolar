@@ -523,6 +523,7 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
                   chainHash={data.chain_hash}
                   open={sessionsOpen}
                   onOpenChange={setSessionsOpen}
+                  mockResponse={mockSourceLines}
                 />
               </div>
             )}
