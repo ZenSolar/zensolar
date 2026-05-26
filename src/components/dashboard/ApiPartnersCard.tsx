@@ -27,22 +27,34 @@ export function ApiPartnersCard() {
           duration="4s"
           idleDelay="1.5s"
         />
-        <div className="relative grid grid-cols-2 gap-6 place-items-center">
-          {brandLogos.map(({ src, alt }, idx) => (
-            <motion.img
-              key={alt}
-              src={src!}
-              alt={alt}
-              className={`w-auto object-contain opacity-60 hover:opacity-100 transition-all duration-500 dark:brightness-100 brightness-1 ${alt === 'Tesla' ? 'max-w-[400px] max-h-20' : 'max-w-[180px] max-h-10'}`}
-              initial={{ opacity: 1, y: 8 }}
-              whileInView={{ opacity: 0.6, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 + idx * 0.1, duration: 0.5 }}
-              whileHover={{ scale: 1.05 }}
-              loading="lazy"
-            />
-          ))}
+        <div className="relative grid grid-cols-2 gap-x-6 gap-y-5 place-items-center py-2">
+          {brandLogos.map(({ src, alt }, idx) => {
+            // Per-brand sizing so each logo has roughly equal optical weight.
+            const sizing =
+              alt === 'Tesla'
+                ? 'h-7 max-w-[80px]'
+                : alt === 'Enphase'
+                ? 'h-5 max-w-[130px]'
+                : alt === 'SolarEdge'
+                ? 'h-4 max-w-[130px]'
+                : 'h-5 max-w-[120px]';
+            return (
+              <motion.img
+                key={alt}
+                src={src!}
+                alt={alt}
+                className={`w-auto object-contain opacity-70 hover:opacity-100 transition-all duration-500 ${sizing}`}
+                initial={{ opacity: 0, y: 8 }}
+                whileInView={{ opacity: 0.7, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 + idx * 0.1, duration: 0.5 }}
+                whileHover={{ scale: 1.05 }}
+                loading="lazy"
+              />
+            );
+          })}
         </div>
+
       </div>
       <p className="text-xs text-muted-foreground/40 uppercase tracking-[0.15em] font-mono mt-4 text-center">More partners coming soon…</p>
     </div>
