@@ -1715,7 +1715,7 @@ function TotalTokensCard({ tokensToReceive, tokensEligible, activityUnits, token
   const active = activityUnits > 0;
 
   // Mirror ActivityField's tap interaction so visual + audio feedback match.
-  const color = 'token' as const;
+  const color = 'green' as const;
   const styles = colorStyles[color];
   const shape = particleShapes[color] || '';
   const haptic = hapticPattern[color] || [15];
