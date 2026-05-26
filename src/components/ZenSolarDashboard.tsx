@@ -353,6 +353,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           <FlywheelContributionCard />
         </AnimatedItem>
 
+        <SectionDivider className="xl:hidden" />
+
         {/* Persistent discoverability hint → Mint History (Proof-of-Mint receipts) */}
         <AnimatedItem className="xl:col-span-1">
           <MintReceiptsHint />
