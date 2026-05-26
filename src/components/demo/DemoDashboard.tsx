@@ -24,7 +24,7 @@ import { ApiPartnersCard } from '@/components/dashboard/ApiPartnersCard';
 import { MintEffectButton } from '@/components/dashboard/MintEffectButton';
 import { DashboardHexBackground } from '@/components/dashboard/DashboardHexBackground';
 import { DemoOnboardingHints } from '@/components/demo/DemoOnboardingHints';
-import { TapToMintCard } from '@/components/demo/TapToMintCard';
+
 import { CO2OffsetCard } from '@/components/dashboard/CO2OffsetCard';
 import { generateDailyBreakdown, type DailyBreakdown } from '@/lib/dailyMintBreakdown';
 import type { MintTokenCategory } from '@/components/dashboard/MintTokenDialog';
