@@ -1629,56 +1629,51 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         </button>
       )}
       
-      {/* Mint button — stamps on press */}
+      {/* Per-source Mint pill — visually communicates "this KPI IS the mint button" */}
       {isTappable && !isLoading && (
-        <div 
-          className={cn("flex items-center gap-1 shrink-0", styles.text)}
+        <div
+          className="shrink-0 relative"
           style={isBursting ? {
             animation: 'zenMintStamp 400ms ease-out',
           } : isPressing ? {
-            transform: 'scale(0.9)',
-            opacity: 0.7,
+            transform: 'scale(0.92)',
+            opacity: 0.85,
             transition: 'all 0.1s ease-out',
           } : {
             transition: 'all 0.2s ease-out',
           }}
         >
-          <div className="relative h-4 min-w-[110px] flex items-center justify-end">
-            {/* Default MINT text */}
-            <span 
-              className={cn(
-                "text-xs font-semibold uppercase tracking-wider transition-all duration-400 ease-out absolute right-0",
-                showTapAgain ? "opacity-0 scale-90 blur-[2px]" : "opacity-100 scale-100 blur-0"
-              )}
+          <div
+            className={cn(
+              "relative flex items-center gap-1 rounded-full px-3 py-1.5 border font-extrabold uppercase tracking-wider text-[11px] overflow-hidden",
+              "transition-all duration-300"
+            )}
+            style={{
+              background: showTapAgain
+                ? `linear-gradient(90deg, hsl(${styles.rgba} / 0.95), hsl(${styles.rgba} / 0.75))`
+                : `linear-gradient(90deg, hsl(${styles.rgba} / 0.18), hsl(${styles.rgba} / 0.10))`,
+              borderColor: `hsl(${styles.rgba} / ${showTapAgain ? 0.9 : 0.45})`,
+              color: showTapAgain ? '#fff' : `hsl(${styles.rgba} / 1)`,
+              boxShadow: showTapAgain
+                ? `0 0 14px hsl(${styles.rgba} / 0.6), 0 0 28px hsl(${styles.rgba} / 0.3)`
+                : `0 0 10px hsl(${styles.rgba} / 0.18), inset 0 0 6px hsl(${styles.rgba} / 0.08)`,
+              animation: showTapAgain
+                ? 'zenTapAgainPulse 0.55s ease-in-out infinite'
+                : 'zenMintPillBreathe 2.2s ease-in-out infinite',
+              minWidth: 92,
+              justifyContent: 'center',
+            }}
+            aria-label={showTapAgain ? 'Tap again to mint this source' : 'Double-tap to mint this source'}
+          >
+            <span
+              aria-hidden
+              className="inline-block"
+              style={showTapAgain ? { animation: 'zenDoubleTapBounce 0.5s ease-in-out infinite' } : undefined}
             >
-              Mint
+              {showTapAgain ? '➕' : <Coins className="h-3 w-3 inline -mt-0.5" />}
             </span>
-            {/* "Tap again" hint — louder, longer, double-finger pulse */}
-            <span 
-              className={cn(
-                "flex items-center gap-1 text-[11px] font-extrabold tracking-wider uppercase absolute right-0 transition-all duration-300 ease-out text-primary",
-                showTapAgain ? "opacity-100 scale-110 blur-0" : "opacity-0 scale-95 blur-[2px]"
-              )}
-              style={showTapAgain ? {
-                animation: 'zenTapAgainPulse 0.55s ease-in-out infinite',
-                textShadow: '0 0 10px hsl(var(--primary) / 0.7), 0 0 18px hsl(var(--primary) / 0.35)',
-              } : undefined}
-            >
-              <span
-                aria-hidden
-                className="inline-block"
-                style={showTapAgain ? { animation: 'zenDoubleTapBounce 0.5s ease-in-out infinite' } : undefined}
-              >
-                ➕
-              </span>
-              double-tap to mint
-            </span>
+            <span>{showTapAgain ? 'Tap again' : 'Mint this'}</span>
           </div>
-          <ChevronRight className={cn(
-            "h-4 w-4 transition-all duration-300",
-            isBursting && "translate-x-1",
-            showTapAgain && "text-primary animate-bounce"
-          )} />
         </div>
       )}
     </motion.div>
