@@ -54,6 +54,28 @@ export function Slide13TheAsk() {
           ))}
         </div>
 
+        {/* LP tranche ladder — programmatic, trigger-based */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.85 }}
+          className="mb-5">
+          <p className="text-[12px] font-mono tracking-[0.24em] uppercase text-white/35 mb-2">
+            LP Tranche Ladder · Triggered, Not Timed
+          </p>
+          <div className="grid grid-cols-4 gap-2">
+            {LADDER.map((r) => (
+              <div key={r.round} className="p-3 rounded-lg border border-white/10 bg-white/[0.04] flex items-center gap-3">
+                <p className="text-[18px] font-bold text-[hsl(142,76%,50%)] font-mono w-[64px]">{r.price}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-semibold text-white/85 leading-tight">{r.round}</p>
+                  <p className="text-[10.5px] text-white/45 leading-tight truncate">{r.trigger}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="text-[11px] text-white/40 mt-2 italic">
+            Seed pre-funds the first 3 tranches. By Round 4, subscription revenue auto-injects more USDC than required.
+          </p>
+        </motion.div>
+
         {/* Two-column: Milestones + Anchor slot */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }}
