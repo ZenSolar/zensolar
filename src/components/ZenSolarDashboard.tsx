@@ -427,6 +427,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           </Suspense>
         </AnimatedItem>
 
+        <SectionDivider className="xl:hidden" />
+
         {/* NFT Mint Button - Below NFT Card with Glow Animation */}
         {!isViewer && (
           <AnimatedItem className="space-y-3 xl:col-span-2">
