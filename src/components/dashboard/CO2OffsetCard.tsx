@@ -446,7 +446,7 @@ function CategoryDetails({ category, breakdown }: { category: CategoryKey; break
                   formatter={(value: number, name: string) => {
                     if (name === 'miles') return [`${value.toLocaleString()} mi`, 'Miles'];
                     if (name === 'kwh') return [`${value} kWh`, 'Charging'];
-                    if (name === 'tons') return [`${value.toFixed(3)} t`, 'CO₂ offset'];
+                    if (name === 'tons') return [`${value.toFixed(3)} tons of CO₂ offset`, 'CO₂ offset'];
                     return [value, name];
                   }}
                 />
