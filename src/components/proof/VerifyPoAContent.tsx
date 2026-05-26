@@ -454,29 +454,39 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
  * Uses semantic tokens so dark/light/branded themes stay consistent.
  */
 function TmBadge({
-  Icon, label, tint, active,
+  Icon, label, tint, active, onClick, title,
 }: {
   Icon: typeof Sparkles;
   label: string;
   tint: 'primary' | 'eco' | 'accent-cool' | 'accent-warm';
   active: boolean;
+  onClick?: () => void;
+  title?: string;
 }) {
-  const tintMap: Record<typeof tint, { bg: string; text: string; ring: string }> = {
-    primary:       { bg: 'bg-primary/15',      text: 'text-primary',      ring: 'border-primary/30' },
-    eco:           { bg: 'bg-eco/15',          text: 'text-eco',          ring: 'border-eco/30' },
-    'accent-cool': { bg: 'bg-accent-cool/15',  text: 'text-accent-cool',  ring: 'border-accent-cool/30' },
-    'accent-warm': { bg: 'bg-accent-warm/15',  text: 'text-accent-warm',  ring: 'border-accent-warm/30' },
+  const tintMap: Record<typeof tint, { bg: string; text: string; ring: string; hover: string }> = {
+    primary:       { bg: 'bg-primary/15',      text: 'text-primary',      ring: 'border-primary/30',      hover: 'hover:bg-primary/25' },
+    eco:           { bg: 'bg-eco/15',          text: 'text-eco',          ring: 'border-eco/30',          hover: 'hover:bg-eco/25' },
+    'accent-cool': { bg: 'bg-accent-cool/15',  text: 'text-accent-cool',  ring: 'border-accent-cool/30',  hover: 'hover:bg-accent-cool/25' },
+    'accent-warm': { bg: 'bg-accent-warm/15',  text: 'text-accent-warm',  ring: 'border-accent-warm/30',  hover: 'hover:bg-accent-warm/25' },
   };
   const t = tintMap[tint];
+  const clickable = active && !!onClick;
   return (
-    <div className={`flex flex-col items-center gap-1.5 flex-1 ${active ? '' : 'opacity-50 grayscale'}`}>
-      <div className={`w-9 h-9 rounded-xl ${t.bg} border ${t.ring} flex items-center justify-center`}>
+    <button
+      type="button"
+      onClick={clickable ? onClick : undefined}
+      disabled={!clickable}
+      title={title}
+      aria-label={title ?? label}
+      className={`group flex flex-col items-center gap-1.5 flex-1 rounded-lg p-1 -m-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${active ? '' : 'opacity-50 grayscale cursor-not-allowed'} ${clickable ? 'cursor-pointer' : ''}`}
+    >
+      <div className={`w-9 h-9 rounded-xl ${t.bg} border ${t.ring} flex items-center justify-center transition-colors ${clickable ? t.hover : ''}`}>
         <Icon className={`h-4 w-4 ${t.text}`} />
       </div>
       <span className={`text-[9px] font-bold uppercase tracking-tight ${active ? t.text : 'text-muted-foreground'}`}>
         {label}
       </span>
-    </div>
+    </button>
   );
 }
 
