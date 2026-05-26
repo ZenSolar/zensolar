@@ -18,6 +18,7 @@ Billing infra not wired yet (no Stripe). `/subscribe` route shows tier picker on
 Patent status: ONLY the non-provisional "Gamifying and Tokenizing Sustainable Behaviors" patent is filed. Starlink/SpaceX/Optimus tokenization angle is roadmap/concept only — NOT filed. Never say "Starlink patent filed."
 
 ## Memories
+- [Fundraising Strategy (Strategic Seed)](mem://features/fundraising-strategy.md) — $3M/$5M cap, Lyndon Rive anchor via Jo Ferrier, MZ Group plan B, use-of-funds, deck rules
 - [Mint ratio SSoT (1:1)](mem://features/mint-ratio-ssot) — Strictly 1 $ZSOLAR = 1 kWh = 1 mile. Never multiply tokens by 10. Never back-calc via `tokens / USER_SHARE`.
 - [Battery bi-dir not integrated](mem://features/battery-bidir-not-integrated) — Receipts/KPIs must NOT read bidir_export/bidir_out/bidir_import rows yet.
 - [v2 Tokenomics Flywheel](mem://features/tiered-subscriptions-halving-flywheel) — 3 subscription tiers + Genesis Halving + per-tier flywheel math.
