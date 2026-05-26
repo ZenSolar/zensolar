@@ -5,7 +5,7 @@ import { Shield, Scale, Users, Cpu } from 'lucide-react';
 export function Slide12RiskMitigation() {
   return (
     <SlideLayout variant="dark">
-      <SlideHeader label="Risk Mitigation" number={12} />
+      <SlideHeader label="Risk Mitigation" number={14} />
 
       <div className="absolute inset-0 flex flex-col justify-center px-16 pt-20 pb-16">
         <motion.h2 initial={{ opacity: 0 }} animate={{ opacity: 1 }}

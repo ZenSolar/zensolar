@@ -52,7 +52,7 @@ const alsoTracked = [
 export function SlideCompetition() {
   return (
     <SlideLayout variant="dark">
-      <SlideHeader label="Competitive Landscape" number={11} />
+      <SlideHeader label="Competitive Landscape" number={13} />
 
       <div className="absolute inset-0 flex flex-col px-16 pt-24 pb-16">
         <motion.h2
