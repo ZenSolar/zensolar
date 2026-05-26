@@ -1,8 +1,14 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, Zap, Wallet, Image as ImageIcon, MoreHorizontal } from "lucide-react";
+import {
+  Home, Zap, Wallet, Image as ImageIcon, MoreHorizontal,
+  User, Settings as SettingsIcon, Cpu, CreditCard, BarChart3,
+  BookOpen, LifeBuoy, MessageSquare, LogIn, Download, ChevronRight,
+  ShieldCheck, Sparkles, ArrowLeftRight,
+} from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { isAuthorizedReviewer } from "@/lib/reviewerAccess";
+
 import {
   Sheet,
   SheetContent,
