@@ -329,6 +329,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           </PerfProbe>
         </AnimatedItem>
 
+        <SectionDivider className="xl:hidden" />
+
         {/* Prominent CO₂ Offset card — matches the new sidebar accent styling */}
         <AnimatedItem className="xl:col-span-1">
           <CO2OffsetCard
