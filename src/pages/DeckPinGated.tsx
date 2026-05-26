@@ -38,7 +38,7 @@ const slides = [
 
 const slideLabels = [
   "Title", "The Catalyst", "Traction & Beta", "Tokenization Supercycle",
-  "The Opportunity", "The Solution", "Proprietary Tech & IP", "Value Mechanism",
+  "The Solution", "Proprietary Tech & IP", "Value Mechanism",
   "POL Defense", "Revenue Model", "Unit Economics", "Competition",
   "Risk Mitigation", "The Ask",
 ];
