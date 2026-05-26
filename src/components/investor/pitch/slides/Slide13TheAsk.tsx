@@ -2,10 +2,17 @@ import { SlideLayout, SlideHeader, SlideFooter } from '../SlideLayout';
 import { motion } from 'framer-motion';
 import { Users, Droplets, ShieldCheck, Scale, Megaphone, PiggyBank } from 'lucide-react';
 
+const LADDER = [
+  { round: 'OG · Day 0', trigger: 'Mainnet launch', price: '$0.10' },
+  { round: 'Round 2', trigger: '25K subs OR $0.25 sustained', price: '$0.25' },
+  { round: 'Round 3', trigger: '50K subs OR $0.50 sustained', price: '$0.50' },
+  { round: 'Round 4', trigger: '100K subs · sub-revenue funded', price: '$1.00' },
+];
+
 export function Slide13TheAsk() {
   return (
     <SlideLayout variant="gradient">
-      <SlideHeader label="The Ask" number={13} />
+      <SlideHeader label="The Ask" number={15} />
 
       {/* Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-[hsl(207,90%,54%)]/10 blur-[150px]" />
