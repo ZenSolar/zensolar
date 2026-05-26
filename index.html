@@ -255,13 +255,25 @@
     </div>
 
     <script>
+      // Mark splash start time so we can enforce a minimum display duration.
+      window.__zensolarSplashStart = Date.now();
+      // Default minimum splash duration (ms). Keeps the brand splash on screen
+      // for at least this long even if React boots faster — gives the cold-boot
+      // → first-route handoff a consistent, premium feel on PWA + desktop login.
+      window.__zensolarSplashMinMs = 4000;
       window.hideSplashScreen = function() {
         var el = document.getElementById('pwa-splash');
         if (!el) return;
-        el.classList.add('fade-out');
-        setTimeout(function() { el.remove(); }, 340);
+        var elapsed = Date.now() - (window.__zensolarSplashStart || 0);
+        var minMs = window.__zensolarSplashMinMs || 0;
+        var wait = Math.max(0, minMs - elapsed);
+        setTimeout(function () {
+          el.classList.add('fade-out');
+          setTimeout(function () { el.remove(); }, 340);
+        }, wait);
       };
     </script>
+
 
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
