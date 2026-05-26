@@ -314,6 +314,11 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
 
       {/* ============== TM PROOF BADGE STRIP — tap to jump to evidence ============== */}
       <div className="px-6 pb-6">
+        <div className="text-center pb-2">
+          <span className="text-[9px] uppercase tracking-wider text-muted-foreground/60 font-semibold">
+            Tap a badge to verify
+          </span>
+        </div>
         <div className="flex justify-between gap-2 bg-muted/40 p-3 rounded-2xl border border-border/40">
           <TmBadge
             Icon={MapPin} label="Origin" tint="primary" active
