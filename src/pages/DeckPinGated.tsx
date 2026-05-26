@@ -9,8 +9,10 @@ import { Slide03Supercycle } from "@/components/investor/pitch/slides/Slide03Sup
 
 import { Slide05Solution } from "@/components/investor/pitch/slides/Slide05Solution";
 import { Slide06Technology } from "@/components/investor/pitch/slides/Slide06Technology";
+import { Slide07ThirdPrimitive } from "@/components/investor/pitch/slides/Slide07ThirdPrimitive";
 import { Slide07ValueMechanism } from "@/components/investor/pitch/slides/Slide07ValueMechanism";
 import { Slide08POLDefense } from "@/components/investor/pitch/slides/Slide08POLDefense";
+import { Slide10ThreeWallsMoat } from "@/components/investor/pitch/slides/Slide10ThreeWallsMoat";
 import { Slide09Revenue } from "@/components/investor/pitch/slides/Slide09Revenue";
 import { Slide10UnitEconomics } from "@/components/investor/pitch/slides/Slide10UnitEconomics";
 import { Slide11Traction } from "@/components/investor/pitch/slides/Slide11Traction";
@@ -27,8 +29,10 @@ const slides = [
   <Slide03Supercycle />,
   <Slide05Solution />,
   <Slide06Technology />,
+  <Slide07ThirdPrimitive />,
   <Slide07ValueMechanism />,
   <Slide08POLDefense />,
+  <Slide10ThreeWallsMoat />,
   <Slide09Revenue />,
   <Slide10UnitEconomics />,
   <SlideCompetition />,
@@ -38,8 +42,9 @@ const slides = [
 
 const slideLabels = [
   "Title", "The Catalyst", "Traction & Beta", "Tokenization Supercycle",
-  "The Solution", "Proprietary Tech & IP", "Value Mechanism",
-  "POL Defense", "Revenue Model", "Unit Economics", "Competition",
+  "The Solution", "Proprietary Tech & IP", "Third Consensus Primitive",
+  "Value Mechanism", "Sell-Pressure Defense", "The Moat",
+  "Revenue Model", "Unit Economics", "Competition",
   "Risk Mitigation", "The Ask",
 ];
 
