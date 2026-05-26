@@ -11,11 +11,13 @@ import { ProofOfMintModal } from '@/components/proof/ProofOfMintModal';
 interface RecentMint {
   id: string;
   tx_hash: string;
+  chain_hash: string | null;
   action: string;
   tokens_minted: number;
   nfts_minted: number[] | null;
   nft_names: string[] | null;
   created_at: string;
+  source_breakdown: Record<string, number> | null;
 }
 
 const ACTION_LABEL: Record<string, string> = {
