@@ -861,6 +861,17 @@ const colorStyles = {
     textGlow: '0 0 8px hsl(var(--solar) / 0.5), 0 0 16px hsl(var(--energy) / 0.25)',
     rgba: 'var(--solar)',
   },
+  token: {
+    gradient: 'from-token to-token/70',
+    textGradient: 'from-token to-token/80',
+    text: 'text-token',
+    glow: 'shadow-token/30',
+    bg: 'bg-token/10',
+    border: 'border-token/30',
+    leftBorder: 'border-l-token',
+    textGlow: '0 0 8px hsl(var(--token) / 0.5), 0 0 16px hsl(var(--token) / 0.25)',
+    rgba: 'var(--token)',
+  },
 };
 
 interface ActivityFieldProps {
