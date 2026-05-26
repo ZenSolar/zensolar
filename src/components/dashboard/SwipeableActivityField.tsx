@@ -64,10 +64,10 @@ export function SwipeableActivityField({
 
   const handleDragEnd = (_: unknown, info: PanInfo) => {
     setIsDragging(false);
-    if (info.offset.x < -80) {
-      animate(x, -300, { duration: 0.2 }).then(() => onHide());
+    if (info.offset.x < -80 || info.velocity.x < -500) {
+      animate(x, -340, { type: 'spring', stiffness: 260, damping: 32, velocity: info.velocity.x }).then(() => onHide());
     } else {
-      animate(x, 0, { type: 'spring', stiffness: 500, damping: 30 });
+      animate(x, 0, { type: 'spring', stiffness: 320, damping: 34, velocity: info.velocity.x });
     }
   };
 
@@ -109,11 +109,13 @@ export function SwipeableActivityField({
       {/* Swipeable content */}
       <motion.div
         drag="x"
-        dragConstraints={{ left: -100, right: 0 }}
-        dragElastic={0.1}
+        dragConstraints={{ left: -120, right: 0 }}
+        dragElastic={{ left: 0.18, right: 0 }}
+        dragMomentum={false}
+        dragTransition={{ power: 0.18, timeConstant: 220, bounceStiffness: 320, bounceDamping: 34 }}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
-        style={{ x }}
+        style={{ x, willChange: 'transform' }}
         className={cn(
           'relative bg-card touch-pan-y',
           isDragging && 'cursor-grabbing',

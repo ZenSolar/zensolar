@@ -18,7 +18,7 @@ export function SwipeDismissWrapper({
   threshold = 110,
 }: SwipeDismissWrapperProps) {
   const handleDragEnd = (_: unknown, info: PanInfo) => {
-    if (info.offset.y > threshold || info.velocity.y > 600) {
+    if (info.offset.y > threshold || info.velocity.y > 500) {
       onDismiss();
     }
   };
@@ -27,8 +27,11 @@ export function SwipeDismissWrapper({
     <motion.div
       drag="y"
       dragConstraints={{ top: 0, bottom: 0 }}
-      dragElastic={{ top: 0, bottom: 0.6 }}
+      dragElastic={{ top: 0, bottom: 0.5 }}
+      dragMomentum={false}
+      dragTransition={{ bounceStiffness: 280, bounceDamping: 32 }}
       onDragEnd={handleDragEnd}
+      style={{ willChange: 'transform' }}
       className="touch-pan-y"
     >
       {/* Drag handle */}

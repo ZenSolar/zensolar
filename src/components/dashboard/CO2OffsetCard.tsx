@@ -197,15 +197,15 @@ export function CO2OffsetCard({ activityData, co2Pounds, isLoading, className }:
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
-                Lifetime CO₂ Offset
+                Lifetime CO₂ offset
               </p>
               <p className="mt-1 text-3xl font-bold leading-none tabular-nums text-foreground">
                 {formatTons(totalLbs)}
-                <span className="ml-1.5 text-base font-semibold text-muted-foreground">tons</span>
+                <span className="ml-1.5 text-base font-semibold text-muted-foreground">tons of CO₂ offset</span>
               </p>
               <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                 <span className="tabular-nums">
-                  {totalLbs.toLocaleString(undefined, { maximumFractionDigits: 0 })} lbs avoided
+                  {totalLbs.toLocaleString(undefined, { maximumFractionDigits: 0 })} lbs of CO₂ offset
                 </span>
                 <span className="inline-flex items-center gap-1">
                   <TreePine className="h-3 w-3 text-eco" />
@@ -384,11 +384,11 @@ function CategoryDetails({ category, breakdown }: { category: CategoryKey; break
     <div className="space-y-4">
       <div className="rounded-xl border border-border/60 bg-card/60 p-4">
         <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
-          Lifetime CO₂ avoided
+          Lifetime CO₂ offset
         </p>
         <p className="mt-1 text-3xl font-bold leading-none tabular-nums text-foreground">
           {formatTons(lbs)}
-          <span className="ml-1.5 text-base font-semibold text-muted-foreground">tons</span>
+          <span className="ml-1.5 text-base font-semibold text-muted-foreground">tons of CO₂ offset</span>
         </p>
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
           <span className="tabular-nums">
@@ -446,7 +446,7 @@ function CategoryDetails({ category, breakdown }: { category: CategoryKey; break
                   formatter={(value: number, name: string) => {
                     if (name === 'miles') return [`${value.toLocaleString()} mi`, 'Miles'];
                     if (name === 'kwh') return [`${value} kWh`, 'Charging'];
-                    if (name === 'tons') return [`${value.toFixed(3)} t`, 'CO₂ offset'];
+                    if (name === 'tons') return [`${value.toFixed(3)} tons of CO₂ offset`, 'CO₂ offset'];
                     return [value, name];
                   }}
                 />
@@ -478,7 +478,7 @@ function CategoryDetails({ category, breakdown }: { category: CategoryKey; break
               <span className="h-2 w-2 rounded-sm bg-primary" /> Charging kWh
             </span>
             <span className="inline-flex items-center gap-1">
-              <span className="h-2 w-2 rounded-sm bg-amber-400" /> Tons CO₂ offset
+              <span className="h-2 w-2 rounded-sm bg-amber-400" /> Tons of CO₂ offset
             </span>
           </div>
         </div>
@@ -537,7 +537,7 @@ function CategoryDetails({ category, breakdown }: { category: CategoryKey; break
               value={`${inputs.evElectricityEmissionsLbs.toLocaleString(undefined, { maximumFractionDigits: 0 })} lbs`}
             />
             <Row
-              label="= Net CO₂ avoided"
+              label="= Net CO₂ offset"
               value={`${netLbsEv.toLocaleString(undefined, { maximumFractionDigits: 0 })} lbs`}
             />
             <button
@@ -573,7 +573,7 @@ function CategoryDetails({ category, breakdown }: { category: CategoryKey; break
               value={`${inputs.evElectricityEmissionsLbs.toLocaleString(undefined, { maximumFractionDigits: 0 })} lbs`}
             />
             <Row
-              label={`= Net CO₂ avoided (allocated)`}
+              label={`= Net CO₂ offset (allocated)`}
               value={`${lbs.toLocaleString(undefined, { maximumFractionDigits: 0 })} lbs`}
             />
             <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
