@@ -250,8 +250,8 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
           </div>
 
           <div
-            className="px-6 py-6 space-y-6"
-            style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1.5rem)" }}
+            className="px-5 pt-4 pb-4 space-y-5"
+            style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1rem)" }}
           >
 
           {/* Headline numbers */}
