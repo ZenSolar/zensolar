@@ -5,8 +5,7 @@ import { toast } from "sonner";
 import { PitchDeckShell } from "@/components/investor/pitch/PitchDeckShell";
 import { Slide01Title } from "@/components/investor/pitch/slides/Slide01Title";
 import { Slide02Catalyst } from "@/components/investor/pitch/slides/Slide02Catalyst";
-
-
+import { Slide04Opportunity } from "@/components/investor/pitch/slides/Slide04Opportunity";
 import { Slide05Solution } from "@/components/investor/pitch/slides/Slide05Solution";
 import { Slide06Technology } from "@/components/investor/pitch/slides/Slide06Technology";
 import { Slide07ThirdPrimitive } from "@/components/investor/pitch/slides/Slide07ThirdPrimitive";
@@ -26,6 +25,7 @@ const slides = [
   <Slide01Title />,
   <Slide02Catalyst />,
   <Slide11Traction />,
+  <Slide04Opportunity />,
   <Slide05Solution />,
   <Slide06Technology />,
   <Slide07ThirdPrimitive />,
@@ -40,7 +40,7 @@ const slides = [
 ];
 
 const slideLabels = [
-  "Title", "The Catalyst", "Traction & Beta",
+  "Title", "The Catalyst", "Traction & Beta", "The Opportunity",
   "The Solution", "Proprietary Tech & IP", "Third Consensus Primitive",
   "Value Mechanism", "Sell-Pressure Defense", "The Moat",
   "Revenue Model", "Unit Economics", "Competition",
