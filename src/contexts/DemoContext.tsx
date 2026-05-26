@@ -21,3 +21,8 @@ export function useDemoContext() {
   }
   return ctx;
 }
+
+/** Non-throwing variant — returns null when not inside a DemoProvider. */
+export function useDemoContextSafe() {
+  return useContext(DemoContext);
+}
