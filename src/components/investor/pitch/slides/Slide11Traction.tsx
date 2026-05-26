@@ -10,7 +10,7 @@ export function Slide11Traction() {
       <div className="absolute inset-0 flex flex-col justify-center px-16 pt-20 pb-16">
         <motion.h2 initial={{ opacity: 0 }} animate={{ opacity: 1 }}
           className="text-[52px] font-bold mb-3 leading-tight">
-          Live on testnet. <span className="text-[hsl(142,76%,50%)]">Real devices.</span> Real mints.
+          Live on Base L2 Blockchain testnet. <span className="text-[hsl(142,76%,50%)]">Real devices.</span> Real mints.
         </motion.h2>
         <p className="text-[22px] text-white/55 mb-10 max-w-[1100px]">
           Every number below is on-chain or in the database today — no projections, no mockups.
