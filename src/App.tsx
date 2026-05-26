@@ -211,6 +211,7 @@ const AdminEmailAnalytics = lazy(() => import("./pages/admin/EmailAnalytics"));
 const AdminEmailPreview = lazy(() => import("./pages/admin/EmailPreview"));
 const AdminCoffeePitch = lazy(() => import("./pages/AdminCoffeePitch"));
 const AdminInvestorPitch = lazy(() => import("./pages/AdminInvestorPitch"));
+const DeckPinGated = lazy(() => import("./pages/DeckPinGated"));
 const HeroTest = lazy(() => import("./pages/HeroTest"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogWhatIsSolar = lazy(() => import("./pages/blog/WhatIsSolarBlockchainRewards"));
@@ -299,7 +300,8 @@ const App = () => {
                     <Routes>
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/unsubscribe" element={<Suspense fallback={<PageLoader />}><Unsubscribe /></Suspense>} />
-                    <Route path="/install" element={<Install />} />
+                   <Route path="/install" element={<Install />} />
+                   <Route path="/deck" element={<Suspense fallback={<PageLoader />}><DeckPinGated /></Suspense>} />
                     <Route path="/hero-test" element={<Suspense fallback={<PageLoader />}><HeroTest /></Suspense>} />
                     <Route path="/dwight-preview" element={<DwightPreview />} />
                     <Route path="/taylor-preview" element={<TaylorPreview />} />
