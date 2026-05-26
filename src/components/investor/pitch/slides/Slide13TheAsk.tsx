@@ -41,7 +41,7 @@ export function Slide13TheAsk() {
 
         {/* Roadmap */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
-          className="p-6 rounded-2xl border border-white/10 bg-white/5">
+          className="p-6 rounded-2xl border border-white/10 bg-white/5 mb-8">
           <p className="text-[14px] font-mono tracking-wider text-white/30 mb-4">UNICORN TRAJECTORY</p>
           <div className="grid grid-cols-4 gap-4">
             {[
@@ -60,6 +60,13 @@ export function Slide13TheAsk() {
             ))}
           </div>
         </motion.div>
+
+        {/* Walk-off line */}
+        <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.1 }}
+          className="text-center text-[38px] font-light tracking-tight leading-[1.15] text-white/90">
+          Bitcoin tokenized <span className="text-white/50">scarcity</span>.{' '}
+          We're tokenizing <span className="text-[hsl(142,76%,50%)] font-semibold">abundance</span>.
+        </motion.p>
       </div>
 
       <SlideFooter />

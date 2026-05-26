@@ -19,14 +19,20 @@ export function Slide01Title() {
         </motion.div>
 
         <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-          className="text-[96px] font-black tracking-tight leading-[0.95] text-center">
+          className="text-[88px] font-black tracking-tight leading-[0.95] text-center">
           Zen<span className="text-[hsl(207,90%,54%)]">Solar</span>
         </motion.h1>
 
         <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
-          className="text-[28px] font-light text-white/60 mt-8 text-center max-w-[900px] leading-relaxed">
-          The World's First Physics-Backed Clean Energy Token
+          className="text-[34px] font-light text-white/75 mt-8 text-center max-w-[1200px] leading-[1.2]">
+          The <span className="text-white font-medium">energy-to-currency minting protocol</span> for clean energy users.
         </motion.p>
+
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.75 }}
+          className="text-[18px] font-mono tracking-[0.18em] uppercase text-white/35 mt-6 text-center">
+          From SolarCity rep to Solidity dev · Solo founder, full stack
+        </motion.p>
+
 
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }}
           className="flex items-center gap-8 mt-16">
