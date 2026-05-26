@@ -426,8 +426,8 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
                   <Icon className={`h-5 w-5 ${row.accentClass}`} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1 gap-2">
-                    <p className="text-sm font-semibold truncate">{row.label}</p>
+                  <div className="flex items-baseline justify-between mb-1 gap-2 flex-wrap">
+                    <p className="text-sm font-semibold leading-tight break-words">{row.label}</p>
                     <p className={`text-sm font-bold tabular-nums whitespace-nowrap ${row.accentClass}`}>
                       {row.amount}
                     </p>
