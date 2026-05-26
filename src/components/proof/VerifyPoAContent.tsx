@@ -149,6 +149,7 @@ export function VerifyPoAContent({ poa }: { poa: string | undefined }) {
   const [data, setData] = useState<VerifyReceipt | null>(null);
   const [loading, setLoading] = useState(true);
   const [proofOpen, setProofOpen] = useState(false);
+  const [sessionsOpen, setSessionsOpen] = useState(true);
   const sessionsRef = useRef<HTMLDivElement | null>(null);
   const vsBtcRef = useRef<HTMLDivElement | null>(null);
   const verifyRef = useRef<HTMLDivElement | null>(null);
