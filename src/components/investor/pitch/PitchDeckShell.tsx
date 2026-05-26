@@ -94,15 +94,26 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
       // 0.98 safety margin so slide never bleeds to viewport edge
       setScale(Math.min(width / 1920, height / 1080) * 0.98);
     };
-    observe();
+    // iOS Safari finishes its rotation/chrome animation ~300-500ms after
+    // the orientationchange event fires. Re-measure repeatedly so the
+    // slide always settles into the final visible viewport.
+    const observeBurst = () => {
+      observe();
+      [60, 180, 360, 600, 900].forEach((ms) => setTimeout(observe, ms));
+    };
+    observeBurst();
     const ro = new ResizeObserver(observe);
     if (containerRef.current) ro.observe(containerRef.current);
-    window.addEventListener('orientationchange', observe);
+    window.addEventListener('orientationchange', observeBurst);
     window.addEventListener('resize', observe);
+    window.visualViewport?.addEventListener('resize', observe);
+    window.visualViewport?.addEventListener('scroll', observe);
     return () => {
       ro.disconnect();
-      window.removeEventListener('orientationchange', observe);
+      window.removeEventListener('orientationchange', observeBurst);
       window.removeEventListener('resize', observe);
+      window.visualViewport?.removeEventListener('resize', observe);
+      window.visualViewport?.removeEventListener('scroll', observe);
     };
   }, []);
 
