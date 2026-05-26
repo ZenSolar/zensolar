@@ -17,7 +17,7 @@ import { SectionDivider } from '@/components/ui/SectionDivider';
 import { Badge } from '@/components/ui/badge';
 import { Images, Receipt } from 'lucide-react';
 import { DashboardTopControls } from '@/components/dashboard/DashboardTopControls';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { AnimatedEnergyFlow } from '@/components/dashboard/AnimatedEnergyFlow';
 import { ApiPartnersCard } from '@/components/dashboard/ApiPartnersCard';
@@ -58,6 +58,7 @@ export function DemoDashboard() {
   } = useDemoContext();
   
   const rewardActionsRef = useRef<RewardActionsRef>(null);
+  const navigate = useNavigate();
   const hasHydratedMintedValueRef = useRef(false);
   const previousLifetimeMintedRef = useRef(0);
   
@@ -317,8 +318,7 @@ export function DemoDashboard() {
             />
             <div id="demo-mint-button" data-hint-target="mint" className="px-4 pb-4 pt-2">
               <MintEffectButton
-                onClick={() => rewardActionsRef.current?.openTokenMintDialog()}
-                disabled={isLoading}
+                onClick={() => navigate('/demo/nft-collection')}
                 className="w-full bg-primary hover:bg-primary/90 animate-pulse-glow h-11 rounded-md px-8 text-primary-foreground font-medium"
               >
                 <Images className="mr-2 h-4 w-4" />
@@ -336,23 +336,25 @@ export function DemoDashboard() {
           <ApiPartnersCard />
         </AnimatedItem>
 
-        {/* Hidden controller for mint dialogs */}
-        <RewardActions
-          ref={rewardActionsRef}
-          onRefresh={refreshDashboard}
-          isLoading={isLoading}
-          walletAddress={profile.wallet_address}
-          pendingRewards={{
-            solar: currentActivity.solarKwh,
-            evMiles: currentActivity.evMiles,
-            battery: currentActivity.batteryKwh,
-            charging: currentActivity.chargingKwh,
-            superchargerKwh: currentActivity.superchargerKwh,
-            homeChargerKwh: currentActivity.homeChargerKwh,
-          }}
-          demoMintHandler={demoMintHandler}
-          dailyBreakdown={dailyBreakdownMap}
-        />
+        {/* Hidden controller for mint dialogs — visible buttons suppressed; NFT mint CTA lives inside NFT card */}
+        <div className="hidden" aria-hidden="true">
+          <RewardActions
+            ref={rewardActionsRef}
+            onRefresh={refreshDashboard}
+            isLoading={isLoading}
+            walletAddress={profile.wallet_address}
+            pendingRewards={{
+              solar: currentActivity.solarKwh,
+              evMiles: currentActivity.evMiles,
+              battery: currentActivity.batteryKwh,
+              charging: currentActivity.chargingKwh,
+              superchargerKwh: currentActivity.superchargerKwh,
+              homeChargerKwh: currentActivity.homeChargerKwh,
+            }}
+            demoMintHandler={demoMintHandler}
+            dailyBreakdown={dailyBreakdownMap}
+          />
+        </div>
 
 
 

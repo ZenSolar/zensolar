@@ -27,17 +27,17 @@ export function ApiPartnersCard() {
           duration="4s"
           idleDelay="1.5s"
         />
-        <div className="relative grid grid-cols-2 gap-x-6 gap-y-5 place-items-center py-2">
+        <div className="relative grid grid-cols-2 gap-x-6 gap-y-8 place-items-center py-4">
           {brandLogos.map(({ src, alt }, idx) => {
             // Per-brand sizing so each logo has roughly equal optical weight.
             const sizing =
               alt === 'Tesla'
-                ? 'h-7 max-w-[80px]'
+                ? 'h-12 max-w-[110px]'
                 : alt === 'Enphase'
-                ? 'h-5 max-w-[130px]'
+                ? 'h-8 max-w-[170px]'
                 : alt === 'SolarEdge'
-                ? 'h-4 max-w-[130px]'
-                : 'h-5 max-w-[120px]';
+                ? 'h-7 max-w-[170px]'
+                : 'h-8 max-w-[160px]';
             return (
               <motion.img
                 key={alt}
