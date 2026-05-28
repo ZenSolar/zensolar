@@ -502,18 +502,61 @@ Deno.serve(async (req) => {
   // --- Per-device breakdown — emit ONLY the metric the hardware actually produces.
   // A Tesla EV (vehicle) never shows "Battery discharged"; a Powerwall never shows
   // a solar line if a dedicated solar provider already owns that capability.
+  // When a user has 2+ devices of the same provider+kind (e.g. Mike Pessah's 3 Tesla
+  // solar sites), emit ONE row per site so they can see each one separately. Otherwise
+  // fall back to a single combined row to avoid noise.
   const devices: DigestPayload['devices'] = []
+  const perDeviceLookup = (metric: 'solar' | 'battery', provLower: string, deviceId: string): number => {
+    // perDevice keys are `${rawProvider}|${deviceId}`. Tesla data can land under both
+    // `tesla` (cumulative) and `tesla_historical` (incremental) — sum across both.
+    const bucket = buckets[metric].perDevice
+    let total = 0
+    for (const [k, v] of Object.entries(bucket)) {
+      const [rawProv, did] = k.split('|')
+      const norm = rawProv.toLowerCase().replace(/_historical$/, '')
+      if (norm === provLower && did === deviceId) total += v
+    }
+    return total
+  }
+  const solarDevicesAll = Array.from(deviceMap.values()).filter((d) => d.kind === 'solar')
+  const batteryDevicesAll = Array.from(deviceMap.values()).filter((d) => d.kind === 'battery')
+  const countByProvider = (arr: typeof solarDevicesAll) => {
+    const m: Record<string, number> = {}
+    for (const d of arr) { const p = d.provider?.toLowerCase() || ''; m[p] = (m[p] || 0) + 1 }
+    return m
+  }
+  const solarCounts = countByProvider(solarDevicesAll)
+  const batteryCounts = countByProvider(batteryDevicesAll)
+  const emittedSolarProviders = new Set<string>()
+  const emittedBatteryProviders = new Set<string>()
   for (const [, d] of deviceMap) {
     const provLower = d.provider?.toLowerCase()
     if (d.kind === 'solar') {
-      const solarFromThis = perProviderSolar[provLower] || 0
-      if (solarFromThis > 0) devices.push({ label: d.label, provider: d.provider, metric: 'Solar produced', value: `${fmt(solarFromThis / 1000)} kWh` })
+      if ((solarCounts[provLower] || 0) > 1) {
+        // Multi-site: one row per site
+        const wh = perDeviceLookup('solar', provLower, d.device_id)
+        if (wh > 0) devices.push({ label: d.label, provider: d.provider, metric: 'Solar produced', value: `${fmt(wh / 1000)} kWh` })
+      } else if (!emittedSolarProviders.has(provLower)) {
+        // Single site for this provider: combined row
+        const solarFromThis = perProviderSolar[provLower] || 0
+        if (solarFromThis > 0) devices.push({ label: d.label, provider: d.provider, metric: 'Solar produced', value: `${fmt(solarFromThis / 1000)} kWh` })
+        emittedSolarProviders.add(provLower)
+      }
     } else if (d.kind === 'battery') {
-      const battFromThis = perProviderBattery[provLower] || 0
-      if (battFromThis > 0) devices.push({ label: d.label, provider: d.provider, metric: 'Battery discharged', value: `${fmt(battFromThis / 1000)} kWh` })
+      if ((batteryCounts[provLower] || 0) > 1) {
+        const wh = perDeviceLookup('battery', provLower, d.device_id)
+        if (wh > 0) devices.push({ label: d.label, provider: d.provider, metric: 'Battery discharged', value: `${fmt(wh / 1000)} kWh` })
+      } else if (!emittedBatteryProviders.has(provLower)) {
+        const battFromThis = perProviderBattery[provLower] || 0
+        if (battFromThis > 0) devices.push({ label: d.label, provider: d.provider, metric: 'Battery discharged', value: `${fmt(battFromThis / 1000)} kWh` })
+        emittedBatteryProviders.add(provLower)
+      }
     }
     // vehicles + chargers are summarized via Home/Supercharging rows below
   }
+  if (homeChargingKwh > 0) devices.push({ label: 'Home charger', provider: 'wallbox', metric: 'Home charging', value: `${fmt(homeChargingKwh)} kWh` })
+  if (superchargerKwh > 0) devices.push({ label: 'Tesla Supercharging', provider: 'tesla', metric: 'Charging delivered', value: `${fmt(superchargerKwh)} kWh` })
+
   if (homeChargingKwh > 0) devices.push({ label: 'Home charger', provider: 'wallbox', metric: 'Home charging', value: `${fmt(homeChargingKwh)} kWh` })
   if (superchargerKwh > 0) devices.push({ label: 'Tesla Supercharging', provider: 'tesla', metric: 'Charging delivered', value: `${fmt(superchargerKwh)} kWh` })
 

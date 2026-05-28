@@ -723,14 +723,15 @@ export function useDashboardData() {
             const baselineWh = extractSolarWh(device.baseline_data);
             const pendingWh = Math.max(0, lifetimeWh - baselineWh);
             if (device.provider === 'tesla') {
+              // Tesla users can have multiple separate solar sites (e.g. Mike Pessah has 3).
+              // Push ONE entry per site so Clean Energy Center / KPI tiles / digest show each one.
               if (!hasDedicatedSolarProvider) {
-                const existing = solarDevicesArr.find(d => d.provider === 'tesla');
-                if (existing) { existing.lifetimeKwh += lifetimeWh / 1000; existing.pendingKwh += pendingWh / 1000; }
-                else solarDevicesArr.push({ deviceId: device.device_id, deviceName, provider: 'tesla', lifetimeKwh: lifetimeWh / 1000, pendingKwh: pendingWh / 1000 });
+                solarDevicesArr.push({ deviceId: device.device_id, deviceName, provider: 'tesla', lifetimeKwh: lifetimeWh / 1000, pendingKwh: pendingWh / 1000 });
               }
             } else {
               solarDevicesArr.push({ deviceId: device.device_id, deviceName, provider: device.provider, lifetimeKwh: lifetimeWh / 1000, pendingKwh: pendingWh / 1000 });
             }
+
           }
         }
         if (isBatteryDevice(device.device_type)) {
@@ -1218,24 +1219,18 @@ export function useDashboardData() {
           if (lifetimeWh > 0) {
             // For Tesla devices: SKIP if a dedicated solar provider (Enphase/SolarEdge) is connected
             // This prevents duplicate solar entries when user has e.g. Enphase for monitoring + Tesla Powerwall
-            // Tesla can also read solar production, but we want to use the dedicated provider as source of truth
             if (device.provider === 'tesla') {
+              // Tesla users can have multiple separate solar sites (different addresses /
+              // arrays — e.g. Mike Pessah has 3). One entry per site so each surface (Clean
+              // Energy Center tiles, Energy Log, Weekly Digest) can show them broken out.
               if (!hasDedicatedSolarProvider) {
-                const existingTeslaSolar = solarDevices.find(d => d.provider === 'tesla');
-                if (existingTeslaSolar) {
-                  // Aggregate into existing Tesla solar entry
-                  existingTeslaSolar.lifetimeKwh += lifetimeWh / 1000;
-                  existingTeslaSolar.pendingKwh += pendingWh / 1000;
-                } else {
-                  // First Tesla solar device - create entry
-                  solarDevices.push({
-                    deviceId: device.device_id,
-                    deviceName,
-                    provider: 'tesla',
-                    lifetimeKwh: lifetimeWh / 1000,
-                    pendingKwh: pendingWh / 1000,
-                  });
-                }
+                solarDevices.push({
+                  deviceId: device.device_id,
+                  deviceName,
+                  provider: 'tesla',
+                  lifetimeKwh: lifetimeWh / 1000,
+                  pendingKwh: pendingWh / 1000,
+                });
               }
               // else: skip Tesla solar entirely - use Enphase/SolarEdge instead
             } else {
@@ -1250,6 +1245,7 @@ export function useDashboardData() {
             }
           }
         }
+
         
         // Battery devices - Tesla exposes batteries as their own device_type (Powerwall).
         // Enphase/SolarEdge merge battery_discharge_wh onto the solar device row, so detect via field presence.
