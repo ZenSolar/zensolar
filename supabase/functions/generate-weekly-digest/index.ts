@@ -319,10 +319,6 @@ Deno.serve(async (req) => {
     }
   }
 
-      const devKey = `${provider}|${deviceId}`
-      buckets[metric].perDevice[devKey] = (buckets[metric].perDevice[devKey] || 0) + val
-    }
-  }
 
   // --- Capability dedup: one OEM per capability (matches Clean Energy Center rule).
   // If the user connected a dedicated solar provider (Enphase/SolarEdge), drop any
