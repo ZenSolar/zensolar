@@ -45,14 +45,23 @@ export default function WeeklyDigestPreview() {
     }
   };
 
-  const handleSend = async () => {
-    if (!confirm(`Send the weekly digest to ${user?.email}?`)) return;
+  const doSend = async () => {
+    setConfirmOpen(false);
     setSending(true);
     try {
       const { data, error } = await supabase.functions.invoke('generate-weekly-digest', {
         body: {},
       });
-      if (error) throw error;
+      if (error) {
+        // Try to surface the function's JSON error body
+        const ctx: any = (error as any).context;
+        let detail = error.message;
+        try {
+          const body = await ctx?.json?.();
+          if (body?.error) detail = body.detail ? `${body.error}: ${body.detail}` : body.error;
+        } catch { /* ignore */ }
+        throw new Error(detail);
+      }
       setPayload(data);
       toast.success(`Digest queued for ${data?.recipient}`);
     } catch (e: any) {
@@ -61,6 +70,7 @@ export default function WeeklyDigestPreview() {
       setSending(false);
     }
   };
+
 
   if (!ready) {
     return (
