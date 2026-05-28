@@ -6,7 +6,7 @@ import { useIsFounder } from '@/hooks/useIsFounder';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, ArrowLeft, Eye, Mail } from 'lucide-react';
+import { Loader2, ArrowLeft, Eye, Mail, LogIn } from 'lucide-react';
 import { toast } from 'sonner';
 
 // Faithful HTML/CSS mirror of supabase/functions/_shared/transactional-email-templates/weekly-energy-digest.tsx
@@ -273,6 +273,19 @@ export default function WeeklyDigestEmailPreview() {
           </p>
         </div>
       </div>
+
+      {!session && (
+        <Card className="border-amber-500/40 bg-amber-500/5">
+          <CardContent className="flex flex-col sm:flex-row items-start sm:items-center gap-3 pt-6">
+            <div className="flex-1 text-sm">
+              Sign in to load real user data into the preview. Sample data still renders without signing in.
+            </div>
+            <Button onClick={() => navigate('/auth')} size="sm">
+              <LogIn className="h-4 w-4 mr-2" /> Sign in
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>
