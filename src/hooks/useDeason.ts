@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { BillReport } from "@/components/deason/BillSavingsReport";
 
@@ -18,16 +18,60 @@ export interface DeasonMessage {
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/deason-chat`;
 const ANALYZE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-bill`;
 
+interface UseDeasonOptions {
+  /** When provided, the thread is persisted to the DB. Omit for ephemeral chats (floating bubble). */
+  threadId?: string | null;
+  /** Called when the thread is touched (new user message) so the sidebar can re-sort + auto-title. */
+  onThreadTouched?: (firstUserText: string | null) => void;
+}
+
 /**
- * Streaming chat hook for Deason. Ephemeral — nothing persisted.
- * Supports text + image attachments (e.g. utility bill uploads) via
- * OpenAI-style multimodal `content` arrays.
+ * Streaming chat hook for Deason. Persists per-thread when `threadId` is set,
+ * otherwise ephemeral. Supports text + image attachments (utility-bill uploads).
  */
-export function useDeason() {
+export function useDeason(opts: UseDeasonOptions = {}) {
+  const { threadId = null, onThreadTouched } = opts;
   const [messages, setMessages] = useState<DeasonMessage[]>([]);
   const [streaming, setStreaming] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const titleSetRef = useRef(false);
+
+  // Load persisted messages when threadId changes.
+  useEffect(() => {
+    abortRef.current?.abort();
+    titleSetRef.current = false;
+    if (!threadId) {
+      setMessages([]);
+      setLoadingHistory(false);
+      return;
+    }
+    let cancelled = false;
+    setLoadingHistory(true);
+    setMessages([]);
+    void (async () => {
+      const { data, error } = await supabase
+        .from("deason_messages")
+        .select("role,content,bill_report,created_at")
+        .eq("thread_id", threadId)
+        .order("created_at", { ascending: true });
+      if (cancelled) return;
+      if (!error && data) {
+        const restored: DeasonMessage[] = data.map((row: any) => ({
+          role: row.role,
+          content: row.content,
+          billReport: row.bill_report ?? undefined,
+        }));
+        setMessages(restored);
+        if (restored.some((m) => m.role === "user")) titleSetRef.current = true;
+      }
+      setLoadingHistory(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [threadId]);
 
   const reset = useCallback(() => {
     abortRef.current?.abort();
@@ -36,18 +80,38 @@ export function useDeason() {
     setStreaming(false);
   }, []);
 
-  /**
-   * Seed Deason with a static assistant message (no model call). Used when
-   * something else in the app — like an OAuth failure — wants Deason to open
-   * with a specific diagnosis + fix script already on screen. Safe to call
-   * multiple times; each call appends.
-   */
   const seedAssistant = useCallback((text: string) => {
     if (!text?.trim()) return;
     setMessages((prev) => [...prev, { role: "assistant", content: text }]);
     setError(null);
   }, []);
 
+  const persistMessage = useCallback(
+    async (msg: DeasonMessage) => {
+      if (!threadId) return;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      await supabase.from("deason_messages").insert({
+        thread_id: threadId,
+        user_id: user.id,
+        role: msg.role,
+        content: msg.content as any,
+        bill_report: msg.billReport ?? null,
+      });
+      // Bump thread updated_at, and set title from first user message.
+      const updates: Record<string, any> = { updated_at: new Date().toISOString() };
+      if (msg.role === "user" && !titleSetRef.current) {
+        const text =
+          typeof msg.content === "string"
+            ? msg.content
+            : msg.content.find((p) => p.type === "text")?.text ?? "Bill analysis";
+        updates.title = text.slice(0, 60);
+        titleSetRef.current = true;
+      }
+      await supabase.from("deason_threads").update(updates).eq("id", threadId);
+    },
+    [threadId]
+  );
 
   const send = useCallback(
     async (text: string, imageDataUrl?: string) => {
@@ -55,7 +119,6 @@ export function useDeason() {
       if ((!trimmed && !imageDataUrl) || streaming) return;
       setError(null);
 
-      // Build user content: plain string if text-only, multimodal array if image attached.
       const userContent: string | DeasonContentPart[] = imageDataUrl
         ? [
             ...(trimmed
@@ -65,9 +128,14 @@ export function useDeason() {
           ]
         : trimmed;
 
-      const next: DeasonMessage[] = [...messages, { role: "user", content: userContent }];
+      const userMsg: DeasonMessage = { role: "user", content: userContent };
+      const next: DeasonMessage[] = [...messages, userMsg];
       setMessages([...next, { role: "assistant", content: "" }]);
       setStreaming(true);
+
+      // Persist user message + touch thread.
+      void persistMessage(userMsg);
+      onThreadTouched?.(trimmed || null);
 
       const ac = new AbortController();
       abortRef.current = ac;
@@ -82,7 +150,7 @@ export function useDeason() {
           throw new Error("Please sign in to chat with Deason.");
         }
 
-        // ── Branch A: bill image uploaded → run structured analysis, render card.
+        // ── Branch A: bill image → structured analysis.
         if (imageDataUrl) {
           setMessages((prev) => {
             const copy = [...prev];
@@ -112,19 +180,21 @@ export function useDeason() {
           }
 
           const { report } = (await analyzeRes.json()) as { report: BillReport };
+          const assistantMsg: DeasonMessage = {
+            role: "assistant",
+            content: report.summary,
+            billReport: report,
+          };
           setMessages((prev) => {
             const copy = [...prev];
-            copy[copy.length - 1] = {
-              role: "assistant",
-              content: report.summary,
-              billReport: report,
-            };
+            copy[copy.length - 1] = assistantMsg;
             return copy;
           });
+          void persistMessage(assistantMsg);
           return;
         }
 
-        // ── Branch B: regular streaming chat.
+        // ── Branch B: streaming chat.
         const res = await fetch(CHAT_URL, {
           method: "POST",
           headers: {
@@ -142,7 +212,7 @@ export function useDeason() {
             const j = await res.clone().json();
             errorCode = j.error ?? "";
             detail = j.detail ?? `${j.error ?? "error"}${j.stage ? ` @ ${j.stage}` : ""} (req ${j.reqId ?? "?"})`;
-          } catch { /* non-JSON */ }
+          } catch { /* */ }
           if (errorCode === "daily_limit_reached") throw new Error(detail);
           if (res.status === 429) throw new Error(`Slow down a moment — ${detail}`);
           if (res.status === 402) throw new Error(`AI credits exhausted — ${detail}`);
@@ -185,6 +255,10 @@ export function useDeason() {
             }
           }
         }
+
+        if (assistantContent) {
+          void persistMessage({ role: "assistant", content: assistantContent });
+        }
       } catch (e: any) {
         if (e?.name === "AbortError") return;
         setError(e?.message ?? "Something went wrong.");
@@ -194,8 +268,8 @@ export function useDeason() {
         abortRef.current = null;
       }
     },
-    [messages, streaming],
+    [messages, streaming, persistMessage, onThreadTouched]
   );
 
-  return { messages, streaming, error, send, reset, seedAssistant };
+  return { messages, streaming, error, send, reset, seedAssistant, loadingHistory };
 }
