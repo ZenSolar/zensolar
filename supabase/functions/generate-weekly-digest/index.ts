@@ -268,7 +268,12 @@ Deno.serve(async (req) => {
     if (dt === 'solar') return 'solar'
     if (dt === 'battery_discharge' || dt === 'battery') return 'battery'
     if (dt === 'ev_miles') return 'ev_miles'
+    if (dt === 'ev_charging') return 'ev_charging'
+    return null
+  }
+
   // SINGLE RULE for solar/battery/ev_charging per (provider+device+day):
+
   //   1. If a `_historical` (incremental) row exists for that day → use it as truth.
   //   2. Otherwise, if a live cumulative counter sample exists → use the chained delta
   //      from the most recent prior sampled day.
