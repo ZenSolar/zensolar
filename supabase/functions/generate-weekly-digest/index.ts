@@ -322,15 +322,13 @@ Deno.serve(async (req) => {
     .limit(20000)
   const actualMintedLifetime = (mintLifetime || []).reduce((a: number, m: any) => a + (Number(m.tokens_minted) || 0), 0)
 
-  // Beta tokenomics (mirrors src/lib/tokenomics.ts): activity units × Live Beta multiplier (10x)
-  // Tokens earned this week = GROSS sum of every per-device number shown in the email,
-  // at the Live Beta rate (1 kWh / mi = 10 $ZSOLAR). NO 75% user share, NO burn/LP/treasury split —
-  // that's the headline "earned" number the user sees in the digest.
-  const LIVE_BETA_MULT = 10
+  // Tokens earned this week = GROSS 1:1 sum of every per-device number shown in the email
+  // (1 kWh = 1 $ZSOLAR, 1 mi = 1 $ZSOLAR). Per tokenomics v3.0 — no multiplier, no splits.
   const weeklyActivityUnits =
     (solarWh / 1000) + (batteryWh / 1000) + evMiles + homeChargingKwh + superchargerKwh
-  const tokensThisWeek = Math.floor(weeklyActivityUnits * LIVE_BETA_MULT)
+  const tokensThisWeek = Math.floor(weeklyActivityUnits)
   const tokensLifetime = actualMintedLifetime + tokensThisWeek
+
 
 
 
