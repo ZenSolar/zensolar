@@ -315,10 +315,16 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
       >
 
         {/* Header */}
-        <DrawerHeader className="px-5 pt-2 pb-3 space-y-2 text-left border-b border-border/40">
+        <DrawerHeader
+          className="px-5 pt-2 pb-3 space-y-2 text-left border-b-2"
+          style={{ borderBottomColor: `hsl(var(${accentVar}) / 0.45)` }}
+        >
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] uppercase tracking-[0.18em] font-semibold text-primary">
+              <p
+                className="text-[10px] uppercase tracking-[0.18em] font-semibold"
+                style={{ color: `hsl(var(${accentVar}))` }}
+              >
                 Proof-of-Delta™
               </p>
               <DrawerTitle className="text-base font-bold text-foreground leading-tight truncate">
@@ -335,7 +341,10 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
                   <span className="text-xs font-normal text-muted-foreground ml-1">{unit}</span>
                 </p>
                 {eligibleTokens > 0 && (
-                  <p className="text-[10px] text-primary font-semibold mt-1">
+                  <p
+                    className="text-[10px] font-semibold mt-1"
+                    style={{ color: `hsl(var(${accentVar}))` }}
+                  >
                     ≈ {eligibleTokens.toLocaleString()} $ZSOLAR eligible
                   </p>
                 )}
