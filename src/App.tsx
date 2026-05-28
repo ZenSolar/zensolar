@@ -1339,6 +1339,7 @@ const App = () => {
                     />
                     {/* Deason — founders-only AI agent */}
                     <Route path="/deason" element={<FounderRoute><Deason /></FounderRoute>} />
+                    <Route path="/deason/:threadId" element={<FounderRoute><Deason /></FounderRoute>} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                     </Routes>
