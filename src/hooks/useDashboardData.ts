@@ -1219,24 +1219,18 @@ export function useDashboardData() {
           if (lifetimeWh > 0) {
             // For Tesla devices: SKIP if a dedicated solar provider (Enphase/SolarEdge) is connected
             // This prevents duplicate solar entries when user has e.g. Enphase for monitoring + Tesla Powerwall
-            // Tesla can also read solar production, but we want to use the dedicated provider as source of truth
             if (device.provider === 'tesla') {
+              // Tesla users can have multiple separate solar sites (different addresses /
+              // arrays — e.g. Mike Pessah has 3). One entry per site so each surface (Clean
+              // Energy Center tiles, Energy Log, Weekly Digest) can show them broken out.
               if (!hasDedicatedSolarProvider) {
-                const existingTeslaSolar = solarDevices.find(d => d.provider === 'tesla');
-                if (existingTeslaSolar) {
-                  // Aggregate into existing Tesla solar entry
-                  existingTeslaSolar.lifetimeKwh += lifetimeWh / 1000;
-                  existingTeslaSolar.pendingKwh += pendingWh / 1000;
-                } else {
-                  // First Tesla solar device - create entry
-                  solarDevices.push({
-                    deviceId: device.device_id,
-                    deviceName,
-                    provider: 'tesla',
-                    lifetimeKwh: lifetimeWh / 1000,
-                    pendingKwh: pendingWh / 1000,
-                  });
-                }
+                solarDevices.push({
+                  deviceId: device.device_id,
+                  deviceName,
+                  provider: 'tesla',
+                  lifetimeKwh: lifetimeWh / 1000,
+                  pendingKwh: pendingWh / 1000,
+                });
               }
               // else: skip Tesla solar entirely - use Enphase/SolarEdge instead
             } else {
@@ -1248,6 +1242,8 @@ export function useDashboardData() {
                 lifetimeKwh: lifetimeWh / 1000,
                 pendingKwh: pendingWh / 1000,
               });
+            }
+
             }
           }
         }
