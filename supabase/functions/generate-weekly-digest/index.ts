@@ -306,8 +306,36 @@ Deno.serve(async (req) => {
     }
   }
 
-  // Tracked vehicle kWh consumed (for the KPI sub-line): home + supercharger + Tesla EV API counter
+  // --- Home charging sessions (kWh) for the week — same source the dashboard uses
+  const { data: hcRows } = await supabase
+    .from('home_charging_sessions')
+    .select('total_session_kwh, start_time')
+    .eq('user_id', targetUserId)
+    .gte('start_time', weekStartIso)
+    .lte('start_time', weekEndIso)
+    .limit(5000)
+  let homeChargingKwh = 0
+  for (const h of hcRows || []) homeChargingKwh += Number(h.total_session_kwh) || 0
+
+  // --- Supercharging / public charging (non-home) for the week
+  const { data: scRows } = await supabase
+    .from('charging_sessions')
+    .select('energy_kwh, charging_type, provider')
+    .eq('user_id', targetUserId)
+    .gte('session_date', weekStartDay)
+    .lte('session_date', weekEnd.toISOString().slice(0, 10))
+    .limit(5000)
+  let superchargerKwh = 0
+  let superchargerSessions = 0
+  for (const s of scRows || []) {
+    if ((s.charging_type || '').toLowerCase() === 'home') continue
+    superchargerKwh += Number(s.energy_kwh) || 0
+    superchargerSessions += 1
+  }
+
+  // Tracked vehicle kWh consumed (for the KPI sub-line)
   const evKwh = homeChargingKwh + superchargerKwh + (teslaEvChargingWh / 1000)
+
 
 
   // --- Minting this week + lifetime (actual on-chain mints)
