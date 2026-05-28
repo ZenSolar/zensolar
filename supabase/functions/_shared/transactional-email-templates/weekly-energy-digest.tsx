@@ -211,47 +211,52 @@ export const template = {
 } satisfies TemplateEntry
 
 const COLORS = {
-  background: '#ffffff',
-  surface: '#f3f4f6',
-  surfaceAlt: '#eef6f2',
-  border: '#d1d5db',
-  text: '#111827',
-  muted: '#4b5563',
-  accent: '#f97316', // ZenSolar orange
-  accentDark: '#c2410c',
-  tokenBg: '#0b1f17',
+  page: '#000000',          // outer email page background
+  background: '#0a0a0a',    // card background (Tesla black)
+  surface: '#141414',       // KPI tile
+  surfaceAlt: '#101010',    // device list
+  border: '#1f1f1f',        // hairline borders
+  borderStrong: '#2a2a2a',
+  text: '#f5f5f5',
+  textDim: '#cfcfcf',
+  muted: '#7a7a7a',
+  accent: '#f97316',        // ZenSolar orange
+  accentDark: '#fb923c',
+  tokenBg: '#0c0c0c',       // hero token card
+  tokenGlow: 'rgba(249,115,22,0.35)',
 }
 
 const fontFamily =
-  "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+  "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
 
-const main = { margin: '0', padding: '16px 8px', backgroundColor: COLORS.background, color: COLORS.text, fontFamily }
-const container = { width: '100%', maxWidth: '600px', margin: '0 auto', padding: '24px 16px', backgroundColor: COLORS.background, border: `1px solid ${COLORS.border}`, boxSizing: 'border-box' as const }
-const logoWrap = { textAlign: 'center' as const, padding: '0 0 12px' }
+const main = { margin: '0', padding: '20px 8px', backgroundColor: COLORS.page, color: COLORS.text, fontFamily }
+const container = { width: '100%', maxWidth: '600px', margin: '0 auto', padding: '28px 20px', backgroundColor: COLORS.background, border: `1px solid ${COLORS.border}`, borderRadius: '16px', boxSizing: 'border-box' as const }
+const logoWrap = { textAlign: 'center' as const, padding: '0 0 14px' }
 const logo = { display: 'block' as const, margin: '0 auto', border: '0' }
-const eyebrow = { margin: '0 0 14px', textAlign: 'center' as const, fontSize: '11px', lineHeight: '16px', fontWeight: 700, letterSpacing: '1.6px', textTransform: 'uppercase' as const, color: COLORS.accentDark }
-const heroTitle = { margin: '0 0 16px', textAlign: 'center' as const, fontSize: '28px', lineHeight: '1.2', fontWeight: 800, color: COLORS.text }
-const narrativeText = { margin: '0 0 20px', fontSize: '16px', lineHeight: '26px', color: COLORS.text, textAlign: 'center' as const }
-const warnCard = { margin: '0 0 20px', padding: '14px 16px', backgroundColor: '#fff8e6', border: '1px solid #f5d97a' }
-const warnText = { margin: '0', fontSize: '14px', lineHeight: '22px', color: '#7a5500' }
-const tokenCard = { margin: '0 0 24px', padding: '24px 20px', backgroundColor: COLORS.tokenBg, border: `2px solid ${COLORS.accent}`, textAlign: 'center' as const }
-const tokenBadge = { margin: '0 0 8px', fontSize: '11px', lineHeight: '16px', fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase' as const, color: '#ffffff' }
-const tokenValue = { margin: '0 0 8px', fontSize: '44px', lineHeight: '48px', fontWeight: 800, color: '#ffffff' }
-const tokenSub = { margin: '0', fontSize: '14px', lineHeight: '22px', color: '#ffffff' }
-const sectionTitle = { margin: '20px 0 12px', fontSize: '18px', lineHeight: '24px', fontWeight: 700, color: COLORS.text }
+const eyebrow = { margin: '0 0 12px', textAlign: 'center' as const, fontSize: '10px', lineHeight: '14px', fontWeight: 700, letterSpacing: '2.4px', textTransform: 'uppercase' as const, color: COLORS.accentDark }
+const heroTitle = { margin: '0 0 14px', textAlign: 'center' as const, fontSize: '30px', lineHeight: '1.15', fontWeight: 800, letterSpacing: '-0.5px', color: COLORS.text }
+const narrativeText = { margin: '0 0 22px', fontSize: '15px', lineHeight: '24px', color: COLORS.textDim, textAlign: 'center' as const }
+const warnCard = { margin: '0 0 20px', padding: '14px 16px', backgroundColor: '#1a1408', border: '1px solid #463207', borderRadius: '10px' }
+const warnText = { margin: '0', fontSize: '13px', lineHeight: '20px', color: '#f5c451' }
+const tokenCard = { margin: '0 0 26px', padding: '28px 20px', backgroundColor: COLORS.tokenBg, border: `1px solid ${COLORS.accent}`, borderRadius: '14px', textAlign: 'center' as const, boxShadow: `0 0 0 1px ${COLORS.border}, 0 8px 32px ${COLORS.tokenGlow}` }
+const tokenBadge = { margin: '0 0 10px', fontSize: '10px', lineHeight: '14px', fontWeight: 800, letterSpacing: '2.4px', textTransform: 'uppercase' as const, color: COLORS.accentDark }
+const tokenValue = { margin: '0 0 8px', fontSize: '52px', lineHeight: '54px', fontWeight: 800, letterSpacing: '-1.5px', color: '#ffffff' }
+const tokenSub = { margin: '0', fontSize: '13px', lineHeight: '20px', color: COLORS.textDim }
+const sectionTitle = { margin: '24px 0 12px', fontSize: '11px', lineHeight: '16px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase' as const, color: COLORS.muted }
 const kpiGrid = { margin: '0 0 8px' }
-const kpiCard = { margin: '0 0 10px', padding: '12px 14px', backgroundColor: COLORS.surface, border: `1px solid ${COLORS.border}` }
-const kpiLabel = { margin: '0 0 4px', fontSize: '12px', lineHeight: '16px', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase' as const, color: COLORS.muted }
-const kpiValue = { margin: '0 0 2px', fontSize: '22px', lineHeight: '28px', fontWeight: 800 }
-const kpiSub = { margin: '0', fontSize: '13px', lineHeight: '18px', color: COLORS.muted }
-const deviceList = { margin: '0 0 8px', padding: '8px 12px', backgroundColor: COLORS.surfaceAlt, border: `1px solid ${COLORS.border}` }
-const deviceRow = { margin: '6px 0', padding: '8px 0', borderBottom: `1px dashed ${COLORS.border}` }
-const deviceName = { margin: '0 0 2px', fontSize: '14px', lineHeight: '20px', fontWeight: 700, color: COLORS.text }
-const deviceMetric = { margin: '0', fontSize: '13px', lineHeight: '18px', color: COLORS.muted }
-const partialTag = { fontSize: '11px', fontWeight: 600, color: '#b45309' }
-const divider = { margin: '24px 0', borderColor: COLORS.border }
+const kpiCard = { margin: '0 0 10px', padding: '14px 16px', backgroundColor: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: '10px' }
+const kpiLabel = { margin: '0 0 6px', fontSize: '10px', lineHeight: '14px', fontWeight: 700, letterSpacing: '1.6px', textTransform: 'uppercase' as const, color: COLORS.muted }
+const kpiValue = { margin: '0 0 4px', fontSize: '26px', lineHeight: '30px', fontWeight: 800, letterSpacing: '-0.5px' }
+const kpiSub = { margin: '0', fontSize: '12px', lineHeight: '18px', color: COLORS.muted }
+const deviceList = { margin: '0 0 8px', padding: '4px 14px', backgroundColor: COLORS.surfaceAlt, border: `1px solid ${COLORS.border}`, borderRadius: '10px' }
+const deviceRow = { margin: '0', padding: '12px 0', borderBottom: `1px solid ${COLORS.border}` }
+const deviceName = { margin: '0 0 2px', fontSize: '14px', lineHeight: '20px', fontWeight: 600, color: COLORS.text }
+const deviceMetric = { margin: '0', fontSize: '12px', lineHeight: '18px', color: COLORS.muted }
+const partialTag = { fontSize: '10px', fontWeight: 600, color: '#f5c451' }
+const divider = { margin: '26px 0', border: '0', borderTop: `1px solid ${COLORS.border}` }
 const ctaWrap = { textAlign: 'center' as const, margin: '0 0 8px' }
-const buttonPrimary = { display: 'inline-block', padding: '14px 22px', backgroundColor: COLORS.accent, color: '#ffffff', textDecoration: 'none', fontSize: '15px', lineHeight: '20px', fontWeight: 700 }
-const footerDivider = { margin: '20px 0 12px', borderColor: COLORS.border }
+const buttonPrimary = { display: 'inline-block', padding: '14px 26px', backgroundColor: COLORS.accent, color: '#0a0a0a', textDecoration: 'none', fontSize: '14px', lineHeight: '20px', fontWeight: 800, letterSpacing: '0.3px', borderRadius: '10px' }
+const footerDivider = { margin: '24px 0 14px', border: '0', borderTop: `1px solid ${COLORS.border}` }
 const footerWrap = { textAlign: 'center' as const }
-const footer = { margin: '0', fontSize: '12px', lineHeight: '18px', color: COLORS.muted }
+const footer = { margin: '0', fontSize: '11px', lineHeight: '18px', color: COLORS.muted, letterSpacing: '0.3px' }
+
