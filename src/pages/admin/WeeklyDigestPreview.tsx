@@ -19,6 +19,7 @@ export default function WeeklyDigestPreview() {
   const [previewing, setPreviewing] = useState(false);
   const [sending, setSending] = useState(false);
   const [payload, setPayload] = useState<any>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
     if (ready && !isFounder) {
