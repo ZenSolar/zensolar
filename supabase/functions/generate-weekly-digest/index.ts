@@ -268,21 +268,34 @@ Deno.serve(async (req) => {
     if (dt === 'solar') return 'solar'
     if (dt === 'battery_discharge' || dt === 'battery') return 'battery'
     if (dt === 'ev_miles') return 'ev_miles'
-    if (dt === 'ev_charging') return 'ev_charging'
-    return null
+  // SINGLE RULE for solar/battery/ev_charging per (provider+device+day):
+  //   1. If a `_historical` (incremental) row exists for that day → use it as truth.
+  //   2. Otherwise, if a live cumulative counter sample exists → use the chained delta
+  //      from the most recent prior sampled day.
+  // This prevents tesla + tesla_historical from BOTH contributing to the same day.
+  // It also matches what useDashboardData and useEnergyLog do (tesla_historical = MAX per day,
+  // tesla cumulative = day-over-day delta — never summed together).
+  const histDays = new Map<string, Set<string>>() // provider+device+dt → Set<day> covered by historical
+  for (const key of incrementalDay.keys()) {
+    const [provider, deviceId, dt] = key.split('|')
+    const liveProvider = provider.toLowerCase().replace(/_historical$/, '')
+    const liveKey = `${liveProvider}|${deviceId}|${dt}`
+    if (!histDays.has(liveKey)) histDays.set(liveKey, new Set())
+    for (const day of incrementalDay.get(key)!.keys()) histDays.get(liveKey)!.add(day)
   }
 
   for (const [key, dm] of counterDay) {
     const [provider, deviceId, dt] = key.split('|')
     const metric = metricFor(dt)
     if (!metric) continue
+    const blockedDays = histDays.get(key) || new Set<string>()
     const days = Array.from(dm.keys()).sort()
     let prev: number | null = null
     for (const day of days) {
       const cur = dm.get(day)!
       if (prev !== null) {
         const delta = Math.max(0, cur - prev)
-        if (day >= weekStartDay && delta > 0) {
+        if (day >= weekStartDay && delta > 0 && !blockedDays.has(day)) {
           buckets[metric].total += delta
           buckets[metric].perProvider[provider.toLowerCase()] = (buckets[metric].perProvider[provider.toLowerCase()] || 0) + delta
           const devKey = `${provider}|${deviceId}`
@@ -292,7 +305,7 @@ Deno.serve(async (req) => {
       prev = cur
     }
   }
-  // Incremental rows: just sum the ones in the last 7 days
+  // Incremental rows: just sum the ones in the last 7 calendar days
   for (const [key, dm] of incrementalDay) {
     const [provider, deviceId, dt] = key.split('|')
     const metric = metricFor(dt)
@@ -301,6 +314,11 @@ Deno.serve(async (req) => {
       if (day < weekStartDay) continue
       buckets[metric].total += val
       buckets[metric].perProvider[provider.toLowerCase()] = (buckets[metric].perProvider[provider.toLowerCase()] || 0) + val
+      const devKey = `${provider}|${deviceId}`
+      buckets[metric].perDevice[devKey] = (buckets[metric].perDevice[devKey] || 0) + val
+    }
+  }
+
       const devKey = `${provider}|${deviceId}`
       buckets[metric].perDevice[devKey] = (buckets[metric].perDevice[devKey] || 0) + val
     }
