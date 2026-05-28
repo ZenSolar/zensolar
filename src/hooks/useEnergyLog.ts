@@ -14,7 +14,6 @@ export interface DailyProduction {
   /** Verified data providers that contributed on this day (for badges) */
   providers: string[];
 }
-
 export interface MonthData {
   days: DailyProduction[];
   totalKwh: number;
@@ -22,6 +21,15 @@ export interface MonthData {
   bestDay: DailyProduction | null;
   daysWithData: number;
 }
+
+export interface SiteBreakdown {
+  deviceId: string;
+  label: string;
+  provider: string;
+  days: DailyProduction[];
+  totalKwh: number;
+}
+
 
 // ── shared types & helpers ─────────────────────────────────────────────────
 
