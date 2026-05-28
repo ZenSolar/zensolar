@@ -5,6 +5,10 @@ import { useIsFounder } from '@/hooks/useIsFounder';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Loader2, Mail, ArrowLeft, Send, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -15,6 +19,7 @@ export default function WeeklyDigestPreview() {
   const [previewing, setPreviewing] = useState(false);
   const [sending, setSending] = useState(false);
   const [payload, setPayload] = useState<any>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
     if (ready && !isFounder) {
@@ -40,14 +45,23 @@ export default function WeeklyDigestPreview() {
     }
   };
 
-  const handleSend = async () => {
-    if (!confirm(`Send the weekly digest to ${user?.email}?`)) return;
+  const doSend = async () => {
+    setConfirmOpen(false);
     setSending(true);
     try {
       const { data, error } = await supabase.functions.invoke('generate-weekly-digest', {
         body: {},
       });
-      if (error) throw error;
+      if (error) {
+        // Try to surface the function's JSON error body
+        const ctx: any = (error as any).context;
+        let detail = error.message;
+        try {
+          const body = await ctx?.json?.();
+          if (body?.error) detail = body.detail ? `${body.error}: ${body.detail}` : body.error;
+        } catch { /* ignore */ }
+        throw new Error(detail);
+      }
       setPayload(data);
       toast.success(`Digest queued for ${data?.recipient}`);
     } catch (e: any) {
@@ -56,6 +70,7 @@ export default function WeeklyDigestPreview() {
       setSending(false);
     }
   };
+
 
   if (!ready) {
     return (
@@ -93,10 +108,11 @@ export default function WeeklyDigestPreview() {
           <Button onClick={handlePreview} disabled={previewing || sending} variant="outline">
             {previewing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Eye className="h-4 w-4 mr-2" />}
             Preview data (no email)
-          </Button>
-          <Button onClick={handleSend} disabled={sending || previewing}>
+          <Button onClick={() => setConfirmOpen(true)} disabled={sending || previewing}>
             {sending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
             Send to me now
+          </Button>
+
           </Button>
         </CardContent>
       </Card>
@@ -116,6 +132,23 @@ export default function WeeklyDigestPreview() {
           </CardContent>
         </Card>
       )}
+
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Send weekly digest?</AlertDialogTitle>
+            <AlertDialogDescription>
+              The digest will be generated and emailed to your account
+              {user?.email ? ` (${user.email})` : ''}. Your account email is resolved server-side, so this works even if it isn't shown above.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={doSend}>Send now</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
+

@@ -54,29 +54,27 @@ Deno.serve(async (req) => {
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-  const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!
   const lovableKey = Deno.env.get('LOVABLE_API_KEY')
   const supabase = createClient(supabaseUrl, serviceKey)
 
-  // --- Auth: identify caller from JWT using getClaims (signing-keys safe)
+  // --- Auth: identify caller from JWT
   const authHeader = req.headers.get('Authorization') || ''
   if (!authHeader.toLowerCase().startsWith('bearer ')) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+    return new Response(JSON.stringify({ error: 'Unauthorized: missing bearer token' }), {
       status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
   const jwt = authHeader.slice(7).trim()
-  const authClient = createClient(supabaseUrl, anonKey, {
-    global: { headers: { Authorization: `Bearer ${jwt}` } },
-  })
-  const { data: claimsData, error: claimsError } = await authClient.auth.getClaims(jwt)
-  const callerId = claimsData?.claims?.sub as string | undefined
-  if (claimsError || !callerId) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+  const { data: userData, error: userErr } = await supabase.auth.getUser(jwt)
+  const callerId = userData?.user?.id
+  if (userErr || !callerId) {
+    console.error('auth.getUser failed', userErr)
+    return new Response(JSON.stringify({ error: 'Unauthorized', detail: userErr?.message }), {
       status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
   const caller = { id: callerId }
+
 
 
   let body: any = {}
