@@ -213,15 +213,6 @@ function computeSolarDailyPerDevice(
   return out;
 }
 
-    const teslaRows = rows.filter((r) => r.provider === 'tesla');
-    if (!providers.has('tesla_historical')) {
-      reduceCumulativeRows(teslaRows, dailyByDay, providersByDay, 'kwh');
-    }
-  }
-
-  return mergeMaps(dailyByDay, providersByDay);
-}
-
 /**
  * BATTERY: Tesla > Enphase > SolarEdge priority. Mirrors the KPI's
  * "one OEM per battery, never summed" rule.
