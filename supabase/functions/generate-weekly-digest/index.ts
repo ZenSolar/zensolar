@@ -108,72 +108,163 @@ Deno.serve(async (req) => {
     .from('profiles').select('display_name').eq('user_id', targetUserId).maybeSingle()
   const firstName = (profile?.display_name || email.split('@')[0]).split(' ')[0]
 
-  // --- Window: last 7 full days (UTC)
+  // --- Window: last 7 days. Pull 14 days for cumulative counters so we can chain deltas.
   const now = new Date()
   const weekEnd = new Date(now)
   const weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+  const leadStart = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000)
   const weekStartIso = weekStart.toISOString()
   const weekEndIso = weekEnd.toISOString()
+  const leadStartIso = leadStart.toISOString()
+  const weekStartDay = weekStart.toISOString().slice(0, 10)
   const weekLabel = `${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
 
-  // --- Pull energy data (production / consumption / battery)
-  const { data: prodRows } = await supabase
-    .from('energy_production')
-    .select('provider, data_type, production_wh, consumption_wh')
+  // --- Connected devices (canonical OEM source) — pulls the same baseline_data the dashboard uses
+  const { data: devicesRows } = await supabase
+    .from('connected_devices')
+    .select('provider, device_type, device_name, device_id, baseline_data, lifetime_totals')
     .eq('user_id', targetUserId)
-    .gte('recorded_at', weekStartIso)
-    .lte('recorded_at', weekEndIso)
-    .limit(5000)
-
-  let solarWh = 0
-  let batteryWh = 0
-  const perProviderSolar: Record<string, number> = {}
-  const perProviderBattery: Record<string, number> = {}
-  for (const r of prodRows || []) {
-    const dt = (r.data_type || '').toLowerCase()
-    const wh = Number(r.production_wh) || 0
-    if (dt === 'solar' || dt === 'production' || dt === '') {
-      solarWh += wh
-      perProviderSolar[r.provider] = (perProviderSolar[r.provider] || 0) + wh
-    } else if (dt === 'battery' || dt === 'battery_discharge') {
-      batteryWh += wh
-      perProviderBattery[r.provider] = (perProviderBattery[r.provider] || 0) + wh
+  const deviceMap = new Map<string, { label: string; provider: string; device_id: string; device_type: string }>()
+  for (const d of devicesRows || []) {
+    const key = `${d.provider}:${d.device_id || d.device_type}`
+    if (!deviceMap.has(key)) {
+      deviceMap.set(key, {
+        label: d.device_name || `${providerLabel(d.provider)} ${d.device_type || 'device'}`,
+        provider: d.provider,
+        device_id: d.device_id || '',
+        device_type: d.device_type || '',
+      })
     }
   }
 
-  // --- Supercharger / public charging sessions
+  // --- Pull 14d window of raw event rows (we'll normalize cumulative counters per-device per-day)
+  const { data: prodRows } = await supabase
+    .from('energy_production')
+    .select('provider, data_type, production_wh, device_id, recorded_at')
+    .eq('user_id', targetUserId)
+    .gte('recorded_at', leadStartIso)
+    .lte('recorded_at', weekEndIso)
+    .limit(20000)
+
+  // Per (deviceKey, dataType) → per-day MAX(production_wh) over the 14d window
+  type DayMap = Map<string, number>
+  const counterDay = new Map<string, DayMap>() // key: provider|deviceId|dataType
+  const incrementalDay = new Map<string, DayMap>() // historical/incremental rows summed per day
+
+  const isCumulativeCounter = (provider: string, dataType: string) => {
+    const p = (provider || '').toLowerCase()
+    // tesla / enphase / solaredge write running/lifetime cumulative values; *_historical and wallbox write incremental
+    if (p.endsWith('_historical')) return false
+    if (p === 'wallbox') return false
+    if (p === 'tesla' || p === 'enphase' || p === 'solaredge') return true
+    return false
+  }
+
+  for (const r of prodRows || []) {
+    const dt = (r.data_type || '').toLowerCase()
+    if (!dt) continue
+    const wh = Number(r.production_wh) || 0
+    if (!isFinite(wh)) continue
+    const day = String(r.recorded_at).slice(0, 10)
+    const key = `${r.provider}|${r.device_id || ''}|${dt}`
+    if (isCumulativeCounter(r.provider, dt)) {
+      let dm = counterDay.get(key)
+      if (!dm) { dm = new Map(); counterDay.set(key, dm) }
+      const prev = dm.get(day) ?? -Infinity
+      if (wh > prev) dm.set(day, wh)
+    } else {
+      let dm = incrementalDay.get(key)
+      if (!dm) { dm = new Map(); incrementalDay.set(key, dm) }
+      dm.set(day, (dm.get(day) || 0) + wh)
+    }
+  }
+
+  // Chain cumulative counters: delta[day] = max(0, max[day] - max[prevSampledDay]).
+  // Sum only deltas whose day falls within the last 7 days.
+  type MetricBuckets = { total: number; perProvider: Record<string, number>; perDevice: Record<string, number> }
+  const buckets: Record<string, MetricBuckets> = {
+    solar: { total: 0, perProvider: {}, perDevice: {} },
+    battery: { total: 0, perProvider: {}, perDevice: {} },
+    ev_miles: { total: 0, perProvider: {}, perDevice: {} },
+    ev_charging: { total: 0, perProvider: {}, perDevice: {} },
+  }
+  const metricFor = (dt: string): keyof typeof buckets | null => {
+    if (dt === 'solar') return 'solar'
+    if (dt === 'battery_discharge' || dt === 'battery') return 'battery'
+    if (dt === 'ev_miles') return 'ev_miles'
+    if (dt === 'ev_charging') return 'ev_charging'
+    return null
+  }
+
+  for (const [key, dm] of counterDay) {
+    const [provider, deviceId, dt] = key.split('|')
+    const metric = metricFor(dt)
+    if (!metric) continue
+    const days = Array.from(dm.keys()).sort()
+    let prev: number | null = null
+    for (const day of days) {
+      const cur = dm.get(day)!
+      if (prev !== null) {
+        const delta = Math.max(0, cur - prev)
+        if (day >= weekStartDay && delta > 0) {
+          buckets[metric].total += delta
+          buckets[metric].perProvider[provider.toLowerCase()] = (buckets[metric].perProvider[provider.toLowerCase()] || 0) + delta
+          const devKey = `${provider}|${deviceId}`
+          buckets[metric].perDevice[devKey] = (buckets[metric].perDevice[devKey] || 0) + delta
+        }
+      }
+      prev = cur
+    }
+  }
+  // Incremental rows: just sum the ones in the last 7 days
+  for (const [key, dm] of incrementalDay) {
+    const [provider, deviceId, dt] = key.split('|')
+    const metric = metricFor(dt)
+    if (!metric) continue
+    for (const [day, val] of dm) {
+      if (day < weekStartDay) continue
+      buckets[metric].total += val
+      buckets[metric].perProvider[provider.toLowerCase()] = (buckets[metric].perProvider[provider.toLowerCase()] || 0) + val
+      const devKey = `${provider}|${deviceId}`
+      buckets[metric].perDevice[devKey] = (buckets[metric].perDevice[devKey] || 0) + val
+    }
+  }
+
+  const solarWh = buckets.solar.total
+  const batteryWh = buckets.battery.total
+  const evMilesFromOem = buckets.ev_miles.total // already in miles for ev_miles rows
+  const teslaEvChargingWh = buckets.ev_charging.total // Wh on Tesla EV charging counter
+
+  // --- Home charging sessions (kWh) for the week — same source the dashboard uses
+  const { data: hcRows } = await supabase
+    .from('home_charging_sessions')
+    .select('total_session_kwh, start_time')
+    .eq('user_id', targetUserId)
+    .gte('start_time', weekStartIso)
+    .lte('start_time', weekEndIso)
+    .limit(5000)
+  let homeChargingKwh = 0
+  for (const h of hcRows || []) homeChargingKwh += Number(h.total_session_kwh) || 0
+
+  // --- Supercharging / public charging (non-home) for the week
   const { data: scRows } = await supabase
     .from('charging_sessions')
     .select('energy_kwh, charging_type, provider')
     .eq('user_id', targetUserId)
-    .gte('session_date', weekStart.toISOString().slice(0, 10))
+    .gte('session_date', weekStartDay)
     .lte('session_date', weekEnd.toISOString().slice(0, 10))
-    .limit(2000)
-
+    .limit(5000)
   let superchargerKwh = 0
   let superchargerSessions = 0
   for (const s of scRows || []) {
+    if ((s.charging_type || '').toLowerCase() === 'home') continue
     superchargerKwh += Number(s.energy_kwh) || 0
     superchargerSessions += 1
   }
 
-  // --- Home charging sessions
-  const { data: hcRows } = await supabase
-    .from('home_charging_sessions')
-    .select('total_session_kwh')
-    .eq('user_id', targetUserId)
-    .gte('start_time', weekStartIso)
-    .lte('start_time', weekEndIso)
-    .limit(2000)
-
-  let homeChargingKwh = 0
-  for (const h of hcRows || []) {
-    homeChargingKwh += Number(h.total_session_kwh) || 0
-  }
-
-  // --- EV miles approx: 3.5 mi/kWh on EV-related energy. Use any device_type='ev' charging or fallback to home+super.
-  const evKwh = homeChargingKwh + superchargerKwh
-  const evMiles = evKwh * 3.5
+  // EV miles: prefer OEM odometer-delta source; fall back to charging-kWh estimate only if OEM missing
+  const evKwh = homeChargingKwh + superchargerKwh + (teslaEvChargingWh / 1000)
+  const evMiles = evMilesFromOem > 0 ? evMilesFromOem : evKwh * 3.5
 
   // --- Minting this week + lifetime
   const { data: mintWeek } = await supabase
@@ -192,21 +283,9 @@ Deno.serve(async (req) => {
     .limit(20000)
   const tokensLifetime = (mintLifetime || []).reduce((a: number, m: any) => a + (Number(m.tokens_minted) || 0), 0)
 
-  // --- Connected devices
-  const { data: devicesRows } = await supabase
-    .from('connected_devices')
-    .select('provider, device_type, device_name')
-    .eq('user_id', targetUserId)
-  const deviceMap = new Map<string, { label: string; provider: string }>()
-  for (const d of devicesRows || []) {
-    const key = `${d.provider}:${d.device_type}`
-    if (!deviceMap.has(key)) {
-      deviceMap.set(key, {
-        label: d.device_name || `${providerLabel(d.provider)} ${d.device_type || 'device'}`,
-        provider: d.provider,
-      })
-    }
-  }
+  // Per-provider summaries used downstream (top-device + per-device breakdown)
+  const perProviderSolar: Record<string, number> = buckets.solar.perProvider
+  const perProviderBattery: Record<string, number> = buckets.battery.perProvider
 
   // CO2: standard grid emission factor ~0.4 kg/kWh avoided per renewable kWh
   const co2Kg = (solarWh / 1000) * 0.4 + (batteryWh / 1000) * 0.2
@@ -230,6 +309,8 @@ Deno.serve(async (req) => {
   }
   if (homeChargingKwh > 0) devices.push({ label: 'Home charger', provider: 'wallbox', metric: 'Home charging', value: `${fmt(homeChargingKwh)} kWh` })
   if (superchargerKwh > 0) devices.push({ label: 'Public/Supercharger', provider: 'tesla', metric: 'Charging delivered', value: `${fmt(superchargerKwh)} kWh` })
+
+
 
   const quietWeek = kpis.length === 0 && tokensThisWeek === 0
   const hadPartialData = false // beta: keep false; future = compare expected device check-ins
