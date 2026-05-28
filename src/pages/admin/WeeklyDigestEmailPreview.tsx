@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 // Faithful HTML/CSS mirror of supabase/functions/_shared/transactional-email-templates/weekly-energy-digest.tsx
 // Lets founders review the exact layout/typography/colors without sending an email.
 
-type KpiRow = { label: string; value: string; sub?: string; accent?: 'solar' | 'battery' | 'ev' | 'home' | 'super' | 'token' };
+import { Loader2, ArrowLeft, Eye, Mail, LogIn } from 'lucide-react';
 type DeviceLine = { label: string; provider: string; metric: string; value: string; partial?: boolean };
 type DigestPayload = {
   firstName?: string;
