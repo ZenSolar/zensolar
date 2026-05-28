@@ -15,6 +15,8 @@ interface DeasonChatProps {
   threadId?: string | null;
   /** Called whenever a new user message is sent (lets parents re-sort thread list). */
   onUserMessage?: (text: string | null) => void;
+  /** When set, scroll to and highlight the first message containing this query. */
+  highlightQuery?: string;
 }
 
 const INNER_CIRCLE_PROMPTS = [
