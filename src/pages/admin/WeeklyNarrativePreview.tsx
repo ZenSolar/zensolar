@@ -250,3 +250,12 @@ export default function WeeklyNarrativePreview() {
     </div>
   );
 }
+
+async function readFnError(error: any): Promise<string> {
+  const ctx = error?.context;
+  try {
+    const body = await ctx?.json?.();
+    if (body?.error) return body.detail ? `${body.error}: ${body.detail}` : body.error;
+  } catch { /* ignore */ }
+  return error?.message || 'Request failed';
+}
