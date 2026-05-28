@@ -95,8 +95,6 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onUserMe
     }
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, streaming, highlightIndex, loadingHistory]);
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, streaming]);
 
   // Listen for `deason:seed` events from elsewhere in the app (e.g. the
   // OAuth error toast's "Ask Deason" handoff). Pushes a hand-written
