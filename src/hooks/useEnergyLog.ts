@@ -444,47 +444,85 @@ export function useEnergyLog() {
     if (canGoForward) setCurrentMonth((prev) => addMonths(prev, 1));
   };
 
-  async function loadMonth(userId: string, mStart: Date, mEnd: Date, tab: ActivityType): Promise<DailyProduction[]> {
+  async function loadMonth(
+    userId: string,
+    mStart: Date,
+    mEnd: Date,
+    tab: ActivityType,
+  ): Promise<{ days: DailyProduction[]; sites: SiteBreakdown[] }> {
     if (tab === 'solar') {
       const rows = await fetchSolarRows(userId, mStart, mEnd);
-      return buildMonthDays(computeSolarDaily(rows), mStart, mEnd);
+      const days = buildMonthDays(computeSolarDaily(rows), mStart, mEnd);
+
+      // Per-site breakdown — only meaningful when the user has 2+ PV systems
+      // on the chosen OEM (e.g. Mike Pessah's 3 Tesla solar arrays).
+      const perDevice = computeSolarDailyPerDevice(rows);
+      let sites: SiteBreakdown[] = [];
+      if (perDevice.size > 1) {
+        // Fetch device names so each site has a friendly label
+        const { data: devices } = await supabase
+          .from('connected_devices')
+          .select('device_id, device_name')
+          .eq('user_id', userId);
+        const labelMap = new Map<string, string>();
+        for (const d of (devices || []) as Array<{ device_id: string; device_name: string | null }>) {
+          if (d.device_name) labelMap.set(d.device_id, d.device_name);
+        }
+        sites = Array.from(perDevice.entries()).map(([deviceId, { provider, daily }], i) => {
+          const siteDays = buildMonthDays(daily, mStart, mEnd);
+          return {
+            deviceId,
+            label: labelMap.get(deviceId) || `Solar Site ${i + 1}`,
+            provider,
+            days: siteDays,
+            totalKwh: round1(siteDays.reduce((s, d) => s + d.kWh, 0)),
+          };
+        });
+        // Largest producer first
+        sites.sort((a, b) => b.totalKwh - a.totalKwh);
+      }
+
+      return { days, sites };
     }
     if (tab === 'battery') {
       const rows = await fetchBatteryRows(userId, mStart, mEnd);
-      return buildMonthDays(computeBatteryDaily(rows), mStart, mEnd);
+      return { days: buildMonthDays(computeBatteryDaily(rows), mStart, mEnd), sites: [] };
     }
     if (tab === 'ev-miles') {
       const rows = await fetchEvMilesRows(userId, mStart, mEnd);
-      return buildMonthDays(computeEvMilesDaily(rows), mStart, mEnd);
+      return { days: buildMonthDays(computeEvMilesDaily(rows), mStart, mEnd), sites: [] };
     }
     if (tab === 'supercharger') {
       const rows = await fetchSuperchargerRows(userId, mStart, mEnd);
-      return buildMonthDays(computeSuperchargerDaily(rows), mStart, mEnd);
+      return { days: buildMonthDays(computeSuperchargerDaily(rows), mStart, mEnd), sites: [] };
     }
-    // home-charging — Wall Connector / Wallbox / Tesla AC at home
     const rows = await fetchHomeChargingRows(userId, mStart, mEnd);
-    return buildMonthDays(computeHomeChargingDaily(rows), mStart, mEnd);
+    return { days: buildMonthDays(computeHomeChargingDaily(rows), mStart, mEnd), sites: [] };
   }
 
-  const { data: currentDays = [], isLoading: currentLoading } = useQuery({
+  const { data: currentResult, isLoading: currentLoading } = useQuery({
     queryKey: ['energy-log-v2', viewAsUserId, format(monthStart, 'yyyy-MM'), activeTab],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       const userId = viewAsUserId || user?.id;
-      if (!userId) return [];
+      if (!userId) return { days: [] as DailyProduction[], sites: [] as SiteBreakdown[] };
       return loadMonth(userId, monthStart, monthEnd, activeTab);
     },
   });
 
-  const { data: compareDays = [], isLoading: compareLoading } = useQuery({
+  const { data: compareResult, isLoading: compareLoading } = useQuery({
     queryKey: ['energy-log-v2', viewAsUserId, format(compareMonthStart, 'yyyy-MM'), activeTab],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       const userId = viewAsUserId || user?.id;
-      if (!userId) return [];
+      if (!userId) return { days: [] as DailyProduction[], sites: [] as SiteBreakdown[] };
       return loadMonth(userId, compareMonthStart, compareMonthEnd, activeTab);
     },
   });
+
+  const currentDays = currentResult?.days ?? [];
+  const compareDays = compareResult?.days ?? [];
+  const currentSites = currentResult?.sites ?? [];
 
   const currentMonthData = useMemo(() => computeMonthData(currentDays), [currentDays]);
   const compareMonthData = useMemo(() => computeMonthData(compareDays), [compareDays]);
@@ -493,6 +531,7 @@ export function useEnergyLog() {
     currentMonth,
     currentMonthData,
     compareMonthData,
+    currentSites,
     isLoading: currentLoading || compareLoading,
     goToPreviousMonth,
     goToNextMonth,
@@ -501,3 +540,4 @@ export function useEnergyLog() {
     setActiveTab,
   };
 }
+
