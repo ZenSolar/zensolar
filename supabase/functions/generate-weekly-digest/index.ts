@@ -108,6 +108,35 @@ Deno.serve(async (req) => {
     .from('profiles').select('display_name').eq('user_id', targetUserId).maybeSingle()
   const firstName = (profile?.display_name || email.split('@')[0]).split(' ')[0]
 
+  // --- Fresh Tesla sync for target user (if connected). This makes "preview with real data"
+  // actually reflect the latest readings instead of whatever was last cached. We do a best-effort
+  // sync and continue even on failure — stale data is better than no preview.
+  const { data: teslaTok } = await supabase
+    .from('energy_tokens').select('user_id')
+    .eq('user_id', targetUserId).eq('provider', 'tesla').maybeSingle()
+  if (teslaTok) {
+    try {
+      const syncResp = await fetch(`${supabaseUrl}/functions/v1/tesla-data`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: serviceKey,
+          Authorization: `Bearer ${jwt}`,
+          'X-Target-User-Id': targetUserId,
+        },
+        body: JSON.stringify({}),
+      })
+      if (!syncResp.ok) {
+        const detail = await syncResp.text().catch(() => '')
+        console.warn('tesla-data pre-sync failed', syncResp.status, detail.slice(0, 200))
+      } else {
+        console.log('tesla-data pre-sync ok for', targetUserId)
+      }
+    } catch (e) {
+      console.warn('tesla-data pre-sync threw', (e as Error).message)
+    }
+  }
+
   // --- Window: last 7 days. Pull 14 days for cumulative counters so we can chain deltas.
   const now = new Date()
   const weekEnd = new Date(now)
