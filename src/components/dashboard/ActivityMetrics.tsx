@@ -694,6 +694,7 @@ export function ActivityMetrics({
                           label: `${device.deviceName} Home Charger`,
                           unit: 'kWh',
                           pending: pendingKwh,
+                          accent: 'solar',
                         }) : undefined}
                       />
                     );
