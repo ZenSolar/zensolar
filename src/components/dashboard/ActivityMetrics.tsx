@@ -585,7 +585,8 @@ export function ActivityMetrics({
                   unit="kWh"
                   color="teal"
                   active={current.batteryKwh > 0}
-                  isLoading={isLoading}
+                  onTap={current.batteryKwh > 0 ? () => openSheet({ category: 'battery', label: batteryLabel, unit: 'kWh', pending: current.batteryKwh, accent: 'secondary' }) : undefined}
+
                   onTap={current.batteryKwh > 0 ? () => openSheet({ category: 'battery', label: batteryLabel, unit: 'kWh', pending: current.batteryKwh }) : undefined}
                 />
               </SwipeableActivityField>
