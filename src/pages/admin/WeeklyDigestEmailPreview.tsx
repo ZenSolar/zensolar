@@ -6,13 +6,13 @@ import { useIsFounder } from '@/hooks/useIsFounder';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, ArrowLeft, Eye, Mail } from 'lucide-react';
+import { Loader2, ArrowLeft, Eye, Mail, LogIn } from 'lucide-react';
 import { toast } from 'sonner';
 
 // Faithful HTML/CSS mirror of supabase/functions/_shared/transactional-email-templates/weekly-energy-digest.tsx
 // Lets founders review the exact layout/typography/colors without sending an email.
 
-import { Loader2, ArrowLeft, Eye, Mail, LogIn } from 'lucide-react';
+type KpiRow = { label: string; value: string; sub?: string; accent?: 'solar' | 'battery' | 'ev' | 'home' | 'super' | 'token' };
 type DeviceLine = { label: string; provider: string; metric: string; value: string; partial?: boolean };
 type DigestPayload = {
   firstName?: string;
