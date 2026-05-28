@@ -33,16 +33,21 @@ const SITE_NAME = 'ZenSolar';
 const LOGO_URL = 'https://fcptrpgqkjffgeddajwl.supabase.co/storage/v1/object/public/email-assets/zen-logo-horizontal-v3.png';
 
 const COLORS = {
-  background: '#ffffff',
-  surface: '#f3f4f6',
-  surfaceAlt: '#eef6f2',
-  border: '#d1d5db',
-  text: '#111827',
-  muted: '#4b5563',
+  page: '#000000',
+  background: '#0a0a0a',
+  surface: '#141414',
+  surfaceAlt: '#101010',
+  border: '#1f1f1f',
+  borderStrong: '#2a2a2a',
+  text: '#f5f5f5',
+  textDim: '#cfcfcf',
+  muted: '#7a7a7a',
   accent: '#f97316',
-  accentDark: '#c2410c',
-  tokenBg: '#0b1f17',
+  accentDark: '#fb923c',
+  tokenBg: '#0c0c0c',
+  tokenGlow: 'rgba(249,115,22,0.35)',
 };
+
 
 const fontFamily = "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif";
 
