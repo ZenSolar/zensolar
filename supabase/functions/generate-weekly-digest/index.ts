@@ -338,30 +338,43 @@ Deno.serve(async (req) => {
   let evDaysDriven = 0
   const evMilesPerDevice: Record<string, number> = {}
   for (const deviceId of teslaVehicleIds) {
-    const key = `tesla|${deviceId}|ev_miles`
-    const dm = counterDay.get(key)
-    if (!dm) continue
-    const days = Array.from(dm.keys()).sort()
-    // Baseline = last sample strictly BEFORE weekStartDay; if none, first sample on/after.
-    let baseline: number | null = null
-    let latest: number | null = null
-    let prev: number | null = null
-    for (const day of days) {
-      const v = dm.get(day)!
-      if (day < weekStartDay) { baseline = v; prev = v }
-      else {
-        if (baseline === null) baseline = v
-        if (prev !== null && v - prev > 0.1) evDaysDriven += 1
-        prev = v
-        latest = v
-      }
-    }
+    // Pull the latest odometer reading WITHIN the week from energy_production
+    const { data: latestRows } = await supabase
+      .from('energy_production')
+      .select('production_wh, recorded_at')
+      .eq('user_id', targetUserId)
+      .eq('provider', 'tesla')
+      .eq('data_type', 'ev_miles')
+      .eq('device_id', deviceId)
+      .gte('recorded_at', weekStartIso)
+      .lte('recorded_at', weekEndIso)
+      .order('recorded_at', { ascending: false })
+      .limit(1)
+    const latest = latestRows && latestRows[0] ? Number(latestRows[0].production_wh) : null
+
+    // Baseline = MOST RECENT odometer snapshot strictly BEFORE the week start.
+    // Tesla doesn't expose historical odometer, so we accept whatever prior sample exists
+    // (could be weeks old). Without this fallback, users who synced less than weekly show 0 mi.
+    const { data: priorRows } = await supabase
+      .from('energy_production')
+      .select('production_wh, recorded_at')
+      .eq('user_id', targetUserId)
+      .eq('provider', 'tesla')
+      .eq('data_type', 'ev_miles')
+      .eq('device_id', deviceId)
+      .lt('recorded_at', weekStartIso)
+      .order('recorded_at', { ascending: false })
+      .limit(1)
+    const baseline = priorRows && priorRows[0] ? Number(priorRows[0].production_wh) : null
+
     if (baseline !== null && latest !== null) {
       const delta = Math.max(0, latest - baseline)
       evMiles += delta
       evMilesPerDevice[`tesla|${deviceId}`] = delta
+      if (delta > 0.1) evDaysDriven += 1
     }
   }
+
 
 
   // --- Home charging sessions (kWh) for the week — same source the dashboard uses
