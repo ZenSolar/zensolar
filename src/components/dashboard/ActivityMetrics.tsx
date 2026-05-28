@@ -527,9 +527,9 @@ export function ActivityMetrics({
                   unit="kWh"
                   color="gold"
                   active={current.solarKwh > 0}
+                  isLoading={isLoading}
                   onTap={current.solarKwh > 0 ? () => openSheet({ category: 'solar', label: solarLabel, unit: 'kWh', pending: current.solarKwh, accent: 'solar' }) : undefined}
 
-                  onTap={current.solarKwh > 0 ? () => openSheet({ category: 'solar', label: solarLabel, unit: 'kWh', pending: current.solarKwh }) : undefined}
                 />
               </SwipeableActivityField>
             )
