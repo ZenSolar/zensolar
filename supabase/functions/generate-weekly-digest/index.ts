@@ -124,7 +124,20 @@ Deno.serve(async (req) => {
     .from('connected_devices')
     .select('provider, device_type, device_name, device_id, baseline_data, lifetime_totals')
     .eq('user_id', targetUserId)
-  const deviceMap = new Map<string, { label: string; provider: string; device_id: string; device_type: string }>()
+
+  // Classify each device into a canonical kind so per-device breakdown only shows the
+  // metric the hardware actually produces (e.g., an EV never shows "battery discharged").
+  const classifyKind = (dt: string): 'solar' | 'battery' | 'vehicle' | 'charger' | 'unknown' => {
+    const t = (dt || '').toLowerCase()
+    if (['solar', 'solar_system', 'pv_system', 'inverter'].includes(t)) return 'solar'
+    if (['battery', 'powerwall', 'energy_site', 'energy_storage', 'storage'].includes(t)) return 'battery'
+    if (['vehicle', 'ev', 'car', 'fsd_supervised_vehicle', 'fsd_unsupervised_vehicle', 'autopilot_vehicle', 'fsd_supervised', 'fsd_unsupervised', 'autonomous', 'robotaxi'].includes(t)) return 'vehicle'
+    if (['wall_connector', 'charger', 'home_charger', 'evse'].includes(t)) return 'charger'
+    return 'unknown'
+  }
+
+  type DeviceInfo = { label: string; provider: string; device_id: string; device_type: string; kind: ReturnType<typeof classifyKind> }
+  const deviceMap = new Map<string, DeviceInfo>()
   for (const d of devicesRows || []) {
     const key = `${d.provider}:${d.device_id || d.device_type}`
     if (!deviceMap.has(key)) {
@@ -133,9 +146,18 @@ Deno.serve(async (req) => {
         provider: d.provider,
         device_id: d.device_id || '',
         device_type: d.device_type || '',
+        kind: classifyKind(d.device_type || ''),
       })
     }
   }
+
+  // Capability source-of-truth: if a dedicated non-Tesla solar provider (Enphase/SolarEdge) is
+  // connected, that's the single OEM for solar — Tesla's solar readings are dropped to avoid
+  // double-counting. Same rule for battery (a non-Tesla battery provider, if ever present, wins).
+  const devicesArr = Array.from(deviceMap.values())
+  const hasDedicatedSolar = devicesArr.some((d) => d.kind === 'solar' && d.provider?.toLowerCase() !== 'tesla')
+  const hasDedicatedBattery = devicesArr.some((d) => d.kind === 'battery' && d.provider?.toLowerCase() !== 'tesla')
+
 
   // --- Pull 14d window of raw event rows (we'll normalize cumulative counters per-device per-day)
   const { data: prodRows } = await supabase
