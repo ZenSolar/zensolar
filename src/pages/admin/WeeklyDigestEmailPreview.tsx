@@ -227,7 +227,7 @@ export default function WeeklyDigestEmailPreview() {
     if (!session) return;
     (async () => {
       try {
-        const { data, error } = await supabase.functions.invoke('admin-get-user-emails', { body: {} });
+        const { data, error } = await supabase.functions.invoke('admin-get-user-emails', { body: { withDevices: true } });
         if (error) throw error;
         const list: UserOption[] = (data?.users || []).filter((u: UserOption) => !!u.email);
         setUsers(list);
