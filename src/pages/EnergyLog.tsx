@@ -35,6 +35,7 @@ export default function EnergyLog() {
     currentMonth,
     currentMonthData,
     compareMonthData,
+    currentSites,
     isLoading,
     goToPreviousMonth,
     goToNextMonth,
@@ -42,6 +43,7 @@ export default function EnergyLog() {
     activeTab,
     setActiveTab,
   } = useEnergyLog();
+
 
   const { data: chargingSessions = [] } = useChargingSessions(currentMonth);
   const queryClient = useQueryClient();
@@ -334,7 +336,6 @@ export default function EnergyLog() {
               </Button>
             </div>
           </AnimatedItem>
-
           {/* Daily list (mobile / cards mode) or table (desktop table mode) */}
           <AnimatedItem>
             {viewMode === 'table' ? (
@@ -347,6 +348,42 @@ export default function EnergyLog() {
               </Card>
             )}
           </AnimatedItem>
+
+          {/* Per-site breakdown — only when user has 2+ PV systems on the chosen OEM */}
+          {activeTab === 'solar' && currentSites.length > 1 && (
+            <AnimatedItem>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between px-1">
+                  <h2 className="text-sm font-semibold text-foreground">
+                    Per-site breakdown · {currentSites.length} systems
+                  </h2>
+                  <span className="text-xs text-muted-foreground">
+                    {currentMonthData.totalKwh.toLocaleString()} {unitLabel} combined
+                  </span>
+                </div>
+                {currentSites.map((site) => (
+                  <Card key={site.deviceId} className="bg-card/60 border-border/50">
+                    <CardContent className="px-3 py-2 space-y-1">
+                      <div className="flex items-center justify-between pt-1.5 pb-1">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Sun className="h-3.5 w-3.5 text-primary shrink-0" />
+                          <span className="text-sm font-semibold text-foreground truncate">
+                            {site.label}
+                          </span>
+                        </div>
+                        <span className="text-sm font-semibold tabular-nums text-foreground shrink-0">
+                          {site.totalKwh.toLocaleString()}
+                          <span className="text-xs font-normal text-muted-foreground ml-1">{unitLabel}</span>
+                        </span>
+                      </div>
+                      <DailyList days={site.days} unit={unitLabel} activityType={activeTab} />
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </AnimatedItem>
+          )}
+
 
           {/* Charging Sessions Detail — only on charging tabs, filtered to the active tab */}
           {(activeTab === 'supercharger' || activeTab === 'home-charging') && chargingSessions.length > 0 && (() => {
