@@ -160,8 +160,9 @@ export default function WeeklyDigestPreview() {
         <CardHeader>
           <CardTitle className="text-base">Pick recipient (beta manual send)</CardTitle>
           <CardDescription>
-            Only beta users with a registered email and at least one connected device are listed.
-            In production this email goes automatically to each user's registered email.
+            All registered beta users are listed. Users with connected devices appear first;
+            anyone without a device will get a "quiet week" digest. In production this email
+            goes automatically to each user's registered email.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -173,22 +174,25 @@ export default function WeeklyDigestPreview() {
             <SelectTrigger className="w-full">
               <SelectValue placeholder={
                 loadingUsers ? 'Loading users…'
-                : users.length === 0 ? 'No eligible users (need email + connected device)'
+                : users.length === 0 ? 'No registered users'
                 : 'Select a user'
               } />
             </SelectTrigger>
             <SelectContent>
               {users.map((u) => {
                 const provs = (u.providers || []).join(', ');
+                const tag = u.device_count
+                  ? (provs ? ` · ${provs}` : '')
+                  : ' · no device';
                 return (
                   <SelectItem key={u.id} value={u.id}>
-                    {u.email}{user?.id === u.id ? ' (you)' : ''}
-                    {provs ? ` · ${provs}` : ''}
+                    {u.email}{user?.id === u.id ? ' (you)' : ''}{tag}
                   </SelectItem>
                 );
               })}
             </SelectContent>
           </Select>
+
 
 
           <div className="text-xs text-muted-foreground">

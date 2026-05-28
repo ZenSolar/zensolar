@@ -83,8 +83,20 @@ Deno.serve(async (req) => {
     });
 
     if (withDevices) {
-      userList = userList.filter((u) => !!u.email && u.device_count > 0);
+      // Previously this filtered out everyone without a connected device, which
+      // hid beta users (e.g. Michael Tschida) from the weekly-digest pulldowns.
+      // Keep all users with an email, but sort device-connected ones first so
+      // the dropdown still surfaces the most-useful targets up top.
+      userList = userList
+        .filter((u) => !!u.email)
+        .sort((a, b) => {
+          if ((b.device_count || 0) !== (a.device_count || 0)) {
+            return (b.device_count || 0) - (a.device_count || 0);
+          }
+          return (a.email || '').localeCompare(b.email || '');
+        });
     }
+
 
     return new Response(
       JSON.stringify({ users: userList }),
