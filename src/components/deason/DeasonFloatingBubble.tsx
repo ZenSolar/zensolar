@@ -38,6 +38,7 @@ export function DeasonFloatingBubble() {
   const [pendingMeta, setPendingMeta] = useState<Record<string, unknown> | null>(null);
   const [welcoming, setWelcoming] = useState(false);
   const welcomeTimer = useRef<number | null>(null);
+  const creatingThreadRef = useRef(false);
   const location = useLocation();
 
   // Listen for programmatic open / nudge requests from anywhere in the app.
@@ -89,9 +90,12 @@ export function DeasonFloatingBubble() {
       return threads[0].id;
     }
     if (threadsLoading) return null;
+    if (creatingThreadRef.current) return null;
+    creatingThreadRef.current = true;
     setPreparingThread(true);
     const created = await createThread();
     setPreparingThread(false);
+    creatingThreadRef.current = false;
     if (!created) return null;
     setThreadId(created.id);
     return created.id;
@@ -103,10 +107,12 @@ export function DeasonFloatingBubble() {
   }, [open, user, threadId, preparingThread, threads.length, threadsLoading]);
 
   const handleNewSavedThread = async () => {
-    if (!user) return;
+    if (!user || creatingThreadRef.current) return;
+    creatingThreadRef.current = true;
     setPreparingThread(true);
     const created = await createThread();
     setPreparingThread(false);
+    creatingThreadRef.current = false;
     if (created) setThreadId(created.id);
   };
 
