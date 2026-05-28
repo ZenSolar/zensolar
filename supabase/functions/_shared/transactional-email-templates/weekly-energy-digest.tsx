@@ -186,7 +186,7 @@ export const template = {
   },
   displayName: 'Weekly Energy Digest',
   previewData: {
-    firstName: 'Mike',
+    firstName: 'Michael',
     weekLabel: 'Mar 17 – Mar 23, 2026',
     narrative:
       'Your Powerwall pulled more weight than usual this week — discharging during peak hours while your panels ran flat-out on Wednesday\'s clear sky. Your EV mostly charged off home solar, which is exactly the flywheel we want.',
