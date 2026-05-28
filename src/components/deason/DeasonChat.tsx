@@ -215,6 +215,44 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onUserMe
           )}
         </div>
       </div>
+      {/* Search match navigator */}
+      {matchIndices.length > 0 && (
+        <div className="flex items-center justify-between gap-2 border-b border-border bg-amber-500/5 px-3 py-1.5 text-xs">
+          <div className="text-muted-foreground">
+            Match <span className="font-medium text-foreground">{activeMatch + 1}</span> of{" "}
+            <span className="font-medium text-foreground">{matchIndices.length}</span>
+            {highlightQuery && (
+              <span className="ml-2 hidden sm:inline">
+                for &ldquo;<span className="text-foreground">{highlightQuery}</span>&rdquo;
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              onClick={goPrevMatch}
+              disabled={matchIndices.length < 2}
+              title="Previous match"
+            >
+              <ChevronUp className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              onClick={goNextMatch}
+              disabled={matchIndices.length < 2}
+              title="Next match"
+            >
+              <ChevronDown className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
