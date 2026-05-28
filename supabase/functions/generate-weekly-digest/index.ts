@@ -466,7 +466,13 @@ Deno.serve(async (req) => {
   const kpis: DigestPayload['kpis'] = []
   if (solarWh > 0) kpis.push({ label: 'Solar produced', value: `${fmt(solarWh / 1000)} kWh`, sub: 'Generated this week', accent: 'solar' })
   if (batteryWh > 0) kpis.push({ label: 'Battery exported', value: `${fmt(batteryWh / 1000)} kWh`, sub: 'Discharged to home', accent: 'battery' })
-  if (evMiles > 0) kpis.push({ label: 'EV miles driven', value: `${fmtInt(evMiles)} mi`, sub: `${evDaysDriven} day${evDaysDriven === 1 ? '' : 's'} driven`, accent: 'ev' })
+  if (evMiles > 0) {
+    const evSub = evMilesIsEstimate
+      ? `est. weekly avg (last ${evMilesBaselineDays} days)`
+      : `${evDaysDriven} day${evDaysDriven === 1 ? '' : 's'} driven`
+    kpis.push({ label: 'EV miles driven', value: `${fmtInt(evMiles)} mi`, sub: evSub, accent: 'ev' })
+  }
+
   if (homeChargingKwh > 0) kpis.push({ label: 'Home charging', value: `${fmt(homeChargingKwh)} kWh`, sub: `${homeChargingSessions} session${homeChargingSessions === 1 ? '' : 's'}`, accent: 'home' })
   if (superchargerKwh > 0) kpis.push({ label: 'Tesla Supercharging', value: `${fmt(superchargerKwh)} kWh`, sub: `${superchargerSessions} session${superchargerSessions === 1 ? '' : 's'}`, accent: 'super' })
 
