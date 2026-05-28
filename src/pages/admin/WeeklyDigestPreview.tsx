@@ -44,7 +44,7 @@ export default function WeeklyDigestPreview() {
       setLoadingUsers(true);
       try {
         const { data, error } = await supabase.functions.invoke('admin-get-user-emails', {
-          body: {},
+          body: { withDevices: true },
         });
         if (error) throw error;
         if (cancelled) return;
