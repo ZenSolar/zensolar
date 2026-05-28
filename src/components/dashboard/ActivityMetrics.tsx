@@ -499,7 +499,9 @@ export function ActivityMetrics({
                       label: `${device.deviceName} Solar Production`,
                       unit: 'kWh',
                       pending: pendingKwh,
+                      accent: 'solar',
                     }) : undefined}
+
                   />
                 );
                 return index === 0 && onHideField ? (
@@ -526,7 +528,8 @@ export function ActivityMetrics({
                   color="gold"
                   active={current.solarKwh > 0}
                   isLoading={isLoading}
-                  onTap={current.solarKwh > 0 ? () => openSheet({ category: 'solar', label: solarLabel, unit: 'kWh', pending: current.solarKwh }) : undefined}
+                  onTap={current.solarKwh > 0 ? () => openSheet({ category: 'solar', label: solarLabel, unit: 'kWh', pending: current.solarKwh, accent: 'solar' }) : undefined}
+
                 />
               </SwipeableActivityField>
             )
@@ -554,7 +557,9 @@ export function ActivityMetrics({
                       label: `${device.deviceName} Battery Storage Discharged`,
                       unit: 'kWh',
                       pending: pendingKwh,
+                      accent: 'secondary',
                     }) : undefined}
+
                   />
                 );
                 return index === 0 && onHideField ? (
@@ -581,7 +586,8 @@ export function ActivityMetrics({
                   color="teal"
                   active={current.batteryKwh > 0}
                   isLoading={isLoading}
-                  onTap={current.batteryKwh > 0 ? () => openSheet({ category: 'battery', label: batteryLabel, unit: 'kWh', pending: current.batteryKwh }) : undefined}
+                  onTap={current.batteryKwh > 0 ? () => openSheet({ category: 'battery', label: batteryLabel, unit: 'kWh', pending: current.batteryKwh, accent: 'secondary' }) : undefined}
+
                 />
               </SwipeableActivityField>
             )
@@ -609,6 +615,7 @@ export function ActivityMetrics({
                       label: `${device.deviceName} EV Miles`,
                       unit: 'mi',
                       pending: pendingMiles,
+                      accent: 'primary',
                     }) : undefined}
                   />
                 );
@@ -636,7 +643,7 @@ export function ActivityMetrics({
                   color="green"
                   active={current.evMiles > 0}
                   isLoading={isLoading}
-                  onTap={current.evMiles > 0 ? () => openSheet({ category: 'ev_miles', label: evLabel, unit: 'mi', pending: current.evMiles }) : undefined}
+                  onTap={current.evMiles > 0 ? () => openSheet({ category: 'ev_miles', label: evLabel, unit: 'mi', pending: current.evMiles, accent: 'primary' }) : undefined}
                 />
               </SwipeableActivityField>
             )
@@ -660,7 +667,7 @@ export function ActivityMetrics({
                     color="cyan"
                     active={superchargerKwh > 0}
                     isLoading={isLoading}
-                    onTap={superchargerKwh > 0 ? () => openSheet({ category: 'supercharger', label: superchargerLabel, unit: 'kWh', pending: superchargerKwh }) : undefined}
+                    onTap={superchargerKwh > 0 ? () => openSheet({ category: 'supercharger', label: superchargerLabel, unit: 'kWh', pending: superchargerKwh, accent: 'energy' }) : undefined}
                   />
                 </SwipeableActivityField>
               )}
@@ -687,6 +694,7 @@ export function ActivityMetrics({
                           label: `${device.deviceName} Home Charger`,
                           unit: 'kWh',
                           pending: pendingKwh,
+                          accent: 'solar',
                         }) : undefined}
                       />
                     );
@@ -715,7 +723,7 @@ export function ActivityMetrics({
                       active={homeChargerKwh > 0}
                       isLoading={isLoading}
                       liveIndicator={isCharging}
-                      onTap={homeChargerKwh > 0 ? () => openSheet({ category: 'home_charger', label: homeChargerLabel, unit: 'kWh', pending: homeChargerKwh }) : undefined}
+                      onTap={homeChargerKwh > 0 ? () => openSheet({ category: 'home_charger', label: homeChargerLabel, unit: 'kWh', pending: homeChargerKwh, accent: 'solar' }) : undefined}
                     />
                   </SwipeableActivityField>
                 )
@@ -735,7 +743,7 @@ export function ActivityMetrics({
                 color="cyan"
                 active={current.chargingKwh > 0}
                 isLoading={isLoading}
-                onTap={current.chargingKwh > 0 ? () => openSheet({ category: 'charging', label: 'EV Charging', unit: 'kWh', pending: current.chargingKwh }) : undefined}
+                onTap={current.chargingKwh > 0 ? () => openSheet({ category: 'charging', label: 'EV Charging', unit: 'kWh', pending: current.chargingKwh, accent: 'energy' }) : undefined}
               />
             </SwipeableActivityField>
           ) : null}

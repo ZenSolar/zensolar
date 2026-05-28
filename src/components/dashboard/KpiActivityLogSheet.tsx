@@ -33,6 +33,8 @@ import { MINT_RATIO_KWH_PER_TOKEN } from '@/lib/tokenomics';
 import { useDemoContextSafe } from '@/contexts/DemoContext';
 import { generateDailyBreakdown, type DailyCategory } from '@/lib/dailyMintBreakdown';
 
+export type KpiAccent = 'solar' | 'secondary' | 'primary' | 'energy' | 'token';
+
 export interface KpiSheetState {
   open: boolean;
   category: MintCategory | null;
@@ -41,7 +43,10 @@ export interface KpiSheetState {
   label: string;
   unit: 'kWh' | 'mi';
   pending: number;
+  /** Semantic color token matching the KPI field — drives the drawer outline. */
+  accent?: KpiAccent;
 }
+
 
 interface Props {
   state: KpiSheetState;
@@ -212,9 +217,10 @@ function DayGroupRow({ group, unit, category }: { group: DayGroup; unit: 'kWh' |
     </div>
   );
 }
-
 export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Props) {
-  const { open, category, deviceId, deviceName, label, unit, pending } = state;
+  const { open, category, deviceId, deviceName, label, unit, pending, accent } = state;
+  const accentVar = `--${accent ?? 'primary'}`;
+
   const demoCtx = useDemoContextSafe();
   const isDemo = !!demoCtx;
 
@@ -300,7 +306,14 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange} shouldScaleBackground={false} closeThreshold={0.35}>
-      <DrawerContent className="p-0 border-t border-primary/30 bg-background h-[85svh] min-h-0 flex flex-col rounded-t-2xl focus:outline-none will-change-transform touch-pan-y">
+      <DrawerContent
+        style={{
+          borderColor: `hsl(var(${accentVar}) / 0.55)`,
+          boxShadow: `0 -8px 32px hsl(var(${accentVar}) / 0.18)`,
+        }}
+        className="p-0 border-2 bg-background h-[85svh] min-h-0 flex flex-col rounded-t-2xl focus:outline-none will-change-transform touch-pan-y"
+      >
+
         {/* Header */}
         <DrawerHeader className="px-5 pt-2 pb-3 space-y-2 text-left border-b border-border/40">
           <div className="flex items-start justify-between gap-3">
