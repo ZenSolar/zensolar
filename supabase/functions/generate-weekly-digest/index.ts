@@ -377,7 +377,6 @@ Deno.serve(async (req) => {
   contributions.sort((a, b) => b.kwh - a.kwh);
   const topDevice = contributions[0];
 
-  const topDevice = contributions[0];
 
   // --- Tesla EV detail (for personalized driving/charging copy)
   const hasTeslaEV = Array.from(deviceMap.values()).some(
