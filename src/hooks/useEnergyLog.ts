@@ -141,14 +141,6 @@ function reduceDailyResetRows(
       addToDay(dailyByDay, providersByDay, dayKey, max / 1000, provider);
     }
   }
-}
-
-// ── tab-specific reducers (mirror useDashboardData KPI logic) ─────────────
-
-/**
- * SOLAR: Enphase > SolarEdge > Tesla priority. One OEM per home, never summed.
- * Matches `useDashboardData.buildFastPathData` solar branch exactly.
- */
 function computeSolarDaily(rows: ProductionRow[]): Map<string, { kwh: number; providers: Set<string> }> {
   const providers = new Set(rows.map((r) => r.provider));
   let chosen: 'enphase' | 'solaredge' | 'tesla' | null = null;
@@ -167,6 +159,60 @@ function computeSolarDaily(rows: ProductionRow[]): Map<string, { kwh: number; pr
     // tesla_historical = daily backfill (max per day = daily total)
     reduceDailyResetRows(rows.filter((r) => r.provider === 'tesla_historical'), dailyByDay, providersByDay);
     // tesla = cumulative pending (day-over-day deltas), but skip if backfill covers the period
+    const teslaRows = rows.filter((r) => r.provider === 'tesla');
+    if (!providers.has('tesla_historical')) {
+      reduceCumulativeRows(teslaRows, dailyByDay, providersByDay, 'kwh');
+    }
+  }
+
+  return mergeMaps(dailyByDay, providersByDay);
+}
+
+/**
+ * Per-device solar breakdown — same provider-priority rule as computeSolarDaily,
+ * but returns one daily map per device_id so multi-site users (e.g. Mike's 3 PV
+ * arrays) see each system separately in the Energy Log.
+ */
+function computeSolarDailyPerDevice(
+  rows: ProductionRow[],
+): Map<string, { provider: string; daily: Map<string, { kwh: number; providers: Set<string> }> }> {
+  const providers = new Set(rows.map((r) => r.provider));
+  let chosen: 'enphase' | 'solaredge' | 'tesla' | null = null;
+  if (providers.has('enphase')) chosen = 'enphase';
+  else if (providers.has('solaredge')) chosen = 'solaredge';
+  else if (providers.has('tesla') || providers.has('tesla_historical')) chosen = 'tesla';
+  if (!chosen) return new Map();
+
+  // Filter rows to the chosen OEM's providers
+  const chosenRows = chosen === 'tesla'
+    ? rows.filter((r) => r.provider === 'tesla' || r.provider === 'tesla_historical')
+    : rows.filter((r) => r.provider === chosen);
+
+  // Group by device_id
+  const byDevice = new Map<string, ProductionRow[]>();
+  for (const r of chosenRows) {
+    if (!byDevice.has(r.device_id)) byDevice.set(r.device_id, []);
+    byDevice.get(r.device_id)!.push(r);
+  }
+
+  const out = new Map<string, { provider: string; daily: Map<string, { kwh: number; providers: Set<string> }> }>();
+  for (const [deviceId, deviceRows] of byDevice) {
+    const dailyByDay = new Map<string, number>();
+    const providersByDay = new Map<string, Set<string>>();
+    const devProviders = new Set(deviceRows.map((r) => r.provider));
+    if (chosen === 'tesla') {
+      reduceDailyResetRows(deviceRows.filter((r) => r.provider === 'tesla_historical'), dailyByDay, providersByDay);
+      if (!devProviders.has('tesla_historical')) {
+        reduceCumulativeRows(deviceRows.filter((r) => r.provider === 'tesla'), dailyByDay, providersByDay, 'kwh');
+      }
+    } else {
+      reduceDailyResetRows(deviceRows, dailyByDay, providersByDay);
+    }
+    out.set(deviceId, { provider: chosen, daily: mergeMaps(dailyByDay, providersByDay) });
+  }
+  return out;
+}
+
     const teslaRows = rows.filter((r) => r.provider === 'tesla');
     if (!providers.has('tesla_historical')) {
       reduceCumulativeRows(teslaRows, dailyByDay, providersByDay, 'kwh');
