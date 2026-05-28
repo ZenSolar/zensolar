@@ -35,6 +35,7 @@ export default function EnergyLog() {
     currentMonth,
     currentMonthData,
     compareMonthData,
+    currentSites,
     isLoading,
     goToPreviousMonth,
     goToNextMonth,
@@ -42,6 +43,7 @@ export default function EnergyLog() {
     activeTab,
     setActiveTab,
   } = useEnergyLog();
+
 
   const { data: chargingSessions = [] } = useChargingSessions(currentMonth);
   const queryClient = useQueryClient();
