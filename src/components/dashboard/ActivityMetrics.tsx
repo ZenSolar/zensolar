@@ -558,6 +558,7 @@ export function ActivityMetrics({
                       unit: 'kWh',
                       pending: pendingKwh,
                       accent: 'secondary',
+                      accent: 'secondary',
                     }) : undefined}
 
                   />
