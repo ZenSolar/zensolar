@@ -166,9 +166,11 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onUserMe
           </div>
         </div>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" onClick={reset} title="New chat">
-            <RotateCcw className="h-4 w-4" />
-          </Button>
+          {!threadId && (
+            <Button variant="ghost" size="icon" onClick={reset} title="New chat">
+              <RotateCcw className="h-4 w-4" />
+            </Button>
+          )}
           {onClose && (
             <Button variant="ghost" size="icon" onClick={onClose} title="Close">
               <X className="h-4 w-4" />
@@ -179,7 +181,12 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onUserMe
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
-        {messages.length === 0 && (
+        {loadingHistory && (
+          <div className="flex justify-center py-10">
+            <Sparkles className="h-5 w-5 animate-pulse text-amber-500" />
+          </div>
+        )}
+        {!loadingHistory && messages.length === 0 && (
           <div className="mx-auto mt-6 max-w-md text-center">
             <div className="mb-3 text-2xl">{isInnerCircle ? "👋" : "☀️"}</div>
             <h2 className="mb-2 text-lg font-semibold">{welcomeTitle}</h2>
