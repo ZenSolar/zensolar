@@ -54,24 +54,30 @@ Deno.serve(async (req) => {
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!
   const lovableKey = Deno.env.get('LOVABLE_API_KEY')
   const supabase = createClient(supabaseUrl, serviceKey)
 
-  // --- Auth: identify caller from JWT
+  // --- Auth: identify caller from JWT using getClaims (signing-keys safe)
   const authHeader = req.headers.get('Authorization') || ''
-  const jwt = authHeader.replace(/^Bearer\s+/i, '')
-  if (!jwt) {
+  if (!authHeader.toLowerCase().startsWith('bearer ')) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
-  const { data: userResult } = await supabase.auth.getUser(jwt)
-  const caller = userResult?.user
-  if (!caller) {
+  const jwt = authHeader.slice(7).trim()
+  const authClient = createClient(supabaseUrl, anonKey, {
+    global: { headers: { Authorization: `Bearer ${jwt}` } },
+  })
+  const { data: claimsData, error: claimsError } = await authClient.auth.getClaims(jwt)
+  const callerId = claimsData?.claims?.sub as string | undefined
+  if (claimsError || !callerId) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
+  const caller = { id: callerId }
+
 
   let body: any = {}
   try { body = await req.json() } catch { /* empty body ok */ }
