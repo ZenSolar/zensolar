@@ -15,6 +15,8 @@ interface DeasonChatProps {
   threadId?: string | null;
   /** Called whenever a new user message is sent (lets parents re-sort thread list). */
   onUserMessage?: (text: string | null) => void;
+  /** When set, scroll to and highlight the first message containing this query. */
+  highlightQuery?: string;
 }
 
 const INNER_CIRCLE_PROMPTS = [
@@ -59,7 +61,7 @@ const ONBOARDING_PROMPTS = [
  * Persona-aware: shows different welcome copy + suggested prompts depending on
  * whether the viewer is inner-circle or a regular demo/beta user.
  */
-export function DeasonChat({ onClose, compact = false, threadId = null, onUserMessage }: DeasonChatProps) {
+export function DeasonChat({ onClose, compact = false, threadId = null, onUserMessage, highlightQuery }: DeasonChatProps) {
   const { messages, streaming, error, send, reset, seedAssistant, loadingHistory } = useDeason({
     threadId,
     onThreadTouched: onUserMessage,
@@ -69,10 +71,30 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onUserMe
   const [attachedImage, setAttachedImage] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const messageRefs = useRef<Array<HTMLDivElement | null>>([]);
+
+  // Index of first message matching highlightQuery (if any).
+  const highlightIndex = useMemo(() => {
+    const q = highlightQuery?.trim().toLowerCase();
+    if (!q || messages.length === 0) return -1;
+    return messages.findIndex((m) => {
+      const text = typeof m.content === "string"
+        ? m.content
+        : m.content.map((p) => (p.type === "text" ? p.text ?? "" : "")).join(" ");
+      return text.toLowerCase().includes(q);
+    });
+  }, [highlightQuery, messages]);
 
   useEffect(() => {
+    if (highlightIndex >= 0 && !loadingHistory) {
+      const el = messageRefs.current[highlightIndex];
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+    }
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, streaming]);
+  }, [messages, streaming, highlightIndex, loadingHistory]);
 
   // Listen for `deason:seed` events from elsewhere in the app (e.g. the
   // OAuth error toast's "Ask Deason" handoff). Pushes a hand-written
@@ -209,7 +231,12 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onUserMe
           {messages.map((m, i) => (
             <div
               key={i}
-              className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}
+              ref={(el) => { messageRefs.current[i] = el; }}
+              className={cn(
+                "flex scroll-mt-20 rounded-xl transition-shadow",
+                m.role === "user" ? "justify-end" : "justify-start",
+                i === highlightIndex && "ring-2 ring-amber-500/60"
+              )}
             >
               <div className={cn("space-y-2", m.role === "user" ? "max-w-[85%]" : "w-full max-w-[92%]")}>
                 {(m.content || m.role === "user" || !m.billReport) && (
