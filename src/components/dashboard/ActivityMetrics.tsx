@@ -643,7 +643,7 @@ export function ActivityMetrics({
                   color="green"
                   active={current.evMiles > 0}
                   isLoading={isLoading}
-                  onTap={current.evMiles > 0 ? () => openSheet({ category: 'ev_miles', label: evLabel, unit: 'mi', pending: current.evMiles }) : undefined}
+                  onTap={current.evMiles > 0 ? () => openSheet({ category: 'ev_miles', label: evLabel, unit: 'mi', pending: current.evMiles, accent: 'primary' }) : undefined}
                 />
               </SwipeableActivityField>
             )
