@@ -540,12 +540,6 @@ Deno.serve(async (req) => {
     }),
   })
 
-      recipientEmail: email,
-      idempotencyKey,
-      templateData: payload,
-    }),
-  })
-
   if (!sendResp.ok) {
     const detail = await sendResp.text().catch(() => '')
     console.error('send-transactional-email failed', sendResp.status, detail)
