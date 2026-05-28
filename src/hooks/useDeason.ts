@@ -91,13 +91,13 @@ export function useDeason(opts: UseDeasonOptions = {}) {
       if (!threadId) return;
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      await supabase.from("deason_messages").insert({
+      await supabase.from("deason_messages").insert([{
         thread_id: threadId,
         user_id: user.id,
         role: msg.role,
         content: msg.content as any,
-        bill_report: msg.billReport ?? null,
-      });
+        bill_report: (msg.billReport ?? null) as any,
+      }]);
       // Bump thread updated_at, and set title from first user message.
       const updates: Record<string, any> = { updated_at: new Date().toISOString() };
       if (msg.role === "user" && !titleSetRef.current) {
