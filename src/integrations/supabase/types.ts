@@ -2460,6 +2460,57 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_narratives: {
+        Row: {
+          created_at: string
+          data_snapshot: Json
+          generated_at: string
+          id: string
+          model: string
+          narrative_md: string
+          published: boolean
+          sent_at: string | null
+          source_oem_priority: Json
+          teaser: string | null
+          updated_at: string
+          user_id: string
+          week_end_date: string
+          week_start_date: string
+        }
+        Insert: {
+          created_at?: string
+          data_snapshot?: Json
+          generated_at?: string
+          id?: string
+          model?: string
+          narrative_md: string
+          published?: boolean
+          sent_at?: string | null
+          source_oem_priority?: Json
+          teaser?: string | null
+          updated_at?: string
+          user_id: string
+          week_end_date: string
+          week_start_date: string
+        }
+        Update: {
+          created_at?: string
+          data_snapshot?: Json
+          generated_at?: string
+          id?: string
+          model?: string
+          narrative_md?: string
+          published?: boolean
+          sent_at?: string | null
+          source_oem_priority?: Json
+          teaser?: string | null
+          updated_at?: string
+          user_id?: string
+          week_end_date?: string
+          week_start_date?: string
+        }
+        Relationships: []
+      }
       work_journal: {
         Row: {
           category: string
