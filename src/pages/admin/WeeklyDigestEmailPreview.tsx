@@ -309,7 +309,6 @@ export default function WeeklyDigestEmailPreview() {
                 })}
               </SelectContent>
             </Select>
-            </Select>
             <Button onClick={loadReal} disabled={!session || loading || !targetUserId} className="w-full sm:w-auto">
               {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Eye className="h-4 w-4 mr-2" />}
               Load real data
