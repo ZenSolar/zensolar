@@ -274,6 +274,19 @@ export default function WeeklyDigestEmailPreview() {
         </div>
       </div>
 
+      {!session && (
+        <Card className="border-amber-500/40 bg-amber-500/5">
+          <CardContent className="flex flex-col sm:flex-row items-start sm:items-center gap-3 pt-6">
+            <div className="flex-1 text-sm">
+              Sign in to load real user data into the preview. Sample data still renders without signing in.
+            </div>
+            <Button onClick={() => navigate('/auth')} size="sm">
+              <LogIn className="h-4 w-4 mr-2" /> Sign in
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Data source</CardTitle>
