@@ -221,7 +221,6 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
   const { open, category, deviceId, deviceName, label, unit, pending, accent } = state;
   const accentVar = `--${accent ?? 'primary'}`;
 
-  const { open, category, deviceId, deviceName, label, unit, pending } = state;
   const demoCtx = useDemoContextSafe();
   const isDemo = !!demoCtx;
 
