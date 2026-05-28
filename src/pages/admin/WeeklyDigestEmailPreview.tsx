@@ -321,8 +321,8 @@ export default function WeeklyDigestEmailPreview() {
               <SelectContent>
                 {users.map((u) => {
                   const provs = (u.providers || []).join(', ');
-                  const tag = u.device_count
-                    ? (provs ? ` · ${provs}` : '')
+                  const tag = provs
+                    ? ` · ${provs}${u.device_count ? '' : ' token'}`
                     : ' · no device';
                   return (
                     <SelectItem key={u.id} value={u.id}>
