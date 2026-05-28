@@ -1243,10 +1243,9 @@ export function useDashboardData() {
                 pendingKwh: pendingWh / 1000,
               });
             }
-
-            }
           }
         }
+
         
         // Battery devices - Tesla exposes batteries as their own device_type (Powerwall).
         // Enphase/SolarEdge merge battery_discharge_wh onto the solar device row, so detect via field presence.
