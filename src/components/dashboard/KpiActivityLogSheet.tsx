@@ -33,6 +33,8 @@ import { MINT_RATIO_KWH_PER_TOKEN } from '@/lib/tokenomics';
 import { useDemoContextSafe } from '@/contexts/DemoContext';
 import { generateDailyBreakdown, type DailyCategory } from '@/lib/dailyMintBreakdown';
 
+export type KpiAccent = 'solar' | 'secondary' | 'primary' | 'energy' | 'token';
+
 export interface KpiSheetState {
   open: boolean;
   category: MintCategory | null;
@@ -41,7 +43,10 @@ export interface KpiSheetState {
   label: string;
   unit: 'kWh' | 'mi';
   pending: number;
+  /** Semantic color token matching the KPI field — drives the drawer outline. */
+  accent?: KpiAccent;
 }
+
 
 interface Props {
   state: KpiSheetState;
