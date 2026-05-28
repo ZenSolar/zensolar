@@ -385,8 +385,6 @@ export default function EnergyLog() {
           )}
 
 
-          </AnimatedItem>
-
           {/* Charging Sessions Detail — only on charging tabs, filtered to the active tab */}
           {(activeTab === 'supercharger' || activeTab === 'home-charging') && chargingSessions.length > 0 && (() => {
             const filtered = chargingSessions.filter((s) =>
