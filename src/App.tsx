@@ -469,8 +469,19 @@ const App = () => {
                             <AdminWeeklyDigest />
                           </AppLayout>
                         </ProtectedRoute>
-                      } 
                     />
+                    <Route
+                      path="/admin/weekly-digest/email-preview"
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminWeeklyDigestEmailPreview />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
+                    />
+
+
 
                     <Route 
                       path="/admin/ev-api-reference" 
