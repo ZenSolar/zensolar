@@ -132,7 +132,16 @@ export default function WeeklyDigestPreview() {
             Generate and send this week's energy digest. Founders only.
           </p>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          className="ml-auto"
+          onClick={() => navigate('/admin/weekly-digest/email-preview')}
+        >
+          <Eye className="h-4 w-4 mr-2" /> View email design
+        </Button>
       </div>
+
 
       {!session && (
         <Card className="border-amber-500/40 bg-amber-500/5">
