@@ -309,9 +309,8 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Fetch month-by-month using period=month to get daily aggregates
-      // Note: period=day returns 5-minute intervals for a single day, not daily aggregates
-      for (let year = startYear; year <= endYear; year++) {
+      // Fetch month-by-month using period=month to get broader historical aggregates.
+      for (let year = startYear; !daysBack && year <= endYear; year++) {
         const monthStart = year === startYear ? parseInt(startDate.split("-")[1]) : 1;
         const monthEnd = year === endYear ? new Date().getMonth() + 1 : 12;
 
