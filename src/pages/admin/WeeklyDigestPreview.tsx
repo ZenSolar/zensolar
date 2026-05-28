@@ -15,7 +15,7 @@ import {
 import { Loader2, Mail, ArrowLeft, Send, Eye, LogIn } from 'lucide-react';
 import { toast } from 'sonner';
 
-type UserOption = { id: string; email: string | null };
+type UserOption = { id: string; email: string | null; device_count?: number; providers?: string[]; device_types?: string[] };
 
 export default function WeeklyDigestPreview() {
   const navigate = useNavigate();
@@ -44,7 +44,7 @@ export default function WeeklyDigestPreview() {
       setLoadingUsers(true);
       try {
         const { data, error } = await supabase.functions.invoke('admin-get-user-emails', {
-          body: {},
+          body: { withDevices: true },
         });
         if (error) throw error;
         if (cancelled) return;
@@ -160,8 +160,8 @@ export default function WeeklyDigestPreview() {
         <CardHeader>
           <CardTitle className="text-base">Pick recipient (beta manual send)</CardTitle>
           <CardDescription>
+            Only beta users with a registered email and at least one connected device are listed.
             In production this email goes automatically to each user's registered email.
-            For testing you can pick any registered user.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -171,16 +171,25 @@ export default function WeeklyDigestPreview() {
             disabled={!session || loadingUsers || users.length === 0}
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder={loadingUsers ? 'Loading users…' : 'Select a user'} />
+              <SelectValue placeholder={
+                loadingUsers ? 'Loading users…'
+                : users.length === 0 ? 'No eligible users (need email + connected device)'
+                : 'Select a user'
+              } />
             </SelectTrigger>
             <SelectContent>
-              {users.map((u) => (
-                <SelectItem key={u.id} value={u.id}>
-                  {u.email}{user?.id === u.id ? ' (you)' : ''}
-                </SelectItem>
-              ))}
+              {users.map((u) => {
+                const provs = (u.providers || []).join(', ');
+                return (
+                  <SelectItem key={u.id} value={u.id}>
+                    {u.email}{user?.id === u.id ? ' (you)' : ''}
+                    {provs ? ` · ${provs}` : ''}
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
+
 
           <div className="text-xs text-muted-foreground">
             Will send to: <span className="font-mono">{selectedUser?.email || '—'}</span>

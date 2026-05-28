@@ -47,25 +47,50 @@ Deno.serve(async (req) => {
     }
 
     // Fetch all users from auth.users
+    // Optional filter: only users with at least one connected device
+    let withDevices = false;
+    try {
+      const body = await req.json();
+      withDevices = !!body?.withDevices;
+    } catch { /* no body ok */ }
+
+    // Fetch all users from auth.users
     const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
-    
-    if (listError) {
-      throw listError;
+    if (listError) throw listError;
+
+    // Pull device summary keyed by user_id
+    const deviceMap = new Map<string, { count: number; providers: string[]; device_types: string[] }>();
+    const { data: devices } = await supabaseAdmin
+      .from('connected_devices')
+      .select('user_id, provider, device_type');
+    for (const d of devices || []) {
+      const entry = deviceMap.get(d.user_id) || { count: 0, providers: [], device_types: [] };
+      entry.count += 1;
+      if (d.provider && !entry.providers.includes(d.provider)) entry.providers.push(d.provider);
+      if (d.device_type && !entry.device_types.includes(d.device_type)) entry.device_types.push(d.device_type);
+      deviceMap.set(d.user_id, entry);
     }
 
-    // Return minimal user info (id + email only)
-    const userList = users.map(u => ({
-      id: u.id,
-      email: u.email,
-    }));
+    let userList = users.map((u) => {
+      const dev = deviceMap.get(u.id);
+      return {
+        id: u.id,
+        email: u.email,
+        device_count: dev?.count || 0,
+        providers: dev?.providers || [],
+        device_types: dev?.device_types || [],
+      };
+    });
+
+    if (withDevices) {
+      userList = userList.filter((u) => !!u.email && u.device_count > 0);
+    }
 
     return new Response(
       JSON.stringify({ users: userList }),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
+
 
   } catch (error) {
     console.error('Error fetching user emails:', error);

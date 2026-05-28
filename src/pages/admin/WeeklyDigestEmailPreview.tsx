@@ -27,7 +27,7 @@ type DigestPayload = {
   quietWeek?: boolean;
 };
 
-type UserOption = { id: string; email: string | null };
+type UserOption = { id: string; email: string | null; device_count?: number; providers?: string[] };
 
 const SITE_NAME = 'ZenSolar';
 const LOGO_URL = 'https://fcptrpgqkjffgeddajwl.supabase.co/storage/v1/object/public/email-assets/zen-logo-horizontal-v3.png';
@@ -227,7 +227,7 @@ export default function WeeklyDigestEmailPreview() {
     if (!session) return;
     (async () => {
       try {
-        const { data, error } = await supabase.functions.invoke('admin-get-user-emails', { body: {} });
+        const { data, error } = await supabase.functions.invoke('admin-get-user-emails', { body: { withDevices: true } });
         if (error) throw error;
         const list: UserOption[] = (data?.users || []).filter((u: UserOption) => !!u.email);
         setUsers(list);
@@ -292,14 +292,21 @@ export default function WeeklyDigestEmailPreview() {
             </Button>
             <Select value={targetUserId} onValueChange={setTargetUserId} disabled={!session || users.length === 0}>
               <SelectTrigger className="w-full sm:w-[280px]">
-                <SelectValue placeholder={session ? 'Select a user' : 'Sign in to load real data'} />
+                <SelectValue placeholder={
+                  !session ? 'Sign in to load real data'
+                  : users.length === 0 ? 'No beta users with a connected device'
+                  : 'Beta user with connected device'
+                } />
               </SelectTrigger>
               <SelectContent>
-                {users.map((u) => (
-                  <SelectItem key={u.id} value={u.id}>
-                    {u.email}{user?.id === u.id ? ' (you)' : ''}
-                  </SelectItem>
-                ))}
+                {users.map((u) => {
+                  const provs = (u.providers || []).join(', ');
+                  return (
+                    <SelectItem key={u.id} value={u.id}>
+                      {u.email}{user?.id === u.id ? ' (you)' : ''}{provs ? ` · ${provs}` : ''}
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
             <Button onClick={loadReal} disabled={!session || loading || !targetUserId} className="w-full sm:w-auto">

@@ -234,6 +234,35 @@ Deno.serve(async (req) => {
   const quietWeek = kpis.length === 0 && tokensThisWeek === 0
   const hadPartialData = false // beta: keep false; future = compare expected device check-ins
 
+  // --- Determine "device of the week" by kWh contribution
+  type DeviceContribution = { label: string; provider: string; kind: string; kwh: number };
+  const contributions: DeviceContribution[] = [];
+  for (const [, d] of deviceMap) {
+    const provLower = d.provider?.toLowerCase();
+    const solar = (perProviderSolar[provLower] || 0) / 1000;
+    const batt = (perProviderBattery[provLower] || 0) / 1000;
+    if (solar > 0) contributions.push({ label: d.label, provider: d.provider, kind: 'solar', kwh: solar });
+    if (batt > 0) contributions.push({ label: d.label, provider: d.provider, kind: 'battery', kwh: batt });
+  }
+  if (homeChargingKwh > 0) contributions.push({ label: 'Home charger', provider: 'wallbox', kind: 'home_charging', kwh: homeChargingKwh });
+  if (superchargerKwh > 0) contributions.push({ label: 'Public/Supercharger', provider: 'tesla', kind: 'supercharging', kwh: superchargerKwh });
+  contributions.sort((a, b) => b.kwh - a.kwh);
+  const topDevice = contributions[0];
+
+  // --- Tesla EV detail (for personalized driving/charging copy)
+  const hasTeslaEV = Array.from(deviceMap.values()).some(
+    (d) => d.provider?.toLowerCase() === 'tesla' && /ev|vehicle|car|model/i.test(d.label)
+  );
+  const teslaEV = hasTeslaEV
+    ? {
+        miles_driven: Math.round(evMiles),
+        home_charging_kwh: +homeChargingKwh.toFixed(1),
+        supercharging_kwh: +superchargerKwh.toFixed(1),
+        supercharger_sessions: superchargerSessions,
+        pct_from_home: evKwh > 0 ? Math.round((homeChargingKwh / evKwh) * 100) : 0,
+      }
+    : null;
+
   // --- AI narrative (Gemini 2.5 Flash via Lovable AI Gateway)
   let narrative: string | undefined
   if (!quietWeek && lovableKey) {
@@ -248,6 +277,10 @@ Deno.serve(async (req) => {
         tokens_lifetime: +tokensLifetime.toFixed(1),
         co2_kg: +co2Kg.toFixed(1),
         devices: Array.from(deviceMap.values()).map((d) => d.label),
+        top_device: topDevice
+          ? { label: topDevice.label, contribution: `${topDevice.kwh.toFixed(1)} kWh ${topDevice.kind.replace('_', ' ')}` }
+          : null,
+        tesla_ev: teslaEV,
       }
       const aiRes = await fetch(LOVABLE_AI_URL, {
         method: 'POST',
@@ -261,7 +294,10 @@ Deno.serve(async (req) => {
             {
               role: 'system',
               content:
-                'You write the 2-3 sentence opening for a ZenSolar weekly energy digest email. Conversational, second person ("you / your"). Reference SPECIFIC numbers from the data. Never use crypto jargon — say "$ZSOLAR earned" not "minted tokens". No emojis. No greetings. Just the body paragraph.',
+                'You are Deason, the ZenSolar copilot. Write the 2-4 sentence opening for a weekly energy digest email. Conversational, second person ("you / your"). Reference SPECIFIC numbers from the data. ' +
+                'Rules: (1) Lead with the user\'s top_device — call it out by name as the device that did the most work this week and quote its contribution. ' +
+                '(2) If tesla_ev is present, add one tight sentence about their driving and charging mix this week (miles + % from home solar vs supercharging). ' +
+                '(3) Never use crypto jargon — say "$ZSOLAR earned" not "minted tokens". No emojis. No greetings. Just the body paragraph.',
             },
             { role: 'user', content: `Week data for ${firstName}: ${JSON.stringify(summary)}` },
           ],
@@ -277,6 +313,7 @@ Deno.serve(async (req) => {
       console.error('AI narrative error', e)
     }
   }
+
 
   const payload: DigestPayload = {
     firstName,
