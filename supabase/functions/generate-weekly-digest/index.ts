@@ -252,10 +252,27 @@ Deno.serve(async (req) => {
     }
   }
 
+  // --- Capability dedup: one OEM per capability (matches Clean Energy Center rule).
+  // If the user connected a dedicated solar provider (Enphase/SolarEdge), drop any
+  // Tesla solar readings — Tesla Powerwalls with solar CTs would otherwise double-count.
+  // Same rule for battery.
+  const stripProvider = (metric: 'solar' | 'battery', provider: string) => {
+    const p = provider.toLowerCase()
+    const removed = buckets[metric].perProvider[p] || 0
+    if (removed > 0) buckets[metric].total = Math.max(0, buckets[metric].total - removed)
+    delete buckets[metric].perProvider[p]
+    for (const k of Object.keys(buckets[metric].perDevice)) {
+      if (k.toLowerCase().startsWith(`${p}|`)) delete buckets[metric].perDevice[k]
+    }
+  }
+  if (hasDedicatedSolar) stripProvider('solar', 'tesla')
+  if (hasDedicatedBattery) stripProvider('battery', 'tesla')
+
   const solarWh = buckets.solar.total
   const batteryWh = buckets.battery.total
   const evMilesFromOem = buckets.ev_miles.total // already in miles for ev_miles rows
   const teslaEvChargingWh = buckets.ev_charging.total // Wh on Tesla EV charging counter
+
 
   // --- Home charging sessions (kWh) for the week — same source the dashboard uses
   const { data: hcRows } = await supabase
