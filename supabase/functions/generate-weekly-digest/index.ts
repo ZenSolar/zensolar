@@ -494,6 +494,24 @@ Deno.serve(async (req) => {
   if (homeChargingKwh > 0) devices.push({ label: 'Home charger', provider: 'wallbox', metric: 'Home charging', value: `${fmt(homeChargingKwh)} kWh` })
   if (superchargerKwh > 0) devices.push({ label: 'Tesla Supercharging', provider: 'tesla', metric: 'Charging delivered', value: `${fmt(superchargerKwh)} kWh` })
 
+  // Per-vehicle EV miles breakdown — emit when the user has 2+ Tesla vehicles so
+  // they can see which car drove how much (e.g. Neil's "Black Beauty" vs "Low Spark").
+  const vehicleInfos = Array.from(deviceMap.values()).filter((d) => d.kind === 'vehicle' && d.provider?.toLowerCase() === 'tesla')
+  if (vehicleInfos.length > 1) {
+    for (const v of vehicleInfos) {
+      const m = evMilesPerDevice[`tesla|${v.device_id}`] || 0
+      if (m > 0) {
+        devices.push({
+          label: v.label,
+          provider: 'tesla',
+          metric: evMilesIsEstimate ? 'EV miles (est. weekly avg)' : 'EV miles driven',
+          value: `${fmtInt(m)} mi`,
+        })
+      }
+    }
+  }
+
+
 
 
   const quietWeek = kpis.length === 0 && tokensThisWeek === 0
