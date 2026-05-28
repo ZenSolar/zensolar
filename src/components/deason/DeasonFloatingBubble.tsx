@@ -30,7 +30,7 @@ const WELCOME_AUTO_HIDE_MS = 12_000;
 
 export function DeasonFloatingBubble() {
   const { user, isLoading } = useAuth();
-  const { createThread, touchThread } = useDeasonThreads();
+  const { threads, loading: threadsLoading, createThread, touchThread } = useDeasonThreads();
   const [open, setOpen] = useState(false);
   const [threadId, setThreadId] = useState<string | null>(null);
   const [preparingThread, setPreparingThread] = useState(false);
@@ -84,6 +84,11 @@ export function DeasonFloatingBubble() {
   const ensureSavedThread = async () => {
     if (!user) return null;
     if (threadId) return threadId;
+    if (threads.length > 0) {
+      setThreadId(threads[0].id);
+      return threads[0].id;
+    }
+    if (threadsLoading) return null;
     setPreparingThread(true);
     const created = await createThread();
     setPreparingThread(false);
@@ -95,7 +100,7 @@ export function DeasonFloatingBubble() {
   useEffect(() => {
     if (!open || !user || threadId || preparingThread) return;
     void ensureSavedThread();
-  }, [open, user, threadId, preparingThread]);
+  }, [open, user, threadId, preparingThread, threads.length, threadsLoading]);
 
   const handleNewSavedThread = async () => {
     if (!user) return;
@@ -273,7 +278,7 @@ export function DeasonFloatingBubble() {
             "h-[85svh] md:inset-auto md:bottom-6 md:right-6 md:h-[600px] md:w-[400px] md:rounded-2xl md:border",
           )}
         >
-          {user && !threadId ? (
+          {user && (!threadId || preparingThread) ? (
             <div className="flex h-full flex-col items-center justify-center gap-3 bg-background text-sm text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin" />
               <span>Preparing saved chat…</span>
