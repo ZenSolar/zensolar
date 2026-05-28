@@ -128,6 +128,16 @@ Deno.serve(async (req) => {
       });
     }
 
+    let body: any = {};
+    try { body = await req.json(); } catch { /* body optional */ }
+    const requestedDays = Number(body?.days || 0);
+    const daysBack = Number.isFinite(requestedDays) && requestedDays > 0
+      ? Math.min(31, Math.max(1, Math.floor(requestedDays)))
+      : null;
+    const cutoffDateStr = daysBack
+      ? new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+      : null;
+
     let targetUserId = user.id;
     const targetUserIdHeader = req.headers.get("X-Target-User-Id");
     if (targetUserIdHeader && targetUserIdHeader !== user.id) {
@@ -230,6 +240,7 @@ Deno.serve(async (req) => {
       }
 
       const endDate = new Date().toISOString().split("T")[0];
+      if (cutoffDateStr && cutoffDateStr > startDate) startDate = cutoffDateStr;
       const startYear = parseInt(startDate.split("-")[0]);
       const endYear = parseInt(endDate.split("-")[0]);
 
@@ -242,9 +253,64 @@ Deno.serve(async (req) => {
       let loggedSampleBattery = false;
       let loggedSampleSolar = false;
 
-      // Fetch month-by-month using period=month to get daily aggregates
-      // Note: period=day returns 5-minute intervals for a single day, not daily aggregates
-      for (let year = startYear; year <= endYear; year++) {
+      // Short-range preview backfills need true day-level rows. Tesla's month period
+      // can return a month-bucket timestamp, which falls outside the weekly window
+      // and makes the digest look quiet even when the account is connected.
+      if (daysBack) {
+        const dayCursor = new Date(`${startDate}T00:00:00Z`);
+        const finalDay = new Date(`${endDate}T00:00:00Z`);
+        while (dayCursor <= finalDay) {
+          const dateStr = dayCursor.toISOString().split("T")[0];
+          const dStart = `${dateStr}T00:00:00-06:00`;
+          const dEnd = `${dateStr}T23:59:59-06:00`;
+          try {
+            const dayResp = await fetch(
+              `${TESLA_API_BASE}/api/1/energy_sites/${siteId}/calendar_history?kind=energy&start_date=${encodeURIComponent(dStart)}&end_date=${encodeURIComponent(dEnd)}&period=day&time_zone=${encodeURIComponent(timezone)}`,
+              { headers: { Authorization: `Bearer ${accessToken}` } }
+            );
+            if (dayResp.ok) {
+              const dayData = await dayResp.json();
+              const timeSeries = dayData.response?.time_series || [];
+              let solarWh = 0;
+              let batteryWh = 0;
+              for (const point of timeSeries) {
+                solarWh += Number(point.solar_energy_exported || 0);
+                batteryWh += Number(point.battery_energy_exported || 0);
+              }
+              const recordedAt = `${dateStr}T12:00:00Z`;
+              if (solarWh > 0 && solarWh < 500000) {
+                solarRecords.push({
+                  user_id: targetUserId,
+                  device_id: siteId,
+                  provider: "tesla_historical",
+                  production_wh: solarWh,
+                  data_type: "solar",
+                  recorded_at: recordedAt,
+                });
+              }
+              if (batteryWh > 0 && batteryWh < 500000) {
+                batteryRecords.push({
+                  user_id: targetUserId,
+                  device_id: siteId,
+                  provider: "tesla_historical",
+                  production_wh: batteryWh,
+                  data_type: "battery_discharge",
+                  recorded_at: recordedAt,
+                });
+              }
+            } else if (dayResp.status !== 429) {
+              console.warn(`Daily history failed ${dateStr} for site ${siteId}: ${dayResp.status}`);
+              await dayResp.text();
+            }
+          } catch (e) {
+            console.error(`Daily history error ${dateStr} for site ${siteId}:`, e);
+          }
+          dayCursor.setUTCDate(dayCursor.getUTCDate() + 1);
+        }
+      }
+
+      // Fetch month-by-month using period=month to get broader historical aggregates.
+      for (let year = startYear; !daysBack && year <= endYear; year++) {
         const monthStart = year === startYear ? parseInt(startDate.split("-")[1]) : 1;
         const monthEnd = year === endYear ? new Date().getMonth() + 1 : 12;
 
