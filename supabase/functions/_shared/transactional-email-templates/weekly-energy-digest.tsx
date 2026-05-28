@@ -194,11 +194,12 @@ export const template = {
     tokensLifetime: '12,418.2',
     co2KgThisWeek: '21.4',
     kpis: [
-      { label: 'Solar produced', value: '52.3 kWh', sub: '+8% vs last week', accent: 'solar' },
-      { label: 'Battery exported', value: '14.8 kWh', sub: 'Peak-hour offset', accent: 'battery' },
-      { label: 'EV miles driven', value: '142 mi', sub: '38 kWh consumed', accent: 'ev' },
-      { label: 'Home charging', value: '24.1 kWh', sub: '76% from solar', accent: 'home' },
-      { label: 'Supercharging', value: '12.0 kWh', sub: '1 session', accent: 'super' },
+      { label: 'Solar produced', value: '52.3 kWh', sub: 'Generated this week', accent: 'solar' },
+      { label: 'Battery exported', value: '14.8 kWh', sub: 'Discharged to home', accent: 'battery' },
+      { label: 'EV miles driven', value: '142 mi', sub: '5 days driven', accent: 'ev' },
+      { label: 'Home charging', value: '24.1 kWh', sub: '3 sessions', accent: 'home' },
+      { label: 'Tesla Supercharging', value: '12.0 kWh', sub: '1 session', accent: 'super' },
+
     ],
     devices: [
       { label: 'Tesla Powerwall', provider: 'tesla', metric: 'Battery discharged', value: '14.8 kWh' },

@@ -285,6 +285,7 @@ Deno.serve(async (req) => {
       .map((d) => d.device_id),
   )
   let evMiles = 0
+  let evDaysDriven = 0
   const evMilesPerDevice: Record<string, number> = {}
   for (const deviceId of teslaVehicleIds) {
     const key = `tesla|${deviceId}|ev_miles`
@@ -294,10 +295,16 @@ Deno.serve(async (req) => {
     // Baseline = last sample strictly BEFORE weekStartDay; if none, first sample on/after.
     let baseline: number | null = null
     let latest: number | null = null
+    let prev: number | null = null
     for (const day of days) {
       const v = dm.get(day)!
-      if (day < weekStartDay) baseline = v
-      else { if (baseline === null) baseline = v; latest = v }
+      if (day < weekStartDay) { baseline = v; prev = v }
+      else {
+        if (baseline === null) baseline = v
+        if (prev !== null && v - prev > 0.1) evDaysDriven += 1
+        prev = v
+        latest = v
+      }
     }
     if (baseline !== null && latest !== null) {
       const delta = Math.max(0, latest - baseline)
@@ -305,6 +312,7 @@ Deno.serve(async (req) => {
       evMilesPerDevice[`tesla|${deviceId}`] = delta
     }
   }
+
 
   // --- Home charging sessions (kWh) for the week — same source the dashboard uses
   const { data: hcRows } = await supabase
@@ -315,7 +323,11 @@ Deno.serve(async (req) => {
     .lte('start_time', weekEndIso)
     .limit(5000)
   let homeChargingKwh = 0
-  for (const h of hcRows || []) homeChargingKwh += Number(h.total_session_kwh) || 0
+  let homeChargingSessions = 0
+  for (const h of hcRows || []) {
+    homeChargingKwh += Number(h.total_session_kwh) || 0
+    homeChargingSessions += 1
+  }
 
   // --- Supercharging / public charging (non-home) for the week
   const { data: scRows } = await supabase
@@ -374,11 +386,12 @@ Deno.serve(async (req) => {
 
   // --- Build KPI rows
   const kpis: DigestPayload['kpis'] = []
-  if (solarWh > 0) kpis.push({ label: 'Solar produced', value: `${fmt(solarWh / 1000)} kWh`, accent: 'solar' })
-  if (batteryWh > 0) kpis.push({ label: 'Battery exported', value: `${fmt(batteryWh / 1000)} kWh`, sub: 'Peak-hour offset', accent: 'battery' })
-  if (evMiles > 0) kpis.push({ label: 'EV miles driven', value: `${fmtInt(evMiles)} mi`, sub: `${fmt(evKwh)} kWh consumed`, accent: 'ev' })
-  if (homeChargingKwh > 0) kpis.push({ label: 'Home charging', value: `${fmt(homeChargingKwh)} kWh`, accent: 'home' })
+  if (solarWh > 0) kpis.push({ label: 'Solar produced', value: `${fmt(solarWh / 1000)} kWh`, sub: 'Generated this week', accent: 'solar' })
+  if (batteryWh > 0) kpis.push({ label: 'Battery exported', value: `${fmt(batteryWh / 1000)} kWh`, sub: 'Discharged to home', accent: 'battery' })
+  if (evMiles > 0) kpis.push({ label: 'EV miles driven', value: `${fmtInt(evMiles)} mi`, sub: `${evDaysDriven} day${evDaysDriven === 1 ? '' : 's'} driven`, accent: 'ev' })
+  if (homeChargingKwh > 0) kpis.push({ label: 'Home charging', value: `${fmt(homeChargingKwh)} kWh`, sub: `${homeChargingSessions} session${homeChargingSessions === 1 ? '' : 's'}`, accent: 'home' })
   if (superchargerKwh > 0) kpis.push({ label: 'Tesla Supercharging', value: `${fmt(superchargerKwh)} kWh`, sub: `${superchargerSessions} session${superchargerSessions === 1 ? '' : 's'}`, accent: 'super' })
+
   // --- Per-device breakdown — emit ONLY the metric the hardware actually produces.
   // A Tesla EV (vehicle) never shows "Battery discharged"; a Powerwall never shows
   // a solar line if a dedicated solar provider already owns that capability.
