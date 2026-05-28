@@ -141,7 +141,10 @@ function reduceDailyResetRows(
       addToDay(dailyByDay, providersByDay, dayKey, max / 1000, provider);
     }
   }
+}
+
 function computeSolarDaily(rows: ProductionRow[]): Map<string, { kwh: number; providers: Set<string> }> {
+
   const providers = new Set(rows.map((r) => r.provider));
   let chosen: 'enphase' | 'solaredge' | 'tesla' | null = null;
   if (providers.has('enphase')) chosen = 'enphase';
