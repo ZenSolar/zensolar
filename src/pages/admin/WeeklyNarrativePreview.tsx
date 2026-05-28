@@ -1,11 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useIsFounder } from '@/hooks/useIsFounder';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Loader2, ArrowLeft, Sparkles, Mail, Eye, Send } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Loader2, ArrowLeft, Sparkles, Mail, Eye, Send, LogIn } from 'lucide-react';
 import { toast } from 'sonner';
+
+type UserOption = { id: string; email: string | null; device_count?: number; providers?: string[]; device_types?: string[] };
 
 const SAMPLE_NARRATIVE = `Tuesday was the day, Michael. Your panels hit their stride right after lunch — **8.2 kW** flowing off the roof at the peak — and by evening you'd quietly stacked **47.3 kWh** for the day. That's the kind of number that used to require a small commercial array; you're doing it with a residential system.
 
@@ -27,31 +31,63 @@ const SAMPLE_DATA = {
 
 export default function WeeklyNarrativePreview() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, session } = useAuth();
+  const { isFounder, ready } = useIsFounder();
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState<{ narrativeMd: string; id?: string; teaser?: string } | null>(null);
+  const [users, setUsers] = useState<UserOption[]>([]);
+  const [targetUserId, setTargetUserId] = useState<string>('');
+  const [loadingUsers, setLoadingUsers] = useState(false);
+
+  useEffect(() => {
+    if (ready && !isFounder) {
+      toast.error('Founders only');
+      navigate('/');
+    }
+  }, [isFounder, ready, navigate]);
+
+  useEffect(() => {
+    if (!session) return;
+    let cancelled = false;
+    (async () => {
+      setLoadingUsers(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('admin-get-user-emails', {
+          body: { withDevices: true },
+        });
+        if (error) throw error;
+        if (cancelled) return;
+        const list: UserOption[] = (data?.users || []).filter((u: UserOption) => !!u.email);
+        setUsers(list);
+        if (user && list.some((u) => u.id === user.id)) setTargetUserId(user.id);
+        else if (list[0]) setTargetUserId(list[0].id);
+      } catch (e: any) {
+        toast.error(e.message || 'Failed to load users');
+      } finally {
+        if (!cancelled) setLoadingUsers(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [session, user]);
+
+  const selectedUser = users.find((u) => u.id === targetUserId);
+  const selectedLabel = selectedUser?.email || (result ? 'selected beta user' : SAMPLE_DATA.firstName);
 
   const handleGenerate = async (dryRun: boolean) => {
+    if (!session) {
+      toast.error('Please sign in');
+      return;
+    }
+    if (!targetUserId) {
+      toast.error('Select a beta user first');
+      return;
+    }
     setGenerating(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.error('Please sign in');
-        return;
-      }
-      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-weekly-narrative`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({ dryRun }),
+      const { data: json, error } = await supabase.functions.invoke('generate-weekly-narrative', {
+        body: { dryRun, userId: targetUserId },
       });
-      const json = await res.json();
-      if (!res.ok) {
-        toast.error(json.error || 'Generation failed');
-        return;
-      }
+      if (error) throw new Error(await readFnError(error));
       setResult({ narrativeMd: json.narrativeMd, id: json.id, teaser: json.teaser });
       toast.success(dryRun ? 'Narrative generated (not saved)' : 'Narrative saved');
     } catch (e: any) {
@@ -63,6 +99,14 @@ export default function WeeklyNarrativePreview() {
 
   const narrative = result?.narrativeMd || SAMPLE_NARRATIVE;
   const paragraphs = narrative.split(/\n\n+/).filter(Boolean);
+
+  if (!ready) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background p-6">
@@ -82,20 +126,66 @@ export default function WeeklyNarrativePreview() {
           </p>
         </div>
 
+        {!session && (
+          <Card className="border-amber-500/40 bg-amber-500/5">
+            <CardContent className="flex flex-col sm:flex-row items-start sm:items-center gap-3 pt-6">
+              <div className="flex-1 text-sm">
+                Sign in to generate a weekly narrative for registered beta users.
+              </div>
+              <Button onClick={() => navigate('/auth')} size="sm">
+                <LogIn className="h-4 w-4 mr-2" /> Sign in
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Actions</CardTitle>
-            <CardDescription>Generate a narrative from your real connected data, or preview the sample.</CardDescription>
+            <CardDescription>Pick any registered beta user and generate from their connected weekly data.</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-wrap gap-3">
-            <Button onClick={() => handleGenerate(true)} disabled={generating} variant="outline">
-              {generating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Eye className="h-4 w-4 mr-2" />}
-              Generate (dry run, don't save)
-            </Button>
-            <Button onClick={() => handleGenerate(false)} disabled={generating}>
-              {generating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
-              Generate & save for me
-            </Button>
+          <CardContent className="space-y-4">
+            <Select
+              value={targetUserId}
+              onValueChange={setTargetUserId}
+              disabled={!session || loadingUsers || users.length === 0}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={
+                  loadingUsers ? 'Loading users…'
+                  : users.length === 0 ? 'No registered users'
+                  : 'Select a beta user'
+                } />
+              </SelectTrigger>
+              <SelectContent>
+                {users.map((u) => {
+                  const provs = (u.providers || []).join(', ');
+                  const tag = provs
+                    ? ` · ${provs}${u.device_count ? '' : ' token'}`
+                    : ' · no device';
+                  return (
+                    <SelectItem key={u.id} value={u.id}>
+                      {u.email}{user?.id === u.id ? ' (you)' : ''}{tag}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+
+            <div className="text-xs text-muted-foreground">
+              Generating for: <span className="font-mono">{selectedUser?.email || '—'}</span>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button onClick={() => handleGenerate(true)} disabled={!session || generating || !targetUserId} variant="outline" className="w-full sm:w-auto">
+                {generating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Eye className="h-4 w-4 mr-2" />}
+                Generate preview
+              </Button>
+              <Button onClick={() => handleGenerate(false)} disabled={!session || generating || !targetUserId} className="w-full sm:w-auto">
+                {generating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
+                Generate & save for selected user
+              </Button>
+            </div>
             {result?.id && (
               <Button onClick={() => navigate(`/energy-insights/week/${result.id}`)} variant="secondary">
                 View full reader page →
@@ -131,7 +221,7 @@ export default function WeeklyNarrativePreview() {
               <div className="text-center mb-8">
                 <div className="text-[10px] uppercase tracking-[0.2em] text-primary mb-2">Your week, decoded</div>
                 <h2 className="text-2xl font-bold tracking-tight mb-1">
-                  A story for {result ? '(you)' : SAMPLE_DATA.firstName}
+                  A story for {selectedLabel}
                 </h2>
                 <p className="text-xs text-muted-foreground">{SAMPLE_DATA.weekLabel}</p>
               </div>
@@ -159,4 +249,13 @@ export default function WeeklyNarrativePreview() {
       </div>
     </div>
   );
+}
+
+async function readFnError(error: any): Promise<string> {
+  const ctx = error?.context;
+  try {
+    const body = await ctx?.json?.();
+    if (body?.error) return body.detail ? `${body.error}: ${body.detail}` : body.error;
+  } catch { /* ignore */ }
+  return error?.message || 'Request failed';
 }

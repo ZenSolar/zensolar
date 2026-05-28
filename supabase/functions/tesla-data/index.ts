@@ -280,7 +280,7 @@ Deno.serve(async (req) => {
         console.log("Tesla token expired or expiring soon, refreshing...");
         const newToken = await refreshTeslaToken(
           supabaseClient,
-          user.id,
+          targetUserId,
           tokenData.refresh_token
         );
         if (newToken) {
