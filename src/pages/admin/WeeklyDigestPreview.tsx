@@ -130,6 +130,7 @@ export default function WeeklyDigestPreview() {
               {JSON.stringify(payload.payload, null, 2)}
             </pre>
           </CardContent>
+        </Card>
       )}
 
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
@@ -151,5 +152,3 @@ export default function WeeklyDigestPreview() {
   );
 }
 
-  );
-}
