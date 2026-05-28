@@ -520,22 +520,36 @@ Deno.serve(async (req) => {
   }
 
   // --- Enqueue via send-transactional-email
+  // NOTE: Don't use supabase.functions.invoke() — it sets Authorization to the
+  // service-role key, which under Supabase's signing-keys system is an
+  // `sb_secret_…` string (not a JWT) and the gateway rejects it with
+  // UNAUTHORIZED_INVALID_JWT_FORMAT. Use fetch with the anon JWT as the
+  // Authorization bearer and the service-role as apikey.
   const idempotencyKey = `weekly-digest-${targetUserId}-${weekStart.toISOString().slice(0, 10)}`
-  const sendRes = await supabase.functions.invoke('send-transactional-email', {
-    body: {
+  const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? Deno.env.get('SUPABASE_PUBLISHABLE_KEY') ?? ''
+  const sendResp = await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      apikey: serviceKey,
+      Authorization: `Bearer ${anonKey || serviceKey}`,
+    },
+    body: JSON.stringify({
       templateName: 'weekly-energy-digest',
       recipientEmail: email,
       idempotencyKey,
       templateData: payload,
-    },
+    }),
   })
 
-  if (sendRes.error) {
-    console.error('send-transactional-email failed', sendRes.error)
-    return new Response(JSON.stringify({ error: 'Failed to enqueue digest', detail: sendRes.error.message }), {
+  if (!sendResp.ok) {
+    const detail = await sendResp.text().catch(() => '')
+    console.error('send-transactional-email failed', sendResp.status, detail)
+    return new Response(JSON.stringify({ error: 'Failed to enqueue digest', detail: `${sendResp.status}: ${detail}` }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
+
 
   return new Response(JSON.stringify({ success: true, recipient: email, payload }), {
     status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
