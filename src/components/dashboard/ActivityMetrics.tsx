@@ -557,7 +557,9 @@ export function ActivityMetrics({
                       label: `${device.deviceName} Battery Storage Discharged`,
                       unit: 'kWh',
                       pending: pendingKwh,
+                      accent: 'secondary',
                     }) : undefined}
+
                   />
                 );
                 return index === 0 && onHideField ? (
