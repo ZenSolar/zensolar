@@ -34,6 +34,7 @@ export function DeasonFloatingBubble() {
   const [open, setOpen] = useState(false);
   const [threadId, setThreadId] = useState<string | null>(null);
   const [preparingThread, setPreparingThread] = useState(false);
+  const [threadPrepFailed, setThreadPrepFailed] = useState(false);
   const [pendingSeed, setPendingSeed] = useState<string | null>(null);
   const [pendingMeta, setPendingMeta] = useState<Record<string, unknown> | null>(null);
   const [welcoming, setWelcoming] = useState(false);
@@ -87,6 +88,7 @@ export function DeasonFloatingBubble() {
     if (threadId) return threadId;
     if (threads.length > 0) {
       setThreadId(threads[0].id);
+      setThreadPrepFailed(false);
       return threads[0].id;
     }
     if (threadsLoading) return null;
@@ -96,15 +98,19 @@ export function DeasonFloatingBubble() {
     const created = await createThread();
     setPreparingThread(false);
     creatingThreadRef.current = false;
-    if (!created) return null;
+    if (!created) {
+      setThreadPrepFailed(true);
+      return null;
+    }
     setThreadId(created.id);
+    setThreadPrepFailed(false);
     return created.id;
   };
 
   useEffect(() => {
-    if (!open || !user || threadId || preparingThread) return;
+    if (!open || !user || threadId || preparingThread || threadPrepFailed) return;
     void ensureSavedThread();
-  }, [open, user, threadId, preparingThread, threads.length, threadsLoading]);
+  }, [open, user, threadId, preparingThread, threadPrepFailed, threads.length, threadsLoading]);
 
   const handleNewSavedThread = async () => {
     if (!user || creatingThreadRef.current) return;
@@ -113,7 +119,12 @@ export function DeasonFloatingBubble() {
     const created = await createThread();
     setPreparingThread(false);
     creatingThreadRef.current = false;
-    if (created) setThreadId(created.id);
+    if (created) {
+      setThreadId(created.id);
+      setThreadPrepFailed(false);
+    } else {
+      setThreadPrepFailed(true);
+    }
   };
 
   // First-visit welcome pulse on the dashboard or /demo. Triggers once per
@@ -284,7 +295,7 @@ export function DeasonFloatingBubble() {
             "h-[85svh] md:inset-auto md:bottom-6 md:right-6 md:h-[600px] md:w-[400px] md:rounded-2xl md:border",
           )}
         >
-          {user && (!threadId || preparingThread) ? (
+          {user && !threadId && !threadPrepFailed ? (
             <div className="flex h-full flex-col items-center justify-center gap-3 bg-background text-sm text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin" />
               <span>Preparing saved chat…</span>
