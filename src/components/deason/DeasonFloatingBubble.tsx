@@ -372,7 +372,3 @@ function SwipeDownCard({
     </div>
   );
 }
-
-    </>
-  );
-}
