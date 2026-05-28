@@ -73,17 +73,27 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onUserMe
   const scrollRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<Array<HTMLDivElement | null>>([]);
 
-  // Index of first message matching highlightQuery (if any).
-  const highlightIndex = useMemo(() => {
+  // All message indices matching highlightQuery.
+  const matchIndices = useMemo(() => {
     const q = highlightQuery?.trim().toLowerCase();
-    if (!q || messages.length === 0) return -1;
-    return messages.findIndex((m) => {
+    if (!q || messages.length === 0) return [] as number[];
+    const out: number[] = [];
+    messages.forEach((m, i) => {
       const text = typeof m.content === "string"
         ? m.content
         : m.content.map((p) => (p.type === "text" ? p.text ?? "" : "")).join(" ");
-      return text.toLowerCase().includes(q);
+      if (text.toLowerCase().includes(q)) out.push(i);
     });
+    return out;
   }, [highlightQuery, messages]);
+
+  const [activeMatch, setActiveMatch] = useState(0);
+  // Reset cursor when the query or match set changes.
+  useEffect(() => {
+    setActiveMatch(0);
+  }, [highlightQuery, matchIndices.length]);
+
+  const highlightIndex = matchIndices[activeMatch] ?? -1;
 
   useEffect(() => {
     if (highlightIndex >= 0 && !loadingHistory) {
@@ -95,6 +105,11 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onUserMe
     }
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, streaming, highlightIndex, loadingHistory]);
+
+  const goPrevMatch = () =>
+    setActiveMatch((i) => (matchIndices.length ? (i - 1 + matchIndices.length) % matchIndices.length : 0));
+  const goNextMatch = () =>
+    setActiveMatch((i) => (matchIndices.length ? (i + 1) % matchIndices.length : 0));
 
   // Listen for `deason:seed` events from elsewhere in the app (e.g. the
   // OAuth error toast's "Ask Deason" handoff). Pushes a hand-written
