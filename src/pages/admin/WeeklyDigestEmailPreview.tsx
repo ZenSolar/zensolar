@@ -311,24 +311,28 @@ export default function WeeklyDigestEmailPreview() {
               <Eye className="h-4 w-4 mr-2" /> Sample data
             </Button>
             <Select value={targetUserId} onValueChange={setTargetUserId} disabled={!session || users.length === 0}>
-              <SelectTrigger className="w-full sm:w-[280px]">
+              <SelectTrigger className="w-full sm:w-[320px]">
                 <SelectValue placeholder={
                   !session ? 'Sign in to load real data'
-                  : users.length === 0 ? 'No beta users with a connected device'
-                  : 'Beta user with connected device'
+                  : users.length === 0 ? 'No registered users'
+                  : 'Select a beta user'
                 } />
               </SelectTrigger>
               <SelectContent>
                 {users.map((u) => {
                   const provs = (u.providers || []).join(', ');
+                  const tag = u.device_count
+                    ? (provs ? ` · ${provs}` : '')
+                    : ' · no device';
                   return (
                     <SelectItem key={u.id} value={u.id}>
-                      {u.email}{user?.id === u.id ? ' (you)' : ''}{provs ? ` · ${provs}` : ''}
+                      {u.email}{user?.id === u.id ? ' (you)' : ''}{tag}
                     </SelectItem>
                   );
                 })}
               </SelectContent>
             </Select>
+
             <Button onClick={loadReal} disabled={!session || loading || !targetUserId} className="w-full sm:w-auto">
               {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Eye className="h-4 w-4 mr-2" />}
               Load real data
