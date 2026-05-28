@@ -124,7 +124,20 @@ Deno.serve(async (req) => {
     .from('connected_devices')
     .select('provider, device_type, device_name, device_id, baseline_data, lifetime_totals')
     .eq('user_id', targetUserId)
-  const deviceMap = new Map<string, { label: string; provider: string; device_id: string; device_type: string }>()
+
+  // Classify each device into a canonical kind so per-device breakdown only shows the
+  // metric the hardware actually produces (e.g., an EV never shows "battery discharged").
+  const classifyKind = (dt: string): 'solar' | 'battery' | 'vehicle' | 'charger' | 'unknown' => {
+    const t = (dt || '').toLowerCase()
+    if (['solar', 'solar_system', 'pv_system', 'inverter'].includes(t)) return 'solar'
+    if (['battery', 'powerwall', 'energy_site', 'energy_storage', 'storage'].includes(t)) return 'battery'
+    if (['vehicle', 'ev', 'car', 'fsd_supervised_vehicle', 'fsd_unsupervised_vehicle', 'autopilot_vehicle', 'fsd_supervised', 'fsd_unsupervised', 'autonomous', 'robotaxi'].includes(t)) return 'vehicle'
+    if (['wall_connector', 'charger', 'home_charger', 'evse'].includes(t)) return 'charger'
+    return 'unknown'
+  }
+
+  type DeviceInfo = { label: string; provider: string; device_id: string; device_type: string; kind: ReturnType<typeof classifyKind> }
+  const deviceMap = new Map<string, DeviceInfo>()
   for (const d of devicesRows || []) {
     const key = `${d.provider}:${d.device_id || d.device_type}`
     if (!deviceMap.has(key)) {
@@ -133,9 +146,18 @@ Deno.serve(async (req) => {
         provider: d.provider,
         device_id: d.device_id || '',
         device_type: d.device_type || '',
+        kind: classifyKind(d.device_type || ''),
       })
     }
   }
+
+  // Capability source-of-truth: if a dedicated non-Tesla solar provider (Enphase/SolarEdge) is
+  // connected, that's the single OEM for solar — Tesla's solar readings are dropped to avoid
+  // double-counting. Same rule for battery (a non-Tesla battery provider, if ever present, wins).
+  const devicesArr = Array.from(deviceMap.values())
+  const hasDedicatedSolar = devicesArr.some((d) => d.kind === 'solar' && d.provider?.toLowerCase() !== 'tesla')
+  const hasDedicatedBattery = devicesArr.some((d) => d.kind === 'battery' && d.provider?.toLowerCase() !== 'tesla')
+
 
   // --- Pull 14d window of raw event rows (we'll normalize cumulative counters per-device per-day)
   const { data: prodRows } = await supabase
@@ -230,10 +252,27 @@ Deno.serve(async (req) => {
     }
   }
 
+  // --- Capability dedup: one OEM per capability (matches Clean Energy Center rule).
+  // If the user connected a dedicated solar provider (Enphase/SolarEdge), drop any
+  // Tesla solar readings — Tesla Powerwalls with solar CTs would otherwise double-count.
+  // Same rule for battery.
+  const stripProvider = (metric: 'solar' | 'battery', provider: string) => {
+    const p = provider.toLowerCase()
+    const removed = buckets[metric].perProvider[p] || 0
+    if (removed > 0) buckets[metric].total = Math.max(0, buckets[metric].total - removed)
+    delete buckets[metric].perProvider[p]
+    for (const k of Object.keys(buckets[metric].perDevice)) {
+      if (k.toLowerCase().startsWith(`${p}|`)) delete buckets[metric].perDevice[k]
+    }
+  }
+  if (hasDedicatedSolar) stripProvider('solar', 'tesla')
+  if (hasDedicatedBattery) stripProvider('battery', 'tesla')
+
   const solarWh = buckets.solar.total
   const batteryWh = buckets.battery.total
   const evMilesFromOem = buckets.ev_miles.total // already in miles for ev_miles rows
   const teslaEvChargingWh = buckets.ev_charging.total // Wh on Tesla EV charging counter
+
 
   // --- Home charging sessions (kWh) for the week — same source the dashboard uses
   const { data: hcRows } = await supabase
@@ -297,15 +336,20 @@ Deno.serve(async (req) => {
   if (evMiles > 0) kpis.push({ label: 'EV miles driven', value: `${fmtInt(evMiles)} mi`, sub: `${fmt(evKwh)} kWh consumed`, accent: 'ev' })
   if (homeChargingKwh > 0) kpis.push({ label: 'Home charging', value: `${fmt(homeChargingKwh)} kWh`, accent: 'home' })
   if (superchargerKwh > 0) kpis.push({ label: 'Supercharging', value: `${fmt(superchargerKwh)} kWh`, sub: `${superchargerSessions} session${superchargerSessions === 1 ? '' : 's'}`, accent: 'super' })
-
-  // --- Per-device breakdown
+  // --- Per-device breakdown — emit ONLY the metric the hardware actually produces.
+  // A Tesla EV (vehicle) never shows "Battery discharged"; a Powerwall never shows
+  // a solar line if a dedicated solar provider already owns that capability.
   const devices: DigestPayload['devices'] = []
   for (const [, d] of deviceMap) {
     const provLower = d.provider?.toLowerCase()
-    const solarFromThis = perProviderSolar[provLower] || 0
-    const battFromThis = perProviderBattery[provLower] || 0
-    if (solarFromThis > 0) devices.push({ label: d.label, provider: d.provider, metric: 'Solar produced', value: `${fmt(solarFromThis / 1000)} kWh` })
-    if (battFromThis > 0) devices.push({ label: d.label, provider: d.provider, metric: 'Battery discharged', value: `${fmt(battFromThis / 1000)} kWh` })
+    if (d.kind === 'solar') {
+      const solarFromThis = perProviderSolar[provLower] || 0
+      if (solarFromThis > 0) devices.push({ label: d.label, provider: d.provider, metric: 'Solar produced', value: `${fmt(solarFromThis / 1000)} kWh` })
+    } else if (d.kind === 'battery') {
+      const battFromThis = perProviderBattery[provLower] || 0
+      if (battFromThis > 0) devices.push({ label: d.label, provider: d.provider, metric: 'Battery discharged', value: `${fmt(battFromThis / 1000)} kWh` })
+    }
+    // vehicles + chargers are summarized via Home/Supercharging rows below
   }
   if (homeChargingKwh > 0) devices.push({ label: 'Home charger', provider: 'wallbox', metric: 'Home charging', value: `${fmt(homeChargingKwh)} kWh` })
   if (superchargerKwh > 0) devices.push({ label: 'Public/Supercharger', provider: 'tesla', metric: 'Charging delivered', value: `${fmt(superchargerKwh)} kWh` })
@@ -315,19 +359,24 @@ Deno.serve(async (req) => {
   const quietWeek = kpis.length === 0 && tokensThisWeek === 0
   const hadPartialData = false // beta: keep false; future = compare expected device check-ins
 
-  // --- Determine "device of the week" by kWh contribution
+  // --- Determine "device of the week" by kWh contribution (kind-aware)
   type DeviceContribution = { label: string; provider: string; kind: string; kwh: number };
   const contributions: DeviceContribution[] = [];
   for (const [, d] of deviceMap) {
     const provLower = d.provider?.toLowerCase();
-    const solar = (perProviderSolar[provLower] || 0) / 1000;
-    const batt = (perProviderBattery[provLower] || 0) / 1000;
-    if (solar > 0) contributions.push({ label: d.label, provider: d.provider, kind: 'solar', kwh: solar });
-    if (batt > 0) contributions.push({ label: d.label, provider: d.provider, kind: 'battery', kwh: batt });
+    if (d.kind === 'solar') {
+      const solar = (perProviderSolar[provLower] || 0) / 1000;
+      if (solar > 0) contributions.push({ label: d.label, provider: d.provider, kind: 'solar', kwh: solar });
+    } else if (d.kind === 'battery') {
+      const batt = (perProviderBattery[provLower] || 0) / 1000;
+      if (batt > 0) contributions.push({ label: d.label, provider: d.provider, kind: 'battery', kwh: batt });
+    }
   }
   if (homeChargingKwh > 0) contributions.push({ label: 'Home charger', provider: 'wallbox', kind: 'home_charging', kwh: homeChargingKwh });
   if (superchargerKwh > 0) contributions.push({ label: 'Public/Supercharger', provider: 'tesla', kind: 'supercharging', kwh: superchargerKwh });
   contributions.sort((a, b) => b.kwh - a.kwh);
+  const topDevice = contributions[0];
+
   const topDevice = contributions[0];
 
   // --- Tesla EV detail (for personalized driving/charging copy)
