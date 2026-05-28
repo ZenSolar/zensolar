@@ -723,7 +723,7 @@ export function ActivityMetrics({
                       active={homeChargerKwh > 0}
                       isLoading={isLoading}
                       liveIndicator={isCharging}
-                      onTap={homeChargerKwh > 0 ? () => openSheet({ category: 'home_charger', label: homeChargerLabel, unit: 'kWh', pending: homeChargerKwh }) : undefined}
+                      onTap={homeChargerKwh > 0 ? () => openSheet({ category: 'home_charger', label: homeChargerLabel, unit: 'kWh', pending: homeChargerKwh, accent: 'solar' }) : undefined}
                     />
                   </SwipeableActivityField>
                 )
