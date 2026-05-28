@@ -615,6 +615,7 @@ export function ActivityMetrics({
                       label: `${device.deviceName} EV Miles`,
                       unit: 'mi',
                       pending: pendingMiles,
+                      accent: 'primary',
                     }) : undefined}
                   />
                 );
