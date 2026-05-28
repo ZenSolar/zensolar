@@ -415,7 +415,10 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
                     : `${dayGroups.length} day${dayGroups.length !== 1 ? 's' : ''} · ${rows.length} sample${rows.length !== 1 ? 's' : ''}`
                   : `${rows.length} contribution${rows.length !== 1 ? 's' : ''}`;
                 return (
-                  <div className="pt-4 pb-2.5 border-b border-border/60">
+                  <div
+                    className="pt-4 pb-2.5 border-b"
+                    style={{ borderBottomColor: `hsl(var(${accentVar}) / 0.35)` }}
+                  >
                     <div className="flex items-end justify-between gap-3">
                       <div className="min-w-0">
                         <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground leading-none">
@@ -447,8 +450,11 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
 
         {/* Sticky MINT CTA — proof seen, now mint */}
         <div
-          className="px-5 py-4 border-t border-border/60 bg-card/95 backdrop-blur-md"
-          style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
+          className="px-5 py-4 border-t-2 bg-card/95 backdrop-blur-md"
+          style={{
+            paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
+            borderTopColor: `hsl(var(${accentVar}) / 0.45)`,
+          }}
         >
           {canMint ? (
             <>
