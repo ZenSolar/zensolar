@@ -270,40 +270,45 @@ Deno.serve(async (req) => {
 
   const solarWh = buckets.solar.total
   const batteryWh = buckets.battery.total
-  const evMilesFromOem = buckets.ev_miles.total // already in miles for ev_miles rows
   const teslaEvChargingWh = buckets.ev_charging.total // Wh on Tesla EV charging counter
 
 
-  // --- Home charging sessions (kWh) for the week — same source the dashboard uses
-  const { data: hcRows } = await supabase
-    .from('home_charging_sessions')
-    .select('total_session_kwh, start_time')
-    .eq('user_id', targetUserId)
-    .gte('start_time', weekStartIso)
-    .lte('start_time', weekEndIso)
-    .limit(5000)
-  let homeChargingKwh = 0
-  for (const h of hcRows || []) homeChargingKwh += Number(h.total_session_kwh) || 0
-
-  // --- Supercharging / public charging (non-home) for the week
-  const { data: scRows } = await supabase
-    .from('charging_sessions')
-    .select('energy_kwh, charging_type, provider')
-    .eq('user_id', targetUserId)
-    .gte('session_date', weekStartDay)
-    .lte('session_date', weekEnd.toISOString().slice(0, 10))
-    .limit(5000)
-  let superchargerKwh = 0
-  let superchargerSessions = 0
-  for (const s of scRows || []) {
-    if ((s.charging_type || '').toLowerCase() === 'home') continue
-    superchargerKwh += Number(s.energy_kwh) || 0
-    superchargerSessions += 1
+  // --- EV miles: SAME source as the Clean Energy Center KPI.
+  // The dashboard reads odometer from connected_devices (Tesla vehicle API). For a 7-day
+  // window we use the snapshot history of THAT SAME field (energy_production rows of type
+  // 'ev_miles'), restricted to provider='tesla' AND only the vehicle device_ids that are
+  // registered in this user's connected_devices. Delta = max(within week) − max(just before
+  // week start). No fallbacks, no cross-source estimates.
+  const teslaVehicleIds = new Set(
+    devicesArr
+      .filter((d) => d.kind === 'vehicle' && d.provider?.toLowerCase() === 'tesla' && d.device_id)
+      .map((d) => d.device_id),
+  )
+  let evMiles = 0
+  const evMilesPerDevice: Record<string, number> = {}
+  for (const deviceId of teslaVehicleIds) {
+    const key = `tesla|${deviceId}|ev_miles`
+    const dm = counterDay.get(key)
+    if (!dm) continue
+    const days = Array.from(dm.keys()).sort()
+    // Baseline = last sample strictly BEFORE weekStartDay; if none, first sample on/after.
+    let baseline: number | null = null
+    let latest: number | null = null
+    for (const day of days) {
+      const v = dm.get(day)!
+      if (day < weekStartDay) baseline = v
+      else { if (baseline === null) baseline = v; latest = v }
+    }
+    if (baseline !== null && latest !== null) {
+      const delta = Math.max(0, latest - baseline)
+      evMiles += delta
+      evMilesPerDevice[`tesla|${deviceId}`] = delta
+    }
   }
 
-  // EV miles: prefer OEM odometer-delta source; fall back to charging-kWh estimate only if OEM missing
+  // Tracked vehicle kWh consumed (for the KPI sub-line): home + supercharger + Tesla EV API counter
   const evKwh = homeChargingKwh + superchargerKwh + (teslaEvChargingWh / 1000)
-  const evMiles = evMilesFromOem > 0 ? evMilesFromOem : evKwh * 3.5
+
 
   // --- Minting this week + lifetime (actual on-chain mints)
   const { data: mintWeek } = await supabase
