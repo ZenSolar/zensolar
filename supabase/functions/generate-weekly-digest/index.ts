@@ -135,6 +135,27 @@ Deno.serve(async (req) => {
     } catch (e) {
       console.warn('tesla-data pre-sync threw', (e as Error).message)
     }
+
+    try {
+      const historyResp = await fetch(`${supabaseUrl}/functions/v1/tesla-historical`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: serviceKey,
+          Authorization: `Bearer ${jwt}`,
+          'X-Target-User-Id': targetUserId,
+        },
+        body: JSON.stringify({ days: 14 }),
+      })
+      if (!historyResp.ok) {
+        const detail = await historyResp.text().catch(() => '')
+        console.warn('tesla-historical weekly backfill failed', historyResp.status, detail.slice(0, 200))
+      } else {
+        console.log('tesla-historical weekly backfill ok for', targetUserId)
+      }
+    } catch (e) {
+      console.warn('tesla-historical weekly backfill threw', (e as Error).message)
+    }
   }
 
   // --- Window: last 7 days. Pull 14 days for cumulative counters so we can chain deltas.
