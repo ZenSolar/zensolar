@@ -59,6 +59,8 @@ const ONBOARDING_PROMPTS = [
 /**
  * Deason chat surface — used by both the full /deason page and the floating bubble.
  * Persona-aware: shows different welcome copy + suggested prompts depending on
+ * whether the viewer is inner-circle or a regular demo/beta user.
+ */
 export function DeasonChat({ onClose, compact = false, threadId = null, onUserMessage, highlightQuery }: DeasonChatProps) {
   const { messages, streaming, error, send, reset, seedAssistant, loadingHistory } = useDeason({
     threadId,
