@@ -11,6 +11,10 @@ import { cn } from "@/lib/utils";
 interface DeasonChatProps {
   onClose?: () => void;
   compact?: boolean;
+  /** When set, the chat is persisted to this DB thread. */
+  threadId?: string | null;
+  /** Called whenever a new user message is sent (lets parents re-sort thread list). */
+  onUserMessage?: (text: string | null) => void;
 }
 
 const INNER_CIRCLE_PROMPTS = [
@@ -55,8 +59,11 @@ const ONBOARDING_PROMPTS = [
  * Persona-aware: shows different welcome copy + suggested prompts depending on
  * whether the viewer is inner-circle or a regular demo/beta user.
  */
-export function DeasonChat({ onClose, compact = false }: DeasonChatProps) {
-  const { messages, streaming, error, send, reset, seedAssistant } = useDeason();
+export function DeasonChat({ onClose, compact = false, threadId = null, onUserMessage }: DeasonChatProps) {
+  const { messages, streaming, error, send, reset, seedAssistant, loadingHistory } = useDeason({
+    threadId,
+    onThreadTouched: onUserMessage,
+  });
   const { isInnerCircle } = useUserPersona();
   const [input, setInput] = useState("");
   const [attachedImage, setAttachedImage] = useState<string | null>(null);
@@ -159,9 +166,11 @@ export function DeasonChat({ onClose, compact = false }: DeasonChatProps) {
           </div>
         </div>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" onClick={reset} title="New chat">
-            <RotateCcw className="h-4 w-4" />
-          </Button>
+          {!threadId && (
+            <Button variant="ghost" size="icon" onClick={reset} title="New chat">
+              <RotateCcw className="h-4 w-4" />
+            </Button>
+          )}
           {onClose && (
             <Button variant="ghost" size="icon" onClick={onClose} title="Close">
               <X className="h-4 w-4" />
@@ -172,7 +181,12 @@ export function DeasonChat({ onClose, compact = false }: DeasonChatProps) {
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
-        {messages.length === 0 && (
+        {loadingHistory && (
+          <div className="flex justify-center py-10">
+            <Sparkles className="h-5 w-5 animate-pulse text-amber-500" />
+          </div>
+        )}
+        {!loadingHistory && messages.length === 0 && (
           <div className="mx-auto mt-6 max-w-md text-center">
             <div className="mb-3 text-2xl">{isInnerCircle ? "👋" : "☀️"}</div>
             <h2 className="mb-2 text-lg font-semibold">{welcomeTitle}</h2>
@@ -283,7 +297,9 @@ export function DeasonChat({ onClose, compact = false }: DeasonChatProps) {
           </Button>
         </div>
         <p className="mt-1.5 text-[11px] text-muted-foreground">
-          {isInnerCircle ? "Conversations are not saved." : "Conversations are not saved · 50 messages/day"}
+          {threadId
+            ? (isInnerCircle ? "Saved to your account." : "Saved to your account · 50 messages/day")
+            : (isInnerCircle ? "Conversations are not saved." : "Conversations are not saved · 50 messages/day")}
         </p>
       </form>
     </div>
