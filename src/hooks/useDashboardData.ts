@@ -723,14 +723,15 @@ export function useDashboardData() {
             const baselineWh = extractSolarWh(device.baseline_data);
             const pendingWh = Math.max(0, lifetimeWh - baselineWh);
             if (device.provider === 'tesla') {
+              // Tesla users can have multiple separate solar sites (e.g. Mike Pessah has 3).
+              // Push ONE entry per site so Clean Energy Center / KPI tiles / digest show each one.
               if (!hasDedicatedSolarProvider) {
-                const existing = solarDevicesArr.find(d => d.provider === 'tesla');
-                if (existing) { existing.lifetimeKwh += lifetimeWh / 1000; existing.pendingKwh += pendingWh / 1000; }
-                else solarDevicesArr.push({ deviceId: device.device_id, deviceName, provider: 'tesla', lifetimeKwh: lifetimeWh / 1000, pendingKwh: pendingWh / 1000 });
+                solarDevicesArr.push({ deviceId: device.device_id, deviceName, provider: 'tesla', lifetimeKwh: lifetimeWh / 1000, pendingKwh: pendingWh / 1000 });
               }
             } else {
               solarDevicesArr.push({ deviceId: device.device_id, deviceName, provider: device.provider, lifetimeKwh: lifetimeWh / 1000, pendingKwh: pendingWh / 1000 });
             }
+
           }
         }
         if (isBatteryDevice(device.device_type)) {
