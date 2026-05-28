@@ -71,6 +71,7 @@ export default function WeeklyNarrativePreview() {
   }, [session, user]);
 
   const selectedUser = users.find((u) => u.id === targetUserId);
+  const selectedLabel = selectedUser?.email || (result ? 'selected beta user' : SAMPLE_DATA.firstName);
 
   const handleGenerate = async (dryRun: boolean) => {
     if (!session) {
@@ -99,6 +100,14 @@ export default function WeeklyNarrativePreview() {
   const narrative = result?.narrativeMd || SAMPLE_NARRATIVE;
   const paragraphs = narrative.split(/\n\n+/).filter(Boolean);
 
+  if (!ready) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="mx-auto max-w-4xl space-y-6">
@@ -117,20 +126,66 @@ export default function WeeklyNarrativePreview() {
           </p>
         </div>
 
+        {!session && (
+          <Card className="border-amber-500/40 bg-amber-500/5">
+            <CardContent className="flex flex-col sm:flex-row items-start sm:items-center gap-3 pt-6">
+              <div className="flex-1 text-sm">
+                Sign in to generate a weekly narrative for registered beta users.
+              </div>
+              <Button onClick={() => navigate('/auth')} size="sm">
+                <LogIn className="h-4 w-4 mr-2" /> Sign in
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Actions</CardTitle>
-            <CardDescription>Generate a narrative from your real connected data, or preview the sample.</CardDescription>
+            <CardDescription>Pick any registered beta user and generate from their connected weekly data.</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-wrap gap-3">
-            <Button onClick={() => handleGenerate(true)} disabled={generating} variant="outline">
-              {generating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Eye className="h-4 w-4 mr-2" />}
-              Generate (dry run, don't save)
-            </Button>
-            <Button onClick={() => handleGenerate(false)} disabled={generating}>
-              {generating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
-              Generate & save for me
-            </Button>
+          <CardContent className="space-y-4">
+            <Select
+              value={targetUserId}
+              onValueChange={setTargetUserId}
+              disabled={!session || loadingUsers || users.length === 0}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={
+                  loadingUsers ? 'Loading users…'
+                  : users.length === 0 ? 'No registered users'
+                  : 'Select a beta user'
+                } />
+              </SelectTrigger>
+              <SelectContent>
+                {users.map((u) => {
+                  const provs = (u.providers || []).join(', ');
+                  const tag = u.device_count
+                    ? (provs ? ` · ${provs}` : '')
+                    : ' · no device';
+                  return (
+                    <SelectItem key={u.id} value={u.id}>
+                      {u.email}{user?.id === u.id ? ' (you)' : ''}{tag}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+
+            <div className="text-xs text-muted-foreground">
+              Generating for: <span className="font-mono">{selectedUser?.email || '—'}</span>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button onClick={() => handleGenerate(true)} disabled={!session || generating || !targetUserId} variant="outline" className="w-full sm:w-auto">
+                {generating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Eye className="h-4 w-4 mr-2" />}
+                Generate preview
+              </Button>
+              <Button onClick={() => handleGenerate(false)} disabled={!session || generating || !targetUserId} className="w-full sm:w-auto">
+                {generating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
+                Generate & save for selected user
+              </Button>
+            </div>
             {result?.id && (
               <Button onClick={() => navigate(`/energy-insights/week/${result.id}`)} variant="secondary">
                 View full reader page →
@@ -166,7 +221,7 @@ export default function WeeklyNarrativePreview() {
               <div className="text-center mb-8">
                 <div className="text-[10px] uppercase tracking-[0.2em] text-primary mb-2">Your week, decoded</div>
                 <h2 className="text-2xl font-bold tracking-tight mb-1">
-                  A story for {result ? '(you)' : SAMPLE_DATA.firstName}
+                  A story for {selectedLabel}
                 </h2>
                 <p className="text-xs text-muted-foreground">{SAMPLE_DATA.weekLabel}</p>
               </div>
