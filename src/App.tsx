@@ -210,6 +210,7 @@ const WorkJournal = lazy(() => import("./pages/admin/WorkJournal"));
 const AdminEmailAnalytics = lazy(() => import("./pages/admin/EmailAnalytics"));
 const AdminEmailPreview = lazy(() => import("./pages/admin/EmailPreview"));
 const AdminWeeklyDigest = lazy(() => import("./pages/admin/WeeklyDigestPreview"));
+const AdminWeeklyDigestEmailPreview = lazy(() => import("./pages/admin/WeeklyDigestEmailPreview"));
 const AdminCoffeePitch = lazy(() => import("./pages/AdminCoffeePitch"));
 const AdminInvestorPitch = lazy(() => import("./pages/AdminInvestorPitch"));
 const DeckPinGated = lazy(() => import("./pages/DeckPinGated"));
