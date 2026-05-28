@@ -289,12 +289,7 @@ export function DeasonFloatingBubble() {
       )}
 
       {open && (
-        <div
-          className={cn(
-            "fixed inset-x-0 bottom-0 z-50 flex flex-col border-t border-border bg-background shadow-2xl",
-            "h-[85svh] md:inset-auto md:bottom-6 md:right-6 md:h-[600px] md:w-[400px] md:rounded-2xl md:border",
-          )}
-        >
+        <SwipeDownCard onDismiss={() => setOpen(false)}>
           {user && !threadId && !threadPrepFailed ? (
             <div className="flex h-full flex-col items-center justify-center gap-3 bg-background text-sm text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin" />
@@ -309,8 +304,75 @@ export function DeasonFloatingBubble() {
               onUserMessage={threadId ? () => touchThread(threadId) : undefined}
             />
           )}
-        </div>
+        </SwipeDownCard>
       )}
+    </>
+  );
+}
+
+/**
+ * Swipe-down dismissible card wrapper for the Deason panel.
+ * - Mobile: drag the top handle (or the entire header area) downward >100px to dismiss.
+ * - Desktop: renders as a fixed bottom-right card; swipe gesture is also available.
+ * Outline uses amber to match the floating bubble / dashboard CTA.
+ */
+function SwipeDownCard({
+  children,
+  onDismiss,
+}: {
+  children: React.ReactNode;
+  onDismiss: () => void;
+}) {
+  const [dragY, setDragY] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const startY = useRef<number | null>(null);
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    startY.current = e.clientY;
+    setDragging(true);
+    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+  };
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (startY.current == null) return;
+    const dy = e.clientY - startY.current;
+    if (dy > 0) setDragY(dy);
+  };
+  const onPointerUp = () => {
+    if (dragY > 110) {
+      onDismiss();
+    }
+    setDragY(0);
+    setDragging(false);
+    startY.current = null;
+  };
+
+  return (
+    <div
+      style={{
+        transform: dragY ? `translateY(${dragY}px)` : undefined,
+        transition: dragging ? "none" : "transform 200ms ease-out",
+      }}
+      className={cn(
+        "fixed inset-x-0 bottom-0 z-50 flex flex-col bg-background shadow-2xl",
+        "h-[85svh] rounded-t-2xl border-2 border-amber-500/70 ring-1 ring-amber-400/30",
+        "md:inset-auto md:bottom-6 md:right-6 md:h-[600px] md:w-[400px] md:rounded-2xl",
+      )}
+    >
+      <div
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+        className="flex w-full cursor-grab touch-none items-center justify-center py-2 active:cursor-grabbing"
+        aria-label="Swipe down to dismiss"
+      >
+        <span className="h-1.5 w-12 rounded-full bg-amber-500/70" />
+      </div>
+      <div className="flex-1 overflow-hidden">{children}</div>
+    </div>
+  );
+}
+
     </>
   );
 }
