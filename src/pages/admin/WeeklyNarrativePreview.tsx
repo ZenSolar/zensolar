@@ -1,11 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useIsFounder } from '@/hooks/useIsFounder';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Loader2, ArrowLeft, Sparkles, Mail, Eye, Send } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Loader2, ArrowLeft, Sparkles, Mail, Eye, Send, LogIn } from 'lucide-react';
 import { toast } from 'sonner';
+
+type UserOption = { id: string; email: string | null; device_count?: number; providers?: string[]; device_types?: string[] };
 
 const SAMPLE_NARRATIVE = `Tuesday was the day, Michael. Your panels hit their stride right after lunch — **8.2 kW** flowing off the roof at the peak — and by evening you'd quietly stacked **47.3 kWh** for the day. That's the kind of number that used to require a small commercial array; you're doing it with a residential system.
 
@@ -27,31 +31,62 @@ const SAMPLE_DATA = {
 
 export default function WeeklyNarrativePreview() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, session } = useAuth();
+  const { isFounder, ready } = useIsFounder();
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState<{ narrativeMd: string; id?: string; teaser?: string } | null>(null);
+  const [users, setUsers] = useState<UserOption[]>([]);
+  const [targetUserId, setTargetUserId] = useState<string>('');
+  const [loadingUsers, setLoadingUsers] = useState(false);
+
+  useEffect(() => {
+    if (ready && !isFounder) {
+      toast.error('Founders only');
+      navigate('/');
+    }
+  }, [isFounder, ready, navigate]);
+
+  useEffect(() => {
+    if (!session) return;
+    let cancelled = false;
+    (async () => {
+      setLoadingUsers(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('admin-get-user-emails', {
+          body: { withDevices: true },
+        });
+        if (error) throw error;
+        if (cancelled) return;
+        const list: UserOption[] = (data?.users || []).filter((u: UserOption) => !!u.email);
+        setUsers(list);
+        if (user && list.some((u) => u.id === user.id)) setTargetUserId(user.id);
+        else if (list[0]) setTargetUserId(list[0].id);
+      } catch (e: any) {
+        toast.error(e.message || 'Failed to load users');
+      } finally {
+        if (!cancelled) setLoadingUsers(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [session, user]);
+
+  const selectedUser = users.find((u) => u.id === targetUserId);
 
   const handleGenerate = async (dryRun: boolean) => {
+    if (!session) {
+      toast.error('Please sign in');
+      return;
+    }
+    if (!targetUserId) {
+      toast.error('Select a beta user first');
+      return;
+    }
     setGenerating(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.error('Please sign in');
-        return;
-      }
-      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-weekly-narrative`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({ dryRun }),
+      const { data: json, error } = await supabase.functions.invoke('generate-weekly-narrative', {
+        body: { dryRun, userId: targetUserId },
       });
-      const json = await res.json();
-      if (!res.ok) {
-        toast.error(json.error || 'Generation failed');
-        return;
-      }
+      if (error) throw new Error(await readFnError(error));
       setResult({ narrativeMd: json.narrativeMd, id: json.id, teaser: json.teaser });
       toast.success(dryRun ? 'Narrative generated (not saved)' : 'Narrative saved');
     } catch (e: any) {
