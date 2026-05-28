@@ -323,7 +323,11 @@ Deno.serve(async (req) => {
     .lte('start_time', weekEndIso)
     .limit(5000)
   let homeChargingKwh = 0
-  for (const h of hcRows || []) homeChargingKwh += Number(h.total_session_kwh) || 0
+  let homeChargingSessions = 0
+  for (const h of hcRows || []) {
+    homeChargingKwh += Number(h.total_session_kwh) || 0
+    homeChargingSessions += 1
+  }
 
   // --- Supercharging / public charging (non-home) for the week
   const { data: scRows } = await supabase
