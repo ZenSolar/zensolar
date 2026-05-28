@@ -123,6 +123,7 @@ function EmailRender({ data }: { data: DigestPayload }) {
   const ctaWrap: React.CSSProperties = { textAlign: 'center', margin: '0 0 8px' };
   const buttonPrimary: React.CSSProperties = { display: 'inline-block', padding: '14px 26px', backgroundColor: COLORS.accent, color: '#0a0a0a', textDecoration: 'none', fontSize: 14, lineHeight: '20px', fontWeight: 800, letterSpacing: '0.3px', borderRadius: 10 };
   const footerDivider: React.CSSProperties = { margin: '24px 0 14px', border: 0, borderTop: `1px solid ${COLORS.border}` };
+  const footer: React.CSSProperties = { margin: 0, fontSize: 11, lineHeight: '18px', color: COLORS.muted, textAlign: 'center', letterSpacing: '0.3px' };
 
 
   return (
