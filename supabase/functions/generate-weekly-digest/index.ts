@@ -305,7 +305,7 @@ Deno.serve(async (req) => {
   const evKwh = homeChargingKwh + superchargerKwh + (teslaEvChargingWh / 1000)
   const evMiles = evMilesFromOem > 0 ? evMilesFromOem : evKwh * 3.5
 
-  // --- Minting this week + lifetime
+  // --- Minting this week + lifetime (actual on-chain mints)
   const { data: mintWeek } = await supabase
     .from('mint_transactions')
     .select('tokens_minted')
@@ -313,14 +313,26 @@ Deno.serve(async (req) => {
     .gte('created_at', weekStartIso)
     .lte('created_at', weekEndIso)
     .limit(500)
-  const tokensThisWeek = (mintWeek || []).reduce((a: number, m: any) => a + (Number(m.tokens_minted) || 0), 0)
+  const actualMintedThisWeek = (mintWeek || []).reduce((a: number, m: any) => a + (Number(m.tokens_minted) || 0), 0)
 
   const { data: mintLifetime } = await supabase
     .from('mint_transactions')
     .select('tokens_minted')
     .eq('user_id', targetUserId).eq('status', 'success')
     .limit(20000)
-  const tokensLifetime = (mintLifetime || []).reduce((a: number, m: any) => a + (Number(m.tokens_minted) || 0), 0)
+  const actualMintedLifetime = (mintLifetime || []).reduce((a: number, m: any) => a + (Number(m.tokens_minted) || 0), 0)
+
+  // Beta tokenomics (mirrors src/lib/tokenomics.ts): activity units × Live Beta multiplier (10x)
+  // × 75% user share. Use this so digest reflects what the user EARNED this week even if no
+  // on-chain mint has cleared yet. Lifetime = actualMintedLifetime + pending estimate.
+  const LIVE_BETA_MULT = 10
+  const USER_SHARE = 0.75
+  const weeklyActivityUnits =
+    (solarWh / 1000) + (batteryWh / 1000) + evMiles + homeChargingKwh + superchargerKwh
+  const pendingThisWeek = Math.floor(Math.floor(weeklyActivityUnits * LIVE_BETA_MULT) * USER_SHARE)
+  const tokensThisWeek = Math.max(actualMintedThisWeek, pendingThisWeek)
+  const tokensLifetime = actualMintedLifetime + pendingThisWeek
+
 
   // Per-provider summaries used downstream (top-device + per-device breakdown)
   const perProviderSolar: Record<string, number> = buckets.solar.perProvider
