@@ -292,15 +292,23 @@ export default function WeeklyDigestEmailPreview() {
             </Button>
             <Select value={targetUserId} onValueChange={setTargetUserId} disabled={!session || users.length === 0}>
               <SelectTrigger className="w-full sm:w-[280px]">
-                <SelectValue placeholder={session ? 'Select a user' : 'Sign in to load real data'} />
+                <SelectValue placeholder={
+                  !session ? 'Sign in to load real data'
+                  : users.length === 0 ? 'No beta users with a connected device'
+                  : 'Beta user with connected device'
+                } />
               </SelectTrigger>
               <SelectContent>
-                {users.map((u) => (
-                  <SelectItem key={u.id} value={u.id}>
-                    {u.email}{user?.id === u.id ? ' (you)' : ''}
-                  </SelectItem>
-                ))}
+                {users.map((u) => {
+                  const provs = (u.providers || []).join(', ');
+                  return (
+                    <SelectItem key={u.id} value={u.id}>
+                      {u.email}{user?.id === u.id ? ' (you)' : ''}{provs ? ` · ${provs}` : ''}
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
+            </Select>
             </Select>
             <Button onClick={loadReal} disabled={!session || loading || !targetUserId} className="w-full sm:w-auto">
               {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Eye className="h-4 w-4 mr-2" />}
