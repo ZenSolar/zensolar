@@ -108,10 +108,11 @@ export default function WeeklyDigestPreview() {
           <Button onClick={handlePreview} disabled={previewing || sending} variant="outline">
             {previewing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Eye className="h-4 w-4 mr-2" />}
             Preview data (no email)
-          </Button>
-          <Button onClick={handleSend} disabled={sending || previewing}>
+          <Button onClick={() => setConfirmOpen(true)} disabled={sending || previewing}>
             {sending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
             Send to me now
+          </Button>
+
           </Button>
         </CardContent>
       </Card>
