@@ -285,6 +285,7 @@ Deno.serve(async (req) => {
       .map((d) => d.device_id),
   )
   let evMiles = 0
+  let evDaysDriven = 0
   const evMilesPerDevice: Record<string, number> = {}
   for (const deviceId of teslaVehicleIds) {
     const key = `tesla|${deviceId}|ev_miles`
@@ -294,10 +295,16 @@ Deno.serve(async (req) => {
     // Baseline = last sample strictly BEFORE weekStartDay; if none, first sample on/after.
     let baseline: number | null = null
     let latest: number | null = null
+    let prev: number | null = null
     for (const day of days) {
       const v = dm.get(day)!
-      if (day < weekStartDay) baseline = v
-      else { if (baseline === null) baseline = v; latest = v }
+      if (day < weekStartDay) { baseline = v; prev = v }
+      else {
+        if (baseline === null) baseline = v
+        if (prev !== null && v - prev > 0.1) evDaysDriven += 1
+        prev = v
+        latest = v
+      }
     }
     if (baseline !== null && latest !== null) {
       const delta = Math.max(0, latest - baseline)
@@ -305,6 +312,7 @@ Deno.serve(async (req) => {
       evMilesPerDevice[`tesla|${deviceId}`] = delta
     }
   }
+
 
   // --- Home charging sessions (kWh) for the week — same source the dashboard uses
   const { data: hcRows } = await supabase
