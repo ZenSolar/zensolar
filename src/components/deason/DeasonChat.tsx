@@ -11,6 +11,10 @@ import { cn } from "@/lib/utils";
 interface DeasonChatProps {
   onClose?: () => void;
   compact?: boolean;
+  /** When set, the chat is persisted to this DB thread. */
+  threadId?: string | null;
+  /** Called whenever a new user message is sent (lets parents re-sort thread list). */
+  onUserMessage?: (text: string | null) => void;
 }
 
 const INNER_CIRCLE_PROMPTS = [
@@ -55,8 +59,11 @@ const ONBOARDING_PROMPTS = [
  * Persona-aware: shows different welcome copy + suggested prompts depending on
  * whether the viewer is inner-circle or a regular demo/beta user.
  */
-export function DeasonChat({ onClose, compact = false }: DeasonChatProps) {
-  const { messages, streaming, error, send, reset, seedAssistant } = useDeason();
+export function DeasonChat({ onClose, compact = false, threadId = null, onUserMessage }: DeasonChatProps) {
+  const { messages, streaming, error, send, reset, seedAssistant, loadingHistory } = useDeason({
+    threadId,
+    onThreadTouched: onUserMessage,
+  });
   const { isInnerCircle } = useUserPersona();
   const [input, setInput] = useState("");
   const [attachedImage, setAttachedImage] = useState<string | null>(null);
