@@ -86,8 +86,11 @@ Deno.serve(async (req) => {
       userList = userList.filter((u) => !!u.email && u.device_count > 0);
     }
 
-      }
+    return new Response(
+      JSON.stringify({ users: userList }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
+
 
   } catch (error) {
     console.error('Error fetching user emails:', error);
