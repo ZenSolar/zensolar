@@ -217,8 +217,10 @@ function DayGroupRow({ group, unit, category }: { group: DayGroup; unit: 'kWh' |
     </div>
   );
 }
-
 export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Props) {
+  const { open, category, deviceId, deviceName, label, unit, pending, accent } = state;
+  const accentVar = `--${accent ?? 'primary'}`;
+
   const { open, category, deviceId, deviceName, label, unit, pending } = state;
   const demoCtx = useDemoContextSafe();
   const isDemo = !!demoCtx;
