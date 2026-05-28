@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Send, Sparkles, RotateCcw, X, Paperclip, Image as ImageIcon } from "lucide-react";
+import { Send, Sparkles, RotateCcw, X, Paperclip, Image as ImageIcon, ChevronUp, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useDeason, type DeasonContentPart } from "@/hooks/useDeason";
@@ -73,17 +73,27 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onUserMe
   const scrollRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<Array<HTMLDivElement | null>>([]);
 
-  // Index of first message matching highlightQuery (if any).
-  const highlightIndex = useMemo(() => {
+  // All message indices matching highlightQuery.
+  const matchIndices = useMemo(() => {
     const q = highlightQuery?.trim().toLowerCase();
-    if (!q || messages.length === 0) return -1;
-    return messages.findIndex((m) => {
+    if (!q || messages.length === 0) return [] as number[];
+    const out: number[] = [];
+    messages.forEach((m, i) => {
       const text = typeof m.content === "string"
         ? m.content
         : m.content.map((p) => (p.type === "text" ? p.text ?? "" : "")).join(" ");
-      return text.toLowerCase().includes(q);
+      if (text.toLowerCase().includes(q)) out.push(i);
     });
+    return out;
   }, [highlightQuery, messages]);
+
+  const [activeMatch, setActiveMatch] = useState(0);
+  // Reset cursor when the query or match set changes.
+  useEffect(() => {
+    setActiveMatch(0);
+  }, [highlightQuery, matchIndices.length]);
+
+  const highlightIndex = matchIndices[activeMatch] ?? -1;
 
   useEffect(() => {
     if (highlightIndex >= 0 && !loadingHistory) {
@@ -95,6 +105,11 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onUserMe
     }
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, streaming, highlightIndex, loadingHistory]);
+
+  const goPrevMatch = () =>
+    setActiveMatch((i) => (matchIndices.length ? (i - 1 + matchIndices.length) % matchIndices.length : 0));
+  const goNextMatch = () =>
+    setActiveMatch((i) => (matchIndices.length ? (i + 1) % matchIndices.length : 0));
 
   // Listen for `deason:seed` events from elsewhere in the app (e.g. the
   // OAuth error toast's "Ask Deason" handoff). Pushes a hand-written
@@ -200,6 +215,44 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onUserMe
           )}
         </div>
       </div>
+      {/* Search match navigator */}
+      {matchIndices.length > 0 && (
+        <div className="flex items-center justify-between gap-2 border-b border-border bg-amber-500/5 px-3 py-1.5 text-xs">
+          <div className="text-muted-foreground">
+            Match <span className="font-medium text-foreground">{activeMatch + 1}</span> of{" "}
+            <span className="font-medium text-foreground">{matchIndices.length}</span>
+            {highlightQuery && (
+              <span className="ml-2 hidden sm:inline">
+                for &ldquo;<span className="text-foreground">{highlightQuery}</span>&rdquo;
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              onClick={goPrevMatch}
+              disabled={matchIndices.length < 2}
+              title="Previous match"
+            >
+              <ChevronUp className="h-3.5 w-3.5" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              onClick={goNextMatch}
+              disabled={matchIndices.length < 2}
+              title="Next match"
+            >
+              <ChevronDown className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">

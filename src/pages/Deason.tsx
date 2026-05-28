@@ -1,12 +1,13 @@
-import { useEffect } from "react";
+import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { useState, useMemo, useRef } from "react";
 import { Loader2, Plus, MessageSquare, Trash2, ChevronLeft, Pin, PinOff, Pencil, Check, X, Search } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { useDeasonThreads } from "@/hooks/useDeasonThreads";
+import { useDeasonThreads, type DeasonThread } from "@/hooks/useDeasonThreads";
 import { DeasonChat } from "@/components/deason/DeasonChat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ToastAction } from "@/components/ui/toast";
+import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,19 +21,19 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
-interface MessageMatch {
-  thread_id: string;
-  snippet: string;
-}
+const SEARCH_PAGE_SIZE = 25;
+const UNDO_GRACE_MS = 8000;
 
 /**
- * Full-page Deason chat with persistent threads, pin/rename/delete, and search.
+ * Full-page Deason chat with persistent threads, pin/rename/delete, paginated
+ * search, and undoable deletes.
  */
 export default function Deason() {
   const { user, isLoading } = useAuth();
   const { threadId } = useParams<{ threadId?: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const {
     threads,
     loading: threadsLoading,
@@ -45,34 +46,50 @@ export default function Deason() {
 
   const [query, setQuery] = useState("");
   const [messageMatches, setMessageMatches] = useState<Record<string, string>>({});
+  const [searchLimit, setSearchLimit] = useState(SEARCH_PAGE_SIZE);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [hasMoreMatches, setHasMoreMatches] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
+  // Threads queued for hard-delete after grace period; hidden from sidebar.
+  const [pendingUndo, setPendingUndo] = useState<Set<string>>(new Set());
+  const undoTimers = useRef<Map<string, number>>(new Map());
   const searchTimer = useRef<number | null>(null);
+  const listScrollRef = useRef<HTMLDivElement>(null);
+
+  // Reset pagination on query change.
+  useEffect(() => {
+    setSearchLimit(SEARCH_PAGE_SIZE);
+  }, [query]);
 
   // Auto-redirect on desktop only.
   useEffect(() => {
     if (isLoading || threadsLoading || !user || threadId) return;
     const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
     if (!isDesktop) return;
-    if (threads.length > 0) {
-      navigate(`/deason/${threads[0].id}`, { replace: true });
+    const visible = threads.filter((t) => !pendingUndo.has(t.id));
+    if (visible.length > 0) {
+      navigate(`/deason/${visible[0].id}`, { replace: true });
     } else {
       void (async () => {
         const t = await createThread();
         if (t) navigate(`/deason/${t.id}`, { replace: true });
       })();
     }
-  }, [isLoading, threadsLoading, user, threadId, threads, createThread, navigate]);
+  }, [isLoading, threadsLoading, user, threadId, threads, pendingUndo, createThread, navigate]);
 
-  // Debounced server-side search over deason_messages content for the current user.
+  // Debounced, paginated server-side search across the user's messages.
   useEffect(() => {
     if (searchTimer.current) window.clearTimeout(searchTimer.current);
     const q = query.trim();
     if (!q || !user) {
       setMessageMatches({});
+      setHasMoreMatches(false);
+      setSearchLoading(false);
       return;
     }
+    setSearchLoading(true);
     searchTimer.current = window.setTimeout(async () => {
       const { data } = await supabase
         .from("deason_messages")
@@ -80,9 +97,11 @@ export default function Deason() {
         .eq("user_id", user.id)
         .ilike("content", `%${q}%`)
         .order("created_at", { ascending: false })
-        .limit(50);
+        .range(0, searchLimit - 1);
+      const rows = data ?? [];
+      setHasMoreMatches(rows.length >= searchLimit);
       const map: Record<string, string> = {};
-      (data ?? []).forEach((row: any) => {
+      rows.forEach((row: any) => {
         if (map[row.thread_id]) return;
         const text =
           typeof row.content === "string"
@@ -96,19 +115,39 @@ export default function Deason() {
         map[row.thread_id] = (start > 0 ? "…" : "") + text.slice(start, idx + q.length + 60) + "…";
       });
       setMessageMatches(map);
+      setSearchLoading(false);
     }, 250);
     return () => {
       if (searchTimer.current) window.clearTimeout(searchTimer.current);
     };
-  }, [query, user]);
+  }, [query, user, searchLimit]);
+
+  // Infinite-scroll: load more matches as user nears bottom of list.
+  const handleScroll = useCallback(() => {
+    const el = listScrollRef.current;
+    if (!el || !query.trim() || searchLoading || !hasMoreMatches) return;
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 80) {
+      setSearchLimit((n) => n + SEARCH_PAGE_SIZE);
+    }
+  }, [query, searchLoading, hasMoreMatches]);
 
   const filteredThreads = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return threads;
-    return threads.filter(
+    const visible = threads.filter((t) => !pendingUndo.has(t.id));
+    if (!q) return visible;
+    return visible.filter(
       (t) => t.title.toLowerCase().includes(q) || !!messageMatches[t.id]
     );
-  }, [threads, query, messageMatches]);
+  }, [threads, pendingUndo, query, messageMatches]);
+
+  // Clean up any pending timers on unmount.
+  useEffect(
+    () => () => {
+      undoTimers.current.forEach((id) => window.clearTimeout(id));
+      undoTimers.current.clear();
+    },
+    []
+  );
 
   if (isLoading) {
     return (
@@ -142,12 +181,53 @@ export default function Deason() {
     setEditingTitle("");
   };
 
-  const confirmDelete = async () => {
+  const performHardDelete = async (id: string) => {
+    undoTimers.current.delete(id);
+    await deleteThread(id);
+    setPendingUndo((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  };
+
+  const undoDelete = (id: string) => {
+    const t = undoTimers.current.get(id);
+    if (t) window.clearTimeout(t);
+    undoTimers.current.delete(id);
+    setPendingUndo((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  };
+
+  const confirmDelete = () => {
     if (!pendingDelete) return;
     const id = pendingDelete;
+    const target = threads.find((t) => t.id === id);
     setPendingDelete(null);
-    const ok = await deleteThread(id);
-    if (ok && threadId === id) navigate("/deason", { replace: true });
+
+    // Optimistically hide + navigate away. Real DB delete is deferred so the
+    // user has a chance to undo.
+    setPendingUndo((prev) => new Set(prev).add(id));
+    if (threadId === id) navigate("/deason", { replace: true });
+
+    const timer = window.setTimeout(() => {
+      void performHardDelete(id);
+    }, UNDO_GRACE_MS);
+    undoTimers.current.set(id, timer);
+
+    toast({
+      title: "Conversation deleted",
+      description: target?.title ? `"${target.title}"` : "Removed from your saved chats.",
+      duration: UNDO_GRACE_MS,
+      action: (
+        <ToastAction altText="Undo delete" onClick={() => undoDelete(id)}>
+          Undo
+        </ToastAction>
+      ),
+    });
   };
 
   const pendingDeleteThread = threads.find((t) => t.id === pendingDelete);
@@ -171,7 +251,11 @@ export default function Deason() {
           />
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto p-2">
+      <div
+        ref={listScrollRef}
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto p-2"
+      >
         {threadsLoading && (
           <div className="flex justify-center py-6">
             <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
@@ -180,120 +264,48 @@ export default function Deason() {
         {!threadsLoading && filteredThreads.length === 0 && (
           <div className="px-3 py-6 text-center text-xs text-muted-foreground">
             {query.trim()
-              ? "No matches."
+              ? searchLoading ? "Searching…" : "No matches."
               : <>No saved chats yet. Tap <span className="font-medium">+</span> to start one.</>}
           </div>
         )}
         <ul className="space-y-1">
-          {filteredThreads.map((t) => {
-            const active = t.id === threadId;
-            const isEditing = editingId === t.id;
-            const snippet = messageMatches[t.id];
-            return (
-              <li key={t.id}>
-                <div
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => !isEditing && handleOpenThread(t.id)}
-                  onKeyDown={(e) => {
-                    if (!isEditing && e.key === "Enter") handleOpenThread(t.id);
-                  }}
-                  className={cn(
-                    "group flex cursor-pointer items-start gap-2 rounded-md px-2.5 py-2 text-sm transition-colors",
-                    active ? "bg-accent text-foreground" : "hover:bg-accent/60 text-muted-foreground"
-                  )}
-                >
-                  {t.pinned ? (
-                    <Pin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-amber-500" />
-                  ) : (
-                    <MessageSquare className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    {isEditing ? (
-                      <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                        <Input
-                          autoFocus
-                          value={editingTitle}
-                          onChange={(e) => setEditingTitle(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") void commitRename();
-                            if (e.key === "Escape") {
-                              setEditingId(null);
-                              setEditingTitle("");
-                            }
-                          }}
-                          className="h-7 text-sm"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => void commitRename()}
-                          className="p-1 text-foreground hover:text-primary"
-                          title="Save"
-                        >
-                          <Check className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditingId(null);
-                            setEditingTitle("");
-                          }}
-                          className="p-1 hover:text-destructive"
-                          title="Cancel"
-                        >
-                          <X className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="truncate">{t.title || "Untitled"}</div>
-                        {snippet && (
-                          <div className="mt-0.5 truncate text-[11px] text-muted-foreground/80">
-                            {snippet}
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                  {!isEditing && (
-                    <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          void togglePin(t.id);
-                        }}
-                        className="p-1 hover:text-amber-500"
-                        title={t.pinned ? "Unpin" : "Pin to top"}
-                      >
-                        {t.pinned ? <PinOff className="h-3.5 w-3.5" /> : <Pin className="h-3.5 w-3.5" />}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => startRename(t.id, t.title, e)}
-                        className="p-1 hover:text-foreground"
-                        title="Rename"
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPendingDelete(t.id);
-                        }}
-                        className="p-1 hover:text-destructive"
-                        title="Delete conversation"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </li>
-            );
-          })}
+          {filteredThreads.map((t) => (
+            <ThreadRow
+              key={t.id}
+              t={t}
+              active={t.id === threadId}
+              editing={editingId === t.id}
+              editingTitle={editingTitle}
+              setEditingTitle={setEditingTitle}
+              snippet={messageMatches[t.id]}
+              onOpen={() => handleOpenThread(t.id)}
+              onStartRename={(e) => startRename(t.id, t.title, e)}
+              onCommitRename={() => void commitRename()}
+              onCancelRename={() => {
+                setEditingId(null);
+                setEditingTitle("");
+              }}
+              onTogglePin={() => void togglePin(t.id)}
+              onDelete={() => setPendingDelete(t.id)}
+            />
+          ))}
         </ul>
+        {query.trim() && hasMoreMatches && (
+          <div className="flex justify-center py-3">
+            {searchLoading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSearchLimit((n) => n + SEARCH_PAGE_SIZE)}
+                className="h-7 text-xs"
+              >
+                Load more matches
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </aside>
   );
@@ -302,12 +314,10 @@ export default function Deason() {
 
   return (
     <div className="mx-auto flex h-[100svh] w-full max-w-5xl">
-      {/* Sidebar */}
       <div className={cn("h-full w-full md:flex md:w-72", threadId ? "hidden md:flex" : "flex")}>
         {sidebar}
       </div>
 
-      {/* Chat pane */}
       <div className={cn("h-full flex-1 flex-col", threadId ? "flex" : "hidden md:flex")}>
         {threadId ? (
           <>
@@ -343,10 +353,10 @@ export default function Deason() {
               {pendingDeleteThread ? (
                 <>
                   &ldquo;<span className="font-medium text-foreground">{pendingDeleteThread.title || "Untitled"}</span>&rdquo;
-                  and all its messages will be permanently removed from your account. This cannot be undone.
+                  will be removed. You can undo for a few seconds before it's permanent.
                 </>
               ) : (
-                "All messages in this conversation will be permanently removed. This cannot be undone."
+                "This conversation will be removed. You can undo for a few seconds before it's permanent."
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -362,5 +372,105 @@ export default function Deason() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
+  );
+}
+
+interface ThreadRowProps {
+  t: DeasonThread;
+  active: boolean;
+  editing: boolean;
+  editingTitle: string;
+  setEditingTitle: (v: string) => void;
+  snippet?: string;
+  onOpen: () => void;
+  onStartRename: (e: React.MouseEvent) => void;
+  onCommitRename: () => void;
+  onCancelRename: () => void;
+  onTogglePin: () => void;
+  onDelete: () => void;
+}
+
+function ThreadRow({
+  t, active, editing, editingTitle, setEditingTitle, snippet,
+  onOpen, onStartRename, onCommitRename, onCancelRename, onTogglePin, onDelete,
+}: ThreadRowProps) {
+  return (
+    <li>
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => !editing && onOpen()}
+        onKeyDown={(e) => {
+          if (!editing && e.key === "Enter") onOpen();
+        }}
+        className={cn(
+          "group flex cursor-pointer items-start gap-2 rounded-md px-2.5 py-2 text-sm transition-colors",
+          active ? "bg-accent text-foreground" : "hover:bg-accent/60 text-muted-foreground"
+        )}
+      >
+        {t.pinned ? (
+          <Pin className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-amber-500" />
+        ) : (
+          <MessageSquare className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+        )}
+        <div className="flex-1 min-w-0">
+          {editing ? (
+            <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+              <Input
+                autoFocus
+                value={editingTitle}
+                onChange={(e) => setEditingTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") onCommitRename();
+                  if (e.key === "Escape") onCancelRename();
+                }}
+                className="h-7 text-sm"
+              />
+              <button type="button" onClick={onCommitRename} className="p-1 text-foreground hover:text-primary" title="Save">
+                <Check className="h-3.5 w-3.5" />
+              </button>
+              <button type="button" onClick={onCancelRename} className="p-1 hover:text-destructive" title="Cancel">
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="truncate">{t.title || "Untitled"}</div>
+              {snippet && (
+                <div className="mt-0.5 truncate text-[11px] text-muted-foreground/80">{snippet}</div>
+              )}
+            </>
+          )}
+        </div>
+        {!editing && (
+          <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100">
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onTogglePin(); }}
+              className="p-1 hover:text-amber-500"
+              title={t.pinned ? "Unpin" : "Pin to top"}
+            >
+              {t.pinned ? <PinOff className="h-3.5 w-3.5" /> : <Pin className="h-3.5 w-3.5" />}
+            </button>
+            <button
+              type="button"
+              onClick={onStartRename}
+              className="p-1 hover:text-foreground"
+              title="Rename"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onDelete(); }}
+              className="p-1 hover:text-destructive"
+              title="Delete conversation"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
+      </div>
+    </li>
   );
 }
