@@ -11,26 +11,19 @@ import { toast } from 'sonner';
 export default function WeeklyDigestPreview() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { isFounder } = useIsFounder() as any;
-  const [isChecking, setIsChecking] = useState(true);
+  const { user } = useAuth();
+  const { isFounder, ready } = useIsFounder();
   const [previewing, setPreviewing] = useState(false);
   const [sending, setSending] = useState(false);
   const [payload, setPayload] = useState<any>(null);
 
   useEffect(() => {
-    // useIsFounder returns { isFounder } in some versions; tolerate boolean too
-    setIsChecking(false);
-  }, []);
-
-  useEffect(() => {
-    if (!isChecking && isFounder === false) {
+    if (ready && !isFounder) {
       toast.error('Founders only');
       navigate('/');
     }
-  }, [isFounder, isChecking, navigate]);
+  }, [isFounder, ready, navigate]);
 
-  const handlePreview = async () => {
-    setPreviewing(true);
     setPayload(null);
     try {
       const { data, error } = await supabase.functions.invoke('generate-weekly-digest', {
@@ -56,9 +49,10 @@ export default function WeeklyDigestPreview() {
       if (error) throw error;
       setPayload(data);
       toast.success(`Digest queued for ${data?.recipient}`);
-    } catch (e: any) {
-      toast.error(e.message || 'Send failed');
-    } finally {
+  if (!ready) {
+    return <div className="flex items-center justify-center min-h-[60vh]"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  }
+
       setSending(false);
     }
   };
