@@ -128,6 +128,16 @@ Deno.serve(async (req) => {
       });
     }
 
+    let body: any = {};
+    try { body = await req.json(); } catch { /* body optional */ }
+    const requestedDays = Number(body?.days || 0);
+    const daysBack = Number.isFinite(requestedDays) && requestedDays > 0
+      ? Math.min(31, Math.max(1, Math.floor(requestedDays)))
+      : null;
+    const cutoffDateStr = daysBack
+      ? new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+      : null;
+
     let targetUserId = user.id;
     const targetUserIdHeader = req.headers.get("X-Target-User-Id");
     if (targetUserIdHeader && targetUserIdHeader !== user.id) {
@@ -230,6 +240,7 @@ Deno.serve(async (req) => {
       }
 
       const endDate = new Date().toISOString().split("T")[0];
+      if (cutoffDateStr && cutoffDateStr > startDate) startDate = cutoffDateStr;
       const startYear = parseInt(startDate.split("-")[0]);
       const endYear = parseInt(endDate.split("-")[0]);
 
