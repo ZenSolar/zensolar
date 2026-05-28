@@ -469,7 +469,9 @@ const App = () => {
                             <AdminWeeklyDigest />
                           </AppLayout>
                         </ProtectedRoute>
+                      }
                     />
+
                     <Route
                       path="/admin/weekly-digest/email-preview"
                       element={
