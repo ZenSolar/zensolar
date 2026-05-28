@@ -13,6 +13,8 @@ interface DeasonChatProps {
   compact?: boolean;
   /** When set, the chat is persisted to this DB thread. */
   threadId?: string | null;
+  /** Optional saved-chat reset action, used by the floating PWA panel. */
+  onNewThread?: () => void;
   /** Called whenever a new user message is sent (lets parents re-sort thread list). */
   onUserMessage?: (text: string | null) => void;
   /** When set, scroll to and highlight the first message containing this query. */
@@ -61,7 +63,7 @@ const ONBOARDING_PROMPTS = [
  * Persona-aware: shows different welcome copy + suggested prompts depending on
  * whether the viewer is inner-circle or a regular demo/beta user.
  */
-export function DeasonChat({ onClose, compact = false, threadId = null, onUserMessage, highlightQuery }: DeasonChatProps) {
+export function DeasonChat({ onClose, compact = false, threadId = null, onNewThread, onUserMessage, highlightQuery }: DeasonChatProps) {
   const { messages, streaming, error, send, reset, seedAssistant, loadingHistory } = useDeason({
     threadId,
     onThreadTouched: onUserMessage,
@@ -167,13 +169,14 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onUserMe
     : isInnerCircle
     ? INNER_CIRCLE_PROMPTS
     : PUBLIC_PROMPTS;
+  const persistenceLabel = threadId ? "saved" : "ephemeral";
   const headerSubtitle = isOnboardingSurface
-    ? "Setup helper · ephemeral"
+    ? `Setup helper · ${persistenceLabel}`
     : isDemoSurface
-    ? "Investor preview · ephemeral"
+    ? `Investor preview · ${persistenceLabel}`
     : isInnerCircle
-    ? "Inner circle · ephemeral"
-    : "ZenSolar concierge · ephemeral";
+    ? `Inner circle · ${persistenceLabel}`
+    : `ZenSolar concierge · ${persistenceLabel}`;
   const welcomeTitle = isOnboardingSurface
     ? "Need a hand setting up?"
     : isDemoSurface
@@ -203,8 +206,13 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onUserMe
           </div>
         </div>
         <div className="flex items-center gap-1">
-          {!threadId && (
-            <Button variant="ghost" size="icon" onClick={reset} title="New chat">
+          {(!threadId || onNewThread) && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={threadId && onNewThread ? onNewThread : reset}
+              title={threadId && onNewThread ? "New saved chat" : "New chat"}
+            >
               <RotateCcw className="h-4 w-4" />
             </Button>
           )}
