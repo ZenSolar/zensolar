@@ -270,9 +270,41 @@ Deno.serve(async (req) => {
 
   const solarWh = buckets.solar.total
   const batteryWh = buckets.battery.total
-  const evMilesFromOem = buckets.ev_miles.total // already in miles for ev_miles rows
   const teslaEvChargingWh = buckets.ev_charging.total // Wh on Tesla EV charging counter
 
+
+  // --- EV miles: SAME source as the Clean Energy Center KPI.
+  // The dashboard reads odometer from connected_devices (Tesla vehicle API). For a 7-day
+  // window we use the snapshot history of THAT SAME field (energy_production rows of type
+  // 'ev_miles'), restricted to provider='tesla' AND only the vehicle device_ids that are
+  // registered in this user's connected_devices. Delta = max(within week) − max(just before
+  // week start). No fallbacks, no cross-source estimates.
+  const teslaVehicleIds = new Set(
+    devicesArr
+      .filter((d) => d.kind === 'vehicle' && d.provider?.toLowerCase() === 'tesla' && d.device_id)
+      .map((d) => d.device_id),
+  )
+  let evMiles = 0
+  const evMilesPerDevice: Record<string, number> = {}
+  for (const deviceId of teslaVehicleIds) {
+    const key = `tesla|${deviceId}|ev_miles`
+    const dm = counterDay.get(key)
+    if (!dm) continue
+    const days = Array.from(dm.keys()).sort()
+    // Baseline = last sample strictly BEFORE weekStartDay; if none, first sample on/after.
+    let baseline: number | null = null
+    let latest: number | null = null
+    for (const day of days) {
+      const v = dm.get(day)!
+      if (day < weekStartDay) baseline = v
+      else { if (baseline === null) baseline = v; latest = v }
+    }
+    if (baseline !== null && latest !== null) {
+      const delta = Math.max(0, latest - baseline)
+      evMiles += delta
+      evMilesPerDevice[`tesla|${deviceId}`] = delta
+    }
+  }
 
   // --- Home charging sessions (kWh) for the week — same source the dashboard uses
   const { data: hcRows } = await supabase
@@ -301,9 +333,10 @@ Deno.serve(async (req) => {
     superchargerSessions += 1
   }
 
-  // EV miles: prefer OEM odometer-delta source; fall back to charging-kWh estimate only if OEM missing
+  // Tracked vehicle kWh consumed (for the KPI sub-line)
   const evKwh = homeChargingKwh + superchargerKwh + (teslaEvChargingWh / 1000)
-  const evMiles = evMilesFromOem > 0 ? evMilesFromOem : evKwh * 3.5
+
+
 
   // --- Minting this week + lifetime (actual on-chain mints)
   const { data: mintWeek } = await supabase
