@@ -231,7 +231,12 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onUserMe
           {messages.map((m, i) => (
             <div
               key={i}
-              className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}
+              ref={(el) => { messageRefs.current[i] = el; }}
+              className={cn(
+                "flex scroll-mt-20 rounded-xl transition-shadow",
+                m.role === "user" ? "justify-end" : "justify-start",
+                i === highlightIndex && "ring-2 ring-amber-500/60"
+              )}
             >
               <div className={cn("space-y-2", m.role === "user" ? "max-w-[85%]" : "w-full max-w-[92%]")}>
                 {(m.content || m.role === "user" || !m.billReport) && (
