@@ -209,6 +209,7 @@ const AdminEnergyDataArchitecture = lazy(() => import("./pages/admin/EnergyDataA
 const WorkJournal = lazy(() => import("./pages/admin/WorkJournal"));
 const AdminEmailAnalytics = lazy(() => import("./pages/admin/EmailAnalytics"));
 const AdminEmailPreview = lazy(() => import("./pages/admin/EmailPreview"));
+const AdminWeeklyDigest = lazy(() => import("./pages/admin/WeeklyDigestPreview"));
 const AdminCoffeePitch = lazy(() => import("./pages/AdminCoffeePitch"));
 const AdminInvestorPitch = lazy(() => import("./pages/AdminInvestorPitch"));
 const DeckPinGated = lazy(() => import("./pages/DeckPinGated"));
@@ -459,6 +460,17 @@ const App = () => {
                         </ProtectedRoute>
                       } 
                     />
+                    <Route 
+                      path="/admin/weekly-digest" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminWeeklyDigest />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+
                     <Route 
                       path="/admin/ev-api-reference" 
                       element={
