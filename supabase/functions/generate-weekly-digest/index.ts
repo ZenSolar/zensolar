@@ -336,9 +336,12 @@ Deno.serve(async (req) => {
   )
   let evMiles = 0
   let evDaysDriven = 0
+  let evMilesIsEstimate = false
+  let evMilesBaselineDays = 7
   const evMilesPerDevice: Record<string, number> = {}
+  const weekStartMs = weekStart.getTime()
   for (const deviceId of teslaVehicleIds) {
-    // Pull the latest odometer reading WITHIN the week from energy_production
+    // Latest odometer reading WITHIN the week
     const { data: latestRows } = await supabase
       .from('energy_production')
       .select('production_wh, recorded_at')
@@ -352,9 +355,8 @@ Deno.serve(async (req) => {
       .limit(1)
     const latest = latestRows && latestRows[0] ? Number(latestRows[0].production_wh) : null
 
-    // Baseline = MOST RECENT odometer snapshot strictly BEFORE the week start.
-    // Tesla doesn't expose historical odometer, so we accept whatever prior sample exists
-    // (could be weeks old). Without this fallback, users who synced less than weekly show 0 mi.
+    // Baseline = most recent odometer snapshot strictly BEFORE the week start.
+    // Tesla doesn't expose historical odometer, so prior sample may be weeks old.
     const { data: priorRows } = await supabase
       .from('energy_production')
       .select('production_wh, recorded_at')
@@ -366,14 +368,27 @@ Deno.serve(async (req) => {
       .order('recorded_at', { ascending: false })
       .limit(1)
     const baseline = priorRows && priorRows[0] ? Number(priorRows[0].production_wh) : null
+    const baselineAt = priorRows && priorRows[0] ? new Date(priorRows[0].recorded_at).getTime() : null
 
     if (baseline !== null && latest !== null) {
-      const delta = Math.max(0, latest - baseline)
-      evMiles += delta
-      evMilesPerDevice[`tesla|${deviceId}`] = delta
-      if (delta > 0.1) evDaysDriven += 1
+      const rawDelta = Math.max(0, latest - baseline)
+      // Span in days between baseline snapshot and week end (clamp to >= 7)
+      const spanDays = baselineAt
+        ? Math.max(7, Math.round((weekEnd.getTime() - baselineAt) / 86400000))
+        : 7
+      // If baseline is older than the week start, pro-rate to 7 days
+      const olderThanWeek = baselineAt !== null && baselineAt < weekStartMs
+      const weeklyDelta = olderThanWeek ? Math.round((rawDelta * 7) / spanDays) : rawDelta
+      if (olderThanWeek) {
+        evMilesIsEstimate = true
+        evMilesBaselineDays = Math.max(evMilesBaselineDays, spanDays)
+      }
+      evMiles += weeklyDelta
+      evMilesPerDevice[`tesla|${deviceId}`] = weeklyDelta
+      if (weeklyDelta > 0.1) evDaysDriven += 1
     }
   }
+
 
 
 
@@ -451,7 +466,13 @@ Deno.serve(async (req) => {
   const kpis: DigestPayload['kpis'] = []
   if (solarWh > 0) kpis.push({ label: 'Solar produced', value: `${fmt(solarWh / 1000)} kWh`, sub: 'Generated this week', accent: 'solar' })
   if (batteryWh > 0) kpis.push({ label: 'Battery exported', value: `${fmt(batteryWh / 1000)} kWh`, sub: 'Discharged to home', accent: 'battery' })
-  if (evMiles > 0) kpis.push({ label: 'EV miles driven', value: `${fmtInt(evMiles)} mi`, sub: `${evDaysDriven} day${evDaysDriven === 1 ? '' : 's'} driven`, accent: 'ev' })
+  if (evMiles > 0) {
+    const evSub = evMilesIsEstimate
+      ? `est. weekly avg (last ${evMilesBaselineDays} days)`
+      : `${evDaysDriven} day${evDaysDriven === 1 ? '' : 's'} driven`
+    kpis.push({ label: 'EV miles driven', value: `${fmtInt(evMiles)} mi`, sub: evSub, accent: 'ev' })
+  }
+
   if (homeChargingKwh > 0) kpis.push({ label: 'Home charging', value: `${fmt(homeChargingKwh)} kWh`, sub: `${homeChargingSessions} session${homeChargingSessions === 1 ? '' : 's'}`, accent: 'home' })
   if (superchargerKwh > 0) kpis.push({ label: 'Tesla Supercharging', value: `${fmt(superchargerKwh)} kWh`, sub: `${superchargerSessions} session${superchargerSessions === 1 ? '' : 's'}`, accent: 'super' })
 
