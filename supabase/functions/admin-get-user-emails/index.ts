@@ -54,9 +54,14 @@ Deno.serve(async (req) => {
       withDevices = !!body?.withDevices;
     } catch { /* no body ok */ }
 
-    // Fetch all users from auth.users
-    const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
-    if (listError) throw listError;
+    // Fetch all users from auth.users (paginate so every beta account appears)
+    const users: any[] = [];
+    for (let page = 1; page < 100; page += 1) {
+      const { data, error: listError } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 100 });
+      if (listError) throw listError;
+      users.push(...(data?.users || []));
+      if (!data?.users || data.users.length < 100) break;
+    }
 
     // Pull device summary keyed by user_id
     const deviceMap = new Map<string, { count: number; providers: string[]; device_types: string[] }>();
@@ -71,13 +76,27 @@ Deno.serve(async (req) => {
       deviceMap.set(d.user_id, entry);
     }
 
+    const tokenMap = new Map<string, string[]>();
+    const { data: tokens } = await supabaseAdmin
+      .from('energy_tokens')
+      .select('user_id, provider')
+      .not('access_token', 'is', null);
+    for (const t of tokens || []) {
+      const providers = tokenMap.get(t.user_id) || [];
+      if (t.provider && !providers.includes(t.provider)) providers.push(t.provider);
+      tokenMap.set(t.user_id, providers);
+    }
+
     let userList = users.map((u) => {
       const dev = deviceMap.get(u.id);
+      const tokenProviders = tokenMap.get(u.id) || [];
+      const providers = Array.from(new Set([...(dev?.providers || []), ...tokenProviders]));
       return {
         id: u.id,
         email: u.email,
         device_count: dev?.count || 0,
-        providers: dev?.providers || [],
+        providers,
+        token_providers: tokenProviders,
         device_types: dev?.device_types || [],
       };
     });
@@ -92,6 +111,9 @@ Deno.serve(async (req) => {
         .sort((a, b) => {
           if ((b.device_count || 0) !== (a.device_count || 0)) {
             return (b.device_count || 0) - (a.device_count || 0);
+          }
+          if ((b.providers?.length || 0) !== (a.providers?.length || 0)) {
+            return (b.providers?.length || 0) - (a.providers?.length || 0);
           }
           return (a.email || '').localeCompare(b.email || '');
         });
