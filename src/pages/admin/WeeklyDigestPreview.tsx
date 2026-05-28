@@ -11,7 +11,6 @@ import { toast } from 'sonner';
 export default function WeeklyDigestPreview() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { user } = useAuth();
   const { isFounder, ready } = useIsFounder();
   const [previewing, setPreviewing] = useState(false);
   const [sending, setSending] = useState(false);
@@ -24,6 +23,8 @@ export default function WeeklyDigestPreview() {
     }
   }, [isFounder, ready, navigate]);
 
+  const handlePreview = async () => {
+    setPreviewing(true);
     setPayload(null);
     try {
       const { data, error } = await supabase.functions.invoke('generate-weekly-digest', {
@@ -49,16 +50,19 @@ export default function WeeklyDigestPreview() {
       if (error) throw error;
       setPayload(data);
       toast.success(`Digest queued for ${data?.recipient}`);
-  if (!ready) {
-    return <div className="flex items-center justify-center min-h-[60vh]"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
-  }
-
+    } catch (e: any) {
+      toast.error(e.message || 'Send failed');
+    } finally {
       setSending(false);
     }
   };
 
-  if (isChecking) {
-    return <div className="flex items-center justify-center min-h-[60vh]"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  if (!ready) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return (
@@ -101,7 +105,9 @@ export default function WeeklyDigestPreview() {
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Generated payload</CardTitle>
-            <CardDescription>{payload.dryRun ? 'Dry run — nothing was sent.' : `Queued to ${payload.recipient}`}</CardDescription>
+            <CardDescription>
+              {payload.dryRun ? 'Dry run — nothing was sent.' : `Queued to ${payload.recipient}`}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <pre className="rounded-lg border bg-muted p-4 text-xs whitespace-pre-wrap break-words max-h-[600px] overflow-auto">
