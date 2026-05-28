@@ -252,9 +252,14 @@ export function useDashboardData() {
       }
     }
 
-    // Cache at module level + localStorage so remounts and cold starts don't re-fetch
+    // Cache at module level + localStorage so remounts and cold starts don't re-fetch.
+    // Key includes the actual auth user id so a logout/login as a different account
+    // (or coming back from a "view as user" session) invalidates rather than reusing
+    // the previous account's connection state.
     cachedProfileConnections = connections;
-    cachedForUserId = viewAsUserId ?? '__self__';
+    cachedForUserId = viewAsUserId
+      ? `view:${viewAsUserId}`
+      : `self:${authUser?.id ?? 'anon'}`;
     cachedConnectionKey = [
       connections.enphase_connected,
       connections.solaredge_connected,
@@ -276,17 +281,24 @@ export function useDashboardData() {
   };
 
   // Initial load — skip if we already have cached connections from a previous mount
-  // BUT always re-fetch when viewAsUserId changes or cache belongs to a different user
+  // BUT always re-fetch when viewAsUserId changes, the signed-in user changes,
+  // or cache belongs to a different user.
   const prevViewAsRef = useRef<string | null | undefined>(undefined);
-  const effectiveViewKey = viewAsUserId ?? '__self__';
+  const prevAuthIdRef = useRef<string | null | undefined>(undefined);
+  const effectiveViewKey = viewAsUserId
+    ? `view:${viewAsUserId}`
+    : `self:${authUser?.id ?? 'anon'}`;
   useEffect(() => {
     const viewAsChanged = prevViewAsRef.current !== undefined && prevViewAsRef.current !== viewAsUserId;
+    const authChanged = prevAuthIdRef.current !== undefined && prevAuthIdRef.current !== (authUser?.id ?? null);
     prevViewAsRef.current = viewAsUserId;
+    prevAuthIdRef.current = authUser?.id ?? null;
 
-    // Also detect stale cache from a different user (e.g. first mount with viewAsUserId already set)
+    // Also detect stale cache from a different user (e.g. first mount after a different
+    // account previously stored cache under the same '__self__' bucket).
     const cacheStale = cachedForUserId !== null && cachedForUserId !== effectiveViewKey;
 
-    if (viewAsChanged || cacheStale) {
+    if (viewAsChanged || authChanged || cacheStale) {
       // Clear module-level caches when switching users
       cachedProfileConnections = null;
       cachedConnectionKey = null;
@@ -307,7 +319,8 @@ export function useDashboardData() {
 
     if (cachedProfileConnections) return;
     fetchConnections();
-  }, [fetchConnections, viewAsUserId]);
+  }, [fetchConnections, viewAsUserId, authUser?.id, effectiveViewKey]);
+
 
   // Keep connection state in sync (Onboarding, Profile, Device selection, etc.)
   useEffect(() => {
