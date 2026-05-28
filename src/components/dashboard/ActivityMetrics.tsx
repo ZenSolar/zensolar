@@ -667,7 +667,7 @@ export function ActivityMetrics({
                     color="cyan"
                     active={superchargerKwh > 0}
                     isLoading={isLoading}
-                    onTap={superchargerKwh > 0 ? () => openSheet({ category: 'supercharger', label: superchargerLabel, unit: 'kWh', pending: superchargerKwh }) : undefined}
+                    onTap={superchargerKwh > 0 ? () => openSheet({ category: 'supercharger', label: superchargerLabel, unit: 'kWh', pending: superchargerKwh, accent: 'energy' }) : undefined}
                   />
                 </SwipeableActivityField>
               )}
