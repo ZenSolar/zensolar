@@ -166,7 +166,11 @@ Deno.serve(async (req) => {
   const weekStartIso = weekStart.toISOString()
   const weekEndIso = weekEnd.toISOString()
   const leadStartIso = leadStart.toISOString()
-  const weekStartDay = weekStart.toISOString().slice(0, 10)
+  // 7-day window inclusive of today = today-6 .. today (calendar days).
+  // Using a date-only string built from (now - 7d) accidentally includes 8 calendar days
+  // when "now" is partway through a day, inflating sums for incremental sources.
+  const weekStartDay = new Date(now.getTime() - 6 * 86400000).toISOString().slice(0, 10)
+
   const weekLabel = `${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
 
   // --- Connected devices (canonical OEM source) — pulls the same baseline_data the dashboard uses
