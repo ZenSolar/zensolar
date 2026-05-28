@@ -59,9 +59,7 @@ const ONBOARDING_PROMPTS = [
 /**
  * Deason chat surface — used by both the full /deason page and the floating bubble.
  * Persona-aware: shows different welcome copy + suggested prompts depending on
- * whether the viewer is inner-circle or a regular demo/beta user.
- */
-export function DeasonChat({ onClose, compact = false, threadId = null, onUserMessage }: DeasonChatProps) {
+export function DeasonChat({ onClose, compact = false, threadId = null, onUserMessage, highlightQuery }: DeasonChatProps) {
   const { messages, streaming, error, send, reset, seedAssistant, loadingHistory } = useDeason({
     threadId,
     onThreadTouched: onUserMessage,
@@ -71,8 +69,30 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onUserMe
   const [attachedImage, setAttachedImage] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const messageRefs = useRef<Array<HTMLDivElement | null>>([]);
+
+  // Index of first message matching highlightQuery (if any).
+  const highlightIndex = useMemo(() => {
+    const q = highlightQuery?.trim().toLowerCase();
+    if (!q || messages.length === 0) return -1;
+    return messages.findIndex((m) => {
+      const text = typeof m.content === "string"
+        ? m.content
+        : m.content.map((p) => (p.type === "text" ? p.text ?? "" : "")).join(" ");
+      return text.toLowerCase().includes(q);
+    });
+  }, [highlightQuery, messages]);
 
   useEffect(() => {
+    if (highlightIndex >= 0 && !loadingHistory) {
+      const el = messageRefs.current[highlightIndex];
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+    }
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages, streaming, highlightIndex, loadingHistory]);
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, streaming]);
 
