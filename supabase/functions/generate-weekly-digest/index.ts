@@ -166,7 +166,11 @@ Deno.serve(async (req) => {
   const weekStartIso = weekStart.toISOString()
   const weekEndIso = weekEnd.toISOString()
   const leadStartIso = leadStart.toISOString()
-  const weekStartDay = weekStart.toISOString().slice(0, 10)
+  // 7-day window inclusive of today = today-6 .. today (calendar days).
+  // Using a date-only string built from (now - 7d) accidentally includes 8 calendar days
+  // when "now" is partway through a day, inflating sums for incremental sources.
+  const weekStartDay = new Date(now.getTime() - 6 * 86400000).toISOString().slice(0, 10)
+
   const weekLabel = `${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
 
   // --- Connected devices (canonical OEM source) — pulls the same baseline_data the dashboard uses
@@ -268,17 +272,35 @@ Deno.serve(async (req) => {
     return null
   }
 
+  // SINGLE RULE for solar/battery/ev_charging per (provider+device+day):
+
+  //   1. If a `_historical` (incremental) row exists for that day → use it as truth.
+  //   2. Otherwise, if a live cumulative counter sample exists → use the chained delta
+  //      from the most recent prior sampled day.
+  // This prevents tesla + tesla_historical from BOTH contributing to the same day.
+  // It also matches what useDashboardData and useEnergyLog do (tesla_historical = MAX per day,
+  // tesla cumulative = day-over-day delta — never summed together).
+  const histDays = new Map<string, Set<string>>() // provider+device+dt → Set<day> covered by historical
+  for (const key of incrementalDay.keys()) {
+    const [provider, deviceId, dt] = key.split('|')
+    const liveProvider = provider.toLowerCase().replace(/_historical$/, '')
+    const liveKey = `${liveProvider}|${deviceId}|${dt}`
+    if (!histDays.has(liveKey)) histDays.set(liveKey, new Set())
+    for (const day of incrementalDay.get(key)!.keys()) histDays.get(liveKey)!.add(day)
+  }
+
   for (const [key, dm] of counterDay) {
     const [provider, deviceId, dt] = key.split('|')
     const metric = metricFor(dt)
     if (!metric) continue
+    const blockedDays = histDays.get(key) || new Set<string>()
     const days = Array.from(dm.keys()).sort()
     let prev: number | null = null
     for (const day of days) {
       const cur = dm.get(day)!
       if (prev !== null) {
         const delta = Math.max(0, cur - prev)
-        if (day >= weekStartDay && delta > 0) {
+        if (day >= weekStartDay && delta > 0 && !blockedDays.has(day)) {
           buckets[metric].total += delta
           buckets[metric].perProvider[provider.toLowerCase()] = (buckets[metric].perProvider[provider.toLowerCase()] || 0) + delta
           const devKey = `${provider}|${deviceId}`
@@ -288,7 +310,7 @@ Deno.serve(async (req) => {
       prev = cur
     }
   }
-  // Incremental rows: just sum the ones in the last 7 days
+  // Incremental rows: just sum the ones in the last 7 calendar days
   for (const [key, dm] of incrementalDay) {
     const [provider, deviceId, dt] = key.split('|')
     const metric = metricFor(dt)
@@ -301,6 +323,7 @@ Deno.serve(async (req) => {
       buckets[metric].perDevice[devKey] = (buckets[metric].perDevice[devKey] || 0) + val
     }
   }
+
 
   // --- Capability dedup: one OEM per capability (matches Clean Energy Center rule).
   // If the user connected a dedicated solar provider (Enphase/SolarEdge), drop any
