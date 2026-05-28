@@ -347,7 +347,7 @@ Deno.serve(async (req) => {
   if (batteryWh > 0) kpis.push({ label: 'Battery exported', value: `${fmt(batteryWh / 1000)} kWh`, sub: 'Peak-hour offset', accent: 'battery' })
   if (evMiles > 0) kpis.push({ label: 'EV miles driven', value: `${fmtInt(evMiles)} mi`, sub: `${fmt(evKwh)} kWh consumed`, accent: 'ev' })
   if (homeChargingKwh > 0) kpis.push({ label: 'Home charging', value: `${fmt(homeChargingKwh)} kWh`, accent: 'home' })
-  if (superchargerKwh > 0) kpis.push({ label: 'Supercharging', value: `${fmt(superchargerKwh)} kWh`, sub: `${superchargerSessions} session${superchargerSessions === 1 ? '' : 's'}`, accent: 'super' })
+  if (superchargerKwh > 0) kpis.push({ label: 'Tesla Supercharging', value: `${fmt(superchargerKwh)} kWh`, sub: `${superchargerSessions} session${superchargerSessions === 1 ? '' : 's'}`, accent: 'super' })
   // --- Per-device breakdown — emit ONLY the metric the hardware actually produces.
   // A Tesla EV (vehicle) never shows "Battery discharged"; a Powerwall never shows
   // a solar line if a dedicated solar provider already owns that capability.
@@ -364,7 +364,7 @@ Deno.serve(async (req) => {
     // vehicles + chargers are summarized via Home/Supercharging rows below
   }
   if (homeChargingKwh > 0) devices.push({ label: 'Home charger', provider: 'wallbox', metric: 'Home charging', value: `${fmt(homeChargingKwh)} kWh` })
-  if (superchargerKwh > 0) devices.push({ label: 'Public/Supercharger', provider: 'tesla', metric: 'Charging delivered', value: `${fmt(superchargerKwh)} kWh` })
+  if (superchargerKwh > 0) devices.push({ label: 'Tesla Supercharging', provider: 'tesla', metric: 'Charging delivered', value: `${fmt(superchargerKwh)} kWh` })
 
 
 
@@ -385,7 +385,7 @@ Deno.serve(async (req) => {
     }
   }
   if (homeChargingKwh > 0) contributions.push({ label: 'Home charger', provider: 'wallbox', kind: 'home_charging', kwh: homeChargingKwh });
-  if (superchargerKwh > 0) contributions.push({ label: 'Public/Supercharger', provider: 'tesla', kind: 'supercharging', kwh: superchargerKwh });
+  if (superchargerKwh > 0) contributions.push({ label: 'Tesla Supercharging', provider: 'tesla', kind: 'supercharging', kwh: superchargerKwh });
   contributions.sort((a, b) => b.kwh - a.kwh);
   const topDevice = contributions[0];
 
