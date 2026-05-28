@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Sparkles, X } from "lucide-react";
+import { Loader2, Sparkles, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { trackEvent } from "@/hooks/useGoogleAnalytics";
+import { useDeasonThreads } from "@/hooks/useDeasonThreads";
 import { DeasonChat } from "./DeasonChat";
 import { cn } from "@/lib/utils";
 
@@ -29,11 +30,16 @@ const WELCOME_AUTO_HIDE_MS = 12_000;
 
 export function DeasonFloatingBubble() {
   const { user, isLoading } = useAuth();
+  const { threads, loading: threadsLoading, createThread, touchThread } = useDeasonThreads();
   const [open, setOpen] = useState(false);
+  const [threadId, setThreadId] = useState<string | null>(null);
+  const [preparingThread, setPreparingThread] = useState(false);
+  const [threadPrepFailed, setThreadPrepFailed] = useState(false);
   const [pendingSeed, setPendingSeed] = useState<string | null>(null);
   const [pendingMeta, setPendingMeta] = useState<Record<string, unknown> | null>(null);
   const [welcoming, setWelcoming] = useState(false);
   const welcomeTimer = useRef<number | null>(null);
+  const creatingThreadRef = useRef(false);
   const location = useLocation();
 
   // Listen for programmatic open / nudge requests from anywhere in the app.
@@ -65,7 +71,7 @@ export function DeasonFloatingBubble() {
   // When the user opens the bubble after a nudge, replay the seed so
   // DeasonChat picks it up via the `deason:seed` listener.
   useEffect(() => {
-    if (open && pendingSeed) {
+    if (open && pendingSeed && (!user || threadId)) {
       const body = pendingSeed;
       setPendingSeed(null);
       setPendingMeta(null);
@@ -75,7 +81,51 @@ export function DeasonFloatingBubble() {
         );
       }, 60);
     }
-  }, [open, pendingSeed]);
+  }, [open, pendingSeed, threadId, user]);
+
+  const ensureSavedThread = async () => {
+    if (!user) return null;
+    if (threadId) return threadId;
+    if (threads.length > 0) {
+      setThreadId(threads[0].id);
+      setThreadPrepFailed(false);
+      return threads[0].id;
+    }
+    if (threadsLoading) return null;
+    if (creatingThreadRef.current) return null;
+    creatingThreadRef.current = true;
+    setPreparingThread(true);
+    const created = await createThread();
+    setPreparingThread(false);
+    creatingThreadRef.current = false;
+    if (!created) {
+      setThreadPrepFailed(true);
+      return null;
+    }
+    setThreadId(created.id);
+    setThreadPrepFailed(false);
+    return created.id;
+  };
+
+  useEffect(() => {
+    if (!open || !user || threadId || preparingThread || threadPrepFailed) return;
+    void ensureSavedThread();
+  }, [open, user, threadId, preparingThread, threadPrepFailed, threads.length, threadsLoading]);
+
+  const handleNewSavedThread = async () => {
+    if (!user || creatingThreadRef.current) return;
+    creatingThreadRef.current = true;
+    setPreparingThread(true);
+    const created = await createThread();
+    setPreparingThread(false);
+    creatingThreadRef.current = false;
+    if (created) {
+      setThreadId(created.id);
+      setThreadPrepFailed(false);
+    } else {
+      setThreadPrepFailed(true);
+    }
+  };
 
   // First-visit welcome pulse on the dashboard or /demo. Triggers once per
   // device (localStorage flag). Does NOT auto-open the chat — just pulses
@@ -159,6 +209,7 @@ export function DeasonFloatingBubble() {
     setWelcoming(false);
     if (welcomeTimer.current) window.clearTimeout(welcomeTimer.current);
     setOpen(true);
+    void ensureSavedThread();
   };
 
   const dismissWelcome = (e: React.MouseEvent) => {
@@ -244,7 +295,20 @@ export function DeasonFloatingBubble() {
             "h-[85svh] md:inset-auto md:bottom-6 md:right-6 md:h-[600px] md:w-[400px] md:rounded-2xl md:border",
           )}
         >
-          <DeasonChat onClose={() => setOpen(false)} compact />
+          {user && !threadId && !threadPrepFailed ? (
+            <div className="flex h-full flex-col items-center justify-center gap-3 bg-background text-sm text-muted-foreground">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span>Preparing saved chat…</span>
+            </div>
+          ) : (
+            <DeasonChat
+              onClose={() => setOpen(false)}
+              compact
+              threadId={threadId}
+              onNewThread={user ? () => void handleNewSavedThread() : undefined}
+              onUserMessage={threadId ? () => touchThread(threadId) : undefined}
+            />
+          )}
         </div>
       )}
     </>

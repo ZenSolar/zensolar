@@ -19,15 +19,15 @@ const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/deason-chat`
 const ANALYZE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-bill`;
 
 interface UseDeasonOptions {
-  /** When provided, the thread is persisted to the DB. Omit for ephemeral chats (floating bubble). */
+  /** When provided, the thread is persisted to the DB. Omit only for explicitly ephemeral chats. */
   threadId?: string | null;
   /** Called when the thread is touched (new user message) so the sidebar can re-sort + auto-title. */
   onThreadTouched?: (firstUserText: string | null) => void;
 }
 
 /**
- * Streaming chat hook for Deason. Persists per-thread when `threadId` is set,
- * otherwise ephemeral. Supports text + image attachments (utility-bill uploads).
+ * Streaming chat hook for Deason. Persists per-thread when `threadId` is set;
+ * otherwise it runs as an ephemeral chat. Supports text + image attachments.
  */
 export function useDeason(opts: UseDeasonOptions = {}) {
   const { threadId = null, onThreadTouched } = opts;
