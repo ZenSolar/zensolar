@@ -499,7 +499,9 @@ export function ActivityMetrics({
                       label: `${device.deviceName} Solar Production`,
                       unit: 'kWh',
                       pending: pendingKwh,
+                      accent: 'solar',
                     }) : undefined}
+
                   />
                 );
                 return index === 0 && onHideField ? (
