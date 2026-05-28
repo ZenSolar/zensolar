@@ -130,8 +130,26 @@ export default function WeeklyDigestPreview() {
               {JSON.stringify(payload.payload, null, 2)}
             </pre>
           </CardContent>
-        </Card>
       )}
+
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Send weekly digest?</AlertDialogTitle>
+            <AlertDialogDescription>
+              The digest will be generated and emailed to your account
+              {user?.email ? ` (${user.email})` : ''}. Your account email is resolved server-side, so this works even if it isn't shown above.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={doSend}>Send now</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
+  );
+}
+
   );
 }
