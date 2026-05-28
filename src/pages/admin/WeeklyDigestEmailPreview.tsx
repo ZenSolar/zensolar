@@ -27,7 +27,7 @@ type DigestPayload = {
   quietWeek?: boolean;
 };
 
-type UserOption = { id: string; email: string | null };
+type UserOption = { id: string; email: string | null; device_count?: number; providers?: string[] };
 
 const SITE_NAME = 'ZenSolar';
 const LOGO_URL = 'https://fcptrpgqkjffgeddajwl.supabase.co/storage/v1/object/public/email-assets/zen-logo-horizontal-v3.png';
