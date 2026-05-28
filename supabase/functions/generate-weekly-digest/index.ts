@@ -520,22 +520,26 @@ Deno.serve(async (req) => {
   }
 
   // --- Enqueue via send-transactional-email
-  // NOTE: Don't use supabase.functions.invoke() — it sets Authorization to the
-  // service-role key, which under Supabase's signing-keys system is an
-  // `sb_secret_…` string (not a JWT) and the gateway rejects it with
-  // UNAUTHORIZED_INVALID_JWT_FORMAT. Use fetch with the anon JWT as the
-  // Authorization bearer and the service-role as apikey.
+  // send-transactional-email has verify_jwt = true, so we must forward the
+  // caller's user JWT (admin is logged in). The service-role key is an
+  // `sb_secret_…` (not a JWT) under the new signing-keys system and the
+  // publishable/anon key is `sb_publishable_…` — both fail JWT validation.
   const idempotencyKey = `weekly-digest-${targetUserId}-${weekStart.toISOString().slice(0, 10)}`
-  const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? Deno.env.get('SUPABASE_PUBLISHABLE_KEY') ?? ''
   const sendResp = await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       apikey: serviceKey,
-      Authorization: `Bearer ${anonKey || serviceKey}`,
+      Authorization: `Bearer ${jwt}`,
     },
     body: JSON.stringify({
       templateName: 'weekly-energy-digest',
+      recipientEmail: email,
+      idempotencyKey,
+      templateData: payload,
+    }),
+  })
+
       recipientEmail: email,
       idempotencyKey,
       templateData: payload,
