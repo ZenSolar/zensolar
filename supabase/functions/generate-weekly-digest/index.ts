@@ -305,7 +305,7 @@ Deno.serve(async (req) => {
   const evKwh = homeChargingKwh + superchargerKwh + (teslaEvChargingWh / 1000)
   const evMiles = evMilesFromOem > 0 ? evMilesFromOem : evKwh * 3.5
 
-  // --- Minting this week + lifetime
+  // --- Minting this week + lifetime (actual on-chain mints)
   const { data: mintWeek } = await supabase
     .from('mint_transactions')
     .select('tokens_minted')
@@ -313,14 +313,26 @@ Deno.serve(async (req) => {
     .gte('created_at', weekStartIso)
     .lte('created_at', weekEndIso)
     .limit(500)
-  const tokensThisWeek = (mintWeek || []).reduce((a: number, m: any) => a + (Number(m.tokens_minted) || 0), 0)
+  const actualMintedThisWeek = (mintWeek || []).reduce((a: number, m: any) => a + (Number(m.tokens_minted) || 0), 0)
 
   const { data: mintLifetime } = await supabase
     .from('mint_transactions')
     .select('tokens_minted')
     .eq('user_id', targetUserId).eq('status', 'success')
     .limit(20000)
-  const tokensLifetime = (mintLifetime || []).reduce((a: number, m: any) => a + (Number(m.tokens_minted) || 0), 0)
+  const actualMintedLifetime = (mintLifetime || []).reduce((a: number, m: any) => a + (Number(m.tokens_minted) || 0), 0)
+
+  // Beta tokenomics (mirrors src/lib/tokenomics.ts): activity units × Live Beta multiplier (10x)
+  // × 75% user share. Use this so digest reflects what the user EARNED this week even if no
+  // on-chain mint has cleared yet. Lifetime = actualMintedLifetime + pending estimate.
+  const LIVE_BETA_MULT = 10
+  const USER_SHARE = 0.75
+  const weeklyActivityUnits =
+    (solarWh / 1000) + (batteryWh / 1000) + evMiles + homeChargingKwh + superchargerKwh
+  const pendingThisWeek = Math.floor(Math.floor(weeklyActivityUnits * LIVE_BETA_MULT) * USER_SHARE)
+  const tokensThisWeek = Math.max(actualMintedThisWeek, pendingThisWeek)
+  const tokensLifetime = actualMintedLifetime + pendingThisWeek
+
 
   // Per-provider summaries used downstream (top-device + per-device breakdown)
   const perProviderSolar: Record<string, number> = buckets.solar.perProvider
@@ -335,7 +347,7 @@ Deno.serve(async (req) => {
   if (batteryWh > 0) kpis.push({ label: 'Battery exported', value: `${fmt(batteryWh / 1000)} kWh`, sub: 'Peak-hour offset', accent: 'battery' })
   if (evMiles > 0) kpis.push({ label: 'EV miles driven', value: `${fmtInt(evMiles)} mi`, sub: `${fmt(evKwh)} kWh consumed`, accent: 'ev' })
   if (homeChargingKwh > 0) kpis.push({ label: 'Home charging', value: `${fmt(homeChargingKwh)} kWh`, accent: 'home' })
-  if (superchargerKwh > 0) kpis.push({ label: 'Supercharging', value: `${fmt(superchargerKwh)} kWh`, sub: `${superchargerSessions} session${superchargerSessions === 1 ? '' : 's'}`, accent: 'super' })
+  if (superchargerKwh > 0) kpis.push({ label: 'Tesla Supercharging', value: `${fmt(superchargerKwh)} kWh`, sub: `${superchargerSessions} session${superchargerSessions === 1 ? '' : 's'}`, accent: 'super' })
   // --- Per-device breakdown — emit ONLY the metric the hardware actually produces.
   // A Tesla EV (vehicle) never shows "Battery discharged"; a Powerwall never shows
   // a solar line if a dedicated solar provider already owns that capability.
@@ -352,7 +364,7 @@ Deno.serve(async (req) => {
     // vehicles + chargers are summarized via Home/Supercharging rows below
   }
   if (homeChargingKwh > 0) devices.push({ label: 'Home charger', provider: 'wallbox', metric: 'Home charging', value: `${fmt(homeChargingKwh)} kWh` })
-  if (superchargerKwh > 0) devices.push({ label: 'Public/Supercharger', provider: 'tesla', metric: 'Charging delivered', value: `${fmt(superchargerKwh)} kWh` })
+  if (superchargerKwh > 0) devices.push({ label: 'Tesla Supercharging', provider: 'tesla', metric: 'Charging delivered', value: `${fmt(superchargerKwh)} kWh` })
 
 
 
@@ -373,7 +385,7 @@ Deno.serve(async (req) => {
     }
   }
   if (homeChargingKwh > 0) contributions.push({ label: 'Home charger', provider: 'wallbox', kind: 'home_charging', kwh: homeChargingKwh });
-  if (superchargerKwh > 0) contributions.push({ label: 'Public/Supercharger', provider: 'tesla', kind: 'supercharging', kwh: superchargerKwh });
+  if (superchargerKwh > 0) contributions.push({ label: 'Tesla Supercharging', provider: 'tesla', kind: 'supercharging', kwh: superchargerKwh });
   contributions.sort((a, b) => b.kwh - a.kwh);
   const topDevice = contributions[0];
 
