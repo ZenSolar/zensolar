@@ -15,7 +15,7 @@ import {
 import { Loader2, Mail, ArrowLeft, Send, Eye, LogIn } from 'lucide-react';
 import { toast } from 'sonner';
 
-type UserOption = { id: string; email: string | null };
+type UserOption = { id: string; email: string | null; device_count?: number; providers?: string[]; device_types?: string[] };
 
 export default function WeeklyDigestPreview() {
   const navigate = useNavigate();
