@@ -146,9 +146,11 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const imageDataUrl: string | undefined = body?.image;
     const userNote: string | undefined = body?.note;
-    if (!imageDataUrl || !imageDataUrl.startsWith("data:image/")) {
-      return json({ error: "bad_request", detail: "image data URL required", reqId }, 400);
+    if (!imageDataUrl || !/^data:(image\/|application\/pdf)/.test(imageDataUrl)) {
+      return json({ error: "bad_request", detail: "image or PDF data URL required", reqId }, 400);
     }
+    const isPdf = imageDataUrl.startsWith("data:application/pdf");
+
 
     log("calling AI gateway for bill analysis", { hasNote: !!userNote });
 
@@ -168,11 +170,11 @@ Deno.serve(async (req) => {
               {
                 type: "text",
                 text: userNote
-                  ? `Here is my utility bill. Note: ${userNote}`
-                  : "Here is my utility bill. Please analyze it and produce my savings report.",
+                  ? `Here is my utility bill (${isPdf ? "PDF" : "photo"}). Note: ${userNote}`
+                  : `Here is my utility bill (${isPdf ? "PDF" : "photo"}). Please analyze it and produce my savings report.`,
               },
               { type: "image_url", image_url: { url: imageDataUrl } },
-            ],
+
           },
         ],
         tools: [ANALYZE_TOOL],

@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Loader2, Sparkles, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { trackEvent } from "@/hooks/useGoogleAnalytics";
 import { useDeasonThreads } from "@/hooks/useDeasonThreads";
 import { DeasonChat } from "./DeasonChat";
 import { cn } from "@/lib/utils";
+
 
 /**
  * Floating Deason bubble — visible on every authenticated page.
@@ -41,6 +42,8 @@ export function DeasonFloatingBubble() {
   const welcomeTimer = useRef<number | null>(null);
   const creatingThreadRef = useRef(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
 
   // Listen for programmatic open / nudge requests from anywhere in the app.
   useEffect(() => {
@@ -302,7 +305,17 @@ export function DeasonFloatingBubble() {
               threadId={threadId}
               onNewThread={user ? () => void handleNewSavedThread() : undefined}
               onUserMessage={threadId ? () => touchThread(threadId) : undefined}
+              threads={user ? threads : undefined}
+              onSwitchThread={user ? (id) => {
+                setThreadId(id);
+                setThreadPrepFailed(false);
+              } : undefined}
+              onViewAllChats={user ? () => {
+                setOpen(false);
+                navigate(threadId ? `/deason/${threadId}` : "/deason");
+              } : undefined}
             />
+
           )}
         </SwipeDownCard>
       )}

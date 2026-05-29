@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Send, Sparkles, RotateCcw, X, Paperclip, Image as ImageIcon, ChevronUp, ChevronDown } from "lucide-react";
+import { Send, Sparkles, RotateCcw, X, Paperclip, Image as ImageIcon, ChevronUp, ChevronDown, History, FileText, ArrowRight, MessageSquare, Pin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useDeason, type DeasonContentPart } from "@/hooks/useDeason";
 import { useUserPersona } from "@/hooks/useUserPersona";
 import { BillSavingsReport } from "@/components/deason/BillSavingsReport";
+import type { DeasonThread } from "@/hooks/useDeasonThreads";
 import { cn } from "@/lib/utils";
 
 interface DeasonChatProps {
@@ -19,7 +20,14 @@ interface DeasonChatProps {
   onUserMessage?: (text: string | null) => void;
   /** When set, scroll to and highlight the first message containing this query. */
   highlightQuery?: string;
+  /** Optional saved threads — when provided, a History panel is shown in the header. */
+  threads?: DeasonThread[];
+  /** Switch the chat to another saved thread. */
+  onSwitchThread?: (id: string) => void;
+  /** Optional "open full Deason page" handoff (e.g. from the floating bubble). */
+  onViewAllChats?: () => void;
 }
+
 
 const INNER_CIRCLE_PROMPTS = [
   "Why did we move from 10B to 1T tokens?",
@@ -55,6 +63,7 @@ const ONBOARDING_PROMPTS = [
   "What is a wallet, and is mine safe?",
   "Which OEM should I connect first?",
   "I don't know which brand of inverter I have — help.",
+  "I don't know which brand of inverter I have — help.",
   "What happens after I connect my devices?",
 ];
 
@@ -63,17 +72,19 @@ const ONBOARDING_PROMPTS = [
  * Persona-aware: shows different welcome copy + suggested prompts depending on
  * whether the viewer is inner-circle or a regular demo/beta user.
  */
-export function DeasonChat({ onClose, compact = false, threadId = null, onNewThread, onUserMessage, highlightQuery }: DeasonChatProps) {
+export function DeasonChat({ onClose, compact = false, threadId = null, onNewThread, onUserMessage, highlightQuery, threads, onSwitchThread, onViewAllChats }: DeasonChatProps) {
   const { messages, streaming, error, send, reset, seedAssistant, loadingHistory } = useDeason({
     threadId,
     onThreadTouched: onUserMessage,
   });
   const { isInnerCircle } = useUserPersona();
   const [input, setInput] = useState("");
-  const [attachedImage, setAttachedImage] = useState<string | null>(null);
+  const [attachedFile, setAttachedFile] = useState<{ dataUrl: string; name: string; kind: "image" | "pdf" } | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<Array<HTMLDivElement | null>>([]);
+
 
   // All message indices matching highlightQuery.
   const matchIndices = useMemo(() => {
@@ -129,12 +140,25 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
   const onPickFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      alert("Bill image must be under 5 MB.");
+    const isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+    const isImage = file.type.startsWith("image/");
+    if (!isPdf && !isImage) {
+      alert("Please attach a photo (JPG/PNG) or a PDF bill.");
+      e.target.value = "";
+      return;
+    }
+    const limitMb = isPdf ? 10 : 8;
+    if (file.size > limitMb * 1024 * 1024) {
+      alert(`File must be under ${limitMb} MB.`);
+      e.target.value = "";
       return;
     }
     const reader = new FileReader();
-    reader.onload = () => setAttachedImage(reader.result as string);
+    reader.onload = () => setAttachedFile({
+      dataUrl: reader.result as string,
+      name: file.name || (isPdf ? "bill.pdf" : "photo"),
+      kind: isPdf ? "pdf" : "image",
+    });
     reader.readAsDataURL(file);
     e.target.value = "";
   };
@@ -142,11 +166,12 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
   const onSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
     const text = input;
-    const image = attachedImage;
+    const file = attachedFile;
     setInput("");
-    setAttachedImage(null);
-    void send(text, image ?? undefined);
+    setAttachedFile(null);
+    void send(text, file?.dataUrl);
   };
+
 
   // /demo* surface is the investor/reviewer context. Force reviewer prompts
   // there regardless of who's logged in (founders viewing the demo see what
@@ -206,6 +231,17 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
           </div>
         </div>
         <div className="flex items-center gap-1">
+          {threads && threads.length > 0 && onSwitchThread && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setHistoryOpen((v) => !v)}
+              title="Saved conversations"
+              className={cn(historyOpen && "bg-amber-500/10 text-amber-600")}
+            >
+              <History className="h-4 w-4" />
+            </Button>
+          )}
           {(!threadId || onNewThread) && (
             <Button
               variant="ghost"
@@ -223,6 +259,59 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
           )}
         </div>
       </div>
+
+      {/* Saved conversations panel (floating bubble surface) */}
+      {historyOpen && threads && onSwitchThread && (
+        <div className="border-b border-border bg-card/80 backdrop-blur px-2 py-2 max-h-[40%] overflow-y-auto">
+          <div className="flex items-center justify-between px-1.5 pb-1.5">
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Saved conversations
+            </div>
+            {onViewAllChats && (
+              <button
+                type="button"
+                onClick={() => { setHistoryOpen(false); onViewAllChats(); }}
+                className="flex items-center gap-1 text-[11px] text-amber-600 hover:underline"
+              >
+                View all <ArrowRight className="h-3 w-3" />
+              </button>
+            )}
+          </div>
+          <ul className="space-y-0.5">
+            {threads.slice(0, 8).map((t) => (
+              <li key={t.id}>
+                <button
+                  type="button"
+                  onClick={() => { onSwitchThread(t.id); setHistoryOpen(false); }}
+                  className={cn(
+                    "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors",
+                    t.id === threadId
+                      ? "bg-amber-500/15 text-foreground"
+                      : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
+                  )}
+                >
+                  {t.pinned ? (
+                    <Pin className="h-3.5 w-3.5 flex-shrink-0 text-amber-500" />
+                  ) : (
+                    <MessageSquare className="h-3.5 w-3.5 flex-shrink-0" />
+                  )}
+                  <span className="flex-1 truncate">{t.title || "Untitled"}</span>
+                  <span className="text-[10px] text-muted-foreground/70">
+                    {new Date(t.updated_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+          {threads.length === 0 && (
+            <div className="px-2 py-3 text-center text-xs text-muted-foreground">
+              No saved chats yet.
+            </div>
+          )}
+        </div>
+      )}
+
+
       {/* Search match navigator */}
       {matchIndices.length > 0 && (
         <div className="flex items-center justify-between gap-2 border-b border-border bg-amber-500/5 px-3 py-1.5 text-xs">
@@ -332,14 +421,24 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
         className="border-t border-border bg-card px-3 pt-3"
         style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.75rem)" }}
       >
-        {attachedImage && (
+        {attachedFile && (
           <div className="mb-2 flex items-center gap-2 rounded-lg border border-border bg-background p-2">
-            <img src={attachedImage} alt="Attached bill" className="h-12 w-12 rounded object-cover" />
-            <div className="flex-1 text-xs text-muted-foreground">
-              <div className="font-medium text-foreground">Bill attached</div>
-              <div>I'll analyze it and look for savings.</div>
+            {attachedFile.kind === "image" ? (
+              <img src={attachedFile.dataUrl} alt={attachedFile.name} className="h-12 w-12 rounded object-cover" />
+            ) : (
+              <div className="flex h-12 w-12 items-center justify-center rounded bg-muted">
+                <FileText className="h-6 w-6 text-amber-500" />
+              </div>
+            )}
+            <div className="flex-1 min-w-0 text-xs text-muted-foreground">
+              <div className="truncate font-medium text-foreground">{attachedFile.name}</div>
+              <div>
+                {attachedFile.kind === "pdf"
+                  ? "PDF attached — I'll read it and look for savings."
+                  : "Photo attached — add a note so I know what to look for."}
+              </div>
             </div>
-            <Button type="button" variant="ghost" size="icon" onClick={() => setAttachedImage(null)}>
+            <Button type="button" variant="ghost" size="icon" onClick={() => setAttachedFile(null)}>
               <X className="h-3.5 w-3.5" />
             </Button>
           </div>
@@ -350,7 +449,7 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
               <input
                 ref={fileRef}
                 type="file"
-                accept="image/*"
+                accept="image/*,application/pdf,.pdf"
                 className="hidden"
                 onChange={onPickFile}
               />
@@ -359,7 +458,7 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
                 variant="ghost"
                 size="icon"
                 onClick={() => fileRef.current?.click()}
-                title="Upload utility bill"
+                title="Attach a bill (PDF/photo) or equipment photo"
                 disabled={streaming}
               >
                 <Paperclip className="h-4 w-4" />
@@ -375,14 +474,15 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
                 onSubmit();
               }
             }}
-            placeholder={isInnerCircle ? "Ask Deason anything…" : "Ask about your tokens, rate plan, or bill…"}
+            placeholder={isInnerCircle ? "Ask Deason anything…" : "Ask about your tokens, rate plan, or attach a bill/photo…"}
             rows={1}
             className="min-h-[44px] resize-none"
             disabled={streaming}
           />
-          <Button type="submit" size="icon" disabled={streaming || (!input.trim() && !attachedImage)}>
+          <Button type="submit" size="icon" disabled={streaming || (!input.trim() && !attachedFile)}>
             <Send className="h-4 w-4" />
           </Button>
+
         </div>
         <p className="mt-1.5 text-[11px] text-muted-foreground">
           {threadId
