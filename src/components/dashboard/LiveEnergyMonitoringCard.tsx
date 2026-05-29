@@ -402,6 +402,9 @@ export function LiveEnergyMonitoringCard() {
   const { data: isActivelyCharging } = useActiveChargingSession();
   const [manualRefreshing, setManualRefreshing] = useState(false);
   const lastChargingRef = useRef<boolean | undefined>(undefined);
+  const evTileRef = useRef<HTMLDivElement | null>(null);
+  const [pingTile, setPingTile] = useState(false);
+  const haptics = useHaptics();
 
   // When a home charging session starts/stops, bypass cache and pull fresh EV + battery telemetry
   useEffect(() => {
