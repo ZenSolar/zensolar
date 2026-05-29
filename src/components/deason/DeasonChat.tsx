@@ -231,6 +231,17 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
           </div>
         </div>
         <div className="flex items-center gap-1">
+          {threads && threads.length > 0 && onSwitchThread && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setHistoryOpen((v) => !v)}
+              title="Saved conversations"
+              className={cn(historyOpen && "bg-amber-500/10 text-amber-600")}
+            >
+              <History className="h-4 w-4" />
+            </Button>
+          )}
           {(!threadId || onNewThread) && (
             <Button
               variant="ghost"
@@ -247,6 +258,59 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
             </Button>
           )}
         </div>
+      </div>
+
+      {/* Saved conversations panel (floating bubble surface) */}
+      {historyOpen && threads && onSwitchThread && (
+        <div className="border-b border-border bg-card/80 backdrop-blur px-2 py-2 max-h-[40%] overflow-y-auto">
+          <div className="flex items-center justify-between px-1.5 pb-1.5">
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Saved conversations
+            </div>
+            {onViewAllChats && (
+              <button
+                type="button"
+                onClick={() => { setHistoryOpen(false); onViewAllChats(); }}
+                className="flex items-center gap-1 text-[11px] text-amber-600 hover:underline"
+              >
+                View all <ArrowRight className="h-3 w-3" />
+              </button>
+            )}
+          </div>
+          <ul className="space-y-0.5">
+            {threads.slice(0, 8).map((t) => (
+              <li key={t.id}>
+                <button
+                  type="button"
+                  onClick={() => { onSwitchThread(t.id); setHistoryOpen(false); }}
+                  className={cn(
+                    "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors",
+                    t.id === threadId
+                      ? "bg-amber-500/15 text-foreground"
+                      : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
+                  )}
+                >
+                  {t.pinned ? (
+                    <Pin className="h-3.5 w-3.5 flex-shrink-0 text-amber-500" />
+                  ) : (
+                    <MessageSquare className="h-3.5 w-3.5 flex-shrink-0" />
+                  )}
+                  <span className="flex-1 truncate">{t.title || "Untitled"}</span>
+                  <span className="text-[10px] text-muted-foreground/70">
+                    {new Date(t.updated_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+          {threads.length === 0 && (
+            <div className="px-2 py-3 text-center text-xs text-muted-foreground">
+              No saved chats yet.
+            </div>
+          )}
+        </div>
+      )}
+
       </div>
       {/* Search match navigator */}
       {matchIndices.length > 0 && (
