@@ -38,6 +38,20 @@ export function DeasonFloatingBubble() {
   const [threadPrepFailed, setThreadPrepFailed] = useState(false);
   const [pendingSeed, setPendingSeed] = useState<string | null>(null);
   const [pendingMeta, setPendingMeta] = useState<Record<string, unknown> | null>(null);
+
+  // Lock body scroll while the panel is open so background hexagons / page
+  // don't drift when the user taps/drags inside the chat overlay.
+  useEffect(() => {
+    if (!open) return;
+    const prevOverflow = document.body.style.overflow;
+    const prevOverscroll = document.body.style.overscrollBehavior;
+    document.body.style.overflow = "hidden";
+    document.body.style.overscrollBehavior = "contain";
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.body.style.overscrollBehavior = prevOverscroll;
+    };
+  }, [open]);
   const [welcoming, setWelcoming] = useState(false);
   const welcomeTimer = useRef<number | null>(null);
   const creatingThreadRef = useRef(false);
