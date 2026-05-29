@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Loader2, Sparkles, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { trackEvent } from "@/hooks/useGoogleAnalytics";
 import { useDeasonThreads } from "@/hooks/useDeasonThreads";
 import { DeasonChat } from "./DeasonChat";
 import { cn } from "@/lib/utils";
+
 
 /**
  * Floating Deason bubble — visible on every authenticated page.
