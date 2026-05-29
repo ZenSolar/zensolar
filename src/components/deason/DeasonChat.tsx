@@ -418,7 +418,8 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
                 onSubmit();
               }
             }}
-            placeholder={isInnerCircle ? "Ask Deason anything…" : "Ask about tokens, your rate plan, or attach a bill…"}
+            placeholder="Ask about tokens, your rate plan, or attach a bill…"
+
             rows={1}
             className="min-h-[40px] max-h-32 resize-none border-0 bg-transparent px-1 py-2 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
             disabled={streaming}
