@@ -13,6 +13,7 @@ import {
 } from '@/types/dashboard';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { calculatePendingTokens } from '@/lib/tokenomics';
 import { PROFILE_UPDATED_EVENT } from '@/hooks/useProfile';
 import { useViewAsUserId } from '@/hooks/useViewAsUserId';
 import { 
@@ -705,7 +706,6 @@ export function useDashboardData() {
 
       const tokensEarned = Math.floor(evMiles) + Math.floor(solarEnergy) + Math.floor(batteryDischarge) + Math.floor(superchargerKwh) + Math.floor(homeChargerKwh);
       const pendingActivityUnits = Math.floor(pendingSolar) + Math.floor(pendingEvMiles) + Math.floor(pendingBattery) + Math.floor(pendingCharging);
-      const { calculatePendingTokens } = await import('@/lib/tokenomics');
       const pendingTokens = calculatePendingTokens(pendingActivityUnits);
 
       // Build per-device arrays (same logic as full refresh but from DB only)
@@ -1180,7 +1180,6 @@ export function useDashboardData() {
       
       // Import dynamically to get current Live Beta state
       // Tokens = activity units × Live Beta multiplier (10x or 1x) × 75% user share
-      const { calculatePendingTokens } = await import('@/lib/tokenomics');
       const pendingTokens = calculatePendingTokens(pendingActivityUnits);
       
       const earnedNFTs = rewardsData?.earned_nfts || [];
