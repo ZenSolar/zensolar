@@ -307,6 +307,12 @@ export function DeasonFloatingBubble() {
                 setThreadId(id);
                 setThreadPrepFailed(false);
               } : undefined}
+              onRenameThread={user ? (id, title) => { void renameThread(id, title); } : undefined}
+              onDeleteThread={user ? async (id) => {
+                await deleteThread(id);
+                if (id === threadId) setThreadId(null);
+              } : undefined}
+              onTogglePinThread={user ? (id) => { void togglePin(id); } : undefined}
               onViewAllChats={user ? () => {
                 setOpen(false);
                 navigate(threadId ? `/deason/${threadId}` : "/deason");
