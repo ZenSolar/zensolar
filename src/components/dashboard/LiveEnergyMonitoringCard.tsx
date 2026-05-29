@@ -190,14 +190,15 @@ function EVTile({ t, totals7d, liveDot, sourceLabel: sourceLabelOverride }: { t:
           <Car className="h-3.5 w-3.5 text-primary" />
           <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{label}</span>
           {showLive && (
-            <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-emerald-400">
-              <span className="relative inline-flex h-1.5 w-1.5">
+            <span role="status" aria-live="polite" className="ml-1 inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-emerald-400">
+              <span aria-hidden="true" className="relative inline-flex h-1.5 w-1.5">
                 <span className="absolute inset-0 inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
               </span>
-              Live
+              <span className="sr-only">Live charging </span>Live
             </span>
           )}
+
         </div>
         <FreshChip fresh={t.fresh} />
       </div>
