@@ -452,20 +452,10 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
                 <span className="text-sm font-semibold">Saved conversations</span>
                 <span className="text-xs text-muted-foreground">({threads.length})</span>
               </div>
-              <div className="flex items-center gap-1">
-                {onViewAllChats && (
-                  <button
-                    type="button"
-                    onClick={() => { setHistoryOpen(false); onViewAllChats(); }}
-                    className="flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-amber-600 hover:bg-amber-500/10"
-                  >
-                    View all <ArrowRight className="h-3 w-3" />
-                  </button>
-                )}
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setHistoryOpen(false)} title="Close">
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setHistoryOpen(false)} title="Close">
+                <X className="h-4 w-4" />
+              </Button>
+
             </div>
             <ul className="flex-1 overflow-y-auto p-2">
               {threads.length === 0 && (
