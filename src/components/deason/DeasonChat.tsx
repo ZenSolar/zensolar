@@ -357,14 +357,24 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
         className="border-t border-border bg-card px-3 pt-3"
         style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.75rem)" }}
       >
-        {attachedImage && (
+        {attachedFile && (
           <div className="mb-2 flex items-center gap-2 rounded-lg border border-border bg-background p-2">
-            <img src={attachedImage} alt="Attached bill" className="h-12 w-12 rounded object-cover" />
-            <div className="flex-1 text-xs text-muted-foreground">
-              <div className="font-medium text-foreground">Bill attached</div>
-              <div>I'll analyze it and look for savings.</div>
+            {attachedFile.kind === "image" ? (
+              <img src={attachedFile.dataUrl} alt={attachedFile.name} className="h-12 w-12 rounded object-cover" />
+            ) : (
+              <div className="flex h-12 w-12 items-center justify-center rounded bg-muted">
+                <FileText className="h-6 w-6 text-amber-500" />
+              </div>
+            )}
+            <div className="flex-1 min-w-0 text-xs text-muted-foreground">
+              <div className="truncate font-medium text-foreground">{attachedFile.name}</div>
+              <div>
+                {attachedFile.kind === "pdf"
+                  ? "PDF attached — I'll read it and look for savings."
+                  : "Photo attached — add a note so I know what to look for."}
+              </div>
             </div>
-            <Button type="button" variant="ghost" size="icon" onClick={() => setAttachedImage(null)}>
+            <Button type="button" variant="ghost" size="icon" onClick={() => setAttachedFile(null)}>
               <X className="h-3.5 w-3.5" />
             </Button>
           </div>
@@ -375,7 +385,7 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
               <input
                 ref={fileRef}
                 type="file"
-                accept="image/*"
+                accept="image/*,application/pdf,.pdf"
                 className="hidden"
                 onChange={onPickFile}
               />
@@ -384,7 +394,7 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
                 variant="ghost"
                 size="icon"
                 onClick={() => fileRef.current?.click()}
-                title="Upload utility bill"
+                title="Attach a bill (PDF/photo) or equipment photo"
                 disabled={streaming}
               >
                 <Paperclip className="h-4 w-4" />
@@ -400,12 +410,15 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
                 onSubmit();
               }
             }}
-            placeholder={isInnerCircle ? "Ask Deason anything…" : "Ask about your tokens, rate plan, or bill…"}
+            placeholder={isInnerCircle ? "Ask Deason anything…" : "Ask about your tokens, rate plan, or attach a bill/photo…"}
             rows={1}
             className="min-h-[44px] resize-none"
             disabled={streaming}
           />
-          <Button type="submit" size="icon" disabled={streaming || (!input.trim() && !attachedImage)}>
+          <Button type="submit" size="icon" disabled={streaming || (!input.trim() && !attachedFile)}>
+            <Send className="h-4 w-4" />
+          </Button>
+
             <Send className="h-4 w-4" />
           </Button>
         </div>
