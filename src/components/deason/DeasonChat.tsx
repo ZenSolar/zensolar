@@ -193,35 +193,31 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
     [location.pathname]
   );
 
+  // UI is unified for all users (admins/founders see the same concierge
+  // experience as homeowners, so we dogfood what customers feel). Server-side
+  // persona still controls tone + quota — this only affects the visible prompts.
   const prompts = isOnboardingSurface
     ? ONBOARDING_PROMPTS
     : isDemoSurface
     ? REVIEWER_PROMPTS
-    : isInnerCircle
-    ? INNER_CIRCLE_PROMPTS
     : PUBLIC_PROMPTS;
   const persistenceLabel = threadId ? "saved" : "ephemeral";
   const headerSubtitle = isOnboardingSurface
     ? `Setup helper · ${persistenceLabel}`
     : isDemoSurface
     ? `Investor preview · ${persistenceLabel}`
-    : isInnerCircle
-    ? `Inner circle · ${persistenceLabel}`
     : `ZenSolar concierge · ${persistenceLabel}`;
   const welcomeTitle = isOnboardingSurface
     ? "Need a hand setting up?"
     : isDemoSurface
     ? "Ask the founder anything."
-    : isInnerCircle
-    ? "Ask me anything."
     : "Hey 👋 — how can I help?";
   const welcomeBody = isOnboardingSurface
     ? "I'll walk you through wallets, picking the right OEM, and what happens once your devices are connected. Ask anything — your spot in setup is saved."
     : isDemoSurface
     ? "I'm Joe's AI twin. I'll walk you through the thesis, the tokenomics, the patent moat, and the capital plan — in plain English, on your time."
-    : isInnerCircle
-    ? "I'm Joe's AI twin. I know the app inside-out — the pivot, the 1T tokenomics, the patent expansion, the LP rounds, the Lyndon/Elon plan, the vault, all of it."
     : "I'm Deason, your ZenSolar guide. Ask me about your tokens, your utility rate plan, or upload a bill and I'll find ways to save you money.";
+
 
   const activeThread = threads?.find((t) => t.id === threadId);
   const headerTitle = activeThread?.title || "Deason";
@@ -302,7 +298,8 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
         )}
         {!loadingHistory && messages.length === 0 && (
           <div className="mx-auto mt-4 max-w-md text-center">
-            <div className="mb-3 text-2xl">{isInnerCircle ? "👋" : "☀️"}</div>
+            <div className="mb-3 text-2xl">☀️</div>
+
             <h2 className="mb-2 text-lg font-semibold">{welcomeTitle}</h2>
             <p className="text-sm text-muted-foreground">{welcomeBody}</p>
             <div className="mt-4 grid gap-2 text-left text-sm">
@@ -421,7 +418,8 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
                 onSubmit();
               }
             }}
-            placeholder={isInnerCircle ? "Ask Deason anything…" : "Ask about tokens, your rate plan, or attach a bill…"}
+            placeholder="Ask about tokens, your rate plan, or attach a bill…"
+
             rows={1}
             className="min-h-[40px] max-h-32 resize-none border-0 bg-transparent px-1 py-2 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
             disabled={streaming}
@@ -437,9 +435,10 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
         </div>
         <p className="mt-1.5 text-center text-[10px] text-muted-foreground">
           {threadId
-            ? (isInnerCircle ? "Saved to your account." : "Saved to your account · 50 messages/day")
-            : (isInnerCircle ? "Conversations are not saved." : "Conversations are not saved · 50 messages/day")}
+            ? "Saved to your account · 50 messages/day"
+            : "Conversations are not saved · 50 messages/day"}
         </p>
+
       </form>
 
       {/* Saved conversations — slide-in overlay (does NOT compress the transcript) */}
