@@ -581,6 +581,45 @@ export type Database = {
         }
         Relationships: []
       }
+      device_telemetry_cache: {
+        Row: {
+          cached_at: string
+          created_at: string
+          device_type: string
+          expires_at: string
+          id: string
+          oem_type: string
+          payload: Json
+          site_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cached_at?: string
+          created_at?: string
+          device_type: string
+          expires_at: string
+          id?: string
+          oem_type: string
+          payload?: Json
+          site_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cached_at?: string
+          created_at?: string
+          device_type?: string
+          expires_at?: string
+          id?: string
+          oem_type?: string
+          payload?: Json
+          site_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       email_link_clicks: {
         Row: {
           clicked_at: string
@@ -922,6 +961,7 @@ export type Database = {
           metadata: Json
           provider: string | null
           provider_subscription_id: string | null
+          tier: Database["public"]["Enums"]["energy_subscription_tier"]
           trial_ends_at: string | null
           updated_at: string
           user_id: string
@@ -934,6 +974,7 @@ export type Database = {
           metadata?: Json
           provider?: string | null
           provider_subscription_id?: string | null
+          tier?: Database["public"]["Enums"]["energy_subscription_tier"]
           trial_ends_at?: string | null
           updated_at?: string
           user_id: string
@@ -946,6 +987,7 @@ export type Database = {
           metadata?: Json
           provider?: string | null
           provider_subscription_id?: string | null
+          tier?: Database["public"]["Enums"]["energy_subscription_tier"]
           trial_ends_at?: string | null
           updated_at?: string
           user_id?: string
@@ -2883,6 +2925,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user" | "editor" | "viewer" | "founder"
+      energy_subscription_tier: "standard" | "pro"
       genesis_status:
         | "pending_genesis"
         | "genesis_consumed"
@@ -3016,6 +3059,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user", "editor", "viewer", "founder"],
+      energy_subscription_tier: ["standard", "pro"],
       genesis_status: [
         "pending_genesis",
         "genesis_consumed",
