@@ -40,10 +40,10 @@ export function DeasonFloatingBubble() {
   const [pendingMeta, setPendingMeta] = useState<Record<string, unknown> | null>(null);
   const [welcoming, setWelcoming] = useState(false);
   const welcomeTimer = useRef<number | null>(null);
+  const creatingThreadRef = useRef(false);
   const location = useLocation();
   const navigate = useNavigate();
 
-  const location = useLocation();
 
   // Listen for programmatic open / nudge requests from anywhere in the app.
   useEffect(() => {
