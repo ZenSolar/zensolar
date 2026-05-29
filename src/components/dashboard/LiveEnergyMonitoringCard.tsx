@@ -357,28 +357,35 @@ export function deriveTeslaFlow(t: CachedTelemetry | undefined, sessionActive: b
 }
 
 
-function TeslaStatusPill({ tesla, onClick }: { tesla: TeslaFlow | null; onClick: () => void }) {
+export function TeslaStatusPill({ tesla, onClick }: { tesla: TeslaFlow | null; onClick?: () => void }) {
   if (!tesla) return null;
+  const sourceText =
+    tesla.source === 'supercharger' ? 'at a Supercharger' :
+    tesla.source === 'public' ? 'on a public charger' :
+    'at home';
   const config = {
     charging: {
       dot: 'bg-emerald-400',
       dotGlow: 'shadow-[0_0_8px_hsla(142,76%,50%,0.7)]',
       ring: 'border-emerald-400/40 bg-emerald-400/10 text-emerald-300',
-      label: `Tesla Charging • ${tesla.kW.toFixed(1)} kW • ${Math.round(tesla.soc)}% SOC`,
+      visible: `Tesla Charging • ${tesla.kW.toFixed(1)} kW • ${Math.round(tesla.soc)}% SOC`,
+      aria: `Tesla charging ${sourceText}, ${tesla.kW.toFixed(1)} kilowatts, ${Math.round(tesla.soc)} percent state of charge. Activate to view details.`,
       pulse: true,
     },
     idle: {
       dot: 'bg-amber-400',
       dotGlow: 'shadow-[0_0_6px_hsla(38,92%,55%,0.6)]',
       ring: 'border-amber-400/35 bg-amber-400/10 text-amber-300',
-      label: `Tesla Plugged · Idle • ${Math.round(tesla.soc)}% SOC`,
+      visible: `Tesla Plugged · Idle • ${Math.round(tesla.soc)}% SOC`,
+      aria: `Tesla plugged in and idle, ${Math.round(tesla.soc)} percent state of charge. Activate to view details.`,
       pulse: false,
     },
     unplugged: {
       dot: 'bg-muted-foreground/60',
       dotGlow: '',
       ring: 'border-muted-foreground/20 bg-muted/30 text-muted-foreground',
-      label: `Tesla Not Plugged In • ${Math.round(tesla.soc)}% · ${Math.round(tesla.rangeMi)} mi`,
+      visible: `Tesla Not Plugged In • ${Math.round(tesla.soc)}% · ${Math.round(tesla.rangeMi)} mi`,
+      aria: `Tesla not plugged in, ${Math.round(tesla.soc)} percent state of charge, ${Math.round(tesla.rangeMi)} miles range. Activate to view details.`,
       pulse: false,
     },
   }[tesla.state];
@@ -387,25 +394,29 @@ function TeslaStatusPill({ tesla, onClick }: { tesla: TeslaFlow | null; onClick:
     <button
       type="button"
       onClick={onClick}
-      aria-label={config.label}
-      className={`group inline-flex w-full items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-semibold tracking-wide transition-all hover:brightness-110 sm:w-auto ${config.ring}`}
+      aria-label={config.aria}
+      className={`group inline-flex min-h-11 w-full items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-semibold tracking-wide transition-all hover:brightness-110 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:w-auto ${config.ring}`}
     >
       <span
+        aria-hidden="true"
         className={`relative inline-flex h-2 w-2 rounded-full ${config.dot} ${config.dotGlow}`}
       >
         {config.pulse && (
           <span className={`absolute inset-0 inline-flex h-full w-full animate-ping rounded-full ${config.dot} opacity-75`} />
         )}
       </span>
-      <span className="truncate">{config.label}</span>
+      <span role="status" aria-live="polite" aria-atomic="true" className="truncate">
+        {config.visible}
+      </span>
       {tesla.state === 'charging' && tesla.source === 'supercharger' && (
-        <span className="ml-auto rounded-full bg-rose-500/20 px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-rose-300">
+        <span aria-hidden="true" className="ml-auto rounded-full bg-rose-500/20 px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-rose-300">
           Supercharger
         </span>
       )}
     </button>
   );
 }
+
 
 export function LiveEnergyMonitoringCard() {
   const solar = useSolarTelemetry();
