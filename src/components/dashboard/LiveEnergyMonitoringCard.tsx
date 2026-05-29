@@ -267,6 +267,47 @@ export function LiveEnergyMonitoringCard() {
   const ev = useEVChargerTelemetry();
   const evTotals = useEVTotals(7);
   const mintImpact = useTodayMintImpact();
+  const { data: isActivelyCharging } = useActiveChargingSession();
+  const [manualRefreshing, setManualRefreshing] = useState(false);
+  const lastChargingRef = useRef<boolean | undefined>(undefined);
+
+  // When a home charging session starts/stops, bypass cache and pull fresh EV + battery telemetry
+  useEffect(() => {
+    if (lastChargingRef.current === undefined) {
+      lastChargingRef.current = !!isActivelyCharging;
+      return;
+    }
+    if (lastChargingRef.current !== !!isActivelyCharging) {
+      lastChargingRef.current = !!isActivelyCharging;
+      void ev.refresh({ force: true });
+      void battery.refresh({ force: true });
+    }
+  }, [isActivelyCharging, ev, battery]);
+
+  // While actively charging, poll EV telemetry every 60s with force-refresh so kW / SOC tick up
+  useEffect(() => {
+    if (!isActivelyCharging) return;
+    const id = window.setInterval(() => {
+      void ev.refresh({ force: true });
+      void battery.refresh({ force: true });
+    }, 60_000);
+    return () => window.clearInterval(id);
+  }, [isActivelyCharging, ev, battery]);
+
+  const handleManualRefresh = async () => {
+    if (manualRefreshing) return;
+    setManualRefreshing(true);
+    try {
+      await Promise.all([
+        solar.refresh({ force: true }),
+        battery.refresh({ force: true }),
+        ev.refresh({ force: true }),
+      ]);
+    } finally {
+      setManualRefreshing(false);
+    }
+  };
+
 
   const loading =
     (solar.loading || battery.loading || ev.loading) &&
