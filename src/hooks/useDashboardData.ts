@@ -13,6 +13,7 @@ import {
 } from '@/types/dashboard';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { calculatePendingTokens } from '@/lib/tokenomics';
 import { PROFILE_UPDATED_EVENT } from '@/hooks/useProfile';
 import { useViewAsUserId } from '@/hooks/useViewAsUserId';
 import { 
