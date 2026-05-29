@@ -286,7 +286,7 @@ export function LiveEnergyMonitoringCard() {
     solarPower: solarStats.currentKw ?? 0,
     homePower: (() => {
       const loadW = pickNumber(primaryBattery?.payload, ['load_power', 'energy_sites.0.load_power']);
-      return loadW !== null ? loadW / 1000 : 0,
+      return loadW !== null ? loadW / 1000 : 0;
     })(),
     batteryPower: batteryStats.powerKw ?? 0,
     batteryPercent: Math.round(batteryStats.soc ?? 0),
