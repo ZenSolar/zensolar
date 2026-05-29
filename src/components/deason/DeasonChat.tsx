@@ -462,6 +462,7 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setHistoryOpen(false)} title="Close">
                 <X className="h-4 w-4" />
               </Button>
+            </div>
             <ul className="flex-1 overflow-y-auto p-2">
               {threads.length === 0 && (
                 <li className="px-2 py-6 text-center text-xs text-muted-foreground">No saved chats yet.</li>
