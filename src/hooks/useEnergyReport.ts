@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-export type EnergyDocKind = "utility_bill" | "solar_contract" | "loan";
+export type EnergyDocKind = "utility_bill" | "installer_contract" | "ppa" | "loan";
 
 export interface EnergyDocInput {
   kind: EnergyDocKind;
