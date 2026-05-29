@@ -27,6 +27,12 @@ interface DeasonChatProps {
   onSwitchThread?: (id: string) => void;
   /** Optional "open full Deason page" handoff (e.g. from the floating bubble). */
   onViewAllChats?: () => void;
+  /** Rename a saved thread. */
+  onRenameThread?: (id: string, title: string) => void | Promise<void>;
+  /** Delete a saved thread. */
+  onDeleteThread?: (id: string) => void | Promise<void>;
+  /** Toggle pin on a saved thread. */
+  onTogglePinThread?: (id: string) => void | Promise<void>;
 }
 
 
