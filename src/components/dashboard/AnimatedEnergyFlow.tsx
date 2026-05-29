@@ -420,6 +420,8 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
     homePower: 0.7,
     batteryPower: -2.5,
     batteryPercent: 73,
+    batteryCapacityKwh: 13.5,
+    batteryReserveKwh: 9.9,
     gridPower: -0.8,
     evPower: 11,
   };
