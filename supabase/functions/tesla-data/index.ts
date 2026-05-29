@@ -297,6 +297,94 @@ Deno.serve(async (req) => {
       }
     }
 
+    // ── Lightweight telemetry mode (Premium Energy Insights live card) ──────
+    // Body: { mode: 'telemetry', capability: 'battery'|'ev'|'solar', siteId }
+    // Returns minimal live snapshot; no DB writes, no heavy history sync.
+    let telemetryReq: { mode?: string; capability?: string; siteId?: string } = {};
+    if (req.method === "POST") {
+      try { telemetryReq = await req.clone().json(); } catch { /* no body */ }
+    }
+    if (telemetryReq.mode === "telemetry" && telemetryReq.siteId) {
+      const cap = telemetryReq.capability;
+      const id = String(telemetryReq.siteId);
+      try {
+        if (cap === "battery" || cap === "solar") {
+          const r = await fetch(
+            `${TESLA_API_BASE}/api/1/energy_sites/${id}/live_status`,
+            { headers: { "Authorization": `Bearer ${accessToken}` } }
+          );
+          if (!r.ok) {
+            return new Response(JSON.stringify({ error: "live_status_failed", status: r.status }), {
+              status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+          const j = await r.json();
+          const resp = j.response || {};
+          return new Response(JSON.stringify({
+            percentage_charged: resp.percentage_charged,
+            battery_power: resp.battery_power,
+            solar_power: resp.solar_power,
+            load_power: resp.load_power,
+            grid_power: resp.grid_power,
+            energy_left: resp.energy_left,
+            total_pack_energy: resp.total_pack_energy,
+            timestamp: resp.timestamp,
+          }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        }
+        if (cap === "ev") {
+          // Try cached vehicle_data first; if asleep, attempt wake.
+          let vd = await fetch(
+            `${TESLA_API_BASE}/api/1/vehicles/${id}/vehicle_data?endpoints=${encodeURIComponent("charge_state;drive_state")}`,
+            { headers: { "Authorization": `Bearer ${accessToken}` } }
+          );
+          if (vd.status === 408 || vd.status === 503) {
+            await fetch(`${TESLA_API_BASE}/api/1/vehicles/${id}/wake_up`, {
+              method: "POST", headers: { "Authorization": `Bearer ${accessToken}` },
+            });
+            // Wait briefly then retry once
+            await new Promise((res) => setTimeout(res, 2500));
+            vd = await fetch(
+              `${TESLA_API_BASE}/api/1/vehicles/${id}/vehicle_data?endpoints=${encodeURIComponent("charge_state")}`,
+              { headers: { "Authorization": `Bearer ${accessToken}` } }
+            );
+          }
+          if (!vd.ok) {
+            return new Response(JSON.stringify({ error: "vehicle_data_failed", status: vd.status }), {
+              status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+            });
+          }
+          const j = await vd.json();
+          const cs = j?.response?.charge_state || {};
+          return new Response(JSON.stringify({
+            charging_state: cs.charging_state,
+            battery_level: cs.battery_level,
+            usable_battery_level: cs.usable_battery_level,
+            battery_range: cs.battery_range,
+            est_battery_range: cs.est_battery_range,
+            ideal_battery_range: cs.ideal_battery_range,
+            charge_rate_kw: typeof cs.charger_power === "number" ? cs.charger_power : null,
+            charger_power: cs.charger_power,
+            charger_voltage: cs.charger_voltage,
+            charger_actual_current: cs.charger_actual_current,
+            charger_phases: cs.charger_phases,
+            charge_energy_added: cs.charge_energy_added,
+            charge_miles_added_ideal: cs.charge_miles_added_ideal,
+            time_to_full_charge: cs.time_to_full_charge,
+            fast_charger_type: cs.fast_charger_type,
+            fast_charger_brand: cs.fast_charger_brand,
+            conn_charge_cable: cs.conn_charge_cable,
+          }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        }
+      } catch (e) {
+        console.error("tesla telemetry error", e);
+        return new Response(JSON.stringify({ error: "telemetry_exception" }), {
+          status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+
+
     // Get user's claimed devices with baseline data and home address for charging classification
     const [{ data: claimedDevices }, { data: profileData }] = await Promise.all([
       supabaseClient
