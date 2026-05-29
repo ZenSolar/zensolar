@@ -35,9 +35,9 @@ interface Props {
  */
 export function EnergyDocSheet({ open, onOpenChange, onSubmit, loading }: Props) {
   const [docs, setDocs] = useState<Partial<Record<EnergyDocKind, EnergyDocInput>>>({});
+  const [error, setError] = useState<string | null>(null);
   const inputRefs = useRef<Record<EnergyDocKind, HTMLInputElement | null>>({
     utility_bill: null, installer_contract: null, ppa: null, loan: null,
-  });
   });
 
   const reset = () => { setDocs({}); setError(null); };
