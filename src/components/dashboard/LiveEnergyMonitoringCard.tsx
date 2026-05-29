@@ -178,8 +178,10 @@ function EVTile({ t, totals7d, liveDot, sourceLabel: sourceLabelOverride }: { t:
   const timeToFullHrs = pickNumber(t.payload, ['time_to_full_charge', 'response.charge_state.time_to_full_charge']);
   const fastChargerType = pickString(t.payload, ['fast_charger_type', 'charger_type', 'response.charge_state.fast_charger_type']);
   const phases = pickNumber(t.payload, ['charger_phases', 'response.charge_state.charger_phases']);
-  const { icon: KindIcon, label: kindLabel } = chargerKindBadge(fastChargerType, phases);
+  const { icon: KindIcon, label: kindLabelDefault } = chargerKindBadge(fastChargerType, phases);
+  const kindLabel = sourceLabelOverride ?? kindLabelDefault;
   const label = t.oem === 'tesla' ? `Vehicle · Tesla${t.device_name ? ' · ' + t.device_name : ''}` : `EV · ${oemLabel(t.oem)}`;
+  const showLive = liveDot ?? isCharging;
 
   return (
     <div className="rounded-lg border border-primary/20 bg-background/45 p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.06)] transition-colors hover:border-primary/35">
@@ -187,6 +189,15 @@ function EVTile({ t, totals7d, liveDot, sourceLabel: sourceLabelOverride }: { t:
         <div className="flex items-center gap-1.5">
           <Car className="h-3.5 w-3.5 text-primary" />
           <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{label}</span>
+          {showLive && (
+            <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-emerald-400">
+              <span className="relative inline-flex h-1.5 w-1.5">
+                <span className="absolute inset-0 inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              </span>
+              Live
+            </span>
+          )}
         </div>
         <FreshChip fresh={t.fresh} />
       </div>
@@ -197,7 +208,6 @@ function EVTile({ t, totals7d, liveDot, sourceLabel: sourceLabelOverride }: { t:
           <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
             <KindIcon className="h-3 w-3" />
             <span>{kindLabel}</span>
-            <span className="ml-auto rounded-full bg-primary/20 px-1.5 py-0.5 text-[9px]">Live</span>
           </div>
           <div className="mt-1 flex items-baseline gap-2">
             {chargeRateKw !== null && (
