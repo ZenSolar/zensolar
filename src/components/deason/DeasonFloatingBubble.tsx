@@ -31,13 +31,27 @@ const WELCOME_AUTO_HIDE_MS = 12_000;
 
 export function DeasonFloatingBubble() {
   const { user, isLoading } = useAuth();
-  const { threads, loading: threadsLoading, createThread, touchThread } = useDeasonThreads();
+  const { threads, loading: threadsLoading, createThread, touchThread, renameThread, deleteThread, togglePin } = useDeasonThreads();
   const [open, setOpen] = useState(false);
   const [threadId, setThreadId] = useState<string | null>(null);
   const [preparingThread, setPreparingThread] = useState(false);
   const [threadPrepFailed, setThreadPrepFailed] = useState(false);
   const [pendingSeed, setPendingSeed] = useState<string | null>(null);
   const [pendingMeta, setPendingMeta] = useState<Record<string, unknown> | null>(null);
+
+  // Lock body scroll while the panel is open so background hexagons / page
+  // don't drift when the user taps/drags inside the chat overlay.
+  useEffect(() => {
+    if (!open) return;
+    const prevOverflow = document.body.style.overflow;
+    const prevOverscroll = document.body.style.overscrollBehavior;
+    document.body.style.overflow = "hidden";
+    document.body.style.overscrollBehavior = "contain";
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.body.style.overscrollBehavior = prevOverscroll;
+    };
+  }, [open]);
   const [welcoming, setWelcoming] = useState(false);
   const welcomeTimer = useRef<number | null>(null);
   const creatingThreadRef = useRef(false);
@@ -307,6 +321,12 @@ export function DeasonFloatingBubble() {
                 setThreadId(id);
                 setThreadPrepFailed(false);
               } : undefined}
+              onRenameThread={user ? (id, title) => { void renameThread(id, title); } : undefined}
+              onDeleteThread={user ? async (id) => {
+                await deleteThread(id);
+                if (id === threadId) setThreadId(null);
+              } : undefined}
+              onTogglePinThread={user ? (id) => { void togglePin(id); } : undefined}
               onViewAllChats={user ? () => {
                 setOpen(false);
                 navigate(threadId ? `/deason/${threadId}` : "/deason");
@@ -378,7 +398,7 @@ function SwipeDownCard({
       >
         <span className="h-1.5 w-12 rounded-full bg-amber-500/70" />
       </div>
-      <div className="flex-1 overflow-hidden">{children}</div>
+      <div className="flex-1 overflow-hidden [overscroll-behavior:contain]">{children}</div>
     </div>
   );
 }

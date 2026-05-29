@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Send, Sparkles, RotateCcw, X, Paperclip, Image as ImageIcon, ChevronUp, ChevronDown, Save, FileText, ArrowRight, MessageSquare, Pin } from "lucide-react";
+import { Send, Sparkles, RotateCcw, X, Paperclip, Image as ImageIcon, ChevronUp, ChevronDown, Save, FileText, ArrowRight, MessageSquare, Pin, PinOff, Pencil, Trash2, Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,6 +27,12 @@ interface DeasonChatProps {
   onSwitchThread?: (id: string) => void;
   /** Optional "open full Deason page" handoff (e.g. from the floating bubble). */
   onViewAllChats?: () => void;
+  /** Rename a saved thread. */
+  onRenameThread?: (id: string, title: string) => void | Promise<void>;
+  /** Delete a saved thread. */
+  onDeleteThread?: (id: string) => void | Promise<void>;
+  /** Toggle pin on a saved thread. */
+  onTogglePinThread?: (id: string) => void | Promise<void>;
 }
 
 
@@ -67,13 +73,12 @@ const ONBOARDING_PROMPTS = [
   "I don't know which brand of inverter I have — help.",
   "What happens after I connect my devices?",
 ];
-
 /**
  * Deason chat surface — used by both the full /deason page and the floating bubble.
  * Persona-aware: shows different welcome copy + suggested prompts depending on
  * whether the viewer is inner-circle or a regular demo/beta user.
  */
-export function DeasonChat({ onClose, compact = false, threadId = null, onNewThread, onUserMessage, highlightQuery, threads, onSwitchThread, onViewAllChats }: DeasonChatProps) {
+export function DeasonChat({ onClose, compact = false, threadId = null, onNewThread, onUserMessage, highlightQuery, threads, onSwitchThread, onViewAllChats, onRenameThread, onDeleteThread, onTogglePinThread }: DeasonChatProps) {
   const { messages, streaming, error, send, reset, seedAssistant, loadingHistory } = useDeason({
     threadId,
     onThreadTouched: onUserMessage,
@@ -456,41 +461,141 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setHistoryOpen(false)} title="Close">
                 <X className="h-4 w-4" />
               </Button>
-
             </div>
             <ul className="flex-1 overflow-y-auto p-2">
               {threads.length === 0 && (
                 <li className="px-2 py-6 text-center text-xs text-muted-foreground">No saved chats yet.</li>
               )}
               {threads.map((t) => (
-                <li key={t.id}>
-                  <button
-                    type="button"
-                    onClick={() => { onSwitchThread(t.id); setHistoryOpen(false); }}
-                    className={cn(
-                      "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm transition-colors",
-                      t.id === threadId
-                        ? "bg-amber-500/15 text-foreground"
-                        : "text-foreground/90 hover:bg-accent",
-                    )}
-                  >
-                    {t.pinned ? (
-                      <Pin className="h-3.5 w-3.5 flex-shrink-0 text-amber-500" />
-                    ) : (
-                      <MessageSquare className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
-                    )}
-                    <span className="flex-1 truncate">{t.title || "Untitled"}</span>
-                    <span className="text-[10px] text-muted-foreground/70">
-                      {new Date(t.updated_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
-                    </span>
-                  </button>
-                </li>
+                <ThreadRow
+                  key={t.id}
+                  thread={t}
+                  active={t.id === threadId}
+                  onSelect={() => { onSwitchThread(t.id); setHistoryOpen(false); }}
+                  onRename={onRenameThread ? (title) => onRenameThread(t.id, title) : undefined}
+                  onDelete={onDeleteThread ? () => onDeleteThread(t.id) : undefined}
+                  onTogglePin={onTogglePinThread ? () => onTogglePinThread(t.id) : undefined}
+                />
               ))}
             </ul>
           </div>
         </>
       )}
     </div>
+  );
+}
+
+function ThreadRow({
+  thread: t,
+  active,
+  onSelect,
+  onRename,
+  onDelete,
+  onTogglePin,
+}: {
+  thread: DeasonThread;
+  active: boolean;
+  onSelect: () => void;
+  onRename?: (title: string) => void | Promise<void>;
+  onDelete?: () => void | Promise<void>;
+  onTogglePin?: () => void | Promise<void>;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(t.title || "Untitled");
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const commit = async () => {
+    const next = draft.trim();
+    if (next && next !== t.title && onRename) await onRename(next);
+    setEditing(false);
+  };
+
+  return (
+    <li>
+      <div
+        className={cn(
+          "flex w-full items-center gap-1 rounded-lg px-2 py-1.5 text-sm transition-colors",
+          active ? "bg-amber-500/15 text-foreground" : "text-foreground/90 hover:bg-accent",
+        )}
+      >
+        {t.pinned ? (
+          <Pin className="h-3.5 w-3.5 flex-shrink-0 text-amber-500" />
+        ) : (
+          <MessageSquare className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
+        )}
+        {editing ? (
+          <>
+            <input
+              autoFocus
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") void commit();
+                if (e.key === "Escape") { setEditing(false); setDraft(t.title || "Untitled"); }
+              }}
+              className="flex-1 min-w-0 rounded bg-background/60 px-1.5 py-1 text-sm outline-none ring-1 ring-amber-500/40 focus:ring-amber-500"
+              maxLength={80}
+            />
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => void commit()} title="Save name">
+              <Check className="h-3.5 w-3.5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditing(false); setDraft(t.title || "Untitled"); }} title="Cancel">
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          </>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={onSelect}
+              className="flex flex-1 min-w-0 items-center gap-2 text-left"
+            >
+              <span className="flex-1 truncate">{t.title || "Untitled"}</span>
+              <span className="text-[10px] text-muted-foreground/70">
+                {new Date(t.updated_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+              </span>
+            </button>
+            {onTogglePin && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-muted-foreground hover:text-amber-500"
+                onClick={(e) => { e.stopPropagation(); void onTogglePin(); }}
+                title={t.pinned ? "Unpin" : "Pin"}
+              >
+                {t.pinned ? <PinOff className="h-3.5 w-3.5" /> : <Pin className="h-3.5 w-3.5" />}
+              </Button>
+            )}
+            {onRename && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                onClick={(e) => { e.stopPropagation(); setEditing(true); }}
+                title="Rename"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+            )}
+            {onDelete && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn("h-7 w-7", confirmDelete ? "text-destructive bg-destructive/10" : "text-muted-foreground hover:text-destructive")}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (confirmDelete) { void onDelete(); setConfirmDelete(false); }
+                  else { setConfirmDelete(true); setTimeout(() => setConfirmDelete(false), 2500); }
+                }}
+                title={confirmDelete ? "Tap again to confirm" : "Delete"}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            )}
+          </>
+        )}
+      </div>
+    </li>
   );
 }
 
@@ -521,3 +626,4 @@ function MessageContent({
     </div>
   );
 }
+
