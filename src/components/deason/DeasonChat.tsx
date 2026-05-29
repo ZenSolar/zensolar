@@ -217,27 +217,30 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
     ? "I'm Joe's AI twin. I know the app inside-out — the pivot, the 1T tokenomics, the patent expansion, the LP rounds, the Lyndon/Elon plan, the vault, all of it."
     : "I'm Deason, your ZenSolar guide. Ask me about your tokens, your utility rate plan, or upload a bill and I'll find ways to save you money.";
 
+  const activeThread = threads?.find((t) => t.id === threadId);
+  const headerTitle = activeThread?.title || "Deason";
+
   return (
-    <div className="flex h-full flex-col bg-background">
+    <div className="relative flex h-full min-h-0 flex-col bg-background">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-border px-4 py-3">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-500/10 ring-1 ring-amber-500/30">
+      <div className="flex items-center justify-between gap-2 border-b border-border/60 px-3 py-2.5">
+        <div className="flex min-w-0 items-center gap-2">
+          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-amber-500/10 ring-1 ring-amber-500/30">
             <Sparkles className="h-4 w-4 text-amber-500" />
           </div>
-          <div>
-            <div className="text-sm font-semibold">Deason</div>
-            <div className="text-xs text-muted-foreground">{headerSubtitle}</div>
+          <div className="min-w-0">
+            <div className="truncate text-sm font-semibold leading-tight">{headerTitle}</div>
+            <div className="truncate text-[11px] text-muted-foreground leading-tight">{headerSubtitle}</div>
           </div>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex flex-shrink-0 items-center gap-0.5">
           {threads && threads.length > 0 && onSwitchThread && (
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setHistoryOpen((v) => !v)}
               title="Saved conversations"
-              className={cn(historyOpen && "bg-amber-500/10 text-amber-600")}
+              className={cn("h-9 w-9", historyOpen && "bg-amber-500/10 text-amber-600")}
             >
               <History className="h-4 w-4" />
             </Button>
@@ -248,69 +251,18 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
               size="icon"
               onClick={threadId && onNewThread ? onNewThread : reset}
               title={threadId && onNewThread ? "New saved chat" : "New chat"}
+              className="h-9 w-9"
             >
               <RotateCcw className="h-4 w-4" />
             </Button>
           )}
           {onClose && (
-            <Button variant="ghost" size="icon" onClick={onClose} title="Close">
+            <Button variant="ghost" size="icon" onClick={onClose} title="Close" className="h-9 w-9">
               <X className="h-4 w-4" />
             </Button>
           )}
         </div>
       </div>
-
-      {/* Saved conversations panel (floating bubble surface) */}
-      {historyOpen && threads && onSwitchThread && (
-        <div className="border-b border-border bg-card/80 backdrop-blur px-2 py-2 max-h-[40%] overflow-y-auto">
-          <div className="flex items-center justify-between px-1.5 pb-1.5">
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Saved conversations
-            </div>
-            {onViewAllChats && (
-              <button
-                type="button"
-                onClick={() => { setHistoryOpen(false); onViewAllChats(); }}
-                className="flex items-center gap-1 text-[11px] text-amber-600 hover:underline"
-              >
-                View all <ArrowRight className="h-3 w-3" />
-              </button>
-            )}
-          </div>
-          <ul className="space-y-0.5">
-            {threads.slice(0, 8).map((t) => (
-              <li key={t.id}>
-                <button
-                  type="button"
-                  onClick={() => { onSwitchThread(t.id); setHistoryOpen(false); }}
-                  className={cn(
-                    "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors",
-                    t.id === threadId
-                      ? "bg-amber-500/15 text-foreground"
-                      : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
-                  )}
-                >
-                  {t.pinned ? (
-                    <Pin className="h-3.5 w-3.5 flex-shrink-0 text-amber-500" />
-                  ) : (
-                    <MessageSquare className="h-3.5 w-3.5 flex-shrink-0" />
-                  )}
-                  <span className="flex-1 truncate">{t.title || "Untitled"}</span>
-                  <span className="text-[10px] text-muted-foreground/70">
-                    {new Date(t.updated_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-          {threads.length === 0 && (
-            <div className="px-2 py-3 text-center text-xs text-muted-foreground">
-              No saved chats yet.
-            </div>
-          )}
-        </div>
-      )}
-
 
       {/* Search match navigator */}
       {matchIndices.length > 0 && (
@@ -325,26 +277,10 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
             )}
           </div>
           <div className="flex items-center gap-1">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7"
-              onClick={goPrevMatch}
-              disabled={matchIndices.length < 2}
-              title="Previous match"
-            >
+            <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={goPrevMatch} disabled={matchIndices.length < 2} title="Previous match">
               <ChevronUp className="h-3.5 w-3.5" />
             </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7"
-              onClick={goNextMatch}
-              disabled={matchIndices.length < 2}
-              title="Next match"
-            >
+            <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={goNextMatch} disabled={matchIndices.length < 2} title="Next match">
               <ChevronDown className="h-3.5 w-3.5" />
             </Button>
           </div>
@@ -352,14 +288,14 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
       )}
 
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
+      <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-3 py-4">
         {loadingHistory && (
           <div className="flex justify-center py-10">
             <Sparkles className="h-5 w-5 animate-pulse text-amber-500" />
           </div>
         )}
         {!loadingHistory && messages.length === 0 && (
-          <div className="mx-auto mt-6 max-w-md text-center">
+          <div className="mx-auto mt-4 max-w-md text-center">
             <div className="mb-3 text-2xl">{isInnerCircle ? "👋" : "☀️"}</div>
             <h2 className="mb-2 text-lg font-semibold">{welcomeTitle}</h2>
             <p className="text-sm text-muted-foreground">{welcomeBody}</p>
@@ -368,7 +304,7 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
                 <button
                   key={q}
                   onClick={() => void send(q)}
-                  className="rounded-lg border border-border bg-card px-3 py-2 text-left hover:bg-accent"
+                  className="rounded-xl border border-border/60 bg-card px-3 py-2.5 text-left transition-colors hover:bg-accent"
                 >
                   {q}
                 </button>
@@ -377,7 +313,7 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
           </div>
         )}
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {messages.map((m, i) => (
             <div
               key={i}
@@ -388,14 +324,14 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
                 i === highlightIndex && "ring-2 ring-amber-500/60"
               )}
             >
-              <div className={cn("space-y-2", m.role === "user" ? "max-w-[85%]" : "w-full max-w-[92%]")}>
+              <div className={cn("space-y-2", m.role === "user" ? "max-w-[85%]" : "w-full")}>
                 {(m.content || m.role === "user" || !m.billReport) && (
                   <div
                     className={cn(
-                      "whitespace-pre-wrap rounded-2xl px-4 py-2.5 leading-relaxed",
+                      "whitespace-pre-wrap leading-relaxed",
                       m.role === "user"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-foreground",
+                        ? "rounded-2xl rounded-br-md bg-primary px-3.5 py-2 text-primary-foreground"
+                        : "text-foreground",
                       compact ? "text-sm" : "text-[15px]",
                     )}
                   >
@@ -406,6 +342,13 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
               </div>
             </div>
           ))}
+          {streaming && messages[messages.length - 1]?.role === "assistant" && !messages[messages.length - 1]?.content && (
+            <div className="flex items-center gap-1.5 px-1 text-muted-foreground">
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-amber-500 [animation-delay:-0.2s]" />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-amber-500 [animation-delay:-0.1s]" />
+              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-amber-500" />
+            </div>
+          )}
         </div>
 
         {error && (
@@ -418,32 +361,32 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
       {/* Composer */}
       <form
         onSubmit={onSubmit}
-        className="border-t border-border bg-card px-3 pt-3"
-        style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.75rem)" }}
+        className="border-t border-border/60 bg-card px-3 pt-2.5"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.625rem)" }}
       >
         {attachedFile && (
           <div className="mb-2 flex items-center gap-2 rounded-lg border border-border bg-background p-2">
             {attachedFile.kind === "image" ? (
-              <img src={attachedFile.dataUrl} alt={attachedFile.name} className="h-12 w-12 rounded object-cover" />
+              <img src={attachedFile.dataUrl} alt={attachedFile.name} className="h-10 w-10 rounded object-cover" />
             ) : (
-              <div className="flex h-12 w-12 items-center justify-center rounded bg-muted">
-                <FileText className="h-6 w-6 text-amber-500" />
+              <div className="flex h-10 w-10 items-center justify-center rounded bg-muted">
+                <FileText className="h-5 w-5 text-amber-500" />
               </div>
             )}
             <div className="flex-1 min-w-0 text-xs text-muted-foreground">
               <div className="truncate font-medium text-foreground">{attachedFile.name}</div>
-              <div>
+              <div className="truncate">
                 {attachedFile.kind === "pdf"
                   ? "PDF attached — I'll read it and look for savings."
                   : "Photo attached — add a note so I know what to look for."}
               </div>
             </div>
-            <Button type="button" variant="ghost" size="icon" onClick={() => setAttachedFile(null)}>
+            <Button type="button" variant="ghost" size="icon" onClick={() => setAttachedFile(null)} className="h-7 w-7">
               <X className="h-3.5 w-3.5" />
             </Button>
           </div>
         )}
-        <div className="flex items-end gap-2">
+        <div className="flex items-end gap-1.5 rounded-2xl border border-border bg-background px-1.5 py-1 focus-within:border-amber-500/60 focus-within:ring-1 focus-within:ring-amber-500/30 transition-colors">
           {!isInnerCircle && (
             <>
               <input
@@ -460,6 +403,7 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
                 onClick={() => fileRef.current?.click()}
                 title="Attach a bill (PDF/photo) or equipment photo"
                 disabled={streaming}
+                className="h-9 w-9 flex-shrink-0 rounded-full"
               >
                 <Paperclip className="h-4 w-4" />
               </Button>
@@ -474,22 +418,90 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
                 onSubmit();
               }
             }}
-            placeholder={isInnerCircle ? "Ask Deason anything…" : "Ask about your tokens, rate plan, or attach a bill/photo…"}
+            placeholder={isInnerCircle ? "Ask Deason anything…" : "Ask about tokens, your rate plan, or attach a bill…"}
             rows={1}
-            className="min-h-[44px] resize-none"
+            className="min-h-[40px] max-h-32 resize-none border-0 bg-transparent px-1 py-2 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
             disabled={streaming}
           />
-          <Button type="submit" size="icon" disabled={streaming || (!input.trim() && !attachedFile)}>
+          <Button
+            type="submit"
+            size="icon"
+            disabled={streaming || (!input.trim() && !attachedFile)}
+            className="h-9 w-9 flex-shrink-0 rounded-full bg-amber-500 text-black hover:bg-amber-400 disabled:bg-muted disabled:text-muted-foreground"
+          >
             <Send className="h-4 w-4" />
           </Button>
-
         </div>
-        <p className="mt-1.5 text-[11px] text-muted-foreground">
+        <p className="mt-1.5 text-center text-[10px] text-muted-foreground">
           {threadId
             ? (isInnerCircle ? "Saved to your account." : "Saved to your account · 50 messages/day")
             : (isInnerCircle ? "Conversations are not saved." : "Conversations are not saved · 50 messages/day")}
         </p>
       </form>
+
+      {/* Saved conversations — slide-in overlay (does NOT compress the transcript) */}
+      {historyOpen && threads && onSwitchThread && (
+        <>
+          <button
+            type="button"
+            aria-label="Close saved conversations"
+            onClick={() => setHistoryOpen(false)}
+            className="absolute inset-0 z-30 bg-background/60 backdrop-blur-sm animate-in fade-in duration-150"
+          />
+          <div className="absolute inset-x-0 top-0 z-40 flex max-h-full flex-col border-b border-border bg-card shadow-xl animate-in slide-in-from-top duration-200">
+            <div className="flex items-center justify-between border-b border-border/60 px-3 py-2.5">
+              <div className="flex items-center gap-2">
+                <History className="h-4 w-4 text-amber-500" />
+                <span className="text-sm font-semibold">Saved conversations</span>
+                <span className="text-xs text-muted-foreground">({threads.length})</span>
+              </div>
+              <div className="flex items-center gap-1">
+                {onViewAllChats && (
+                  <button
+                    type="button"
+                    onClick={() => { setHistoryOpen(false); onViewAllChats(); }}
+                    className="flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-amber-600 hover:bg-amber-500/10"
+                  >
+                    View all <ArrowRight className="h-3 w-3" />
+                  </button>
+                )}
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setHistoryOpen(false)} title="Close">
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <ul className="flex-1 overflow-y-auto p-2">
+              {threads.length === 0 && (
+                <li className="px-2 py-6 text-center text-xs text-muted-foreground">No saved chats yet.</li>
+              )}
+              {threads.map((t) => (
+                <li key={t.id}>
+                  <button
+                    type="button"
+                    onClick={() => { onSwitchThread(t.id); setHistoryOpen(false); }}
+                    className={cn(
+                      "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm transition-colors",
+                      t.id === threadId
+                        ? "bg-amber-500/15 text-foreground"
+                        : "text-foreground/90 hover:bg-accent",
+                    )}
+                  >
+                    {t.pinned ? (
+                      <Pin className="h-3.5 w-3.5 flex-shrink-0 text-amber-500" />
+                    ) : (
+                      <MessageSquare className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
+                    )}
+                    <span className="flex-1 truncate">{t.title || "Untitled"}</span>
+                    <span className="text-[10px] text-muted-foreground/70">
+                      {new Date(t.updated_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </>
+      )}
     </div>
   );
 }
