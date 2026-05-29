@@ -354,7 +354,7 @@ Deno.serve(async (req) => {
             // Wait briefly then retry once
             await new Promise((res) => setTimeout(res, 2500));
             vd = await fetch(
-              `${TESLA_API_BASE}/api/1/vehicles/${id}/vehicle_data?endpoints=${encodeURIComponent("charge_state")}`,
+              `${TESLA_API_BASE}/api/1/vehicles/${id}/vehicle_data?endpoints=${encodeURIComponent("charge_state;drive_state")}`,
               { headers: { "Authorization": `Bearer ${accessToken}` } }
             );
           }
