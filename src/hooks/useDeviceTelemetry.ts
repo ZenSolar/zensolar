@@ -16,7 +16,8 @@ type OEM = 'tesla' | 'enphase' | 'solaredge' | 'wallbox';
 
 const TTL_MS: Record<Capability, number> = {
   battery: 12 * 60 * 60 * 1000,
-  ev: 15 * 60 * 1000,
+  // Short TTL so plug-in / unplug events surface quickly in the cockpit
+  ev: 90 * 1000,
   solar: 60 * 60 * 1000,
 };
 
