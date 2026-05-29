@@ -111,6 +111,27 @@ async function fetchFromOem(oem: OEM, siteId: string, capability: Capability): P
   }
 }
 
+function hasCanonicalTelemetryShape(payload: any, capability: Capability): boolean {
+  if (!payload) return false;
+  if (capability === 'solar') {
+    return (
+      payload.current_power_w != null ||
+      payload.solar_power != null ||
+      payload?.energy_sites?.[0]?.solar_power != null
+    );
+  }
+  if (capability === 'battery') {
+    return (
+      payload.percentage_charged != null ||
+      payload?.energy_sites?.[0]?.percentage_charged != null
+    );
+  }
+  return (
+    (payload.battery_level != null && payload.odometer != null) ||
+    payload?.response?.charge_state != null
+  );
+}
+
 function useTelemetry(capability: Capability) {
   const { user } = useAuth();
   const [data, setData] = useState<CachedTelemetry[]>([]);
@@ -135,7 +156,7 @@ function useTelemetry(capability: Capability) {
       for (const d of selected) {
         const oem = d.provider as OEM;
         const cached = await readCache(user.id, oem, capability, d.device_id);
-        const fresh = cached && new Date(cached.expires_at) > new Date();
+        const fresh = cached && new Date(cached.expires_at) > new Date() && hasCanonicalTelemetryShape(cached.payload, capability);
         if (fresh) {
           out.push({
             oem, capability, site_id: d.device_id, device_name: d.device_name,

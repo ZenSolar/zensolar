@@ -13,6 +13,7 @@ export interface EnergyFlowData {
 interface AnimatedEnergyFlowProps {
   data?: EnergyFlowData;
   className?: string;
+  showHeader?: boolean;
 }
 
 // Smooth animated particles along SVG path
@@ -399,7 +400,7 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
   );
 }
 
-export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps) {
+export function AnimatedEnergyFlow({ data, className, showHeader = true }: AnimatedEnergyFlowProps) {
   const isMobile = useIsMobile();
   const compact = isMobile;
 
@@ -459,7 +460,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
   return (
     <div className={`relative ${className}`}>
       {/* Refined header — eyebrow style, no neon */}
-      <div className="relative z-10 pt-4 pb-2 px-5 flex items-center justify-between gap-3">
+      {showHeader && <div className="relative z-10 pt-4 pb-2 px-5 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5 min-w-0">
           <span
             className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0"
@@ -486,7 +487,7 @@ export function AnimatedEnergyFlow({ data, className }: AnimatedEnergyFlowProps)
             50% { opacity: 0.55; transform: scale(0.85); }
           }
         `}</style>
-      </div>
+      </div>}
 
 
       <svg viewBox={vb} className="relative w-full h-full" style={{ maxHeight: maxH }}>

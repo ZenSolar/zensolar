@@ -329,12 +329,22 @@ Deno.serve(async (req) => {
             energy_left: resp.energy_left,
             total_pack_energy: resp.total_pack_energy,
             timestamp: resp.timestamp,
+            energy_sites: [{
+              site_id: id,
+              percentage_charged: resp.percentage_charged,
+              battery_power: resp.battery_power,
+              solar_power: resp.solar_power,
+              load_power: resp.load_power,
+              grid_power: resp.grid_power,
+              energy_left: resp.energy_left,
+              total_pack_energy: resp.total_pack_energy,
+            }],
           }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
         }
         if (cap === "ev") {
           // Try cached vehicle_data first; if asleep, attempt wake.
           let vd = await fetch(
-            `${TESLA_API_BASE}/api/1/vehicles/${id}/vehicle_data?endpoints=${encodeURIComponent("charge_state;drive_state")}`,
+            `${TESLA_API_BASE}/api/1/vehicles/${id}/vehicle_data?endpoints=${encodeURIComponent("charge_state;drive_state;vehicle_state")}`,
             { headers: { "Authorization": `Bearer ${accessToken}` } }
           );
           if (vd.status === 408 || vd.status === 503) {
@@ -344,7 +354,7 @@ Deno.serve(async (req) => {
             // Wait briefly then retry once
             await new Promise((res) => setTimeout(res, 2500));
             vd = await fetch(
-              `${TESLA_API_BASE}/api/1/vehicles/${id}/vehicle_data?endpoints=${encodeURIComponent("charge_state")}`,
+              `${TESLA_API_BASE}/api/1/vehicles/${id}/vehicle_data?endpoints=${encodeURIComponent("charge_state;drive_state;vehicle_state")}`,
               { headers: { "Authorization": `Bearer ${accessToken}` } }
             );
           }
@@ -355,6 +365,8 @@ Deno.serve(async (req) => {
           }
           const j = await vd.json();
           const cs = j?.response?.charge_state || {};
+          const vs = j?.response?.vehicle_state || {};
+          const ds = j?.response?.drive_state || {};
           return new Response(JSON.stringify({
             charging_state: cs.charging_state,
             battery_level: cs.battery_level,
@@ -373,6 +385,18 @@ Deno.serve(async (req) => {
             fast_charger_type: cs.fast_charger_type,
             fast_charger_brand: cs.fast_charger_brand,
             conn_charge_cable: cs.conn_charge_cable,
+            odometer: vs.odometer ?? ds.odometer,
+            shift_state: ds.shift_state,
+            power: ds.power,
+            vehicles: [{
+              vin: id,
+              odometer: vs.odometer ?? ds.odometer,
+              charging_state: cs.charging_state,
+              battery_level: cs.battery_level,
+              battery_range: cs.battery_range,
+              charger_power: cs.charger_power,
+              charge_energy_added: cs.charge_energy_added,
+            }],
           }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
         }
       } catch (e) {
