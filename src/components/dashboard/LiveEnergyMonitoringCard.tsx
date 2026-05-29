@@ -316,7 +316,7 @@ export function deriveTeslaFlow(t: CachedTelemetry | undefined, sessionActive: b
   // unknown AC charging defaults to HOME (not Public L2). Only label
   // 'supercharger' when we have positive DC-fast evidence.
   const fc = (fastChargerType ?? '').toLowerCase();
-  const isDcFast = fc.includes('supercharger') || fc.includes('combo') || fc.includes('chademo');
+  const isDcFast = fc.includes('supercharger') || fc.includes('combo') || fc.includes('chademo') || fc === 'tesla';
   let source: TeslaFlow['source'];
   let sourceLabel: string;
   if (isDcFast) {
