@@ -137,16 +137,49 @@ function solarSnapshot(t: CachedTelemetry | undefined) {
   };
 }
 
+// Single Powerwall nameplate capacity (kWh). Used as a fallback when telemetry
+// doesn't expose total_pack_energy. Real households may have multiple units;
+// we'd prefer to read this from telemetry whenever possible.
+const POWERWALL_DEFAULT_CAPACITY_KWH = 13.5;
+
 function batterySnapshot(t: CachedTelemetry | undefined) {
   const p = t?.payload;
   const rawPower = pickNumber(p, ['battery_power', 'energy_sites.0.battery_power', 'power_kw', 'charge_power']);
   const powerKw = rawPower !== null ? (Math.abs(rawPower) > 100 ? rawPower / 1000 : rawPower) : null;
   const soc = pickNumber(p, ['percentage_charged', 'energy_sites.0.percentage_charged', 'battery_soc', 'soc', 'state_of_charge']);
-  const energyLeft = pickNumber(p, ['energy_left', 'energy_sites.0.energy_left']);
+  const energyLeftRaw = pickNumber(p, ['energy_left', 'energy_sites.0.energy_left']);
+  // Tesla reports Wh; normalize to kWh if value looks like watt-hours.
+  const energyLeftKwh = energyLeftRaw !== null
+    ? (energyLeftRaw > 1000 ? energyLeftRaw / 1000 : energyLeftRaw)
+    : null;
+
+  // Derive capacity from telemetry when available; fall back to nameplate 13.5 kWh.
+  const totalPackRaw = pickNumber(p, [
+    'total_pack_energy',
+    'energy_sites.0.total_pack_energy',
+    'battery_capacity',
+    'energy_sites.0.battery_capacity',
+    'nameplate_energy',
+    'energy_sites.0.nameplate_energy',
+  ]);
+  let capacityKwh: number | null = totalPackRaw !== null
+    ? (totalPackRaw > 1000 ? totalPackRaw / 1000 : totalPackRaw)
+    : null;
+  if (capacityKwh === null && energyLeftKwh !== null && soc !== null && soc > 1) {
+    capacityKwh = energyLeftKwh / (soc / 100);
+  }
+  if (capacityKwh === null && (t || soc !== null)) capacityKwh = POWERWALL_DEFAULT_CAPACITY_KWH;
+
+  const reserveKwh = soc !== null && capacityKwh !== null
+    ? (energyLeftKwh ?? (capacityKwh * (soc / 100)))
+    : null;
+
   return {
     soc,
     powerKw,
-    energyLeft,
+    energyLeft: energyLeftKwh,
+    capacityKwh,
+    reserveKwh,
     status: powerKw === null ? 'State pending' : powerKw > 0.05 ? 'Charging' : powerKw < -0.05 ? 'Discharging' : 'Idle',
     label: t ? `${oemLabel(t.oem)}${t.device_name ? ` · ${t.device_name}` : ''}` : 'Battery',
   };
