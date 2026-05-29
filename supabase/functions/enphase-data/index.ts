@@ -260,6 +260,42 @@ Deno.serve(async (req) => {
       }
     }
 
+    // ── Lightweight telemetry mode (Premium Energy Insights live card) ──────
+    // Body: { mode: 'telemetry', capability: 'solar', siteId }
+    let telemetryReq: { mode?: string; capability?: string; siteId?: string } = {};
+    if (req.method === "POST") {
+      try { telemetryReq = await req.clone().json(); } catch { /* no body */ }
+    }
+    if (telemetryReq.mode === "telemetry" && telemetryReq.siteId && telemetryReq.capability === "solar") {
+      const systemId = String(telemetryReq.siteId);
+      try {
+        const r = await fetch(
+          `${ENPHASE_API_BASE}/systems/${systemId}/summary?key=${apiKey}`,
+          { headers: { "Authorization": `Bearer ${accessToken}` } }
+        );
+        if (!r.ok) {
+          return new Response(JSON.stringify({ error: "summary_failed", status: r.status }), {
+            status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        const s = await r.json();
+        return new Response(JSON.stringify({
+          current_power_w: Number(s?.current_power || 0),
+          energy_today_wh: Number(s?.energy_today || 0),
+          energy_lifetime_wh: Number(s?.energy_lifetime || 0),
+          last_report_at: s?.last_report_at,
+          status: s?.status,
+        }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      } catch (e) {
+        console.error("enphase telemetry error", e);
+        return new Response(JSON.stringify({ error: "telemetry_exception" }), {
+          status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+
+
     // Prefer using already-known system IDs from connected_devices to reduce API calls.
     // This avoids the expensive /systems call (which is the most likely to hit rate limits).
     const { data: enphaseDevices, error: enphaseDevicesError } = await supabaseClient
