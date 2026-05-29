@@ -85,6 +85,10 @@ const ONBOARDING_PROMPTS = [
 export function DeasonChat({ onClose, compact = false, threadId = null, onNewThread, onUserMessage, highlightQuery, threads, onSwitchThread, onViewAllChats, onRenameThread, onDeleteThread, onTogglePinThread }: DeasonChatProps) {
   const { messages, streaming, error, send, reset, seedAssistant, loadingHistory } = useDeason({
     threadId,
+    onThreadTouched: onUserMessage,
+  });
+  const { isInnerCircle } = useUserPersona();
+  const [input, setInput] = useState("");
   const [attachedFile, setAttachedFile] = useState<{ dataUrl: string; name: string; kind: "image" | "pdf" } | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [energySheetOpen, setEnergySheetOpen] = useState(false);
@@ -93,9 +97,6 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
   const scrollRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<Array<HTMLDivElement | null>>([]);
 
-  const fileRef = useRef<HTMLInputElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const messageRefs = useRef<Array<HTMLDivElement | null>>([]);
 
 
   // All message indices matching highlightQuery.
