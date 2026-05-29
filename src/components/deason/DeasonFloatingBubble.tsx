@@ -31,7 +31,7 @@ const WELCOME_AUTO_HIDE_MS = 12_000;
 
 export function DeasonFloatingBubble() {
   const { user, isLoading } = useAuth();
-  const { threads, loading: threadsLoading, createThread, touchThread } = useDeasonThreads();
+  const { threads, loading: threadsLoading, createThread, touchThread, renameThread, deleteThread, togglePin } = useDeasonThreads();
   const [open, setOpen] = useState(false);
   const [threadId, setThreadId] = useState<string | null>(null);
   const [preparingThread, setPreparingThread] = useState(false);
