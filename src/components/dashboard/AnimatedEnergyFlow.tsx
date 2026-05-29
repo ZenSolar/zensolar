@@ -424,13 +424,20 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
 
   const flow = data || demoData;
 
+  // Tesla overrides EV when present
+  const tesla = flow.tesla;
+  const teslaActive = !!tesla;
+  const teslaHomeCharging = teslaActive && tesla!.isCharging && tesla!.source === 'home';
+  const teslaSuperchargerActive = teslaActive && tesla!.isCharging && tesla!.source === 'supercharger';
+  const effectiveEvPower = teslaActive ? (teslaHomeCharging ? tesla!.kW : 0) : flow.evPower;
+
   // Flow calculations
   const solarToHome = flow.solarPower > 0 && flow.homePower > 0 ? Math.min(flow.solarPower, flow.homePower) : 0;
   const solarToBattery = flow.solarPower > 0 && flow.batteryPower > 0 ? Math.min(flow.solarPower - solarToHome, flow.batteryPower) : 0;
   const batteryToHome = flow.batteryPower < 0 ? Math.abs(flow.batteryPower) : 0;
   const gridToHome = flow.gridPower > 0 ? flow.gridPower : 0;
   const solarToGrid = flow.gridPower < 0 ? Math.abs(flow.gridPower) : 0;
-  const solarToEV = flow.evPower > 0 ? flow.evPower : 0;
+  const solarToEV = effectiveEvPower > 0 ? effectiveEvPower : 0;
 
   const colors = {
     solar: '#F59E0B',
@@ -438,6 +445,7 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
     home: '#F97316',
     grid: '#8B5CF6',
     ev: '#3B82F6',
+    tesla: '#E11D48',
   };
 
   // Responsive node positions — tighter on mobile
