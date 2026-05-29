@@ -19,6 +19,8 @@ import { DashboardSkeleton } from './dashboard/DashboardSkeleton';
 import { TokenPriceCard } from './dashboard/TokenPriceCard';
 import { CO2OffsetCard } from './dashboard/CO2OffsetCard';
 import { PremiumInsightsTeaserCard } from './dashboard/PremiumInsightsTeaserCard';
+import { LiveEnergyMonitoringCard } from './dashboard/LiveEnergyMonitoringCard';
+import { useEnergyInsightsSubscription } from '@/hooks/useEnergyInsightsSubscription';
 import { FlywheelContributionCard } from './dashboard/FlywheelContributionCard';
 import { MintReceiptsHint } from './dashboard/MintReceiptsHint';
 
