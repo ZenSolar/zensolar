@@ -1180,7 +1180,6 @@ export function useDashboardData() {
       
       // Import dynamically to get current Live Beta state
       // Tokens = activity units × Live Beta multiplier (10x or 1x) × 75% user share
-      const { calculatePendingTokens } = await import('@/lib/tokenomics');
       const pendingTokens = calculatePendingTokens(pendingActivityUnits);
       
       const earnedNFTs = rewardsData?.earned_nfts || [];
