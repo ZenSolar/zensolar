@@ -305,7 +305,17 @@ export function DeasonFloatingBubble() {
               threadId={threadId}
               onNewThread={user ? () => void handleNewSavedThread() : undefined}
               onUserMessage={threadId ? () => touchThread(threadId) : undefined}
+              threads={user ? threads : undefined}
+              onSwitchThread={user ? (id) => {
+                setThreadId(id);
+                setThreadPrepFailed(false);
+              } : undefined}
+              onViewAllChats={user ? () => {
+                setOpen(false);
+                navigate(threadId ? `/deason/${threadId}` : "/deason");
+              } : undefined}
             />
+
           )}
         </SwipeDownCard>
       )}
