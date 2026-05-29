@@ -668,38 +668,118 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
           )}
         </g>
 
-        {/* ── EV CHARGER ── */}
-        <g>
-          <circle cx={nodes.ev.x} cy={nodes.ev.y} r={compact ? 14 : 18} fill={colors.ev} fillOpacity={0.1} stroke={colors.ev} strokeWidth={0.8} strokeOpacity={0.35} />
-          <foreignObject x={nodes.ev.x - 8} y={nodes.ev.y - 8} width={16} height={16}>
-            <div className="flex items-center justify-center w-full h-full">
-              <svg viewBox="0 0 24 24" fill="none" stroke={colors.ev} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
-                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-              </svg>
-            </div>
-          </foreignObject>
-          {flow.evPower > 0 && (
-            <g opacity="0.5">
-              <path
-                d={`M${nodes.ev.x + 12},${nodes.ev.y - 1} Q${nodes.ev.x + 20},${nodes.ev.y - 8} ${nodes.ev.x + 16},${nodes.ev.y - 18}`}
-                fill="none" stroke={colors.ev} strokeWidth="1" strokeDasharray="3 2"
-              >
-                <animate attributeName="stroke-dashoffset" values="0;-10" dur="1s" repeatCount="indefinite" />
-              </path>
-            </g>
-          )}
-          <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 22 : 28)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.2">EV CHARGER</text>
-          <text x={nodes.ev.x} y={nodes.ev.y - (compact ? 18 : 22)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 5.5 : 6.5} fontWeight="500" letterSpacing="0.6">wallbox</text>
-          <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 35 : 43)} textAnchor="middle" fill={colors.ev} fontSize={subValueFs} fontWeight="700">
-            {flow.evPower.toFixed(1)} kW
-          </text>
-          {flow.evPower > 0 && (
-            <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 45 : 55)} textAnchor="middle" fill={colors.ev} fontSize={compact ? 6.5 : 8.5} fontWeight="500">
-              <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite" />
-              charging
+        {/* ── EV CHARGER / TESLA VEHICLE ── */}
+        {teslaActive ? (
+          (() => {
+            const nodeR = compact ? 17 : 22;
+            const ringR = nodeR + 4;
+            const soc = Math.max(0, Math.min(100, tesla!.soc));
+            const circ = 2 * Math.PI * ringR;
+            const dashOn = (soc / 100) * circ;
+            const isLive = tesla!.isCharging;
+            const accent = isLive ? colors.tesla : '#64748b';
+            const mutedOpacity = isLive ? 1 : 0.55;
+            return (
+              <g opacity={mutedOpacity}>
+                {/* SOC ring background */}
+                <circle cx={nodes.ev.x} cy={nodes.ev.y} r={ringR} fill="none" stroke="#1f2937" strokeWidth={1.6} />
+                {/* SOC ring progress */}
+                <circle
+                  cx={nodes.ev.x} cy={nodes.ev.y} r={ringR}
+                  fill="none" stroke={accent} strokeWidth={1.8} strokeLinecap="round"
+                  strokeDasharray={`${dashOn} ${circ}`}
+                  transform={`rotate(-90 ${nodes.ev.x} ${nodes.ev.y})`}
+                  opacity={0.85}
+                />
+                {/* Pulsing glow when charging */}
+                {isLive && (
+                  <circle cx={nodes.ev.x} cy={nodes.ev.y} r={ringR + 2} fill="none" stroke={colors.tesla} strokeWidth={1} opacity={0.4}>
+                    <animate attributeName="r" values={`${ringR + 1};${ringR + 6};${ringR + 1}`} dur="2.2s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0.55;0;0.55" dur="2.2s" repeatCount="indefinite" />
+                  </circle>
+                )}
+                {/* Node disc */}
+                <circle cx={nodes.ev.x} cy={nodes.ev.y} r={nodeR} fill={accent} fillOpacity={0.12} stroke={accent} strokeWidth={0.8} strokeOpacity={0.45} />
+                {/* Car silhouette */}
+                <foreignObject x={nodes.ev.x - 10} y={nodes.ev.y - 8} width={20} height={16}>
+                  <div className="flex items-center justify-center w-full h-full">
+                    <svg viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                      <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2" />
+                      <circle cx="6.5" cy="16.5" r="2.5" />
+                      <circle cx="16.5" cy="16.5" r="2.5" />
+                    </svg>
+                  </div>
+                </foreignObject>
+                {/* Labels */}
+                <text x={nodes.ev.x} y={nodes.ev.y + ringR + (compact ? 11 : 14)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.2">TESLA</text>
+                <text x={nodes.ev.x} y={nodes.ev.y - ringR - (compact ? 8 : 11)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 5.5 : 6.5} fontWeight="500" letterSpacing="0.6">vehicle</text>
+                <text x={nodes.ev.x} y={nodes.ev.y + ringR + (compact ? 23 : 28)} textAnchor="middle" fill={accent} fontSize={subValueFs} fontWeight="700">
+                  {isLive ? `${tesla!.kW.toFixed(1)} kW` : `${Math.round(soc)}%`}
+                </text>
+                <text x={nodes.ev.x} y={nodes.ev.y + ringR + (compact ? 33 : 40)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 7 : 9}>
+                  {isLive
+                    ? `${Math.round(soc)}% · charging`
+                    : `Parked · ${Math.round(tesla!.rangeMi)} mi`}
+                </text>
+                {isLive && (
+                  <circle cx={nodes.ev.x + (compact ? 22 : 28)} cy={nodes.ev.y - (compact ? 22 : 28)} r={2.5} fill={colors.tesla}>
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="1.4s" repeatCount="indefinite" />
+                  </circle>
+                )}
+                {/* Supercharger badge — floats in from right when supercharging */}
+                {teslaSuperchargerActive && (
+                  <g>
+                    <rect
+                      x={nodes.ev.x + (compact ? 32 : 40)} y={nodes.ev.y - (compact ? 8 : 10)}
+                      width={compact ? 60 : 72} height={compact ? 16 : 20} rx={compact ? 8 : 10}
+                      fill={colors.tesla} fillOpacity={0.18} stroke={colors.tesla} strokeWidth={0.8}
+                    />
+                    <text
+                      x={nodes.ev.x + (compact ? 62 : 76)} y={nodes.ev.y + (compact ? 3 : 4)}
+                      textAnchor="middle" fill={colors.tesla} fontSize={compact ? 7.5 : 9}
+                      fontWeight="700" letterSpacing="0.8"
+                    >
+                      SUPERCHARGER
+                    </text>
+                    <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite" />
+                  </g>
+                )}
+              </g>
+            );
+          })()
+        ) : (
+          <g>
+            <circle cx={nodes.ev.x} cy={nodes.ev.y} r={compact ? 14 : 18} fill={colors.ev} fillOpacity={0.1} stroke={colors.ev} strokeWidth={0.8} strokeOpacity={0.35} />
+            <foreignObject x={nodes.ev.x - 8} y={nodes.ev.y - 8} width={16} height={16}>
+              <div className="flex items-center justify-center w-full h-full">
+                <svg viewBox="0 0 24 24" fill="none" stroke={colors.ev} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                </svg>
+              </div>
+            </foreignObject>
+            {flow.evPower > 0 && (
+              <g opacity="0.5">
+                <path
+                  d={`M${nodes.ev.x + 12},${nodes.ev.y - 1} Q${nodes.ev.x + 20},${nodes.ev.y - 8} ${nodes.ev.x + 16},${nodes.ev.y - 18}`}
+                  fill="none" stroke={colors.ev} strokeWidth="1" strokeDasharray="3 2"
+                >
+                  <animate attributeName="stroke-dashoffset" values="0;-10" dur="1s" repeatCount="indefinite" />
+                </path>
+              </g>
+            )}
+            <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 22 : 28)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.2">EV CHARGER</text>
+            <text x={nodes.ev.x} y={nodes.ev.y - (compact ? 18 : 22)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 5.5 : 6.5} fontWeight="500" letterSpacing="0.6">wallbox</text>
+            <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 35 : 43)} textAnchor="middle" fill={colors.ev} fontSize={subValueFs} fontWeight="700">
+              {flow.evPower.toFixed(1)} kW
             </text>
-          )}
-        </g>
+            {flow.evPower > 0 && (
+              <text x={nodes.ev.x} y={nodes.ev.y + (compact ? 45 : 55)} textAnchor="middle" fill={colors.ev} fontSize={compact ? 6.5 : 8.5} fontWeight="500">
+                <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite" />
+                charging
+              </text>
+            )}
+          </g>
+        )}
 
         {/* Footer panel removed — values already shown at each node, no need to repeat */}
       </svg>
