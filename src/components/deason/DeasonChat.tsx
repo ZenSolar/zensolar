@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Send, Sparkles, RotateCcw, X, Paperclip, Image as ImageIcon, ChevronUp, ChevronDown, History, FileText, ArrowRight, MessageSquare, Pin } from "lucide-react";
+import { Send, Sparkles, RotateCcw, X, Paperclip, Image as ImageIcon, ChevronUp, ChevronDown, Save, FileText, ArrowRight, MessageSquare, Pin } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useDeason, type DeasonContentPart } from "@/hooks/useDeason";
@@ -242,7 +243,7 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
               title="Saved conversations"
               className={cn("h-9 w-9", historyOpen && "bg-amber-500/10 text-amber-600")}
             >
-              <History className="h-4 w-4" />
+              <Save className="h-4 w-4" />
             </Button>
           )}
           {(!threadId || onNewThread) && (
@@ -448,24 +449,14 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
           <div className="absolute inset-x-0 top-0 z-40 flex max-h-full flex-col border-b border-border bg-card shadow-xl animate-in slide-in-from-top duration-200">
             <div className="flex items-center justify-between border-b border-border/60 px-3 py-2.5">
               <div className="flex items-center gap-2">
-                <History className="h-4 w-4 text-amber-500" />
+                <Save className="h-4 w-4 text-amber-500" />
                 <span className="text-sm font-semibold">Saved conversations</span>
                 <span className="text-xs text-muted-foreground">({threads.length})</span>
               </div>
-              <div className="flex items-center gap-1">
-                {onViewAllChats && (
-                  <button
-                    type="button"
-                    onClick={() => { setHistoryOpen(false); onViewAllChats(); }}
-                    className="flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-amber-600 hover:bg-amber-500/10"
-                  >
-                    View all <ArrowRight className="h-3 w-3" />
-                  </button>
-                )}
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setHistoryOpen(false)} title="Close">
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setHistoryOpen(false)} title="Close">
+                <X className="h-4 w-4" />
+              </Button>
+
             </div>
             <ul className="flex-1 overflow-y-auto p-2">
               {threads.length === 0 && (
