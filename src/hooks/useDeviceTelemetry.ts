@@ -139,7 +139,7 @@ function useTelemetry(capability: Capability) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (opts?: { force?: boolean }) => {
     if (!user) return;
     setLoading(true);
     setError(null);
@@ -157,7 +157,7 @@ function useTelemetry(capability: Capability) {
       for (const d of selected) {
         const oem = d.provider as OEM;
         const cached = await readCache(user.id, oem, capability, d.device_id);
-        const fresh = cached && new Date(cached.expires_at) > new Date() && hasCanonicalTelemetryShape(cached.payload, capability);
+        const fresh = !opts?.force && cached && new Date(cached.expires_at) > new Date() && hasCanonicalTelemetryShape(cached.payload, capability);
         if (fresh) {
           out.push({
             oem, capability, site_id: d.device_id, device_name: d.device_name,
