@@ -311,7 +311,7 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
         </div>
       )}
 
-      </div>
+
       {/* Search match navigator */}
       {matchIndices.length > 0 && (
         <div className="flex items-center justify-between gap-2 border-b border-border bg-amber-500/5 px-3 py-1.5 text-xs">
