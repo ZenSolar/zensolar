@@ -243,7 +243,7 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
               title="Saved conversations"
               className={cn("h-9 w-9", historyOpen && "bg-amber-500/10 text-amber-600")}
             >
-              <History className="h-4 w-4" />
+              <Save className="h-4 w-4" />
             </Button>
           )}
           {(!threadId || onNewThread) && (
@@ -449,7 +449,7 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
           <div className="absolute inset-x-0 top-0 z-40 flex max-h-full flex-col border-b border-border bg-card shadow-xl animate-in slide-in-from-top duration-200">
             <div className="flex items-center justify-between border-b border-border/60 px-3 py-2.5">
               <div className="flex items-center gap-2">
-                <History className="h-4 w-4 text-amber-500" />
+                <Save className="h-4 w-4 text-amber-500" />
                 <span className="text-sm font-semibold">Saved conversations</span>
                 <span className="text-xs text-muted-foreground">({threads.length})</span>
               </div>
