@@ -289,9 +289,6 @@ export function DeasonFloatingBubble() {
       )}
 
       {open && (
-        <SwipeDownCard onDismiss={() => setOpen(false)}>
-          {user && !threadId && !threadPrepFailed ? (
-      {open && (
         <SwipeDownCard onDismiss={() => { setOpen(false); setThreadId(null); }}>
           {user && !threadId && !threadPrepFailed ? (
             <div className="flex h-full flex-col items-center justify-center gap-3 bg-background text-sm text-muted-foreground">
@@ -315,10 +312,12 @@ export function DeasonFloatingBubble() {
                 navigate(threadId ? `/deason/${threadId}` : "/deason");
               } : undefined}
             />
-
           )}
         </SwipeDownCard>
       )}
+    </>
+  );
+}
 
 
 /**
