@@ -558,6 +558,8 @@ export function LiveEnergyMonitoringCard() {
     homePower: homeKwDisplayed,
     batteryPower: batteryStats.powerKw ?? 0,
     batteryPercent: Math.round(batteryStats.soc ?? 0),
+    batteryCapacityKwh: batteryStats.capacityKwh ?? undefined,
+    batteryReserveKwh: batteryStats.reserveKwh ?? undefined,
     gridPower: (() => {
       const gridW = pickNumber(primaryBattery?.payload, ['grid_power', 'energy_sites.0.grid_power']);
       return gridW !== null ? gridW / 1000 : 0;
