@@ -186,7 +186,7 @@ export default function EnergyInsightsPage() {
       .order('created_at', { ascending: false })
       .limit(20);
     const live = (data ?? []).find((r: any) => r.inputs_summary?.kind === 'live_insights' && r.status === 'ready');
-    setLatest((live as ReportRow) ?? null);
+    setLatest((live as unknown as ReportRow) ?? null);
     setLatestLoading(false);
   }, [user]);
 
