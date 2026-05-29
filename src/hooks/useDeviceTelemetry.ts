@@ -16,7 +16,8 @@ type OEM = 'tesla' | 'enphase' | 'solaredge' | 'wallbox';
 
 const TTL_MS: Record<Capability, number> = {
   battery: 12 * 60 * 60 * 1000,
-  ev: 15 * 60 * 1000,
+  // Short TTL so plug-in / unplug events surface quickly in the cockpit
+  ev: 90 * 1000,
   solar: 60 * 60 * 1000,
 };
 
@@ -138,7 +139,7 @@ function useTelemetry(capability: Capability) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (opts?: { force?: boolean }) => {
     if (!user) return;
     setLoading(true);
     setError(null);
@@ -156,7 +157,7 @@ function useTelemetry(capability: Capability) {
       for (const d of selected) {
         const oem = d.provider as OEM;
         const cached = await readCache(user.id, oem, capability, d.device_id);
-        const fresh = cached && new Date(cached.expires_at) > new Date() && hasCanonicalTelemetryShape(cached.payload, capability);
+        const fresh = !opts?.force && cached && new Date(cached.expires_at) > new Date() && hasCanonicalTelemetryShape(cached.payload, capability);
         if (fresh) {
           out.push({
             oem, capability, site_id: d.device_id, device_name: d.device_name,

@@ -1,6 +1,7 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, BatteryCharging, Car, Clock3, Gauge, Home, Loader2, Route, Sparkles, Sun, Zap, type LucideIcon } from 'lucide-react';
+import { ArrowRight, BatteryCharging, Car, Clock3, Gauge, Home, Loader2, RefreshCw, Route, Sparkles, Sun, Zap, type LucideIcon } from 'lucide-react';
+import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
 import {
   useBatteryTelemetry,
   useEVChargerTelemetry,
@@ -266,6 +267,47 @@ export function LiveEnergyMonitoringCard() {
   const ev = useEVChargerTelemetry();
   const evTotals = useEVTotals(7);
   const mintImpact = useTodayMintImpact();
+  const { data: isActivelyCharging } = useActiveChargingSession();
+  const [manualRefreshing, setManualRefreshing] = useState(false);
+  const lastChargingRef = useRef<boolean | undefined>(undefined);
+
+  // When a home charging session starts/stops, bypass cache and pull fresh EV + battery telemetry
+  useEffect(() => {
+    if (lastChargingRef.current === undefined) {
+      lastChargingRef.current = !!isActivelyCharging;
+      return;
+    }
+    if (lastChargingRef.current !== !!isActivelyCharging) {
+      lastChargingRef.current = !!isActivelyCharging;
+      void ev.refresh({ force: true });
+      void battery.refresh({ force: true });
+    }
+  }, [isActivelyCharging, ev, battery]);
+
+  // While actively charging, poll EV telemetry every 60s with force-refresh so kW / SOC tick up
+  useEffect(() => {
+    if (!isActivelyCharging) return;
+    const id = window.setInterval(() => {
+      void ev.refresh({ force: true });
+      void battery.refresh({ force: true });
+    }, 60_000);
+    return () => window.clearInterval(id);
+  }, [isActivelyCharging, ev, battery]);
+
+  const handleManualRefresh = async () => {
+    if (manualRefreshing) return;
+    setManualRefreshing(true);
+    try {
+      await Promise.all([
+        solar.refresh({ force: true }),
+        battery.refresh({ force: true }),
+        ev.refresh({ force: true }),
+      ]);
+    } finally {
+      setManualRefreshing(false);
+    }
+  };
+
 
   const loading =
     (solar.loading || battery.loading || ev.loading) &&
@@ -324,10 +366,21 @@ export function LiveEnergyMonitoringCard() {
           </div>
           <p className="mt-1 text-xs text-muted-foreground">Home Energy Cockpit · Enphase solar + Tesla Powerwall + ZenX</p>
         </div>
-        <span className={`inline-flex w-fit items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ring-1 ${freshnessClass(latestTelemetry?.cached_at ?? null, !!latestTelemetry?.fresh)}`}>
-          <Clock3 className="h-3 w-3" />
-          {formatAge(latestTelemetry?.cached_at ?? null)}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className={`inline-flex w-fit items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ring-1 ${freshnessClass(latestTelemetry?.cached_at ?? null, !!latestTelemetry?.fresh)}`}>
+            <Clock3 className="h-3 w-3" />
+            {formatAge(latestTelemetry?.cached_at ?? null)}
+          </span>
+          <button
+            type="button"
+            onClick={handleManualRefresh}
+            disabled={manualRefreshing}
+            aria-label="Refresh live telemetry"
+            className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-primary/25 bg-background/40 text-primary transition-colors hover:bg-primary/10 disabled:opacity-60"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${manualRefreshing ? 'animate-spin' : ''}`} />
+          </button>
+        </div>
       </div>
 
       {loading ? (
