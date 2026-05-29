@@ -290,7 +290,7 @@ export interface TeslaFlow {
 }
 
 
-function deriveTeslaFlow(t: CachedTelemetry | undefined, sessionActive: boolean): TeslaFlow | null {
+export function deriveTeslaFlow(t: CachedTelemetry | undefined, sessionActive: boolean): TeslaFlow | null {
   if (!t || t.oem !== 'tesla') return null;
   const p = t.payload;
   const soc = pickNumber(p, ['battery_level', 'vehicles.0.battery_level', 'usable_battery_level', 'response.charge_state.battery_level']) ?? 0;
@@ -311,21 +311,23 @@ function deriveTeslaFlow(t: CachedTelemetry | undefined, sessionActive: boolean)
   const apiCharging = stateStr === 'charging';
   const isCharging = apiCharging || sessionActive;
 
-  // Source detection
+  // Source detection — mirror tesla-charge-monitor backend heuristic:
+  // unknown AC charging defaults to HOME (not Public L2). Only label
+  // 'supercharger' when we have positive DC-fast evidence.
   const fc = (fastChargerType ?? '').toLowerCase();
+  const isDcFast = fc.includes('supercharger') || fc.includes('combo') || fc.includes('chademo');
   let source: TeslaFlow['source'];
-  let sourceLabel = 'Wall Connector';
-  if (fc.includes('supercharger') || fc.includes('combo') || fc.includes('chademo')) {
+  let sourceLabel: string;
+  if (isDcFast) {
     source = 'supercharger';
     sourceLabel = 'Supercharger';
-  } else if (sessionActive || fc.includes('wall') || fc === 'mc' || fc === 'gb_ac') {
-    source = isCharging ? 'home' : 'none';
+  } else if (isCharging) {
+    // AC charging — assume home (matches backend default).
+    source = 'home';
     sourceLabel = 'Wall Connector';
-  } else if (phases && phases >= 1 && isCharging) {
-    source = 'public';
-    sourceLabel = 'Public L2';
   } else {
-    source = isCharging ? 'home' : 'none';
+    source = 'none';
+    sourceLabel = 'Wall Connector';
   }
 
   // 3-state pill
@@ -353,6 +355,7 @@ function deriveTeslaFlow(t: CachedTelemetry | undefined, sessionActive: boolean)
     energyAdded,
   };
 }
+
 
 function TeslaStatusPill({ tesla, onClick }: { tesla: TeslaFlow | null; onClick: () => void }) {
   if (!tesla) return null;
