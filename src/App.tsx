@@ -213,6 +213,7 @@ const AdminWeeklyDigest = lazy(() => import("./pages/admin/WeeklyDigestPreview")
 const AdminWeeklyDigestEmailPreview = lazy(() => import("./pages/admin/WeeklyDigestEmailPreview"));
 const AdminWeeklyNarrativePreview = lazy(() => import("./pages/admin/WeeklyNarrativePreview"));
 const WeeklyNarrative = lazy(() => import("./pages/energy-insights/WeeklyNarrative"));
+const EnergyInsightsPage = lazy(() => import("./pages/energy-insights/Insights"));
 const AdminCoffeePitch = lazy(() => import("./pages/AdminCoffeePitch"));
 const AdminInvestorPitch = lazy(() => import("./pages/AdminInvestorPitch"));
 const DeckPinGated = lazy(() => import("./pages/DeckPinGated"));
@@ -492,6 +493,17 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminWeeklyNarrativePreview />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
+                    />
+
+                    <Route
+                      path="/energy-insights"
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <Suspense fallback={<PageLoader />}><EnergyInsightsPage /></Suspense>
                           </AppLayout>
                         </ProtectedRoute>
                       }
