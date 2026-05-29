@@ -73,13 +73,12 @@ const ONBOARDING_PROMPTS = [
   "I don't know which brand of inverter I have — help.",
   "What happens after I connect my devices?",
 ];
-export function DeasonChat({ onClose, compact = false, threadId = null, onNewThread, onUserMessage, highlightQuery, threads, onSwitchThread, onViewAllChats, onRenameThread, onDeleteThread, onTogglePinThread }: DeasonChatProps) {
 /**
  * Deason chat surface — used by both the full /deason page and the floating bubble.
  * Persona-aware: shows different welcome copy + suggested prompts depending on
  * whether the viewer is inner-circle or a regular demo/beta user.
  */
-export function DeasonChat({ onClose, compact = false, threadId = null, onNewThread, onUserMessage, highlightQuery, threads, onSwitchThread, onViewAllChats }: DeasonChatProps) {
+export function DeasonChat({ onClose, compact = false, threadId = null, onNewThread, onUserMessage, highlightQuery, threads, onSwitchThread, onViewAllChats, onRenameThread, onDeleteThread, onTogglePinThread }: DeasonChatProps) {
   const { messages, streaming, error, send, reset, seedAssistant, loadingHistory } = useDeason({
     threadId,
     onThreadTouched: onUserMessage,
