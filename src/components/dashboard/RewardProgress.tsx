@@ -118,16 +118,10 @@ function CategoryDot({ icon: Icon, label, count, total, color, isActive, onClick
     touchStartRef.current = null;
   };
   
-  const pianoKeyAnimation = !isActive ? {
-    y: [0, 2, 0],
-    scale: [1, 0.97, 1],
-    transition: {
-      duration: 1.8,
-      repeat: Infinity,
-      repeatDelay: index * 0.6 + 1,
-      ease: 'easeInOut' as const,
-    }
-  } : { y: [0, -3, 0], transition: { duration: 0.3 } };
+  // Static: no repeating piano-key animation. Keep a subtle one-shot lift when becoming active.
+  const pianoKeyAnimation = isActive
+    ? { y: [0, -3, 0], transition: { duration: 0.3 } }
+    : undefined;
 
   return (
     <motion.button 
