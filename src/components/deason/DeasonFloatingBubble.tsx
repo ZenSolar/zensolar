@@ -291,13 +291,16 @@ export function DeasonFloatingBubble() {
       {open && (
         <SwipeDownCard onDismiss={() => setOpen(false)}>
           {user && !threadId && !threadPrepFailed ? (
+      {open && (
+        <SwipeDownCard onDismiss={() => { setOpen(false); setThreadId(null); }}>
+          {user && !threadId && !threadPrepFailed ? (
             <div className="flex h-full flex-col items-center justify-center gap-3 bg-background text-sm text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin" />
               <span>Preparing saved chat…</span>
             </div>
           ) : (
             <DeasonChat
-              onClose={() => setOpen(false)}
+              onClose={() => { setOpen(false); setThreadId(null); }}
               compact
               threadId={threadId}
               onNewThread={user ? () => void handleNewSavedThread() : undefined}
@@ -316,9 +319,7 @@ export function DeasonFloatingBubble() {
           )}
         </SwipeDownCard>
       )}
-    </>
-  );
-}
+
 
 /**
  * Swipe-down dismissible card wrapper for the Deason panel.
