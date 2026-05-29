@@ -15,8 +15,8 @@ interface Slot {
 const SLOTS: Slot[] = [
   { kind: "utility_bill", label: "Utility bill", hint: "Most recent PDF or photo", icon: <Receipt className="h-4 w-4" />, required: true },
   { kind: "installer_contract", label: "Installer contract", hint: "Agreement from the company that installed your panels or battery", icon: <FileText className="h-4 w-4" />, required: false },
-  { kind: "ppa", label: "PPA / lease agreement", hint: "Power Purchase Agreement or lease (Sunrun, Sunnova, etc.) — if you have one", icon: <FileSignature className="h-4 w-4" />, required: false },
-  { kind: "loan", label: "Loan paperwork", hint: "Only if you financed the system separately (Mosaic, GoodLeap, Sunlight, etc.)", icon: <Banknote className="h-4 w-4" />, required: false },
+  { kind: "ppa", label: "PPA / lease agreement", hint: "Power Purchase Agreement or lease — if you have one", icon: <FileSignature className="h-4 w-4" />, required: false },
+  { kind: "loan", label: "Loan paperwork", hint: "Only if you financed the system separately", icon: <Banknote className="h-4 w-4" />, required: false },
 ];
 
 const MAX_MB = 12;
