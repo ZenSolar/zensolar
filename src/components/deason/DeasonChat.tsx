@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Send, Sparkles, RotateCcw, X, Paperclip, Image as ImageIcon, ChevronUp, ChevronDown } from "lucide-react";
+import { Send, Sparkles, RotateCcw, X, Paperclip, Image as ImageIcon, ChevronUp, ChevronDown, History, FileText, ArrowRight, MessageSquare, Pin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useDeason, type DeasonContentPart } from "@/hooks/useDeason";
 import { useUserPersona } from "@/hooks/useUserPersona";
 import { BillSavingsReport } from "@/components/deason/BillSavingsReport";
+import type { DeasonThread } from "@/hooks/useDeasonThreads";
 import { cn } from "@/lib/utils";
 
 interface DeasonChatProps {
@@ -19,7 +20,14 @@ interface DeasonChatProps {
   onUserMessage?: (text: string | null) => void;
   /** When set, scroll to and highlight the first message containing this query. */
   highlightQuery?: string;
+  /** Optional saved threads — when provided, a History panel is shown in the header. */
+  threads?: DeasonThread[];
+  /** Switch the chat to another saved thread. */
+  onSwitchThread?: (id: string) => void;
+  /** Optional "open full Deason page" handoff (e.g. from the floating bubble). */
+  onViewAllChats?: () => void;
 }
+
 
 const INNER_CIRCLE_PROMPTS = [
   "Why did we move from 10B to 1T tokens?",
