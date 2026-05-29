@@ -372,10 +372,20 @@ export function LiveEnergyMonitoringCard() {
               </div>
               <div>
                 <div className="text-sm font-semibold text-foreground">
-                  {mintImpact.loading ? 'Calculating today’s mint' : `${mintImpact.tokens.toFixed(1)} $ZSOLAR today`}
+                  {mintImpact.loading
+                    ? 'Calculating today’s mint'
+                    : mintImpact.tokens > 0
+                      ? `${mintImpact.tokens.toFixed(1)} $ZSOLAR minted today`
+                      : solarStats.todayKwh && solarStats.todayKwh > 0
+                        ? `${solarStats.todayKwh.toFixed(1)} kWh ready to mint`
+                        : 'Awaiting today’s verified energy'}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  {mintImpact.loading ? 'Verifying receipt impact' : `${mintImpact.co2Kg.toFixed(1)} kg CO₂ avoided from verified energy`}
+                  {mintImpact.loading
+                    ? 'Verifying receipt impact'
+                    : mintImpact.tokens > 0
+                      ? 'Verified by Proof-of-Genesis'
+                      : 'Tap-to-Mint™ once production posts'}
                 </div>
               </div>
             </div>
@@ -384,6 +394,7 @@ export function LiveEnergyMonitoringCard() {
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
+
         </div>
       )}
     </div>
