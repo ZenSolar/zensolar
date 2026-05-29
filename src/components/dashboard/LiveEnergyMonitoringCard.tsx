@@ -608,8 +608,11 @@ export function LiveEnergyMonitoringCard() {
             <div
               ref={evTileRef}
               id="tesla-ev-tile"
-              className={`rounded-lg transition-shadow ${pingTile ? 'ring-2 ring-primary/60 shadow-[0_0_24px_hsl(var(--primary)/0.35)]' : ''}`}
+              tabIndex={-1}
+              aria-label="Tesla details"
+              className={`rounded-lg outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-primary ${pingTile ? 'ring-2 ring-primary/60 shadow-[0_0_24px_hsl(var(--primary)/0.35)]' : ''}`}
             >
+
               {ev.data.map((t) => (
                 <EVTile
                   key={`e-${t.oem}-${t.site_id}`}
