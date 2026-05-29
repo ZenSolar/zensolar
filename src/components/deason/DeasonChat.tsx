@@ -459,7 +459,42 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
 
       </form>
 
+      {/* Solar Concierge: upload sheet + inline result rendered into the chat. */}
+      <EnergyDocSheet
+        open={energySheetOpen}
+        onOpenChange={setEnergySheetOpen}
+        loading={energy.loading}
+        onSubmit={async (docs) => {
+          try {
+            const res = await energy.generate(docs, threadId);
+            setEnergySheetOpen(false);
+            seedAssistant(`Here's your Solar Concierge analysis — estimated $${Math.round(res.preview.headline_savings_usd_per_year).toLocaleString()}/yr in opportunities. Tap to expand the full report below.`);
+          } catch { /* error already surfaced in hook */ }
+        }}
+      />
+      {energy.result && (
+        <div className="absolute inset-x-0 bottom-20 z-20 mx-3 max-h-[70vh] overflow-y-auto rounded-2xl bg-background/95 p-2 shadow-2xl backdrop-blur">
+          <div className="flex justify-end">
+            <button onClick={energy.reset} className="rounded-full p-1 text-muted-foreground hover:text-foreground">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <EnergyReportCard
+            preview={energy.result.preview}
+            full={energy.result.full}
+            entitled={energy.result.entitled}
+            onUnlock={() => alert("Subscription checkout coming soon — $4.99/mo with 7-day free trial.")}
+          />
+        </div>
+      )}
+      {energy.error && (
+        <div className="absolute inset-x-3 bottom-24 z-20 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+          {energy.error}
+        </div>
+      )}
+
       {/* Saved conversations — slide-in overlay (does NOT compress the transcript) */}
+
       {historyOpen && threads && onSwitchThread && (
         <>
           <button
