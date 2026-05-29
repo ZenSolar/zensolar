@@ -14,6 +14,8 @@ export interface EnergyFlowData {
   homePower: number;
   batteryPower: number; // positive = charging, negative = discharging
   batteryPercent: number;
+  batteryCapacityKwh?: number; // nameplate (e.g. 13.5 for one Powerwall)
+  batteryReserveKwh?: number;  // currently stored energy
   gridPower: number; // positive = importing, negative = exporting
   evPower: number;
   tesla?: TeslaVehicleFlow;
