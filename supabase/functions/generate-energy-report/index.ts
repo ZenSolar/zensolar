@@ -12,8 +12,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-type DocKind = "utility_bill" | "solar_contract" | "loan" | "other";
-type DocKind = "utility_bill" | "installer_contract" | "ppa" | "solar_contract" | "loan" | "other";
+type DocKind = "utility_bill" | "installer_contract" | "ppa" | "loan" | "other";
 interface IncomingDoc {
   kind: DocKind;
   dataUrl: string;           // data:image/... or data:application/pdf;...
