@@ -262,6 +262,137 @@ function MetricTile({ icon: Icon, label, value, detail }: { icon: LucideIcon; la
   );
 }
 
+type TeslaPillState = 'charging' | 'idle' | 'unplugged';
+
+interface TeslaFlow {
+  kW: number;
+  soc: number;
+  rangeMi: number;
+  isCharging: boolean;
+  source: 'home' | 'supercharger' | 'public' | 'none';
+  state: TeslaPillState;
+  sourceLabel: string;
+  rawChargingState: string | null;
+  fastChargerType: string | null;
+  phases: number | null;
+  timeToFullHrs: number | null;
+  energyAdded: number | null;
+}
+
+function deriveTeslaFlow(t: CachedTelemetry | undefined, sessionActive: boolean): TeslaFlow | null {
+  if (!t || t.oem !== 'tesla') return null;
+  const p = t.payload;
+  const soc = pickNumber(p, ['battery_level', 'vehicles.0.battery_level', 'usable_battery_level', 'response.charge_state.battery_level']) ?? 0;
+  const rangeMi = pickNumber(p, ['battery_range', 'vehicles.0.battery_range', 'ideal_battery_range', 'est_battery_range', 'response.charge_state.battery_range']) ?? 0;
+  const rawChargingState = pickString(p, ['charging_state', 'vehicles.0.charging_state', 'state', 'charger_status', 'status', 'response.charge_state.charging_state']);
+  const directKw = pickNumber(p, ['charge_rate_kw', 'charger_power', 'vehicles.0.charger_power', 'response.charge_state.charger_power']);
+  const ivKw =
+    ((pickNumber(p, ['charger_actual_current', 'response.charge_state.charger_actual_current']) ?? 0) *
+      (pickNumber(p, ['charger_voltage', 'response.charge_state.charger_voltage']) ?? 0)) /
+    1000;
+  const kW = directKw ?? (ivKw > 0 ? ivKw : 0);
+  const energyAdded = pickNumber(p, ['charge_energy_added', 'vehicles.0.charge_energy_added', 'response.charge_state.charge_energy_added']);
+  const timeToFullHrs = pickNumber(p, ['time_to_full_charge', 'response.charge_state.time_to_full_charge']);
+  const fastChargerType = pickString(p, ['fast_charger_type', 'charger_type', 'response.charge_state.fast_charger_type']);
+  const phases = pickNumber(p, ['charger_phases', 'response.charge_state.charger_phases']);
+
+  const stateStr = (rawChargingState ?? '').toLowerCase();
+  const apiCharging = stateStr === 'charging';
+  const isCharging = apiCharging || sessionActive;
+
+  // Source detection
+  const fc = (fastChargerType ?? '').toLowerCase();
+  let source: TeslaFlow['source'];
+  let sourceLabel = 'Wall Connector';
+  if (fc.includes('supercharger') || fc.includes('combo') || fc.includes('chademo')) {
+    source = 'supercharger';
+    sourceLabel = 'Supercharger';
+  } else if (sessionActive || fc.includes('wall') || fc === 'mc' || fc === 'gb_ac') {
+    source = isCharging ? 'home' : 'none';
+    sourceLabel = 'Wall Connector';
+  } else if (phases && phases >= 1 && isCharging) {
+    source = 'public';
+    sourceLabel = 'Public L2';
+  } else {
+    source = isCharging ? 'home' : 'none';
+  }
+
+  // 3-state pill
+  let pillState: TeslaPillState;
+  if (isCharging) {
+    pillState = 'charging';
+  } else if (['stopped', 'complete', 'nopower', 'starting'].includes(stateStr)) {
+    pillState = 'idle';
+  } else {
+    pillState = 'unplugged';
+  }
+
+  return {
+    kW,
+    soc,
+    rangeMi,
+    isCharging,
+    source,
+    state: pillState,
+    sourceLabel,
+    rawChargingState,
+    fastChargerType,
+    phases,
+    timeToFullHrs,
+    energyAdded,
+  };
+}
+
+function TeslaStatusPill({ tesla, onClick }: { tesla: TeslaFlow | null; onClick: () => void }) {
+  if (!tesla) return null;
+  const config = {
+    charging: {
+      dot: 'bg-emerald-400',
+      dotGlow: 'shadow-[0_0_8px_hsla(142,76%,50%,0.7)]',
+      ring: 'border-emerald-400/40 bg-emerald-400/10 text-emerald-300',
+      label: `Tesla Charging • ${tesla.kW.toFixed(1)} kW • ${Math.round(tesla.soc)}% SOC`,
+      pulse: true,
+    },
+    idle: {
+      dot: 'bg-amber-400',
+      dotGlow: 'shadow-[0_0_6px_hsla(38,92%,55%,0.6)]',
+      ring: 'border-amber-400/35 bg-amber-400/10 text-amber-300',
+      label: `Tesla Plugged · Idle • ${Math.round(tesla.soc)}% SOC`,
+      pulse: false,
+    },
+    unplugged: {
+      dot: 'bg-muted-foreground/60',
+      dotGlow: '',
+      ring: 'border-muted-foreground/20 bg-muted/30 text-muted-foreground',
+      label: `Tesla Not Plugged In • ${Math.round(tesla.soc)}% · ${Math.round(tesla.rangeMi)} mi`,
+      pulse: false,
+    },
+  }[tesla.state];
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={config.label}
+      className={`group inline-flex w-full items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-semibold tracking-wide transition-all hover:brightness-110 sm:w-auto ${config.ring}`}
+    >
+      <span
+        className={`relative inline-flex h-2 w-2 rounded-full ${config.dot} ${config.dotGlow}`}
+      >
+        {config.pulse && (
+          <span className={`absolute inset-0 inline-flex h-full w-full animate-ping rounded-full ${config.dot} opacity-75`} />
+        )}
+      </span>
+      <span className="truncate">{config.label}</span>
+      {tesla.state === 'charging' && tesla.source === 'supercharger' && (
+        <span className="ml-auto rounded-full bg-rose-500/20 px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-rose-300">
+          Supercharger
+        </span>
+      )}
+    </button>
+  );
+}
+
 export function LiveEnergyMonitoringCard() {
   const solar = useSolarTelemetry();
   const battery = useBatteryTelemetry();
