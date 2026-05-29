@@ -670,9 +670,21 @@ export function LiveEnergyMonitoringCard() {
             <MetricTile
               icon={BatteryCharging}
               label="Powerwall"
-              value={batteryStats.soc !== null ? `${Math.round(batteryStats.soc)}%` : '—'}
-              detail={`${batteryStats.status}${batteryStats.powerKw !== null ? ` · ${batteryStats.powerKw > 0 ? '+' : ''}${batteryStats.powerKw.toFixed(1)} kW` : ''}`}
+              value={
+                batteryStats.reserveKwh !== null && batteryStats.capacityKwh !== null
+                  ? `${batteryStats.reserveKwh.toFixed(1)} / ${batteryStats.capacityKwh.toFixed(1)} kWh`
+                  : batteryStats.soc !== null ? `${Math.round(batteryStats.soc)}%` : '—'
+              }
+              detail={(() => {
+                const pct = batteryStats.soc !== null ? `${Math.round(batteryStats.soc)}%` : '—';
+                if (batteryStats.powerKw === null) return `${pct} · ${batteryStats.status}`;
+                if (batteryStats.powerKw > 0.05) return `${pct} · +${batteryStats.powerKw.toFixed(1)} kW charging`;
+                if (batteryStats.powerKw < -0.05) return `${pct} · ${batteryStats.powerKw.toFixed(1)} kW discharging`;
+                const isFull = batteryStats.soc !== null && batteryStats.soc >= 99;
+                return `${pct} · ${isFull ? 'Full' : 'Idle'}`;
+              })()}
             />
+
             <MetricTile
               icon={Gauge}
               label="This Week"
