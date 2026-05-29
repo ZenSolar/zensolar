@@ -1,97 +1,94 @@
+# Tesla Status Pill — Tests, Accessibility, and Home/Public Charging Fix
 
-## Why the current card feels weak
+## 1. Fix the "Public L2" misclassification (your charger at home)
 
-Two separate problems collided:
+**Diagnosis.** In `deriveTeslaFlow` (`LiveEnergyMonitoringCard.tsx`), when Tesla's API reports `charging_state=charging` but there's no active `home_charging_sessions` row yet (the `tesla-charge-monitor` cron hasn't created it on this tick) AND `fast_charger_type` is empty, the code falls into:
 
-**1. Data bindings are wrong** (this is why your numbers are blank)
-
-Looking at the actual cached telemetry for joe@zen.solar:
-
-- **Enphase solar** — the cached payload is `{ totals: { energy_today_wh: 23420 }, per_system: [{ system_id, energy_today_wh, lifetime_wh, pending_wh }] }`. There is **no `current_power_w` field at the top level**, but the `SolarTile` only reads `current_power_w` / `solar_power`. → renders 0.00 kW. The Enphase Summary endpoint (which returns `current_power`) is also not being hit reliably; we need to call it directly in the telemetry branch and also fall back to `per_system[0]` shape.
-- **Tesla Powerwall** — cached payload nests live values inside `energy_sites[0]` (`percentage_charged` actually isn't even returned by the current sync, only `battery_power` / `solar_power` / `grid_power`). The `BatteryTile` reads top-level `percentage_charged` → blank SOC. We need to (a) make the telemetry branch actually call `/live_status` and surface `percentage_charged`, and (b) have the tile read from `energy_sites[0]` as a fallback.
-- **Tesla vehicle** — cached payload nests under `vehicles[0]` with `battery_level: 0, charging_state: "Unknown", odometer: 74590.4`. The `EVTile` reads top-level `battery_level` → blank. We need to read from `vehicles[0]` and surface the **odometer** (you specifically called it out).
-
-Root cause: the front-end hook is storing whatever shape the edge function returns, and right now the heavy sync response is being cached instead of the lean telemetry response. The tiles need to be defensive about both shapes, and the edge functions need to short-circuit cleanly on `mode: 'telemetry'`.
-
-**2. It doesn't feel like a $4.99 product**
-
-You're right. Three tiny tiles with a number on each is what a free widget looks like. For paid, this needs to feel like a *cockpit*.
-
----
-
-## The plan
-
-### Part A — Fix the data (must-have, no debate)
-
-1. **`LiveEnergyMonitoringCard.tsx`** — make every value reader fall back through both shapes:
-   - Solar `currentW`: `current_power_w` → `per_system[0].current_power_w` → `solar_power` → `energy_sites[0].solar_power`
-   - Solar `todayWh`: `energy_today_wh` → `totals.energy_today_wh` → `per_system[0].energy_today_wh`
-   - Battery `soc`: `percentage_charged` → `energy_sites[0].percentage_charged` → `battery_soc`
-   - Battery `power`: `battery_power` → `energy_sites[0].battery_power`
-   - EV `soc/range/state/odometer/charge_rate`: top-level → `vehicles[0].*` → `response.charge_state.*`
-2. **`tesla-data` telemetry branch** — when capability=battery, also include `energy_sites[0]` snapshot so the FE always has a shape it knows. When capability=ev, add `odometer` (from `drive_state.odometer`).
-3. **`enphase-data` telemetry branch** — ensure summary call actually fires (deployed code looks correct; force a redeploy and surface `last_report_at` so we can show "updated 2 min ago").
-4. **Bust the stale cache** — when the hook fetches, if the cached payload is missing the new canonical keys, ignore the cache and refetch. This unsticks joe's current bad payload without a migration.
-
-### Part B — Make it feel premium (the actual upgrade)
-
-Replace the 3-tile grid with a single **"Home Energy Cockpit"** layout:
-
-```text
-┌────────────────────────────────────────────────────────────────┐
-│  ZenEnergy Monitoring · Live           Updated 12s ago   ⚡    │
-├────────────────────────────────────────────────────────────────┤
-│                                                                │
-│   ┌──────────── ENERGY FLOW (live, animated) ────────────┐    │
-│   │   ☀ Solar 4.26 kW  →  🏠 House 1.11 kW              │    │
-│   │                    ↓                                  │    │
-│   │   🔋 Powerwall 87% (idle)   →   ⚡ Grid -3.15 kW    │    │
-│   └───────────────────────────────────────────────────────┘    │
-│                                                                │
-│   ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐    │
-│   │ TODAY        │  │ THIS WEEK    │  │ ZENX             │    │
-│   │ 23.4 kWh ☀  │  │ +158.7 kWh ☀│  │ 74,590 mi 🚗   │    │
-│   │ 12.1 kWh 🏠 │  │ -42.3 kWh 🔋│  │ 67% · 218 mi    │    │
-│   │ Net +11.3kWh │  │ Self-suff 78%│  │ Idle · plugged   │    │
-│   └──────────────┘  └──────────────┘  └──────────────────┘    │
-│                                                                │
-│   ZenSolar minted today: 47.2 $ZSOLAR  ·  CO₂ saved: 11.8 kg  │
-│                                                                │
-│   [ Open Insights → ]                                          │
-└────────────────────────────────────────────────────────────────┘
+```ts
+} else if (phases && phases >= 1 && isCharging) {
+  source = 'public';
+  sourceLabel = 'Public L2';
+}
 ```
 
-Specifics:
+That's why the pill/tile says **Public L2** while you're plugged in at home. The backend `tesla-charge-monitor` already uses the correct heuristic — "AC charging with home address on file = home" — but the UI doesn't mirror it, so there's a window where the card mislabels home sessions.
 
-- **Live energy flow strip** at the top — reuse the existing `AnimatedEnergyFlow` but parameterize it with the real solar/load/battery/grid kW values so the particle direction and speed reflect actual flow. This is the "wow" moment.
-- **Three context tiles** (Today / This Week / ZenX) replacing the current shallow tiles. ZenX tile now shows **odometer**, SOC, range, plug state — and when charging, swaps in the live charge-session row (kW, charger type badge, % SOC, min to full).
-- **Mint + CO₂ footer ribbon** — pulls today's mint total and CO₂-tons-equivalent from the existing PoG hook. This is what makes it feel like *Zen.Solar's* monitor, not Enphase's.
-- **"Updated Xs ago" pill** in the header — real freshness signal, color-coded (green <2min, amber <15min, gray cached).
-- **Tap any element → drill-in drawer** (out of scope this round; just wire the hover state so it feels alive).
+**Fix.** Match the backend's heuristic in `deriveTeslaFlow`:
 
-Visual polish:
-- Subtle radial gradient behind the flow strip (primary at 5% opacity).
-- Numbers use tabular-nums + count-up animation on value change.
-- Charging state on ZenX gets a pulsing primary ring around the icon.
-- Mobile (390px): tiles stack vertically, flow strip collapses to a single-row sparkline.
+- If `fast_charger_type` indicates Supercharger/DC fast → `supercharger`.
+- Else if it's a Tesla Wall Connector string OR `sessionActive` → `home` (Wall Connector).
+- Else if `isCharging` and it looks like AC (phases ≥ 1, kW ≤ ~12, voltage in ~110–250 V range when present) → **default to `home`** (same assumption the backend makes). Pill says "Tesla Charging" with sub-label "Wall Connector".
+- Only label `public` when there is positive evidence it's away from home — e.g., a DC fast type, or a future hook into vehicle GPS distance from home. Until we have that signal, never default unknown AC to "Public L2".
+- Idle/unplugged logic unchanged.
 
-### Files touched
+**Does the kWh go to the Home Charging KPI?** Yes — independently of this label. The `tesla-charge-monitor` edge function creates a `home_charging_sessions` row (based on GPS proximity to your home address, or AC-charging-with-home-address-on-file fallback) and on completion writes the totals into `charging_sessions` with `charging_type='home'`. That flows into the Clean Energy Center's **Home charging** KPI tile and into `useEVTotals().home_kwh`. The mislabel in the UI was cosmetic — it did not redirect kWh into the Supercharger KPI. (Worth double-checking after the fix that any in-flight session you started today landed under Home; if not, that's a `tesla-charge-monitor` GPS/home-address issue and a separate ticket.)
 
-- `src/components/dashboard/LiveEnergyMonitoringCard.tsx` — full rewrite into cockpit layout
-- `src/components/dashboard/AnimatedEnergyFlow.tsx` — accept `flow={{ solar, load, battery, grid }}` props (additive, won't break empty-state usage)
-- `src/hooks/useDeviceTelemetry.ts` — defensive readers + stale-shape cache busting
-- `supabase/functions/tesla-data/index.ts` — include `energy_sites[0]` in battery telemetry, add `odometer` to ev telemetry
-- `supabase/functions/enphase-data/index.ts` — surface `last_report_at` in telemetry response
-- Force redeploy of both edge functions
+## 2. Accessibility — Tesla pill + LIVE indicator
 
-No DB migrations, no new secrets, no new subscriptions logic.
+`TeslaStatusPill` (button) and the `Live` chip inside `EVTile` need proper screen-reader semantics and visible focus.
 
----
+**Tesla pill (`TeslaStatusPill`)**
+- Keep `<button>` but add:
+  - `aria-live="polite"` + `aria-atomic="true"` on an inner status `<span>` so SR users hear state transitions (Charging → Idle → Unplugged) without re-announcing the button name.
+  - `aria-label` becomes a clean sentence per state, e.g. "Tesla charging at home, 7.4 kilowatts, 62 percent state of charge. Activate to view details."
+  - `role="status"` on the inner live region (not on the button itself).
+  - `focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background` for keyboard focus.
+  - `active:scale-[0.98]` + existing haptic `selection()` for press feedback.
+  - Decorative dot/pulse marked `aria-hidden="true"`.
+  - `min-h-11` to hit 44px tap target.
+- When `tesla` is null, render nothing (current behavior preserved).
+- Supercharger badge gets `aria-hidden` (info already in `aria-label`).
 
-### Out of scope (call out so we don't sneak it in)
+**LIVE chip in `EVTile`**
+- Wrap the pulsing dot + "Live" text in `<span role="status" aria-live="polite">Live charging</span>` so the chip is announced once when it appears, not on every re-render. Dot itself `aria-hidden`.
 
-- Historical charts (that's the "Open Insights" page)
-- Push alerts ("Powerwall full", "Cheapest charging window now")
-- VPP earnings card
+**Ping-on-scroll target (`#tesla-ev-tile`)**
+- Add `tabIndex={-1}` and `aria-label="Tesla details"` so `scrollIntoView()` can be followed by `.focus()` for keyboard users (move focus after smooth scroll completes via a short timeout, then blur on next interaction).
 
-Both are great next-round upgrades to keep the $4.99 ladder feeling alive — happy to plan them after this lands.
+## 3. Unit tests
+
+Add a Vitest spec next to the component. Pure-function tests for `deriveTeslaFlow` + a small RTL test for the pill render. No backend mocks needed — `deriveTeslaFlow` is pure.
+
+**File:** `src/components/dashboard/__tests__/teslaStatusPill.test.tsx`
+
+Coverage:
+
+1. `deriveTeslaFlow`
+   - returns `null` when telemetry is undefined or `oem !== 'tesla'`.
+   - **charging at home (session active, no fast_charger_type)** → `state='charging'`, `source='home'`, `sourceLabel='Wall Connector'`, `isCharging=true`, `kW>0`.
+   - **charging at home (Tesla API reports `charging`, NO session yet, phases=1)** → **post-fix**: `state='charging'`, `source='home'` (regression guard against the old "Public L2" branch). Asserts `sourceLabel !== 'Public L2'`.
+   - **supercharging** (`fast_charger_type='Tesla'` + `charging_state='Charging'`) → `state='charging'`, `source='supercharger'`, `sourceLabel='Supercharger'`.
+   - **plugged idle** (`charging_state='Stopped'`, session not active) → `state='idle'`.
+   - **plugged idle — Complete** (`charging_state='Complete'`) → `state='idle'`.
+   - **not plugged in** (`charging_state='Disconnected'`) → `state='unplugged'`.
+   - **kW derivation** falls back to voltage × amps / 1000 when `charge_rate_kw` missing.
+
+2. `TeslaStatusPill` (RTL render)
+   - charging state → button `aria-label` includes "charging" and kW, has a visible "Tesla Charging" text, role=button.
+   - idle state → `aria-label` includes "Plugged" and "Idle"; no pulse animation class.
+   - unplugged state → `aria-label` includes "Not Plugged In"; renders muted styling.
+   - click invokes `onClick` handler (jsdom).
+   - null tesla → renders nothing.
+
+**Test infra check.** `vitest.config.ts` currently uses `environment: "node"`. The RTL render test needs `jsdom`. Two options:
+- Switch global env to `jsdom` (matches the guidance in the frontend-testing-setup doc, and other future RTL tests will need it).
+- Or scope per-test with `// @vitest-environment jsdom` at the top of the new file.
+
+We'll go with the per-file pragma to avoid touching global config and risking unrelated test changes. Will also add `@testing-library/react`, `@testing-library/jest-dom`, and `jsdom` to devDependencies if not already present, plus a minimal `src/test/setup.ts` for `@testing-library/jest-dom` matchers (loaded only by the new file via a top-of-file `import '@testing-library/jest-dom/vitest'`).
+
+To make `deriveTeslaFlow` and the `TeslaStatusPill` testable, export them from `LiveEnergyMonitoringCard.tsx` (named exports — no behavior change to the default card).
+
+## Files touched
+
+- `src/components/dashboard/LiveEnergyMonitoringCard.tsx`
+  - Fix `deriveTeslaFlow` source detection (home as default for AC charging).
+  - Export `deriveTeslaFlow`, `TeslaStatusPill`, and the `TeslaPillState`/`TeslaFlow` types.
+  - A11y: pill aria-label/role/live region/focus-visible/min-h-11, ping-target `tabIndex`, LIVE chip role=status.
+- `src/components/dashboard/__tests__/teslaStatusPill.test.tsx` (new) — all unit tests above.
+- `package.json` — add testing-library deps if missing (no runtime deps).
+
+## Out of scope
+
+- Backend `tesla-charge-monitor` changes (already correctly classifies home via GPS/AC heuristic).
+- AnimatedEnergyFlow visuals.
+- Clean Energy Center KPI math — Home Charging KPI already receives this kWh through `home_charging_sessions` → `charging_sessions(charging_type='home')`.
