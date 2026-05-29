@@ -1,6 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
+export interface TeslaVehicleFlow {
+  kW: number;
+  soc: number; // 0-100
+  rangeMi: number;
+  isCharging: boolean;
+  source: 'home' | 'supercharger' | 'public' | 'none';
+}
+
 export interface EnergyFlowData {
   solarPower: number;
   homePower: number;
@@ -8,6 +16,7 @@ export interface EnergyFlowData {
   batteryPercent: number;
   gridPower: number; // positive = importing, negative = exporting
   evPower: number;
+  tesla?: TeslaVehicleFlow;
 }
 
 interface AnimatedEnergyFlowProps {
