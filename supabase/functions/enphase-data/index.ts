@@ -210,12 +210,18 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Check if we have cached data that's still fresh
+    let telemetryReq: { mode?: string; capability?: string; siteId?: string } = {};
+    if (req.method === "POST") {
+      try { telemetryReq = await req.clone().json(); } catch { /* no body */ }
+    }
+
+    // Check if we have cached data that's still fresh. Telemetry requests must bypass
+    // this heavy-sync cache so the live card can call Enphase summary directly.
     const extraData = tokenData.extra_data as Record<string, unknown> || {};
     const cachedData = extraData.cached_response as Record<string, unknown> | undefined;
     const cachedAt = extraData.cached_at as string | undefined;
     
-    if (cachedData && cachedAt) {
+    if (telemetryReq.mode !== "telemetry" && cachedData && cachedAt) {
       const cacheAge = Date.now() - new Date(cachedAt).getTime();
       const cacheMaxAge = CACHE_DURATION_MINUTES * 60 * 1000;
       
@@ -262,10 +268,6 @@ Deno.serve(async (req) => {
 
     // ── Lightweight telemetry mode (Premium Energy Insights live card) ──────
     // Body: { mode: 'telemetry', capability: 'solar', siteId }
-    let telemetryReq: { mode?: string; capability?: string; siteId?: string } = {};
-    if (req.method === "POST") {
-      try { telemetryReq = await req.clone().json(); } catch { /* no body */ }
-    }
     if (telemetryReq.mode === "telemetry" && telemetryReq.siteId && telemetryReq.capability === "solar") {
       const systemId = String(telemetryReq.siteId);
       try {
