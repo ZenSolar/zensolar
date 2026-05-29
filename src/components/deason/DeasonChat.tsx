@@ -387,28 +387,25 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
           </div>
         )}
         <div className="flex items-end gap-1.5 rounded-2xl border border-border bg-background px-1.5 py-1 focus-within:border-amber-500/60 focus-within:ring-1 focus-within:ring-amber-500/30 transition-colors">
-          {!isInnerCircle && (
-            <>
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*,application/pdf,.pdf"
-                className="hidden"
-                onChange={onPickFile}
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => fileRef.current?.click()}
-                title="Attach a bill (PDF/photo) or equipment photo"
-                disabled={streaming}
-                className="h-9 w-9 flex-shrink-0 rounded-full"
-              >
-                <Paperclip className="h-4 w-4" />
-              </Button>
-            </>
-          )}
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*,application/pdf,.pdf"
+            className="hidden"
+            onChange={onPickFile}
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => fileRef.current?.click()}
+            title="Attach a bill, equipment photo, or error-code screenshot (PDF or image)"
+            disabled={streaming}
+            className="h-9 w-9 flex-shrink-0 rounded-full"
+          >
+            <Paperclip className="h-4 w-4" />
+          </Button>
+
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
