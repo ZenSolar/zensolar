@@ -117,23 +117,17 @@ function hasCanonicalTelemetryShape(payload: any, capability: Capability): boole
     return (
       payload.current_power_w != null ||
       payload.solar_power != null ||
-      payload?.energy_sites?.[0]?.solar_power != null ||
-      payload?.totals?.energy_today_wh != null ||
-      payload?.per_system?.[0]?.energy_today_wh != null
+      payload?.energy_sites?.[0]?.solar_power != null
     );
   }
   if (capability === 'battery') {
     return (
       payload.percentage_charged != null ||
-      payload.battery_power != null ||
-      payload?.energy_sites?.[0]?.percentage_charged != null ||
-      payload?.energy_sites?.[0]?.battery_power != null
+      payload?.energy_sites?.[0]?.percentage_charged != null
     );
   }
   return (
-    payload.battery_level != null ||
-    payload.odometer != null ||
-    payload?.vehicles?.[0]?.odometer != null ||
+    (payload.battery_level != null && payload.odometer != null) ||
     payload?.response?.charge_state != null
   );
 }
