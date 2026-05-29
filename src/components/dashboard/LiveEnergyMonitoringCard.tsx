@@ -124,10 +124,12 @@ function EVTile({ t, totals7d }: { t: CachedTelemetry; totals7d: { home_kwh: num
   const range = pickNumber(t.payload, ['battery_range', 'ideal_battery_range', 'est_battery_range']);
   const chargingState = pickString(t.payload, ['charging_state', 'state', 'charger_status', 'status']);
   const isCharging = (chargingState ?? '').toLowerCase() === 'charging';
-  const chargeRateKw =
-    pickNumber(t.payload, ['charge_rate_kw', 'charger_power']) ??
-    (pickNumber(t.payload, ['charger_actual_current']) ?? 0) *
-      (pickNumber(t.payload, ['charger_voltage']) ?? 0) / 1000 || null;
+  const directKw = pickNumber(t.payload, ['charge_rate_kw', 'charger_power']);
+  const ivKw =
+    ((pickNumber(t.payload, ['charger_actual_current']) ?? 0) *
+      (pickNumber(t.payload, ['charger_voltage']) ?? 0)) /
+    1000;
+  const chargeRateKw = directKw ?? (ivKw > 0 ? ivKw : null);
   const energyAdded = pickNumber(t.payload, ['charge_energy_added']);
   const timeToFullHrs = pickNumber(t.payload, ['time_to_full_charge']);
   const fastChargerType = pickString(t.payload, ['fast_charger_type', 'charger_type']);
