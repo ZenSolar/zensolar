@@ -18,6 +18,7 @@ import { ReadyToMintCard } from './dashboard/ReadyToMintCard';
 import { DashboardSkeleton } from './dashboard/DashboardSkeleton';
 import { TokenPriceCard } from './dashboard/TokenPriceCard';
 import { CO2OffsetCard } from './dashboard/CO2OffsetCard';
+import { PremiumInsightsTeaserCard } from './dashboard/PremiumInsightsTeaserCard';
 import { FlywheelContributionCard } from './dashboard/FlywheelContributionCard';
 import { MintReceiptsHint } from './dashboard/MintReceiptsHint';
 
@@ -388,6 +389,11 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         {/* Live Energy Flow Diagram */}
         <AnimatedItem className="xl:col-span-2">
           <EnergyFlowGlowCard />
+        </AnimatedItem>
+
+        {/* Premium Energy Insights teaser ($4.99/mo) */}
+        <AnimatedItem className="xl:col-span-1">
+          <PremiumInsightsTeaserCard />
         </AnimatedItem>
 
         <SectionDivider className="xl:hidden" />
