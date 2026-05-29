@@ -496,6 +496,8 @@ function EnergyFlowGlowCard() {
       <Suspense fallback={<div className="w-full h-64 bg-card/10 animate-pulse" aria-hidden="true" />}>
         <AnimatedEnergyFlow className="w-full" />
       </Suspense>
+      <PremiumInsightsTeaserCard />
     </div>
   );
 }
+
