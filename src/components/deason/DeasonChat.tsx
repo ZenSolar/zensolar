@@ -598,13 +598,6 @@ function ThreadRow({
     </li>
   );
 }
-            </ul>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
 
 function MessageContent({
   content,
