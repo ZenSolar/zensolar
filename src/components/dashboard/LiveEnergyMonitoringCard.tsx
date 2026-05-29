@@ -559,6 +559,12 @@ export function LiveEnergyMonitoringCard() {
         </div>
       </div>
 
+      {teslaFlow && (
+        <div className="mb-3">
+          <TeslaStatusPill tesla={teslaFlow} onClick={handlePillClick} />
+        </div>
+      )}
+
       {loading ? (
         <div className="flex justify-center py-10">
           <Loader2 className="h-5 w-5 animate-spin text-primary" />
@@ -570,6 +576,25 @@ export function LiveEnergyMonitoringCard() {
               <AnimatedEnergyFlow className="h-[250px] w-full sm:h-[300px]" data={flowData} showHeader={false} />
             </Suspense>
           </div>
+
+          {/* Tesla / EV tile — promoted directly under diagram */}
+          {ev.data.length > 0 && (
+            <div
+              ref={evTileRef}
+              id="tesla-ev-tile"
+              className={`rounded-lg transition-shadow ${pingTile ? 'ring-2 ring-primary/60 shadow-[0_0_24px_hsl(var(--primary)/0.35)]' : ''}`}
+            >
+              {ev.data.map((t) => (
+                <EVTile
+                  key={`e-${t.oem}-${t.site_id}`}
+                  t={t}
+                  totals7d={evTotals.totals}
+                  liveDot={teslaFlow?.isCharging && t.oem === 'tesla'}
+                  sourceLabel={t.oem === 'tesla' ? teslaFlow?.sourceLabel : undefined}
+                />
+              ))}
+            </div>
+          )}
 
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             <MetricTile
@@ -592,7 +617,6 @@ export function LiveEnergyMonitoringCard() {
             />
           </div>
 
-          {ev.data.map((t) => <EVTile key={`e-${t.oem}-${t.site_id}`} t={t} totals7d={evTotals.totals} />)}
 
           <div className="flex flex-col gap-3 rounded-lg border border-primary/15 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-2.5">
