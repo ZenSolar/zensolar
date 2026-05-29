@@ -433,9 +433,10 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
             <Send className="h-4 w-4" />
           </Button>
         </div>
-        <p className="mt-1.5 text-center text-[10px] text-muted-foreground">
           {threadId
-            ? (isInnerCircle ? "Saved to your account." : "Saved to your account · 50 messages/day")
+            ? "Saved to your account · 50 messages/day"
+            : "Conversations are not saved · 50 messages/day"}
+
             : (isInnerCircle ? "Conversations are not saved." : "Conversations are not saved · 50 messages/day")}
         </p>
       </form>
