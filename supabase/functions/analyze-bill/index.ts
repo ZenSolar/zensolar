@@ -170,11 +170,11 @@ Deno.serve(async (req) => {
               {
                 type: "text",
                 text: userNote
-                  ? `Here is my utility bill. Note: ${userNote}`
-                  : "Here is my utility bill. Please analyze it and produce my savings report.",
+                  ? `Here is my utility bill (${isPdf ? "PDF" : "photo"}). Note: ${userNote}`
+                  : `Here is my utility bill (${isPdf ? "PDF" : "photo"}). Please analyze it and produce my savings report.`,
               },
               { type: "image_url", image_url: { url: imageDataUrl } },
-            ],
+
           },
         ],
         tools: [ANALYZE_TOOL],
