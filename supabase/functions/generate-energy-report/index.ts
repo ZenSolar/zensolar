@@ -13,7 +13,7 @@ const corsHeaders = {
 };
 
 type DocKind = "utility_bill" | "solar_contract" | "loan" | "other";
-
+type DocKind = "utility_bill" | "installer_contract" | "ppa" | "solar_contract" | "loan" | "other";
 interface IncomingDoc {
   kind: DocKind;
   dataUrl: string;           // data:image/... or data:application/pdf;...
