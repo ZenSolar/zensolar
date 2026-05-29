@@ -419,8 +419,6 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
             <Send className="h-4 w-4" />
           </Button>
 
-            <Send className="h-4 w-4" />
-          </Button>
         </div>
         <p className="mt-1.5 text-[11px] text-muted-foreground">
           {threadId
