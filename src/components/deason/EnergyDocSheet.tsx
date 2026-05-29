@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { FileText, Receipt, Banknote, X, Loader2, ShieldCheck } from "lucide-react";
+import { FileText, Receipt, Banknote, FileSignature, X, Loader2, ShieldCheck } from "lucide-react";
 import type { EnergyDocInput, EnergyDocKind } from "@/hooks/useEnergyReport";
 
 interface Slot {
@@ -14,8 +14,9 @@ interface Slot {
 
 const SLOTS: Slot[] = [
   { kind: "utility_bill", label: "Utility bill", hint: "Most recent PDF or photo", icon: <Receipt className="h-4 w-4" />, required: true },
-  { kind: "solar_contract", label: "Solar contract", hint: "PPA, lease, or purchase agreement", icon: <FileText className="h-4 w-4" />, required: false },
-  { kind: "loan", label: "Loan paperwork", hint: "If you financed the system", icon: <Banknote className="h-4 w-4" />, required: false },
+  { kind: "installer_contract", label: "Installer contract", hint: "Agreement from the company that installed your panels or battery", icon: <FileText className="h-4 w-4" />, required: false },
+  { kind: "ppa", label: "PPA / lease agreement", hint: "Power Purchase Agreement or lease (Sunrun, Sunnova, etc.) — if you have one", icon: <FileSignature className="h-4 w-4" />, required: false },
+  { kind: "loan", label: "Loan paperwork", hint: "Only if you financed the system separately (Mosaic, GoodLeap, Sunlight, etc.)", icon: <Banknote className="h-4 w-4" />, required: false },
 ];
 
 const MAX_MB = 12;
@@ -36,7 +37,7 @@ export function EnergyDocSheet({ open, onOpenChange, onSubmit, loading }: Props)
   const [docs, setDocs] = useState<Partial<Record<EnergyDocKind, EnergyDocInput>>>({});
   const [error, setError] = useState<string | null>(null);
   const inputRefs = useRef<Record<EnergyDocKind, HTMLInputElement | null>>({
-    utility_bill: null, solar_contract: null, loan: null,
+    utility_bill: null, installer_contract: null, ppa: null, loan: null,
   });
 
   const reset = () => { setDocs({}); setError(null); };
