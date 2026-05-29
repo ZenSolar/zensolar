@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, BatteryCharging, Car, Clock3, Gauge, Home, Loader2, Plug, RefreshCw, Route, Sparkles, Sun, Zap, type LucideIcon } from 'lucide-react';
+import { ArrowRight, BatteryCharging, Car, Clock3, Gauge, Home, Loader2, RefreshCw, Route, Sparkles, Sun, Zap, type LucideIcon } from 'lucide-react';
 import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
 import {
   useBatteryTelemetry,
