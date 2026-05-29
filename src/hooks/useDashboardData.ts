@@ -706,7 +706,6 @@ export function useDashboardData() {
 
       const tokensEarned = Math.floor(evMiles) + Math.floor(solarEnergy) + Math.floor(batteryDischarge) + Math.floor(superchargerKwh) + Math.floor(homeChargerKwh);
       const pendingActivityUnits = Math.floor(pendingSolar) + Math.floor(pendingEvMiles) + Math.floor(pendingBattery) + Math.floor(pendingCharging);
-      const { calculatePendingTokens } = await import('@/lib/tokenomics');
       const pendingTokens = calculatePendingTokens(pendingActivityUnits);
 
       // Build per-device arrays (same logic as full refresh but from DB only)
