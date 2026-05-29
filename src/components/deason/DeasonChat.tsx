@@ -1,14 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Send, Sparkles, RotateCcw, X, Paperclip, Image as ImageIcon, ChevronUp, ChevronDown, Save, FileText, ArrowRight, MessageSquare, Pin, PinOff, Pencil, Trash2, Check } from "lucide-react";
+import { Send, Sparkles, RotateCcw, X, Paperclip, Image as ImageIcon, ChevronUp, ChevronDown, Save, FileText, ArrowRight, MessageSquare, Pin, PinOff, Pencil, Trash2, Check, FileCheck2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useDeason, type DeasonContentPart } from "@/hooks/useDeason";
 import { useUserPersona } from "@/hooks/useUserPersona";
+import { useEnergyReport } from "@/hooks/useEnergyReport";
 import { BillSavingsReport } from "@/components/deason/BillSavingsReport";
+import { EnergyDocSheet } from "@/components/deason/EnergyDocSheet";
+import { EnergyReportCard } from "@/components/deason/EnergyReportCard";
 import type { DeasonThread } from "@/hooks/useDeasonThreads";
 import { cn } from "@/lib/utils";
+
 
 interface DeasonChatProps {
   onClose?: () => void;
@@ -87,9 +91,12 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
   const [input, setInput] = useState("");
   const [attachedFile, setAttachedFile] = useState<{ dataUrl: string; name: string; kind: "image" | "pdf" } | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [energySheetOpen, setEnergySheetOpen] = useState(false);
+  const energy = useEnergyReport();
   const fileRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<Array<HTMLDivElement | null>>([]);
+
 
 
   // All message indices matching highlightQuery.
@@ -301,6 +308,17 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
             <div className="mb-3 text-2xl">☀️</div>
 
             <h2 className="mb-2 text-lg font-semibold">{welcomeTitle}</h2>
+            <button
+              onClick={() => setEnergySheetOpen(true)}
+              className="mt-3 mb-2 w-full rounded-xl border border-amber-500/40 bg-gradient-to-b from-amber-500/15 to-amber-500/5 px-3 py-3 text-left transition-colors hover:from-amber-500/20"
+            >
+              <div className="flex items-center gap-2 text-sm font-semibold text-amber-500">
+                <FileCheck2 className="h-4 w-4" /> Solar Concierge Analysis
+              </div>
+              <div className="mt-0.5 text-xs text-muted-foreground">
+                Upload your bill (and contract / loan, if you have them) for a personalized ROI, rate plan, and savings report.
+              </div>
+            </button>
             <p className="text-sm text-muted-foreground">{welcomeBody}</p>
             <div className="mt-4 grid gap-2 text-left text-sm">
               {prompts.map((q) => (
@@ -441,7 +459,42 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
 
       </form>
 
+      {/* Solar Concierge: upload sheet + inline result rendered into the chat. */}
+      <EnergyDocSheet
+        open={energySheetOpen}
+        onOpenChange={setEnergySheetOpen}
+        loading={energy.loading}
+        onSubmit={async (docs) => {
+          try {
+            const res = await energy.generate(docs, threadId);
+            setEnergySheetOpen(false);
+            seedAssistant(`Here's your Solar Concierge analysis — estimated $${Math.round(res.preview.headline_savings_usd_per_year).toLocaleString()}/yr in opportunities. Tap to expand the full report below.`);
+          } catch { /* error already surfaced in hook */ }
+        }}
+      />
+      {energy.result && (
+        <div className="absolute inset-x-0 bottom-20 z-20 mx-3 max-h-[70vh] overflow-y-auto rounded-2xl bg-background/95 p-2 shadow-2xl backdrop-blur">
+          <div className="flex justify-end">
+            <button onClick={energy.reset} className="rounded-full p-1 text-muted-foreground hover:text-foreground">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <EnergyReportCard
+            preview={energy.result.preview}
+            full={energy.result.full}
+            entitled={energy.result.entitled}
+            onUnlock={() => alert("Subscription checkout coming soon — $4.99/mo with 7-day free trial.")}
+          />
+        </div>
+      )}
+      {energy.error && (
+        <div className="absolute inset-x-3 bottom-24 z-20 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+          {energy.error}
+        </div>
+      )}
+
       {/* Saved conversations — slide-in overlay (does NOT compress the transcript) */}
+
       {historyOpen && threads && onSwitchThread && (
         <>
           <button
