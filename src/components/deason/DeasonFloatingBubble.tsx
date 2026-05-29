@@ -86,15 +86,11 @@ export function DeasonFloatingBubble() {
     }
   }, [open, pendingSeed, threadId, user]);
 
+  // Always open to a fresh "New conversation" — the user can switch to a
+  // saved one via the History panel. We never auto-resume the last thread.
   const ensureSavedThread = async () => {
     if (!user) return null;
     if (threadId) return threadId;
-    if (threads.length > 0) {
-      setThreadId(threads[0].id);
-      setThreadPrepFailed(false);
-      return threads[0].id;
-    }
-    if (threadsLoading) return null;
     if (creatingThreadRef.current) return null;
     creatingThreadRef.current = true;
     setPreparingThread(true);
@@ -113,7 +109,8 @@ export function DeasonFloatingBubble() {
   useEffect(() => {
     if (!open || !user || threadId || preparingThread || threadPrepFailed) return;
     void ensureSavedThread();
-  }, [open, user, threadId, preparingThread, threadPrepFailed, threads.length, threadsLoading]);
+  }, [open, user, threadId, preparingThread, threadPrepFailed]);
+
 
   const handleNewSavedThread = async () => {
     if (!user || creatingThreadRef.current) return;
