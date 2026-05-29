@@ -298,7 +298,8 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
         )}
         {!loadingHistory && messages.length === 0 && (
           <div className="mx-auto mt-4 max-w-md text-center">
-            <div className="mb-3 text-2xl">{isInnerCircle ? "👋" : "☀️"}</div>
+            <div className="mb-3 text-2xl">☀️</div>
+
             <h2 className="mb-2 text-lg font-semibold">{welcomeTitle}</h2>
             <p className="text-sm text-muted-foreground">{welcomeBody}</p>
             <div className="mt-4 grid gap-2 text-left text-sm">
