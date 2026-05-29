@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, BatteryCharging, Car, Clock3, Gauge, Home, Loader2, Route, Sparkles, Sun, Zap } from 'lucide-react';
+import { ArrowRight, BatteryCharging, Car, Clock3, Gauge, Home, Loader2, Route, Sparkles, Sun, Zap, type LucideIcon } from 'lucide-react';
 import {
   useBatteryTelemetry,
   useEVChargerTelemetry,
@@ -150,7 +150,7 @@ function batterySnapshot(t: CachedTelemetry | undefined) {
   };
 }
 
-function chargerKindBadge(fastChargerType: string | null, chargerPhases: number | null): { icon: typeof Zap; label: string } {
+function chargerKindBadge(fastChargerType: string | null, chargerPhases: number | null): { icon: LucideIcon; label: string } {
   const t = (fastChargerType ?? '').toLowerCase();
   if (t.includes('supercharger') || t.includes('combo') || t.includes('chademo')) {
     return { icon: Zap, label: 'Supercharger' };
@@ -247,7 +247,7 @@ function EVTile({ t, totals7d }: { t: CachedTelemetry; totals7d: { home_kwh: num
   );
 }
 
-function MetricTile({ icon: Icon, label, value, detail }: { icon: typeof Sun; label: string; value: string; detail: string }) {
+function MetricTile({ icon: Icon, label, value, detail }: { icon: LucideIcon; label: string; value: string; detail: string }) {
   return (
     <div className="rounded-lg border border-primary/15 bg-background/45 p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.05)]">
       <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
