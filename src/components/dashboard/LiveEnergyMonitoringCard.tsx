@@ -272,9 +272,9 @@ function MetricTile({ icon: Icon, label, value, detail }: { icon: LucideIcon; la
   );
 }
 
-type TeslaPillState = 'charging' | 'idle' | 'unplugged';
+export type TeslaPillState = 'charging' | 'idle' | 'unplugged';
 
-interface TeslaFlow {
+export interface TeslaFlow {
   kW: number;
   soc: number;
   rangeMi: number;
@@ -288,6 +288,7 @@ interface TeslaFlow {
   timeToFullHrs: number | null;
   energyAdded: number | null;
 }
+
 
 function deriveTeslaFlow(t: CachedTelemetry | undefined, sessionActive: boolean): TeslaFlow | null {
   if (!t || t.oem !== 'tesla') return null;
