@@ -257,6 +257,19 @@ export default function EnergyInsightsPage() {
           Live battery + EV charger telemetry, told as a story you can actually read.
         </p>
 
+        {/* Cross-link to Deason document analysis (separate product) */}
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new CustomEvent('deason:open'))}
+          className="mt-3 flex w-full items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-left text-xs text-muted-foreground hover:bg-amber-500/10"
+        >
+          <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" />
+          <span>
+            Have a <span className="text-foreground">utility bill, solar contract, PPA, or loan paperwork</span>?
+            Ask Deason for a one-time Concierge document analysis →
+          </span>
+        </button>
+
         {subLoading ? (
           <div className="mt-12 flex justify-center">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />

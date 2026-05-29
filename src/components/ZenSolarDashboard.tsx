@@ -386,14 +386,9 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         <SectionDivider className="xl:hidden" />
 
-        {/* Live Energy Flow Diagram */}
-        <AnimatedItem className="xl:col-span-2">
+        {/* ZenEnergy Monitoring (live flow) + inline Premium Insights upsell */}
+        <AnimatedItem className="xl:col-span-3">
           <EnergyFlowGlowCard />
-        </AnimatedItem>
-
-        {/* Premium Energy Insights teaser ($4.99/mo) */}
-        <AnimatedItem className="xl:col-span-1">
-          <PremiumInsightsTeaserCard />
         </AnimatedItem>
 
         <SectionDivider className="xl:hidden" />
@@ -501,6 +496,8 @@ function EnergyFlowGlowCard() {
       <Suspense fallback={<div className="w-full h-64 bg-card/10 animate-pulse" aria-hidden="true" />}>
         <AnimatedEnergyFlow className="w-full" />
       </Suspense>
+      <PremiumInsightsTeaserCard />
     </div>
   );
 }
+
