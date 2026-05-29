@@ -329,6 +329,16 @@ Deno.serve(async (req) => {
             energy_left: resp.energy_left,
             total_pack_energy: resp.total_pack_energy,
             timestamp: resp.timestamp,
+            energy_sites: [{
+              site_id: id,
+              percentage_charged: resp.percentage_charged,
+              battery_power: resp.battery_power,
+              solar_power: resp.solar_power,
+              load_power: resp.load_power,
+              grid_power: resp.grid_power,
+              energy_left: resp.energy_left,
+              total_pack_energy: resp.total_pack_energy,
+            }],
           }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
         }
         if (cap === "ev") {
@@ -355,6 +365,7 @@ Deno.serve(async (req) => {
           }
           const j = await vd.json();
           const cs = j?.response?.charge_state || {};
+          const ds = j?.response?.drive_state || {};
           return new Response(JSON.stringify({
             charging_state: cs.charging_state,
             battery_level: cs.battery_level,
@@ -373,6 +384,18 @@ Deno.serve(async (req) => {
             fast_charger_type: cs.fast_charger_type,
             fast_charger_brand: cs.fast_charger_brand,
             conn_charge_cable: cs.conn_charge_cable,
+            odometer: ds.odometer,
+            shift_state: ds.shift_state,
+            power: ds.power,
+            vehicles: [{
+              vin: id,
+              odometer: ds.odometer,
+              charging_state: cs.charging_state,
+              battery_level: cs.battery_level,
+              battery_range: cs.battery_range,
+              charger_power: cs.charger_power,
+              charge_energy_added: cs.charge_energy_added,
+            }],
           }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
         }
       } catch (e) {
