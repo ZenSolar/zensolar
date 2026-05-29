@@ -140,12 +140,25 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
   const onPickFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      alert("Bill image must be under 5 MB.");
+    const isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+    const isImage = file.type.startsWith("image/");
+    if (!isPdf && !isImage) {
+      alert("Please attach a photo (JPG/PNG) or a PDF bill.");
+      e.target.value = "";
+      return;
+    }
+    const limitMb = isPdf ? 10 : 8;
+    if (file.size > limitMb * 1024 * 1024) {
+      alert(`File must be under ${limitMb} MB.`);
+      e.target.value = "";
       return;
     }
     const reader = new FileReader();
-    reader.onload = () => setAttachedImage(reader.result as string);
+    reader.onload = () => setAttachedFile({
+      dataUrl: reader.result as string,
+      name: file.name || (isPdf ? "bill.pdf" : "photo"),
+      kind: isPdf ? "pdf" : "image",
+    });
     reader.readAsDataURL(file);
     e.target.value = "";
   };
@@ -153,11 +166,12 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
   const onSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
     const text = input;
-    const image = attachedImage;
+    const file = attachedFile;
     setInput("");
-    setAttachedImage(null);
-    void send(text, image ?? undefined);
+    setAttachedFile(null);
+    void send(text, file?.dataUrl);
   };
+
 
   // /demo* surface is the investor/reviewer context. Force reviewer prompts
   // there regardless of who's logged in (founders viewing the demo see what
