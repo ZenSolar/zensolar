@@ -14,6 +14,8 @@ export interface EnergyFlowData {
   homePower: number;
   batteryPower: number; // positive = charging, negative = discharging
   batteryPercent: number;
+  batteryCapacityKwh?: number; // nameplate (e.g. 13.5 for one Powerwall)
+  batteryReserveKwh?: number;  // currently stored energy
   gridPower: number; // positive = importing, negative = exporting
   evPower: number;
   tesla?: TeslaVehicleFlow;
@@ -418,6 +420,8 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
     homePower: 0.7,
     batteryPower: -2.5,
     batteryPercent: 73,
+    batteryCapacityKwh: 13.5,
+    batteryReserveKwh: 9.9,
     gridPower: -0.8,
     evPower: 11,
   };
@@ -629,21 +633,38 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
           <text x={nodes.home.x} y={compact ? 232 : 261} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.5">HOME</text>
         </g>
 
-        {/* ── POWERWALL ── */}
-        <g>
-          <circle cx={nodes.battery.x} cy={nodes.battery.y} r={compact ? 14 : 18} fill={colors.battery} fillOpacity={0.1} stroke={colors.battery} strokeWidth={0.8} strokeOpacity={0.35} />
-          <BatteryIcon percent={flow.batteryPercent} color={colors.battery} cx={nodes.battery.x} cy={nodes.battery.y} />
-          <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 22 : 28)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.2">POWERWALL</text>
-          <text x={nodes.battery.x} y={nodes.battery.y - (compact ? 18 : 22)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 5.5 : 6.5} fontWeight="500" letterSpacing="0.6">tesla</text>
-          <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 35 : 43)} textAnchor="middle" fill={colors.battery} fontSize={subValueFs} fontWeight="700">
-            {Math.abs(flow.batteryPower).toFixed(1)} kW
-          </text>
-          <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 45 : 55)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 8 : 10}>
-            · {flow.batteryPercent}%
-          </text>
-          <rect x={nodes.battery.x - 16} y={nodes.battery.y + (compact ? 49 : 60)} width={32} height={4} rx={2} fill="#1a2030" fillOpacity={0.15} />
-          <rect x={nodes.battery.x - 16} y={nodes.battery.y + (compact ? 49 : 60)} width={32 * (flow.batteryPercent / 100)} height={4} rx={2} fill={colors.battery} fillOpacity={0.6} />
-        </g>
+        {/* ── POWERWALL ── kWh stored is the primary number; kW is contextual */}
+        {(() => {
+          const capacity = flow.batteryCapacityKwh ?? 13.5;
+          const reserve = flow.batteryReserveKwh ?? (capacity * (flow.batteryPercent / 100));
+          const isCharging = flow.batteryPower > 0.05;
+          const isDischarging = flow.batteryPower < -0.05;
+          const isFull = flow.batteryPercent >= 99;
+          const statusColor = isCharging ? '#22C55E' : isDischarging ? '#F59E0B' : '#6b7280';
+          const statusText = isCharging
+            ? `${flow.batteryPercent}% · +${flow.batteryPower.toFixed(1)} kW`
+            : isDischarging
+              ? `${flow.batteryPercent}% · ${flow.batteryPower.toFixed(1)} kW`
+              : isFull
+                ? `${flow.batteryPercent}% · Full`
+                : `${flow.batteryPercent}% · Idle`;
+          return (
+            <g>
+              <circle cx={nodes.battery.x} cy={nodes.battery.y} r={compact ? 14 : 18} fill={colors.battery} fillOpacity={0.1} stroke={colors.battery} strokeWidth={0.8} strokeOpacity={0.35} />
+              <BatteryIcon percent={flow.batteryPercent} color={colors.battery} cx={nodes.battery.x} cy={nodes.battery.y} />
+              <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 22 : 28)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.2">POWERWALL</text>
+              <text x={nodes.battery.x} y={nodes.battery.y - (compact ? 18 : 22)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 5.5 : 6.5} fontWeight="500" letterSpacing="0.6">tesla</text>
+              <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 35 : 43)} textAnchor="middle" fill={colors.battery} fontSize={subValueFs} fontWeight="700">
+                {reserve.toFixed(1)}<tspan fontSize={compact ? 8 : 10} fontWeight="500" fill="#9ca3af"> / {capacity.toFixed(1)} kWh</tspan>
+              </text>
+              <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 45 : 55)} textAnchor="middle" fill={statusColor} fontSize={compact ? 8 : 10} fontWeight="600">
+                {statusText}
+              </text>
+              <rect x={nodes.battery.x - 16} y={nodes.battery.y + (compact ? 49 : 60)} width={32} height={4} rx={2} fill="#1a2030" fillOpacity={0.15} />
+              <rect x={nodes.battery.x - 16} y={nodes.battery.y + (compact ? 49 : 60)} width={32 * (flow.batteryPercent / 100)} height={4} rx={2} fill={colors.battery} fillOpacity={0.6} />
+            </g>
+          );
+        })()}
 
         {/* ── GRID (power tower icon) ── */}
         <g>
