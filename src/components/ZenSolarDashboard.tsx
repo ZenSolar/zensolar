@@ -19,6 +19,8 @@ import { DashboardSkeleton } from './dashboard/DashboardSkeleton';
 import { TokenPriceCard } from './dashboard/TokenPriceCard';
 import { CO2OffsetCard } from './dashboard/CO2OffsetCard';
 import { PremiumInsightsTeaserCard } from './dashboard/PremiumInsightsTeaserCard';
+import { LiveEnergyMonitoringCard } from './dashboard/LiveEnergyMonitoringCard';
+import { useEnergyInsightsSubscription } from '@/hooks/useEnergyInsightsSubscription';
 import { FlywheelContributionCard } from './dashboard/FlywheelContributionCard';
 import { MintReceiptsHint } from './dashboard/MintReceiptsHint';
 
@@ -476,6 +478,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
 function EnergyFlowGlowCard() {
   const [burstDone, setBurstDone] = useState(false);
+  const { subscription, loading: subLoading } = useEnergyInsightsSubscription();
+  const subscribed = !!subscription?.active;
 
   useEffect(() => {
     const t = setTimeout(() => setBurstDone(true), 900);
@@ -493,9 +497,19 @@ function EnergyFlowGlowCard() {
         animationDelay: burstDone ? '0s' : '0.25s',
       }}
     >
-      <Suspense fallback={<div className="w-full h-64 bg-card/10 animate-pulse" aria-hidden="true" />}>
-        <AnimatedEnergyFlow className="w-full" />
-      </Suspense>
+      {subLoading ? (
+        // While we don't yet know sub status, show the placeholder to avoid flicker.
+        <Suspense fallback={<div className="w-full h-64 bg-card/10 animate-pulse" aria-hidden="true" />}>
+          <AnimatedEnergyFlow className="w-full" />
+        </Suspense>
+      ) : subscribed ? (
+        <LiveEnergyMonitoringCard />
+      ) : (
+        // Default placeholder/mock card everyone sees until they pay $4.99/mo.
+        <Suspense fallback={<div className="w-full h-64 bg-card/10 animate-pulse" aria-hidden="true" />}>
+          <AnimatedEnergyFlow className="w-full" />
+        </Suspense>
+      )}
       <PremiumInsightsTeaserCard />
     </div>
   );
