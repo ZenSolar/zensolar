@@ -398,7 +398,7 @@ function SwipeDownCard({
       >
         <span className="h-1.5 w-12 rounded-full bg-amber-500/70" />
       </div>
-      <div className="flex-1 overflow-hidden">{children}</div>
+      <div className="flex-1 overflow-hidden [overscroll-behavior:contain]">{children}</div>
     </div>
   );
 }
