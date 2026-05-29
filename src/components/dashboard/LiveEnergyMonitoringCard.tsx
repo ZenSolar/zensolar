@@ -454,24 +454,65 @@ export function LiveEnergyMonitoringCard() {
   const primaryEv = ev.data[0];
   const solarStats = solarSnapshot(primarySolar);
   const batteryStats = batterySnapshot(primaryBattery);
+  const teslaFlow = useMemo(
+    () => deriveTeslaFlow(primaryEv, !!isActivelyCharging),
+    [primaryEv, isActivelyCharging]
+  );
+
+  // Haptic ping on Tesla pill state change
+  const lastPillState = useRef<TeslaPillState | null>(null);
+  useEffect(() => {
+    if (!teslaFlow) return;
+    if (lastPillState.current && lastPillState.current !== teslaFlow.state) {
+      void haptics.lightTap();
+    }
+    lastPillState.current = teslaFlow.state;
+  }, [teslaFlow, haptics]);
+
+  const handlePillClick = () => {
+    void haptics.selection();
+    if (evTileRef.current) {
+      evTileRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setPingTile(true);
+      window.setTimeout(() => setPingTile(false), 1300);
+    }
+  };
+
   const latestTelemetry = useMemo(() => {
     const rows = [...solar.data, ...battery.data, ...ev.data];
     if (rows.length === 0) return null;
     return rows.sort((a, b) => new Date(b.cached_at).getTime() - new Date(a.cached_at).getTime())[0];
   }, [solar.data, battery.data, ev.data]);
+
+  const homeKwRaw = (() => {
+    const loadW = pickNumber(primaryBattery?.payload, ['load_power', 'energy_sites.0.load_power']);
+    return loadW !== null ? loadW / 1000 : 0;
+  })();
+  const evKwRaw = pickNumber(primaryEv?.payload, ['charge_rate_kw', 'charger_power', 'vehicles.0.charger_power']) ?? 0;
+  // De-double-count: if Tesla is charging at home, subtract its draw from house load
+  const homeKwDisplayed = teslaFlow?.isCharging && teslaFlow.source === 'home'
+    ? Math.max(0, homeKwRaw - teslaFlow.kW)
+    : homeKwRaw;
+
   const flowData = {
     solarPower: solarStats.currentKw ?? 0,
-    homePower: (() => {
-      const loadW = pickNumber(primaryBattery?.payload, ['load_power', 'energy_sites.0.load_power']);
-      return loadW !== null ? loadW / 1000 : 0;
-    })(),
+    homePower: homeKwDisplayed,
     batteryPower: batteryStats.powerKw ?? 0,
     batteryPercent: Math.round(batteryStats.soc ?? 0),
     gridPower: (() => {
       const gridW = pickNumber(primaryBattery?.payload, ['grid_power', 'energy_sites.0.grid_power']);
       return gridW !== null ? gridW / 1000 : 0;
     })(),
-    evPower: pickNumber(primaryEv?.payload, ['charge_rate_kw', 'charger_power', 'vehicles.0.charger_power']) ?? 0,
+    evPower: evKwRaw,
+    tesla: teslaFlow
+      ? {
+          kW: teslaFlow.kW,
+          soc: teslaFlow.soc,
+          rangeMi: teslaFlow.rangeMi,
+          isCharging: teslaFlow.isCharging,
+          source: teslaFlow.source,
+        }
+      : undefined,
   };
 
   if (empty) {
