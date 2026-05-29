@@ -737,6 +737,53 @@ export type Database = {
         }
         Relationships: []
       }
+      energy_documents: {
+        Row: {
+          created_at: string
+          extracted_fields: Json | null
+          id: string
+          kind: string
+          mime_type: string | null
+          original_filename: string | null
+          report_id: string | null
+          size_bytes: number | null
+          storage_path: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          extracted_fields?: Json | null
+          id?: string
+          kind: string
+          mime_type?: string | null
+          original_filename?: string | null
+          report_id?: string | null
+          size_bytes?: number | null
+          storage_path: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          extracted_fields?: Json | null
+          id?: string
+          kind?: string
+          mime_type?: string | null
+          original_filename?: string | null
+          report_id?: string | null
+          size_bytes?: number | null
+          storage_path?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "energy_documents_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "energy_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       energy_manual_adjustments: {
         Row: {
           admin_user_id: string
@@ -820,6 +867,87 @@ export type Database = {
           proof_metadata?: Json | null
           provider?: string
           recorded_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      energy_reports: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          full_report: Json | null
+          id: string
+          inputs_summary: Json
+          pdf_storage_path: string | null
+          preview: Json
+          status: string
+          thread_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          full_report?: Json | null
+          id?: string
+          inputs_summary?: Json
+          pdf_storage_path?: string | null
+          preview?: Json
+          status?: string
+          thread_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          full_report?: Json | null
+          id?: string
+          inputs_summary?: Json
+          pdf_storage_path?: string | null
+          preview?: Json
+          status?: string
+          thread_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      energy_subscriptions: {
+        Row: {
+          active: boolean
+          cancelled_at: string | null
+          created_at: string
+          current_period_end: string | null
+          metadata: Json
+          provider: string | null
+          provider_subscription_id: string | null
+          trial_ends_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          cancelled_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          metadata?: Json
+          provider?: string | null
+          provider_subscription_id?: string | null
+          trial_ends_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          cancelled_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          metadata?: Json
+          provider?: string | null
+          provider_subscription_id?: string | null
+          trial_ends_at?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
