@@ -63,17 +63,19 @@ const ONBOARDING_PROMPTS = [
   "What is a wallet, and is mine safe?",
   "Which OEM should I connect first?",
   "I don't know which brand of inverter I have — help.",
-  "What happens after I connect my devices?",
-];
-
-/**
- * Deason chat surface — used by both the full /deason page and the floating bubble.
- * Persona-aware: shows different welcome copy + suggested prompts depending on
- * whether the viewer is inner-circle or a regular demo/beta user.
- */
-export function DeasonChat({ onClose, compact = false, threadId = null, onNewThread, onUserMessage, highlightQuery }: DeasonChatProps) {
+export function DeasonChat({ onClose, compact = false, threadId = null, onNewThread, onUserMessage, highlightQuery, threads, onSwitchThread, onViewAllChats }: DeasonChatProps) {
   const { messages, streaming, error, send, reset, seedAssistant, loadingHistory } = useDeason({
     threadId,
+    onThreadTouched: onUserMessage,
+  });
+  const { isInnerCircle } = useUserPersona();
+  const [input, setInput] = useState("");
+  const [attachedFile, setAttachedFile] = useState<{ dataUrl: string; name: string; kind: "image" | "pdf" } | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const messageRefs = useRef<Array<HTMLDivElement | null>>([]);
+
     onThreadTouched: onUserMessage,
   });
   const { isInnerCircle } = useUserPersona();
