@@ -55,6 +55,58 @@ function formatKwh(v: number | null, decimals = 1) {
   return v === null ? '—' : `${v.toFixed(decimals)} kWh`;
 }
 
+function normalizeWattsToKw(v: number | null) {
+  if (v === null) return null;
+  return Math.abs(v) > 100 ? v / 1000 : v;
+}
+
+function reconcileEnergyFlow(input: {
+  solarKw: number;
+  rawHomeKw: number | null;
+  batteryKw: number;
+  rawGridKw: number | null;
+  evHomeKw: number;
+}) {
+  const solar = Math.max(0, input.solarKw);
+  const battery = input.batteryKw;
+  const evHome = Math.max(0, input.evHomeKw);
+  const batteryLoad = Math.max(0, battery);
+  const batterySource = Math.max(0, -battery);
+
+  const derivedGrid = evHome + batteryLoad + Math.max(0, input.rawHomeKw ?? 0) - solar - batterySource;
+  const hasUsableHome = input.rawHomeKw !== null && input.rawHomeKw > 0.05;
+  const homeFromBalance = input.rawGridKw !== null
+    ? solar + batterySource + Math.max(0, input.rawGridKw) - batteryLoad - Math.max(0, -input.rawGridKw) - evHome
+    : null;
+  const homeKw = hasUsableHome
+    ? input.rawHomeKw!
+    : Math.max(0, homeFromBalance ?? input.rawHomeKw ?? 0);
+  const balancedGrid = evHome + batteryLoad + homeKw - solar - batterySource;
+  const rawMismatch = input.rawGridKw !== null && Math.abs(input.rawGridKw - balancedGrid) > Math.max(0.7, solar * 0.35);
+  const gridKw = input.rawGridKw === null || rawMismatch ? balancedGrid : input.rawGridKw;
+
+  return {
+    homeKw,
+    gridKw,
+    gridCorrected: rawMismatch,
+    derivedGrid,
+  };
+}
+
+const LIVE_HOME_LAST_KNOWN_KEY = 'zen:live:lastKnownHomeKw';
+
+function readLastKnownHomeKw(): number | null {
+  if (typeof window === 'undefined') return null;
+  const raw = window.localStorage.getItem(LIVE_HOME_LAST_KNOWN_KEY);
+  const n = raw === null ? NaN : Number(raw);
+  return Number.isFinite(n) && n > 0.05 ? n : null;
+}
+
+function rememberLastKnownHomeKw(v: number | null) {
+  if (typeof window === 'undefined' || v === null || v <= 0.05) return;
+  window.localStorage.setItem(LIVE_HOME_LAST_KNOWN_KEY, String(Math.min(20, v)));
+}
+
 function formatAge(iso: string | null) {
   if (!iso) return 'Sync pending';
   const secs = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
@@ -566,27 +618,30 @@ export function LiveEnergyMonitoringCard() {
     return rows.sort((a, b) => new Date(b.cached_at).getTime() - new Date(a.cached_at).getTime())[0];
   }, [solar.data, battery.data, ev.data]);
 
-  const homeKwRaw = (() => {
-    const loadW = pickNumber(primaryBattery?.payload, ['load_power', 'energy_sites.0.load_power']);
-    return loadW !== null ? loadW / 1000 : 0;
-  })();
+  const homeKwRaw = normalizeWattsToKw(pickNumber(primaryBattery?.payload, ['load_power', 'energy_sites.0.load_power']));
   const evKwRaw = pickNumber(primaryEv?.payload, ['charge_rate_kw', 'charger_power', 'vehicles.0.charger_power']) ?? 0;
-  // De-double-count: if Tesla is charging at home, subtract its draw from house load
-  const homeKwDisplayed = teslaFlow?.isCharging && teslaFlow.source === 'home'
-    ? Math.max(0, homeKwRaw - teslaFlow.kW)
-    : homeKwRaw;
+  const gridKwRaw = normalizeWattsToKw(pickNumber(primaryBattery?.payload, ['grid_power', 'energy_sites.0.grid_power']));
+  const evHomeKw = teslaFlow?.isCharging && teslaFlow.source === 'home' ? teslaFlow.kW : 0;
+  const effectiveHomeKwRaw = homeKwRaw !== null && homeKwRaw > 0.05 ? homeKwRaw : readLastKnownHomeKw();
+  const reconciledFlow = reconcileEnergyFlow({
+    solarKw: solarStats.currentKw ?? 0,
+    rawHomeKw: effectiveHomeKwRaw,
+    batteryKw: batteryStats.powerKw ?? 0,
+    rawGridKw: gridKwRaw,
+    evHomeKw,
+  });
+  useEffect(() => {
+    rememberLastKnownHomeKw(reconciledFlow.homeKw);
+  }, [reconciledFlow.homeKw]);
 
   const flowData = {
     solarPower: solarStats.currentKw ?? 0,
-    homePower: homeKwDisplayed,
+    homePower: reconciledFlow.homeKw,
     batteryPower: batteryStats.powerKw ?? 0,
     batteryPercent: Math.round(batteryStats.soc ?? 0),
     batteryCapacityKwh: batteryStats.capacityKwh ?? undefined,
     batteryReserveKwh: batteryStats.reserveKwh ?? undefined,
-    gridPower: (() => {
-      const gridW = pickNumber(primaryBattery?.payload, ['grid_power', 'energy_sites.0.grid_power']);
-      return gridW !== null ? gridW / 1000 : 0;
-    })(),
+    gridPower: reconciledFlow.gridKw,
     evPower: evKwRaw,
     tesla: teslaFlow
       ? {
@@ -647,10 +702,7 @@ export function LiveEnergyMonitoringCard() {
         // Master live pill — Tesla charging wins, then Powerwall discharging, charging, solar, grid import, idle.
         const pw = batteryStats.powerKw;
         const solarKw = solarStats.currentKw ?? 0;
-        const gridKw = (() => {
-          const w = pickNumber(primaryBattery?.payload, ['grid_power', 'energy_sites.0.grid_power']);
-          return w !== null ? w / 1000 : 0;
-        })();
+        const gridKw = reconciledFlow.gridKw;
         let pillState: 'tesla-charging' | 'discharging' | 'charging' | 'solar' | 'grid-import' | 'idle' = 'idle';
         if (teslaFlow?.isCharging) pillState = 'tesla-charging';
         else if (pw !== null && pw < -0.05) pillState = 'discharging';

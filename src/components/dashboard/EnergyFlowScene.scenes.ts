@@ -138,7 +138,9 @@ const DEFAULT_COLOR: Record<VehicleModel, VehicleColor> = {
   model3: 'pearl-white',
   modely: 'pearl-white',
   models: 'pearl-white',
-  modelx: 'pearl-white',
+  // ZenX owner/demo reality: if Tesla withholds exterior_color, do not render
+  // the embarrassing white Model X fallback.
+  modelx: 'solid-black',
   cybertruck: 'stainless',
 };
 
@@ -152,6 +154,11 @@ const NICKNAME_MAP: Array<[RegExp, VehicleModel]> = [
   [/\bzen[\s_-]?y\b/i, 'modely'],
   [/\bzen[\s_-]?s\b/i, 'models'],
   [/\bzen[\s_-]?3\b/i, 'model3'],
+];
+
+const NICKNAME_COLOR_MAP: Array<[RegExp, VehicleColor]> = [
+  // Current real-world car: ZenX is a black Model X.
+  [/\bzen[\s_-]?x\b/i, 'solid-black'],
 ];
 
 /** Local persistence key — last successfully resolved vehicle for this browser. */
@@ -183,7 +190,7 @@ function readUrlOverride(): { model?: VehicleModel; color?: VehicleColor } {
   try {
     const sp = new URLSearchParams(window.location.search);
     const v = sp.get('vehicle')?.toLowerCase().replace(/[\s_-]/g, '') as VehicleModel | undefined;
-    const c = sp.get('color')?.toLowerCase() as VehicleColor | undefined;
+    const c = sp.get('color')?.toLowerCase().replace(/[\s_]/g, '-') as VehicleColor | undefined;
     const validModel: Record<string, VehicleModel> = {
       model3: 'model3', modely: 'modely', models: 'models', modelx: 'modelx', cybertruck: 'cybertruck',
     };
@@ -226,6 +233,30 @@ function detectModelFromString(raw: string): VehicleModel | null {
   if (/(^|\s)y(\s|$)/i.test(trimmed)) return 'modely';
   if (/(^|\s)s(\s|$)/i.test(trimmed)) return 'models';
   if (/(^|\s)3(\s|$)/i.test(trimmed)) return 'model3';
+  return null;
+}
+
+function detectColorFromString(raw: string): VehicleColor | null {
+  if (!raw) return null;
+  const trimmed = raw.trim();
+  for (const [pattern, color] of NICKNAME_COLOR_MAP) {
+    if (pattern.test(trimmed)) return color;
+  }
+  const s = trimmed.toLowerCase().replace(/[\s_-]/g, '');
+  if (s.includes('pearlwhite') || s === 'white') return 'pearl-white';
+  if (s.includes('solidblack') || s === 'black' || s.includes('obsidian')) return 'solid-black';
+  if (s.includes('deepblue') || s.includes('blue')) return 'deep-blue';
+  if (s.includes('red')) return 'red';
+  if (
+    s.includes('stealthgrey') ||
+    s.includes('stealthgray') ||
+    s.includes('midnightsilver') ||
+    s.includes('quicksilver') ||
+    s.includes('grey') ||
+    s.includes('gray') ||
+    s.includes('silver')
+  ) return 'stealth-grey';
+  if (s.includes('stainless') || s.includes('steel')) return 'stainless';
   return null;
 }
 
@@ -284,6 +315,14 @@ export function resolveVehicleColor(
   input: unknown,
 ): VehicleColor | null {
   const candidates = collectStrings(input, [
+    'device_name',
+    'metadata.device_name',
+    'name',
+    'metadata.name',
+    'display_name',
+    'vehicles.0.display_name',
+    'response.display_name',
+    'metadata.display_name',
     'vehicle_config.exterior_color',
     'vehicles.0.vehicle_config.exterior_color',
     'response.vehicle_config.exterior_color',
@@ -293,7 +332,15 @@ export function resolveVehicleColor(
   ]);
 
   for (const raw of candidates) {
+    const hit = detectColorFromString(raw);
+    if (hit) return hit;
     const s = raw.toLowerCase().replace(/[\s_-]/g, '');
+    // Tesla paint codes observed in owner/API payloads.
+    if (s === 'pbsb' || s === 'pmbl' || s === 'pbss') return 'solid-black';
+    if (s === 'ppsw' || s === 'pbcw') return 'pearl-white';
+    if (s === 'ppmr' || s === 'pr01' || s === 'ppmr2') return 'red';
+    if (s === 'ppsB'.toLowerCase() || s === 'pmbs' || s === 'ppsb') return 'deep-blue';
+    if (s === 'pmng' || s === 'pn00' || s === 'pmss') return 'stealth-grey';
     // Tesla canonical exterior_color strings: PearlWhite, MidnightSilver,
     // DeepBlue, Red / RedMulti, SolidBlack, StealthGrey, Quicksilver,
     // SilverMetallic, UltraRed, etc.

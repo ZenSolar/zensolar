@@ -158,27 +158,27 @@ function FlowLabel({
  *   - cyan    → grid export
  */
 function FlowConduit({
+  id,
   active,
   d,
   color,
   ledColor,
   dur = 1.4,
-  reverse = false,
   width = 0.9,
 }: {
+  id: string;
   active: boolean;
   d: string;
   color: string;
   ledColor: string;
   dur?: number;
-  reverse?: boolean;
   width?: number;
 }) {
   if (!active) return null;
   return (
     <g>
-      <path d={d} stroke={color} strokeOpacity="0.18" strokeWidth={width + 1.4} strokeLinecap="round" fill="none" />
-      <path d={d} stroke={color} strokeOpacity="0.85" strokeWidth={width} strokeLinecap="round" fill="none" />
+      <path id={id} d={d} stroke={color} strokeOpacity="0.16" strokeWidth={width + 1.9} strokeLinecap="round" fill="none" />
+      <path d={d} stroke={color} strokeOpacity="0.86" strokeWidth={width} strokeLinecap="round" fill="none" />
       <path
         d={d}
         stroke={ledColor}
@@ -190,12 +190,20 @@ function FlowConduit({
       >
         <animate
           attributeName="stroke-dashoffset"
-          from={reverse ? '-25' : '0'}
-          to={reverse ? '0' : '-25'}
+          from="0"
+          to="-25"
           dur={`${dur}s`}
           repeatCount="indefinite"
         />
       </path>
+      {[0, 0.45].map((begin) => (
+        <circle key={`${id}-${begin}`} r={Math.max(0.52, width * 0.62)} fill={ledColor} opacity="0" filter="url(#energyPacketGlow)">
+          <animateMotion dur={`${dur * 1.55}s`} repeatCount="indefinite" begin={`${begin * dur}s`} calcMode="linear">
+            <mpath href={`#${id}`} />
+          </animateMotion>
+          <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.12;0.82;1" dur={`${dur * 1.55}s`} repeatCount="indefinite" begin={`${begin * dur}s`} />
+        </circle>
+      ))}
     </g>
   );
 }
@@ -208,18 +216,20 @@ function FlowConduit({
 // scene variant.
 // ---------------------------------------------------------------------------
 const ANCHOR = {
-  solar: { x: 42, y: 30 },   // rooftop panel center
-  home:  { x: 60, y: 58 },   // front door / window hub
-  pw:    { x: 28, y: 65 },   // garage (Powerwall location)
-  grid:  { x: 92, y: 70 },   // utility pole / right edge of yard
-  ev:    { x: 32, y: 80 },   // driveway / car charge port
+  solar: { x: 43, y: 32 },      // center of active roof array
+  load:  { x: 61, y: 60 },      // home load center / lit windows
+  home:  { x: 61, y: 60 },
+  pw:    { x: 35, y: 64 },      // garage wall / Powerwall cabinet
+  grid:  { x: 88, y: 65 },      // utility meter / pole side
+  ev:    { x: 28, y: 75 },      // driveway charge-port zone
 } as const;
 
-const PATH_SOLAR_HOME = `M ${ANCHOR.solar.x} ${ANCHOR.solar.y} Q ${ANCHOR.solar.x + 4} ${(ANCHOR.solar.y + ANCHOR.home.y) / 2} ${ANCHOR.home.x} ${ANCHOR.home.y}`;
-const PATH_SOLAR_PW   = `M ${ANCHOR.solar.x} ${ANCHOR.solar.y} Q ${ANCHOR.pw.x + 4} ${ANCHOR.solar.y + 18} ${ANCHOR.pw.x} ${ANCHOR.pw.y}`;
-const PATH_PW_HOME    = `M ${ANCHOR.pw.x} ${ANCHOR.pw.y} Q ${(ANCHOR.pw.x + ANCHOR.home.x) / 2} ${ANCHOR.home.y + 2} ${ANCHOR.home.x} ${ANCHOR.home.y}`;
-const PATH_GRID_HOME  = `M ${ANCHOR.grid.x} ${ANCHOR.grid.y} Q ${(ANCHOR.grid.x + ANCHOR.home.x) / 2} ${ANCHOR.home.y + 4} ${ANCHOR.home.x + 4} ${ANCHOR.home.y + 2}`;
-const PATH_HOME_EV    = `M ${ANCHOR.home.x} ${ANCHOR.home.y} Q ${(ANCHOR.home.x + ANCHOR.ev.x) / 2} ${ANCHOR.ev.y - 4} ${ANCHOR.ev.x} ${ANCHOR.ev.y}`;
+const PATH_SOLAR_HOME = `M ${ANCHOR.solar.x} ${ANCHOR.solar.y} C 46 42 52 53 ${ANCHOR.load.x} ${ANCHOR.load.y}`;
+const PATH_SOLAR_PW   = `M ${ANCHOR.solar.x} ${ANCHOR.solar.y} C 39 43 36 53 ${ANCHOR.pw.x} ${ANCHOR.pw.y}`;
+const PATH_PW_HOME    = `M ${ANCHOR.pw.x} ${ANCHOR.pw.y} C 43 66 52 63 ${ANCHOR.load.x} ${ANCHOR.load.y}`;
+const PATH_GRID_HOME  = `M ${ANCHOR.grid.x} ${ANCHOR.grid.y} C 78 66 70 64 ${ANCHOR.load.x} ${ANCHOR.load.y}`;
+const PATH_HOME_GRID  = `M ${ANCHOR.load.x} ${ANCHOR.load.y} C 70 64 78 66 ${ANCHOR.grid.x} ${ANCHOR.grid.y}`;
+const PATH_HOME_EV    = `M ${ANCHOR.load.x} ${ANCHOR.load.y} C 52 66 41 72 ${ANCHOR.ev.x} ${ANCHOR.ev.y}`;
 
 const EMERALD = 'hsl(142 76% 55%)';
 const EMERALD_LED = 'hsl(142 90% 78%)';
@@ -349,18 +359,50 @@ export function EnergyFlowScene({
         className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-[80%] w-auto max-w-[94%] -translate-y-1/2"
         style={{ aspectRatio: '1 / 1', zIndex: 15 }}
       >
+        <defs>
+          <filter id="energyPacketGlow" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur stdDeviation="1.5" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+        {Object.entries(ANCHOR).filter(([key]) => key !== 'home').map(([key, point]) => (
+          <circle
+            key={key}
+            cx={point.x}
+            cy={point.y}
+            r={key === 'load' ? 1.2 : 0.9}
+            fill="hsl(var(--background))"
+            stroke={key === 'grid' ? SKY : key === 'pw' ? AMBER : EMERALD}
+            strokeWidth="0.55"
+            opacity="0.9"
+          />
+        ))}
         {/* Solar → Home (always when sun is up — green roof output) */}
-        <FlowConduit active={solarProducing} d={PATH_SOLAR_HOME} color={EMERALD} ledColor={EMERALD_LED} dur={flowDur(solar)} />
+        <FlowConduit id="flow-solar-home" active={solarProducing} d={PATH_SOLAR_HOME} color={EMERALD} ledColor={EMERALD_LED} dur={flowDur(solar)} width={1.05} />
         {/* Solar → Powerwall (when PW is charging from production) */}
-        <FlowConduit active={solarProducing && pwCharging} d={PATH_SOLAR_PW} color={EMERALD} ledColor={EMERALD_LED} dur={flowDur(battery)} />
+        <FlowConduit id="flow-solar-pw" active={solarProducing && pwCharging} d={PATH_SOLAR_PW} color={EMERALD} ledColor={EMERALD_LED} dur={flowDur(battery)} width={0.9} />
         {/* Powerwall → Home (amber) when discharging */}
-        <FlowConduit active={pwDischarging} d={PATH_PW_HOME} color={AMBER} ledColor={AMBER_LED} dur={flowDur(Math.abs(battery))} />
+        <FlowConduit id="flow-pw-home" active={pwDischarging} d={PATH_PW_HOME} color={AMBER} ledColor={AMBER_LED} dur={flowDur(Math.abs(battery))} />
         {/* Grid → Home (sky) when importing */}
-        <FlowConduit active={gridImporting} d={PATH_GRID_HOME} color={SKY} ledColor={SKY_LED} dur={flowDur(grid)} />
+        <FlowConduit id="flow-grid-home" active={gridImporting} d={PATH_GRID_HOME} color={SKY} ledColor={SKY_LED} dur={flowDur(grid)} />
         {/* Home → Grid (cyan) when exporting */}
-        <FlowConduit active={gridExporting} d={PATH_GRID_HOME} color={CYAN} ledColor={CYAN_LED} reverse dur={flowDur(Math.abs(grid))} />
+        <FlowConduit id="flow-home-grid" active={gridExporting} d={PATH_HOME_GRID} color={CYAN} ledColor={CYAN_LED} dur={flowDur(Math.abs(grid))} />
         {/* Home → EV (green) when Tesla actively charging */}
-        <FlowConduit active={isCharging} d={PATH_HOME_EV} color={EMERALD} ledColor={EMERALD_LED} dur={flowDur(data.evPower ?? 7)} />
+        <FlowConduit id="flow-home-ev" active={isCharging} d={PATH_HOME_EV} color={EMERALD} ledColor={EMERALD_LED} dur={flowDur(data.evPower ?? 7)} />
+        {isPluggedIdle && !isCharging && (
+          <path
+            d={PATH_HOME_EV}
+            stroke={EMERALD}
+            strokeOpacity="0.42"
+            strokeWidth="0.7"
+            strokeLinecap="round"
+            strokeDasharray="1.4 3.2"
+            fill="none"
+          />
+        )}
       </svg>
 
       {/* Dynamic Tesla vehicle in driveway — exact model + color only.
