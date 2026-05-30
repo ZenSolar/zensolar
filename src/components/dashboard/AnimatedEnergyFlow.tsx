@@ -246,13 +246,28 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
 
   if (compact) {
     const cx = 200;
+    // Isometric depth offset — shifts right + up to suggest a back-right wall and roof side
+    const dx = 11;
+    const dy = 7;
     return (
-      <g>
+      <g style={{ filter: 'drop-shadow(0 8px 14px rgba(0,0,0,0.55))' }}>
         {/* Ground shadow */}
-        <ellipse cx={cx} cy="255" rx="80" ry="4" fill="#050810" opacity="0.4" />
+        <ellipse cx={cx + 4} cy="258" rx="92" ry="5" fill="#050810" opacity="0.55" />
+
+        {/* ── Isometric depth: back-right side wall (behind front face) ── */}
+        <polygon
+          points={`252,178 ${252 + dx},${178 - dy} ${252 + dx},${251 - dy} 252,251`}
+          fill="#0c1424" stroke="#1e2a3c" strokeWidth="0.6"
+        />
+        {/* Subtle vertical light line on back wall */}
+        <line x1={252 + dx} y1={178 - dy} x2={252 + dx} y2={251 - dy} stroke="#2e4058" strokeWidth="0.4" opacity="0.5" />
 
         {/* Foundation */}
         <rect x="144" y="249" width="112" height="6" rx="1" fill="#0e1420" stroke="#1e2a3c" strokeWidth="0.5" />
+        <polygon
+          points={`256,249 ${256 + dx},${249 - dy} ${256 + dx},${255 - dy} 256,255`}
+          fill="#08101c" stroke="#1e2a3c" strokeWidth="0.4"
+        />
 
         {/* House body */}
         <rect x="148" y="178" width="104" height="73" rx="2" fill="url(#houseFill)" stroke="#2e4058" strokeWidth="0.8" />
@@ -266,6 +281,11 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
 
         {/* Roof */}
         <polygon points="130,181 200,116 270,181" fill="url(#roofFill)" stroke="#2e4058" strokeWidth="0.8" />
+        {/* Isometric back roof slope — darker for depth */}
+        <polygon
+          points={`200,116 ${200 + dx},${116 - dy} ${270 + dx},${181 - dy} 270,181`}
+          fill="#0a1424" stroke="#1e2a3c" strokeWidth="0.6" opacity="0.95"
+        />
         <line x1="200" y1="116" x2="200" y2="119" stroke="#4a6580" strokeWidth="0.7" />
         <line x1="131" y1="181" x2="269" y2="181" stroke="#1a2838" strokeWidth="1.5" />
         {/* Roof ridge texture */}
@@ -542,10 +562,11 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
 
   const vb = compact ? '0 0 400 390' : '0 0 400 470';
   const maxH = compact ? '420px' : '560px';
-  // Tesla-grade legibility: bigger primary values, slightly bigger labels.
-  const labelFs = compact ? 9 : 10;
-  const valueFs = compact ? 22 : 26;
-  const subValueFs = compact ? 16 : 19;
+  // Tesla-grade legibility: large primary values readable at arm's length on 390px.
+  const labelFs = compact ? 10 : 11;
+  const valueFs = compact ? 28 : 32;       // perimeter nodes (Solar / Grid / EV)
+  const subValueFs = compact ? 20 : 24;    // Powerwall stored kWh
+  const homeFs = compact ? 32 : 38;        // centerpiece HOME kW
 
   return (
     <div className={`relative ${className}`}>
@@ -608,12 +629,13 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
             <stop offset="100%" stopColor="#0f1a2a" stopOpacity="0.85" />
           </linearGradient>
           <linearGradient id="windowGlow" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#3d3000" stopOpacity="0.9" />
-            <stop offset="100%" stopColor="#2a2200" stopOpacity="0.7" />
+            <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.95" />
+            <stop offset="60%" stopColor="#f59e0b" stopOpacity="0.8" />
+            <stop offset="100%" stopColor="#b45309" stopOpacity="0.55" />
           </linearGradient>
           <linearGradient id="panelFill" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#1a4070" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#0f2a50" stopOpacity="0.7" />
+            <stop offset="0%" stopColor="#2563eb" stopOpacity="0.9" />
+            <stop offset="100%" stopColor="#0c2a55" stopOpacity="0.85" />
           </linearGradient>
         </defs>
 
@@ -647,6 +669,16 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
           fill="none" stroke={colors.battery}
           strokeWidth={batteryToHome > 0 ? 1 : 0.3} strokeOpacity={batteryToHome > 0 ? 0.25 : 0.06}
         />
+        {/* Discharge channel underglow — energizes the path itself, not just the dots */}
+        {batteryToHome > 0.05 && (
+          <path
+            d={`M${nodes.battery.x + 25},${nodes.battery.y - 15} C${nodes.battery.x + 60},${nodes.battery.y - 50} ${nodes.home.x - 60},${nodes.home.y + 10} ${nodes.home.x - 30},${nodes.home.y}`}
+            fill="none" stroke={colors.battery} strokeWidth={6} strokeOpacity={0.18} strokeLinecap="round"
+            filter="url(#dotGlow)"
+          >
+            <animate attributeName="stroke-opacity" values="0.10;0.28;0.10" dur="2s" repeatCount="indefinite" />
+          </path>
+        )}
         <path
           id="p-solar-grid"
           d={`M${meter.x + 8},${meter.y} C${meter.x + 30},${meter.y} ${nodes.grid.x - 30},${nodes.grid.y} ${nodes.grid.x},${nodes.grid.y}`}
@@ -671,7 +703,7 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
         <FlowingDots pathId="p-solar-bat" color={colors.solar} power={solarToBattery} dotCount={4} />
         {batteryToHome > 0.05 && (
           <g data-flow="powerwall-home">
-            <FlowingDots pathId="p-bat-home" color={colors.battery} power={Math.max(batteryToHome, 1.2)} dotCount={6} />
+            <FlowingDots pathId="p-bat-home" color={colors.battery} power={Math.max(batteryToHome * 1.4, 2.0)} dotCount={8} />
           </g>
         )}
         <FlowingDots pathId="p-grid-home" color={colors.grid} power={gridToHome} dotCount={4} />
@@ -698,13 +730,12 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
           <text x={nodes.solar.x} y={nodes.solar.y - (compact ? 11 : 15)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 5.5 : 6.5} fontWeight="500" letterSpacing="0.6">enphase</text>
         </g>
 
-        {/* ── HOME ── centered in house body */}
-        <g>
-          {/* Compact: house body y=180-253, center~216. Desktop: y=192-295, center~243 */}
-          <text x={nodes.home.x} y={compact ? 220 : 248} textAnchor="middle" fill="white" fontSize={valueFs} fontWeight="700">
-            {flow.homePower.toFixed(1)} kW
+        {/* ── HOME ── centered in house body, large hero number */}
+        <g style={{ filter: 'drop-shadow(0 0 10px rgba(0,0,0,0.85))' }}>
+          <text x={nodes.home.x} y={compact ? 222 : 250} textAnchor="middle" fill="white" fontSize={homeFs} fontWeight="800" style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.5px' }}>
+            {flow.homePower.toFixed(1)}<tspan fontSize={compact ? 13 : 15} fontWeight="600" fill="#cbd5e1" dx={3}>kW</tspan>
           </text>
-          <text x={nodes.home.x} y={compact ? 232 : 261} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.5">HOME</text>
+          <text x={nodes.home.x} y={compact ? 236 : 266} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="600" letterSpacing="2">HOME</text>
         </g>
 
         {/* ── POWERWALL ── kWh stored is the primary number; kW is contextual */}

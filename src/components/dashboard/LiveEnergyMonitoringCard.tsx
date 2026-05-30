@@ -639,11 +639,53 @@ export function LiveEnergyMonitoringCard() {
         </div>
       </div>
 
-      {teslaFlow && (
-        <div className="mb-3">
-          <TeslaStatusPill tesla={teslaFlow} onClick={handlePillClick} />
-        </div>
-      )}
+      {(() => {
+        // Master live pill — Tesla charging wins, then Powerwall discharging, charging, solar, grid import, idle.
+        const pw = batteryStats.powerKw;
+        const solarKw = solarStats.currentKw ?? 0;
+        const gridKw = (() => {
+          const w = pickNumber(primaryBattery?.payload, ['grid_power', 'energy_sites.0.grid_power']);
+          return w !== null ? w / 1000 : 0;
+        })();
+        let pillState: 'tesla-charging' | 'discharging' | 'charging' | 'solar' | 'grid-import' | 'idle' = 'idle';
+        if (teslaFlow?.isCharging) pillState = 'tesla-charging';
+        else if (pw !== null && pw < -0.05) pillState = 'discharging';
+        else if (pw !== null && pw > 0.05) pillState = 'charging';
+        else if (solarKw > 0.1) pillState = 'solar';
+        else if (gridKw > 0.1) pillState = 'grid-import';
+
+        if (teslaFlow) {
+          return (
+            <div className="mb-3" data-pill-state={pillState}>
+              <TeslaStatusPill tesla={teslaFlow} onClick={handlePillClick} />
+            </div>
+          );
+        }
+
+        // Non-Tesla fallback pill — keeps the cockpit always-narrated
+        const pillCfg: Record<typeof pillState, { dot: string; ring: string; label: string }> = {
+          'tesla-charging': { dot: 'bg-emerald-400', ring: 'border-emerald-400/40 bg-emerald-400/10 text-emerald-300', label: '' },
+          'discharging':    { dot: 'bg-amber-400',   ring: 'border-amber-400/40 bg-amber-400/10 text-amber-300',     label: `Powerwall Discharging • ${Math.abs(pw ?? 0).toFixed(1)} kW • ${Math.round(batteryStats.soc ?? 0)}% SOC` },
+          'charging':       { dot: 'bg-emerald-400', ring: 'border-emerald-400/40 bg-emerald-400/10 text-emerald-300', label: `Powerwall Charging • ${(pw ?? 0).toFixed(1)} kW • ${Math.round(batteryStats.soc ?? 0)}% SOC` },
+          'solar':          { dot: 'bg-amber-400',   ring: 'border-amber-400/40 bg-amber-400/10 text-amber-300',     label: `Solar Producing • ${solarKw.toFixed(1)} kW` },
+          'grid-import':    { dot: 'bg-violet-400',  ring: 'border-violet-400/40 bg-violet-400/10 text-violet-300',   label: `Grid Import • ${gridKw.toFixed(1)} kW` },
+          'idle':           { dot: 'bg-muted-foreground/60', ring: 'border-muted-foreground/20 bg-muted/30 text-muted-foreground', label: 'System Idle' },
+        };
+        const cfg = pillCfg[pillState];
+        if (!cfg.label) return null;
+        return (
+          <div className="mb-3" data-pill-state={pillState}>
+            <span className={`inline-flex w-full sm:w-auto items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-semibold tracking-wide ${cfg.ring}`}>
+              <span aria-hidden="true" className={`relative inline-flex h-2 w-2 rounded-full ${cfg.dot}`}>
+                {(pillState === 'discharging' || pillState === 'charging' || pillState === 'solar') && (
+                  <span className={`absolute inset-0 inline-flex h-full w-full animate-ping rounded-full ${cfg.dot} opacity-75`} />
+                )}
+              </span>
+              <span className="truncate">{cfg.label}</span>
+            </span>
+          </div>
+        );
+      })()}
 
       {loading ? (
         <div className="flex justify-center py-10">
