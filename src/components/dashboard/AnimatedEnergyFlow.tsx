@@ -21,6 +21,74 @@ export interface EnergyFlowData {
   tesla?: TeslaVehicleFlow;
 }
 
+/**
+ * Pure formatter for the Powerwall node. Returns the strings + color the SVG
+ * should render. Extracted so it can be unit-tested without rendering SVG.
+ *
+ * Multi-Powerwall ready: when `capacity` ≥ 20 kWh we drop decimals on the
+ * primary number to keep the line under the node width at 390px.
+ */
+export interface PowerwallDisplay {
+  primaryReserve: string;   // e.g. "13.5" or "13" (multi-unit)
+  primaryCapacity: string;  // e.g. "13.5 kWh" or "27 kWh"
+  status: string;           // e.g. "100%\u202F·\u202FFull"
+  statusColor: string;
+  isUnknown: boolean;
+}
+
+export function derivePowerwallDisplay(input: {
+  capacity: number | null | undefined;
+  reserve: number | null | undefined;
+  percent: number | null | undefined;
+  power: number | null | undefined;
+}): PowerwallDisplay {
+  const SEP = '\u202F·\u202F';
+  const capacity = typeof input.capacity === 'number' && Number.isFinite(input.capacity) && input.capacity > 0
+    ? input.capacity
+    : null;
+  const percent = typeof input.percent === 'number' && Number.isFinite(input.percent)
+    ? Math.max(0, Math.min(100, input.percent))
+    : null;
+  const reserveRaw = typeof input.reserve === 'number' && Number.isFinite(input.reserve)
+    ? input.reserve
+    : (capacity !== null && percent !== null ? capacity * (percent / 100) : null);
+  const reserve = reserveRaw !== null && capacity !== null
+    ? Math.max(0, Math.min(capacity, reserveRaw))
+    : reserveRaw;
+  const power = typeof input.power === 'number' && Number.isFinite(input.power) ? input.power : null;
+
+  const isUnknown = capacity === null || percent === null;
+  const multiUnit = capacity !== null && capacity >= 20;
+  const reserveDp = multiUnit ? 0 : 1;
+  const capDp = multiUnit ? 0 : 1;
+
+  const primaryReserve = reserve !== null ? reserve.toFixed(reserveDp) : '—';
+  const primaryCapacity = capacity !== null ? `${capacity.toFixed(capDp)} kWh` : '— kWh';
+
+  const fmtKw = (kw: number) => Math.abs(kw) >= 10 ? Math.abs(kw).toFixed(0) : Math.abs(kw).toFixed(1);
+
+  let status: string;
+  let statusColor: string;
+  if (isUnknown) {
+    status = 'State pending';
+    statusColor = '#6b7280';
+  } else if (power !== null && power > 0.05) {
+    status = `${Math.round(percent!)}%${SEP}+${fmtKw(power)} kW`;
+    statusColor = '#22C55E';
+  } else if (power !== null && power < -0.05) {
+    status = `${Math.round(percent!)}%${SEP}\u2212${fmtKw(power)} kW`;
+    statusColor = '#F59E0B';
+  } else if (percent! >= 99) {
+    status = `${Math.round(percent!)}%${SEP}Full`;
+    statusColor = '#6b7280';
+  } else {
+    status = `${Math.round(percent!)}%${SEP}Idle`;
+    statusColor = '#6b7280';
+  }
+
+  return { primaryReserve, primaryCapacity, status, statusColor, isUnknown };
+}
+
 interface AnimatedEnergyFlowProps {
   data?: EnergyFlowData;
   className?: string;
@@ -635,19 +703,12 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
 
         {/* ── POWERWALL ── kWh stored is the primary number; kW is contextual */}
         {(() => {
-          const capacity = flow.batteryCapacityKwh ?? 13.5;
-          const reserve = flow.batteryReserveKwh ?? (capacity * (flow.batteryPercent / 100));
-          const isCharging = flow.batteryPower > 0.05;
-          const isDischarging = flow.batteryPower < -0.05;
-          const isFull = flow.batteryPercent >= 99;
-          const statusColor = isCharging ? '#22C55E' : isDischarging ? '#F59E0B' : '#6b7280';
-          const statusText = isCharging
-            ? `${flow.batteryPercent}% · +${flow.batteryPower.toFixed(1)} kW`
-            : isDischarging
-              ? `${flow.batteryPercent}% · ${flow.batteryPower.toFixed(1)} kW`
-              : isFull
-                ? `${flow.batteryPercent}% · Full`
-                : `${flow.batteryPercent}% · Idle`;
+          const display = derivePowerwallDisplay({
+            capacity: flow.batteryCapacityKwh,
+            reserve: flow.batteryReserveKwh,
+            percent: flow.batteryPercent,
+            power: flow.batteryPower,
+          });
           return (
             <g>
               <circle cx={nodes.battery.x} cy={nodes.battery.y} r={compact ? 14 : 18} fill={colors.battery} fillOpacity={0.1} stroke={colors.battery} strokeWidth={0.8} strokeOpacity={0.35} />
@@ -655,13 +716,13 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
               <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 22 : 28)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.2">POWERWALL</text>
               <text x={nodes.battery.x} y={nodes.battery.y - (compact ? 18 : 22)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 5.5 : 6.5} fontWeight="500" letterSpacing="0.6">tesla</text>
               <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 35 : 43)} textAnchor="middle" fill={colors.battery} fontSize={subValueFs} fontWeight="700">
-                {reserve.toFixed(1)}<tspan fontSize={compact ? 8 : 10} fontWeight="500" fill="#9ca3af"> / {capacity.toFixed(1)} kWh</tspan>
+                {display.primaryReserve}<tspan fontSize={compact ? 8 : 10} fontWeight="500" fill="#9ca3af"> / {display.primaryCapacity}</tspan>
               </text>
-              <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 45 : 55)} textAnchor="middle" fill={statusColor} fontSize={compact ? 8 : 10} fontWeight="600">
-                {statusText}
+              <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 45 : 55)} textAnchor="middle" fill={display.statusColor} fontSize={compact ? 8 : 10} fontWeight="600">
+                {display.status}
               </text>
               <rect x={nodes.battery.x - 16} y={nodes.battery.y + (compact ? 49 : 60)} width={32} height={4} rx={2} fill="#1a2030" fillOpacity={0.15} />
-              <rect x={nodes.battery.x - 16} y={nodes.battery.y + (compact ? 49 : 60)} width={32 * (flow.batteryPercent / 100)} height={4} rx={2} fill={colors.battery} fillOpacity={0.6} />
+              <rect x={nodes.battery.x - 16} y={nodes.battery.y + (compact ? 49 : 60)} width={32 * (Math.max(0, Math.min(100, flow.batteryPercent || 0)) / 100)} height={4} rx={2} fill={colors.battery} fillOpacity={0.6} />
             </g>
           );
         })()}
