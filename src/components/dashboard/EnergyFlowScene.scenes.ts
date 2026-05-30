@@ -315,12 +315,6 @@ export function resolveVehicleColor(
   input: unknown,
 ): VehicleColor | null {
   const candidates = collectStrings(input, [
-    'vehicle_config.exterior_color',
-    'vehicles.0.vehicle_config.exterior_color',
-    'response.vehicle_config.exterior_color',
-    'exterior_color',
-    'color',
-    'paint_color',
     'device_name',
     'metadata.device_name',
     'name',
@@ -329,6 +323,12 @@ export function resolveVehicleColor(
     'vehicles.0.display_name',
     'response.display_name',
     'metadata.display_name',
+    'vehicle_config.exterior_color',
+    'vehicles.0.vehicle_config.exterior_color',
+    'response.vehicle_config.exterior_color',
+    'exterior_color',
+    'color',
+    'paint_color',
   ]);
 
   for (const raw of candidates) {
