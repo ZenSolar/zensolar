@@ -158,27 +158,27 @@ function FlowLabel({
  *   - cyan    → grid export
  */
 function FlowConduit({
+  id,
   active,
   d,
   color,
   ledColor,
   dur = 1.4,
-  reverse = false,
   width = 0.9,
 }: {
+  id: string;
   active: boolean;
   d: string;
   color: string;
   ledColor: string;
   dur?: number;
-  reverse?: boolean;
   width?: number;
 }) {
   if (!active) return null;
   return (
     <g>
-      <path d={d} stroke={color} strokeOpacity="0.18" strokeWidth={width + 1.4} strokeLinecap="round" fill="none" />
-      <path d={d} stroke={color} strokeOpacity="0.85" strokeWidth={width} strokeLinecap="round" fill="none" />
+      <path id={id} d={d} stroke={color} strokeOpacity="0.16" strokeWidth={width + 1.9} strokeLinecap="round" fill="none" />
+      <path d={d} stroke={color} strokeOpacity="0.86" strokeWidth={width} strokeLinecap="round" fill="none" />
       <path
         d={d}
         stroke={ledColor}
@@ -190,12 +190,20 @@ function FlowConduit({
       >
         <animate
           attributeName="stroke-dashoffset"
-          from={reverse ? '-25' : '0'}
-          to={reverse ? '0' : '-25'}
+          from="0"
+          to="-25"
           dur={`${dur}s`}
           repeatCount="indefinite"
         />
       </path>
+      {[0, 0.45].map((begin) => (
+        <circle key={`${id}-${begin}`} r={Math.max(0.52, width * 0.62)} fill={ledColor} opacity="0" filter="url(#energyPacketGlow)">
+          <animateMotion dur={`${dur * 1.55}s`} repeatCount="indefinite" begin={`${begin * dur}s`} calcMode="linear">
+            <mpath href={`#${id}`} />
+          </animateMotion>
+          <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.12;0.82;1" dur={`${dur * 1.55}s`} repeatCount="indefinite" begin={`${begin * dur}s`} />
+        </circle>
+      ))}
     </g>
   );
 }
