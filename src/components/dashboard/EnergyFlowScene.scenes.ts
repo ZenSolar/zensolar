@@ -190,7 +190,7 @@ function readUrlOverride(): { model?: VehicleModel; color?: VehicleColor } {
   try {
     const sp = new URLSearchParams(window.location.search);
     const v = sp.get('vehicle')?.toLowerCase().replace(/[\s_-]/g, '') as VehicleModel | undefined;
-    const c = sp.get('color')?.toLowerCase() as VehicleColor | undefined;
+    const c = sp.get('color')?.toLowerCase().replace(/[\s_]/g, '-') as VehicleColor | undefined;
     const validModel: Record<string, VehicleModel> = {
       model3: 'model3', modely: 'modely', models: 'models', modelx: 'modelx', cybertruck: 'cybertruck',
     };
