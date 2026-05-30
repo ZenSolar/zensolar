@@ -17,21 +17,21 @@ export type BlueprintAnchor = Readonly<{ x: number; y: number }>;
 
 export const HOME_BLUEPRINT = Object.freeze({
   /** Solar panel array center on the front-facing roof slope. */
-  solar:        { x: 41, y: 33 } as BlueprintAnchor,
-  /** White Powerwall cabinet on front wall, immediately left of windows. */
-  powerwall:    { x: 69, y: 63 } as BlueprintAnchor,
+  solar:        { x: 48, y: 27 } as BlueprintAnchor,
+  /** White Powerwall cabinet on porch, immediately left of the lit windows. */
+  powerwall:    { x: 78, y: 62 } as BlueprintAnchor,
   /** Optional second Powerwall, stacked horizontally next to the first. */
-  powerwall2:   { x: 64, y: 65 } as BlueprintAnchor,
+  powerwall2:   { x: 72, y: 64 } as BlueprintAnchor,
   /** 4-window lit cluster on the right side of the front facade. */
-  windows:      { x: 83, y: 59 } as BlueprintAnchor,
+  windows:      { x: 85, y: 58 } as BlueprintAnchor,
   /** Recessed front door (center of porch). */
   frontDoor:    { x: 55, y: 66 } as BlueprintAnchor,
   /** Small grey utility/grid meter box at the right edge of the front wall. */
-  gridMeter:    { x: 92, y: 63 } as BlueprintAnchor,
+  gridMeter:    { x: 95, y: 62 } as BlueprintAnchor,
   /** Tesla Wall Connector inside the garage, mounted on the back wall. */
-  wallCharger:  { x: 27, y: 64 } as BlueprintAnchor,
+  wallCharger:  { x: 28, y: 60 } as BlueprintAnchor,
   /** Driveway parking spot in front of the garage. Anchor = car center. */
-  carPark:      { x: 16, y: 73 } as BlueprintAnchor,
+  carPark:      { x: 15, y: 71 } as BlueprintAnchor,
   /** Dynamic-vehicle <image> overlay dimensions, % of viewBox. */
   carWidth: 28,
   carHeight: 15,
@@ -45,20 +45,20 @@ export const HOME_BLUEPRINT = Object.freeze({
 const B = HOME_BLUEPRINT;
 export const BLUEPRINT_PATHS = Object.freeze({
   /** Solar roof → lit windows. Down the front roof slope to the right eave. */
-  solarToHome:        `M ${B.solar.x} ${B.solar.y} C 55 40 70 52 ${B.windows.x} ${B.windows.y}`,
-  /** Solar roof → Powerwall (front wall). Slope down to the facade. */
-  solarToPowerwall:   `M ${B.solar.x} ${B.solar.y} C 50 42 60 54 ${B.powerwall.x} ${B.powerwall.y}`,
+  solarToHome:        `M ${B.solar.x} ${B.solar.y} C 65 30 78 45 ${B.windows.x} ${B.windows.y}`,
+  /** Solar roof → Powerwall (front porch). Slope down to the facade. */
+  solarToPowerwall:   `M ${B.solar.x} ${B.solar.y} C 60 30 70 48 ${B.powerwall.x} ${B.powerwall.y}`,
   /** Solar roof → second Powerwall. */
-  solarToPowerwall2:  `M ${B.solar.x} ${B.solar.y} C 48 44 56 56 ${B.powerwall2.x} ${B.powerwall2.y}`,
-  /** Powerwall → windows. Short rightward arc along the front wall. */
-  powerwallToHome:    `M ${B.powerwall.x} ${B.powerwall.y} C 73 62 78 60 ${B.windows.x} ${B.windows.y}`,
+  solarToPowerwall2:  `M ${B.solar.x} ${B.solar.y} C 58 32 65 50 ${B.powerwall2.x} ${B.powerwall2.y}`,
+  /** Powerwall → windows. Short rightward arc along the front facade. */
+  powerwallToHome:    `M ${B.powerwall.x} ${B.powerwall.y} C 80 61 83 59 ${B.windows.x} ${B.windows.y}`,
   /** Second Powerwall → windows. */
-  powerwall2ToHome:   `M ${B.powerwall2.x} ${B.powerwall2.y} C 70 63 76 61 ${B.windows.x} ${B.windows.y}`,
+  powerwall2ToHome:   `M ${B.powerwall2.x} ${B.powerwall2.y} C 76 62 80 60 ${B.windows.x} ${B.windows.y}`,
   /** Grid meter → windows. Short leftward arc along the front wall. */
-  gridToHome:         `M ${B.gridMeter.x} ${B.gridMeter.y} C 89 62 86 60 ${B.windows.x} ${B.windows.y}`,
+  gridToHome:         `M ${B.gridMeter.x} ${B.gridMeter.y} C 92 61 88 59 ${B.windows.x} ${B.windows.y}`,
   /** Windows → grid meter (export). Reverse of above. */
-  homeToGrid:         `M ${B.windows.x} ${B.windows.y} C 86 60 89 62 ${B.gridMeter.x} ${B.gridMeter.y}`,
+  homeToGrid:         `M ${B.windows.x} ${B.windows.y} C 88 59 92 61 ${B.gridMeter.x} ${B.gridMeter.y}`,
   /** Wall charger → parked EV. Short arc out of the garage to the driveway. */
-  chargerToEv:        `M ${B.wallCharger.x} ${B.wallCharger.y} C 24 67 20 70 ${B.carPark.x} ${B.carPark.y}`,
+  chargerToEv:        `M ${B.wallCharger.x} ${B.wallCharger.y} C 24 64 19 68 ${B.carPark.x} ${B.carPark.y}`,
 } as const);
 
