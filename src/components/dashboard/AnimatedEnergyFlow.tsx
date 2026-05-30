@@ -648,6 +648,16 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
           fill="none" stroke={colors.battery}
           strokeWidth={batteryToHome > 0 ? 1 : 0.3} strokeOpacity={batteryToHome > 0 ? 0.25 : 0.06}
         />
+        {/* Discharge channel underglow — energizes the path itself, not just the dots */}
+        {batteryToHome > 0.05 && (
+          <path
+            d={`M${nodes.battery.x + 25},${nodes.battery.y - 15} C${nodes.battery.x + 60},${nodes.battery.y - 50} ${nodes.home.x - 60},${nodes.home.y + 10} ${nodes.home.x - 30},${nodes.home.y}`}
+            fill="none" stroke={colors.battery} strokeWidth={6} strokeOpacity={0.18} strokeLinecap="round"
+            filter="url(#dotGlow)"
+          >
+            <animate attributeName="stroke-opacity" values="0.10;0.28;0.10" dur="2s" repeatCount="indefinite" />
+          </path>
+        )}
         <path
           id="p-solar-grid"
           d={`M${meter.x + 8},${meter.y} C${meter.x + 30},${meter.y} ${nodes.grid.x - 30},${nodes.grid.y} ${nodes.grid.x},${nodes.grid.y}`}
