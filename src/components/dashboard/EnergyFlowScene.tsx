@@ -392,6 +392,17 @@ export function EnergyFlowScene({
         <FlowConduit id="flow-home-grid" active={gridExporting} d={PATH_HOME_GRID} color={CYAN} ledColor={CYAN_LED} dur={flowDur(Math.abs(grid))} />
         {/* Home → EV (green) when Tesla actively charging */}
         <FlowConduit id="flow-home-ev" active={isCharging} d={PATH_HOME_EV} color={EMERALD} ledColor={EMERALD_LED} dur={flowDur(data.evPower ?? 7)} />
+        {isPluggedIdle && !isCharging && (
+          <path
+            d={PATH_HOME_EV}
+            stroke={EMERALD}
+            strokeOpacity="0.42"
+            strokeWidth="0.7"
+            strokeLinecap="round"
+            strokeDasharray="1.4 3.2"
+            fill="none"
+          />
+        )}
       </svg>
 
       {/* Dynamic Tesla vehicle in driveway — exact model + color only.
