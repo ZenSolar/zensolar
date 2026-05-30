@@ -400,8 +400,6 @@ export function EnergyFlowScene({
         accent={grid < -0.05 ? 'blue' : grid > 0.05 ? 'amber' : 'muted'}
         active={Math.abs(grid) > 0.05}
       />
-
-      <BatteryDebugPanel rows={batteryDebugRows} />
     </div>
   );
 }
