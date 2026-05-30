@@ -346,7 +346,7 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
               )}
             >
               <div className={cn("space-y-2", m.role === "user" ? "max-w-[85%]" : "w-full")}>
-                {(m.content || m.role === "user" || !m.billReport) && (
+                {(m.content || m.role === "user" || (!m.billReport && !m.energyReport)) && (
                   <div
                     className={cn(
                       "whitespace-pre-wrap leading-relaxed",
@@ -360,6 +360,14 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
                   </div>
                 )}
                 {m.billReport && <BillSavingsReport report={m.billReport} />}
+                {m.energyReport && (
+                  <EnergyReportCard
+                    preview={m.energyReport.preview}
+                    full={m.energyReport.full}
+                    entitled={m.energyReport.entitled}
+                    onUnlock={() => alert("Subscription checkout coming soon — $4.99/mo with 7-day free trial.")}
+                  />
+                )}
               </div>
             </div>
           ))}
@@ -436,7 +444,7 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
                 onSubmit();
               }
             }}
-            placeholder="Ask about tokens, your rate plan, or attach a bill…"
+            placeholder="Ask about your bill, rate plan, contract, or savings…"
 
             rows={1}
             className="min-h-[40px] max-h-32 resize-none border-0 bg-transparent px-1 py-2 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
@@ -459,7 +467,9 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
 
       </form>
 
-      {/* Solar Concierge: upload sheet + inline result rendered into the chat. */}
+      {/* Document analysis upload sheet. Result is pushed into the chat thread
+          as a real assistant message (with EnergyReportCard rendered inline),
+          not a floating overlay — so it persists with the conversation. */}
       <EnergyDocSheet
         open={energySheetOpen}
         onOpenChange={setEnergySheetOpen}
@@ -468,25 +478,18 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
           try {
             const res = await energy.generate(docs, threadId);
             setEnergySheetOpen(false);
-            seedAssistant(`Here's your Solar Concierge analysis — estimated $${Math.round(res.preview.headline_savings_usd_per_year).toLocaleString()}/yr in opportunities. Tap to expand the full report below.`);
+            const headline = Math.round(res.preview.headline_savings_usd_per_year).toLocaleString();
+            const narrative = `Here's your personalized energy analysis — I'm seeing roughly **$${headline}/yr** in opportunities across your bill${docs.some(d => d.kind === "installer_contract") ? ", contract" : ""}${docs.some(d => d.kind === "ppa" || d.kind === "loan") ? `, and ${docs.some(d => d.kind === "ppa") ? "PPA" : "loan"}` : ""}.\n\n${res.preview.executive_summary}\n\nAsk me follow-ups any time — I'll ground my answers in your actual documents.`;
+            seedAssistant(narrative, {
+              energyReport: {
+                preview: res.preview,
+                full: res.full,
+                entitled: res.entitled,
+              },
+            });
           } catch { /* error already surfaced in hook */ }
         }}
       />
-      {energy.result && (
-        <div className="absolute inset-x-0 bottom-20 z-20 mx-3 max-h-[70vh] overflow-y-auto rounded-2xl bg-background/95 p-2 shadow-2xl backdrop-blur">
-          <div className="flex justify-end">
-            <button onClick={energy.reset} className="rounded-full p-1 text-muted-foreground hover:text-foreground">
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-          <EnergyReportCard
-            preview={energy.result.preview}
-            full={energy.result.full}
-            entitled={energy.result.entitled}
-            onUnlock={() => alert("Subscription checkout coming soon — $4.99/mo with 7-day free trial.")}
-          />
-        </div>
-      )}
       {energy.error && (
         <div className="absolute inset-x-3 bottom-24 z-20 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">
           {energy.error}
