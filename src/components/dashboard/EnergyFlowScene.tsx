@@ -611,6 +611,8 @@ export function EnergyFlowScene({
             />
           </g>
         )}
+
+        {debug && <DebugAnchors />}
       </svg>
 
       {/* Floating labels */}
