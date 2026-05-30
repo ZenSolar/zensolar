@@ -1,92 +1,57 @@
+## Fix: Powerwall SOC stale by ~10% on Live card
 
-## Live Energy Monitoring → Tesla-Grade Premium
+**Problem.** ZenSolar shows 97% SOC while the Tesla app shows 87% at the same moment. Root cause is in `src/hooks/useDeviceTelemetry.ts`:
 
-Evolve the existing card. No rebuild — the data wiring, sign convention, tests, and node hooks (`data-state`, `data-flow`) all stay. Visual layer gets a major upgrade.
-
-**Files touched (UI only):**
-- `src/components/dashboard/AnimatedEnergyFlow.tsx` — SVG canvas, nodes, particles, numbers
-- `src/components/dashboard/LiveEnergyMonitoringCard.tsx` — top status pill + outer chrome only
-- `src/components/dashboard/__tests__/powerwallFlow.test.tsx` — keep all selectors green; add ≤3 small assertions for new test hooks
-
-**Do NOT touch:** telemetry hooks, `batterySnapshot`, `derivePowerwallDisplay`, Supabase, Mint cards, other dashboard sections, light mode.
-
-### 1. Isometric 3D house (centerpiece)
-
-Replace the current flat front-elevation house with a true isometric block:
-- 30° axonometric projection, three visible faces (roof, front, side) using layered `<polygon>`s with gradient fills (`houseRoof`, `houseFront`, `houseSide` gradients).
-- Roof carries 6 glowing solar panel tiles. When `solarPower > 0.1`: panel fill animates a subtle blue→white shimmer; idle: dim slate.
-- Front face has 2 windows that glow warm amber proportional to `homePower` (opacity 0.25–0.9, clamped). Sells "the home is alive".
-- Soft elliptical ground shadow under the house (`<ellipse>` with radial gradient, low opacity).
-- Drop-shadow filter on the whole house group for depth.
-
-Stays pure SVG — no Three.js, no new deps. ~80 lines of geometry, all in `AnimatedEnergyFlow.tsx`.
-
-### 2. Node layout (390px mobile-first)
-
-```
-           ┌──── Tesla status pill ────┐
-           │  ● Tesla Charging · 11.0 kW · 37% │
-           └─────────────┬─────────────┘
-   ☀ Solar                                Grid ⚡
-       \                                   /
-        \         ╱▔▔▔▔▔▔╲                /
-         \      ╱  HOME    ╲             /
-   🔋 ────────[  1.1 kW    ]──────────
-   Powerwall    ╲          ╱
-                 ╲________╱
-                      │
-                  🚗 Tesla
-                  11.0 kW · 37%
+```ts
+const TTL_MS: Record<Capability, number> = {
+  battery: 12 * 60 * 60 * 1000,   // 12 hours — way too long for a live cockpit
+  ev:      90 * 1000,
+  solar:   60 * 60 * 1000,        // 1 hour — also too long for "Live"
+};
 ```
 
-- 5 nodes preserved: Solar (top-left), Powerwall (left), Home (center, the 3D house), Grid (right), EV (below house, visually tethered with a short connector line, not a long arc).
-- Connector lines redrawn as soft curved Bézier paths with subtle gradient strokes (currentColor → transparent), 1.5px.
+A 12-hour cache means the Live card can be reading a value from breakfast. The "UPDATED 1M AGO" pill currently shows the cache-write time, not the sample time, which makes the lie convincing.
 
-### 3. Dramatic Powerwall discharge
+This plan is data-layer only. No visual changes. The clean-slate visual rebuild is paused until reference screenshots arrive.
 
-Keep the existing `data-flow="powerwall-home"` group and green particle color (matches Powerwall icon — locked from last round). Upgrade:
-- Particle count bumped to 8 (from 6) when discharging; size 2.2px with a 5px blur glow halo.
-- Path widened slightly with a faint green underglow stroke (opacity 0.18) so the *channel* itself reads as energized, not just the dots.
-- Existing amber pulsing node halo stays; add a second outer ring (16px drop-shadow, opacity 0.3 → 0.7 → 0.3, 2.4s loop) for "unmistakable at night".
+### Changes
 
-### 4. Number legibility (the squint fix)
+**1. Tighten TTLs for the Live card (`src/hooks/useDeviceTelemetry.ts`)**
+- `battery`: `12h` → `60s`
+- `solar`: `1h` → `60s`
+- `ev`: leave at `90s`
+- Add a brief comment block above `TTL_MS` explaining why these are short (Live cockpit) and noting that downstream summary/history hooks that legitimately need longer caching should not import this map — they should define their own.
 
-Currently kW labels are ~14–16px. New scale:
-- **Home kW**: 30px, weight 700, `text-shadow: 0 0 12px hsl(var(--background))` for AMOLED separation.
-- **Solar / Grid / EV kW**: 22px, weight 600.
-- **Powerwall status (percent · kW)**: 18px, weight 600, amber/green per existing `statusColor`.
-- Unit suffix (`kW`) stays 11px muted, baseline-aligned — gives the number room to breathe.
-- All numbers use `font-variant-numeric: tabular-nums` so digits don't jitter as values tick.
+**2. Surface real sample time, not cache-write time**
+- In `CachedTelemetry`, add `sample_at: string | null` alongside `cached_at`. Populate from the OEM payload when present:
+  - Tesla: `payload.response.charge_state.timestamp` (battery) / `payload.energy_sites[0].timestamp` (solar)
+  - Enphase: `payload.last_report_at` or `payload.read_at`
+  - SolarEdge: `payload.lastUpdateTime`
+  - Fallback to `cached_at` when no sample timestamp is provided.
+- `LiveEnergyMonitoringCard.tsx` "UPDATED Nm AGO" pill: read from `sample_at ?? cached_at` (one-line change inside the existing pill — no visual redesign).
 
-### 5. Top status pill (`LiveEnergyMonitoringCard.tsx`)
+**3. Force-refresh on manual reload**
+- The refresh button next to the "UPDATED" pill should call `refresh({ force: true })` for all three capabilities (battery, ev, solar). Verify it currently does; if not, wire it through. This already exists in `useTelemetry` — just confirm the button passes `force: true`.
 
-Above the SVG canvas, a single dynamic pill that reflects the most important active state (priority: EV charging > Powerwall discharging > Solar producing > Grid importing > Idle):
-- Rounded-full, dark glass background (`bg-white/5 backdrop-blur`), 1px border in state color.
-- Pulsing dot + label + key metric. Example: `● Tesla Charging · 11.0 kW · 37% SOC`.
-- Pure presentation — reads from the same `data` prop already passed in.
-
-### 6. Polish
-
-- Canvas background: subtle radial gradient (deep navy center → near-black edges) instead of flat fill — gives premium depth.
-- Node icons get a soft outer glow in their state color when active.
-- All animations use existing framer-motion patterns; target 60fps; no new RAF loops.
-
-### Test plan
-
-- All 24 existing tests in `powerwallFlow.test.tsx` must still pass (selectors `[data-flow="powerwall-home"]`, `[data-state="..."]`, text content `Full`, `+3.2 kW`, `−2.1 kW`, `13.5 kWh`, `State pending` are all preserved).
-- Add 2 small assertions: status pill renders with `data-pill-state="discharging|charging|solar|grid|idle"`, and Home kW text is present at the new size class.
+**4. Tests**
+- Add one unit test in `src/hooks/__tests__/useDeviceTelemetry.test.ts` (create file if absent) asserting:
+  - Cached row older than 60s for `battery` is treated as stale (re-fetch attempted).
+  - `sample_at` is preferred over `cached_at` when present in the payload.
+- Existing 21 tests in `powerwallFlow.test.tsx` must still pass — none of these changes touch the visual component, so they will.
 
 ### Out of scope (explicit)
 
-- No real 3D / WebGL / Three.js.
-- No backend, telemetry, or sign-convention changes.
-- No Mint card, wallet, or other dashboard edits.
-- No light mode (project is dark-only per Core memory).
-- No new npm dependencies.
+- No edits to `AnimatedEnergyFlow.tsx`. No edits to the visual layer of `LiveEnergyMonitoringCard.tsx` beyond the one-line timestamp source swap.
+- No clean-slate rebuild — that's the next plan, written after you send the Tesla day-mode + EV-charging + Enphase Enlighten reference screenshots.
+- No backend / Supabase schema changes. `device_telemetry_cache` row shape is unchanged; we just write more often.
+- No hero asset generation yet.
 
 ### Success criteria
 
-- At 390×844, night payload (`solar=0, battery=-0.8, home=1.1`): green particles stream visibly from Powerwall into a glowing isometric house with warm amber windows; amber halo pulses on Powerwall; status pill reads `● Powerwall · −0.8 kW · 64%`.
-- Tesla-charging payload (`ev=11, battery=-1.2, solar=7.2`): pill reads `● Tesla Charging · 11.0 kW · 37%`; EV node tethered under the house with LIVE indicator; all kW numbers readable at arm's length without zooming.
-- Daytime payload unchanged in behavior; just prettier.
-- All tests pass.
+- Open Live card → Powerwall SOC matches Tesla app within ±1% (sampling jitter).
+- "UPDATED Nm AGO" reflects the OEM's sample time, so a 12-minute-stale read reads "UPDATED 12M AGO" instead of "UPDATED 1M AGO".
+- Refresh button pulls fresh values within ~2 seconds.
+
+### Next plan (queued, not started)
+
+Once you've sent the Tesla day-mode, Tesla EV-charging, and Enphase Enlighten reference screenshots, I'll write the **clean-slate ZenCasa visual rebuild** plan: hybrid AI-generated hero scenes now (day / dusk / night / EV-plugged / PW-discharging), thin floating labels, single animated glow stroke along the wire conduit, no perimeter node grid, no orbiting particles. Archive the current `AnimatedEnergyFlow.tsx` to `src/components/dashboard/archive/` rather than mutate it again.

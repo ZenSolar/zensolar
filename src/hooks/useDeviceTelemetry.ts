@@ -14,11 +14,13 @@ import { useAuth } from '@/hooks/useAuth';
 type Capability = 'battery' | 'ev' | 'solar';
 type OEM = 'tesla' | 'enphase' | 'solaredge' | 'wallbox';
 
+// TTLs are tuned for the Live Energy cockpit (must match what users see in
+// the Tesla / Enphase apps within ~1 minute). Hooks that need coarser cadence
+// for summaries / history MUST define their own TTL map — do NOT import this.
 const TTL_MS: Record<Capability, number> = {
-  battery: 12 * 60 * 60 * 1000,
-  // Short TTL so plug-in / unplug events surface quickly in the cockpit
+  battery: 60 * 1000,
   ev: 90 * 1000,
-  solar: 60 * 60 * 1000,
+  solar: 60 * 1000,
 };
 
 const FN_BY_OEM: Record<OEM, string> = {
@@ -48,7 +50,61 @@ export interface CachedTelemetry {
   device_name: string | null;
   payload: any;
   cached_at: string;
+  /**
+   * Sample timestamp as reported by the OEM (e.g. Tesla `charge_state.timestamp`,
+   * Enphase `last_report_at`, SolarEdge `lastUpdateTime`). Falls back to `cached_at`
+   * when the payload doesn't expose one. The Live cockpit MUST prefer this over
+   * `cached_at` so the "Updated Nm ago" pill reflects reality, not cache writes.
+   */
+  sample_at?: string | null;
   fresh: boolean;
+}
+
+/**
+ * Extract the OEM-reported sample timestamp from a telemetry payload.
+ * Returns ISO string or null when nothing usable is present.
+ */
+function extractSampleAt(payload: any, capability: Capability): string | null {
+  if (!payload) return null;
+  const candidates: unknown[] = [];
+  if (capability === 'ev') {
+    candidates.push(
+      payload?.response?.charge_state?.timestamp,
+      payload?.charge_state?.timestamp,
+      payload?.vehicles?.[0]?.charge_state?.timestamp,
+    );
+  } else if (capability === 'battery') {
+    candidates.push(
+      payload?.energy_sites?.[0]?.timestamp,
+      payload?.timestamp,
+      payload?.last_report_at,
+      payload?.read_at,
+    );
+  } else if (capability === 'solar') {
+    candidates.push(
+      payload?.energy_sites?.[0]?.timestamp,
+      payload?.last_report_at,
+      payload?.read_at,
+      payload?.lastUpdateTime,
+      payload?.timestamp,
+    );
+  }
+  for (const c of candidates) {
+    if (c == null) continue;
+    if (typeof c === 'number' && Number.isFinite(c)) {
+      // Tesla returns unix seconds; Enphase often seconds too.
+      const ms = c > 1e12 ? c : c * 1000;
+      const d = new Date(ms);
+      if (!Number.isNaN(d.getTime())) return d.toISOString();
+    }
+    if (typeof c === 'string' && c.length > 0) {
+      // SolarEdge format: "YYYY-MM-DD HH:mm:ss" (space, no TZ) — assume local UTC-ish.
+      const normalized = c.includes('T') || c.includes('Z') ? c : c.replace(' ', 'T') + 'Z';
+      const d = new Date(normalized);
+      if (!Number.isNaN(d.getTime())) return d.toISOString();
+    }
+  }
+  return null;
 }
 
 interface ConnectedDeviceRow {
@@ -157,11 +213,19 @@ function useTelemetry(capability: Capability) {
       for (const d of selected) {
         const oem = d.provider as OEM;
         const cached = await readCache(user.id, oem, capability, d.device_id);
-        const fresh = !opts?.force && cached && new Date(cached.expires_at) > new Date() && hasCanonicalTelemetryShape(cached.payload, capability);
+        // Tighten against TTL_MS as well as DB expires_at — older rows in the
+        // table may have been written when battery TTL was 12h, so we must not
+        // trust them past the new short window.
+        const withinTtl = cached
+          ? (Date.now() - new Date(cached.cached_at).getTime()) < TTL_MS[capability]
+          : false;
+        const fresh = !opts?.force && cached && withinTtl && new Date(cached.expires_at) > new Date() && hasCanonicalTelemetryShape(cached.payload, capability);
         if (fresh) {
           out.push({
             oem, capability, site_id: d.device_id, device_name: d.device_name,
-            payload: cached.payload, cached_at: cached.cached_at, fresh: true,
+            payload: cached.payload, cached_at: cached.cached_at,
+            sample_at: extractSampleAt(cached.payload, capability),
+            fresh: true,
           });
           continue;
         }
@@ -170,12 +234,16 @@ function useTelemetry(capability: Capability) {
           await writeCache(user.id, oem, capability, d.device_id, live);
           out.push({
             oem, capability, site_id: d.device_id, device_name: d.device_name,
-            payload: live, cached_at: new Date().toISOString(), fresh: true,
+            payload: live, cached_at: new Date().toISOString(),
+            sample_at: extractSampleAt(live, capability),
+            fresh: true,
           });
         } else if (cached) {
           out.push({
             oem, capability, site_id: d.device_id, device_name: d.device_name,
-            payload: cached.payload, cached_at: cached.cached_at, fresh: false,
+            payload: cached.payload, cached_at: cached.cached_at,
+            sample_at: extractSampleAt(cached.payload, capability),
+            fresh: false,
           });
         }
       }
