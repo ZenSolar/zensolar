@@ -267,25 +267,39 @@ export function resolveVehicleColor(
  * High-level helper: returns the best asset src for the user's car.
  * Falls back across: (model + color) → (model + default color) → legacy.
  */
+/**
+ * High-level helper: returns the best asset src for the user's car.
+ * - If model can be determined → exact model + color asset.
+ * - If Tesla is connected but model is unknown → returns a neutral Model S
+ *   silhouette (rendered with `generic: true` so the caller can desaturate/dim it).
+ *   We DO NOT silently fall back to Model 3 — that lies about the user's car.
+ */
 export function resolveVehicleAsset(
   input: unknown,
   overrides?: { model?: VehicleModel | null; color?: VehicleColor | null },
   options?: { fallbackWhenConnected?: boolean },
-): { model: VehicleModel | null; color: VehicleColor | null; src: string | null } {
-  const model = overrides?.model ?? resolveVehicleModel(input) ?? (options?.fallbackWhenConnected ? 'model3' : null);
-  if (!model) return { model: null, color: null, src: null };
+): { model: VehicleModel | null; color: VehicleColor | null; src: string | null; generic: boolean } {
+  const detectedModel = overrides?.model ?? resolveVehicleModel(input);
+  if (!detectedModel) {
+    if (options?.fallbackWhenConnected) {
+      // Neutral silhouette — Model S shape is the most "generic Tesla" outline.
+      // Caller should apply a grayscale/opacity filter to signal "unknown model".
+      return { model: null, color: null, src: VEHICLE_SRC.models, generic: true };
+    }
+    return { model: null, color: null, src: null, generic: false };
+  }
 
-  const detected = overrides?.color ?? resolveVehicleColor(input);
-  const color = detected ?? DEFAULT_COLOR[model];
+  const detectedColor = overrides?.color ?? resolveVehicleColor(input);
+  const color = detectedColor ?? DEFAULT_COLOR[detectedModel];
 
-  const matrix = VEHICLE_COLOR_SRC[model];
+  const matrix = VEHICLE_COLOR_SRC[detectedModel];
   const src =
     matrix[color] ??
-    matrix[DEFAULT_COLOR[model]] ??
-    VEHICLE_SRC[model] ??
+    matrix[DEFAULT_COLOR[detectedModel]] ??
+    VEHICLE_SRC[detectedModel] ??
     null;
 
-  return { model, color, src };
+  return { model: detectedModel, color, src, generic: false };
 }
 
 export function collectBatteryTelemetryDebug(
