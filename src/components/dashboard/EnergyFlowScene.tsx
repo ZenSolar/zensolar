@@ -317,10 +317,18 @@ function DottedFlow({
     <g style={{ pointerEvents: 'none' }}>
       <path id={id} d={d} stroke={color} strokeOpacity={0.18} strokeWidth={0.45} strokeLinecap="round" fill="none" />
       {[0, 0.33, 0.66].map((offset) => (
-        <circle key={`${id}-${offset}`} r={0.85} fill={color} opacity={0.95}>
+        <circle key={`${id}-${offset}`} r={0.85} fill={color} opacity={0}>
           <animateMotion dur={`${dur}s`} repeatCount="indefinite" begin={`${offset * dur}s`} calcMode="linear" keyPoints="0;1" keyTimes="0;1">
             <mpath href={`#${id}`} />
           </animateMotion>
+          <animate
+            attributeName="opacity"
+            values="0;0.95;0.95;0"
+            keyTimes="0;0.15;0.85;1"
+            dur={`${dur}s`}
+            repeatCount="indefinite"
+            begin={`${offset * dur}s`}
+          />
         </circle>
       ))}
     </g>
