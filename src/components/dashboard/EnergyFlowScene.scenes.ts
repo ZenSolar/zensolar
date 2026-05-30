@@ -321,10 +321,26 @@ export function resolveVehicleColor(
     'exterior_color',
     'color',
     'paint_color',
+    'device_name',
+    'metadata.device_name',
+    'name',
+    'metadata.name',
+    'display_name',
+    'vehicles.0.display_name',
+    'response.display_name',
+    'metadata.display_name',
   ]);
 
   for (const raw of candidates) {
+    const hit = detectColorFromString(raw);
+    if (hit) return hit;
     const s = raw.toLowerCase().replace(/[\s_-]/g, '');
+    // Tesla paint codes observed in owner/API payloads.
+    if (s === 'pbsb' || s === 'pmbl' || s === 'pbss') return 'solid-black';
+    if (s === 'ppsw' || s === 'pbcw') return 'pearl-white';
+    if (s === 'ppmr' || s === 'pr01' || s === 'ppmr2') return 'red';
+    if (s === 'ppsB'.toLowerCase() || s === 'pmbs') return 'deep-blue';
+    if (s === 'pmng' || s === 'pn00' || s === 'pmss') return 'stealth-grey';
     // Tesla canonical exterior_color strings: PearlWhite, MidnightSilver,
     // DeepBlue, Red / RedMulti, SolidBlack, StealthGrey, Quicksilver,
     // SilverMetallic, UltraRed, etc.
