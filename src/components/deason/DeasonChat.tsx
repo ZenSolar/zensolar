@@ -57,13 +57,14 @@ const REVIEWER_PROMPTS = [
   "Walk me through the 24-month capital plan.",
 ];
 
-// Beginner-friendly prompts: intriguing enough to pull people in,
-// but answerable without any crypto / tokenomics background.
+// Default optimization-first prompts for the public Deason experience.
+// Token/$ZSOLAR questions are still answerable in chat, but they no longer
+// lead the suggestion set.
 const PUBLIC_PROMPTS = [
-  "What is ZenSolar, in plain English?",
-  "How do I actually earn $ZSOLAR?",
-  "Why should I care about this?",
-  "How big could this get one day?",
+  "Analyze my latest utility bill",
+  "Am I on the right rate plan?",
+  "Is my solar contract fair?",
+  "How can I cut my bill the most this month?",
 ];
 
 // Shown when Deason is opened *during* onboarding. Scoped to questions
@@ -73,7 +74,6 @@ const PUBLIC_PROMPTS = [
 const ONBOARDING_PROMPTS = [
   "What is a wallet, and is mine safe?",
   "Which OEM should I connect first?",
-  "I don't know which brand of inverter I have — help.",
   "I don't know which brand of inverter I have — help.",
   "What happens after I connect my devices?",
 ];
@@ -213,17 +213,17 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
     ? `Setup helper · ${persistenceLabel}`
     : isDemoSurface
     ? `Investor preview · ${persistenceLabel}`
-    : `ZenSolar concierge · ${persistenceLabel}`;
+    : `Clean Energy Optimization · ${persistenceLabel}`;
   const welcomeTitle = isOnboardingSurface
     ? "Need a hand setting up?"
     : isDemoSurface
     ? "Ask the founder anything."
-    : "Hey 👋 — how can I help?";
+    : "Let's analyze your energy setup";
   const welcomeBody = isOnboardingSurface
     ? "I'll walk you through wallets, picking the right OEM, and what happens once your devices are connected. Ask anything — your spot in setup is saved."
     : isDemoSurface
     ? "I'm Joe's AI twin. I'll walk you through the thesis, the tokenomics, the patent moat, and the capital plan — in plain English, on your time."
-    : "I'm Deason, your ZenSolar guide. Ask me about your tokens, your utility rate plan, or upload a bill and I'll find ways to save you money.";
+    : "Upload your utility bill (plus your solar contract and PPA or loan, if you have them) and I'll write you a personalized analysis — rate plan, ROI, contract fairness, and the highest-impact savings actions.";
 
 
   const activeThread = threads?.find((t) => t.id === threadId);
