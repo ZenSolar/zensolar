@@ -367,6 +367,36 @@ export type Database = {
         }
         Relationships: []
       }
+      deason_doc_analyses: {
+        Row: {
+          created_at: string
+          doc_paths: Json
+          id: string
+          narrative: string | null
+          report: Json
+          thread_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          doc_paths?: Json
+          id?: string
+          narrative?: string | null
+          report: Json
+          thread_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          doc_paths?: Json
+          id?: string
+          narrative?: string | null
+          report?: Json
+          thread_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       deason_inner_circle: {
         Row: {
           granted_at: string
