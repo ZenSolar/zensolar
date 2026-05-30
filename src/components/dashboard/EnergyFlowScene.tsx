@@ -255,7 +255,7 @@ function DeviceHalo({
   active,
   intensity = 1,
   radius = 7,
-  pulseMs = 2200,
+  pulseMs = 3000,
   strong = false,
 }: {
   cx: number;
@@ -270,35 +270,59 @@ function DeviceHalo({
   if (!active) return null;
   const i = Math.max(0.45, Math.min(1, intensity));
   return (
-    <g style={{ pointerEvents: 'none' }}>
-      <circle cx={cx} cy={cy} r={radius} fill={color} opacity={0.16 * i}>
-        <animate attributeName="r" values={`${radius * 0.85};${radius * 1.1};${radius * 0.85}`} dur={`${pulseMs}ms`} repeatCount="indefinite" />
-        <animate attributeName="opacity" values={`${0.10 * i};${0.24 * i};${0.10 * i}`} dur={`${pulseMs}ms`} repeatCount="indefinite" />
+    <g style={{ pointerEvents: 'none', filter: 'blur(0.9px)' }}>
+      <circle cx={cx} cy={cy} r={radius} fill={color} opacity={0.07 * i}>
+        <animate attributeName="r" values={`${radius * 0.88};${radius * 1.06};${radius * 0.88}`} dur={`${pulseMs}ms`} repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1" />
+        <animate attributeName="opacity" values={`${0.05 * i};${0.12 * i};${0.05 * i}`} dur={`${pulseMs}ms`} repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1" />
       </circle>
-      <circle cx={cx} cy={cy} r={radius * 0.5} fill={color} opacity={0.30 * i}>
-        <animate attributeName="opacity" values={`${0.20 * i};${0.42 * i};${0.20 * i}`} dur={`${pulseMs}ms`} repeatCount="indefinite" />
+      <circle cx={cx} cy={cy} r={radius * 0.5} fill={color} opacity={0.10 * i}>
+        <animate attributeName="opacity" values={`${0.07 * i};${strong ? 0.18 * i : 0.13 * i};${0.07 * i}`} dur={`${pulseMs}ms`} repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1" />
       </circle>
-      {strong && (
-        <circle cx={cx} cy={cy} r={radius * 0.3} fill="none" stroke={color} strokeWidth="0.5" opacity={0.85 * i}>
-          <animate attributeName="opacity" values={`${0.55 * i};${0.95 * i};${0.55 * i}`} dur={`${pulseMs}ms`} repeatCount="indefinite" />
-        </circle>
-      )}
     </g>
   );
 }
 
-/** Wide elliptical halo for the solar roof panel array. */
+/** Wide elliptical halo for the solar roof panel array — sits inside the panels. */
 function RoofHalo({ active, intensity }: { active: boolean; intensity: number }) {
   if (!active) return null;
   const i = Math.max(0.5, Math.min(1, intensity));
   return (
+    <g style={{ pointerEvents: 'none', filter: 'blur(1px)' }}>
+      <ellipse cx={ANCHOR.solar.x} cy={ANCHOR.solar.y} rx={13} ry={4.5} fill={EMERALD} opacity={0.07 * i}>
+        <animate attributeName="opacity" values={`${0.04 * i};${0.11 * i};${0.04 * i}`} dur="3000ms" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1" />
+      </ellipse>
+      <ellipse cx={ANCHOR.solar.x} cy={ANCHOR.solar.y} rx={8} ry={2.8} fill={EMERALD} opacity={0.12 * i}>
+        <animate attributeName="opacity" values={`${0.08 * i};${0.18 * i};${0.08 * i}`} dur="3000ms" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1" />
+      </ellipse>
+    </g>
+  );
+}
+
+/**
+ * Ultra-minimal flow: 1px guide path + 3 small dots traveling along it
+ * via <animateMotion>. Replaces the heavier FlowConduit for primary flows.
+ */
+function DottedFlow({
+  id,
+  d,
+  color,
+  dur = 1.8,
+}: {
+  id: string;
+  d: string;
+  color: string;
+  dur?: number;
+}) {
+  return (
     <g style={{ pointerEvents: 'none' }}>
-      <ellipse cx={50} cy={30} rx={22} ry={8} fill={EMERALD} opacity={0.14 * i}>
-        <animate attributeName="opacity" values={`${0.08 * i};${0.20 * i};${0.08 * i}`} dur="2400ms" repeatCount="indefinite" />
-      </ellipse>
-      <ellipse cx={50} cy={30} rx={14} ry={5} fill={EMERALD} opacity={0.26 * i}>
-        <animate attributeName="opacity" values={`${0.18 * i};${0.38 * i};${0.18 * i}`} dur="2400ms" repeatCount="indefinite" />
-      </ellipse>
+      <path id={id} d={d} stroke={color} strokeOpacity={0.18} strokeWidth={0.45} strokeLinecap="round" fill="none" />
+      {[0, 0.33, 0.66].map((offset) => (
+        <circle key={`${id}-${offset}`} r={0.85} fill={color} opacity={0.95}>
+          <animateMotion dur={`${dur}s`} repeatCount="indefinite" begin={`${offset * dur}s`} calcMode="linear" keyPoints="0;1" keyTimes="0;1">
+            <mpath href={`#${id}`} />
+          </animateMotion>
+        </circle>
+      ))}
     </g>
   );
 }
