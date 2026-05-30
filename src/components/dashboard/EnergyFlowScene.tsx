@@ -410,7 +410,7 @@ export function EnergyFlowScene({
         label="Solar"
         value={fmtKw(solar)}
         sub={solar > 0.1 ? 'Producing' : 'Idle'}
-        accent="amber"
+        accent="green"
         active={solar > 0.1}
       />
       <FlowLabel
