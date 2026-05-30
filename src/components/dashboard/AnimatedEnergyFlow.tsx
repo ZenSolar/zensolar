@@ -703,19 +703,12 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
 
         {/* ── POWERWALL ── kWh stored is the primary number; kW is contextual */}
         {(() => {
-          const capacity = flow.batteryCapacityKwh ?? 13.5;
-          const reserve = flow.batteryReserveKwh ?? (capacity * (flow.batteryPercent / 100));
-          const isCharging = flow.batteryPower > 0.05;
-          const isDischarging = flow.batteryPower < -0.05;
-          const isFull = flow.batteryPercent >= 99;
-          const statusColor = isCharging ? '#22C55E' : isDischarging ? '#F59E0B' : '#6b7280';
-          const statusText = isCharging
-            ? `${flow.batteryPercent}% · +${flow.batteryPower.toFixed(1)} kW`
-            : isDischarging
-              ? `${flow.batteryPercent}% · ${flow.batteryPower.toFixed(1)} kW`
-              : isFull
-                ? `${flow.batteryPercent}% · Full`
-                : `${flow.batteryPercent}% · Idle`;
+          const display = derivePowerwallDisplay({
+            capacity: flow.batteryCapacityKwh,
+            reserve: flow.batteryReserveKwh,
+            percent: flow.batteryPercent,
+            power: flow.batteryPower,
+          });
           return (
             <g>
               <circle cx={nodes.battery.x} cy={nodes.battery.y} r={compact ? 14 : 18} fill={colors.battery} fillOpacity={0.1} stroke={colors.battery} strokeWidth={0.8} strokeOpacity={0.35} />
@@ -723,13 +716,13 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
               <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 22 : 28)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.2">POWERWALL</text>
               <text x={nodes.battery.x} y={nodes.battery.y - (compact ? 18 : 22)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 5.5 : 6.5} fontWeight="500" letterSpacing="0.6">tesla</text>
               <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 35 : 43)} textAnchor="middle" fill={colors.battery} fontSize={subValueFs} fontWeight="700">
-                {reserve.toFixed(1)}<tspan fontSize={compact ? 8 : 10} fontWeight="500" fill="#9ca3af"> / {capacity.toFixed(1)} kWh</tspan>
+                {display.primaryReserve}<tspan fontSize={compact ? 8 : 10} fontWeight="500" fill="#9ca3af"> / {display.primaryCapacity}</tspan>
               </text>
-              <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 45 : 55)} textAnchor="middle" fill={statusColor} fontSize={compact ? 8 : 10} fontWeight="600">
-                {statusText}
+              <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 45 : 55)} textAnchor="middle" fill={display.statusColor} fontSize={compact ? 8 : 10} fontWeight="600">
+                {display.status}
               </text>
               <rect x={nodes.battery.x - 16} y={nodes.battery.y + (compact ? 49 : 60)} width={32} height={4} rx={2} fill="#1a2030" fillOpacity={0.15} />
-              <rect x={nodes.battery.x - 16} y={nodes.battery.y + (compact ? 49 : 60)} width={32 * (flow.batteryPercent / 100)} height={4} rx={2} fill={colors.battery} fillOpacity={0.6} />
+              <rect x={nodes.battery.x - 16} y={nodes.battery.y + (compact ? 49 : 60)} width={32 * (Math.max(0, Math.min(100, flow.batteryPercent || 0)) / 100)} height={4} rx={2} fill={colors.battery} fillOpacity={0.6} />
             </g>
           );
         })()}
