@@ -103,6 +103,7 @@ function FlowingDots({
   dotCount = 4,
   dotRadius = 3,
   trailRadius,
+  minCount = 2,
 }: {
   pathId: string;
   color: string;
@@ -110,6 +111,7 @@ function FlowingDots({
   dotCount?: number;
   dotRadius?: number;
   trailRadius?: number;
+  minCount?: number;
 }) {
   const [ready, setReady] = useState(false);
 
@@ -120,8 +122,8 @@ function FlowingDots({
 
   if (power <= 0.05 || !ready) return null;
 
-  const duration = Math.max(1.8, 3.5 - power * 0.25);
-  const count = Math.min(Math.max(2, Math.ceil(power * 0.6)), dotCount);
+  const duration = Math.max(1.6, 3.2 - power * 0.22);
+  const count = Math.min(Math.max(minCount, Math.ceil(power * 0.9)), dotCount);
   const trailR = trailRadius ?? dotRadius * 2;
 
   return (
