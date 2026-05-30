@@ -533,6 +533,31 @@ export function EnergyFlowScene({
           pulseMs={pwCharging ? 2800 : 2400}
         />
 
+        {/* Second Powerwall (stacked below) — only when a 2nd unit is connected */}
+        {batteryCount >= 2 && (
+          <>
+            <DeviceHalo
+              cx={HOME_BLUEPRINT.powerwall2.x}
+              cy={HOME_BLUEPRINT.powerwall2.y}
+              color={EMERALD}
+              active
+              intensity={0.5}
+              radius={3.8}
+              pulseMs={5000}
+            />
+            <DeviceHalo
+              cx={HOME_BLUEPRINT.powerwall2.x}
+              cy={HOME_BLUEPRINT.powerwall2.y}
+              color={pwCharging ? EMERALD : AMBER}
+              active={pwCharging || pwDischarging}
+              intensity={intensity(battery)}
+              radius={4.6}
+              pulseMs={pwCharging ? 2800 : 2400}
+            />
+          </>
+        )}
+
+
 
         {/* Grid meter — sky on import, cyan on export */}
         <DeviceHalo
