@@ -258,6 +258,7 @@ export function EnergyFlowScene({
       className={`relative isolate aspect-square w-full overflow-hidden ${className ?? ''}`}
       data-scene={scene}
       data-vehicle={resolvedVehicle ?? 'none'}
+      data-vehicle-color={resolvedColor ?? 'none'}
     >
       {/* Ambient gradient floor with stronger depth */}
       <div
@@ -284,11 +285,11 @@ export function EnergyFlowScene({
       {/* Dramatic Powerwall → Home discharge conduit */}
       <DischargeConduit active={pwDischarging} />
 
-      {/* Dynamic Tesla vehicle in driveway */}
-      {resolvedVehicle && (
+      {/* Dynamic Tesla vehicle in driveway — exact model + color */}
+      {resolvedVehicle && vehicleSrc && (
         <AnimatePresence mode="sync">
           <motion.div
-            key={resolvedVehicle}
+            key={`${resolvedVehicle}-${resolvedColor ?? 'default'}`}
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
@@ -301,7 +302,7 @@ export function EnergyFlowScene({
               className="absolute inset-x-2 bottom-1 h-3 rounded-full bg-[radial-gradient(ellipse_at_center,hsl(220_70%_2%/0.7),transparent_70%)] blur-[2px]"
             />
             <img
-              src={VEHICLE_SRC[resolvedVehicle]}
+              src={vehicleSrc}
               alt=""
               aria-hidden="true"
               loading="lazy"
