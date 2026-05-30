@@ -14,11 +14,13 @@ import { useAuth } from '@/hooks/useAuth';
 type Capability = 'battery' | 'ev' | 'solar';
 type OEM = 'tesla' | 'enphase' | 'solaredge' | 'wallbox';
 
+// TTLs are tuned for the Live Energy cockpit (must match what users see in
+// the Tesla / Enphase apps within ~1 minute). Hooks that need coarser cadence
+// for summaries / history MUST define their own TTL map — do NOT import this.
 const TTL_MS: Record<Capability, number> = {
-  battery: 12 * 60 * 60 * 1000,
-  // Short TTL so plug-in / unplug events surface quickly in the cockpit
+  battery: 60 * 1000,
   ev: 90 * 1000,
-  solar: 60 * 60 * 1000,
+  solar: 60 * 1000,
 };
 
 const FN_BY_OEM: Record<OEM, string> = {
