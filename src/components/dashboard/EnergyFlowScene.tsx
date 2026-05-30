@@ -471,7 +471,7 @@ export function EnergyFlowScene({
         {/* ── Device halos (primary visual language) ── */}
         <RoofHalo active={solarProducing} intensity={intensity(solar)} />
         {/* Home windows — faint warm bloom when drawing */}
-        <DeviceHalo cx={ANCHOR.load.x} cy={ANCHOR.load.y} color={WARM} active={home > 0.05} intensity={intensity(home) * 0.7} radius={5} pulseMs={2800} />
+        <DeviceHalo cx={ANCHOR.load.x} cy={ANCHOR.load.y} color={WARM} active={home > 0.05} intensity={intensity(home) * 0.55} radius={3.4} pulseMs={3200} />
         {/* Powerwall */}
         <DeviceHalo
           cx={ANCHOR.pw.x}
@@ -479,8 +479,8 @@ export function EnergyFlowScene({
           color={pwCharging ? EMERALD : AMBER}
           active={pwCharging || pwDischarging}
           intensity={intensity(battery)}
-          radius={6}
-          pulseMs={pwCharging ? 2000 : 1700}
+          radius={4.5}
+          pulseMs={pwCharging ? 2800 : 2400}
           strong
         />
         {/* Grid meter */}
@@ -489,9 +489,9 @@ export function EnergyFlowScene({
           cy={ANCHOR.grid.y}
           color={gridExporting ? CYAN : SKY}
           active={gridImporting || gridExporting}
-          intensity={intensity(grid) * 0.75}
-          radius={4.5}
-          pulseMs={2400}
+          intensity={intensity(grid) * 0.7}
+          radius={3.8}
+          pulseMs={2800}
         />
         {/* EV charge port — strong when charging, faint static halo when plugged-idle */}
         <DeviceHalo
@@ -500,32 +500,32 @@ export function EnergyFlowScene({
           color={EMERALD}
           active={isCharging}
           intensity={intensity(data.evPower ?? 7)}
-          radius={5.5}
-          pulseMs={1800}
+          radius={4.2}
+          pulseMs={2400}
           strong
         />
         {isPluggedIdle && !isCharging && (
-          <circle cx={ANCHOR.ev.x} cy={ANCHOR.ev.y} r={3.2} fill={EMERALD} opacity={0.18} />
+          <circle cx={ANCHOR.ev.x} cy={ANCHOR.ev.y} r={2.4} fill={EMERALD} opacity={0.10} />
         )}
 
-        {/* ── At most 2 simplified flow lines ── */}
+        {/* ── At most 2 ultra-minimal dotted flow lines ── */}
         {flows.has('solar-home') && (
-          <FlowConduit id="flow-solar-home" active d={PATH_SOLAR_HOME} color={EMERALD} ledColor={EMERALD_LED} dur={flowDur(solar)} width={0.7} />
+          <DottedFlow id="flow-solar-home" d={PATH_SOLAR_HOME} color={EMERALD_LED} dur={flowDur(solar) * 1.3} />
         )}
         {flows.has('solar-pw') && (
-          <FlowConduit id="flow-solar-pw" active d={PATH_SOLAR_PW} color={EMERALD} ledColor={EMERALD_LED} dur={flowDur(battery)} width={0.7} />
+          <DottedFlow id="flow-solar-pw" d={PATH_SOLAR_PW} color={EMERALD_LED} dur={flowDur(battery) * 1.3} />
         )}
         {flows.has('pw-home') && (
-          <FlowConduit id="flow-pw-home" active d={PATH_PW_HOME} color={AMBER} ledColor={AMBER_LED} dur={flowDur(Math.abs(battery))} width={0.7} />
+          <DottedFlow id="flow-pw-home" d={PATH_PW_HOME} color={AMBER_LED} dur={flowDur(Math.abs(battery)) * 1.3} />
         )}
         {flows.has('home-ev') && (
-          <FlowConduit id="flow-home-ev" active d={PATH_HOME_EV} color={EMERALD} ledColor={EMERALD_LED} dur={flowDur(data.evPower ?? 7)} width={0.7} />
+          <DottedFlow id="flow-home-ev" d={PATH_HOME_EV} color={EMERALD_LED} dur={flowDur(data.evPower ?? 7) * 1.3} />
         )}
         {flows.has('home-grid') && (
-          <FlowConduit id="flow-home-grid" active d={PATH_HOME_GRID} color={CYAN} ledColor={CYAN_LED} dur={flowDur(Math.abs(grid))} width={0.7} />
+          <DottedFlow id="flow-home-grid" d={PATH_HOME_GRID} color={CYAN_LED} dur={flowDur(Math.abs(grid)) * 1.3} />
         )}
         {flows.has('grid-home') && (
-          <FlowConduit id="flow-grid-home" active d={PATH_GRID_HOME} color={SKY} ledColor={SKY_LED} dur={flowDur(grid)} width={0.7} />
+          <DottedFlow id="flow-grid-home" d={PATH_GRID_HOME} color={SKY_LED} dur={flowDur(grid) * 1.3} />
         )}
       </svg>
 
