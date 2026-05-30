@@ -145,6 +145,36 @@ const DEFAULT_COLOR: Record<VehicleModel, VehicleColor> = {
 /**
  * Resolve a canonical Tesla model id from arbitrary telemetry shapes.
  */
+function detectModelFromString(raw: string): VehicleModel | null {
+  if (!raw) return null;
+  const trimmed = raw.trim();
+  const lower = trimmed.toLowerCase();
+  const compact = lower.replace(/[\s_-]/g, '');
+  if (compact.includes('cybertruck') || compact.includes('cyber') || /\bct\b/.test(lower)) return 'cybertruck';
+  if (compact.includes('modely')) return 'modely';
+  if (compact.includes('modelx')) return 'modelx';
+  if (compact.includes('models')) return 'models';
+  if (compact.includes('model3')) return 'model3';
+  if (/\bmy\b/.test(lower)) return 'modely';
+  if (/\bmx\b/.test(lower)) return 'modelx';
+  if (/\bms\b/.test(lower)) return 'models';
+  if (/\bm3\b/.test(lower)) return 'model3';
+  // Plaid/Long Range trims are Model S/X by default — usually paired with car_type, skip.
+  // Trailing-character convention: "ZenX", "ZenY", "Spark3" — last alphanumeric char hints model.
+  const last = trimmed.replace(/[^a-z0-9]/gi, '').slice(-1).toLowerCase();
+  if (last === 'x') return 'modelx';
+  if (last === 'y') return 'modely';
+  if (last === '3') return 'model3';
+  // 's' alone is too ambiguous (could be plural) — only accept when last token is a 1-char "S"
+  if (/(^|[\s_-])s$/i.test(trimmed)) return 'models';
+  // Standalone single-letter word
+  if (/(^|\s)x(\s|$)/i.test(trimmed)) return 'modelx';
+  if (/(^|\s)y(\s|$)/i.test(trimmed)) return 'modely';
+  if (/(^|\s)s(\s|$)/i.test(trimmed)) return 'models';
+  if (/(^|\s)3(\s|$)/i.test(trimmed)) return 'model3';
+  return null;
+}
+
 export function resolveVehicleModel(
   input: unknown,
 ): VehicleModel | null {
@@ -153,38 +183,32 @@ export function resolveVehicleModel(
     'vehicles.0.vehicle_config.car_type',
     'response.vehicle_config.car_type',
     'car_type',
-    'display_name',
-    'vehicles.0.display_name',
-    'response.display_name',
     'model',
     'vehicle_model',
     'vehicle_type',
     'vehicles.0.vehicle_type',
     'response.vehicle_type',
-    'device_name',
     'metadata.model',
-    'metadata.display_name',
+    'metadata.car_type',
+    'metadata.vehicle_type',
+    'device_name',
+    'metadata.device_name',
     'name',
+    'metadata.name',
+    'display_name',
+    'vehicles.0.display_name',
+    'response.display_name',
+    'metadata.display_name',
   ]);
 
   for (const raw of candidates) {
-    const lower = raw.toLowerCase();
-    const s = lower.replace(/[\s_-]/g, '');
-    if (s.includes('cybertruck') || s.includes('cyber') || /\bct\b/.test(lower)) return 'cybertruck';
-    if (s.includes('modely') || /\bmy\b/.test(lower)) return 'modely';
-    if (s.includes('modelx') || /\bmx\b/.test(lower)) return 'modelx';
-    if (s.includes('models') || /\bms\b/.test(lower)) return 'models';
-    if (s.includes('model3') || /\bm3\b/.test(lower)) return 'model3';
-    // Looser single-letter hints (e.g. display_name "X" or "Y")
-    if (/(^|[^a-z])y([^a-z]|$)/.test(lower)) return 'modely';
-    if (/(^|[^a-z])x([^a-z]|$)/.test(lower)) return 'modelx';
-    if (/(^|[^a-z])s([^a-z]|$)/.test(lower)) return 'models';
-    if (/(^|[^a-z])3([^a-z]|$)/.test(lower)) return 'model3';
+    const hit = detectModelFromString(raw);
+    if (hit) return hit;
   }
 
   // VIN-based inference (Tesla VIN char at index 3 = model code)
   const vins = collectStrings(input, [
-    'vin', 'vehicles.0.vin', 'response.vin', 'metadata.vin', 'device_id',
+    'vin', 'vehicles.0.vin', 'response.vin', 'metadata.vin', 'device_id', 'metadata.device_id',
   ]);
   for (const vin of vins) {
     if (typeof vin !== 'string' || vin.length < 4) continue;
