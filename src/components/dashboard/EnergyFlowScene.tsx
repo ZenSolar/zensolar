@@ -18,6 +18,7 @@ import { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { EnergyFlowData } from './AnimatedEnergyFlow';
 import {
+  collectBatteryTelemetryDebug,
   resolveVehicleAsset,
   type VehicleColor,
   type VehicleModel,
@@ -216,6 +217,27 @@ function DischargeConduit({ active }: { active: boolean }) {
   );
 }
 
+function BatteryDebugPanel({ rows }: { rows: ReturnType<typeof collectBatteryTelemetryDebug> }) {
+  return (
+    <div className="pointer-events-none absolute inset-x-2 bottom-2 z-30 rounded-lg border border-primary/20 bg-background/80 p-2 text-[9px] shadow-[0_10px_28px_hsl(220_70%_3%/0.5)] backdrop-blur-md">
+      <div className="mb-1 flex items-center justify-between gap-2 font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        <span>Powerwall debug</span>
+        <span className="normal-case tracking-normal text-primary">+ charging · − discharging</span>
+      </div>
+      <div className="grid grid-cols-[1.4fr_0.8fr_0.9fr_0.8fr] gap-x-2 gap-y-0.5 font-mono tabular-nums text-muted-foreground">
+        {rows.map((row) => (
+          <div key={row.key} className={`contents ${row.used ? 'text-foreground' : ''}`}>
+            <span className={`truncate ${row.used ? 'font-semibold text-primary' : ''}`}>{row.used ? '✓ ' : ''}{row.key}</span>
+            <span>{row.raw === null ? '—' : row.raw.toFixed(2)}</span>
+            <span>{row.renderedKw === null ? '—' : `${row.sign}${Math.abs(row.renderedKw).toFixed(2)} kW`}</span>
+            <span className={row.meaning === 'Charging' ? 'text-emerald-300' : row.meaning === 'Discharging' ? 'text-amber-300' : ''}>{row.meaning}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export interface EnergyFlowSceneProps {
   data: EnergyFlowData;
   className?: string;
@@ -227,6 +249,8 @@ export interface EnergyFlowSceneProps {
   vehicleColor?: VehicleColor | null;
   /** Raw Tesla payload — used to auto-detect model + color when overrides omitted. */
   teslaPayload?: unknown;
+  /** Raw Powerwall/battery payload — debug-only readout for sign/source verification. */
+  batteryPayload?: unknown;
 }
 
 export function EnergyFlowScene({
@@ -236,16 +260,18 @@ export function EnergyFlowScene({
   vehicleModel,
   vehicleColor,
   teslaPayload,
+  batteryPayload,
 }: EnergyFlowSceneProps) {
   const scene = useMemo(() => forceScene ?? pickScene(data), [forceScene, data]);
+  const hasTeslaConnection = Boolean(teslaPayload) || Boolean(data.tesla) || (data.evPower ?? 0) > 0.1;
 
   const { model: resolvedVehicle, color: resolvedColor, src: vehicleSrc } = useMemo(
     () =>
       resolveVehicleAsset(teslaPayload, {
         model: vehicleModel,
         color: vehicleColor,
-      }),
-    [teslaPayload, vehicleModel, vehicleColor],
+      }, { fallbackWhenConnected: hasTeslaConnection }),
+    [teslaPayload, vehicleModel, vehicleColor, hasTeslaConnection],
   );
 
   const solar = data.solarPower ?? 0;
@@ -254,6 +280,10 @@ export function EnergyFlowScene({
   const soc = Math.round(data.batteryPercent ?? 0);
   const isCharging = data.tesla?.isCharging ?? false;
   const pwDischarging = battery < -0.05;
+  const batteryDebugRows = useMemo(
+    () => collectBatteryTelemetryDebug(batteryPayload, battery),
+    [batteryPayload, battery],
+  );
 
   const fmtKw = (v: number) => `${Math.abs(v).toFixed(1)} kW`;
   const arrow = (v: number, threshold = 0.05) =>
@@ -370,6 +400,8 @@ export function EnergyFlowScene({
         accent={grid < -0.05 ? 'blue' : grid > 0.05 ? 'amber' : 'muted'}
         active={Math.abs(grid) > 0.05}
       />
+
+      <BatteryDebugPanel rows={batteryDebugRows} />
     </div>
   );
 }
