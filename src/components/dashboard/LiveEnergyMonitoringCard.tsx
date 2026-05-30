@@ -707,7 +707,9 @@ export function LiveEnergyMonitoringCard() {
                 data={flowData}
                 teslaPayload={primaryEv?.oem === 'tesla' ? primaryEv?.payload : undefined}
                 batteryPayload={primaryBattery?.payload}
-                vehicleModel={primaryEv?.oem === 'tesla' ? 'model3' : null}
+                // Let EnergyFlowScene infer the model from telemetry (car_type → display_name → VIN).
+                // Only falls back to model3 inside resolveVehicleAsset when connected and nothing matches.
+                vehicleModel={null}
                 
               />
 
