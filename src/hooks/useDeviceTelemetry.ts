@@ -50,7 +50,61 @@ export interface CachedTelemetry {
   device_name: string | null;
   payload: any;
   cached_at: string;
+  /**
+   * Sample timestamp as reported by the OEM (e.g. Tesla `charge_state.timestamp`,
+   * Enphase `last_report_at`, SolarEdge `lastUpdateTime`). Falls back to `cached_at`
+   * when the payload doesn't expose one. The Live cockpit MUST prefer this over
+   * `cached_at` so the "Updated Nm ago" pill reflects reality, not cache writes.
+   */
+  sample_at: string | null;
   fresh: boolean;
+}
+
+/**
+ * Extract the OEM-reported sample timestamp from a telemetry payload.
+ * Returns ISO string or null when nothing usable is present.
+ */
+function extractSampleAt(payload: any, capability: Capability): string | null {
+  if (!payload) return null;
+  const candidates: unknown[] = [];
+  if (capability === 'ev') {
+    candidates.push(
+      payload?.response?.charge_state?.timestamp,
+      payload?.charge_state?.timestamp,
+      payload?.vehicles?.[0]?.charge_state?.timestamp,
+    );
+  } else if (capability === 'battery') {
+    candidates.push(
+      payload?.energy_sites?.[0]?.timestamp,
+      payload?.timestamp,
+      payload?.last_report_at,
+      payload?.read_at,
+    );
+  } else if (capability === 'solar') {
+    candidates.push(
+      payload?.energy_sites?.[0]?.timestamp,
+      payload?.last_report_at,
+      payload?.read_at,
+      payload?.lastUpdateTime,
+      payload?.timestamp,
+    );
+  }
+  for (const c of candidates) {
+    if (c == null) continue;
+    if (typeof c === 'number' && Number.isFinite(c)) {
+      // Tesla returns unix seconds; Enphase often seconds too.
+      const ms = c > 1e12 ? c : c * 1000;
+      const d = new Date(ms);
+      if (!Number.isNaN(d.getTime())) return d.toISOString();
+    }
+    if (typeof c === 'string' && c.length > 0) {
+      // SolarEdge format: "YYYY-MM-DD HH:mm:ss" (space, no TZ) — assume local UTC-ish.
+      const normalized = c.includes('T') || c.includes('Z') ? c : c.replace(' ', 'T') + 'Z';
+      const d = new Date(normalized);
+      if (!Number.isNaN(d.getTime())) return d.toISOString();
+    }
+  }
+  return null;
 }
 
 interface ConnectedDeviceRow {
