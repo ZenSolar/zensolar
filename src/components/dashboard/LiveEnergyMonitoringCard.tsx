@@ -14,9 +14,13 @@ import { useHaptics } from '@/hooks/useHaptics';
 import { computeCo2 } from '@/lib/co2Math';
 import { supabase } from '@/integrations/supabase/client';
 
+const EnergyFlowScene = lazy(() =>
+  import('./EnergyFlowScene').then((m) => ({ default: m.EnergyFlowScene }))
+);
 const AnimatedEnergyFlow = lazy(() =>
   import('./AnimatedEnergyFlow').then((m) => ({ default: m.AnimatedEnergyFlow }))
 );
+import { ZenXPill } from './ZenXPill';
 
 function getPath(payload: any, path: string): unknown {
   return path.split('.').reduce((acc, key) => {
@@ -697,10 +701,19 @@ export function LiveEnergyMonitoringCard() {
       ) : (
         <div className="space-y-3">
           <div className="overflow-hidden rounded-xl border border-primary/20 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.12),transparent_70%),radial-gradient(circle_at_bottom,hsl(220_60%_8%/0.6),transparent_60%)] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04),0_8px_30px_-8px_hsl(220_60%_4%/0.6)]">
-            <Suspense fallback={<div className="aspect-[400/460] w-full animate-pulse bg-card/10" aria-hidden="true" />}>
-              <AnimatedEnergyFlow className="aspect-[400/460] w-full sm:aspect-[400/470]" data={flowData} showHeader={false} />
+            <Suspense fallback={<div className="aspect-square w-full animate-pulse bg-card/10" aria-hidden="true" />}>
+              <EnergyFlowScene className="aspect-square w-full" data={flowData} />
             </Suspense>
           </div>
+
+          {/* ZenX vehicle pill — clean Tesla-style status under the scene */}
+          {teslaFlow && (
+            <ZenXPill
+              tesla={teslaFlow}
+              nickname={primaryEv?.device_name ?? 'ZenX'}
+              onClick={handlePillClick}
+            />
+          )}
 
           {/* Tesla / EV tile — promoted directly under diagram */}
           {ev.data.length > 0 && (
