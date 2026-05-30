@@ -2,11 +2,26 @@
 import '@testing-library/jest-dom/vitest';
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
+
+// jsdom doesn't ship matchMedia; useIsMobile needs it.
+if (typeof window !== 'undefined' && !window.matchMedia) {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: (query: string) => ({
+      matches: false, media: query, onchange: null,
+      addListener: () => {}, removeListener: () => {},
+      addEventListener: () => {}, removeEventListener: () => {},
+      dispatchEvent: () => false,
+    }),
+  });
+}
+
 import {
   AnimatedEnergyFlow,
   derivePowerwallDisplay,
   type EnergyFlowData,
 } from '../AnimatedEnergyFlow';
+
 
 const SEP = '\u202F·\u202F';
 const MINUS = '\u2212';
