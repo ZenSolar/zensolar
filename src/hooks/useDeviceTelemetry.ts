@@ -213,11 +213,19 @@ function useTelemetry(capability: Capability) {
       for (const d of selected) {
         const oem = d.provider as OEM;
         const cached = await readCache(user.id, oem, capability, d.device_id);
-        const fresh = !opts?.force && cached && new Date(cached.expires_at) > new Date() && hasCanonicalTelemetryShape(cached.payload, capability);
+        // Tighten against TTL_MS as well as DB expires_at — older rows in the
+        // table may have been written when battery TTL was 12h, so we must not
+        // trust them past the new short window.
+        const withinTtl = cached
+          ? (Date.now() - new Date(cached.cached_at).getTime()) < TTL_MS[capability]
+          : false;
+        const fresh = !opts?.force && cached && withinTtl && new Date(cached.expires_at) > new Date() && hasCanonicalTelemetryShape(cached.payload, capability);
         if (fresh) {
           out.push({
             oem, capability, site_id: d.device_id, device_name: d.device_name,
-            payload: cached.payload, cached_at: cached.cached_at, fresh: true,
+            payload: cached.payload, cached_at: cached.cached_at,
+            sample_at: extractSampleAt(cached.payload, capability),
+            fresh: true,
           });
           continue;
         }
@@ -226,12 +234,16 @@ function useTelemetry(capability: Capability) {
           await writeCache(user.id, oem, capability, d.device_id, live);
           out.push({
             oem, capability, site_id: d.device_id, device_name: d.device_name,
-            payload: live, cached_at: new Date().toISOString(), fresh: true,
+            payload: live, cached_at: new Date().toISOString(),
+            sample_at: extractSampleAt(live, capability),
+            fresh: true,
           });
         } else if (cached) {
           out.push({
             oem, capability, site_id: d.device_id, device_name: d.device_name,
-            payload: cached.payload, cached_at: cached.cached_at, fresh: false,
+            payload: cached.payload, cached_at: cached.cached_at,
+            sample_at: extractSampleAt(cached.payload, capability),
+            fresh: false,
           });
         }
       }
