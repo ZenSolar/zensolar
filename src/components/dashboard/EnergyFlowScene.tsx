@@ -193,19 +193,19 @@ function WindowsBloom({ active, intensity }: { active: boolean; intensity: numbe
   if (!active) return null;
   const i = Math.max(0.5, Math.min(1, intensity));
   return (
-    <g style={{ pointerEvents: 'none', filter: 'blur(1.2px)' }}>
+    <g style={{ pointerEvents: 'none', filter: 'blur(1.4px)' }}>
       <ellipse
         cx={HOME_BLUEPRINT.windows.x}
         cy={HOME_BLUEPRINT.windows.y}
-        rx={6.5}
-        ry={4.2}
+        rx={7.2}
+        ry={4.6}
         fill={WARM}
-        opacity={0.12 * i}
+        opacity={0.22 * i}
       >
         <animate
           attributeName="opacity"
-          values={`${0.08 * i};${0.18 * i};${0.08 * i}`}
-          dur="6000ms"
+          values={`${0.18 * i};${0.32 * i};${0.18 * i}`}
+          dur="4000ms"
           repeatCount="indefinite"
         />
       </ellipse>
