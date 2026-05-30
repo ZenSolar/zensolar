@@ -693,9 +693,9 @@ export function LiveEnergyMonitoringCard() {
         </div>
       ) : (
         <div className="space-y-3">
-          <div className="overflow-hidden rounded-lg border border-primary/15 bg-[radial-gradient(circle_at_top,hsl(var(--primary)/0.10),transparent_58%)]">
-            <Suspense fallback={<div className="h-[250px] w-full animate-pulse bg-card/10" aria-hidden="true" />}>
-              <AnimatedEnergyFlow className="h-[250px] w-full sm:h-[300px]" data={flowData} showHeader={false} />
+          <div className="overflow-hidden rounded-xl border border-primary/20 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.12),transparent_70%),radial-gradient(circle_at_bottom,hsl(220_60%_8%/0.6),transparent_60%)] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04),0_8px_30px_-8px_hsl(220_60%_4%/0.6)]">
+            <Suspense fallback={<div className="aspect-[400/440] w-full animate-pulse bg-card/10" aria-hidden="true" />}>
+              <AnimatedEnergyFlow className="aspect-[400/440] w-full sm:aspect-[400/470]" data={flowData} showHeader={false} />
             </Suspense>
           </div>
 
