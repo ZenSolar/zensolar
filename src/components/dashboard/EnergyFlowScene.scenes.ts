@@ -319,31 +319,40 @@ export function resolveVehicleColor(
 
 /**
  * High-level helper: returns the best asset src for the user's car.
- * Falls back across: (model + color) → (model + default color) → legacy.
- */
-/**
- * High-level helper: returns the best asset src for the user's car.
- * - If model can be determined → exact model + color asset.
- * - If Tesla is connected but model is unknown → returns a neutral Model S
- *   silhouette (rendered with `generic: true` so the caller can desaturate/dim it).
- *   We DO NOT silently fall back to Model 3 — that lies about the user's car.
+ *
+ * Resolution order (first hit wins):
+ *   1. Explicit override (admin preview / props)
+ *   2. URL ?vehicle=&color= (demo escape hatch)
+ *   3. Live telemetry detection (car_type / display_name / VIN / nickname)
+ *   4. Persisted lastKnown from localStorage (kills "flips to generic on next poll")
+ *
+ * If nothing resolves, returns `src: null` and the caller renders NO vehicle.
+ * We never substitute a misleading silhouette.
  */
 export function resolveVehicleAsset(
   input: unknown,
   overrides?: { model?: VehicleModel | null; color?: VehicleColor | null },
-  options?: { fallbackWhenConnected?: boolean },
+  _options?: { fallbackWhenConnected?: boolean },
 ): { model: VehicleModel | null; color: VehicleColor | null; src: string | null; generic: boolean } {
-  const detectedModel = overrides?.model ?? resolveVehicleModel(input);
+  const urlOverride = readUrlOverride();
+  const lastKnown = readLastKnown();
+
+  const detectedModel =
+    overrides?.model ??
+    urlOverride.model ??
+    resolveVehicleModel(input) ??
+    lastKnown?.model ??
+    null;
+
   if (!detectedModel) {
-    if (options?.fallbackWhenConnected) {
-      // Neutral silhouette — Model S shape is the most "generic Tesla" outline.
-      // Caller should apply a grayscale/opacity filter to signal "unknown model".
-      return { model: null, color: null, src: VEHICLE_SRC.models, generic: true };
-    }
     return { model: null, color: null, src: null, generic: false };
   }
 
-  const detectedColor = overrides?.color ?? resolveVehicleColor(input);
+  const detectedColor =
+    overrides?.color ??
+    urlOverride.color ??
+    resolveVehicleColor(input) ??
+    (lastKnown?.model === detectedModel ? lastKnown?.color ?? null : null);
   const color = detectedColor ?? DEFAULT_COLOR[detectedModel];
 
   const matrix = VEHICLE_COLOR_SRC[detectedModel];
@@ -352,6 +361,9 @@ export function resolveVehicleAsset(
     matrix[DEFAULT_COLOR[detectedModel]] ??
     VEHICLE_SRC[detectedModel] ??
     null;
+
+  // Persist for next poll so a transient missing payload doesn't blank the car.
+  if (src && !overrides?.model) writeLastKnown(detectedModel, detectedColor ?? null);
 
   return { model: detectedModel, color, src, generic: false };
 }
