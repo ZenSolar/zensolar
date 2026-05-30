@@ -546,7 +546,7 @@ export function EnergyFlowScene({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4, ease: 'easeOut' }}
-            className="pointer-events-none absolute bottom-[16%] left-[16%] z-[18] w-[32%]"
+            className="pointer-events-none absolute bottom-[14%] left-[4%] z-[18] w-[28%]"
           >
             <div
               aria-hidden="true"
