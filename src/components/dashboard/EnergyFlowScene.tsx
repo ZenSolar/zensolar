@@ -24,6 +24,7 @@
  * v3 archived to ./archive/EnergyFlowScene.v3.tsx.
  */
 import { useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { EnergyFlowData } from './AnimatedEnergyFlow';
 import {
@@ -291,7 +292,36 @@ function pickPrimaryFlows(args: {
   // Grid only if nothing else fits
   if (args.gridExporting) q.push('home-grid');
   else if (args.gridImporting) q.push('grid-home');
-  return new Set(q.slice(0, 2));
+  return new Set(q.slice(0, 3));
+}
+
+/**
+ * Dev-only calibration overlay. Renders labeled dots at every blueprint
+ * anchor so we can verify halos land on painted devices. Gated by
+ * `import.meta.env.DEV && ?debug=1`. Never shipped on in prod.
+ */
+function DebugAnchors() {
+  const anchors: Array<[string, { x: number; y: number }, string]> = [
+    ['solar', HOME_BLUEPRINT.solar, '#22d3ee'],
+    ['powerwall', HOME_BLUEPRINT.powerwall, '#34d399'],
+    ['windows', HOME_BLUEPRINT.windows, '#fbbf24'],
+    ['frontDoor', HOME_BLUEPRINT.frontDoor, '#a78bfa'],
+    ['gridMeter', HOME_BLUEPRINT.gridMeter, '#60a5fa'],
+    ['wallCharger', HOME_BLUEPRINT.wallCharger, '#f472b6'],
+    ['carPark', HOME_BLUEPRINT.carPark, '#f87171'],
+  ];
+  return (
+    <g style={{ pointerEvents: 'none' }}>
+      {anchors.map(([name, a, color]) => (
+        <g key={name}>
+          <circle cx={a.x} cy={a.y} r={1.2} fill={color} stroke="white" strokeWidth={0.25} />
+          <text x={a.x + 1.8} y={a.y - 1.4} fontSize={2} fill={color} stroke="black" strokeWidth={0.12} paintOrder="stroke">
+            {name}
+          </text>
+        </g>
+      ))}
+    </g>
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
