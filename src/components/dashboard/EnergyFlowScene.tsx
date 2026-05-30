@@ -18,8 +18,8 @@ import { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { EnergyFlowData } from './AnimatedEnergyFlow';
 import {
-  VEHICLE_SRC,
-  resolveVehicleModel,
+  resolveVehicleAsset,
+  type VehicleColor,
   type VehicleModel,
 } from './EnergyFlowScene.scenes';
 
