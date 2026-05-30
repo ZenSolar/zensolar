@@ -192,19 +192,19 @@ function WindowsBloom({ active, intensity }: { active: boolean; intensity: numbe
   if (!active) return null;
   const i = Math.max(0.5, Math.min(1, intensity));
   return (
-    <g style={{ pointerEvents: 'none', filter: 'blur(1.2px)' }}>
+    <g style={{ pointerEvents: 'none', filter: 'blur(1.4px)' }}>
       <ellipse
         cx={HOME_BLUEPRINT.windows.x}
         cy={HOME_BLUEPRINT.windows.y}
-        rx={6.5}
-        ry={4.2}
+        rx={7.2}
+        ry={4.6}
         fill={WARM}
-        opacity={0.12 * i}
+        opacity={0.22 * i}
       >
         <animate
           attributeName="opacity"
-          values={`${0.08 * i};${0.18 * i};${0.08 * i}`}
-          dur="6000ms"
+          values={`${0.18 * i};${0.32 * i};${0.18 * i}`}
+          dur="4000ms"
           repeatCount="indefinite"
         />
       </ellipse>
@@ -291,7 +291,7 @@ function pickPrimaryFlows(args: {
   // Grid only if nothing else fits
   if (args.gridExporting) q.push('home-grid');
   else if (args.gridImporting) q.push('grid-home');
-  return new Set(q.slice(0, 2));
+  return new Set(q.slice(0, 3));
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -437,10 +437,27 @@ export function EnergyFlowScene({
   const arrow = (v: number, threshold = 0.05) => (v > threshold ? '▲' : v < -threshold ? '▼' : '');
   const intensity = (kw: number) => Math.min(1, 0.55 + Math.abs(kw) / 6);
 
+  // Only render the dynamic Tesla when the vehicle is actually connected to
+  // the home (charging, plugged-idle, or temporarily stopped). When the car
+  // is `Disconnected` or telemetry is missing entirely, hide it — there's no
+  // car at this address right now.
+  const chargingState =
+    (teslaPayload as { charging_state?: string } | undefined)?.charging_state;
+  const carConnected =
+    chargingState === 'Charging' ||
+    chargingState === 'Connected' ||
+    chargingState === 'Complete' ||
+    chargingState === 'Stopped' ||
+    isCharging ||
+    (data.evPower ?? 0) > 0.1;
+
   // Suppress dynamic car overlay when the baked night-ev art already shows
   // a Tesla parked in the garage. This is the only scene that bakes a car in.
   const showDynamicCar =
-    scene !== 'night-ev' && Boolean(vehicleSrc) && !vehicleGeneric;
+    scene !== 'night-ev' &&
+    carConnected &&
+    Boolean(vehicleSrc) &&
+    !vehicleGeneric;
 
   // Car geometry in viewBox (0–100) space.
   const carW = HOME_BLUEPRINT.carWidth;
@@ -491,7 +508,16 @@ export function EnergyFlowScene({
         <RoofHalo active={solarProducing} intensity={intensity(solar)} />
         <WindowsBloom active={homeDrawing} intensity={intensity(home)} />
 
-        {/* Powerwall — emerald when charging, amber when discharging */}
+        {/* Powerwall — always-on dim emerald standby; brighter when active */}
+        <DeviceHalo
+          cx={HOME_BLUEPRINT.powerwall.x}
+          cy={HOME_BLUEPRINT.powerwall.y}
+          color={EMERALD}
+          active
+          intensity={0.5}
+          radius={3.8}
+          pulseMs={5000}
+        />
         <DeviceHalo
           cx={HOME_BLUEPRINT.powerwall.x}
           cy={HOME_BLUEPRINT.powerwall.y}
@@ -501,6 +527,7 @@ export function EnergyFlowScene({
           radius={4.6}
           pulseMs={pwCharging ? 2800 : 2400}
         />
+
 
         {/* Grid meter — sky on import, cyan on export */}
         <DeviceHalo

@@ -218,7 +218,7 @@ const AdminCoffeePitch = lazy(() => import("./pages/AdminCoffeePitch"));
 const AdminInvestorPitch = lazy(() => import("./pages/AdminInvestorPitch"));
 const DeckPinGated = lazy(() => import("./pages/DeckPinGated"));
 const HeroTest = lazy(() => import("./pages/HeroTest"));
-const ScenePreview = lazy(() => import("./pages/ScenePreview"));
+
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogWhatIsSolar = lazy(() => import("./pages/blog/WhatIsSolarBlockchainRewards"));
 const BlogHowToEarn = lazy(() => import("./pages/blog/HowToEarnCryptoFromSolar"));
@@ -309,7 +309,7 @@ const App = () => {
                    <Route path="/install" element={<Install />} />
                    <Route path="/deck" element={<Suspense fallback={<PageLoader />}><DeckPinGated /></Suspense>} />
                     <Route path="/hero-test" element={<Suspense fallback={<PageLoader />}><HeroTest /></Suspense>} />
-                    <Route path="/scene-preview" element={<Suspense fallback={<PageLoader />}><ScenePreview /></Suspense>} />
+                    
                     <Route path="/dwight-preview" element={<DwightPreview />} />
                     <Route path="/taylor-preview" element={<TaylorPreview />} />
                     <Route path="/proof-of-genesis-receipt-preview" element={<ProofOfGenesisReceiptPreview />} />
