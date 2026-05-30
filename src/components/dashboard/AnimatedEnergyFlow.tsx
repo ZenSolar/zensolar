@@ -542,9 +542,10 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
 
   const vb = compact ? '0 0 400 390' : '0 0 400 470';
   const maxH = compact ? '420px' : '560px';
-  const labelFs = compact ? 7.5 : 9;
-  const valueFs = compact ? 17 : 22;
-  const subValueFs = compact ? 13 : 17;
+  // Tesla-grade legibility: bigger primary values, slightly bigger labels.
+  const labelFs = compact ? 9 : 10;
+  const valueFs = compact ? 22 : 26;
+  const subValueFs = compact ? 16 : 19;
 
   return (
     <div className={`relative ${className}`}>
