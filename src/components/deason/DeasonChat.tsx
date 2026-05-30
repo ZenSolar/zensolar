@@ -308,18 +308,18 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
             <div className="mb-3 text-2xl">☀️</div>
 
             <h2 className="mb-2 text-lg font-semibold">{welcomeTitle}</h2>
+            <p className="text-sm text-muted-foreground">{welcomeBody}</p>
             <button
               onClick={() => setEnergySheetOpen(true)}
-              className="mt-3 mb-2 w-full rounded-xl border border-amber-500/40 bg-gradient-to-b from-amber-500/15 to-amber-500/5 px-3 py-3 text-left transition-colors hover:from-amber-500/20"
+              className="mt-4 w-full rounded-xl border border-amber-500/40 bg-gradient-to-b from-amber-500/15 to-amber-500/5 px-3 py-3 text-left transition-colors hover:from-amber-500/20"
             >
               <div className="flex items-center gap-2 text-sm font-semibold text-amber-500">
-                <FileCheck2 className="h-4 w-4" /> Solar Concierge Analysis
+                <FileCheck2 className="h-4 w-4" /> Analyze my energy setup
               </div>
               <div className="mt-0.5 text-xs text-muted-foreground">
-                Upload your bill (and contract / loan, if you have them) for a personalized ROI, rate plan, and savings report.
+                Upload your latest utility bill (required), plus your solar contract and PPA or loan if you have them.
               </div>
             </button>
-            <p className="text-sm text-muted-foreground">{welcomeBody}</p>
             <div className="mt-4 grid gap-2 text-left text-sm">
               {prompts.map((q) => (
                 <button
