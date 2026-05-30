@@ -684,10 +684,7 @@ export function LiveEnergyMonitoringCard() {
         // Master live pill — Tesla charging wins, then Powerwall discharging, charging, solar, grid import, idle.
         const pw = batteryStats.powerKw;
         const solarKw = solarStats.currentKw ?? 0;
-        const gridKw = (() => {
-          const w = pickNumber(primaryBattery?.payload, ['grid_power', 'energy_sites.0.grid_power']);
-          return w !== null ? w / 1000 : 0;
-        })();
+        const gridKw = reconciledFlow.gridKw;
         let pillState: 'tesla-charging' | 'discharging' | 'charging' | 'solar' | 'grid-import' | 'idle' = 'idle';
         if (teslaFlow?.isCharging) pillState = 'tesla-charging';
         else if (pw !== null && pw < -0.05) pillState = 'discharging';
