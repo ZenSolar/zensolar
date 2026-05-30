@@ -194,7 +194,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { messages } = await req.json();
+    const { messages, threadId } = await req.json();
     if (!Array.isArray(messages)) {
       return json({ error: "bad_request", stage: "bad_payload", reqId }, 400);
     }
@@ -221,10 +221,27 @@ Deno.serve(async (req) => {
       }
     }
 
-    const systemPrompt = isInnerCircle ? INNER_CIRCLE_PROMPT : PUBLIC_PROMPT;
-    // Public persona uses Gemini Flash (cheaper, supports vision for bill uploads).
-    // Inner circle uses Pro for sharper strategic reasoning.
-    const model = isInnerCircle ? "google/gemini-2.5-flash" : "google/gemini-2.5-flash";
+    // Ground follow-ups in the latest doc analysis for this thread, if any.
+    let analysisContext = "";
+    if (!isInnerCircle && typeof threadId === "string" && threadId) {
+      const { data: latest } = await admin
+        .from("deason_doc_analyses")
+        .select("report, narrative")
+        .eq("user_id", user.id)
+        .eq("thread_id", threadId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (latest?.report) {
+        // Compact the report so we stay well under context limits.
+        const r = latest.report as Record<string, unknown>;
+        const compact = JSON.stringify(r).slice(0, 6000);
+        analysisContext = `\n\n--- ENERGY ANALYSIS CONTEXT (from this user's uploaded documents) ---\n${compact}\n--- END CONTEXT ---`;
+      }
+    }
+
+    const systemPrompt = (isInnerCircle ? INNER_CIRCLE_PROMPT : PUBLIC_PROMPT) + analysisContext;
+    const model = "google/gemini-2.5-flash";
 
     log("calling AI gateway", { msgCount: messages.length, model, persona: isInnerCircle ? "inner" : "public" });
 
