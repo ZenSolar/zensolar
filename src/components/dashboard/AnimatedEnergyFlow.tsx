@@ -547,37 +547,36 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
     tesla: '#E11D48',
   };
 
-  // Responsive node positions — tighter on mobile.
-  // Compact viewBox is 400x440 with the isometric house scaled 1.22× around
-  // pivot (200, 187) so it dominates ~45% of card height. Post-scale house
-  // bounds: x≈88–312, y≈100–274. Perimeter nodes sit outside that footprint.
+  // Responsive node positions — Tesla-grade premium scale.
+  // Compact viewBox 400x460. House scaled 1.42× around pivot (200,187) so it
+  // dominates ~55% of card height. Post-scale house bounds: x≈69–331, y≈86–288.
   const nodes = compact
     ? {
-        solar: { x: 200, y: 70 },        // headroom above for 28px value text — no clip
-        home: { x: 200, y: 215 },        // visual center of scaled house body
-        battery: { x: 48, y: 235 },
-        grid: { x: 352, y: 235 },
-        ev: { x: 200, y: 395 },
+        solar: { x: 200, y: 56 },         // generous headroom for 32px value
+        home: { x: 200, y: 215 },         // visual center of scaled house body
+        battery: { x: 44, y: 240 },
+        grid: { x: 356, y: 240 },
+        ev: { x: 200, y: 415 },
       }
     : {
         solar: { x: 200, y: 55 },
         home: { x: 200, y: 230 },
         battery: { x: 45, y: 275 },
         grid: { x: 355, y: 275 },
-        ev: { x: 200, y: 395 },
+        ev: { x: 200, y: 415 },
       };
 
-  // Meter position — must match the scaled visual location of the meter inside
-  // the HouseIllustration (compact pivot 200,187 × scale 1.22).
-  const meter = compact ? { x: 279, y: 224 } : { x: 287, y: 254 };
+  // Meter scaled to match house illustration's meter position.
+  // Compact pivot (200,187) × 1.42: meter origin (265.5,216) → (293, 228).
+  const meter = compact ? { x: 293, y: 228 } : { x: 287, y: 254 };
 
-  const vb = compact ? '0 0 400 440' : '0 0 400 470';
-  const maxH = compact ? '500px' : '560px';
-  // Tesla-grade legibility: large primary values readable at arm's length on 390px.
+  const vb = compact ? '0 0 400 460' : '0 0 400 470';
+  const maxH = compact ? '560px' : '560px';
+  // Tesla-grade legibility: hero numbers readable at arm's length on 390px.
   const labelFs = compact ? 11 : 11;
-  const valueFs = compact ? 28 : 32;       // perimeter nodes (Solar / Grid / EV)
-  const subValueFs = compact ? 20 : 24;    // Powerwall stored kWh
-  const homeFs = compact ? 38 : 38;        // centerpiece HOME kW — hero size
+  const valueFs = compact ? 32 : 32;       // perimeter nodes (Solar / Grid / EV)
+  const subValueFs = compact ? 22 : 24;    // Powerwall stored kWh
+  const homeFs = compact ? 44 : 40;        // centerpiece HOME kW — hero size
 
   return (
     <div className={`relative ${className}`}>
