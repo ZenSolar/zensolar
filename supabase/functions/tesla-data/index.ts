@@ -342,9 +342,10 @@ Deno.serve(async (req) => {
           }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
         }
         if (cap === "ev") {
-          // Try cached vehicle_data first; if asleep, attempt wake.
+          // Include vehicle_config so the UI can render the exact model + color.
+          const ENDPOINTS = "charge_state;drive_state;vehicle_state;vehicle_config";
           let vd = await fetch(
-            `${TESLA_API_BASE}/api/1/vehicles/${id}/vehicle_data?endpoints=${encodeURIComponent("charge_state;drive_state;vehicle_state")}`,
+            `${TESLA_API_BASE}/api/1/vehicles/${id}/vehicle_data?endpoints=${encodeURIComponent(ENDPOINTS)}`,
             { headers: { "Authorization": `Bearer ${accessToken}` } }
           );
           if (vd.status === 408 || vd.status === 503) {
@@ -354,7 +355,7 @@ Deno.serve(async (req) => {
             // Wait briefly then retry once
             await new Promise((res) => setTimeout(res, 2500));
             vd = await fetch(
-              `${TESLA_API_BASE}/api/1/vehicles/${id}/vehicle_data?endpoints=${encodeURIComponent("charge_state;drive_state;vehicle_state")}`,
+              `${TESLA_API_BASE}/api/1/vehicles/${id}/vehicle_data?endpoints=${encodeURIComponent(ENDPOINTS)}`,
               { headers: { "Authorization": `Bearer ${accessToken}` } }
             );
           }
@@ -367,7 +368,18 @@ Deno.serve(async (req) => {
           const cs = j?.response?.charge_state || {};
           const vs = j?.response?.vehicle_state || {};
           const ds = j?.response?.drive_state || {};
+          const vc = j?.response?.vehicle_config || {};
+          const displayName = j?.response?.display_name || null;
           return new Response(JSON.stringify({
+            display_name: displayName,
+            vin: id,
+            vehicle_config: {
+              car_type: vc.car_type ?? null,
+              exterior_color: vc.exterior_color ?? null,
+              wheel_type: vc.wheel_type ?? null,
+              trim_badging: vc.trim_badging ?? null,
+              roof_color: vc.roof_color ?? null,
+            },
             charging_state: cs.charging_state,
             battery_level: cs.battery_level,
             usable_battery_level: cs.usable_battery_level,
@@ -390,6 +402,8 @@ Deno.serve(async (req) => {
             power: ds.power,
             vehicles: [{
               vin: id,
+              display_name: displayName,
+              vehicle_config: vc,
               odometer: vs.odometer ?? ds.odometer,
               charging_state: cs.charging_state,
               battery_level: cs.battery_level,
@@ -399,6 +413,7 @@ Deno.serve(async (req) => {
             }],
           }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
         }
+
       } catch (e) {
         console.error("tesla telemetry error", e);
         return new Response(JSON.stringify({ error: "telemetry_exception" }), {
