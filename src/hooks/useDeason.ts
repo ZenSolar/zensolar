@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { BillReport } from "@/components/deason/BillSavingsReport";
+import type { EnergyReportFull, EnergyReportPreview } from "@/hooks/useEnergyReport";
 
 export interface DeasonContentPart {
   type: "text" | "image_url";
@@ -8,11 +9,19 @@ export interface DeasonContentPart {
   image_url?: { url: string };
 }
 
+export interface DeasonEnergyReport {
+  preview: EnergyReportPreview;
+  full: EnergyReportFull | null;
+  entitled: boolean;
+}
+
 export interface DeasonMessage {
   role: "user" | "assistant";
   content: string | DeasonContentPart[];
   /** When the assistant attaches a structured bill savings report. */
   billReport?: BillReport;
+  /** When the assistant attaches a full energy analysis (bill + contract + PPA/loan). */
+  energyReport?: DeasonEnergyReport;
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/deason-chat`;
@@ -53,7 +62,7 @@ export function useDeason(opts: UseDeasonOptions = {}) {
     void (async () => {
       const { data, error } = await supabase
         .from("deason_messages")
-        .select("role,content,bill_report,created_at")
+        .select("role,content,bill_report,energy_report,created_at")
         .eq("thread_id", threadId)
         .order("created_at", { ascending: true });
       if (cancelled) return;
@@ -62,6 +71,7 @@ export function useDeason(opts: UseDeasonOptions = {}) {
           role: row.role,
           content: row.content,
           billReport: row.bill_report ?? undefined,
+          energyReport: row.energy_report ?? undefined,
         }));
         setMessages(restored);
         if (restored.some((m) => m.role === "user")) titleSetRef.current = true;
@@ -80,11 +90,24 @@ export function useDeason(opts: UseDeasonOptions = {}) {
     setStreaming(false);
   }, []);
 
-  const seedAssistant = useCallback((text: string) => {
-    if (!text?.trim()) return;
-    setMessages((prev) => [...prev, { role: "assistant", content: text }]);
-    setError(null);
-  }, []);
+  const seedAssistant = useCallback(
+    (text: string, extras?: { energyReport?: DeasonEnergyReport; billReport?: BillReport }) => {
+      if (!text?.trim() && !extras?.energyReport && !extras?.billReport) return;
+      const msg: DeasonMessage = {
+        role: "assistant",
+        content: text,
+        energyReport: extras?.energyReport,
+        billReport: extras?.billReport,
+      };
+      setMessages((prev) => [...prev, msg]);
+      setError(null);
+      void persistMessageRef.current?.(msg);
+    },
+    []
+  );
+
+  // Ref so seedAssistant (stable identity) can call the latest persistMessage.
+  const persistMessageRef = useRef<((m: DeasonMessage) => Promise<void>) | null>(null);
 
   const persistMessage = useCallback(
     async (msg: DeasonMessage) => {
@@ -97,6 +120,7 @@ export function useDeason(opts: UseDeasonOptions = {}) {
         role: msg.role,
         content: msg.content as any,
         bill_report: (msg.billReport ?? null) as any,
+        energy_report: (msg.energyReport ?? null) as any,
       }]);
       // Bump thread updated_at, and set title from first user message.
       const updates: Record<string, any> = { updated_at: new Date().toISOString() };
@@ -104,7 +128,7 @@ export function useDeason(opts: UseDeasonOptions = {}) {
         const text =
           typeof msg.content === "string"
             ? msg.content
-            : msg.content.find((p) => p.type === "text")?.text ?? "Bill analysis";
+            : msg.content.find((p) => p.type === "text")?.text ?? "Energy analysis";
         updates.title = text.slice(0, 60);
         titleSetRef.current = true;
       }
@@ -112,6 +136,8 @@ export function useDeason(opts: UseDeasonOptions = {}) {
     },
     [threadId]
   );
+
+  useEffect(() => { persistMessageRef.current = persistMessage; }, [persistMessage]);
 
   const send = useCallback(
     async (text: string, imageDataUrl?: string) => {
@@ -201,7 +227,7 @@ export function useDeason(opts: UseDeasonOptions = {}) {
             "Content-Type": "application/json",
             Authorization: `Bearer ${session.access_token}`,
           },
-          body: JSON.stringify({ messages: next }),
+          body: JSON.stringify({ messages: next, threadId }),
           signal: ac.signal,
         });
 

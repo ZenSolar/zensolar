@@ -274,6 +274,18 @@ Deno.serve(async (req) => {
       .update({ status: "ready", preview: parsed.preview, full_report: parsed.full })
       .eq("id", reportRow.id);
 
+    // Also persist a thread-scoped copy so `deason-chat` can pick it up as
+    // grounding context for follow-up questions on this conversation.
+    if (threadId) {
+      await admin.from("deason_doc_analyses").insert({
+        user_id: userId,
+        thread_id: threadId,
+        report: { preview: parsed.preview, full: parsed.full },
+        narrative: (parsed.preview as { executive_summary?: string })?.executive_summary ?? null,
+        doc_paths: docs.filter((d) => d.storagePath).map((d) => ({ kind: d.kind, path: d.storagePath })),
+      });
+    }
+
     // Check entitlement so the client knows whether to render the full report.
     const { data: sub } = await admin
       .from("energy_subscriptions")

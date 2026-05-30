@@ -1,44 +1,65 @@
-# ZenEnergy Live Card — Flow Polish + Multi-Battery
+## Goal
 
-Scope: surgical updates to `HomeBlueprint.ts` and `EnergyFlowScene.tsx` only. No PNG regen, no halo/car-logic changes.
+Transition the in-app focus from the ZenEnergy live-monitoring dashboard to **Deason — your clean-energy optimization advisor**. Users upload a few documents, Deason reads them, writes a personalized analysis directly in the chat thread, and then answers follow-up questions grounded in those documents.
 
-## 1. Roof-hugging bezier paths (`HomeBlueprint.ts`)
+Output style is **conversational inside the existing Deason chat** (your choice). The existing /deason page, thread persistence, and edge functions stay — we upgrade them.
 
-Rewrite each path in `BLUEPRINT_PATHS` as a multi-segment curve that tracks the silhouette instead of cutting diagonals:
+## What documents we need (and why)
 
-- `solarToHome`: roof apex → down the right roof slope → vertical drop along right gable → into windows. Use an `M ... C ... S ...` chain so it bends at the eave (~ x=78, y=48) then drops straight down to windows.
-- `solarToPowerwall`: same eave bend, continues vertically down the right wall to Powerwall.
-- `powerwallToHome`: tight vertical arc hugging the right wall (small control-point x-offset, ≤2 units off the wall line).
-- `homeToGrid` / `gridToHome`: hug the baseline — drop from windows down the wall first, then run horizontally along the ground to the meter (L-shape via two control points near y=72).
-- `chargerToEv`: arc out the garage opening then sweep down the driveway curve to `carPark` (control points along the driveway diagonal, not a straight line).
+For the analysis to actually be useful, Deason needs three things:
 
-## 2. Slower, calmer dot animation (`EnergyFlowScene.tsx`)
+| Doc | Why it matters | Required? |
+|---|---|---|
+| **Most recent utility bill** (PDF/photo) | Tells us utility, rate plan, TOU windows, $/kWh, total kWh, NEM credits. Without it we can't ground any savings claim in real numbers. | **Required** |
+| **Solar installation contract** (PDF) | System size (kW DC/AC), inverter/battery brand, install date, warranty terms, escalators, dealer fees, performance guarantee. Lets us judge whether the system is performing and whether the customer was treated fairly. | **Strongly recommended** |
+| **PPA agreement OR loan paperwork** (one or the other — whichever applies) | PPA: term, $/kWh, annual escalator, buyout schedule. Loan: APR, term, payment, dealer fee, prepayment. This is where most of the "did I get a good deal?" answer lives. Customers usually have one or the other, never both. | **One of the two** |
 
-- Change `flowDur` from `Math.max(0.9, 2.0 - kw*0.13)` → `Math.max(2.0, 4.0 - kw*0.2)` so even high-power flows take ≥2s and idle flows ~4s (≈2× slower).
-- Update `DottedFlow` default `dur` from `1.8` → `3.6`.
-- Keep the existing `0;0.15;0.85;1` opacity keyTimes (fade-in/out preserved, naturally stretched by longer `dur`).
+The UI will treat #1 as required, #2 as recommended, and #3 as a single "PPA or loan" slot so users aren't confused into thinking they need both.
 
-## 3. Multi-Powerwall support
+## What changes
 
-`HomeBlueprint.ts`:
-- Raise `windows` from `y: 58` → `y: 52` (closer to roof eave, frees the wall).
-- Keep `powerwall` (top unit) at `{ x: 82, y: 65 }`.
-- Add `powerwall2: { x: 82, y: 76 }` (stacked below, same x).
-- Add `BLUEPRINT_PATHS.solarToPowerwall2` and `powerwall2ToHome` mirroring the single-unit paths but ending at the lower anchor.
+### 1. Re-skin the /deason landing experience
+- New welcome state when a thread has no messages: a hero card titled **"Let's analyze your energy setup"** with a single primary CTA → **Upload your documents**.
+- Suggested-prompt set switches from the current token/ZenSolar prompts to optimization prompts: *"Analyze my latest bill"*, *"Am I on the right rate plan?"*, *"Is my solar contract fair?"*, *"Should I refinance my solar loan?"*.
+- Header/title on /deason becomes **"Deason · Clean Energy Optimization"**.
 
-`EnergyFlowScene.tsx`:
-- Add an optional `batteryCount?: number` prop (default 1). When `≥ 2`, render a second `DeviceHalo` at `HOME_BLUEPRINT.powerwall2` using the same color/intensity as the first.
-- When `batteryCount ≥ 2` and a Powerwall flow is active, render the corresponding flow to BOTH anchors (two `DottedFlow` elements, second uses the `…2` path id).
-- Caller wiring: in the parent that mounts `EnergyFlowScene` (passes `teslaPayload` / `batteryPayload`), derive count from `useBatteryTelemetry().data.length` (each row = one connected battery site/unit). This single-line wiring is included so the feature is live, not dormant.
+### 2. Upgrade the EnergyDocSheet upload flow
+- Reduce to 3 slots: utility bill (required), install contract (recommended), and a single **PPA or loan** slot with a small radio to declare which it is.
+- Inline reassurance: "Documents stay private. Used only to write your report."
+- After submit, the sheet closes and Deason begins writing the analysis as a normal assistant message in the active thread.
 
-## 4. Verification
+### 3. Wire the analysis into the chat (not a side card)
+- `generate-energy-report` already returns structured JSON + a narrative. Reuse it, but stream the **narrative** straight into the thread as an assistant message and persist a compact summary of the structured fields (rate plan, system size, contract terms, key risk flags, top 3 actions) as hidden thread context.
+- Render the structured highlights (ROI, top action items, contract risk flags) as a collapsed inline card *below* the assistant message — using the existing `EnergyReportCard` / `BillSavingsReport` components — so the user can expand for details but the conversation reads naturally.
 
-After build, screenshot at 390×844 for: solar+home (day), PW discharge (night), grid export, EV charging (day), ZenX disconnected. Confirm curves hug the house, dots crawl, windows sit higher, and a synthetic 2-battery scenario renders two halos.
+### 4. Make follow-up questions grounded
+- Extend `deason-chat` to include the latest doc-analysis summary for the thread in its system context (kept under ~2k tokens, server-side only).
+- This lets users ask things like *"What would I save if I switched to EV2-A?"*, *"Is the 2.9% escalator in my PPA standard?"*, *"My bill went up $40 — why?"* and get answers tied to **their** documents.
 
-## Files touched
+### 5. Reframe Deason's public persona
+- Update the public `PUBLIC_PROMPT` in `deason-chat` so the primary identity is **clean-energy optimization advisor**: bill analysis, rate-plan strategy, contract/loan/PPA fairness review, HVAC/EV/battery scheduling.
+- Token/$ZSOLAR talk stays available as a secondary topic but is no longer the lead. Inner-circle prompt is untouched.
 
-- `src/components/dashboard/HomeBlueprint.ts` — paths, windows anchor, `powerwall2` + 2 new paths.
-- `src/components/dashboard/EnergyFlowScene.tsx` — `flowDur`, `DottedFlow` default, optional `batteryCount` prop, second halo + duplicated flow rendering.
-- Parent that mounts the scene (likely `AnimatedEnergyFlow.tsx` or dashboard wrapper) — pass `batteryCount` from telemetry hook.
+### 6. Storage + persistence (minor)
+- Add a `deason_doc_analyses` table keyed by `thread_id` that stores: structured report JSON, narrative, doc storage paths, created_at. RLS scoped to `auth.uid()`. Used by step 4 to inject context and by step 3 to re-render the inline card on reload.
+- Existing `energy-docs` storage bucket is already used for the uploaded files — no change.
 
-No changes to: PNGs, halos, conditional-car logic, `EnergyFlowScene.scenes.ts`, telemetry hooks, tests.
+## What we are NOT doing in this pass
+- Not removing the live-monitoring dashboard from /index (that's a separate decision — flagged but kept).
+- Not changing onboarding, founders pages, or tokenomics surfaces.
+- Not adding Phase 2 utility-API auto-pull, weekly report email, or FSD/Tesla integrations from the Deason roadmap memo.
+
+## Technical notes
+
+- Files touched: `src/pages/Deason.tsx`, `src/components/deason/DeasonChat.tsx`, `src/components/deason/EnergyDocSheet.tsx`, `src/components/deason/EnergyReportCard.tsx`, `src/hooks/useEnergyReport.ts`, `supabase/functions/deason-chat/index.ts`, `supabase/functions/generate-energy-report/index.ts`.
+- New: `deason_doc_analyses` table + RLS + GRANTs; small migration only.
+- Edge functions continue to use Lovable AI Gateway (`google/gemini-2.5-pro` for the report, `google/gemini-2.5-flash` for chat streaming).
+- No new secrets, no schema changes outside the new table.
+
+## Open question I should confirm before building
+
+When a user starts a brand-new thread, should Deason:
+- **(A)** Immediately prompt for documents (block chat until uploaded), or
+- **(B)** Let them chat freely and surface a soft "upload your bill for a real answer" nudge after the first vague question (current default)?
+
+I'll go with **(B)** unless you say otherwise.
