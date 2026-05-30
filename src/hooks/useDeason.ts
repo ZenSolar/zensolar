@@ -227,7 +227,7 @@ export function useDeason(opts: UseDeasonOptions = {}) {
             "Content-Type": "application/json",
             Authorization: `Bearer ${session.access_token}`,
           },
-          body: JSON.stringify({ messages: next }),
+          body: JSON.stringify({ messages: next, threadId }),
           signal: ac.signal,
         });
 
