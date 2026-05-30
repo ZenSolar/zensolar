@@ -21,7 +21,7 @@ export type BlueprintAnchor = Readonly<{ x: number; y: number }>;
 
 export const HOME_BLUEPRINT = Object.freeze({
   /** Center of the solar panel array on the roof (front-facing slope). */
-  solar:        { x: 55, y: 35 } as BlueprintAnchor,
+  solar:        { x: 58, y: 38 } as BlueprintAnchor,
   /** White Powerwall cabinet, mounted on the right gable wall. */
   powerwall:    { x: 82, y: 65 } as BlueprintAnchor,
   /** Lit 4-window cluster on the right gable — used as the home-load anchor. */
