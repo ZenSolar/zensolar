@@ -540,14 +540,16 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
     tesla: '#E11D48',
   };
 
-  // Responsive node positions — tighter on mobile
+  // Responsive node positions — tighter on mobile.
+  // Compact viewBox is 400x440 (taller) so the isometric house can dominate
+  // the middle ~55-60% without crowding the perimeter nodes/numbers.
   const nodes = compact
     ? {
-        solar: { x: 200, y: 42 },
-        home: { x: 200, y: 190 },
-        battery: { x: 48, y: 220 },
-        grid: { x: 352, y: 220 },
-        ev: { x: 200, y: 320 },
+        solar: { x: 200, y: 64 },        // pushed down so 28px value text (above) no longer clips the top
+        home: { x: 200, y: 215 },
+        battery: { x: 50, y: 250 },
+        grid: { x: 350, y: 250 },
+        ev: { x: 200, y: 380 },
       }
     : {
         solar: { x: 200, y: 55 },
@@ -558,15 +560,15 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
       };
 
   // Meter position (right side of house)
-  const meter = compact ? { x: 263, y: 217 } : { x: 287, y: 254 };
+  const meter = compact ? { x: 263, y: 247 } : { x: 287, y: 254 };
 
-  const vb = compact ? '0 0 400 390' : '0 0 400 470';
-  const maxH = compact ? '420px' : '560px';
+  const vb = compact ? '0 0 400 440' : '0 0 400 470';
+  const maxH = compact ? '480px' : '560px';
   // Tesla-grade legibility: large primary values readable at arm's length on 390px.
-  const labelFs = compact ? 10 : 11;
+  const labelFs = compact ? 11 : 11;
   const valueFs = compact ? 28 : 32;       // perimeter nodes (Solar / Grid / EV)
   const subValueFs = compact ? 20 : 24;    // Powerwall stored kWh
-  const homeFs = compact ? 32 : 38;        // centerpiece HOME kW
+  const homeFs = compact ? 36 : 38;        // centerpiece HOME kW
 
   return (
     <div className={`relative ${className}`}>
