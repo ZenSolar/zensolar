@@ -155,9 +155,11 @@ describe('AnimatedEnergyFlow → Powerwall SVG node', () => {
     );
     expect(container.textContent).not.toContain('NaN');
     expect(container.textContent).toContain('State pending');
+  });
 });
 
 describe('AnimatedEnergyFlow → Powerwall discharge animation', () => {
+
   it('discharging renders Powerwall→Home flow group and data-state="discharging"', () => {
     const { container } = render(
       <AnimatedEnergyFlow data={baseFlow({ batteryPercent: 64, batteryPower: -0.8, batteryReserveKwh: 8.6 })} showHeader={false} />
