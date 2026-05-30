@@ -143,6 +143,59 @@ const DEFAULT_COLOR: Record<VehicleModel, VehicleColor> = {
 };
 
 /**
+ * Branded nickname → model map. Deterministic; runs before letter heuristics
+ * so "ZenX" always resolves to Model X regardless of casing/spacing.
+ */
+const NICKNAME_MAP: Array<[RegExp, VehicleModel]> = [
+  [/\bzen[\s_-]?ct\b|\bzen[\s_-]?cyber/i, 'cybertruck'],
+  [/\bzen[\s_-]?x\b/i, 'modelx'],
+  [/\bzen[\s_-]?y\b/i, 'modely'],
+  [/\bzen[\s_-]?s\b/i, 'models'],
+  [/\bzen[\s_-]?3\b/i, 'model3'],
+];
+
+/** Local persistence key — last successfully resolved vehicle for this browser. */
+const LAST_KNOWN_KEY = 'zen:vehicle:lastKnown';
+
+type LastKnown = { model: VehicleModel; color: VehicleColor | null };
+
+function readLastKnown(): LastKnown | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.localStorage.getItem(LAST_KNOWN_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed.model === 'string') return parsed as LastKnown;
+  } catch {}
+  return null;
+}
+
+function writeLastKnown(model: VehicleModel, color: VehicleColor | null) {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(LAST_KNOWN_KEY, JSON.stringify({ model, color }));
+  } catch {}
+}
+
+/** URL ?vehicle=modelx&color=stealth-grey escape hatch for demos. */
+function readUrlOverride(): { model?: VehicleModel; color?: VehicleColor } {
+  if (typeof window === 'undefined') return {};
+  try {
+    const sp = new URLSearchParams(window.location.search);
+    const v = sp.get('vehicle')?.toLowerCase().replace(/[\s_-]/g, '') as VehicleModel | undefined;
+    const c = sp.get('color')?.toLowerCase() as VehicleColor | undefined;
+    const validModel: Record<string, VehicleModel> = {
+      model3: 'model3', modely: 'modely', models: 'models', modelx: 'modelx', cybertruck: 'cybertruck',
+    };
+    const validColor: VehicleColor[] = ['pearl-white', 'solid-black', 'deep-blue', 'red', 'stealth-grey', 'stainless'];
+    return {
+      model: v && validModel[v] ? validModel[v] : undefined,
+      color: c && validColor.includes(c as VehicleColor) ? (c as VehicleColor) : undefined,
+    };
+  } catch { return {}; }
+}
+
+/**
  * Resolve a canonical Tesla model id from arbitrary telemetry shapes.
  */
 function detectModelFromString(raw: string): VehicleModel | null {
@@ -150,6 +203,10 @@ function detectModelFromString(raw: string): VehicleModel | null {
   const trimmed = raw.trim();
   const lower = trimmed.toLowerCase();
   const compact = lower.replace(/[\s_-]/g, '');
+  // Branded nicknames first (deterministic)
+  for (const [pattern, model] of NICKNAME_MAP) {
+    if (pattern.test(trimmed)) return model;
+  }
   if (compact.includes('cybertruck') || compact.includes('cyber') || /\bct\b/.test(lower)) return 'cybertruck';
   if (compact.includes('modely')) return 'modely';
   if (compact.includes('modelx')) return 'modelx';
@@ -159,15 +216,12 @@ function detectModelFromString(raw: string): VehicleModel | null {
   if (/\bmx\b/.test(lower)) return 'modelx';
   if (/\bms\b/.test(lower)) return 'models';
   if (/\bm3\b/.test(lower)) return 'model3';
-  // Plaid/Long Range trims are Model S/X by default — usually paired with car_type, skip.
-  // Trailing-character convention: "ZenX", "ZenY", "Spark3" — last alphanumeric char hints model.
+  // Trailing-character convention: "ZenX", "ZenY", "Spark3"
   const last = trimmed.replace(/[^a-z0-9]/gi, '').slice(-1).toLowerCase();
   if (last === 'x') return 'modelx';
   if (last === 'y') return 'modely';
   if (last === '3') return 'model3';
-  // 's' alone is too ambiguous (could be plural) — only accept when last token is a 1-char "S"
   if (/(^|[\s_-])s$/i.test(trimmed)) return 'models';
-  // Standalone single-letter word
   if (/(^|\s)x(\s|$)/i.test(trimmed)) return 'modelx';
   if (/(^|\s)y(\s|$)/i.test(trimmed)) return 'modely';
   if (/(^|\s)s(\s|$)/i.test(trimmed)) return 'models';
@@ -265,31 +319,40 @@ export function resolveVehicleColor(
 
 /**
  * High-level helper: returns the best asset src for the user's car.
- * Falls back across: (model + color) → (model + default color) → legacy.
- */
-/**
- * High-level helper: returns the best asset src for the user's car.
- * - If model can be determined → exact model + color asset.
- * - If Tesla is connected but model is unknown → returns a neutral Model S
- *   silhouette (rendered with `generic: true` so the caller can desaturate/dim it).
- *   We DO NOT silently fall back to Model 3 — that lies about the user's car.
+ *
+ * Resolution order (first hit wins):
+ *   1. Explicit override (admin preview / props)
+ *   2. URL ?vehicle=&color= (demo escape hatch)
+ *   3. Live telemetry detection (car_type / display_name / VIN / nickname)
+ *   4. Persisted lastKnown from localStorage (kills "flips to generic on next poll")
+ *
+ * If nothing resolves, returns `src: null` and the caller renders NO vehicle.
+ * We never substitute a misleading silhouette.
  */
 export function resolveVehicleAsset(
   input: unknown,
   overrides?: { model?: VehicleModel | null; color?: VehicleColor | null },
-  options?: { fallbackWhenConnected?: boolean },
+  _options?: { fallbackWhenConnected?: boolean },
 ): { model: VehicleModel | null; color: VehicleColor | null; src: string | null; generic: boolean } {
-  const detectedModel = overrides?.model ?? resolveVehicleModel(input);
+  const urlOverride = readUrlOverride();
+  const lastKnown = readLastKnown();
+
+  const detectedModel =
+    overrides?.model ??
+    urlOverride.model ??
+    resolveVehicleModel(input) ??
+    lastKnown?.model ??
+    null;
+
   if (!detectedModel) {
-    if (options?.fallbackWhenConnected) {
-      // Neutral silhouette — Model S shape is the most "generic Tesla" outline.
-      // Caller should apply a grayscale/opacity filter to signal "unknown model".
-      return { model: null, color: null, src: VEHICLE_SRC.models, generic: true };
-    }
     return { model: null, color: null, src: null, generic: false };
   }
 
-  const detectedColor = overrides?.color ?? resolveVehicleColor(input);
+  const detectedColor =
+    overrides?.color ??
+    urlOverride.color ??
+    resolveVehicleColor(input) ??
+    (lastKnown?.model === detectedModel ? lastKnown?.color ?? null : null);
   const color = detectedColor ?? DEFAULT_COLOR[detectedModel];
 
   const matrix = VEHICLE_COLOR_SRC[detectedModel];
@@ -298,6 +361,9 @@ export function resolveVehicleAsset(
     matrix[DEFAULT_COLOR[detectedModel]] ??
     VEHICLE_SRC[detectedModel] ??
     null;
+
+  // Persist for next poll so a transient missing payload doesn't blank the car.
+  if (src && !overrides?.model) writeLastKnown(detectedModel, detectedColor ?? null);
 
   return { model: detectedModel, color, src, generic: false };
 }
