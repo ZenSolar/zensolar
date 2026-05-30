@@ -271,12 +271,12 @@ function DeviceHalo({
   const i = Math.max(0.45, Math.min(1, intensity));
   return (
     <g style={{ pointerEvents: 'none', filter: 'blur(0.9px)' }}>
-      <circle cx={cx} cy={cy} r={radius} fill={color} opacity={0.07 * i}>
+      <circle cx={cx} cy={cy} r={radius} fill={color} opacity={0.11 * i}>
         <animate attributeName="r" values={`${radius * 0.88};${radius * 1.06};${radius * 0.88}`} dur={`${pulseMs}ms`} repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1" />
-        <animate attributeName="opacity" values={`${0.05 * i};${0.12 * i};${0.05 * i}`} dur={`${pulseMs}ms`} repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1" />
+        <animate attributeName="opacity" values={`${0.08 * i};${0.18 * i};${0.08 * i}`} dur={`${pulseMs}ms`} repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1" />
       </circle>
-      <circle cx={cx} cy={cy} r={radius * 0.5} fill={color} opacity={0.10 * i}>
-        <animate attributeName="opacity" values={`${0.07 * i};${strong ? 0.18 * i : 0.13 * i};${0.07 * i}`} dur={`${pulseMs}ms`} repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1" />
+      <circle cx={cx} cy={cy} r={radius * 0.5} fill={color} opacity={0.14 * i}>
+        <animate attributeName="opacity" values={`${0.10 * i};${strong ? 0.26 * i : 0.20 * i};${0.10 * i}`} dur={`${pulseMs}ms`} repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1" />
       </circle>
     </g>
   );
@@ -288,11 +288,11 @@ function RoofHalo({ active, intensity }: { active: boolean; intensity: number })
   const i = Math.max(0.5, Math.min(1, intensity));
   return (
     <g style={{ pointerEvents: 'none', filter: 'blur(1px)' }}>
-      <ellipse cx={ANCHOR.solar.x} cy={ANCHOR.solar.y} rx={13} ry={4.5} fill={EMERALD} opacity={0.07 * i}>
-        <animate attributeName="opacity" values={`${0.04 * i};${0.11 * i};${0.04 * i}`} dur="3000ms" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1" />
+      <ellipse cx={ANCHOR.solar.x} cy={ANCHOR.solar.y} rx={13} ry={4.5} fill={EMERALD} opacity={0.10 * i}>
+        <animate attributeName="opacity" values={`${0.06 * i};${0.15 * i};${0.06 * i}`} dur="3000ms" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1" />
       </ellipse>
-      <ellipse cx={ANCHOR.solar.x} cy={ANCHOR.solar.y} rx={8} ry={2.8} fill={EMERALD} opacity={0.12 * i}>
-        <animate attributeName="opacity" values={`${0.08 * i};${0.18 * i};${0.08 * i}`} dur="3000ms" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1" />
+      <ellipse cx={ANCHOR.solar.x} cy={ANCHOR.solar.y} rx={8} ry={2.8} fill={EMERALD} opacity={0.16 * i}>
+        <animate attributeName="opacity" values={`${0.11 * i};${0.24 * i};${0.11 * i}`} dur="3000ms" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1" />
       </ellipse>
     </g>
   );
