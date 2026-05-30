@@ -542,9 +542,10 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
 
   const vb = compact ? '0 0 400 390' : '0 0 400 470';
   const maxH = compact ? '420px' : '560px';
-  const labelFs = compact ? 7.5 : 9;
-  const valueFs = compact ? 17 : 22;
-  const subValueFs = compact ? 13 : 17;
+  // Tesla-grade legibility: bigger primary values, slightly bigger labels.
+  const labelFs = compact ? 9 : 10;
+  const valueFs = compact ? 22 : 26;
+  const subValueFs = compact ? 16 : 19;
 
   return (
     <div className={`relative ${className}`}>
@@ -716,9 +717,9 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
               <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 22 : 28)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.2">POWERWALL</text>
               <text x={nodes.battery.x} y={nodes.battery.y - (compact ? 18 : 22)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 5.5 : 6.5} fontWeight="500" letterSpacing="0.6">tesla</text>
               <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 35 : 43)} textAnchor="middle" fill={colors.battery} fontSize={subValueFs} fontWeight="700">
-                {display.primaryReserve}<tspan fontSize={compact ? 8 : 10} fontWeight="500" fill="#9ca3af"> / {display.primaryCapacity}</tspan>
+                {display.primaryReserve}<tspan fontSize={compact ? 10 : 12} fontWeight="500" fill="#9ca3af"> / {display.primaryCapacity}</tspan>
               </text>
-              <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 45 : 55)} textAnchor="middle" fill={display.statusColor} fontSize={compact ? 8 : 10} fontWeight="600">
+              <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 47 : 57)} textAnchor="middle" fill={display.statusColor} fontSize={compact ? 10 : 12} fontWeight="600" style={{ fontVariantNumeric: 'tabular-nums' }}>
                 {display.status}
               </text>
               <rect x={nodes.battery.x - 16} y={nodes.battery.y + (compact ? 49 : 60)} width={32} height={4} rx={2} fill="#1a2030" fillOpacity={0.15} />

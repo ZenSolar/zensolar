@@ -1,4 +1,4 @@
-**LOVABLE TASK — Execute Powerwall Flow Hardening + Multi-Powerwall Support**
+**LOVABLE TASK — Execute Powerwall Discharge Visibility + Number Readability Fix**
 
 I like the detailed plan you sent. Please proceed with **exactly** the scope you outlined.
 
@@ -8,28 +8,36 @@ I like the detailed plan you sent. Please proceed with **exactly** the scope you
 
 •  src/components/dashboard/AnimatedEnergyFlow.tsx
 
-•  New file: src/components/dashboard/__tests__/powerwallFlow.test.tsx
+•  src/components/dashboard/__tests__/powerwallFlow.test.tsx (update existing test file)
 
 **Key requirements from your plan:**
 
-•  Add regression tests covering Idle full, Idle partial, Charging, Discharging, Unknown, and multi-Powerwall cases.
+•  Fix Powerwall sign convention for Tesla Fleet API (battery_power > 0 from Tesla = discharging). Invert only for Tesla-shaped keys (battery_power, energy_sites.0.battery_power) in batterySnapshot.
 
-•  Fix multi-Powerwall fallback (use site-level totals; fallback to units × 13.5 when capacity is missing).
+•  Extract and export derivePowerwallDisplay helper (used by both the SVG node and tests).
 
-•  Extract derivePowerwallDisplay helper and use it in the SVG node + tests.
+•  Improve SVG text sizing, weight, and contrast for all kW values and labels so they are Tesla-grade readable at 390px (no squinting).
 
-•  Mobile status line polish: non-breaking thin spaces, proper minus sign (U+2212), drop decimals when |kW| ≥ 10, and cleaner formatting for capacity ≥ 20 kWh.
+•  Use proper minus sign (U+2212), thin non-breaking spaces, and smart decimal handling.
+
+•  Add one new test case for Tesla discharge payload.
 
 **Do NOT change:**
 
-•  Any backend, telemetry hooks, or Clean Energy Center code.
-
-•  Existing solar/EV/grid visuals or animations.
+•  Any backend, telemetry hooks, Clean Energy Center, or other visuals.
 
 •  Light mode.
 
+**Success Criteria (from screenshots):**
+
+•  When Powerwall is discharging at night (solar = 0 kW), the node must clearly show downward flow, amber color, and correct −0.8 kW (or similar).
+
+•  All kW numbers across the diagram must be significantly larger, bolder, and easier to read.
+
+•  No regression on daytime solar + EV charging visuals.
+
+•  All tests pass.
+
 Once complete, reply with:
 
-**“Powerwall flow hardening + multi-Powerwall support implemented with tests”**
-
-Priority: High
+**“Powerwall discharge visibility + number readability improved in Live Energy Flow”**
