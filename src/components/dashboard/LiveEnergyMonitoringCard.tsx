@@ -776,7 +776,9 @@ export function LiveEnergyMonitoringCard() {
                     : undefined
                 }
                 batteryPayload={primaryBattery?.payload}
+                batteryCount={battery.data?.length ?? 1}
                 vehicleModel={null}
+
               />
 
             </Suspense>
