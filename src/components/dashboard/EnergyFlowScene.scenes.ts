@@ -339,7 +339,7 @@ export function resolveVehicleColor(
     if (s === 'pbsb' || s === 'pmbl' || s === 'pbss') return 'solid-black';
     if (s === 'ppsw' || s === 'pbcw') return 'pearl-white';
     if (s === 'ppmr' || s === 'pr01' || s === 'ppmr2') return 'red';
-    if (s === 'ppsB'.toLowerCase() || s === 'pmbs') return 'deep-blue';
+    if (s === 'ppsB'.toLowerCase() || s === 'pmbs' || s === 'ppsb') return 'deep-blue';
     if (s === 'pmng' || s === 'pn00' || s === 'pmss') return 'stealth-grey';
     // Tesla canonical exterior_color strings: PearlWhite, MidnightSilver,
     // DeepBlue, Red / RedMulti, SolidBlack, StealthGrey, Quicksilver,
