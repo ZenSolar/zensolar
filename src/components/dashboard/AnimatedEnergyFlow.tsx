@@ -21,6 +21,74 @@ export interface EnergyFlowData {
   tesla?: TeslaVehicleFlow;
 }
 
+/**
+ * Pure formatter for the Powerwall node. Returns the strings + color the SVG
+ * should render. Extracted so it can be unit-tested without rendering SVG.
+ *
+ * Multi-Powerwall ready: when `capacity` ≥ 20 kWh we drop decimals on the
+ * primary number to keep the line under the node width at 390px.
+ */
+export interface PowerwallDisplay {
+  primaryReserve: string;   // e.g. "13.5" or "13" (multi-unit)
+  primaryCapacity: string;  // e.g. "13.5 kWh" or "27 kWh"
+  status: string;           // e.g. "100%\u202F·\u202FFull"
+  statusColor: string;
+  isUnknown: boolean;
+}
+
+export function derivePowerwallDisplay(input: {
+  capacity: number | null | undefined;
+  reserve: number | null | undefined;
+  percent: number | null | undefined;
+  power: number | null | undefined;
+}): PowerwallDisplay {
+  const SEP = '\u202F·\u202F';
+  const capacity = typeof input.capacity === 'number' && Number.isFinite(input.capacity) && input.capacity > 0
+    ? input.capacity
+    : null;
+  const percent = typeof input.percent === 'number' && Number.isFinite(input.percent)
+    ? Math.max(0, Math.min(100, input.percent))
+    : null;
+  const reserveRaw = typeof input.reserve === 'number' && Number.isFinite(input.reserve)
+    ? input.reserve
+    : (capacity !== null && percent !== null ? capacity * (percent / 100) : null);
+  const reserve = reserveRaw !== null && capacity !== null
+    ? Math.max(0, Math.min(capacity, reserveRaw))
+    : reserveRaw;
+  const power = typeof input.power === 'number' && Number.isFinite(input.power) ? input.power : null;
+
+  const isUnknown = capacity === null || percent === null;
+  const multiUnit = capacity !== null && capacity >= 20;
+  const reserveDp = multiUnit ? 0 : 1;
+  const capDp = multiUnit ? 0 : 1;
+
+  const primaryReserve = reserve !== null ? reserve.toFixed(reserveDp) : '—';
+  const primaryCapacity = capacity !== null ? `${capacity.toFixed(capDp)} kWh` : '— kWh';
+
+  const fmtKw = (kw: number) => Math.abs(kw) >= 10 ? Math.abs(kw).toFixed(0) : Math.abs(kw).toFixed(1);
+
+  let status: string;
+  let statusColor: string;
+  if (isUnknown) {
+    status = 'State pending';
+    statusColor = '#6b7280';
+  } else if (power !== null && power > 0.05) {
+    status = `${Math.round(percent!)}%${SEP}+${fmtKw(power)} kW`;
+    statusColor = '#22C55E';
+  } else if (power !== null && power < -0.05) {
+    status = `${Math.round(percent!)}%${SEP}\u2212${fmtKw(power)} kW`;
+    statusColor = '#F59E0B';
+  } else if (percent! >= 99) {
+    status = `${Math.round(percent!)}%${SEP}Full`;
+    statusColor = '#6b7280';
+  } else {
+    status = `${Math.round(percent!)}%${SEP}Idle`;
+    statusColor = '#6b7280';
+  }
+
+  return { primaryReserve, primaryCapacity, status, statusColor, isUnknown };
+}
+
 interface AnimatedEnergyFlowProps {
   data?: EnergyFlowData;
   className?: string;
