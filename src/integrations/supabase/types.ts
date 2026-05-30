@@ -423,6 +423,7 @@ export type Database = {
           bill_report: Json | null
           content: Json
           created_at: string
+          energy_report: Json | null
           id: string
           role: string
           thread_id: string
@@ -432,6 +433,7 @@ export type Database = {
           bill_report?: Json | null
           content: Json
           created_at?: string
+          energy_report?: Json | null
           id?: string
           role: string
           thread_id: string
@@ -441,6 +443,7 @@ export type Database = {
           bill_report?: Json | null
           content?: Json
           created_at?: string
+          energy_report?: Json | null
           id?: string
           role?: string
           thread_id?: string
