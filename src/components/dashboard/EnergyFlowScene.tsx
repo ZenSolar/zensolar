@@ -469,10 +469,27 @@ export function EnergyFlowScene({
   const arrow = (v: number, threshold = 0.05) => (v > threshold ? '▲' : v < -threshold ? '▼' : '');
   const intensity = (kw: number) => Math.min(1, 0.55 + Math.abs(kw) / 6);
 
+  // Only render the dynamic Tesla when the vehicle is actually connected to
+  // the home (charging, plugged-idle, or temporarily stopped). When the car
+  // is `Disconnected` or telemetry is missing entirely, hide it — there's no
+  // car at this address right now.
+  const chargingState =
+    (teslaPayload as { charging_state?: string } | undefined)?.charging_state;
+  const carConnected =
+    chargingState === 'Charging' ||
+    chargingState === 'Connected' ||
+    chargingState === 'Complete' ||
+    chargingState === 'Stopped' ||
+    isCharging ||
+    (data.evPower ?? 0) > 0.1;
+
   // Suppress dynamic car overlay when the baked night-ev art already shows
   // a Tesla parked in the garage. This is the only scene that bakes a car in.
   const showDynamicCar =
-    scene !== 'night-ev' && Boolean(vehicleSrc) && !vehicleGeneric;
+    scene !== 'night-ev' &&
+    carConnected &&
+    Boolean(vehicleSrc) &&
+    !vehicleGeneric;
 
   // Car geometry in viewBox (0–100) space.
   const carW = HOME_BLUEPRINT.carWidth;
