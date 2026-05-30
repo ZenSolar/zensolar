@@ -1,54 +1,44 @@
-# Energy Flow v3 — Whisper Halos + Dashed Traveling Dots
+# ZenEnergy Live Card — Flow Polish + Multi-Battery
 
-The v2 patch shipped, but halos render as opaque blobs and conduits still feel heavy with kinks. This pass tunes both to a premium, barely-there feel and re-anchors the endpoints to the actual house PNG.
+Scope: surgical updates to `HomeBlueprint.ts` and `EnergyFlowScene.tsx` only. No PNG regen, no halo/car-logic changes.
 
-## 1. Halos — barely-there breathing glow
+## 1. Roof-hugging bezier paths (`HomeBlueprint.ts`)
 
-In `EnergyFlowScene.tsx` `DeviceHalo` / `RoofHalo`:
+Rewrite each path in `BLUEPRINT_PATHS` as a multi-segment curve that tracks the silhouette instead of cutting diagonals:
 
-- Drop peak opacity from `0.26 → 0.12` (outer) and `0.18 → 0.08` (inner).
-- Increase blur (`filter: blur(14px)` outer, `blur(8px)` inner) so edges fully dissolve.
-- Remove the hard inner ring on `strong` state; replace with a slightly brighter (0.18) inner pulse only. No crisp ring ever.
-- Slow the pulse to `2.8–3.2s` with `ease-in-out` so it feels like breathing, not blinking.
-- Shrink solar `RoofHalo` ellipse to ~60% of current radius so it sits **inside** the panel array, not covering it.
-- Home-window halo: shrink radius to ~28px, anchor tighter on the lit-window cluster — must not bleed onto the door or driveway.
+- `solarToHome`: roof apex → down the right roof slope → vertical drop along right gable → into windows. Use an `M ... C ... S ...` chain so it bends at the eave (~ x=78, y=48) then drops straight down to windows.
+- `solarToPowerwall`: same eave bend, continues vertically down the right wall to Powerwall.
+- `powerwallToHome`: tight vertical arc hugging the right wall (small control-point x-offset, ≤2 units off the wall line).
+- `homeToGrid` / `gridToHome`: hug the baseline — drop from windows down the wall first, then run horizontally along the ground to the meter (L-shape via two control points near y=72).
+- `chargerToEv`: arc out the garage opening then sweep down the driveway curve to `carPark` (control points along the driveway diagonal, not a straight line).
 
-## 2. Flow lines — thin dashed traveling dots
+## 2. Slower, calmer dot animation (`EnergyFlowScene.tsx`)
 
-Replace `FlowConduit` rendering for the picked primary flows with a new lightweight `DottedFlow`:
+- Change `flowDur` from `Math.max(0.9, 2.0 - kw*0.13)` → `Math.max(2.0, 4.0 - kw*0.2)` so even high-power flows take ≥2s and idle flows ~4s (≈2× slower).
+- Update `DottedFlow` default `dur` from `1.8` → `3.6`.
+- Keep the existing `0;0.15;0.85;1` opacity keyTimes (fade-in/out preserved, naturally stretched by longer `dur`).
 
-- 1px SVG `<path>` guide at `stroke-opacity: 0.18` (just a hint of the route).
-- 3–4 small circles (`r=0.9`, fill = flow color, opacity 0.9) animated along the path using `<animateMotion>` with staggered `begin` times.
-- 1.8s loop, `calcMode="linear"`, `keyPoints` from 0→1.
-- Drop all the existing thick stroke/glow layers from `FlowConduit` for these primary flows. Conduit component stays in the file for any non-primary use but is no longer rendered.
+## 3. Multi-Powerwall support
 
-## 3. Anchor fixes
+`HomeBlueprint.ts`:
+- Raise `windows` from `y: 58` → `y: 52` (closer to roof eave, frees the wall).
+- Keep `powerwall` (top unit) at `{ x: 82, y: 65 }`.
+- Add `powerwall2: { x: 82, y: 76 }` (stacked below, same x).
+- Add `BLUEPRINT_PATHS.solarToPowerwall2` and `powerwall2ToHome` mirroring the single-unit paths but ending at the lower anchor.
 
-Tune `ANCHOR` to match the actual house PNG positions:
+`EnergyFlowScene.tsx`:
+- Add an optional `batteryCount?: number` prop (default 1). When `≥ 2`, render a second `DeviceHalo` at `HOME_BLUEPRINT.powerwall2` using the same color/intensity as the first.
+- When `batteryCount ≥ 2` and a Powerwall flow is active, render the corresponding flow to BOTH anchors (two `DottedFlow` elements, second uses the `…2` path id).
+- Caller wiring: in the parent that mounts `EnergyFlowScene` (passes `teslaPayload` / `batteryPayload`), derive count from `useBatteryTelemetry().data.length` (each row = one connected battery site/unit). This single-line wiring is included so the feature is live, not dormant.
 
-| Anchor | old (x, y) | new (x, y) | Why |
-|---|---|---|---|
-| Home load | 62, 58 | 68, 66 | Lit-window cluster on right side of house, not mid-roof |
-| Grid meter | 90, 66 | 92, 70 | Match utility box on far right baseline — removes the bent line |
-| Solar roof | 50, 30 | 50, 32 | Sit slightly lower so halo lands inside panels |
-| EV port | 30, 78 | 28, 82 | Aligns with charge-port side of parked Tesla |
-| Powerwall | 76, 62 | 80, 68 | Right wall, lower — matches PNG geometry |
+## 4. Verification
 
-Bezier curves between these new anchors should flow cleanly without kinking through walls.
+After build, screenshot at 390×844 for: solar+home (day), PW discharge (night), grid export, EV charging (day), ZenX disconnected. Confirm curves hug the house, dots crawl, windows sit higher, and a synthetic 2-battery scenario renders two halos.
 
-## 4. Files touched
+## Files touched
 
-- `src/components/dashboard/EnergyFlowScene.tsx` only
-  - Tune `DeviceHalo` + `RoofHalo` (opacity, blur, pulse timing, remove hard ring)
-  - Add `DottedFlow` component using `<animateMotion>`
-  - Swap primary-flow renderer from `FlowConduit` → `DottedFlow`
-  - Update `ANCHOR` table
-- No changes to `EnergyFlowScene.scenes.ts`, `pickScene`, telemetry hooks, or tests.
+- `src/components/dashboard/HomeBlueprint.ts` — paths, windows anchor, `powerwall2` + 2 new paths.
+- `src/components/dashboard/EnergyFlowScene.tsx` — `flowDur`, `DottedFlow` default, optional `batteryCount` prop, second halo + duplicated flow rendering.
+- Parent that mounts the scene (likely `AnimatedEnergyFlow.tsx` or dashboard wrapper) — pass `batteryCount` from telemetry hook.
 
-## Success check
-
-- **Idle**: nothing visible except the lit windows of the PNG itself. No green/amber blobs anywhere.
-- **Solar producing + exporting** (current screenshot state): faint emerald breathing inside the panel array, faint cyan breathing at the meter, two dashed-dot streams (solar→home emerald, home→grid cyan) flowing smoothly with no kinks.
-- **Night PW discharge + EV charging**: faint amber breath on right wall, faint emerald breath at EV port, two dot streams (pw→home amber, home→ev emerald).
-- **Plugged idle**: emerald breath at EV port only, no dots.
-- Art reads first, halos whisper, dots tell the story.
+No changes to: PNGs, halos, conditional-car logic, `EnergyFlowScene.scenes.ts`, telemetry hooks, tests.
