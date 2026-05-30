@@ -8,56 +8,56 @@
  * overlay SVG share identical layout classes, normalized coords here map
  * 1:1 to pixels in the rendered house art.
  *
- * Calibrated against `house-day.png` v4 (Powerwall on right gable wall).
- * All four hero variants (day/night/night-ev/rain) share identical camera
- * and feature positions, so this blueprint locks every halo across scenes.
+ * Calibrated by measuring painted device centers in the rendered
+ * `house-day.png` at 390×844, using the 80%-of-card-height centered square
+ * as the (0,0)–(100,100) reference frame.
  */
 
 export type BlueprintAnchor = Readonly<{ x: number; y: number }>;
 
 export const HOME_BLUEPRINT = Object.freeze({
-  /** Center of the solar panel array on the roof (front-facing slope). */
-  solar:        { x: 58, y: 38 } as BlueprintAnchor,
-  /** White Powerwall cabinet, mounted on the right gable wall (top unit). */
-  powerwall:    { x: 82, y: 65 } as BlueprintAnchor,
-  /** Optional second Powerwall, stacked vertically below the first. */
-  powerwall2:   { x: 82, y: 76 } as BlueprintAnchor,
-  /** Lit 4-window cluster — raised up toward the roof eave to free wall space. */
-  windows:      { x: 78, y: 52 } as BlueprintAnchor,
+  /** Solar panel array center on the front-facing roof slope. */
+  solar:        { x: 45, y: 26 } as BlueprintAnchor,
+  /** White Powerwall cabinet on front wall, immediately left of windows. */
+  powerwall:    { x: 70, y: 60 } as BlueprintAnchor,
+  /** Optional second Powerwall, stacked horizontally next to the first. */
+  powerwall2:   { x: 64, y: 64 } as BlueprintAnchor,
+  /** 4-window lit cluster on the right side of the front facade. */
+  windows:      { x: 82, y: 58 } as BlueprintAnchor,
   /** Recessed front door (center of porch). */
-  frontDoor:    { x: 48, y: 65 } as BlueprintAnchor,
-  /** Small grey utility/grid meter box at the far-right baseline. */
-  gridMeter:    { x: 94, y: 72 } as BlueprintAnchor,
-  /** Tesla Wall Connector, mounted inside the garage on the left wall. */
-  wallCharger:  { x: 22, y: 62 } as BlueprintAnchor,
+  frontDoor:    { x: 55, y: 65 } as BlueprintAnchor,
+  /** Small grey utility/grid meter box at the right edge of the front wall. */
+  gridMeter:    { x: 94, y: 63 } as BlueprintAnchor,
+  /** Tesla Wall Connector inside the garage, mounted on the back wall. */
+  wallCharger:  { x: 28, y: 65 } as BlueprintAnchor,
   /** Driveway parking spot in front of the garage. Anchor = car center. */
-  carPark:      { x: 37, y: 76 } as BlueprintAnchor,
+  carPark:      { x: 22, y: 75 } as BlueprintAnchor,
   /** Dynamic-vehicle <image> overlay dimensions, % of viewBox. */
-  carWidth: 30,
-  carHeight: 16,
+  carWidth: 28,
+  carHeight: 15,
 } as const);
 
 /**
- * Cubic-bezier paths between blueprint anchors. Control points are tuned so
- * lines hug the silhouette of the house (roof slope → vertical wall drop →
- * baseline) rather than cutting diagonals through the building.
+ * Cubic-bezier paths between blueprint anchors. Control points hug the
+ * actual silhouette of the rendered house (roof slope → eave → front wall →
+ * baseline) instead of cutting diagonals through it.
  */
 const B = HOME_BLUEPRINT;
 export const BLUEPRINT_PATHS = Object.freeze({
-  /** Solar roof → lit windows. Tracks down the right roof slope to the eave. */
-  solarToHome:        `M ${B.solar.x} ${B.solar.y} C 64 40 72 46 ${B.windows.x} ${B.windows.y}`,
-  /** Solar roof → top Powerwall. Down the slope, then vertical along right wall. */
-  solarToPowerwall:   `M ${B.solar.x} ${B.solar.y} C 70 42 82 50 ${B.powerwall.x} ${B.powerwall.y}`,
-  /** Solar roof → bottom (stacked) Powerwall. */
-  solarToPowerwall2:  `M ${B.solar.x} ${B.solar.y} C 70 42 82 55 ${B.powerwall2.x} ${B.powerwall2.y}`,
-  /** Top Powerwall → windows. Tight vertical arc hugging the right wall. */
-  powerwallToHome:    `M ${B.powerwall.x} ${B.powerwall.y} C 82 60 80 55 ${B.windows.x} ${B.windows.y}`,
-  /** Bottom Powerwall → windows. Same wall, longer reach. */
-  powerwall2ToHome:   `M ${B.powerwall2.x} ${B.powerwall2.y} C 82 68 80 58 ${B.windows.x} ${B.windows.y}`,
-  /** Grid meter → windows. Up the wall, then up to the lit cluster. */
-  gridToHome:         `M ${B.gridMeter.x} ${B.gridMeter.y} C 90 68 82 58 ${B.windows.x} ${B.windows.y}`,
-  /** Windows → grid meter (export). Down the wall, then along baseline. */
-  homeToGrid:         `M ${B.windows.x} ${B.windows.y} C 82 58 90 68 ${B.gridMeter.x} ${B.gridMeter.y}`,
-  /** Wall charger → parked EV. Out of the garage and down the driveway curve. */
-  chargerToEv:        `M ${B.wallCharger.x} ${B.wallCharger.y} C 24 70 30 76 ${B.carPark.x} ${B.carPark.y}`,
+  /** Solar roof → lit windows. Down the front roof slope to the right eave. */
+  solarToHome:        `M ${B.solar.x} ${B.solar.y} C 60 30 75 44 ${B.windows.x} ${B.windows.y}`,
+  /** Solar roof → Powerwall (front wall). Slope down, then onto the facade. */
+  solarToPowerwall:   `M ${B.solar.x} ${B.solar.y} C 55 36 65 50 ${B.powerwall.x} ${B.powerwall.y}`,
+  /** Solar roof → second Powerwall. */
+  solarToPowerwall2:  `M ${B.solar.x} ${B.solar.y} C 52 38 60 54 ${B.powerwall2.x} ${B.powerwall2.y}`,
+  /** Powerwall → windows. Short rightward arc along the front wall. */
+  powerwallToHome:    `M ${B.powerwall.x} ${B.powerwall.y} C 74 59 78 58 ${B.windows.x} ${B.windows.y}`,
+  /** Second Powerwall → windows. */
+  powerwall2ToHome:   `M ${B.powerwall2.x} ${B.powerwall2.y} C 70 62 76 60 ${B.windows.x} ${B.windows.y}`,
+  /** Grid meter → windows. Short leftward arc along the front wall. */
+  gridToHome:         `M ${B.gridMeter.x} ${B.gridMeter.y} C 90 62 86 60 ${B.windows.x} ${B.windows.y}`,
+  /** Windows → grid meter (export). Reverse of above. */
+  homeToGrid:         `M ${B.windows.x} ${B.windows.y} C 86 60 90 62 ${B.gridMeter.x} ${B.gridMeter.y}`,
+  /** Wall charger → parked EV. Short arc out of the garage to the driveway. */
+  chargerToEv:        `M ${B.wallCharger.x} ${B.wallCharger.y} C 26 68 24 72 ${B.carPark.x} ${B.carPark.y}`,
 } as const);
