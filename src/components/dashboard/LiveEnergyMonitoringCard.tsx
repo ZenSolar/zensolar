@@ -675,8 +675,11 @@ export function LiveEnergyMonitoringCard() {
         if (!cfg.label) return null;
         return (
           <div className="mb-3" data-pill-state={pillState}>
-            <span className={`inline-flex w-full sm:w-auto items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-semibold tracking-wide ${cfg.ring}`}>
-              <span aria-hidden="true" className={`relative inline-flex h-2 w-2 rounded-full ${cfg.dot}`}>
+            <span
+              className={`inline-flex w-full sm:w-auto items-center gap-2.5 rounded-full border px-4 py-2 text-[13px] font-semibold tracking-wide ${cfg.ring}`}
+              style={{ boxShadow: pillState === 'discharging' ? '0 0 24px hsl(38 95% 55% / 0.35), inset 0 1px 0 hsl(0 0% 100% / 0.06)' : pillState === 'charging' || pillState === 'solar' ? '0 0 20px hsl(142 75% 50% / 0.28), inset 0 1px 0 hsl(0 0% 100% / 0.06)' : 'inset 0 1px 0 hsl(0 0% 100% / 0.04)' }}
+            >
+              <span aria-hidden="true" className={`relative inline-flex h-2.5 w-2.5 rounded-full ${cfg.dot}`}>
                 {(pillState === 'discharging' || pillState === 'charging' || pillState === 'solar') && (
                   <span className={`absolute inset-0 inline-flex h-full w-full animate-ping rounded-full ${cfg.dot} opacity-75`} />
                 )}
