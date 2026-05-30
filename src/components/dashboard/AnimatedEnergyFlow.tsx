@@ -542,10 +542,11 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
 
   const vb = compact ? '0 0 400 390' : '0 0 400 470';
   const maxH = compact ? '420px' : '560px';
-  // Tesla-grade legibility: bigger primary values, slightly bigger labels.
-  const labelFs = compact ? 9 : 10;
-  const valueFs = compact ? 22 : 26;
-  const subValueFs = compact ? 16 : 19;
+  // Tesla-grade legibility: large primary values readable at arm's length on 390px.
+  const labelFs = compact ? 10 : 11;
+  const valueFs = compact ? 28 : 32;       // perimeter nodes (Solar / Grid / EV)
+  const subValueFs = compact ? 20 : 24;    // Powerwall stored kWh
+  const homeFs = compact ? 32 : 38;        // centerpiece HOME kW
 
   return (
     <div className={`relative ${className}`}>
