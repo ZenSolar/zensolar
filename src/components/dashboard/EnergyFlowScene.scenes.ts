@@ -158,15 +158,42 @@ export function resolveVehicleModel(
     'response.display_name',
     'model',
     'vehicle_model',
+    'vehicle_type',
+    'vehicles.0.vehicle_type',
+    'response.vehicle_type',
+    'device_name',
+    'metadata.model',
+    'metadata.display_name',
+    'name',
   ]);
 
   for (const raw of candidates) {
-    const s = raw.toLowerCase().replace(/[\s_-]/g, '');
-    if (s.includes('cybertruck') || s.includes('cyber')) return 'cybertruck';
-    if (s.includes('modely') || /\bmy\b/.test(raw.toLowerCase())) return 'modely';
-    if (s.includes('model3') || /\bm3\b/.test(raw.toLowerCase())) return 'model3';
-    if (s.includes('models')) return 'models';
-    if (s.includes('modelx')) return 'modelx';
+    const lower = raw.toLowerCase();
+    const s = lower.replace(/[\s_-]/g, '');
+    if (s.includes('cybertruck') || s.includes('cyber') || /\bct\b/.test(lower)) return 'cybertruck';
+    if (s.includes('modely') || /\bmy\b/.test(lower)) return 'modely';
+    if (s.includes('modelx') || /\bmx\b/.test(lower)) return 'modelx';
+    if (s.includes('models') || /\bms\b/.test(lower)) return 'models';
+    if (s.includes('model3') || /\bm3\b/.test(lower)) return 'model3';
+    // Looser single-letter hints (e.g. display_name "X" or "Y")
+    if (/(^|[^a-z])y([^a-z]|$)/.test(lower)) return 'modely';
+    if (/(^|[^a-z])x([^a-z]|$)/.test(lower)) return 'modelx';
+    if (/(^|[^a-z])s([^a-z]|$)/.test(lower)) return 'models';
+    if (/(^|[^a-z])3([^a-z]|$)/.test(lower)) return 'model3';
+  }
+
+  // VIN-based inference (Tesla VIN char at index 3 = model code)
+  const vins = collectStrings(input, [
+    'vin', 'vehicles.0.vin', 'response.vin', 'metadata.vin', 'device_id',
+  ]);
+  for (const vin of vins) {
+    if (typeof vin !== 'string' || vin.length < 4) continue;
+    const code = vin.charAt(3).toUpperCase();
+    if (code === 'S') return 'models';
+    if (code === '3') return 'model3';
+    if (code === 'X') return 'modelx';
+    if (code === 'Y') return 'modely';
+    if (code === 'C' || code === 'T') return 'cybertruck';
   }
   return null;
 }
