@@ -498,7 +498,7 @@ export function EnergyFlowScene({
           color={gridExporting ? CYAN : SKY}
           active={gridImporting || gridExporting}
           intensity={intensity(grid) * 0.7}
-          radius={3.8}
+          radius={4.5}
           pulseMs={2800}
         />
         {/* EV charge port — strong when charging, faint static halo when plugged-idle */}
