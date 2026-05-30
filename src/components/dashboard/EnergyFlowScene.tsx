@@ -215,9 +215,11 @@ export interface EnergyFlowSceneProps {
   className?: string;
   /** Override scene selection — used by admin preview. */
   forceScene?: SceneKey;
-  /** Override vehicle selection — used by admin preview. */
+  /** Override vehicle model — used by admin preview. */
   vehicleModel?: VehicleModel | null;
-  /** Raw Tesla payload — used to auto-detect model when vehicleModel omitted. */
+  /** Override vehicle color — used by admin preview. */
+  vehicleColor?: VehicleColor | null;
+  /** Raw Tesla payload — used to auto-detect model + color when overrides omitted. */
   teslaPayload?: unknown;
 }
 
@@ -226,14 +228,19 @@ export function EnergyFlowScene({
   className,
   forceScene,
   vehicleModel,
+  vehicleColor,
   teslaPayload,
 }: EnergyFlowSceneProps) {
   const scene = useMemo(() => forceScene ?? pickScene(data), [forceScene, data]);
 
-  const resolvedVehicle: VehicleModel | null = useMemo(() => {
-    if (vehicleModel !== undefined) return vehicleModel;
-    return resolveVehicleModel(teslaPayload);
-  }, [vehicleModel, teslaPayload]);
+  const { model: resolvedVehicle, color: resolvedColor, src: vehicleSrc } = useMemo(
+    () =>
+      resolveVehicleAsset(teslaPayload, {
+        model: vehicleModel,
+        color: vehicleColor,
+      }),
+    [teslaPayload, vehicleModel, vehicleColor],
+  );
 
   const solar = data.solarPower ?? 0;
   const battery = data.batteryPower ?? 0;
