@@ -41,7 +41,7 @@ describe('pickScene', () => {
     ).toBe('night-ev');
   });
 
-  it('night-pw-discharge-ev when both EV charges and PW discharges at night', () => {
+  it('night-pw-discharge takes priority over EV overlay (overlay handles car)', () => {
     expect(
       pickScene(
         {
@@ -51,7 +51,7 @@ describe('pickScene', () => {
         },
         noon,
       ),
-    ).toBe('night-pw-discharge-ev');
+    ).toBe('night-pw-discharge');
   });
 
   it('falls back to evPower > 0.1 when tesla object is absent', () => {
