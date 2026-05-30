@@ -142,10 +142,18 @@ function solarSnapshot(t: CachedTelemetry | undefined) {
 // we'd prefer to read this from telemetry whenever possible.
 const POWERWALL_DEFAULT_CAPACITY_KWH = 13.5;
 
-function batterySnapshot(t: CachedTelemetry | undefined) {
+export function batterySnapshot(t: CachedTelemetry | undefined) {
   const p = t?.payload;
-  const rawPower = pickNumber(p, ['battery_power', 'energy_sites.0.battery_power', 'power_kw', 'charge_power']);
-  const powerKw = rawPower !== null ? (Math.abs(rawPower) > 100 ? rawPower / 1000 : rawPower) : null;
+  // Tesla Fleet API live_status uses: battery_power > 0 = DISCHARGING, < 0 = CHARGING.
+  // Our internal convention (used by derivePowerwallDisplay + tests) is the opposite:
+  // + = charging INTO pack, − = discharging OUT of pack. Invert ONLY for Tesla-shaped keys.
+  const teslaRaw = pickNumber(p, ['battery_power', 'energy_sites.0.battery_power']);
+  const otherRaw = pickNumber(p, ['power_kw', 'charge_power']);
+  const rawPower = teslaRaw !== null ? teslaRaw : otherRaw;
+  const normalized = rawPower !== null ? (Math.abs(rawPower) > 100 ? rawPower / 1000 : rawPower) : null;
+  const powerKw = normalized !== null
+    ? (teslaRaw !== null ? -normalized : normalized)
+    : null;
   const soc = pickNumber(p, ['percentage_charged', 'energy_sites.0.percentage_charged', 'battery_soc', 'soc', 'state_of_charge']);
   const energyLeftRaw = pickNumber(p, ['energy_left', 'energy_sites.0.energy_left']);
   // Tesla reports Wh; normalize to kWh if value looks like watt-hours.
