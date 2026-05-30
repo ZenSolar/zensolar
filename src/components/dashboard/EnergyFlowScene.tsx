@@ -220,7 +220,7 @@ function DottedFlow({
   id,
   d,
   color,
-  dur = 1.8,
+  dur = 3.6,
 }: {
   id: string;
   d: string;
@@ -264,8 +264,9 @@ function DottedFlow({
   );
 }
 
-/** Faster crawl when more power is flowing. */
-const flowDur = (kw: number) => Math.max(0.9, 2.0 - Math.min(kw, 8) * 0.13);
+/** Slower, calmer crawl — premium pace. Even high-power flows take ≥2s. */
+const flowDur = (kw: number) => Math.max(2.0, 4.0 - Math.min(kw, 8) * 0.2);
+
 
 /**
  * Priority queue: returns the (max 2) flow IDs that should render as lines.
@@ -377,6 +378,8 @@ export interface EnergyFlowSceneProps {
   teslaPayload?: unknown;
   /** Kept for backwards-compat with v3 callers; unused in v4. */
   batteryPayload?: unknown;
+  /** Number of connected Powerwall units (1 or 2). Default 1. */
+  batteryCount?: number;
 }
 
 export function EnergyFlowScene({
@@ -386,7 +389,9 @@ export function EnergyFlowScene({
   vehicleModel,
   vehicleColor,
   teslaPayload,
+  batteryCount = 1,
 }: EnergyFlowSceneProps) {
+
   const scene = useMemo(() => forceScene ?? pickScene(data), [forceScene, data]);
   const hasTeslaConnection =
     Boolean(teslaPayload) || Boolean(data.tesla) || (data.evPower ?? 0) > 0.1;
@@ -528,6 +533,31 @@ export function EnergyFlowScene({
           pulseMs={pwCharging ? 2800 : 2400}
         />
 
+        {/* Second Powerwall (stacked below) — only when a 2nd unit is connected */}
+        {batteryCount >= 2 && (
+          <>
+            <DeviceHalo
+              cx={HOME_BLUEPRINT.powerwall2.x}
+              cy={HOME_BLUEPRINT.powerwall2.y}
+              color={EMERALD}
+              active
+              intensity={0.5}
+              radius={3.8}
+              pulseMs={5000}
+            />
+            <DeviceHalo
+              cx={HOME_BLUEPRINT.powerwall2.x}
+              cy={HOME_BLUEPRINT.powerwall2.y}
+              color={pwCharging ? EMERALD : AMBER}
+              active={pwCharging || pwDischarging}
+              intensity={intensity(battery)}
+              radius={4.6}
+              pulseMs={pwCharging ? 2800 : 2400}
+            />
+          </>
+        )}
+
+
 
         {/* Grid meter — sky on import, cyan on export */}
         <DeviceHalo
@@ -569,9 +599,16 @@ export function EnergyFlowScene({
         {flows.has('solar-pw') && (
           <DottedFlow id="flow-solar-pw" d={BLUEPRINT_PATHS.solarToPowerwall} color={EMERALD_LED} dur={flowDur(battery)} />
         )}
+        {flows.has('solar-pw') && batteryCount >= 2 && (
+          <DottedFlow id="flow-solar-pw-2" d={BLUEPRINT_PATHS.solarToPowerwall2} color={EMERALD_LED} dur={flowDur(battery)} />
+        )}
         {flows.has('pw-home') && (
           <DottedFlow id="flow-pw-home" d={BLUEPRINT_PATHS.powerwallToHome} color={AMBER_LED} dur={flowDur(Math.abs(battery))} />
         )}
+        {flows.has('pw-home') && batteryCount >= 2 && (
+          <DottedFlow id="flow-pw-home-2" d={BLUEPRINT_PATHS.powerwall2ToHome} color={AMBER_LED} dur={flowDur(Math.abs(battery))} />
+        )}
+
         {flows.has('charger-ev') && (
           <DottedFlow id="flow-charger-ev" d={BLUEPRINT_PATHS.chargerToEv} color={EMERALD_LED} dur={flowDur(data.evPower ?? 7)} />
         )}
