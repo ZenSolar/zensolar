@@ -153,7 +153,7 @@ function batterySnapshot(t: CachedTelemetry | undefined) {
     ? (energyLeftRaw > 1000 ? energyLeftRaw / 1000 : energyLeftRaw)
     : null;
 
-  // Derive capacity from telemetry when available; fall back to nameplate 13.5 kWh.
+  // Derive capacity from telemetry when available; fall back to nameplate × unit count.
   const totalPackRaw = pickNumber(p, [
     'total_pack_energy',
     'energy_sites.0.total_pack_energy',
@@ -168,7 +168,18 @@ function batterySnapshot(t: CachedTelemetry | undefined) {
   if (capacityKwh === null && energyLeftKwh !== null && soc !== null && soc > 1) {
     capacityKwh = energyLeftKwh / (soc / 100);
   }
-  if (capacityKwh === null && (t || soc !== null)) capacityKwh = POWERWALL_DEFAULT_CAPACITY_KWH;
+  // Multi-Powerwall fallback: read unit count from telemetry when capacity is unknown.
+  if (capacityKwh === null && (t || soc !== null)) {
+    const unitCount = pickNumber(p, [
+      'battery_count',
+      'energy_sites.0.battery_count',
+      'num_batteries',
+      'energy_sites.0.num_batteries',
+    ]) ?? (Array.isArray((p as any)?.battery_blocks) ? (p as any).battery_blocks.length : null)
+       ?? (Array.isArray((p as any)?.components?.batteries) ? (p as any).components.batteries.length : null)
+       ?? 1;
+    capacityKwh = Math.max(1, Math.round(unitCount)) * POWERWALL_DEFAULT_CAPACITY_KWH;
+  }
 
   const reserveKwh = soc !== null && capacityKwh !== null
     ? (energyLeftKwh ?? (capacityKwh * (soc / 100)))
