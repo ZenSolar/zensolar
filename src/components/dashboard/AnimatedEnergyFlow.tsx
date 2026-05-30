@@ -727,7 +727,7 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
         <FlowingDots pathId="p-solar-bat" color={colors.solar} power={solarToBattery} dotCount={4} />
         {batteryToHome > 0.05 && (
           <g data-flow="powerwall-home">
-            <FlowingDots pathId="p-bat-home" color={colors.battery} power={Math.max(batteryToHome * 1.4, 2.0)} dotCount={8} />
+            <FlowingDots pathId="p-bat-home" color={colors.battery} power={Math.max(batteryToHome * 1.4, 2.0)} dotCount={10} dotRadius={4.5} trailRadius={11} />
           </g>
         )}
         <FlowingDots pathId="p-grid-home" color={colors.grid} power={gridToHome} dotCount={4} />
