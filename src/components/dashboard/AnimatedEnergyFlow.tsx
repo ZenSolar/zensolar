@@ -246,13 +246,28 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
 
   if (compact) {
     const cx = 200;
+    // Isometric depth offset — shifts right + up to suggest a back-right wall and roof side
+    const dx = 11;
+    const dy = 7;
     return (
-      <g>
+      <g style={{ filter: 'drop-shadow(0 8px 14px rgba(0,0,0,0.55))' }}>
         {/* Ground shadow */}
-        <ellipse cx={cx} cy="255" rx="80" ry="4" fill="#050810" opacity="0.4" />
+        <ellipse cx={cx + 4} cy="258" rx="92" ry="5" fill="#050810" opacity="0.55" />
+
+        {/* ── Isometric depth: back-right side wall (behind front face) ── */}
+        <polygon
+          points={`252,178 ${252 + dx},${178 - dy} ${252 + dx},${251 - dy} 252,251`}
+          fill="#0c1424" stroke="#1e2a3c" strokeWidth="0.6"
+        />
+        {/* Subtle vertical light line on back wall */}
+        <line x1={252 + dx} y1={178 - dy} x2={252 + dx} y2={251 - dy} stroke="#2e4058" strokeWidth="0.4" opacity="0.5" />
 
         {/* Foundation */}
         <rect x="144" y="249" width="112" height="6" rx="1" fill="#0e1420" stroke="#1e2a3c" strokeWidth="0.5" />
+        <polygon
+          points={`256,249 ${256 + dx},${249 - dy} ${256 + dx},${255 - dy} 256,255`}
+          fill="#08101c" stroke="#1e2a3c" strokeWidth="0.4"
+        />
 
         {/* House body */}
         <rect x="148" y="178" width="104" height="73" rx="2" fill="url(#houseFill)" stroke="#2e4058" strokeWidth="0.8" />
@@ -266,6 +281,11 @@ function HouseIllustration({ compact }: { compact?: boolean }) {
 
         {/* Roof */}
         <polygon points="130,181 200,116 270,181" fill="url(#roofFill)" stroke="#2e4058" strokeWidth="0.8" />
+        {/* Isometric back roof slope — darker for depth */}
+        <polygon
+          points={`200,116 ${200 + dx},${116 - dy} ${270 + dx},${181 - dy} 270,181`}
+          fill="#0a1424" stroke="#1e2a3c" strokeWidth="0.6" opacity="0.95"
+        />
         <line x1="200" y1="116" x2="200" y2="119" stroke="#4a6580" strokeWidth="0.7" />
         <line x1="131" y1="181" x2="269" y2="181" stroke="#1a2838" strokeWidth="1.5" />
         {/* Roof ridge texture */}
