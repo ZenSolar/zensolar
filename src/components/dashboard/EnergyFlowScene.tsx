@@ -359,18 +359,39 @@ export function EnergyFlowScene({
         className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-[80%] w-auto max-w-[94%] -translate-y-1/2"
         style={{ aspectRatio: '1 / 1', zIndex: 15 }}
       >
+        <defs>
+          <filter id="energyPacketGlow" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur stdDeviation="1.5" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+        {Object.entries(ANCHOR).filter(([key]) => key !== 'home').map(([key, point]) => (
+          <circle
+            key={key}
+            cx={point.x}
+            cy={point.y}
+            r={key === 'load' ? 1.2 : 0.9}
+            fill="hsl(var(--background))"
+            stroke={key === 'grid' ? SKY : key === 'pw' ? AMBER : EMERALD}
+            strokeWidth="0.55"
+            opacity="0.9"
+          />
+        ))}
         {/* Solar → Home (always when sun is up — green roof output) */}
-        <FlowConduit active={solarProducing} d={PATH_SOLAR_HOME} color={EMERALD} ledColor={EMERALD_LED} dur={flowDur(solar)} />
+        <FlowConduit id="flow-solar-home" active={solarProducing} d={PATH_SOLAR_HOME} color={EMERALD} ledColor={EMERALD_LED} dur={flowDur(solar)} width={1.05} />
         {/* Solar → Powerwall (when PW is charging from production) */}
-        <FlowConduit active={solarProducing && pwCharging} d={PATH_SOLAR_PW} color={EMERALD} ledColor={EMERALD_LED} dur={flowDur(battery)} />
+        <FlowConduit id="flow-solar-pw" active={solarProducing && pwCharging} d={PATH_SOLAR_PW} color={EMERALD} ledColor={EMERALD_LED} dur={flowDur(battery)} width={0.9} />
         {/* Powerwall → Home (amber) when discharging */}
-        <FlowConduit active={pwDischarging} d={PATH_PW_HOME} color={AMBER} ledColor={AMBER_LED} dur={flowDur(Math.abs(battery))} />
+        <FlowConduit id="flow-pw-home" active={pwDischarging} d={PATH_PW_HOME} color={AMBER} ledColor={AMBER_LED} dur={flowDur(Math.abs(battery))} />
         {/* Grid → Home (sky) when importing */}
-        <FlowConduit active={gridImporting} d={PATH_GRID_HOME} color={SKY} ledColor={SKY_LED} dur={flowDur(grid)} />
+        <FlowConduit id="flow-grid-home" active={gridImporting} d={PATH_GRID_HOME} color={SKY} ledColor={SKY_LED} dur={flowDur(grid)} />
         {/* Home → Grid (cyan) when exporting */}
-        <FlowConduit active={gridExporting} d={PATH_GRID_HOME} color={CYAN} ledColor={CYAN_LED} reverse dur={flowDur(Math.abs(grid))} />
+        <FlowConduit id="flow-home-grid" active={gridExporting} d={PATH_HOME_GRID} color={CYAN} ledColor={CYAN_LED} dur={flowDur(Math.abs(grid))} />
         {/* Home → EV (green) when Tesla actively charging */}
-        <FlowConduit active={isCharging} d={PATH_HOME_EV} color={EMERALD} ledColor={EMERALD_LED} dur={flowDur(data.evPower ?? 7)} />
+        <FlowConduit id="flow-home-ev" active={isCharging} d={PATH_HOME_EV} color={EMERALD} ledColor={EMERALD_LED} dur={flowDur(data.evPower ?? 7)} />
       </svg>
 
       {/* Dynamic Tesla vehicle in driveway — exact model + color only.
