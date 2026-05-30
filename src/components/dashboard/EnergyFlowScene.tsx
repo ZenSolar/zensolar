@@ -340,30 +340,40 @@ export function EnergyFlowScene({
         />
       </AnimatePresence>
 
-      {/* Directional energy-flow conduits — consistent color language */}
-      {/* Solar → Home (green) */}
-      <FlowConduit active={solarProducing && home > 0.05} d={PATH_SOLAR_HOME} color={EMERALD} edgeColor={EMERALD} ledColor={EMERALD_LED} />
-      {/* Solar → Powerwall (green, when PW is charging from production) */}
-      <FlowConduit active={solarProducing && pwCharging} d={PATH_SOLAR_PW} color={EMERALD} edgeColor={EMERALD} ledColor={EMERALD_LED} />
-      {/* Powerwall → Home (amber) when discharging */}
-      <FlowConduit active={pwDischarging} d={PATH_PW_HOME} color={AMBER} edgeColor={AMBER} ledColor={AMBER_LED} />
-      {/* Grid → Home (sky) when importing */}
-      <FlowConduit active={gridImporting} d={PATH_GRID_HOME} color={SKY} edgeColor={SKY} ledColor={SKY_LED} />
-      {/* Home → Grid (cyan) when exporting — reverse LED direction */}
-      <FlowConduit active={gridExporting} d={PATH_GRID_HOME} color={CYAN} edgeColor={CYAN} ledColor={CYAN_LED} reverse />
-      {/* Home → EV (green) when Tesla actively charging */}
-      <FlowConduit active={isCharging} d={PATH_HOME_EV} color={EMERALD} edgeColor={EMERALD} ledColor={EMERALD_LED} />
+      {/* Hero-aligned overlay: same box as the house PNG so anchors land on
+          the real roof / garage / driveway across every scene. */}
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="xMidYMid meet"
+        className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-[80%] w-auto max-w-[94%] -translate-y-1/2"
+        style={{ aspectRatio: '1 / 1', zIndex: 15 }}
+      >
+        {/* Solar → Home (always when sun is up — green roof output) */}
+        <FlowConduit active={solarProducing} d={PATH_SOLAR_HOME} color={EMERALD} ledColor={EMERALD_LED} dur={flowDur(solar)} />
+        {/* Solar → Powerwall (when PW is charging from production) */}
+        <FlowConduit active={solarProducing && pwCharging} d={PATH_SOLAR_PW} color={EMERALD} ledColor={EMERALD_LED} dur={flowDur(battery)} />
+        {/* Powerwall → Home (amber) when discharging */}
+        <FlowConduit active={pwDischarging} d={PATH_PW_HOME} color={AMBER} ledColor={AMBER_LED} dur={flowDur(Math.abs(battery))} />
+        {/* Grid → Home (sky) when importing */}
+        <FlowConduit active={gridImporting} d={PATH_GRID_HOME} color={SKY} ledColor={SKY_LED} dur={flowDur(grid)} />
+        {/* Home → Grid (cyan) when exporting */}
+        <FlowConduit active={gridExporting} d={PATH_GRID_HOME} color={CYAN} ledColor={CYAN_LED} reverse dur={flowDur(Math.abs(grid))} />
+        {/* Home → EV (green) when Tesla actively charging */}
+        <FlowConduit active={isCharging} d={PATH_HOME_EV} color={EMERALD} ledColor={EMERALD_LED} dur={flowDur(data.evPower ?? 7)} />
+      </svg>
 
-      {/* Dynamic Tesla vehicle in driveway — exact model + color, or generic silhouette */}
-      {vehicleSrc && (
+      {/* Dynamic Tesla vehicle in driveway — exact model + color only.
+          When unknown we render nothing rather than lie with a silhouette. */}
+      {vehicleSrc && !vehicleGeneric && (
         <AnimatePresence mode="sync">
           <motion.div
-            key={`${resolvedVehicle ?? 'generic'}-${resolvedColor ?? 'default'}`}
+            key={`${resolvedVehicle}-${resolvedColor ?? 'default'}`}
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4, ease: 'easeOut' }}
-            className="pointer-events-none absolute bottom-[14%] left-[18%] z-[12] w-[34%]"
+            className="pointer-events-none absolute bottom-[16%] left-[16%] z-[18] w-[32%]"
           >
             {/* Soft contact shadow */}
             <div
@@ -375,7 +385,7 @@ export function EnergyFlowScene({
               alt=""
               aria-hidden="true"
               loading="lazy"
-              className={`relative h-auto w-full select-none object-contain drop-shadow-[0_14px_22px_hsl(220_70%_3%/0.6)] ${vehicleGeneric ? 'opacity-70 [filter:grayscale(0.85)_brightness(0.95)]' : ''}`}
+              className="relative h-auto w-full select-none object-contain drop-shadow-[0_14px_22px_hsl(220_70%_3%/0.6)]"
               draggable={false}
             />
             {/* Plugged-but-idle: subtle steady cable indicator (no pulse) */}
