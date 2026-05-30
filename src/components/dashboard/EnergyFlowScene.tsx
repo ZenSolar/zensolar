@@ -523,7 +523,16 @@ export function EnergyFlowScene({
         <RoofHalo active={solarProducing} intensity={intensity(solar)} />
         <WindowsBloom active={homeDrawing} intensity={intensity(home)} />
 
-        {/* Powerwall — emerald when charging, amber when discharging */}
+        {/* Powerwall — always-on dim emerald standby; brighter when active */}
+        <DeviceHalo
+          cx={HOME_BLUEPRINT.powerwall.x}
+          cy={HOME_BLUEPRINT.powerwall.y}
+          color={EMERALD}
+          active
+          intensity={0.5}
+          radius={3.8}
+          pulseMs={5000}
+        />
         <DeviceHalo
           cx={HOME_BLUEPRINT.powerwall.x}
           cy={HOME_BLUEPRINT.powerwall.y}
@@ -533,6 +542,7 @@ export function EnergyFlowScene({
           radius={4.6}
           pulseMs={pwCharging ? 2800 : 2400}
         />
+
 
         {/* Grid meter — sky on import, cyan on export */}
         <DeviceHalo
