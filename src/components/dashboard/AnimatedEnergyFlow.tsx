@@ -101,11 +101,15 @@ function FlowingDots({
   color,
   power,
   dotCount = 4,
+  dotRadius = 3,
+  trailRadius,
 }: {
   pathId: string;
   color: string;
   power: number;
   dotCount?: number;
+  dotRadius?: number;
+  trailRadius?: number;
 }) {
   const [ready, setReady] = useState(false);
 
@@ -118,13 +122,14 @@ function FlowingDots({
 
   const duration = Math.max(1.8, 3.5 - power * 0.25);
   const count = Math.min(Math.max(2, Math.ceil(power * 0.6)), dotCount);
+  const trailR = trailRadius ?? dotRadius * 2;
 
   return (
     <>
       {Array.from({ length: count }).map((_, i) => (
         <circle
           key={`${pathId}-d-${i}`}
-          r={3}
+          r={dotRadius}
           fill={color}
           opacity={0}
           filter="url(#dotGlow)"
@@ -139,7 +144,7 @@ function FlowingDots({
           </animateMotion>
           <animate
             attributeName="opacity"
-            values="0;0.9;0.9;0"
+            values="0;0.95;0.95;0"
             keyTimes="0;0.1;0.85;1"
             dur={`${duration}s`}
             repeatCount="indefinite"
@@ -150,7 +155,7 @@ function FlowingDots({
       {Array.from({ length: count }).map((_, i) => (
         <circle
           key={`${pathId}-t-${i}`}
-          r={6}
+          r={trailR}
           fill={color}
           opacity={0}
         >
@@ -164,7 +169,7 @@ function FlowingDots({
           </animateMotion>
           <animate
             attributeName="opacity"
-            values="0;0.15;0.15;0"
+            values="0;0.2;0.2;0"
             keyTimes="0;0.1;0.85;1"
             dur={`${duration}s`}
             repeatCount="indefinite"
