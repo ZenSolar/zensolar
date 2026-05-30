@@ -623,9 +623,9 @@ export function LiveEnergyMonitoringCard() {
           <p className="mt-1 text-xs text-muted-foreground">Home Energy Cockpit · Enphase solar + Tesla Powerwall + ZenX</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className={`inline-flex w-fit items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ring-1 ${freshnessClass(latestTelemetry?.cached_at ?? null, !!latestTelemetry?.fresh)}`}>
+          <span className={`inline-flex w-fit items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ring-1 ${freshnessClass(latestTelemetry?.sample_at ?? latestTelemetry?.cached_at ?? null, !!latestTelemetry?.fresh)}`}>
             <Clock3 className="h-3 w-3" />
-            {formatAge(latestTelemetry?.cached_at ?? null)}
+            {formatAge(latestTelemetry?.sample_at ?? latestTelemetry?.cached_at ?? null)}
           </span>
           <button
             type="button"
