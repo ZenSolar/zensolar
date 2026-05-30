@@ -622,13 +622,17 @@ export function LiveEnergyMonitoringCard() {
   const evKwRaw = pickNumber(primaryEv?.payload, ['charge_rate_kw', 'charger_power', 'vehicles.0.charger_power']) ?? 0;
   const gridKwRaw = normalizeWattsToKw(pickNumber(primaryBattery?.payload, ['grid_power', 'energy_sites.0.grid_power']));
   const evHomeKw = teslaFlow?.isCharging && teslaFlow.source === 'home' ? teslaFlow.kW : 0;
+  const effectiveHomeKwRaw = homeKwRaw !== null && homeKwRaw > 0.05 ? homeKwRaw : readLastKnownHomeKw();
   const reconciledFlow = reconcileEnergyFlow({
     solarKw: solarStats.currentKw ?? 0,
-    rawHomeKw: homeKwRaw,
+    rawHomeKw: effectiveHomeKwRaw,
     batteryKw: batteryStats.powerKw ?? 0,
     rawGridKw: gridKwRaw,
     evHomeKw,
   });
+  useEffect(() => {
+    rememberLastKnownHomeKw(reconciledFlow.homeKw);
+  }, [reconciledFlow.homeKw]);
 
   const flowData = {
     solarPower: solarStats.currentKw ?? 0,
