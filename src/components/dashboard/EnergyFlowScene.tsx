@@ -149,26 +149,45 @@ function FlowLabel({
 }
 
 /**
- * SVG overlay drawing a wide glowing amber conduit from the Powerwall
- * (lower-left of the house) to the home (center-right). Animated LED-crawl
- * along the path when the Powerwall is actively discharging.
+ * Generic animated conduit with LED-crawl. Used for every directional
+ * energy flow in the scene. Colors are kept consistent across the app:
+ *   - emerald → clean energy production / charging (solar, PW charging, EV charging)
+ *   - amber   → Powerwall discharging
+ *   - sky     → grid import
+ *   - cyan    → grid export
  */
-function DischargeConduit({ active }: { active: boolean }) {
+function FlowConduit({
+  active,
+  d,
+  color,
+  edgeColor,
+  ledColor,
+  dur = 1.4,
+  reverse = false,
+  width = 2,
+  zIndex = 15,
+}: {
+  active: boolean;
+  d: string;
+  color: string;
+  edgeColor: string;
+  ledColor: string;
+  dur?: number;
+  reverse?: boolean;
+  width?: number;
+  zIndex?: number;
+}) {
   if (!active) return null;
   return (
     <svg
       aria-hidden="true"
       viewBox="0 0 100 100"
       preserveAspectRatio="none"
-      className="pointer-events-none absolute inset-0 z-[15] h-full w-full"
+      className="pointer-events-none absolute inset-0 h-full w-full"
+      style={{ zIndex }}
     >
       <defs>
-        <linearGradient id="dischargeGradient" x1="0%" y1="100%" x2="100%" y2="50%">
-          <stop offset="0%" stopColor="hsl(38 95% 55%)" stopOpacity="0.95" />
-          <stop offset="50%" stopColor="hsl(45 100% 65%)" stopOpacity="0.85" />
-          <stop offset="100%" stopColor="hsl(142 76% 55%)" stopOpacity="0.7" />
-        </linearGradient>
-        <filter id="dischargeGlow" x="-50%" y="-50%" width="200%" height="200%">
+        <filter id={`glow-${d.length}-${color.length}`} x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="1.2" result="blur" />
           <feMerge>
             <feMergeNode in="blur" />
@@ -176,30 +195,12 @@ function DischargeConduit({ active }: { active: boolean }) {
           </feMerge>
         </filter>
       </defs>
-      {/* Wide outer glow */}
+      <path d={d} stroke={edgeColor} strokeOpacity="0.22" strokeWidth={width + 3} strokeLinecap="round" fill="none" />
+      <path d={d} stroke={color} strokeOpacity="0.85" strokeWidth={width} strokeLinecap="round" fill="none" />
       <path
-        d="M 18 78 Q 38 70 55 60"
-        stroke="hsl(38 95% 55%)"
-        strokeOpacity="0.22"
-        strokeWidth="5"
-        strokeLinecap="round"
-        fill="none"
-        filter="url(#dischargeGlow)"
-      />
-      {/* Main conduit */}
-      <path
-        d="M 18 78 Q 38 70 55 60"
-        stroke="url(#dischargeGradient)"
-        strokeWidth="2"
-        strokeLinecap="round"
-        fill="none"
-        filter="url(#dischargeGlow)"
-      />
-      {/* LED crawl */}
-      <path
-        d="M 18 78 Q 38 70 55 60"
-        stroke="hsl(45 100% 80%)"
-        strokeWidth="1.3"
+        d={d}
+        stroke={ledColor}
+        strokeWidth={Math.max(1, width - 0.6)}
         strokeLinecap="round"
         fill="none"
         strokeDasharray="3 12"
@@ -207,15 +208,36 @@ function DischargeConduit({ active }: { active: boolean }) {
       >
         <animate
           attributeName="stroke-dashoffset"
-          from="0"
-          to="-30"
-          dur="1.4s"
+          from={reverse ? '-30' : '0'}
+          to={reverse ? '0' : '-30'}
+          dur={`${dur}s`}
           repeatCount="indefinite"
         />
       </path>
     </svg>
   );
 }
+
+// Anchor points (viewBox 0–100):
+//   Solar (rooftop center)  : 50, 22
+//   Home  (center hub)      : 55, 50
+//   Powerwall (lower-left)  : 20, 76
+//   Grid  (right edge)      : 92, 46
+//   EV    (driveway car)    : 35, 82
+const PATH_SOLAR_HOME = 'M 50 22 Q 53 36 55 50';
+const PATH_SOLAR_PW = 'M 50 22 Q 32 48 22 74';
+const PATH_PW_HOME = 'M 22 76 Q 38 66 55 52';
+const PATH_GRID_HOME = 'M 90 46 Q 75 49 56 50';
+const PATH_HOME_EV = 'M 55 52 Q 46 68 36 80';
+
+const EMERALD = 'hsl(142 76% 55%)';
+const EMERALD_LED = 'hsl(142 90% 78%)';
+const AMBER = 'hsl(38 95% 55%)';
+const AMBER_LED = 'hsl(45 100% 80%)';
+const SKY = 'hsl(205 90% 60%)';
+const SKY_LED = 'hsl(195 95% 80%)';
+const CYAN = 'hsl(180 85% 55%)';
+const CYAN_LED = 'hsl(180 95% 80%)';
 
 function BatteryDebugPanel({ rows }: { rows: ReturnType<typeof collectBatteryTelemetryDebug> }) {
   return (
