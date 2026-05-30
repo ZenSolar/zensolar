@@ -418,6 +418,8 @@ export function EnergyFlowScene({
   teslaPayload,
 }: EnergyFlowSceneProps) {
   const scene = useMemo(() => forceScene ?? pickScene(data), [forceScene, data]);
+  const [searchParams] = useSearchParams();
+  const debug = import.meta.env.DEV && searchParams.get('debug') === '1';
   const hasTeslaConnection =
     Boolean(teslaPayload) || Boolean(data.tesla) || (data.evPower ?? 0) > 0.1;
 
