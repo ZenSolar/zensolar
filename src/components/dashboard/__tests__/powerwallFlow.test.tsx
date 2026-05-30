@@ -21,6 +21,7 @@ import {
   derivePowerwallDisplay,
   type EnergyFlowData,
 } from '../AnimatedEnergyFlow';
+import { batterySnapshot } from '../LiveEnergyMonitoringCard';
 
 
 const SEP = '\u202F·\u202F';
