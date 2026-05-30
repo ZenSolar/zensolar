@@ -22,6 +22,7 @@ const PRESETS: Record<string, EnergyFlowData> = {
     batteryPercent: 72,
     evPower: 0,
     tesla: { isCharging: false } as any,
+    charging_state: 'Disconnected',
   },
   charging: {
     solarPower: 5.5,
@@ -31,6 +32,7 @@ const PRESETS: Record<string, EnergyFlowData> = {
     batteryPercent: 95,
     evPower: 7.2,
     tesla: { isCharging: true } as any,
+    charging_state: 'Charging',
   },
   exporting: {
     solarPower: 7.8,
@@ -40,6 +42,7 @@ const PRESETS: Record<string, EnergyFlowData> = {
     batteryPercent: 88,
     evPower: 0,
     tesla: { isCharging: false } as any,
+    charging_state: 'Disconnected',
   },
   idle: {
     solarPower: 0,
@@ -49,6 +52,7 @@ const PRESETS: Record<string, EnergyFlowData> = {
     batteryPercent: 64,
     evPower: 0,
     tesla: undefined,
+    charging_state: undefined,
   },
   discharging: {
     solarPower: 0,
@@ -58,6 +62,17 @@ const PRESETS: Record<string, EnergyFlowData> = {
     batteryPercent: 41,
     evPower: 0,
     tesla: { isCharging: false } as any,
+    charging_state: 'Disconnected',
+  },
+  plugged: {
+    solarPower: 4.2,
+    homePower: 2.1,
+    batteryPower: 1.6,
+    gridPower: -0.5,
+    batteryPercent: 100,
+    evPower: 0,
+    tesla: { isCharging: false } as any,
+    charging_state: 'Complete',
   },
 };
 
