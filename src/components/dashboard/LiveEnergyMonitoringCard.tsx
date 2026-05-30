@@ -702,7 +702,11 @@ export function LiveEnergyMonitoringCard() {
         <div className="space-y-3">
           <div className="overflow-hidden rounded-xl border border-primary/20 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.12),transparent_70%),radial-gradient(circle_at_bottom,hsl(220_60%_8%/0.6),transparent_60%)] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04),0_8px_30px_-8px_hsl(220_60%_4%/0.6)]">
             <Suspense fallback={<div className="aspect-square w-full animate-pulse bg-card/10" aria-hidden="true" />}>
-              <EnergyFlowScene className="aspect-square w-full" data={flowData} />
+              <EnergyFlowScene
+                className="aspect-square w-full"
+                data={flowData}
+                teslaPayload={primaryEv?.oem === 'tesla' ? primaryEv?.payload : undefined}
+              />
             </Suspense>
           </div>
 
