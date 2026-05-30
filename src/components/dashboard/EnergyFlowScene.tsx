@@ -50,7 +50,14 @@ const SCENE_SRC: Record<SceneKey, string> = {
   'day-export': sceneDayExport,
 };
 
-/** Pure scene-selection function — easy to unit-test. */
+/**
+ * Pure scene-selection function — easy to unit-test.
+ *
+ * Note: the dynamically-overlaid Tesla render (model + color matched) is the
+ * single source of truth for the vehicle, so this picker prefers base scenes
+ * (no baked-in EV) whenever an overlay is available. The `*-ev` baked scenes
+ * remain available as fallbacks when no overlay can be rendered.
+ */
 export function pickScene(
   d: EnergyFlowData,
   now: Date = new Date(),
@@ -63,9 +70,8 @@ export function pickScene(
   const exporting = grid < -0.1;
   const sunUp = solar > 0.1;
 
-  if (!sunUp && evCharging && pwDischarging) return 'night-pw-discharge-ev';
-  if (!sunUp && evCharging) return 'night-ev';
   if (!sunUp && pwDischarging) return 'night-pw-discharge';
+  if (!sunUp && evCharging) return 'night-ev';
   if (sunUp && exporting) return 'day-export';
   if (sunUp) {
     const hour = now.getHours();
