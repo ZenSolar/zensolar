@@ -103,6 +103,7 @@ function FlowingDots({
   dotCount = 4,
   dotRadius = 3,
   trailRadius,
+  minCount = 2,
 }: {
   pathId: string;
   color: string;
@@ -110,6 +111,7 @@ function FlowingDots({
   dotCount?: number;
   dotRadius?: number;
   trailRadius?: number;
+  minCount?: number;
 }) {
   const [ready, setReady] = useState(false);
 
@@ -120,8 +122,8 @@ function FlowingDots({
 
   if (power <= 0.05 || !ready) return null;
 
-  const duration = Math.max(1.8, 3.5 - power * 0.25);
-  const count = Math.min(Math.max(2, Math.ceil(power * 0.6)), dotCount);
+  const duration = Math.max(1.6, 3.2 - power * 0.22);
+  const count = Math.min(Math.max(minCount, Math.ceil(power * 0.9)), dotCount);
   const trailR = trailRadius ?? dotRadius * 2;
 
   return (
@@ -545,37 +547,36 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
     tesla: '#E11D48',
   };
 
-  // Responsive node positions — tighter on mobile.
-  // Compact viewBox is 400x440 with the isometric house scaled 1.22× around
-  // pivot (200, 187) so it dominates ~45% of card height. Post-scale house
-  // bounds: x≈88–312, y≈100–274. Perimeter nodes sit outside that footprint.
+  // Responsive node positions — Tesla-grade premium scale.
+  // Compact viewBox 400x460. House scaled 1.42× around pivot (200,187) so it
+  // dominates ~55% of card height. Post-scale house bounds: x≈69–331, y≈86–288.
   const nodes = compact
     ? {
-        solar: { x: 200, y: 70 },        // headroom above for 28px value text — no clip
-        home: { x: 200, y: 215 },        // visual center of scaled house body
-        battery: { x: 48, y: 235 },
-        grid: { x: 352, y: 235 },
-        ev: { x: 200, y: 395 },
+        solar: { x: 200, y: 56 },         // generous headroom for 32px value
+        home: { x: 200, y: 215 },         // visual center of scaled house body
+        battery: { x: 44, y: 240 },
+        grid: { x: 356, y: 240 },
+        ev: { x: 200, y: 415 },
       }
     : {
         solar: { x: 200, y: 55 },
         home: { x: 200, y: 230 },
         battery: { x: 45, y: 275 },
         grid: { x: 355, y: 275 },
-        ev: { x: 200, y: 395 },
+        ev: { x: 200, y: 415 },
       };
 
-  // Meter position — must match the scaled visual location of the meter inside
-  // the HouseIllustration (compact pivot 200,187 × scale 1.22).
-  const meter = compact ? { x: 279, y: 224 } : { x: 287, y: 254 };
+  // Meter scaled to match house illustration's meter position.
+  // Compact pivot (200,187) × 1.42: meter origin (265.5,216) → (293, 228).
+  const meter = compact ? { x: 293, y: 228 } : { x: 287, y: 254 };
 
-  const vb = compact ? '0 0 400 440' : '0 0 400 470';
-  const maxH = compact ? '500px' : '560px';
-  // Tesla-grade legibility: large primary values readable at arm's length on 390px.
+  const vb = compact ? '0 0 400 460' : '0 0 400 470';
+  const maxH = compact ? '560px' : '560px';
+  // Tesla-grade legibility: hero numbers readable at arm's length on 390px.
   const labelFs = compact ? 11 : 11;
-  const valueFs = compact ? 28 : 32;       // perimeter nodes (Solar / Grid / EV)
-  const subValueFs = compact ? 20 : 24;    // Powerwall stored kWh
-  const homeFs = compact ? 38 : 38;        // centerpiece HOME kW — hero size
+  const valueFs = compact ? 32 : 32;       // perimeter nodes (Solar / Grid / EV)
+  const subValueFs = compact ? 22 : 24;    // Powerwall stored kWh
+  const homeFs = compact ? 44 : 40;        // centerpiece HOME kW — hero size
 
   return (
     <div className={`relative ${className}`}>
@@ -656,10 +657,10 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
           </circle>
         )}
 
-        {/* House illustration — compact gets a 1.22× scale around (200,187) so the
-            isometric volume dominates the card. Path math uses post-scale meter coords. */}
+        {/* House illustration — compact gets a 1.42× scale around (200,187) so the
+            isometric volume dominates ~55% of card height. Path math uses post-scale meter coords. */}
         {compact ? (
-          <g transform="matrix(1.22 0 0 1.22 -44 -41.14)" style={{ filter: 'drop-shadow(0 12px 22px rgba(0,0,0,0.6))' }}>
+          <g transform="matrix(1.42 0 0 1.42 -84 -78.54)" style={{ filter: 'drop-shadow(0 14px 26px rgba(0,0,0,0.7)) drop-shadow(0 4px 8px rgba(0,0,0,0.5))' }}>
             <HouseIllustration compact={compact} />
           </g>
         ) : (
@@ -685,21 +686,21 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
           fill="none" stroke={colors.battery}
           strokeWidth={batteryToHome > 0 ? 1 : 0.3} strokeOpacity={batteryToHome > 0 ? 0.25 : 0.06}
         />
-        {/* Discharge channel underglow — wide pulsing green channel reads as "energized" */}
+        {/* Discharge channel underglow — wide pulsing amber channel reads as "energized" */}
         {batteryToHome > 0.05 && (
           <>
             <path
               d={`M${nodes.battery.x + 25},${nodes.battery.y - 15} C${nodes.battery.x + 60},${nodes.battery.y - 50} ${nodes.home.x - 60},${nodes.home.y + 10} ${nodes.home.x - 30},${nodes.home.y}`}
-              fill="none" stroke={colors.battery} strokeWidth={14} strokeOpacity={0.18} strokeLinecap="round"
+              fill="none" stroke="#F59E0B" strokeWidth={20} strokeOpacity={0.18} strokeLinecap="round"
               filter="url(#dotGlow)"
             >
-              <animate attributeName="stroke-opacity" values="0.10;0.30;0.10" dur="2s" repeatCount="indefinite" />
+              <animate attributeName="stroke-opacity" values="0.10;0.32;0.10" dur="2s" repeatCount="indefinite" />
             </path>
             <path
               d={`M${nodes.battery.x + 25},${nodes.battery.y - 15} C${nodes.battery.x + 60},${nodes.battery.y - 50} ${nodes.home.x - 60},${nodes.home.y + 10} ${nodes.home.x - 30},${nodes.home.y}`}
-              fill="none" stroke={colors.battery} strokeWidth={5} strokeOpacity={0.5} strokeLinecap="round"
+              fill="none" stroke="#F59E0B" strokeWidth={8} strokeOpacity={0.55} strokeLinecap="round"
             >
-              <animate attributeName="stroke-opacity" values="0.35;0.7;0.35" dur="1.6s" repeatCount="indefinite" />
+              <animate attributeName="stroke-opacity" values="0.4;0.8;0.4" dur="1.4s" repeatCount="indefinite" />
             </path>
           </>
         )}
@@ -717,22 +718,30 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
         />
         <path
           id="p-to-ev"
-          d={`M${nodes.home.x},${nodes.home.y + (compact ? 60 : 65)} C${nodes.home.x},${nodes.home.y + (compact ? 90 : 100)} ${nodes.ev.x},${nodes.ev.y - 55} ${nodes.ev.x},${nodes.ev.y - 25}`}
+          d={`M${nodes.home.x},${nodes.home.y + (compact ? 70 : 65)} C${nodes.home.x},${nodes.home.y + (compact ? 110 : 100)} ${nodes.ev.x},${nodes.ev.y - 70} ${nodes.ev.x},${nodes.ev.y - 25}`}
           fill="none" stroke={colors.ev}
           strokeWidth={solarToEV > 0 ? 1 : 0.3} strokeOpacity={solarToEV > 0 ? 0.25 : 0.06}
         />
 
         {/* ── Animated dots ── */}
-        <FlowingDots pathId="p-solar-home" color={colors.solar} power={solarToHome} dotCount={5} />
-        <FlowingDots pathId="p-solar-bat" color={colors.solar} power={solarToBattery} dotCount={4} />
+        <FlowingDots pathId="p-solar-home" color={colors.solar} power={solarToHome} dotCount={6} dotRadius={3.5} />
+        <FlowingDots pathId="p-solar-bat" color={colors.solar} power={solarToBattery} dotCount={5} dotRadius={3.2} />
         {batteryToHome > 0.05 && (
           <g data-flow="powerwall-home">
-            <FlowingDots pathId="p-bat-home" color={colors.battery} power={Math.max(batteryToHome * 1.4, 2.0)} dotCount={10} dotRadius={4.5} trailRadius={11} />
+            <FlowingDots
+              pathId="p-bat-home"
+              color="#F59E0B"
+              power={Math.max(batteryToHome * 2.5, 4.0)}
+              dotCount={12}
+              dotRadius={5}
+              trailRadius={13}
+              minCount={6}
+            />
           </g>
         )}
-        <FlowingDots pathId="p-grid-home" color={colors.grid} power={gridToHome} dotCount={4} />
-        <FlowingDots pathId="p-solar-grid" color={colors.grid} power={solarToGrid} dotCount={4} />
-        <FlowingDots pathId="p-to-ev" color={colors.ev} power={solarToEV} dotCount={4} />
+        <FlowingDots pathId="p-grid-home" color={colors.grid} power={gridToHome} dotCount={5} dotRadius={3.2} />
+        <FlowingDots pathId="p-solar-grid" color={colors.grid} power={solarToGrid} dotCount={5} dotRadius={3.2} />
+        <FlowingDots pathId="p-to-ev" color={colors.ev} power={solarToEV} dotCount={6} dotRadius={3.5} />
 
 
         {/* ── SOLAR ── */}
@@ -755,11 +764,11 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
         </g>
 
         {/* ── HOME ── floating hero number with strong shadow halo for AMOLED legibility */}
-        <g style={{ filter: 'drop-shadow(0 0 14px rgba(0,0,0,0.95)) drop-shadow(0 2px 4px rgba(0,0,0,0.9))' }}>
-          <text x={nodes.home.x} y={compact ? 208 : 250} textAnchor="middle" fill="white" fontSize={homeFs} fontWeight="800" style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.5px' }}>
-            {flow.homePower.toFixed(1)}<tspan fontSize={compact ? 15 : 15} fontWeight="600" fill="#cbd5e1" dx={3}>kW</tspan>
+        <g style={{ filter: 'drop-shadow(0 0 18px rgba(0,0,0,0.98)) drop-shadow(0 2px 6px rgba(0,0,0,0.95)) drop-shadow(0 0 4px rgba(251,191,36,0.25))' }}>
+          <text x={nodes.home.x} y={compact ? 210 : 250} textAnchor="middle" fill="white" fontSize={homeFs} fontWeight="800" style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.5px' }}>
+            {flow.homePower.toFixed(1)}<tspan fontSize={compact ? 17 : 16} fontWeight="600" fill="#cbd5e1" dx={4}>kW</tspan>
           </text>
-          <text x={nodes.home.x} y={compact ? 224 : 266} textAnchor="middle" fill="#cbd5e1" fontSize={labelFs} fontWeight="600" letterSpacing="2.5">HOME</text>
+          <text x={nodes.home.x} y={compact ? 228 : 266} textAnchor="middle" fill="#e2e8f0" fontSize={compact ? 12 : 11} fontWeight="700" letterSpacing="3">HOME</text>
         </g>
 
         {/* ── POWERWALL ── kWh stored is the primary number; kW is contextual */}
