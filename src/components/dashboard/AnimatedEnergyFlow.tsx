@@ -657,10 +657,10 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
           </circle>
         )}
 
-        {/* House illustration — compact gets a 1.22× scale around (200,187) so the
-            isometric volume dominates the card. Path math uses post-scale meter coords. */}
+        {/* House illustration — compact gets a 1.42× scale around (200,187) so the
+            isometric volume dominates ~55% of card height. Path math uses post-scale meter coords. */}
         {compact ? (
-          <g transform="matrix(1.22 0 0 1.22 -44 -41.14)" style={{ filter: 'drop-shadow(0 12px 22px rgba(0,0,0,0.6))' }}>
+          <g transform="matrix(1.42 0 0 1.42 -84 -78.54)" style={{ filter: 'drop-shadow(0 14px 26px rgba(0,0,0,0.7)) drop-shadow(0 4px 8px rgba(0,0,0,0.5))' }}>
             <HouseIllustration compact={compact} />
           </g>
         ) : (
