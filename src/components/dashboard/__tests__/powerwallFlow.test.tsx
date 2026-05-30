@@ -158,6 +158,47 @@ describe('AnimatedEnergyFlow → Powerwall SVG node', () => {
   });
 });
 
+describe('AnimatedEnergyFlow → Powerwall discharge animation', () => {
+
+  it('discharging renders Powerwall→Home flow group and data-state="discharging"', () => {
+    const { container } = render(
+      <AnimatedEnergyFlow data={baseFlow({ batteryPercent: 64, batteryPower: -0.8, batteryReserveKwh: 8.6 })} showHeader={false} />
+    );
+    expect(container.querySelector('[data-flow="powerwall-home"]')).not.toBeNull();
+    expect(container.querySelector('[data-state="discharging"]')).not.toBeNull();
+  });
+
+  it('charging does NOT render discharge flow group and is data-state="charging"', () => {
+    const { container } = render(
+      <AnimatedEnergyFlow data={baseFlow({ batteryPercent: 87, batteryPower: 3.2, batteryReserveKwh: 11.7 })} showHeader={false} />
+    );
+    expect(container.querySelector('[data-flow="powerwall-home"]')).toBeNull();
+    expect(container.querySelector('[data-state="charging"]')).not.toBeNull();
+  });
+
+  it('idle is data-state="idle" with no discharge flow', () => {
+    const { container } = render(
+      <AnimatedEnergyFlow data={baseFlow({ batteryPercent: 100, batteryPower: 0, batteryReserveKwh: 13.5 })} showHeader={false} />
+    );
+    expect(container.querySelector('[data-flow="powerwall-home"]')).toBeNull();
+    expect(container.querySelector('[data-state="idle"]')).not.toBeNull();
+  });
+
+  it('unknown telemetry is data-state="unknown" with no discharge flow', () => {
+    const { container } = render(
+      <AnimatedEnergyFlow data={baseFlow({
+        batteryPercent: NaN as unknown as number,
+        batteryPower: NaN as unknown as number,
+        batteryCapacityKwh: undefined,
+        batteryReserveKwh: undefined,
+      })} showHeader={false} />
+    );
+    expect(container.querySelector('[data-flow="powerwall-home"]')).toBeNull();
+    expect(container.querySelector('[data-state="unknown"]')).not.toBeNull();
+  });
+});
+
+
 describe('batterySnapshot → Tesla Fleet API sign convention', () => {
   // Tesla's /energy_sites/{id}/live_status uses positive=discharging.
   // batterySnapshot must invert to our internal +charging convention.

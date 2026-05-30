@@ -669,10 +669,15 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
         {/* ── Animated dots ── */}
         <FlowingDots pathId="p-solar-home" color={colors.solar} power={solarToHome} dotCount={5} />
         <FlowingDots pathId="p-solar-bat" color={colors.solar} power={solarToBattery} dotCount={4} />
-        <FlowingDots pathId="p-bat-home" color={colors.battery} power={batteryToHome} dotCount={5} />
+        {batteryToHome > 0.05 && (
+          <g data-flow="powerwall-home">
+            <FlowingDots pathId="p-bat-home" color={colors.battery} power={Math.max(batteryToHome, 1.2)} dotCount={6} />
+          </g>
+        )}
         <FlowingDots pathId="p-grid-home" color={colors.grid} power={gridToHome} dotCount={4} />
         <FlowingDots pathId="p-solar-grid" color={colors.grid} power={solarToGrid} dotCount={4} />
         <FlowingDots pathId="p-to-ev" color={colors.ev} power={solarToEV} dotCount={4} />
+
 
         {/* ── SOLAR ── */}
         <g>
@@ -710,9 +715,44 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
             percent: flow.batteryPercent,
             power: flow.batteryPower,
           });
+          const pwState: 'discharging' | 'charging' | 'idle' | 'unknown' =
+            display.isUnknown
+              ? 'unknown'
+              : typeof flow.batteryPower === 'number' && Number.isFinite(flow.batteryPower) && flow.batteryPower < -0.05
+                ? 'discharging'
+                : typeof flow.batteryPower === 'number' && Number.isFinite(flow.batteryPower) && flow.batteryPower > 0.05
+                  ? 'charging'
+                  : 'idle';
+          const isDischarging = pwState === 'discharging';
           return (
-            <g>
-              <circle cx={nodes.battery.x} cy={nodes.battery.y} r={compact ? 14 : 18} fill={colors.battery} fillOpacity={0.1} stroke={colors.battery} strokeWidth={0.8} strokeOpacity={0.35} />
+            <g data-state={pwState}>
+              {/* Amber pulsing halo when discharging */}
+              {isDischarging && (
+                <>
+                  <circle
+                    cx={nodes.battery.x}
+                    cy={nodes.battery.y}
+                    r={compact ? 24 : 30}
+                    fill="#F59E0B"
+                    fillOpacity={0.18}
+                  >
+                    <animate attributeName="fill-opacity" values="0.12;0.28;0.12" dur="2s" repeatCount="indefinite" />
+                    <animate attributeName="r" values={compact ? '22;28;22' : '28;36;28'} dur="2s" repeatCount="indefinite" />
+                  </circle>
+                  <circle
+                    cx={nodes.battery.x}
+                    cy={nodes.battery.y}
+                    r={compact ? 16 : 20}
+                    fill="none"
+                    stroke="#F59E0B"
+                    strokeWidth={1.2}
+                    strokeOpacity={0.7}
+                  >
+                    <animate attributeName="stroke-opacity" values="0.4;0.85;0.4" dur="2s" repeatCount="indefinite" />
+                  </circle>
+                </>
+              )}
+              <circle cx={nodes.battery.x} cy={nodes.battery.y} r={compact ? 14 : 18} fill={colors.battery} fillOpacity={0.1} stroke={isDischarging ? '#F59E0B' : colors.battery} strokeWidth={isDischarging ? 1.2 : 0.8} strokeOpacity={isDischarging ? 0.7 : 0.35} />
               <BatteryIcon percent={flow.batteryPercent} color={colors.battery} cx={nodes.battery.x} cy={nodes.battery.y} />
               <text x={nodes.battery.x} y={nodes.battery.y + (compact ? 22 : 28)} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="500" letterSpacing="1.2">POWERWALL</text>
               <text x={nodes.battery.x} y={nodes.battery.y - (compact ? 18 : 22)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 5.5 : 6.5} fontWeight="500" letterSpacing="0.6">tesla</text>
@@ -727,6 +767,7 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
             </g>
           );
         })()}
+
 
         {/* ── GRID (power tower icon) ── */}
         <g>
