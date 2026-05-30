@@ -55,6 +55,44 @@ function formatKwh(v: number | null, decimals = 1) {
   return v === null ? '—' : `${v.toFixed(decimals)} kWh`;
 }
 
+function normalizeWattsToKw(v: number | null) {
+  if (v === null) return null;
+  return Math.abs(v) > 100 ? v / 1000 : v;
+}
+
+function reconcileEnergyFlow(input: {
+  solarKw: number;
+  rawHomeKw: number | null;
+  batteryKw: number;
+  rawGridKw: number | null;
+  evHomeKw: number;
+}) {
+  const solar = Math.max(0, input.solarKw);
+  const battery = input.batteryKw;
+  const evHome = Math.max(0, input.evHomeKw);
+  const batteryLoad = Math.max(0, battery);
+  const batterySource = Math.max(0, -battery);
+
+  const derivedGrid = evHome + batteryLoad + Math.max(0, input.rawHomeKw ?? 0) - solar - batterySource;
+  const hasUsableHome = input.rawHomeKw !== null && input.rawHomeKw > 0.05;
+  const homeFromBalance = input.rawGridKw !== null
+    ? solar + batterySource + Math.max(0, input.rawGridKw) - batteryLoad - Math.max(0, -input.rawGridKw) - evHome
+    : null;
+  const homeKw = hasUsableHome
+    ? input.rawHomeKw!
+    : Math.max(0, homeFromBalance ?? input.rawHomeKw ?? 0);
+  const balancedGrid = evHome + batteryLoad + homeKw - solar - batterySource;
+  const rawMismatch = input.rawGridKw !== null && Math.abs(input.rawGridKw - balancedGrid) > Math.max(0.7, solar * 0.35);
+  const gridKw = input.rawGridKw === null || rawMismatch ? balancedGrid : input.rawGridKw;
+
+  return {
+    homeKw,
+    gridKw,
+    gridCorrected: rawMismatch,
+    derivedGrid,
+  };
+}
+
 function formatAge(iso: string | null) {
   if (!iso) return 'Sync pending';
   const secs = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
