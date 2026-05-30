@@ -16,13 +16,13 @@
  */
 import { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { EnergyFlowData } from './AnimatedEnergyFlow';
+import type { EnergyFlowData } from '../AnimatedEnergyFlow';
 import {
   collectBatteryTelemetryDebug,
   resolveVehicleAsset,
   type VehicleColor,
   type VehicleModel,
-} from './EnergyFlowScene.scenes';
+} from '../EnergyFlowScene.scenes';
 
 import sceneDay from '@/assets/zencasa/house-day.png';
 import sceneDusk from '@/assets/zencasa/house-dusk.png';
