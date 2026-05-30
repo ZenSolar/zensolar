@@ -58,6 +58,17 @@ export type VehicleColor =
   | 'stealth-grey'
   | 'stainless';
 
+export type BatteryTelemetryDebugRow = {
+  key: string;
+  raw: number | null;
+  normalizedKw: number | null;
+  renderedKw: number | null;
+  sign: string;
+  meaning: 'Charging' | 'Discharging' | 'Idle' | 'Not present';
+  convention: 'Tesla inverted' | 'Direct' | 'Render input';
+  used: boolean;
+};
+
 /** Legacy single-asset map — used as final fallback. */
 export const VEHICLE_SRC: Record<VehicleModel, string> = {
   model3: vehicleModel3,
@@ -208,8 +219,9 @@ export function resolveVehicleColor(
 export function resolveVehicleAsset(
   input: unknown,
   overrides?: { model?: VehicleModel | null; color?: VehicleColor | null },
+  options?: { fallbackWhenConnected?: boolean },
 ): { model: VehicleModel | null; color: VehicleColor | null; src: string | null } {
-  const model = overrides?.model ?? resolveVehicleModel(input);
+  const model = overrides?.model ?? resolveVehicleModel(input) ?? (options?.fallbackWhenConnected ? 'model3' : null);
   if (!model) return { model: null, color: null, src: null };
 
   const detected = overrides?.color ?? resolveVehicleColor(input);
@@ -225,7 +237,83 @@ export function resolveVehicleAsset(
   return { model, color, src };
 }
 
+export function collectBatteryTelemetryDebug(
+  input: unknown,
+  renderedBatteryPowerKw: number | null | undefined,
+): BatteryTelemetryDebugRow[] {
+  const rules: Array<{ key: string; invert: boolean }> = [
+    { key: 'battery_power', invert: true },
+    { key: 'energy_sites.0.battery_power', invert: true },
+    { key: 'power_kw', invert: false },
+    { key: 'charge_power', invert: false },
+  ];
+  let usedKey: string | null = null;
+  const rows = rules.map((rule) => {
+    const raw = pickNumericPath(input, rule.key);
+    if (usedKey === null && raw !== null) usedKey = rule.key;
+    const normalizedKw = raw !== null ? (Math.abs(raw) > 100 ? raw / 1000 : raw) : null;
+    const renderedKw = normalizedKw !== null ? (rule.invert ? -normalizedKw : normalizedKw) : null;
+    return makeDebugRow({
+      key: rule.key,
+      raw,
+      normalizedKw,
+      renderedKw,
+      convention: rule.invert ? 'Tesla inverted' : 'Direct',
+      used: false,
+    });
+  });
+
+  const rendered = typeof renderedBatteryPowerKw === 'number' && Number.isFinite(renderedBatteryPowerKw)
+    ? renderedBatteryPowerKw
+    : null;
+
+  return [
+    makeDebugRow({
+      key: 'scene.data.batteryPower',
+      raw: rendered,
+      normalizedKw: rendered,
+      renderedKw: rendered,
+      convention: 'Render input',
+      used: usedKey === null,
+    }),
+    ...rows.map((row) => ({ ...row, used: row.key === usedKey })),
+  ];
+}
+
 // ---------- internal ----------
+
+function makeDebugRow(input: {
+  key: string;
+  raw: number | null;
+  normalizedKw: number | null;
+  renderedKw: number | null;
+  convention: BatteryTelemetryDebugRow['convention'];
+  used: boolean;
+}): BatteryTelemetryDebugRow {
+  const rendered = input.renderedKw;
+  const meaning = rendered === null
+    ? 'Not present'
+    : rendered > 0.05
+      ? 'Charging'
+      : rendered < -0.05
+        ? 'Discharging'
+        : 'Idle';
+
+  return {
+    ...input,
+    sign: rendered === null ? '—' : rendered > 0 ? '+' : rendered < 0 ? '−' : '0',
+    meaning,
+  };
+}
+
+function pickNumericPath(input: unknown, path: string): number | null {
+  const candidates = [getPath(input, path), getPath((input as any)?.response, path), getPath((input as any)?.data, path)];
+  for (const v of candidates) {
+    if (typeof v === 'number' && Number.isFinite(v)) return v;
+    if (typeof v === 'string' && v.trim() !== '' && Number.isFinite(Number(v))) return Number(v);
+  }
+  return null;
+}
 
 function collectStrings(input: unknown, paths: string[]): string[] {
   const out: string[] = [];
