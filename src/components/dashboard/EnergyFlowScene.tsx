@@ -599,9 +599,16 @@ export function EnergyFlowScene({
         {flows.has('solar-pw') && (
           <DottedFlow id="flow-solar-pw" d={BLUEPRINT_PATHS.solarToPowerwall} color={EMERALD_LED} dur={flowDur(battery)} />
         )}
+        {flows.has('solar-pw') && batteryCount >= 2 && (
+          <DottedFlow id="flow-solar-pw-2" d={BLUEPRINT_PATHS.solarToPowerwall2} color={EMERALD_LED} dur={flowDur(battery)} />
+        )}
         {flows.has('pw-home') && (
           <DottedFlow id="flow-pw-home" d={BLUEPRINT_PATHS.powerwallToHome} color={AMBER_LED} dur={flowDur(Math.abs(battery))} />
         )}
+        {flows.has('pw-home') && batteryCount >= 2 && (
+          <DottedFlow id="flow-pw-home-2" d={BLUEPRINT_PATHS.powerwall2ToHome} color={AMBER_LED} dur={flowDur(Math.abs(battery))} />
+        )}
+
         {flows.has('charger-ev') && (
           <DottedFlow id="flow-charger-ev" d={BLUEPRINT_PATHS.chargerToEv} color={EMERALD_LED} dur={flowDur(data.evPower ?? 7)} />
         )}
