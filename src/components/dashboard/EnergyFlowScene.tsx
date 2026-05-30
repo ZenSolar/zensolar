@@ -378,6 +378,8 @@ export interface EnergyFlowSceneProps {
   teslaPayload?: unknown;
   /** Kept for backwards-compat with v3 callers; unused in v4. */
   batteryPayload?: unknown;
+  /** Number of connected Powerwall units (1 or 2). Default 1. */
+  batteryCount?: number;
 }
 
 export function EnergyFlowScene({
@@ -387,7 +389,9 @@ export function EnergyFlowScene({
   vehicleModel,
   vehicleColor,
   teslaPayload,
+  batteryCount = 1,
 }: EnergyFlowSceneProps) {
+
   const scene = useMemo(() => forceScene ?? pickScene(data), [forceScene, data]);
   const hasTeslaConnection =
     Boolean(teslaPayload) || Boolean(data.tesla) || (data.evPower ?? 0) > 0.1;
