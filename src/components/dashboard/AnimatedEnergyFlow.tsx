@@ -680,15 +680,23 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
           fill="none" stroke={colors.battery}
           strokeWidth={batteryToHome > 0 ? 1 : 0.3} strokeOpacity={batteryToHome > 0 ? 0.25 : 0.06}
         />
-        {/* Discharge channel underglow — energizes the path itself, not just the dots */}
+        {/* Discharge channel underglow — wide pulsing green channel reads as "energized" */}
         {batteryToHome > 0.05 && (
-          <path
-            d={`M${nodes.battery.x + 25},${nodes.battery.y - 15} C${nodes.battery.x + 60},${nodes.battery.y - 50} ${nodes.home.x - 60},${nodes.home.y + 10} ${nodes.home.x - 30},${nodes.home.y}`}
-            fill="none" stroke={colors.battery} strokeWidth={6} strokeOpacity={0.18} strokeLinecap="round"
-            filter="url(#dotGlow)"
-          >
-            <animate attributeName="stroke-opacity" values="0.10;0.28;0.10" dur="2s" repeatCount="indefinite" />
-          </path>
+          <>
+            <path
+              d={`M${nodes.battery.x + 25},${nodes.battery.y - 15} C${nodes.battery.x + 60},${nodes.battery.y - 50} ${nodes.home.x - 60},${nodes.home.y + 10} ${nodes.home.x - 30},${nodes.home.y}`}
+              fill="none" stroke={colors.battery} strokeWidth={14} strokeOpacity={0.18} strokeLinecap="round"
+              filter="url(#dotGlow)"
+            >
+              <animate attributeName="stroke-opacity" values="0.10;0.30;0.10" dur="2s" repeatCount="indefinite" />
+            </path>
+            <path
+              d={`M${nodes.battery.x + 25},${nodes.battery.y - 15} C${nodes.battery.x + 60},${nodes.battery.y - 50} ${nodes.home.x - 60},${nodes.home.y + 10} ${nodes.home.x - 30},${nodes.home.y}`}
+              fill="none" stroke={colors.battery} strokeWidth={5} strokeOpacity={0.5} strokeLinecap="round"
+            >
+              <animate attributeName="stroke-opacity" values="0.35;0.7;0.35" dur="1.6s" repeatCount="indefinite" />
+            </path>
+          </>
         )}
         <path
           id="p-solar-grid"
