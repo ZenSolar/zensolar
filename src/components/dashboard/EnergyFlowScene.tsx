@@ -216,18 +216,20 @@ function FlowConduit({
 // scene variant.
 // ---------------------------------------------------------------------------
 const ANCHOR = {
-  solar: { x: 42, y: 30 },   // rooftop panel center
-  home:  { x: 60, y: 58 },   // front door / window hub
-  pw:    { x: 28, y: 65 },   // garage (Powerwall location)
-  grid:  { x: 92, y: 70 },   // utility pole / right edge of yard
-  ev:    { x: 32, y: 80 },   // driveway / car charge port
+  solar: { x: 43, y: 32 },      // center of active roof array
+  load:  { x: 61, y: 60 },      // home load center / lit windows
+  home:  { x: 61, y: 60 },
+  pw:    { x: 35, y: 64 },      // garage wall / Powerwall cabinet
+  grid:  { x: 88, y: 65 },      // utility meter / pole side
+  ev:    { x: 28, y: 75 },      // driveway charge-port zone
 } as const;
 
-const PATH_SOLAR_HOME = `M ${ANCHOR.solar.x} ${ANCHOR.solar.y} Q ${ANCHOR.solar.x + 4} ${(ANCHOR.solar.y + ANCHOR.home.y) / 2} ${ANCHOR.home.x} ${ANCHOR.home.y}`;
-const PATH_SOLAR_PW   = `M ${ANCHOR.solar.x} ${ANCHOR.solar.y} Q ${ANCHOR.pw.x + 4} ${ANCHOR.solar.y + 18} ${ANCHOR.pw.x} ${ANCHOR.pw.y}`;
-const PATH_PW_HOME    = `M ${ANCHOR.pw.x} ${ANCHOR.pw.y} Q ${(ANCHOR.pw.x + ANCHOR.home.x) / 2} ${ANCHOR.home.y + 2} ${ANCHOR.home.x} ${ANCHOR.home.y}`;
-const PATH_GRID_HOME  = `M ${ANCHOR.grid.x} ${ANCHOR.grid.y} Q ${(ANCHOR.grid.x + ANCHOR.home.x) / 2} ${ANCHOR.home.y + 4} ${ANCHOR.home.x + 4} ${ANCHOR.home.y + 2}`;
-const PATH_HOME_EV    = `M ${ANCHOR.home.x} ${ANCHOR.home.y} Q ${(ANCHOR.home.x + ANCHOR.ev.x) / 2} ${ANCHOR.ev.y - 4} ${ANCHOR.ev.x} ${ANCHOR.ev.y}`;
+const PATH_SOLAR_HOME = `M ${ANCHOR.solar.x} ${ANCHOR.solar.y} C 46 42 52 53 ${ANCHOR.load.x} ${ANCHOR.load.y}`;
+const PATH_SOLAR_PW   = `M ${ANCHOR.solar.x} ${ANCHOR.solar.y} C 39 43 36 53 ${ANCHOR.pw.x} ${ANCHOR.pw.y}`;
+const PATH_PW_HOME    = `M ${ANCHOR.pw.x} ${ANCHOR.pw.y} C 43 66 52 63 ${ANCHOR.load.x} ${ANCHOR.load.y}`;
+const PATH_GRID_HOME  = `M ${ANCHOR.grid.x} ${ANCHOR.grid.y} C 78 66 70 64 ${ANCHOR.load.x} ${ANCHOR.load.y}`;
+const PATH_HOME_GRID  = `M ${ANCHOR.load.x} ${ANCHOR.load.y} C 70 64 78 66 ${ANCHOR.grid.x} ${ANCHOR.grid.y}`;
+const PATH_HOME_EV    = `M ${ANCHOR.load.x} ${ANCHOR.load.y} C 52 66 41 72 ${ANCHOR.ev.x} ${ANCHOR.ev.y}`;
 
 const EMERALD = 'hsl(142 76% 55%)';
 const EMERALD_LED = 'hsl(142 90% 78%)';
