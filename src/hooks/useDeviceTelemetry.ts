@@ -56,7 +56,7 @@ export interface CachedTelemetry {
    * when the payload doesn't expose one. The Live cockpit MUST prefer this over
    * `cached_at` so the "Updated Nm ago" pill reflects reality, not cache writes.
    */
-  sample_at: string | null;
+  sample_at?: string | null;
   fresh: boolean;
 }
 
