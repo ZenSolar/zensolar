@@ -215,20 +215,20 @@ function FlowConduit({
 //   Driveway sits in front of the garage; Tesla parked there.
 // ---------------------------------------------------------------------------
 const ANCHOR = {
-  solar: { x: 50, y: 30 },   // roof panel array (center)
-  load:  { x: 62, y: 58 },   // lit windows / home load center
-  home:  { x: 62, y: 58 },
-  pw:    { x: 76, y: 62 },   // right wall — Powerwall cabinet
-  grid:  { x: 90, y: 66 },   // utility meter, far right
-  ev:    { x: 30, y: 78 },   // driveway in front of garage — charge port
+  solar: { x: 50, y: 32 },   // roof panel array (center, slightly lower so halo lands inside panels)
+  load:  { x: 68, y: 66 },   // lit-window cluster on the right side of the house
+  home:  { x: 68, y: 66 },
+  pw:    { x: 80, y: 68 },   // right wall — Powerwall cabinet
+  grid:  { x: 92, y: 70 },   // utility meter, far right baseline
+  ev:    { x: 28, y: 82 },   // driveway in front of garage — charge port
 } as const;
 
-const PATH_SOLAR_HOME = `M ${ANCHOR.solar.x} ${ANCHOR.solar.y} C 54 40 58 50 ${ANCHOR.load.x} ${ANCHOR.load.y}`;
-const PATH_SOLAR_PW   = `M ${ANCHOR.solar.x} ${ANCHOR.solar.y} C 62 40 72 52 ${ANCHOR.pw.x} ${ANCHOR.pw.y}`;
-const PATH_PW_HOME    = `M ${ANCHOR.pw.x} ${ANCHOR.pw.y} C 72 62 66 60 ${ANCHOR.load.x} ${ANCHOR.load.y}`;
-const PATH_GRID_HOME  = `M ${ANCHOR.grid.x} ${ANCHOR.grid.y} C 82 66 72 62 ${ANCHOR.load.x} ${ANCHOR.load.y}`;
-const PATH_HOME_GRID  = `M ${ANCHOR.load.x} ${ANCHOR.load.y} C 72 62 82 66 ${ANCHOR.grid.x} ${ANCHOR.grid.y}`;
-const PATH_HOME_EV    = `M ${ANCHOR.load.x} ${ANCHOR.load.y} C 52 66 40 74 ${ANCHOR.ev.x} ${ANCHOR.ev.y}`;
+const PATH_SOLAR_HOME = `M ${ANCHOR.solar.x} ${ANCHOR.solar.y} C 56 44 62 56 ${ANCHOR.load.x} ${ANCHOR.load.y}`;
+const PATH_SOLAR_PW   = `M ${ANCHOR.solar.x} ${ANCHOR.solar.y} C 64 42 76 56 ${ANCHOR.pw.x} ${ANCHOR.pw.y}`;
+const PATH_PW_HOME    = `M ${ANCHOR.pw.x} ${ANCHOR.pw.y} C 76 68 72 67 ${ANCHOR.load.x} ${ANCHOR.load.y}`;
+const PATH_GRID_HOME  = `M ${ANCHOR.grid.x} ${ANCHOR.grid.y} C 84 70 76 68 ${ANCHOR.load.x} ${ANCHOR.load.y}`;
+const PATH_HOME_GRID  = `M ${ANCHOR.load.x} ${ANCHOR.load.y} C 76 68 84 70 ${ANCHOR.grid.x} ${ANCHOR.grid.y}`;
+const PATH_HOME_EV    = `M ${ANCHOR.load.x} ${ANCHOR.load.y} C 56 72 42 80 ${ANCHOR.ev.x} ${ANCHOR.ev.y}`;
 
 const EMERALD = 'hsl(142 76% 55%)';
 const EMERALD_LED = 'hsl(142 90% 78%)';
@@ -255,7 +255,7 @@ function DeviceHalo({
   active,
   intensity = 1,
   radius = 7,
-  pulseMs = 2200,
+  pulseMs = 3000,
   strong = false,
 }: {
   cx: number;
@@ -270,35 +270,59 @@ function DeviceHalo({
   if (!active) return null;
   const i = Math.max(0.45, Math.min(1, intensity));
   return (
-    <g style={{ pointerEvents: 'none' }}>
-      <circle cx={cx} cy={cy} r={radius} fill={color} opacity={0.16 * i}>
-        <animate attributeName="r" values={`${radius * 0.85};${radius * 1.1};${radius * 0.85}`} dur={`${pulseMs}ms`} repeatCount="indefinite" />
-        <animate attributeName="opacity" values={`${0.10 * i};${0.24 * i};${0.10 * i}`} dur={`${pulseMs}ms`} repeatCount="indefinite" />
+    <g style={{ pointerEvents: 'none', filter: 'blur(0.9px)' }}>
+      <circle cx={cx} cy={cy} r={radius} fill={color} opacity={0.07 * i}>
+        <animate attributeName="r" values={`${radius * 0.88};${radius * 1.06};${radius * 0.88}`} dur={`${pulseMs}ms`} repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1" />
+        <animate attributeName="opacity" values={`${0.05 * i};${0.12 * i};${0.05 * i}`} dur={`${pulseMs}ms`} repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1" />
       </circle>
-      <circle cx={cx} cy={cy} r={radius * 0.5} fill={color} opacity={0.30 * i}>
-        <animate attributeName="opacity" values={`${0.20 * i};${0.42 * i};${0.20 * i}`} dur={`${pulseMs}ms`} repeatCount="indefinite" />
+      <circle cx={cx} cy={cy} r={radius * 0.5} fill={color} opacity={0.10 * i}>
+        <animate attributeName="opacity" values={`${0.07 * i};${strong ? 0.18 * i : 0.13 * i};${0.07 * i}`} dur={`${pulseMs}ms`} repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1" />
       </circle>
-      {strong && (
-        <circle cx={cx} cy={cy} r={radius * 0.3} fill="none" stroke={color} strokeWidth="0.5" opacity={0.85 * i}>
-          <animate attributeName="opacity" values={`${0.55 * i};${0.95 * i};${0.55 * i}`} dur={`${pulseMs}ms`} repeatCount="indefinite" />
-        </circle>
-      )}
     </g>
   );
 }
 
-/** Wide elliptical halo for the solar roof panel array. */
+/** Wide elliptical halo for the solar roof panel array — sits inside the panels. */
 function RoofHalo({ active, intensity }: { active: boolean; intensity: number }) {
   if (!active) return null;
   const i = Math.max(0.5, Math.min(1, intensity));
   return (
+    <g style={{ pointerEvents: 'none', filter: 'blur(1px)' }}>
+      <ellipse cx={ANCHOR.solar.x} cy={ANCHOR.solar.y} rx={13} ry={4.5} fill={EMERALD} opacity={0.07 * i}>
+        <animate attributeName="opacity" values={`${0.04 * i};${0.11 * i};${0.04 * i}`} dur="3000ms" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1" />
+      </ellipse>
+      <ellipse cx={ANCHOR.solar.x} cy={ANCHOR.solar.y} rx={8} ry={2.8} fill={EMERALD} opacity={0.12 * i}>
+        <animate attributeName="opacity" values={`${0.08 * i};${0.18 * i};${0.08 * i}`} dur="3000ms" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1" />
+      </ellipse>
+    </g>
+  );
+}
+
+/**
+ * Ultra-minimal flow: 1px guide path + 3 small dots traveling along it
+ * via <animateMotion>. Replaces the heavier FlowConduit for primary flows.
+ */
+function DottedFlow({
+  id,
+  d,
+  color,
+  dur = 1.8,
+}: {
+  id: string;
+  d: string;
+  color: string;
+  dur?: number;
+}) {
+  return (
     <g style={{ pointerEvents: 'none' }}>
-      <ellipse cx={50} cy={30} rx={22} ry={8} fill={EMERALD} opacity={0.14 * i}>
-        <animate attributeName="opacity" values={`${0.08 * i};${0.20 * i};${0.08 * i}`} dur="2400ms" repeatCount="indefinite" />
-      </ellipse>
-      <ellipse cx={50} cy={30} rx={14} ry={5} fill={EMERALD} opacity={0.26 * i}>
-        <animate attributeName="opacity" values={`${0.18 * i};${0.38 * i};${0.18 * i}`} dur="2400ms" repeatCount="indefinite" />
-      </ellipse>
+      <path id={id} d={d} stroke={color} strokeOpacity={0.18} strokeWidth={0.45} strokeLinecap="round" fill="none" />
+      {[0, 0.33, 0.66].map((offset) => (
+        <circle key={`${id}-${offset}`} r={0.85} fill={color} opacity={0.95}>
+          <animateMotion dur={`${dur}s`} repeatCount="indefinite" begin={`${offset * dur}s`} calcMode="linear" keyPoints="0;1" keyTimes="0;1">
+            <mpath href={`#${id}`} />
+          </animateMotion>
+        </circle>
+      ))}
     </g>
   );
 }
@@ -447,7 +471,7 @@ export function EnergyFlowScene({
         {/* ── Device halos (primary visual language) ── */}
         <RoofHalo active={solarProducing} intensity={intensity(solar)} />
         {/* Home windows — faint warm bloom when drawing */}
-        <DeviceHalo cx={ANCHOR.load.x} cy={ANCHOR.load.y} color={WARM} active={home > 0.05} intensity={intensity(home) * 0.7} radius={5} pulseMs={2800} />
+        <DeviceHalo cx={ANCHOR.load.x} cy={ANCHOR.load.y} color={WARM} active={home > 0.05} intensity={intensity(home) * 0.55} radius={3.4} pulseMs={3200} />
         {/* Powerwall */}
         <DeviceHalo
           cx={ANCHOR.pw.x}
@@ -455,8 +479,8 @@ export function EnergyFlowScene({
           color={pwCharging ? EMERALD : AMBER}
           active={pwCharging || pwDischarging}
           intensity={intensity(battery)}
-          radius={6}
-          pulseMs={pwCharging ? 2000 : 1700}
+          radius={4.5}
+          pulseMs={pwCharging ? 2800 : 2400}
           strong
         />
         {/* Grid meter */}
@@ -465,9 +489,9 @@ export function EnergyFlowScene({
           cy={ANCHOR.grid.y}
           color={gridExporting ? CYAN : SKY}
           active={gridImporting || gridExporting}
-          intensity={intensity(grid) * 0.75}
-          radius={4.5}
-          pulseMs={2400}
+          intensity={intensity(grid) * 0.7}
+          radius={3.8}
+          pulseMs={2800}
         />
         {/* EV charge port — strong when charging, faint static halo when plugged-idle */}
         <DeviceHalo
@@ -476,32 +500,32 @@ export function EnergyFlowScene({
           color={EMERALD}
           active={isCharging}
           intensity={intensity(data.evPower ?? 7)}
-          radius={5.5}
-          pulseMs={1800}
+          radius={4.2}
+          pulseMs={2400}
           strong
         />
         {isPluggedIdle && !isCharging && (
-          <circle cx={ANCHOR.ev.x} cy={ANCHOR.ev.y} r={3.2} fill={EMERALD} opacity={0.18} />
+          <circle cx={ANCHOR.ev.x} cy={ANCHOR.ev.y} r={2.4} fill={EMERALD} opacity={0.10} />
         )}
 
-        {/* ── At most 2 simplified flow lines ── */}
+        {/* ── At most 2 ultra-minimal dotted flow lines ── */}
         {flows.has('solar-home') && (
-          <FlowConduit id="flow-solar-home" active d={PATH_SOLAR_HOME} color={EMERALD} ledColor={EMERALD_LED} dur={flowDur(solar)} width={0.7} />
+          <DottedFlow id="flow-solar-home" d={PATH_SOLAR_HOME} color={EMERALD_LED} dur={flowDur(solar) * 1.3} />
         )}
         {flows.has('solar-pw') && (
-          <FlowConduit id="flow-solar-pw" active d={PATH_SOLAR_PW} color={EMERALD} ledColor={EMERALD_LED} dur={flowDur(battery)} width={0.7} />
+          <DottedFlow id="flow-solar-pw" d={PATH_SOLAR_PW} color={EMERALD_LED} dur={flowDur(battery) * 1.3} />
         )}
         {flows.has('pw-home') && (
-          <FlowConduit id="flow-pw-home" active d={PATH_PW_HOME} color={AMBER} ledColor={AMBER_LED} dur={flowDur(Math.abs(battery))} width={0.7} />
+          <DottedFlow id="flow-pw-home" d={PATH_PW_HOME} color={AMBER_LED} dur={flowDur(Math.abs(battery)) * 1.3} />
         )}
         {flows.has('home-ev') && (
-          <FlowConduit id="flow-home-ev" active d={PATH_HOME_EV} color={EMERALD} ledColor={EMERALD_LED} dur={flowDur(data.evPower ?? 7)} width={0.7} />
+          <DottedFlow id="flow-home-ev" d={PATH_HOME_EV} color={EMERALD_LED} dur={flowDur(data.evPower ?? 7) * 1.3} />
         )}
         {flows.has('home-grid') && (
-          <FlowConduit id="flow-home-grid" active d={PATH_HOME_GRID} color={CYAN} ledColor={CYAN_LED} dur={flowDur(Math.abs(grid))} width={0.7} />
+          <DottedFlow id="flow-home-grid" d={PATH_HOME_GRID} color={CYAN_LED} dur={flowDur(Math.abs(grid)) * 1.3} />
         )}
         {flows.has('grid-home') && (
-          <FlowConduit id="flow-grid-home" active d={PATH_GRID_HOME} color={SKY} ledColor={SKY_LED} dur={flowDur(grid)} width={0.7} />
+          <DottedFlow id="flow-grid-home" d={PATH_GRID_HOME} color={SKY_LED} dur={flowDur(grid) * 1.3} />
         )}
       </svg>
 
