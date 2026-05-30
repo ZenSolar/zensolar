@@ -705,12 +705,26 @@ export function LiveEnergyMonitoringCard() {
               <EnergyFlowScene
                 className="aspect-square w-full"
                 data={flowData}
-                teslaPayload={primaryEv?.oem === 'tesla' ? primaryEv?.payload : undefined}
+                teslaPayload={
+                  primaryEv?.oem === 'tesla'
+                    ? {
+                        ...((primaryEv?.payload as Record<string, unknown>) ?? {}),
+                        // Surface device-level identity so the resolver can infer
+                        // model/color even if vehicle_config isn't in the cached payload yet.
+                        device_name: primaryEv?.device_name,
+                        display_name:
+                          (primaryEv?.payload as any)?.display_name ?? primaryEv?.device_name,
+                        metadata: {
+                          ...(((primaryEv as any)?.metadata as Record<string, unknown>) ?? {}),
+                          device_name: primaryEv?.device_name,
+                          vin:
+                            (primaryEv as any)?.device_id ?? (primaryEv?.payload as any)?.vin,
+                        },
+                      }
+                    : undefined
+                }
                 batteryPayload={primaryBattery?.payload}
-                // Let EnergyFlowScene infer the model from telemetry (car_type → display_name → VIN).
-                // Only falls back to model3 inside resolveVehicleAsset when connected and nothing matches.
                 vehicleModel={null}
-                
               />
 
             </Suspense>
