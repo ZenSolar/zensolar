@@ -18,8 +18,8 @@ import { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { EnergyFlowData } from './AnimatedEnergyFlow';
 import {
-  VEHICLE_SRC,
-  resolveVehicleModel,
+  resolveVehicleAsset,
+  type VehicleColor,
   type VehicleModel,
 } from './EnergyFlowScene.scenes';
 
@@ -215,9 +215,11 @@ export interface EnergyFlowSceneProps {
   className?: string;
   /** Override scene selection — used by admin preview. */
   forceScene?: SceneKey;
-  /** Override vehicle selection — used by admin preview. */
+  /** Override vehicle model — used by admin preview. */
   vehicleModel?: VehicleModel | null;
-  /** Raw Tesla payload — used to auto-detect model when vehicleModel omitted. */
+  /** Override vehicle color — used by admin preview. */
+  vehicleColor?: VehicleColor | null;
+  /** Raw Tesla payload — used to auto-detect model + color when overrides omitted. */
   teslaPayload?: unknown;
 }
 
@@ -226,14 +228,19 @@ export function EnergyFlowScene({
   className,
   forceScene,
   vehicleModel,
+  vehicleColor,
   teslaPayload,
 }: EnergyFlowSceneProps) {
   const scene = useMemo(() => forceScene ?? pickScene(data), [forceScene, data]);
 
-  const resolvedVehicle: VehicleModel | null = useMemo(() => {
-    if (vehicleModel !== undefined) return vehicleModel;
-    return resolveVehicleModel(teslaPayload);
-  }, [vehicleModel, teslaPayload]);
+  const { model: resolvedVehicle, color: resolvedColor, src: vehicleSrc } = useMemo(
+    () =>
+      resolveVehicleAsset(teslaPayload, {
+        model: vehicleModel,
+        color: vehicleColor,
+      }),
+    [teslaPayload, vehicleModel, vehicleColor],
+  );
 
   const solar = data.solarPower ?? 0;
   const battery = data.batteryPower ?? 0;
@@ -251,6 +258,7 @@ export function EnergyFlowScene({
       className={`relative isolate aspect-square w-full overflow-hidden ${className ?? ''}`}
       data-scene={scene}
       data-vehicle={resolvedVehicle ?? 'none'}
+      data-vehicle-color={resolvedColor ?? 'none'}
     >
       {/* Ambient gradient floor with stronger depth */}
       <div
@@ -277,11 +285,11 @@ export function EnergyFlowScene({
       {/* Dramatic Powerwall → Home discharge conduit */}
       <DischargeConduit active={pwDischarging} />
 
-      {/* Dynamic Tesla vehicle in driveway */}
-      {resolvedVehicle && (
+      {/* Dynamic Tesla vehicle in driveway — exact model + color */}
+      {resolvedVehicle && vehicleSrc && (
         <AnimatePresence mode="sync">
           <motion.div
-            key={resolvedVehicle}
+            key={`${resolvedVehicle}-${resolvedColor ?? 'default'}`}
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
@@ -294,7 +302,7 @@ export function EnergyFlowScene({
               className="absolute inset-x-2 bottom-1 h-3 rounded-full bg-[radial-gradient(ellipse_at_center,hsl(220_70%_2%/0.7),transparent_70%)] blur-[2px]"
             />
             <img
-              src={VEHICLE_SRC[resolvedVehicle]}
+              src={vehicleSrc}
               alt=""
               aria-hidden="true"
               loading="lazy"
