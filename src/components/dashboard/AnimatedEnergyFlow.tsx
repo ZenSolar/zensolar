@@ -686,21 +686,21 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
           fill="none" stroke={colors.battery}
           strokeWidth={batteryToHome > 0 ? 1 : 0.3} strokeOpacity={batteryToHome > 0 ? 0.25 : 0.06}
         />
-        {/* Discharge channel underglow — wide pulsing green channel reads as "energized" */}
+        {/* Discharge channel underglow — wide pulsing amber channel reads as "energized" */}
         {batteryToHome > 0.05 && (
           <>
             <path
               d={`M${nodes.battery.x + 25},${nodes.battery.y - 15} C${nodes.battery.x + 60},${nodes.battery.y - 50} ${nodes.home.x - 60},${nodes.home.y + 10} ${nodes.home.x - 30},${nodes.home.y}`}
-              fill="none" stroke={colors.battery} strokeWidth={14} strokeOpacity={0.18} strokeLinecap="round"
+              fill="none" stroke="#F59E0B" strokeWidth={20} strokeOpacity={0.18} strokeLinecap="round"
               filter="url(#dotGlow)"
             >
-              <animate attributeName="stroke-opacity" values="0.10;0.30;0.10" dur="2s" repeatCount="indefinite" />
+              <animate attributeName="stroke-opacity" values="0.10;0.32;0.10" dur="2s" repeatCount="indefinite" />
             </path>
             <path
               d={`M${nodes.battery.x + 25},${nodes.battery.y - 15} C${nodes.battery.x + 60},${nodes.battery.y - 50} ${nodes.home.x - 60},${nodes.home.y + 10} ${nodes.home.x - 30},${nodes.home.y}`}
-              fill="none" stroke={colors.battery} strokeWidth={5} strokeOpacity={0.5} strokeLinecap="round"
+              fill="none" stroke="#F59E0B" strokeWidth={8} strokeOpacity={0.55} strokeLinecap="round"
             >
-              <animate attributeName="stroke-opacity" values="0.35;0.7;0.35" dur="1.6s" repeatCount="indefinite" />
+              <animate attributeName="stroke-opacity" values="0.4;0.8;0.4" dur="1.4s" repeatCount="indefinite" />
             </path>
           </>
         )}
@@ -718,22 +718,30 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
         />
         <path
           id="p-to-ev"
-          d={`M${nodes.home.x},${nodes.home.y + (compact ? 60 : 65)} C${nodes.home.x},${nodes.home.y + (compact ? 90 : 100)} ${nodes.ev.x},${nodes.ev.y - 55} ${nodes.ev.x},${nodes.ev.y - 25}`}
+          d={`M${nodes.home.x},${nodes.home.y + (compact ? 70 : 65)} C${nodes.home.x},${nodes.home.y + (compact ? 110 : 100)} ${nodes.ev.x},${nodes.ev.y - 70} ${nodes.ev.x},${nodes.ev.y - 25}`}
           fill="none" stroke={colors.ev}
           strokeWidth={solarToEV > 0 ? 1 : 0.3} strokeOpacity={solarToEV > 0 ? 0.25 : 0.06}
         />
 
         {/* ── Animated dots ── */}
-        <FlowingDots pathId="p-solar-home" color={colors.solar} power={solarToHome} dotCount={5} />
-        <FlowingDots pathId="p-solar-bat" color={colors.solar} power={solarToBattery} dotCount={4} />
+        <FlowingDots pathId="p-solar-home" color={colors.solar} power={solarToHome} dotCount={6} dotRadius={3.5} />
+        <FlowingDots pathId="p-solar-bat" color={colors.solar} power={solarToBattery} dotCount={5} dotRadius={3.2} />
         {batteryToHome > 0.05 && (
           <g data-flow="powerwall-home">
-            <FlowingDots pathId="p-bat-home" color={colors.battery} power={Math.max(batteryToHome * 1.4, 2.0)} dotCount={10} dotRadius={4.5} trailRadius={11} />
+            <FlowingDots
+              pathId="p-bat-home"
+              color="#F59E0B"
+              power={Math.max(batteryToHome * 2.5, 4.0)}
+              dotCount={12}
+              dotRadius={5}
+              trailRadius={13}
+              minCount={6}
+            />
           </g>
         )}
-        <FlowingDots pathId="p-grid-home" color={colors.grid} power={gridToHome} dotCount={4} />
-        <FlowingDots pathId="p-solar-grid" color={colors.grid} power={solarToGrid} dotCount={4} />
-        <FlowingDots pathId="p-to-ev" color={colors.ev} power={solarToEV} dotCount={4} />
+        <FlowingDots pathId="p-grid-home" color={colors.grid} power={gridToHome} dotCount={5} dotRadius={3.2} />
+        <FlowingDots pathId="p-solar-grid" color={colors.grid} power={solarToGrid} dotCount={5} dotRadius={3.2} />
+        <FlowingDots pathId="p-to-ev" color={colors.ev} power={solarToEV} dotCount={6} dotRadius={3.5} />
 
 
         {/* ── SOLAR ── */}
