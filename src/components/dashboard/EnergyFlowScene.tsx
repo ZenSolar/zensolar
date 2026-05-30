@@ -220,7 +220,7 @@ function DottedFlow({
   id,
   d,
   color,
-  dur = 1.8,
+  dur = 3.6,
 }: {
   id: string;
   d: string;
@@ -264,8 +264,9 @@ function DottedFlow({
   );
 }
 
-/** Faster crawl when more power is flowing. */
-const flowDur = (kw: number) => Math.max(0.9, 2.0 - Math.min(kw, 8) * 0.13);
+/** Slower, calmer crawl — premium pace. Even high-power flows take ≥2s. */
+const flowDur = (kw: number) => Math.max(2.0, 4.0 - Math.min(kw, 8) * 0.2);
+
 
 /**
  * Priority queue: returns the (max 2) flow IDs that should render as lines.
