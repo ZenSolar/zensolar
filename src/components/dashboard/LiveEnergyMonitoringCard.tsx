@@ -706,7 +706,10 @@ export function LiveEnergyMonitoringCard() {
                 className="aspect-square w-full"
                 data={flowData}
                 teslaPayload={primaryEv?.oem === 'tesla' ? primaryEv?.payload : undefined}
+                vehicleModel={primaryEv?.oem === 'tesla' ? 'model3' : null}
+                alwaysShowVehicle={primaryEv?.oem === 'tesla'}
               />
+
             </Suspense>
           </div>
 
