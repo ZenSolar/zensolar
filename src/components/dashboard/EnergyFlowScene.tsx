@@ -1,85 +1,302 @@
 /**
- * Live Energy Monitoring — ZenCasa-style scene renderer.
+ * EnergyFlowScene — ZenEnergy Monitoring Live card (v4, clean-slate rebuild).
  *
- * Replaces the legacy SVG `AnimatedEnergyFlow` for production use.
- * Strategy:
- *   - 7 pre-rendered isometric 3D house PNGs (one per energy state).
- *   - Optional Tesla vehicle PNG composited over the driveway, model-aware.
- *   - SVG overlay draws a dramatic glowing conduit when the Powerwall
- *     discharges into the home (Tesla ZenCasa "alive at night" feel).
- *   - Four floating labels (Solar / Home / Powerwall / Grid) overlay the
- *     image with hero-grade typography on Home kW.
+ * Architecture:
+ *   - 4 pre-rendered isometric 3D house PNGs (day/night/night-ev/rain). All
+ *     four share identical camera, scale, and feature positions so a single
+ *     HomeBlueprint locks every halo, dot, and dynamic-vehicle overlay.
+ *   - One SVG overlay aligned to the hero PNG's content box, hosting:
+ *       · DeviceHalo per device (primary visual language)
+ *       · Glowing-windows warm overlay when home is drawing power
+ *       · DottedFlow lines for at most 1–2 priority flows
+ *       · Dynamic Tesla as an SVG <image> anchored to the blueprint's
+ *         carPark coordinate — same coordinate space as halos, so it can
+ *         never drift relative to the house.
+ *   - Floating labels (Solar / Home / Powerwall / Grid) in card corners.
  *
- * Hero assets in src/assets/zencasa/ are AI-generated for v1 — they share an
- * asset slot (same names, same dimensions) so commissioned Blender renders
- * can be dropped in pre-launch without touching this file.
+ * Crossfade rules:
+ *   - EV charging at night → baked `house-night-ev.png` and the dynamic car
+ *     overlay is suppressed (the baked car is already in the garage).
+ *   - All other states → base `house-day.png` / `house-night.png` and the
+ *     dynamic car overlay parks in the driveway (only when telemetry tells
+ *     us a Tesla is actually connected).
+ *
+ * v3 archived to ./archive/EnergyFlowScene.v3.tsx.
  */
 import { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { EnergyFlowData } from './AnimatedEnergyFlow';
 import {
-  collectBatteryTelemetryDebug,
   resolveVehicleAsset,
   type VehicleColor,
   type VehicleModel,
 } from './EnergyFlowScene.scenes';
+import { HOME_BLUEPRINT, BLUEPRINT_PATHS } from './HomeBlueprint';
 
 import sceneDay from '@/assets/zencasa/house-day.png';
-import sceneDusk from '@/assets/zencasa/house-dusk.png';
 import sceneNight from '@/assets/zencasa/house-night.png';
 import sceneNightEv from '@/assets/zencasa/house-night-ev.png';
-import sceneNightPw from '@/assets/zencasa/house-night-pw-discharge.png';
-import sceneNightPwEv from '@/assets/zencasa/house-night-pw-discharge-ev.png';
-import sceneDayExport from '@/assets/zencasa/house-day-export.png';
+import sceneRain from '@/assets/zencasa/house-rain.png';
 
-export type SceneKey =
-  | 'day'
-  | 'dusk'
-  | 'night'
-  | 'night-ev'
-  | 'night-pw-discharge'
-  | 'night-pw-discharge-ev'
-  | 'day-export';
+export type SceneKey = 'day' | 'night' | 'night-ev' | 'rain';
 
 const SCENE_SRC: Record<SceneKey, string> = {
   day: sceneDay,
-  dusk: sceneDusk,
   night: sceneNight,
   'night-ev': sceneNightEv,
-  'night-pw-discharge': sceneNightPw,
-  'night-pw-discharge-ev': sceneNightPwEv,
-  'day-export': sceneDayExport,
+  rain: sceneRain,
 };
 
 /**
- * Pure scene-selection function — easy to unit-test.
+ * Pure scene-selection function.
  *
- * Note: the dynamically-overlaid Tesla render (model + color matched) is the
- * single source of truth for the vehicle, so this picker prefers base scenes
- * (no baked-in EV) whenever an overlay is available. The `*-ev` baked scenes
- * remain available as fallbacks when no overlay can be rendered.
+ * The dynamic vehicle overlay is preferred for every connected-car state
+ * except `night-ev` (which has a baked-in Tesla + green charge plug we
+ * cannot replicate at overlay quality).
  */
-export function pickScene(
-  d: EnergyFlowData,
-  now: Date = new Date(),
-): SceneKey {
+export function pickScene(d: EnergyFlowData, now: Date = new Date()): SceneKey {
   const solar = d.solarPower ?? 0;
-  const grid = d.gridPower ?? 0;
-  const battery = d.batteryPower ?? 0;
   const evCharging = (d.tesla?.isCharging ?? false) || (d.evPower ?? 0) > 0.1;
-  const pwDischarging = battery < -0.1;
-  const exporting = grid < -0.1;
   const sunUp = solar > 0.1;
+  const hour = now.getHours();
+  const isDayTime = hour >= 6 && hour < 19;
 
-  if (!sunUp && pwDischarging) return 'night-pw-discharge';
   if (!sunUp && evCharging) return 'night-ev';
-  if (sunUp && exporting) return 'day-export';
-  if (sunUp) {
-    const hour = now.getHours();
-    return hour >= 17 || hour < 6 ? 'dusk' : 'day';
-  }
-  return 'night';
+  if (!sunUp && !isDayTime) return 'night';
+  return 'day';
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Color tokens
+// ─────────────────────────────────────────────────────────────────────────────
+const EMERALD = 'hsl(142 76% 55%)';
+const EMERALD_LED = 'hsl(142 90% 78%)';
+const AMBER = 'hsl(38 95% 55%)';
+const AMBER_LED = 'hsl(45 100% 80%)';
+const SKY = 'hsl(205 90% 60%)';
+const SKY_LED = 'hsl(195 95% 80%)';
+const CYAN = 'hsl(180 85% 55%)';
+const CYAN_LED = 'hsl(180 95% 80%)';
+const WARM = 'hsl(38 90% 62%)';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Overlay primitives (all rendered inside one SVG, viewBox 0–100)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Soft pulsing radial halo anchored on the house art. This is the primary
+ * visual language — a device "lights up" when active so the scene reads at
+ * a glance even without any flow lines.
+ */
+function DeviceHalo({
+  cx,
+  cy,
+  color,
+  active,
+  intensity = 1,
+  radius = 7,
+  pulseMs = 3000,
+}: {
+  cx: number;
+  cy: number;
+  color: string;
+  active: boolean;
+  intensity?: number;
+  radius?: number;
+  pulseMs?: number;
+}) {
+  if (!active) return null;
+  const i = Math.max(0.5, Math.min(1, intensity));
+  return (
+    <g style={{ pointerEvents: 'none', filter: 'blur(0.9px)' }}>
+      <circle cx={cx} cy={cy} r={radius} fill={color} opacity={0.12 * i}>
+        <animate
+          attributeName="opacity"
+          values={`${0.08 * i};${0.15 * i};${0.08 * i}`}
+          dur={`${pulseMs}ms`}
+          repeatCount="indefinite"
+          calcMode="spline"
+          keySplines="0.4 0 0.6 1; 0.4 0 0.6 1"
+          keyTimes="0;0.5;1"
+        />
+        <animate
+          attributeName="r"
+          values={`${radius * 0.9};${radius * 1.05};${radius * 0.9}`}
+          dur={`${pulseMs}ms`}
+          repeatCount="indefinite"
+          calcMode="spline"
+          keySplines="0.4 0 0.6 1; 0.4 0 0.6 1"
+          keyTimes="0;0.5;1"
+        />
+      </circle>
+      <circle cx={cx} cy={cy} r={radius * 0.42} fill={color} opacity={0.22 * i}>
+        <animate
+          attributeName="opacity"
+          values={`${0.16 * i};${0.26 * i};${0.16 * i}`}
+          dur={`${pulseMs}ms`}
+          repeatCount="indefinite"
+          calcMode="spline"
+          keySplines="0.4 0 0.6 1; 0.4 0 0.6 1"
+          keyTimes="0;0.5;1"
+        />
+      </circle>
+    </g>
+  );
+}
+
+/** Wide elliptical halo sized to sit inside the solar roof panel array. */
+function RoofHalo({ active, intensity }: { active: boolean; intensity: number }) {
+  if (!active) return null;
+  const i = Math.max(0.5, Math.min(1, intensity));
+  return (
+    <g style={{ pointerEvents: 'none', filter: 'blur(1px)' }}>
+      <ellipse
+        cx={HOME_BLUEPRINT.solar.x}
+        cy={HOME_BLUEPRINT.solar.y}
+        rx={14}
+        ry={5}
+        fill={EMERALD}
+        opacity={0.10 * i}
+      >
+        <animate
+          attributeName="opacity"
+          values={`${0.06 * i};${0.15 * i};${0.06 * i}`}
+          dur="3200ms"
+          repeatCount="indefinite"
+        />
+      </ellipse>
+      <ellipse
+        cx={HOME_BLUEPRINT.solar.x}
+        cy={HOME_BLUEPRINT.solar.y}
+        rx={8}
+        ry={2.8}
+        fill={EMERALD}
+        opacity={0.18 * i}
+      >
+        <animate
+          attributeName="opacity"
+          values={`${0.12 * i};${0.24 * i};${0.12 * i}`}
+          dur="3200ms"
+          repeatCount="indefinite"
+        />
+      </ellipse>
+    </g>
+  );
+}
+
+/**
+ * Warm bloom over the lit-window cluster — sells "house is drawing power"
+ * without overpowering the scene.
+ */
+function WindowsBloom({ active, intensity }: { active: boolean; intensity: number }) {
+  if (!active) return null;
+  const i = Math.max(0.5, Math.min(1, intensity));
+  return (
+    <g style={{ pointerEvents: 'none', filter: 'blur(1.2px)' }}>
+      <ellipse
+        cx={HOME_BLUEPRINT.windows.x}
+        cy={HOME_BLUEPRINT.windows.y}
+        rx={6.5}
+        ry={4.2}
+        fill={WARM}
+        opacity={0.12 * i}
+      >
+        <animate
+          attributeName="opacity"
+          values={`${0.08 * i};${0.18 * i};${0.08 * i}`}
+          dur="6000ms"
+          repeatCount="indefinite"
+        />
+      </ellipse>
+    </g>
+  );
+}
+
+/**
+ * Ultra-minimal flow: faint guide path + 3 traveling dots that fade in at
+ * the source and fade out at the destination (no floating endpoint dots).
+ */
+function DottedFlow({
+  id,
+  d,
+  color,
+  dur = 1.8,
+}: {
+  id: string;
+  d: string;
+  color: string;
+  dur?: number;
+}) {
+  return (
+    <g style={{ pointerEvents: 'none' }}>
+      <path
+        id={id}
+        d={d}
+        stroke={color}
+        strokeOpacity={0.18}
+        strokeWidth={0.45}
+        strokeLinecap="round"
+        fill="none"
+      />
+      {[0, 0.33, 0.66].map((offset) => (
+        <circle key={`${id}-${offset}`} r={0.6} fill={color} opacity={0}>
+          <animateMotion
+            dur={`${dur}s`}
+            repeatCount="indefinite"
+            begin={`${offset * dur}s`}
+            calcMode="linear"
+            keyPoints="0;1"
+            keyTimes="0;1"
+          >
+            <mpath href={`#${id}`} />
+          </animateMotion>
+          <animate
+            attributeName="opacity"
+            values="0;0.95;0.95;0"
+            keyTimes="0;0.15;0.85;1"
+            dur={`${dur}s`}
+            repeatCount="indefinite"
+            begin={`${offset * dur}s`}
+          />
+        </circle>
+      ))}
+    </g>
+  );
+}
+
+/** Faster crawl when more power is flowing. */
+const flowDur = (kw: number) => Math.max(0.9, 2.0 - Math.min(kw, 8) * 0.13);
+
+/**
+ * Priority queue: returns the (max 2) flow IDs that should render as lines.
+ * Everything else is communicated via DeviceHalo alone — keeps the scene calm.
+ */
+type FlowId = 'solar-home' | 'solar-pw' | 'pw-home' | 'charger-ev' | 'home-grid' | 'grid-home';
+
+function pickPrimaryFlows(args: {
+  solarProducing: boolean;
+  pwCharging: boolean;
+  pwDischarging: boolean;
+  isCharging: boolean;
+  gridExporting: boolean;
+  gridImporting: boolean;
+}): Set<FlowId> {
+  const q: FlowId[] = [];
+  // Most important: where is solar going?
+  if (args.solarProducing && args.pwCharging) q.push('solar-pw');
+  if (args.solarProducing) q.push('solar-home');
+  if (!args.solarProducing && args.pwDischarging) q.push('pw-home');
+  // EV is its own important story
+  if (args.isCharging) q.push('charger-ev');
+  // Grid only if nothing else fits
+  if (args.gridExporting) q.push('home-grid');
+  else if (args.gridImporting) q.push('grid-home');
+  return new Set(q.slice(0, 2));
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Floating label (4 corners)
+// ─────────────────────────────────────────────────────────────────────────────
 
 function FlowLabel({
   position,
@@ -96,7 +313,6 @@ function FlowLabel({
   sub?: string;
   accent?: 'green' | 'amber' | 'blue' | 'muted';
   active?: boolean;
-  /** Hero typography (used for Home kW). */
   hero?: boolean;
 }) {
   const pos: Record<typeof position, string> = {
@@ -148,236 +364,9 @@ function FlowLabel({
   );
 }
 
-/**
- * Generic animated conduit with LED-crawl. Rendered inside the hero-aligned
- * overlay SVG (see SceneOverlay) so coordinates map to the actual house art,
- * not the card. Colors:
- *   - emerald → clean energy (solar producing, PW charging, EV charging)
- *   - amber   → Powerwall discharging
- *   - sky     → grid import
- *   - cyan    → grid export
- */
-function FlowConduit({
-  id,
-  active,
-  d,
-  color,
-  ledColor,
-  dur = 1.4,
-  width = 0.9,
-}: {
-  id: string;
-  active: boolean;
-  d: string;
-  color: string;
-  ledColor: string;
-  dur?: number;
-  width?: number;
-}) {
-  if (!active) return null;
-  return (
-    <g>
-      <path id={id} d={d} stroke={color} strokeOpacity="0.16" strokeWidth={width + 1.9} strokeLinecap="round" fill="none" />
-      <path d={d} stroke={color} strokeOpacity="0.86" strokeWidth={width} strokeLinecap="round" fill="none" />
-      <path
-        d={d}
-        stroke={ledColor}
-        strokeWidth={Math.max(0.4, width - 0.35)}
-        strokeLinecap="round"
-        fill="none"
-        strokeDasharray="1.2 5"
-        opacity="0.95"
-      >
-        <animate
-          attributeName="stroke-dashoffset"
-          from="0"
-          to="-25"
-          dur={`${dur}s`}
-          repeatCount="indefinite"
-        />
-      </path>
-      {[0, 0.45].map((begin) => (
-        <circle key={`${id}-${begin}`} r={Math.max(0.52, width * 0.62)} fill={ledColor} opacity="0" filter="url(#energyPacketGlow)">
-          <animateMotion dur={`${dur * 1.55}s`} repeatCount="indefinite" begin={`${begin * dur}s`} calcMode="linear">
-            <mpath href={`#${id}`} />
-          </animateMotion>
-          <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.12;0.82;1" dur={`${dur * 1.55}s`} repeatCount="indefinite" begin={`${begin * dur}s`} />
-        </circle>
-      ))}
-    </g>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Spatial blueprint — viewBox 0–100 mapped to the house PNG.
-//
-//   Garage (left)  →  House body (center)  →  Powerwall (right) → Grid (far right)
-//   Driveway sits in front of the garage; Tesla parked there.
-// ---------------------------------------------------------------------------
-const ANCHOR = {
-  solar: { x: 50, y: 32 },   // roof panel array (center)
-  load:  { x: 60, y: 62 },   // lit-window cluster on the front-right wall
-  home:  { x: 60, y: 62 },
-  pw:    { x: 80, y: 68 },   // right wall — Powerwall cabinet
-  grid:  { x: 82, y: 74 },   // utility post on right foundation edge (kept on-canvas)
-  ev:    { x: 18, y: 80 },   // garage driveway — charge-port side of parked car
-} as const;
-
-const PATH_SOLAR_HOME = `M ${ANCHOR.solar.x} ${ANCHOR.solar.y} C 52 46 56 56 ${ANCHOR.load.x} ${ANCHOR.load.y}`;
-const PATH_SOLAR_PW   = `M ${ANCHOR.solar.x} ${ANCHOR.solar.y} C 62 42 74 56 ${ANCHOR.pw.x} ${ANCHOR.pw.y}`;
-const PATH_PW_HOME    = `M ${ANCHOR.pw.x} ${ANCHOR.pw.y} C 74 66 66 64 ${ANCHOR.load.x} ${ANCHOR.load.y}`;
-const PATH_GRID_HOME  = `M ${ANCHOR.grid.x} ${ANCHOR.grid.y} C 78 72 68 66 ${ANCHOR.load.x} ${ANCHOR.load.y}`;
-const PATH_HOME_GRID  = `M ${ANCHOR.load.x} ${ANCHOR.load.y} C 68 66 78 72 ${ANCHOR.grid.x} ${ANCHOR.grid.y}`;
-const PATH_HOME_EV    = `M ${ANCHOR.load.x} ${ANCHOR.load.y} C 46 70 30 78 ${ANCHOR.ev.x} ${ANCHOR.ev.y}`;
-
-const EMERALD = 'hsl(142 76% 55%)';
-const EMERALD_LED = 'hsl(142 90% 78%)';
-const AMBER = 'hsl(38 95% 55%)';
-const AMBER_LED = 'hsl(45 100% 80%)';
-const SKY = 'hsl(205 90% 60%)';
-const SKY_LED = 'hsl(195 95% 80%)';
-const CYAN = 'hsl(180 85% 55%)';
-const CYAN_LED = 'hsl(180 95% 80%)';
-const WARM = 'hsl(38 90% 62%)';
-
-/** Faster crawl when more power is flowing. */
-const flowDur = (kw: number) => Math.max(0.7, 1.8 - Math.min(kw, 8) * 0.13);
-
-/**
- * Soft pulsing radial halo anchored on the house art. This is the primary
- * visual language: a device "lights up" when active, so the scene reads at a
- * glance even without any flow lines.
- */
-function DeviceHalo({
-  cx,
-  cy,
-  color,
-  active,
-  intensity = 1,
-  radius = 7,
-  pulseMs = 3000,
-  strong = false,
-}: {
-  cx: number;
-  cy: number;
-  color: string;
-  active: boolean;
-  intensity?: number;
-  radius?: number;
-  pulseMs?: number;
-  strong?: boolean;
-}) {
-  if (!active) return null;
-  const i = Math.max(0.45, Math.min(1, intensity));
-  return (
-    <g style={{ pointerEvents: 'none', filter: 'blur(0.9px)' }}>
-      <circle cx={cx} cy={cy} r={radius} fill={color} opacity={0.11 * i}>
-        <animate attributeName="r" values={`${radius * 0.88};${radius * 1.06};${radius * 0.88}`} dur={`${pulseMs}ms`} repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1" />
-        <animate attributeName="opacity" values={`${0.08 * i};${0.18 * i};${0.08 * i}`} dur={`${pulseMs}ms`} repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1" />
-      </circle>
-      <circle cx={cx} cy={cy} r={radius * 0.5} fill={color} opacity={0.14 * i}>
-        <animate attributeName="opacity" values={`${0.10 * i};${strong ? 0.26 * i : 0.20 * i};${0.10 * i}`} dur={`${pulseMs}ms`} repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1" />
-      </circle>
-    </g>
-  );
-}
-
-/** Wide elliptical halo for the solar roof panel array — sits inside the panels. */
-function RoofHalo({ active, intensity }: { active: boolean; intensity: number }) {
-  if (!active) return null;
-  const i = Math.max(0.5, Math.min(1, intensity));
-  return (
-    <g style={{ pointerEvents: 'none', filter: 'blur(1px)' }}>
-      <ellipse cx={ANCHOR.solar.x} cy={ANCHOR.solar.y} rx={13} ry={4.5} fill={EMERALD} opacity={0.10 * i}>
-        <animate attributeName="opacity" values={`${0.06 * i};${0.15 * i};${0.06 * i}`} dur="3000ms" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1" />
-      </ellipse>
-      <ellipse cx={ANCHOR.solar.x} cy={ANCHOR.solar.y} rx={8} ry={2.8} fill={EMERALD} opacity={0.16 * i}>
-        <animate attributeName="opacity" values={`${0.11 * i};${0.24 * i};${0.11 * i}`} dur="3000ms" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" keyTimes="0;0.5;1" />
-      </ellipse>
-    </g>
-  );
-}
-
-/**
- * Ultra-minimal flow: 1px guide path + 3 small dots traveling along it
- * via <animateMotion>. Replaces the heavier FlowConduit for primary flows.
- */
-function DottedFlow({
-  id,
-  d,
-  color,
-  dur = 1.8,
-}: {
-  id: string;
-  d: string;
-  color: string;
-  dur?: number;
-}) {
-  return (
-    <g style={{ pointerEvents: 'none' }}>
-      <path id={id} d={d} stroke={color} strokeOpacity={0.18} strokeWidth={0.45} strokeLinecap="round" fill="none" />
-      {[0, 0.33, 0.66].map((offset) => (
-        <circle key={`${id}-${offset}`} r={0.85} fill={color} opacity={0}>
-          <animateMotion dur={`${dur}s`} repeatCount="indefinite" begin={`${offset * dur}s`} calcMode="linear" keyPoints="0;1" keyTimes="0;1">
-            <mpath href={`#${id}`} />
-          </animateMotion>
-          <animate
-            attributeName="opacity"
-            values="0;0.95;0.95;0"
-            keyTimes="0;0.15;0.85;1"
-            dur={`${dur}s`}
-            repeatCount="indefinite"
-            begin={`${offset * dur}s`}
-          />
-        </circle>
-      ))}
-    </g>
-  );
-}
-
-/**
- * Priority queue: returns the (max 2) flow IDs that should render as lines.
- * Everything else is communicated via DeviceHalo alone — keeps the scene calm.
- */
-type FlowId = 'solar-home' | 'solar-pw' | 'pw-home' | 'home-ev' | 'home-grid' | 'grid-home';
-function pickPrimaryFlows(args: {
-  solarProducing: boolean;
-  pwCharging: boolean;
-  pwDischarging: boolean;
-  isCharging: boolean;
-  gridExporting: boolean;
-  gridImporting: boolean;
-}): Set<FlowId> {
-  const queue: FlowId[] = [];
-  if (args.solarProducing) queue.push('solar-home');
-  if (args.pwCharging) queue.push('solar-pw');
-  else if (args.pwDischarging) queue.push('pw-home');
-  if (args.isCharging) queue.push('home-ev');
-  if (args.gridExporting) queue.push('home-grid');
-  else if (args.gridImporting) queue.push('grid-home');
-  return new Set(queue.slice(0, 2));
-}
-
-function BatteryDebugPanel({ rows }: { rows: ReturnType<typeof collectBatteryTelemetryDebug> }) {
-  return (
-    <div className="pointer-events-none absolute inset-x-2 bottom-2 z-30 rounded-lg border border-primary/20 bg-background/80 p-2 text-[9px] shadow-[0_10px_28px_hsl(220_70%_3%/0.5)] backdrop-blur-md">
-      <div className="mb-1 flex items-center justify-between gap-2 font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-        <span>Powerwall debug</span>
-        <span className="normal-case tracking-normal text-primary">+ charging · − discharging</span>
-      </div>
-      <div className="grid grid-cols-[1.4fr_0.8fr_0.9fr_0.8fr] gap-x-2 gap-y-0.5 font-mono tabular-nums text-muted-foreground">
-        {rows.map((row) => (
-          <div key={row.key} className={`contents ${row.used ? 'text-foreground' : ''}`}>
-            <span className={`truncate ${row.used ? 'font-semibold text-primary' : ''}`}>{row.used ? '✓ ' : ''}{row.key}</span>
-            <span>{row.raw === null ? '—' : row.raw.toFixed(2)}</span>
-            <span>{row.renderedKw === null ? '—' : `${row.sign}${Math.abs(row.renderedKw).toFixed(2)} kW`}</span>
-            <span className={row.meaning === 'Charging' ? 'text-emerald-300' : row.meaning === 'Discharging' ? 'text-amber-300' : ''}>{row.meaning}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+// ─────────────────────────────────────────────────────────────────────────────
+// Main component
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface EnergyFlowSceneProps {
   data: EnergyFlowData;
@@ -386,6 +375,7 @@ export interface EnergyFlowSceneProps {
   vehicleModel?: VehicleModel | null;
   vehicleColor?: VehicleColor | null;
   teslaPayload?: unknown;
+  /** Kept for backwards-compat with v3 callers; unused in v4. */
   batteryPayload?: unknown;
 }
 
@@ -396,14 +386,23 @@ export function EnergyFlowScene({
   vehicleModel,
   vehicleColor,
   teslaPayload,
-  batteryPayload: _batteryPayload,
 }: EnergyFlowSceneProps) {
   const scene = useMemo(() => forceScene ?? pickScene(data), [forceScene, data]);
-  const hasTeslaConnection = Boolean(teslaPayload) || Boolean(data.tesla) || (data.evPower ?? 0) > 0.1;
+  const hasTeslaConnection =
+    Boolean(teslaPayload) || Boolean(data.tesla) || (data.evPower ?? 0) > 0.1;
 
-  const { model: resolvedVehicle, color: resolvedColor, src: vehicleSrc, generic: vehicleGeneric } = useMemo(
+  const {
+    model: resolvedVehicle,
+    color: resolvedColor,
+    src: vehicleSrc,
+    generic: vehicleGeneric,
+  } = useMemo(
     () =>
-      resolveVehicleAsset(teslaPayload, { model: vehicleModel, color: vehicleColor }, { fallbackWhenConnected: hasTeslaConnection }),
+      resolveVehicleAsset(
+        teslaPayload,
+        { model: vehicleModel, color: vehicleColor },
+        { fallbackWhenConnected: hasTeslaConnection },
+      ),
     [teslaPayload, vehicleModel, vehicleColor, hasTeslaConnection],
   );
 
@@ -419,15 +418,35 @@ export function EnergyFlowScene({
   const gridImporting = grid > 0.05;
   const gridExporting = grid < -0.05;
   const solarProducing = solar > 0.1;
+  const homeDrawing = home > 0.05;
 
   const flows = useMemo(
-    () => pickPrimaryFlows({ solarProducing, pwCharging, pwDischarging, isCharging, gridExporting, gridImporting }),
+    () =>
+      pickPrimaryFlows({
+        solarProducing,
+        pwCharging,
+        pwDischarging,
+        isCharging,
+        gridExporting,
+        gridImporting,
+      }),
     [solarProducing, pwCharging, pwDischarging, isCharging, gridExporting, gridImporting],
   );
 
   const fmtKw = (v: number) => `${Math.abs(v).toFixed(1)} kW`;
   const arrow = (v: number, threshold = 0.05) => (v > threshold ? '▲' : v < -threshold ? '▼' : '');
   const intensity = (kw: number) => Math.min(1, 0.55 + Math.abs(kw) / 6);
+
+  // Suppress dynamic car overlay when the baked night-ev art already shows
+  // a Tesla parked in the garage. This is the only scene that bakes a car in.
+  const showDynamicCar =
+    scene !== 'night-ev' && Boolean(vehicleSrc) && !vehicleGeneric;
+
+  // Car geometry in viewBox (0–100) space.
+  const carW = HOME_BLUEPRINT.carWidth;
+  const carH = HOME_BLUEPRINT.carHeight;
+  const carX = HOME_BLUEPRINT.carPark.x - carW / 2;
+  const carY = HOME_BLUEPRINT.carPark.y - carH / 2;
 
   return (
     <div
@@ -458,7 +477,9 @@ export function EnergyFlowScene({
         />
       </AnimatePresence>
 
-      {/* Hero-aligned overlay — halos + at most 2 flow lines */}
+      {/* Single hero-aligned overlay: halos + dotted flows + dynamic car.
+          Same layout classes as the hero <img>, so viewBox 0–100 maps 1:1
+          to the painted house. This is the only coordinate system. */}
       <svg
         aria-hidden="true"
         viewBox="0 0 100 100"
@@ -466,126 +487,129 @@ export function EnergyFlowScene({
         className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-[80%] w-auto max-w-[94%] -translate-y-1/2"
         style={{ aspectRatio: '1 / 1', zIndex: 15 }}
       >
-        <defs>
-          <filter id="energyPacketGlow" x="-80%" y="-80%" width="260%" height="260%">
-            <feGaussianBlur stdDeviation="1.5" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-
         {/* ── Device halos (primary visual language) ── */}
         <RoofHalo active={solarProducing} intensity={intensity(solar)} />
-        {/* Home windows — faint warm bloom when drawing */}
-        <DeviceHalo cx={ANCHOR.load.x} cy={ANCHOR.load.y} color={WARM} active={home > 0.05} intensity={intensity(home) * 0.55} radius={3.4} pulseMs={3200} />
-        {/* Powerwall */}
+        <WindowsBloom active={homeDrawing} intensity={intensity(home)} />
+
+        {/* Powerwall — emerald when charging, amber when discharging */}
         <DeviceHalo
-          cx={ANCHOR.pw.x}
-          cy={ANCHOR.pw.y}
+          cx={HOME_BLUEPRINT.powerwall.x}
+          cy={HOME_BLUEPRINT.powerwall.y}
           color={pwCharging ? EMERALD : AMBER}
           active={pwCharging || pwDischarging}
           intensity={intensity(battery)}
-          radius={4.5}
+          radius={4.6}
           pulseMs={pwCharging ? 2800 : 2400}
-          strong
         />
-        {/* Grid meter */}
+
+        {/* Grid meter — sky on import, cyan on export */}
         <DeviceHalo
-          cx={ANCHOR.grid.x}
-          cy={ANCHOR.grid.y}
+          cx={HOME_BLUEPRINT.gridMeter.x}
+          cy={HOME_BLUEPRINT.gridMeter.y}
           color={gridExporting ? CYAN : SKY}
           active={gridImporting || gridExporting}
-          intensity={intensity(grid) * 0.7}
-          radius={4.5}
+          intensity={intensity(grid) * 0.75}
+          radius={4.0}
           pulseMs={2800}
         />
-        {/* EV charge port — strong when charging, faint static halo when plugged-idle */}
+
+        {/* Wall connector (inside garage) — emerald when EV is charging */}
         <DeviceHalo
-          cx={ANCHOR.ev.x}
-          cy={ANCHOR.ev.y}
+          cx={HOME_BLUEPRINT.wallCharger.x}
+          cy={HOME_BLUEPRINT.wallCharger.y}
           color={EMERALD}
           active={isCharging}
           intensity={intensity(data.evPower ?? 7)}
           radius={4.2}
           pulseMs={2400}
-          strong
         />
-        {isPluggedIdle && !isCharging && (
-          <circle cx={ANCHOR.ev.x} cy={ANCHOR.ev.y} r={2.4} fill={EMERALD} opacity={0.10} />
+
+        {/* Tiny green plug LED on the parked car when plugged & idle */}
+        {isPluggedIdle && showDynamicCar && (
+          <circle
+            cx={HOME_BLUEPRINT.carPark.x + 6}
+            cy={HOME_BLUEPRINT.carPark.y - 2}
+            r={0.7}
+            fill={EMERALD}
+            opacity={0.85}
+          />
         )}
 
-        {/* ── At most 2 ultra-minimal dotted flow lines ── */}
+        {/* ── Max 2 ultra-minimal dotted flow lines ── */}
         {flows.has('solar-home') && (
-          <DottedFlow id="flow-solar-home" d={PATH_SOLAR_HOME} color={EMERALD_LED} dur={flowDur(solar) * 1.3} />
+          <DottedFlow id="flow-solar-home" d={BLUEPRINT_PATHS.solarToHome} color={EMERALD_LED} dur={flowDur(solar)} />
         )}
         {flows.has('solar-pw') && (
-          <DottedFlow id="flow-solar-pw" d={PATH_SOLAR_PW} color={EMERALD_LED} dur={flowDur(battery) * 1.3} />
+          <DottedFlow id="flow-solar-pw" d={BLUEPRINT_PATHS.solarToPowerwall} color={EMERALD_LED} dur={flowDur(battery)} />
         )}
         {flows.has('pw-home') && (
-          <DottedFlow id="flow-pw-home" d={PATH_PW_HOME} color={AMBER_LED} dur={flowDur(Math.abs(battery)) * 1.3} />
+          <DottedFlow id="flow-pw-home" d={BLUEPRINT_PATHS.powerwallToHome} color={AMBER_LED} dur={flowDur(Math.abs(battery))} />
         )}
-        {flows.has('home-ev') && (
-          <DottedFlow id="flow-home-ev" d={PATH_HOME_EV} color={EMERALD_LED} dur={flowDur(data.evPower ?? 7) * 1.3} />
+        {flows.has('charger-ev') && (
+          <DottedFlow id="flow-charger-ev" d={BLUEPRINT_PATHS.chargerToEv} color={EMERALD_LED} dur={flowDur(data.evPower ?? 7)} />
         )}
         {flows.has('home-grid') && (
-          <DottedFlow id="flow-home-grid" d={PATH_HOME_GRID} color={CYAN_LED} dur={flowDur(Math.abs(grid)) * 1.3} />
+          <DottedFlow id="flow-home-grid" d={BLUEPRINT_PATHS.homeToGrid} color={CYAN_LED} dur={flowDur(Math.abs(grid))} />
         )}
         {flows.has('grid-home') && (
-          <DottedFlow id="flow-grid-home" d={PATH_GRID_HOME} color={SKY_LED} dur={flowDur(grid) * 1.3} />
+          <DottedFlow id="flow-grid-home" d={BLUEPRINT_PATHS.gridToHome} color={SKY_LED} dur={flowDur(grid)} />
+        )}
+
+        {/* ── Dynamic Tesla, locked to the same coordinate system ── */}
+        {showDynamicCar && vehicleSrc && (
+          <g>
+            {/* Soft ground shadow */}
+            <ellipse
+              cx={HOME_BLUEPRINT.carPark.x}
+              cy={HOME_BLUEPRINT.carPark.y + carH * 0.42}
+              rx={carW * 0.42}
+              ry={1.4}
+              fill="hsl(220 70% 2%)"
+              opacity={0.5}
+              style={{ filter: 'blur(1.2px)' }}
+            />
+            <image
+              href={vehicleSrc}
+              x={carX}
+              y={carY}
+              width={carW}
+              height={carH}
+              preserveAspectRatio="xMidYMid meet"
+              style={{ filter: 'drop-shadow(0 1px 1.5px hsl(220 70% 2% / 0.6))' }}
+            />
+          </g>
         )}
       </svg>
 
-      {/* Dynamic Tesla vehicle — parked in driveway in front of garage */}
-      {vehicleSrc && !vehicleGeneric && (
-        <AnimatePresence mode="sync">
-          <motion.div
-            key={`${resolvedVehicle}-${resolvedColor ?? 'default'}`}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4, ease: 'easeOut' }}
-            className="pointer-events-none absolute bottom-[14%] left-[4%] z-[18] w-[28%]"
-          >
-            <div
-              aria-hidden="true"
-              className="absolute inset-x-2 bottom-1 h-3 rounded-full bg-[radial-gradient(ellipse_at_center,hsl(220_70%_2%/0.7),transparent_70%)] blur-[2px]"
-            />
-            <img
-              src={vehicleSrc}
-              alt=""
-              aria-hidden="true"
-              loading="lazy"
-              className="relative h-auto w-full select-none object-contain drop-shadow-[0_14px_22px_hsl(220_70%_3%/0.6)]"
-              draggable={false}
-            />
-            {isPluggedIdle && (
-              <span
-                aria-hidden="true"
-                className="absolute right-[10%] top-1/2 inline-flex h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-emerald-400/70 shadow-[0_0_8px_2px_hsla(142,76%,55%,0.45)]"
-              />
-            )}
-            {isCharging && (
-              <span
-                aria-hidden="true"
-                className="absolute right-[10%] top-1/2 inline-flex h-2 w-2 -translate-y-1/2 rounded-full bg-emerald-400 shadow-[0_0_16px_4px_hsla(142,76%,55%,0.8)]"
-              >
-                <span className="absolute inset-0 inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-80" />
-              </span>
-            )}
-          </motion.div>
-        </AnimatePresence>
-      )}
-
       {/* Floating labels */}
-      <FlowLabel position="tl" label="Solar" value={fmtKw(solar)} sub={solarProducing ? 'Producing' : 'Idle'} accent="green" active={solarProducing} />
-      <FlowLabel position="tr" label="Home" value={fmtKw(home)} sub={home > 0.05 ? 'Drawing' : 'Idle'} accent={home > 0.05 ? 'green' : 'muted'} active={home > 0.05} hero />
+      <FlowLabel
+        position="tl"
+        label="Solar"
+        value={fmtKw(solar)}
+        sub={solarProducing ? 'Producing' : 'Idle'}
+        accent="green"
+        active={solarProducing}
+      />
+      <FlowLabel
+        position="tr"
+        label="Home"
+        value={fmtKw(home)}
+        sub={homeDrawing ? 'Drawing' : 'Idle'}
+        accent={homeDrawing ? 'green' : 'muted'}
+        active={homeDrawing}
+        hero
+      />
       <FlowLabel
         position="bl"
         label="Powerwall"
         value={`${fmtKw(battery)} ${arrow(battery)}`.trim()}
-        sub={pwCharging ? `${soc}% · Charging` : pwDischarging ? `${soc}% · Discharging` : `${soc}% · ${soc >= 99 ? 'Full' : 'Idle'}`}
+        sub={
+          pwCharging
+            ? `${soc}% · Charging`
+            : pwDischarging
+              ? `${soc}% · Discharging`
+              : `${soc}% · ${soc >= 99 ? 'Full' : 'Idle'}`
+        }
         accent={pwCharging ? 'green' : pwDischarging ? 'amber' : 'muted'}
         active={Math.abs(battery) > 0.05}
       />
@@ -600,4 +624,3 @@ export function EnergyFlowScene({
     </div>
   );
 }
-
