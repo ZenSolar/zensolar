@@ -157,3 +157,34 @@ describe('AnimatedEnergyFlow → Powerwall SVG node', () => {
     expect(container.textContent).toContain('State pending');
   });
 });
+
+describe('batterySnapshot → Tesla Fleet API sign convention', () => {
+  // Tesla's /energy_sites/{id}/live_status uses positive=discharging.
+  // batterySnapshot must invert to our internal +charging convention.
+  const teslaCached = (battery_power: number, soc = 100) => ({
+    oem: 'tesla' as const,
+    capability: 'battery' as const,
+    site_id: 'site-1',
+    device_name: 'Powerwall',
+    payload: { battery_power, percentage_charged: soc, total_pack_energy: 13500 },
+    cached_at: new Date().toISOString(),
+    fresh: true,
+  });
+
+  it('Tesla payload with battery_power=800 (W) → powerKw=-0.8, Discharging', () => {
+    const snap = batterySnapshot(teslaCached(800, 100));
+    expect(snap.powerKw).toBeCloseTo(-0.8, 2);
+    expect(snap.status).toBe('Discharging');
+  });
+
+  it('Tesla payload with battery_power=-1200 (W) → powerKw=+1.2, Charging', () => {
+    const snap = batterySnapshot(teslaCached(-1200, 64));
+    expect(snap.powerKw).toBeCloseTo(1.2, 2);
+    expect(snap.status).toBe('Charging');
+  });
+
+  it('Tesla idle (battery_power=0) → Idle', () => {
+    const snap = batterySnapshot(teslaCached(0, 100));
+    expect(snap.status).toBe('Idle');
+  });
+});
