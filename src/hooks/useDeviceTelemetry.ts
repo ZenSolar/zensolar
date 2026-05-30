@@ -183,10 +183,17 @@ function hasCanonicalTelemetryShape(payload: any, capability: Capability): boole
       payload?.energy_sites?.[0]?.percentage_charged != null
     );
   }
-  return (
+  // EV: require vehicle_config so the Live scene can render the exact model + color.
+  // Older cached payloads without vehicle_config are treated as stale to force a
+  // fresh fetch via the upgraded tesla-data edge function.
+  const hasCoreCharge =
     (payload.battery_level != null && payload.odometer != null) ||
-    payload?.response?.charge_state != null
-  );
+    payload?.response?.charge_state != null;
+  const hasVehicleConfig =
+    payload?.vehicle_config != null ||
+    payload?.response?.vehicle_config != null ||
+    payload?.vehicles?.[0]?.vehicle_config != null;
+  return hasCoreCharge && hasVehicleConfig;
 }
 
 function useTelemetry(capability: Capability) {
