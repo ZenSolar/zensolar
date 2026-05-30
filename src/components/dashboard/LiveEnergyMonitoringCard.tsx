@@ -93,6 +93,20 @@ function reconcileEnergyFlow(input: {
   };
 }
 
+const LIVE_HOME_LAST_KNOWN_KEY = 'zen:live:lastKnownHomeKw';
+
+function readLastKnownHomeKw(): number | null {
+  if (typeof window === 'undefined') return null;
+  const raw = window.localStorage.getItem(LIVE_HOME_LAST_KNOWN_KEY);
+  const n = raw === null ? NaN : Number(raw);
+  return Number.isFinite(n) && n > 0.05 ? n : null;
+}
+
+function rememberLastKnownHomeKw(v: number | null) {
+  if (typeof window === 'undefined' || v === null || v <= 0.05) return;
+  window.localStorage.setItem(LIVE_HOME_LAST_KNOWN_KEY, String(Math.min(20, v)));
+}
+
 function formatAge(iso: string | null) {
   if (!iso) return 'Sync pending';
   const secs = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
