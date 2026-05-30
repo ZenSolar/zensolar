@@ -754,12 +754,12 @@ export function AnimatedEnergyFlow({ data, className, showHeader = true }: Anima
           <text x={nodes.solar.x} y={nodes.solar.y - (compact ? 11 : 15)} textAnchor="middle" fill="#6b7280" fontSize={compact ? 5.5 : 6.5} fontWeight="500" letterSpacing="0.6">enphase</text>
         </g>
 
-        {/* ── HOME ── centered in house body, large hero number */}
-        <g style={{ filter: 'drop-shadow(0 0 10px rgba(0,0,0,0.85))' }}>
-          <text x={nodes.home.x} y={compact ? 222 : 250} textAnchor="middle" fill="white" fontSize={homeFs} fontWeight="800" style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.5px' }}>
-            {flow.homePower.toFixed(1)}<tspan fontSize={compact ? 13 : 15} fontWeight="600" fill="#cbd5e1" dx={3}>kW</tspan>
+        {/* ── HOME ── floating hero number with strong shadow halo for AMOLED legibility */}
+        <g style={{ filter: 'drop-shadow(0 0 14px rgba(0,0,0,0.95)) drop-shadow(0 2px 4px rgba(0,0,0,0.9))' }}>
+          <text x={nodes.home.x} y={compact ? 208 : 250} textAnchor="middle" fill="white" fontSize={homeFs} fontWeight="800" style={{ fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.5px' }}>
+            {flow.homePower.toFixed(1)}<tspan fontSize={compact ? 15 : 15} fontWeight="600" fill="#cbd5e1" dx={3}>kW</tspan>
           </text>
-          <text x={nodes.home.x} y={compact ? 236 : 266} textAnchor="middle" fill="#9ca3af" fontSize={labelFs} fontWeight="600" letterSpacing="2">HOME</text>
+          <text x={nodes.home.x} y={compact ? 224 : 266} textAnchor="middle" fill="#cbd5e1" fontSize={labelFs} fontWeight="600" letterSpacing="2.5">HOME</text>
         </g>
 
         {/* ── POWERWALL ── kWh stored is the primary number; kW is contextual */}
