@@ -149,9 +149,10 @@ function FlowLabel({
 }
 
 /**
- * Generic animated conduit with LED-crawl. Used for every directional
- * energy flow in the scene. Colors are kept consistent across the app:
- *   - emerald → clean energy production / charging (solar, PW charging, EV charging)
+ * Generic animated conduit with LED-crawl. Rendered inside the hero-aligned
+ * overlay SVG (see SceneOverlay) so coordinates map to the actual house art,
+ * not the card. Colors:
+ *   - emerald → clean energy (solar producing, PW charging, EV charging)
  *   - amber   → Powerwall discharging
  *   - sky     → grid import
  *   - cyan    → grid export
@@ -160,75 +161,65 @@ function FlowConduit({
   active,
   d,
   color,
-  edgeColor,
   ledColor,
   dur = 1.4,
   reverse = false,
-  width = 2,
-  zIndex = 15,
+  width = 0.9,
 }: {
   active: boolean;
   d: string;
   color: string;
-  edgeColor: string;
   ledColor: string;
   dur?: number;
   reverse?: boolean;
   width?: number;
-  zIndex?: number;
 }) {
   if (!active) return null;
   return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 100 100"
-      preserveAspectRatio="none"
-      className="pointer-events-none absolute inset-0 h-full w-full"
-      style={{ zIndex }}
-    >
-      <defs>
-        <filter id={`glow-${d.length}-${color.length}`} x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="1.2" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-      </defs>
-      <path d={d} stroke={edgeColor} strokeOpacity="0.22" strokeWidth={width + 3} strokeLinecap="round" fill="none" />
+    <g>
+      <path d={d} stroke={color} strokeOpacity="0.18" strokeWidth={width + 1.4} strokeLinecap="round" fill="none" />
       <path d={d} stroke={color} strokeOpacity="0.85" strokeWidth={width} strokeLinecap="round" fill="none" />
       <path
         d={d}
         stroke={ledColor}
-        strokeWidth={Math.max(1, width - 0.6)}
+        strokeWidth={Math.max(0.4, width - 0.35)}
         strokeLinecap="round"
         fill="none"
-        strokeDasharray="3 12"
+        strokeDasharray="1.2 5"
         opacity="0.95"
       >
         <animate
           attributeName="stroke-dashoffset"
-          from={reverse ? '-30' : '0'}
-          to={reverse ? '0' : '-30'}
+          from={reverse ? '-25' : '0'}
+          to={reverse ? '0' : '-25'}
           dur={`${dur}s`}
           repeatCount="indefinite"
         />
       </path>
-    </svg>
+    </g>
   );
 }
 
-// Anchor points (viewBox 0–100):
-//   Solar (rooftop center)  : 50, 22
-//   Home  (center hub)      : 55, 50
-//   Powerwall (lower-left)  : 20, 76
-//   Grid  (right edge)      : 92, 46
-//   EV    (driveway car)    : 35, 82
-const PATH_SOLAR_HOME = 'M 50 22 Q 53 36 55 50';
-const PATH_SOLAR_PW = 'M 50 22 Q 32 48 22 74';
-const PATH_PW_HOME = 'M 22 76 Q 38 66 55 52';
-const PATH_GRID_HOME = 'M 90 46 Q 75 49 56 50';
-const PATH_HOME_EV = 'M 55 52 Q 46 68 36 80';
+// ---------------------------------------------------------------------------
+// Anchor system — viewBox 0–100 mapped to the actual house PNG (1024×1024).
+// Hero image renders centered at h-[80%] w-[80%] within the square card, and
+// the overlay SVG mirrors those constraints with preserveAspectRatio meet, so
+// these coordinates land on the real roof / garage / driveway across every
+// scene variant.
+// ---------------------------------------------------------------------------
+const ANCHOR = {
+  solar: { x: 42, y: 30 },   // rooftop panel center
+  home:  { x: 60, y: 58 },   // front door / window hub
+  pw:    { x: 28, y: 65 },   // garage (Powerwall location)
+  grid:  { x: 92, y: 70 },   // utility pole / right edge of yard
+  ev:    { x: 32, y: 80 },   // driveway / car charge port
+} as const;
+
+const PATH_SOLAR_HOME = `M ${ANCHOR.solar.x} ${ANCHOR.solar.y} Q ${ANCHOR.solar.x + 4} ${(ANCHOR.solar.y + ANCHOR.home.y) / 2} ${ANCHOR.home.x} ${ANCHOR.home.y}`;
+const PATH_SOLAR_PW   = `M ${ANCHOR.solar.x} ${ANCHOR.solar.y} Q ${ANCHOR.pw.x + 4} ${ANCHOR.solar.y + 18} ${ANCHOR.pw.x} ${ANCHOR.pw.y}`;
+const PATH_PW_HOME    = `M ${ANCHOR.pw.x} ${ANCHOR.pw.y} Q ${(ANCHOR.pw.x + ANCHOR.home.x) / 2} ${ANCHOR.home.y + 2} ${ANCHOR.home.x} ${ANCHOR.home.y}`;
+const PATH_GRID_HOME  = `M ${ANCHOR.grid.x} ${ANCHOR.grid.y} Q ${(ANCHOR.grid.x + ANCHOR.home.x) / 2} ${ANCHOR.home.y + 4} ${ANCHOR.home.x + 4} ${ANCHOR.home.y + 2}`;
+const PATH_HOME_EV    = `M ${ANCHOR.home.x} ${ANCHOR.home.y} Q ${(ANCHOR.home.x + ANCHOR.ev.x) / 2} ${ANCHOR.ev.y - 4} ${ANCHOR.ev.x} ${ANCHOR.ev.y}`;
 
 const EMERALD = 'hsl(142 76% 55%)';
 const EMERALD_LED = 'hsl(142 90% 78%)';
@@ -238,6 +229,9 @@ const SKY = 'hsl(205 90% 60%)';
 const SKY_LED = 'hsl(195 95% 80%)';
 const CYAN = 'hsl(180 85% 55%)';
 const CYAN_LED = 'hsl(180 95% 80%)';
+
+/** Faster crawl when more power is flowing. */
+const flowDur = (kw: number) => Math.max(0.7, 1.8 - Math.min(kw, 8) * 0.13);
 
 function BatteryDebugPanel({ rows }: { rows: ReturnType<typeof collectBatteryTelemetryDebug> }) {
   return (
