@@ -149,26 +149,45 @@ function FlowLabel({
 }
 
 /**
- * SVG overlay drawing a wide glowing amber conduit from the Powerwall
- * (lower-left of the house) to the home (center-right). Animated LED-crawl
- * along the path when the Powerwall is actively discharging.
+ * Generic animated conduit with LED-crawl. Used for every directional
+ * energy flow in the scene. Colors are kept consistent across the app:
+ *   - emerald → clean energy production / charging (solar, PW charging, EV charging)
+ *   - amber   → Powerwall discharging
+ *   - sky     → grid import
+ *   - cyan    → grid export
  */
-function DischargeConduit({ active }: { active: boolean }) {
+function FlowConduit({
+  active,
+  d,
+  color,
+  edgeColor,
+  ledColor,
+  dur = 1.4,
+  reverse = false,
+  width = 2,
+  zIndex = 15,
+}: {
+  active: boolean;
+  d: string;
+  color: string;
+  edgeColor: string;
+  ledColor: string;
+  dur?: number;
+  reverse?: boolean;
+  width?: number;
+  zIndex?: number;
+}) {
   if (!active) return null;
   return (
     <svg
       aria-hidden="true"
       viewBox="0 0 100 100"
       preserveAspectRatio="none"
-      className="pointer-events-none absolute inset-0 z-[15] h-full w-full"
+      className="pointer-events-none absolute inset-0 h-full w-full"
+      style={{ zIndex }}
     >
       <defs>
-        <linearGradient id="dischargeGradient" x1="0%" y1="100%" x2="100%" y2="50%">
-          <stop offset="0%" stopColor="hsl(38 95% 55%)" stopOpacity="0.95" />
-          <stop offset="50%" stopColor="hsl(45 100% 65%)" stopOpacity="0.85" />
-          <stop offset="100%" stopColor="hsl(142 76% 55%)" stopOpacity="0.7" />
-        </linearGradient>
-        <filter id="dischargeGlow" x="-50%" y="-50%" width="200%" height="200%">
+        <filter id={`glow-${d.length}-${color.length}`} x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="1.2" result="blur" />
           <feMerge>
             <feMergeNode in="blur" />
@@ -176,30 +195,12 @@ function DischargeConduit({ active }: { active: boolean }) {
           </feMerge>
         </filter>
       </defs>
-      {/* Wide outer glow */}
+      <path d={d} stroke={edgeColor} strokeOpacity="0.22" strokeWidth={width + 3} strokeLinecap="round" fill="none" />
+      <path d={d} stroke={color} strokeOpacity="0.85" strokeWidth={width} strokeLinecap="round" fill="none" />
       <path
-        d="M 18 78 Q 38 70 55 60"
-        stroke="hsl(38 95% 55%)"
-        strokeOpacity="0.22"
-        strokeWidth="5"
-        strokeLinecap="round"
-        fill="none"
-        filter="url(#dischargeGlow)"
-      />
-      {/* Main conduit */}
-      <path
-        d="M 18 78 Q 38 70 55 60"
-        stroke="url(#dischargeGradient)"
-        strokeWidth="2"
-        strokeLinecap="round"
-        fill="none"
-        filter="url(#dischargeGlow)"
-      />
-      {/* LED crawl */}
-      <path
-        d="M 18 78 Q 38 70 55 60"
-        stroke="hsl(45 100% 80%)"
-        strokeWidth="1.3"
+        d={d}
+        stroke={ledColor}
+        strokeWidth={Math.max(1, width - 0.6)}
         strokeLinecap="round"
         fill="none"
         strokeDasharray="3 12"
@@ -207,15 +208,36 @@ function DischargeConduit({ active }: { active: boolean }) {
       >
         <animate
           attributeName="stroke-dashoffset"
-          from="0"
-          to="-30"
-          dur="1.4s"
+          from={reverse ? '-30' : '0'}
+          to={reverse ? '0' : '-30'}
+          dur={`${dur}s`}
           repeatCount="indefinite"
         />
       </path>
     </svg>
   );
 }
+
+// Anchor points (viewBox 0–100):
+//   Solar (rooftop center)  : 50, 22
+//   Home  (center hub)      : 55, 50
+//   Powerwall (lower-left)  : 20, 76
+//   Grid  (right edge)      : 92, 46
+//   EV    (driveway car)    : 35, 82
+const PATH_SOLAR_HOME = 'M 50 22 Q 53 36 55 50';
+const PATH_SOLAR_PW = 'M 50 22 Q 32 48 22 74';
+const PATH_PW_HOME = 'M 22 76 Q 38 66 55 52';
+const PATH_GRID_HOME = 'M 90 46 Q 75 49 56 50';
+const PATH_HOME_EV = 'M 55 52 Q 46 68 36 80';
+
+const EMERALD = 'hsl(142 76% 55%)';
+const EMERALD_LED = 'hsl(142 90% 78%)';
+const AMBER = 'hsl(38 95% 55%)';
+const AMBER_LED = 'hsl(45 100% 80%)';
+const SKY = 'hsl(205 90% 60%)';
+const SKY_LED = 'hsl(195 95% 80%)';
+const CYAN = 'hsl(180 85% 55%)';
+const CYAN_LED = 'hsl(180 95% 80%)';
 
 function BatteryDebugPanel({ rows }: { rows: ReturnType<typeof collectBatteryTelemetryDebug> }) {
   return (
@@ -265,7 +287,7 @@ export function EnergyFlowScene({
   const scene = useMemo(() => forceScene ?? pickScene(data), [forceScene, data]);
   const hasTeslaConnection = Boolean(teslaPayload) || Boolean(data.tesla) || (data.evPower ?? 0) > 0.1;
 
-  const { model: resolvedVehicle, color: resolvedColor, src: vehicleSrc } = useMemo(
+  const { model: resolvedVehicle, color: resolvedColor, src: vehicleSrc, generic: vehicleGeneric } = useMemo(
     () =>
       resolveVehicleAsset(teslaPayload, {
         model: vehicleModel,
@@ -275,11 +297,17 @@ export function EnergyFlowScene({
   );
 
   const solar = data.solarPower ?? 0;
+  const home = data.homePower ?? 0;
   const battery = data.batteryPower ?? 0;
   const grid = data.gridPower ?? 0;
   const soc = Math.round(data.batteryPercent ?? 0);
   const isCharging = data.tesla?.isCharging ?? false;
+  const isPluggedIdle = hasTeslaConnection && !isCharging;
   const pwDischarging = battery < -0.05;
+  const pwCharging = battery > 0.05;
+  const gridImporting = grid > 0.05;
+  const gridExporting = grid < -0.05;
+  const solarProducing = solar > 0.1;
   const batteryDebugRows = useMemo(
     () => collectBatteryTelemetryDebug(batteryPayload, battery),
     [batteryPayload, battery],
@@ -293,7 +321,7 @@ export function EnergyFlowScene({
     <div
       className={`relative isolate aspect-square w-full overflow-hidden ${className ?? ''}`}
       data-scene={scene}
-      data-vehicle={resolvedVehicle ?? 'none'}
+      data-vehicle={resolvedVehicle ?? (vehicleGeneric ? 'generic' : 'none')}
       data-vehicle-color={resolvedColor ?? 'none'}
     >
       {/* Ambient gradient floor with stronger depth */}
@@ -318,14 +346,25 @@ export function EnergyFlowScene({
         />
       </AnimatePresence>
 
-      {/* Dramatic Powerwall → Home discharge conduit */}
-      <DischargeConduit active={pwDischarging} />
+      {/* Directional energy-flow conduits — consistent color language */}
+      {/* Solar → Home (green) */}
+      <FlowConduit active={solarProducing && home > 0.05} d={PATH_SOLAR_HOME} color={EMERALD} edgeColor={EMERALD} ledColor={EMERALD_LED} />
+      {/* Solar → Powerwall (green, when PW is charging from production) */}
+      <FlowConduit active={solarProducing && pwCharging} d={PATH_SOLAR_PW} color={EMERALD} edgeColor={EMERALD} ledColor={EMERALD_LED} />
+      {/* Powerwall → Home (amber) when discharging */}
+      <FlowConduit active={pwDischarging} d={PATH_PW_HOME} color={AMBER} edgeColor={AMBER} ledColor={AMBER_LED} />
+      {/* Grid → Home (sky) when importing */}
+      <FlowConduit active={gridImporting} d={PATH_GRID_HOME} color={SKY} edgeColor={SKY} ledColor={SKY_LED} />
+      {/* Home → Grid (cyan) when exporting — reverse LED direction */}
+      <FlowConduit active={gridExporting} d={PATH_GRID_HOME} color={CYAN} edgeColor={CYAN} ledColor={CYAN_LED} reverse />
+      {/* Home → EV (green) when Tesla actively charging */}
+      <FlowConduit active={isCharging} d={PATH_HOME_EV} color={EMERALD} edgeColor={EMERALD} ledColor={EMERALD_LED} />
 
-      {/* Dynamic Tesla vehicle in driveway — exact model + color */}
-      {resolvedVehicle && vehicleSrc && (
+      {/* Dynamic Tesla vehicle in driveway — exact model + color, or generic silhouette */}
+      {vehicleSrc && (
         <AnimatePresence mode="sync">
           <motion.div
-            key={`${resolvedVehicle}-${resolvedColor ?? 'default'}`}
+            key={`${resolvedVehicle ?? 'generic'}-${resolvedColor ?? 'default'}`}
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
@@ -342,9 +381,16 @@ export function EnergyFlowScene({
               alt=""
               aria-hidden="true"
               loading="lazy"
-              className="relative h-auto w-full select-none object-contain drop-shadow-[0_14px_22px_hsl(220_70%_3%/0.6)]"
+              className={`relative h-auto w-full select-none object-contain drop-shadow-[0_14px_22px_hsl(220_70%_3%/0.6)] ${vehicleGeneric ? 'opacity-70 [filter:grayscale(0.85)_brightness(0.95)]' : ''}`}
               draggable={false}
             />
+            {/* Plugged-but-idle: subtle steady cable indicator (no pulse) */}
+            {isPluggedIdle && (
+              <span
+                aria-hidden="true"
+                className="absolute right-[10%] top-1/2 inline-flex h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-emerald-400/70 shadow-[0_0_8px_2px_hsla(142,76%,55%,0.45)]"
+              />
+            )}
             {/* Charge-port glow when actively charging */}
             {isCharging && (
               <span
@@ -364,7 +410,7 @@ export function EnergyFlowScene({
         label="Solar"
         value={fmtKw(solar)}
         sub={solar > 0.1 ? 'Producing' : 'Idle'}
-        accent="amber"
+        accent="green"
         active={solar > 0.1}
       />
       <FlowLabel
