@@ -217,6 +217,7 @@ const EnergyInsightsPage = lazy(() => import("./pages/energy-insights/Insights")
 const AdminCoffeePitch = lazy(() => import("./pages/AdminCoffeePitch"));
 const AdminInvestorPitch = lazy(() => import("./pages/AdminInvestorPitch"));
 const DeckPinGated = lazy(() => import("./pages/DeckPinGated"));
+const Investor = lazy(() => import("./pages/Investor"));
 const HeroTest = lazy(() => import("./pages/HeroTest"));
 
 const Blog = lazy(() => import("./pages/Blog"));
