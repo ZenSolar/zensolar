@@ -143,7 +143,7 @@ export function ProofOfGenesisThesis() {
         <CardHeader className="px-5 pt-5 pb-3 sm:px-6 sm:pt-6">
           <CardTitle className="text-[17px] sm:text-xl flex items-center gap-2 leading-tight">
             <Shield className="h-4.5 w-4.5 text-primary shrink-0" />
-            Bitcoin vs $ZSOLAR
+            Bitcoin vs ZenSolar
           </CardTitle>
           <p className="text-[12px] text-muted-foreground mt-1">Head to head, axis by axis.</p>
         </CardHeader>
@@ -174,7 +174,7 @@ export function ProofOfGenesisThesis() {
                     <div className="flex items-center gap-1.5 mb-1">
                       <Sparkles className="h-3 w-3 text-primary shrink-0" />
                       <span className="text-[9.5px] font-bold uppercase tracking-[0.15em] text-primary">
-                        $ZSOLAR
+                        ZenSolar
                       </span>
                     </div>
                     <p className="text-[13.5px] leading-snug text-foreground font-medium">
@@ -201,7 +201,7 @@ export function ProofOfGenesisThesis() {
               <div className="bg-primary/10 px-4 py-3 flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-primary" />
                 <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-primary">
-                  $ZSOLAR
+                  ZenSolar
                 </span>
               </div>
               {COMPARISON_ROWS.map((row) => (

@@ -1,13 +1,23 @@
-## Bump NDA TTL from 24 hours to 23 days
+## Narrative Restructure: Bitcoin vs ZenSolar
 
-### Goal
-After an investor enters their PIN and signs the NDA on `/investor`, both the PIN unlock and the NDA signature should remain valid for the same 23-day window. Currently the PIN lasts 23 days but the NDA expires after 24 hours, causing a re-auth loop on reload.
+Swap the comparison card from ticker framing ($ZSOLAR) to brand framing (ZenSolar) while keeping $ZSOLAR everywhere else.
 
-### Changes
-1. **`src/lib/reviewerAccess.ts`**
-   - Line 42: change `24 * 60 * 60 * 1000` (24h) to `23 * 24 * 60 * 60 * 1000` (23d).
+### What changes
 
-2. **`src/pages/DwightPreview.tsx`**
-   - Line 25: update the inline comment from "24h TTL" to "23-day TTL".
+**File: `src/components/tokenomics/ProofOfGenesisThesis.tsx`**
 
-No other logic changes needed.
+| Location | Current | New |
+|---|---|---|
+| Card title (line ~146) | `Bitcoin vs $ZSOLAR` | `Bitcoin vs ZenSolar` |
+| Mobile table label (line ~177) | `$ZSOLAR` | `ZenSolar` |
+| Desktop table header (line ~204) | `$ZSOLAR` | `ZenSolar` |
+
+**What stays as `$ZSOLAR`**
+- Body text: "Why $ZSOLAR has a credible path…" (line ~114), thesis paragraphs, bar-chart labels ($ZSOLAR · floor/stretch target), and all tokenomics math references.
+- Every other page in the app — no global find/replace.
+
+**Already correct**
+- `src/pages/FoundersProofOfGenesis.tsx` already reads "Bitcoin vs ZenSolar — Side by Side".
+
+### Why this scope
+The user chose brand-vs-brand for the *comparison narrative* only. The $ZSOLAR ticker remains the canonical token symbol everywhere else.
