@@ -443,3 +443,28 @@ function json(body: unknown, status = 200) {
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 }
+
+function buildTexasSystemAddendum(ctx: { esid: string | null; state_code: string | null; utility_name: string | null }): string {
+  const tdu = inferTduFromEsid(ctx.esid);
+  return `TEXAS / ERCOT CONTEXT (the homeowner is in a deregulated market):
+- State: TX. ${ctx.esid ? `ESID on file: ${ctx.esid}.` : "ESID not provided — ask if needed."}
+- REP (retailer): ${ctx.utility_name ?? "unknown"}.
+- TDU (poles & wires, set by ESID): ${tdu ?? "infer from bill / ESID prefix"}.
+- The bill will have SEPARATE energy charges (REP) and delivery charges (TDU). Call this out explicitly.
+- Solar buyback / net-metering is per-REP in TX, NOT statewide. Common patterns: 1:1 export plans (Rhythm Rise, Octopus, Chariot), avoided-cost only (TXU, Reliant default), surplus-credit (Green Mountain). Name the plan if visible.
+- Rate-plan optimization should compare specifically against PowerToChoose.org plans available for this TDU territory.
+- TDU delivery charges are passed through verbatim by every REP — switching REP cannot change them.
+- Always tag any TX-specific recommendation with "(TX-specific)" so the homeowner knows the assumption.`;
+}
+
+function inferTduFromEsid(esid: string | null): string | null {
+  if (!esid) return null;
+  const digits = esid.replace(/\D/g, "");
+  if (digits.length < 5) return null;
+  if (digits.startsWith("10089")) return "Oncor";
+  if (digits.startsWith("10204")) return "CenterPoint";
+  if (digits.startsWith("1044372")) return "AEP Texas Central";
+  if (digits.startsWith("10404")) return "AEP Texas North";
+  if (digits.startsWith("1017699")) return "TNMP";
+  return null;
+}
