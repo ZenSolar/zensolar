@@ -935,34 +935,10 @@ const App = () => {
                         </ProtectedRoute>
                       } 
                     />
-                    <Route 
-                      path="/admin/investor-one-pager" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminInvestorOnePager />
-                      </AppLayout>
-                    </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin/investor-pitch" 
-                      element={
-                        <ProtectedRoute>
-                          <AdminInvestorPitch />
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin/coffee-pitch" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminCoffeePitch />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
+                    {/* Legacy investor pitch routes — superseded by /investor/pitch. Redirect for any bookmarked links. */}
+                    <Route path="/admin/investor-one-pager" element={<Navigate to="/investor/pitch" replace />} />
+                    <Route path="/admin/investor-pitch" element={<Navigate to="/investor/pitch" replace />} />
+                    <Route path="/admin/coffee-pitch" element={<Navigate to="/investor/pitch" replace />} />
                     <Route 
                       path="/admin/cost-savings" 
                       element={
