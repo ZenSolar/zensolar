@@ -356,13 +356,6 @@ function UnlockedPanel({
           internal
         />
         <UnlockedCard
-          icon={Presentation}
-          title="Seed Pitch Deck"
-          body="12-slide visual deck mirroring the seed pitch."
-          to="/founders/seed-pitch-companion-deck"
-          internal
-        />
-        <UnlockedCard
           icon={FileText}
           title="Full Seed Pitch"
           body="Catalyst, flywheel, moat, capital plan, milestones."
