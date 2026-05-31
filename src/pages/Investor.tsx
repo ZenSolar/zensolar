@@ -18,6 +18,10 @@ import { NdaSignatureStep } from '@/components/demo/NdaSignatureStep';
 import { supabase } from '@/integrations/supabase/client';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { toast } from 'sonner';
+import {
+  InvestorPinGate,
+  readInvestorUnlocked,
+} from '@/components/investor/InvestorPinGate';
 
 const ACCESS_CODE = 'INVESTOR_LANDING';
 const NDA_EMAIL_KEY = 'zen_nda_email';
