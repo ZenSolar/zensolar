@@ -309,6 +309,7 @@ const App = () => {
                     <Route path="/unsubscribe" element={<Suspense fallback={<PageLoader />}><Unsubscribe /></Suspense>} />
                    <Route path="/install" element={<Install />} />
                    <Route path="/deck" element={<Suspense fallback={<PageLoader />}><DeckPinGated /></Suspense>} />
+                   <Route path="/investor" element={<Suspense fallback={<PageLoader />}><Investor /></Suspense>} />
                     <Route path="/hero-test" element={<Suspense fallback={<PageLoader />}><HeroTest /></Suspense>} />
                     
                     <Route path="/dwight-preview" element={<DwightPreview />} />
