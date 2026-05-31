@@ -334,6 +334,7 @@ function UnlockedPanel({
   onResend: () => void;
 }) {
   const firstName = signed.fullName.split(' ')[0] || 'there';
+  const demoHref = isPreviewHost() ? '/demo-leonardo' : '/demo';
   return (
     <div id="unlocked" className="space-y-6">
       <div className="rounded-3xl border border-secondary/30 bg-secondary/5 p-6 md:p-8">
@@ -376,7 +377,7 @@ function UnlockedPanel({
           icon={PlayCircle}
           title="Live Investor Demo"
           body="Tap-to-Mint™ flow on real data. Mobile-first."
-          to="/demo"
+          to={demoHref}
           internal
         />
         <UnlockedCard
@@ -417,7 +418,7 @@ function UnlockedPanel({
           Email me these links again
         </Button>
         <Button asChild className="flex-1 h-11 bg-secondary text-secondary-foreground hover:bg-secondary/90">
-          <Link to="/demo">
+          <Link to={demoHref}>
             <PlayCircle className="h-4 w-4 mr-2" />
             Enter live demo
           </Link>
