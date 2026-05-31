@@ -475,6 +475,19 @@ function buildTexasSystemAddendum(ctx: { esid: string | null; state_code: string
 - TDU delivery charges are passed through verbatim by every REP — switching REP cannot change them.
 - Always tag any TX-specific recommendation with "(TX-specific)" so the homeowner knows the assumption.`;
 }
+function buildFinancingAddendum(financingType: string): string {
+  const map: Record<string, string> = {
+    cash: "The homeowner OWNS the system outright (cash purchase). No loan APR, no PPA escalator, no lease buyout. ROI math should be straight payback on the cash outlay.",
+    loan: "The system is FINANCED through a solar loan. Look for APR, term, dealer fees, ACH discount, and balloon payments. ROI must factor true loan cost vs. cash savings.",
+    ppa: "This is a PPA (Power Purchase Agreement). The homeowner does NOT own the system — they buy the power per kWh from a third party. Focus on $/kWh rate, escalator, term length, transfer terms on home sale, and end-of-term buyout/removal options.",
+    lease: "This is a LEASE. The homeowner does NOT own the system. Look for monthly lease payment, escalator, term length, transfer terms, and end-of-term options.",
+    other: "The homeowner has a non-standard financing arrangement. Ask clarifying questions before quoting ROI.",
+    unsure: "The homeowner is not sure of the financing type. Treat ROI numbers as ranges and add a 'verify your contract' note.",
+  };
+  const note = map[financingType] ?? map.other;
+  return `FINANCING CONTEXT (confirmed by the homeowner): ${note}`;
+}
+
 
 function inferTduFromEsid(esid: string | null): string | null {
   if (!esid) return null;
