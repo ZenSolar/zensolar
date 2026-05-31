@@ -73,8 +73,13 @@ const UNLOCKS = [
 ];
 
 export default function Investor() {
+  const [pinUnlocked, setPinUnlocked] = useState<boolean>(() => readInvestorUnlocked());
   const [signed, setSigned] = useState<SignedState | null>(() => readSigned());
   const ndaRef = useRef<HTMLDivElement>(null);
+
+  if (!pinUnlocked) {
+    return <InvestorPinGate onUnlocked={() => setPinUnlocked(true)} />;
+  }
 
   // Recheck server-side if local cache is empty.
   useEffect(() => {
