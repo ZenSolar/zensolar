@@ -231,7 +231,7 @@ Deno.serve(async (req) => {
           ? admin.from("deason_doc_analyses").select("report, narrative").eq("user_id", user.id).eq("thread_id", threadId).order("created_at", { ascending: false }).limit(1).maybeSingle()
           : Promise.resolve({ data: null }),
         admin.from("deason_monthly_reports").select("period_month, dollars_saved, narrative, structured_report").eq("user_id", user.id).order("period_month", { ascending: false }).limit(1).maybeSingle(),
-        admin.from("deason_documents").select("kind, label, uploaded_at").eq("user_id", user.id).order("uploaded_at", { ascending: false }).limit(20),
+        admin.from("deason_documents").select("kind, label, uploaded_at, financing_type").eq("user_id", user.id).order("uploaded_at", { ascending: false }).limit(20),
         admin.from("deason_progression").select("level, points, streak_months, total_saved_usd, months_completed").eq("user_id", user.id).maybeSingle(),
         admin.from("profiles").select("esid, state_code, utility_name").eq("user_id", user.id).maybeSingle(),
       ]);
