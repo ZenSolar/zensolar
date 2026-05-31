@@ -161,6 +161,19 @@ export function DeasonHub({ onStartChat }: Props) {
           utility_name: profileCtx.utility_name ?? undefined,
         }}
       />
+
+      <FinancingTypeClarifier
+        open={clarifyOpen}
+        onOpenChange={setClarifyOpen}
+        target={clarifyTarget}
+        onSaved={(choice) => {
+          toast({
+            title: "Got it — thanks!",
+            description: `Deason will treat future analyses as a ${choice.toUpperCase()} install.`,
+          });
+          void refresh();
+        }}
+      />
     </div>
   );
 }
