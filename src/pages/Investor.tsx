@@ -418,7 +418,7 @@ function UnlockedPanel({
           Email me these links again
         </Button>
         <Button asChild className="flex-1 h-11 bg-secondary text-secondary-foreground hover:bg-secondary/90">
-          <Link to="/demo">
+          <Link to={demoHref}>
             <PlayCircle className="h-4 w-4 mr-2" />
             Enter live demo
           </Link>
