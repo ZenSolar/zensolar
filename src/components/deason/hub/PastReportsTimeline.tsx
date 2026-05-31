@@ -1,10 +1,23 @@
 import { useMemo, useState } from "react";
-import { Calendar, Filter, FileText } from "lucide-react";
+import { Calendar, Filter, FileText, ChevronRight } from "lucide-react";
 import type { MonthlyReport, LibraryDoc } from "@/hooks/useDeasonHub";
+
+/** Resolves the chat thread href used for "ask Deason about this report". */
+export function threadHrefForReport(reportId: string): string {
+  return `/deason?reportId=${encodeURIComponent(reportId)}`;
+}
+
+export interface DocumentLinkContext {
+  doc: LibraryDoc;
+  report: MonthlyReport | null;
+  threadHref: string | null;
+}
 
 interface Props {
   reports: MonthlyReport[];
   library: LibraryDoc[];
+  /** Fired when the user clicks a document under a report row. */
+  onOpenDocument?: (ctx: DocumentLinkContext) => void;
 }
 
 type RangeKey = "all" | "3m" | "6m" | "12m";
