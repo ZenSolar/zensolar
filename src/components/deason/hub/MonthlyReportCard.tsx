@@ -20,8 +20,8 @@ export function MonthlyReportCard({ report }: { report: MonthlyReport | null }) 
   }
 
   const monthLabel = new Date(report.period_month).toLocaleString(undefined, { month: "long", year: "numeric" });
-  const preview = report.structured_report?.preview as EnergyReportPreview | undefined;
-  const full = report.structured_report?.full as EnergyReportFull | undefined;
+  const preview = report.structured_report?.preview as unknown as EnergyReportPreview | undefined;
+  const full = report.structured_report?.full as unknown as EnergyReportFull | undefined;
 
   return (
     <div className="rounded-2xl border border-border bg-card p-4">
