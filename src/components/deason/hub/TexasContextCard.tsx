@@ -14,6 +14,7 @@ export interface TexasContext {
  */
 export function TexasContextCard({ ctx, onEdit }: { ctx: TexasContext; onEdit?: () => void }) {
   const isTexas = ctx.state_code === "TX" || !!ctx.esid;
+  const [assumptionsOpen, setAssumptionsOpen] = useState(false);
   if (!isTexas) return null;
 
   const tdu = inferTduFromEsid(ctx.esid);
