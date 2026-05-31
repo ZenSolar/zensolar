@@ -1,24 +1,23 @@
-## Plan
+I understand the problem now: in mobile Chrome inside Lovable Preview, you enter `/investor`, but the page still behaves like a locked NDA page. The “You’ll unlock” rows appear, but tapping them does not open the pages because the app is not treating `lovable.dev` Preview correctly and/or the locked-section links still point at gated destinations.
 
-I understand the issue now: in Lovable Preview mode, `/investor` itself opens, but the investor materials still act as if the NDA/access flow blocks the buttons.
+Plan:
 
-## Fix
+1. **Fix Preview detection for your exact phone URL**
+   - Update the preview-host helper so `lovable.dev` and Lovable Preview iframe hosts are consistently treated as Preview.
+   - This is the root mismatch visible in your video: the address bar is `lovable.dev`, but the investor page is still rendering the locked NDA flow.
 
-1. **Treat Preview mode as already NDA-unlocked on `/investor`**
-   - Keep the real published site unchanged.
-   - In Lovable Preview/dev only, synthesize the signed NDA state immediately so the page renders the unlocked materials panel instead of the locked CTA flow.
+2. **Force `/investor` to be unlocked only in Preview/dev**
+   - In Preview, initialize the investor PIN and NDA state as already unlocked.
+   - On production/custom domains, keep the real PIN + NDA behavior unchanged.
 
-2. **Make investor buttons route to preview-safe pages**
-   - Investor Pitch → `/investor/pitch`
-   - Demo → preview-safe demo route such as `/demo-leonardo` instead of the gated `/demo`
-   - Tokenomics → the correct existing tokenomics page route
-   - Founder/seed materials → existing internal route where available
+3. **Make the visible investor rows tappable in Preview**
+   - For the “You’ll unlock” rows, use real links in Preview mode.
+   - Route “Live Investor Demo” to `/demo-leonardo` in Preview instead of gated `/demo`.
+   - Keep production behavior locked unless the NDA is actually completed.
 
-3. **Remove Preview friction only**
-   - No backend changes.
-   - No change to published/custom-domain behavior.
-   - No real NDA bypass for public users.
+4. **Add one small Preview-only visual cue**
+   - Show a subtle “Preview unlocked” cue on `/investor` only when running in Lovable Preview/dev, so you can tell immediately that the developer bypass is active.
 
-4. **Verify the mobile Preview behavior**
-   - On `/investor`, the unlocked section should show in Preview mode.
-   - Tapping the cards/buttons should navigate to their content without requiring an NDA, PIN, or access code.
+5. **Verify against the mobile Preview case**
+   - Check that `/investor` on a 393px-wide mobile viewport shows unlocked/tappable materials without requiring the NDA.
+   - Confirm production/custom domains are not changed.
