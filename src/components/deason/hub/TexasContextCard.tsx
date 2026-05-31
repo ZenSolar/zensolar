@@ -108,6 +108,42 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
+function AssumptionRow({
+  field,
+  used,
+  usedFor,
+  fallback,
+}: {
+  field: string;
+  used: string | null;
+  usedFor: string;
+  fallback: string;
+}) {
+  const present = !!used;
+  return (
+    <div className="rounded-md bg-background/60 px-2 py-1.5">
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-medium text-foreground">{field}</span>
+        <span
+          className={`rounded px-1.5 py-0.5 text-[10px] ${
+            present ? "bg-amber-500/15 text-amber-500" : "bg-muted text-muted-foreground"
+          }`}
+        >
+          {present ? "Used" : "Missing"}
+        </span>
+      </div>
+      <div className="mt-1 text-[11px]">
+        <span className="text-foreground/80">Used for:</span> {usedFor}
+      </div>
+      {!present && (
+        <div className="mt-0.5 text-[11px]">
+          <span className="text-foreground/80">Fallback:</span> {fallback}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /** Rough TDU inference from ESID prefix. Texas ESIDs are 17 or 22 digits;
  *  the leading digits identify the TDU. Source: PUCT public ESID schema. */
 function inferTduFromEsid(esid: string | null): string | null {
