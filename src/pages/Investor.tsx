@@ -74,13 +74,18 @@ function persistSigned(state: SignedState) {
   }
 }
 
-const UNLOCKS = [
-  { icon: Presentation, label: 'Seed Pitch Deck', desc: 'Full investor narrative' },
-  { icon: FileText, label: 'One-Pager', desc: 'Catalyst, moat, capital plan' },
-  { icon: BarChart3, label: 'Tokenomics Model', desc: '1T cap · $0.10 launch math' },
-  { icon: Users, label: 'Founder Bios', desc: 'Joseph Maushart · Michael Tschida' },
-  { icon: PlayCircle, label: 'Live Investor Demo', desc: 'Tap-to-Mint™ in your hand' },
-  { icon: Calendar, label: 'Schedule a Call', desc: 'Direct to the founders' },
+const UNLOCKS: Array<{
+  icon: typeof PlayCircle;
+  label: string;
+  desc: string;
+  to: string;
+}> = [
+  { icon: Presentation, label: 'Seed Pitch Deck', desc: 'Full investor narrative', to: '/investor/pitch' },
+  { icon: FileText, label: 'One-Pager', desc: 'Catalyst, moat, capital plan', to: '/founders/seed-pitch-greg' },
+  { icon: BarChart3, label: 'Tokenomics Model', desc: '1T cap · $0.10 launch math', to: '/tokenomics' },
+  { icon: Users, label: 'Founder Bios', desc: 'Joseph Maushart · Michael Tschida', to: '/investor/pitch#why-us' },
+  { icon: PlayCircle, label: 'Live Investor Demo', desc: 'Tap-to-Mint™ in your hand', to: '/demo' },
+  { icon: Calendar, label: 'Schedule a Call', desc: 'Direct to the founders', to: 'mailto:joe@zen.solar?subject=ZenSolar%20Investor%20Call' },
 ];
 
 export default function Investor() {
@@ -267,21 +272,31 @@ export default function Investor() {
               You'll unlock
             </h2>
             <div className="grid gap-2.5 md:grid-cols-2">
-              {UNLOCKS.map(({ icon: Icon, label, desc }) => (
-                <div
-                  key={label}
-                  className="flex items-center gap-3 rounded-xl border border-border/60 bg-card/30 px-4 py-3"
-                >
-                  <div className="relative">
-                    <Icon className="h-5 w-5 text-muted-foreground/70" />
-                    <Lock className="h-3 w-3 text-secondary absolute -bottom-1 -right-1 bg-background rounded-full p-[1px]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-foreground">{label}</div>
-                    <div className="text-[11px] text-muted-foreground truncate">{desc}</div>
-                  </div>
-                </div>
-              ))}
+              {UNLOCKS.map(({ icon: Icon, label, desc, to }) => {
+                const preview = isPreviewHost();
+                const inner = (
+                  <>
+                    <div className="relative">
+                      <Icon className="h-5 w-5 text-muted-foreground/70" />
+                      <Lock className={`h-3 w-3 absolute -bottom-1 -right-1 bg-background rounded-full p-[1px] ${preview ? 'text-primary/60' : 'text-secondary'}`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-foreground">{label}</div>
+                      <div className="text-[11px] text-muted-foreground truncate">
+                        {desc}{preview ? ' · preview' : ''}
+                      </div>
+                    </div>
+                  </>
+                );
+                const cls = `flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors ${preview ? 'border-primary/30 bg-card/40 hover:bg-card/70 active:bg-card' : 'border-border/60 bg-card/30'}`;
+                if (!preview) {
+                  return <div key={label} className={cls}>{inner}</div>;
+                }
+                if (to.startsWith('mailto:') || to.startsWith('http')) {
+                  return <a key={label} href={to} className={cls}>{inner}</a>;
+                }
+                return <Link key={label} to={to} className={cls}>{inner}</Link>;
+              })}
             </div>
           </section>
         )}
