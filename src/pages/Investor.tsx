@@ -74,19 +74,21 @@ function persistSigned(state: SignedState) {
   }
 }
 
-const UNLOCKS: Array<{
+function buildUnlocks(preview: boolean): Array<{
   icon: typeof PlayCircle;
   label: string;
   desc: string;
   to: string;
-}> = [
-  { icon: Presentation, label: 'Seed Pitch Deck', desc: 'Full investor narrative', to: '/investor/pitch' },
-  { icon: FileText, label: 'One-Pager', desc: 'Catalyst, moat, capital plan', to: '/founders/seed-pitch-greg' },
-  { icon: BarChart3, label: 'Tokenomics Model', desc: '1T cap · $0.10 launch math', to: '/tokenomics' },
-  { icon: Users, label: 'Founder Bios', desc: 'Joseph Maushart · Michael Tschida', to: '/investor/pitch#why-us' },
-  { icon: PlayCircle, label: 'Live Investor Demo', desc: 'Tap-to-Mint™ in your hand', to: '/demo' },
-  { icon: Calendar, label: 'Schedule a Call', desc: 'Direct to the founders', to: 'mailto:joe@zen.solar?subject=ZenSolar%20Investor%20Call' },
-];
+}> {
+  return [
+    { icon: Presentation, label: 'Seed Pitch Deck', desc: 'Full investor narrative', to: '/investor/pitch' },
+    { icon: FileText, label: 'One-Pager', desc: 'Catalyst, moat, capital plan', to: '/founders/seed-pitch-greg' },
+    { icon: BarChart3, label: 'Tokenomics Model', desc: '1T cap · $0.10 launch math', to: '/tokenomics' },
+    { icon: Users, label: 'Founder Bios', desc: 'Joseph Maushart · Michael Tschida', to: '/investor/pitch#why-us' },
+    { icon: PlayCircle, label: 'Live Investor Demo', desc: 'Tap-to-Mint™ in your hand', to: preview ? '/demo-leonardo' : '/demo' },
+    { icon: Calendar, label: 'Schedule a Call', desc: 'Direct to the founders', to: 'mailto:joe@zen.solar?subject=ZenSolar%20Investor%20Call' },
+  ];
+}
 
 export default function Investor() {
   const [pinUnlocked, setPinUnlocked] = useState<boolean>(() => readInvestorUnlocked());
