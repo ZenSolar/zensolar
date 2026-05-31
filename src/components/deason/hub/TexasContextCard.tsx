@@ -52,6 +52,49 @@ export function TexasContextCard({ ctx, onEdit }: { ctx: TexasContext; onEdit?: 
         <span className="ml-1 rounded bg-amber-500/15 px-1 py-0.5 text-amber-500">TX</span>
         in your feed.
       </div>
+
+      {/* Assumptions: which parsed fields feed TX-aware insights + fallbacks */}
+      <div className="mt-3 border-t border-amber-500/20 pt-2">
+        <button
+          type="button"
+          onClick={() => setAssumptionsOpen((v) => !v)}
+          aria-expanded={assumptionsOpen}
+          aria-controls="tx-assumptions"
+          className="flex w-full items-center justify-between gap-2 text-[11px] font-medium text-muted-foreground hover:text-foreground"
+        >
+          <span>Assumptions Deason is using</span>
+          <ChevronDown
+            className={`h-3.5 w-3.5 transition-transform ${assumptionsOpen ? "rotate-180" : ""}`}
+          />
+        </button>
+        {assumptionsOpen && (
+          <div id="tx-assumptions" className="mt-2 space-y-2 text-[11px] text-muted-foreground">
+            <AssumptionRow
+              field="ESID"
+              used={ctx.esid}
+              usedFor="Inferring your TDU (poles & wires operator) and confirming you're in ERCOT"
+              fallback="If missing, Deason assumes a generic ERCOT TDU and asks you to add it before quoting delivery-charge math."
+            />
+            <AssumptionRow
+              field="REP (retailer)"
+              used={ctx.utility_name}
+              usedFor="Looking up plan-specific solar buyback / net-billing rules and TDU pass-through fees"
+              fallback="If missing, buyback insights are stated as ranges (e.g. '$0.06–$0.12/kWh typical') instead of a single number."
+            />
+            <AssumptionRow
+              field="State"
+              used={ctx.state_code}
+              usedFor="Activating ERCOT / Texas-only logic (deregulated market, per-REP buyback, ERCOT VPP rules)"
+              fallback="If missing but ESID is present, Texas mode is force-enabled."
+            />
+            <div className="rounded-md bg-background/60 px-2 py-1.5">
+              <span className="font-medium text-foreground">When data is incomplete:</span> Deason
+              labels affected numbers as <em>estimated</em>, prefers ranges over point values, and
+              surfaces a "Verify your plan" prompt in chat instead of acting on the unverified field.
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
