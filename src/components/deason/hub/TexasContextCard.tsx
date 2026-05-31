@@ -1,4 +1,5 @@
-import { MapPin, Zap, ShieldCheck } from "lucide-react";
+import { useState } from "react";
+import { MapPin, Zap, ShieldCheck, ChevronDown } from "lucide-react";
 
 export interface TexasContext {
   state_code: string | null;
@@ -13,6 +14,7 @@ export interface TexasContext {
  */
 export function TexasContextCard({ ctx, onEdit }: { ctx: TexasContext; onEdit?: () => void }) {
   const isTexas = ctx.state_code === "TX" || !!ctx.esid;
+  const [assumptionsOpen, setAssumptionsOpen] = useState(false);
   if (!isTexas) return null;
 
   const tdu = inferTduFromEsid(ctx.esid);
@@ -50,6 +52,49 @@ export function TexasContextCard({ ctx, onEdit }: { ctx: TexasContext; onEdit?: 
         <span className="ml-1 rounded bg-amber-500/15 px-1 py-0.5 text-amber-500">TX</span>
         in your feed.
       </div>
+
+      {/* Assumptions: which parsed fields feed TX-aware insights + fallbacks */}
+      <div className="mt-3 border-t border-amber-500/20 pt-2">
+        <button
+          type="button"
+          onClick={() => setAssumptionsOpen((v) => !v)}
+          aria-expanded={assumptionsOpen}
+          aria-controls="tx-assumptions"
+          className="flex w-full items-center justify-between gap-2 text-[11px] font-medium text-muted-foreground hover:text-foreground"
+        >
+          <span>Assumptions Deason is using</span>
+          <ChevronDown
+            className={`h-3.5 w-3.5 transition-transform ${assumptionsOpen ? "rotate-180" : ""}`}
+          />
+        </button>
+        {assumptionsOpen && (
+          <div id="tx-assumptions" className="mt-2 space-y-2 text-[11px] text-muted-foreground">
+            <AssumptionRow
+              field="ESID"
+              used={ctx.esid}
+              usedFor="Inferring your TDU (poles & wires operator) and confirming you're in ERCOT"
+              fallback="If missing, Deason assumes a generic ERCOT TDU and asks you to add it before quoting delivery-charge math."
+            />
+            <AssumptionRow
+              field="REP (retailer)"
+              used={ctx.utility_name}
+              usedFor="Looking up plan-specific solar buyback / net-billing rules and TDU pass-through fees"
+              fallback="If missing, buyback insights are stated as ranges (e.g. '$0.06–$0.12/kWh typical') instead of a single number."
+            />
+            <AssumptionRow
+              field="State"
+              used={ctx.state_code}
+              usedFor="Activating ERCOT / Texas-only logic (deregulated market, per-REP buyback, ERCOT VPP rules)"
+              fallback="If missing but ESID is present, Texas mode is force-enabled."
+            />
+            <div className="rounded-md bg-background/60 px-2 py-1.5">
+              <span className="font-medium text-foreground">When data is incomplete:</span> Deason
+              labels affected numbers as <em>estimated</em>, prefers ranges over point values, and
+              surfaces a "Verify your plan" prompt in chat instead of acting on the unverified field.
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -60,6 +105,42 @@ function Row({ label, value }: { label: string; value: string }) {
       <dt className="text-muted-foreground">{label}</dt>
       <dd className="truncate font-medium">{value}</dd>
     </>
+  );
+}
+
+function AssumptionRow({
+  field,
+  used,
+  usedFor,
+  fallback,
+}: {
+  field: string;
+  used: string | null;
+  usedFor: string;
+  fallback: string;
+}) {
+  const present = !!used;
+  return (
+    <div className="rounded-md bg-background/60 px-2 py-1.5">
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-medium text-foreground">{field}</span>
+        <span
+          className={`rounded px-1.5 py-0.5 text-[10px] ${
+            present ? "bg-amber-500/15 text-amber-500" : "bg-muted text-muted-foreground"
+          }`}
+        >
+          {present ? "Used" : "Missing"}
+        </span>
+      </div>
+      <div className="mt-1 text-[11px]">
+        <span className="text-foreground/80">Used for:</span> {usedFor}
+      </div>
+      {!present && (
+        <div className="mt-0.5 text-[11px]">
+          <span className="text-foreground/80">Fallback:</span> {fallback}
+        </div>
+      )}
+    </div>
   );
 }
 

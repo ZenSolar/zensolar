@@ -1,10 +1,23 @@
 import { useMemo, useState } from "react";
-import { Calendar, Filter, FileText } from "lucide-react";
+import { Calendar, Filter, FileText, ChevronRight } from "lucide-react";
 import type { MonthlyReport, LibraryDoc } from "@/hooks/useDeasonHub";
+
+/** Resolves the chat thread href used for "ask Deason about this report". */
+export function threadHrefForReport(reportId: string): string {
+  return `/deason?reportId=${encodeURIComponent(reportId)}`;
+}
+
+export interface DocumentLinkContext {
+  doc: LibraryDoc;
+  report: MonthlyReport | null;
+  threadHref: string | null;
+}
 
 interface Props {
   reports: MonthlyReport[];
   library: LibraryDoc[];
+  /** Fired when the user clicks a document under a report row. */
+  onOpenDocument?: (ctx: DocumentLinkContext) => void;
 }
 
 type RangeKey = "all" | "3m" | "6m" | "12m";
@@ -15,10 +28,11 @@ type DocFilter = "any" | "utility_bill" | "installer_contract" | "ppa" | "loan";
  * document set (e.g. "only months where I uploaded a PPA"). Designed to
  * scale up to 12+ rows without overwhelming the hub.
  */
-export function PastReportsTimeline({ reports, library }: Props) {
+export function PastReportsTimeline({ reports, library, onOpenDocument }: Props) {
   const [range, setRange] = useState<RangeKey>("all");
   const [docFilter, setDocFilter] = useState<DocFilter>("any");
   const [query, setQuery] = useState("");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   // Group library docs by their period_month for fast lookup.
   const docsByMonth = useMemo(() => {
@@ -107,13 +121,29 @@ export function PastReportsTimeline({ reports, library }: Props) {
           filtered.map((r) => {
             const docs = docsByMonth.get(r.period_month) ?? [];
             const monthLabel = new Date(r.period_month).toLocaleString(undefined, { month: "long", year: "numeric" });
+            const isOpen = expandedId === r.id;
+            const canExpand = docs.length > 0;
             return (
               <li key={r.id} className="rounded-lg bg-background px-3 py-2">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="text-xs font-medium">{monthLabel}</div>
+                <button
+                  type="button"
+                  onClick={() => canExpand && setExpandedId(isOpen ? null : r.id)}
+                  className="flex w-full items-center justify-between gap-2 text-left"
+                  aria-expanded={isOpen}
+                  data-testid={`report-row-${r.id}`}
+                  disabled={!canExpand}
+                >
+                  <div className="flex items-center gap-1.5">
+                    {canExpand && (
+                      <ChevronRight
+                        className={`h-3 w-3 text-muted-foreground transition-transform ${isOpen ? "rotate-90" : ""}`}
+                      />
+                    )}
+                    <div className="text-xs font-medium">{monthLabel}</div>
+                  </div>
                   <div className="text-xs font-semibold text-amber-500">${Math.round(r.dollars_saved)}</div>
-                </div>
-                {(r.narrative || docs.length > 0) && (
+                </button>
+                {(r.narrative || docs.length > 0) && !isOpen && (
                   <div className="mt-1 flex items-start justify-between gap-2">
                     {r.narrative && (
                       <p className="line-clamp-1 flex-1 text-[11px] text-muted-foreground">{r.narrative}</p>
@@ -124,6 +154,34 @@ export function PastReportsTimeline({ reports, library }: Props) {
                       </div>
                     )}
                   </div>
+                )}
+                {isOpen && (
+                  <ul className="mt-2 space-y-1" data-testid={`report-docs-${r.id}`}>
+                    {docs.map((d) => (
+                      <li key={d.id}>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            onOpenDocument?.({
+                              doc: d,
+                              report: r,
+                              threadHref: threadHrefForReport(r.id),
+                            })
+                          }
+                          data-testid={`doc-link-${d.id}`}
+                          data-report-id={r.id}
+                          data-thread-href={threadHrefForReport(r.id)}
+                          className="flex w-full items-center justify-between gap-2 rounded-md border border-border/60 px-2 py-1.5 text-left text-[11px] hover:bg-accent"
+                        >
+                          <span className="flex items-center gap-1.5 truncate">
+                            <FileText className="h-3 w-3 flex-shrink-0 text-amber-500" />
+                            <span className="truncate">{d.label ?? d.kind}</span>
+                          </span>
+                          <span className="text-[10px] uppercase text-muted-foreground">{d.kind}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
                 )}
               </li>
             );
