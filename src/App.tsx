@@ -218,6 +218,7 @@ const AdminCoffeePitch = lazy(() => import("./pages/AdminCoffeePitch"));
 const AdminInvestorPitch = lazy(() => import("./pages/AdminInvestorPitch"));
 const DeckPinGated = lazy(() => import("./pages/DeckPinGated"));
 const Investor = lazy(() => import("./pages/Investor"));
+const InvestorPitch = lazy(() => import("./pages/InvestorPitch"));
 const HeroTest = lazy(() => import("./pages/HeroTest"));
 
 const Blog = lazy(() => import("./pages/Blog"));
@@ -310,6 +311,7 @@ const App = () => {
                    <Route path="/install" element={<Install />} />
                    <Route path="/deck" element={<Suspense fallback={<PageLoader />}><DeckPinGated /></Suspense>} />
                    <Route path="/investor" element={<Suspense fallback={<PageLoader />}><Investor /></Suspense>} />
+                   <Route path="/investor/pitch" element={<Suspense fallback={<PageLoader />}><InvestorPitch /></Suspense>} />
                     <Route path="/hero-test" element={<Suspense fallback={<PageLoader />}><HeroTest /></Suspense>} />
                     
                     <Route path="/dwight-preview" element={<DwightPreview />} />
