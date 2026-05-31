@@ -60,11 +60,13 @@ interface Props {
  * Three slots: utility bill (required), installer contract (recommended),
  * and a single PPA-or-loan slot the user labels themselves.
  */
-export function EnergyDocSheet({ open, onOpenChange, onSubmit, loading }: Props) {
+export function EnergyDocSheet({ open, onOpenChange, onSubmit, loading, defaultMeta }: Props) {
   const [docs, setDocs] = useState<Partial<Record<EnergyDocKind, EnergyDocInput>>>({});
   const [financingChoice, setFinancingChoice] = useState<FinancingChoice>("ppa");
   const [error, setError] = useState<string | null>(null);
   const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const [meta, setMeta] = useState<EnergyDocMeta>(defaultMeta ?? {});
+  const [txExpanded, setTxExpanded] = useState<boolean>(!!(defaultMeta?.esid || defaultMeta?.state_code === "TX"));
 
   const reset = () => { setDocs({}); setError(null); };
 
