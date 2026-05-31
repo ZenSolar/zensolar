@@ -205,10 +205,8 @@ Deno.serve(async (req) => {
     };
     const isTexas = txCtx.state_code === "TX" || !!txCtx.esid;
 
-
-    const admin = createClient(SUPABASE_URL, SERVICE);
-
     // Create the report row up-front so the client can poll/link to it.
+
     const { data: reportRow, error: reportErr } = await admin
       .from("energy_reports")
       .insert({
