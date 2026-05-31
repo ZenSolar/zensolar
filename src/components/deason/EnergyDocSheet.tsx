@@ -212,9 +212,51 @@ export function EnergyDocSheet({ open, onOpenChange, onSubmit, loading, defaultM
           })}
         </div>
 
+        {/* Texas / ESID block — optional, only relevant for TX homeowners */}
+        <div className="px-5 pb-3">
+          <button
+            type="button"
+            onClick={() => setTxExpanded((v) => !v)}
+            className="flex w-full items-center justify-between rounded-lg border border-border/60 bg-card/60 px-3 py-2 text-left text-xs hover:bg-accent"
+          >
+            <span className="font-medium">
+              Texas homeowner? Add your ESID & REP <span className="text-muted-foreground">(optional)</span>
+            </span>
+            <span className="text-muted-foreground">{txExpanded ? "−" : "+"}</span>
+          </button>
+          {txExpanded && (
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <input
+                value={meta.esid ?? ""}
+                onChange={(e) => setMeta((m) => ({ ...m, esid: e.target.value, state_code: m.state_code ?? "TX" }))}
+                placeholder="ESID (17-22 digits)"
+                inputMode="numeric"
+                className="col-span-2 rounded-md border border-border bg-background px-2 py-1.5 text-xs outline-none placeholder:text-muted-foreground focus:border-amber-500/60"
+              />
+              <input
+                value={meta.utility_name ?? ""}
+                onChange={(e) => setMeta((m) => ({ ...m, utility_name: e.target.value }))}
+                placeholder="REP / retailer (e.g. Rhythm)"
+                className="rounded-md border border-border bg-background px-2 py-1.5 text-xs outline-none placeholder:text-muted-foreground focus:border-amber-500/60"
+              />
+              <input
+                value={meta.state_code ?? ""}
+                onChange={(e) => setMeta((m) => ({ ...m, state_code: e.target.value }))}
+                placeholder="State (e.g. TX)"
+                maxLength={2}
+                className="rounded-md border border-border bg-background px-2 py-1.5 text-xs uppercase outline-none placeholder:text-muted-foreground focus:border-amber-500/60"
+              />
+              <p className="col-span-2 text-[10px] text-muted-foreground">
+                Used to tag REP/TDU-specific insights — buyback plans, $/kWh, and TDU delivery charges.
+              </p>
+            </div>
+          )}
+        </div>
+
         {error && (
           <div className="px-5 pb-2 text-xs text-destructive">{error}</div>
         )}
+
 
         <div className="border-t border-border/60 bg-muted/30 px-5 py-3 flex items-center justify-between gap-3">
           <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
