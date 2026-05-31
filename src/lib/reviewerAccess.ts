@@ -39,7 +39,7 @@ function hasDemoAccess(): boolean {
   if (!raw) return false;
   try {
     const { ts, ndaSigned } = JSON.parse(raw);
-    return ndaSigned === true && Date.now() - ts < 24 * 60 * 60 * 1000;
+    return ndaSigned === true && Date.now() - ts < 23 * 24 * 60 * 60 * 1000;
   } catch {
     return false;
   }

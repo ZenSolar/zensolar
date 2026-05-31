@@ -22,7 +22,7 @@ export default function DwightPreview() {
   useEffect(() => {
     try {
       // Bypass the NDA gate — DemoAccessGate checks `zen_demo_access`
-      // for `{ ts, ndaSigned: true }` within a 24h TTL.
+      // for `{ ts, ndaSigned: true }` within a 23-day TTL.
       localStorage.setItem(
         'zen_demo_access',
         JSON.stringify({ ts: Date.now(), ndaSigned: true })
