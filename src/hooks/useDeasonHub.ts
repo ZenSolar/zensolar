@@ -48,6 +48,12 @@ export interface WeatherState {
   threeDay?: Array<{ date: string; tempMin: number; tempMax: number; condition: string; icon: string; pop: number }>;
 }
 
+export interface ProfileCtx {
+  state_code: string | null;
+  esid: string | null;
+  utility_name: string | null;
+}
+
 /**
  * Loads everything the Deason hub renders. Refreshes on mount and exposes a
  * manual refresh hook so callers can re-pull after running a monthly ritual.
