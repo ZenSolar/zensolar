@@ -14,7 +14,9 @@ export function isPreviewMode(): boolean {
   return (
     host === "localhost" ||
     host === "127.0.0.1" ||
+    host === "lovable.dev" ||
     host.endsWith(".lovable.app") ||
+    host.endsWith(".lovable.dev") ||
     host.endsWith(".lovableproject.com")
   );
 }

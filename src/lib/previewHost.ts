@@ -19,7 +19,7 @@ export function isPreviewHost(): boolean {
     'zensolar.lovable.app', // published vanity domain
   ];
   if (PROD.includes(h)) return false;
-  if (h === 'localhost' || h === '127.0.0.1') return true;
+  if (h === 'localhost' || h === '127.0.0.1' || h === 'lovable.dev') return true;
   if (h.endsWith('.lovable.app') || h.endsWith('.lovable.dev')) return true;
   return false;
 }
