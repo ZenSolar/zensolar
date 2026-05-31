@@ -3,11 +3,14 @@ import { useSearchParams } from "react-router-dom";
 import { Loader2, KeyRound, Delete, Check, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { isPreviewHost } from "@/lib/previewHost";
 
 const STORAGE_KEY = "zs_investor_pin_unlocked";
 const TTL_MS = 23 * 24 * 60 * 60 * 1000; // 23 days
 
 export function readInvestorUnlocked(): boolean {
+  // Preview/localhost: skip the PIN gate entirely so reviewers can walk the deck.
+  if (isPreviewHost()) return true;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return false;
