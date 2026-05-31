@@ -1329,6 +1329,30 @@ const App = () => {
                         </ArchivedPageWrapper>
                       </AppLayout></ProtectedRoute>
                     } />
+                    {/* Investor Pitch v2 archive — frozen legacy pitch pages */}
+                    {([
+                      { slug: 'founders-lyndon-pitch-v2', model: 'Lyndon Pitch v2', Comp: FoundersLyndonPitchV2 },
+                      { slug: 'founders-seed-pitch-companion-deck', model: 'Seed Pitch Companion Deck', Comp: FoundersSeedPitchCompanionDeck },
+                      { slug: 'founders-spacex', model: 'SpaceX Comparable', Comp: FoundersSpaceX },
+                      { slug: 'founders-app-overhaul', model: 'App Overhaul Plan', Comp: FoundersAppOverhaul },
+                      { slug: 'founders-catchup', model: 'Founders Catchup', Comp: FoundersCatchup },
+                      { slug: 'admin-coffee-pitch', model: 'Coffee Pitch', Comp: AdminCoffeePitch },
+                      { slug: 'admin-investor-pitch', model: 'Investor Pitch (v1)', Comp: AdminInvestorPitch },
+                      { slug: 'admin-investor-one-pager', model: 'Investor One-Pager (v1)', Comp: AdminInvestorOnePager },
+                    ] as const).map(({ slug, model, Comp }) => (
+                      <Route key={slug} path={`/admin/archive/${slug}`} element={
+                        <ProtectedRoute><AppLayout>
+                          <ArchivedPageWrapper
+                            modelName={model}
+                            archivedDate="May 2026"
+                            supersededBy="Investor Pitch v2 (/investor/pitch)"
+                            reason="Superseded by canonical Investor Pitch v2 — flywheel + three revenue engines"
+                          >
+                            <Comp />
+                          </ArchivedPageWrapper>
+                        </AppLayout></ProtectedRoute>
+                      } />
+                    ))}
                     {/* Founders Vault - direct URL only, no nav link. All gated by FounderRoute. */}
                     <Route path="/founder" element={<Navigate to="/founders" replace />} />
                     <Route path="/founders" element={<FounderRoute><FoundersVault /></FounderRoute>} />
