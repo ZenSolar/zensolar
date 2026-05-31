@@ -1,65 +1,96 @@
-## Goal
+## Deason AI v1 — Build Plan (approved scope, weather as placeholder)
 
-Transition the in-app focus from the ZenEnergy live-monitoring dashboard to **Deason — your clean-energy optimization advisor**. Users upload a few documents, Deason reads them, writes a personalized analysis directly in the chat thread, and then answers follow-up questions grounded in those documents.
+Building the full v1 as previously laid out, with weather shipped as a "coming soon" placeholder. No `OPENWEATHER_API_KEY` will be requested this pass — when the key is added later, the placeholder swaps to live data without further UI work.
 
-Output style is **conversational inside the existing Deason chat** (your choice). The existing /deason page, thread persistence, and edge functions stay — we upgrade them.
+### 1. Database (single migration)
 
-## What documents we need (and why)
+New tables (all RLS owner-only, `GRANT` to authenticated + service_role):
 
-For the analysis to actually be useful, Deason needs three things:
+- `deason_documents` — permanent per-user library
+  - `user_id`, `kind` (utility_bill | installer_contract | ppa | loan | other), `label`, `storage_path`, `mime`, `size_bytes`, `source` (upload | monthly_ritual), `linked_analysis_id` (nullable), `linked_report_id` (nullable), `uploaded_at`
+- `deason_monthly_reports`
+  - `user_id`, `period_month` (date, first of month), `bill_doc_id` (fk → deason_documents), `structured_report` jsonb, `narrative` text, `dollars_saved` numeric, `bonus_tokens` numeric, `status` (processing|ready|failed)
+  - Unique `(user_id, period_month)`
+- `deason_progression`
+  - `user_id` PK, `level` int, `points` int, `months_completed` int, `total_saved_usd` numeric, `total_bonus_tokens` numeric, `streak_months` int, `updated_at`
+- `deason_insights`
+  - `user_id`, `kind` (savings|risk|opportunity|seasonal), `title`, `body`, `severity`, `dismissed_at`, `created_at`
+- `deason_weather_cache` — kept even with placeholder so live-key swap is one-liner
+  - `user_id`, `lat`, `lon`, `payload` jsonb, `fetched_at`
 
-| Doc | Why it matters | Required? |
-|---|---|---|
-| **Most recent utility bill** (PDF/photo) | Tells us utility, rate plan, TOU windows, $/kWh, total kWh, NEM credits. Without it we can't ground any savings claim in real numbers. | **Required** |
-| **Solar installation contract** (PDF) | System size (kW DC/AC), inverter/battery brand, install date, warranty terms, escalators, dealer fees, performance guarantee. Lets us judge whether the system is performing and whether the customer was treated fairly. | **Strongly recommended** |
-| **PPA agreement OR loan paperwork** (one or the other — whichever applies) | PPA: term, $/kWh, annual escalator, buyout schedule. Loan: APR, term, payment, dealer fee, prepayment. This is where most of the "did I get a good deal?" answer lives. Customers usually have one or the other, never both. | **One of the two** |
+Profile additions:
+- `profiles.esid` text, `profiles.state_code` text(2), `profiles.utility_name` text
 
-The UI will treat #1 as required, #2 as recommended, and #3 as a single "PPA or loan" slot so users aren't confused into thinking they need both.
+### 2. Edge functions
 
-## What changes
+- `generate-energy-report` (extend)
+  - Persist uploaded files to `deason_documents` as `source='upload'` and link the resulting `analysis_id`.
+  - When the run is a monthly ritual (flag in request), also write a row to `deason_monthly_reports`, compute month-over-month deltas (vs latest prior report), update `deason_progression`, and emit 1–3 `deason_insights` rows.
+- `deason-chat` (extend)
+  - Server-side fetches: latest analysis, latest monthly report summary, library index (last 20 docs, kind+label only), progression snapshot, ESID/state. Injects them as a compact `USER CONTEXT` block in the system prompt.
+  - Texas-aware prompt segment when `state_code='TX'` or ESID present (REP/TDU/buyback framing).
+- `deason-weather` (new, placeholder mode)
+  - Reads `OPENWEATHER_API_KEY` from env. If absent → returns `{ status: 'placeholder', message: 'Weather forecast coming soon' }`. If present → fetches OpenWeather One Call 3.0, caches 6h in `deason_weather_cache`, returns `{ status: 'ready', today, threeDay }`.
+  - `deason-chat` calls it best-effort and includes `weather_summary` in context only when status='ready'.
 
-### 1. Re-skin the /deason landing experience
-- New welcome state when a thread has no messages: a hero card titled **"Let's analyze your energy setup"** with a single primary CTA → **Upload your documents**.
-- Suggested-prompt set switches from the current token/ZenSolar prompts to optimization prompts: *"Analyze my latest bill"*, *"Am I on the right rate plan?"*, *"Is my solar contract fair?"*, *"Should I refinance my solar loan?"*.
-- Header/title on /deason becomes **"Deason · Clean Energy Optimization"**.
+### 3. Frontend (`/deason`)
 
-### 2. Upgrade the EnergyDocSheet upload flow
-- Reduce to 3 slots: utility bill (required), install contract (recommended), and a single **PPA or loan** slot with a small radio to declare which it is.
-- Inline reassurance: "Documents stay private. Used only to write your report."
-- After submit, the sheet closes and Deason begins writing the analysis as a normal assistant message in the active thread.
+Restructure into a hub + thread layout. When no thread is selected (or new thread, no messages), render `DeasonHub`. When a thread has messages, render `DeasonChat` as today.
 
-### 3. Wire the analysis into the chat (not a side card)
-- `generate-energy-report` already returns structured JSON + a narrative. Reuse it, but stream the **narrative** straight into the thread as an assistant message and persist a compact summary of the structured fields (rate plan, system size, contract terms, key risk flags, top 3 actions) as hidden thread context.
-- Render the structured highlights (ROI, top action items, contract risk flags) as a collapsed inline card *below* the assistant message — using the existing `EnergyReportCard` / `BillSavingsReport` components — so the user can expand for details but the conversation reads naturally.
+New components:
+- `DeasonHub.tsx` — composition of the cards below
+- `MonthlyReportCard.tsx` — prominent "Latest Monthly Clean Energy Report" with dollars saved, top action, expand → `EnergyReportCard` + `BillSavingsReport`
+- `ProgressionCard.tsx` — level, points, streak, total saved, next-month CTA
+- `DocumentLibrary.tsx` — grouped by kind, upload/replace, "Use in new analysis"
+- `WeatherOutlookCard.tsx` — placeholder state by default ("Weather forecast coming soon · enable in settings"), live state when function returns ready
+- `QuickInsightsFeed.tsx` — top 3 undismissed insights with dismiss
+- `MonthlyRitualBanner.tsx` — nudge when no report exists for current month
 
-### 4. Make follow-up questions grounded
-- Extend `deason-chat` to include the latest doc-analysis summary for the thread in its system context (kept under ~2k tokens, server-side only).
-- This lets users ask things like *"What would I save if I switched to EV2-A?"*, *"Is the 2.9% escalator in my PPA standard?"*, *"My bill went up $40 — why?"* and get answers tied to **their** documents.
+Edits:
+- `Deason.tsx` — hub/thread switch, header copy
+- `DeasonChat.tsx` — header gains orange spark icon variant; landing state inside a thread keeps existing upgraded prompts
+- `EnergyDocSheet.tsx` — adds optional ESID field (shown when `state_code='TX'` or unknown); on submit also writes `deason_documents` rows
+- `DeasonFloatingBubble.tsx` — same shared context payload as `/deason` (uses `threadId`+user, server fetches the rest, no duplication client-side)
+- `useDeason.ts` / `useEnergyReport.ts` — pass `isMonthlyRitual` flag, surface progression+report data to hub
 
-### 5. Reframe Deason's public persona
-- Update the public `PUBLIC_PROMPT` in `deason-chat` so the primary identity is **clean-energy optimization advisor**: bill analysis, rate-plan strategy, contract/loan/PPA fairness review, HVAC/EV/battery scheduling.
-- Token/$ZSOLAR talk stays available as a secondary topic but is no longer the lead. Inner-circle prompt is untouched.
+### 4. Models & secrets
 
-### 6. Storage + persistence (minor)
-- Add a `deason_doc_analyses` table keyed by `thread_id` that stores: structured report JSON, narrative, doc storage paths, created_at. RLS scoped to `auth.uid()`. Used by step 4 to inject context and by step 3 to re-render the inline card on reload.
-- Existing `energy-docs` storage bucket is already used for the uploaded files — no change.
+- Monthly report + analysis: `google/gemini-2.5-pro` (existing)
+- Chat: `google/gemini-2.5-flash` (existing)
+- No new secrets requested this pass. `OPENWEATHER_API_KEY` is read defensively; absent → placeholder.
 
-## What we are NOT doing in this pass
-- Not removing the live-monitoring dashboard from /index (that's a separate decision — flagged but kept).
-- Not changing onboarding, founders pages, or tokenomics surfaces.
-- Not adding Phase 2 utility-API auto-pull, weekly report email, or FSD/Tesla integrations from the Deason roadmap memo.
+### 5. Out of scope (explicit)
 
-## Technical notes
+- OpenEI URDB / DSIRE / Electricity Maps / PVWatts live APIs (narrative-only in v1)
+- Weekly digest emails, Tesla FSD integration
+- Paywall enforcement for Power tier
+- Light mode anywhere
 
-- Files touched: `src/pages/Deason.tsx`, `src/components/deason/DeasonChat.tsx`, `src/components/deason/EnergyDocSheet.tsx`, `src/components/deason/EnergyReportCard.tsx`, `src/hooks/useEnergyReport.ts`, `supabase/functions/deason-chat/index.ts`, `supabase/functions/generate-energy-report/index.ts`.
-- New: `deason_doc_analyses` table + RLS + GRANTs; small migration only.
-- Edge functions continue to use Lovable AI Gateway (`google/gemini-2.5-pro` for the report, `google/gemini-2.5-flash` for chat streaming).
-- No new secrets, no schema changes outside the new table.
+### Technical layout
 
-## Open question I should confirm before building
+```text
+/deason
+├── DeasonHub (no thread selected)
+│   ├── MonthlyRitualBanner (conditional)
+│   ├── ProgressionCard
+│   ├── MonthlyReportCard (latest)
+│   ├── QuickInsightsFeed
+│   ├── WeatherOutlookCard (placeholder)
+│   ├── DocumentLibrary
+│   └── Past reports timeline
+└── DeasonChat (thread selected)
+    ├── EnergyDocSheet (upgraded, +ESID)
+    └── Inline EnergyReportCard in assistant messages
+```
 
-When a user starts a brand-new thread, should Deason:
-- **(A)** Immediately prompt for documents (block chat until uploaded), or
-- **(B)** Let them chat freely and surface a soft "upload your bill for a real answer" nudge after the first vague question (current default)?
+### Execution order
 
-I'll go with **(B)** unless you say otherwise.
+1. Migration (tables + grants + RLS + profile cols)
+2. Edge functions (`deason-weather` new, extend `generate-energy-report`, extend `deason-chat`)
+3. Hooks (`useDeason`, `useEnergyReport`, new `useDeasonHub`)
+4. Hub components + integrate into `Deason.tsx`
+5. `EnergyDocSheet` ESID + library write
+6. `DeasonFloatingBubble` shared-context wiring
+7. Smoke test in preview at `/deason`
+
+Ready to flip to build mode and ship.
