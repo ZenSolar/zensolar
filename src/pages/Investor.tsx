@@ -24,6 +24,7 @@ import {
   readInvestorUnlocked,
 } from '@/components/investor/InvestorPinGate';
 import { ThreeRevenueEngines } from '@/components/investor/ThreeRevenueEngines';
+import { isPreviewHost } from '@/lib/previewHost';
 
 const ACCESS_CODE = 'INVESTOR_LANDING';
 const NDA_EMAIL_KEY = 'zen_nda_email';
