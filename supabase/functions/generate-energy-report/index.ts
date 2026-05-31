@@ -172,6 +172,7 @@ Deno.serve(async (req) => {
     const docs: IncomingDoc[] = Array.isArray(body?.docs) ? body.docs : [];
     const threadId: string | null = body?.threadId ?? null;
     const isMonthlyRitual: boolean = body?.isMonthlyRitual === true;
+    const meta: { esid?: string; state_code?: string; utility_name?: string } | null = body?.meta ?? null;
     if (!docs.length) return json({ error: "bad_request", detail: "at least one document required", reqId }, 400);
     if (docs.length > 5) return json({ error: "bad_request", detail: "max 5 documents", reqId }, 400);
     for (const d of docs) {
@@ -179,6 +180,31 @@ Deno.serve(async (req) => {
         return json({ error: "bad_request", detail: "each doc needs a valid image/PDF data URL", reqId }, 400);
       }
     }
+
+    const admin = createClient(SUPABASE_URL, SERVICE);
+
+    // Persist user-supplied TX metadata to the profile so it sticks across runs.
+    if (meta && (meta.esid || meta.state_code || meta.utility_name)) {
+      const patch: Record<string, string> = {};
+      if (meta.esid) patch.esid = meta.esid;
+      if (meta.state_code) patch.state_code = meta.state_code.toUpperCase();
+      if (meta.utility_name) patch.utility_name = meta.utility_name;
+      await admin.from("profiles").update(patch).eq("user_id", userId);
+    }
+
+    // Resolve effective TX context (DB ⊕ inbound override).
+    const { data: profileRow } = await admin
+      .from("profiles")
+      .select("esid, state_code, utility_name")
+      .eq("user_id", userId)
+      .maybeSingle();
+    const txCtx = {
+      esid: meta?.esid ?? (profileRow as { esid?: string } | null)?.esid ?? null,
+      state_code: meta?.state_code ?? (profileRow as { state_code?: string } | null)?.state_code ?? null,
+      utility_name: meta?.utility_name ?? (profileRow as { utility_name?: string } | null)?.utility_name ?? null,
+    };
+    const isTexas = txCtx.state_code === "TX" || !!txCtx.esid;
+
 
     const admin = createClient(SUPABASE_URL, SERVICE);
 
