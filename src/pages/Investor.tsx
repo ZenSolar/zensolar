@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   ArrowDown,
   Mail,
+  Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { NdaSignatureStep } from '@/components/demo/NdaSignatureStep';
@@ -22,6 +23,7 @@ import {
   InvestorPinGate,
   readInvestorUnlocked,
 } from '@/components/investor/InvestorPinGate';
+import { ThreeRevenueEngines } from '@/components/investor/ThreeRevenueEngines';
 
 const ACCESS_CODE = 'INVESTOR_LANDING';
 const NDA_EMAIL_KEY = 'zen_nda_email';
@@ -325,7 +327,27 @@ function UnlockedPanel({
         </div>
       </div>
 
+      {/* Canonical investor framing — flywheel + three revenue engines */}
+      <div className="rounded-3xl border border-border/60 bg-card/30 p-5 md:p-7">
+        <div className="mb-5">
+          <div className="text-xs uppercase tracking-[0.22em] text-secondary mb-1.5">
+            The Pitch · v2
+          </div>
+          <h3 className="text-lg md:text-xl font-semibold text-foreground tracking-tight">
+            Three Revenue Engines. One Flywheel.
+          </h3>
+        </div>
+        <ThreeRevenueEngines />
+      </div>
+
       <div className="grid gap-3 md:grid-cols-2">
+        <UnlockedCard
+          icon={Sparkles}
+          title="Investor Pitch · v2"
+          body="Canonical pitch: flywheel, three engines, multi-OEM moat, the ask."
+          to="/investor/pitch"
+          internal
+        />
         <UnlockedCard
           icon={PlayCircle}
           title="Live Investor Demo"
