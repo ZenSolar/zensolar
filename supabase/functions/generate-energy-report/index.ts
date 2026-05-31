@@ -447,6 +447,8 @@ Deno.serve(async (req) => {
       preview: parsed.preview,
       full: entitled ? parsed.full : null,
       entitled,
+      libraryDocs: (reportRow as unknown as { _libraryDocs?: Array<{ id: string; kind: string }> })._libraryDocs ?? [],
+      knownFinancing,
     });
   } catch (e) {
     console.error(`[energy-report ${reqId}] error`, e);
