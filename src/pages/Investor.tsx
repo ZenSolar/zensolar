@@ -274,7 +274,7 @@ export default function Investor() {
               You'll unlock
             </h2>
             <div className="grid gap-2.5 md:grid-cols-2">
-              {UNLOCKS.map(({ icon: Icon, label, desc, to }) => {
+              {buildUnlocks(isPreviewHost()).map(({ icon: Icon, label, desc, to }) => {
                 const preview = isPreviewHost();
                 const inner = (
                   <>
