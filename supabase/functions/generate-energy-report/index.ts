@@ -298,6 +298,7 @@ Deno.serve(async (req) => {
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           ...(isTexas ? [{ role: "system" as const, content: buildTexasSystemAddendum(txCtx) }] : []),
+          ...(knownFinancing ? [{ role: "system" as const, content: buildFinancingAddendum(knownFinancing) }] : []),
           { role: "user", content },
         ],
         tools: [REPORT_TOOL],
