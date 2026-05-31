@@ -41,6 +41,20 @@ export function DeasonHub({ onStartChat }: Props) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [isMonthly, setIsMonthly] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleOpenDocument = ({ doc, report, threadHref }: DocumentLinkContext) => {
+    if (threadHref) {
+      navigate(threadHref);
+    } else {
+      toast({
+        title: "Document opened",
+        description: report
+          ? `${doc.label ?? doc.kind} · ${new Date(report.period_month).toLocaleDateString()}`
+          : doc.label ?? doc.kind,
+      });
+    }
+  };
 
   const currentPeriod = useMemo(() => {
     const now = new Date();
