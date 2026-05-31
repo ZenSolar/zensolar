@@ -171,6 +171,7 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const docs: IncomingDoc[] = Array.isArray(body?.docs) ? body.docs : [];
     const threadId: string | null = body?.threadId ?? null;
+    const isMonthlyRitual: boolean = body?.isMonthlyRitual === true;
     if (!docs.length) return json({ error: "bad_request", detail: "at least one document required", reqId }, 400);
     if (docs.length > 5) return json({ error: "bad_request", detail: "max 5 documents", reqId }, 400);
     for (const d of docs) {
@@ -197,7 +198,13 @@ Deno.serve(async (req) => {
       return json({ error: "db_error", reqId }, 500);
     }
 
-    // Persist document rows (storage uploads happen client-side before this call).
+    // Persist document rows into BOTH legacy `energy_documents` and the
+    // permanent `deason_documents` library so they show up in the hub.
+    const periodMonth = new Date();
+    periodMonth.setUTCDate(1);
+    const periodMonthStr = periodMonth.toISOString().slice(0, 10);
+    let billDocId: string | null = null;
+
     if (docs.some((d) => d.storagePath)) {
       const docRows = docs
         .filter((d) => d.storagePath)
@@ -210,6 +217,24 @@ Deno.serve(async (req) => {
           mime_type: d.dataUrl.startsWith("data:application/pdf") ? "application/pdf" : "image/*",
         }));
       if (docRows.length) await admin.from("energy_documents").insert(docRows);
+
+      const libraryRows = docs
+        .filter((d) => d.storagePath)
+        .map((d) => ({
+          user_id: userId,
+          kind: d.kind,
+          label: d.filename ?? null,
+          storage_path: d.storagePath!,
+          mime_type: d.dataUrl.startsWith("data:application/pdf") ? "application/pdf" : "image/*",
+          source: isMonthlyRitual ? "monthly_ritual" : "upload",
+          linked_report_id: reportRow.id,
+          period_month: isMonthlyRitual ? periodMonthStr : null,
+        }));
+      if (libraryRows.length) {
+        const { data: inserted } = await admin.from("deason_documents").insert(libraryRows).select("id, kind");
+        const bill = inserted?.find((r: { kind: string }) => r.kind === "utility_bill") as { id: string } | undefined;
+        if (bill) billDocId = bill.id;
+      }
     }
 
     log("calling Gemini 2.5 Pro for energy report", { docCount: docs.length });
@@ -284,6 +309,73 @@ Deno.serve(async (req) => {
         narrative: (parsed.preview as { executive_summary?: string })?.executive_summary ?? null,
         doc_paths: docs.filter((d) => d.storagePath).map((d) => ({ kind: d.kind, path: d.storagePath })),
       });
+    }
+
+    // Monthly Clean Energy Report ritual: persist a row, compute month-over-month,
+    // update progression, and emit insights.
+    if (isMonthlyRitual) {
+      const preview = parsed.preview as { headline_savings_usd_per_year?: number; executive_summary?: string; top_insight?: string; top_risk_flag?: string };
+      const dollarsSaved = Number(preview.headline_savings_usd_per_year ?? 0) / 12;
+      const bonusTokens = Math.max(0, Math.round(dollarsSaved * 10));
+
+      await admin.from("deason_monthly_reports").upsert({
+        user_id: userId,
+        period_month: periodMonthStr,
+        bill_doc_id: billDocId,
+        structured_report: { preview: parsed.preview, full: parsed.full },
+        narrative: preview.executive_summary ?? null,
+        dollars_saved: dollarsSaved,
+        bonus_tokens: bonusTokens,
+        status: "ready",
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "user_id,period_month" });
+
+      const { data: prog } = await admin
+        .from("deason_progression")
+        .select("*")
+        .eq("user_id", userId)
+        .maybeSingle();
+      const prev = prog ?? {
+        level: 1, points: 0, months_completed: 0,
+        total_saved_usd: 0, total_bonus_tokens: 0, streak_months: 0, last_period_month: null,
+      };
+      const prevMonth = prev.last_period_month ? new Date(prev.last_period_month) : null;
+      const expectedPrev = new Date(periodMonth); expectedPrev.setUTCMonth(expectedPrev.getUTCMonth() - 1);
+      const streak = prevMonth && prevMonth.toISOString().slice(0, 7) === expectedPrev.toISOString().slice(0, 7)
+        ? (prev.streak_months ?? 0) + 1
+        : 1;
+      const months = (prev.months_completed ?? 0) + (prev.last_period_month === periodMonthStr ? 0 : 1);
+      const points = (prev.points ?? 0) + 100 + Math.round(dollarsSaved);
+      const level = 1 + Math.floor(points / 500);
+      await admin.from("deason_progression").upsert({
+        user_id: userId,
+        level,
+        points,
+        months_completed: months,
+        total_saved_usd: Number(prev.total_saved_usd ?? 0) + dollarsSaved,
+        total_bonus_tokens: Number(prev.total_bonus_tokens ?? 0) + bonusTokens,
+        streak_months: streak,
+        last_period_month: periodMonthStr,
+        updated_at: new Date().toISOString(),
+      });
+
+      const insightRows: Array<Record<string, unknown>> = [];
+      if (preview.top_insight) {
+        insightRows.push({ user_id: userId, kind: "savings", title: "This month's biggest opportunity", body: preview.top_insight, severity: "info", source_report_id: reportRow.id });
+      }
+      if (preview.top_risk_flag && !/no major risks/i.test(preview.top_risk_flag)) {
+        insightRows.push({ user_id: userId, kind: "risk", title: "Risk flag", body: preview.top_risk_flag, severity: "warn", source_report_id: reportRow.id });
+      }
+      const firstAction = (parsed.full as { action_items?: Array<{ title: string; estimated_annual_impact_usd: number }> })?.action_items?.[0];
+      if (firstAction) {
+        insightRows.push({
+          user_id: userId, kind: "opportunity",
+          title: firstAction.title,
+          body: `Estimated annual impact: $${Math.round(firstAction.estimated_annual_impact_usd ?? 0)}.`,
+          severity: "info", source_report_id: reportRow.id,
+        });
+      }
+      if (insightRows.length) await admin.from("deason_insights").insert(insightRows);
     }
 
     // Check entitlement so the client knows whether to render the full report.
