@@ -76,13 +76,13 @@ export function isAuthorizedReviewer(): boolean {
 
 export const REVIEWER_PAGES = [
   {
+    title: 'Investor Pitch · v2',
+    description: 'Canonical investor pitch — flywheel, three revenue engines, multi-OEM monitoring moat, the ask.',
+    path: '/investor/pitch',
+  },
+  {
     title: 'Seed Pitch',
     description: 'The full investor narrative: catalyst, flywheel, moat, capital plan, and 24-month milestone path.',
     path: '/founders/seed-pitch-greg',
-  },
-  {
-    title: 'Companion Pitch Deck',
-    description: '12-slide visual deck mirroring the seed pitch — clean, scannable, investor-grade.',
-    path: '/founders/seed-pitch-companion-deck',
   },
 ] as const;

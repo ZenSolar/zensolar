@@ -131,7 +131,7 @@ export default function FoundersSecondaryRevenue() {
           <div className="flex items-center gap-3 text-[10px] uppercase tracking-widest text-muted-foreground">
             <Link to="/founders/seed-pitch-greg" className="hover:text-primary">Greg deck</Link>
             <span>·</span>
-            <Link to="/founders/lyndon-pitch-v2" className="hover:text-primary">Lyndon v2</Link>
+            <Link to="/investor/pitch" className="hover:text-primary">Investor Pitch v2</Link>
           </div>
         </div>
 

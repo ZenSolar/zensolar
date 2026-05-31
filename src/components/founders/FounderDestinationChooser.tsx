@@ -90,12 +90,6 @@ export const FOUNDER_DESTINATIONS: FounderDestination[] = [
     Icon: ScrollText,
   },
   {
-    to: "/founders/lyndon-pitch-v2",
-    label: "Lyndon Pitch · v2",
-    blurb: "Refined: patent moat + $5M line items + closer.",
-    Icon: ScrollText,
-  },
-  {
     to: "/founders/vpp-roadmap",
     label: "VPP Roadmap",
     blurb: "Virtual Power Plant strategy.",
@@ -106,18 +100,6 @@ export const FOUNDER_DESTINATIONS: FounderDestination[] = [
     label: "Patent Expansion",
     blurb: "IP moat — claim expansion plan.",
     Icon: ShieldCheck,
-  },
-  {
-    to: "/founders/spacex",
-    label: "SpaceX & Inter-System",
-    blurb: "Off-world energy thesis.",
-    Icon: Rocket,
-  },
-  {
-    to: "/founders/app-overhaul-plan",
-    label: "App Overhaul Plan",
-    blurb: "Roadmap for the next surface.",
-    Icon: Sparkles,
   },
   {
     to: "/founders/v2app",
