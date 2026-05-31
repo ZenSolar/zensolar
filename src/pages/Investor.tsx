@@ -377,7 +377,7 @@ function UnlockedPanel({
           icon={PlayCircle}
           title="Live Investor Demo"
           body="Tap-to-Mint™ flow on real data. Mobile-first."
-          to="/demo"
+          to={demoHref}
           internal
         />
         <UnlockedCard
