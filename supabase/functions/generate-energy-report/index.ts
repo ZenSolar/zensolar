@@ -311,6 +311,73 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Monthly Clean Energy Report ritual: persist a row, compute month-over-month,
+    // update progression, and emit insights.
+    if (isMonthlyRitual) {
+      const preview = parsed.preview as { headline_savings_usd_per_year?: number; executive_summary?: string; top_insight?: string; top_risk_flag?: string };
+      const dollarsSaved = Number(preview.headline_savings_usd_per_year ?? 0) / 12;
+      const bonusTokens = Math.max(0, Math.round(dollarsSaved * 10));
+
+      await admin.from("deason_monthly_reports").upsert({
+        user_id: userId,
+        period_month: periodMonthStr,
+        bill_doc_id: billDocId,
+        structured_report: { preview: parsed.preview, full: parsed.full },
+        narrative: preview.executive_summary ?? null,
+        dollars_saved: dollarsSaved,
+        bonus_tokens: bonusTokens,
+        status: "ready",
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "user_id,period_month" });
+
+      const { data: prog } = await admin
+        .from("deason_progression")
+        .select("*")
+        .eq("user_id", userId)
+        .maybeSingle();
+      const prev = prog ?? {
+        level: 1, points: 0, months_completed: 0,
+        total_saved_usd: 0, total_bonus_tokens: 0, streak_months: 0, last_period_month: null,
+      };
+      const prevMonth = prev.last_period_month ? new Date(prev.last_period_month) : null;
+      const expectedPrev = new Date(periodMonth); expectedPrev.setUTCMonth(expectedPrev.getUTCMonth() - 1);
+      const streak = prevMonth && prevMonth.toISOString().slice(0, 7) === expectedPrev.toISOString().slice(0, 7)
+        ? (prev.streak_months ?? 0) + 1
+        : 1;
+      const months = (prev.months_completed ?? 0) + (prev.last_period_month === periodMonthStr ? 0 : 1);
+      const points = (prev.points ?? 0) + 100 + Math.round(dollarsSaved);
+      const level = 1 + Math.floor(points / 500);
+      await admin.from("deason_progression").upsert({
+        user_id: userId,
+        level,
+        points,
+        months_completed: months,
+        total_saved_usd: Number(prev.total_saved_usd ?? 0) + dollarsSaved,
+        total_bonus_tokens: Number(prev.total_bonus_tokens ?? 0) + bonusTokens,
+        streak_months: streak,
+        last_period_month: periodMonthStr,
+        updated_at: new Date().toISOString(),
+      });
+
+      const insightRows: Array<Record<string, unknown>> = [];
+      if (preview.top_insight) {
+        insightRows.push({ user_id: userId, kind: "savings", title: "This month's biggest opportunity", body: preview.top_insight, severity: "info", source_report_id: reportRow.id });
+      }
+      if (preview.top_risk_flag && !/no major risks/i.test(preview.top_risk_flag)) {
+        insightRows.push({ user_id: userId, kind: "risk", title: "Risk flag", body: preview.top_risk_flag, severity: "warn", source_report_id: reportRow.id });
+      }
+      const firstAction = (parsed.full as { action_items?: Array<{ title: string; estimated_annual_impact_usd: number }> })?.action_items?.[0];
+      if (firstAction) {
+        insightRows.push({
+          user_id: userId, kind: "opportunity",
+          title: firstAction.title,
+          body: `Estimated annual impact: $${Math.round(firstAction.estimated_annual_impact_usd ?? 0)}.`,
+          severity: "info", source_report_id: reportRow.id,
+        });
+      }
+      if (insightRows.length) await admin.from("deason_insights").insert(insightRows);
+    }
+
     // Check entitlement so the client knows whether to render the full report.
     const { data: sub } = await admin
       .from("energy_subscriptions")
