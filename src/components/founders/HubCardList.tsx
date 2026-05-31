@@ -221,16 +221,6 @@ export const HUB_CARDS: HubCardDef[] = [
     tone: "eco",
     createdAt: "2026-04-08",
   },
-  {
-    id: "catchup",
-    to: "/founders/catchup",
-    eyebrow: "Async Briefing · Daily Roll-Up",
-    title: "Catchup",
-    blurb: "What's new since your last visit + decisions awaiting your 👍 / 👎.",
-    icon: Coffee,
-    tone: "primary",
-    createdAt: "2026-04-05",
-  },
 ];
 
 const PIN_STORAGE_KEY = "zen.foundersHub.pinned";
