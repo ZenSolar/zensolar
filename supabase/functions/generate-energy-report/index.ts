@@ -171,6 +171,7 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const docs: IncomingDoc[] = Array.isArray(body?.docs) ? body.docs : [];
     const threadId: string | null = body?.threadId ?? null;
+    const isMonthlyRitual: boolean = body?.isMonthlyRitual === true;
     if (!docs.length) return json({ error: "bad_request", detail: "at least one document required", reqId }, 400);
     if (docs.length > 5) return json({ error: "bad_request", detail: "max 5 documents", reqId }, 400);
     for (const d of docs) {
@@ -197,7 +198,13 @@ Deno.serve(async (req) => {
       return json({ error: "db_error", reqId }, 500);
     }
 
-    // Persist document rows (storage uploads happen client-side before this call).
+    // Persist document rows into BOTH legacy `energy_documents` and the
+    // permanent `deason_documents` library so they show up in the hub.
+    const periodMonth = new Date();
+    periodMonth.setUTCDate(1);
+    const periodMonthStr = periodMonth.toISOString().slice(0, 10);
+    let billDocId: string | null = null;
+
     if (docs.some((d) => d.storagePath)) {
       const docRows = docs
         .filter((d) => d.storagePath)
@@ -210,6 +217,24 @@ Deno.serve(async (req) => {
           mime_type: d.dataUrl.startsWith("data:application/pdf") ? "application/pdf" : "image/*",
         }));
       if (docRows.length) await admin.from("energy_documents").insert(docRows);
+
+      const libraryRows = docs
+        .filter((d) => d.storagePath)
+        .map((d) => ({
+          user_id: userId,
+          kind: d.kind,
+          label: d.filename ?? null,
+          storage_path: d.storagePath!,
+          mime_type: d.dataUrl.startsWith("data:application/pdf") ? "application/pdf" : "image/*",
+          source: isMonthlyRitual ? "monthly_ritual" : "upload",
+          linked_report_id: reportRow.id,
+          period_month: isMonthlyRitual ? periodMonthStr : null,
+        }));
+      if (libraryRows.length) {
+        const { data: inserted } = await admin.from("deason_documents").insert(libraryRows).select("id, kind");
+        const bill = inserted?.find((r: { kind: string }) => r.kind === "utility_bill") as { id: string } | undefined;
+        if (bill) billDocId = bill.id;
+      }
     }
 
     log("calling Gemini 2.5 Pro for energy report", { docCount: docs.length });
