@@ -64,21 +64,9 @@ export default function Deason() {
     setSearchLimit(SEARCH_PAGE_SIZE);
   }, [query]);
 
-  // Auto-redirect on desktop only.
-  useEffect(() => {
-    if (isLoading || threadsLoading || !user || threadId) return;
-    const isDesktop = typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
-    if (!isDesktop) return;
-    const visible = threads.filter((t) => !pendingUndo.has(t.id));
-    if (visible.length > 0) {
-      navigate(`/deason/${visible[0].id}`, { replace: true });
-    } else {
-      void (async () => {
-        const t = await createThread();
-        if (t) navigate(`/deason/${t.id}`, { replace: true });
-      })();
-    }
-  }, [isLoading, threadsLoading, user, threadId, threads, pendingUndo, createThread, navigate]);
+  // Auto-redirect disabled — desktop default lands on the Deason hub so users
+  // see Monthly Reports, Progression, Library, etc. before opening a thread.
+
 
   // Debounced, paginated server-side search across the user's messages.
   useEffect(() => {
