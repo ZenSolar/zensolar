@@ -41,6 +41,8 @@ export function DeasonHub({ onStartChat }: Props) {
   const energy = useEnergyReport();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [isMonthly, setIsMonthly] = useState(true);
+  const [clarifyOpen, setClarifyOpen] = useState(false);
+  const [clarifyTarget, setClarifyTarget] = useState<ClarifyTarget>({ docIds: [] });
   const { toast } = useToast();
   const navigate = useNavigate();
 
