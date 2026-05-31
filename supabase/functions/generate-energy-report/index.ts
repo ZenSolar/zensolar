@@ -254,12 +254,28 @@ Deno.serve(async (req) => {
           linked_report_id: reportRow.id,
           period_month: isMonthlyRitual ? periodMonthStr : null,
         }));
+      let insertedLibrary: Array<{ id: string; kind: string }> = [];
       if (libraryRows.length) {
         const { data: inserted } = await admin.from("deason_documents").insert(libraryRows).select("id, kind");
-        const bill = inserted?.find((r: { kind: string }) => r.kind === "utility_bill") as { id: string } | undefined;
+        insertedLibrary = (inserted ?? []) as Array<{ id: string; kind: string }>;
+        const bill = insertedLibrary.find((r) => r.kind === "utility_bill");
         if (bill) billDocId = bill.id;
       }
+      // Stash for the response — used by the frontend's financing-type clarifier.
+      (reportRow as unknown as { _libraryDocs: typeof insertedLibrary })._libraryDocs = insertedLibrary;
     }
+
+    // Pull any previously confirmed financing_type so analysis is grounded in
+    // (e.g.) "this homeowner has a PPA, not a loan" without re-asking.
+    const { data: priorFinancingRow } = await admin
+      .from("deason_documents")
+      .select("financing_type")
+      .eq("user_id", userId)
+      .not("financing_type", "is", null)
+      .order("uploaded_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const knownFinancing = (priorFinancingRow as { financing_type?: string } | null)?.financing_type ?? null;
 
     log("calling Gemini 2.5 Pro for energy report", { docCount: docs.length });
 
