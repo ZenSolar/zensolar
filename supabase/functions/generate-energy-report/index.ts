@@ -400,6 +400,18 @@ Deno.serve(async (req) => {
           severity: "info", source_report_id: reportRow.id,
         });
       }
+      if (isTexas) {
+        const tdu = inferTduFromEsid(txCtx.esid);
+        const rep = txCtx.utility_name ?? "your REP";
+        insightRows.push({
+          user_id: userId, kind: "opportunity",
+          title: "Texas REP/TDU-aware check",
+          body: `Deason scored your bill against ERCOT deregulated rules with ${rep}${tdu ? ` on the ${tdu} TDU` : ""}. ` +
+            `Solar buyback varies by REP — if you have export, confirm ${rep}'s 1:1 vs. avoided-cost rate. ` +
+            `TDU delivery charges are passed through and won't change with REP switch.`,
+          severity: "info", source_report_id: reportRow.id,
+        });
+      }
       if (insightRows.length) await admin.from("deason_insights").insert(insightRows);
     }
 
