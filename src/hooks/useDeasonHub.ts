@@ -128,5 +128,5 @@ export function useDeasonHub() {
     await supabase.from("deason_insights").update({ dismissed_at: new Date().toISOString() }).eq("id", id);
   }, []);
 
-  return { loading, latestReport, pastReports, progression, library, insights, weather, refresh, dismissInsight };
+  return { loading, latestReport, pastReports, progression, library, insights, weather, profileCtx, refresh, dismissInsight };
 }
