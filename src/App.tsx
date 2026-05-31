@@ -1335,8 +1335,9 @@ const App = () => {
                     <Route path="/founder-pack" element={<FounderRoute><FounderPack /></FounderRoute>} />
                     <Route path="/whitepaper-phase-1" element={<FounderRoute><WhitepaperPhase1 /></FounderRoute>} />
                     <Route path="/whitepaper-phase-2" element={<FounderRoute><WhitepaperPhase2 /></FounderRoute>} />
-                    <Route path="/founders/spacex" element={<FounderRoute><FoundersSpaceX /></FounderRoute>} />
-                    <Route path="/founders/app-overhaul-plan" element={<FounderRoute><FoundersAppOverhaul /></FounderRoute>} />
+                    <Route path="/founders/spacex" element={<Navigate to="/investor/pitch" replace />} />
+                    <Route path="/founders/app-overhaul-plan" element={<Navigate to="/investor/pitch" replace />} />
+                    <Route path="/founders/app-overhaul" element={<Navigate to="/investor/pitch" replace />} />
                     <Route path="/founders/proof-of-genesis" element={<FounderRoute><FoundersProofOfGenesis /></FounderRoute>} />
                     
                     <Route path="/founders/deason-v3" element={<FounderRoute><FoundersDeasonV3 /></FounderRoute>} />
@@ -1349,11 +1350,11 @@ const App = () => {
                     <Route path="/founders/current-status" element={<FounderRoute><FoundersCurrentStatus /></FounderRoute>} />
                     <Route path="/founders/changelog" element={<FounderRoute><FoundersChangelog /></FounderRoute>} />
                     <Route path="/founders/creative-1to1-tokenomics-ideas" element={<FounderRoute><FoundersCreative1to1Tokenomics /></FounderRoute>} />
-                    <Route path="/founders/catchup" element={<FounderRoute><FoundersCatchup /></FounderRoute>} />
+                    <Route path="/founders/catchup" element={<Navigate to="/investor/pitch" replace />} />
                     <Route path="/founders/lyndon" element={<FounderRoute><FoundersLyndonOnePager /></FounderRoute>} />
-                    <Route path="/founders/lyndon-pitch-v2" element={<FounderRoute><FoundersLyndonPitchV2 /></FounderRoute>} />
+                    <Route path="/founders/lyndon-pitch-v2" element={<Navigate to="/investor/pitch" replace />} />
                    <Route path="/founders/seed-pitch-greg" element={<ReviewerOrFounderRoute><FoundersSeedPitch /></ReviewerOrFounderRoute>} />
-                   <Route path="/founders/seed-pitch-companion-deck" element={<ReviewerOrFounderRoute><FoundersSeedPitchCompanionDeck /></ReviewerOrFounderRoute>} />
+                   <Route path="/founders/seed-pitch-companion-deck" element={<Navigate to="/investor/pitch" replace />} />
                     <Route path="/founders/secondary-revenue" element={<FounderRoute><FoundersSecondaryRevenue /></FounderRoute>} />
                     <Route path="/founders/vpp-roadmap" element={<FounderRoute><FoundersVPPRoadmap /></FounderRoute>} />
                     <Route path="/founders/energy-oracle" element={<FounderRoute><FoundersEnergyOracle /></FounderRoute>} />
