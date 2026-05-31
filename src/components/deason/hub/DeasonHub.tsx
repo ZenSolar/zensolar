@@ -12,6 +12,7 @@ import { WeatherOutlookCard } from "./WeatherOutlookCard";
 import { DocumentLibrary } from "./DocumentLibrary";
 import { TexasContextCard } from "./TexasContextCard";
 import { PastReportsTimeline, type DocumentLinkContext } from "./PastReportsTimeline";
+import { FinancingTypeClarifier, type ClarifyTarget } from "@/components/deason/FinancingTypeClarifier";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
