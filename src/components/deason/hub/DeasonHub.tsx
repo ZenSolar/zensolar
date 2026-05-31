@@ -128,7 +128,7 @@ export function DeasonHub({ onStartChat }: Props) {
           <QuickInsightsFeed insights={insights} onDismiss={dismissInsight} />
           <WeatherOutlookCard weather={weather} />
           <DocumentLibrary docs={library} onUpload={() => { setIsMonthly(false); setSheetOpen(true); }} />
-          <PastReportsTimeline reports={allReports} library={library} />
+          <PastReportsTimeline reports={allReports} library={library} onOpenDocument={handleOpenDocument} />
         </div>
       )}
 
