@@ -150,7 +150,8 @@ export default function Investor() {
           name="description"
           content="Sign our NDA to access the ZenSolar seed deck, tokenomics model, and live demo. Creating currency from energy."
         />
-        <link rel="canonical" href="https://zen.solar/investor" />
+        <link rel="canonical" href="https://www.zensolar.com/investor" />
+        <meta property="og:url" content="https://www.zensolar.com/investor" />
       </Helmet>
 
       <div className="min-h-screen bg-background text-foreground">
