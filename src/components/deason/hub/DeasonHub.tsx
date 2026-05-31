@@ -67,13 +67,28 @@ export function DeasonHub({ onStartChat }: Props) {
 
   const handleSubmit = async (docs: Parameters<typeof energy.generate>[0], meta?: EnergyDocMeta) => {
     try {
-      await energy.generate(docs, null, { isMonthlyRitual: isMonthly, meta });
+      const result = await energy.generate(docs, null, { isMonthlyRitual: isMonthly, meta });
       setSheetOpen(false);
       toast({
         title: isMonthly ? "Monthly report ready" : "Analysis ready",
         description: "Your hub has been updated.",
       });
       await refresh();
+
+      // Friendly one-tap follow-up: if any contract/PPA/loan docs were uploaded
+      // and we don't already have a confirmed financing type on file, ask.
+      const FIN_KINDS = new Set(["installer_contract", "ppa", "loan"]);
+      const financingDocs = (result?.libraryDocs ?? []).filter((d) => FIN_KINDS.has(d.kind));
+      if (financingDocs.length > 0 && !result?.knownFinancing) {
+        const labelByKind = new Map(docs.map((d) => [d.kind, d.filename]));
+        setClarifyTarget({
+          docIds: financingDocs.map((d) => d.id),
+          fileLabels: financingDocs
+            .map((d) => labelByKind.get(d.kind as Parameters<typeof labelByKind.get>[0]))
+            .filter((x): x is string => !!x),
+        });
+        setClarifyOpen(true);
+      }
     } catch (e) {
       toast({
         variant: "destructive",
