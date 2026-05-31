@@ -221,26 +221,45 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Ground follow-ups in the latest doc analysis for this thread, if any.
-    let analysisContext = "";
-    if (!isInnerCircle && typeof threadId === "string" && threadId) {
-      const { data: latest } = await admin
-        .from("deason_doc_analyses")
-        .select("report, narrative")
-        .eq("user_id", user.id)
-        .eq("thread_id", threadId)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (latest?.report) {
-        // Compact the report so we stay well under context limits.
-        const r = latest.report as Record<string, unknown>;
-        const compact = JSON.stringify(r).slice(0, 6000);
-        analysisContext = `\n\n--- ENERGY ANALYSIS CONTEXT (from this user's uploaded documents) ---\n${compact}\n--- END CONTEXT ---`;
+    // Build a rich USER CONTEXT block for the public persona: latest analysis
+    // for this thread, latest monthly report, library index, progression,
+    // ESID/state, and weather (when key configured).
+    let userContext = "";
+    if (!isInnerCircle) {
+      const [analysisRes, monthlyRes, libRes, progRes, profileRes] = await Promise.all([
+        typeof threadId === "string" && threadId
+          ? admin.from("deason_doc_analyses").select("report, narrative").eq("user_id", user.id).eq("thread_id", threadId).order("created_at", { ascending: false }).limit(1).maybeSingle()
+          : Promise.resolve({ data: null }),
+        admin.from("deason_monthly_reports").select("period_month, dollars_saved, narrative, structured_report").eq("user_id", user.id).order("period_month", { ascending: false }).limit(1).maybeSingle(),
+        admin.from("deason_documents").select("kind, label, uploaded_at").eq("user_id", user.id).order("uploaded_at", { ascending: false }).limit(20),
+        admin.from("deason_progression").select("level, points, streak_months, total_saved_usd, months_completed").eq("user_id", user.id).maybeSingle(),
+        admin.from("profiles").select("esid, state_code, utility_name").eq("user_id", user.id).maybeSingle(),
+      ]);
+
+      const parts: string[] = [];
+      const profile = profileRes.data as { esid?: string; state_code?: string; utility_name?: string } | null;
+      if (profile?.state_code || profile?.esid || profile?.utility_name) {
+        parts.push(`LOCATION: ${[profile.state_code, profile.utility_name, profile.esid ? `ESID ${profile.esid}` : null].filter(Boolean).join(" · ")}`);
+        if (profile.state_code === "TX" || profile.esid) {
+          parts.push("Texas note: this homeowner is on the ERCOT grid. Frame answers around REP plans, TDU delivery charges, and buyback (export) rates rather than NEM. Mention ESID-aware plan shopping (PowerToChoose.org) when relevant.");
+        }
       }
+      const prog = progRes.data as { level?: number; points?: number; streak_months?: number; total_saved_usd?: number; months_completed?: number } | null;
+      if (prog) parts.push(`PROGRESSION: Level ${prog.level ?? 1} · ${prog.months_completed ?? 0} monthly reports · $${Math.round(Number(prog.total_saved_usd ?? 0))} tracked savings · ${prog.streak_months ?? 0}-month streak`);
+      const monthly = monthlyRes.data as { period_month?: string; dollars_saved?: number; narrative?: string } | null;
+      if (monthly) parts.push(`LATEST MONTHLY REPORT (${monthly.period_month}): $${Math.round(Number(monthly.dollars_saved ?? 0))} saved. ${monthly.narrative ?? ""}`.trim());
+      const lib = (libRes.data ?? []) as Array<{ kind: string; label: string | null; uploaded_at: string }>;
+      if (lib.length) {
+        parts.push("DOCUMENT LIBRARY:\n" + lib.slice(0, 10).map((d) => `- ${d.kind}${d.label ? `: ${d.label}` : ""} (${d.uploaded_at.slice(0, 10)})`).join("\n"));
+      }
+      const analysis = analysisRes.data as { report?: Record<string, unknown>; narrative?: string } | null;
+      if (analysis?.report) {
+        parts.push("ENERGY ANALYSIS CONTEXT (current thread's uploaded documents):\n" + JSON.stringify(analysis.report).slice(0, 5000));
+      }
+      if (parts.length) userContext = `\n\n--- USER CONTEXT ---\n${parts.join("\n\n")}\n--- END USER CONTEXT ---`;
     }
 
-    const systemPrompt = (isInnerCircle ? INNER_CIRCLE_PROMPT : PUBLIC_PROMPT) + analysisContext;
+    const systemPrompt = (isInnerCircle ? INNER_CIRCLE_PROMPT : PUBLIC_PROMPT) + userContext;
     const model = "google/gemini-2.5-flash";
 
     log("calling AI gateway", { msgCount: messages.length, model, persona: isInnerCircle ? "inner" : "public" });
