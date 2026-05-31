@@ -140,16 +140,6 @@ export const HUB_CARDS: HubCardDef[] = [
     createdAt: "2026-04-27",
   },
   {
-    id: "spacex",
-    to: "/founders/spacex",
-    eyebrow: "Comparable · Trajectory Mirror",
-    title: "SpaceX Comparable",
-    blurb: "Why ZenSolar's curve mirrors SpaceX 2002→2024 — and the timing of each leg.",
-    icon: Rocket,
-    tone: "primary",
-    createdAt: "2026-04-27",
-  },
-  {
     id: "patent-expansion",
     to: "/founders/patent-expansion",
     eyebrow: "Patent · Phase 3 Claims",
@@ -168,16 +158,6 @@ export const HUB_CARDS: HubCardDef[] = [
     icon: Gauge,
     tone: "primary",
     createdAt: "2026-04-25",
-  },
-  {
-    id: "app-overhaul-plan",
-    to: "/founders/app-overhaul-plan",
-    eyebrow: "Product · Roadmap",
-    title: "App Overhaul Plan",
-    blurb: "What ships next in the PWA — sequencing, scope, and dependencies.",
-    icon: LayoutDashboard,
-    tone: "eco",
-    createdAt: "2026-04-22",
   },
   {
     id: "v2app",
