@@ -279,7 +279,7 @@ export default function FoundersSsotOnePager() {
               <Link to="/founders/ssot-zen"><ExternalLink className="mr-1 h-3.5 w-3.5" /> Full SSOT Dashboard</Link>
             </Button>
             <Button asChild variant="ghost" size="sm">
-              <Link to="/founders/lyndon-pitch-v2"><ExternalLink className="mr-1 h-3.5 w-3.5" /> Lyndon Pitch v2</Link>
+              <Link to="/investor/pitch"><ExternalLink className="mr-1 h-3.5 w-3.5" /> Investor Pitch · v2</Link>
             </Button>
             <Button asChild variant="ghost" size="sm">
               <Link to="/founders/changelog"><ExternalLink className="mr-1 h-3.5 w-3.5" /> Changelog</Link>

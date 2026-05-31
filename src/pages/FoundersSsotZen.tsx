@@ -600,8 +600,7 @@ export default function FoundersSsotZen() {
             {[
               { label: "Master Outline", to: "/founders/master-outline", icon: FileText, desc: "Full narrative & strategy" },
               { label: "Changelog", to: "/founders/changelog", icon: Clock, desc: "Recent decisions" },
-              { label: "Catchup", to: "/founders/catchup", icon: Activity, desc: "Where we are right now" },
-              { label: "Lyndon Pitch v2", to: "/founders/lyndon-pitch-v2", icon: Sparkles, desc: "Lyndon Rive deck" },
+              { label: "Investor Pitch · v2", to: "/investor/pitch", icon: Sparkles, desc: "Canonical pitch" },
               { label: "Seed Ask", to: "/founders/seed-ask", icon: Coins, desc: "Round mechanics" },
               { label: "Flywheel Sim", to: "/founders/flywheel-simulation", icon: TrendingUp, desc: "Interactive model" },
               { label: "Deason Utility AI", to: "/founders/deason-utility-ai-revstream", icon: Zap, desc: "Phase 1.5 spec" },
