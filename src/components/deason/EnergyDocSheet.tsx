@@ -41,11 +41,18 @@ const SLOTS: Slot[] = [
 
 const MAX_MB = 12;
 
+export interface EnergyDocMeta {
+  esid?: string;
+  state_code?: string;
+  utility_name?: string;
+}
+
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (docs: EnergyDocInput[]) => Promise<void> | void;
+  onSubmit: (docs: EnergyDocInput[], meta?: EnergyDocMeta) => Promise<void> | void;
   loading?: boolean;
+  defaultMeta?: EnergyDocMeta;
 }
 
 /**
