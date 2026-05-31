@@ -100,17 +100,7 @@ export const HUB_CARDS: HubCardDef[] = [
     createdAt: "2026-05-11",
   },
   {
-    id: "lyndon-pitch-v2",
-    to: "/founders/lyndon-pitch-v2",
-    eyebrow: "Pitch · Long-Form v2",
-    title: "Lyndon Pitch v2",
-    blurb: "Full narrative pitch deck for Lyndon — vision, moat, ladder, ask.",
-    icon: Presentation,
-    tone: "primary",
-    createdAt: "2026-04-29",
-  },
-  {
-    id: "lyndon-one-pager",
+    id: "lyndon-one-pager-redirect",
     to: "/founders/lyndon",
     eyebrow: "Pitch · Short-Form",
     title: "Lyndon One-Pager",
