@@ -48,6 +48,12 @@ export interface WeatherState {
   threeDay?: Array<{ date: string; tempMin: number; tempMax: number; condition: string; icon: string; pop: number }>;
 }
 
+export interface ProfileCtx {
+  state_code: string | null;
+  esid: string | null;
+  utility_name: string | null;
+}
+
 /**
  * Loads everything the Deason hub renders. Refreshes on mount and exposes a
  * manual refresh hook so callers can re-pull after running a monthly ritual.
@@ -61,15 +67,18 @@ export function useDeasonHub() {
   const [library, setLibrary] = useState<LibraryDoc[]>([]);
   const [insights, setInsights] = useState<Insight[]>([]);
   const [weather, setWeather] = useState<WeatherState>({ status: "placeholder", message: "Weather forecast coming soon" });
+  const [profileCtx, setProfileCtx] = useState<ProfileCtx>({ state_code: null, esid: null, utility_name: null });
 
   const refresh = useCallback(async () => {
     if (!user) return;
     setLoading(true);
-    const [reports, prog, lib, ins] = await Promise.all([
+    const [reports, prog, lib, ins, profile] = await Promise.all([
       supabase.from("deason_monthly_reports").select("*").eq("user_id", user.id).order("period_month", { ascending: false }).limit(12),
       supabase.from("deason_progression").select("*").eq("user_id", user.id).maybeSingle(),
       supabase.from("deason_documents").select("*").eq("user_id", user.id).order("uploaded_at", { ascending: false }).limit(50),
       supabase.from("deason_insights").select("*").eq("user_id", user.id).is("dismissed_at", null).order("created_at", { ascending: false }).limit(6),
+      (supabase.from("profiles") as unknown as { select: (cols: string) => { eq: (c: string, v: string) => { maybeSingle: () => Promise<{ data: ProfileCtx | null }> } } })
+        .select("state_code, esid, utility_name").eq("user_id", user.id).maybeSingle(),
     ]);
     const rows = (reports.data ?? []) as MonthlyReport[];
     setLatestReport(rows[0] ?? null);
@@ -77,6 +86,8 @@ export function useDeasonHub() {
     setProgression((prog.data as Progression | null) ?? null);
     setLibrary((lib.data ?? []) as LibraryDoc[]);
     setInsights((ins.data ?? []) as Insight[]);
+    const p = (profile?.data ?? null) as ProfileCtx | null;
+    if (p) setProfileCtx({ state_code: p.state_code ?? null, esid: p.esid ?? null, utility_name: p.utility_name ?? null });
     setLoading(false);
   }, [user]);
 
@@ -117,5 +128,5 @@ export function useDeasonHub() {
     await supabase.from("deason_insights").update({ dismissed_at: new Date().toISOString() }).eq("id", id);
   }, []);
 
-  return { loading, latestReport, pastReports, progression, library, insights, weather, refresh, dismissInsight };
+  return { loading, latestReport, pastReports, progression, library, insights, weather, profileCtx, refresh, dismissInsight };
 }

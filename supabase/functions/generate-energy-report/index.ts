@@ -172,6 +172,7 @@ Deno.serve(async (req) => {
     const docs: IncomingDoc[] = Array.isArray(body?.docs) ? body.docs : [];
     const threadId: string | null = body?.threadId ?? null;
     const isMonthlyRitual: boolean = body?.isMonthlyRitual === true;
+    const meta: { esid?: string; state_code?: string; utility_name?: string } | null = body?.meta ?? null;
     if (!docs.length) return json({ error: "bad_request", detail: "at least one document required", reqId }, 400);
     if (docs.length > 5) return json({ error: "bad_request", detail: "max 5 documents", reqId }, 400);
     for (const d of docs) {
@@ -182,7 +183,30 @@ Deno.serve(async (req) => {
 
     const admin = createClient(SUPABASE_URL, SERVICE);
 
+    // Persist user-supplied TX metadata to the profile so it sticks across runs.
+    if (meta && (meta.esid || meta.state_code || meta.utility_name)) {
+      const patch: Record<string, string> = {};
+      if (meta.esid) patch.esid = meta.esid;
+      if (meta.state_code) patch.state_code = meta.state_code.toUpperCase();
+      if (meta.utility_name) patch.utility_name = meta.utility_name;
+      await admin.from("profiles").update(patch).eq("user_id", userId);
+    }
+
+    // Resolve effective TX context (DB ⊕ inbound override).
+    const { data: profileRow } = await admin
+      .from("profiles")
+      .select("esid, state_code, utility_name")
+      .eq("user_id", userId)
+      .maybeSingle();
+    const txCtx = {
+      esid: meta?.esid ?? (profileRow as { esid?: string } | null)?.esid ?? null,
+      state_code: meta?.state_code ?? (profileRow as { state_code?: string } | null)?.state_code ?? null,
+      utility_name: meta?.utility_name ?? (profileRow as { utility_name?: string } | null)?.utility_name ?? null,
+    };
+    const isTexas = txCtx.state_code === "TX" || !!txCtx.esid;
+
     // Create the report row up-front so the client can poll/link to it.
+
     const { data: reportRow, error: reportErr } = await admin
       .from("energy_reports")
       .insert({
@@ -257,6 +281,7 @@ Deno.serve(async (req) => {
         model: "google/gemini-2.5-pro",
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
+          ...(isTexas ? [{ role: "system" as const, content: buildTexasSystemAddendum(txCtx) }] : []),
           { role: "user", content },
         ],
         tools: [REPORT_TOOL],
@@ -375,6 +400,18 @@ Deno.serve(async (req) => {
           severity: "info", source_report_id: reportRow.id,
         });
       }
+      if (isTexas) {
+        const tdu = inferTduFromEsid(txCtx.esid);
+        const rep = txCtx.utility_name ?? "your REP";
+        insightRows.push({
+          user_id: userId, kind: "opportunity",
+          title: "Texas REP/TDU-aware check",
+          body: `Deason scored your bill against ERCOT deregulated rules with ${rep}${tdu ? ` on the ${tdu} TDU` : ""}. ` +
+            `Solar buyback varies by REP — if you have export, confirm ${rep}'s 1:1 vs. avoided-cost rate. ` +
+            `TDU delivery charges are passed through and won't change with REP switch.`,
+          severity: "info", source_report_id: reportRow.id,
+        });
+      }
       if (insightRows.length) await admin.from("deason_insights").insert(insightRows);
     }
 
@@ -405,4 +442,29 @@ function json(body: unknown, status = 200) {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
+}
+
+function buildTexasSystemAddendum(ctx: { esid: string | null; state_code: string | null; utility_name: string | null }): string {
+  const tdu = inferTduFromEsid(ctx.esid);
+  return `TEXAS / ERCOT CONTEXT (the homeowner is in a deregulated market):
+- State: TX. ${ctx.esid ? `ESID on file: ${ctx.esid}.` : "ESID not provided — ask if needed."}
+- REP (retailer): ${ctx.utility_name ?? "unknown"}.
+- TDU (poles & wires, set by ESID): ${tdu ?? "infer from bill / ESID prefix"}.
+- The bill will have SEPARATE energy charges (REP) and delivery charges (TDU). Call this out explicitly.
+- Solar buyback / net-metering is per-REP in TX, NOT statewide. Common patterns: 1:1 export plans (Rhythm Rise, Octopus, Chariot), avoided-cost only (TXU, Reliant default), surplus-credit (Green Mountain). Name the plan if visible.
+- Rate-plan optimization should compare specifically against PowerToChoose.org plans available for this TDU territory.
+- TDU delivery charges are passed through verbatim by every REP — switching REP cannot change them.
+- Always tag any TX-specific recommendation with "(TX-specific)" so the homeowner knows the assumption.`;
+}
+
+function inferTduFromEsid(esid: string | null): string | null {
+  if (!esid) return null;
+  const digits = esid.replace(/\D/g, "");
+  if (digits.length < 5) return null;
+  if (digits.startsWith("10089")) return "Oncor";
+  if (digits.startsWith("10204")) return "CenterPoint";
+  if (digits.startsWith("1044372")) return "AEP Texas Central";
+  if (digits.startsWith("10404")) return "AEP Texas North";
+  if (digits.startsWith("1017699")) return "TNMP";
+  return null;
 }

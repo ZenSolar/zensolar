@@ -63,7 +63,11 @@ export function useEnergyReport() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<EnergyReportResult | null>(null);
 
-  const generate = useCallback(async (docs: EnergyDocInput[], threadId?: string | null, opts?: { isMonthlyRitual?: boolean }) => {
+  const generate = useCallback(async (
+    docs: EnergyDocInput[],
+    threadId?: string | null,
+    opts?: { isMonthlyRitual?: boolean; meta?: { esid?: string; state_code?: string; utility_name?: string } },
+  ) => {
     setLoading(true);
     setError(null);
     setResult(null);
@@ -89,7 +93,12 @@ export function useEnergyReport() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ docs: uploads, threadId: threadId ?? null, isMonthlyRitual: opts?.isMonthlyRitual === true }),
+        body: JSON.stringify({
+          docs: uploads,
+          threadId: threadId ?? null,
+          isMonthlyRitual: opts?.isMonthlyRitual === true,
+          meta: opts?.meta ?? null,
+        }),
       });
       if (!res.ok) {
         let detail = `HTTP ${res.status}`;

@@ -1,14 +1,17 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Sparkles, Loader2 } from "lucide-react";
 import { useDeasonHub } from "@/hooks/useDeasonHub";
 import { useEnergyReport } from "@/hooks/useEnergyReport";
-import { EnergyDocSheet } from "@/components/deason/EnergyDocSheet";
+import { EnergyDocSheet, type EnergyDocMeta } from "@/components/deason/EnergyDocSheet";
 import { MonthlyRitualBanner } from "./MonthlyRitualBanner";
+import { NextStepsCard } from "./NextStepsCard";
 import { ProgressionCard } from "./ProgressionCard";
 import { MonthlyReportCard } from "./MonthlyReportCard";
 import { QuickInsightsFeed } from "./QuickInsightsFeed";
 import { WeatherOutlookCard } from "./WeatherOutlookCard";
 import { DocumentLibrary } from "./DocumentLibrary";
+import { TexasContextCard } from "./TexasContextCard";
+import { PastReportsTimeline } from "./PastReportsTimeline";
 import { useToast } from "@/hooks/use-toast";
 
 interface Props {
@@ -16,19 +19,37 @@ interface Props {
 }
 
 /**
- * The Deason hub — replaces the empty "no thread selected" state on /deason.
- * Pulls latest monthly report, progression, insights, library, and weather.
+ * Deason hub. Composes monthly ritual banner / next-steps, progression,
+ * latest monthly report, insights, weather, document library, TX context,
+ * and a filterable past-reports timeline.
  */
 export function DeasonHub({ onStartChat }: Props) {
-  const { loading, latestReport, pastReports, progression, library, insights, weather, refresh, dismissInsight } = useDeasonHub();
+  const {
+    loading,
+    latestReport,
+    pastReports,
+    progression,
+    library,
+    insights,
+    weather,
+    profileCtx,
+    refresh,
+    dismissInsight,
+  } = useDeasonHub();
   const energy = useEnergyReport();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [isMonthly, setIsMonthly] = useState(true);
   const { toast } = useToast();
 
-  const handleSubmit = async (docs: Parameters<typeof energy.generate>[0]) => {
+  const currentPeriod = useMemo(() => {
+    const now = new Date();
+    return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString().slice(0, 10);
+  }, []);
+  const hasCurrentMonthReport = latestReport?.period_month === currentPeriod;
+
+  const handleSubmit = async (docs: Parameters<typeof energy.generate>[0], meta?: EnergyDocMeta) => {
     try {
-      await energy.generate(docs, null, { isMonthlyRitual: isMonthly });
+      await energy.generate(docs, null, { isMonthlyRitual: isMonthly, meta });
       setSheetOpen(false);
       toast({
         title: isMonthly ? "Monthly report ready" : "Analysis ready",
@@ -43,6 +64,11 @@ export function DeasonHub({ onStartChat }: Props) {
       });
     }
   };
+
+  const allReports = useMemo(
+    () => (latestReport ? [latestReport, ...pastReports] : pastReports),
+    [latestReport, pastReports],
+  );
 
   return (
     <div className="mx-auto h-full w-full max-w-2xl overflow-y-auto px-4 py-5">
@@ -73,26 +99,21 @@ export function DeasonHub({ onStartChat }: Props) {
         </div>
       ) : (
         <div className="space-y-4">
-          <MonthlyRitualBanner latest={latestReport} onStart={() => { setIsMonthly(true); setSheetOpen(true); }} />
+          {hasCurrentMonthReport && latestReport ? (
+            <NextStepsCard latest={latestReport} onAskDeason={onStartChat} />
+          ) : (
+            <MonthlyRitualBanner
+              latest={latestReport}
+              onStart={() => { setIsMonthly(true); setSheetOpen(true); }}
+            />
+          )}
           <ProgressionCard progression={progression} />
+          <TexasContextCard ctx={profileCtx} onEdit={() => { setIsMonthly(false); setSheetOpen(true); }} />
           <MonthlyReportCard report={latestReport} />
           <QuickInsightsFeed insights={insights} onDismiss={dismissInsight} />
           <WeatherOutlookCard weather={weather} />
           <DocumentLibrary docs={library} onUpload={() => { setIsMonthly(false); setSheetOpen(true); }} />
-
-          {pastReports.length > 0 && (
-            <div className="rounded-2xl border border-border bg-card p-4">
-              <div className="text-sm font-semibold">Past monthly reports</div>
-              <ul className="mt-2 space-y-1">
-                {pastReports.map((r) => (
-                  <li key={r.id} className="flex items-center justify-between rounded-md bg-background px-2.5 py-1.5 text-xs">
-                    <span>{new Date(r.period_month).toLocaleString(undefined, { month: "long", year: "numeric" })}</span>
-                    <span className="font-medium text-amber-500">${Math.round(r.dollars_saved)}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+          <PastReportsTimeline reports={allReports} library={library} />
         </div>
       )}
 
@@ -101,6 +122,11 @@ export function DeasonHub({ onStartChat }: Props) {
         onOpenChange={setSheetOpen}
         loading={energy.loading}
         onSubmit={handleSubmit}
+        defaultMeta={{
+          esid: profileCtx.esid ?? undefined,
+          state_code: profileCtx.state_code ?? undefined,
+          utility_name: profileCtx.utility_name ?? undefined,
+        }}
       />
     </div>
   );
