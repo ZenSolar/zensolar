@@ -38,6 +38,14 @@ interface SignedState {
 }
 
 function readSigned(): SignedState | null {
+  // Preview/localhost: synthesize a signed state so reviewers see the unlocked panel directly.
+  if (isPreviewHost()) {
+    return {
+      email: 'preview@zen.solar',
+      fullName: 'Preview Reviewer',
+      signedAt: new Date().toISOString(),
+    };
+  }
   try {
     const raw = localStorage.getItem(INVESTOR_SIGNED_KEY);
     if (!raw) return null;
