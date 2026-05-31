@@ -397,6 +397,51 @@ export type Database = {
         }
         Relationships: []
       }
+      deason_documents: {
+        Row: {
+          id: string
+          kind: string
+          label: string | null
+          linked_analysis_id: string | null
+          linked_report_id: string | null
+          mime_type: string | null
+          period_month: string | null
+          size_bytes: number | null
+          source: string
+          storage_path: string
+          uploaded_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          kind: string
+          label?: string | null
+          linked_analysis_id?: string | null
+          linked_report_id?: string | null
+          mime_type?: string | null
+          period_month?: string | null
+          size_bytes?: number | null
+          source?: string
+          storage_path: string
+          uploaded_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          kind?: string
+          label?: string | null
+          linked_analysis_id?: string | null
+          linked_report_id?: string | null
+          mime_type?: string | null
+          period_month?: string | null
+          size_bytes?: number | null
+          source?: string
+          storage_path?: string
+          uploaded_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       deason_inner_circle: {
         Row: {
           granted_at: string
@@ -414,6 +459,42 @@ export type Database = {
           granted_at?: string
           granted_by?: string | null
           note?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      deason_insights: {
+        Row: {
+          body: string
+          created_at: string
+          dismissed_at: string | null
+          id: string
+          kind: string
+          severity: string
+          source_report_id: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          dismissed_at?: string | null
+          id?: string
+          kind: string
+          severity?: string
+          source_report_id?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          dismissed_at?: string | null
+          id?: string
+          kind?: string
+          severity?: string
+          source_report_id?: string | null
+          title?: string
           user_id?: string
         }
         Relationships: []
@@ -459,6 +540,92 @@ export type Database = {
           },
         ]
       }
+      deason_monthly_reports: {
+        Row: {
+          bill_doc_id: string | null
+          bonus_tokens: number
+          created_at: string
+          dollars_saved: number
+          id: string
+          narrative: string | null
+          period_month: string
+          status: string
+          structured_report: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bill_doc_id?: string | null
+          bonus_tokens?: number
+          created_at?: string
+          dollars_saved?: number
+          id?: string
+          narrative?: string | null
+          period_month: string
+          status?: string
+          structured_report?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bill_doc_id?: string | null
+          bonus_tokens?: number
+          created_at?: string
+          dollars_saved?: number
+          id?: string
+          narrative?: string | null
+          period_month?: string
+          status?: string
+          structured_report?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deason_monthly_reports_bill_doc_id_fkey"
+            columns: ["bill_doc_id"]
+            isOneToOne: false
+            referencedRelation: "deason_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deason_progression: {
+        Row: {
+          last_period_month: string | null
+          level: number
+          months_completed: number
+          points: number
+          streak_months: number
+          total_bonus_tokens: number
+          total_saved_usd: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          last_period_month?: string | null
+          level?: number
+          months_completed?: number
+          points?: number
+          streak_months?: number
+          total_bonus_tokens?: number
+          total_saved_usd?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          last_period_month?: string | null
+          level?: number
+          months_completed?: number
+          points?: number
+          streak_months?: number
+          total_bonus_tokens?: number
+          total_saved_usd?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       deason_threads: {
         Row: {
           created_at: string
@@ -503,6 +670,33 @@ export type Database = {
           message_count?: number
           updated_at?: string
           usage_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      deason_weather_cache: {
+        Row: {
+          fetched_at: string
+          id: string
+          lat: number
+          lon: number
+          payload: Json
+          user_id: string
+        }
+        Insert: {
+          fetched_at?: string
+          id?: string
+          lat: number
+          lon: number
+          payload: Json
+          user_id: string
+        }
+        Update: {
+          fetched_at?: string
+          id?: string
+          lat?: number
+          lon?: number
+          payload?: Json
           user_id?: string
         }
         Relationships: []
@@ -1905,6 +2099,7 @@ export type Database = {
           created_at: string
           display_name: string | null
           enphase_connected: boolean | null
+          esid: string | null
           facebook_connected: boolean | null
           facebook_handle: string | null
           hidden_activity_fields: string[] | null
@@ -1925,6 +2120,7 @@ export type Database = {
           referred_by: string | null
           solar_installer: string | null
           solaredge_connected: boolean | null
+          state_code: string | null
           tesla_connected: boolean | null
           tiktok_connected: boolean | null
           tiktok_handle: string | null
@@ -1934,6 +2130,7 @@ export type Database = {
           ui_density: string
           updated_at: string
           user_id: string
+          utility_name: string | null
           wallbox_connected: boolean | null
           wallet_address: string | null
         }
@@ -1942,6 +2139,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           enphase_connected?: boolean | null
+          esid?: string | null
           facebook_connected?: boolean | null
           facebook_handle?: string | null
           hidden_activity_fields?: string[] | null
@@ -1962,6 +2160,7 @@ export type Database = {
           referred_by?: string | null
           solar_installer?: string | null
           solaredge_connected?: boolean | null
+          state_code?: string | null
           tesla_connected?: boolean | null
           tiktok_connected?: boolean | null
           tiktok_handle?: string | null
@@ -1971,6 +2170,7 @@ export type Database = {
           ui_density?: string
           updated_at?: string
           user_id: string
+          utility_name?: string | null
           wallbox_connected?: boolean | null
           wallet_address?: string | null
         }
@@ -1979,6 +2179,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           enphase_connected?: boolean | null
+          esid?: string | null
           facebook_connected?: boolean | null
           facebook_handle?: string | null
           hidden_activity_fields?: string[] | null
@@ -1999,6 +2200,7 @@ export type Database = {
           referred_by?: string | null
           solar_installer?: string | null
           solaredge_connected?: boolean | null
+          state_code?: string | null
           tesla_connected?: boolean | null
           tiktok_connected?: boolean | null
           tiktok_handle?: string | null
@@ -2008,6 +2210,7 @@ export type Database = {
           ui_density?: string
           updated_at?: string
           user_id?: string
+          utility_name?: string | null
           wallbox_connected?: boolean | null
           wallet_address?: string | null
         }
