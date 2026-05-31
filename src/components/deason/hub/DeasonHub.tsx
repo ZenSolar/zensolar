@@ -11,8 +11,9 @@ import { QuickInsightsFeed } from "./QuickInsightsFeed";
 import { WeatherOutlookCard } from "./WeatherOutlookCard";
 import { DocumentLibrary } from "./DocumentLibrary";
 import { TexasContextCard } from "./TexasContextCard";
-import { PastReportsTimeline } from "./PastReportsTimeline";
+import { PastReportsTimeline, type DocumentLinkContext } from "./PastReportsTimeline";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   onStartChat: () => void;
