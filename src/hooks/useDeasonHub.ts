@@ -77,8 +77,8 @@ export function useDeasonHub() {
       supabase.from("deason_progression").select("*").eq("user_id", user.id).maybeSingle(),
       supabase.from("deason_documents").select("*").eq("user_id", user.id).order("uploaded_at", { ascending: false }).limit(50),
       supabase.from("deason_insights").select("*").eq("user_id", user.id).is("dismissed_at", null).order("created_at", { ascending: false }).limit(6),
-      // @ts-expect-error — profile columns added in migration; types regen on next sync
-      supabase.from("profiles").select("state_code, esid, utility_name").eq("user_id", user.id).maybeSingle(),
+      (supabase.from("profiles") as unknown as { select: (cols: string) => { eq: (c: string, v: string) => { maybeSingle: () => Promise<{ data: ProfileCtx | null }> } } })
+        .select("state_code, esid, utility_name").eq("user_id", user.id).maybeSingle(),
     ]);
     const rows = (reports.data ?? []) as MonthlyReport[];
     setLatestReport(rows[0] ?? null);
