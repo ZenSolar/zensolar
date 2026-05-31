@@ -123,7 +123,12 @@ export function EnergyDocSheet({ open, onOpenChange, onSubmit, loading, defaultM
       setError("Your utility bill is required so the analysis is grounded in real numbers.");
       return;
     }
-    await onSubmit(list);
+    const cleanMeta: EnergyDocMeta = {
+      esid: meta.esid?.trim() || undefined,
+      state_code: meta.state_code?.trim().toUpperCase() || undefined,
+      utility_name: meta.utility_name?.trim() || undefined,
+    };
+    await onSubmit(list, cleanMeta);
   };
 
   const filledCount = Object.keys(docs).length;
