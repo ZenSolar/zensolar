@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { DeasonHub } from "@/components/deason/hub/DeasonHub";
 
 const SEARCH_PAGE_SIZE = 25;
 const UNDO_GRACE_MS = 8000;
@@ -339,8 +340,8 @@ export default function Deason() {
             />
           </>
         ) : (
-          <div className="hidden md:flex h-full items-center justify-center text-sm text-muted-foreground">
-            Select a conversation or start a new one.
+          <div className="hidden h-full md:block">
+            <DeasonHub onStartChat={() => void handleNewThread()} />
           </div>
         )}
       </div>
