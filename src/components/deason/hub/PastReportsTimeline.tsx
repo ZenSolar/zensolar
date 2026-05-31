@@ -28,10 +28,11 @@ type DocFilter = "any" | "utility_bill" | "installer_contract" | "ppa" | "loan";
  * document set (e.g. "only months where I uploaded a PPA"). Designed to
  * scale up to 12+ rows without overwhelming the hub.
  */
-export function PastReportsTimeline({ reports, library }: Props) {
+export function PastReportsTimeline({ reports, library, onOpenDocument }: Props) {
   const [range, setRange] = useState<RangeKey>("all");
   const [docFilter, setDocFilter] = useState<DocFilter>("any");
   const [query, setQuery] = useState("");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   // Group library docs by their period_month for fast lookup.
   const docsByMonth = useMemo(() => {
