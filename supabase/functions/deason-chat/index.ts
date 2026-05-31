@@ -231,7 +231,7 @@ Deno.serve(async (req) => {
           ? admin.from("deason_doc_analyses").select("report, narrative").eq("user_id", user.id).eq("thread_id", threadId).order("created_at", { ascending: false }).limit(1).maybeSingle()
           : Promise.resolve({ data: null }),
         admin.from("deason_monthly_reports").select("period_month, dollars_saved, narrative, structured_report").eq("user_id", user.id).order("period_month", { ascending: false }).limit(1).maybeSingle(),
-        admin.from("deason_documents").select("kind, label, uploaded_at").eq("user_id", user.id).order("uploaded_at", { ascending: false }).limit(20),
+        admin.from("deason_documents").select("kind, label, uploaded_at, financing_type").eq("user_id", user.id).order("uploaded_at", { ascending: false }).limit(20),
         admin.from("deason_progression").select("level, points, streak_months, total_saved_usd, months_completed").eq("user_id", user.id).maybeSingle(),
         admin.from("profiles").select("esid, state_code, utility_name").eq("user_id", user.id).maybeSingle(),
       ]);
@@ -248,9 +248,21 @@ Deno.serve(async (req) => {
       if (prog) parts.push(`PROGRESSION: Level ${prog.level ?? 1} · ${prog.months_completed ?? 0} monthly reports · $${Math.round(Number(prog.total_saved_usd ?? 0))} tracked savings · ${prog.streak_months ?? 0}-month streak`);
       const monthly = monthlyRes.data as { period_month?: string; dollars_saved?: number; narrative?: string } | null;
       if (monthly) parts.push(`LATEST MONTHLY REPORT (${monthly.period_month}): $${Math.round(Number(monthly.dollars_saved ?? 0))} saved. ${monthly.narrative ?? ""}`.trim());
-      const lib = (libRes.data ?? []) as Array<{ kind: string; label: string | null; uploaded_at: string }>;
+      const lib = (libRes.data ?? []) as Array<{ kind: string; label: string | null; uploaded_at: string; financing_type: string | null }>;
       if (lib.length) {
         parts.push("DOCUMENT LIBRARY:\n" + lib.slice(0, 10).map((d) => `- ${d.kind}${d.label ? `: ${d.label}` : ""} (${d.uploaded_at.slice(0, 10)})`).join("\n"));
+      }
+      const confirmedFinancing = lib.find((d) => d.financing_type)?.financing_type;
+      if (confirmedFinancing) {
+        const map: Record<string, string> = {
+          cash: "Owns the system outright (cash purchase) — no loan, PPA, or lease.",
+          loan: "System is financed via a solar loan — frame answers around APR, term, and loan vs. cash savings.",
+          ppa: "Has a PPA — does NOT own the system; pays per-kWh with an escalator.",
+          lease: "Has a solar lease — does NOT own the system; pays a monthly lease with an escalator.",
+          other: "Has a non-standard financing arrangement — ask clarifying questions before quoting ROI.",
+          unsure: "Unsure of the financing type — treat ROI as a range and offer to help identify it.",
+        };
+        parts.push(`FINANCING TYPE (homeowner-confirmed): ${confirmedFinancing}. ${map[confirmedFinancing] ?? ""}`.trim());
       }
       const analysis = analysisRes.data as { report?: Record<string, unknown>; narrative?: string } | null;
       if (analysis?.report) {

@@ -254,12 +254,28 @@ Deno.serve(async (req) => {
           linked_report_id: reportRow.id,
           period_month: isMonthlyRitual ? periodMonthStr : null,
         }));
+      let insertedLibrary: Array<{ id: string; kind: string }> = [];
       if (libraryRows.length) {
         const { data: inserted } = await admin.from("deason_documents").insert(libraryRows).select("id, kind");
-        const bill = inserted?.find((r: { kind: string }) => r.kind === "utility_bill") as { id: string } | undefined;
+        insertedLibrary = (inserted ?? []) as Array<{ id: string; kind: string }>;
+        const bill = insertedLibrary.find((r) => r.kind === "utility_bill");
         if (bill) billDocId = bill.id;
       }
+      // Stash for the response — used by the frontend's financing-type clarifier.
+      (reportRow as unknown as { _libraryDocs: typeof insertedLibrary })._libraryDocs = insertedLibrary;
     }
+
+    // Pull any previously confirmed financing_type so analysis is grounded in
+    // (e.g.) "this homeowner has a PPA, not a loan" without re-asking.
+    const { data: priorFinancingRow } = await admin
+      .from("deason_documents")
+      .select("financing_type")
+      .eq("user_id", userId)
+      .not("financing_type", "is", null)
+      .order("uploaded_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const knownFinancing = (priorFinancingRow as { financing_type?: string } | null)?.financing_type ?? null;
 
     log("calling Gemini 2.5 Pro for energy report", { docCount: docs.length });
 
@@ -282,6 +298,7 @@ Deno.serve(async (req) => {
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           ...(isTexas ? [{ role: "system" as const, content: buildTexasSystemAddendum(txCtx) }] : []),
+          ...(knownFinancing ? [{ role: "system" as const, content: buildFinancingAddendum(knownFinancing) }] : []),
           { role: "user", content },
         ],
         tools: [REPORT_TOOL],
@@ -430,6 +447,8 @@ Deno.serve(async (req) => {
       preview: parsed.preview,
       full: entitled ? parsed.full : null,
       entitled,
+      libraryDocs: (reportRow as unknown as { _libraryDocs?: Array<{ id: string; kind: string }> })._libraryDocs ?? [],
+      knownFinancing,
     });
   } catch (e) {
     console.error(`[energy-report ${reqId}] error`, e);
@@ -456,6 +475,19 @@ function buildTexasSystemAddendum(ctx: { esid: string | null; state_code: string
 - TDU delivery charges are passed through verbatim by every REP — switching REP cannot change them.
 - Always tag any TX-specific recommendation with "(TX-specific)" so the homeowner knows the assumption.`;
 }
+function buildFinancingAddendum(financingType: string): string {
+  const map: Record<string, string> = {
+    cash: "The homeowner OWNS the system outright (cash purchase). No loan APR, no PPA escalator, no lease buyout. ROI math should be straight payback on the cash outlay.",
+    loan: "The system is FINANCED through a solar loan. Look for APR, term, dealer fees, ACH discount, and balloon payments. ROI must factor true loan cost vs. cash savings.",
+    ppa: "This is a PPA (Power Purchase Agreement). The homeowner does NOT own the system — they buy the power per kWh from a third party. Focus on $/kWh rate, escalator, term length, transfer terms on home sale, and end-of-term buyout/removal options.",
+    lease: "This is a LEASE. The homeowner does NOT own the system. Look for monthly lease payment, escalator, term length, transfer terms, and end-of-term options.",
+    other: "The homeowner has a non-standard financing arrangement. Ask clarifying questions before quoting ROI.",
+    unsure: "The homeowner is not sure of the financing type. Treat ROI numbers as ranges and add a 'verify your contract' note.",
+  };
+  const note = map[financingType] ?? map.other;
+  return `FINANCING CONTEXT (confirmed by the homeowner): ${note}`;
+}
+
 
 function inferTduFromEsid(esid: string | null): string | null {
   if (!esid) return null;

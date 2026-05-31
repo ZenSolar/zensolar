@@ -54,7 +54,15 @@ export interface EnergyReportResult {
   preview: EnergyReportPreview;
   full: EnergyReportFull | null;
   entitled: boolean;
+  /** Newly-inserted library rows so the UI can ask follow-up questions
+   *  (e.g. financing-type clarification) and update them by id. */
+  libraryDocs?: Array<{ id: string; kind: EnergyDocKind | "other" }>;
+  /** Latest already-confirmed financing type, if any. When set, the
+   *  frontend can skip re-prompting for the same answer. */
+  knownFinancing?: FinancingType | null;
 }
+
+export type FinancingType = "cash" | "loan" | "ppa" | "lease" | "other" | "unsure";
 
 const URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-energy-report`;
 

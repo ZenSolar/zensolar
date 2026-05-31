@@ -12,6 +12,7 @@ import { WeatherOutlookCard } from "./WeatherOutlookCard";
 import { DocumentLibrary } from "./DocumentLibrary";
 import { TexasContextCard } from "./TexasContextCard";
 import { PastReportsTimeline, type DocumentLinkContext } from "./PastReportsTimeline";
+import { FinancingTypeClarifier, type ClarifyTarget } from "@/components/deason/FinancingTypeClarifier";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -40,6 +41,8 @@ export function DeasonHub({ onStartChat }: Props) {
   const energy = useEnergyReport();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [isMonthly, setIsMonthly] = useState(true);
+  const [clarifyOpen, setClarifyOpen] = useState(false);
+  const [clarifyTarget, setClarifyTarget] = useState<ClarifyTarget>({ docIds: [] });
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -64,13 +67,28 @@ export function DeasonHub({ onStartChat }: Props) {
 
   const handleSubmit = async (docs: Parameters<typeof energy.generate>[0], meta?: EnergyDocMeta) => {
     try {
-      await energy.generate(docs, null, { isMonthlyRitual: isMonthly, meta });
+      const result = await energy.generate(docs, null, { isMonthlyRitual: isMonthly, meta });
       setSheetOpen(false);
       toast({
         title: isMonthly ? "Monthly report ready" : "Analysis ready",
         description: "Your hub has been updated.",
       });
       await refresh();
+
+      // Friendly one-tap follow-up: if any contract/PPA/loan docs were uploaded
+      // and we don't already have a confirmed financing type on file, ask.
+      const FIN_KINDS = new Set(["installer_contract", "ppa", "loan"]);
+      const financingDocs = (result?.libraryDocs ?? []).filter((d) => FIN_KINDS.has(d.kind));
+      if (financingDocs.length > 0 && !result?.knownFinancing) {
+        const labelByKind = new Map(docs.map((d) => [d.kind, d.filename]));
+        setClarifyTarget({
+          docIds: financingDocs.map((d) => d.id),
+          fileLabels: financingDocs
+            .map((d) => labelByKind.get(d.kind as Parameters<typeof labelByKind.get>[0]))
+            .filter((x): x is string => !!x),
+        });
+        setClarifyOpen(true);
+      }
     } catch (e) {
       toast({
         variant: "destructive",
@@ -141,6 +159,19 @@ export function DeasonHub({ onStartChat }: Props) {
           esid: profileCtx.esid ?? undefined,
           state_code: profileCtx.state_code ?? undefined,
           utility_name: profileCtx.utility_name ?? undefined,
+        }}
+      />
+
+      <FinancingTypeClarifier
+        open={clarifyOpen}
+        onOpenChange={setClarifyOpen}
+        target={clarifyTarget}
+        onSaved={(choice) => {
+          toast({
+            title: "Got it — thanks!",
+            description: `Deason will treat future analyses as a ${choice.toUpperCase()} install.`,
+          });
+          void refresh();
         }}
       />
     </div>

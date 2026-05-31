@@ -399,6 +399,7 @@ export type Database = {
       }
       deason_documents: {
         Row: {
+          financing_type: string | null
           id: string
           kind: string
           label: string | null
@@ -413,6 +414,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          financing_type?: string | null
           id?: string
           kind: string
           label?: string | null
@@ -427,6 +429,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          financing_type?: string | null
           id?: string
           kind?: string
           label?: string | null
