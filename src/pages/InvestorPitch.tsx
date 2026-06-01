@@ -209,9 +209,9 @@ export default function InvestorPitch() {
                 asChild
                 className="w-full h-11 bg-secondary text-secondary-foreground hover:bg-secondary/90"
               >
-                <Link to="/demo">
+                <Link to="/demo?demo=investor">
                   <PlayCircle className="h-4 w-4 mr-2" />
-                  Enter live demo
+                  See it live
                 </Link>
               </Button>
             </div>

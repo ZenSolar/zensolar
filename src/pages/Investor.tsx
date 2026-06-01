@@ -340,7 +340,7 @@ function UnlockedPanel({
   onResend: () => void;
 }) {
   const firstName = signed.fullName.split(' ')[0] || 'there';
-  const demoHref = isPreviewHost() ? '/demo-leonardo' : '/demo';
+  const demoHref = `${isPreviewHost() ? '/demo-leonardo' : '/demo'}?demo=investor`;
   return (
     <div id="unlocked" className="space-y-6">
       <div className="rounded-3xl border border-secondary/30 bg-secondary/5 p-6 md:p-8">

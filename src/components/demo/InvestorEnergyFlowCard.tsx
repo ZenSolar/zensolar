@@ -1,5 +1,5 @@
-import { Suspense, lazy } from 'react';
-import { Sparkles, Sun, BatteryCharging, Car, Plug } from 'lucide-react';
+import { Suspense, lazy, useState } from 'react';
+import { Sparkles, Sun, BatteryCharging, Car, Plug, Eye, EyeOff } from 'lucide-react';
 import {
   INVESTOR_DEMO_FLOW,
   INVESTOR_DEMO_TESLA_PAYLOAD,
@@ -13,6 +13,16 @@ const EnergyFlowScene = lazy(() =>
   })),
 );
 
+/** Inline annotation chips — coordinates in % of the SVG/PNG square.
+ *  Kept short + corner-anchored to avoid colliding with the in-card
+ *  Charging pill, Powerwall halo, or the 4 corner readouts. */
+const ANNOTATIONS = [
+  { id: 'solar', x: 35, y: 10, label: 'Solar · 5.4 kW' },
+  { id: 'pw',    x: 78, y: 40, label: 'Powerwall +2.1 kW' },
+  { id: 'ev',    x: 22, y: 56, label: 'Tesla via Wallbox' },
+  { id: 'grid',  x: 90, y: 50, label: 'Grid · 0 kW' },
+] as const;
+
 /**
  * Investor-grade Live Energy Monitoring card.
  *
@@ -25,6 +35,7 @@ const EnergyFlowScene = lazy(() =>
  */
 export function InvestorEnergyFlowCard() {
   const h = INVESTOR_DEMO_HEADLINE;
+  const [showAnnotations, setShowAnnotations] = useState(true);
   return (
     <div
       className="rounded-xl overflow-hidden bg-card/5 p-4"
@@ -53,9 +64,19 @@ export function InvestorEnergyFlowCard() {
             Home Energy Cockpit · Enphase solar + Tesla Powerwall + Model Y + Wallbox
           </p>
         </div>
+        <button
+          type="button"
+          onClick={() => setShowAnnotations((v) => !v)}
+          className="shrink-0 inline-flex items-center gap-1 rounded-full border border-primary/20 bg-background/40 px-2 py-0.5 text-[10px] font-medium text-foreground/80 hover:text-foreground hover:border-primary/40 transition-colors"
+          aria-label={showAnnotations ? 'Hide annotations' : 'Show annotations'}
+        >
+          {showAnnotations ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+          {showAnnotations ? 'Hide labels' : 'Show labels'}
+        </button>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-primary/20 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.12),transparent_70%),radial-gradient(circle_at_bottom,hsl(220_60%_8%/0.6),transparent_60%)] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04),0_8px_30px_-8px_hsl(220_60%_4%/0.6)]">
+
+      <div className="relative overflow-hidden rounded-xl border border-primary/20 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.12),transparent_70%),radial-gradient(circle_at_bottom,hsl(220_60%_8%/0.6),transparent_60%)] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04),0_8px_30px_-8px_hsl(220_60%_4%/0.6)]">
         <Suspense
           fallback={
             <div
@@ -72,6 +93,24 @@ export function InvestorEnergyFlowCard() {
             vehicleModel={null}
           />
         </Suspense>
+
+        {/* Inline annotation chips — explain what the investor is seeing. */}
+        {showAnnotations && (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0"
+          >
+            {ANNOTATIONS.map((a) => (
+              <div
+                key={a.id}
+                className="absolute -translate-x-1/2 -translate-y-1/2 rounded-md border border-emerald-400/40 bg-background/85 px-1.5 py-0.5 text-[9px] font-medium text-emerald-200 shadow-[0_0_10px_hsla(142,76%,50%,0.25)] backdrop-blur whitespace-nowrap"
+                style={{ left: `${a.x}%`, top: `${a.y}%` }}
+              >
+                {a.label}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Multi-OEM source chips — surface the foundational moat */}
