@@ -15,7 +15,7 @@ Users **never pay gas** to mint $ZSOLAR. Period. This is non-negotiable and cent
 - All mint txns are signed by the user but gas is paid by the Emissions Wallet.
 
 ## Funding Sources
-1. **2% treasury allocation** of every mint (per protocol split: 50% user / 20% LP / 20% burn / 10% treasury)
+1. **10% treasury allocation** of every mint (per protocol split: 50% user / 20% LP / 20% burn / 10% treasury)
 2. **50% Company Ops side** of subscription revenue (Base $9.99 / Auto-Mint $19.99) — gas sponsorship is an explicit line item alongside engineering, legal, support
 3. Future: Optional buffer from LP fees if needed
 
