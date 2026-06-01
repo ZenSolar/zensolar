@@ -69,13 +69,13 @@ const REWARD_RATES = {
   ev_charging: 1,         // 1 $ZSOLAR per kWh charged
 };
 
-// Mint distribution (what happens when tokens are minted)
-// User receives 75%, 20% burned, 3% LP, 2% treasury
+// Mint distribution v3.1 LOCKED — 50% user / 25% LP / 20% burn / 5% treasury
+// Separate 3% transfer tax (LP recycle only) lives off this struct.
 const MINT_DISTRIBUTION = {
-  user: 75,
-  burn: 20,    // OPTIMIZED: 20% mint burn rate
-  lp: 3,
-  treasury: 2,
+  user: 50,
+  burn: 20,
+  lp: 25,
+  treasury: 5,
 };
 
 // ==============================================================================
