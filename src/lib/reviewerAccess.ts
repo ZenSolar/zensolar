@@ -81,8 +81,8 @@ export const REVIEWER_PAGES = [
     path: '/investor/pitch',
   },
   {
-    title: 'Seed Pitch',
-    description: 'The full investor narrative: catalyst, flywheel, moat, capital plan, and 24-month milestone path.',
-    path: '/founders/seed-pitch-greg',
+    title: 'Full Pitch Deck',
+    description: '12-slide canonical deck. Title, catalyst, engines, ask. PIN-gated.',
+    path: '/deck',
   },
 ] as const;
