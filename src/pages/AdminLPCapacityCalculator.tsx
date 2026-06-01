@@ -26,7 +26,7 @@ import {
 const PRICE = PRICES.launchFloor; // $0.10
 const NET_TOKENS = WEIGHTED_AVG_NET_TOKENS; // ~896
 const SUB_LP_SHARE = SUBSCRIPTION.lpContribution / 100; // 0.50
-const TAX_RATE = TRANSFER_TAX.total / 100; // 0.07
+const TAX_RATE = TRANSFER_TAX.total / 100; // 0.03 (v3.1 — LP recycle only)
 const MAX_DRAWDOWN_PCT = 5; // ≤5% monthly price drawdown
 
 interface CapacityResult {
