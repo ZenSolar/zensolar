@@ -3,10 +3,10 @@ import { motion } from 'framer-motion';
 import { Coins, CreditCard, Database, ArrowRight, Sparkles } from 'lucide-react';
 
 /**
- * Revenue Model — engine order locked Jun 2026 (video feedback pass):
- *   01) Subscription + Token Economics (combined)
- *   02) Deason AI ($4.99/mo premium add-on / upgrade)
- *   03) Aggregated Data (secondary)
+ * Revenue Model — engine order locked Jun 2026 (corrections pass):
+ *   01) Monthly Subscription + Deason AI
+ *   02) Token Economics (core product, long-term primary revenue driver)
+ *   03) Aggregated Energy Data (secondary)
  */
 export function Slide09Revenue() {
   return (
@@ -24,20 +24,20 @@ export function Slide09Revenue() {
             {
               num: '01',
               icon: CreditCard,
-              auxIcon: Coins,
-              title: 'Subscription + Token Economics',
-              stat: '$9.99 / $19.99 / $49.99 → 1T cap',
-              desc: 'Paid base sub is the price of entry to mint. 50% LP / 50% treasury per sub dollar. Funds a 1T hard-capped token (75/20/3/2 split, $0.10 launch, 7% transfer tax compounds LP).',
-              color: 'hsl(45,93%,47%)',
-              emphasized: true,
+              auxIcon: Sparkles,
+              title: 'Monthly Subscription + Deason AI',
+              stat: '$9.99 / $19.99 / $49.99 + $4.99 AI',
+              desc: 'Base sub required to be a ZenSolar user and mint tokens. Deason AI is the $4.99/mo premium add-on: Monthly Clean Energy Report, bill analysis, rate-plan optimization, device-aware advice.',
+              color: 'hsl(142,76%,50%)',
             },
             {
               num: '02',
-              icon: Sparkles,
-              title: 'Deason AI',
-              stat: '+$4.99/mo premium add-on',
-              desc: 'Premium upgrade on top of any base sub. Monthly Clean Energy Report, bill analysis, rate-plan optimization, device-aware advice. Highest-margin per-user recurring revenue.',
-              color: 'hsl(142,76%,50%)',
+              icon: Coins,
+              title: 'Token Economics',
+              stat: '1T cap · 7% transfer tax',
+              desc: 'Core product and primary long-term revenue driver. 1T hard cap, 75/20/3/2 mint split, $0.10 LP-seeded launch on Base, 7% transfer tax (3% burn / 2% LP / 2% treasury) compounds liquidity and treasury yield perpetually.',
+              color: 'hsl(45,93%,47%)',
+              emphasized: true,
             },
             {
               num: '03',

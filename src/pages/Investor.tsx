@@ -146,7 +146,7 @@ export default function Investor() {
       },
     });
     if (error) {
-      toast.error('Could not resend right now', { description: 'Please email joe@zen.solar.' });
+      toast.error('Could not resend right now', { description: 'Please email joe@zensolar.com.' });
     } else {
       toast.success('Sent', { description: `Links sent to ${signed.email}` });
     }
@@ -316,7 +316,7 @@ export default function Investor() {
 
         <footer className="border-t border-border/40 py-6 text-center">
           <p className="text-[11px] text-muted-foreground/70">
-            ZenSolar, LLC · Austin, TX · joe@zen.solar
+            ZenSolar, LLC · Austin, TX · joe@zensolar.com
           </p>
         </footer>
       </div>
