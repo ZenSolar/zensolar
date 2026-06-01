@@ -718,6 +718,43 @@ export function EnergyFlowScene({
         )}
       </svg>
 
+      {/* HTML overlay aligned to the same square as the hero PNG / SVG.
+          Lets us drop a "Charging" pill that tracks the car anchor in
+          the exact same 0–100 coordinate space. */}
+      {showDynamicCar && chargingAtHome && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-[80%] -translate-y-1/2"
+          style={{ aspectRatio: '1 / 1', maxWidth: '94%', zIndex: 18 }}
+        >
+          <div
+            className="absolute -translate-x-1/2 -translate-y-full"
+            style={{
+              left: `${carAnchor.x}%`,
+              top: `${carAnchor.y - carH / 2 - 1}%`,
+            }}
+          >
+            <div className="flex flex-col items-center gap-1">
+              <div className="flex items-center gap-1.5 rounded-full border border-emerald-400/40 bg-background/85 px-2 py-0.5 text-[10px] font-semibold tabular-nums text-emerald-300 shadow-[0_0_14px_hsla(142,76%,50%,0.35)] backdrop-blur">
+                <span className="relative inline-flex h-1.5 w-1.5">
+                  <span className="absolute inset-0 inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                </span>
+                Charging · {evKw.toFixed(1)} kW
+              </div>
+              {(typeof evSoc === 'number' || typeof evRange === 'number') && (
+                <div className="rounded-full bg-background/70 px-1.5 py-[1px] text-[9px] font-medium tabular-nums text-foreground/80 backdrop-blur">
+                  {typeof evSoc === 'number' ? `${evSoc}%` : ''}
+                  {typeof evSoc === 'number' && typeof evRange === 'number' ? ' · ' : ''}
+                  {typeof evRange === 'number' ? `${evRange} mi` : ''}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+
       {/* Floating labels */}
       <FlowLabel
         position="tl"
