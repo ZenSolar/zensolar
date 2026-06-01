@@ -60,8 +60,8 @@ export default function InvestorPitch() {
             <div className="mt-7 grid grid-cols-3 gap-3 w-full max-w-md">
               {[
                 { k: '$5M', v: 'Target raise' },
-                { k: '$20M', v: 'Post-money' },
                 { k: '$7M', v: 'Hard cap' },
+                { k: 'SAFE', v: 'Structure' },
               ].map((s) => (
                 <div
                   key={s.v}
@@ -133,7 +133,7 @@ export default function InvestorPitch() {
           </h2>
           <div className="rounded-3xl border border-secondary/30 bg-secondary/5 p-6 md:p-8">
             <div className="text-base md:text-lg font-semibold text-foreground">
-              $5M target · $20M post-money · $7M hard cap · Strategic Seed (SAFE, post-money)
+              $5M target · $7M hard cap · Strategic Seed (SAFE, post-money)
             </div>
 
             {/* Use of Funds — $5M target, locked Feb 2026 */}
@@ -170,8 +170,8 @@ export default function InvestorPitch() {
 
             <ul className="mt-5 space-y-3 text-[13px] text-muted-foreground leading-relaxed">
               <li className="flex gap-3">
-                <span className="text-secondary font-semibold shrink-0">Valuation —</span>
-                <span>$20M post-money cap. ~25% dilution at target, ~35% at hard cap.</span>
+                <span className="text-secondary font-semibold shrink-0">Structure —</span>
+                <span>SAFE (post-money). Valuation cap shared on request under NDA.</span>
               </li>
               <li className="flex gap-3">
                 <span className="text-secondary font-semibold shrink-0">Milestones —</span>
