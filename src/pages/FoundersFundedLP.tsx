@@ -107,7 +107,7 @@ const FIAT_SPLIT = 0.5;
 //   Threshold = 25 kWh of verified clean energy / 30 days
 //   Allocation rate = 0.5 $ZSOLAR per kWh (ZPPA_KWH_TO_USDC)
 // → 25 × 0.5 = 12.5 $ZSOLAR gross-minted per active user per month.
-// Mint split (locked): 75% user / 20% burn / 3% LP / 2% treasury.
+// Mint split (locked): 50% user / 20% LP / 20% burn / 10% treasury.
 const AVG_KWH_PER_USER_MONTH = 25;
 const ZSOLAR_PER_KWH = 0.5;
 const AVG_GROSS_MINT_PER_USER_MONTH = AVG_KWH_PER_USER_MONTH * ZSOLAR_PER_KWH; // 12.5
@@ -246,7 +246,7 @@ function runUnitTests(): TestResult[] {
     detail: `${AVG_GROSS_MINT_PER_USER_MONTH} $ZSOLAR`,
   });
   results.push({
-    name: "Avg net mint/user/mo === gross × 75% user share",
+    name: "Avg net mint/user/mo === gross × 50% user share",
     passed: Math.abs(AVG_NET_MINT_PER_USER_MONTH - expectedGross * 0.75) < 1e-9,
     detail: `net=${AVG_NET_MINT_PER_USER_MONTH} $ZSOLAR`,
   });
@@ -1064,7 +1064,7 @@ function UnitTestPanel() {
         <Stat
           label="Avg net mint / user / mo"
           value={`${AVG_NET_MINT_PER_USER_MONTH} $ZSOLAR`}
-          hint="× 75% user share"
+          hint="× 50% user share"
           accent
         />
       </div>

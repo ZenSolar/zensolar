@@ -126,7 +126,7 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
 
   const meta = ACTION_META[tx.action] ?? { label: tx.action, description: "On-chain transaction." };
   const userTokens = Number(tx.tokens_minted) || 0;
-  // tokens_minted is already the 75% user share — derive grand total for split viz
+  // tokens_minted is already the 50% user share — derive grand total for split viz
   const grandTotal = userTokens > 0 ? userTokens / 0.75 : 0;
   const hasSplit = userTokens > 0;
   const source = summarizeSource(tx);
@@ -145,7 +145,7 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
       "",
       `Action: ${meta.label}`,
       `Date: ${format(new Date(tx.created_at), "PPpp")}`,
-      userTokens > 0 ? `Earned: ${userTokens.toLocaleString()} $ZSOLAR (75% user share)` : null,
+      userTokens > 0 ? `Earned: ${userTokens.toLocaleString()} $ZSOLAR (50% user share)` : null,
       tx.nft_names?.length ? `NFTs: ${tx.nft_names.join(", ")}` : null,
       `Wallet: ${tx.wallet_address}`,
       `Tx: ${tx.tx_hash}`,
@@ -285,7 +285,7 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
                   Mint Split
                 </h3>
                 <span className="ml-auto text-[10px] text-muted-foreground">
-                  Brand: 75 / 20 / 3 / 2
+                  Brand: 50 / 20 / 20 / 10
                 </span>
               </div>
 

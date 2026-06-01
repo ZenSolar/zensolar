@@ -1179,7 +1179,7 @@ export function useDashboardData() {
         Math.floor(pendingCharging);
       
       // Import dynamically to get current Live Beta state
-      // Tokens = activity units × Live Beta multiplier (10x or 1x) × 75% user share
+      // Tokens = activity units × Live Beta multiplier (10x or 1x) × 50% user share
       const pendingTokens = calculatePendingTokens(pendingActivityUnits);
       
       const earnedNFTs = rewardsData?.earned_nfts || [];

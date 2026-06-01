@@ -78,7 +78,7 @@ const BTC_TX_CO2_KG = 707;
 
 const RECEIPTS: Receipt[] = [
   // Apr 23 — EV-only mint (the one the founder just minted)
-  // Math: 52 mi @ 3.0 mi/kWh ≈ 17.33 kWh equivalent → 1 token/mile × 0.75 user share = 39.00 $ZSOLAR
+  // Math: 52 mi @ 3.0 mi/kWh ≈ 17.33 kWh equivalent → 1 token/mile × 0.5 user share = 39.00 $ZSOLAR
   {
     id: 'pog-receipt-001',
     mint_id: 'mint_8a4f...c12d',

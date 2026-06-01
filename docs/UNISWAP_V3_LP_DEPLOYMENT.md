@@ -206,7 +206,7 @@ User Activity (Solar/EV/Battery)
 ┌─────────────────────────────────────────────────────────────┐
 │           Edge Function: calculate-rewards                   │
 │   Applies 10x multiplier → Mints ZSOLAR to user              │
-│   Distribution: 75% user, 20% burn, 3% LP, 2% treasury       │
+│   Distribution: 50% user, 20% LP, 20% burn, 10% treasury       │
 └─────────────────────┬───────────────────────────────────────┘
                       │
                       ▼

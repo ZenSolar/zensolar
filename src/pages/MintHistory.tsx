@@ -135,7 +135,7 @@ export default function MintHistory() {
       }
 
       const totalActivityUnits = Math.floor(evMiles) + Math.floor(solarKwh) + Math.floor(batteryKwh) + Math.floor(evChargingKwh);
-      // Apply Live Beta multiplier (10x or 1x) then 75% user share
+      // Apply Live Beta multiplier (10x or 1x) then 50% user share
       const { getRewardMultiplier } = await import('@/lib/tokenomics');
       const multiplier = getRewardMultiplier();
       const totalTokens = Math.floor(totalActivityUnits * multiplier * 0.75);

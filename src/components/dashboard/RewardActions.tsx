@@ -352,7 +352,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
   // Total activity units from pending rewards
   const totalActivityUnits = pendingRewards.solar + pendingRewards.evMiles + pendingRewards.battery + pendingRewards.charging;
   
-  // Apply Live Beta multiplier then 75% user share (20% burn, 3% LP, 2% treasury)
+  // Apply Live Beta multiplier then 50% user share (20% burn, 3% LP, 2% treasury)
   const totalRawTokens = totalActivityUnits * multiplier;
   const totalPendingTokens = Math.floor(totalRawTokens * 0.75);
 
