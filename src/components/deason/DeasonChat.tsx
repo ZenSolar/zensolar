@@ -15,6 +15,8 @@ import { CitationChip, type DocIndexEntry } from "@/components/deason/chat/Citat
 import { SuggestedFollowups, stripFollowupsBlock } from "@/components/deason/chat/SuggestedFollowups";
 import { filterSlashItems, type SlashItem } from "@/components/deason/chat/SlashMenu";
 import { StreamingShimmer } from "@/components/deason/chat/StreamingShimmer";
+import { TexasNowPill } from "@/components/deason/chat/TexasNowPill";
+import { DeviceTelemetryStrip } from "@/components/deason/chat/DeviceTelemetryStrip";
 import type { DeasonThread } from "@/hooks/useDeasonThreads";
 import { cn } from "@/lib/utils";
 
@@ -388,6 +390,8 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-3 py-4">
+        <TexasNowPill ctx={profileCtx} />
+        <DeviceTelemetryStrip />
         {loadingHistory && (
           <div className="space-y-3 animate-in fade-in duration-200">
             <SkeletonMessage align="left" />

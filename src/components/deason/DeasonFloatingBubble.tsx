@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Loader2, Sparkles, X } from "lucide-react";
+import { Sparkles, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { trackEvent } from "@/hooks/useGoogleAnalytics";
 import { useDeasonThreads } from "@/hooks/useDeasonThreads";
 import { DeasonChat } from "./DeasonChat";
+import { BubbleSkeleton } from "./bubble/BubbleSkeleton";
+import { BubbleErrorCard } from "./bubble/BubbleErrorCard";
 import { cn } from "@/lib/utils";
 
 
@@ -305,10 +307,12 @@ export function DeasonFloatingBubble() {
       {open && (
         <SwipeDownCard onDismiss={() => { setOpen(false); setThreadId(null); }}>
           {user && !threadId && !threadPrepFailed ? (
-            <div className="flex h-full flex-col items-center justify-center gap-3 bg-background text-sm text-muted-foreground">
-              <Loader2 className="h-5 w-5 animate-spin" />
-              <span>Preparing saved chat…</span>
-            </div>
+            <BubbleSkeleton />
+          ) : threadPrepFailed ? (
+            <BubbleErrorCard
+              onRetry={() => { setThreadPrepFailed(false); void ensureSavedThread(); }}
+              onContinueEphemeral={() => { setThreadPrepFailed(false); setThreadId(null); }}
+            />
           ) : (
             <DeasonChat
               onClose={() => { setOpen(false); setThreadId(null); }}
