@@ -90,6 +90,15 @@ export function useDeason(opts: UseDeasonOptions = {}) {
     setStreaming(false);
   }, []);
 
+  /** Drops the trailing assistant message (if any). Used before regenerate/retry. */
+  const popLastAssistant = useCallback(() => {
+    setMessages((prev) => {
+      if (!prev.length) return prev;
+      const last = prev[prev.length - 1];
+      return last.role === "assistant" ? prev.slice(0, -1) : prev;
+    });
+  }, []);
+
   const seedAssistant = useCallback(
     (text: string, extras?: { energyReport?: DeasonEnergyReport; billReport?: BillReport }) => {
       if (!text?.trim() && !extras?.energyReport && !extras?.billReport) return;
@@ -297,5 +306,5 @@ export function useDeason(opts: UseDeasonOptions = {}) {
     [messages, streaming, persistMessage, onThreadTouched]
   );
 
-  return { messages, streaming, error, send, reset, seedAssistant, loadingHistory };
+  return { messages, streaming, error, send, reset, seedAssistant, loadingHistory, popLastAssistant };
 }

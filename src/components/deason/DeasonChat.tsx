@@ -1,17 +1,26 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Send, Sparkles, RotateCcw, X, Paperclip, Image as ImageIcon, ChevronUp, ChevronDown, Save, FileText, ArrowRight, MessageSquare, Pin, PinOff, Pencil, Trash2, Check, FileCheck2 } from "lucide-react";
+import { Send, Sparkles, RotateCcw, X, Paperclip, Image as ImageIcon, ChevronUp, ChevronDown, Save, FileText, ArrowRight, MessageSquare, Pin, PinOff, Pencil, Trash2, Check, FileCheck2, Copy, RefreshCw, AlertTriangle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useDeason, type DeasonContentPart } from "@/hooks/useDeason";
 import { useUserPersona } from "@/hooks/useUserPersona";
 import { useEnergyReport } from "@/hooks/useEnergyReport";
+import { useDeasonHub } from "@/hooks/useDeasonHub";
 import { BillSavingsReport } from "@/components/deason/BillSavingsReport";
 import { EnergyDocSheet } from "@/components/deason/EnergyDocSheet";
 import { EnergyReportCard } from "@/components/deason/EnergyReportCard";
+import { CitationChip, type DocIndexEntry } from "@/components/deason/chat/CitationChip";
+import { SuggestedFollowups, stripFollowupsBlock } from "@/components/deason/chat/SuggestedFollowups";
+import { filterSlashItems, type SlashItem } from "@/components/deason/chat/SlashMenu";
+import { StreamingShimmer } from "@/components/deason/chat/StreamingShimmer";
 import type { DeasonThread } from "@/hooks/useDeasonThreads";
 import { cn } from "@/lib/utils";
+
+const SourcesSheet = lazy(() => import("@/components/deason/chat/SourcesSheet"));
+const SlashMenu = lazy(() => import("@/components/deason/chat/SlashMenu"));
+
 
 
 interface DeasonChatProps {
@@ -83,19 +92,64 @@ const ONBOARDING_PROMPTS = [
  * whether the viewer is inner-circle or a regular demo/beta user.
  */
 export function DeasonChat({ onClose, compact = false, threadId = null, onNewThread, onUserMessage, highlightQuery, threads, onSwitchThread, onViewAllChats, onRenameThread, onDeleteThread, onTogglePinThread }: DeasonChatProps) {
-  const { messages, streaming, error, send, reset, seedAssistant, loadingHistory } = useDeason({
+  const { messages, streaming, error, send, reset, seedAssistant, loadingHistory, popLastAssistant } = useDeason({
     threadId,
     onThreadTouched: onUserMessage,
   });
   const { isInnerCircle } = useUserPersona();
+  const { library, profileCtx } = useDeasonHub();
   const [input, setInput] = useState("");
   const [attachedFile, setAttachedFile] = useState<{ dataUrl: string; name: string; kind: "image" | "pdf" } | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [energySheetOpen, setEnergySheetOpen] = useState(false);
+  const [sourcesEntries, setSourcesEntries] = useState<DocIndexEntry[] | null>(null);
+  const [slashOpen, setSlashOpen] = useState(false);
+  const [slashIndex, setSlashIndex] = useState(0);
+  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const energy = useEnergyReport();
   const fileRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<Array<HTMLDivElement | null>>([]);
+
+  // Build a stable doc index: id → 1-based number used in citation chips.
+  // Sorted by upload date (newest first) so freshest doc is [1].
+  const docIndex = useMemo(() => {
+    const map = new Map<string, DocIndexEntry>();
+    library.forEach((d, i) => {
+      map.set(d.id, {
+        id: d.id,
+        index: i + 1,
+        kind: d.kind,
+        label: d.label ?? d.storage_path.split("/").pop() ?? `Document ${i + 1}`,
+        uploadedAt: d.uploaded_at,
+      });
+    });
+    return map;
+  }, [library]);
+
+  const slashItems = useMemo<SlashItem[]>(
+    () => (slashOpen ? filterSlashItems(input) : []),
+    [slashOpen, input]
+  );
+
+  // Open / close slash menu purely from input contents.
+  useEffect(() => {
+    const shouldOpen = input.startsWith("/") && !input.includes(" ") && !attachedFile;
+    setSlashOpen(shouldOpen);
+    if (shouldOpen) setSlashIndex(0);
+  }, [input, attachedFile]);
+
+  const lastUserText = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.role !== "user") continue;
+      return typeof m.content === "string"
+        ? m.content
+        : m.content.find((p) => p.type === "text")?.text ?? "";
+    }
+    return "";
+  }, [messages]);
+
 
 
 
@@ -182,8 +236,44 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
     const file = attachedFile;
     setInput("");
     setAttachedFile(null);
+    setSlashOpen(false);
     void send(text, file?.dataUrl);
   };
+
+  const handleSlashPick = (it: SlashItem) => {
+    setInput("");
+    setSlashOpen(false);
+    void send(it.prompt);
+  };
+
+  const handleRetry = () => {
+    if (!lastUserText || streaming) return;
+    popLastAssistant();
+    void send(lastUserText);
+  };
+
+  const handleRegenerate = (idx: number) => {
+    if (streaming) return;
+    // Find the user message immediately preceding this assistant message.
+    const prior = messages[idx - 1];
+    if (!prior || prior.role !== "user") return;
+    const text = typeof prior.content === "string"
+      ? prior.content
+      : prior.content.find((p) => p.type === "text")?.text ?? "";
+    if (!text) return;
+    popLastAssistant();
+    void send(text);
+  };
+
+  const handleCopy = async (idx: number, text: string) => {
+    try {
+      await navigator.clipboard.writeText(stripFollowupsBlock(text));
+      setCopiedIdx(idx);
+      window.setTimeout(() => setCopiedIdx((v) => (v === idx ? null : v)), 1400);
+    } catch { /* clipboard unavailable */ }
+  };
+
+
 
 
   // /demo* surface is the investor/reviewer context. Force reviewer prompts
@@ -299,93 +389,143 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-3 py-4">
         {loadingHistory && (
-          <div className="flex justify-center py-10">
-            <Sparkles className="h-5 w-5 animate-pulse text-amber-500" />
+          <div className="space-y-3 animate-in fade-in duration-200">
+            <SkeletonMessage align="left" />
+            <SkeletonMessage align="right" widthClass="w-2/3" />
+            <SkeletonMessage align="left" widthClass="w-4/5" />
           </div>
         )}
         {!loadingHistory && messages.length === 0 && (
-          <div className="mx-auto mt-4 max-w-md text-center">
-            <div className="mb-3 text-2xl">☀️</div>
-
-            <h2 className="mb-2 text-lg font-semibold">{welcomeTitle}</h2>
-            <p className="text-sm text-muted-foreground">{welcomeBody}</p>
-            <button
-              onClick={() => setEnergySheetOpen(true)}
-              className="mt-4 w-full rounded-xl border border-amber-500/40 bg-gradient-to-b from-amber-500/15 to-amber-500/5 px-3 py-3 text-left transition-colors hover:from-amber-500/20"
-            >
-              <div className="flex items-center gap-2 text-sm font-semibold text-amber-500">
-                <FileCheck2 className="h-4 w-4" /> Analyze my energy setup
-              </div>
-              <div className="mt-0.5 text-xs text-muted-foreground">
-                Upload your latest utility bill (required), plus your solar contract and PPA or loan if you have them.
-              </div>
-            </button>
-            <div className="mt-4 grid gap-2 text-left text-sm">
-              {prompts.map((q) => (
-                <button
-                  key={q}
-                  onClick={() => void send(q)}
-                  className="rounded-xl border border-border/60 bg-card px-3 py-2.5 text-left transition-colors hover:bg-accent"
-                >
-                  {q}
-                </button>
-              ))}
-            </div>
-          </div>
+          <EmptyState
+            title={welcomeTitle}
+            body={welcomeBody}
+            prompts={prompts}
+            onAnalyze={() => setEnergySheetOpen(true)}
+            onPick={(q) => void send(q)}
+          />
         )}
 
         <div className="space-y-3">
-          {messages.map((m, i) => (
-            <div
-              key={i}
-              ref={(el) => { messageRefs.current[i] = el; }}
-              className={cn(
-                "flex scroll-mt-20 rounded-xl transition-shadow",
-                m.role === "user" ? "justify-end" : "justify-start",
-                i === highlightIndex && "ring-2 ring-amber-500/60"
-              )}
-            >
-              <div className={cn("space-y-2", m.role === "user" ? "max-w-[85%]" : "w-full")}>
-                {(m.content || m.role === "user" || (!m.billReport && !m.energyReport)) && (
-                  <div
-                    className={cn(
-                      "whitespace-pre-wrap leading-relaxed",
-                      m.role === "user"
-                        ? "rounded-2xl rounded-br-md bg-primary px-3.5 py-2 text-primary-foreground"
-                        : "text-foreground",
-                      compact ? "text-sm" : "text-[15px]",
-                    )}
-                  >
-                    <MessageContent content={m.content} streaming={streaming && i === messages.length - 1} />
-                  </div>
+          {messages.map((m, i) => {
+            const isLast = i === messages.length - 1;
+            const isStreamingThis = streaming && isLast && m.role === "assistant";
+            const textValue = typeof m.content === "string" ? m.content : "";
+            const completedAssistant = m.role === "assistant" && !isStreamingThis && !!m.content;
+            return (
+              <div
+                key={i}
+                ref={(el) => { messageRefs.current[i] = el; }}
+                className={cn(
+                  "group flex scroll-mt-20 rounded-xl transition-shadow",
+                  m.role === "user" ? "justify-end" : "justify-start",
+                  i === highlightIndex && "ring-2 ring-amber-500/60"
                 )}
-                {m.billReport && <BillSavingsReport report={m.billReport} />}
-                {m.energyReport && (
-                  <EnergyReportCard
-                    preview={m.energyReport.preview}
-                    full={m.energyReport.full}
-                    entitled={m.energyReport.entitled}
-                    onUnlock={() => alert("Subscription checkout coming soon — $4.99/mo with 7-day free trial.")}
-                  />
-                )}
+              >
+                <div className={cn("space-y-2", m.role === "user" ? "max-w-[85%]" : "w-full")}>
+                  {(m.content || m.role === "user" || (!m.billReport && !m.energyReport)) && (
+                    <div
+                      className={cn(
+                        "whitespace-pre-wrap leading-relaxed",
+                        m.role === "user"
+                          ? "rounded-2xl rounded-br-md bg-primary px-3.5 py-2 text-primary-foreground"
+                          : "text-foreground",
+                        compact ? "text-sm" : "text-[15px]",
+                      )}
+                    >
+                      <MessageContent
+                        content={m.content}
+                        streaming={isStreamingThis}
+                        docIndex={docIndex}
+                        onOpenSources={setSourcesEntries}
+                      />
+                    </div>
+                  )}
+                  {m.billReport && <BillSavingsReport report={m.billReport} />}
+                  {m.energyReport && (
+                    <EnergyReportCard
+                      preview={m.energyReport.preview}
+                      full={m.energyReport.full}
+                      entitled={m.energyReport.entitled}
+                      onUnlock={() => alert("Subscription checkout coming soon — $4.99/mo with 7-day free trial.")}
+                    />
+                  )}
+                  {completedAssistant && (
+                    <>
+                      <SuggestedFollowups
+                        text={textValue}
+                        ctx={profileCtx}
+                        onPick={(q) => void send(q)}
+                      />
+                      <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+                        <button
+                          type="button"
+                          onClick={() => handleCopy(i, textValue)}
+                          className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] text-muted-foreground hover:bg-accent hover:text-foreground"
+                          title="Copy answer"
+                        >
+                          {copiedIdx === i ? <Check className="h-3 w-3 text-amber-500" /> : <Copy className="h-3 w-3" />}
+                          {copiedIdx === i ? "Copied" : "Copy"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleRegenerate(i)}
+                          disabled={streaming}
+                          className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40"
+                          title="Regenerate"
+                        >
+                          <RefreshCw className="h-3 w-3" />
+                          Regenerate
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           {streaming && messages[messages.length - 1]?.role === "assistant" && !messages[messages.length - 1]?.content && (
-            <div className="flex items-center gap-1.5 px-1 text-muted-foreground">
-              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-amber-500 [animation-delay:-0.2s]" />
-              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-amber-500 [animation-delay:-0.1s]" />
-              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-amber-500" />
-            </div>
+            <StreamingShimmer />
           )}
         </div>
 
         {error && (
-          <div className="mt-3 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {error}
+          <div className="mt-3 rounded-xl border border-destructive/40 bg-destructive/10 p-3">
+            <div className="flex items-start gap-2 text-sm text-destructive">
+              <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+              <div className="flex-1">
+                <div className="font-medium">Couldn't finish that one.</div>
+                <div className="mt-0.5 text-xs text-destructive/80">{error}</div>
+              </div>
+            </div>
+            <div className="mt-2 flex items-center gap-1.5">
+              {lastUserText && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-7 border-destructive/40 text-destructive hover:bg-destructive/10"
+                  onClick={handleRetry}
+                  disabled={streaming}
+                >
+                  <RefreshCw className="mr-1 h-3 w-3" /> Try again
+                </Button>
+              )}
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                className="h-7 text-destructive hover:bg-destructive/10"
+                onClick={() => seedAssistant(
+                  "I hit a snag on that last one — usually it's one of three things: (1) the AI service is rate-limited (slow down and try again in a minute), (2) you're temporarily signed out (refresh and sign back in), or (3) the doc was too large to read. Want to try a smaller message or upload again?"
+                )}
+              >
+                Tell me what happened
+              </Button>
+            </div>
           </div>
         )}
       </div>
+
 
       {/* Composer */}
       <form
@@ -415,7 +555,12 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
             </Button>
           </div>
         )}
-        <div className="flex items-end gap-1.5 rounded-2xl border border-border bg-background px-1.5 py-1 focus-within:border-amber-500/60 focus-within:ring-1 focus-within:ring-amber-500/30 transition-colors">
+        <div className="relative flex items-end gap-1.5 rounded-2xl border border-border bg-background px-1.5 py-1 focus-within:border-amber-500/60 focus-within:ring-1 focus-within:ring-amber-500/30 transition-colors">
+          {slashOpen && slashItems.length > 0 && (
+            <Suspense fallback={null}>
+              <SlashMenu items={slashItems} activeIndex={slashIndex} onPick={handleSlashPick} />
+            </Suspense>
+          )}
           <input
             ref={fileRef}
             type="file"
@@ -439,13 +584,19 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
+              if (slashOpen && slashItems.length > 0) {
+                if (e.key === "ArrowDown") { e.preventDefault(); setSlashIndex((i) => (i + 1) % slashItems.length); return; }
+                if (e.key === "ArrowUp") { e.preventDefault(); setSlashIndex((i) => (i - 1 + slashItems.length) % slashItems.length); return; }
+                if (e.key === "Escape") { e.preventDefault(); setSlashOpen(false); return; }
+                if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSlashPick(slashItems[slashIndex]); return; }
+                if (e.key === "Tab") { e.preventDefault(); handleSlashPick(slashItems[slashIndex]); return; }
+              }
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 onSubmit();
               }
             }}
-            placeholder="Ask about your bill, rate plan, contract, or savings…"
-
+            placeholder="Ask about your bill, rate plan, contract, or savings…   (press / for quick prompts)"
             rows={1}
             className="min-h-[40px] max-h-32 resize-none border-0 bg-transparent px-1 py-2 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
             disabled={streaming}
@@ -459,6 +610,7 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
             <Send className="h-4 w-4" />
           </Button>
         </div>
+
         <p className="mt-1.5 text-center text-[10px] text-muted-foreground">
           {threadId
             ? "Saved to your account · 50 messages/day"
@@ -535,6 +687,13 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
             </ul>
           </div>
         </>
+      )}
+
+      {/* Citation sources sheet — lazy-loaded; renders only when a chip is tapped. */}
+      {sourcesEntries && (
+        <Suspense fallback={null}>
+          <SourcesSheet entries={sourcesEntries} onClose={() => setSourcesEntries(null)} />
+        </Suspense>
       )}
     </div>
   );
@@ -657,17 +816,36 @@ function ThreadRow({
 function MessageContent({
   content,
   streaming,
+  docIndex,
+  onOpenSources,
 }: {
   content: string | DeasonContentPart[];
   streaming: boolean;
+  docIndex: Map<string, DocIndexEntry>;
+  onOpenSources: (entries: DocIndexEntry[]) => void;
 }) {
   if (typeof content === "string") {
-    return <CitedText text={content || (streaming ? "…" : "")} />;
+    return (
+      <CitedText
+        text={content || (streaming ? "…" : "")}
+        docIndex={docIndex}
+        onOpenSources={onOpenSources}
+      />
+    );
   }
   return (
     <div className="space-y-2">
       {content.map((part, idx) => {
-        if (part.type === "text") return <CitedText key={idx} text={part.text ?? ""} />;
+        if (part.type === "text") {
+          return (
+            <CitedText
+              key={idx}
+              text={part.text ?? ""}
+              docIndex={docIndex}
+              onOpenSources={onOpenSources}
+            />
+          );
+        }
         if (part.type === "image_url" && part.image_url?.url) {
           return (
             <div key={idx} className="flex items-center gap-2 text-xs opacity-80">
@@ -683,36 +861,115 @@ function MessageContent({
 }
 
 /**
- * Renders Deason's text and converts inline `[doc:<id>]` citation markers
- * into small amber source chips. Multiple citations on the same fact collapse
- * into "Sources" pills the user can hover to see the document id.
+ * Renders Deason's text and converts inline `[doc:<id>]` markers into
+ * numbered amber CitationChip pills. Consecutive citations group into one
+ * chip. Also strips the optional `<followups>` JSON block before rendering.
  */
-function CitedText({ text }: { text: string }) {
+function CitedText({
+  text,
+  docIndex,
+  onOpenSources,
+}: {
+  text: string;
+  docIndex: Map<string, DocIndexEntry>;
+  onOpenSources: (entries: DocIndexEntry[]) => void;
+}) {
   if (!text) return null;
-  const parts: React.ReactNode[] = [];
-  const re = /\[doc:([a-zA-Z0-9_-]+)\]/g;
+  const display = stripFollowupsBlock(text);
+  if (!display) return null;
+
+  // Tokenize: alternate between text and citation runs.
+  const re = /(\[doc:[a-zA-Z0-9_-]+\](?:\[doc:[a-zA-Z0-9_-]+\])*)/g;
+  const out: React.ReactNode[] = [];
   let lastIndex = 0;
+  let k = 0;
   let match: RegExpExecArray | null;
-  let i = 0;
-  while ((match = re.exec(text)) !== null) {
-    if (match.index > lastIndex) {
-      parts.push(text.slice(lastIndex, match.index));
+  while ((match = re.exec(display)) !== null) {
+    if (match.index > lastIndex) out.push(display.slice(lastIndex, match.index));
+    const ids = Array.from(match[0].matchAll(/\[doc:([a-zA-Z0-9_-]+)\]/g)).map((m) => m[1]);
+    const entries: DocIndexEntry[] = ids
+      .map((id, i) =>
+        docIndex.get(id) ?? {
+          id,
+          index: 0,
+          kind: "other" as const,
+          label: `Document ${i + 1}`,
+        }
+      )
+      .filter((e) => e.index > 0);
+    if (entries.length) {
+      out.push(<CitationChip key={`c-${k++}`} entries={entries} onOpen={onOpenSources} />);
     }
-    const id = match[1];
-    parts.push(
-      <span
-        key={`c-${i++}-${id}`}
-        title={`Source: document ${id}`}
-        className="ml-0.5 inline-flex h-4 items-center rounded-full bg-amber-500/15 px-1.5 align-middle text-[10px] font-medium text-amber-500 ring-1 ring-amber-500/30"
-      >
-        <FileText className="mr-0.5 h-2.5 w-2.5" />
-        source
-      </span>
-    );
     lastIndex = match.index + match[0].length;
   }
-  if (lastIndex < text.length) parts.push(text.slice(lastIndex));
-  return <>{parts}</>;
+  if (lastIndex < display.length) out.push(display.slice(lastIndex));
+  return <>{out}</>;
 }
+
+function SkeletonMessage({ align, widthClass = "w-3/4" }: { align: "left" | "right"; widthClass?: string }) {
+  return (
+    <div className={cn("flex", align === "right" ? "justify-end" : "justify-start")}>
+      <div
+        className={cn(
+          "h-12 animate-pulse rounded-2xl bg-muted/40",
+          widthClass,
+          align === "right" ? "rounded-br-md" : "rounded-bl-md",
+        )}
+      />
+    </div>
+  );
+}
+
+function EmptyState({
+  title,
+  body,
+  prompts,
+  onAnalyze,
+  onPick,
+}: {
+  title: string;
+  body: string;
+  prompts: string[];
+  onAnalyze: () => void;
+  onPick: (q: string) => void;
+}) {
+  return (
+    <div className="mx-auto mt-4 max-w-md">
+      <div className="text-center">
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/15 ring-1 ring-amber-500/30">
+          <Sparkles className="h-5 w-5 animate-pulse text-amber-500" />
+        </div>
+        <h2 className="mb-1.5 text-base font-semibold">{title}</h2>
+        <p className="text-sm leading-relaxed text-muted-foreground">{body}</p>
+      </div>
+      <button
+        onClick={onAnalyze}
+        className="mt-4 w-full rounded-xl border border-amber-500/40 bg-gradient-to-b from-amber-500/15 to-amber-500/5 px-3 py-3 text-left transition-colors hover:from-amber-500/20"
+      >
+        <div className="flex items-center gap-2 text-sm font-semibold text-amber-500">
+          <FileCheck2 className="h-4 w-4" /> Analyze my energy setup
+        </div>
+        <div className="mt-0.5 text-xs text-muted-foreground">
+          Upload your latest utility bill (required), plus your solar contract and PPA or loan if you have them.
+        </div>
+      </button>
+      <div className="mt-3 grid grid-cols-2 gap-2 text-left text-sm">
+        {prompts.slice(0, 4).map((q) => (
+          <button
+            key={q}
+            onClick={() => onPick(q)}
+            className="rounded-xl border border-border/60 bg-card px-3 py-2.5 text-left text-[13px] leading-snug transition-colors hover:bg-accent"
+          >
+            {q}
+          </button>
+        ))}
+      </div>
+      <p className="mt-3 text-center text-[10px] text-muted-foreground">
+        Tip: press <kbd className="rounded bg-muted px-1 py-0.5 text-[10px]">/</kbd> in the input for quick prompts.
+      </p>
+    </div>
+  );
+}
+
 
 
