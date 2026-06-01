@@ -62,7 +62,7 @@ export function MintReceiptsHint() {
           <div className="min-w-0">
             <p className="text-sm font-medium text-foreground">Your mint receipts</p>
             <p className="text-[11px] text-muted-foreground truncate">
-              Every Tap-to-Mint™ generates a verifiable on-chain receipt
+              Every Proof of Genesis™ generates a verifiable on-chain receipt
             </p>
           </div>
         </div>

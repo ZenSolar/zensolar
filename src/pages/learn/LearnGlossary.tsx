@@ -11,7 +11,7 @@ interface GlossaryEntry {
 
 const GLOSSARY: GlossaryEntry[] = [
   { term: '$ZSOLAR', short: 'The reward currency you earn for clean energy. Like loyalty points — but tradeable.' },
-  { term: 'Tap-to-Mint™', short: 'One tap reads your device data, verifies the energy, and credits your account.' },
+  { term: 'Proof of Genesis™', short: 'One tap reads your device data, verifies the energy, and credits your account.' },
   { term: 'Proof-of-Genesis™', short: 'Our way of proving your clean energy is real before turning it into rewards.' },
   { term: 'Mint', short: 'Convert verified clean energy into $ZSOLAR — like cashing in a check.' },
   { term: 'Burn', short: 'Permanently removed from circulation — making the remaining supply more valuable.' },

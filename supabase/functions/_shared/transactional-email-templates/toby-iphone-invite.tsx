@@ -144,7 +144,7 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
               <span style={{ color: '#ffffff' }}>The 2-step magic moment</span>
             </Text>
             <Text style={mintTitle}>
-              <span style={{ color: '#ffffff' }}>Tap-to-Mint, then peek at your Wallet</span>
+              <span style={{ color: '#ffffff' }}>Proof of Genesis, then peek at your Wallet</span>
             </Text>
             <Text style={mintText}>
               <span style={{ color: '#ffffff' }}>
@@ -194,7 +194,7 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
           <Section style={footerWrap}>
             <Text style={footer}>
               © {new Date().getFullYear()} ZenSolar, LLC<br />
-              ZenSolar™ · Tap-to-Mint™ · Creating Currency From Energy™<br />
+              ZenSolar™ · Proof of Genesis™ · Creating Currency From Energy™<br />
               U.S. Patent Pending — Application No. 19/634,402
             </Text>
           </Section>

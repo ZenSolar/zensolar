@@ -6,9 +6,7 @@ import {
   FileText,
   Presentation,
   BarChart3,
-  Users,
   PlayCircle,
-  Calendar,
   CheckCircle2,
   ArrowDown,
   Mail,
@@ -84,9 +82,7 @@ function buildUnlocks(preview: boolean): Array<{
     { icon: Presentation, label: 'Seed Pitch Deck', desc: 'Full investor narrative', to: '/investor/pitch' },
     { icon: FileText, label: 'One-Pager', desc: 'Catalyst, moat, capital plan', to: '/founders/seed-pitch-greg' },
     { icon: BarChart3, label: 'Tokenomics Model', desc: '1T cap · $0.10 launch math', to: '/tokenomics' },
-    { icon: Users, label: 'Founder Bios', desc: 'Joseph Maushart · Michael Tschida', to: '/investor/pitch#why-us' },
-    { icon: PlayCircle, label: 'Live Investor Demo', desc: 'Tap-to-Mint™ in your hand', to: preview ? '/demo-leonardo' : '/demo' },
-    { icon: Calendar, label: 'Schedule a Call', desc: 'Direct to the founders', to: 'mailto:joe@zen.solar?subject=ZenSolar%20Investor%20Call' },
+    { icon: PlayCircle, label: 'Live Investor Demo', desc: 'Proof of Genesis in your hand', to: preview ? '/demo-leonardo' : '/demo' },
   ];
 }
 
@@ -195,7 +191,7 @@ export default function Investor() {
               From Energy.
             </h1>
             <p className="mt-5 text-sm md:text-base text-muted-foreground max-w-md">
-              Seed round open. Patent-pending Tap-to-Mint™ protocol turning verified clean-energy
+              Seed round open. Patent-pending Proof of Genesis™ protocol turning verified clean-energy
               production into a hard-capped, asset-backed digital currency on Base.
             </p>
             <div className="mt-7 grid grid-cols-3 gap-3 w-full max-w-md">
@@ -249,7 +245,7 @@ export default function Investor() {
               },
               {
                 title: 'Patent-pending',
-                body: 'U.S. App. 19/634,402 covers Tap-to-Mint™, Mint-on-Proof™, Proof-of-Delta™.',
+                body: 'U.S. App. 19/634,402 covers Proof of Genesis™, Mint-on-Proof™, Proof-of-Delta™.',
               },
               {
                 title: 'Live in beta',
@@ -378,7 +374,7 @@ function UnlockedPanel({
         <UnlockedCard
           icon={PlayCircle}
           title="Live Investor Demo"
-          body="Tap-to-Mint™ flow on real data. Mobile-first."
+          body="Proof of Genesis™ flow on real data. Mobile-first."
           to={demoHref}
           internal
         />
@@ -396,19 +392,17 @@ function UnlockedPanel({
           to="/tokenomics"
           internal
         />
-        <UnlockedCard
-          icon={Users}
-          title="Founder Bios"
-          body="Joseph Maushart · Michael Tschida."
-          to="mailto:joe@zen.solar?subject=ZenSolar%20Founder%20Bios"
-        />
-        <UnlockedCard
-          icon={Calendar}
-          title="Schedule a Call"
-          body="Direct to the founders. 30 min."
-          to="mailto:joe@zen.solar?subject=ZenSolar%20Investor%20Call&body=Hi%20Joseph%2C%20I%27d%20like%20to%20schedule%20a%20call."
-        />
       </div>
+
+      <p className="text-center text-[11px] text-muted-foreground pt-2">
+        Direct contact:{' '}
+        <a
+          href="mailto:joe@zensolar.com?subject=ZenSolar%20Investor%20Inquiry"
+          className="text-secondary hover:text-secondary/80 underline-offset-4 hover:underline"
+        >
+          joe@zensolar.com
+        </a>
+      </p>
 
       <div className="flex flex-col sm:flex-row gap-2.5 pt-2">
         <Button

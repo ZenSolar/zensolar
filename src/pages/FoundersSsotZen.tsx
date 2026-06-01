@@ -96,7 +96,7 @@ const SSOT = {
   ],
   roadmap: [
     { phase: "Seed Round", target: "Q2 2026", progress: 75, status: "in_progress", items: ["Lyndon Rive pitch", "$1.7M LP reserve", "Track 1 patent amendment"] },
-    { phase: "Genesis Launch", target: "Q3 2026", progress: 30, status: "in_progress", items: ["OG LP seeding", "Tap-to-Mint live", "Daily Auto-Mint"] },
+    { phase: "Genesis Launch", target: "Q3 2026", progress: 30, status: "in_progress", items: ["OG LP seeding", "Proof of Genesis live", "Daily Auto-Mint"] },
     { phase: "Phase 1.5 — Deason", target: "Q4 2026", progress: 10, status: "todo", items: ["Monthly Energy Insights email", "/energy-insights page", "Premium tier"] },
     { phase: "Phase 2 — FSD Miles", target: "Q1 2027", progress: 0, status: "todo", items: ["FSD oracle", "10 mi = 1 $ZSOLAR", "Lyndon cherry-on-top demo"] },
     { phase: "Self-Sustaining", target: "~100k users", progress: 0, status: "todo", items: ["No further LP raises", "Series A optional"] },
@@ -507,7 +507,7 @@ export default function FoundersSsotZen() {
               <CardContent className="p-5">
                 <ul className="space-y-2.5 text-sm">
                   {[
-                    "Tap-to-Mint™ live (10:1 ratio)",
+                    "Proof of Genesis™ live (10:1 ratio)",
                     "Daily Auto-Mint engine",
                     "Mint-on-Proof™ (PoG receipts)",
                     "Embedded Coinbase Wallet + Reown AppKit",

@@ -418,7 +418,7 @@ export default function Engineering() {
                     means: "We never mint your lifetime total — only the new kWh since your last mint. Yesterday's energy can't be re-claimed today.",
                   },
                   {
-                    mark: "Tap-to-Mint™",
+                    mark: "Proof of Genesis™",
                     expansion: "The user-facing gesture of Mint-on-Proof",
                     etymology: "One tap. One proof. One mint. The simplest possible expression of the entire stack.",
                     means: "What the user sees: a single button that triggers the SEGI fetch, the Proof-of-Delta calculation, and the on-chain Mint-on-Proof — in about 60 seconds.",

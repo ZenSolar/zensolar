@@ -104,7 +104,7 @@ const JoFounderVipEmail = ({ firstName, trackUrl }: JoFounderVipProps) => {
             <Text style={codeBadge}>Your private access code</Text>
             <Text style={codeValue}>{ACCESS_CODE}</Text>
             <Text style={codeHelp}>
-              If you ever land on the <strong>Tap-to-Mint™ access screen</strong> (the branded
+              If you ever land on the <strong>Proof of Genesis™ access screen</strong> (the branded
               gate before the demo), use this code. Tap below and it auto-fills for you.
             </Text>
             <Link href={t('cta_demo_magic', DEMO_MAGIC_URL)} style={buttonPrimary}>
@@ -156,7 +156,7 @@ const JoFounderVipEmail = ({ firstName, trackUrl }: JoFounderVipProps) => {
           <Section style={footerWrap}>
             <Text style={footer}>
               © {new Date().getFullYear()} ZenSolar, LLC<br />
-              ZenSolar™ · Tap-to-Mint™ · Creating Currency From Energy™<br />
+              ZenSolar™ · Proof of Genesis™ · Creating Currency From Energy™<br />
               U.S. Patent Pending — Application No. 19/634,402
             </Text>
           </Section>

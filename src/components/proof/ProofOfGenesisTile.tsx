@@ -111,7 +111,7 @@ export function ProofOfGenesisTile({
           </div>
 
           <p className="text-xs text-muted-foreground leading-relaxed mb-3 sm:mb-4">
-            Every Tap-to-Mint™ is backed by a verified chain: real kWh from your
+            Every Proof of Genesis™ is backed by a verified chain: real kWh from your
             devices, watermarked on-chain, split 75/20/3/2, and offset against
             CO₂. This is the proof.
           </p>

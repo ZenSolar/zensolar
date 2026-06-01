@@ -16,7 +16,7 @@ const walls = [
       'Track 4 — ZK-Proof-of-Genesis',
     ],
     footer:
-      'TMs: Proof-of-Genesis™, Tap-to-Mint™, Proof-of-Permanence™, Genesis Anchor™, Proof-of-Custody™, SEGI™, ZPPA',
+      'TMs: Proof-of-Genesis™, Proof of Genesis™, Proof-of-Permanence™, Genesis Anchor™, Proof-of-Custody™, SEGI™, ZPPA',
   },
   {
     icon: Layers,

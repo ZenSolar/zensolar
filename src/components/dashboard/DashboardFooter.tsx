@@ -21,7 +21,7 @@ export function DashboardFooter() {
             className="h-8 w-auto object-contain mb-2 dark:animate-logo-glow" 
           />
           <p className="text-xs text-muted-foreground">
-            The World's First Tap-to-Mint™, Mint-on-Proof™ Clean Energy Platform
+            The World's First Proof of Genesis™, Mint-on-Proof™ Clean Energy Platform
           </p>
         </div>
 

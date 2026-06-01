@@ -65,7 +65,7 @@ const ToddAndroidInviteEmail = ({ firstName, trackUrl }: ToddAndroidInviteProps)
             <Text style={codeBadge}>Your private access code</Text>
             <Text style={codeValue}>{ACCESS_CODE}</Text>
             <Text style={codeHelp}>
-              You&apos;ll be asked for this on the <strong>Tap-to-Mint™ access screen</strong>.
+              You&apos;ll be asked for this on the <strong>Proof of Genesis™ access screen</strong>.
               Tap the button below and it auto-fills for you — or type it in by hand.
             </Text>
             <Link href={t('cta_demo_magic', DEMO_MAGIC_URL)} style={buttonPrimary}>
@@ -148,7 +148,7 @@ const ToddAndroidInviteEmail = ({ firstName, trackUrl }: ToddAndroidInviteProps)
               <span style={{ color: '#ffffff' }}>What to look for inside</span>
             </Text>
             <Text style={mintTitle}>
-              <span style={{ color: '#ffffff' }}>Founders Area + Tap-to-Mint™</span>
+              <span style={{ color: '#ffffff' }}>Founders Area + Proof of Genesis™</span>
             </Text>
             <Text style={mintText}>
               <span style={{ color: '#ffffff' }}>
@@ -189,7 +189,7 @@ const ToddAndroidInviteEmail = ({ firstName, trackUrl }: ToddAndroidInviteProps)
           <Section style={footerWrap}>
             <Text style={footer}>
               © {new Date().getFullYear()} ZenSolar, LLC<br />
-              ZenSolar™ · Tap-to-Mint™ · Creating Currency From Energy™<br />
+              ZenSolar™ · Proof of Genesis™ · Creating Currency From Energy™<br />
               U.S. Patent Pending — Application No. 19/634,402
             </Text>
           </Section>

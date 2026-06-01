@@ -103,7 +103,7 @@ export default function FoundersCurrentStatus() {
           <ul className="space-y-2.5">
             <Check>Open the URL on any device — no app install, no extension.</Check>
             <Check>Embedded Coinbase Wallet auto-provisioned on signup. Zero crypto knowledge required.</Check>
-            <Check>Tap-to-Mint™ working today — verified energy event → on-chain mint in seconds.</Check>
+            <Check>Proof of Genesis™ working today — verified energy event → on-chain mint in seconds.</Check>
             <Check>Mobile-first PWA. Works offline. Push notifications.</Check>
           </ul>
           <a
@@ -151,7 +151,7 @@ export default function FoundersCurrentStatus() {
               <li>• Proof-of-Delta™</li>
               <li>• Proof-of-Origin™</li>
               <li>• Proof-of-Genesis™</li>
-              <li>• Tap-to-Mint™</li>
+              <li>• Proof of Genesis™</li>
             </ul>
           </div>
           <div className="rounded-2xl border border-border/60 bg-card p-5 md:col-span-2">

@@ -3,8 +3,10 @@ import { motion } from 'framer-motion';
 import { Coins, CreditCard, Database, ArrowRight, Sparkles } from 'lucide-react';
 
 /**
- * Revenue Model — engine order locked Feb 2026:
- *   1) Token Economics  2) Monthly Subscription (Deason AI = $4.99 add-on)  3) Aggregated Data
+ * Revenue Model — engine order locked Jun 2026 (video feedback pass):
+ *   01) Subscription + Token Economics (combined)
+ *   02) Deason AI ($4.99/mo premium add-on / upgrade)
+ *   03) Aggregated Data (secondary)
  */
 export function Slide09Revenue() {
   return (
@@ -21,28 +23,28 @@ export function Slide09Revenue() {
           {[
             {
               num: '01',
-              icon: Coins,
-              title: 'Token Economics',
-              stat: '1T cap · 75/20/3/2',
-              desc: 'Core product. Primary revenue driver. $0.10 LP launch, 7% transfer tax compounds LP + treasury.',
+              icon: CreditCard,
+              auxIcon: Coins,
+              title: 'Subscription + Token Economics',
+              stat: '$9.99 / $19.99 / $49.99 → 1T cap',
+              desc: 'Paid base sub is the price of entry to mint. 50% LP / 50% treasury per sub dollar. Funds a 1T hard-capped token (75/20/3/2 split, $0.10 launch, 7% transfer tax compounds LP).',
               color: 'hsl(45,93%,47%)',
               emphasized: true,
             },
             {
               num: '02',
-              icon: CreditCard,
-              title: 'Monthly Subscription',
-              stat: '$9.99 / $19.99 / $49.99',
-              desc: 'Base fee required to be a ZenSolar user and mint. 50% LP / 50% treasury on every sub dollar.',
+              icon: Sparkles,
+              title: 'Deason AI',
+              stat: '+$4.99/mo premium add-on',
+              desc: 'Premium upgrade on top of any base sub. Monthly Clean Energy Report, bill analysis, rate-plan optimization, device-aware advice. Highest-margin per-user recurring revenue.',
               color: 'hsl(142,76%,50%)',
-              addon: 'Deason AI · $4.99/mo premium add-on · Monthly Clean Energy Report',
             },
             {
               num: '03',
               icon: Database,
               title: 'Aggregated Energy Data',
               stat: '$2B+ TAM',
-              desc: 'Anonymized, multi-OEM verified telemetry sold to utilities, ISOs, and REC registries.',
+              desc: 'Anonymized, multi-OEM verified telemetry sold to utilities, ISOs, and REC registries. Only possible because we built the first unified multi-OEM monitoring layer.',
               color: 'hsl(207,90%,54%)',
             },
           ].map((item, i) => (
@@ -53,17 +55,14 @@ export function Slide09Revenue() {
                 <span className="text-[11px] font-mono tracking-[0.22em] uppercase font-semibold" style={{ color: item.color }}>
                   Engine {item.num}
                 </span>
-                <item.icon className="w-6 h-6" style={{ color: item.color }} />
+                <div className="flex items-center gap-1.5">
+                  <item.icon className="w-6 h-6" style={{ color: item.color }} />
+                  {item.auxIcon && <item.auxIcon className="w-6 h-6 opacity-70" style={{ color: item.color }} />}
+                </div>
               </div>
               <p className="text-[18px] font-bold text-white/95">{item.title}</p>
-              <p className="text-[20px] font-black mt-1" style={{ color: item.color }}>{item.stat}</p>
+              <p className="text-[18px] font-black mt-1" style={{ color: item.color }}>{item.stat}</p>
               <p className="text-[13px] text-white/60 mt-3 leading-relaxed">{item.desc}</p>
-              {item.addon && (
-                <div className="mt-3 pt-3 border-t border-white/10 flex items-start gap-2">
-                  <Sparkles className="w-4 h-4 mt-0.5 shrink-0" style={{ color: item.color }} />
-                  <p className="text-[12px] text-white/75 leading-snug">{item.addon}</p>
-                </div>
-              )}
             </motion.div>
           ))}
         </div>
@@ -71,9 +70,9 @@ export function Slide09Revenue() {
         {/* Flywheel */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}
           className="p-6 rounded-2xl border border-[hsl(207,90%,54%)]/20 bg-[hsl(207,90%,54%)]/5">
-          <p className="text-[14px] font-mono tracking-[0.2em] uppercase text-white/30 mb-4">THE FLYWHEEL</p>
+          <p className="text-[14px] font-mono tracking-[0.2em] uppercase text-white/30 mb-4">THE FLYWHEEL · Verified kWh → Data → AI → $ZSOLAR</p>
           <div className="flex items-center justify-between px-8">
-            {['More Users', 'More Revenue', 'More LP Depth', 'Higher Floor', 'More Users'].map((step, i) => (
+            {['Paid Sub', 'Verified kWh', 'Data + AI', 'Token Demand', 'Paid Sub'].map((step, i) => (
               <div key={i} className="flex items-center gap-4">
                 <span className={`text-[16px] font-semibold ${i === 4 ? 'text-[hsl(142,76%,50%)]' : 'text-white/70'}`}>{step}</span>
                 {i < 4 && <ArrowRight className="w-5 h-5 text-[hsl(207,90%,54%)]/50" />}

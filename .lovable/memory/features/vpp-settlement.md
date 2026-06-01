@@ -10,7 +10,7 @@ type: feature
 
 | Stream | When | Why |
 |---|---|---|
-| **$ZSOLAR tokens** | Real-time, auto-minted to wallet within 30–60 sec of dispatch event ending | Instant gratification, on-chain proof, reuses Tap-to-Mint™ / DCA engine, brand-aligned |
+| **$ZSOLAR tokens** | Real-time, auto-minted to wallet within 30–60 sec of dispatch event ending | Instant gratification, on-chain proof, reuses Proof of Genesis™ / DCA engine, brand-aligned |
 | **Cash earnings** | Monthly, 1st of month — ACH deposit OR subscription credit | Standard utility settlement cycle, lower payment processing fees, "payday" feel |
 
 Never batch tokens daily for VPP. Per-event minting is the locked UX.

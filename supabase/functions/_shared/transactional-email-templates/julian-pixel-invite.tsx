@@ -64,7 +64,7 @@ const JulianPixelInviteEmail = ({ firstName }: JulianPixelInviteProps) => (
           <Text style={cardNum}>03</Text>
           <Text style={cardTitle}>Tap the glowing energy tiles</Text>
           <Text style={cardBody}>
-            Solar produced, battery exported, EV miles, Supercharging, home charging — each tile tokenizes that energy and mints real $ZSOLAR into your demo wallet. That's the <strong>Tap-to-Mint™</strong> moment. It should feel almost too easy.
+            Solar produced, battery exported, EV miles, Supercharging, home charging — each tile tokenizes that energy and mints real $ZSOLAR into your demo wallet. That's the <strong>Proof of Genesis™</strong> moment. It should feel almost too easy.
           </Text>
         </Section>
 

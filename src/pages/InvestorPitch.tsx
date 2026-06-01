@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, PlayCircle, Calendar, Sparkles, Cpu, Calculator } from 'lucide-react';
+import { ArrowLeft, PlayCircle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThreeRevenueEngines } from '@/components/investor/ThreeRevenueEngines';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
@@ -89,7 +89,7 @@ export default function InvestorPitch() {
             />
             <CatalystCard
               title="Patent-pending"
-              body="U.S. App. 19/634,402 covers Tap-to-Mint™, Mint-on-Proof™, Proof-of-Delta™."
+              body="U.S. App. 19/634,402 covers Proof of Genesis™, Mint-on-Proof™, Proof-of-Delta™."
             />
             <CatalystCard
               title="First of its kind"
@@ -121,75 +121,7 @@ export default function InvestorPitch() {
           <ThreeRevenueEngines />
         </section>
 
-        {/* Why Us */}
-        <section className="mx-auto max-w-3xl px-5 py-12 border-t border-border/40">
-          <h2 className="text-xs uppercase tracking-[0.22em] text-muted-foreground mb-5">
-            Why Us
-          </h2>
-
-          <div className="rounded-3xl border border-border/60 bg-card/40 p-6 md:p-8">
-            <p className="text-sm md:text-base text-foreground/90 leading-relaxed">
-              ZenSolar is built by{' '}
-              <span className="font-semibold text-foreground">
-                Joseph Maushart and Michael Tschida
-              </span>{' '}
-              —{' '}
-              <span className="text-foreground">childhood best friends</span>, now co-founders. Two
-              operators who've spent a lifetime sharpening complementary edges of the same
-              problem, pact-locked{' '}
-              <span className="text-foreground">200B $ZSOLAR</span> between them to build this out
-              together.
-            </p>
-
-            {/* Complementary edges */}
-            <div className="mt-6 grid gap-3 md:grid-cols-2">
-              <FounderCard
-                icon={Cpu}
-                accent="text-secondary"
-                ring="border-secondary/30"
-                name="Joseph Maushart"
-                role="Protocol · Product · Distribution"
-                bullets={[
-                  'Ex-SolarCity. Built the live multi-OEM monitoring app (Tesla, Enphase, SolarEdge, Wallbox).',
-                  'Patent-pending Tap-to-Mint™ author. 9-jurisdiction legal posture. 3.34M+ verified kWh shipped.',
-                  'Owns: protocol, product, energy verification, GTM.',
-                ]}
-              />
-              <FounderCard
-                icon={Calculator}
-                accent="text-eco"
-                ring="border-eco/30"
-                name="Michael Tschida"
-                role="Capital · Math · Economics"
-                bullets={[
-                  'Top 10% State Farm agent nationwide. President\u2019s Club every year as a top producer.',
-                  'Deep expertise in investment strategy, capital allocation, and applied economics — sharper than Joe\u2019s in those domains by design.',
-                  'Owns: token economics math, capital deployment discipline, investor relations.',
-                ]}
-              />
-            </div>
-
-            <p className="mt-6 text-center text-[13px] md:text-sm italic text-foreground/85 leading-relaxed">
-              Childhood best friends. Two complementary operators. One mission: turn every clean
-              kWh into a hard-capped currency, and change how the world prices energy.
-            </p>
-
-            <ul className="mt-6 pt-5 border-t border-border/40 space-y-2 text-[13px] text-muted-foreground">
-              <li className="flex gap-2">
-                <span className="mt-1.5 h-1 w-1 rounded-full shrink-0 bg-secondary" />
-                Tesla, Enphase, SolarEdge, Wallbox OEM monitoring all live in production.
-              </li>
-              <li className="flex gap-2">
-                <span className="mt-1.5 h-1 w-1 rounded-full shrink-0 bg-secondary" />
-                Patent-pending Tap-to-Mint™ protocol filed with the USPTO.
-              </li>
-              <li className="flex gap-2">
-                <span className="mt-1.5 h-1 w-1 rounded-full shrink-0 bg-secondary" />
-                Embedded Coinbase Wallet, Reown AppKit, Base L2 — no MetaMask friction.
-              </li>
-            </ul>
-          </div>
-        </section>
+        {/* Why Us section intentionally removed — founder framing is handled inside the deck and via direct contact in the footer below. */}
 
         {/* The Ask */}
         <section className="mx-auto max-w-3xl px-5 py-12 border-t border-border/40">
@@ -253,21 +185,15 @@ export default function InvestorPitch() {
                 </span>
               </li>
             </ul>
-            <div className="mt-7 flex flex-col sm:flex-row gap-2.5">
+            <div className="mt-7">
               <Button
                 asChild
-                className="flex-1 h-11 bg-secondary text-secondary-foreground hover:bg-secondary/90"
+                className="w-full h-11 bg-secondary text-secondary-foreground hover:bg-secondary/90"
               >
                 <Link to="/demo">
                   <PlayCircle className="h-4 w-4 mr-2" />
                   Enter live demo
                 </Link>
-              </Button>
-              <Button asChild variant="outline" className="flex-1 h-11">
-                <a href="mailto:joe@zen.solar?subject=ZenSolar%20Investor%20Call&body=Hi%20Joseph%2C%20I%27d%20like%20to%20schedule%20a%20call.">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Schedule a call
-                </a>
               </Button>
             </div>
           </div>
@@ -280,7 +206,14 @@ export default function InvestorPitch() {
 
         <footer className="border-t border-border/40 py-6 text-center">
           <p className="text-[11px] text-muted-foreground/70">
-            ZenSolar, LLC · Austin, TX · joe@zen.solar · Confidential under NDA
+            ZenSolar, LLC · Austin, TX ·{' '}
+            <a
+              href="mailto:joe@zensolar.com?subject=ZenSolar%20Investor%20Inquiry"
+              className="text-secondary hover:text-secondary/80 underline-offset-4 hover:underline"
+            >
+              joe@zensolar.com
+            </a>{' '}
+            · Confidential under NDA
           </p>
         </footer>
       </div>
@@ -317,43 +250,3 @@ function CatalystCard({
   );
 }
 
-function FounderCard({
-  icon: Icon,
-  accent,
-  ring,
-  name,
-  role,
-  bullets,
-}: {
-  icon: typeof Cpu;
-  accent: string;
-  ring: string;
-  name: string;
-  role: string;
-  bullets: string[];
-}) {
-  return (
-    <div className={`rounded-2xl border ${ring} bg-card/60 p-4 md:p-5`}>
-      <div className="flex items-center gap-2.5">
-        <div className={`h-8 w-8 rounded-full border ${ring} bg-background/40 flex items-center justify-center`}>
-          <Icon className={`h-4 w-4 ${accent}`} />
-        </div>
-        <div>
-          <div className="text-sm font-semibold text-foreground leading-tight">{name}</div>
-          <div className={`text-[11px] uppercase tracking-wider mt-0.5 ${accent}`}>{role}</div>
-        </div>
-      </div>
-      <ul className="mt-3 space-y-1.5">
-        {bullets.map((b) => (
-          <li
-            key={b}
-            className="text-[12px] text-muted-foreground leading-relaxed flex gap-2"
-          >
-            <span className={`mt-1.5 h-1 w-1 rounded-full shrink-0 ${accent.replace('text-', 'bg-')}`} />
-            <span>{b}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}

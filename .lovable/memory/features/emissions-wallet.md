@@ -1,13 +1,13 @@
 ---
 name: ZenSolar Emissions Wallet (Gas Sponsorship)
-description: Treasury or dedicated wallet covers ALL on-chain gas costs for user mints — users never pay gas. Core to Tap-to-Mint UX promise.
+description: Treasury or dedicated wallet covers ALL on-chain gas costs for user mints — users never pay gas. Core to Proof of Genesis UX promise.
 type: feature
 ---
 
 # Emissions Wallet — Gas Sponsorship Architecture
 
 ## Promise
-Users **never pay gas** to mint $ZSOLAR. Period. This is non-negotiable and central to the "Tap-to-Mint™" / "no crypto jargon" UX commitment.
+Users **never pay gas** to mint $ZSOLAR. Period. This is non-negotiable and central to the "Proof of Genesis™" / "no crypto jargon" UX commitment.
 
 ## Mechanism
 - ZenSolar operates either the **main treasury wallet** or a **dedicated Emissions Wallet** that sponsors every user mint transaction on Base L2.

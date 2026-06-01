@@ -283,7 +283,7 @@ export default function Pulse() {
                 />
                 <ImpactCard
                   icon={<Trophy className="h-4 w-4" />}
-                  label="Tap-to-Mints"
+                  label="Proof of Genesiss"
                   value={fmt(me?.myMintCount ?? 0)}
                   tint="primary"
                 />

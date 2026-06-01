@@ -274,7 +274,7 @@ export function AppSidebar() {
           />
           {!collapsed && (
             <div className="flex flex-col min-w-0">
-              <span className="text-[10px] text-sidebar-foreground/60 leading-tight">Tap-to-Mint™, Mint-on-Proof™ Clean Energy Platform</span>
+              <span className="text-[10px] text-sidebar-foreground/60 leading-tight">Proof of Genesis™, Mint-on-Proof™ Clean Energy Platform</span>
             </div>
           )}
         </div>

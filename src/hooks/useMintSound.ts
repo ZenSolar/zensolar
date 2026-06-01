@@ -516,7 +516,7 @@ export function useMintSound() {
       echo2Gain.connect(ctx.destination);
 
       // ══════════════════════════════════════════════════════════
-      //  ZenSolar™ Tap-to-Mint — Single Unified Gong Strike
+      //  ZenSolar™ Proof of Genesis — Single Unified Gong Strike
       //  All partials hit simultaneously as one cohesive metallic tone
       // ══════════════════════════════════════════════════════════
 
