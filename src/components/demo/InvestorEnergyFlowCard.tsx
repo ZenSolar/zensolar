@@ -33,6 +33,7 @@ const ANNOTATIONS = [
  */
 export function InvestorEnergyFlowCard() {
   const h = INVESTOR_DEMO_HEADLINE;
+  const [showAnnotations, setShowAnnotations] = useState(true);
   return (
     <div
       className="rounded-xl overflow-hidden bg-card/5 p-4"
