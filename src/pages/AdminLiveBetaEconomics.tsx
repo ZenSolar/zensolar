@@ -235,11 +235,9 @@ export default function AdminLiveBetaEconomics() {
     { name: 'Treasury', value: MINT_DISTRIBUTION.treasury, color: 'hsl(var(--muted-foreground))' },
   ];
 
-  // Transfer tax pie data
+  // Transfer tax pie data (v3.1 — 3% LP recycle only)
   const taxData = [
-    { name: 'Burn', value: TRANSFER_TAX.burn, color: 'hsl(var(--destructive))' },
-    { name: 'LP', value: TRANSFER_TAX.lp, color: 'hsl(var(--solar))' },
-    { name: 'Treasury', value: TRANSFER_TAX.treasury, color: 'hsl(var(--muted-foreground))' },
+    { name: 'LP Recycle', value: TRANSFER_TAX.lp, color: 'hsl(var(--solar))' },
   ];
 
   const getExportData = () => {
