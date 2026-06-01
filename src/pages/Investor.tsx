@@ -323,7 +323,7 @@ export default function Investor() {
         </section>
 
         <footer className="border-t border-border/40 py-6 text-center">
-          <p className="text-[11px] text-muted-foreground/70">
+          <p className="text-[11px] text-muted-foreground">
             ZenSolar, LLC · Austin, TX · joe@zensolar.com
           </p>
         </footer>
@@ -422,7 +422,7 @@ function UnlockedPanel({
         </Button>
       </div>
 
-      <p className="text-[10px] text-muted-foreground/60 text-center pt-4">
+      <p className="text-[10px] text-muted-foreground text-center pt-4">
         Materials are confidential under your signed NDA (v1.0). Do not share without written
         consent.
       </p>

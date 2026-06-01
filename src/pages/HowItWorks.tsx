@@ -24,7 +24,7 @@ export default function HowItWorks() {
         url="https://zensolar.com/how-it-works"
         image="https://zensolar.com/og-technology.png"
       />
-      <div className="min-h-screen">
+      <main id="main-content" className="min-h-screen">
         <HowToPlayHero />
         <MultiOemMoat />
         <StepProgressTimeline containerRef={stepsRef} />
@@ -41,7 +41,7 @@ export default function HowItWorks() {
         </section>
         <PioneerRewards />
         <ReadyToPlayCTA />
-      </div>
+      </main>
     </>
   );
 }

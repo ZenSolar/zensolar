@@ -1,9 +1,15 @@
+import { lazy, Suspense } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, PlayCircle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ThreeRevenueEngines } from '@/components/investor/ThreeRevenueEngines';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+
+const ThreeRevenueEngines = lazy(() =>
+  import('@/components/investor/ThreeRevenueEngines').then((m) => ({
+    default: m.ThreeRevenueEngines,
+  }))
+);
 
 /**
  * /investor/pitch — Canonical Investor Pitch v2.
@@ -129,7 +135,9 @@ export default function InvestorPitch() {
               $4.99 premium add-on), and aggregated utility data — each reinforcing the others.
             </p>
           </div>
-          <ThreeRevenueEngines />
+          <Suspense fallback={<div className="min-h-[400px]" aria-hidden />}>
+            <ThreeRevenueEngines />
+          </Suspense>
         </section>
 
         {/* Why Us section intentionally removed — founder framing is handled inside the deck and via direct contact in the footer below. */}
@@ -216,7 +224,7 @@ export default function InvestorPitch() {
         </section>
 
         <footer className="border-t border-border/40 py-6 text-center">
-          <p className="text-[11px] text-muted-foreground/70">
+          <p className="text-[11px] text-muted-foreground">
             ZenSolar, LLC · Austin, TX ·{' '}
             <a
               href="mailto:joe@zensolar.com?subject=ZenSolar%20Investor%20Inquiry"
