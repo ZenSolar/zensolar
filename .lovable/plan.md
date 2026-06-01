@@ -1,79 +1,52 @@
+## Goal
 
-# Lock 50 / 20 / 20 / 10 Mint Split — Sequenced Rollout
+Refresh the math tables in `.lovable/memory/features/tiered-subscriptions-halving-flywheel.md` so every number is consistent with the **v3.1 mint split (50% user / 20% LP / 20% burn / 10% treasury)** instead of the legacy 75/20/3/2. Keep the file's locked 10:1 mint ratio (v2.1) and qualitative conclusions intact — only the share math changes.
 
-**Execution order is sequential per your note:** ship Step 1 first, verify, then move to Steps 2–4.
+## Scope (this file only)
 
----
+### 1. Header + principles
+- §1 line "Mint split unchanged: 75% user / 20% burn / 3% LP / 2% treasury" → **"Mint split (v3.1): 50% user / 20% LP / 20% burn / 10% treasury."**
+- Bump description / heading note to mark math refreshed for v3.1 user share.
 
-## Step 1 — Trim `/investor` cards (ship first, verify, then continue)
+### 2. §5 baseline assumption
+- Replace "1,000 raw tokens minted/user/month → 750 to user (75% of mint)" with **"1,000 raw tokens minted/user/month → 500 to user (50% of mint)"**.
 
-Edit `src/pages/Investor.tsx` and its `buildUnlocks()`:
-- **Keep:** Live Investor Demo (`/demo`), Full Pitch Deck (`/deck`)
-- **Remove:** Investor Pitch · v2, Tokenomics & LP Model
-- Sync the locked-state preview grid to match (2 cards, not 4)
+### 3. §5 "Before Genesis Halving" table — recompute (sell-rate × user tokens × $0.10 floor)
 
-**Verify:** `/investor` shows exactly 2 unlock cards at 393×587 + 1920×1080.
+| Tier | LP/user/mo | User tokens | Sold tokens | Sell pressure ($) | Net (LP − sells) |
+|---|---|---|---|---|---|
+| Base (90% sell) | $4.995 | 500 | 450 | $45.00 | **−$40.005** |
+| Regular (25% sell) | $9.995 | 500 | 125 | $12.50 | **−$2.505** |
+| Power (5% sell) | $24.995 | 500 | 25 | $2.50 | **+$22.495** |
 
----
+### 4. §5 "After Genesis Halving" table — recompute (500 raw → 250 user tokens)
 
-## Step 2 — Global split SSOT reset (50 / 20 / 20 / 10)
+| Tier | LP/user/mo | User tokens | Sold tokens | Sell pressure ($) | Net (LP − sells) |
+|---|---|---|---|---|---|
+| Base | $4.995 | 250 | 225 | $22.50 | **−$17.505** |
+| Regular | $9.995 | 250 | 62.5 | $6.25 | **+$3.745** |
+| Power | $24.995 | 250 | 12.5 | $1.25 | **+$23.745** |
 
-`src/lib/tokenomics.ts`:
-```ts
-export const MINT_DISTRIBUTION = { user: 50, lp: 20, burn: 20, treasury: 10 } as const;
-```
-- Bump `MODEL_VERSION` → `3.1`
-- Update inline comments
-- `useLatestMintReceipt.ts`: `USER_SHARE = 0.5` (keep "do NOT back-calc" comment; legacy rows still use stored deltas)
-- Verify `RecentMintProofs.tsx` stays 1:1 to user
-- Admin pie charts → 4 slices (50/20/20/10)
-- Update test fixtures: `mintReconciliation.test.ts`, `chargingSplitInvariants.test.ts`
+### 5. Key-insight paragraph under §5
+- Keep narrative: Regular flips net-positive at halving, Power compounds, Base subsidized. Numbers still support it (Regular: −$2.51 → +$3.75; Power positive both sides; Base less deep underwater than before because user share halved).
 
-**Investor narrative surfaces:**
-- `Slide07ValueMechanism.tsx` — middle card: "20% of every mint flows straight into the USDC liquidity pool — plus 50% of every sub dollar."
-- `Slide09Revenue.tsx` + `ThreeRevenueEngines.tsx` — Engine 02 chip: `1T cap · 50 user · 20 LP · 20 burn · 10 treasury`
+### 6. Bottom note
+- Rewrite the "Note on §5 illustrative math" paragraph: drop the "modeled at old 1:1 / 75% share" caveat, replace with a one-liner stating tables are now on v3.1 (50% user share) at the locked 10:1 ratio; absolute dollar magnitudes still scale ~10× smaller under real 10:1 throughput, directional conclusions unchanged.
 
-**Docs:** `BOOTSTRAP_TOKENOMICS.md`, `TOKENOMICS_OPTIMIZATION_FRAMEWORK.md` — find/replace split numbers.
+### 7. §12 forbidden phrasings
+- Add: **❌ "75% user share" → ✅ "50% user share (v3.1)"**.
 
-**Out of scope:** smart contract, archive files, VPP split, subscription split, staking, Genesis Halving.
+## Out of scope
 
----
+- §2 subscription tier pricing and LP/treasury split (untouched — that's the 50/50 subscription rule, independent of mint split).
+- §3 sell-rate assumptions (unchanged).
+- §4 Genesis Halving mechanics (unchanged).
+- §6–§11 (cohort mix, staking, soft cap, Satoshi-Mirror interaction, open questions, cross-refs) — no edits.
+- 10:1 mint ratio (still locked v2.1 per this file).
+- No code, no other memory files, no tests.
 
-## Step 3 — "Matching contribution" UX copy
+## Verification
 
-Frame the protocol mint as a **401(k)-style match**, never a haircut. UI stays 1:1.
-
-- **Wallet first-mint tooltip** (one-shot, localStorage-persisted) in `WalletBalanceCard.tsx`:
-  > **Where does the matching half go?**
-  > Every kWh you verify mints **1 $ZSOLAR straight to your wallet**. The protocol mints an equal amount in the background:
-  > · 20% liquidity pool — keeps your token redeemable
-  > · 20% burn — keeps $ZSOLAR scarce forever
-  > · 10% treasury — funds the mission
-  > Think of it as a **401(k) match for clean energy**.
-
-- **Cashout/swap screen** — inline subcopy under USDC quote:
-  > *Quote based on your wallet balance × current pool price. No hidden splits — what you see is what swaps.*
-
-- **Proof-of-Genesis receipt** — chevron link below mint amount: `[How the protocol matches →]` opens sheet with 4-slice chart + match framing.
-
-- **Tokenomics explainer / Slide 07 hero:**
-  > **Every kWh mints 1 $ZSOLAR to you. The protocol matches it 1-for-1 — burned, pooled, and reserved to make sure your token holds its value.**
-
----
-
-## Step 4 — Memory + docs
-
-- `mem://features/mint-split-v3-locked.md` → flip to **v3.1 (LIVE)**: 50/20/20/10, document matching-contribution framing, mark `tokenomics.ts` migration as shipped.
-- `mem://index.md` Core line → "Mint split v3.1 (LOCKED): 50% user · 20% LP · 20% burn · 10% treasury. UI shows 1 kWh = 1 $ZSOLAR; protocol matches 1-for-1 in background (401(k)-match framing). Supersedes 50/25/20/3/2 and legacy 75/20/3/2."
-- `mem://features/tokenomics.md` + `mem://features/mint-ratio-ssot.md` → sync example: 10 kWh → 10 user, 4 LP, 4 burn, 2 treasury.
-
----
-
-## Verification (run after each step)
-
-- `rg "75/20/3/2|50/25/20/3/2|user: 75|user: 25|lpFee" src/ --glob '!**/archive/**'` → 0 hits
-- `rg "50/20/20/10" src/` → present in tokenomics.ts, deck slides, ThreeRevenueEngines, memory
-- `/investor` shows 2 cards
-- `/demo` tap-to-mint still 1:1
-- Admin pie chart sums to 100% across 4 slices
-- Tests green
+- `rg "75%|750|187\.5|37\.5|67\.50|62\.50|8\.75|21\.25|337\.5|93\.75|18\.75|33\.75|28\.75|0\.62|23\.12"` in this file → 0 hits.
+- `rg "50% user|500|450|125|25|225|62\.5|12\.5"` confirms new figures present in §5.
+- Manual re-derivation: LP/user is subscription-side and unchanged; user tokens = 0.5 × raw; sold = sell-rate × user tokens; $ = sold × $0.10; net = LP − $.
