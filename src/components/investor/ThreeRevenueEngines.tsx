@@ -83,7 +83,7 @@ export function ThreeRevenueEngines() {
             </>
           }
           bullets={[
-            '1T hard cap · 50/25/20/3/2 mint split',
+            '1T hard cap · 50 user · 25 LP · 20 burn · 3 fee · 2 treasury',
             '$0.10 LP-seeded launch on Base',
             '7% transfer tax → 3% burn · 2% LP · 2% treasury',
             'Transfer-tax volume + treasury yield = long-term primary revenue',

@@ -36,7 +36,7 @@ export function Slide01Title() {
 
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.75 }}
           className="text-[18px] font-mono tracking-[0.18em] uppercase text-white/35 mt-6 text-center">
-          Co-founded by Joseph &amp; Michael Tschida · ex-SolarCity operators
+          Co-founded by Joseph Maushart &amp; Michael Tschida · clean-tech users &amp; best friends
         </motion.p>
 
 
