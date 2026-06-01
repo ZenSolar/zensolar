@@ -296,7 +296,7 @@ export default function FoundersSeedPitch() {
               {
                 icon: Coins,
                 step: "03",
-                title: "Tap-to-Mint™ rewards",
+                title: "Proof of Genesis™ rewards",
                 body: "One tap mints 1 $ZSOLAR per verified kWh into the embedded Coinbase Wallet. 75% to user · 20% burned · 3% LP · 2% treasury. No gas, no seed phrase, no MetaMask.",
                 tag: "Live on Base",
               },
@@ -327,7 +327,7 @@ export default function FoundersSeedPitch() {
           <div className="rounded-md border border-primary/30 bg-primary/5 px-4 py-3 text-xs text-foreground/85">
             <span className="font-semibold text-primary">Try it live: </span>
             beta.zen.solar/demo — pre-seeded Tesla + Enphase data, real
-            Proof-of-Genesis™ verification, real Tap-to-Mint™ into a
+            Proof-of-Genesis™ verification, real Proof of Genesis™ into a
             sandbox wallet. End-to-end in under 60 seconds.
           </div>
         </div>
@@ -439,7 +439,7 @@ export default function FoundersSeedPitch() {
               <li>• <span className="font-semibold">Patent Track 2.5</span> — Energy Price Oracle</li>
               <li>• <span className="font-semibold">Patent Track 3</span> — Device Watermark Registry</li>
               <li>• <span className="font-semibold">Patent Track 4</span> — ZK-Proof-of-Genesis</li>
-              <li className="pt-1.5 border-t border-border/40 mt-2">TMs: Proof-of-Genesis™, Tap-to-Mint™, Proof-of-Permanence™ ("The Eternal Ledger"), Genesis Anchor™, Proof-of-Custody™, SEGI™, ZPPA</li>
+              <li className="pt-1.5 border-t border-border/40 mt-2">TMs: Proof-of-Genesis™, Proof of Genesis™, Proof-of-Permanence™ ("The Eternal Ledger"), Genesis Anchor™, Proof-of-Custody™, SEGI™, ZPPA</li>
             </ul>
           </div>
 

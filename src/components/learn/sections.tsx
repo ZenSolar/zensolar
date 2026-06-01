@@ -31,7 +31,7 @@ export function HowItWorksSection() {
   const steps = [
     { icon: Zap, title: 'Connect', desc: 'Link Tesla, Enphase, SolarEdge, or Wallbox in 30 seconds — no hardware.' },
     { icon: Sun, title: 'Generate', desc: 'Your panels, EV, and battery are already producing verified clean energy.' },
-    { icon: Sparkles, title: 'Tap-to-Mint™', desc: 'One tap mints $ZSOLAR + milestone NFTs to your wallet.' },
+    { icon: Sparkles, title: 'Proof of Genesis™', desc: 'One tap mints $ZSOLAR + milestone NFTs to your wallet.' },
     { icon: Award, title: 'Level up', desc: 'Hit milestones, earn rare NFTs, climb the leaderboard.' },
   ];
   return (
@@ -130,7 +130,7 @@ export function TokenomicsSection() {
 export function ProofOfGenesisSection() {
   const marks = [
     { mark: 'Proof-of-Genesis™', desc: 'The consensus primitive: Proof-of-Delta + Proof-of-Origin. Mints from verified clean energy instead of burning energy to prove waste.', icon: Sparkles },
-    { mark: 'Tap-to-Mint™', desc: 'One tap reads device data, runs the proof, mints $ZSOLAR.', icon: Zap },
+    { mark: 'Proof of Genesis™', desc: 'One tap reads device data, runs the proof, mints $ZSOLAR.', icon: Zap },
     { mark: 'Mint-on-Proof™', desc: 'No proof, no mint. Period. Every token traces back to a verified physical event.', icon: ShieldCheck },
   ];
   return (

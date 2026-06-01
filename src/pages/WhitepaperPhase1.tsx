@@ -55,7 +55,7 @@ function Phase1Content() {
             <FileText className="h-3.5 w-3.5" /> White Paper · Phase 1
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-3">$ZSOLAR — Phase 1</h1>
-          <p className="text-lg text-muted-foreground">Tap-to-Mint™ Solar, EV, and Home Energy</p>
+          <p className="text-lg text-muted-foreground">Proof of Genesis™ Solar, EV, and Home Energy</p>
           <p className="text-xs text-muted-foreground mt-3">Draft v1 · Internal reference for Joseph & Michael · Not for public distribution</p>
         </header>
 

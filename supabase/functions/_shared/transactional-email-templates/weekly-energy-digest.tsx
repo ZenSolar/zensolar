@@ -169,7 +169,7 @@ const WeeklyEnergyDigestEmail = ({
           <Section style={footerWrap}>
             <Text style={footer}>
               © {new Date().getFullYear()} ZenSolar, LLC<br />
-              ZenSolar™ · Tap-to-Mint™ · Creating Currency From Energy™
+              ZenSolar™ · Proof of Genesis™ · Creating Currency From Energy™
             </Text>
           </Section>
         </Container>

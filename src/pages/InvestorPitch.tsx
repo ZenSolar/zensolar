@@ -89,7 +89,7 @@ export default function InvestorPitch() {
             />
             <CatalystCard
               title="Patent-pending"
-              body="U.S. App. 19/634,402 covers Tap-to-Mint™, Mint-on-Proof™, Proof-of-Delta™."
+              body="U.S. App. 19/634,402 covers Proof of Genesis™, Mint-on-Proof™, Proof-of-Delta™."
             />
             <CatalystCard
               title="First of its kind"
@@ -151,7 +151,7 @@ export default function InvestorPitch() {
                 role="Protocol · Product · Distribution"
                 bullets={[
                   'Ex-SolarCity. Built the live multi-OEM monitoring app (Tesla, Enphase, SolarEdge, Wallbox).',
-                  'Patent-pending Tap-to-Mint™ author. 9-jurisdiction legal posture. 3.34M+ verified kWh shipped.',
+                  'Patent-pending Proof of Genesis™ author. 9-jurisdiction legal posture. 3.34M+ verified kWh shipped.',
                   'Owns: protocol, product, energy verification, GTM.',
                 ]}
               />
@@ -181,7 +181,7 @@ export default function InvestorPitch() {
               </li>
               <li className="flex gap-2">
                 <span className="mt-1.5 h-1 w-1 rounded-full shrink-0 bg-secondary" />
-                Patent-pending Tap-to-Mint™ protocol filed with the USPTO.
+                Patent-pending Proof of Genesis™ protocol filed with the USPTO.
               </li>
               <li className="flex gap-2">
                 <span className="mt-1.5 h-1 w-1 rounded-full shrink-0 bg-secondary" />

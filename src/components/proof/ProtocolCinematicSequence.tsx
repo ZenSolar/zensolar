@@ -10,7 +10,7 @@ import { VerifiedSourceBadge, type VerifiedSourceBadgeProps } from './VerifiedSo
  * narrates the 5 trademarked primitives during a $ZSOLAR mint.
  *
  * Order matches the actual runtime sequence:
- *   1. Tap-to-Mint™         (intent)
+ *   1. Proof of Genesis™         (intent)
  *   2. Proof-of-Origin™     (clean source verified — must precede Δ)
  *   3. Proof-of-Delta™      (Δ kWh verified)
  *   4. Mint-on-Proof™       (token issued only because both proofs cleared)
@@ -53,7 +53,7 @@ type Scene = {
 const SCENES: Scene[] = [
   {
     key: 'tap',
-    mark: 'Tap-to-Mint™',
+    mark: 'Proof of Genesis™',
     tagline: 'Intent received',
     detail: 'You signaled the protocol.',
     icon: Hand,

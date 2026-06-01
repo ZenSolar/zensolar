@@ -35,8 +35,8 @@ The full ZenSolar trademark stack, organized as an infrastructure diagram with B
 
 ## Layer 5 — User Surface
 - **Bitcoin:** Wallet addresses
-- **ZenSolar:** Embedded Coinbase Wallet + Tap-to-Mint™ trigger + Proof-of-Genesis™ Receipt + per-device Proof-of-Origin™ pages
-- **TMs:** **Tap-to-Mint™**, **Proof-of-Genesis™**, **ZPPA** (Zen Power Purchase Agreement)
+- **ZenSolar:** Embedded Coinbase Wallet + Proof of Genesis™ trigger + Proof-of-Genesis™ Receipt + per-device Proof-of-Origin™ pages
+- **TMs:** **Proof of Genesis™**, **Proof-of-Genesis™**, **ZPPA** (Zen Power Purchase Agreement)
 
 ---
 
@@ -53,6 +53,6 @@ Every layer 2–5 trademark MUST have a first-class consumer surface in the app.
 | Proof-of-Delta™ | PoG Receipt drawer | ✅ (Phase 1) |
 | Proof-of-Origin™ | `/devices/:id/origin` per-device page | ✅ (Phase 1) |
 | Proof-of-Permanence™ | Merkle anchor cycle viz on PoO page | 🚧 (Phase 1.5) |
-| Tap-to-Mint™ | Dashboard primary CTA | ✅ |
+| Proof of Genesis™ | Dashboard primary CTA | ✅ |
 | Proof-of-Genesis™ | `/proof-of-genesis-receipt-preview` | ✅ |
 | ZPPA | Wallet badge | ✅ |

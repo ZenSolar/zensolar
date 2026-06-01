@@ -26,7 +26,7 @@ export type VerifyFocusKey =
  * VerifyOnChainDrawer
  *
  * The first-class consumer surface for the full TM stack on a per-mint basis.
- * Surfaces Proof-of-Delta™, Proof-of-Origin™, Mint-on-Proof™, Tap-to-Mint™
+ * Surfaces Proof-of-Delta™, Proof-of-Origin™, Mint-on-Proof™, Proof of Genesis™
  * provenance, the SEGI™ source, and the Proof-of-Permanence™ Merkle anchor.
  *
  * Used as a slide-up drawer on the Proof-of-Genesis™ Receipt.
@@ -246,7 +246,7 @@ export function VerifyOnChainDrawer({
         <div className="space-y-2.5">
           <TmRow
             icon={Hand}
-            tm="Tap-to-Mint™"
+            tm="Proof of Genesis™"
             label="User intent"
             value={data.tapToMint ? 'Tap confirmed' : 'Auto-verified mint'}
             description="The signature interaction. One tap reads device data, runs the proofs, and mints $ZSOLAR."

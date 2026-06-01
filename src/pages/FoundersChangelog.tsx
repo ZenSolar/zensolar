@@ -210,7 +210,7 @@ const ENTRIES: ChangelogEntry[] = [
         icon: "strategy",
         bullets: [
           "Per-dollar VPP split: 50% LP · 30% user cash · 15% operating · 5% user tokens. 50% → LP rule preserved.",
-          "Tokens mint REAL-TIME per dispatch (not batched daily) — maximizes dopamine, reuses Tap-to-Mint™ engine.",
+          "Tokens mint REAL-TIME per dispatch (not batched daily) — maximizes dopamine, reuses Proof of Genesis™ engine.",
           "Cash settles MONTHLY on the 1st — matches utility cycle, lowers ACH fees, creates 'payday' feel.",
           "Launch shortcut: white-label as 'Powered by Leap' in CA first. Move infrastructure in-house once leverage exists.",
           "VPP dispatch metering is patentable as a distinct claim — separate from passive energy production.",
@@ -322,7 +322,7 @@ const ENTRIES: ChangelogEntry[] = [
         heading: "Shipped",
         icon: "shipped",
         bullets: [
-          "VerifyOnChainDrawer — slide-up drawer on every PoG Receipt surfacing Proof-of-Delta™, Proof-of-Origin™, Mint-on-Proof™, Proof-of-Permanence™, SEGI™ source, and Tap-to-Mint™ provenance.",
+          "VerifyOnChainDrawer — slide-up drawer on every PoG Receipt surfacing Proof-of-Delta™, Proof-of-Origin™, Mint-on-Proof™, Proof-of-Permanence™, SEGI™ source, and Proof of Genesis™ provenance.",
           "PoA chip on receipt face — 7-char Proof-of-Authenticity™ hash linking to public verify page.",
           "Public /verify/:poa route — no auth required, shareable, surfaces all primitives behind a mint.",
           "Per-device Proof-of-Origin™ page at /devices/:deviceId/origin — keccak256 device hash, cumulative watermark, Genesis Anchor™ commemorative, latest Permanence root. Founder + PIN gated (Phase 1).",
@@ -348,7 +348,7 @@ const ENTRIES: ChangelogEntry[] = [
         icon: "strategy",
         bullets: [
           "Continuity primitive renamed: Proof-of-Permanence™ — tagline 'The Eternal Ledger'. Never use 'Proof-of-Continuity'.",
-          "Three-track patent strategy locked. Track 1 = Preliminary Amendment to App. 19/634,402 by July 2, 2026 (Robotaxi/Cybercab, FSD dual-mode formal drawings, Permanence™ naming, Tap-to-Mint™ embodiment). Track 2 = NEW Provisional for Optimist humanoid robots + Starlink/SpaceX orbital telemetry (no existing disclosure hook). Track 3 = CIP candidates (ZPPA gating) for attorney call.",
+          "Three-track patent strategy locked. Track 1 = Preliminary Amendment to App. 19/634,402 by July 2, 2026 (Robotaxi/Cybercab, FSD dual-mode formal drawings, Permanence™ naming, Proof of Genesis™ embodiment). Track 2 = NEW Provisional for Optimist humanoid robots + Starlink/SpaceX orbital telemetry (no existing disclosure hook). Track 3 = CIP candidates (ZPPA gating) for attorney call.",
           "Confirmed filing facts: Provisional 63/782,397 (Apr 2 2025), Non-Provisional App. 19/634,402 (Confirmation #4783, Docket ZEN-001).",
           "Tier 1 trademark filings queued: Proof-of-Permanence™, Genesis Anchor™, Proof-of-Custody™.",
           "New rule: every Layer 2–5 trademark MUST ship with a first-class consumer surface. No primitive lives only in marketing copy.",

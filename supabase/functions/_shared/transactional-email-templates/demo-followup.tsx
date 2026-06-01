@@ -53,7 +53,7 @@ const DemoFollowupEmail = ({ firstName }: DemoFollowupProps) => (
           <Text style={cardNum}>01</Text>
           <Text style={cardTitle}>Tap the glowing energy tiles</Text>
           <Text style={cardBody}>
-            In the Clean Energy Center — Solar kWh Produced, Battery kWh Exported, EV Miles, Tesla Supercharging kWh, and Home Charging kWh. Each one tokenizes that energy and mints real $ZSOLAR into your demo wallet. That's the <strong>Tap-to-Mint™</strong> moment. It should feel almost too easy.
+            In the Clean Energy Center — Solar kWh Produced, Battery kWh Exported, EV Miles, Tesla Supercharging kWh, and Home Charging kWh. Each one tokenizes that energy and mints real $ZSOLAR into your demo wallet. That's the <strong>Proof of Genesis™</strong> moment. It should feel almost too easy.
           </Text>
         </Section>
 

@@ -104,7 +104,7 @@ export function CleanEnergyCenterShowcase() {
                 <span className="text-xs text-muted-foreground mb-2">Last updated 11:19 PM</span>
                 <div className="inline-grid grid-cols-2 gap-x-1 gap-y-0 mx-auto" style={{ justifyItems: 'center' }}>
                   <span className="text-[10px] tracking-wider uppercase font-medium text-secondary/70 whitespace-nowrap" style={{ textShadow: '0 0 8px hsl(142 76% 36% / 0.5)' }}>
-                    Tap-to-Mint™
+                    Proof of Genesis™
                   </span>
                   <span className="text-[10px] tracking-wider uppercase font-medium whitespace-nowrap" style={{ color: 'hsl(142 76% 50% / 0.85)', textShadow: '0 0 10px hsl(142 76% 45% / 0.6), 0 0 20px hsl(142 76% 45% / 0.3)' }}>
                     Proof-of-Mint™

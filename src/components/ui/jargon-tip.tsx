@@ -30,7 +30,7 @@ const GLOSSARY: Record<string, { title: string; body: string }> = {
     body: "Permanently removed from circulation — making the remaining supply more valuable.",
   },
   "tap-to-mint": {
-    title: "Tap-to-Mint™",
+    title: "Proof of Genesis™",
     body: "One tap reads your device data, verifies the energy, and credits your account.",
   },
   "proof-of-genesis": {

@@ -19,7 +19,7 @@ import {
  * ProtocolJourney — visualizes the 5 trademarked primitives that produced
  * this $ZSOLAR mint, in the order they actually fired.
  *
- *   1. Tap-to-Mint™         (user intent)
+ *   1. Proof of Genesis™         (user intent)
  *   2. Proof-of-Delta™      (kWh change verified)
  *   3. Proof-of-Origin™     (device + clean source verified)
  *   4. Mint-on-Proof™       (token minted only because proofs cleared)
@@ -118,7 +118,7 @@ export function ProtocolJourney({ data }: { data: ProtocolJourneyData }) {
 
   const steps: Step[] = [
     {
-      mark: 'Tap-to-Mint™',
+      mark: 'Proof of Genesis™',
       tagline: 'One tap. Real energy → on-chain currency.',
       icon: Hand,
       focusKey: 'tap-to-mint',

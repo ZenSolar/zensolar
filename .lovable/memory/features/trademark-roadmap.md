@@ -20,7 +20,7 @@ Filing strategy at the USPTO — separate from patent strategy. Each TM = its ow
 |------|-------|-------|
 | **SEGI™** | 9, 42 | Already used in patent + product. |
 | **ZPPA** | 36, 42 | Zen Power Purchase Agreement. Confirm not conflicting with utility-industry "PPA." |
-| **Tap-to-Mint™** | 9 | Already in active use. |
+| **Proof of Genesis™** | 9 | Already in active use. |
 | **Proof-of-Genesis™** | 9, 42 | Receipt name. |
 
 ## Tier 3 — Already covered or already filed

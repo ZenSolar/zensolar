@@ -30,7 +30,7 @@ interface TapToMintCardProps {
 }
 
 /**
- * Demo-only Tap-to-Mint™ card.
+ * Demo-only Proof of Genesis™ card.
  * Shows a live preview of expected $ZSOLAR + CO₂ avoided, then opens the
  * existing Mint Rewards flow when tapped.
  */
@@ -103,7 +103,7 @@ export function TapToMintCard({
             <div className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-primary" />
               <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
-                Tap-to-Mint™
+                Proof of Genesis™
               </span>
             </div>
             <h3 className="text-lg font-bold text-foreground leading-tight">
@@ -188,7 +188,7 @@ export function TapToMintCard({
               }
               return;
             }
-            toast.success(`Tap-to-Mint™ engaged · ${expectedTokens.toLocaleString()} $ZSOLAR queued`, {
+            toast.success(`Proof of Genesis™ engaged · ${expectedTokens.toLocaleString()} $ZSOLAR queued`, {
               description: 'Confirm in the next step to write your proof on-chain.',
             });
             onTapToMint();

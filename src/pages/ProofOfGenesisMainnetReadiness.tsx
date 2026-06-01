@@ -142,7 +142,7 @@ const MAINNET_GROUPS: Group[] = [
       },
       {
         label: 'Smoke-test full path: ingest → mint → anchor → verify',
-        detail: 'Run one real Tap-to-Mint through Tesla path, confirm chain_hash anchors within 6h, recompute Merkle root in browser, basescan link resolves on mainnet.',
+        detail: 'Run one real Proof of Genesis through Tesla path, confirm chain_hash anchors within 6h, recompute Merkle root in browser, basescan link resolves on mainnet.',
         state: 'todo',
       },
     ],

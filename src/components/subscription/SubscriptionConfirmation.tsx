@@ -105,7 +105,7 @@ export function SubscriptionConfirmation({ tier, onChange }: Props) {
             <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">Next steps</p>
             {[
               { icon: Coins, title: "Connect a device", desc: "Link your solar, battery, or EV to start logging energy." },
-              { icon: Sparkles, title: "Mint your first $ZSOLAR", desc: "Tap-to-Mint™ on the dashboard turns kWh into tokens." },
+              { icon: Sparkles, title: "Mint your first $ZSOLAR", desc: "Proof of Genesis™ on the dashboard turns kWh into tokens." },
               { icon: CalendarClock, title: "Watch your impact grow", desc: "Track LP & treasury contributions in real time." },
             ].map((step, i) => (
               <motion.div

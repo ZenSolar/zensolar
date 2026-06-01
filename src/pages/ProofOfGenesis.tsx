@@ -324,7 +324,7 @@ type Trademark = {
 
 const ADDITIONAL_MARKS: Trademark[] = [
   {
-    mark: 'Tap-to-Mint™',
+    mark: 'Proof of Genesis™',
     tagline: 'One tap turns real energy into on-chain currency.',
     icon: Zap,
     category: 'User Experience',

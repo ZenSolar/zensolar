@@ -1496,7 +1496,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               }}
             />
 
-            {/* Orbiting Tap-to-Mint™️ badge */}
+            {/* Orbiting Proof of Genesis™️ badge */}
             {!isBursting && !isIOSKeyboardMode && (
               <div
                 className="absolute inset-0 pointer-events-none"
@@ -1512,7 +1512,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                     textShadow: '0 0 10px hsl(var(--primary) / 0.55)',
                   }}
                 >
-                  <span className="text-primary">Tap-to-Mint</span>
+                  <span className="text-primary">Proof of Genesis</span>
                   <span className="text-solar">™</span>
                 </span>
               </div>

@@ -85,7 +85,7 @@ function buildUnlocks(preview: boolean): Array<{
     { icon: FileText, label: 'One-Pager', desc: 'Catalyst, moat, capital plan', to: '/founders/seed-pitch-greg' },
     { icon: BarChart3, label: 'Tokenomics Model', desc: '1T cap · $0.10 launch math', to: '/tokenomics' },
     { icon: Users, label: 'Founder Bios', desc: 'Joseph Maushart · Michael Tschida', to: '/investor/pitch#why-us' },
-    { icon: PlayCircle, label: 'Live Investor Demo', desc: 'Tap-to-Mint™ in your hand', to: preview ? '/demo-leonardo' : '/demo' },
+    { icon: PlayCircle, label: 'Live Investor Demo', desc: 'Proof of Genesis™ in your hand', to: preview ? '/demo-leonardo' : '/demo' },
     { icon: Calendar, label: 'Schedule a Call', desc: 'Direct to the founders', to: 'mailto:joe@zen.solar?subject=ZenSolar%20Investor%20Call' },
   ];
 }
@@ -195,7 +195,7 @@ export default function Investor() {
               From Energy.
             </h1>
             <p className="mt-5 text-sm md:text-base text-muted-foreground max-w-md">
-              Seed round open. Patent-pending Tap-to-Mint™ protocol turning verified clean-energy
+              Seed round open. Patent-pending Proof of Genesis™ protocol turning verified clean-energy
               production into a hard-capped, asset-backed digital currency on Base.
             </p>
             <div className="mt-7 grid grid-cols-3 gap-3 w-full max-w-md">
@@ -249,7 +249,7 @@ export default function Investor() {
               },
               {
                 title: 'Patent-pending',
-                body: 'U.S. App. 19/634,402 covers Tap-to-Mint™, Mint-on-Proof™, Proof-of-Delta™.',
+                body: 'U.S. App. 19/634,402 covers Proof of Genesis™, Mint-on-Proof™, Proof-of-Delta™.',
               },
               {
                 title: 'Live in beta',
@@ -378,7 +378,7 @@ function UnlockedPanel({
         <UnlockedCard
           icon={PlayCircle}
           title="Live Investor Demo"
-          body="Tap-to-Mint™ flow on real data. Mobile-first."
+          body="Proof of Genesis™ flow on real data. Mobile-first."
           to={demoHref}
           internal
         />

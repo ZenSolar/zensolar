@@ -81,7 +81,7 @@ const TERMS: Term[] = [
 
   // What You Do
   {
-    term: "Tap-to-Mint™",
+    term: "Proof of Genesis™",
     category: "What You Do",
     short: "Tap a button to turn your clean energy into a reward.",
     detail:
@@ -263,7 +263,7 @@ const TERMS: Term[] = [
 
   // Behind the Scenes
   {
-    term: "Tap-to-Mint™ Engine",
+    term: "Proof of Genesis™ Engine",
     category: "Behind the Scenes",
     short: "The patented technology that makes one-tap rewards possible.",
   },
