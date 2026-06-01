@@ -4,8 +4,10 @@ description: 4-year Bitcoin-cadence halving locked as ZenSolar's emission schedu
 type: feature
 ---
 
-# Halving Schedule (LOCKED)
+# Halving Schedule (LEGACY — DEPRECATED in v3.1 narrative)
 
+> ⚠️ **DEPRECATED 2026-06-01.** v3.1 tokenomics use **continuous 20% burn per mint** as the deflation mechanism — no scheduled halving. This file is retained as a historical record and for optional future re-activation. See `mem://features/tiered-subscriptions-flywheel.md` for the current model. Code constants (`GENESIS_HALVING`) remain in `src/lib/tokenomics.ts` but should not be surfaced in new user/investor copy.
+>
 > **Defers to `mem://CANONICAL_SSOT.md` §4.** If anything below conflicts with the SSoT, the SSoT wins.
 
 ## Decision
