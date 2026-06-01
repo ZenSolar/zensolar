@@ -51,7 +51,7 @@ export function SatoshiMirrorFloorCard({
               <TooltipContent className="max-w-xs">
                 <p className="text-xs">
                   Floor = EIA national avg ${eiaKwhRate.toFixed(2)}/kWh × 2<sup>{epoch}</sup>{" "}
-                  (current epoch). Doubles after each Genesis Halving.
+                  (current epoch multiplier). Rises automatically with U.S. electricity prices.
                 </p>
               </TooltipContent>
             </Tooltip>
