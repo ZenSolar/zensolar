@@ -141,7 +141,7 @@ const investorBenefits = [
   {
     icon: Shield,
     title: "Aggressive Deflationary Mechanics",
-    description: "20% of all minted tokens are permanently burned. 7% transfer tax (3% burn, 2% LP, 2% treasury) creates continuous scarcity.",
+    description: "20% of all minted tokens are permanently burned. 3% transfer tax (LP recycle) compounds with continuous mint burn for net-negative issuance.",
   },
   {
     icon: Cpu,
@@ -1639,7 +1639,7 @@ export default function WhitePaper() {
               <h4 className="font-semibold">Key Moonshot Drivers:</h4>
               <div className="grid md:grid-cols-2 gap-3">
                 {[
-                  { title: "Aggressive Deflation", desc: "20% mint burn + 7% transfer tax compounds into net-negative issuance" },
+                  { title: "Aggressive Deflation", desc: "20% mint burn + 3% transfer tax to LP compounds into net-negative issuance" },
                   { title: "Flywheel Scarcity", desc: "100K+ subs = $500K+/mo LP injections against shrinking supply" },
                   { title: "Institutional ESG Demand", desc: "Carbon credits, ESG funds, impact investors create external buy pressure" },
                   { title: "Regulatory Tailwinds", desc: "Government carbon pricing could supercharge verified energy tokens" },

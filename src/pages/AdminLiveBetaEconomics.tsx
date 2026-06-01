@@ -235,11 +235,9 @@ export default function AdminLiveBetaEconomics() {
     { name: 'Treasury', value: MINT_DISTRIBUTION.treasury, color: 'hsl(var(--muted-foreground))' },
   ];
 
-  // Transfer tax pie data
+  // Transfer tax pie data (v3.1 — 3% LP recycle only)
   const taxData = [
-    { name: 'Burn', value: TRANSFER_TAX.burn, color: 'hsl(var(--destructive))' },
-    { name: 'LP', value: TRANSFER_TAX.lp, color: 'hsl(var(--solar))' },
-    { name: 'Treasury', value: TRANSFER_TAX.treasury, color: 'hsl(var(--muted-foreground))' },
+    { name: 'LP Recycle', value: TRANSFER_TAX.lp, color: 'hsl(var(--solar))' },
   ];
 
   const getExportData = () => {
@@ -838,7 +836,7 @@ export default function AdminLiveBetaEconomics() {
                   step: 4, 
                   icon: Flame, 
                   title: 'Deflationary', 
-                  description: '20% mint burn + 3% transfer',
+                  description: '20% mint burn (separate 3% transfer tax to LP)',
                   value: `${summaryMetrics.burnRate}% burned`,
                   color: 'text-destructive'
                 },

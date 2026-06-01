@@ -366,8 +366,7 @@ export default function AdminCompetitiveIntel() {
                 driving, Glow on solar farms), SEGI aggregates Solar, Battery, EV, and Charging data into a unified impact score.
               </li>
               <li>
-                <strong className="text-foreground">Deflationary Tokenomics:</strong> The 20% mint-burn mechanism and 7% transfer tax (3% burn, 
-                2% LP, 2% treasury) create sustainable deflationary pressure versus competitors' inflationary emission models.
+                <strong className="text-foreground">Deflationary Tokenomics:</strong> The 20% mint-burn mechanism and separate 3% transfer tax (LP recycle) create sustainable deflationary pressure versus competitors' inflationary emission models.
               </li>
               <li>
                 <strong className="text-foreground">Hardware Agnosticism:</strong> SEGI's API-first architecture supports Tesla, Enphase, 

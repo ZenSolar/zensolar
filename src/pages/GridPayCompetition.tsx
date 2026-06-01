@@ -154,7 +154,7 @@ const zensolarTokenomics = [
   ['Treasury allocation', '750,000,000 tokens (7.5%)'],
   ['Mint ratio', '1 $ZSOLAR per kWh or mile'],
   ['Launch floor design', '$0.10 launch floor with $300K USDC LP seed paired against 3M tokens'],
-  ['Mint distribution', '50% user / 20% LP / 20% burn / 10% treasury'],
+  ['Mint distribution', '50% user / 25% LP / 20% burn / 5% treasury'],
   ['Transfer tax', '7% total: 3% permanent burn / 2% LP / 2% treasury'],
   ['Redemption burn', '5% store redemption burn fee'],
   ['Liquidity engine', '50% of subscription revenue flows into protocol-owned liquidity'],

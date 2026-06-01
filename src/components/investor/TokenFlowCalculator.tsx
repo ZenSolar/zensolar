@@ -23,16 +23,14 @@ export function TokenFlowCalculator() {
   const mintTreasury = Math.floor(grossTokens * MINT_DISTRIBUTION.treasury / 100);
   const userReceives = Math.floor(grossTokens * MINT_DISTRIBUTION.user / 100);
 
-  // Sell phase (transfer tax)
+  // Sell phase (transfer tax — 3% LP recycle only, v3.1)
   const tokensSold = Math.floor(userReceives * sellPercent / 100);
-  const taxBurned = Math.floor(tokensSold * TRANSFER_TAX.burn / 100);
   const taxLP = Math.floor(tokensSold * TRANSFER_TAX.lp / 100);
-  const taxTreasury = Math.floor(tokensSold * TRANSFER_TAX.treasury / 100);
-  const sellerReceives = tokensSold - taxBurned - taxLP - taxTreasury;
+  const sellerReceives = tokensSold - taxLP;
 
   // Totals
   const tokensHeld = userReceives - tokensSold;
-  const totalBurned = mintBurned + taxBurned;
+  const totalBurned = mintBurned;
   const totalLP = mintLP + taxLP;
   const heldValue = formatUSD(tokensHeld * PRICES.launchFloor);
   const soldValue = formatUSD(sellerReceives * PRICES.launchFloor);
@@ -107,16 +105,14 @@ export function TokenFlowCalculator() {
               <FlowStep
                 icon={Flame}
                 label={`Selling ${sellPercent}% (${formatTokenAmount(tokensSold)} tokens)`}
-                value={`7% transfer tax applied`}
+                value={`3% transfer tax → LP recycle`}
                 color="text-destructive"
                 bg="bg-destructive/10"
               />
 
-              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-2 sm:grid-cols-2">
                 <MiniStat icon={Wallet} label="Seller gets" value={formatTokenAmount(sellerReceives)} sub={soldValue} color="text-primary" />
-                <MiniStat icon={Flame} label="Burned" value={formatTokenAmount(taxBurned)} sub="3%" color="text-destructive" />
-                <MiniStat icon={Droplets} label="To LP" value={formatTokenAmount(taxLP)} sub="2%" color="text-accent" />
-                <MiniStat icon={Landmark} label="Treasury" value={formatTokenAmount(taxTreasury)} sub="2%" color="text-muted-foreground" />
+                <MiniStat icon={Droplets} label="To LP (recycle)" value={formatTokenAmount(taxLP)} sub="3%" color="text-accent" />
               </div>
             </>
           )}

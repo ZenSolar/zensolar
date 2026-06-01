@@ -99,7 +99,7 @@ const mintOnProofComparison: ComparisonRow[] = [
   {
     feature: 'Fee/Burn at Mint',
     provisional: '"5% fee with 90% burned"',
-    utility: '20% mint burn + 7% transfer tax (3% permanent burn, 2% LP, 2% treasury)',
+    utility: '20% mint burn + separate 3% transfer tax (LP recycle)',
     status: 'evolved',
   },
 ];

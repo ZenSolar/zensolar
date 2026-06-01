@@ -903,7 +903,7 @@ export default function AdminBootstrapSimulator() {
                     </div>
                     <div className="flex gap-2">
                       <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
-                      <span>Mitigation: 7% transfer tax recycles value back to LP + burn on every sell</span>
+                      <span>Mitigation: 3% transfer tax recycles value back to LP on every sell</span>
                     </div>
                     <div className="flex gap-2">
                       <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />

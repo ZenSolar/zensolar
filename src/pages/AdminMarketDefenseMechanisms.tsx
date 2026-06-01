@@ -259,7 +259,7 @@ const tier3Mechanisms: DefenseMechanism[] = [
     icon: <Flame className="h-5 w-5 text-orange-500" />,
     details: [
       'Chainlink BTC/USD and custom $ZSOLAR/USDC feeds',
-      'Normal: 20% mint burn, 3% transfer burn',
+      'Normal: 20% mint burn + 3% transfer tax → LP',
       'Stress Level 1 (BTC -15%): 25% mint, 4% transfer',
       'Stress Level 2 (BTC -25%): 30% mint, 5% transfer',
       'Stress Level 3 (BTC -40%): 35% mint, 6% transfer',

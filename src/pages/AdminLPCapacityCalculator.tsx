@@ -26,7 +26,7 @@ import {
 const PRICE = PRICES.launchFloor; // $0.10
 const NET_TOKENS = WEIGHTED_AVG_NET_TOKENS; // ~896
 const SUB_LP_SHARE = SUBSCRIPTION.lpContribution / 100; // 0.50
-const TAX_RATE = TRANSFER_TAX.total / 100; // 0.07
+const TAX_RATE = TRANSFER_TAX.total / 100; // 0.03 (v3.1 — LP recycle only)
 const MAX_DRAWDOWN_PCT = 5; // ≤5% monthly price drawdown
 
 interface CapacityResult {
@@ -437,7 +437,7 @@ export default function AdminLPCapacityCalculator() {
                       { label: 'Weighted avg raw tokens', value: `${Math.round(NET_TOKENS / (MINT_DISTRIBUTION.user / 100))} tokens` },
                       { label: 'After 20% mint burn', value: `${NET_TOKENS} net tokens` },
                       { label: `Tokens sold (${sellRate}%)`, value: `${Math.round(NET_TOKENS * sellRate / 100)} tokens` },
-                      { label: 'After 7% transfer tax', value: `${Math.round(NET_TOKENS * sellRate / 100 * (1 - TAX_RATE))} tokens hit LP` },
+                      { label: 'After 3% transfer tax', value: `${Math.round(NET_TOKENS * sellRate / 100 * (1 - TAX_RATE))} tokens hit LP` },
                     ].map(item => (
                       <div key={item.label} className="flex justify-between text-sm border-b border-border/50 pb-2">
                         <span className="text-muted-foreground">{item.label}</span>

@@ -151,7 +151,7 @@ const MAINNET_GROUPS: Group[] = [
     title: '$ZSOLAR token + economics',
     icon: Coins,
     intro:
-      'The token + LP machinery lives behind the same env flip. Hard cap 1T, mint split 50/20/20/10 already wired in tokenomics.ts.',
+      'The token + LP machinery lives behind the same env flip. Hard cap 1T, mint split 50/25/20/5 already wired in tokenomics.ts.',
     items: [
       {
         label: 'Deploy ZSOLAR.sol on Base mainnet (1T hard cap)',
@@ -175,7 +175,7 @@ const MAINNET_GROUPS: Group[] = [
       },
       {
         label: 'Burn wallet + LP wallet + Treasury wallet addresses recorded',
-        detail: 'Surfaced on /admin/contracts and on the public /tokenomics page so the 50/20/20/10 split is independently auditable.',
+        detail: 'Surfaced on /admin/contracts and on the public /tokenomics page so the 50/25/20/5 split is independently auditable.',
         state: 'todo',
       },
     ],

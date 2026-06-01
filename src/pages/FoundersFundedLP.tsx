@@ -107,7 +107,7 @@ const FIAT_SPLIT = 0.5;
 //   Threshold = 25 kWh of verified clean energy / 30 days
 //   Allocation rate = 0.5 $ZSOLAR per kWh (ZPPA_KWH_TO_USDC)
 // → 25 × 0.5 = 12.5 $ZSOLAR gross-minted per active user per month.
-// Mint split (locked): 50% user / 20% LP / 20% burn / 10% treasury.
+// Mint split (locked): 50% user / 25% LP / 20% burn / 5% treasury.
 const AVG_KWH_PER_USER_MONTH = 25;
 const ZSOLAR_PER_KWH = 0.5;
 const AVG_GROSS_MINT_PER_USER_MONTH = AVG_KWH_PER_USER_MONTH * ZSOLAR_PER_KWH; // 12.5

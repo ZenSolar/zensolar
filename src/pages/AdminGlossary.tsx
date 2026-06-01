@@ -216,7 +216,7 @@ const glossaryTerms = [
     category: "Deflation",
     icon: Percent,
     definition: "A percentage fee charged on token transfers or sales. Typically split between burns, LP injections, and treasury to create deflationary pressure.",
-    example: "$ZSOLAR's 7% transfer tax: 3% permanent burn, 2% to LP, 2% to treasury—every trade strengthens the ecosystem."
+    example: "$ZSOLAR's 3% transfer tax recycles to LP on every trade — separate from the 50/25/20/5 mint split."
   },
   {
     term: "Treasury",

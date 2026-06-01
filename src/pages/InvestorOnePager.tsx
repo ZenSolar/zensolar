@@ -132,7 +132,7 @@ export default function InvestorOnePager() {
               <Engine
                 n="02"
                 title="Token Economics"
-                body="$ZSOLAR. 1T hard cap. $0.10 LP-seeded launch on Base. Mint split 50/20/20/10. 7% transfer tax (3 burn · 2 LP · 2 treasury) compounds forever."
+                body="$ZSOLAR. 1T hard cap. $0.10 LP-seeded launch on Base. Mint split 50/25/20/5. Separate 3% transfer tax recycles to LP on every sale."
                 emphasized
               />
               <Engine
