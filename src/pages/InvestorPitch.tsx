@@ -185,21 +185,15 @@ export default function InvestorPitch() {
                 </span>
               </li>
             </ul>
-            <div className="mt-7 flex flex-col sm:flex-row gap-2.5">
+            <div className="mt-7">
               <Button
                 asChild
-                className="flex-1 h-11 bg-secondary text-secondary-foreground hover:bg-secondary/90"
+                className="w-full h-11 bg-secondary text-secondary-foreground hover:bg-secondary/90"
               >
                 <Link to="/demo">
                   <PlayCircle className="h-4 w-4 mr-2" />
                   Enter live demo
                 </Link>
-              </Button>
-              <Button asChild variant="outline" className="flex-1 h-11">
-                <a href="mailto:joe@zen.solar?subject=ZenSolar%20Investor%20Call&body=Hi%20Joseph%2C%20I%27d%20like%20to%20schedule%20a%20call.">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Schedule a call
-                </a>
               </Button>
             </div>
           </div>
@@ -212,7 +206,14 @@ export default function InvestorPitch() {
 
         <footer className="border-t border-border/40 py-6 text-center">
           <p className="text-[11px] text-muted-foreground/70">
-            ZenSolar, LLC · Austin, TX · joe@zen.solar · Confidential under NDA
+            ZenSolar, LLC · Austin, TX ·{' '}
+            <a
+              href="mailto:joe@zensolar.com?subject=ZenSolar%20Investor%20Inquiry"
+              className="text-secondary hover:text-secondary/80 underline-offset-4 hover:underline"
+            >
+              joe@zensolar.com
+            </a>{' '}
+            · Confidential under NDA
           </p>
         </footer>
       </div>
