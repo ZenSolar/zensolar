@@ -310,11 +310,6 @@ export function DemoDashboard() {
 
         <SectionDivider />
 
-        {/* Tokenomics 101 — educational, demo-only */}
-        <AnimatedItem>
-          <Tokenomics101Card compact />
-        </AnimatedItem>
-
         <SectionDivider />
 
         {/* NFT Milestones (with integrated Mint CTA) */}
