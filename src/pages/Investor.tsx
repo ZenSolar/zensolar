@@ -86,12 +86,12 @@ export default function Investor() {
   const [signed, setSigned] = useState<SignedState | null>(() => readSigned());
   const ndaRef = useRef<HTMLDivElement>(null);
 
-  if (!pinUnlocked) {
-    return <InvestorPinGate onUnlocked={() => setPinUnlocked(true)} />;
-  }
-
   // Recheck server-side if local cache is empty.
+  // IMPORTANT: this hook MUST run on every render (before any early return)
+  // or React throws error #310 ("rendered more hooks than previous render")
+  // when the PIN gate unlocks.
   useEffect(() => {
+    if (!pinUnlocked) return;
     if (signed) return;
     let saved: { email?: string } | null = null;
     try {
@@ -114,7 +114,11 @@ export default function Investor() {
       persistSigned(state);
       setSigned(state);
     })();
-  }, [signed]);
+  }, [signed, pinUnlocked]);
+
+  if (!pinUnlocked) {
+    return <InvestorPinGate onUnlocked={() => setPinUnlocked(true)} />;
+  }
 
   const handleSigned = (email?: string, fullName?: string) => {
     if (!email || !fullName) return;
