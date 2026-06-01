@@ -207,11 +207,13 @@ export const SUBSCRIPTION_TIERS = {
 
 export type SubscriptionTierId = keyof typeof SUBSCRIPTION_TIERS;
 
-// === GENESIS HALVING (v2 flywheel — 50% mint-rate cut, Bitcoin-style) ===
-// Locked 2026-05. The first halving is pulled forward to a user-count milestone.
-// Pre-announce 3–6 months out; existing users get a bonus month at pre-halving rate.
+// === GENESIS HALVING (LEGACY — DEPRECATED in v3.1 narrative) ===
+// v3.1 tokenomics rely on the continuous 20% burn-per-mint for deflation;
+// the halving is no longer surfaced in user/investor copy. Constants and
+// helpers retained for optional future re-activation only. Setting `enabled`
+// to `false` is intentional and keeps the steady-state model consistent.
 export const GENESIS_HALVING = {
-  enabled: true,
+  enabled: false,
   multiplier: 0.5, // 50% reduction in per-kWh mint rate
   userCountTrigger: 250_000, // primary trigger: 250K paying subscribers
   fallbackCadenceYears: 4,   // fallback: Bitcoin-style 4-yr cadence
