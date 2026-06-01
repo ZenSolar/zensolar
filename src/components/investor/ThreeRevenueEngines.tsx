@@ -1,10 +1,12 @@
-import { ArrowRight, Coins, CreditCard, Database, Sparkles } from 'lucide-react';
+import { ArrowRight, CreditCard, Database, Sparkles, Coins } from 'lucide-react';
 
 /**
- * ThreeRevenueEngines — canonical investor framing (v2, Feb 2026).
+ * ThreeRevenueEngines — canonical investor framing (v2.1, Jun 2026).
  * Flywheel: Verified kWh → Data → AI → $ZSOLAR
- * Engine order (locked): 1) Token Economics  2) Subscription  3) Aggregated Data.
- * Deason AI is the $4.99/mo premium add-on inside Engine #2 — NOT its own engine.
+ * Engine order (locked):
+ *   01) Monthly Subscription + Token Economics (combined — subs fund LP/treasury, tokens are the asset)
+ *   02) Deason AI ($4.99/mo premium add-on / upgrade)
+ *   03) Aggregated Energy Data (secondary)
  */
 export function ThreeRevenueEngines() {
   return (
@@ -21,76 +23,73 @@ export function ThreeRevenueEngines() {
           <FlowStep label="$ZSOLAR" className="text-amber-400" />
         </div>
         <p className="mt-4 text-center text-xs md:text-sm text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          Every verified kWh produces data, data trains the AI, the AI drives retention and demand
-          for the currency. Three revenue lines under one flywheel.
+          A paid subscription unlocks minting. Minting produces verified kWh data. Data powers the
+          Deason AI upgrade and the aggregated-data revenue line. Every loop tightens the token.
         </p>
       </div>
 
-      {/* Three engine cards — Token first, Subscription second, Data third */}
+      {/* Three engine cards */}
       <div className="grid gap-4 md:grid-cols-3">
+        {/* 01 — Subscription + Token Economics (combined) */}
         <EngineCard
           number="01"
-          icon={Coins}
+          icon={CreditCard}
           accent="text-amber-400"
           ring="hover:border-amber-400/40 ring-1 ring-amber-400/20"
           emphasized
-          title="Token Economics"
-          tagline="Core product. Primary revenue driver."
+          title="Subscription + Token Economics"
+          tagline="The access fee and the asset, working as one engine."
           body={
             <>
-              1T hard cap. <span className="text-foreground">75 / 20 / 3 / 2 mint split</span>{' '}
-              (user / burn / LP / treasury). $0.10 LP-seeded launch on Base. A{' '}
-              <span className="text-foreground">7% transfer tax</span> (3% burn · 2% LP · 2%
-              treasury) compounds liquidity depth and treasury yield perpetually as minting and
-              trading volume grow.
-            </>
-          }
-          metric="1T cap"
-          metricLabel="$0.10 launch · 75/20/3/2 · 7% transfer tax"
-        />
-
-        <EngineCard
-          number="02"
-          icon={CreditCard}
-          accent="text-eco"
-          ring="hover:border-eco/40"
-          title="Monthly Subscription"
-          tagline="Base fee to be a ZenSolar user and mint tokens."
-          body={
-            <>
-              Three tiers — <span className="text-foreground">$9.99 Base · $19.99 Regular ·
-              $49.99 Power</span> — required to keep an account active and mint. 50% of every
-              subscription dollar feeds LP, 50% feeds treasury, so revenue here directly
-              strengthens the token in Engine #1.
+              A paid base subscription is the price of entry to mint $ZSOLAR. Three tiers —{' '}
+              <span className="text-foreground">$9.99 Base · $19.99 Regular · $49.99 Power</span>.{' '}
+              <span className="text-foreground">50% of every sub dollar feeds LP, 50% feeds treasury.</span>{' '}
+              That fuels a hard-capped token: 1T supply, 75/20/3/2 mint split (user/burn/LP/treasury),
+              $0.10 LP-seeded launch on Base, and a{' '}
+              <span className="text-foreground">7% transfer tax</span> (3% burn · 2% LP · 2% treasury)
+              that compounds liquidity and treasury yield perpetually.
             </>
           }
           bullets={[
-            'Three tiers: $9.99 / $19.99 / $49.99',
-            'Premium add-on: Deason AI $4.99/mo',
-            'Deason ships the Monthly Clean Energy Report',
+            'Sub tiers: $9.99 / $19.99 / $49.99 — required to mint',
             '50% LP · 50% treasury on every sub dollar',
+            '1T hard cap · 75/20/3/2 mint split · $0.10 launch',
+            '7% transfer tax compounds LP + treasury forever',
           ]}
           metric="$9.99+"
-          metricLabel="base sub · +$4.99 Deason AI add-on"
-        >
-          {/* Deason AI premium add-on highlight */}
-          <div className="mt-4 rounded-xl border border-eco/30 bg-eco/[0.06] p-3">
-            <div className="flex items-center gap-2 mb-1">
-              <Sparkles className="h-3.5 w-3.5 text-eco" />
-              <span className="text-[11px] uppercase tracking-[0.18em] font-semibold text-eco">
-                Premium Add-on · Deason AI
-              </span>
-            </div>
-            <p className="text-[12px] text-foreground/90 leading-relaxed">
-              <span className="font-semibold text-foreground">$4.99/mo</span> layered on top of any
-              base subscription. Delivers the{' '}
-              <span className="text-foreground">Monthly Clean Energy Report</span>, bill analysis,
-              rate-plan optimization, and device-aware advice. Primary upgrade incentive into the
-              Power tier.
-            </p>
-          </div>
-        </EngineCard>
+          metricLabel="paid base sub → 1T cap token"
+          iconAux={Coins}
+        />
 
+        {/* 02 — Deason AI premium add-on */}
+        <EngineCard
+          number="02"
+          icon={Sparkles}
+          accent="text-eco"
+          ring="hover:border-eco/40"
+          title="Deason AI"
+          tagline="Premium add-on / upgrade layered on any base subscription."
+          body={
+            <>
+              <span className="text-foreground">$4.99/mo</span> on top of any base subscription.
+              Delivers the{' '}
+              <span className="text-foreground">Monthly Clean Energy Report</span>, utility bill
+              analysis, rate-plan optimization, and device-aware advice tuned to each home's actual
+              Tesla / Enphase / SolarEdge / Wallbox telemetry. The primary upgrade incentive into
+              the Power tier and the highest-margin recurring revenue per user we ship.
+            </>
+          }
+          bullets={[
+            '$4.99/mo add-on — any base tier can opt in',
+            'Monthly Clean Energy Report (the killer artifact)',
+            'Bill analysis · rate-plan optimization · device advice',
+            'Highest-margin per-user recurring revenue',
+          ]}
+          metric="+$4.99"
+          metricLabel="premium upgrade · highest margin per user"
+        />
+
+        {/* 03 — Aggregated Energy Data */}
         <EngineCard
           number="03"
           icon={Database}
@@ -131,6 +130,7 @@ function FlowStep({ label, className }: { label: string; className: string }) {
 function EngineCard({
   number,
   icon: Icon,
+  iconAux: IconAux,
   accent,
   ring,
   emphasized,
@@ -144,6 +144,7 @@ function EngineCard({
 }: {
   number: string;
   icon: typeof Database;
+  iconAux?: typeof Database;
   accent: string;
   ring: string;
   emphasized?: boolean;
@@ -165,7 +166,10 @@ function EngineCard({
         <span className={`text-[11px] uppercase tracking-[0.22em] font-semibold ${accent}`}>
           Engine {number}
         </span>
-        <Icon className={`h-5 w-5 ${accent}`} />
+        <div className="flex items-center gap-1.5">
+          <Icon className={`h-5 w-5 ${accent}`} />
+          {IconAux && <IconAux className={`h-5 w-5 ${accent} opacity-70`} />}
+        </div>
       </div>
       <h3 className="text-base md:text-lg font-semibold text-foreground leading-tight">{title}</h3>
       <p className={`text-xs md:text-sm mt-1 ${accent} italic`}>{tagline}</p>
