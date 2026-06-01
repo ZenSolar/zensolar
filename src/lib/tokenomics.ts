@@ -306,9 +306,10 @@ export function getEffectiveRewardRate(activityType: keyof typeof BASE_REWARD_RA
 }
 
 /**
- * v3.0 — Convert raw activity (kWh or miles) into raw $ZSOLAR minted at the 1:1 ratio.
- *   • Mainnet: 700 kWh → 700 $ZSOLAR raw → 525 received (75% user share)
- *   • Liquid portion gated by Hybrid sell-throttle (vesting + stake-to-unlock)
+ * v3.1 — Convert raw activity (kWh or miles) into raw $ZSOLAR minted at the 1:1 ratio.
+ *   • Mainnet: 700 kWh → 700 $ZSOLAR raw → 350 received (50% user share),
+ *     with 140 → LP, 140 → burn, 70 → treasury as the protocol's "401(k) match"
+ *   • UI surfaces only show the user's 50% as a 1:1 mint (1 kWh = 1 $ZSOLAR)
  */
 export function calculateRawTokensFromActivity(activityUnits: number): number {
   const tokens = (activityUnits * getRewardMultiplier()) / MINT_RATIO_KWH_PER_TOKEN;
