@@ -6,7 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 interface SatoshiMirrorFloorCardProps {
   /** Current EIA national avg residential $/kWh. Defaults to a recent value. */
   eiaKwhRate?: number;
-  /** Current epoch (0 = pre-first-halving). */
+  /** Current epoch multiplier (0 = base; reserved for optional future emission epochs). */
   epoch?: number;
   /** Compact rendering for dashboard grids. */
   compact?: boolean;
