@@ -1,5 +1,4 @@
 import { format } from "date-fns";
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
   ArrowUpRight,
@@ -7,12 +6,10 @@ import {
   Coins,
   Copy,
   ExternalLink,
-  Flame,
   Hash,
   Share2,
   ShieldCheck,
   Sparkles,
-  Wallet,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

@@ -14,7 +14,7 @@ import { PullToRefreshIndicator } from '@/components/ui/pull-to-refresh';
 import { AnimatedContainer, AnimatedItem } from '@/components/ui/animated-section';
 import { SectionDivider } from '@/components/ui/SectionDivider';
 import { SubscriptionStatusCard }  from '@/components/dashboard/SubscriptionStatusCard';
-import { Tokenomics101Card }     from '@/components/tokenomics/Tokenomics101Card';
+
 
 import { Badge } from '@/components/ui/badge';
 import { Images, Receipt } from 'lucide-react';
