@@ -349,11 +349,13 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         {/* Prominent CO₂ Offset card — matches the new sidebar accent styling */}
         <AnimatedItem className="xl:col-span-1">
-          <CO2OffsetCard
-            activityData={isNewUserView ? undefined : activityData}
-            co2Pounds={isNewUserView ? 0 : activityData.co2OffsetPounds}
-            isLoading={dataLoading && !isNewUserView}
-          />
+          <Suspense fallback={<div className="h-64 rounded-2xl bg-card/10 animate-pulse" aria-hidden="true" />}>
+            <CO2OffsetCard
+              activityData={isNewUserView ? undefined : activityData}
+              co2Pounds={isNewUserView ? 0 : activityData.co2OffsetPounds}
+              isLoading={dataLoading && !isNewUserView}
+            />
+          </Suspense>
         </AnimatedItem>
 
         {/* Subscription-Fee Flywheel — live cumulative LP/Treasury contribution
