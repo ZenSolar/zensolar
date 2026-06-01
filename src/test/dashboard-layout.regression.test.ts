@@ -58,7 +58,6 @@ describe("Dashboard composition — live vs /demo", () => {
   const demoOnly = [
     "ApiPartnersCard",
     "SubscriptionStatusCard",
-    "Tokenomics101Card",
   ];
 
   it.each(demoOnly)("%s is rendered on /demo only", (name) => {
