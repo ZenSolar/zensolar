@@ -46,7 +46,7 @@ export const MODEL_VERSION = 3.1; // v3.1 — Mint split locked at 50/20/20/10 (
 // ("1 kWh of clean energy = 1 unit of currency"). The 10× higher issuance is
 // counter-balanced by mandatory Hybrid sell-throttle levers (vesting + stake-to-unlock),
 // NOT by diluting the ratio. See FoundersCreative1to1Tokenomics for full lever menu.
-// Realistic average: 700 kWh/user/month → 700 $ZSOLAR minted → 525 received (75% user share)
+// Realistic average: 700 kWh/user/month → 700 $ZSOLAR shown to user (1:1), protocol matches with another 700 raw (140 LP / 140 burn / 70 treasury)
 // Of those 525, only a fraction is liquid at any time (vesting + stake gates).
 export const MINT_RATIO_KWH_PER_TOKEN = 1;
 export const MINT_RATIO_LABEL = '1 kWh = 1 $ZSOLAR';
