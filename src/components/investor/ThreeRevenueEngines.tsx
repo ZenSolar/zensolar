@@ -118,6 +118,20 @@ export function ThreeRevenueEngines() {
           metricLabel="U.S. utility analytics TAM"
         />
       </div>
+
+      <div className="mt-6">
+        <div className="flex items-start gap-3 px-4 py-3 rounded-3xl bg-card/30 border border-border/50 text-sm shadow-sm">
+          <span className="text-amber-500 text-xl leading-none">⚡</span>
+          <div className="flex flex-wrap items-baseline gap-x-1.5 text-left">
+            <span className="uppercase tracking-[0.5px] text-[10px] font-medium text-muted-foreground whitespace-nowrap">
+              PHASE 2 UNLOCK
+            </span>
+            <span className="font-medium text-foreground">
+              VPP tokenization — tech already built. Real-time $ZSOLAR minting + monthly cash settlement for grid dispatch events.
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

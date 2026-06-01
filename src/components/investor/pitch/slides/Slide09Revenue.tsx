@@ -67,6 +67,20 @@ export function Slide09Revenue() {
           ))}
         </div>
 
+        <div className="mt-6">
+          <div className="flex items-start gap-3 px-4 py-3 rounded-3xl bg-card/30 border border-border/50 text-sm shadow-sm">
+            <span className="text-amber-500 text-xl leading-none">⚡</span>
+            <div className="flex flex-wrap items-baseline gap-x-1.5 text-left">
+              <span className="uppercase tracking-[0.5px] text-[10px] font-medium text-muted-foreground whitespace-nowrap">
+                PHASE 2 UNLOCK
+              </span>
+              <span className="font-medium text-foreground">
+                VPP tokenization — tech already built. Real-time $ZSOLAR minting + monthly cash settlement for grid dispatch events.
+              </span>
+            </div>
+          </div>
+        </div>
+
         {/* Flywheel */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}
           className="p-6 rounded-2xl border border-[hsl(207,90%,54%)]/20 bg-[hsl(207,90%,54%)]/5">
