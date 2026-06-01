@@ -114,7 +114,7 @@ const FoundersCatchup = lazy(() => import("./pages/archive/FoundersCatchup"));
 const FoundersCreative1to1Tokenomics = lazy(() => import("./pages/FoundersCreative1to1Tokenomics"));
 const FoundersLyndonOnePager = lazy(() => import("./pages/FoundersLyndonOnePager"));
 const FoundersLyndonPitchV2 = lazy(() => import("./pages/archive/FoundersLyndonPitchV2"));
-const FoundersSeedPitch = lazy(() => import("./pages/FoundersSeedPitch"));
+const FoundersSeedPitch = lazy(() => import("./pages/archive/FoundersSeedPitch"));
 const FoundersSeedPitchCompanionDeck = lazy(() => import("./pages/archive/FoundersSeedPitchCompanionDeck"));
 const FoundersSecondaryRevenue = lazy(() => import("./pages/FoundersSecondaryRevenue"));
 const FoundersVPPRoadmap = lazy(() => import("./pages/FoundersVPPRoadmap"));
@@ -122,7 +122,7 @@ const FoundersEnergyOracle = lazy(() => import("./pages/FoundersEnergyOracle"));
 const FoundersPatentExpansion = lazy(() => import("./pages/FoundersPatentExpansion"));
 const FoundersMasterOutline = lazy(() => import("./pages/FoundersMasterOutline"));
 const FoundersSsotZen = lazy(() => import("./pages/FoundersSsotZen"));
-const FoundersSsotOnePager = lazy(() => import("./pages/FoundersSsotOnePager"));
+const FoundersSsotOnePager = lazy(() => import("./pages/archive/FoundersSsotOnePager"));
 const FoundersBitcoinThesis = lazy(() => import("./pages/FoundersBitcoinThesis"));
 const FoundersFundedLP = lazy(() => import("./pages/FoundersFundedLP"));
 const FoundersTschida = lazy(() => import("./pages/FoundersTschida"));
@@ -1335,6 +1335,8 @@ const App = () => {
                     {([
                       { slug: 'founders-lyndon-pitch-v2', model: 'Lyndon Pitch v2', Comp: FoundersLyndonPitchV2 },
                       { slug: 'founders-seed-pitch-companion-deck', model: 'Seed Pitch Companion Deck', Comp: FoundersSeedPitchCompanionDeck },
+                      { slug: 'founders-seed-pitch-greg', model: 'Seed Pitch (Greg)', Comp: FoundersSeedPitch },
+                      { slug: 'founders-ssot-one-pager', model: 'SSOT One-Pager', Comp: FoundersSsotOnePager },
                       { slug: 'founders-spacex', model: 'SpaceX Comparable', Comp: FoundersSpaceX },
                       { slug: 'founders-app-overhaul', model: 'App Overhaul Plan', Comp: FoundersAppOverhaul },
                       { slug: 'founders-catchup', model: 'Founders Catchup', Comp: FoundersCatchup },
@@ -1379,7 +1381,7 @@ const App = () => {
                     <Route path="/founders/catchup" element={<Navigate to="/investor/pitch" replace />} />
                     <Route path="/founders/lyndon" element={<FounderRoute><FoundersLyndonOnePager /></FounderRoute>} />
                     <Route path="/founders/lyndon-pitch-v2" element={<Navigate to="/investor/pitch" replace />} />
-                   <Route path="/founders/seed-pitch-greg" element={<ReviewerOrFounderRoute><FoundersSeedPitch /></ReviewerOrFounderRoute>} />
+                   <Route path="/founders/seed-pitch-greg" element={<Navigate to="/investor" replace />} />
                    <Route path="/founders/seed-pitch-companion-deck" element={<Navigate to="/investor/pitch" replace />} />
                     <Route path="/founders/secondary-revenue" element={<FounderRoute><FoundersSecondaryRevenue /></FounderRoute>} />
                     <Route path="/founders/vpp-roadmap" element={<FounderRoute><FoundersVPPRoadmap /></FounderRoute>} />
@@ -1387,7 +1389,7 @@ const App = () => {
                     <Route path="/founders/patent-expansion" element={<FounderRoute><FoundersPatentExpansion /></FounderRoute>} />
                     <Route path="/founders/master-outline" element={<FounderRoute><FoundersMasterOutline /></FounderRoute>} />
                     <Route path="/founders/ssot-zen" element={<FounderRoute><FoundersSsotZen /></FounderRoute>} />
-                    <Route path="/founders/ssot-one-pager" element={<FounderRoute><FoundersSsotOnePager /></FounderRoute>} />
+                    <Route path="/founders/ssot-one-pager" element={<Navigate to="/investor/one-pager" replace />} />
                     <Route path="/founders/bitcoin-thesis" element={<FounderRoute><FoundersBitcoinThesis /></FounderRoute>} />
                     <Route path="/founders/funded-lp" element={<FounderRoute><FoundersFundedLP /></FounderRoute>} />
                     <Route path="/founders/tschida" element={<FounderRoute><FoundersTschida /></FounderRoute>} />
