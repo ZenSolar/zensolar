@@ -283,6 +283,18 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
               </button>
             </div>
 
+            {/* Top-left back to investor */}
+            <div className="absolute top-4 left-4 pointer-events-auto">
+              <Link
+                to="/investor"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white/70 hover:text-white text-[12px] backdrop-blur-sm transition-colors"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                Investor
+              </Link>
+            </div>
+
             {/* Top-right controls */}
             <div className="absolute top-4 right-4 flex items-center gap-2 pointer-events-auto">
               <span className="text-[13px] text-white/40 font-mono mr-2">
