@@ -30,7 +30,11 @@ import { InvestorDemoChip } from '@/components/demo/InvestorDemoChip';
 import { InvestorEnergyFlowCard } from '@/components/demo/InvestorEnergyFlowCard';
 import { useInvestorDemoMode } from '@/hooks/useInvestorDemoMode';
 
-import { CO2OffsetCard } from '@/components/dashboard/CO2OffsetCard';
+// CO2OffsetCard is recharts-heavy (~676 lines + recharts chunk) and lives
+// below the fold on mobile. Lazy-load so it doesn't block first paint.
+const CO2OffsetCard = lazy(() =>
+  import('@/components/dashboard/CO2OffsetCard').then((m) => ({ default: m.CO2OffsetCard }))
+);
 import { generateDailyBreakdown, type DailyBreakdown } from '@/lib/dailyMintBreakdown';
 import type { MintTokenCategory } from '@/components/dashboard/MintTokenDialog';
 import { isVipActive } from '@/lib/vipDemo';
