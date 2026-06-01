@@ -96,12 +96,12 @@ export default function InvestorPitch() {
               emphasized
               body={
                 <>
-                  <span className="text-foreground">ZenEnergy Monitoring</span> — the first
-                  multi-OEM live energy cockpit. Aggregates real-time{' '}
-                  <span className="text-foreground">Tesla · Enphase · SolarEdge · Wallbox</span>{' '}
+                  <span className="text-foreground">Zen Monitoring</span> — the first-of-its-kind
+                  multi-OEM live energy cockpit. Aggregates real-time data from{' '}
+                  <span className="text-foreground">Tesla, Enphase, SolarEdge, and Wallbox</span>{' '}
                   into one premium dashboard. Homeowners with mixed systems (Enphase solar +
                   Tesla Powerwall + Tesla EV) finally get unified visibility — and
-                  Proof-of-Genesis™ minting on top. Live today.
+                  Proof-of-Genesis™ minting on top.
                 </>
               }
             />
