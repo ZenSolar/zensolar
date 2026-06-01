@@ -76,7 +76,7 @@ export default function InvestorOnePager() {
           {/* Header */}
           <header className="flex items-start justify-between gap-4 border-b border-border/40 pb-5">
             <div>
-              <img src={zenLogo} alt="ZenSolar" className="h-7 w-auto mb-2 opacity-95" />
+              <img src={zenLogo} alt="ZenSolar" className="h-7 w-auto mb-2 opacity-95" loading="eager" decoding="async" fetchPriority="high" width="140" height="28" />
               <div className="text-[10px] uppercase tracking-[0.22em] text-secondary">
                 Strategic Seed · One-Pager · Confidential
               </div>
