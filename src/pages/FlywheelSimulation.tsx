@@ -164,17 +164,22 @@ export default function FlywheelSimulation() {
           </Badge>
         </div>
 
-        <header className="space-y-1">
+        <header className="space-y-2">
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            Flywheel Simulation
+            Flywheel Simulation <span className="text-xs font-normal text-muted-foreground">(legacy)</span>
           </h1>
           <p className="text-sm text-muted-foreground leading-snug">
             Tune subscriber growth, tier mix, and energy throughput to see how
             the 50/50 subscription split compounds into the LP and Treasury,
-            with the Genesis Halving applied automatically at{" "}
+            with the (legacy) Genesis Halving applied automatically at{" "}
             {GENESIS_HALVING.userCountTrigger.toLocaleString()} subs.
           </p>
+          <p className="text-[11px] leading-snug rounded-md border border-amber-500/30 bg-amber-500/5 text-amber-200/90 px-2 py-1.5">
+            ⚠️ Halving is deprecated in the v3.1 narrative — continuous 20% burn per mint is the
+            primary deflation mechanism. This simulator is retained for optional future re-activation.
+          </p>
         </header>
+
 
         {/* Headline KPIs */}
         <div className="grid grid-cols-2 gap-2.5">
