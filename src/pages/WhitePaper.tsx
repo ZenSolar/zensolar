@@ -1082,7 +1082,7 @@ export default function WhitePaper() {
                     ].map(({ asset, risk }) => (
                       <li key={asset} className="flex flex-col gap-0.5">
                         <span className="font-medium text-foreground">{asset}</span>
-                        <span className="text-xs text-muted-foreground/70">{risk}</span>
+                        <span className="text-xs text-muted-foreground">{risk}</span>
                       </li>
                     ))}
                   </ul>
@@ -1888,7 +1888,7 @@ export default function WhitePaper() {
           <div className="container max-w-5xl mx-auto px-4 space-y-6 text-center">
             {/* Disclaimer */}
             <div className="space-y-2 max-w-xl mx-auto">
-              <p className="text-xs text-muted-foreground/80 leading-relaxed">
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 This white paper is for informational purposes only. $ZSOLAR tokens have no monetary value during 
                 beta testing on Base Sepolia testnet. Tokenomics and features are subject to change.
               </p>
@@ -1903,7 +1903,7 @@ export default function WhitePaper() {
               <Link to="/privacy" className="hover:text-foreground transition-colors whitespace-nowrap">Privacy</Link>
             </div>
 
-            <p className="text-xs text-muted-foreground/60">© 2026 ZenSolar. Patent Pending. Built on Base L2.</p>
+            <p className="text-xs text-muted-foreground">© 2026 ZenSolar. Patent Pending. Built on Base L2.</p>
           </div>
         </footer>
       </motion.div>
