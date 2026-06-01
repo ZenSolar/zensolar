@@ -4,12 +4,12 @@ import { EnergyReportCard } from "@/components/deason/EnergyReportCard";
 import type { MonthlyReport } from "@/hooks/useDeasonHub";
 import type { EnergyReportPreview, EnergyReportFull } from "@/hooks/useEnergyReport";
 import { GRID_KG_PER_KWH } from "@/lib/co2Math";
-import { MonthHero } from "./report/MonthHero";
-import { InsightTiles } from "./report/InsightTiles";
-import { WhatChanged } from "./report/WhatChanged";
-import { BillSavingsStrip } from "./report/BillSavingsStrip";
-import { TrendSparkline, type TrendPoint } from "./report/TrendSparkline";
-import { ShareMonthButton } from "./report/ShareMonthButton";
+import { MonthHero } from "@/components/deason/report/MonthHero";
+import { InsightTiles } from "@/components/deason/report/InsightTiles";
+import { WhatChanged } from "@/components/deason/report/WhatChanged";
+import { BillSavingsStrip } from "@/components/deason/report/BillSavingsStrip";
+import { TrendSparkline, type TrendPoint } from "@/components/deason/report/TrendSparkline";
+import { ShareMonthButton } from "@/components/deason/report/ShareMonthButton";
 
 interface Props {
   report: MonthlyReport | null;
