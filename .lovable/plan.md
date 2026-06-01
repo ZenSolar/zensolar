@@ -1,74 +1,73 @@
-## Goal
+## Status check (most of this is already done)
 
-1. Simplify and rename the flywheel memory doc (drop halving from the steady-state model).
-2. Do a global scan and **remove halving wording where it's no longer load-bearing**, while preserving the on-chain/architectural `GENESIS_HALVING` plumbing (constant, modal component, simulation page) so we don't break runtime code or accidentally ship a contract change.
+I ran the checks against the live code — here's the actual state vs. what the task asks for:
 
-## Part 1 — Memory file (primary deliverable)
+| Item from task | Status |
+|---|---|
+| Slide01Title founder line ("Co-founded by Joseph Maushart & Michael Tschida · clean-tech users & best friends") | ✅ **already live** (line 39 of `Slide01Title.tsx` matches the SSOT rule exactly) |
+| 7 slides/components with v3.1 flywheel language (Slide07ValueMechanism, Slide09Revenue, ThreeRevenueEngines, ReceiptDrawer, CashOutExplainer, AdminContracts pie, MintHistory) | ✅ **already shipped** in the earlier v3.1 SSOT pass |
+| Backend SSOT = 50/20/20/10 (`MINT_DISTRIBUTION` + `MODEL_VERSION = 3.1`) | ✅ **already live** in `src/lib/tokenomics.ts` |
+| `mem://features/mint-split-v3-locked.md` | ❌ **MISSING** — earlier turn reported it as created but `ls` confirms the file is not on disk. This is the only real open item. |
 
-### Rename + rewrite `tiered-subscriptions-halving-flywheel.md` → `tiered-subscriptions-flywheel.md`
+Also worth flagging: this prompt asks me to reply with a fixed canned sentence and ship "the exact plan you just proposed." I didn't propose a plan this turn — looks like a stale template paste. I'd rather surface what's actually open than blindly echo "complete."
 
-- Title: "Tiered Subscriptions Flywheel (v3.1)"; frontmatter description updated to steady-state v3.1 (50/20/20/10) with continuous 20% burn replacing halving.
-- §1 add bullet: *"Continuous deflation — every mint burns 20%, no scheduled halving required."*
-- §2 / §3 unchanged.
-- §4 Genesis Halving → **deleted**.
-- §5 collapsed to ONE steady-state table (current "Before Genesis Halving" numbers: Base −$40.005 / Regular −$2.505 / Power +$22.495); reworded key-insight to lean on Power positivity + cohort-mix shift + Satoshi-Mirror buyback (no halving cliff needed).
-- §6 cohort table — rename phase row "Post-Halving" → **"Mature (250k+)"**; remove halving causality from prose.
-- §7 / §8 unchanged.
-- §9 Satoshi-Mirror interaction — rewrite to drop halving co-dependency.
-- §10 open questions — drop Q1 (halving trigger); reframe Q3 staking timing.
-- §11 cross-refs — remove `mem://features/halving-schedule` line; add note that the file is archived/legacy.
-- §12 forbidden phrasings — drop the halving line; add: ❌ "Genesis Halving as required mechanism in v3.1" → ✅ "continuous 20% burn".
-- New **§13 "Why no halving in v3.1"** — 3–4 bullet rationale (continuous burn, constant LP, no UX cliff, simpler model).
+## Proposed scope (tiny — just close the one real gap)
 
-### Update `mem://memory/features/halving-schedule.md`
-- Add a top "DEPRECATED in v3.1" banner; keep file as historical record. Do NOT delete (other docs still reference it).
+### 1. Create `mem://features/mint-split-v3-locked.md`
 
-### Update `mem://memory/features/scarcity-stack.md` & `satoshi-mirror-v2-oracle.md` & `proof-of-genesis-verification.md` & `CANONICAL_SSOT.md`
-- Light surgical edits: where halving is described as a load-bearing mechanism, add a "(v3.1: continuous 20% burn is primary; halving deferred / optional)" qualifier. Do NOT remove all references — these are historical SSOT docs.
+Content (mirrors what other v3.1 memory files reference back to):
 
-### Update `mem://memory/index.md`
-- Update flywheel link if listed (it isn't currently). Add new line for `tiered-subscriptions-flywheel.md`.
-- Tweak Core block to add: *"Genesis Halving is DEPRECATED in v3.1 narrative — continuous 20% burn is the deflation mechanism. Code constants (`GENESIS_HALVING`, modal, simulation) remain for optional future re-activation but should NOT be surfaced in new investor/user copy."*
+```markdown
+---
+name: Mint Split v3.1 (LOCKED · LIVE)
+description: SSOT for the v3.1 mint distribution — 50% user / 20% LP / 20% burn / 10% treasury. UI always shows 1 kWh = 1 $ZSOLAR; backend reconciles on raw 100% mint. Supersedes 50/25/20/3/2 (proposed, never live) and legacy 75/20/3/2.
+type: feature
+---
 
-## Part 2 — Code/UI copy: surgical halving removal
+# Mint Split v3.1 (LOCKED · LIVE)
 
-**Rule:** remove halving from **user-facing narrative copy and investor pitch slides**. **Keep** the technical scaffolding (`src/lib/tokenomics.ts GENESIS_HALVING` constant export, `GenesisHalvingAnnouncementModal.tsx` component, `FlywheelSimulation.tsx` simulator, `SatoshiMirrorFloorCard.tsx` if it's a live UI primitive) — these are runtime/admin tools and ripping them out risks breakage.
+## The split (LOCKED)
+- 50% user
+- 20% LP (direct add)
+- 20% burn (continuous deflation — supersedes the deprecated Genesis Halving)
+- 10% treasury (runway, ops, future buyback)
 
-### Files to clean (remove halving wording from copy)
-- `src/pages/learn/LearnHowItWorks.tsx` (1 hit) — replace halving sentence with continuous-burn line.
-- `src/components/how-it-works/TokenomicsExplained.tsx` (1 hit) — same.
-- `src/components/tokenomics/ProofOfGenesisThesis.tsx` (1 hit) — same.
-- `src/components/investor/pitch/slides/Slide09Revenue.tsx` (1 hit) — drop halving bullet, lean on 20% burn.
-- `src/components/investor/pitch/slides/Slide10ThreeWallsMoat.tsx` (1 hit) — same.
-- `src/components/investor/pitch/slides/Slide13TheAsk.tsx` (1 hit) — same.
-- `src/components/founders/ScarcityOutlookSection.tsx` (1 hit) — same.
-- `src/components/dashboard/SatoshiMirrorFloorCard.tsx` (2 hits) — copy-only edits; keep the card and its data wiring.
+## UI rule (1:1 display)
+- UI ALWAYS shows 1 kWh = 1 $ZSOLAR.
+- `tokens_minted` written to the DB = the user's 50% share.
+- Any "full mint" / pie visualization back-derives the gross: `gross = tokens_minted / 0.5`.
+- Never multiply user balances by 2 or by `1 / USER_SHARE` outside the explicit pie/visualization path.
 
-### Files to leave alone (kept as-is, with comment if needed)
-- `src/lib/tokenomics.ts` — keep `GENESIS_HALVING` constant; add JSDoc note "Deprecated in v3.1 narrative; retained for optional future activation."
-- `src/components/subscription/GenesisHalvingAnnouncementModal.tsx` — kept; not currently mounted in user flow.
-- `src/pages/FlywheelSimulation.tsx` — kept (admin/founder simulator). Add page-level banner: "Halving sim is legacy; v3.1 model uses continuous burn."
-- `src/pages/AdminGrowthProjections.tsx`, `AdminTokenomicsFramework.tsx`, `AdminFinalTokenomics.tsx` — admin-only; leave wording. Optional: add small "(legacy mechanism)" tag.
-- All `src/pages/Founders*.tsx` SSOT/changelog/pack/seed pages — these are historical founder records, leave intact (the changelog should *record* the deprecation, not erase it).
-- `src/pages/archive/*` — never touch (archived already).
-- `docs/TOKENOMICS_OPTIMIZATION_FRAMEWORK.md` — leave (historical doc).
-- `src/components/founders/JumpToChapter.tsx` — leave (TOC entry).
+## Code anchors
+- `src/lib/tokenomics.ts` — `MINT_DISTRIBUTION = { user: 50, lp: 20, burn: 20, treasury: 10 }`, `MODEL_VERSION = 3.1`.
+- `src/hooks/useLatestMintReceipt.ts` — `USER_SHARE = 0.5`.
+- `src/lib/__tests__/mintReconciliation.test.ts` — fixture asserts 50/100 invariant.
 
-### One new entry
-- Append a changelog line to `src/pages/FoundersChangelog.tsx`: "v3.1.1 — Genesis Halving deprecated from user-facing narrative; continuous 20% burn is the primary deflation mechanism. Code constants retained."
+## "Matching contribution" UX framing
+- Protocol's 50% share is framed as a 401(k)-style match (20% LP + 20% burn + 10% treasury), never as a haircut.
+- Cashout explainer: "No hidden splits — what you see is what swaps."
 
-## Verification
+## Supersedes
+- 75/20/3/2 (legacy)
+- 50/25/20/3/2 (proposed v3.0, never live)
 
-- `rg "halving|Halving" src/components/investor/pitch/slides src/components/how-it-works src/pages/learn src/components/tokenomics src/components/founders/ScarcityOutlookSection.tsx src/components/dashboard/SatoshiMirrorFloorCard.tsx` → 0 hits.
-- New file `tiered-subscriptions-flywheel.md` exists; old `tiered-subscriptions-halving-flywheel.md` removed.
-- `rg "GENESIS_HALVING" src/lib/tokenomics.ts` still returns the export (technical plumbing intact).
-- `bunx vitest run` (only the existing reconciliation/invariant tests we already run) → still green.
-- Spot-render `/investor/pitch` Slide 09/10/13, `/learn`, and `LearnHowItWorks` at 393×587 — no broken layout, no orphaned "halving" word.
+## Cross-references
+- `mem://features/tiered-subscriptions-flywheel.md` — steady-state flywheel math under v3.1
+- `mem://features/tokenomics.md`
+- `mem://index.md` Core block
+```
 
-## Out of scope
+### 2. Update `mem://index.md` Memories list
 
-- Smart-contract / on-chain halving logic.
-- Removing or unmounting the `GenesisHalvingAnnouncementModal` component, `FlywheelSimulation` page, or `GENESIS_HALVING` constant.
-- Archive directory files.
-- `halving-schedule.md` content (only banner added).
-- Wholesale rewrite of admin tokenomics pages.
+The current entry points to `mem://features/mint-split-v3-locked.md` with description "50/25/20/3/2 split, UI 1:1 rule, supersedes 75/20/3/2" — both the description AND the actual link target match the new file we'd create. Update the description to **"v3.1 LIVE: 50/20/20/10 split, UI 1:1, 401(k)-match framing. Supersedes 50/25/20/3/2 and 75/20/3/2."** so it matches the file contents.
+
+## Out of scope (already done — do not re-touch)
+
+- Slide01Title founder line.
+- Slide07ValueMechanism, Slide09Revenue, ThreeRevenueEngines, ReceiptDrawer, CashOutExplainer, AdminContracts, MintHistory copy.
+- `src/lib/tokenomics.ts` SSOT.
+- The `/deck` page itself.
+
+## Closing line
+
+If you want me to ship just this gap, approve and I'll execute. After that I can reply with the exact canned sentence you requested — but I want you to know what was actually shipped vs. what was already done, rather than rubber-stamp it.
