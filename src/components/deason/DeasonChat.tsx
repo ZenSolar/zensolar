@@ -816,17 +816,36 @@ function ThreadRow({
 function MessageContent({
   content,
   streaming,
+  docIndex,
+  onOpenSources,
 }: {
   content: string | DeasonContentPart[];
   streaming: boolean;
+  docIndex: Map<string, DocIndexEntry>;
+  onOpenSources: (entries: DocIndexEntry[]) => void;
 }) {
   if (typeof content === "string") {
-    return <CitedText text={content || (streaming ? "…" : "")} />;
+    return (
+      <CitedText
+        text={content || (streaming ? "…" : "")}
+        docIndex={docIndex}
+        onOpenSources={onOpenSources}
+      />
+    );
   }
   return (
     <div className="space-y-2">
       {content.map((part, idx) => {
-        if (part.type === "text") return <CitedText key={idx} text={part.text ?? ""} />;
+        if (part.type === "text") {
+          return (
+            <CitedText
+              key={idx}
+              text={part.text ?? ""}
+              docIndex={docIndex}
+              onOpenSources={onOpenSources}
+            />
+          );
+        }
         if (part.type === "image_url" && part.image_url?.url) {
           return (
             <div key={idx} className="flex items-center gap-2 text-xs opacity-80">
@@ -842,36 +861,115 @@ function MessageContent({
 }
 
 /**
- * Renders Deason's text and converts inline `[doc:<id>]` citation markers
- * into small amber source chips. Multiple citations on the same fact collapse
- * into "Sources" pills the user can hover to see the document id.
+ * Renders Deason's text and converts inline `[doc:<id>]` markers into
+ * numbered amber CitationChip pills. Consecutive citations group into one
+ * chip. Also strips the optional `<followups>` JSON block before rendering.
  */
-function CitedText({ text }: { text: string }) {
+function CitedText({
+  text,
+  docIndex,
+  onOpenSources,
+}: {
+  text: string;
+  docIndex: Map<string, DocIndexEntry>;
+  onOpenSources: (entries: DocIndexEntry[]) => void;
+}) {
   if (!text) return null;
-  const parts: React.ReactNode[] = [];
-  const re = /\[doc:([a-zA-Z0-9_-]+)\]/g;
+  const display = stripFollowupsBlock(text);
+  if (!display) return null;
+
+  // Tokenize: alternate between text and citation runs.
+  const re = /(\[doc:[a-zA-Z0-9_-]+\](?:\[doc:[a-zA-Z0-9_-]+\])*)/g;
+  const out: React.ReactNode[] = [];
   let lastIndex = 0;
+  let k = 0;
   let match: RegExpExecArray | null;
-  let i = 0;
-  while ((match = re.exec(text)) !== null) {
-    if (match.index > lastIndex) {
-      parts.push(text.slice(lastIndex, match.index));
+  while ((match = re.exec(display)) !== null) {
+    if (match.index > lastIndex) out.push(display.slice(lastIndex, match.index));
+    const ids = Array.from(match[0].matchAll(/\[doc:([a-zA-Z0-9_-]+)\]/g)).map((m) => m[1]);
+    const entries: DocIndexEntry[] = ids
+      .map((id, i) =>
+        docIndex.get(id) ?? {
+          id,
+          index: 0,
+          kind: "other" as const,
+          label: `Document ${i + 1}`,
+        }
+      )
+      .filter((e) => e.index > 0);
+    if (entries.length) {
+      out.push(<CitationChip key={`c-${k++}`} entries={entries} onOpen={onOpenSources} />);
     }
-    const id = match[1];
-    parts.push(
-      <span
-        key={`c-${i++}-${id}`}
-        title={`Source: document ${id}`}
-        className="ml-0.5 inline-flex h-4 items-center rounded-full bg-amber-500/15 px-1.5 align-middle text-[10px] font-medium text-amber-500 ring-1 ring-amber-500/30"
-      >
-        <FileText className="mr-0.5 h-2.5 w-2.5" />
-        source
-      </span>
-    );
     lastIndex = match.index + match[0].length;
   }
-  if (lastIndex < text.length) parts.push(text.slice(lastIndex));
-  return <>{parts}</>;
+  if (lastIndex < display.length) out.push(display.slice(lastIndex));
+  return <>{out}</>;
 }
+
+function SkeletonMessage({ align, widthClass = "w-3/4" }: { align: "left" | "right"; widthClass?: string }) {
+  return (
+    <div className={cn("flex", align === "right" ? "justify-end" : "justify-start")}>
+      <div
+        className={cn(
+          "h-12 animate-pulse rounded-2xl bg-muted/40",
+          widthClass,
+          align === "right" ? "rounded-br-md" : "rounded-bl-md",
+        )}
+      />
+    </div>
+  );
+}
+
+function EmptyState({
+  title,
+  body,
+  prompts,
+  onAnalyze,
+  onPick,
+}: {
+  title: string;
+  body: string;
+  prompts: string[];
+  onAnalyze: () => void;
+  onPick: (q: string) => void;
+}) {
+  return (
+    <div className="mx-auto mt-4 max-w-md">
+      <div className="text-center">
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/15 ring-1 ring-amber-500/30">
+          <Sparkles className="h-5 w-5 animate-pulse text-amber-500" />
+        </div>
+        <h2 className="mb-1.5 text-base font-semibold">{title}</h2>
+        <p className="text-sm leading-relaxed text-muted-foreground">{body}</p>
+      </div>
+      <button
+        onClick={onAnalyze}
+        className="mt-4 w-full rounded-xl border border-amber-500/40 bg-gradient-to-b from-amber-500/15 to-amber-500/5 px-3 py-3 text-left transition-colors hover:from-amber-500/20"
+      >
+        <div className="flex items-center gap-2 text-sm font-semibold text-amber-500">
+          <FileCheck2 className="h-4 w-4" /> Analyze my energy setup
+        </div>
+        <div className="mt-0.5 text-xs text-muted-foreground">
+          Upload your latest utility bill (required), plus your solar contract and PPA or loan if you have them.
+        </div>
+      </button>
+      <div className="mt-3 grid grid-cols-2 gap-2 text-left text-sm">
+        {prompts.slice(0, 4).map((q) => (
+          <button
+            key={q}
+            onClick={() => onPick(q)}
+            className="rounded-xl border border-border/60 bg-card px-3 py-2.5 text-left text-[13px] leading-snug transition-colors hover:bg-accent"
+          >
+            {q}
+          </button>
+        ))}
+      </div>
+      <p className="mt-3 text-center text-[10px] text-muted-foreground">
+        Tip: press <kbd className="rounded bg-muted px-1 py-0.5 text-[10px]">/</kbd> in the input for quick prompts.
+      </p>
+    </div>
+  );
+}
+
 
 
