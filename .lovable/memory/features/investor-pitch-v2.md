@@ -19,7 +19,7 @@ $5M target · $20M post-money · $7M hard cap · Strategic Seed (SAFE, post-mone
 
 ## Locked revenue engine order (Jun 2026 corrections — supersedes earlier locks)
 1. **Monthly Subscription + Deason AI** — paid base sub is required to be a ZenSolar user and mint $ZSOLAR. Tiers $9.99 / $19.99 / $49.99. Deason AI = **$4.99/mo premium add-on** on top of any tier (Monthly Clean Energy Report, bill analysis, rate-plan optimization, device-aware advice). 50% LP / 50% treasury per sub dollar.
-2. **Token Economics** — core product and primary long-term revenue driver. 1T hard cap, 50/20/20/10 mint split, $0.10 LP-seeded launch on Base, 7% transfer tax (3% burn / 2% LP / 2% treasury) compounds liquidity + treasury yield perpetually.
+2. **Token Economics** — core product and primary long-term revenue driver. 1T hard cap, 50/25/20/5 mint split (50% user · 25% LP direct · 20% burn · 5% treasury), $0.10 LP-seeded launch on Base, separate 3% transfer tax (LP recycle only) compounds liquidity + treasury yield perpetually.
 3. **Aggregated Energy Data** — anonymized multi-OEM telemetry to utilities/ISOs/REC registries/climate researchers.
 
 Deason lives inside Engine 01 as the premium upgrade — never positioned as standalone. Token Economics is back as its own engine and framed as the long-term primary revenue driver.

@@ -1,6 +1,6 @@
 ---
 name: Tiered Subscriptions Flywheel (v3.1)
-description: Steady-state $ZSOLAR flywheel — v3.1 mint split (50/20/20/10) with continuous 20% burn replacing Genesis Halving. 3 subscription tiers (Base/Regular/Power), 10:1 mint ratio, Satoshi-Mirror floor.
+description: Steady-state $ZSOLAR flywheel — v3.1 mint split (50/25/20/5) with continuous 20% burn replacing Genesis Halving. 3 subscription tiers (Base/Regular/Power), 10:1 mint ratio, Satoshi-Mirror floor.
 type: feature
 ---
 
@@ -11,7 +11,7 @@ Refreshed 2026-06-01. Supersedes `tiered-subscriptions-halving-flywheel.md`. Gen
 ## 1. Core principles (v2.1 ratio · v3.1 split — LOCKED)
 
 - **10:1 mint ratio:** 10 verified kWh (or 10 EV miles) = 1 $ZSOLAR minted (raw). UI shows the user's 50% share as 1 kWh = 1 $ZSOLAR.
-- **Mint split (v3.1 LIVE):** 50% user / 20% LP / 20% burn / 10% treasury. (Supersedes 75/20/3/2.)
+- **Mint split (v3.1 LIVE):** 50% user / 25% LP direct / 20% burn / 5% treasury. (Supersedes 75/20/3/2.)
 - **Continuous deflation:** every mint burns 20% — no scheduled halving required.
 - **1T hard cap unchanged.**
 - **External phrasing:** "10 kWh = 1 $ZSOLAR" · "Satoshi-Mirror floor" · the protocol's 50% share is framed as a "matching contribution" (401(k)-style).
@@ -38,7 +38,7 @@ These are the assumptions we model against. Power-tier mix shift is the long-ter
 
 ## 4. Per-tier flywheel math (steady-state, v3.1, $0.10 floor)
 
-Assumes ~1,000 raw tokens minted/user/month → **500 to user (50% of mint)**. Remaining 500 = 200 LP + 200 burn + 100 treasury (the "matching contribution"). No halving regime; numbers hold across all phases.
+Assumes ~1,000 raw tokens minted/user/month → **500 to user (50% of mint)**. Remaining 500 = 250 LP + 200 burn + 50 treasury (the "matching contribution"). No halving regime; numbers hold across all phases.
 
 | Tier | LP/user/mo | User tokens | Sold tokens | Sell pressure ($) | Net (LP − sells) |
 |---|---|---|---|---|---|
@@ -94,13 +94,13 @@ Higher tiers grow as users accumulate token value and unlock staking multipliers
 
 - ❌ "1 kWh = 1 $ZSOLAR" (raw) → ✅ "10 kWh = 1 $ZSOLAR" (display ratio handled via 50% user share)
 - ❌ "Tier-1/Tier-2/Tier-3" externally → ✅ "Base / Regular / Power"
-- ❌ "75% user share" / "75/20/3/2" → ✅ "50% user share (v3.1)" / "50/20/20/10"
+- ❌ "75% user share" / "75/20/3/2" → ✅ "50% user share (v3.1)" / "50/25/20/5"
 - ❌ "Genesis Halving" as a required v3.1 mechanism → ✅ "continuous 20% burn"
 
 ## 12. Why no halving in v3.1
 
 - **Continuous 20% burn** is already perpetual deflation — smoother and more reliable than a one-time event.
-- **Constant 20% LP allocation** deepens the pool every mint — no need to "force" scarcity via a mint-rate cut.
+- **Constant 25% LP allocation** deepens the pool every mint — no need to "force" scarcity via a mint-rate cut.
 - **No UX cliff** — rewards stay predictable, no overnight 50% drop to explain to users.
 - **Simpler model** — single steady-state regime, no pre/post-halving tables to maintain.
 - Code constants (`GENESIS_HALVING`, `GenesisHalvingAnnouncementModal`, `FlywheelSimulation`) remain in the repo for optional future re-activation but should NOT be surfaced in new investor/user copy.
