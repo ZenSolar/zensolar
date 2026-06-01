@@ -110,7 +110,7 @@ const patentClaims = [
   { claim: "SEGI (API-first)", description: "Primary data via APIs", evidence: "4 provider integrations: Tesla, Enphase, SolarEdge, Wallbox", status: "implemented" },
   { claim: "Alternative hardware device", description: "IoT/smart meter fallback", evidence: "Not implemented (API-only currently)", status: "not-implemented" },
   { claim: "Baseline tracking", description: "Calculate new activity vs. stored", evidence: "claim-devices sets baseline=0, delta calculated on each mint", status: "implemented" },
-  { claim: "Token burn mechanics", description: "Fee with portion burned", evidence: "3.5% transfer tax in ZSOLAR.sol, 2% redemption burn", status: "implemented" },
+  { claim: "Token burn mechanics", description: "Fee with portion burned", evidence: "v3.1: 20% mint burn + separate 3% transfer tax (LP recycle) in ZSOLAR.sol, 5% redemption burn", status: "implemented" },
   { claim: "Combo NFTs", description: "Multi-category achievements", evidence: "8 combo NFTs in COMBO_DEFINITIONS", status: "implemented" },
 ];
 

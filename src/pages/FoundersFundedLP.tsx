@@ -72,7 +72,7 @@ const WAVES: Wave[] = [
   { id: "W7",  name: "Wave 7",     monthOpens: 36, newUsers: 1_500_000, cumulativeUsers: 2_500_000,  cliffDays: 7,   vestDays: 7,   mintMultiplier: 1.0,  forecastEntryPrice: 1.95 },
   { id: "W8",  name: "Wave 8",     monthOpens: 42, newUsers: 2_500_000, cumulativeUsers: 5_000_000,  cliffDays: 0,   vestDays: 0,   mintMultiplier: 1.0,  forecastEntryPrice: 3.30, sellTaxPct: 5 },
   { id: "W9",  name: "Wave 9",     monthOpens: 48, newUsers: 5_000_000, cumulativeUsers: 10_000_000, cliffDays: 0,   vestDays: 0,   mintMultiplier: 1.0,  forecastEntryPrice: 5.70, sellTaxPct: 3 },
-  { id: "W10", name: "Open Mint",  monthOpens: 54, newUsers: 0,         cumulativeUsers: 0,          cliffDays: 0,   vestDays: 0,   mintMultiplier: 0.75, forecastEntryPrice: 9.00, sellTaxPct: 1 },
+  { id: "W10", name: "Open Mint",  monthOpens: 54, newUsers: 0,         cumulativeUsers: 0,          cliffDays: 0,   vestDays: 0,   mintMultiplier: 0.50, forecastEntryPrice: 9.00, sellTaxPct: 1 },
 ];
 
 // Format a duration in days into a compact human-readable label (e.g. "12mo", "14d", "Instant").
@@ -111,8 +111,8 @@ const FIAT_SPLIT = 0.5;
 const AVG_KWH_PER_USER_MONTH = 25;
 const ZSOLAR_PER_KWH = 0.5;
 const AVG_GROSS_MINT_PER_USER_MONTH = AVG_KWH_PER_USER_MONTH * ZSOLAR_PER_KWH; // 12.5
-const USER_MINT_SHARE = 0.75;
-const AVG_NET_MINT_PER_USER_MONTH = AVG_GROSS_MINT_PER_USER_MONTH * USER_MINT_SHARE; // 9.375
+const USER_MINT_SHARE = 0.50;
+const AVG_NET_MINT_PER_USER_MONTH = AVG_GROSS_MINT_PER_USER_MONTH * USER_MINT_SHARE; // 6.25
 
 function buildProjection(): MonthlyProjection[] {
   const milestones = [6, 12, 18, 24, 30, 36, 48, 60];
@@ -247,7 +247,7 @@ function runUnitTests(): TestResult[] {
   });
   results.push({
     name: "Avg net mint/user/mo === gross × 50% user share",
-    passed: Math.abs(AVG_NET_MINT_PER_USER_MONTH - expectedGross * 0.75) < 1e-9,
+    passed: Math.abs(AVG_NET_MINT_PER_USER_MONTH - expectedGross * 0.50) < 1e-9,
     detail: `net=${AVG_NET_MINT_PER_USER_MONTH} $ZSOLAR`,
   });
 

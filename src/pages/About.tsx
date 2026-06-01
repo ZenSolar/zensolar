@@ -46,8 +46,8 @@ export default function About() {
     <>
       <SEO 
         title="About ZenSolar"
-        url="https://zensolar.lovable.app/about"
-        image="https://zensolar.lovable.app/og-about.png"
+        url="https://beta.zen.solar/about"
+        image="https://beta.zen.solar/og-about.png"
       />
       <div className="container max-w-4xl mx-auto px-4 py-8 space-y-8">
       {/* Hero */}

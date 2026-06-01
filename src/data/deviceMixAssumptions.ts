@@ -58,8 +58,8 @@ export const WEIGHTED_AVG_RAW_TOKENS = DEVICE_MIX.reduce(
   0
 );
 
-/** After 20% mint burn + 5% transfer tax → ~75% net to user */
-export const NET_MULTIPLIER = 0.75;
+/** v3.1 mint split: user receives 50% of raw mint (25% LP / 20% burn / 5% treasury). */
+export const NET_MULTIPLIER = 0.50;
 
 /** Weighted average NET tokens received per user per month */
 export const WEIGHTED_AVG_NET_TOKENS = Math.round(WEIGHTED_AVG_RAW_TOKENS * NET_MULTIPLIER);

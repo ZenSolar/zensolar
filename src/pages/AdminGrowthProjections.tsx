@@ -596,7 +596,7 @@ export default function AdminGrowthProjections() {
             {(() => {
               const userCounts = [1_000, 10_000, 50_000, 250_000];
               const rawTokensPerUser = WEIGHTED_AVG_RAW_TOKENS;
-              const userShareOfMint = 0.75;
+              const userShareOfMint = 0.50;
               const price = PRICES.launchFloor;
 
               // Cohort mix evolves: heavier Power tier as scale grows

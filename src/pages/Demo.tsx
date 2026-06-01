@@ -6,8 +6,8 @@ const Demo = () => {
     <>
       <SEO 
         title="Demo - Try ZenSolar"
-        url="https://zensolar.lovable.app/demo"
-        image="https://zensolar.lovable.app/og-demo.png"
+        url="https://beta.zen.solar/demo"
+        image="https://beta.zen.solar/og-demo.png"
       />
       <ZenSolarDashboard isDemo />
     </>

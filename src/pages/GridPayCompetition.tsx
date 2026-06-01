@@ -212,14 +212,14 @@ export default function GridPayCompetition() {
       <SEO
         title="GridPay Comparison for Investors"
         description="Detailed ZenSolar vs GridPay comparison covering patent timing, tokenomics, market scope, verification architecture, and investor diligence issues."
-        url="https://zensolar.lovable.app/competition/gridpay"
+        url="https://beta.zen.solar/competition/gridpay"
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'Article',
           headline: 'ZenSolar vs GridPay Investor Comparison',
           description:
             'Detailed investor comparison of ZenSolar and GridPay across patent dates, tokenomics, verification architecture, and market strategy.',
-          mainEntityOfPage: 'https://zensolar.lovable.app/competition/gridpay',
+          mainEntityOfPage: 'https://beta.zen.solar/competition/gridpay',
         }}
       />
 

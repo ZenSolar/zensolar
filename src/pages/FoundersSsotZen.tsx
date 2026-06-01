@@ -61,10 +61,10 @@ const SSOT = {
     { bucket: "Strategic Introductions", pct: 0.01, tokens: 100_000_000, notes: "12-mo vest, 3-mo cliff", color: "hsl(280 70% 60%)" },
   ],
   perMintSplit: [
-    { slice: "User", pct: 75, color: "hsl(142 76% 45%)" },
+    { slice: "User", pct: 50, color: "hsl(142 76% 45%)" },
+    { slice: "LP", pct: 25, color: "hsl(200 70% 55%)" },
     { slice: "Burn", pct: 20, color: "hsl(0 75% 55%)" },
-    { slice: "LP", pct: 3, color: "hsl(200 70% 55%)" },
-    { slice: "Treasury", pct: 2, color: "hsl(45 90% 55%)" },
+    { slice: "Treasury", pct: 5, color: "hsl(45 90% 55%)" },
   ],
   scarcityStack: [
     "1T hard cap",
@@ -254,7 +254,7 @@ export default function FoundersSsotZen() {
             <MetricCard icon={Zap} label="Mint Ratio" value={`${SSOT.mintRatio.kwhPerToken}:1`} sub={`kWh / ${SSOT.token.symbol}`} accent="warm" />
             <MetricCard icon={Sparkles} label="Launch Price" value={`$${SSOT.token.launchPrice.toFixed(2)}`} sub="USDC per token" />
             <MetricCard icon={Flame} label="Burn / Mint" value="20%" sub="Permanent destruction" accent="rare" />
-            <MetricCard icon={Users} label="Per-User Tokens" value={`${SSOT.baseline.tokensPerUserPerMonth}`} sub={`${SSOT.baseline.kwhPerUserPerMonth} kWh/mo · 75% share`} />
+            <MetricCard icon={Users} label="Per-User Tokens" value={`${SSOT.baseline.tokensPerUserPerMonth}`} sub={`${SSOT.baseline.kwhPerUserPerMonth} kWh/mo · 50% share`} />
             <MetricCard icon={Lock} label="LP Reserve" value={fmtUsd.format(totalUsdcLp)} sub="Seed-allocated to liquidity" />
             <MetricCard icon={ShieldCheck} label="Founders Locked" value="200B" sub="Joseph 150B · Michael 50B" accent="warm" />
             <MetricCard icon={TrendingUp} label="Self-Funding" value="~100k" sub="Users to flywheel break-even" />

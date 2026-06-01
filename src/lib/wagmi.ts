@@ -36,7 +36,7 @@ export const CHAIN_ID = baseSepolia.id;
 export const metadata = {
   name: 'ZenSolar',
   description: 'Earn $ZSOLAR tokens for your green energy production',
-  url: typeof window !== 'undefined' ? window.location.origin : 'https://zensolar.lovable.app',
+  url: typeof window !== 'undefined' ? window.location.origin : 'https://beta.zen.solar',
   icons: ['/zs-icon-192.png'],
 };
 

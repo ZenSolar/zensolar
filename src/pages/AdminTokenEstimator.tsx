@@ -38,10 +38,10 @@ const TOKENOMICS = {
   lpSeedTokens: 3_000_000,
   subscriptionFee: 9.99,
   subscriptionToLP: 0.50,
-  mintBurnRate: 0.20, // 20% burn on mint
-  transferBurn: 0.03, // 3% transfer burn
-  treasuryTax: 0.02, // 2% treasury
-  lpTax: 0.02, // 2% to LP
+  mintBurnRate: 0.20, // v3.1: 20% burn on mint
+  transferBurn: 0.03, // v3.1: 3% transfer tax (LP recycle)
+  treasuryTax: 0.05, // v3.1: 5% treasury (mint split)
+  lpTax: 0.25, // v3.1: 25% LP direct (mint split)
 };
 
 type ScenarioPreset = "conservative" | "base" | "growth" | "viral" | "custom";
@@ -204,7 +204,7 @@ export default function AdminTokenEstimator() {
       lpUSDC = Math.max(lpUSDC + monthlyLP - sellUSD * 0.3, lpSeed * 0.5);
       lpTokens = k / lpUSDC;
       totalBurned += mintBurns;
-      circulatingSupply += mintedTokens * 0.75 - mintBurns;
+      circulatingSupply += mintedTokens * 0.50 - mintBurns;
     }
     
     return data;
