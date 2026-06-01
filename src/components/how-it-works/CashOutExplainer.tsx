@@ -124,6 +124,16 @@ export function CashOutExplainer() {
               </motion.div>
             ))}
           </motion.div>
+
+          {/* Matching contribution subcopy — no hidden splits at cashout */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7 }}
+            className="mt-6 text-center text-xs text-muted-foreground italic"
+          >
+            Quote based on your wallet balance × current pool price. No hidden splits — what you see is what swaps.
+          </motion.p>
         </CardContent>
       </Card>
 
