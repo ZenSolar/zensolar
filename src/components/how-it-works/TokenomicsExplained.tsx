@@ -24,9 +24,9 @@ const blocks = [
   },
   {
     icon: TrendingUp,
-    title: 'Half of every dollar strengthens the token',
+    title: 'What you see is what you mint',
     body:
-      '50% of every subscription dollar flows automatically into the token’s liquidity pool. The other 50% funds the team. Think of it like the company buying back its own stock every month — but built right into the protocol.',
+      'Every verified kWh mints a clean 1:1 to you. The protocol matches your mint in the background — 25% straight to liquidity, 20% burned forever, 5% to treasury. Think 401(k) match, not haircut.',
     color: 'text-secondary',
     bg: 'bg-secondary/10',
     border: 'border-secondary/20',
@@ -44,7 +44,7 @@ const blocks = [
     icon: Hourglass,
     title: 'Continuous burn — every mint, forever',
     body:
-      '20% of every $ZSOLAR minted is permanently burned. Scarcity grows automatically with usage — smoother and more predictable than any one-time event. The more clean energy the network verifies, the rarer $ZSOLAR becomes.',
+      '20% of every $ZSOLAR minted is permanently burned, plus a separate 3% transfer tax recycles to liquidity on every swap. Scarcity grows smoothly with usage — no halving cliff to explain.',
     color: 'text-energy',
     bg: 'bg-energy/10',
     border: 'border-energy/20',
