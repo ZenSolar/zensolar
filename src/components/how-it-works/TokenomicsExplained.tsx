@@ -42,9 +42,9 @@ const blocks = [
   },
   {
     icon: Hourglass,
-    title: 'Genesis Halving — rewards get rarer over time',
+    title: 'Continuous burn — every mint, forever',
     body:
-      'Just like Bitcoin, the rate at which $ZSOLAR is minted gets cut in half on a schedule. Early users earn the most, and scarcity grows year after year.',
+      '20% of every $ZSOLAR minted is permanently burned. Scarcity grows automatically with usage — smoother and more predictable than any one-time event. The more clean energy the network verifies, the rarer $ZSOLAR becomes.',
     color: 'text-energy',
     bg: 'bg-energy/10',
     border: 'border-energy/20',
