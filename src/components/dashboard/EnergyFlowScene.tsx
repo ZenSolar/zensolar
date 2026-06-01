@@ -464,11 +464,19 @@ export function EnergyFlowScene({
     Boolean(vehicleSrc) &&
     !vehicleGeneric;
 
-  // Car geometry in viewBox (0–100) space.
+  // Car geometry in viewBox (0–100) space. When actively charging at home,
+  // pull up to the garage apron with the door visually "open"; otherwise
+  // stay parked in the driveway.
+  const prefersReducedMotion = useReducedMotion();
+  const chargingAtHome = isCharging && scene !== 'night-ev';
+  const carAnchor = chargingAtHome ? HOME_BLUEPRINT.garageFront : HOME_BLUEPRINT.carPark;
   const carW = HOME_BLUEPRINT.carWidth;
   const carH = HOME_BLUEPRINT.carHeight;
-  const carX = HOME_BLUEPRINT.carPark.x - carW / 2;
-  const carY = HOME_BLUEPRINT.carPark.y - carH / 2;
+  const carX = carAnchor.x - carW / 2;
+  const carY = carAnchor.y - carH / 2;
+  const evKw = data.tesla?.kW ?? data.evPower ?? 0;
+  const evSoc = data.tesla?.soc;
+  const evRange = data.tesla?.rangeMi;
 
   return (
     <div
