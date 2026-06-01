@@ -19,7 +19,7 @@ const EnergyFlowScene = lazy(() =>
 const ANNOTATIONS = [
   { id: 'solar', x: 35, y: 10, label: 'Solar · 5.4 kW' },
   { id: 'pw',    x: 78, y: 40, label: 'Powerwall +2.1 kW' },
-  { id: 'ev',    x: 22, y: 60, label: 'Tesla · 7.2 kW' },
+  { id: 'ev',    x: 22, y: 56, label: 'Tesla via Wallbox' },
   { id: 'grid',  x: 90, y: 50, label: 'Grid · 0 kW' },
 ] as const;
 
