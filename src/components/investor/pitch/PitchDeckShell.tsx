@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef, ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Maximize, Minimize, Grid3X3 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Maximize, Minimize, Grid3X3, ArrowLeft } from 'lucide-react';
 
 interface PitchDeckShellProps {
   slides: ReactNode[];
