@@ -79,10 +79,8 @@ function buildUnlocks(preview: boolean): Array<{
   to: string;
 }> {
   return [
-    { icon: Presentation, label: 'Seed Pitch Deck', desc: 'Full investor narrative', to: '/investor/pitch' },
-    { icon: FileText, label: 'Full Pitch Deck', desc: '12 slides · PIN-gated', to: '/deck' },
-    { icon: BarChart3, label: 'Tokenomics Model', desc: '1T cap · $0.10 launch math', to: '/tokenomics' },
     { icon: PlayCircle, label: 'Live Investor Demo', desc: 'Proof of Genesis in your hand', to: preview ? '/demo-leonardo' : '/demo' },
+    { icon: FileText, label: 'Full Pitch Deck', desc: '12 slides · PIN-gated', to: '/deck' },
   ];
 }
 
