@@ -81,8 +81,13 @@ export const REVIEWER_PAGES = [
     path: '/investor/pitch',
   },
   {
-    title: 'Full Pitch Deck',
-    description: '12-slide canonical deck. Title, catalyst, engines, ask. PIN-gated.',
+    title: 'Full Seed Round Deck',
+    description: '15-slide canonical deck. Title, catalyst, engines, ask. PIN-gated.',
     path: '/deck',
+  },
+  {
+    title: 'Investor One-Pager',
+    description: 'Single-screen leave-behind. NDA-gated. Print-friendly.',
+    path: '/investor/one-pager',
   },
 ] as const;
