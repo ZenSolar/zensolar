@@ -126,8 +126,8 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
 
   const meta = ACTION_META[tx.action] ?? { label: tx.action, description: "On-chain transaction." };
   const userTokens = Number(tx.tokens_minted) || 0;
-  // tokens_minted is already the 50% user share — derive grand total for split viz
-  const grandTotal = userTokens > 0 ? userTokens / 0.75 : 0;
+  // tokens_minted is already the 50% user share — derive grand total for split viz (v3.1)
+  const grandTotal = userTokens > 0 ? userTokens / 0.5 : 0;
   const hasSplit = userTokens > 0;
   const source = summarizeSource(tx);
   // Prefer the unified /verify/:chain_hash URL — one canonical receipt link.
