@@ -19,7 +19,7 @@ export default function LearnHowItWorks() {
             and you earn $ZSOLAR with one tap.
           </p>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            The full guide covers tiers, vesting, halving, the 100–200 year scarcity
+            The full guide covers tiers, vesting, the continuous burn, the 100–200 year scarcity
             outlook, and everything else — in plain English.
           </p>
           <HowItWorksCTA
