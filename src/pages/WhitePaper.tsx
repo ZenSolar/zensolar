@@ -1639,7 +1639,7 @@ export default function WhitePaper() {
               <h4 className="font-semibold">Key Moonshot Drivers:</h4>
               <div className="grid md:grid-cols-2 gap-3">
                 {[
-                  { title: "Aggressive Deflation", desc: "20% mint burn + 7% transfer tax compounds into net-negative issuance" },
+                  { title: "Aggressive Deflation", desc: "20% mint burn + 3% transfer tax to LP compounds into net-negative issuance" },
                   { title: "Flywheel Scarcity", desc: "100K+ subs = $500K+/mo LP injections against shrinking supply" },
                   { title: "Institutional ESG Demand", desc: "Carbon credits, ESG funds, impact investors create external buy pressure" },
                   { title: "Regulatory Tailwinds", desc: "Government carbon pricing could supercharge verified energy tokens" },

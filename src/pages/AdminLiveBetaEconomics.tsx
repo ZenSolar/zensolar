@@ -836,7 +836,7 @@ export default function AdminLiveBetaEconomics() {
                   step: 4, 
                   icon: Flame, 
                   title: 'Deflationary', 
-                  description: '20% mint burn + 3% transfer',
+                  description: '20% mint burn (separate 3% transfer tax to LP)',
                   value: `${summaryMetrics.burnRate}% burned`,
                   color: 'text-destructive'
                 },
