@@ -27,15 +27,15 @@ export function Slide09Revenue() {
               auxIcon: Sparkles,
               title: 'Monthly Subscription + Deason AI',
               stat: '$9.99 / $19.99 / $49.99 + $4.99 AI',
-              desc: 'Base sub required to be a ZenSolar user and mint tokens. Deason AI is the $4.99/mo premium add-on: Monthly Clean Energy Report, bill analysis, rate-plan optimization, device-aware advice.',
+              desc: 'Base sub required to be a ZenSolar user and mint tokens. Deason AI is the $4.99/mo premium add-on: Monthly Clean Energy Report, bill analysis, rate-plan optimization, device-aware advice. 50% of every sub dollar → LP · 50% → treasury.',
               color: 'hsl(142,76%,50%)',
             },
             {
               num: '02',
               icon: Coins,
               title: 'Token Economics',
-              stat: '1T hard cap · 50/25/20/3/2 mint split',
-              desc: 'Core product and primary long-term revenue driver. 1T hard cap, 50% minted to user, 25% directly to liquidity pool, 20% burn, 3% LP fee, 2% treasury. Every verified kWh now injects significantly more liquidity, creating a much stronger flywheel and price resilience.',
+              stat: '1T cap · 50 user · 25 LP · 20 burn · 3 fee · 2 treasury',
+              desc: 'Core product and primary long-term revenue driver. 1T hard cap. Every verified kWh splits 50% to the user, 25% directly into the USDC pool, 20% burn, 3% LP fee, 2% treasury — so every mint deepens liquidity and tightens supply in the same transaction.',
               color: 'hsl(45,93%,47%)',
               emphasized: true,
             },
@@ -95,6 +95,9 @@ export function Slide09Revenue() {
           </div>
           <p className="text-center mt-4 text-[14px] text-white/30">
             At <strong className="text-white/60">25,000 subscribers</strong>, monthly LP injections match seed capital. Self-sustaining.
+          </p>
+          <p className="text-center mt-2 text-[13px] text-[hsl(45,93%,47%)]/80">
+            <strong>Genesis Halving</strong> at <strong>250K paying subs</strong> · Bitcoin-style 50% mint-rate cut, pre-announced 3–6 mo out.
           </p>
         </motion.div>
       </div>

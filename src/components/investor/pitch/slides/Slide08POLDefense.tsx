@@ -41,8 +41,8 @@ export function Slide08POLDefense() {
             </div>
             <div className="space-y-3">
               {[
-                { phase: 'Seed', range: '$250K', pool: 'Initial USDC/ZSOLAR pair', status: 'Active' },
-                { phase: 'Series A', range: '$1M+', pool: 'Deepened pool + multi-pair', status: 'Planned' },
+                { phase: 'Seed', range: '$200K', pool: '$200K USDC + 2M $ZSOLAR per tranche', status: 'Active' },
+                { phase: 'Series A', range: '$1M+', pool: 'Deepened pool across 5 tranches', status: 'Planned' },
                 { phase: 'Series B', range: '$5M+', pool: 'Cross-chain bridges', status: 'Roadmap' },
                 { phase: 'Series C', range: '$25M+', pool: 'CEX market-making', status: 'Roadmap' },
               ].map((tier, i) => (
