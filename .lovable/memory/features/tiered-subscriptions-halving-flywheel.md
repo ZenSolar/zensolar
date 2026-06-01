@@ -115,5 +115,6 @@ Higher tiers grow as users accumulate token value and unlock staking multipliers
 - ❌ "1 kWh = 1 $ZSOLAR" → ✅ "10 kWh = 1 $ZSOLAR" (v2.1)
 - ❌ "Mint cut" / "rate change" → ✅ "Genesis Halving"
 - ❌ "Tier-1/Tier-2/Tier-3" externally → ✅ "Base / Regular / Power"
+- ❌ "75% user share" / "75/20/3/2" → ✅ "50% user share (v3.1)" / "50/20/20/10"
 
-> **Note on §5 illustrative math:** the per-tier tables above were modeled at the old 1:1 ratio (1,000 raw tokens/user/mo). Under v2.1 (10:1) the equivalent baseline is ~70 raw tokens/user/mo from 700 kWh — directional conclusions (Power net-positive, Regular flips at halving, Base subsidized) still hold, but absolute dollar figures shrink ~10×. Refresh tables before next pitch.
+> **Note on §5 illustrative math:** tables are computed on v3.1 (50% user share) at the locked 10:1 mint ratio, using $0.10 floor and the §3 sell-rate assumptions. Under real 10:1 throughput (~70 raw tokens/user/mo from 700 kWh) the absolute dollar magnitudes scale ~10× smaller, but directional conclusions (Power net-positive, Regular flips at halving, Base subsidized) hold.
