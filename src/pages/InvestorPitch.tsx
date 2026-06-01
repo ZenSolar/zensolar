@@ -121,75 +121,7 @@ export default function InvestorPitch() {
           <ThreeRevenueEngines />
         </section>
 
-        {/* Why Us */}
-        <section className="mx-auto max-w-3xl px-5 py-12 border-t border-border/40">
-          <h2 className="text-xs uppercase tracking-[0.22em] text-muted-foreground mb-5">
-            Why Us
-          </h2>
-
-          <div className="rounded-3xl border border-border/60 bg-card/40 p-6 md:p-8">
-            <p className="text-sm md:text-base text-foreground/90 leading-relaxed">
-              ZenSolar is built by{' '}
-              <span className="font-semibold text-foreground">
-                Joseph Maushart and Michael Tschida
-              </span>{' '}
-              —{' '}
-              <span className="text-foreground">childhood best friends</span>, now co-founders. Two
-              operators who've spent a lifetime sharpening complementary edges of the same
-              problem, pact-locked{' '}
-              <span className="text-foreground">200B $ZSOLAR</span> between them to build this out
-              together.
-            </p>
-
-            {/* Complementary edges */}
-            <div className="mt-6 grid gap-3 md:grid-cols-2">
-              <FounderCard
-                icon={Cpu}
-                accent="text-secondary"
-                ring="border-secondary/30"
-                name="Joseph Maushart"
-                role="Protocol · Product · Distribution"
-                bullets={[
-                  'Ex-SolarCity. Built the live multi-OEM monitoring app (Tesla, Enphase, SolarEdge, Wallbox).',
-                  'Patent-pending Proof of Genesis™ author. 9-jurisdiction legal posture. 3.34M+ verified kWh shipped.',
-                  'Owns: protocol, product, energy verification, GTM.',
-                ]}
-              />
-              <FounderCard
-                icon={Calculator}
-                accent="text-eco"
-                ring="border-eco/30"
-                name="Michael Tschida"
-                role="Capital · Math · Economics"
-                bullets={[
-                  'Top 10% State Farm agent nationwide. President\u2019s Club every year as a top producer.',
-                  'Deep expertise in investment strategy, capital allocation, and applied economics — sharper than Joe\u2019s in those domains by design.',
-                  'Owns: token economics math, capital deployment discipline, investor relations.',
-                ]}
-              />
-            </div>
-
-            <p className="mt-6 text-center text-[13px] md:text-sm italic text-foreground/85 leading-relaxed">
-              Childhood best friends. Two complementary operators. One mission: turn every clean
-              kWh into a hard-capped currency, and change how the world prices energy.
-            </p>
-
-            <ul className="mt-6 pt-5 border-t border-border/40 space-y-2 text-[13px] text-muted-foreground">
-              <li className="flex gap-2">
-                <span className="mt-1.5 h-1 w-1 rounded-full shrink-0 bg-secondary" />
-                Tesla, Enphase, SolarEdge, Wallbox OEM monitoring all live in production.
-              </li>
-              <li className="flex gap-2">
-                <span className="mt-1.5 h-1 w-1 rounded-full shrink-0 bg-secondary" />
-                Patent-pending Proof of Genesis™ protocol filed with the USPTO.
-              </li>
-              <li className="flex gap-2">
-                <span className="mt-1.5 h-1 w-1 rounded-full shrink-0 bg-secondary" />
-                Embedded Coinbase Wallet, Reown AppKit, Base L2 — no MetaMask friction.
-              </li>
-            </ul>
-          </div>
-        </section>
+        {/* Why Us section intentionally removed — founder framing is handled inside the deck and via direct contact in the footer below. */}
 
         {/* The Ask */}
         <section className="mx-auto max-w-3xl px-5 py-12 border-t border-border/40">
