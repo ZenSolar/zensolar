@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
 import {
@@ -26,6 +27,8 @@ import { ZSOLAR_NFT_ADDRESS, ZSOLAR_TOKEN_ADDRESS } from "@/lib/wagmi";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useBasePath } from "@/hooks/useBasePath";
+import { useCountUp } from "@/hooks/useCountUp";
+import { useHaptics } from "@/hooks/useHaptics";
 
 export interface MintReceiptTx {
   id: string;
