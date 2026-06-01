@@ -1,7 +1,11 @@
 import { SlideLayout, SlideHeader, SlideFooter } from '../SlideLayout';
 import { motion } from 'framer-motion';
-import { DollarSign, Flame, ArrowRight, TrendingUp, Award } from 'lucide-react';
+import { Coins, CreditCard, Database, ArrowRight, Sparkles } from 'lucide-react';
 
+/**
+ * Revenue Model — engine order locked Feb 2026:
+ *   1) Token Economics  2) Monthly Subscription (Deason AI = $4.99 add-on)  3) Aggregated Data
+ */
 export function Slide09Revenue() {
   return (
     <SlideLayout variant="dark">
@@ -10,24 +14,56 @@ export function Slide09Revenue() {
       <div className="absolute inset-0 flex flex-col justify-center px-16 pt-20 pb-16">
         <motion.h2 initial={{ opacity: 0 }} animate={{ opacity: 1 }}
           className="text-[48px] font-bold mb-10">
-          Five Revenue Streams, <span className="text-[hsl(45,93%,47%)]">Day One</span>
+          Three Revenue Engines, <span className="text-[hsl(45,93%,47%)]">One Flywheel</span>
         </motion.h2>
 
-        <div className="grid grid-cols-5 gap-4 mb-10">
+        <div className="grid grid-cols-3 gap-5 mb-10">
           {[
-            { icon: DollarSign, title: 'Subscription SaaS', stat: '$9.99 / $19.99 / $49.99', desc: 'Base / Regular / Power tiers, 50% LP / 50% treasury', color: 'hsl(207,90%,54%)' },
-            { icon: ArrowRight, title: '7% Transfer Tax', stat: '3%+2%+2%', desc: 'Burn · LP · Treasury', color: 'hsl(0,84%,60%)' },
-            { icon: Flame, title: 'Mint Distribution', stat: '20%+3%+2%', desc: 'Burn · LP · Treasury', color: 'hsl(45,93%,47%)' },
-            { icon: TrendingUp, title: 'Treasury Growth', stat: 'Passive', desc: 'Compounding reserve', color: 'hsl(142,76%,50%)' },
-            { icon: Award, title: 'NFT Fees', stat: 'Per Mint', desc: 'Milestone NFT charges', color: 'hsl(280,68%,60%)' },
+            {
+              num: '01',
+              icon: Coins,
+              title: 'Token Economics',
+              stat: '1T cap · 75/20/3/2',
+              desc: 'Core product. Primary revenue driver. $0.10 LP launch, 7% transfer tax compounds LP + treasury.',
+              color: 'hsl(45,93%,47%)',
+              emphasized: true,
+            },
+            {
+              num: '02',
+              icon: CreditCard,
+              title: 'Monthly Subscription',
+              stat: '$9.99 / $19.99 / $49.99',
+              desc: 'Base fee required to be a ZenSolar user and mint. 50% LP / 50% treasury on every sub dollar.',
+              color: 'hsl(142,76%,50%)',
+              addon: 'Deason AI · $4.99/mo premium add-on · Monthly Clean Energy Report',
+            },
+            {
+              num: '03',
+              icon: Database,
+              title: 'Aggregated Energy Data',
+              stat: '$2B+ TAM',
+              desc: 'Anonymized, multi-OEM verified telemetry sold to utilities, ISOs, and REC registries.',
+              color: 'hsl(207,90%,54%)',
+            },
           ].map((item, i) => (
             <motion.div key={item.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 + i * 0.1 }}
-              className="p-5 rounded-xl border border-white/10 bg-white/5 text-center">
-              <item.icon className="w-8 h-8 mx-auto mb-3" style={{ color: item.color }} />
-              <p className="text-[15px] font-bold mb-1">{item.title}</p>
-              <p className="text-[20px] font-black" style={{ color: item.color }}>{item.stat}</p>
-              <p className="text-[12px] text-white/40 mt-1">{item.desc}</p>
+              transition={{ delay: 0.2 + i * 0.12 }}
+              className={`p-5 rounded-xl border text-left ${item.emphasized ? 'border-[hsl(45,93%,47%)]/40 bg-[hsl(45,93%,47%)]/[0.06]' : 'border-white/10 bg-white/5'}`}>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-mono tracking-[0.22em] uppercase font-semibold" style={{ color: item.color }}>
+                  Engine {item.num}
+                </span>
+                <item.icon className="w-6 h-6" style={{ color: item.color }} />
+              </div>
+              <p className="text-[18px] font-bold text-white/95">{item.title}</p>
+              <p className="text-[20px] font-black mt-1" style={{ color: item.color }}>{item.stat}</p>
+              <p className="text-[13px] text-white/60 mt-3 leading-relaxed">{item.desc}</p>
+              {item.addon && (
+                <div className="mt-3 pt-3 border-t border-white/10 flex items-start gap-2">
+                  <Sparkles className="w-4 h-4 mt-0.5 shrink-0" style={{ color: item.color }} />
+                  <p className="text-[12px] text-white/75 leading-snug">{item.addon}</p>
+                </div>
+              )}
             </motion.div>
           ))}
         </div>

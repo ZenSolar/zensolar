@@ -59,9 +59,9 @@ export default function InvestorPitch() {
             </p>
             <div className="mt-7 grid grid-cols-3 gap-3 w-full max-w-md">
               {[
-                { k: '$3M', v: 'Strategic Seed' },
-                { k: '$15M', v: 'Post-money cap' },
-                { k: '$5M', v: 'Hard cap' },
+                { k: '$5M', v: 'Target raise' },
+                { k: '$20M', v: 'Post-money' },
+                { k: '$7M', v: 'Hard cap' },
               ].map((s) => (
                 <div
                   key={s.v}
@@ -114,8 +114,8 @@ export default function InvestorPitch() {
             </h2>
             <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
               Verified clean-energy production is the input. Three independent revenue lines come
-              out — aggregated utility data, a $4.99/mo AI optimizer, and protocol-level token
-              economics — each reinforcing the others.
+              out — protocol-level token economics, monthly user subscriptions (with Deason AI as a
+              $4.99 premium add-on), and aggregated utility data — each reinforcing the others.
             </p>
           </div>
           <ThreeRevenueEngines />
@@ -198,30 +198,58 @@ export default function InvestorPitch() {
           </h2>
           <div className="rounded-3xl border border-secondary/30 bg-secondary/5 p-6 md:p-8">
             <div className="text-base md:text-lg font-semibold text-foreground">
-              $3M target · $5M hard cap · Strategic Seed (SAFE, post-money)
+              $5M target · $20M post-money · $7M hard cap · Strategic Seed (SAFE, post-money)
             </div>
+
+            {/* Use of Funds — $5M target, locked Feb 2026 */}
+            <div className="mt-6 rounded-2xl border border-border/60 bg-background/40 overflow-hidden">
+              <div className="px-4 py-2.5 border-b border-border/60 bg-card/40">
+                <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-semibold">
+                  Use of Funds · $5M Target
+                </div>
+              </div>
+              <div className="divide-y divide-border/40">
+                {[
+                  { bucket: 'LP Reserve (3 tranches)', amt: '$2.0M', pct: '40%', note: 'Critical for flywheel health' },
+                  { bucket: 'Team & Ops (18–24 mo)', amt: '$1.8M', pct: '36%', note: 'Founders + 3 hires' },
+                  { bucket: 'Audits, Legal, Patents', amt: '$400K', pct: '8%', note: 'Smart-contract + security audits, securities counsel, patents' },
+                  { bucket: 'Growth / User Acquisition', amt: '$500K', pct: '10%', note: 'Paid acquisition, creator partnerships, Proof-of-Genesis viral loop' },
+                  { bucket: 'Reserves / Buffer', amt: '$300K', pct: '6%', note: 'Contingency' },
+                ].map((row) => (
+                  <div key={row.bucket} className="grid grid-cols-[1.4fr_auto_auto] gap-3 px-4 py-2.5 items-start">
+                    <div className="min-w-0">
+                      <div className="text-[13px] font-medium text-foreground leading-tight">{row.bucket}</div>
+                      <div className="text-[11px] text-muted-foreground mt-0.5 leading-snug">{row.note}</div>
+                    </div>
+                    <div className="text-[13px] font-semibold text-secondary tabular-nums">{row.amt}</div>
+                    <div className="text-[11px] text-muted-foreground tabular-nums pt-0.5">{row.pct}</div>
+                  </div>
+                ))}
+                <div className="grid grid-cols-[1.4fr_auto_auto] gap-3 px-4 py-2.5 bg-card/30">
+                  <div className="text-[12px] font-semibold uppercase tracking-wider text-foreground">Total</div>
+                  <div className="text-[13px] font-bold text-foreground tabular-nums">$5.0M</div>
+                  <div className="text-[11px] text-foreground/80 tabular-nums pt-0.5">100%</div>
+                </div>
+              </div>
+            </div>
+
             <ul className="mt-5 space-y-3 text-[13px] text-muted-foreground leading-relaxed">
               <li className="flex gap-3">
                 <span className="text-secondary font-semibold shrink-0">Valuation —</span>
-                <span>
-                  $15M post-money cap (stretch $18–20M for strategic capital).
-                </span>
+                <span>$20M post-money cap. ~25% dilution at target, ~35% at hard cap.</span>
               </li>
               <li className="flex gap-3">
                 <span className="text-secondary font-semibold shrink-0">Milestones —</span>
                 <span>
-                  Mainnet TGE on Base (chain 8453), 1,000 verified homes, Deason AI ARR live, 2nd
-                  LP tranche seeded, Series A in 18–24 months.{' '}
-                  <span className="text-foreground">
-                    Post-launch revenue driver: VPP dispatch (15% of gross).
-                  </span>
+                  Mainnet TGE on Base (chain 8453), 1,000 verified homes, subscription revenue live
+                  with Deason AI add-on, 2nd LP tranche seeded, Series A in 18–24 months.
                 </span>
               </li>
               <li className="flex gap-3">
                 <span className="text-secondary font-semibold shrink-0">Capital efficiency —</span>
                 <span>
-                  ~37% to LP seeding, ~32% to team & engineering, balance to audits, growth, and
-                  legal.
+                  76% deployed into the flywheel (LP + team). Audits, growth, and a flexible
+                  reserve cover the rest.
                 </span>
               </li>
             </ul>
