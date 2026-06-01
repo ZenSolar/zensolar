@@ -92,19 +92,64 @@ const ONBOARDING_PROMPTS = [
  * whether the viewer is inner-circle or a regular demo/beta user.
  */
 export function DeasonChat({ onClose, compact = false, threadId = null, onNewThread, onUserMessage, highlightQuery, threads, onSwitchThread, onViewAllChats, onRenameThread, onDeleteThread, onTogglePinThread }: DeasonChatProps) {
-  const { messages, streaming, error, send, reset, seedAssistant, loadingHistory } = useDeason({
+  const { messages, streaming, error, send, reset, seedAssistant, loadingHistory, popLastAssistant } = useDeason({
     threadId,
     onThreadTouched: onUserMessage,
   });
   const { isInnerCircle } = useUserPersona();
+  const { library, profileCtx } = useDeasonHub();
   const [input, setInput] = useState("");
   const [attachedFile, setAttachedFile] = useState<{ dataUrl: string; name: string; kind: "image" | "pdf" } | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [energySheetOpen, setEnergySheetOpen] = useState(false);
+  const [sourcesEntries, setSourcesEntries] = useState<DocIndexEntry[] | null>(null);
+  const [slashOpen, setSlashOpen] = useState(false);
+  const [slashIndex, setSlashIndex] = useState(0);
+  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const energy = useEnergyReport();
   const fileRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<Array<HTMLDivElement | null>>([]);
+
+  // Build a stable doc index: id → 1-based number used in citation chips.
+  // Sorted by upload date (newest first) so freshest doc is [1].
+  const docIndex = useMemo(() => {
+    const map = new Map<string, DocIndexEntry>();
+    library.forEach((d, i) => {
+      map.set(d.id, {
+        id: d.id,
+        index: i + 1,
+        kind: d.kind,
+        label: d.label ?? d.storage_path.split("/").pop() ?? `Document ${i + 1}`,
+        uploadedAt: d.uploaded_at,
+      });
+    });
+    return map;
+  }, [library]);
+
+  const slashItems = useMemo<SlashItem[]>(
+    () => (slashOpen ? filterSlashItems(input) : []),
+    [slashOpen, input]
+  );
+
+  // Open / close slash menu purely from input contents.
+  useEffect(() => {
+    const shouldOpen = input.startsWith("/") && !input.includes(" ") && !attachedFile;
+    setSlashOpen(shouldOpen);
+    if (shouldOpen) setSlashIndex(0);
+  }, [input, attachedFile]);
+
+  const lastUserText = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.role !== "user") continue;
+      return typeof m.content === "string"
+        ? m.content
+        : m.content.find((p) => p.type === "text")?.text ?? "";
+    }
+    return "";
+  }, [messages]);
+
 
 
 
