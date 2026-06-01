@@ -15,6 +15,8 @@ import { CitationChip, type DocIndexEntry } from "@/components/deason/chat/Citat
 import { SuggestedFollowups, stripFollowupsBlock } from "@/components/deason/chat/SuggestedFollowups";
 import { filterSlashItems, type SlashItem } from "@/components/deason/chat/SlashMenu";
 import { StreamingShimmer } from "@/components/deason/chat/StreamingShimmer";
+import { TexasNowPill } from "@/components/deason/chat/TexasNowPill";
+import { DeviceTelemetryStrip } from "@/components/deason/chat/DeviceTelemetryStrip";
 import type { DeasonThread } from "@/hooks/useDeasonThreads";
 import { cn } from "@/lib/utils";
 
