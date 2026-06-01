@@ -627,18 +627,54 @@ export function EnergyFlowScene({
           <DottedFlow id="flow-grid-home" d={BLUEPRINT_PATHS.gridToHome} color={SKY_LED} dur={flowDur(grid)} />
         )}
 
+        {/* ── Open-garage warm bloom when EV is charging at home ── */}
+        {chargingAtHome && showDynamicCar && (
+          <g style={{ pointerEvents: 'none' }}>
+            {/* Inner darker "open mouth" */}
+            <rect
+              x={HOME_BLUEPRINT.garageOpening.x + 2}
+              y={HOME_BLUEPRINT.garageOpening.y + 2}
+              width={HOME_BLUEPRINT.garageOpening.w - 4}
+              height={HOME_BLUEPRINT.garageOpening.h - 4}
+              rx={1.2}
+              fill="hsl(28 60% 8%)"
+              opacity={0.55}
+            />
+            {/* Warm interior bloom */}
+            <rect
+              x={HOME_BLUEPRINT.garageOpening.x}
+              y={HOME_BLUEPRINT.garageOpening.y}
+              width={HOME_BLUEPRINT.garageOpening.w}
+              height={HOME_BLUEPRINT.garageOpening.h}
+              rx={2}
+              fill={WARM}
+              opacity={0.22}
+              style={{ filter: 'blur(2.2px)' }}
+            >
+              {!prefersReducedMotion && (
+                <animate
+                  attributeName="opacity"
+                  values="0.18;0.30;0.18"
+                  dur="3600ms"
+                  repeatCount="indefinite"
+                />
+              )}
+            </rect>
+          </g>
+        )}
+
         {/* ── Dynamic Tesla, locked to the same coordinate system ── */}
         {showDynamicCar && vehicleSrc && (
           <g>
-            {/* Soft ground shadow */}
+            {/* Soft ground shadow — tracks the active anchor */}
             <ellipse
-              cx={HOME_BLUEPRINT.carPark.x}
-              cy={HOME_BLUEPRINT.carPark.y + carH * 0.42}
+              cx={carAnchor.x}
+              cy={carAnchor.y + carH * 0.42}
               rx={carW * 0.42}
-              ry={1.4}
+              ry={1.8}
               fill="hsl(220 70% 2%)"
-              opacity={0.5}
-              style={{ filter: 'blur(1.2px)' }}
+              opacity={0.55}
+              style={{ filter: 'blur(1.4px)' }}
             />
             <image
               href={vehicleSrc}
@@ -647,8 +683,37 @@ export function EnergyFlowScene({
               width={carW}
               height={carH}
               preserveAspectRatio="xMidYMid meet"
-              style={{ filter: 'drop-shadow(0 1px 1.5px hsl(220 70% 2% / 0.6))' }}
+              style={{ filter: 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))' }}
             />
+            {/* Emerald charge-port pulse while actively charging */}
+            {chargingAtHome && (
+              <g style={{ pointerEvents: 'none' }}>
+                <circle
+                  cx={carAnchor.x + carW * 0.30}
+                  cy={carAnchor.y - carH * 0.05}
+                  r={1.6}
+                  fill={EMERALD}
+                  opacity={0.35}
+                  style={{ filter: 'blur(0.8px)' }}
+                >
+                  {!prefersReducedMotion && (
+                    <animate
+                      attributeName="opacity"
+                      values="0.25;0.65;0.25"
+                      dur="1400ms"
+                      repeatCount="indefinite"
+                    />
+                  )}
+                </circle>
+                <circle
+                  cx={carAnchor.x + carW * 0.30}
+                  cy={carAnchor.y - carH * 0.05}
+                  r={0.7}
+                  fill={EMERALD_LED}
+                  opacity={0.95}
+                />
+              </g>
+            )}
           </g>
         )}
       </svg>
