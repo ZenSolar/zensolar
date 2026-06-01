@@ -62,12 +62,6 @@ export function InvestorEnergyFlowCard() {
             Home Energy Cockpit · Enphase solar + Tesla Powerwall + Model Y + Wallbox
           </p>
         </div>
-      </div>
-
-          <p className="mt-1 text-xs text-muted-foreground">
-            Home Energy Cockpit · Enphase solar + Tesla Powerwall + Model Y + Wallbox
-          </p>
-        </div>
         <button
           type="button"
           onClick={() => setShowAnnotations((v) => !v)}
@@ -78,6 +72,7 @@ export function InvestorEnergyFlowCard() {
           {showAnnotations ? 'Hide labels' : 'Show labels'}
         </button>
       </div>
+
 
       <div className="relative overflow-hidden rounded-xl border border-primary/20 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.12),transparent_70%),radial-gradient(circle_at_bottom,hsl(220_60%_8%/0.6),transparent_60%)] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04),0_8px_30px_-8px_hsl(220_60%_4%/0.6)]">
         <Suspense
