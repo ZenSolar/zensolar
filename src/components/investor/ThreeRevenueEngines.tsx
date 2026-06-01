@@ -1,11 +1,11 @@
 import { ArrowRight, CreditCard, Database, Sparkles, Coins } from 'lucide-react';
 
 /**
- * ThreeRevenueEngines — canonical investor framing (v2.1, Jun 2026).
+ * ThreeRevenueEngines — canonical investor framing (v2.2, Jun 2026 corrections pass).
  * Flywheel: Verified kWh → Data → AI → $ZSOLAR
  * Engine order (locked):
- *   01) Monthly Subscription + Token Economics (combined — subs fund LP/treasury, tokens are the asset)
- *   02) Deason AI ($4.99/mo premium add-on / upgrade)
+ *   01) Monthly Subscription + Deason AI ($4.99 premium add-on)
+ *   02) Token Economics (core product + long-term primary revenue driver)
  *   03) Aggregated Energy Data (secondary)
  */
 export function ThreeRevenueEngines() {
@@ -23,70 +23,70 @@ export function ThreeRevenueEngines() {
           <FlowStep label="$ZSOLAR" className="text-amber-400" />
         </div>
         <p className="mt-4 text-center text-xs md:text-sm text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          A paid subscription unlocks minting. Minting produces verified kWh data. Data powers the
-          Deason AI upgrade and the aggregated-data revenue line. Every loop tightens the token.
+          A paid subscription unlocks minting and the Deason AI upgrade. Minting produces verified
+          kWh data. Data + AI drive token demand and the aggregated-data revenue line. Every loop
+          tightens the token.
         </p>
       </div>
 
       {/* Three engine cards */}
       <div className="grid gap-4 md:grid-cols-3">
-        {/* 01 — Subscription + Token Economics (combined) */}
+        {/* 01 — Monthly Subscription + Deason AI */}
         <EngineCard
           number="01"
           icon={CreditCard}
+          iconAux={Sparkles}
+          accent="text-eco"
+          ring="hover:border-eco/40"
+          title="Monthly Subscription + Deason AI"
+          tagline="The access fee, plus the premium AI upgrade on top."
+          body={
+            <>
+              A paid base subscription is required to be a ZenSolar user and mint $ZSOLAR. Three
+              tiers — <span className="text-foreground">$9.99 Base · $19.99 Regular · $49.99 Power</span>.
+              On top of any tier, <span className="text-foreground">Deason AI is a $4.99/mo premium
+              add-on</span> that delivers the Monthly Clean Energy Report, utility bill analysis,
+              rate-plan optimization, and device-aware advice tuned to each home's actual Tesla /
+              Enphase / SolarEdge / Wallbox telemetry.
+            </>
+          }
+          bullets={[
+            'Base sub: $9.99 / $19.99 / $49.99 — required to mint',
+            'Deason AI: +$4.99/mo premium add-on (any tier)',
+            'Monthly Clean Energy Report · bill + rate-plan optimization',
+            '50% of every sub dollar feeds LP, 50% feeds treasury',
+          ]}
+          metric="$9.99 + $4.99"
+          metricLabel="base sub · premium AI upgrade"
+        />
+
+        {/* 02 — Token Economics */}
+        <EngineCard
+          number="02"
+          icon={Coins}
           accent="text-amber-400"
           ring="hover:border-amber-400/40 ring-1 ring-amber-400/20"
           emphasized
-          title="Subscription + Token Economics"
-          tagline="The access fee and the asset, working as one engine."
+          title="Token Economics"
+          tagline="Core product and primary long-term revenue driver."
           body={
             <>
-              A paid base subscription is the price of entry to mint $ZSOLAR. Three tiers —{' '}
-              <span className="text-foreground">$9.99 Base · $19.99 Regular · $49.99 Power</span>.{' '}
-              <span className="text-foreground">50% of every sub dollar feeds LP, 50% feeds treasury.</span>{' '}
-              That fuels a hard-capped token: 1T supply, 75/20/3/2 mint split (user/burn/LP/treasury),
-              $0.10 LP-seeded launch on Base, and a{' '}
-              <span className="text-foreground">7% transfer tax</span> (3% burn · 2% LP · 2% treasury)
-              that compounds liquidity and treasury yield perpetually.
+              A hard-capped, LP-seeded token built for compounding value capture.{' '}
+              <span className="text-foreground">1T supply, 75/20/3/2 mint split</span> (user / burn /
+              LP / treasury), <span className="text-foreground">$0.10 LP-seeded launch on Base</span>,
+              and a <span className="text-foreground">7% transfer tax</span> (3% burn · 2% LP · 2%
+              treasury) that compounds liquidity and treasury yield with every on-chain transaction —
+              perpetually, with no protocol team intervention required.
             </>
           }
           bullets={[
-            'Sub tiers: $9.99 / $19.99 / $49.99 — required to mint',
-            '50% LP · 50% treasury on every sub dollar',
-            '1T hard cap · 75/20/3/2 mint split · $0.10 launch',
-            '7% transfer tax compounds LP + treasury forever',
+            '1T hard cap · 75/20/3/2 mint split',
+            '$0.10 LP-seeded launch on Base',
+            '7% transfer tax → 3% burn · 2% LP · 2% treasury',
+            'Transfer-tax volume + treasury yield = long-term primary revenue',
           ]}
-          metric="$9.99+"
-          metricLabel="paid base sub → 1T cap token"
-          iconAux={Coins}
-        />
-
-        {/* 02 — Deason AI premium add-on */}
-        <EngineCard
-          number="02"
-          icon={Sparkles}
-          accent="text-eco"
-          ring="hover:border-eco/40"
-          title="Deason AI"
-          tagline="Premium add-on / upgrade layered on any base subscription."
-          body={
-            <>
-              <span className="text-foreground">$4.99/mo</span> on top of any base subscription.
-              Delivers the{' '}
-              <span className="text-foreground">Monthly Clean Energy Report</span>, utility bill
-              analysis, rate-plan optimization, and device-aware advice tuned to each home's actual
-              Tesla / Enphase / SolarEdge / Wallbox telemetry. The primary upgrade incentive into
-              the Power tier and the highest-margin recurring revenue per user we ship.
-            </>
-          }
-          bullets={[
-            '$4.99/mo add-on — any base tier can opt in',
-            'Monthly Clean Energy Report (the killer artifact)',
-            'Bill analysis · rate-plan optimization · device advice',
-            'Highest-margin per-user recurring revenue',
-          ]}
-          metric="+$4.99"
-          metricLabel="premium upgrade · highest margin per user"
+          metric="1T cap"
+          metricLabel="transfer tax + treasury yield"
         />
 
         {/* 03 — Aggregated Energy Data */}
