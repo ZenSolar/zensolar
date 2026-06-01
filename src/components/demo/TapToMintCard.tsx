@@ -110,7 +110,7 @@ export function TapToMintCard({
               Convert energy into $ZSOLAR
             </h3>
             <p className="text-xs text-muted-foreground">
-              Live preview · 75% to you · 20% burn · 3% LP · 2% treasury
+              Live preview · 1 kWh = 1 $ZSOLAR
             </p>
           </div>
           {hasPending && (

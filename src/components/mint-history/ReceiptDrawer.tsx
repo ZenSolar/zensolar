@@ -1,5 +1,4 @@
 import { format } from "date-fns";
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
   ArrowUpRight,
@@ -7,12 +6,10 @@ import {
   Coins,
   Copy,
   ExternalLink,
-  Flame,
   Hash,
   Share2,
   ShieldCheck,
   Sparkles,
-  Wallet,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -99,18 +96,10 @@ interface ReceiptDrawerProps {
 
 const ACTION_META: Record<string, { label: string; description: string }> = {
   register: { label: "Welcome NFT", description: "Onboarding mint — Welcome NFT issued on Base." },
-  "mint-rewards": { label: "$ZSOLAR Token Mint", description: "Energy-backed mint. 50% to you · the protocol matches it 1-for-1: 25% LP, 20% burn, 5% treasury." },
+  "mint-rewards": { label: "$ZSOLAR Token Mint", description: "Energy-backed mint — 1 kWh = 1 $ZSOLAR, verified on-chain." },
   "mint-combos": { label: "Combo Achievement", description: "Combo NFTs awarded for hitting multi-source milestones." },
   "claim-milestone-nfts": { label: "Milestone Claim", description: "Milestone NFT claimed on-chain." },
 };
-
-/** Brand mint-split — v3.1 LOCKED (50/25/20/5) — keep in sync with mem://features/mint-split-v3-locked */
-const SPLIT = [
-  { key: "user", label: "You", pct: 50, color: "bg-primary", icon: Wallet },
-  { key: "lp", label: "LP", pct: 25, color: "bg-accent-cool", icon: Sparkles },
-  { key: "burn", label: "Burn", pct: 20, color: "bg-destructive/80", icon: Flame },
-  { key: "treasury", label: "Treasury", pct: 5, color: "bg-accent-warm", icon: ShieldCheck },
-] as const;
 
 function getExplorerUrl(txHash: string) {
   return `https://sepolia.basescan.org/tx/${txHash}`;
@@ -126,9 +115,6 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
 
   const meta = ACTION_META[tx.action] ?? { label: tx.action, description: "On-chain transaction." };
   const userTokens = Number(tx.tokens_minted) || 0;
-  // tokens_minted is already the 50% user share — derive grand total for split viz (v3.1)
-  const grandTotal = userTokens > 0 ? userTokens / 0.5 : 0;
-  const hasSplit = userTokens > 0;
   const source = summarizeSource(tx);
   // Prefer the unified /verify/:chain_hash URL — one canonical receipt link.
   // Falls back to the owner-only preview for legacy mints without a chain hash.
@@ -145,7 +131,7 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
       "",
       `Action: ${meta.label}`,
       `Date: ${format(new Date(tx.created_at), "PPpp")}`,
-      userTokens > 0 ? `Earned: ${userTokens.toLocaleString()} $ZSOLAR (50% user share)` : null,
+      userTokens > 0 ? `Earned: ${userTokens.toLocaleString()} $ZSOLAR` : null,
       tx.nft_names?.length ? `NFTs: ${tx.nft_names.join(", ")}` : null,
       `Wallet: ${tx.wallet_address}`,
       `Tx: ${tx.tx_hash}`,
@@ -261,11 +247,6 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
               <p className="text-2xl font-bold tabular-nums leading-tight mt-1">
                 {userTokens.toLocaleString()}
               </p>
-              {hasSplit && (
-                <p className="text-[10px] text-muted-foreground mt-0.5">
-                  of {Math.round(grandTotal).toLocaleString()} minted
-                </p>
-              )}
             </div>
             <div className="rounded-xl border bg-card p-3">
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">NFTs</p>
@@ -276,57 +257,6 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
             </div>
           </div>
 
-          {/* Split visualization */}
-          {hasSplit && (
-            <section className="space-y-2.5">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-3.5 w-3.5 text-primary" />
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground">
-                  Mint Split
-                </h3>
-                <span className="ml-auto text-[10px] text-muted-foreground">
-                  Brand: 50 / 20 / 20 / 10
-                </span>
-              </div>
-
-              {/* Stacked bar */}
-              <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-muted">
-                {SPLIT.map((s, i) => (
-                  <motion.div
-                    key={s.key}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${s.pct}%` }}
-                    transition={{ delay: 0.1 + i * 0.08, duration: 0.5, ease: "easeOut" }}
-                    className={cn("h-full", s.color)}
-                    title={`${s.label} · ${s.pct}%`}
-                  />
-                ))}
-              </div>
-
-              <ul className="grid grid-cols-2 gap-2 pt-1">
-                {SPLIT.map((s) => {
-                  const tokens = Math.round((grandTotal * s.pct) / 100);
-                  const Icon = s.icon;
-                  return (
-                    <li
-                      key={s.key}
-                      className="flex items-center gap-2 rounded-lg border bg-card/50 px-2.5 py-1.5"
-                    >
-                      <span className={cn("h-2 w-2 rounded-full", s.color)} aria-hidden />
-                      <Icon className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-[11px] font-medium">{s.label}</span>
-                      <span className="ml-auto text-[11px] tabular-nums text-muted-foreground">
-                        {tokens.toLocaleString()}
-                      </span>
-                      <span className="text-[10px] tabular-nums text-muted-foreground/70">
-                        {s.pct}%
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-          )}
 
           {/* NFTs */}
           {tx.nft_names?.length > 0 && (
@@ -443,7 +373,7 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
                   Open the full receipt
                 </p>
                 <p className="text-[11px] text-muted-foreground leading-tight mt-1">
-                  Verified kWh → split math → CO₂ tons offset → device watermark
+                  Verified kWh → CO₂ tons offset → device watermark
                 </p>
               </div>
               <ArrowUpRight className="h-5 w-5 text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform flex-shrink-0" />

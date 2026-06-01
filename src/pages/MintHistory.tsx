@@ -18,7 +18,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { PageShell } from '@/components/layout/PageShell';
 import { PageTransition } from '@/components/layout/PageTransition';
 import { JargonTip } from '@/components/ui/jargon-tip';
-import { Tokenomics101Card } from '@/components/tokenomics/Tokenomics101Card';
+
 import { ExportCsvButton } from '@/components/ui/export-csv-button';
 import { todayStamp } from '@/lib/csvExport';
 import { ReceiptDrawer } from '@/components/mint-history/ReceiptDrawer';
@@ -135,10 +135,10 @@ export default function MintHistory() {
       }
 
       const totalActivityUnits = Math.floor(evMiles) + Math.floor(solarKwh) + Math.floor(batteryKwh) + Math.floor(evChargingKwh);
-      // Apply Live Beta multiplier (10x or 1x) then 50% user share
-      const { getRewardMultiplier } = await import('@/lib/tokenomics');
+      // Apply Live Beta multiplier (10x or 1x) then v3.1 user share (50%)
+      const { getRewardMultiplier, MINT_DISTRIBUTION } = await import('@/lib/tokenomics');
       const multiplier = getRewardMultiplier();
-      const totalTokens = Math.floor(totalActivityUnits * multiplier * 0.75);
+      const totalTokens = Math.floor(totalActivityUnits * multiplier * (MINT_DISTRIBUTION.user / 100));
       setPendingActivity({ solarKwh, batteryKwh, evMiles, evChargingKwh, totalTokens });
     } catch (error) {
       console.error('Error fetching pending activity:', error);
@@ -174,13 +174,11 @@ export default function MintHistory() {
       >
         <div className="space-y-5 sm:space-y-8">
 
-        {/* Newbie-friendly tokenomics summary */}
-        <Tokenomics101Card compact />
 
         {/* Summary Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
           {[
-            { label: 'Tokens Received', value: totalTokensMinted, icon: Coins, gradient: 'from-primary to-primary/60', iconFg: 'text-primary-foreground', sub: '$ZSOLAR (75%)' },
+            { label: 'Tokens Received', value: totalTokensMinted, icon: Coins, gradient: 'from-primary to-primary/60', iconFg: 'text-primary-foreground', sub: '$ZSOLAR earned' },
             { label: 'NFTs Earned', value: totalNftsMinted, icon: Award, gradient: 'from-accent-warm to-accent-warm/60', iconFg: 'text-accent-warm-foreground', sub: 'Total NFTs' },
             { label: 'Transactions', value: transactions.length, icon: Hash, gradient: 'from-accent-cool to-accent-cool/60', iconFg: 'text-accent-cool-foreground', sub: 'On-chain' },
             { label: 'Pending Tokens', value: pendingActivity.totalTokens, icon: TrendingUp, gradient: 'from-primary to-primary/60', iconFg: 'text-primary-foreground', sub: "You'll receive", loading: isPendingLoading },
@@ -211,7 +209,7 @@ export default function MintHistory() {
                 Pending Activity Breakdown
               </CardTitle>
               <CardDescription className="text-xs sm:text-sm leading-relaxed">
-                Activity since your last <JargonTip term="mint">mint</JargonTip> — you receive 75% as <JargonTip term="zsolar">$ZSOLAR</JargonTip> (20% burn).
+                Activity since your last <JargonTip term="mint">mint</JargonTip> — every kWh becomes 1 <JargonTip term="zsolar">$ZSOLAR</JargonTip>.
               </CardDescription>
             </CardHeader>
             <CardContent>

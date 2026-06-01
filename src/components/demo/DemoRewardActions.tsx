@@ -607,22 +607,6 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
                   </div>
                 </div>
 
-                {/* Allocation split pills */}
-                <div className="flex items-center justify-between gap-1 pt-1">
-                  {[
-                    { label: 'You', pct: '75%', tone: 'bg-primary/15 text-primary border-primary/30' },
-                    { label: 'Burn', pct: '20%', tone: 'bg-destructive/15 text-destructive border-destructive/30' },
-                    { label: 'LP', pct: '3%', tone: 'bg-secondary/15 text-secondary border-secondary/30' },
-                    { label: 'Treasury', pct: '2%', tone: 'bg-muted/40 text-muted-foreground border-border/60' },
-                  ].map(p => (
-                    <span
-                      key={p.label}
-                      className={`flex-1 text-center text-[10px] px-1.5 py-1 rounded-md border ${p.tone} tabular-nums`}
-                    >
-                      <span className="font-semibold">{p.pct}</span> <span className="opacity-80">{p.label}</span>
-                    </span>
-                  ))}
-                </div>
 
                 <p className="text-[10px] text-muted-foreground/80 text-center pt-0.5">
                   From {getCategoryActivityUnits(pendingMintCategory).toLocaleString()} {getCategoryUnit(pendingMintCategory)} of verified clean-energy activity
