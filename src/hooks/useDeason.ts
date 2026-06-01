@@ -306,5 +306,5 @@ export function useDeason(opts: UseDeasonOptions = {}) {
     [messages, streaming, persistMessage, onThreadTouched]
   );
 
-  return { messages, streaming, error, send, reset, seedAssistant, loadingHistory };
+  return { messages, streaming, error, send, reset, seedAssistant, loadingHistory, popLastAssistant };
 }
