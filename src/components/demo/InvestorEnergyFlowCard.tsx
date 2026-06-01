@@ -91,6 +91,24 @@ export function InvestorEnergyFlowCard() {
             vehicleModel={null}
           />
         </Suspense>
+
+        {/* Inline annotation chips — explain what the investor is seeing. */}
+        {showAnnotations && (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0"
+          >
+            {ANNOTATIONS.map((a) => (
+              <div
+                key={a.id}
+                className="absolute -translate-x-1/2 -translate-y-1/2 rounded-md border border-emerald-400/40 bg-background/85 px-1.5 py-0.5 text-[9px] font-medium text-emerald-200 shadow-[0_0_10px_hsla(142,76%,50%,0.25)] backdrop-blur whitespace-nowrap"
+                style={{ left: `${a.x}%`, top: `${a.y}%` }}
+              >
+                {a.label}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Multi-OEM source chips — surface the foundational moat */}
