@@ -68,6 +68,10 @@ const STALE_CHUNK_PATTERNS = [
   "Loading chunk",
   "Loading CSS chunk",
   "ChunkLoadError",
+  // React minified hook-order error: on production this almost always means
+  // the user is running a stale bundle from before a hook-order fix shipped.
+  // Auto-recovery is safe because it's rate-limited (30s cooldown).
+  "Minified React error #310",
 ];
 
 export function isStaleChunkError(err: unknown): boolean {
