@@ -77,16 +77,16 @@ export function ThreeRevenueEngines() {
             <>
               Core product and primary long-term revenue driver.{' '}
               <span className="text-foreground">1T hard cap. Every verified kWh shows 1:1 in the
-              user's wallet, and the protocol matches it 1-for-1 in the background — 20% LP, 20%
-              burn, 10% treasury</span>. Every mint deepens liquidity and tightens supply in the
+              user's wallet, and the protocol matches it 1-for-1 in the background — 25% LP, 20%
+              burn, 5% treasury</span>. Every mint deepens liquidity and tightens supply in the
               same transaction — a 401(k)-style match for clean energy.
             </>
           }
           bullets={[
-            'Mint split: 50 user · 20 LP · 20 burn · 10 treasury (per kWh verified)',
+            'Mint split: 50 user · 25 LP · 20 burn · 5 treasury (per kWh verified)',
             '$0.10 LP-seeded launch on Base · 1T hard cap',
-            'Transfer tax: 7% on secondary swaps → 3 burn · 2 LP · 2 treasury',
-            'Mint split and transfer tax are independent — both compound supply tightening + treasury yield',
+            'Transfer tax: 3% on secondary swaps → recycled to LP (separate from mint split)',
+            'Mint split and transfer tax are independent — both compound supply tightening + LP depth',
           ]}
           metric="1T cap"
           metricLabel="transfer tax + treasury yield"
