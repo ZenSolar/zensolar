@@ -80,7 +80,7 @@ function buildUnlocks(preview: boolean): Array<{
 }> {
   return [
     { icon: Presentation, label: 'Seed Pitch Deck', desc: 'Full investor narrative', to: '/investor/pitch' },
-    { icon: FileText, label: 'One-Pager', desc: 'Catalyst, moat, capital plan', to: '/founders/seed-pitch-greg' },
+    { icon: FileText, label: 'Full Pitch Deck', desc: '12 slides · PIN-gated', to: '/deck' },
     { icon: BarChart3, label: 'Tokenomics Model', desc: '1T cap · $0.10 launch math', to: '/tokenomics' },
     { icon: PlayCircle, label: 'Live Investor Demo', desc: 'Proof of Genesis in your hand', to: preview ? '/demo-leonardo' : '/demo' },
   ];
@@ -380,9 +380,9 @@ function UnlockedPanel({
         />
         <UnlockedCard
           icon={FileText}
-          title="Full Seed Pitch"
-          body="Catalyst, flywheel, moat, capital plan, milestones."
-          to="/founders/seed-pitch-greg"
+          title="Full Pitch Deck"
+          body="12-slide investor deck. Title → Catalyst → Engines → Ask."
+          to="/deck"
           internal
         />
         <UnlockedCard
