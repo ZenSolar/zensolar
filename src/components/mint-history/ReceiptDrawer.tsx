@@ -376,7 +376,7 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
                   Open the full receipt
                 </p>
                 <p className="text-[11px] text-muted-foreground leading-tight mt-1">
-                  Verified kWh → split math → CO₂ tons offset → device watermark
+                  Verified kWh → CO₂ tons offset → device watermark
                 </p>
               </div>
               <ArrowUpRight className="h-5 w-5 text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform flex-shrink-0" />

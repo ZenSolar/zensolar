@@ -196,7 +196,7 @@ export function EarningsCalculatorSection() {
                   <AnimNum value={totalTokens} />
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
-                  ≈ <AnimNum value={Math.floor(totalTokens / 30)} /> tokens/day · 75% to your wallet
+                  ≈ <AnimNum value={Math.floor(totalTokens / 30)} /> tokens/day · 1 kWh = 1 $ZSOLAR
                 </p>
               </div>
 
