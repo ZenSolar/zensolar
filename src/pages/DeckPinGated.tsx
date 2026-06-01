@@ -50,7 +50,9 @@ const slideLabels = [
 
 export default function DeckPinGated() {
   const [unlocked, setUnlocked] = useState(
-    typeof window !== "undefined" && sessionStorage.getItem(SESSION_KEY) === "1",
+    () =>
+      readInvestorUnlocked() ||
+      (typeof window !== "undefined" && sessionStorage.getItem(SESSION_KEY) === "1"),
   );
   const [pin, setPin] = useState("");
   const [busy, setBusy] = useState(false);
