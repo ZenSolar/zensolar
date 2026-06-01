@@ -1,18 +1,19 @@
-import { SectionDivider } from '@/components/ui/section-divider';
 import { SEO } from '@/components/SEO';
 import { LandingNav, HeroSection } from '@/components/landing/HeroSection';
-import { SEGISection } from '@/components/landing/SEGISection';
-import { CompetitiveEdge } from '@/components/landing/CompetitiveEdge';
-import { FeaturesGrid } from '@/components/landing/FeaturesGrid';
-import { BenefitsSection, CTASection } from '@/components/landing/BenefitsAndCTA';
+import { MultiOemMoat } from '@/components/landing/MultiOemMoat';
+import { FlywheelStrip } from '@/components/landing/FlywheelStrip';
+import { ThreeEnginesLanding } from '@/components/landing/ThreeEnginesLanding';
+import { MintOneToOneStrip } from '@/components/landing/MintOneToOneStrip';
+import { InvestorStrip } from '@/components/landing/InvestorStrip';
+import { CTASection } from '@/components/landing/BenefitsAndCTA';
 import { LandingFooter } from '@/components/landing/LandingFooter';
 
 export default function Landing() {
   return (
     <>
       <SEO
-        title="Earn Rewards For Your Clean Energy Use"
-        description="Turn your solar panels, batteries, and EVs into digital income. ZenSolar rewards every kWh with blockchain tokens — no crypto experience needed."
+        title="ZenSolar — Creating Currency From Energy"
+        description="Every verified kWh becomes $ZSOLAR through the Proof-of-Genesis™ protocol. The first-of-its-kind multi-OEM cockpit for Tesla, Enphase, SolarEdge, and Wallbox."
         url="https://zensolar.com"
         image="https://zensolar.com/og-image.png"
         jsonLd={{
@@ -21,7 +22,7 @@ export default function Landing() {
           name: 'ZenSolar',
           url: 'https://zensolar.com',
           logo: 'https://zensolar.com/logos/zen-logo-horizontal-new.png',
-          description: 'ZenSolar rewards clean energy production with verifiable on-chain tokens. Connect solar panels, batteries, or EVs and earn automatically.',
+          description: 'ZenSolar turns every verified kWh into $ZSOLAR via the Proof-of-Genesis™ protocol, with a multi-OEM cockpit for Tesla, Enphase, SolarEdge, and Wallbox.',
           sameAs: ['https://twitter.com/ZenSolar'],
           foundingDate: '2024',
           contactPoint: {
@@ -31,19 +32,15 @@ export default function Landing() {
           },
         }}
       />
-      <div className="min-h-screen bg-background dark:bg-gradient-to-br dark:from-background dark:via-background dark:to-primary/5">
+      <div className="min-h-screen bg-background bg-gradient-to-br from-background via-background to-primary/5">
         <LandingNav />
         <main id="main-content">
           <HeroSection />
-          <SectionDivider variant="chevron" />
-          <SEGISection />
-          <SectionDivider variant="diamond" />
-          <CompetitiveEdge />
-          <SectionDivider variant="angle" />
-          <FeaturesGrid />
-          <SectionDivider variant="angle" flip />
-          <BenefitsSection />
-          <SectionDivider variant="chevron" />
+          <MultiOemMoat />
+          <FlywheelStrip />
+          <ThreeEnginesLanding />
+          <MintOneToOneStrip />
+          <InvestorStrip />
           <CTASection />
         </main>
         <LandingFooter />
