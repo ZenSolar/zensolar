@@ -363,19 +363,26 @@ function UnlockedPanel({
         <ThreeRevenueEngines />
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-3">
+        <UnlockedCard
+          icon={FileText}
+          title="Full Seed Round Deck"
+          body="15-slide investor deck. Title → Catalyst → Engines → Ask."
+          to="/deck"
+          internal
+        />
+        <UnlockedCard
+          icon={FileText}
+          title="One-Pager"
+          body="The leave-behind. Ask, engines, moat, founders — one screen."
+          to="/investor/one-pager"
+          internal
+        />
         <UnlockedCard
           icon={PlayCircle}
           title="Live Investor Demo"
           body="Proof of Genesis™ flow on real data. Mobile-first."
           to={demoHref}
-          internal
-        />
-        <UnlockedCard
-          icon={FileText}
-          title="Full Pitch Deck"
-          body="12-slide investor deck. Title → Catalyst → Engines → Ask."
-          to="/deck"
           internal
         />
       </div>
