@@ -468,7 +468,7 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
               <p className="text-[10px] text-center text-muted-foreground mt-2">
-                Split shown on confirm · 75% to you · 20% burned · 3% LP · 2% treasury
+                1 kWh = 1 $ZSOLAR · verified on-chain
               </p>
             </>
           ) : (
