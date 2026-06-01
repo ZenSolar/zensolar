@@ -131,7 +131,7 @@ const investorBenefits = [
   {
     icon: Landmark,
     title: "Revenue-Backed Token Economics",
-    description: "Unlike speculative tokens, $ZSOLAR is backed by real subscription revenue. 50% of every $9.99/month subscription is automatically injected into the liquidity pool.",
+    description: "Unlike speculative tokens, $ZSOLAR is backed by real subscription revenue. 50% of every $9.99 / $19.99 / $49.99 subscription is automatically injected into the liquidity pool. Every mint also splits 50 you / 25 LP direct / 20 burn / 5 treasury — plus a separate 3% transfer tax that recycles into the pool on every swap.",
   },
   {
     icon: Target,
@@ -141,7 +141,7 @@ const investorBenefits = [
   {
     icon: Shield,
     title: "Aggressive Deflationary Mechanics",
-    description: "20% of all minted tokens are permanently burned. 3% transfer tax (LP recycle) compounds with continuous mint burn for net-negative issuance.",
+    description: "20% of every mint is permanently burned. A separate 3% transfer tax (LP recycle) compounds with continuous mint burn for net-negative issuance.",
   },
   {
     icon: Cpu,

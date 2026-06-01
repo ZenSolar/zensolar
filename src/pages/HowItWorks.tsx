@@ -9,6 +9,9 @@ import { ReadyToPlayCTA } from '@/components/how-it-works/ReadyToPlayCTA';
 import { DeflationaryFlywheel } from '@/components/how-it-works/DeflationaryFlywheel';
 import { TokenomicsExplained } from '@/components/how-it-works/TokenomicsExplained';
 import { ScarcityOutlookSection } from '@/components/founders/ScarcityOutlookSection';
+import { MultiOemMoat } from '@/components/landing/MultiOemMoat';
+import { FlywheelStrip } from '@/components/landing/FlywheelStrip';
+import { ThreeEnginesLanding } from '@/components/landing/ThreeEnginesLanding';
 
 export default function HowItWorks() {
   const stepsRef = useRef<HTMLDivElement>(null);
@@ -16,17 +19,20 @@ export default function HowItWorks() {
   return (
     <>
       <SEO
-        title="How ZenSolar Works"
-        description="Your clean energy is worth real money. Connect your solar, EV, or battery and start earning $ZSOLAR rewards with one tap."
+        title="How ZenSolar Works — Creating Currency From Energy"
+        description="Connect your Tesla, Enphase, SolarEdge, or Wallbox. Every verified kWh becomes $ZSOLAR through the Proof-of-Genesis™ protocol — 1 kWh = 1 $ZSOLAR."
         url="https://beta.zen.solar/how-it-works"
       />
       <div className="min-h-screen">
         <HowToPlayHero />
+        <MultiOemMoat />
         <StepProgressTimeline containerRef={stepsRef} />
         <GameSteps ref={stepsRef} />
+        <FlywheelStrip />
         <TokenomicsExplained />
-        <LevelUpSection />
         <DeflationaryFlywheel />
+        <ThreeEnginesLanding />
+        <LevelUpSection />
         <section className="py-[clamp(2rem,6vw,4rem)]">
           <div className="container max-w-5xl mx-auto px-4">
             <ScarcityOutlookSection />

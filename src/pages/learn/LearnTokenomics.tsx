@@ -6,14 +6,15 @@ export default function LearnTokenomics() {
   return (
     <LearnSubPageShell
       title="Tokenomics"
-      description="How $ZSOLAR earns value over time — in 4 simple ideas."
+      description="What you see is what you mint. 1 kWh = 1 $ZSOLAR."
       icon={Coins}
       seoTitle="$ZSOLAR Tokenomics"
       seoUrl="https://beta.zen.solar/learn/tokenomics"
     >
       <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-        Half of every subscription dollar automatically strengthens the token.
-        Your new tokens lock for 12 months so the price can grow stronger.
+        Every verified kWh mints a clean 1:1 to you. In the background, the protocol matches
+        your mint — 25% to liquidity, 20% burned, 5% to treasury — plus a separate 3% transfer
+        tax that recycles to LP on every swap.
       </p>
       <Tokenomics101Card />
     </LearnSubPageShell>

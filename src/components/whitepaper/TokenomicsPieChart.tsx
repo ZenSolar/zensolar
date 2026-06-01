@@ -78,6 +78,9 @@ export function TokenomicsPieChart() {
             ))}
           </div>
         </div>
+        <p className="mt-5 text-xs text-muted-foreground italic border-t border-border/40 pt-3">
+          Initial supply allocation — distinct from the per-mint v3.1 split (50 you / 25 LP direct / 20 burn / 5 treasury) + separate 3% transfer tax that recycles to LP on every swap.
+        </p>
       </CardContent>
     </Card>
   );

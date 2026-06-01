@@ -34,15 +34,21 @@ export function HowToPlayHero() {
           className="space-y-5"
         >
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-foreground">
-            How{' '}
+            Creating Currency{' '}
             <span className="bg-gradient-to-r from-accent via-primary to-secondary bg-clip-text text-transparent">
-              ZenSolar
-            </span>{' '}
-            Works
+              From Energy
+            </span>
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto leading-relaxed">
-            Your clean energy is worth real money. Here's how.
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            Connect your Tesla, Enphase, SolarEdge, or Wallbox. Every verified kWh becomes
+            $ZSOLAR through the Proof-of-Genesis™ protocol — 1 kWh = 1 $ZSOLAR.
           </p>
+          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-sm font-semibold text-foreground/80 pt-2">
+            <span>Tesla</span><span className="text-border">•</span>
+            <span>Enphase</span><span className="text-border">•</span>
+            <span>SolarEdge</span><span className="text-border">•</span>
+            <span>Wallbox</span>
+          </div>
         </motion.div>
 
         {/* Animated cycle loop */}
