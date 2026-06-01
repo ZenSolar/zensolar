@@ -17,7 +17,11 @@ import { FirstRunHero } from './dashboard/FirstRunHero';
 import { ReadyToMintCard } from './dashboard/ReadyToMintCard';
 import { DashboardSkeleton } from './dashboard/DashboardSkeleton';
 import { TokenPriceCard } from './dashboard/TokenPriceCard';
-import { CO2OffsetCard } from './dashboard/CO2OffsetCard';
+// CO2OffsetCard is recharts-heavy and below the fold — lazy-load to keep
+// the dashboard LCP fast on mobile.
+const CO2OffsetCard = lazy(() =>
+  import('./dashboard/CO2OffsetCard').then((m) => ({ default: m.CO2OffsetCard }))
+);
 import { PremiumInsightsTeaserCard } from './dashboard/PremiumInsightsTeaserCard';
 import { LiveEnergyMonitoringCard } from './dashboard/LiveEnergyMonitoringCard';
 import { useEnergyInsightsSubscription } from '@/hooks/useEnergyInsightsSubscription';
