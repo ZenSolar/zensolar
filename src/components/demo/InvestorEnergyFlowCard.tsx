@@ -64,7 +64,22 @@ export function InvestorEnergyFlowCard() {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-primary/20 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.12),transparent_70%),radial-gradient(circle_at_bottom,hsl(220_60%_8%/0.6),transparent_60%)] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04),0_8px_30px_-8px_hsl(220_60%_4%/0.6)]">
+          <p className="mt-1 text-xs text-muted-foreground">
+            Home Energy Cockpit · Enphase solar + Tesla Powerwall + Model Y + Wallbox
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowAnnotations((v) => !v)}
+          className="shrink-0 inline-flex items-center gap-1 rounded-full border border-primary/20 bg-background/40 px-2 py-0.5 text-[10px] font-medium text-foreground/80 hover:text-foreground hover:border-primary/40 transition-colors"
+          aria-label={showAnnotations ? 'Hide annotations' : 'Show annotations'}
+        >
+          {showAnnotations ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+          {showAnnotations ? 'Hide labels' : 'Show labels'}
+        </button>
+      </div>
+
+      <div className="relative overflow-hidden rounded-xl border border-primary/20 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.12),transparent_70%),radial-gradient(circle_at_bottom,hsl(220_60%_8%/0.6),transparent_60%)] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04),0_8px_30px_-8px_hsl(220_60%_4%/0.6)]">
         <Suspense
           fallback={
             <div
