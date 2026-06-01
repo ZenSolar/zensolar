@@ -50,7 +50,7 @@ const ENTRIES: ChangelogEntry[] = [
     iso: "2026-06-01T12:00",
     title: "v3.1.1 — Genesis Halving deprecated from user-facing narrative",
     summary:
-      "Genesis Halving is no longer surfaced in user/investor copy. The v3.1 mint split (50/20/20/10) already includes a continuous 20% burn on every mint, which provides perpetual deflation without a UX cliff. Code constants (`GENESIS_HALVING`, modal, FlywheelSimulation page) are retained as legacy/optional, but `GENESIS_HALVING.enabled` is now `false` and the Learn page, Tokenomics explainer, Proof-of-Genesis thesis, ScarcityOutlook, Satoshi-Mirror floor card, and investor slides 09/10/13 have been rewritten to lean on continuous burn + hybrid sell-throttle instead. The flywheel memory was renamed `tiered-subscriptions-halving-flywheel.md` → `tiered-subscriptions-flywheel.md` and collapsed to a single steady-state table.",
+      "Genesis Halving is no longer surfaced in user/investor copy. The v3.1 mint split (50/25/20/5) already includes a continuous 20% burn on every mint, which provides perpetual deflation without a UX cliff. Code constants (`GENESIS_HALVING`, modal, FlywheelSimulation page) are retained as legacy/optional, but `GENESIS_HALVING.enabled` is now `false` and the Learn page, Tokenomics explainer, Proof-of-Genesis thesis, ScarcityOutlook, Satoshi-Mirror floor card, and investor slides 09/10/13 have been rewritten to lean on continuous burn + hybrid sell-throttle instead. The flywheel memory was renamed `tiered-subscriptions-halving-flywheel.md` → `tiered-subscriptions-flywheel.md` and collapsed to a single steady-state table.",
     sections: [
       {
         heading: "Shipped",
@@ -107,7 +107,7 @@ const ENTRIES: ChangelogEntry[] = [
         heading: "Strategic Decisions Locked",
         icon: "strategy",
         bullets: [
-          "SSoT v2.1 is canonical: 10 kWh = 1 $ZSOLAR (and 10 EV miles = 1 $ZSOLAR). Replaces the prior 1:1 model. 50/20/20/10 split, 1T cap, $0.10 launch, founder pact-locks all unchanged.",
+          "SSoT v2.1 is canonical: 10 kWh = 1 $ZSOLAR (and 10 EV miles = 1 $ZSOLAR). Replaces the prior 1:1 model. 50/25/20/5 split, 1T cap, $0.10 launch, founder pact-locks all unchanged.",
           "Subscription tiers locked at Base $9.99 / Regular $19.99 / Power $49.99 — every dollar splits 50% LP / 50% Treasury. Names are Base/Regular/Power externally — never 'Tier-1/2/3'.",
           "Genesis Halving primary trigger = 250,000 paying subscribers; fallback = 4-year on-chain cadence. Always called 'Genesis Halving' in user-facing copy.",
           "ZenSolar does NOT issue carbon credits. Every $ZSOLAR mint = real-world utility + currency from renewable energy. Bitcoin PoW destroys energy as heat (~1.4M kWh per BTC); ZSOLAR PoG creates currency from already-productive kWh.",

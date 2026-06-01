@@ -35,7 +35,7 @@ const TOPICS: Topic[] = [
   },
   {
     title: 'Tokenomics',
-    blurb: '1T hard cap, 50/20/20/10 mint split, deflationary by design.',
+    blurb: '1T hard cap, 50/25/20/5 mint split, deflationary by design.',
     href: '/learn/tokenomics',
     icon: Coins,
     badge: 'The numbers',

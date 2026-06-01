@@ -412,7 +412,7 @@ More attractive to new users → loop restarts, stronger`}
           <ul className="space-y-1.5">
             <li>• <strong>1,000,000,000,000</strong> $ZSOLAR max supply (1 trillion, hard cap)</li>
             <li>• <strong>Launch price:</strong> $0.10 USDC via LP-seeded tranches (e.g. $200K USDC + 2M $ZSOLAR per round). NEVER "launch at $1."</li>
-            <li>• <strong>Per-mint split:</strong> 50% user · 20% LP · 20% burn · 10% treasury (unchanged at v2.1)</li>
+            <li>• <strong>Per-mint split:</strong> 50% user · 25% LP · 20% burn · 5% treasury (unchanged at v2.1)</li>
             <li>• <strong>Transfer tax:</strong> 7% total (3% burn + 2% LP + 2% treasury). Redemption fee: 5% burn on fiat off-ramp.</li>
             <li>• <strong>VPP earnings split:</strong> 50% LP · 30% user cash · 15% ops · 5% user tokens (tokens real-time, cash monthly on the 1st)</li>
           </ul>
@@ -462,7 +462,7 @@ More attractive to new users → loop restarts, stronger`}
           <ul className="space-y-1.5 text-sm">
             <li>• <strong>Primary trigger:</strong> 250,000 paying subscribers → first halving fires immediately</li>
             <li>• <strong>Fallback:</strong> 4-year on-chain Bitcoin cadence if milestone not hit first</li>
-            <li>• <strong>Effect:</strong> per-mint amount × 0.5; 50/20/20/10 split unchanged. Average mint drops ~70 → ~35/mo per user.</li>
+            <li>• <strong>Effect:</strong> per-mint amount × 0.5; 50/25/20/5 split unchanged. Average mint drops ~70 → ~35/mo per user.</li>
             <li>• <strong>Comms:</strong> always called <strong>"Genesis Halving"</strong> — never "mint cut" or "rate change." Pre-announce 3–6 months out; existing users get one bonus month at the pre-halving rate.</li>
             <li>• Subsequent halvings continue on the locked 4-yr cadence (Epoch 1 = 350B, Epoch 2 = 175B, …). Net-deflationary by Epoch 5 (~year 16).</li>
           </ul>
@@ -654,7 +654,7 @@ More attractive to new users → loop restarts, stronger`}
           <li>• <strong>Launch mechanics:</strong> $0.10 launch price via tranched LP rounds (e.g. $200K USDC + 2M $ZSOLAR per round). Limited supply per round, not full 1T at once.</li>
           <li>• <strong>ZPPA (Zen Power Purchase Agreement):</strong> Producer-gated LP access — verified-kWh holders earn the right to buy into LP rounds. Patent CIP candidate.</li>
           <li>• <strong>VPP settlement:</strong> Tokens auto-mint real-time per dispatch (30–60s); cash pays monthly on the 1st. 50% LP / 30% user cash / 15% ops / 5% user tokens.</li>
-          <li>• <strong>Mint flywheel:</strong> Every kWh verified → 50% user / 20% LP / 20% burn / 10% treasury. Burn pressure + LP feed = supply tightens as adoption grows.</li>
+          <li>• <strong>Mint flywheel:</strong> Every kWh verified → 50% user / 25% LP / 20% burn / 5% treasury. Burn pressure + LP feed = supply tightens as adoption grows.</li>
           <li>• <strong>Liquidity event:</strong> The $ZSOLAR token IS the exit. There is no traditional IPO. ZenCorp Inc holds IP and contracts; value accrues to token holders.</li>
         </ul>
       </div>
@@ -717,7 +717,7 @@ More attractive to new users → loop restarts, stronger`}
             <strong>May 2, 2026 — SSoT v2.1 locked: 10:1 mint ratio + Genesis Halving + 3-tier subscriptions.</strong>
             <br />
             <span className="text-xs text-muted-foreground">
-              Mint ratio switched from 1:1 to <strong>10 kWh = 1 $ZSOLAR</strong> (and 10 EV miles = 1 $ZSOLAR) — drops day-one sell pressure 10× without breaking the clean-energy narrative. Subscription tiers locked at <strong>Base $9.99 / Regular $19.99 / Power $49.99</strong>, every dollar split 50% LP / 50% Treasury. <strong>Genesis Halving</strong> fires at 250k paying subs (or 4-yr fallback) — first halving pulled forward to a user milestone Bitcoin-style. 50/20/20/10 mint split, 1T hard cap, founder pact-locks, and $0.10 launch price all unchanged.
+              Mint ratio switched from 1:1 to <strong>10 kWh = 1 $ZSOLAR</strong> (and 10 EV miles = 1 $ZSOLAR) — drops day-one sell pressure 10× without breaking the clean-energy narrative. Subscription tiers locked at <strong>Base $9.99 / Regular $19.99 / Power $49.99</strong>, every dollar split 50% LP / 50% Treasury. <strong>Genesis Halving</strong> fires at 250k paying subs (or 4-yr fallback) — first halving pulled forward to a user milestone Bitcoin-style. 50/25/20/5 mint split, 1T hard cap, founder pact-locks, and $0.10 launch price all unchanged.
             </span>
           </li>
           <li className="border-l-2 border-eco/40 pl-3">
@@ -756,7 +756,7 @@ More attractive to new users → loop restarts, stronger`}
             <span className="text-xs text-muted-foreground">Family Legacy Pact active. Trillionaire crossovers $6.67 / $20.00.</span>
           </li>
           <li className="border-l-2 border-eco/40 pl-3">
-            <strong>2025 — 1T hard cap; mint split 50/20/20/10.</strong>
+            <strong>2025 — 1T hard cap; mint split 50/25/20/5.</strong>
             <br />
             <span className="text-xs text-muted-foreground">Hard cap protects long-term scarcity. Burn percentage tightens supply as adoption grows.</span>
           </li>
