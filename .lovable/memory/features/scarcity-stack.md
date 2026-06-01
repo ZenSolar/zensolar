@@ -35,7 +35,7 @@ $ZSOLAR has **five independent scarcity/anti-dump mechanisms** stacked together.
 
 ## Cross-references
 - Halving math + schedule: `mem://features/halving-schedule`
-- Burn split (75/20/3/2): `mem://features/tokenomics`
+- Burn split (50/20/20/10): `mem://features/tokenomics`
 - Founder pact + crossovers: Core memory (Joseph 150B / Michael 50B / $6.67 / $20)
 - POL mechanics: `mem://features/launch-model`
 
