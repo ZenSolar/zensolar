@@ -32,9 +32,15 @@ export const HOME_BLUEPRINT = Object.freeze({
   wallCharger:  { x: 28, y: 60 } as BlueprintAnchor,
   /** Driveway parking spot in front of the garage. Anchor = car center. */
   carPark:      { x: 15, y: 71 } as BlueprintAnchor,
+  /** "Charging at home" anchor — centered just outside the open garage door. */
+  garageFront:  { x: 24, y: 76 } as BlueprintAnchor,
+  /** Rectangle over the garage opening — used to paint a warm "door open" bloom. */
+  garageOpening: { x: 13, y: 50, w: 22, h: 22 } as Readonly<{
+    x: number; y: number; w: number; h: number;
+  }>,
   /** Dynamic-vehicle <image> overlay dimensions, % of viewBox. */
-  carWidth: 28,
-  carHeight: 15,
+  carWidth: 38,
+  carHeight: 21,
 } as const);
 
 /**
