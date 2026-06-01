@@ -4,13 +4,10 @@ import { Link } from 'react-router-dom';
 import {
   Lock,
   FileText,
-  Presentation,
-  BarChart3,
   PlayCircle,
   CheckCircle2,
   ArrowDown,
   Mail,
-  Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { NdaSignatureStep } from '@/components/demo/NdaSignatureStep';
