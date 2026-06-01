@@ -1,5 +1,5 @@
 import { Sun, BatteryCharging, Plug } from "lucide-react";
-import { useDeviceTelemetry } from "@/hooks/useDeviceTelemetry";
+import { useDeasonDeviceSnapshot } from "@/hooks/useDeasonDeviceSnapshot";
 
 const PROVIDER_LABEL: Record<string, string> = {
   tesla: "Tesla",
@@ -18,7 +18,7 @@ const label = (p: string) => PROVIDER_LABEL[p.toLowerCase()] ?? p;
  * Silent when the user has no telemetry yet — never blocks the chat.
  */
 export function DeviceTelemetryStrip({ enabled = true }: { enabled?: boolean }) {
-  const { snapshots } = useDeviceTelemetry(enabled);
+  const { snapshots } = useDeasonDeviceSnapshot(enabled);
   if (!snapshots.length) return null;
 
   return (
