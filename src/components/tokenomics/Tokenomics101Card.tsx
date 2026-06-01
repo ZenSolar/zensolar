@@ -12,27 +12,27 @@ interface Tokenomics101CardProps {
 const rows = [
   {
     icon: Coins,
-    text: 'Pick a plan: Base, Regular, or Power. Each one earns you $ZSOLAR for your clean energy.',
+    text: 'What you see is what you mint — 1 kWh = 1 $ZSOLAR, every verified kWh.',
     color: 'text-token',
     bg: 'bg-token/10',
   },
   {
     icon: TrendingUp,
-    text: 'Half of every subscription dollar automatically strengthens the token.',
+    text: 'The protocol matches your mint: 25% to liquidity, 20% burned forever, 5% to treasury.',
     color: 'text-secondary',
     bg: 'bg-secondary/10',
   },
   {
-    icon: Lock,
-    text: 'Your new tokens are locked for 12 months so the price can grow stronger.',
-    color: 'text-primary',
-    bg: 'bg-primary/10',
-  },
-  {
     icon: Sparkles,
-    text: 'Hold or stake longer and earn extra rewards.',
+    text: 'A separate 3% transfer tax recycles into the LP on every swap — pool gets deeper with use.',
     color: 'text-solar',
     bg: 'bg-solar/10',
+  },
+  {
+    icon: Lock,
+    text: 'Your new tokens vest over 12 months. Stake longer to earn extra on top.',
+    color: 'text-primary',
+    bg: 'bg-primary/10',
   },
 ];
 
