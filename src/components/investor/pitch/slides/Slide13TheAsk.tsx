@@ -87,7 +87,7 @@ export function Slide13TheAsk() {
                 'Mainnet TGE on Base (chain 8453)',
                 '1,000 verified homes · 50M kWh on-chain',
                 'Subscriptions live ($9.99 base + Deason $4.99 add-on)',
-                'Genesis Halving milestone (250K subs) on the runway',
+                '250K paying subscribers on the runway',
                 'Series A-ready in 18–24 months',
               ].map((m) => (
                 <li key={m} className="flex items-start gap-2 text-[15px] text-white/75">

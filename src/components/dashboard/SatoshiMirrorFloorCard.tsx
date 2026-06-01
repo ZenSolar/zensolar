@@ -6,7 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 interface SatoshiMirrorFloorCardProps {
   /** Current EIA national avg residential $/kWh. Defaults to a recent value. */
   eiaKwhRate?: number;
-  /** Current epoch (0 = pre-first-halving). */
+  /** Current epoch multiplier (0 = base; reserved for optional future emission epochs). */
   epoch?: number;
   /** Compact rendering for dashboard grids. */
   compact?: boolean;
@@ -51,7 +51,7 @@ export function SatoshiMirrorFloorCard({
               <TooltipContent className="max-w-xs">
                 <p className="text-xs">
                   Floor = EIA national avg ${eiaKwhRate.toFixed(2)}/kWh × 2<sup>{epoch}</sup>{" "}
-                  (current epoch). Doubles after each Genesis Halving.
+                  (current epoch multiplier). Rises automatically with U.S. electricity prices.
                 </p>
               </TooltipContent>
             </Tooltip>

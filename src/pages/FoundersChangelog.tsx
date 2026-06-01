@@ -46,7 +46,40 @@ interface ChangelogEntry {
 
 const ENTRIES: ChangelogEntry[] = [
   {
-    date: "May 2, 2026 (LATEST)",
+    date: "Jun 1, 2026 (LATEST)",
+    iso: "2026-06-01T12:00",
+    title: "v3.1.1 — Genesis Halving deprecated from user-facing narrative",
+    summary:
+      "Genesis Halving is no longer surfaced in user/investor copy. The v3.1 mint split (50/20/20/10) already includes a continuous 20% burn on every mint, which provides perpetual deflation without a UX cliff. Code constants (`GENESIS_HALVING`, modal, FlywheelSimulation page) are retained as legacy/optional, but `GENESIS_HALVING.enabled` is now `false` and the Learn page, Tokenomics explainer, Proof-of-Genesis thesis, ScarcityOutlook, Satoshi-Mirror floor card, and investor slides 09/10/13 have been rewritten to lean on continuous burn + hybrid sell-throttle instead. The flywheel memory was renamed `tiered-subscriptions-halving-flywheel.md` → `tiered-subscriptions-flywheel.md` and collapsed to a single steady-state table.",
+    sections: [
+      {
+        heading: "Shipped",
+        icon: "shipped",
+        bullets: [
+          "Rewrote `src/components/how-it-works/TokenomicsExplained.tsx` halving card → 'Continuous burn — every mint, forever'.",
+          "Slide 09 Revenue: replaced the Genesis Halving footer with a 'continuous 20% burn' line.",
+          "Slide 10 Three Walls Moat: 5-Layer Scarcity Stack now lists 'Hybrid sell-throttle (12-mo vesting + stake-to-unlock)' instead of '4-year halving'.",
+          "Slide 13 The Ask: milestone bullet simplified to '250K paying subscribers on the runway'.",
+          "Founders ScarcityOutlookSection + Proof-of-Genesis Thesis copy now reference the continuous burn instead of halving.",
+          "Learn / LearnHowItWorks teaser now says 'continuous burn' (not 'halving').",
+          "Satoshi-Mirror Floor card tooltip rewritten — drops the 'doubles after each Genesis Halving' line; epoch is described as a generic future-emissions multiplier.",
+          "`src/lib/tokenomics.ts`: `GENESIS_HALVING.enabled = false`; constants kept for optional future re-activation with a DEPRECATED JSDoc.",
+        ],
+      },
+      {
+        heading: "Memory",
+        icon: "memory",
+        bullets: [
+          "New: `mem://features/tiered-subscriptions-flywheel.md` (steady-state v3.1, single table, §12 'Why no halving in v3.1' rationale).",
+          "Deleted: `mem://features/tiered-subscriptions-halving-flywheel.md`.",
+          "Banner added to `mem://features/halving-schedule.md` marking it DEPRECATED in v3.1 narrative (file retained as historical record).",
+          "`mem://index.md` Core: replaced the 'Genesis Halving (LOCKED 2026-05)' line with a deprecation note + updated the flywheel memory link.",
+        ],
+      },
+    ],
+  },
+  {
+    date: "May 2, 2026",
     iso: "2026-05-02T18:00",
     title: "Master Outline v2.1 Sweep + Verified Source Proof Badge",
     summary:

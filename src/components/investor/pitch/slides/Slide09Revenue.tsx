@@ -97,7 +97,7 @@ export function Slide09Revenue() {
             At <strong className="text-white/60">25,000 subscribers</strong>, monthly LP injections match seed capital. Self-sustaining.
           </p>
           <p className="text-center mt-2 text-[13px] text-[hsl(45,93%,47%)]/80">
-            <strong>Genesis Halving</strong> at <strong>250K paying subs</strong> · Bitcoin-style 50% mint-rate cut, pre-announced 3–6 mo out.
+            <strong>Continuous 20% burn</strong> on every mint · perpetual deflation, no scheduled cliff.
           </p>
         </motion.div>
       </div>

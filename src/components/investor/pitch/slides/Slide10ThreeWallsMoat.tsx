@@ -26,7 +26,7 @@ const walls = [
     items: [
       '1T hard cap (contract-enforced)',
       '20% burn-per-mint (novel)',
-      '4-year halving (Bitcoin cadence)',
+      'Hybrid sell-throttle (12-mo vesting + stake-to-unlock)',
       'Founder pact-lock (200B until $6.67 / $20)',
       'Protocol-Owned Liquidity (no mercenary LP)',
     ],

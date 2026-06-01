@@ -15,7 +15,7 @@ ALL demo/preview/share URLs MUST use https://beta.zen.solar — NEVER lovable.ap
 NEVER say "cheetah" for sell cohorts. Tschida = co-founder Michael only.
 Satoshi-Mirror v2: EIA monthly oracle = guaranteed floor; Treasury auto-buyback via POL = floor defense.
 Subscriptions v2 (LOCKED 2026-05): Base $9.99 / Regular $19.99 / Power $49.99 — every dollar splits 50% LP / 50% treasury. External names always Base/Regular/Power (never Tier-1/2/3, never "Auto-Mint"/"Pro"/"Elite").
-Genesis Halving (LOCKED 2026-05): 50% mint-rate cut at 250K paying subscribers (fallback: 4-yr cadence). Always called "Genesis Halving." Pre-announce 3–6 months out; existing users get bonus month at pre-halving rate.
+Genesis Halving DEPRECATED in v3.1 narrative — continuous 20% burn per mint is the deflation mechanism. Do NOT surface "halving" in new user/investor copy. Code constants (`GENESIS_HALVING`, modal, simulation) retained for optional future re-activation only.
 Billing infra not wired yet (no Stripe). `/subscribe` route shows tier picker only — checkout pending Michael sign-off on provider.
 Patent status: ONLY the non-provisional "Gamifying and Tokenizing Sustainable Behaviors" patent is filed. Starlink/SpaceX/Optimus tokenization angle is roadmap/concept only — NOT filed. Never say "Starlink patent filed."
 
@@ -24,7 +24,7 @@ Patent status: ONLY the non-provisional "Gamifying and Tokenizing Sustainable Be
 - [Mint Split v3.1 (LIVE)](mem://features/mint-split-v3-locked) — 50/20/20/10 split, UI 1:1, 401(k)-match framing. Supersedes 50/25/20/3/2 and 75/20/3/2.
 - [Mint ratio SSoT (1:1)](mem://features/mint-ratio-ssot) — Strictly 1 $ZSOLAR = 1 kWh = 1 mile. Never multiply tokens by 10. Never back-calc via `tokens / USER_SHARE`.
 - [Battery bi-dir not integrated](mem://features/battery-bidir-not-integrated) — Receipts/KPIs must NOT read bidir_export/bidir_out/bidir_import rows yet.
-- [v2 Tokenomics Flywheel](mem://features/tiered-subscriptions-halving-flywheel) — 3 subscription tiers + Genesis Halving + per-tier flywheel math.
+- [Tiered Subscriptions Flywheel (v3.1)](mem://features/tiered-subscriptions-flywheel) — 3 tiers + steady-state per-tier flywheel math under continuous 20% burn (halving deprecated).
 - [Deason AI Utility Optimizer](mem://features/deason-utility-optimizer) — Phase 1 weekly report, Phase 1.5 monthly deep insights + /energy-insights, Phase 2 Tesla FSD miles (10:1).
 - [Satoshi-Mirror v2 Oracle](mem://features/satoshi-mirror-v2-oracle) — EIA monthly floor + treasury auto-buyback. Pending Michael sign-off.
 - [Sell-cohort terminology](mem://preferences/terminology-sell-cohort) — never "cheetah" for sellers; that's Michael Tschida.
