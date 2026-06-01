@@ -38,7 +38,7 @@ export const LIVE_BETA_MULTIPLIER = 10;
 
 // === MODEL METADATA ===
 export const MODEL_NAME = '1T Trillionaire Strategy';
-export const MODEL_VERSION = 3.0; // v3.0 — Reverted to 1:1 mint ratio + Hybrid stake-to-unlock sell-throttle
+export const MODEL_VERSION = 3.1; // v3.1 — Mint split locked at 50/20/20/10 (user/LP/burn/treasury) + 401(k)-match UX framing
 
 // === MINT RATIO (v3.0 LOCKED — 2026-05-18) ===
 // 1 kWh (or 1 mile) of verified clean-energy activity = 1 $ZSOLAR minted.
