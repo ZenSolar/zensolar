@@ -128,6 +128,7 @@ export function ThreeRevenueEngines() {
             </span>
             <span className="font-medium text-foreground">
               VPP tokenization — tech already built. Real-time $ZSOLAR minting + monthly cash settlement for grid dispatch events.
+              <span className="text-muted-foreground"> ~$50–150 / household / yr in grid-services revenue · at 10K households = $0.5–1.5M ARR layer, all upside, no CapEx.</span>
             </span>
           </div>
         </div>
