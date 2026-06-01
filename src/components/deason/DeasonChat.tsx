@@ -388,6 +388,8 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-3 py-4">
+        <TexasNowPill ctx={profileCtx} />
+        <DeviceTelemetryStrip />
         {loadingHistory && (
           <div className="space-y-3 animate-in fade-in duration-200">
             <SkeletonMessage align="left" />
