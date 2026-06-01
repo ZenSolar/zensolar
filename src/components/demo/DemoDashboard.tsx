@@ -292,7 +292,9 @@ export function DemoDashboard() {
 
         {/* Prominent CO₂ Offset card with per-activity drill-down — mirrors live beta */}
         <AnimatedItem>
-          <CO2OffsetCard activityData={activityData} isLoading={isLoading} />
+          <Suspense fallback={<div className="h-64 rounded-2xl bg-card/10 animate-pulse" aria-hidden="true" />}>
+            <CO2OffsetCard activityData={activityData} isLoading={isLoading} />
+          </Suspense>
         </AnimatedItem>
 
         <SectionDivider />
