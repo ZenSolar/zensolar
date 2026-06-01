@@ -44,12 +44,13 @@ export function ThreeRevenueEngines() {
             <>
               A paid base subscription is required to be a ZenSolar user and mint $ZSOLAR. Three
               tiers — <span className="text-foreground">$9.99 Base · $19.99 Regular · $49.99 Power</span>.
-              Every paid tier opens <span className="text-foreground">ZenEnergy Monitoring</span> —
-              the unified multi-OEM cockpit (Tesla · Enphase · SolarEdge · Wallbox) that no other
-              app delivers. On top of any tier, <span className="text-foreground">Deason AI is a
-              $4.99/mo premium add-on</span> that delivers the Monthly Clean Energy Report, utility
-              bill analysis, rate-plan optimization, and device-aware advice tuned to each home's
-              actual telemetry.
+              Every paid tier opens <span className="text-foreground">Zen Monitoring</span> — the
+              first-of-its-kind multi-OEM live energy cockpit that aggregates real-time data from
+              Tesla, Enphase, SolarEdge, and Wallbox into one premium dashboard. Homeowners with
+              mixed systems finally get unified visibility — and Proof-of-Genesis™ minting on top.
+              On top of any tier, <span className="text-foreground">Deason AI is a $4.99/mo premium
+              add-on</span> that delivers the Monthly Clean Energy Report, utility bill analysis,
+              rate-plan optimization, and device-aware advice tuned to each home's actual telemetry.
             </>
           }
 
@@ -74,16 +75,15 @@ export function ThreeRevenueEngines() {
           tagline="Core product and primary long-term revenue driver."
           body={
             <>
-              A hard-capped, LP-seeded token built for compounding value capture.{' '}
-              <span className="text-foreground">1T supply, 75/20/3/2 mint split</span> (user / burn /
-              LP / treasury), <span className="text-foreground">$0.10 LP-seeded launch on Base</span>,
-              and a <span className="text-foreground">7% transfer tax</span> (3% burn · 2% LP · 2%
-              treasury) that compounds liquidity and treasury yield with every on-chain transaction —
-              perpetually, with no protocol team intervention required.
+              Core product and primary long-term revenue driver.{' '}
+              <span className="text-foreground">1T hard cap, 50% minted to user, 25% directly to
+              liquidity pool, 20% burn, 3% LP fee, 2% treasury</span>. Every verified kWh now
+              injects significantly more liquidity, creating a much stronger flywheel and price
+              resilience.
             </>
           }
           bullets={[
-            '1T hard cap · 75/20/3/2 mint split',
+            '1T hard cap · 50/25/20/3/2 mint split',
             '$0.10 LP-seeded launch on Base',
             '7% transfer tax → 3% burn · 2% LP · 2% treasury',
             'Transfer-tax volume + treasury yield = long-term primary revenue',
