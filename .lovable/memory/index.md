@@ -24,7 +24,7 @@ Patent status: ONLY the non-provisional "Gamifying and Tokenizing Sustainable Be
 - [Mint Split v3.1 (LIVE)](mem://features/mint-split-v3-locked) — 50/20/20/10 split, UI 1:1, 401(k)-match framing. Supersedes 50/25/20/3/2 and 75/20/3/2.
 - [Mint ratio SSoT (1:1)](mem://features/mint-ratio-ssot) — Strictly 1 $ZSOLAR = 1 kWh = 1 mile. Never multiply tokens by 10. Never back-calc via `tokens / USER_SHARE`.
 - [Battery bi-dir not integrated](mem://features/battery-bidir-not-integrated) — Receipts/KPIs must NOT read bidir_export/bidir_out/bidir_import rows yet.
-- [v2 Tokenomics Flywheel](mem://features/tiered-subscriptions-halving-flywheel) — 3 subscription tiers + Genesis Halving + per-tier flywheel math.
+- [Tiered Subscriptions Flywheel (v3.1)](mem://features/tiered-subscriptions-flywheel) — 3 tiers + steady-state per-tier flywheel math under continuous 20% burn (halving deprecated).
 - [Deason AI Utility Optimizer](mem://features/deason-utility-optimizer) — Phase 1 weekly report, Phase 1.5 monthly deep insights + /energy-insights, Phase 2 Tesla FSD miles (10:1).
 - [Satoshi-Mirror v2 Oracle](mem://features/satoshi-mirror-v2-oracle) — EIA monthly floor + treasury auto-buyback. Pending Michael sign-off.
 - [Sell-cohort terminology](mem://preferences/terminology-sell-cohort) — never "cheetah" for sellers; that's Michael Tschida.
