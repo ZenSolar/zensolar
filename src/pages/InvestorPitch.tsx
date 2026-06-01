@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, PlayCircle, Calendar, Sparkles, Cpu, Calculator } from 'lucide-react';
+import { ArrowLeft, PlayCircle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThreeRevenueEngines } from '@/components/investor/ThreeRevenueEngines';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
