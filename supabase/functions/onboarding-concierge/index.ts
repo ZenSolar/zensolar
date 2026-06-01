@@ -1,6 +1,7 @@
 // AI Setup Concierge - extracts a structured SetupProfile from natural-language
 // description of the user's solar / battery / EV / charger setup using Lovable AI tool-calling.
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
+import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const LOVABLE_API_URL = 'https://ai.gateway.lovable.dev/v1/chat/completions';
 
