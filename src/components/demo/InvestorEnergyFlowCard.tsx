@@ -1,5 +1,5 @@
-import { Suspense, lazy } from 'react';
-import { Sparkles, Sun, BatteryCharging, Car, Plug } from 'lucide-react';
+import { Suspense, lazy, useState } from 'react';
+import { Sparkles, Sun, BatteryCharging, Car, Plug, Eye, EyeOff } from 'lucide-react';
 import {
   INVESTOR_DEMO_FLOW,
   INVESTOR_DEMO_TESLA_PAYLOAD,
@@ -12,6 +12,14 @@ const EnergyFlowScene = lazy(() =>
     default: m.EnergyFlowScene,
   })),
 );
+
+/** Inline annotation chips — coordinates in % of the SVG/PNG square. */
+const ANNOTATIONS = [
+  { id: 'solar', x: 48, y: 14, label: 'Solar producing — 5.4 kW' },
+  { id: 'pw', x: 62, y: 50, label: 'Powerwall charging from solar' },
+  { id: 'ev', x: 26, y: 90, label: 'Tesla charging via Wallbox — 7.2 kW' },
+  { id: 'grid', x: 95, y: 48, label: 'Grid: 0 kW — self-consuming' },
+] as const;
 
 /**
  * Investor-grade Live Energy Monitoring card.
