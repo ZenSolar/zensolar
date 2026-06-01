@@ -47,7 +47,7 @@ export default function InvestorPitch() {
               <ArrowLeft className="h-4 w-4" />
               Investor home
             </Link>
-            <img src={zenLogo} alt="ZenSolar" className="h-6 w-auto opacity-90" />
+            <img src={zenLogo} alt="ZenSolar" className="h-6 w-auto opacity-90" loading="lazy" decoding="async" width="120" height="24" />
           </div>
         </div>
 
