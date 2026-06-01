@@ -1,17 +1,26 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Send, Sparkles, RotateCcw, X, Paperclip, Image as ImageIcon, ChevronUp, ChevronDown, Save, FileText, ArrowRight, MessageSquare, Pin, PinOff, Pencil, Trash2, Check, FileCheck2 } from "lucide-react";
+import { Send, Sparkles, RotateCcw, X, Paperclip, Image as ImageIcon, ChevronUp, ChevronDown, Save, FileText, ArrowRight, MessageSquare, Pin, PinOff, Pencil, Trash2, Check, FileCheck2, Copy, RefreshCw, AlertTriangle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useDeason, type DeasonContentPart } from "@/hooks/useDeason";
 import { useUserPersona } from "@/hooks/useUserPersona";
 import { useEnergyReport } from "@/hooks/useEnergyReport";
+import { useDeasonHub } from "@/hooks/useDeasonHub";
 import { BillSavingsReport } from "@/components/deason/BillSavingsReport";
 import { EnergyDocSheet } from "@/components/deason/EnergyDocSheet";
 import { EnergyReportCard } from "@/components/deason/EnergyReportCard";
+import { CitationChip, type DocIndexEntry } from "@/components/deason/chat/CitationChip";
+import { SuggestedFollowups, stripFollowupsBlock } from "@/components/deason/chat/SuggestedFollowups";
+import { filterSlashItems, type SlashItem } from "@/components/deason/chat/SlashMenu";
+import { StreamingShimmer } from "@/components/deason/chat/StreamingShimmer";
 import type { DeasonThread } from "@/hooks/useDeasonThreads";
 import { cn } from "@/lib/utils";
+
+const SourcesSheet = lazy(() => import("@/components/deason/chat/SourcesSheet"));
+const SlashMenu = lazy(() => import("@/components/deason/chat/SlashMenu"));
+
 
 
 interface DeasonChatProps {
