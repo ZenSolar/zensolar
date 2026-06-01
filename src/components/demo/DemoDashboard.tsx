@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo, useEffect } from 'react';
+import { useRef, useState, useMemo, useEffect, lazy, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { useDemoContext } from '@/contexts/DemoContext';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
