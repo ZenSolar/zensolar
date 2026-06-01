@@ -1,12 +1,32 @@
+import { lazy, Suspense } from 'react';
 import { SEO } from '@/components/SEO';
 import { LandingNav, HeroSection } from '@/components/landing/HeroSection';
-import { MultiOemMoat } from '@/components/landing/MultiOemMoat';
-import { FlywheelStrip } from '@/components/landing/FlywheelStrip';
-import { ThreeEnginesLanding } from '@/components/landing/ThreeEnginesLanding';
-import { MintOneToOneStrip } from '@/components/landing/MintOneToOneStrip';
-import { InvestorStrip } from '@/components/landing/InvestorStrip';
-import { CTASection } from '@/components/landing/BenefitsAndCTA';
+import { LazySection } from '@/components/home/LazySection';
 import { LandingFooter } from '@/components/landing/LandingFooter';
+
+// Lazy-load below-fold sections to protect LCP
+const MultiOemMoat = lazy(() =>
+  import('@/components/landing/MultiOemMoat').then((m) => ({ default: m.MultiOemMoat }))
+);
+const FlywheelStrip = lazy(() =>
+  import('@/components/landing/FlywheelStrip').then((m) => ({ default: m.FlywheelStrip }))
+);
+const ThreeEnginesLanding = lazy(() =>
+  import('@/components/landing/ThreeEnginesLanding').then((m) => ({
+    default: m.ThreeEnginesLanding,
+  }))
+);
+const MintOneToOneStrip = lazy(() =>
+  import('@/components/landing/MintOneToOneStrip').then((m) => ({ default: m.MintOneToOneStrip }))
+);
+const InvestorStrip = lazy(() =>
+  import('@/components/landing/InvestorStrip').then((m) => ({ default: m.InvestorStrip }))
+);
+const CTASection = lazy(() =>
+  import('@/components/landing/BenefitsAndCTA').then((m) => ({ default: m.CTASection }))
+);
+
+const SectionFallback = () => <div className="min-h-[240px]" aria-hidden />;
 
 export default function Landing() {
   return (
@@ -36,12 +56,26 @@ export default function Landing() {
         <LandingNav />
         <main id="main-content">
           <HeroSection />
-          <MultiOemMoat />
-          <FlywheelStrip />
-          <ThreeEnginesLanding />
-          <MintOneToOneStrip />
-          <InvestorStrip />
-          <CTASection />
+          <Suspense fallback={<SectionFallback />}>
+            <LazySection minHeight="320px">
+              <MultiOemMoat />
+            </LazySection>
+            <LazySection minHeight="320px">
+              <FlywheelStrip />
+            </LazySection>
+            <LazySection minHeight="480px">
+              <ThreeEnginesLanding />
+            </LazySection>
+            <LazySection minHeight="240px">
+              <MintOneToOneStrip />
+            </LazySection>
+            <LazySection minHeight="280px">
+              <InvestorStrip />
+            </LazySection>
+            <LazySection minHeight="320px">
+              <CTASection />
+            </LazySection>
+          </Suspense>
         </main>
         <LandingFooter />
       </div>
