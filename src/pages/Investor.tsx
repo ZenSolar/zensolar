@@ -388,7 +388,7 @@ function UnlockedPanel({
         <UnlockedCard
           icon={BarChart3}
           title="Tokenomics & LP Model"
-          body="1T cap, 75/20/3/2 split, $0.10 LP-seeded tranches."
+          body="Zen Monitoring — the first-of-its-kind multi-OEM live energy cockpit. 1T cap, 50/25/20/3/2 split, $0.10 LP-seeded tranches."
           to="/tokenomics"
           internal
         />
