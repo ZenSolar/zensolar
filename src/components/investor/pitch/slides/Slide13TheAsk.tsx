@@ -1,6 +1,6 @@
 import { SlideLayout, SlideHeader, SlideFooter } from '../SlideLayout';
 import { motion } from 'framer-motion';
-import { Users, Droplets, ShieldCheck, Scale, Megaphone, PiggyBank } from 'lucide-react';
+import { Droplets, Users, ShieldCheck, Megaphone, PiggyBank } from 'lucide-react';
 
 const LADDER = [
   { round: 'OG · Day 0', trigger: 'Mainnet launch', price: '$0.10' },
@@ -20,27 +20,28 @@ export function Slide13TheAsk() {
       <div className="absolute inset-0 flex flex-col justify-center px-16 pt-20 pb-16">
         {/* Headline ask */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center mb-8">
-          <p className="text-[15px] font-mono tracking-[0.3em] uppercase text-white/35 mb-3">Strategic Seed · SAFE</p>
+          <p className="text-[15px] font-mono tracking-[0.3em] uppercase text-white/35 mb-3">Strategic Seed · SAFE · Post-money</p>
           <h2 className="text-[64px] font-bold leading-none">
-            Raising <span className="text-[hsl(45,93%,47%)]">$3M</span>
+            Raising <span className="text-[hsl(45,93%,47%)]">$5M</span>
             <span className="text-white/40 text-[44px] font-light"> · </span>
-            <span className="text-white/70 text-[44px] font-light">Hard cap </span>
-            <span className="text-[hsl(142,76%,50%)] text-[56px] font-bold">$5M</span>
+            <span className="text-white/70 text-[44px] font-light">$20M post</span>
+            <span className="text-white/40 text-[44px] font-light"> · </span>
+            <span className="text-[hsl(142,76%,50%)] text-[56px] font-bold">$7M</span>
+            <span className="text-white/70 text-[44px] font-light"> cap</span>
           </h2>
           <p className="text-[20px] text-white/50 mt-4">
             18–24 month runway to mainnet TGE, first revenue, and Series A readiness
           </p>
         </motion.div>
 
-        {/* Use of Funds — LP-heavy $3M (Option B): max liquidity depth, flexible strategic reserve */}
-        <div className="grid grid-cols-6 gap-3 mb-6">
+        {/* Use of Funds — locked Feb 2026: $5M target, 5 buckets */}
+        <div className="grid grid-cols-5 gap-3 mb-6">
           {[
-            { pct: '37%', dollars: '$1.1M', label: 'LP Seeding', desc: '2× depth · price stability', icon: Droplets, color: 'hsl(142,76%,50%)' },
-            { pct: '32%', dollars: '$950K', label: 'Team', desc: 'Founders + protocol eng, 18 mo', icon: Users, color: 'hsl(207,90%,54%)' },
-            { pct: '10%', dollars: '$300K', label: 'Strategic Reserve', desc: 'Flexible · LP, hires, or BD', icon: PiggyBank, color: 'hsl(220,15%,60%)' },
-            { pct: '8%', dollars: '$250K', label: 'Audits + Infra', desc: 'Trail-of-Bits, RPC, monitoring', icon: ShieldCheck, color: 'hsl(15,90%,55%)' },
-            { pct: '7%', dollars: '$200K', label: 'Growth + BD', desc: 'OEMs, Deason acquisition', icon: Megaphone, color: 'hsl(45,93%,47%)' },
-            { pct: '7%', dollars: '$200K', label: 'Legal + IP', desc: 'Token opinion, patent', icon: Scale, color: 'hsl(280,68%,60%)' },
+            { pct: '40%', dollars: '$2.0M', label: 'LP Reserve', desc: '3 tranches · critical for flywheel', icon: Droplets, color: 'hsl(142,76%,50%)' },
+            { pct: '36%', dollars: '$1.8M', label: 'Team & Ops', desc: 'Founders + 3 hires (18–24 mo)', icon: Users, color: 'hsl(207,90%,54%)' },
+            { pct: '10%', dollars: '$500K', label: 'Growth / UA', desc: 'Paid acq · creators · PoG viral', icon: Megaphone, color: 'hsl(45,93%,47%)' },
+            { pct: '8%', dollars: '$400K', label: 'Audits + Legal', desc: 'Smart-contract + securities + patents', icon: ShieldCheck, color: 'hsl(15,90%,55%)' },
+            { pct: '6%', dollars: '$300K', label: 'Reserves', desc: 'Flexible contingency buffer', icon: PiggyBank, color: 'hsl(220,15%,60%)' },
           ].map((item, i) => (
             <motion.div key={item.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 + i * 0.08 }}
@@ -85,7 +86,7 @@ export function Slide13TheAsk() {
               {[
                 'Mainnet TGE on Base (chain 8453)',
                 '1,000 verified homes · 50M kWh on-chain',
-                'Deason subscription live at $4.99/mo ARR',
+                'Subscriptions live ($9.99 base + Deason $4.99 add-on)',
                 '2nd LP tranche seeded · circulating supply expanded',
                 'Series A-ready in 18–24 months',
               ].map((m) => (

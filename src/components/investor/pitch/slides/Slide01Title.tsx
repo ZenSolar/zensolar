@@ -44,7 +44,7 @@ export function Slide01Title() {
           className="flex items-center gap-6 mt-16">
           <div className="px-6 py-3 rounded-xl border border-white/10 bg-white/5">
             <p className="text-[13px] text-white/40 uppercase tracking-wider mb-1">Raising</p>
-            <p className="text-[28px] font-bold text-[hsl(45,93%,47%)]">$3M <span className="text-[18px] font-medium text-white/50">· Cap $5M</span></p>
+            <p className="text-[28px] font-bold text-[hsl(45,93%,47%)]">$5M <span className="text-[18px] font-medium text-white/50">· $20M post · Cap $7M</span></p>
           </div>
           <div className="px-6 py-3 rounded-xl border border-white/10 bg-white/5">
             <p className="text-[13px] text-white/40 uppercase tracking-wider mb-1">Round</p>

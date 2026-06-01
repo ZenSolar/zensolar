@@ -1,9 +1,10 @@
-import { ArrowRight, Database, Sparkles, Coins } from 'lucide-react';
+import { ArrowRight, Coins, CreditCard, Database, Sparkles } from 'lucide-react';
 
 /**
- * ThreeRevenueEngines — canonical investor framing.
+ * ThreeRevenueEngines — canonical investor framing (v2, Feb 2026).
  * Flywheel: Verified kWh → Data → AI → $ZSOLAR
- * Three engines: Aggregated Data · Deason AI · Token Economics.
+ * Engine order (locked): 1) Token Economics  2) Subscription  3) Aggregated Data.
+ * Deason AI is the $4.99/mo premium add-on inside Engine #2 — NOT its own engine.
  */
 export function ThreeRevenueEngines() {
   return (
@@ -25,15 +26,78 @@ export function ThreeRevenueEngines() {
         </p>
       </div>
 
-      {/* Three engine cards */}
+      {/* Three engine cards — Token first, Subscription second, Data third */}
       <div className="grid gap-4 md:grid-cols-3">
         <EngineCard
           number="01"
+          icon={Coins}
+          accent="text-amber-400"
+          ring="hover:border-amber-400/40 ring-1 ring-amber-400/20"
+          emphasized
+          title="Token Economics"
+          tagline="Core product. Primary revenue driver."
+          body={
+            <>
+              1T hard cap. <span className="text-foreground">75 / 20 / 3 / 2 mint split</span>{' '}
+              (user / burn / LP / treasury). $0.10 LP-seeded launch on Base. A{' '}
+              <span className="text-foreground">7% transfer tax</span> (3% burn · 2% LP · 2%
+              treasury) compounds liquidity depth and treasury yield perpetually as minting and
+              trading volume grow.
+            </>
+          }
+          metric="1T cap"
+          metricLabel="$0.10 launch · 75/20/3/2 · 7% transfer tax"
+        />
+
+        <EngineCard
+          number="02"
+          icon={CreditCard}
+          accent="text-eco"
+          ring="hover:border-eco/40"
+          title="Monthly Subscription"
+          tagline="Base fee to be a ZenSolar user and mint tokens."
+          body={
+            <>
+              Three tiers — <span className="text-foreground">$9.99 Base · $19.99 Regular ·
+              $49.99 Power</span> — required to keep an account active and mint. 50% of every
+              subscription dollar feeds LP, 50% feeds treasury, so revenue here directly
+              strengthens the token in Engine #1.
+            </>
+          }
+          bullets={[
+            'Three tiers: $9.99 / $19.99 / $49.99',
+            'Premium add-on: Deason AI $4.99/mo',
+            'Deason ships the Monthly Clean Energy Report',
+            '50% LP · 50% treasury on every sub dollar',
+          ]}
+          metric="$9.99+"
+          metricLabel="base sub · +$4.99 Deason AI add-on"
+        >
+          {/* Deason AI premium add-on highlight */}
+          <div className="mt-4 rounded-xl border border-eco/30 bg-eco/[0.06] p-3">
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles className="h-3.5 w-3.5 text-eco" />
+              <span className="text-[11px] uppercase tracking-[0.18em] font-semibold text-eco">
+                Premium Add-on · Deason AI
+              </span>
+            </div>
+            <p className="text-[12px] text-foreground/90 leading-relaxed">
+              <span className="font-semibold text-foreground">$4.99/mo</span> layered on top of any
+              base subscription. Delivers the{' '}
+              <span className="text-foreground">Monthly Clean Energy Report</span>, bill analysis,
+              rate-plan optimization, and device-aware advice. Primary upgrade incentive into the
+              Power tier.
+            </p>
+          </div>
+        </EngineCard>
+
+        <EngineCard
+          number="03"
           icon={Database}
           accent="text-sky-400"
           ring="hover:border-sky-400/40"
           title="Aggregated Energy Data"
-          tagline="Aggregated kWh data, sold to utilities."
+          tagline="Valuable secondary revenue stream."
           body={
             <>
               Verified production, consumption, and device telemetry from Tesla, Enphase,
@@ -41,63 +105,15 @@ export function ThreeRevenueEngines() {
               <span className="text-foreground">
                 Anonymized and aggregated — never per-household PII.
               </span>{' '}
-              High-value to utilities for load forecasting, DER visibility, and rate-plan design.
-              Secondary buyers: ISOs / RTOs, REC registries (M-RETS, WREGIS, PJM-GATS), and climate
-              researchers.{' '}
+              Sold to utilities, ISOs / RTOs, REC registries (M-RETS, WREGIS, PJM-GATS), and
+              climate researchers.{' '}
               <span className="text-foreground">
-                This dataset is only possible because we built the first unified multi-OEM
-                monitoring layer — competitors selling utility data are locked to a single
-                manufacturer's API.
+                Only possible because we built the first unified multi-OEM monitoring layer.
               </span>
             </>
           }
           metric="$2B+"
           metricLabel="U.S. utility analytics TAM"
-        />
-
-        <EngineCard
-          number="02"
-          icon={Sparkles}
-          accent="text-eco"
-          ring="hover:border-eco/40 ring-1 ring-eco/20"
-          emphasized
-          title="Deason AI Home Energy Optimizer"
-          tagline="SaaS revenue, day one."
-          body={
-            <>
-              AI bill analysis, rate-plan optimization, and device-aware advice. Saturday Weekly
-              Energy Report (Gemini Pro on premium),{' '}
-              <span className="text-foreground">Monthly Clean Energy Report</span> after every bill
-              cycle, and <span className="text-foreground">ZenHome Flow</span> progression
-              (insight → action → autonomy). Primary upgrade incentive into the Power tier.
-            </>
-          }
-          bullets={[
-            '$4.99/mo subscription',
-            'Monthly Clean Energy Report',
-            'ZenHome Flow progression',
-            '$50M+ ARR at 1M subs @ 15% attach',
-          ]}
-          metric="$4.99/mo"
-          metricLabel="add-on · $19.99 audit · Power $49.99"
-        />
-
-        <EngineCard
-          number="03"
-          icon={Coins}
-          accent="text-amber-400"
-          ring="hover:border-amber-400/40"
-          title="Token Economics"
-          tagline="LP fees + 2% treasury, on every mint."
-          body={
-            <>
-              1T hard cap. 75/20/3/2 mint split (user / burn / LP / treasury). $0.10 LP-seeded
-              launch on Base. Transfer tax compounds LP depth and treasury yield perpetually as
-              minting and trading volume grow.
-            </>
-          }
-          metric="1T cap"
-          metricLabel="$0.10 launch · 75/20/3/2 · LP + treasury yield"
         />
       </div>
     </div>
@@ -124,6 +140,7 @@ function EngineCard({
   bullets,
   metric,
   metricLabel,
+  children,
 }: {
   number: string;
   icon: typeof Database;
@@ -136,6 +153,7 @@ function EngineCard({
   bullets?: string[];
   metric: string;
   metricLabel: string;
+  children?: React.ReactNode;
 }) {
   return (
     <div
@@ -167,6 +185,7 @@ function EngineCard({
           ))}
         </ul>
       )}
+      {children}
       <div className="mt-4 pt-3 border-t border-border/40">
         <div className={`text-lg md:text-xl font-semibold ${accent}`}>{metric}</div>
         <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5">
