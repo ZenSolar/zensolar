@@ -198,7 +198,7 @@ export default function Investor() {
               {[
                 { k: '$0.10', v: 'Launch price' },
                 { k: '1T', v: 'Hard cap' },
-                { k: '75%', v: 'Mint to user' },
+                { k: '50%', v: 'Mint to user' },
               ].map((s) => (
                 <div
                   key={s.v}
