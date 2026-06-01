@@ -17,10 +17,10 @@ export function InvestorDemoChip() {
       aria-live="polite"
     >
       <div
-        className="flex items-center gap-1.5 rounded-full border border-primary/40 bg-background/85 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary shadow-[0_4px_18px_-6px_hsl(var(--primary)/0.55)] backdrop-blur-sm"
+        className="flex items-center gap-1.5 whitespace-nowrap rounded-full border border-primary/40 bg-background/85 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary shadow-[0_4px_18px_-6px_hsl(var(--primary)/0.55)] backdrop-blur-sm"
       >
         <Sparkles className="h-3 w-3" aria-hidden="true" />
-        <span>Investor Demo Mode</span>
+        <span>Investor Demo</span>
         <button
           type="button"
           onClick={disable}
