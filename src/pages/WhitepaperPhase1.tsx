@@ -210,7 +210,7 @@ function Phase1Content() {
               </table>
             </div>
             <p className="text-xs text-muted-foreground mt-3">
-              Split applied per mint: 50% user · 20% LP · 20% burn · 10% treasury. Transfer tax adds 7% (3 burn / 2 LP / 2 treasury).
+              Split applied per mint: 50% user · 25% LP · 20% burn · 5% treasury. Separate 3% transfer tax recycles to LP.
             </p>
           </section>
 

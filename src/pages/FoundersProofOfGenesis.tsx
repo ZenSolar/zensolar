@@ -392,7 +392,7 @@ function Content() {
               <p className="text-sm text-foreground/90 leading-relaxed">
                 Patent-protected across 8 categories.
                 Founder-locked for life via the Family Legacy Pact.
-                Revenue-backed from day one (subscriptions + 7% transfer tax + redemption fees).
+                Revenue-backed from day one (subscriptions + 3% transfer tax (LP recycle) + redemption fees).
                 Launch-priced at $0.10 via LP-tranched rounds — never a 1T dump.
                 Execution is the only variable.
               </p>
@@ -542,7 +542,7 @@ function BTCvsZSOLARTable() {
     ["ESG capital access", "Forbidden by most mandates", "Native fit — trillions structurally unlocked"],
     ["Patent moat", "None", "8 categories, patent-pending"],
     ["Founder accountability", "Anonymous, gone", "Two named founders, pact-locked for life"],
-    ["Protocol revenue", "$0", "Subscriptions + 7% transfer tax + redemption fees"],
+    ["Protocol revenue", "$0", "Subscriptions + 3% transfer tax (LP recycle) + redemption fees"],
     ["Launch mechanics", "Mined into existence over 100+ yrs", "LP-tranched at $0.10 — engineered floor per round"],
     ["Real-world settlement", "Speculative", "Carbon credits, OEM resale, utility hedging"],
     ["Market cap (today)", "~$2T", "Path to $10T+ (5–10× BTC in 5–10 yrs)"],

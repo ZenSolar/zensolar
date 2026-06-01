@@ -350,7 +350,7 @@ function PackContent() {
           <StatRow label="Hard cap" value="1,000,000,000,000" sub="1 trillion $ZSOLAR — first energy protocol with century-scale runway" />
           <StatRow label="Operating horizon" value="100+ years" sub="Designed to outlive every founder, on-chain forever" />
           <StatRow label="Patent surface" value="8 categories" sub="Solar · Battery · EV charging · Miles · FSD · Robotaxi · Optimus · Starlink" />
-          <StatRow label="Scarcity vectors" value="5 stacked" sub="Bitcoin has 1. We stack hard cap + halving + 20% mint burn + 7% transfer tax + 5% redemption burn" />
+          <StatRow label="Scarcity vectors" value="5 stacked" sub="Bitcoin has 1. We stack hard cap + halving + 20% mint burn + 3% transfer tax (LP recycle) + 5% redemption burn" />
           <StatRow label="Trillionaire crossover" value="$6.67 / $20" sub="Joseph at $6.67 · Michael at $20 · neither ever sells" />
         </Stat>
         <Pull>

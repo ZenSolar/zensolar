@@ -141,7 +141,7 @@ const investorBenefits = [
   {
     icon: Shield,
     title: "Aggressive Deflationary Mechanics",
-    description: "20% of all minted tokens are permanently burned. 7% transfer tax (3% burn, 2% LP, 2% treasury) creates continuous scarcity.",
+    description: "20% of all minted tokens are permanently burned. 3% transfer tax (LP recycle) compounds with continuous mint burn for net-negative issuance.",
   },
   {
     icon: Cpu,

@@ -326,7 +326,7 @@ export default function AdminRevenueFlywheel() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-emerald-500 font-bold">✓</span>
-                <span><strong>Deflationary:</strong> 20% mint burn + 7% transfer tax (3% burn + 2% LP + 2% treasury)</span>
+                <span><strong>Deflationary:</strong> 20% mint burn + separate 3% transfer tax (LP recycle)</span>
               </li>
             </ul>
             <div className="pt-4 border-t mt-4">
