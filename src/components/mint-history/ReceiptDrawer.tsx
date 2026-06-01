@@ -99,17 +99,17 @@ interface ReceiptDrawerProps {
 
 const ACTION_META: Record<string, { label: string; description: string }> = {
   register: { label: "Welcome NFT", description: "Onboarding mint — Welcome NFT issued on Base." },
-  "mint-rewards": { label: "$ZSOLAR Token Mint", description: "Energy-backed mint. 75% to you, 20% burned, 3% LP, 2% treasury." },
+  "mint-rewards": { label: "$ZSOLAR Token Mint", description: "Energy-backed mint. 50% to you · the protocol matches it 1-for-1: 20% LP, 20% burn, 10% treasury." },
   "mint-combos": { label: "Combo Achievement", description: "Combo NFTs awarded for hitting multi-source milestones." },
   "claim-milestone-nfts": { label: "Milestone Claim", description: "Milestone NFT claimed on-chain." },
 };
 
-/** Brand mint-split — keep in sync with mem://features/tokenomics */
+/** Brand mint-split — v3.1 LOCKED (50/20/20/10) — keep in sync with mem://features/tokenomics */
 const SPLIT = [
-  { key: "user", label: "You", pct: 75, color: "bg-primary", icon: Wallet },
+  { key: "user", label: "You", pct: 50, color: "bg-primary", icon: Wallet },
+  { key: "lp", label: "LP", pct: 20, color: "bg-accent-cool", icon: Sparkles },
   { key: "burn", label: "Burn", pct: 20, color: "bg-destructive/80", icon: Flame },
-  { key: "lp", label: "LP Seed", pct: 3, color: "bg-accent-cool", icon: Sparkles },
-  { key: "treasury", label: "Treasury", pct: 2, color: "bg-accent-warm", icon: ShieldCheck },
+  { key: "treasury", label: "Treasury", pct: 10, color: "bg-accent-warm", icon: ShieldCheck },
 ] as const;
 
 function getExplorerUrl(txHash: string) {
