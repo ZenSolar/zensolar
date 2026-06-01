@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo, useEffect } from 'react';
+import { useRef, useState, useMemo, useEffect, lazy, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { useDemoContext } from '@/contexts/DemoContext';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
@@ -30,7 +30,11 @@ import { InvestorDemoChip } from '@/components/demo/InvestorDemoChip';
 import { InvestorEnergyFlowCard } from '@/components/demo/InvestorEnergyFlowCard';
 import { useInvestorDemoMode } from '@/hooks/useInvestorDemoMode';
 
-import { CO2OffsetCard } from '@/components/dashboard/CO2OffsetCard';
+// CO2OffsetCard is recharts-heavy (~676 lines + recharts chunk) and lives
+// below the fold on mobile. Lazy-load so it doesn't block first paint.
+const CO2OffsetCard = lazy(() =>
+  import('@/components/dashboard/CO2OffsetCard').then((m) => ({ default: m.CO2OffsetCard }))
+);
 import { generateDailyBreakdown, type DailyBreakdown } from '@/lib/dailyMintBreakdown';
 import type { MintTokenCategory } from '@/components/dashboard/MintTokenDialog';
 import { isVipActive } from '@/lib/vipDemo';
@@ -288,7 +292,9 @@ export function DemoDashboard() {
 
         {/* Prominent CO₂ Offset card with per-activity drill-down — mirrors live beta */}
         <AnimatedItem>
-          <CO2OffsetCard activityData={activityData} isLoading={isLoading} />
+          <Suspense fallback={<div className="h-64 rounded-2xl bg-card/10 animate-pulse" aria-hidden="true" />}>
+            <CO2OffsetCard activityData={activityData} isLoading={isLoading} />
+          </Suspense>
         </AnimatedItem>
 
         <SectionDivider />
