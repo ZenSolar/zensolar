@@ -24,6 +24,7 @@ import { todayStamp } from '@/lib/csvExport';
 import { ReceiptDrawer } from '@/components/mint-history/ReceiptDrawer';
 import { Button } from '@/components/ui/button';
 import { Receipt } from 'lucide-react';
+import { SEO } from '@/components/SEO';
 
 interface MintTransaction {
   id: string;
@@ -165,6 +166,11 @@ export default function MintHistory() {
 
   return (
     <PageTransition>
+    <SEO
+      title="Mint History — ZenSolar"
+      description="Every $ZSOLAR token and NFT you've earned, with on-chain proof on Base."
+      url="https://zensolar.com/mint-history"
+    />
     <PullToRefreshWrapper onRefresh={handleRefresh}>
       <PageShell
         title="Mint History"

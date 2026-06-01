@@ -13,13 +13,21 @@ export default function InvestorPitch() {
   return (
     <>
       <Helmet>
-        <title>Investor Pitch v2 — ZenSolar</title>
+        <title>ZenSolar — Investor Pitch v2 · Creating Currency From Energy</title>
         <meta
           name="description"
           content="ZenSolar Investor Pitch v2 — Creating currency from energy. Flywheel, three revenue engines, the live multi-OEM monitoring moat, and the Strategic Seed ask."
         />
         <link rel="canonical" href="https://www.zensolar.com/investor/pitch" />
+        <meta property="og:title" content="ZenSolar — Investor Pitch v2" />
+        <meta property="og:description" content="Flywheel, three revenue engines, the live multi-OEM monitoring moat, and the Strategic Seed ask." />
+        <meta property="og:type" content="article" />
         <meta property="og:url" content="https://www.zensolar.com/investor/pitch" />
+        <meta property="og:image" content="https://zensolar.com/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="ZenSolar — Investor Pitch v2" />
+        <meta name="twitter:description" content="Creating currency from energy. The flywheel, three engines, and multi-OEM moat." />
+        <meta name="twitter:image" content="https://zensolar.com/og-image.png" />
       </Helmet>
 
       <div className="min-h-screen bg-background text-foreground">

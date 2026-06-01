@@ -159,13 +159,21 @@ export default function Investor() {
   return (
     <>
       <Helmet>
-        <title>Investor Access — ZenSolar</title>
+        <title>ZenSolar — Investor Access · Seed Round</title>
         <meta
           name="description"
           content="Sign our NDA to access the ZenSolar seed deck, tokenomics model, and live demo. Creating currency from energy."
         />
         <link rel="canonical" href="https://www.zensolar.com/investor" />
+        <meta property="og:title" content="ZenSolar — Investor Access" />
+        <meta property="og:description" content="NDA-gated seed deck, tokenomics, and live multi-OEM demo. Creating currency from energy." />
+        <meta property="og:type" content="website" />
         <meta property="og:url" content="https://www.zensolar.com/investor" />
+        <meta property="og:image" content="https://zensolar.com/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="ZenSolar — Investor Access" />
+        <meta name="twitter:description" content="NDA-gated seed deck, tokenomics, and live multi-OEM demo." />
+        <meta name="twitter:image" content="https://zensolar.com/og-image.png" />
       </Helmet>
 
       <div className="min-h-screen bg-background text-foreground">

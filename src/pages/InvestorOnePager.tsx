@@ -35,7 +35,8 @@ export default function InvestorOnePager() {
   return (
     <>
       <Helmet>
-        <title>ZenSolar · Investor One-Pager</title>
+        <title>ZenSolar — Investor One-Pager</title>
+        <meta name="description" content="The ZenSolar one-page investor summary — what we do, the moat, the ask." />
         <meta name="robots" content="noindex,nofollow" />
         <link rel="canonical" href="https://www.zensolar.com/investor/one-pager" />
       </Helmet>

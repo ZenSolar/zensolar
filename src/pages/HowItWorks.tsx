@@ -21,7 +21,8 @@ export default function HowItWorks() {
       <SEO
         title="How ZenSolar Works — Creating Currency From Energy"
         description="Connect your Tesla, Enphase, SolarEdge, or Wallbox. Every verified kWh becomes $ZSOLAR through the Proof-of-Genesis™ protocol — 1 kWh = 1 $ZSOLAR."
-        url="https://beta.zen.solar/how-it-works"
+        url="https://zensolar.com/how-it-works"
+        image="https://zensolar.com/og-technology.png"
       />
       <div className="min-h-screen">
         <HowToPlayHero />

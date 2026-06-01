@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Loader2, KeyRound, Delete, Check, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -122,6 +123,12 @@ export default function DeckPinGated() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[hsl(220,20%,6%)] text-white">
+      <Helmet>
+        <title>ZenSolar — Seed Deck (PIN required)</title>
+        <meta name="description" content="ZenSolar seed deck — PIN-gated investor access. Creating currency from energy." />
+        <meta name="robots" content="noindex,nofollow" />
+        <link rel="canonical" href="https://www.zensolar.com/deck" />
+      </Helmet>
       <div className="flex-1 flex items-center justify-center px-6 py-10">
         <div
           className={`w-full max-w-xs space-y-6 text-center ${

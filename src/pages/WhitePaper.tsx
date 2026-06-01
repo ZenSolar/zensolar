@@ -356,10 +356,11 @@ export default function WhitePaper() {
 
   return (
     <>
-      <SEO 
-        title="ZenSolar White Paper - Clean Energy Blockchain Rewards"
-        url="https://zensolar.lovable.app/white-paper"
-        image="https://zensolar.lovable.app/og-whitepaper.png"
+      <SEO
+        title="ZenSolar White Paper — Mint Split v3.1, Proof-of-Genesis, Energy Oracle"
+        description="The full ZenSolar protocol white paper — v3.1 mint distribution, Proof-of-Genesis™ verification, kWh floor narrative, and the path from Base Sepolia to mainnet."
+        url="https://zensolar.com/white-paper"
+        image="https://zensolar.com/og-whitepaper.png"
       />
       <div className="min-h-screen bg-background">
 
