@@ -4,13 +4,10 @@ import { Link } from 'react-router-dom';
 import {
   Lock,
   FileText,
-  Presentation,
-  BarChart3,
   PlayCircle,
   CheckCircle2,
   ArrowDown,
   Mail,
-  Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { NdaSignatureStep } from '@/components/demo/NdaSignatureStep';
@@ -79,10 +76,8 @@ function buildUnlocks(preview: boolean): Array<{
   to: string;
 }> {
   return [
-    { icon: Presentation, label: 'Seed Pitch Deck', desc: 'Full investor narrative', to: '/investor/pitch' },
-    { icon: FileText, label: 'Full Pitch Deck', desc: '12 slides · PIN-gated', to: '/deck' },
-    { icon: BarChart3, label: 'Tokenomics Model', desc: '1T cap · $0.10 launch math', to: '/tokenomics' },
     { icon: PlayCircle, label: 'Live Investor Demo', desc: 'Proof of Genesis in your hand', to: preview ? '/demo-leonardo' : '/demo' },
+    { icon: FileText, label: 'Full Pitch Deck', desc: '12 slides · PIN-gated', to: '/deck' },
   ];
 }
 
@@ -365,13 +360,6 @@ function UnlockedPanel({
 
       <div className="grid gap-3 md:grid-cols-2">
         <UnlockedCard
-          icon={Sparkles}
-          title="Investor Pitch · v2"
-          body="Canonical pitch: flywheel, three engines, multi-OEM moat, the ask."
-          to="/investor/pitch"
-          internal
-        />
-        <UnlockedCard
           icon={PlayCircle}
           title="Live Investor Demo"
           body="Proof of Genesis™ flow on real data. Mobile-first."
@@ -383,13 +371,6 @@ function UnlockedPanel({
           title="Full Pitch Deck"
           body="12-slide investor deck. Title → Catalyst → Engines → Ask."
           to="/deck"
-          internal
-        />
-        <UnlockedCard
-          icon={BarChart3}
-          title="Tokenomics & LP Model"
-          body="Zen Monitoring — the first-of-its-kind multi-OEM live energy cockpit. 1T cap, 50/25/20/3/2 split, $0.10 LP-seeded tranches."
-          to="/tokenomics"
           internal
         />
       </div>

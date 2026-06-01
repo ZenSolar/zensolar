@@ -67,7 +67,7 @@ function Phase1Content() {
               production and clean-mile travel. Phase 1 covers the Tesla and home-energy ecosystem: rooftop solar
               (SolarEdge, Enphase, Tesla Solar), home batteries (Powerwall), EV charging (Tesla, Wallbox), and EV miles
               driven. The protocol pairs cryptographic mint-on-proof with a hard 1T cap, LP-seeded tranche releases at
-              a $0.10 launch price, and a 75/20/3/2 mint split (user / burn / LP / treasury).
+              a $0.10 launch price, and a 50/20/20/10 mint split (user / burn / LP / treasury).
             </p>
           </section>
 
@@ -140,7 +140,7 @@ function Phase1Content() {
               <div className="pl-4 text-muted-foreground">↓ HMAC-signed delta payload</div>
               <div><span className="text-amber-400">[4] Attestation</span> &rarr; oracle submits <code>(delta, sig, baseline_hash)</code> to mint contract. Contract verifies sig + dedupe.</div>
               <div className="pl-4 text-muted-foreground">↓ on-chain attestation event</div>
-              <div><span className="text-amber-400">[5] Proportional Mint</span> &rarr; contract mints <code>units × rate</code> tokens, applies 75/20/3/2 split atomically.</div>
+              <div><span className="text-amber-400">[5] Proportional Mint</span> &rarr; contract mints <code>units × rate</code> tokens, applies 50/20/20/10 split atomically.</div>
               <div className="pl-4 text-muted-foreground">↓ Transfer events to user / burn / LP / treasury</div>
               <div><span className="text-amber-400">[6] Settlement</span> &rarr; <code>last_minted_at</code> + <code>lifetime_totals</code> updated. Next mint baselines off this point.</div>
             </div>
@@ -210,13 +210,13 @@ function Phase1Content() {
               </table>
             </div>
             <p className="text-xs text-muted-foreground mt-3">
-              Split applied per mint: 75% user · 20% burn · 3% LP · 2% treasury. Transfer tax adds 7% (3 burn / 2 LP / 2 treasury).
+              Split applied per mint: 50% user · 20% LP · 20% burn · 10% treasury. Transfer tax adds 7% (3 burn / 2 LP / 2 treasury).
             </p>
           </section>
 
           <section className="border-t border-border pt-6 text-xs text-muted-foreground">
             Confidential. Do not share outside Joseph & Michael. Numbers reflect current Phase 1 model
-            (1T cap · $0.10 launch · 75/20/3/2). Subject to revision.
+            (1T cap · $0.10 launch · 50/20/20/10). Subject to revision.
           </section>
         </article>
       </div>

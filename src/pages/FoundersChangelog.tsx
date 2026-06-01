@@ -74,7 +74,7 @@ const ENTRIES: ChangelogEntry[] = [
         heading: "Strategic Decisions Locked",
         icon: "strategy",
         bullets: [
-          "SSoT v2.1 is canonical: 10 kWh = 1 $ZSOLAR (and 10 EV miles = 1 $ZSOLAR). Replaces the prior 1:1 model. 75/20/3/2 split, 1T cap, $0.10 launch, founder pact-locks all unchanged.",
+          "SSoT v2.1 is canonical: 10 kWh = 1 $ZSOLAR (and 10 EV miles = 1 $ZSOLAR). Replaces the prior 1:1 model. 50/20/20/10 split, 1T cap, $0.10 launch, founder pact-locks all unchanged.",
           "Subscription tiers locked at Base $9.99 / Regular $19.99 / Power $49.99 — every dollar splits 50% LP / 50% Treasury. Names are Base/Regular/Power externally — never 'Tier-1/2/3'.",
           "Genesis Halving primary trigger = 250,000 paying subscribers; fallback = 4-year on-chain cadence. Always called 'Genesis Halving' in user-facing copy.",
           "ZenSolar does NOT issue carbon credits. Every $ZSOLAR mint = real-world utility + currency from renewable energy. Bitcoin PoW destroys energy as heat (~1.4M kWh per BTC); ZSOLAR PoG creates currency from already-productive kWh.",
@@ -151,7 +151,7 @@ const ENTRIES: ChangelogEntry[] = [
         bullets: [
           "Wallbox confirmed as a verified live OEM via Tschida — real charging data flowing through the API.",
           "Provider status now: ✅ Tesla · ✅ Enphase · ✅ Wallbox · ⏳ SolarEdge (no live user yet).",
-          "Proof-of-Genesis receipt EV mint fixed: 52 mi → 39.00 $ZSOLAR (1 token/mile × 0.75 user share), with 17.33 kWh equivalent shown.",
+          "Proof-of-Genesis receipt EV mint fixed: 52 mi → 39.00 $ZSOLAR (1 token/mile × 0.5 user share), with 17.33 kWh equivalent shown.",
           "Hero stats are now context-aware: EV mints show 'Miles Driven', solar/battery mints show 'Verified Energy'.",
           "CO₂ panel reframed source-by-source: EV → gasoline gallons + kg CO₂ avoided vs ICE; solar/battery → grid CO₂ displaced.",
           "New 'vs. Bitcoin Proof-of-Work' comparison chip on every receipt — anchors Proof-of-Genesis™ as the regenerative inverse of PoW (~707 kg CO₂/BTC tx avoided).",
@@ -171,7 +171,7 @@ const ENTRIES: ChangelogEntry[] = [
         bullets: [
           "Verified-live OEM list: Tesla, Enphase, Wallbox. SolarEdge pending first user.",
           "Receipt CO₂ framing rule: context-aware per primary source + always include PoW comparison chip.",
-          "EV mint math: 1 $ZSOLAR per mile × 0.75 user share; show kWh-equivalent at 3.0 mi/kWh.",
+          "EV mint math: 1 $ZSOLAR per mile × 0.5 user share; show kWh-equivalent at 3.0 mi/kWh.",
         ],
       },
     ],

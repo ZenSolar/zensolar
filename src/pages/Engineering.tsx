@@ -285,7 +285,7 @@ export default function Engineering() {
                 icon={Workflow}
                 title="The Tokenomics Engine"
                 plain="Every mint is split four ways automatically: most goes to you, some is burned forever, some seeds liquidity, and a sliver funds the treasury."
-                technical="On-chain split: 75% user / 20% burn / 3% LP / 2% treasury. Hard cap of 10B tokens. Burn logic is irreversible. LP automation routes through the pool atomically."
+                technical="On-chain split: 50% user / 20% LP / 20% burn / 10% treasury. Hard cap of 10B tokens. Burn logic is irreversible. LP automation routes through the pool atomically."
               />
               <PillarCard
                 icon={Bell}
@@ -650,7 +650,7 @@ export default function Engineering() {
                   </div>
                   <div className="p-3 rounded-lg border border-border/40 bg-background/40">
                     <p className="text-xs uppercase tracking-wider text-muted-foreground">Mint split</p>
-                    <p className="text-lg font-bold">75 / 20 / 3 / 2</p>
+                    <p className="text-lg font-bold">50 / 20 / 20 / 10</p>
                     <p className="text-xs text-muted-foreground">user / burn / LP / treasury</p>
                   </div>
                   <div className="p-3 rounded-lg border border-border/40 bg-background/40">

@@ -7,7 +7,7 @@ Dark theme, "Less is More". Emerald green primary. 100svh/100dvh.
 Investor revenue engines (LOCKED Jun 2026 corrections): 01 Monthly Subscription + Deason AI ($4.99 premium add-on on $9.99/$19.99/$49.99 tiers), 02 Token Economics (core product, long-term primary revenue driver — 1T cap, 7% transfer tax), 03 Aggregated Energy Data.
 Investor pages: no Founder Bios card, no Schedule a Call card — single `joe@zensolar.com` mailto in footer is the only contact path.
 Embedded Coinbase Wallet. Reown AppKit. Hard redirects for OAuth.
-1T hard cap. Mint split: 75% user, 20% burn, 3% LP, 2% treasury. Mint ratio LOCKED v3.0 at 1 kWh = 1 $ZSOLAR (reverted from 10:1 on 2026-05-18). Sell pressure managed via Hybrid sell-throttle (vesting + stake-to-unlock); lever values TBD. Seed ask: $5M target · $20M post-money · $7M hard cap (SAFE, post-money). Full lever menu at /founders/creative-1to1-tokenomics.
+1T hard cap. Mint split v3.1 (LIVE): 50% user · 20% LP · 20% burn · 10% treasury. UI ALWAYS shows 1 kWh = 1 $ZSOLAR — protocol matches the user's mint 1-for-1 in the background ("401(k)-match" framing, never "haircut"). Supersedes 50/25/20/3/2 (proposed, never live) and legacy 75/20/3/2. Mint ratio LOCKED v3.1 at 1 kWh = 1 $ZSOLAR. Sell pressure managed via Hybrid sell-throttle (vesting + stake-to-unlock); lever values TBD. Seed ask: $5M target · $20M post-money · $7M hard cap (SAFE, post-money). Full lever menu at /founders/creative-1to1-tokenomics.
 Launch price $0.10 USDC via LP-seeded tranches — NEVER "launch at $1".
 Launch price (LP math) and kWh-floor are TWO INDEPENDENT mechanisms — never conflate.
 Founders pact-locked: Joseph 150B, Michael 50B. $1T crossovers: $6.67 / $20.
@@ -21,6 +21,7 @@ Patent status: ONLY the non-provisional "Gamifying and Tokenizing Sustainable Be
 
 ## Memories
 - [Fundraising Strategy (Strategic Seed)](mem://features/fundraising-strategy.md) — $3M/$5M cap, Lyndon Rive anchor via Jo Ferrier, MZ Group plan B, use-of-funds, deck rules
+- [Mint Split v3.1 (LIVE)](mem://features/mint-split-v3-locked) — 50/20/20/10 split, UI 1:1, 401(k)-match framing. Supersedes 50/25/20/3/2 and 75/20/3/2.
 - [Mint ratio SSoT (1:1)](mem://features/mint-ratio-ssot) — Strictly 1 $ZSOLAR = 1 kWh = 1 mile. Never multiply tokens by 10. Never back-calc via `tokens / USER_SHARE`.
 - [Battery bi-dir not integrated](mem://features/battery-bidir-not-integrated) — Receipts/KPIs must NOT read bidir_export/bidir_out/bidir_import rows yet.
 - [v2 Tokenomics Flywheel](mem://features/tiered-subscriptions-halving-flywheel) — 3 subscription tiers + Genesis Halving + per-tier flywheel math.

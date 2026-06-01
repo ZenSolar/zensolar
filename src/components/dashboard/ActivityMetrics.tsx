@@ -239,7 +239,7 @@ export function ActivityMetrics({
 
   const activityUnits = totalPendingSolarFromDevices + totalPendingEvFromDevices + totalPendingBatteryFromDevices + current.chargingKwh;
   // v2.1 — 10:1 mint ratio: 10 kWh / 10 miles = 1 $ZSOLAR. Live Beta multiplier (10x) applies on top.
-  // Then 75% user share. Example mainnet: 1000 kWh → 100 raw → 75 received.
+  // Then 50% user share. Example mainnet: 1000 kWh → 100 raw → 75 received.
   const rawTokens = (activityUnits * getRewardMultiplier()) / MINT_RATIO_KWH_PER_TOKEN;
   const tokensToReceive = Math.floor(rawTokens * 0.75);
   const tokensEligible = Math.floor(activityUnits / MINT_RATIO_KWH_PER_TOKEN); // headline "X tokens eligible for minting"
@@ -1716,7 +1716,7 @@ interface TotalTokensCardProps {
 function TotalTokensCard({ tokensToReceive, tokensEligible, activityUnits, tokenPrice, onMintRequest }: TotalTokensCardProps) {
   const isTappable = activityUnits > 0 && !!onMintRequest;
   const eligible = tokensEligible ?? Math.floor(activityUnits / MINT_RATIO_KWH_PER_TOKEN);
-  // Hero number = full cumulative mintable total (100%). The 75% user share is revealed
+  // Hero number = full cumulative mintable total (100%). The 50% user share is revealed
   // on the confirm-mint screen after double-tap, matching per-source KPI behavior.
   const heroTokens = eligible;
   const usdValue = heroTokens * tokenPrice;

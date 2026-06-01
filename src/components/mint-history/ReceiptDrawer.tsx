@@ -99,17 +99,17 @@ interface ReceiptDrawerProps {
 
 const ACTION_META: Record<string, { label: string; description: string }> = {
   register: { label: "Welcome NFT", description: "Onboarding mint — Welcome NFT issued on Base." },
-  "mint-rewards": { label: "$ZSOLAR Token Mint", description: "Energy-backed mint. 75% to you, 20% burned, 3% LP, 2% treasury." },
+  "mint-rewards": { label: "$ZSOLAR Token Mint", description: "Energy-backed mint. 50% to you · the protocol matches it 1-for-1: 20% LP, 20% burn, 10% treasury." },
   "mint-combos": { label: "Combo Achievement", description: "Combo NFTs awarded for hitting multi-source milestones." },
   "claim-milestone-nfts": { label: "Milestone Claim", description: "Milestone NFT claimed on-chain." },
 };
 
-/** Brand mint-split — keep in sync with mem://features/tokenomics */
+/** Brand mint-split — v3.1 LOCKED (50/20/20/10) — keep in sync with mem://features/tokenomics */
 const SPLIT = [
-  { key: "user", label: "You", pct: 75, color: "bg-primary", icon: Wallet },
+  { key: "user", label: "You", pct: 50, color: "bg-primary", icon: Wallet },
+  { key: "lp", label: "LP", pct: 20, color: "bg-accent-cool", icon: Sparkles },
   { key: "burn", label: "Burn", pct: 20, color: "bg-destructive/80", icon: Flame },
-  { key: "lp", label: "LP Seed", pct: 3, color: "bg-accent-cool", icon: Sparkles },
-  { key: "treasury", label: "Treasury", pct: 2, color: "bg-accent-warm", icon: ShieldCheck },
+  { key: "treasury", label: "Treasury", pct: 10, color: "bg-accent-warm", icon: ShieldCheck },
 ] as const;
 
 function getExplorerUrl(txHash: string) {
@@ -126,8 +126,8 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
 
   const meta = ACTION_META[tx.action] ?? { label: tx.action, description: "On-chain transaction." };
   const userTokens = Number(tx.tokens_minted) || 0;
-  // tokens_minted is already the 75% user share — derive grand total for split viz
-  const grandTotal = userTokens > 0 ? userTokens / 0.75 : 0;
+  // tokens_minted is already the 50% user share — derive grand total for split viz (v3.1)
+  const grandTotal = userTokens > 0 ? userTokens / 0.5 : 0;
   const hasSplit = userTokens > 0;
   const source = summarizeSource(tx);
   // Prefer the unified /verify/:chain_hash URL — one canonical receipt link.
@@ -145,7 +145,7 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
       "",
       `Action: ${meta.label}`,
       `Date: ${format(new Date(tx.created_at), "PPpp")}`,
-      userTokens > 0 ? `Earned: ${userTokens.toLocaleString()} $ZSOLAR (75% user share)` : null,
+      userTokens > 0 ? `Earned: ${userTokens.toLocaleString()} $ZSOLAR (50% user share)` : null,
       tx.nft_names?.length ? `NFTs: ${tx.nft_names.join(", ")}` : null,
       `Wallet: ${tx.wallet_address}`,
       `Tx: ${tx.tx_hash}`,
@@ -285,7 +285,7 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
                   Mint Split
                 </h3>
                 <span className="ml-auto text-[10px] text-muted-foreground">
-                  Brand: 75 / 20 / 3 / 2
+                  Brand: 50 / 20 / 20 / 10
                 </span>
               </div>
 

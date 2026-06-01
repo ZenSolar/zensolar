@@ -112,7 +112,7 @@ export function ProofOfGenesisTile({
 
           <p className="text-xs text-muted-foreground leading-relaxed mb-3 sm:mb-4">
             Every Proof of Genesis™ is backed by a verified chain: real kWh from your
-            devices, watermarked on-chain, split 75/20/3/2, and offset against
+            devices, watermarked on-chain, split 50/20/20/10, and offset against
             CO₂. This is the proof.
           </p>
 

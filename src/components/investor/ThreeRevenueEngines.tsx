@@ -76,14 +76,14 @@ export function ThreeRevenueEngines() {
           body={
             <>
               Core product and primary long-term revenue driver.{' '}
-              <span className="text-foreground">1T hard cap, 50% minted to user, 25% directly to
-              liquidity pool, 20% burn, 3% LP fee, 2% treasury</span>. Every verified kWh now
-              injects significantly more liquidity, creating a much stronger flywheel and price
-              resilience.
+              <span className="text-foreground">1T hard cap. Every verified kWh shows 1:1 in the
+              user's wallet, and the protocol matches it 1-for-1 in the background — 20% LP, 20%
+              burn, 10% treasury</span>. Every mint deepens liquidity and tightens supply in the
+              same transaction — a 401(k)-style match for clean energy.
             </>
           }
           bullets={[
-            '1T hard cap · 50 user · 25 LP · 20 burn · 3 fee · 2 treasury',
+            '1T hard cap · 50 user · 20 LP · 20 burn · 10 treasury',
             '$0.10 LP-seeded launch on Base',
             '7% transfer tax → 3% burn · 2% LP · 2% treasury',
             'Transfer-tax volume + treasury yield = long-term primary revenue',

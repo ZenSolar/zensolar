@@ -38,7 +38,7 @@ export const LIVE_BETA_MULTIPLIER = 10;
 
 // === MODEL METADATA ===
 export const MODEL_NAME = '1T Trillionaire Strategy';
-export const MODEL_VERSION = 3.0; // v3.0 — Reverted to 1:1 mint ratio + Hybrid stake-to-unlock sell-throttle
+export const MODEL_VERSION = 3.1; // v3.1 — Mint split locked at 50/20/20/10 (user/LP/burn/treasury) + 401(k)-match UX framing
 
 // === MINT RATIO (v3.0 LOCKED — 2026-05-18) ===
 // 1 kWh (or 1 mile) of verified clean-energy activity = 1 $ZSOLAR minted.
@@ -46,7 +46,7 @@ export const MODEL_VERSION = 3.0; // v3.0 — Reverted to 1:1 mint ratio + Hybri
 // ("1 kWh of clean energy = 1 unit of currency"). The 10× higher issuance is
 // counter-balanced by mandatory Hybrid sell-throttle levers (vesting + stake-to-unlock),
 // NOT by diluting the ratio. See FoundersCreative1to1Tokenomics for full lever menu.
-// Realistic average: 700 kWh/user/month → 700 $ZSOLAR minted → 525 received (75% user share)
+// Realistic average: 700 kWh/user/month → 700 $ZSOLAR shown to user (1:1), protocol matches with another 700 raw (140 LP / 140 burn / 70 treasury)
 // Of those 525, only a fraction is liquid at any time (vesting + stake gates).
 export const MINT_RATIO_KWH_PER_TOKEN = 1;
 export const MINT_RATIO_LABEL = '1 kWh = 1 $ZSOLAR';
@@ -117,12 +117,16 @@ export const LP_SEED = {
 
 export const getActiveLPSeed = () => getLiveBetaMode() ? LP_SEED.liveBeta : LP_SEED.mainnet;
 
-// === MINT DISTRIBUTION ===
+// === MINT DISTRIBUTION (v3.1 LOCKED — 50/20/20/10) ===
+// 50% user · 20% LP · 20% burn · 10% treasury.
+// UI ALWAYS shows 1 kWh = 1 $ZSOLAR to the user. The protocol matches the user's
+// mint 1-for-1 in the background ("401(k)-match" framing). Supersedes the
+// previous 50/25/20/3/2 split (LP fee folded into LP; treasury increased for runway).
 export const MINT_DISTRIBUTION = {
-  user: 75,
+  user: 50,
+  lp: 20,
   burn: 20,
-  lp: 3,
-  treasury: 2,
+  treasury: 10,
 } as const;
 
 // === TRANSFER TAX ===
@@ -302,9 +306,10 @@ export function getEffectiveRewardRate(activityType: keyof typeof BASE_REWARD_RA
 }
 
 /**
- * v3.0 — Convert raw activity (kWh or miles) into raw $ZSOLAR minted at the 1:1 ratio.
- *   • Mainnet: 700 kWh → 700 $ZSOLAR raw → 525 received (75% user share)
- *   • Liquid portion gated by Hybrid sell-throttle (vesting + stake-to-unlock)
+ * v3.1 — Convert raw activity (kWh or miles) into raw $ZSOLAR minted at the 1:1 ratio.
+ *   • Mainnet: 700 kWh → 700 $ZSOLAR raw → 350 received (50% user share),
+ *     with 140 → LP, 140 → burn, 70 → treasury as the protocol's "401(k) match"
+ *   • UI surfaces only show the user's 50% as a 1:1 mint (1 kWh = 1 $ZSOLAR)
  */
 export function calculateRawTokensFromActivity(activityUnits: number): number {
   const tokens = (activityUnits * getRewardMultiplier()) / MINT_RATIO_KWH_PER_TOKEN;
