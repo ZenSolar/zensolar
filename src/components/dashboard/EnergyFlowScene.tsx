@@ -24,7 +24,7 @@
  * v3 archived to ./archive/EnergyFlowScene.v3.tsx.
  */
 import { useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import type { EnergyFlowData } from './AnimatedEnergyFlow';
 import {
   resolveVehicleAsset,
@@ -464,11 +464,19 @@ export function EnergyFlowScene({
     Boolean(vehicleSrc) &&
     !vehicleGeneric;
 
-  // Car geometry in viewBox (0–100) space.
+  // Car geometry in viewBox (0–100) space. When actively charging at home,
+  // pull up to the garage apron with the door visually "open"; otherwise
+  // stay parked in the driveway.
+  const prefersReducedMotion = useReducedMotion();
+  const chargingAtHome = isCharging && scene !== 'night-ev';
+  const carAnchor = chargingAtHome ? HOME_BLUEPRINT.garageFront : HOME_BLUEPRINT.carPark;
   const carW = HOME_BLUEPRINT.carWidth;
   const carH = HOME_BLUEPRINT.carHeight;
-  const carX = HOME_BLUEPRINT.carPark.x - carW / 2;
-  const carY = HOME_BLUEPRINT.carPark.y - carH / 2;
+  const carX = carAnchor.x - carW / 2;
+  const carY = carAnchor.y - carH / 2;
+  const evKw = data.tesla?.kW ?? data.evPower ?? 0;
+  const evSoc = data.tesla?.soc;
+  const evRange = data.tesla?.rangeMi;
 
   return (
     <div
@@ -619,18 +627,54 @@ export function EnergyFlowScene({
           <DottedFlow id="flow-grid-home" d={BLUEPRINT_PATHS.gridToHome} color={SKY_LED} dur={flowDur(grid)} />
         )}
 
+        {/* ── Open-garage warm bloom when EV is charging at home ── */}
+        {chargingAtHome && showDynamicCar && (
+          <g style={{ pointerEvents: 'none' }}>
+            {/* Inner darker "open mouth" */}
+            <rect
+              x={HOME_BLUEPRINT.garageOpening.x + 2}
+              y={HOME_BLUEPRINT.garageOpening.y + 2}
+              width={HOME_BLUEPRINT.garageOpening.w - 4}
+              height={HOME_BLUEPRINT.garageOpening.h - 4}
+              rx={1.2}
+              fill="hsl(28 60% 8%)"
+              opacity={0.55}
+            />
+            {/* Warm interior bloom */}
+            <rect
+              x={HOME_BLUEPRINT.garageOpening.x}
+              y={HOME_BLUEPRINT.garageOpening.y}
+              width={HOME_BLUEPRINT.garageOpening.w}
+              height={HOME_BLUEPRINT.garageOpening.h}
+              rx={2}
+              fill={WARM}
+              opacity={0.22}
+              style={{ filter: 'blur(2.2px)' }}
+            >
+              {!prefersReducedMotion && (
+                <animate
+                  attributeName="opacity"
+                  values="0.18;0.30;0.18"
+                  dur="3600ms"
+                  repeatCount="indefinite"
+                />
+              )}
+            </rect>
+          </g>
+        )}
+
         {/* ── Dynamic Tesla, locked to the same coordinate system ── */}
         {showDynamicCar && vehicleSrc && (
           <g>
-            {/* Soft ground shadow */}
+            {/* Soft ground shadow — tracks the active anchor */}
             <ellipse
-              cx={HOME_BLUEPRINT.carPark.x}
-              cy={HOME_BLUEPRINT.carPark.y + carH * 0.42}
+              cx={carAnchor.x}
+              cy={carAnchor.y + carH * 0.42}
               rx={carW * 0.42}
-              ry={1.4}
+              ry={1.8}
               fill="hsl(220 70% 2%)"
-              opacity={0.5}
-              style={{ filter: 'blur(1.2px)' }}
+              opacity={0.55}
+              style={{ filter: 'blur(1.4px)' }}
             />
             <image
               href={vehicleSrc}
@@ -639,11 +683,77 @@ export function EnergyFlowScene({
               width={carW}
               height={carH}
               preserveAspectRatio="xMidYMid meet"
-              style={{ filter: 'drop-shadow(0 1px 1.5px hsl(220 70% 2% / 0.6))' }}
+              style={{ filter: 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))' }}
             />
+            {/* Emerald charge-port pulse while actively charging */}
+            {chargingAtHome && (
+              <g style={{ pointerEvents: 'none' }}>
+                <circle
+                  cx={carAnchor.x + carW * 0.30}
+                  cy={carAnchor.y - carH * 0.05}
+                  r={1.6}
+                  fill={EMERALD}
+                  opacity={0.35}
+                  style={{ filter: 'blur(0.8px)' }}
+                >
+                  {!prefersReducedMotion && (
+                    <animate
+                      attributeName="opacity"
+                      values="0.25;0.65;0.25"
+                      dur="1400ms"
+                      repeatCount="indefinite"
+                    />
+                  )}
+                </circle>
+                <circle
+                  cx={carAnchor.x + carW * 0.30}
+                  cy={carAnchor.y - carH * 0.05}
+                  r={0.7}
+                  fill={EMERALD_LED}
+                  opacity={0.95}
+                />
+              </g>
+            )}
           </g>
         )}
       </svg>
+
+      {/* HTML overlay aligned to the same square as the hero PNG / SVG.
+          Lets us drop a "Charging" pill that tracks the car anchor in
+          the exact same 0–100 coordinate space. */}
+      {showDynamicCar && chargingAtHome && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-[80%] -translate-y-1/2"
+          style={{ aspectRatio: '1 / 1', maxWidth: '94%', zIndex: 18 }}
+        >
+          <div
+            className="absolute -translate-x-1/2 -translate-y-full"
+            style={{
+              left: `${carAnchor.x}%`,
+              top: `${carAnchor.y - carH / 2 - 1}%`,
+            }}
+          >
+            <div className="flex flex-col items-center gap-1">
+              <div className="flex items-center gap-1.5 rounded-full border border-emerald-400/40 bg-background/85 px-2 py-0.5 text-[10px] font-semibold tabular-nums text-emerald-300 shadow-[0_0_14px_hsla(142,76%,50%,0.35)] backdrop-blur">
+                <span className="relative inline-flex h-1.5 w-1.5">
+                  <span className="absolute inset-0 inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                </span>
+                Charging · {evKw.toFixed(1)} kW
+              </div>
+              {(typeof evSoc === 'number' || typeof evRange === 'number') && (
+                <div className="rounded-full bg-background/70 px-1.5 py-[1px] text-[9px] font-medium tabular-nums text-foreground/80 backdrop-blur">
+                  {typeof evSoc === 'number' ? `${evSoc}%` : ''}
+                  {typeof evSoc === 'number' && typeof evRange === 'number' ? ' · ' : ''}
+                  {typeof evRange === 'number' ? `${evRange} mi` : ''}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
 
       {/* Floating labels */}
       <FlowLabel
