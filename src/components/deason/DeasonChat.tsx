@@ -688,6 +688,13 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
           </div>
         </>
       )}
+
+      {/* Citation sources sheet — lazy-loaded; renders only when a chip is tapped. */}
+      {sourcesEntries && (
+        <Suspense fallback={null}>
+          <SourcesSheet entries={sourcesEntries} onClose={() => setSourcesEntries(null)} />
+        </Suspense>
+      )}
     </div>
   );
 }
