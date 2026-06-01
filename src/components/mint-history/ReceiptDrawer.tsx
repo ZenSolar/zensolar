@@ -250,11 +250,6 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
               <p className="text-2xl font-bold tabular-nums leading-tight mt-1">
                 {userTokens.toLocaleString()}
               </p>
-              {hasSplit && (
-                <p className="text-[10px] text-muted-foreground mt-0.5">
-                  of {Math.round(grandTotal).toLocaleString()} minted
-                </p>
-              )}
             </div>
             <div className="rounded-xl border bg-card p-3">
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">NFTs</p>
@@ -265,57 +260,6 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
             </div>
           </div>
 
-          {/* Split visualization */}
-          {hasSplit && (
-            <section className="space-y-2.5">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-3.5 w-3.5 text-primary" />
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground">
-                  Mint Split
-                </h3>
-                <span className="ml-auto text-[10px] text-muted-foreground">
-                  Brand: 50 / 20 / 20 / 10
-                </span>
-              </div>
-
-              {/* Stacked bar */}
-              <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-muted">
-                {SPLIT.map((s, i) => (
-                  <motion.div
-                    key={s.key}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${s.pct}%` }}
-                    transition={{ delay: 0.1 + i * 0.08, duration: 0.5, ease: "easeOut" }}
-                    className={cn("h-full", s.color)}
-                    title={`${s.label} · ${s.pct}%`}
-                  />
-                ))}
-              </div>
-
-              <ul className="grid grid-cols-2 gap-2 pt-1">
-                {SPLIT.map((s) => {
-                  const tokens = Math.round((grandTotal * s.pct) / 100);
-                  const Icon = s.icon;
-                  return (
-                    <li
-                      key={s.key}
-                      className="flex items-center gap-2 rounded-lg border bg-card/50 px-2.5 py-1.5"
-                    >
-                      <span className={cn("h-2 w-2 rounded-full", s.color)} aria-hidden />
-                      <Icon className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-[11px] font-medium">{s.label}</span>
-                      <span className="ml-auto text-[11px] tabular-nums text-muted-foreground">
-                        {tokens.toLocaleString()}
-                      </span>
-                      <span className="text-[10px] tabular-nums text-muted-foreground/70">
-                        {s.pct}%
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-          )}
 
           {/* NFTs */}
           {tx.nft_names?.length > 0 && (
