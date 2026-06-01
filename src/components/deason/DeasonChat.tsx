@@ -555,7 +555,12 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
             </Button>
           </div>
         )}
-        <div className="flex items-end gap-1.5 rounded-2xl border border-border bg-background px-1.5 py-1 focus-within:border-amber-500/60 focus-within:ring-1 focus-within:ring-amber-500/30 transition-colors">
+        <div className="relative flex items-end gap-1.5 rounded-2xl border border-border bg-background px-1.5 py-1 focus-within:border-amber-500/60 focus-within:ring-1 focus-within:ring-amber-500/30 transition-colors">
+          {slashOpen && slashItems.length > 0 && (
+            <Suspense fallback={null}>
+              <SlashMenu items={slashItems} activeIndex={slashIndex} onPick={handleSlashPick} />
+            </Suspense>
+          )}
           <input
             ref={fileRef}
             type="file"
@@ -579,13 +584,19 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
+              if (slashOpen && slashItems.length > 0) {
+                if (e.key === "ArrowDown") { e.preventDefault(); setSlashIndex((i) => (i + 1) % slashItems.length); return; }
+                if (e.key === "ArrowUp") { e.preventDefault(); setSlashIndex((i) => (i - 1 + slashItems.length) % slashItems.length); return; }
+                if (e.key === "Escape") { e.preventDefault(); setSlashOpen(false); return; }
+                if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSlashPick(slashItems[slashIndex]); return; }
+                if (e.key === "Tab") { e.preventDefault(); handleSlashPick(slashItems[slashIndex]); return; }
+              }
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 onSubmit();
               }
             }}
-            placeholder="Ask about your bill, rate plan, contract, or savings…"
-
+            placeholder="Ask about your bill, rate plan, contract, or savings…   (press / for quick prompts)"
             rows={1}
             className="min-h-[40px] max-h-32 resize-none border-0 bg-transparent px-1 py-2 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
             disabled={streaming}
@@ -599,6 +610,7 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
             <Send className="h-4 w-4" />
           </Button>
         </div>
+
         <p className="mt-1.5 text-center text-[10px] text-muted-foreground">
           {threadId
             ? "Saved to your account · 50 messages/day"
