@@ -13,12 +13,14 @@ const EnergyFlowScene = lazy(() =>
   })),
 );
 
-/** Inline annotation chips — coordinates in % of the SVG/PNG square. */
+/** Inline annotation chips — coordinates in % of the SVG/PNG square.
+ *  Kept short + corner-anchored to avoid colliding with the in-card
+ *  Charging pill, Powerwall halo, or the 4 corner readouts. */
 const ANNOTATIONS = [
-  { id: 'solar', x: 48, y: 14, label: 'Solar producing — 5.4 kW' },
-  { id: 'pw', x: 62, y: 50, label: 'Powerwall charging from solar' },
-  { id: 'ev', x: 26, y: 90, label: 'Tesla charging via Wallbox — 7.2 kW' },
-  { id: 'grid', x: 95, y: 48, label: 'Grid: 0 kW — self-consuming' },
+  { id: 'solar', x: 50, y: 6,  label: 'Solar · 5.4 kW' },
+  { id: 'pw',    x: 80, y: 40, label: 'Powerwall +2.1 kW' },
+  { id: 'ev',    x: 22, y: 96, label: 'Tesla · 7.2 kW' },
+  { id: 'grid',  x: 78, y: 6,  label: 'Grid · 0 kW' },
 ] as const;
 
 /**
