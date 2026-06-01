@@ -435,21 +435,31 @@ function useCountUp(target: number, duration = 1200, decimals = 1, enabled = fal
 }
 
 function TodaysCleanEnergyStats() {
-  const [isVisible, setIsVisible] = useState(false);
+  const { enabled: investorMode } = useInvestorDemoMode();
+  // In investor demo mode, animate immediately (don't wait for scroll) so the
+  // numbers are settled by the time an investor scrolls into view.
+  const [isVisible, setIsVisible] = useState(investorMode);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (investorMode) { setIsVisible(true); return; }
     const el = ref.current;
     if (!el) return;
     const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setIsVisible(true); obs.disconnect(); } }, { threshold: 0.3 });
     obs.observe(el);
     return () => obs.disconnect();
-  }, []);
+  }, [investorMode]);
 
-  const solar = useCountUp(24.7, 1400, 1, isVisible);
-  const evCharge = useCountUp(18.3, 1200, 1, isVisible);
-  const evMiles = useCountUp(62, 1000, 0, isVisible);
-  const battery = useCountUp(8.1, 1100, 1, isVisible);
+  // Investor demo mode → richer "best-case" numbers consistent with the
+  // 5.4 kW solar / 7.2 kW Tesla / 2.1 kW Powerwall live flow above.
+  const targets = investorMode
+    ? { solar: 38.6, battery: 14.2, evCharge: 32.4, evMiles: 118 }
+    : { solar: 24.7, battery: 8.1,  evCharge: 18.3, evMiles: 62 };
+
+  const solar = useCountUp(targets.solar, 1400, 1, isVisible);
+  const evCharge = useCountUp(targets.evCharge, 1200, 1, isVisible);
+  const evMiles = useCountUp(targets.evMiles, 1000, 0, isVisible);
+  const battery = useCountUp(targets.battery, 1100, 1, isVisible);
 
   const kpis = [
     { color: '#F59E0B', label: 'Solar Produced', value: solar, unit: 'kWh', decimals: 1 },
