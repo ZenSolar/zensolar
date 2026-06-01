@@ -17,10 +17,10 @@ const EnergyFlowScene = lazy(() =>
  *  Kept short + corner-anchored to avoid colliding with the in-card
  *  Charging pill, Powerwall halo, or the 4 corner readouts. */
 const ANNOTATIONS = [
-  { id: 'solar', x: 50, y: 12, label: 'Solar · 5.4 kW' },
-  { id: 'pw',    x: 80, y: 38, label: 'Powerwall +2.1 kW' },
-  { id: 'ev',    x: 22, y: 86, label: 'Tesla · 7.2 kW' },
-  { id: 'grid',  x: 80, y: 12, label: 'Grid · 0 kW' },
+  { id: 'solar', x: 35, y: 10, label: 'Solar · 5.4 kW' },
+  { id: 'pw',    x: 78, y: 40, label: 'Powerwall +2.1 kW' },
+  { id: 'ev',    x: 22, y: 60, label: 'Tesla · 7.2 kW' },
+  { id: 'grid',  x: 90, y: 50, label: 'Grid · 0 kW' },
 ] as const;
 
 /**
