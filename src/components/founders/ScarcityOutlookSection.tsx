@@ -87,10 +87,10 @@ export function ScarcityOutlookSection({ className }: { className?: string }) {
             </Table>
           </div>
           <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 text-xs text-emerald-100/90 leading-relaxed">
-            Even with explosive long-term adoption, the combination of default 12-month vesting, strong staking, Genesis
-            Halving, and future scarcity upgrades keeps the effective circulating supply growing very slowly. The 1T
-            hard cap therefore behaves like Bitcoin's 21M — the number exists, but hitting full circulation remains
-            practically impossible for generations.
+            Even with explosive long-term adoption, the combination of default 12-month vesting, strong staking, the
+            continuous 20% burn-per-mint, and future scarcity upgrades keeps the effective circulating supply growing
+            very slowly. The 1T hard cap therefore behaves like Bitcoin's 21M — the number exists, but hitting full
+            circulation remains practically impossible for generations.
           </div>
         </CardContent>
       </Card>
