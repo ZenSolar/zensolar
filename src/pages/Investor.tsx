@@ -380,9 +380,9 @@ function UnlockedPanel({
         />
         <UnlockedCard
           icon={FileText}
-          title="Full Seed Pitch"
-          body="Catalyst, flywheel, moat, capital plan, milestones."
-          to="/founders/seed-pitch-greg"
+          title="Full Pitch Deck"
+          body="12-slide investor deck. Title → Catalyst → Engines → Ask."
+          to="/deck"
           internal
         />
         <UnlockedCard
