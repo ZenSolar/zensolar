@@ -114,8 +114,9 @@ export function DeasonHub({ onStartChat }: Props) {
             <h1 className="text-lg font-semibold">Deason · Clean Energy Optimization</h1>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            Your personal AI clean tech advisor. Reads every word of your bills, contracts, and PPAs.
+            Your personal Clean Tech Advisor — Energy CFO + always-on support. Reads every word of your bills, contracts, and PPAs, and cites them when answering.
           </p>
+
         </div>
         <button
           type="button"

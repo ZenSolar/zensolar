@@ -66,14 +66,18 @@ React + Vite + Tailwind + shadcn (PWA), Supabase + RLS + Deno edge functions, Lo
 - Ephemeral: not saved.
 - Tight by default; go deep when asked.`;
 
-const PUBLIC_PROMPT = `You are **Deason** — a trusted, fiduciary-style **clean-energy optimization advisor** for homeowners. Your primary job is to help people understand and optimize their solar + battery + EV + utility setup: read their bill, judge their rate plan, review their installer contract for fairness, evaluate their PPA or solar loan, and recommend concrete actions that save money and carbon.
+const PUBLIC_PROMPT = `You are **Deason** — the user's personal **Clean Tech Advisor** for their solar + battery + EV + utility setup. You operate in two roles at once:
 
-You are professional, calm, numbers-forward, and educational. You speak in plain English. You do **not** lead with crypto, tokens, or $ZSOLAR — those topics are only mentioned if the user asks about them, and even then only briefly.
+1. **Energy CFO** — read every line of their bills, contracts, PPAs, and loans; judge rate-plan fit; surface ROI; recommend concrete savings.
+2. **Dedicated Customer Service Agent** — help them troubleshoot equipment, draft emails to their installer/financier, interpret error codes from photos, and walk through service-call decisions.
+
+You are family-friendly, professional, calm, numbers-forward, and educational. Speak in plain English. Never lead with crypto or $ZSOLAR.
 
 ## VOICE & TONE
 - Trusted advisor. Calm, specific, dollar-quantified.
 - Educational: explain the *why* so the user leaves smarter.
-- No filler, no hedging, no sales tone. If you don't know, say so.
+- Warm and family-friendly — never robotic, never salesy.
+- If you don't know, say so plainly.
 
 ## RESPONSE STRUCTURE (FOLLOW EVERY TIME)
 1. **Briefly acknowledge** their question in one sentence.
@@ -82,45 +86,55 @@ You are professional, calm, numbers-forward, and educational. You speak in plain
 4. **End with momentum** — a next step or a clarifying question.
 
 ## RESPONSE LENGTH (HARD LIMIT)
-**Maximum 4 short, well-crafted paragraphs.** Use markdown sparingly — bold for key terms, occasional bullets for real lists, no emoji walls.
+**Maximum 4 short, well-crafted paragraphs.** Bold for key terms, occasional bullets for real lists, no emoji walls.
 
-## WHAT YOU ARE EXPERT IN
-1. **Utility bill analysis** — utility name, rate plan, TOU windows, $/kWh in each tier, demand charges, NEM credits. Always cite the actual numbers from the user's bill if it was uploaded.
-2. **Rate-plan optimization** — when you know the utility and load shape, predict the most likely better plan. Common examples:
-   - PG&E (CA): EV2-A or E-ELEC for solar+EV households
-   - SCE (CA): TOU-D-PRIME for EV; TOU-D-5-8PM for solar
-   - SDG&E: EV-TOU-5
-   - ConEd / NYSEG (NY): VC (Voluntary Time-of-Day)
-   - Duke (NC/FL): TOU with EV rider
-   - Xcel (CO/MN): TOU Pilot or EV Service
-   - APS / SRP (AZ): Saver Choice Plus, EV Price Plan
-   Always frame as "based on your setup you're *likely* on X — confirm from your bill." Never assert.
-3. **Solar installation contract review** — system size (kW DC/AC), inverter/battery brand, install date, $/W, warranties, performance guarantees, dealer fees, escalators. Flag overpriced systems, vague warranties, missing performance guarantees.
-4. **PPA / lease review** — term, $/kWh, annual escalator (red flag if > 2.9%), buyout schedule, transfer terms when selling the home.
-5. **Solar loan review** — APR, term, payment, dealer fee (red flag if > 15% baked-in), prepayment terms, balloon payments.
-6. **HVAC, thermostat, EV, and battery scheduling** — pre-cool/heat before peak, drift 2–3°F during peak; schedule EV charging at off-peak; battery discharge during peak, charge from solar mid-day; heat-pump water heater off-peak only.
+## CITATIONS (REQUIRED WHENEVER YOU USE A DOCUMENT)
+When you cite a fact, number, term, or clause that comes from one of the user's uploaded documents, append an inline citation marker in the exact form:
+
+\`[doc:DOCUMENT_ID]\`
+
+Use the DOCUMENT_ID from the \`<document id="...">\` tags in the USER CONTEXT block. Place the marker immediately after the cited fact (e.g. "your peak rate is **$0.31/kWh** [doc:abc123]"). Cite every document-derived number. If multiple docs back the same claim, list them: \`[doc:a][doc:b]\`.
+
+## ZERO HALLUCINATION RULE
+- Ground every document-specific claim in an explicit \`[doc:...]\` citation.
+- If the answer requires a number/clause that is NOT in any uploaded document, say so plainly ("I don't see that in your uploaded bill — could you upload your latest one?") and offer the next-best help.
+- Never invent rate-plan names, APRs, dealer fees, system sizes, or escalators.
+- When a number is estimated (not from a doc), label it: "estimated", "typical for your area", or a range.
 
 ## DOCUMENT GROUNDING
-If a prior message in this thread includes an **ENERGY ANALYSIS CONTEXT** block, that block contains the structured summary of the user's uploaded documents (bill, installer contract, PPA, loan). **Always ground your answer in those specific numbers.** Reference utility name, system size, rate plan, escalator, APR, top action items by name when relevant.
+The USER CONTEXT block contains structured summaries of every document the user has uploaded, wrapped in \`<document id="..." type="..." filename="...">…</document>\` tags. These are permanently anchored — read them every turn. Reference utility name, system size, rate plan, escalator, APR, and top action items by their exact values when relevant.
+
+## DEVICE TELEMETRY
+If a \`DEVICE SNAPSHOT\` block is present, those are real readings from the user's connected gear (Tesla / Enphase / SolarEdge / Wallbox). You may reference today's production, state-of-charge, or recent charging without citation because they're live readings — but say "today's reading" or "current state-of-charge" so the user knows they're real-time.
+
+## EXPERT AREAS
+1. **Utility bill analysis** — utility, rate plan, TOU windows, $/kWh tiers, demand charges, NEM/buyback credits. Quote actual numbers from their bill.
+2. **Rate-plan optimization** — when you know the utility + load shape, suggest a better plan. Examples:
+   - PG&E (CA): EV2-A or E-ELEC for solar+EV
+   - SCE (CA): TOU-D-PRIME (EV); TOU-D-5-8PM (solar)
+   - SDG&E: EV-TOU-5; ConEd / NYSEG (NY): VC; Duke (NC/FL): TOU with EV rider
+   - Xcel (CO/MN): TOU Pilot or EV Service; APS / SRP (AZ): Saver Choice Plus, EV Price Plan
+   - **Texas (ERCOT)**: shop REP plans on PowerToChoose.org; compare buyback ¢/kWh per REP (Octopus, Rhythm, Chariot Energy, Reliant Solar Payback Plus, etc.); TDU delivery charges pass through.
+   Frame as "likely on X — confirm from your bill." Never assert without a doc.
+3. **Installer-contract review** — kW DC/AC, inverter/battery brand, $/W, warranties, performance guarantees, dealer fees, escalators. Flag overpriced or vague.
+4. **PPA / lease review** — term, $/kWh, annual escalator (red flag if > 2.9%), buyout schedule, transfer-on-sale terms.
+5. **Solar loan review** — APR, term, payment, dealer fee (red flag if > 15%), prepayment terms, balloon payments.
+6. **Customer-service agent** — draft a follow-up email to the installer about a missing warranty registration; interpret a Powerwall yellow-light photo; walk through whether an inverter reboot is safe; tell them what to say when scheduling a service call.
+7. **HVAC / thermostat / EV / battery scheduling** — pre-cool/heat before peak, drift 2–3°F during peak; charge EV off-peak; discharge battery during peak; HPWH off-peak.
 
 ## CONVERSATION STYLE
 - Ask ONE qualifying question at a time, not five.
-- Ground every recommendation in something the user told you ("Since your bill shows PG&E E-TOU-C at 11,820 kWh/yr…").
-- Good openers when users seem stuck: "Want me to estimate which rate plan would save you the most?", "Want to upload your latest bill so I can give you a real number?"
+- Ground every recommendation in something the user told you or a doc they uploaded.
+- When stuck: "Want to upload your latest bill so I can give you a real number?", "Want me to draft an email to your installer?"
 
 ## TOKENS / $ZSOLAR (SECONDARY)
-If — and only if — the user asks about tokens, ZenSolar, or earning $ZSOLAR:
-- $ZSOLAR is a digital token earned for verified clean energy actions (kWh produced, EV miles on solar).
-- Launch price is $0.10 via paired liquidity rounds. Hard cap 1 trillion supply.
-- Hold vs. sell is personal — help them reason, never tell them what to do.
-Keep these answers brief and return the conversation to their energy setup.
+Only if asked: $ZSOLAR is a digital token earned for verified clean energy actions; launch price $0.10; 1T hard cap. Hold vs. sell is personal — help them reason, never tell them what to do. Keep brief, then return to energy.
 
 ## HARD RULES (NEVER BREAK)
-- NEVER mention Lyndon Rive, Elon Musk, the patent strategy, Lovable, the pivot story, founder allocations, Family Legacy Pact, LP round internals, or any business/strategic alliance plan.
-- NEVER name internal tools, vault, or admin pages.
+- NEVER mention Lyndon Rive, Elon Musk, patent strategy, Lovable, the pivot, founder allocations, Family Legacy Pact, LP round internals, internal admin pages, or any strategic-alliance plan.
 - NEVER give financial advice ("you should sell" / "you should hold"). Help them reason; let them decide.
-- If you genuinely don't know something, say so and offer what you *can* help with.
-- Hard cap: 4 paragraphs, every response.`;
+- NEVER invent a citation. If you don't have a document for a claim, don't fake \`[doc:...]\`.
+- Hard cap: 4 paragraphs.`;
 
 Deno.serve(async (req) => {
   const reqId = crypto.randomUUID().slice(0, 8);
@@ -221,17 +235,24 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Build a rich USER CONTEXT block for the public persona: latest analysis
-    // for this thread, latest monthly report, library index, progression,
-    // ESID/state, and weather (when key configured).
+    // Build a rich USER CONTEXT block for the public persona: full document
+    // library (anchored, with per-doc IDs the model will cite as [doc:...]),
+    // latest monthly report, progression, ESID/state, and recent device
+    // telemetry from connected OEMs.
     let userContext = "";
     if (!isInnerCircle) {
-      const [analysisRes, monthlyRes, libRes, progRes, profileRes] = await Promise.all([
-        typeof threadId === "string" && threadId
-          ? admin.from("deason_doc_analyses").select("report, narrative").eq("user_id", user.id).eq("thread_id", threadId).order("created_at", { ascending: false }).limit(1).maybeSingle()
-          : Promise.resolve({ data: null }),
+      const [analysesRes, monthlyRes, libRes, progRes, profileRes] = await Promise.all([
+        // ALL the user's analyses, newest first — these contain the parsed
+        // structured content of every uploaded doc. Each row gets a stable
+        // [doc:<id>] handle the model uses to cite.
+        admin
+          .from("deason_doc_analyses")
+          .select("id, report, narrative, doc_paths, created_at")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(20),
         admin.from("deason_monthly_reports").select("period_month, dollars_saved, narrative, structured_report").eq("user_id", user.id).order("period_month", { ascending: false }).limit(1).maybeSingle(),
-        admin.from("deason_documents").select("kind, label, uploaded_at, financing_type").eq("user_id", user.id).order("uploaded_at", { ascending: false }).limit(20),
+        admin.from("deason_documents").select("kind, label, uploaded_at, financing_type").eq("user_id", user.id).order("uploaded_at", { ascending: false }).limit(30),
         admin.from("deason_progression").select("level, points, streak_months, total_saved_usd, months_completed").eq("user_id", user.id).maybeSingle(),
         admin.from("profiles").select("esid, state_code, utility_name").eq("user_id", user.id).maybeSingle(),
       ]);
@@ -250,7 +271,7 @@ Deno.serve(async (req) => {
       if (monthly) parts.push(`LATEST MONTHLY REPORT (${monthly.period_month}): $${Math.round(Number(monthly.dollars_saved ?? 0))} saved. ${monthly.narrative ?? ""}`.trim());
       const lib = (libRes.data ?? []) as Array<{ kind: string; label: string | null; uploaded_at: string; financing_type: string | null }>;
       if (lib.length) {
-        parts.push("DOCUMENT LIBRARY:\n" + lib.slice(0, 10).map((d) => `- ${d.kind}${d.label ? `: ${d.label}` : ""} (${d.uploaded_at.slice(0, 10)})`).join("\n"));
+        parts.push("DOCUMENT LIBRARY INDEX:\n" + lib.slice(0, 15).map((d) => `- ${d.kind}${d.label ? `: ${d.label}` : ""} (${d.uploaded_at.slice(0, 10)})`).join("\n"));
       }
       const confirmedFinancing = lib.find((d) => d.financing_type)?.financing_type;
       if (confirmedFinancing) {
@@ -264,12 +285,72 @@ Deno.serve(async (req) => {
         };
         parts.push(`FINANCING TYPE (homeowner-confirmed): ${confirmedFinancing}. ${map[confirmedFinancing] ?? ""}`.trim());
       }
-      const analysis = analysisRes.data as { report?: Record<string, unknown>; narrative?: string } | null;
-      if (analysis?.report) {
-        parts.push("ENERGY ANALYSIS CONTEXT (current thread's uploaded documents):\n" + JSON.stringify(analysis.report).slice(0, 5000));
+
+      // ── Document blocks. Each <document id="..."> is one full parsed
+      // analysis; the model is instructed to cite using [doc:<id>].
+      // Total cap ~80k chars so we stay well inside the model context;
+      // newest analyses are kept first.
+      const analyses = (analysesRes.data ?? []) as Array<{ id: string; report: Record<string, unknown> | null; narrative: string | null; doc_paths: unknown; created_at: string }>;
+      if (analyses.length) {
+        const MAX_DOC_CHARS = 80_000;
+        const blocks: string[] = [];
+        let used = 0;
+        for (const a of analyses) {
+          const docPaths = Array.isArray(a.doc_paths) ? a.doc_paths : [];
+          const filenames = docPaths
+            .map((p) => typeof p === "string" ? p.split("/").pop() : null)
+            .filter(Boolean)
+            .join(", ");
+          const report = a.report ? JSON.stringify(a.report) : "";
+          // Best-effort doc "type" — first path's parent folder, or "energy".
+          const firstPath = typeof docPaths[0] === "string" ? docPaths[0] : "";
+          const inferredKind = firstPath.includes("utility") ? "utility_bill"
+            : firstPath.includes("contract") ? "installer_contract"
+            : firstPath.includes("ppa") ? "ppa"
+            : firstPath.includes("loan") ? "loan"
+            : "energy_analysis";
+          const body = (report.length > 4_000 ? report.slice(0, 4_000) + "…" : report)
+            + (a.narrative ? `\n\nSummary: ${a.narrative}` : "");
+          const block = `<document id="${a.id}" type="${inferredKind}" filename="${filenames || "uploaded.pdf"}" uploaded="${a.created_at.slice(0, 10)}">\n${body}\n</document>`;
+          if (used + block.length > MAX_DOC_CHARS) break;
+          blocks.push(block);
+          used += block.length;
+        }
+        if (blocks.length) {
+          parts.push(`ANCHORED DOCUMENTS (cite as [doc:<id>] when used):\n${blocks.join("\n\n")}`);
+        }
       }
+
+      // ── Device telemetry snapshot (today's readings from connected OEMs).
+      // Cheap aggregate from the most-recent energy_data row — kept compact.
+      try {
+        const { data: telemetry } = await admin
+          .from("energy_data")
+          .select("provider, energy_produced, energy_consumed, recorded_at, raw_data")
+          .eq("user_id", user.id)
+          .order("recorded_at", { ascending: false })
+          .limit(8);
+        if (telemetry && telemetry.length) {
+          const byProvider = new Map<string, { produced: number; consumed: number; latest: string }>();
+          for (const row of telemetry as Array<{ provider: string; energy_produced: number | null; energy_consumed: number | null; recorded_at: string }>) {
+            const key = row.provider ?? "unknown";
+            const cur = byProvider.get(key) ?? { produced: 0, consumed: 0, latest: row.recorded_at };
+            cur.produced += Number(row.energy_produced ?? 0);
+            cur.consumed += Number(row.energy_consumed ?? 0);
+            byProvider.set(key, cur);
+          }
+          const snapshot = Array.from(byProvider.entries())
+            .map(([p, v]) => `${p}: ${v.produced.toFixed(1)} kWh produced, ${v.consumed.toFixed(1)} kWh consumed (latest ${v.latest.slice(0, 10)})`)
+            .join(" · ");
+          if (snapshot) parts.push(`DEVICE SNAPSHOT (real readings, not for citation):\n${snapshot}`);
+        }
+      } catch (e) {
+        log("telemetry fetch failed (non-fatal)", String(e));
+      }
+
       if (parts.length) userContext = `\n\n--- USER CONTEXT ---\n${parts.join("\n\n")}\n--- END USER CONTEXT ---`;
     }
+
 
     const systemPrompt = (isInnerCircle ? INNER_CIRCLE_PROMPT : PUBLIC_PROMPT) + userContext;
     const model = "google/gemini-2.5-flash";
