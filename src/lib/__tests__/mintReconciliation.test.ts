@@ -122,7 +122,7 @@ describe('Mint-on-Proof: verifyMintProof end-to-end', () => {
     headline: 100,
     rows: 100,
     onChain: 100,
-    tokensMinted: 75,
+    tokensMinted: 50,
     kwhDelta: 100,
     milesDelta: 0,
     sourceBreakdown: { enphase: 100 },
