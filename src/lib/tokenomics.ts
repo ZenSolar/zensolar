@@ -38,16 +38,14 @@ export const LIVE_BETA_MULTIPLIER = 10;
 
 // === MODEL METADATA ===
 export const MODEL_NAME = '1T Trillionaire Strategy';
-export const MODEL_VERSION = 3.1; // v3.1 — Mint split locked at 50/20/20/10 (user/LP/burn/treasury) + 401(k)-match UX framing
+export const MODEL_VERSION = 3.1; // v3.1 — Mint split locked at 50/25/20/5 (user/LP/burn/treasury) + separate 3% transfer tax (LP recycle only)
 
 // === MINT RATIO (v3.0 LOCKED — 2026-05-18) ===
 // 1 kWh (or 1 mile) of verified clean-energy activity = 1 $ZSOLAR minted.
-// Reverted from 10:1 back to 1:1 to restore the original narrative integrity
-// ("1 kWh of clean energy = 1 unit of currency"). The 10× higher issuance is
-// counter-balanced by mandatory Hybrid sell-throttle levers (vesting + stake-to-unlock),
-// NOT by diluting the ratio. See FoundersCreative1to1Tokenomics for full lever menu.
-// Realistic average: 700 kWh/user/month → 700 $ZSOLAR shown to user (1:1), protocol matches with another 700 raw (140 LP / 140 burn / 70 treasury)
-// Of those 525, only a fraction is liquid at any time (vesting + stake gates).
+// 1:1 ratio preserved — counter-balanced by Hybrid sell-throttle levers
+// (vesting + stake-to-unlock), NOT by diluting the ratio.
+// Realistic average: 700 kWh/user/month → 700 $ZSOLAR shown to user (1:1),
+// protocol matches with another 700 raw (350 LP / 280 burn / 70 treasury).
 export const MINT_RATIO_KWH_PER_TOKEN = 1;
 export const MINT_RATIO_LABEL = '1 kWh = 1 $ZSOLAR';
 
