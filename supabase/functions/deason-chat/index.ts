@@ -235,17 +235,24 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Build a rich USER CONTEXT block for the public persona: latest analysis
-    // for this thread, latest monthly report, library index, progression,
-    // ESID/state, and weather (when key configured).
+    // Build a rich USER CONTEXT block for the public persona: full document
+    // library (anchored, with per-doc IDs the model will cite as [doc:...]),
+    // latest monthly report, progression, ESID/state, and recent device
+    // telemetry from connected OEMs.
     let userContext = "";
     if (!isInnerCircle) {
-      const [analysisRes, monthlyRes, libRes, progRes, profileRes] = await Promise.all([
-        typeof threadId === "string" && threadId
-          ? admin.from("deason_doc_analyses").select("report, narrative").eq("user_id", user.id).eq("thread_id", threadId).order("created_at", { ascending: false }).limit(1).maybeSingle()
-          : Promise.resolve({ data: null }),
+      const [analysesRes, monthlyRes, libRes, progRes, profileRes] = await Promise.all([
+        // ALL the user's analyses, newest first — these contain the parsed
+        // structured content of every uploaded doc. Each row gets a stable
+        // [doc:<id>] handle the model uses to cite.
+        admin
+          .from("deason_doc_analyses")
+          .select("id, report, narrative, doc_paths, created_at")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(20),
         admin.from("deason_monthly_reports").select("period_month, dollars_saved, narrative, structured_report").eq("user_id", user.id).order("period_month", { ascending: false }).limit(1).maybeSingle(),
-        admin.from("deason_documents").select("kind, label, uploaded_at, financing_type").eq("user_id", user.id).order("uploaded_at", { ascending: false }).limit(20),
+        admin.from("deason_documents").select("kind, label, uploaded_at, financing_type").eq("user_id", user.id).order("uploaded_at", { ascending: false }).limit(30),
         admin.from("deason_progression").select("level, points, streak_months, total_saved_usd, months_completed").eq("user_id", user.id).maybeSingle(),
         admin.from("profiles").select("esid, state_code, utility_name").eq("user_id", user.id).maybeSingle(),
       ]);
@@ -264,7 +271,7 @@ Deno.serve(async (req) => {
       if (monthly) parts.push(`LATEST MONTHLY REPORT (${monthly.period_month}): $${Math.round(Number(monthly.dollars_saved ?? 0))} saved. ${monthly.narrative ?? ""}`.trim());
       const lib = (libRes.data ?? []) as Array<{ kind: string; label: string | null; uploaded_at: string; financing_type: string | null }>;
       if (lib.length) {
-        parts.push("DOCUMENT LIBRARY:\n" + lib.slice(0, 10).map((d) => `- ${d.kind}${d.label ? `: ${d.label}` : ""} (${d.uploaded_at.slice(0, 10)})`).join("\n"));
+        parts.push("DOCUMENT LIBRARY INDEX:\n" + lib.slice(0, 15).map((d) => `- ${d.kind}${d.label ? `: ${d.label}` : ""} (${d.uploaded_at.slice(0, 10)})`).join("\n"));
       }
       const confirmedFinancing = lib.find((d) => d.financing_type)?.financing_type;
       if (confirmedFinancing) {
@@ -278,12 +285,72 @@ Deno.serve(async (req) => {
         };
         parts.push(`FINANCING TYPE (homeowner-confirmed): ${confirmedFinancing}. ${map[confirmedFinancing] ?? ""}`.trim());
       }
-      const analysis = analysisRes.data as { report?: Record<string, unknown>; narrative?: string } | null;
-      if (analysis?.report) {
-        parts.push("ENERGY ANALYSIS CONTEXT (current thread's uploaded documents):\n" + JSON.stringify(analysis.report).slice(0, 5000));
+
+      // ── Document blocks. Each <document id="..."> is one full parsed
+      // analysis; the model is instructed to cite using [doc:<id>].
+      // Total cap ~80k chars so we stay well inside the model context;
+      // newest analyses are kept first.
+      const analyses = (analysesRes.data ?? []) as Array<{ id: string; report: Record<string, unknown> | null; narrative: string | null; doc_paths: unknown; created_at: string }>;
+      if (analyses.length) {
+        const MAX_DOC_CHARS = 80_000;
+        const blocks: string[] = [];
+        let used = 0;
+        for (const a of analyses) {
+          const docPaths = Array.isArray(a.doc_paths) ? a.doc_paths : [];
+          const filenames = docPaths
+            .map((p) => typeof p === "string" ? p.split("/").pop() : null)
+            .filter(Boolean)
+            .join(", ");
+          const report = a.report ? JSON.stringify(a.report) : "";
+          // Best-effort doc "type" — first path's parent folder, or "energy".
+          const firstPath = typeof docPaths[0] === "string" ? docPaths[0] : "";
+          const inferredKind = firstPath.includes("utility") ? "utility_bill"
+            : firstPath.includes("contract") ? "installer_contract"
+            : firstPath.includes("ppa") ? "ppa"
+            : firstPath.includes("loan") ? "loan"
+            : "energy_analysis";
+          const body = (report.length > 4_000 ? report.slice(0, 4_000) + "…" : report)
+            + (a.narrative ? `\n\nSummary: ${a.narrative}` : "");
+          const block = `<document id="${a.id}" type="${inferredKind}" filename="${filenames || "uploaded.pdf"}" uploaded="${a.created_at.slice(0, 10)}">\n${body}\n</document>`;
+          if (used + block.length > MAX_DOC_CHARS) break;
+          blocks.push(block);
+          used += block.length;
+        }
+        if (blocks.length) {
+          parts.push(`ANCHORED DOCUMENTS (cite as [doc:<id>] when used):\n${blocks.join("\n\n")}`);
+        }
       }
+
+      // ── Device telemetry snapshot (today's readings from connected OEMs).
+      // Cheap aggregate from the most-recent energy_data row — kept compact.
+      try {
+        const { data: telemetry } = await admin
+          .from("energy_data")
+          .select("provider, energy_produced, energy_consumed, recorded_at, raw_data")
+          .eq("user_id", user.id)
+          .order("recorded_at", { ascending: false })
+          .limit(8);
+        if (telemetry && telemetry.length) {
+          const byProvider = new Map<string, { produced: number; consumed: number; latest: string }>();
+          for (const row of telemetry as Array<{ provider: string; energy_produced: number | null; energy_consumed: number | null; recorded_at: string }>) {
+            const key = row.provider ?? "unknown";
+            const cur = byProvider.get(key) ?? { produced: 0, consumed: 0, latest: row.recorded_at };
+            cur.produced += Number(row.energy_produced ?? 0);
+            cur.consumed += Number(row.energy_consumed ?? 0);
+            byProvider.set(key, cur);
+          }
+          const snapshot = Array.from(byProvider.entries())
+            .map(([p, v]) => `${p}: ${v.produced.toFixed(1)} kWh produced, ${v.consumed.toFixed(1)} kWh consumed (latest ${v.latest.slice(0, 10)})`)
+            .join(" · ");
+          if (snapshot) parts.push(`DEVICE SNAPSHOT (real readings, not for citation):\n${snapshot}`);
+        }
+      } catch (e) {
+        log("telemetry fetch failed (non-fatal)", String(e));
+      }
+
       if (parts.length) userContext = `\n\n--- USER CONTEXT ---\n${parts.join("\n\n")}\n--- END USER CONTEXT ---`;
     }
+
 
     const systemPrompt = (isInnerCircle ? INNER_CIRCLE_PROMPT : PUBLIC_PROMPT) + userContext;
     const model = "google/gemini-2.5-flash";
