@@ -18,6 +18,7 @@ import { Slide11Traction } from "@/components/investor/pitch/slides/Slide11Tract
 import { Slide12RiskMitigation } from "@/components/investor/pitch/slides/Slide12RiskMitigation";
 import { Slide13TheAsk } from "@/components/investor/pitch/slides/Slide13TheAsk";
 import { SlideCompetition } from "@/components/investor/pitch/slides/SlideCompetition";
+import { readInvestorUnlocked } from "@/components/investor/InvestorPinGate";
 
 const SESSION_KEY = "zen.deck-pin-unlocked";
 
