@@ -26,6 +26,9 @@ import { ApiPartnersCard } from '@/components/dashboard/ApiPartnersCard';
 import { MintEffectButton } from '@/components/dashboard/MintEffectButton';
 import { DashboardHexBackground } from '@/components/dashboard/DashboardHexBackground';
 import { DemoOnboardingHints } from '@/components/demo/DemoOnboardingHints';
+import { InvestorDemoChip } from '@/components/demo/InvestorDemoChip';
+import { InvestorEnergyFlowCard } from '@/components/demo/InvestorEnergyFlowCard';
+import { useInvestorDemoMode } from '@/hooks/useInvestorDemoMode';
 
 import { CO2OffsetCard } from '@/components/dashboard/CO2OffsetCard';
 import { generateDailyBreakdown, type DailyBreakdown } from '@/lib/dailyMintBreakdown';
@@ -160,6 +163,7 @@ export function DemoDashboard() {
       className="bg-background min-h-full w-full relative overflow-x-hidden"
     >
       <DashboardHexBackground />
+      <InvestorDemoChip />
       <DemoOnboardingHints />
       {/* Pull-to-refresh is a touch gesture — hide on desktop */}
       <div className="md:hidden">
@@ -382,12 +386,20 @@ export function DemoDashboard() {
 }
 
 function EnergyFlowGlowCard() {
+  const { enabled: investorMode } = useInvestorDemoMode();
   const [burstDone, setBurstDone] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setBurstDone(true), 900);
     return () => clearTimeout(t);
   }, []);
+
+  // Investor Demo Mode → upgrade to the production EnergyFlowScene with
+  // rich seeded telemetry (solar producing + Powerwall charging + Tesla
+  // charging at Wallbox). Loads instantly, no skeleton flash.
+  if (investorMode) {
+    return <InvestorEnergyFlowCard />;
+  }
 
   return (
     <div
