@@ -47,25 +47,25 @@ These are the assumptions we model against. Power-tier mix shift is the long-ter
 
 ## 5. Per-tier flywheel math (illustrative, $0.10 floor)
 
-Assumes ~1,000 raw tokens minted/user/month → 750 to user (75% of mint).
+Assumes ~1,000 raw tokens minted/user/month → **500 to user (50% of mint, v3.1)**. Remaining 500 = 200 LP + 200 burn + 100 treasury (the "matching contribution").
 
 ### Before Genesis Halving (1,000 raw tokens/user/mo)
 
 | Tier | LP/user/mo | User tokens | Sold tokens | Sell pressure ($) | Net (LP − sells) |
 |---|---|---|---|---|---|
-| Base | $4.995 | 750 | 675 | $67.50 | **−$62.50** |
-| Regular | $9.995 | 750 | 187.5 | $18.75 | **−$8.75** |
-| Power | $24.995 | 750 | 37.5 | $3.75 | **+$21.25** |
+| Base | $4.995 | 500 | 450 | $45.00 | **−$40.005** |
+| Regular | $9.995 | 500 | 125 | $12.50 | **−$2.505** |
+| Power | $24.995 | 500 | 25 | $2.50 | **+$22.495** |
 
 ### After Genesis Halving (500 raw tokens/user/mo)
 
 | Tier | LP/user/mo | User tokens | Sold tokens | Sell pressure ($) | Net (LP − sells) |
 |---|---|---|---|---|---|
-| Base | $4.995 | 375 | 337.5 | $33.75 | **−$28.75** |
-| Regular | $9.995 | 375 | 93.75 | $9.375 | **+$0.62** |
-| Power | $24.995 | 375 | 18.75 | $1.875 | **+$23.12** |
+| Base | $4.995 | 250 | 225 | $22.50 | **−$17.505** |
+| Regular | $9.995 | 250 | 62.5 | $6.25 | **+$3.745** |
+| Power | $24.995 | 250 | 12.5 | $1.25 | **+$23.745** |
 
-**Key insight:** Regular tier flips net-positive immediately at halving. Power tier compounds. Base remains intentionally subsidized as the on-ramp; treasury auto-buyback (Satoshi-Mirror v2) absorbs residual sell pressure.
+**Key insight:** Regular tier flips net-positive immediately at halving (−$2.51 → +$3.75). Power tier compounds and is positive in both regimes. Base remains intentionally subsidized as the on-ramp — and the v3.1 split makes the underwater gap shallower than the legacy 75% model; treasury auto-buyback (Satoshi-Mirror v2) absorbs residual sell pressure.
 
 ## 6. Cohort mix evolution (target)
 
