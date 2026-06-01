@@ -30,11 +30,14 @@ The product earns trust by being warm, human, and clean (ZenSolar). The corporat
 
 **Why:** User explicitly named the corporation "ZenCorp Inc" as a subtle sarcastic joke (2026-04-24) — the irony being that only incorporated entities can IPO, and ZenSolar will never IPO. Brand stays "ZenSolar" (one word).
 
-## Retired terms — Tap-to-Mint™ (Jun 2026)
-"Tap-to-Mint™" is **retired** from all product, marketing, investor, and docs copy as of Jun 2026 (user directive, video-feedback pass). It has been globally replaced with **"Proof of Genesis"** (or **"Proof of Genesis™"** where a trademark mark is appropriate). The single name now covers both the *minting action* (what was Tap-to-Mint™) and the *receipt page* at `/proof-of-genesis`. Copy should read naturally: "Tap your device → Proof of Genesis receipt minted on-chain."
+## Trademark hierarchy — Proof-of-Genesis™ is the cornerstone (Jun 2026)
+**Proof-of-Genesis™** is the primary IP/product term. Use it across investor copy, hero/marketing copy, emails, dashboard, onboarding, whitepaper, founders pages, and the patent narrative. It names both the protocol/IP cornerstone *and* the on-chain receipt at `/proof-of-genesis`.
 
-**Exceptions (keep Tap-to-Mint™ as-is):**
-- `.lovable/memory/legal/patent-update-checklist.md` and any patent-application text — the legal filing name does not change.
+**Tap-to-Mint™ is NOT retired** — it is the user gesture and a discrete mark in the trademark stack. Use it only where it specifically applies:
+- The literal gesture of tapping a device to trigger a mint (e.g. `TapToMintCard`, gesture CTAs).
+- Glossary / learn / jargon-tip entries that define product terminology.
+- The trademark roadmap / TM-stack copy that enumerates the full IP stack.
+- Patent and legal filings (`.lovable/memory/legal/patent-update-checklist.md`).
 - Archived pages under `src/pages/archive/` — frozen historical copy.
 
-If a future writer adds "Tap-to-Mint" anywhere outside those exceptions, replace it with "Proof of Genesis".
+Everywhere else — investor pitch, emails, hero copy, dashboard, onboarding, mint-receipt hints, whitepaper — lead with Proof-of-Genesis™. Surrounding prose can still describe the action naturally ("Tap your device → Proof-of-Genesis receipt minted on-chain").

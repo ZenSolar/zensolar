@@ -43,12 +43,12 @@ type: feature
 
 **Surplus flexibility at $7M cap**: extra $2M splits as +$1M LP (4th tranche), +$500K accelerated hires, +$500K growth.
 
-## Revenue engine order (LOCKED — Grok-aligned, Feb 2026)
-1. **Token Economics** — core product, primary driver. 1T cap, 75/20/3/2, $0.10 LP launch, 7% transfer tax.
-2. **Monthly Subscription** — required base fee to be a ZenSolar user and mint. Tiers: $9.99 / $19.99 / $49.99. 50% LP / 50% treasury. **Deason AI = $4.99/mo premium add-on** layered on top, delivers the Monthly Clean Energy Report.
+## Revenue engine order (LOCKED — Jun 2026 corrections)
+1. **Monthly Subscription + Deason AI** — required base fee to be a ZenSolar user and mint. Tiers: $9.99 / $19.99 / $49.99. **Deason AI = $4.99/mo premium add-on** layered on top (Monthly Clean Energy Report, bill analysis, rate-plan optimization, device-aware advice). 50% LP / 50% treasury per sub dollar.
+2. **Token Economics** — core product and primary long-term revenue driver. 1T cap, 75/20/3/2 mint split, $0.10 LP-seeded launch on Base, 7% transfer tax (3% burn / 2% LP / 2% treasury) compounds liquidity + treasury yield perpetually.
 3. **Aggregated Energy Data** — anonymized multi-OEM telemetry sold to utilities, ISOs, REC registries.
 
-Deason is NOT its own engine. It lives inside Engine #2 as the premium add-on.
+Deason is NOT its own engine. It lives inside Engine #1 as the premium add-on.
 
 ## Milestones the round funds
 - Mainnet TGE (Base 8453)
