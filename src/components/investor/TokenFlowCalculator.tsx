@@ -105,16 +105,14 @@ export function TokenFlowCalculator() {
               <FlowStep
                 icon={Flame}
                 label={`Selling ${sellPercent}% (${formatTokenAmount(tokensSold)} tokens)`}
-                value={`7% transfer tax applied`}
+                value={`3% transfer tax → LP recycle`}
                 color="text-destructive"
                 bg="bg-destructive/10"
               />
 
-              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-2 sm:grid-cols-2">
                 <MiniStat icon={Wallet} label="Seller gets" value={formatTokenAmount(sellerReceives)} sub={soldValue} color="text-primary" />
-                <MiniStat icon={Flame} label="Burned" value={formatTokenAmount(taxBurned)} sub="3%" color="text-destructive" />
-                <MiniStat icon={Droplets} label="To LP" value={formatTokenAmount(taxLP)} sub="2%" color="text-accent" />
-                <MiniStat icon={Landmark} label="Treasury" value={formatTokenAmount(taxTreasury)} sub="2%" color="text-muted-foreground" />
+                <MiniStat icon={Droplets} label="To LP (recycle)" value={formatTokenAmount(taxLP)} sub="3%" color="text-accent" />
               </div>
             </>
           )}
