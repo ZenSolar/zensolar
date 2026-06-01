@@ -427,8 +427,7 @@ function PackContent() {
         </Lead>
         <P>
           $ZSOLAR adopts a Bitcoin-identical 4-year halving schedule on the
-          per-kWh producer reward. Combined with the 1T cap, the 20% mint
-          burn, the 7% transfer tax, and the 5% redemption burn, that gives
+          per-kWh producer reward. Combined with the 1T cap, the 20% mint burn, the 3% transfer tax (LP recycle), and the 5% redemption burn, that gives
           us <strong>five compounding scarcity vectors</strong> instead of
           Bitcoin's one.
         </P>

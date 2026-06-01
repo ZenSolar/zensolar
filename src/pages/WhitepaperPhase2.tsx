@@ -141,7 +141,7 @@ function Phase2Content() {
             <h2 className="text-2xl font-semibold mb-3">6. Patent v3 — Eight-Category Moat</h2>
             <p className="text-muted-foreground">
               The method claim covers: device claim → baseline snapshot → signed delta → cryptographic attestation →
-              proportional mint with 50/20/20/10 split → on-chain settlement. The eight protected categories give
+              proportional mint with 50/25/20/5 split → on-chain settlement. The eight protected categories give
               ZenSolar exclusive method coverage across the Tesla + SpaceX work economy through inter-system scope.
             </p>
           </section>
@@ -169,7 +169,7 @@ function Phase2Content() {
               <div><span className="text-amber-400">unit_sig</span> : secure-enclave signature over envelope hash</div>
               <div><span className="text-amber-400">tesla_attest</span> : Fleet API co-signature confirming unit + task</div>
               <div><span className="text-amber-400">mintable_hours</span> : <code>(ended_at − started_at) × output_multiplier</code></div>
-              <div><span className="text-amber-400">rate</span> : 1 $ZSOLAR per work-hour (base) · split 50/20/20/10</div>
+              <div><span className="text-amber-400">rate</span> : 1 $ZSOLAR per work-hour (base) · split 50/25/20/5</div>
             </div>
             <p className="text-xs text-muted-foreground mt-3">
               Replay key: <code>(unit_id, task_id)</code>. Idle / charging hours are excluded — only attested productive work.
@@ -196,7 +196,7 @@ function Phase2Content() {
                   <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">2. Ride end</td><td className="p-3">Vehicle wallet</td><td className="p-3">end_geo · ts · miles · revenue_usdc</td></tr>
                   <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">3. Rider confirm</td><td className="p-3">Rider wallet</td><td className="p-3">satisfaction sig (optional loyalty mint)</td></tr>
                   <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">4. Fleet attest</td><td className="p-3">Tesla Fleet API</td><td className="p-3">co-sign envelope hash</td></tr>
-                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">5. Mint</td><td className="p-3">Oracle</td><td className="p-3">miles × rate · 50/20/20/10 split</td></tr>
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">5. Mint</td><td className="p-3">Oracle</td><td className="p-3">miles × rate · 50/25/20/5 split</td></tr>
                 </tbody>
               </table>
             </div>
@@ -219,7 +219,7 @@ function Phase2Content() {
                   <div><span className="text-foreground">satellite_id</span> + <span className="text-foreground">cluster_id</span> bound to operator wallet</div>
                   <div><span className="text-foreground">window</span> : 1-hour rolling, dedupe by <code>(sat_id, window_end)</code></div>
                   <div><span className="text-foreground">uplink_kwh</span> : measured at gateway · co-signed by SpaceX relay</div>
-                  <div><span className="text-foreground">rate</span> : 1 $ZSOLAR / kWh · split 50/20/20/10</div>
+                  <div><span className="text-foreground">rate</span> : 1 $ZSOLAR / kWh · split 50/25/20/5</div>
                 </div>
               </div>
               <div className="rounded-lg border border-border bg-muted/10 p-5">
@@ -229,7 +229,7 @@ function Phase2Content() {
                   <div><span className="text-foreground">payload_mass_kg</span> × <span className="text-foreground">delta_v</span> → energy-equivalent kWh</div>
                   <div><span className="text-foreground">trigger</span> : on-orbit confirmation telemetry</div>
                   <div><span className="text-foreground">co-signers</span> : vehicle key + SpaceX mission control + range safety</div>
-                  <div><span className="text-foreground">rate</span> : 1 $ZSOLAR / payload-kWh · split 50/20/20/10</div>
+                  <div><span className="text-foreground">rate</span> : 1 $ZSOLAR / payload-kWh · split 50/25/20/5</div>
                 </div>
               </div>
               <div className="rounded-lg border border-border bg-muted/10 p-5">
