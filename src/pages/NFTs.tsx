@@ -19,7 +19,7 @@ export default function NFTs() {
 
   return (
     <>
-      <SEO title="NFTs" url="https://zensolar.lovable.app/nfts" />
+      <SEO title="NFTs" url="https://beta.zen.solar/nfts" />
       <div className="container max-w-6xl mx-auto px-4 py-6 space-y-6">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">NFTs</h1>

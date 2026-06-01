@@ -67,7 +67,7 @@ function Phase1Content() {
               production and clean-mile travel. Phase 1 covers the Tesla and home-energy ecosystem: rooftop solar
               (SolarEdge, Enphase, Tesla Solar), home batteries (Powerwall), EV charging (Tesla, Wallbox), and EV miles
               driven. The protocol pairs cryptographic mint-on-proof with a hard 1T cap, LP-seeded tranche releases at
-              a $0.10 launch price, and a 50/25/20/5 mint split (user / burn / LP / treasury).
+              a $0.10 launch price, and a 50/25/20/5 mint split (user / LP / burn / treasury), plus a separate 3% transfer tax recycled to LP.
             </p>
           </section>
 
@@ -97,9 +97,9 @@ function Phase1Content() {
             <h2 className="text-2xl font-semibold mb-3">4. Mint-on-Proof Architecture</h2>
             <p className="text-muted-foreground">
               Each mint event requires a cryptographic proof chain: device claim (one device → one wallet, lifetime),
-              baseline snapshot, signed delta, and edge-function attestation. The contract enforces the split:
-              75% to the user wallet, 20% burned, 3% routed to the LP, 2% to treasury. Patent v3 covers the method
-              claim across all eight categories (six Phase 1 + two Phase 2 — see Phase 2 paper).
+              baseline snapshot, signed delta, and edge-function attestation. The contract enforces the v3.1 split:
+              50% to the user wallet, 25% to LP, 20% burned, 5% to treasury — plus a separate 3% transfer tax recycled to LP.
+              Patent v3 covers the method claim across all eight categories (six Phase 1 + two Phase 2 — see Phase 2 paper).
             </p>
           </section>
 
@@ -186,7 +186,7 @@ function Phase1Content() {
             <h2 className="text-2xl font-semibold mb-3">Appendix A — Per-Category Mint Rates</h2>
             <p className="text-muted-foreground mb-3">
               Base rate is 1 $ZSOLAR per kWh / mile for scarcity. Live Beta applies a 10× multiplier for testing only;
-              mainnet reverts to 1×. All rates are pre-split (raw mint amount); user receives 75%.
+              mainnet reverts to 1×. All rates are pre-split (raw mint amount); under v3.1 the user receives 50%.
             </p>
             <div className="overflow-x-auto rounded-lg border border-border">
               <table className="w-full text-sm">
@@ -200,12 +200,12 @@ function Phase1Content() {
                   </tr>
                 </thead>
                 <tbody className="text-muted-foreground">
-                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">Solar production</td><td className="p-3">1 kWh</td><td className="p-3">1.00</td><td className="p-3">0.75</td><td className="p-3">SolarEdge / Enphase / Tesla</td></tr>
-                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">Battery discharge</td><td className="p-3">1 kWh</td><td className="p-3">1.00</td><td className="p-3">0.75</td><td className="p-3">Powerwall API</td></tr>
-                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">EV charging</td><td className="p-3">1 kWh added</td><td className="p-3">1.00</td><td className="p-3">0.75</td><td className="p-3">Tesla / Wallbox session</td></tr>
-                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">EV miles</td><td className="p-3">1 mile</td><td className="p-3">1.00</td><td className="p-3">0.75</td><td className="p-3">Tesla odometer delta</td></tr>
-                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">FSD-supervised mile</td><td className="p-3">1 mile</td><td className="p-3">1.00 (1× mult)</td><td className="p-3">0.75</td><td className="p-3">Tesla autopilot flag</td></tr>
-                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">FSD-unsupervised mile</td><td className="p-3">1 mile</td><td className="p-3">1.00 (Phase 2)</td><td className="p-3">0.75</td><td className="p-3">Tesla autonomy log</td></tr>
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">Solar production</td><td className="p-3">1 kWh</td><td className="p-3">1.00</td><td className="p-3">0.50</td><td className="p-3">SolarEdge / Enphase / Tesla</td></tr>
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">Battery discharge</td><td className="p-3">1 kWh</td><td className="p-3">1.00</td><td className="p-3">0.50</td><td className="p-3">Powerwall API</td></tr>
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">EV charging</td><td className="p-3">1 kWh added</td><td className="p-3">1.00</td><td className="p-3">0.50</td><td className="p-3">Tesla / Wallbox session</td></tr>
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">EV miles</td><td className="p-3">1 mile</td><td className="p-3">1.00</td><td className="p-3">0.50</td><td className="p-3">Tesla odometer delta</td></tr>
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">FSD-supervised mile</td><td className="p-3">1 mile</td><td className="p-3">1.00 (1× mult)</td><td className="p-3">0.50</td><td className="p-3">Tesla autopilot flag</td></tr>
+                  <tr className="border-t border-border"><td className="p-3 font-medium text-foreground">FSD-unsupervised mile</td><td className="p-3">1 mile</td><td className="p-3">1.00 (Phase 2)</td><td className="p-3">0.50</td><td className="p-3">Tesla autonomy log</td></tr>
                 </tbody>
               </table>
             </div>

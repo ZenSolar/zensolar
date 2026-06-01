@@ -490,7 +490,7 @@ export default function AdminBootstrapSimulator() {
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Peak monthly sell pressure</span>
                       <span className="font-mono text-destructive">
-                        {fmt((params.startUsers + 23 * params.monthlyUserGrowth) * params.mintRatePerUser * 0.75 * (params.sellPressurePct / 100))} tokens
+                        {fmt((params.startUsers + 23 * params.monthlyUserGrowth) * params.mintRatePerUser * 0.50 * (params.sellPressurePct / 100))} tokens
                       </span>
                     </div>
                   </div>

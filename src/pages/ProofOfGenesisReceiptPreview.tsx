@@ -649,7 +649,7 @@ export default function ProofOfGenesisReceiptPreview() {
           </div>
           {isLive && (
             <p className="text-[11px] text-muted-foreground -mt-3">
-              Showing your most recent on-chain mint. Tokens shown are your wallet share (75% after the 20% burn / 3% LP / 2% treasury split).
+              Showing your most recent on-chain mint — 1 kWh = 1 $ZSOLAR.
             </p>
           )}
 

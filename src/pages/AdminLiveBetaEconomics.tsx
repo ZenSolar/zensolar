@@ -711,7 +711,7 @@ export default function AdminLiveBetaEconomics() {
             <CardHeader className="pb-2">
               <CardTitle className="text-base flex items-center gap-2">
                 Mint Distribution
-                <InfoTooltip text="How newly minted tokens are distributed: 75% to user, 20% burned, 3% to LP, 2% to treasury" />
+                <InfoTooltip text="v3.1 mint split: 50% to user, 25% to LP, 20% burned, 5% to treasury (separate 3% transfer tax recycles to LP)" />
               </CardTitle>
             </CardHeader>
             <CardContent>

@@ -127,7 +127,7 @@ export default function Engineering() {
     <>
       <SEO
         title="ZenSolar Engineering"
-        url="https://zensolar.lovable.app/engineering"
+        url="https://beta.zen.solar/engineering"
       />
       <div className="min-h-screen bg-background">
         <div className="container max-w-4xl mx-auto px-4 py-8 sm:py-12 space-y-12">

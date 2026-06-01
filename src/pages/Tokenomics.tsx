@@ -18,8 +18,8 @@ export default function Tokenomics() {
     <>
       <SEO 
         title="$ZSOLAR Tokenomics - Clean Energy Token Economics"
-        url="https://zensolar.lovable.app/tokenomics"
-        image="https://zensolar.lovable.app/og-tokenomics.png"
+        url="https://beta.zen.solar/tokenomics"
+        image="https://beta.zen.solar/og-tokenomics.png"
       />
       <div className="container max-w-4xl mx-auto px-4 py-8 space-y-8">
       {/* Header */}

@@ -140,8 +140,8 @@ export default function Technology() {
     <>
       <SEO 
         title="Mint-on-Proof™ Technology - Patent-Pending Clean Energy Verification"
-        url="https://zensolar.lovable.app/technology"
-        image="https://zensolar.lovable.app/og-technology.png"
+        url="https://beta.zen.solar/technology"
+        image="https://beta.zen.solar/og-technology.png"
       />
       <div className="container max-w-4xl mx-auto px-4 py-8 space-y-10">
       {/* Header */}
