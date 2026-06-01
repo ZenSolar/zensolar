@@ -23,16 +23,14 @@ export function TokenFlowCalculator() {
   const mintTreasury = Math.floor(grossTokens * MINT_DISTRIBUTION.treasury / 100);
   const userReceives = Math.floor(grossTokens * MINT_DISTRIBUTION.user / 100);
 
-  // Sell phase (transfer tax)
+  // Sell phase (transfer tax — 3% LP recycle only, v3.1)
   const tokensSold = Math.floor(userReceives * sellPercent / 100);
-  const taxBurned = Math.floor(tokensSold * TRANSFER_TAX.burn / 100);
   const taxLP = Math.floor(tokensSold * TRANSFER_TAX.lp / 100);
-  const taxTreasury = Math.floor(tokensSold * TRANSFER_TAX.treasury / 100);
-  const sellerReceives = tokensSold - taxBurned - taxLP - taxTreasury;
+  const sellerReceives = tokensSold - taxLP;
 
   // Totals
   const tokensHeld = userReceives - tokensSold;
-  const totalBurned = mintBurned + taxBurned;
+  const totalBurned = mintBurned;
   const totalLP = mintLP + taxLP;
   const heldValue = formatUSD(tokensHeld * PRICES.launchFloor);
   const soldValue = formatUSD(sellerReceives * PRICES.launchFloor);
