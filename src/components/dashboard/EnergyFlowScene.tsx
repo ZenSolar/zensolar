@@ -24,7 +24,7 @@
  * v3 archived to ./archive/EnergyFlowScene.v3.tsx.
  */
 import { useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import type { EnergyFlowData } from './AnimatedEnergyFlow';
 import {
   resolveVehicleAsset,
