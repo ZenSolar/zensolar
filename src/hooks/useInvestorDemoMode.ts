@@ -5,7 +5,9 @@
  *
  * Storage: localStorage key `zs:investor-demo:v1` (boolean).
  * Entry points:
- *   - `?demo=investor` URL param (sticky, one-link share)
+ *   - `?demo=investor` URL param (sticky, one-link share) — honored
+ *     SYNCHRONOUSLY in readStored() so the very first render already sees
+ *     enabled=true (no flash of the plain AnimatedEnergyFlow).
  *   - `<EnterInvestorDemoButton />` on /investor hub
  *   - `setInvestorDemoMode(true|false)` programmatic toggle
  *
@@ -18,8 +20,32 @@ import { useEffect, useState, useCallback } from 'react';
 const STORAGE_KEY = 'zs:investor-demo:v1';
 const EVENT_NAME = 'zs:investor-demo:changed';
 
+function readUrlParam(): 'on' | 'off' | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const v = new URLSearchParams(window.location.search).get('demo');
+    if (v === 'investor') return 'on';
+    if (v === 'off') return 'off';
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 function readStored(): boolean {
   if (typeof window === 'undefined') return false;
+  // Synchronously honor `?demo=investor` so the FIRST render of every
+  // consumer already sees enabled=true. Persist as a side-effect so reloads
+  // and other tabs stay in sync.
+  const urlParam = readUrlParam();
+  if (urlParam === 'on') {
+    try { window.localStorage.setItem(STORAGE_KEY, '1'); } catch { /* noop */ }
+    return true;
+  }
+  if (urlParam === 'off') {
+    try { window.localStorage.removeItem(STORAGE_KEY); } catch { /* noop */ }
+    return false;
+  }
   try {
     return window.localStorage.getItem(STORAGE_KEY) === '1';
   } catch {
@@ -53,24 +79,6 @@ export function useInvestorDemoMode(): {
   toggle: () => void;
 } {
   const [enabled, setEnabled] = useState<boolean>(() => readStored());
-
-  // Pick up `?demo=investor` URL param on mount and persist it.
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      const sp = new URLSearchParams(window.location.search);
-      const v = sp.get('demo');
-      if (v === 'investor' && !readStored()) {
-        writeStored(true);
-        setEnabled(true);
-      } else if (v === 'off' && readStored()) {
-        writeStored(false);
-        setEnabled(false);
-      }
-    } catch {
-      /* noop */
-    }
-  }, []);
 
   // Cross-component + cross-tab sync.
   useEffect(() => {
