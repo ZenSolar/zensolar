@@ -1,12 +1,30 @@
-import { useState } from "react";
-import { ChevronDown, ChevronUp, Sparkles, Coins } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import { EnergyReportCard } from "@/components/deason/EnergyReportCard";
 import type { MonthlyReport } from "@/hooks/useDeasonHub";
 import type { EnergyReportPreview, EnergyReportFull } from "@/hooks/useEnergyReport";
+import { GRID_KG_PER_KWH } from "@/lib/co2Math";
+import { MonthHero } from "./report/MonthHero";
+import { InsightTiles } from "./report/InsightTiles";
+import { WhatChanged } from "./report/WhatChanged";
+import { BillSavingsStrip } from "./report/BillSavingsStrip";
+import { TrendSparkline, type TrendPoint } from "./report/TrendSparkline";
+import { ShareMonthButton } from "./report/ShareMonthButton";
 
-export function MonthlyReportCard({ report }: { report: MonthlyReport | null }) {
+interface Props {
+  report: MonthlyReport | null;
+  /** Past reports (oldest → newest order not required; we sort internally). */
+  pastReports?: MonthlyReport[];
+}
+
+function shortMonth(iso: string) {
+  return new Date(iso).toLocaleString(undefined, { month: "short" });
+}
+
+export function MonthlyReportCard({ report, pastReports = [] }: Props) {
   const [expanded, setExpanded] = useState(false);
 
+  // ── Empty / early-month state ──────────────────────────────────────────────
   if (!report) {
     return (
       <div className="rounded-2xl border border-dashed border-amber-500/40 bg-amber-500/5 p-4 text-center">
@@ -19,42 +37,82 @@ export function MonthlyReportCard({ report }: { report: MonthlyReport | null }) 
     );
   }
 
-  const monthLabel = new Date(report.period_month).toLocaleString(undefined, { month: "long", year: "numeric" });
+  const monthLabel = new Date(report.period_month).toLocaleString(undefined, {
+    month: "long",
+    year: "numeric",
+  });
   const preview = report.structured_report?.preview as unknown as EnergyReportPreview | undefined;
   const full = report.structured_report?.full as unknown as EnergyReportFull | undefined;
 
+  // Previous month (immediately prior to `report.period_month`)
+  const prev = useMemo(() => {
+    const sorted = [...pastReports]
+      .filter((r) => r.id !== report.id && r.period_month < report.period_month)
+      .sort((a, b) => (a.period_month < b.period_month ? 1 : -1));
+    return sorted[0] ?? null;
+  }, [pastReports, report.id, report.period_month]);
+
+  // 6-month trend (oldest → newest), inclusive of current.
+  const trend: TrendPoint[] = useMemo(() => {
+    const all = [...pastReports, report]
+      .filter((r) => r.period_month <= report.period_month)
+      .sort((a, b) => (a.period_month < b.period_month ? -1 : 1))
+      .slice(-6);
+    return all.map((r) => ({
+      monthLabel: shortMonth(r.period_month),
+      dollars: Number(r.dollars_saved) || 0,
+      kwh: Number(r.bonus_tokens) || 0,
+    }));
+  }, [pastReports, report]);
+
+  // CO₂: treat bonus_tokens as kWh (1:1 rule). Use grid-avg displacement.
+  const co2Tons = (Number(report.bonus_tokens) * GRID_KG_PER_KWH) / 1000;
+
+  const takeaway = report.narrative ?? preview?.executive_summary ?? null;
+
   return (
-    <div className="rounded-2xl border border-border bg-card p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="text-[11px] uppercase tracking-wide text-amber-500">Monthly Clean Energy Report</div>
-          <div className="mt-0.5 text-lg font-semibold">{monthLabel}</div>
-          {report.narrative && (
-            <p className="mt-2 text-sm text-muted-foreground line-clamp-3">{report.narrative}</p>
-          )}
-        </div>
-        <div className="text-right">
-          <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Tracked</div>
-          <div className="text-2xl font-bold text-amber-500">${Math.round(report.dollars_saved)}</div>
-          <div className="mt-1 flex items-center justify-end gap-1 text-[11px] text-muted-foreground">
-            <Coins className="h-3 w-3" /> +{Math.round(report.bonus_tokens)} $ZSOLAR
-          </div>
-        </div>
+    <div className="space-y-3 rounded-2xl border border-border bg-card p-3.5">
+      <MonthHero monthLabel={monthLabel} co2Tons={co2Tons} takeaway={takeaway} />
+
+      <InsightTiles
+        dollarsSaved={report.dollars_saved}
+        bonusTokens={report.bonus_tokens}
+        prevDollarsSaved={prev ? Number(prev.dollars_saved) : null}
+        prevBonusTokens={prev ? Number(prev.bonus_tokens) : null}
+      />
+
+      <BillSavingsStrip dollarsSaved={report.dollars_saved} bonusTokens={report.bonus_tokens} />
+
+      <WhatChanged
+        preview={preview}
+        full={full}
+        prevDollarsSaved={prev ? Number(prev.dollars_saved) : null}
+        currDollarsSaved={Number(report.dollars_saved)}
+      />
+
+      <TrendSparkline data={trend} />
+
+      <div className="grid grid-cols-2 gap-2">
+        <ShareMonthButton
+          monthLabel={monthLabel}
+          co2Tons={co2Tons}
+          dollarsSaved={report.dollars_saved}
+          bonusTokens={report.bonus_tokens}
+        />
+        {(preview || full) && (
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="inline-flex items-center justify-center gap-1 rounded-lg border border-border/60 bg-card py-2 text-xs text-muted-foreground hover:text-foreground"
+          >
+            {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+            {expanded ? "Hide full report" : "View full report"}
+          </button>
+        )}
       </div>
 
-      {(preview || full) && (
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          className="mt-3 flex w-full items-center justify-center gap-1 rounded-lg border border-border/40 bg-background py-1.5 text-xs text-muted-foreground hover:text-foreground"
-        >
-          {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-          {expanded ? "Hide details" : "View full report"}
-        </button>
-      )}
-
       {expanded && preview && (
-        <div className="mt-3">
+        <div className="pt-1">
           <EnergyReportCard preview={preview} full={full ?? null} entitled />
         </div>
       )}
