@@ -249,7 +249,7 @@ export default function Investor() {
               },
               {
                 title: 'Live in beta',
-                body: 'Real Tesla, Enphase, SolarEdge installs minting against verified production.',
+                body: 'Real Tesla, Enphase, SolarEdge, and Wallbox installs minting against verified production.',
               },
             ].map((t) => (
               <div
