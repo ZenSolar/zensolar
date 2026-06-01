@@ -78,7 +78,7 @@ function buildUnlocks(preview: boolean): Array<{
   return [
     { icon: FileText, label: 'Full Seed Round Deck', desc: '15 slides · PIN-gated', to: '/deck' },
     { icon: FileText, label: 'One-Pager', desc: 'The leave-behind summary', to: '/investor/one-pager' },
-    { icon: PlayCircle, label: 'Live Investor Demo', desc: 'Proof of Genesis in your hand', to: preview ? '/demo-leonardo' : '/demo' },
+    { icon: PlayCircle, label: 'Live Investor Demo', desc: 'Full Tesla + Powerwall + Wallbox home', to: `${preview ? '/demo-leonardo' : '/demo'}?demo=investor` },
   ];
 }
 
