@@ -89,7 +89,7 @@ export default function InvestorPitch() {
             />
             <CatalystCard
               title="Patent-pending"
-              body="U.S. App. 19/634,402 covers Proof of Genesis™, Mint-on-Proof™, Proof-of-Delta™."
+              body="U.S. App. 19/634,402 covers the Proof of Genesis™ protocol — a novel system for turning verified clean-energy production into a hard-capped, asset-backed digital currency on Base."
             />
             <CatalystCard
               title="First of its kind"
