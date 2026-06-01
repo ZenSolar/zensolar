@@ -117,12 +117,16 @@ export const LP_SEED = {
 
 export const getActiveLPSeed = () => getLiveBetaMode() ? LP_SEED.liveBeta : LP_SEED.mainnet;
 
-// === MINT DISTRIBUTION ===
+// === MINT DISTRIBUTION (v3.1 LOCKED — 50/20/20/10) ===
+// 50% user · 20% LP · 20% burn · 10% treasury.
+// UI ALWAYS shows 1 kWh = 1 $ZSOLAR to the user. The protocol matches the user's
+// mint 1-for-1 in the background ("401(k)-match" framing). Supersedes the
+// previous 50/25/20/3/2 split (LP fee folded into LP; treasury increased for runway).
 export const MINT_DISTRIBUTION = {
-  user: 75,
+  user: 50,
+  lp: 20,
   burn: 20,
-  lp: 3,
-  treasury: 2,
+  treasury: 10,
 } as const;
 
 // === TRANSFER TAX ===
