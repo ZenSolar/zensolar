@@ -181,7 +181,7 @@ export function EnergySuccessScreen({
             You're earning.
           </h2>
           <p className="text-muted-foreground text-[14px]">
-            {name} is now earning <span className="text-primary font-medium">rewards</span>.
+            {name} is linked — every kWh now mints <span className="text-primary font-medium">1 $ZSOLAR</span>.
           </p>
         </motion.div>
 

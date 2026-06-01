@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
 import {
@@ -26,6 +27,8 @@ import { ZSOLAR_NFT_ADDRESS, ZSOLAR_TOKEN_ADDRESS } from "@/lib/wagmi";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useBasePath } from "@/hooks/useBasePath";
+import { useCountUp } from "@/hooks/useCountUp";
+import { useHaptics } from "@/hooks/useHaptics";
 
 export interface MintReceiptTx {
   id: string;
@@ -111,10 +114,23 @@ function shortHash(hash: string) {
 
 export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
   const basePath = useBasePath();
+  const { selection } = useHaptics();
+  const userTokens = Number(tx?.tokens_minted) || 0;
+  // Animate the headline $ZSOLAR amount from 0 → final whenever the drawer opens.
+  const { value: animatedTokens } = useCountUp({
+    end: open ? userTokens : 0,
+    duration: 900,
+    startOnView: false,
+  });
+
+  // Subtle selection haptic when drawer opens — premium tactile cue.
+  useEffect(() => {
+    if (open) void selection();
+  }, [open, selection]);
+
   if (!tx) return null;
 
   const meta = ACTION_META[tx.action] ?? { label: tx.action, description: "On-chain transaction." };
-  const userTokens = Number(tx.tokens_minted) || 0;
   const source = summarizeSource(tx);
   // Prefer the unified /verify/:chain_hash URL — one canonical receipt link.
   // Falls back to the owner-only preview for legacy mints without a chain hash.
@@ -245,7 +261,7 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
             <div className="rounded-xl border bg-card p-3">
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Your $ZSOLAR</p>
               <p className="text-2xl font-bold tabular-nums leading-tight mt-1">
-                {userTokens.toLocaleString()}
+                {Number(animatedTokens).toLocaleString(undefined, { maximumFractionDigits: 0 })}
               </p>
             </div>
             <div className="rounded-xl border bg-card p-3">
