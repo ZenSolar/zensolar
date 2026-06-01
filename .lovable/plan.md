@@ -1,87 +1,49 @@
 ## Goal
+Strip every visible reference to the 50 / 25 / 20 / 5 mint split (and any "75%", "matching contribution", "of X minted", "20% burn" copy) from user-facing surfaces. Backend math, hook constants, and contract code are untouched — only display copy and visualizations change. The split stays visible exclusively on `/investor*`, `/how-it-works`, `/white-paper`, the Learn shells, and `/admin*`.
 
-Lock **v3.1** as the permanent SSOT for mint-time distribution:
+## Surfaces to update (user-facing → 1:1 only)
 
-- **50%** user (always shown 1:1 in UI as `1 kWh = 1 $ZSOLAR`)
-- **25%** LP direct (mint-time)
-- **20%** burn (mint-time)
-- **5%** treasury (mint-time)
-- **3% transfer tax** — kept, but *fully separate*: applied only on transfers/swaps and recycled to LP. Not part of the mint split, not in `MINT_DISTRIBUTION`.
+### 1. `src/components/mint-history/ReceiptDrawer.tsx`
+- Rewrite the `mint-rewards` description to a clean 1:1 line:
+  `"Energy-backed mint — 1 kWh = 1 $ZSOLAR, verified on-chain."`
+- Delete the entire **Mint Split** section (the stacked bar + 4-bucket list, lines ~279–329) and the `SPLIT` constant.
+- Headline card: drop the `of {grandTotal} minted` sub-line; show only the user's $ZSOLAR.
+- Remove `(50% user share)` from the share-text builder.
+- Remove the now-stale `grandTotal` derivation and the Sparkles/Flame/ShieldCheck/Wallet imports that only powered the split viz.
+- Keep the "split math" phrase out of the PoG CTA caption — replace with `"Verified kWh → CO₂ tons offset → device watermark"`.
 
-Preserve the 1:1 UX everywhere: the user always sees their 50% share displayed as if it equals the underlying kWh/miles (`tokens_minted` written to DB = the user's 50% share). Backend reconciliation still operates on the raw 100% mint via `tokens_minted / 0.5`.
+### 2. `src/pages/MintHistory.tsx`
+- Summary tile `Tokens Received` sub: change `'$ZSOLAR (75%)'` → `'$ZSOLAR earned'`.
+- Pending Activity description: change to `"Activity since your last mint — every kWh becomes 1 $ZSOLAR."` (drop the "75%" + "20% burn" mention).
+- Fix the stale comment + math at line 138–141: it says "50% user share" but multiplies by `0.75`. Use `MINT_DISTRIBUTION.user / 100` from `tokenomics.ts` so the pending estimate matches the locked v3.1 50% user share. (Internal-only change; user still just sees the resulting token number.)
+- Remove `<Tokenomics101Card compact />` from this page — that card narrates the split.
 
-## SSOT changes (src/lib/tokenomics.ts)
+### 3. `src/components/home/EarningsCalculatorSection.tsx`
+- Already multiplies by `USER_SHARE` from `MINT_DISTRIBUTION` (correct for v3.1 = 0.5).
+- Change the sub-line `"≈ N tokens/day · 75% to your wallet"` → `"≈ N tokens/day · 1 kWh = 1 $ZSOLAR"`.
 
-- `MODEL_VERSION = 3.1` (keep number) with a fresh header comment: "v3.1 LIVE — mint split 50/25/20/5 + separate 3% transfer tax".
-- Replace `MINT_DISTRIBUTION` with:
-  ```ts
-  export const MINT_DISTRIBUTION = {
-    user: 50,
-    lpDirect: 25,
-    burn: 20,
-    treasury: 5,
-  } as const;
-  ```
-- Replace `TRANSFER_TAX` with a single recycled-LP value:
-  ```ts
-  export const TRANSFER_TAX = {
-    lpRecycle: 3,
-    total: 3,
-  } as const;
-  ```
-  (Drops the old 7% / 3-2-2 split. The 7% transfer tax narrative is retired; investor copy now reads "3% transfer tax → LP recycle".)
-- Update `calculatePendingTokens`, `calculateUserTokens`, `calculateMintBurn` to read from the new fields (already keyed on `MINT_DISTRIBUTION.user` / `.burn`, so they keep working; verify no callers depend on `.lp` vs `.lpDirect`).
-- Update the inline "401(k) match" comment example: 700 kWh user-share → protocol matches with 350 LP + 280 burn + 70 treasury (raw 1,400 = 100%).
+### 4. `src/components/nft/NFTMintFlow.tsx`
+- Remove `<Tokenomics101Card compact />` (line 613). This is a regular-user surface.
 
-## Consumers to update (mint logic)
+### 5. `src/components/demo/DemoDashboard.tsx`
+- Remove `<Tokenomics101Card compact />` (line 315). Demo dashboard = user POV.
 
-Hooks
-- `src/hooks/useLatestMintReceipt.ts` — `USER_SHARE` already 0.5, keep. Update header comment block to read "50/25/20/5 (v3.1)".
-- `src/hooks/useOnChainMetrics.ts` — already keys off `MINT_DISTRIBUTION.burn / .user / .treasury`. Add `.lpDirect` rename (was `.lp`). Update derivations of `lpBalance` / `treasuryBalance`.
-- `src/hooks/useBetaMetrics.ts` — uses `MINT_DISTRIBUTION.burn` and `.user`. No structural change, just verify after rename.
-- `src/hooks/useFlywheelContribution.ts`, `src/hooks/useDashboardData.ts` (if it consumes any split) — sweep.
+### 6. `src/components/wallet/RecentMintProofs.tsx` & `src/components/dashboard/WalletHoldingsCard.tsx`
+- Already display tokens 1:1 with no split copy. **No changes needed** — verify only.
 
-Components / UI
-- `src/components/tokenomics/Tokenomics101Card.tsx` and any siblings — update split copy to 50/25/20/5 and 1:1 framing.
-- `src/components/wallet/ReceiptDrawer.tsx` + 4-bucket split visualization → 4 buckets relabeled `User 50 · LP 25 · Burn 20 · Treasury 5`.
-- `src/components/wallet/CashOutExplainer.tsx` — copy refresh.
-- `src/components/investor/ThreeRevenueEngines.tsx` — Engine 2 panel: mint split = 50/25/20/5, transfer tax = 3% (separate). Explicitly call out independence.
-- `src/components/EarningsCalculatorSection.tsx` (if present) — math uses `MINT_DISTRIBUTION.user`, verify.
-- `src/components/wallet/RecentMintProofs.tsx` — already 1:1; verify.
+### 7. `src/hooks/useLatestMintReceipt.ts`
+- Internal hook; user never sees it. **Keep `USER_SHARE = 0.5` and the comment** (correct per memory rule). No display changes here.
 
-Pages
-- `src/pages/InvestorPitch.tsx`, `src/pages/InvestorOnePager.tsx`, `src/pages/learn/LearnTokenomics.tsx`, `/deck` slide content (`src/components/investor/pitch/*`) — surface the new 50/25/20/5 + separate 3% transfer tax wherever the split appears.
-- Admin pages under `src/pages/admin/*` that show tokenomics breakdowns.
-
-Edge functions
-- `supabase/functions/cheetah-export/model.ts` (and any siblings) — these mirror subscription split, not mint split, so likely no change. Sweep for hardcoded `0.20` / `0.10` / `0.25` mint-split constants and remove drift.
-
-Tests / fixtures
-- `src/lib/__tests__/mintReconciliation.test.ts` — update fixture to assert the 50/100 invariant under 50/25/20/5 (sum check + per-bucket check).
-- Any snapshot tests referencing percentages or `MINT_DISTRIBUTION.lp` → `.lpDirect`.
-
-Archive
-- Leave `src/lib/archive/tokenomics_v1_10B.ts` and `src/pages/archive/*` untouched (historical record).
-
-## Memory updates
-
-- `mem://features/mint-split-v3-locked.md` — rewrite to declare the new locked split:
-  ```
-  Mint Split v3.1 (LOCKED · LIVE)
-  50% user / 25% LP direct / 20% burn / 5% treasury
-  Transfer tax: 3% (separate mechanism, LP recycle only — NOT part of mint split)
-  Supersedes: 50/20/20/10, 50/25/20/3/2 (proposed), 75/20/3/2 (legacy)
-  ```
-- `mem://index.md` Core line — replace existing mint-split sentence with: "Mint split v3.1 (LOCKED): 50% user · 25% LP direct · 20% burn · 5% treasury. Separate 3% transfer tax (LP recycle only). UI ALWAYS shows 1 kWh = 1 $ZSOLAR (user sees 50% share)."
-- `mem://features/tokenomics.md`, `mem://features/tiered-subscriptions-flywheel.md`, `mem://features/cheetah-doomsday-rebuttal.md`, `mem://features/investor-pitch-v2.md`, `mem://features/launch-model.md` — sweep for the old split numbers and the old "7% transfer tax" claim; rewrite to 50/25/20/5 + 3% transfer tax.
+## Surfaces explicitly LEFT showing the split (allowlist)
+- `src/pages/learn/LearnTokenomics.tsx` (uses `Tokenomics101Card` full mode)
+- `src/pages/HowItWorks.tsx`, `src/pages/WhitePaper.tsx` and their components
+- `/investor*` pages
+- `/admin*` pages
+- `src/components/tokenomics/Tokenomics101Card.tsx` itself — leave the component intact; just stop mounting it on user surfaces.
 
 ## Verification
+- `rg -n "75%|50% user|25% LP|20% burn|5% treasury|matching|mint split|bucket"` across `src/components/dashboard`, `src/components/wallet`, `src/components/mint-history`, `src/components/home`, `src/components/nft`, `src/components/demo`, `src/pages/MintHistory.tsx`, `src/pages/Wallet.tsx`. Expect zero hits.
+- Visually spot-check the receipt drawer in preview after change.
 
-1. Read `tokenomics.ts` end-to-end after edit; confirm split sums to 100 and transfer-tax block stands alone.
-2. `bunx vitest run src/lib/__tests__/mintReconciliation.test.ts` — must pass.
-3. Grep the whole repo for stale strings: `50/20/20/10`, `50/25/20/3/2`, `75/20/3/2`, `MINT_DISTRIBUTION.lp` (no `Direct`), `TRANSFER_TAX.total` referenced as 7, "7% transfer tax", "20% to treasury". Fix every hit.
-4. Visit `/investor/pitch`, `/investor/one-pager`, `/deck`, `/learn/tokenomics`, dashboard receipt drawer, mint history — confirm UI reads 50/25/20/5 mint + separate 3% transfer tax, and user-facing kWh/$ZSOLAR remains 1:1.
-
-## Closing reply (verbatim, as user requested)
-
-> "Full backend tokenomics alignment v3.1 (50/25/20/5 mint split + separate 3% transfer tax) complete — 1:1 UI preserved everywhere."
+## Closing reply
+`"Dashboard receipt + wallet polish complete — v3.1 split hidden from users, pure 1:1 UX preserved everywhere."`

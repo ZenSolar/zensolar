@@ -99,18 +99,10 @@ interface ReceiptDrawerProps {
 
 const ACTION_META: Record<string, { label: string; description: string }> = {
   register: { label: "Welcome NFT", description: "Onboarding mint — Welcome NFT issued on Base." },
-  "mint-rewards": { label: "$ZSOLAR Token Mint", description: "Energy-backed mint. 50% to you · the protocol matches it 1-for-1: 25% LP, 20% burn, 5% treasury." },
+  "mint-rewards": { label: "$ZSOLAR Token Mint", description: "Energy-backed mint — 1 kWh = 1 $ZSOLAR, verified on-chain." },
   "mint-combos": { label: "Combo Achievement", description: "Combo NFTs awarded for hitting multi-source milestones." },
   "claim-milestone-nfts": { label: "Milestone Claim", description: "Milestone NFT claimed on-chain." },
 };
-
-/** Brand mint-split — v3.1 LOCKED (50/25/20/5) — keep in sync with mem://features/mint-split-v3-locked */
-const SPLIT = [
-  { key: "user", label: "You", pct: 50, color: "bg-primary", icon: Wallet },
-  { key: "lp", label: "LP", pct: 25, color: "bg-accent-cool", icon: Sparkles },
-  { key: "burn", label: "Burn", pct: 20, color: "bg-destructive/80", icon: Flame },
-  { key: "treasury", label: "Treasury", pct: 5, color: "bg-accent-warm", icon: ShieldCheck },
-] as const;
 
 function getExplorerUrl(txHash: string) {
   return `https://sepolia.basescan.org/tx/${txHash}`;
@@ -126,9 +118,6 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
 
   const meta = ACTION_META[tx.action] ?? { label: tx.action, description: "On-chain transaction." };
   const userTokens = Number(tx.tokens_minted) || 0;
-  // tokens_minted is already the 50% user share — derive grand total for split viz (v3.1)
-  const grandTotal = userTokens > 0 ? userTokens / 0.5 : 0;
-  const hasSplit = userTokens > 0;
   const source = summarizeSource(tx);
   // Prefer the unified /verify/:chain_hash URL — one canonical receipt link.
   // Falls back to the owner-only preview for legacy mints without a chain hash.
@@ -145,7 +134,7 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
       "",
       `Action: ${meta.label}`,
       `Date: ${format(new Date(tx.created_at), "PPpp")}`,
-      userTokens > 0 ? `Earned: ${userTokens.toLocaleString()} $ZSOLAR (50% user share)` : null,
+      userTokens > 0 ? `Earned: ${userTokens.toLocaleString()} $ZSOLAR` : null,
       tx.nft_names?.length ? `NFTs: ${tx.nft_names.join(", ")}` : null,
       `Wallet: ${tx.wallet_address}`,
       `Tx: ${tx.tx_hash}`,
