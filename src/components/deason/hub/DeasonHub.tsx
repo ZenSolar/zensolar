@@ -143,7 +143,7 @@ export function DeasonHub({ onStartChat }: Props) {
           )}
           <ProgressionCard progression={progression} />
           <TexasContextCard ctx={profileCtx} onEdit={() => { setIsMonthly(false); setSheetOpen(true); }} />
-          <MonthlyReportCard report={latestReport} />
+          <MonthlyReportCard report={latestReport} pastReports={pastReports} />
           <QuickInsightsFeed insights={insights} onDismiss={dismissInsight} />
           <WeatherOutlookCard weather={weather} />
           <DocumentLibrary docs={library} onUpload={() => { setIsMonthly(false); setSheetOpen(true); }} />
