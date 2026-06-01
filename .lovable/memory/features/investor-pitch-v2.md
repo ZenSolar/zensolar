@@ -9,7 +9,8 @@ type: feature
 ## Canonical surfaces
 - **`/investor/pitch`** (`src/pages/InvestorPitch.tsx`) — full canonical narrative page. Wired into the NDA-gated `/investor` flow.
 - **`<ThreeRevenueEngines />`** (`src/components/investor/ThreeRevenueEngines.tsx`) — embedded inline on `/investor` (post-NDA) and on `/investor/pitch`.
-- **Pitch deck** (`src/components/investor/pitch/slides/*`) — Slide 01 (Title), Slide 09 (Revenue), Slide 13 (The Ask) carry the locked numbers.
+- **Full Seed Round Deck** (`/deck` → `src/pages/DeckPinGated.tsx` + `src/components/investor/pitch/slides/*`) — Slide 01 (Title), Slide 09 (Revenue), Slide 13 (The Ask) carry the locked numbers. Deck shell has top-left back link to `/investor` (added Jun 2026). NEVER call this "Full Pitch Deck" — always "Full Seed Round Deck" (time-bounds the round).
+- **One-Pager** (`/investor/one-pager` → `src/pages/InvestorOnePager.tsx`) — single-screen leave-behind. NDA-gated. Real app screenshots (`public/investor/one-pager/zen-monitoring.png` + `tap-to-mint.png`). Print-friendly (`@page Letter portrait`). DOES NOT show `$20M post-money` — only `$5M target / $7M cap / SAFE` (post-money kept on Slide 13 of deck). Drops in Wallbox alongside Tesla/Enphase/SolarEdge in the moat copy.
 
 Don't add net-new investor narrative pages. Update these or archive them via the admin page-cleanup widget.
 

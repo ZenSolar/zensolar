@@ -76,8 +76,9 @@ function buildUnlocks(preview: boolean): Array<{
   to: string;
 }> {
   return [
+    { icon: FileText, label: 'Full Seed Round Deck', desc: '15 slides · PIN-gated', to: '/deck' },
+    { icon: FileText, label: 'One-Pager', desc: 'The leave-behind summary', to: '/investor/one-pager' },
     { icon: PlayCircle, label: 'Live Investor Demo', desc: 'Proof of Genesis in your hand', to: preview ? '/demo-leonardo' : '/demo' },
-    { icon: FileText, label: 'Full Pitch Deck', desc: '12 slides · PIN-gated', to: '/deck' },
   ];
 }
 
@@ -248,7 +249,7 @@ export default function Investor() {
               },
               {
                 title: 'Live in beta',
-                body: 'Real Tesla, Enphase, SolarEdge installs minting against verified production.',
+                body: 'Real Tesla, Enphase, SolarEdge, and Wallbox installs minting against verified production.',
               },
             ].map((t) => (
               <div
@@ -362,19 +363,26 @@ function UnlockedPanel({
         <ThreeRevenueEngines />
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-3">
+        <UnlockedCard
+          icon={FileText}
+          title="Full Seed Round Deck"
+          body="15-slide investor deck. Title → Catalyst → Engines → Ask."
+          to="/deck"
+          internal
+        />
+        <UnlockedCard
+          icon={FileText}
+          title="One-Pager"
+          body="The leave-behind. Ask, engines, moat, founders — one screen."
+          to="/investor/one-pager"
+          internal
+        />
         <UnlockedCard
           icon={PlayCircle}
           title="Live Investor Demo"
           body="Proof of Genesis™ flow on real data. Mobile-first."
           to={demoHref}
-          internal
-        />
-        <UnlockedCard
-          icon={FileText}
-          title="Full Pitch Deck"
-          body="12-slide investor deck. Title → Catalyst → Engines → Ask."
-          to="/deck"
           internal
         />
       </div>
