@@ -662,12 +662,12 @@ function MessageContent({
   streaming: boolean;
 }) {
   if (typeof content === "string") {
-    return <>{content || (streaming ? "…" : "")}</>;
+    return <CitedText text={content || (streaming ? "…" : "")} />;
   }
   return (
     <div className="space-y-2">
       {content.map((part, idx) => {
-        if (part.type === "text") return <div key={idx}>{part.text}</div>;
+        if (part.type === "text") return <CitedText key={idx} text={part.text ?? ""} />;
         if (part.type === "image_url" && part.image_url?.url) {
           return (
             <div key={idx} className="flex items-center gap-2 text-xs opacity-80">
@@ -681,4 +681,38 @@ function MessageContent({
     </div>
   );
 }
+
+/**
+ * Renders Deason's text and converts inline `[doc:<id>]` citation markers
+ * into small amber source chips. Multiple citations on the same fact collapse
+ * into "Sources" pills the user can hover to see the document id.
+ */
+function CitedText({ text }: { text: string }) {
+  if (!text) return null;
+  const parts: React.ReactNode[] = [];
+  const re = /\[doc:([a-zA-Z0-9_-]+)\]/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  let i = 0;
+  while ((match = re.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+    const id = match[1];
+    parts.push(
+      <span
+        key={`c-${i++}-${id}`}
+        title={`Source: document ${id}`}
+        className="ml-0.5 inline-flex h-4 items-center rounded-full bg-amber-500/15 px-1.5 align-middle text-[10px] font-medium text-amber-500 ring-1 ring-amber-500/30"
+      >
+        <FileText className="mr-0.5 h-2.5 w-2.5" />
+        source
+      </span>
+    );
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < text.length) parts.push(text.slice(lastIndex));
+  return <>{parts}</>;
+}
+
 
