@@ -1,9 +1,20 @@
 ---
-name: Proof-of-Genesis unified receipt
-description: PoG (owner) and PoA (public) receipts are unified — one URL, one share link, TamperEvidentProofPanel everywhere
+name: Proof-of-Genesis unified receipt + action
+description: "Proof of Genesis" is the canonical name for BOTH the minting action (formerly Tap-to-Mint™) and the receipt page. PoG (owner) and PoA (public) receipts are one URL with two render modes.
 type: feature
 ---
-The Proof-of-Genesis™ receipt (owner view) and the Proof-of-Authenticity™ public verify page are now ONE receipt with two render modes.
+
+# Proof of Genesis (unified)
+
+## Naming (Jun 2026)
+**"Proof of Genesis"** is the single canonical name for two things:
+1. The **minting action** — what was previously called "Tap-to-Mint™". The user taps the device tile, the protocol verifies kWh and writes a hash-chained record on-chain.
+2. The **receipt page** at `/proof-of-genesis` (owner) and `/verify/:chain_hash` (public) that displays the result.
+
+Copy should read naturally as one concept: "Tap your device → Proof of Genesis receipt minted on-chain." Never re-introduce "Tap-to-Mint™" outside the legal patent filing and archived pages.
+
+## Receipt unification (unchanged from prior)
+The Proof-of-Genesis™ receipt (owner view) and the Proof-of-Authenticity™ public verify page are ONE receipt with two render modes.
 
 **Canonical public share URL:** `/verify/:chain_hash` — no auth, wallet masked, brand-matched to the owner page.
 
