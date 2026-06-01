@@ -236,8 +236,44 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
     const file = attachedFile;
     setInput("");
     setAttachedFile(null);
+    setSlashOpen(false);
     void send(text, file?.dataUrl);
   };
+
+  const handleSlashPick = (it: SlashItem) => {
+    setInput("");
+    setSlashOpen(false);
+    void send(it.prompt);
+  };
+
+  const handleRetry = () => {
+    if (!lastUserText || streaming) return;
+    popLastAssistant();
+    void send(lastUserText);
+  };
+
+  const handleRegenerate = (idx: number) => {
+    if (streaming) return;
+    // Find the user message immediately preceding this assistant message.
+    const prior = messages[idx - 1];
+    if (!prior || prior.role !== "user") return;
+    const text = typeof prior.content === "string"
+      ? prior.content
+      : prior.content.find((p) => p.type === "text")?.text ?? "";
+    if (!text) return;
+    popLastAssistant();
+    void send(text);
+  };
+
+  const handleCopy = async (idx: number, text: string) => {
+    try {
+      await navigator.clipboard.writeText(stripFollowupsBlock(text));
+      setCopiedIdx(idx);
+      window.setTimeout(() => setCopiedIdx((v) => (v === idx ? null : v)), 1400);
+    } catch { /* clipboard unavailable */ }
+  };
+
+
 
 
   // /demo* surface is the investor/reviewer context. Force reviewer prompts
