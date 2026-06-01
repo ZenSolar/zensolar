@@ -389,93 +389,143 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-3 py-4">
         {loadingHistory && (
-          <div className="flex justify-center py-10">
-            <Sparkles className="h-5 w-5 animate-pulse text-amber-500" />
+          <div className="space-y-3 animate-in fade-in duration-200">
+            <SkeletonMessage align="left" />
+            <SkeletonMessage align="right" widthClass="w-2/3" />
+            <SkeletonMessage align="left" widthClass="w-4/5" />
           </div>
         )}
         {!loadingHistory && messages.length === 0 && (
-          <div className="mx-auto mt-4 max-w-md text-center">
-            <div className="mb-3 text-2xl">☀️</div>
-
-            <h2 className="mb-2 text-lg font-semibold">{welcomeTitle}</h2>
-            <p className="text-sm text-muted-foreground">{welcomeBody}</p>
-            <button
-              onClick={() => setEnergySheetOpen(true)}
-              className="mt-4 w-full rounded-xl border border-amber-500/40 bg-gradient-to-b from-amber-500/15 to-amber-500/5 px-3 py-3 text-left transition-colors hover:from-amber-500/20"
-            >
-              <div className="flex items-center gap-2 text-sm font-semibold text-amber-500">
-                <FileCheck2 className="h-4 w-4" /> Analyze my energy setup
-              </div>
-              <div className="mt-0.5 text-xs text-muted-foreground">
-                Upload your latest utility bill (required), plus your solar contract and PPA or loan if you have them.
-              </div>
-            </button>
-            <div className="mt-4 grid gap-2 text-left text-sm">
-              {prompts.map((q) => (
-                <button
-                  key={q}
-                  onClick={() => void send(q)}
-                  className="rounded-xl border border-border/60 bg-card px-3 py-2.5 text-left transition-colors hover:bg-accent"
-                >
-                  {q}
-                </button>
-              ))}
-            </div>
-          </div>
+          <EmptyState
+            title={welcomeTitle}
+            body={welcomeBody}
+            prompts={prompts}
+            onAnalyze={() => setEnergySheetOpen(true)}
+            onPick={(q) => void send(q)}
+          />
         )}
 
         <div className="space-y-3">
-          {messages.map((m, i) => (
-            <div
-              key={i}
-              ref={(el) => { messageRefs.current[i] = el; }}
-              className={cn(
-                "flex scroll-mt-20 rounded-xl transition-shadow",
-                m.role === "user" ? "justify-end" : "justify-start",
-                i === highlightIndex && "ring-2 ring-amber-500/60"
-              )}
-            >
-              <div className={cn("space-y-2", m.role === "user" ? "max-w-[85%]" : "w-full")}>
-                {(m.content || m.role === "user" || (!m.billReport && !m.energyReport)) && (
-                  <div
-                    className={cn(
-                      "whitespace-pre-wrap leading-relaxed",
-                      m.role === "user"
-                        ? "rounded-2xl rounded-br-md bg-primary px-3.5 py-2 text-primary-foreground"
-                        : "text-foreground",
-                      compact ? "text-sm" : "text-[15px]",
-                    )}
-                  >
-                    <MessageContent content={m.content} streaming={streaming && i === messages.length - 1} />
-                  </div>
+          {messages.map((m, i) => {
+            const isLast = i === messages.length - 1;
+            const isStreamingThis = streaming && isLast && m.role === "assistant";
+            const textValue = typeof m.content === "string" ? m.content : "";
+            const completedAssistant = m.role === "assistant" && !isStreamingThis && !!m.content;
+            return (
+              <div
+                key={i}
+                ref={(el) => { messageRefs.current[i] = el; }}
+                className={cn(
+                  "group flex scroll-mt-20 rounded-xl transition-shadow",
+                  m.role === "user" ? "justify-end" : "justify-start",
+                  i === highlightIndex && "ring-2 ring-amber-500/60"
                 )}
-                {m.billReport && <BillSavingsReport report={m.billReport} />}
-                {m.energyReport && (
-                  <EnergyReportCard
-                    preview={m.energyReport.preview}
-                    full={m.energyReport.full}
-                    entitled={m.energyReport.entitled}
-                    onUnlock={() => alert("Subscription checkout coming soon — $4.99/mo with 7-day free trial.")}
-                  />
-                )}
+              >
+                <div className={cn("space-y-2", m.role === "user" ? "max-w-[85%]" : "w-full")}>
+                  {(m.content || m.role === "user" || (!m.billReport && !m.energyReport)) && (
+                    <div
+                      className={cn(
+                        "whitespace-pre-wrap leading-relaxed",
+                        m.role === "user"
+                          ? "rounded-2xl rounded-br-md bg-primary px-3.5 py-2 text-primary-foreground"
+                          : "text-foreground",
+                        compact ? "text-sm" : "text-[15px]",
+                      )}
+                    >
+                      <MessageContent
+                        content={m.content}
+                        streaming={isStreamingThis}
+                        docIndex={docIndex}
+                        onOpenSources={setSourcesEntries}
+                      />
+                    </div>
+                  )}
+                  {m.billReport && <BillSavingsReport report={m.billReport} />}
+                  {m.energyReport && (
+                    <EnergyReportCard
+                      preview={m.energyReport.preview}
+                      full={m.energyReport.full}
+                      entitled={m.energyReport.entitled}
+                      onUnlock={() => alert("Subscription checkout coming soon — $4.99/mo with 7-day free trial.")}
+                    />
+                  )}
+                  {completedAssistant && (
+                    <>
+                      <SuggestedFollowups
+                        text={textValue}
+                        ctx={profileCtx}
+                        onPick={(q) => void send(q)}
+                      />
+                      <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+                        <button
+                          type="button"
+                          onClick={() => handleCopy(i, textValue)}
+                          className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] text-muted-foreground hover:bg-accent hover:text-foreground"
+                          title="Copy answer"
+                        >
+                          {copiedIdx === i ? <Check className="h-3 w-3 text-amber-500" /> : <Copy className="h-3 w-3" />}
+                          {copiedIdx === i ? "Copied" : "Copy"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleRegenerate(i)}
+                          disabled={streaming}
+                          className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-40"
+                          title="Regenerate"
+                        >
+                          <RefreshCw className="h-3 w-3" />
+                          Regenerate
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           {streaming && messages[messages.length - 1]?.role === "assistant" && !messages[messages.length - 1]?.content && (
-            <div className="flex items-center gap-1.5 px-1 text-muted-foreground">
-              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-amber-500 [animation-delay:-0.2s]" />
-              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-amber-500 [animation-delay:-0.1s]" />
-              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-amber-500" />
-            </div>
+            <StreamingShimmer />
           )}
         </div>
 
         {error && (
-          <div className="mt-3 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {error}
+          <div className="mt-3 rounded-xl border border-destructive/40 bg-destructive/10 p-3">
+            <div className="flex items-start gap-2 text-sm text-destructive">
+              <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+              <div className="flex-1">
+                <div className="font-medium">Couldn't finish that one.</div>
+                <div className="mt-0.5 text-xs text-destructive/80">{error}</div>
+              </div>
+            </div>
+            <div className="mt-2 flex items-center gap-1.5">
+              {lastUserText && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-7 border-destructive/40 text-destructive hover:bg-destructive/10"
+                  onClick={handleRetry}
+                  disabled={streaming}
+                >
+                  <RefreshCw className="mr-1 h-3 w-3" /> Try again
+                </Button>
+              )}
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                className="h-7 text-destructive hover:bg-destructive/10"
+                onClick={() => seedAssistant(
+                  "I hit a snag on that last one — usually it's one of three things: (1) the AI service is rate-limited (slow down and try again in a minute), (2) you're temporarily signed out (refresh and sign back in), or (3) the doc was too large to read. Want to try a smaller message or upload again?"
+                )}
+              >
+                Tell me what happened
+              </Button>
+            </div>
           </div>
         )}
       </div>
+
 
       {/* Composer */}
       <form
