@@ -83,10 +83,10 @@ export function ThreeRevenueEngines() {
             </>
           }
           bullets={[
-            '1T hard cap · 50 user · 20 LP · 20 burn · 10 treasury',
-            '$0.10 LP-seeded launch on Base',
-            '7% transfer tax → 3% burn · 2% LP · 2% treasury',
-            'Transfer-tax volume + treasury yield = long-term primary revenue',
+            'Mint split: 50 user · 20 LP · 20 burn · 10 treasury (per kWh verified)',
+            '$0.10 LP-seeded launch on Base · 1T hard cap',
+            'Transfer tax: 7% on secondary swaps → 3 burn · 2 LP · 2 treasury',
+            'Mint split and transfer tax are independent — both compound supply tightening + treasury yield',
           ]}
           metric="1T cap"
           metricLabel="transfer tax + treasury yield"
