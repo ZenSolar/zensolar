@@ -21,12 +21,13 @@ import {
 import { ThreeRevenueEngines } from '@/components/investor/ThreeRevenueEngines';
 import { isPreviewHost } from '@/lib/previewHost';
 
+import { writeInvestorPass } from '@/lib/investorPass';
+
 const ACCESS_CODE = 'INVESTOR_LANDING';
 const NDA_EMAIL_KEY = 'zen_nda_email';
 const NDA_NAME_KEY = 'zen_nda_name';
 const DEMO_ACCESS_KEY = 'zen_demo_access';
 const INVESTOR_SIGNED_KEY = 'zs_investor_nda_signed';
-const INVESTOR_PASS_KEY = 'zs_investor_pass';
 
 interface SignedState {
   email: string;
