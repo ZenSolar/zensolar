@@ -380,6 +380,11 @@ export interface EnergyFlowSceneProps {
   batteryPayload?: unknown;
   /** Number of connected Powerwall units (1 or 2). Default 1. */
   batteryCount?: number;
+  /** Device presence flags — drive label/halo visibility so the scene never
+   *  fabricates a Powerwall or Tesla for users who don't have one. */
+  hasBattery?: boolean;
+  hasCharger?: boolean;
+  hasTesla?: boolean;
 }
 
 export function EnergyFlowScene({
@@ -390,7 +395,11 @@ export function EnergyFlowScene({
   vehicleColor,
   teslaPayload,
   batteryCount = 1,
+  hasBattery = true,
+  hasCharger = true,
+  hasTesla = true,
 }: EnergyFlowSceneProps) {
+
 
   const scene = useMemo(() => forceScene ?? pickScene(data), [forceScene, data]);
   const hasTeslaConnection =
