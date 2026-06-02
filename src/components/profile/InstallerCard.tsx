@@ -157,6 +157,43 @@ export function InstallerCard() {
             </div>
           </div>
 
+          {/* Inverter brand picker — only when installer = 'other'.
+              Persists `profiles.solar_inverter_brand` so SSOT resolver picks
+              the right OEM API for solar production without coincidental fallback. */}
+          {installer === "other" && (
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                <Sun className="h-3 w-3" />
+                Inverter brand
+              </Label>
+              <div className="grid grid-cols-3 gap-2">
+                {([
+                  { id: "enphase", label: "Enphase", hint: "Microinverters" },
+                  { id: "solaredge", label: "SolarEdge", hint: "String inverter" },
+                  { id: "other", label: "Other", hint: "Best fallback" },
+                ] as const).map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setInverterBrand(opt.id)}
+                    className={`p-2.5 rounded-xl border text-left transition-all ${
+                      inverterBrand === opt.id
+                        ? "border-primary bg-primary/10 shadow-[0_0_18px_hsl(var(--primary)/0.18)]"
+                        : "border-border/50 bg-muted/20 hover:border-primary/40"
+                    }`}
+                  >
+                    <p className="text-xs font-semibold">{opt.label}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{opt.hint}</p>
+                  </button>
+                ))}
+              </div>
+              <p className="text-[10px] text-muted-foreground/80">
+                One OEM owns the kWh reading — we never sum solar across providers.
+              </p>
+            </div>
+          )}
+
+
           {/* Type-ahead search — pre-fills the contact fields below */}
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground uppercase tracking-wider">
