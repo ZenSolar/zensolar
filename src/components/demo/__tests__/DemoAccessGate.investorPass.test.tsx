@@ -33,6 +33,10 @@ beforeEach(() => {
     .forEach((name) => {
       document.cookie = `${name}=; path=/; max-age=0`;
     });
+  // Pretend we're on a production host so the gate's "editor preview" shortcut
+  // (which would otherwise auto-grant in any dev build) does NOT mask the
+  // investor-pass logic we're verifying.
+  vi.stubEnv('DEV', '');
   // jsdom location.search is read by the gate at mount; reset it.
   window.history.replaceState({}, '', '/demo?demo=investor');
 });
