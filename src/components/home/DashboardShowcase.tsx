@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { AnimatedEnergyFlow } from '@/components/dashboard/AnimatedEnergyFlow';
+import { InvestorEnergyFlowCard } from '@/components/demo/InvestorEnergyFlowCard';
 import enphaseLogo from '@/assets/logos/enphase-wordmark.svg';
 import teslaLogo from '@/assets/logos/tesla-t-icon.png';
 import chargepointLogo from '@/assets/logos/chargepoint-logo.png';
@@ -122,7 +122,7 @@ export function DashboardShowcase() {
           transition={{ delay: 0.25 }}
         >
           <Card className="border-primary/20 overflow-hidden shadow-2xl shadow-primary/10 bg-transparent">
-            <AnimatedEnergyFlow className="w-full" />
+            <InvestorEnergyFlowCard />
           </Card>
         </motion.div>
       </div>
