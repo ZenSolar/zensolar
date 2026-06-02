@@ -37,7 +37,7 @@ Our patent-pending Proof-of-Delta engine creates cryptographic proofs binding ea
 
 The entire experience — signup, device connection, real-time monitoring, minting, NFT collection, and USD cash-out — lives in one app. No MetaMask, no seed phrases, no crypto knowledge required.
 
-Solo founder, live on testnet with 19 beta users and real device connections. Pre-seed stage.`,
+Solo founder, live on testnet with 23 beta users and real device connections. Pre-seed stage.`,
       },
       { label: "Primary Category", value: "Web3" },
       { label: "Secondary Category", value: "Consumer Applications" },
@@ -94,7 +94,7 @@ After Tesla, I built and sold two businesses (a solar company and a real estate 
       { label: "Pitch Deck (PDF)", value: "To be attached — investor one-pager and pitch deck available." },
       { label: "Funding History", value: "No outside funding to date. Self-funded / bootstrapped." },
       { label: "Active Fundraising Round", value: "Pre-seed. Raising $500K on a $5M post-money SAFE to fund go-to-market, first hire (technical co-founder), and mainnet launch." },
-      { label: "Metrics", value: "19 active beta users on testnet. Live API connections with Tesla, Enphase, SolarEdge, Wallbox. Real energy data flowing and tokens minting from real devices." },
+      { label: "Metrics", value: "23 active beta users on testnet. Live API connections with Tesla, Enphase, SolarEdge, Wallbox. Real energy data flowing and tokens minting from real devices." },
       { label: "Where did you learn about Speedrun?", value: "Twitter / X" },
     ],
   },

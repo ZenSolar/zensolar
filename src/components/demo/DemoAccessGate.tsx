@@ -31,6 +31,7 @@ import { LiveEarningsCounter } from '@/components/marketing/LiveEarningsCounter'
 const LS_KEY = 'zen_demo_access';
 const NDA_EMAIL_KEY = 'zen_nda_email';
 const NDA_NAME_KEY = 'zen_nda_name';
+const INVESTOR_PASS_KEY = 'zs_investor_pass';
 const TTL_MS = 24 * 60 * 60 * 1000;
 
 function readCookie(name: string): string | null {
@@ -122,6 +123,37 @@ function isAccessGranted(): boolean {
 
 function grantAccess() {
   writeStoredValue(LS_KEY, JSON.stringify({ ts: Date.now(), ndaSigned: true }), TTL_MS);
+}
+
+/**
+ * Investor pass — set by /investor after the visitor clears the PIN gate AND
+ * signs the NDA on that page. When present, the demo gate trusts that NDA
+ * (no second signature required) and short-circuits straight into the
+ * tap-to-reveal entry → dashboard.
+ */
+function hasInvestorPass(): boolean {
+  try {
+    const raw = readStoredValue(INVESTOR_PASS_KEY);
+    if (!raw) return false;
+    const parsed = JSON.parse(raw) as { email?: string; fullName?: string };
+    return !!(parsed?.email && parsed?.fullName);
+  } catch {
+    return false;
+  }
+}
+
+function readInvestorPass(): { email: string; fullName: string } | null {
+  try {
+    const raw = readStoredValue(INVESTOR_PASS_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { email?: string; fullName?: string };
+    if (parsed?.email && parsed?.fullName) {
+      return { email: parsed.email, fullName: parsed.fullName };
+    }
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 function getSavedNdaEmail(): string | null {
@@ -293,6 +325,18 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     if (GATE_BYPASS_PATHS.includes(window.location.pathname)) return true;
     if (isPreviewDemoQaRoute()) return false;
     if (isEditorPreviewHost()) return true;
+    // Investors who already cleared /investor (PIN + NDA) skip the demo gate
+    // entirely — no second PIN, no second NDA. They still see the
+    // tap-to-reveal entry animation via the dashboard's own onboarding.
+    if (hasInvestorPass()) {
+      const pass = readInvestorPass();
+      if (pass) {
+        saveNdaEmail(pass.email);
+        saveNdaName(pass.fullName);
+        writeStoredValue(LS_KEY, JSON.stringify({ ts: Date.now(), ndaSigned: true }), TTL_MS);
+      }
+      return true;
+    }
     return isAccessGranted();
   });
   // Capture deep-link params for prefill / install-path routing

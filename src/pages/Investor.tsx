@@ -23,8 +23,10 @@ import { isPreviewHost } from '@/lib/previewHost';
 
 const ACCESS_CODE = 'INVESTOR_LANDING';
 const NDA_EMAIL_KEY = 'zen_nda_email';
+const NDA_NAME_KEY = 'zen_nda_name';
 const DEMO_ACCESS_KEY = 'zen_demo_access';
 const INVESTOR_SIGNED_KEY = 'zs_investor_nda_signed';
+const INVESTOR_PASS_KEY = 'zs_investor_pass';
 
 interface SignedState {
   email: string;
@@ -56,13 +58,26 @@ function persistSigned(state: SignedState) {
   try {
     localStorage.setItem(INVESTOR_SIGNED_KEY, JSON.stringify(state));
     // Interop with existing /demo gate so investors flow straight in.
+    const email = state.email.toLowerCase().trim();
     localStorage.setItem(
       NDA_EMAIL_KEY,
-      JSON.stringify({ email: state.email.toLowerCase().trim() }),
+      JSON.stringify({ email, ts: Date.now() }),
     );
+    localStorage.setItem(NDA_NAME_KEY, state.fullName);
     localStorage.setItem(
       DEMO_ACCESS_KEY,
       JSON.stringify({ ts: Date.now(), ndaSigned: true, accessCode: ACCESS_CODE }),
+    );
+    // Long-lived investor pass — DemoAccessGate uses this to skip its own
+    // NDA step entirely for visitors arriving from /investor with PIN+NDA done.
+    localStorage.setItem(
+      INVESTOR_PASS_KEY,
+      JSON.stringify({
+        email,
+        fullName: state.fullName,
+        ndaVersion: '1.0',
+        signedAt: state.signedAt,
+      }),
     );
   } catch {
     /* storage blocked */
