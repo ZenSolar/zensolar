@@ -667,6 +667,10 @@ export function LiveEnergyMonitoringCard() {
       : undefined,
   };
 
+  // Render matrix (first match wins).
+  // 1. Nothing connected → legacy AnimatedEnergyFlow placeholder. This is the
+  //    ONLY remaining caller of the mock house — every other branch shows real
+  //    data for the actual device combination.
   if (empty) {
     return (
       <div className="w-full">
@@ -676,7 +680,7 @@ export function LiveEnergyMonitoringCard() {
         <div className="border-t border-primary/20 bg-card/30 px-4 py-2.5 text-center text-[11px] text-muted-foreground">
           Premium unlocked.{' '}
           <Link to="/clean-energy-center" className="font-semibold text-primary hover:underline">
-            Connect a battery, EV, or Tesla
+            Connect solar, a battery, your Tesla, or a charger
           </Link>{' '}
           to see live data here.
         </div>
@@ -684,32 +688,30 @@ export function LiveEnergyMonitoringCard() {
     );
   }
 
+  // 2. Charger only (no solar / battery / Tesla EV) → ChargerOnlyLiveCard.
+  if (!hasSolar && !hasRichCockpit && hasCharger) {
+    return <ChargerOnlyLiveCard />;
+  }
+
+  // 3. Solar only (no battery / Tesla EV) → SolarPlusCard (with optional charger sub-tile).
+  if (hasSolar && !hasRichCockpit) {
+    return <SolarPlusCard />;
+  }
+
+  // 4. Otherwise → rich EnergyFlowScene cockpit (existing path).
   return (
     <div className="w-full p-4">
-      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <h3 className="text-sm font-semibold text-foreground">ZenEnergy Monitoring · Live</h3>
-          </div>
-          <p className="mt-1 text-xs text-muted-foreground">Home Energy Cockpit · Enphase solar + Tesla Powerwall + ZenX</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className={`inline-flex w-fit items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ring-1 ${freshnessClass(latestTelemetry?.sample_at ?? latestTelemetry?.cached_at ?? null, !!latestTelemetry?.fresh)}`}>
-            <Clock3 className="h-3 w-3" />
-            {formatAge(latestTelemetry?.sample_at ?? latestTelemetry?.cached_at ?? null)}
-          </span>
-          <button
-            type="button"
-            onClick={handleManualRefresh}
-            disabled={manualRefreshing}
-            aria-label="Refresh live telemetry"
-            className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-primary/25 bg-background/40 text-primary transition-colors hover:bg-primary/10 disabled:opacity-60"
-          >
-            <RefreshCw className={`h-3.5 w-3.5 ${manualRefreshing ? 'animate-spin' : ''}`} />
-          </button>
-        </div>
-      </div>
+      <LiveCardHeader
+        subtitle="Home Energy Cockpit · Enphase solar + Tesla Powerwall + ZenX"
+        ageLabel={formatAge(latestTelemetry?.sample_at ?? latestTelemetry?.cached_at ?? null)}
+        freshnessClassName={freshnessClass(
+          latestTelemetry?.sample_at ?? latestTelemetry?.cached_at ?? null,
+          !!latestTelemetry?.fresh,
+        )}
+        onRefresh={handleManualRefresh}
+        refreshing={manualRefreshing}
+      />
+
 
       {(() => {
         // Master live pill — Tesla charging wins, then Powerwall discharging, charging, solar, grid import, idle.
