@@ -355,6 +355,35 @@ Deno.serve(async (req) => {
         log("telemetry fetch failed (non-fatal)", String(e));
       }
 
+      // ── OEM connection health (SSOT: oem_diagnostic_log) ─────────────────
+      // Unresolved findings from the last 14 days. Lets Deason explain
+      // expired tokens, conflicting solar sources, Tesla-vehicle overlap, etc.
+      try {
+        const since = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
+        const { data: diag } = await admin
+          .from("oem_diagnostic_log")
+          .select("provider, diagnostic_key, severity, detail, created_at")
+          .eq("user_id", user.id)
+          .is("resolved_at", null)
+          .gte("created_at", since)
+          .order("created_at", { ascending: false })
+          .limit(10);
+        if (diag && diag.length) {
+          const lines = (diag as Array<{ provider: string; diagnostic_key: string; severity: string; detail: any; created_at: string }>)
+            .map((d) => {
+              const title = d.detail?.title ?? d.diagnostic_key;
+              const body = d.detail?.detail ?? "";
+              return `- [${d.severity}] ${d.provider} · ${d.diagnostic_key} (${d.created_at.slice(0, 10)}): ${title}${body ? ` — ${body}` : ""}`;
+            })
+            .join("\n");
+          parts.push(
+            `CONNECTION HEALTH (active OEM diagnostics — last 14 days):\n${lines}\n\nIf the user mentions missing data, stale numbers, sync issues, or "why is X not showing up", reference this block and walk them through reconnecting that specific provider (calm, customer-service tone). Tesla vehicle present + home charger = expected; we use Tesla as single source of truth for charging so kWh are never double-counted.`,
+          );
+        }
+      } catch (e) {
+        log("oem_diagnostic_log fetch failed (non-fatal)", String(e));
+      }
+
       if (parts.length) userContext = `\n\n--- USER CONTEXT ---\n${parts.join("\n\n")}\n--- END USER CONTEXT ---`;
     }
 
