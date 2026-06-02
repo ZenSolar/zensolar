@@ -92,4 +92,11 @@ describe("Dashboard composition — live vs /demo", () => {
     expect(mintIdx).toBeGreaterThan(-1);
     expect(heroIdx).toBeLessThan(mintIdx);
   });
+
+  it("ActivityMetrics gates the multi-site solar carousel on hasMultipleSolarDevices", () => {
+    const metrics = read("src/components/dashboard/ActivityMetrics.tsx");
+    expect(metrics).toMatch(/import \{ SolarSiteCarousel \} from '\.\/SolarSiteCarousel'/);
+    // Carousel is only rendered when there is more than one PV system.
+    expect(metrics).toMatch(/hasMultipleSolarDevices\s*\?\s*\n?\s*<SolarSiteCarousel/);
+  });
 });
