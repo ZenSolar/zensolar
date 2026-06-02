@@ -785,12 +785,13 @@ export function LiveEnergyMonitoringCard() {
               <EnergyFlowScene
                 className="aspect-square w-full"
                 data={flowData}
+                hasBattery={hasBattery}
+                hasCharger={hasCharger}
+                hasTesla={hasTesla}
                 teslaPayload={
                   primaryEv?.oem === 'tesla'
                     ? {
                         ...((primaryEv?.payload as Record<string, unknown>) ?? {}),
-                        // Surface device-level identity so the resolver can infer
-                        // model/color even if vehicle_config isn't in the cached payload yet.
                         device_name: primaryEv?.device_name,
                         display_name:
                           (primaryEv?.payload as any)?.display_name ?? primaryEv?.device_name,
@@ -810,6 +811,7 @@ export function LiveEnergyMonitoringCard() {
               />
 
             </Suspense>
+
           </div>
 
           {/* ZenX vehicle pill — clean Tesla-style status under the scene */}
