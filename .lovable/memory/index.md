@@ -34,6 +34,7 @@ Patent status: ONLY the non-provisional "Gamifying and Tokenizing Sustainable Be
 - [Tokenomics & Mechanics](mem://features/tokenomics) — Protocol limits, mint allocations, burn logic, LP automation.
 - [Energy Verification Engine](mem://features/energy-verification) — Cryptographic standards, ownership transfer.
 - [Clean Energy Center Dashboard](mem://features/dashboard) — UI specs, fallbacks, navigation.
+- [Live Energy Flow beta access](mem://features/live-energy-flow-beta-access) — Hero EnergyFlowGlowCard shows LiveEnergyMonitoringCard to founders, active subs, AND any user with ≥1 connected_devices row (pre-launch beta auto-grant). Wallbox/SolarEdge telemetry-mode gaps noted.
 - [Investor Demo Gate](mem://features/demo-gate) — Access logic, screenshots.
 - [Global Theme & Brand](mem://style/theme) — Visual aesthetics, terminology, tokens.
 - [Animations & Sensory Feedback](mem://style/animations-and-audio) — Performance, audio architecture.
