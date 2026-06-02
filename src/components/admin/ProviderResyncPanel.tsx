@@ -39,6 +39,8 @@ export function ProviderResyncPanel({ profiles }: ProviderResyncPanelProps) {
   });
   const [backfillStatus, setBackfillStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [backfillMessage, setBackfillMessage] = useState<string>('');
+  const [bulkBackfillStatus, setBulkBackfillStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [bulkBackfillMessage, setBulkBackfillMessage] = useState<string>('');
 
   const selectedProfile = profiles.find(p => p.user_id === selectedUserId);
 
@@ -184,6 +186,45 @@ export function ProviderResyncPanel({ profiles }: ProviderResyncPanelProps) {
       setBackfillStatus('error');
       setBackfillMessage(error instanceof Error ? error.message : 'Backfill failed');
       toast.error(`Historical backfill failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
+  const handleBulkBackfillEnphaseDevices = async (mode: 'all_missing' | 'selected') => {
+    setBulkBackfillStatus('loading');
+    setBulkBackfillMessage('Scanning Enphase-linked users without device rows…');
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
+      const body: Record<string, unknown> = mode === 'all_missing'
+        ? { all_missing: true }
+        : { user_ids: selectedUserId ? [selectedUserId] : [] };
+
+      if (mode === 'selected' && !selectedUserId) {
+        throw new Error('Select a user first');
+      }
+
+      const response = await supabase.functions.invoke('enphase-backfill-devices', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body,
+      });
+      if (response.error) throw new Error(response.error.message || 'Backfill failed');
+
+      const summary = response.data?.summary ?? {};
+      const msg =
+        `Processed ${summary.users_processed ?? 0} user(s) · ` +
+        `claimed ${summary.total_claimed ?? 0} new device row(s) · ` +
+        `${summary.total_already_existing ?? 0} already present · ` +
+        `${summary.total_blocked_other_user ?? 0} claimed by other users · ` +
+        `${summary.users_with_errors ?? 0} with errors`;
+      setBulkBackfillStatus('success');
+      setBulkBackfillMessage(msg);
+      toast.success(`Backfilled ${summary.total_claimed ?? 0} Enphase device row(s)`);
+    } catch (error) {
+      console.error('Enphase device backfill error:', error);
+      setBulkBackfillStatus('error');
+      setBulkBackfillMessage(error instanceof Error ? error.message : 'Backfill failed');
+      toast.error(`Enphase device backfill failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -366,6 +407,56 @@ export function ProviderResyncPanel({ profiles }: ProviderResyncPanelProps) {
             )}
           </>
         )}
+
+        {/* Bulk Enphase device-row backfill — independent of selected user */}
+        <div className="p-4 border rounded-lg bg-card mt-2">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4 text-primary" />
+              <span className="font-medium">Backfill Enphase device rows (SSOT)</span>
+              <Badge variant="outline">All users</Badge>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleBulkBackfillEnphaseDevices('selected')}
+                disabled={bulkBackfillStatus === 'loading' || !selectedUserId}
+              >
+                {bulkBackfillStatus === 'loading' ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                ) : (
+                  <RefreshCw className="h-4 w-4 mr-1" />
+                )}
+                Selected user
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => handleBulkBackfillEnphaseDevices('all_missing')}
+                disabled={bulkBackfillStatus === 'loading'}
+              >
+                {bulkBackfillStatus === 'loading' ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                ) : bulkBackfillStatus === 'success' ? (
+                  <CheckCircle2 className="h-4 w-4 mr-1" />
+                ) : bulkBackfillStatus === 'error' ? (
+                  <XCircle className="h-4 w-4 mr-1" />
+                ) : (
+                  <Zap className="h-4 w-4 mr-1" />
+                )}
+                All missing
+              </Button>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Finds users with an Enphase OAuth token but no Enphase rows in <code>connected_devices</code> (the SSOT for live energy flow) and inserts the missing systems. Idempotent — won't touch existing rows or steal systems claimed by another account.
+            {bulkBackfillStatus !== 'idle' && bulkBackfillMessage && (
+              <span className={`block mt-1 ${bulkBackfillStatus === 'error' ? 'text-red-500' : 'text-green-600'}`}>
+                {bulkBackfillMessage}
+              </span>
+            )}
+          </p>
+        </div>
       </CardContent>
     </Card>
   );
