@@ -124,36 +124,8 @@ function grantAccess() {
   writeStoredValue(LS_KEY, JSON.stringify({ ts: Date.now(), ndaSigned: true }), TTL_MS);
 }
 
-/**
- * Investor pass — set by /investor after the visitor clears the PIN gate AND
- * signs the NDA on that page. When present, the demo gate trusts that NDA
- * (no second signature required) and short-circuits straight into the
- * tap-to-reveal entry → dashboard.
- */
-function hasInvestorPass(): boolean {
-  try {
-    const raw = readStoredValue(INVESTOR_PASS_KEY);
-    if (!raw) return false;
-    const parsed = JSON.parse(raw) as { email?: string; fullName?: string };
-    return !!(parsed?.email && parsed?.fullName);
-  } catch {
-    return false;
-  }
-}
-
-function readInvestorPass(): { email: string; fullName: string } | null {
-  try {
-    const raw = readStoredValue(INVESTOR_PASS_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as { email?: string; fullName?: string };
-    if (parsed?.email && parsed?.fullName) {
-      return { email: parsed.email, fullName: parsed.fullName };
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
+// Investor pass helpers — see `src/lib/investorPass.ts`. Re-exported via
+// import below; kept in sync between /investor (writer) and this gate (reader).
 
 function getSavedNdaEmail(): string | null {
   const raw = readStoredValue(NDA_EMAIL_KEY);
