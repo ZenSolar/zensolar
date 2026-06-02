@@ -45,3 +45,10 @@ export function useSafeWatchAsset() {
     { watchAssetAsync: undefined } as any as ReturnType<typeof useWatchAsset>,
   );
 }
+
+export function useSafeSwitchChain() {
+  return useSafeHook(
+    () => useSwitchChain(),
+    { switchChainAsync: undefined } as any as ReturnType<typeof useSwitchChain>,
+  );
+}
