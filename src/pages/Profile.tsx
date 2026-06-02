@@ -13,6 +13,7 @@ import { motion } from "framer-motion";
 import { SolarEdgeConnectDialog } from "@/components/dashboard/SolarEdgeConnectDialog";
 import { WallboxConnectDialog } from "@/components/dashboard/WallboxConnectDialog";
 import { EnphaseCodeDialog } from "@/components/dashboard/EnphaseCodeDialog";
+import { EnergySourcesCard } from "@/components/profile/EnergySourcesCard";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -529,6 +530,16 @@ export default function Profile() {
               </div>
             </CardContent>
           </Card>
+        </motion.div>
+
+        {/* Energy Sources — SSOT control for solar production source. */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.22 }}
+          id="installer"
+        >
+          <EnergySourcesCard />
         </motion.div>
 
         {/* Home Address — for charging classification */}

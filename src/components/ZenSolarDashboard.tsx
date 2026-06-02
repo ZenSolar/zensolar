@@ -24,6 +24,7 @@ const CO2OffsetCard = lazy(() =>
 );
 import { PremiumInsightsTeaserCard } from './dashboard/PremiumInsightsTeaserCard';
 import { LiveEnergyMonitoringCard } from './dashboard/LiveEnergyMonitoringCard';
+import { OemDiagnosticsBanner } from './dashboard/OemDiagnosticsBanner';
 import { useEnergyInsightsSubscription } from '@/hooks/useEnergyInsightsSubscription';
 import { FlywheelContributionCard } from './dashboard/FlywheelContributionCard';
 import { MintReceiptsHint } from './dashboard/MintReceiptsHint';
@@ -327,6 +328,10 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         {/* 1. HERO — Zen Monitoring live energy flow (visual centerpiece). */}
         <AnimatedItem className="xl:col-span-2">
+          {/* OEM diagnostics — auto-hides when no active issues. SSOT for connection health. */}
+          <div className="mb-3">
+            <OemDiagnosticsBanner />
+          </div>
           <EnergyFlowGlowCard />
         </AnimatedItem>
 

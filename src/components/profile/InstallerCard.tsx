@@ -30,6 +30,7 @@ export function InstallerCard() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [installer, setInstaller] = useState<"tesla" | "other" | "">("");
+  const [inverterBrand, setInverterBrand] = useState<"enphase" | "solaredge" | "other" | "">("");
   const [saving, setSaving] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
@@ -40,6 +41,8 @@ export function InstallerCard() {
       setPhone(profile.installer_phone ?? "");
       setEmail(profile.installer_email ?? "");
       setInstaller((profile.solar_installer ?? "") as "tesla" | "other" | "");
+      const ib = profile.solar_inverter_brand;
+      setInverterBrand((ib === "enphase" || ib === "solaredge" || ib === "other") ? ib : "");
       setInitialized(true);
     }
   }, [profile, initialized]);
@@ -50,7 +53,10 @@ export function InstallerCard() {
       company !== (profile?.installer_company ?? "") ||
       phone !== (profile?.installer_phone ?? "") ||
       email !== (profile?.installer_email ?? "") ||
-      installer !== ((profile?.solar_installer ?? "") as string));
+      installer !== ((profile?.solar_installer ?? "") as string) ||
+      inverterBrand !== ((profile?.solar_inverter_brand && profile.solar_inverter_brand !== "tesla"
+        ? profile.solar_inverter_brand
+        : "") as string));
 
   const handleSave = async () => {
     setSaving(true);
@@ -60,9 +66,12 @@ export function InstallerCard() {
       installer_phone: phone.trim() || null,
       installer_email: email.trim() || null,
       solar_installer: installer || null,
+      // Tesla installer auto-routes inverter brand to 'tesla' for SSOT clarity.
+      solar_inverter_brand:
+        installer === "tesla" ? "tesla" : (inverterBrand || null),
     } as any);
     setSaving(false);
-    if (!error) toast.success("Installer details saved");
+    if (!error) toast.success("Energy sources saved");
   };
 
   const handleQuickPick = (choice: "tesla" | "other") => {
@@ -94,10 +103,10 @@ export function InstallerCard() {
               <Wrench className="h-5 w-5 text-amber-500" />
             </div>
             <div className="flex-1">
-              <CardTitle className="text-lg">Solar Installer</CardTitle>
+              <CardTitle className="text-lg">Energy Sources</CardTitle>
               <CardDescription>
-                Who installed your PV system? Determines which app we read solar
-                production from.
+                Pick the single OEM that owns your solar reading. We never sum
+                kWh across providers.
               </CardDescription>
             </div>
             {profile?.solar_installer && (
@@ -108,6 +117,7 @@ export function InstallerCard() {
             )}
           </div>
         </CardHeader>
+
 
         <CardContent className="pt-5 space-y-4">
           {/* Source-of-truth picker */}
@@ -147,6 +157,43 @@ export function InstallerCard() {
               </button>
             </div>
           </div>
+
+          {/* Inverter brand picker — only when installer = 'other'.
+              Persists `profiles.solar_inverter_brand` so SSOT resolver picks
+              the right OEM API for solar production without coincidental fallback. */}
+          {installer === "other" && (
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                <Sun className="h-3 w-3" />
+                Inverter brand
+              </Label>
+              <div className="grid grid-cols-3 gap-2">
+                {([
+                  { id: "enphase", label: "Enphase", hint: "Microinverters" },
+                  { id: "solaredge", label: "SolarEdge", hint: "String inverter" },
+                  { id: "other", label: "Other", hint: "Best fallback" },
+                ] as const).map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setInverterBrand(opt.id)}
+                    className={`p-2.5 rounded-xl border text-left transition-all ${
+                      inverterBrand === opt.id
+                        ? "border-primary bg-primary/10 shadow-[0_0_18px_hsl(var(--primary)/0.18)]"
+                        : "border-border/50 bg-muted/20 hover:border-primary/40"
+                    }`}
+                  >
+                    <p className="text-xs font-semibold">{opt.label}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{opt.hint}</p>
+                  </button>
+                ))}
+              </div>
+              <p className="text-[10px] text-muted-foreground/80">
+                One OEM owns the kWh reading — we never sum solar across providers.
+              </p>
+            </div>
+          )}
+
 
           {/* Type-ahead search — pre-fills the contact fields below */}
           <div className="space-y-1.5">

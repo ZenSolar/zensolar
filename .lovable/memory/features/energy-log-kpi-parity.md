@@ -16,4 +16,6 @@ Schema gotcha: Tesla writes `data_type='battery_discharge'`, but Enphase/SolarEd
 
 EV charging tab MUST NOT read from `energy_production` — Tesla writes both there and to `charging_sessions`, so doing so would double-count.
 
+**Tesla vehicle skip guard (SSOT):** `fetchHomeChargingRows` in `useEnergyLog.ts` checks `connected_devices` for any `device_type IN ('vehicle','ev','tesla_vehicle')` and returns `[]` when a Tesla vehicle is present. Tesla `charge_state` is the single source of truth for charging energy whenever the vehicle is connected; reading `home_charging_sessions` in parallel would credit the same charge twice (Wallbox / third-party charger reports the same kWh the vehicle does). Mirrors `pickSource('charging', …)` in `src/lib/dataSourcePriority.ts`.
+
 If you add a new battery- or solar-capable provider, update both this hook AND `useDashboardData.ts` (and the priority arrays in `mint-onchain/index.ts`).
