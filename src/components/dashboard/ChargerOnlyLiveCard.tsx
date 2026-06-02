@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Plug, Sun, BatteryCharging } from 'lucide-react';
+import { ArrowRight, Info, Plug, Sun, BatteryCharging } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { LiveCardHeader } from './LiveCardHeader';
 import { useChargerDevices, type ChargerDevice } from '@/hooks/useChargerDevices';
 import { useEVTotals } from '@/hooks/useDeviceTelemetry';
