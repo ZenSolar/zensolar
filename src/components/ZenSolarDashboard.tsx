@@ -24,6 +24,7 @@ const CO2OffsetCard = lazy(() =>
 );
 import { PremiumInsightsTeaserCard } from './dashboard/PremiumInsightsTeaserCard';
 import { LiveEnergyMonitoringCard } from './dashboard/LiveEnergyMonitoringCard';
+import { OemDiagnosticsBanner } from './dashboard/OemDiagnosticsBanner';
 import { useEnergyInsightsSubscription } from '@/hooks/useEnergyInsightsSubscription';
 import { FlywheelContributionCard } from './dashboard/FlywheelContributionCard';
 import { MintReceiptsHint } from './dashboard/MintReceiptsHint';
