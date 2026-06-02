@@ -410,7 +410,8 @@ async function fetchSuperchargerRows(
   return (data || []) as ChargingSessionRow[];
 }
 
-async function fetchHomeChargingRows(
+// Exported for SSOT regression tests (Tesla vehicle skip guard).
+export async function fetchHomeChargingRows(
   userId: string,
   monthStart: Date,
   monthEnd: Date,
