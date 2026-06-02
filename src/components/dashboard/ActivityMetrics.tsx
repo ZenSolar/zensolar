@@ -36,6 +36,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { RefreshIndicators } from './RefreshIndicators';
 import { SwipeableActivityField } from './SwipeableActivityField';
+import { SolarSiteCarousel } from './SolarSiteCarousel';
 import { HiddenFieldsRestore } from './HiddenFieldsRestore';
 import { SwipeHintTooltip } from './SwipeHintTooltip';
 import { useSwipeHintShown } from '@/hooks/useSwipeHintShown';
