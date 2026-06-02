@@ -16,7 +16,7 @@ describe('SSOT contract tripwires', () => {
 
   it('does not allow Powerwall as a solar fallback provider', () => {
     const src = readFileSync(path.join(repoRoot, 'src/lib/dataSourcePriority.ts'), 'utf8');
-    const match = src.match(/SOLAR_FALLBACK[^\[]*\[([^\]]+)\]/);
+    const match = src.match(/SOLAR_FALLBACK[^=]*=\s*\[([^\]]+)\]/);
     expect(match).not.toBeNull();
     expect(match![1]).not.toMatch(/powerwall/i);
   });
