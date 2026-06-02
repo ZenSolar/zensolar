@@ -291,19 +291,8 @@ export function SolarPlusCard() {
       </div>
 
       {(() => {
-        // Tailor the upsell to the viewed user's actual stack. Never prompt
-        // to "Add a Powerwall or your Tesla" for someone whose only missing
-        // piece isn't a Powerwall/Tesla — surface what they actually need
-        // (or hide the upsell entirely when their stack is already complete
-        // for the cockpit path that SolarPlusCard serves).
-        const hasCharger = chargers.length > 0;
-        const missing: string[] = [];
-        missing.push('a battery');
-        if (!hasCharger) missing.push('a home charger');
-        const copy =
-          missing.length === 1
-            ? `Add ${missing[0]} to unlock real-time energy flow between devices.`
-            : `Add ${missing.slice(0, -1).join(', ')} or ${missing.slice(-1)} to unlock real-time energy flow between devices.`;
+        // Soft nudge only — never imply the live flow above is gated.
+        // Suggests adding a battery to unlock charging/discharging arrows.
         return (
           <div className="mt-3 flex flex-col gap-3 rounded-lg border border-primary/15 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-2.5">
@@ -312,9 +301,11 @@ export function SolarPlusCard() {
               </div>
               <div>
                 <div className="text-sm font-semibold text-foreground">
-                  Unlock the full live cockpit
+                  Add a battery for full cockpit view
                 </div>
-                <div className="text-xs text-muted-foreground">{copy}</div>
+                <div className="text-xs text-muted-foreground">
+                  Connect a home battery to see live charging and discharging flows alongside your solar and charger.
+                </div>
               </div>
             </div>
             <Link
