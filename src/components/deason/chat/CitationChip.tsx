@@ -38,7 +38,7 @@ export function CitationChip({
       {entries.map((e, i) => (
         <span key={e.id} className="inline-flex items-center gap-0.5">
           {i === 0 && kindIcon(e.kind)}
-          <span>{e.index}</span>
+          <span>{e.index > 0 ? e.index : "?"}</span>
           {i < entries.length - 1 && <span className="opacity-40">·</span>}
         </span>
       ))}

@@ -50,7 +50,7 @@ export function SourcesSheet({
               className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm hover:bg-accent/60"
             >
               <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-amber-500/15 text-amber-500 ring-1 ring-amber-500/30">
-                <span className="text-[10px] font-bold">{e.index}</span>
+                <span className="text-[10px] font-bold">{e.index > 0 ? e.index : "?"}</span>
               </span>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1 truncate text-sm font-medium">
@@ -71,7 +71,9 @@ export function SourcesSheet({
             className="w-full justify-center gap-1.5 border-amber-500/40 text-amber-500 hover:bg-amber-500/10 hover:text-amber-400"
             onClick={() => {
               onClose();
-              navigate("/deason");
+              // Deep-link to the first known cited doc so DocumentLibrary can highlight + scroll to it.
+              const firstKnown = entries.find((e) => e.index > 0);
+              navigate(firstKnown ? `/deason?doc=${encodeURIComponent(firstKnown.id)}` : "/deason");
             }}
           >
             <ExternalLink className="h-3.5 w-3.5" />
