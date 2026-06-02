@@ -593,7 +593,7 @@ export function useDashboardData() {
       console.error('Failed to fetch device labels:', error);
       return {};
     }
-  }, []);
+  }, [viewAsUserId, authUser?.id]);
 
   const fetchDevicesSnapshot = useCallback(async () => {
     try {
