@@ -13,6 +13,7 @@ import { motion } from "framer-motion";
 import { SolarEdgeConnectDialog } from "@/components/dashboard/SolarEdgeConnectDialog";
 import { WallboxConnectDialog } from "@/components/dashboard/WallboxConnectDialog";
 import { EnphaseCodeDialog } from "@/components/dashboard/EnphaseCodeDialog";
+import { EnergySourcesCard } from "@/components/profile/EnergySourcesCard";
 import {
   AlertDialog,
   AlertDialogAction,

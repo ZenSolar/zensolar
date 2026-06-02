@@ -103,10 +103,10 @@ export function InstallerCard() {
               <Wrench className="h-5 w-5 text-amber-500" />
             </div>
             <div className="flex-1">
-              <CardTitle className="text-lg">Solar Installer</CardTitle>
+              <CardTitle className="text-lg">Energy Sources</CardTitle>
               <CardDescription>
-                Who installed your PV system? Determines which app we read solar
-                production from.
+                Pick the single OEM that owns your solar reading. We never sum
+                kWh across providers.
               </CardDescription>
             </div>
             {profile?.solar_installer && (
@@ -117,6 +117,7 @@ export function InstallerCard() {
             )}
           </div>
         </CardHeader>
+
 
         <CardContent className="pt-5 space-y-4">
           {/* Source-of-truth picker */}
