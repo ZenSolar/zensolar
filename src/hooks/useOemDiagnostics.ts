@@ -123,9 +123,9 @@ export function useOemDiagnostics() {
         provider: f.provider,
         diagnostic_key: f.key,
         severity: f.severity,
-        detail: { title: f.title, detail: f.detail } as Record<string, unknown>,
+        detail: { title: f.title, detail: f.detail } as any,
       }));
-      await supabase.from('oem_diagnostic_log').insert(rows).select().then(undefined, () => undefined);
+      await supabase.from('oem_diagnostic_log').insert(rows).then(undefined, () => undefined);
     }
   }, [user, profile?.solar_installer, profile?.solar_inverter_brand]);
 
