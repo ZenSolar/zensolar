@@ -407,6 +407,56 @@ export function ProviderResyncPanel({ profiles }: ProviderResyncPanelProps) {
             )}
           </>
         )}
+
+        {/* Bulk Enphase device-row backfill — independent of selected user */}
+        <div className="p-4 border rounded-lg bg-card mt-2">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4 text-primary" />
+              <span className="font-medium">Backfill Enphase device rows (SSOT)</span>
+              <Badge variant="outline">All users</Badge>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleBulkBackfillEnphaseDevices('selected')}
+                disabled={bulkBackfillStatus === 'loading' || !selectedUserId}
+              >
+                {bulkBackfillStatus === 'loading' ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                ) : (
+                  <RefreshCw className="h-4 w-4 mr-1" />
+                )}
+                Selected user
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => handleBulkBackfillEnphaseDevices('all_missing')}
+                disabled={bulkBackfillStatus === 'loading'}
+              >
+                {bulkBackfillStatus === 'loading' ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                ) : bulkBackfillStatus === 'success' ? (
+                  <CheckCircle2 className="h-4 w-4 mr-1" />
+                ) : bulkBackfillStatus === 'error' ? (
+                  <XCircle className="h-4 w-4 mr-1" />
+                ) : (
+                  <Zap className="h-4 w-4 mr-1" />
+                )}
+                All missing
+              </Button>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Finds users with an Enphase OAuth token but no Enphase rows in <code>connected_devices</code> (the SSOT for live energy flow) and inserts the missing systems. Idempotent — won't touch existing rows or steal systems claimed by another account.
+            {bulkBackfillStatus !== 'idle' && bulkBackfillMessage && (
+              <span className={`block mt-1 ${bulkBackfillStatus === 'error' ? 'text-red-500' : 'text-green-600'}`}>
+                {bulkBackfillMessage}
+              </span>
+            )}
+          </p>
+        </div>
       </CardContent>
     </Card>
   );
