@@ -72,12 +72,18 @@ export function LazyWeb3Provider({ children }: LazyWeb3ProviderProps) {
   if (!shouldLoad || !LoadedProvider) {
     // Render children immediately without Web3 - app is usable.
     // Web3ReadyContext stays false so wagmi hooks are guarded.
-    return <>{children}</>;
+    // The `key` forces a fresh mount when Web3 becomes ready, so any
+    // descendant using `useSafeHook` (which conditionally calls wagmi hooks
+    // based on `useWeb3Ready()`) sees a stable hook count for its lifetime —
+    // preventing "Rendered more/fewer hooks than during the previous render".
+    return <div key="web3-pending" style={{ display: 'contents' }}>{children}</div>;
   }
 
   return (
     <LoadedProvider>
-      <Web3ReadyGate>{children}</Web3ReadyGate>
+      <Web3ReadyGate>
+        <div key="web3-ready" style={{ display: 'contents' }}>{children}</div>
+      </Web3ReadyGate>
     </LoadedProvider>
   );
 }
