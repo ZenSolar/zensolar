@@ -27,6 +27,9 @@ import { LiveEnergyMonitoringCard } from './dashboard/LiveEnergyMonitoringCard';
 import { useEnergyInsightsSubscription } from '@/hooks/useEnergyInsightsSubscription';
 import { FlywheelContributionCard } from './dashboard/FlywheelContributionCard';
 import { MintReceiptsHint } from './dashboard/MintReceiptsHint';
+import { PrimaryMintAction } from './dashboard/PrimaryMintAction';
+import { RewardSnapshotGrid } from './dashboard/RewardSnapshotGrid';
+import { SubscriptionStatusCard } from './dashboard/SubscriptionStatusCard';
 
 import { DashboardHexBackground } from './dashboard/DashboardHexBackground';
 import { PageTransition } from './layout/PageTransition';
