@@ -852,29 +852,43 @@ export function LiveEnergyMonitoringCard() {
               value={formatKwh(solarStats.todayKwh)}
               detail={`${formatKw(solarStats.currentKw)} now · ${solarStats.label}`}
             />
-            <MetricTile
-              icon={BatteryCharging}
-              label="Powerwall"
-              value={
-                batteryStats.reserveKwh !== null && batteryStats.capacityKwh !== null
-                  ? `${batteryStats.reserveKwh.toFixed(1)} / ${batteryStats.capacityKwh.toFixed(1)} kWh`
-                  : batteryStats.soc !== null ? `${Math.round(batteryStats.soc)}%` : '—'
-              }
-              detail={(() => {
-                const pct = batteryStats.soc !== null ? `${Math.round(batteryStats.soc)}%` : '—';
-                if (batteryStats.powerKw === null) return `${pct} · ${batteryStats.status}`;
-                if (batteryStats.powerKw > 0.05) return `${pct} · +${batteryStats.powerKw.toFixed(1)} kW charging`;
-                if (batteryStats.powerKw < -0.05) return `${pct} · ${batteryStats.powerKw.toFixed(1)} kW discharging`;
-                const isFull = batteryStats.soc !== null && batteryStats.soc >= 99;
-                return `${pct} · ${isFull ? 'Full' : 'Idle'}`;
-              })()}
-            />
+            {hasBattery ? (
+              <MetricTile
+                icon={BatteryCharging}
+                label="Powerwall"
+                value={
+                  batteryStats.reserveKwh !== null && batteryStats.capacityKwh !== null
+                    ? `${batteryStats.reserveKwh.toFixed(1)} / ${batteryStats.capacityKwh.toFixed(1)} kWh`
+                    : batteryStats.soc !== null ? `${Math.round(batteryStats.soc)}%` : '—'
+                }
+                detail={(() => {
+                  const pct = batteryStats.soc !== null ? `${Math.round(batteryStats.soc)}%` : '—';
+                  if (batteryStats.powerKw === null) return `${pct} · ${batteryStats.status}`;
+                  if (batteryStats.powerKw > 0.05) return `${pct} · +${batteryStats.powerKw.toFixed(1)} kW charging`;
+                  if (batteryStats.powerKw < -0.05) return `${pct} · ${batteryStats.powerKw.toFixed(1)} kW discharging`;
+                  const isFull = batteryStats.soc !== null && batteryStats.soc >= 99;
+                  return `${pct} · ${isFull ? 'Full' : 'Idle'}`;
+                })()}
+              />
+            ) : hasCharger ? (
+              <MetricTile
+                icon={Zap}
+                label={chargers.data[0]?.device_name ?? 'Home Charger'}
+                value={
+                  chargers.data[0]?.lifetime_kwh !== null && chargers.data[0]?.lifetime_kwh !== undefined
+                    ? `${chargers.data[0].lifetime_kwh.toFixed(0)} kWh`
+                    : '—'
+                }
+                detail={`Lifetime · ${chargers.data[0]?.total_sessions ?? 0} sessions`}
+              />
+            ) : null}
 
             <MetricTile
               icon={Gauge}
               label="This Week"
               value={formatKwh(evTotals.totals.home_kwh + evTotals.totals.supercharger_kwh)}
               detail={`Super ${evTotals.totals.supercharger_kwh.toFixed(1)} · Home ${evTotals.totals.home_kwh.toFixed(1)} kWh`}
+
             />
           </div>
 
