@@ -57,7 +57,6 @@ describe("ApiPartnersCard — logo sizing snapshot", () => {
 describe("Dashboard composition — live vs /demo", () => {
   const demoOnly = [
     "ApiPartnersCard",
-    "SubscriptionStatusCard",
   ];
 
   it.each(demoOnly)("%s is rendered on /demo only", (name) => {
@@ -65,17 +64,32 @@ describe("Dashboard composition — live vs /demo", () => {
     expect(live).not.toMatch(new RegExp(`<${name}\\b`));
   });
 
+  it("SubscriptionStatusCard now renders on the live dashboard too (Deason + sub slot)", () => {
+    expect(live).toMatch(/<SubscriptionStatusCard\b/);
+  });
+
   it("live beta dashboard keeps RewardActions hidden (no Mint/Refresh buttons on screen)", () => {
     // Hidden wrapper around RewardActions on the live dashboard.
     expect(live).toMatch(/RewardActions/);
     expect(live).toMatch(/hidden|sr-only|display:\s*none/);
-    // The visible mint affordance lives on the NFT card now, not as a
-    // standalone "Mint ZSOLAR Tokens" / "Refresh Dashboard" button pair.
+    // The visible mint affordance lives on the new PrimaryMintAction hero
+    // (and NFT card), not as a standalone "Mint ZSOLAR Tokens" / "Refresh
+    // Dashboard" button pair.
     expect(live).not.toMatch(/>\s*Mint ZSOLAR Tokens\s*</);
     expect(live).not.toMatch(/>\s*Refresh Dashboard\s*</);
   });
 
-  it("live beta dashboard still shows MintReceiptsHint", () => {
+  it("live beta dashboard still shows MintReceiptsHint (now branded 'Proof Feed')", () => {
     expect(live).toMatch(/<MintReceiptsHint\b/);
+    const hint = read("src/components/dashboard/MintReceiptsHint.tsx");
+    expect(hint).toMatch(/Proof Feed/);
+  });
+
+  it("live beta dashboard surfaces the Zen Monitoring hero above the Tap-to-Mint action", () => {
+    const heroIdx = live.indexOf("<EnergyFlowGlowCard");
+    const mintIdx = live.indexOf("<PrimaryMintAction");
+    expect(heroIdx).toBeGreaterThan(-1);
+    expect(mintIdx).toBeGreaterThan(-1);
+    expect(heroIdx).toBeLessThan(mintIdx);
   });
 });

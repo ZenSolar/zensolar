@@ -50,7 +50,7 @@ export function MintReceiptsHint() {
         type="button"
         onClick={() => handleOpenChange(true)}
         className="group flex w-full items-center justify-between gap-3 px-4 py-3 rounded-xl border border-border/50 bg-card/40 hover:bg-card/70 hover:border-primary/40 transition-all text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-        aria-label="View your recent mint receipts"
+        aria-label="View your Proof Feed"
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={panelId}
@@ -60,9 +60,9 @@ export function MintReceiptsHint() {
             <Receipt className="h-4 w-4 text-primary" />
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-medium text-foreground">Your mint receipts</p>
+            <p className="text-sm font-medium text-foreground">Proof Feed</p>
             <p className="text-[11px] text-muted-foreground truncate">
-              Every Proof of Genesis™ generates a verifiable on-chain receipt
+              Your recent Proof-of-Genesis™ receipts, on-chain &amp; verifiable
             </p>
           </div>
         </div>
@@ -87,10 +87,10 @@ export function MintReceiptsHint() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <DrawerTitle id={`${panelId}-title`} className="text-left text-lg">
-                    Your mint receipts
+                    Proof Feed
                   </DrawerTitle>
                   <DrawerDescription id={`${panelId}-desc`} className="text-left text-xs">
-                    Recent Proof-of-Mint™ records · swipe down or press Esc to close
+                    Recent Proof-of-Genesis™ records · swipe down or press Esc to close
                   </DrawerDescription>
                 </div>
                 <DrawerClose

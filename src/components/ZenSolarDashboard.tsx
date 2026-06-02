@@ -27,6 +27,9 @@ import { LiveEnergyMonitoringCard } from './dashboard/LiveEnergyMonitoringCard';
 import { useEnergyInsightsSubscription } from '@/hooks/useEnergyInsightsSubscription';
 import { FlywheelContributionCard } from './dashboard/FlywheelContributionCard';
 import { MintReceiptsHint } from './dashboard/MintReceiptsHint';
+import { PrimaryMintAction } from './dashboard/PrimaryMintAction';
+import { RewardSnapshotGrid } from './dashboard/RewardSnapshotGrid';
+import { SubscriptionStatusCard } from './dashboard/SubscriptionStatusCard';
 
 import { DashboardHexBackground } from './dashboard/DashboardHexBackground';
 import { PageTransition } from './layout/PageTransition';
@@ -314,7 +317,64 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         <SectionDivider className="xl:hidden" />
 
-        {/* ENERGY COMMAND CENTER - The Hero Section */}
+        {/* ───────────────────────────────────────────────────────────
+            STRATEGIC TOP-OF-DASHBOARD ARC
+            Hero (Zen Monitoring) → Tap-to-Mint → Reward Snapshot →
+            Deason/Subscription → Proof Feed.
+            Detail cards (ActivityMetrics, CO₂ deep-dive, Flywheel,
+            NFT milestones) continue below.
+           ─────────────────────────────────────────────────────────── */}
+
+        {/* 1. HERO — Zen Monitoring live energy flow (visual centerpiece). */}
+        <AnimatedItem className="xl:col-span-2">
+          <EnergyFlowGlowCard />
+        </AnimatedItem>
+
+        {/* 2. PRIMARY ACTION — Tap-to-Mint with pending $ZSOLAR count-up. */}
+        <AnimatedItem className="xl:col-span-2">
+          <PrimaryMintAction
+            pendingZsolar={
+              currentActivity.solarKwh +
+              currentActivity.batteryKwh +
+              currentActivity.chargingKwh +
+              currentActivity.evMiles
+            }
+            onMint={handleMintTokens}
+            disabled={dataLoading || !hasWalletConnected}
+            isViewer={isViewer}
+          />
+        </AnimatedItem>
+
+        {/* 3. REWARD SNAPSHOT — 3-up: today, balance, CO₂ tier badge. */}
+        <AnimatedItem className="xl:col-span-2">
+          <RewardSnapshotGrid
+            todayMinted={
+              isNewUserView
+                ? 0
+                : currentActivity.solarKwh +
+                  currentActivity.batteryKwh +
+                  currentActivity.chargingKwh +
+                  currentActivity.evMiles
+            }
+            walletBalance={isNewUserView ? 0 : activityData.lifetimeMinted}
+            lifetimeCo2Lbs={isNewUserView ? 0 : activityData.co2OffsetPounds}
+          />
+        </AnimatedItem>
+
+        {/* 4. DEASON + SUBSCRIPTION STATUS */}
+        <AnimatedItem className="xl:col-span-2">
+          <SubscriptionStatusCard />
+        </AnimatedItem>
+
+        {/* 5. PROOF FEED — recent Proof-of-Genesis receipts */}
+        <AnimatedItem className="xl:col-span-2">
+          <MintReceiptsHint />
+        </AnimatedItem>
+
+        <SectionDivider className="xl:hidden" />
+
+        {/* ENERGY COMMAND CENTER — full per-source detail (kept below the
+            strategic arc so the hero stays uncluttered). */}
         <AnimatedItem className="xl:col-span-2">
           <PerfProbe id="ActivityMetrics">
             <ActivityMetrics
@@ -339,15 +399,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         <SectionDivider className="xl:hidden" />
 
-        {/* Mint receipts peek — sits directly under the Clean Energy Center so
-            users see their receipts before scrolling to CO₂ context. */}
-        <AnimatedItem className="xl:col-span-1">
-          <MintReceiptsHint />
-        </AnimatedItem>
-
-        <SectionDivider className="xl:hidden" />
-
-        {/* Prominent CO₂ Offset card — matches the new sidebar accent styling */}
+        {/* CO₂ Offset deep-dive (chart + breakdown) */}
         <AnimatedItem className="xl:col-span-1">
           <Suspense fallback={<div className="h-64 rounded-2xl bg-card/10 animate-pulse" aria-hidden="true" />}>
             <CO2OffsetCard
@@ -391,13 +443,6 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             </Suspense>
           </div>
         )}
-
-        <SectionDivider className="xl:hidden" />
-
-        {/* ZenEnergy Monitoring (live flow) + inline Premium Insights upsell */}
-        <AnimatedItem className="xl:col-span-3">
-          <EnergyFlowGlowCard />
-        </AnimatedItem>
 
         <SectionDivider className="xl:hidden" />
 
