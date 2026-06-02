@@ -19,6 +19,7 @@ import { TexasNowPill } from "@/components/deason/chat/TexasNowPill";
 import { DeviceTelemetryStrip } from "@/components/deason/chat/DeviceTelemetryStrip";
 import type { DeasonThread } from "@/hooks/useDeasonThreads";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const SourcesSheet = lazy(() => import("@/components/deason/chat/SourcesSheet"));
 const SlashMenu = lazy(() => import("@/components/deason/chat/SlashMenu"));
@@ -212,13 +213,13 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
     const isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
     const isImage = file.type.startsWith("image/");
     if (!isPdf && !isImage) {
-      alert("Please attach a photo (JPG/PNG) or a PDF bill.");
+      toast.error("Please attach a photo (JPG/PNG) or a PDF bill.");
       e.target.value = "";
       return;
     }
     const limitMb = isPdf ? 10 : 8;
     if (file.size > limitMb * 1024 * 1024) {
-      alert(`File must be under ${limitMb} MB.`);
+      toast.error(`File must be under ${limitMb} MB.`);
       e.target.value = "";
       return;
     }
@@ -450,7 +451,11 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
                       preview={m.energyReport.preview}
                       full={m.energyReport.full}
                       entitled={m.energyReport.entitled}
-                      onUnlock={() => alert("Subscription checkout coming soon — $4.99/mo with 7-day free trial.")}
+                      onUnlock={() =>
+                        toast("Premium energy advisor — $4.99/mo", {
+                          description: "Subscription checkout is coming soon. We'll email you the moment it opens with a 7-day free trial.",
+                        })
+                      }
                     />
                   )}
                   {completedAssistant && (
@@ -460,7 +465,7 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
                         ctx={profileCtx}
                         onPick={(q) => void send(q)}
                       />
-                      <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+                      <div className="flex items-center gap-1 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100 md:focus-within:opacity-100">
                         <button
                           type="button"
                           onClick={() => handleCopy(i, textValue)}
@@ -891,16 +896,15 @@ function CitedText({
   while ((match = re.exec(display)) !== null) {
     if (match.index > lastIndex) out.push(display.slice(lastIndex, match.index));
     const ids = Array.from(match[0].matchAll(/\[doc:([a-zA-Z0-9_-]+)\]/g)).map((m) => m[1]);
-    const entries: DocIndexEntry[] = ids
-      .map((id, i) =>
+    const entries: DocIndexEntry[] = ids.map(
+      (id) =>
         docIndex.get(id) ?? {
           id,
-          index: 0,
+          index: -1, // sentinel: unknown/stale doc id — chip renders as "?"
           kind: "other" as const,
-          label: `Document ${i + 1}`,
+          label: "Unknown document",
         }
-      )
-      .filter((e) => e.index > 0);
+    );
     if (entries.length) {
       out.push(<CitationChip key={`c-${k++}`} entries={entries} onOpen={onOpenSources} />);
     }
@@ -915,7 +919,7 @@ function SkeletonMessage({ align, widthClass = "w-3/4" }: { align: "left" | "rig
     <div className={cn("flex", align === "right" ? "justify-end" : "justify-start")}>
       <div
         className={cn(
-          "h-12 animate-pulse rounded-2xl bg-muted/40",
+          "h-12 animate-pulse rounded-2xl bg-muted/40 motion-reduce:animate-none",
           widthClass,
           align === "right" ? "rounded-br-md" : "rounded-bl-md",
         )}
@@ -941,7 +945,7 @@ function EmptyState({
     <div className="mx-auto mt-4 max-w-md">
       <div className="text-center">
         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/15 ring-1 ring-amber-500/30">
-          <Sparkles className="h-5 w-5 animate-pulse text-amber-500" />
+          <Sparkles className="h-5 w-5 animate-pulse text-amber-500 motion-reduce:animate-none" />
         </div>
         <h2 className="mb-1.5 text-base font-semibold">{title}</h2>
         <p className="text-sm leading-relaxed text-muted-foreground">{body}</p>
