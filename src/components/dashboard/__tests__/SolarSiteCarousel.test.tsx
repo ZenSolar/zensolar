@@ -1,7 +1,24 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { SolarSiteCarousel } from '../SolarSiteCarousel';
+
+beforeAll(() => {
+  // Embla calls window.matchMedia on mount; jsdom doesn't ship one by default.
+  if (!window.matchMedia) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).matchMedia = (query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    });
+  }
+});
 
 describe('SolarSiteCarousel', () => {
   const slides = [
