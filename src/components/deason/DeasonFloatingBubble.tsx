@@ -256,13 +256,13 @@ export function DeasonFloatingBubble() {
               "bg-gradient-to-br from-amber-400 to-amber-600 text-black shadow-lg ring-2 ring-amber-300/40",
               "transition-transform hover:scale-105 active:scale-95",
               "md:!bottom-6",
-              isPulsing && "animate-pulse ring-4 ring-amber-300/70 shadow-amber-500/50",
+              isPulsing && "animate-pulse ring-4 ring-amber-300/70 shadow-amber-500/50 motion-reduce:animate-none",
             )}
           >
             <Sparkles className="h-6 w-6" />
             {isPulsing && (
               <>
-                <span className="pointer-events-none absolute inset-0 rounded-full bg-amber-400/40 animate-ping" />
+                <span className="pointer-events-none absolute inset-0 rounded-full bg-amber-400/40 animate-ping motion-reduce:animate-none" />
                 {isNudging && (
                   <span
                     aria-hidden
