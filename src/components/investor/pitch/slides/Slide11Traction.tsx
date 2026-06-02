@@ -19,7 +19,7 @@ export function Slide11Traction() {
         {/* Hero stats */}
         <div className="grid grid-cols-4 gap-6 mb-10">
           {[
-            { label: 'Beta users', value: '11', sub: 'real wallets, real homes', color: 'hsl(207,90%,54%)' },
+            { label: 'Beta users', value: '23', sub: 'real wallets, real homes', color: 'hsl(207,90%,54%)' },
             { label: 'kWh verified', value: '3.34M', sub: 'across Tesla, Enphase, Wallbox', color: 'hsl(207,90%,54%)' },
             { label: '$ZSOLAR minted', value: '496K', sub: '45 on-chain mint txns', color: 'hsl(207,90%,54%)' },
             { label: 'Pioneer NFTs', value: '6', sub: 'minted on Base Sepolia', color: 'hsl(207,90%,54%)' },
