@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useViewAsUserId } from '@/hooks/useViewAsUserId';
 
 export interface ChargerDevice {
   device_id: string;
@@ -16,14 +17,19 @@ export interface ChargerDevice {
  * (Wallbox, etc). Used by LiveEnergyMonitoringCard to detect charger-only
  * beta users so we never fall back to the legacy AnimatedEnergyFlow mock
  * when a real device is connected (just not solar/battery/Tesla EV).
+ *
+ * Honors the View-As context so admin "View as User" shows the impersonated
+ * user's chargers, not the admin's.
  */
 export function useChargerDevices() {
   const { user } = useAuth();
+  const viewAsUserId = useViewAsUserId();
+  const effectiveUserId = viewAsUserId ?? user?.id ?? null;
   const [data, setData] = useState<ChargerDevice[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) {
+    if (!effectiveUserId) {
       setData([]);
       setLoading(false);
       return;
@@ -34,7 +40,7 @@ export function useChargerDevices() {
       const { data: rows } = await supabase
         .from('connected_devices')
         .select('device_id, device_name, provider, lifetime_totals, updated_at')
-        .eq('user_id', user.id)
+        .eq('user_id', effectiveUserId)
         .eq('device_type', 'home_charger');
       if (cancelled) return;
       const mapped: ChargerDevice[] = (rows ?? []).map((r: any) => {
@@ -58,7 +64,7 @@ export function useChargerDevices() {
     return () => {
       cancelled = true;
     };
-  }, [user]);
+  }, [effectiveUserId]);
 
   return { data, loading };
 }
