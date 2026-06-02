@@ -296,10 +296,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }
     if (GATE_BYPASS_PATHS.includes(window.location.pathname)) return true;
     if (isPreviewDemoQaRoute()) return false;
-    if (isEditorPreviewHost()) return true;
     // Investors who already cleared /investor (PIN + NDA) skip the demo gate
-    // entirely — no second PIN, no second NDA. They still see the
-    // tap-to-reveal entry animation via the dashboard's own onboarding.
+    // entirely — no second PIN, no second NDA. Run BEFORE the preview-host
+    // shortcut so the backfill into zen_demo_access always happens, which
+    // keeps real production sessions open across page reloads too.
     if (hasInvestorPass()) {
       const pass = readInvestorPass();
       if (pass) {
@@ -309,6 +309,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       }
       return true;
     }
+    if (isEditorPreviewHost()) return true;
     return isAccessGranted();
   });
   // Capture deep-link params for prefill / install-path routing

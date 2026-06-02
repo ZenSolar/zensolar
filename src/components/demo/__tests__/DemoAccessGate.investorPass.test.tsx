@@ -17,6 +17,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import '@testing-library/jest-dom/vitest';
 
 import { writeInvestorPass, clearInvestorPass } from '@/lib/investorPass';
 
