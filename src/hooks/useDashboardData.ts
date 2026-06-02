@@ -615,7 +615,7 @@ export function useDashboardData() {
       console.error('Failed to fetch device snapshot:', error);
       return [];
     }
-  }, []);
+  }, [viewAsUserId, authUser?.id]);
 
   // ── Fast path: build dashboard from DB-stored lifetime_totals (instant, no API calls) ──
   const buildFastPathData = useCallback(async (): Promise<ActivityData | null> => {
