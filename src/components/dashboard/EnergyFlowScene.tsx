@@ -530,28 +530,32 @@ export function EnergyFlowScene({
         <RoofHalo active={solarProducing} intensity={intensity(solar)} />
         <WindowsBloom active={homeDrawing} intensity={intensity(home)} />
 
-        {/* Powerwall — always-on dim emerald standby; brighter when active */}
-        <DeviceHalo
-          cx={HOME_BLUEPRINT.powerwall.x}
-          cy={HOME_BLUEPRINT.powerwall.y}
-          color={EMERALD}
-          active
-          intensity={0.5}
-          radius={3.8}
-          pulseMs={5000}
-        />
-        <DeviceHalo
-          cx={HOME_BLUEPRINT.powerwall.x}
-          cy={HOME_BLUEPRINT.powerwall.y}
-          color={pwCharging ? EMERALD : AMBER}
-          active={pwCharging || pwDischarging}
-          intensity={intensity(battery)}
-          radius={4.6}
-          pulseMs={pwCharging ? 2800 : 2400}
-        />
+        {/* Powerwall — only rendered when a battery is actually connected. */}
+        {hasBattery && (
+          <>
+            <DeviceHalo
+              cx={HOME_BLUEPRINT.powerwall.x}
+              cy={HOME_BLUEPRINT.powerwall.y}
+              color={EMERALD}
+              active
+              intensity={0.5}
+              radius={3.8}
+              pulseMs={5000}
+            />
+            <DeviceHalo
+              cx={HOME_BLUEPRINT.powerwall.x}
+              cy={HOME_BLUEPRINT.powerwall.y}
+              color={pwCharging ? EMERALD : AMBER}
+              active={pwCharging || pwDischarging}
+              intensity={intensity(battery)}
+              radius={4.6}
+              pulseMs={pwCharging ? 2800 : 2400}
+            />
+          </>
+        )}
 
         {/* Second Powerwall (stacked below) — only when a 2nd unit is connected */}
-        {batteryCount >= 2 && (
+        {hasBattery && batteryCount >= 2 && (
           <>
             <DeviceHalo
               cx={HOME_BLUEPRINT.powerwall2.x}
@@ -573,6 +577,7 @@ export function EnergyFlowScene({
             />
           </>
         )}
+
 
 
 
