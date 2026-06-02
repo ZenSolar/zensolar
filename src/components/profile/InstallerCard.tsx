@@ -30,6 +30,7 @@ export function InstallerCard() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [installer, setInstaller] = useState<"tesla" | "other" | "">("");
+  const [inverterBrand, setInverterBrand] = useState<"enphase" | "solaredge" | "other" | "">("");
   const [saving, setSaving] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
@@ -40,6 +41,8 @@ export function InstallerCard() {
       setPhone(profile.installer_phone ?? "");
       setEmail(profile.installer_email ?? "");
       setInstaller((profile.solar_installer ?? "") as "tesla" | "other" | "");
+      const ib = profile.solar_inverter_brand;
+      setInverterBrand((ib === "enphase" || ib === "solaredge" || ib === "other") ? ib : "");
       setInitialized(true);
     }
   }, [profile, initialized]);
