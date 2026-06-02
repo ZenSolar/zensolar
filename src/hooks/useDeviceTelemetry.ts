@@ -254,10 +254,12 @@ function useTelemetry(capability: Capability) {
         }
         const live = await fetchFromOem(oem, d.device_id, capability, targetHeaderId);
         if (live && !(live as any).error) {
-          // Persist client-side cache. In View-As, this hits the new RLS
-          // policy allowing admins to upsert other users' rows; in self-view
-          // it falls under the user's own policy.
-          await writeCache(effectiveUserId, oem, capability, d.device_id, live);
+          // Only persist cache when acting as self; admin View-As lacks RLS
+          // write privilege on other users' cache rows (edge function writes
+          // via service role for its own caching).
+          if (!targetHeaderId) {
+            await writeCache(effectiveUserId, oem, capability, d.device_id, live);
+          }
           out.push({
             oem, capability, site_id: d.device_id, device_name: d.device_name,
             payload: live, cached_at: new Date().toISOString(),
