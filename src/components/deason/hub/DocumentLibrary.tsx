@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState, useEffect, useCallback } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   FileText,
   Receipt,
@@ -66,8 +67,34 @@ export function DocumentLibrary({
   const [dragOver, setDragOver] = useState(false);
   const [stickers, setStickers] = useState<Record<string, Sticker>>({});
   const dropRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
 
-  useEffect(() => { setStickers(loadStickers()); }, [docs.length]);
+  // Re-hydrate stickers whenever the doc set actually changes (not just length —
+  // a replace at the same count would otherwise miss).
+  const docIdsKey = useMemo(() => docs.map((d) => d.id).join("|"), [docs]);
+  useEffect(() => { setStickers(loadStickers()); }, [docIdsKey]);
+
+  // Deep-link: SourcesSheet → /deason?doc=<id> scrolls + highlights the card.
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const id = params.get("doc");
+    if (!id) return;
+    const exists = docs.some((d) => d.id === id);
+    if (!exists) return;
+    setHighlightedId(id);
+    requestAnimationFrame(() => {
+      cardRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+    const t = window.setTimeout(() => {
+      setHighlightedId(null);
+      // Clean the query so a reload doesn't re-trigger the highlight.
+      navigate(location.pathname, { replace: true });
+    }, 2400);
+    return () => window.clearTimeout(t);
+  }, [location.pathname, location.search, docIdsKey, docs, navigate]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
