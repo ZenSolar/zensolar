@@ -18,6 +18,21 @@ beforeAll(() => {
       dispatchEvent: () => false,
     });
   }
+  if (!(globalThis as any).IntersectionObserver) {
+    (globalThis as any).IntersectionObserver = class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+      takeRecords() { return []; }
+    };
+  }
+  if (!(globalThis as any).ResizeObserver) {
+    (globalThis as any).ResizeObserver = class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    };
+  }
 });
 
 describe('SolarSiteCarousel', () => {
