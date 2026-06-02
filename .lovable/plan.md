@@ -1,46 +1,31 @@
-## One-off lifetime backfill — Michael Tschida
+# Fix: Enphase "producing now" stuck at 0 kW
 
-### Current state (verified)
+## Problem
+Tschida's Live cockpit shows `0.00 kW producing now` at 3:45 PM in full sun, even though Enphase reports 60.3 kWh produced today and the card refreshed 33s ago. Lifetime + today totals are correct; only the instantaneous wattage is wrong.
 
-- **Wallbox** (`device_id=586948`) — already populated. `lifetime_totals.charging_kwh = 6,837.54`, `total_sessions = 115`, baseline captured 2026-05-30. **No action.**
-- **Enphase solar** (`device_id=3237318`, system "Michael Tschida") — `lifetime_totals = {}` (empty). Baseline captured 2026-06-02 with no solar_wh value.
-- Cached Enphase token response (from `energy_tokens.extra_data.cached_response`, fetched 2026-06-02 17:15 UTC) reports `lifetime_wh = 42,140,660` (≈ 42.14 MWh) for system 3237318.
+## Root cause
+`enphase-data` (telemetry mode, lines 269–295) reads `current_power` from Enphase's `/systems/{id}/summary` endpoint. That endpoint updates only every ~15 minutes and routinely returns `0` between refreshes — it is not a real-time feed. We see the same behavior on Joseph's account intermittently; it has just been more visible on Tschida today because nothing else is masking it.
 
-### Action (one-off, manual)
+## Fix
+In `supabase/functions/enphase-data/index.ts`, telemetry branch (`mode: 'telemetry'`, `capability: 'solar'`):
 
-Run a single `UPDATE` on `connected_devices` for the Enphase row only:
+1. Call `/systems/{id}/telemetry/production_micro?granularity=5mins&start_at=<now-30min>` first.
+2. Take the **last interval with `enwh > 0`** and compute `current_power_w = round(enwh * 12)` (5-min Wh × 12 = avg W over that interval). This is what the Enphase app itself shows.
+3. If that endpoint returns 429 / empty / fails, fall back to the existing `/summary` `current_power` value (current behavior) so we never regress.
+4. Keep `energy_today_wh` / `lifetime_energy_wh` sourced from `/summary` (those fields are accurate there).
+5. Add `sample_at` from the chosen interval's `end_at` so `useDeviceTelemetry.extractSampleAt` picks it up and the "Updated Ns ago" pill reflects the real sample time, not the cache write.
 
-```sql
-UPDATE public.connected_devices
-SET lifetime_totals = jsonb_build_object(
-      'solar_wh', 42140660,
-      'lifetime_solar_wh', 42140660,
-      'source', 'one_off_backfill_from_enphase_cache_2026_06_02',
-      'updated_at', now()
-    ),
-    updated_at = now()
-WHERE id = '4a39aa9a-f3ae-4774-89c9-634704a51232'
-  AND user_id = '2827d5b3-fbc6-4f3a-8369-ccc0116b6735'
-  AND provider = 'enphase';
-```
+No client changes needed — `SolarPlusCard` and `LiveEnergyMonitoringCard` already read `current_power_w` first.
 
-`baseline_data` is left untouched (no `solar_wh` key → treated as 0), so all 42,140.66 kWh shows up as **pending solar** in the KPI/EnergyFlow — matching SSOT reads in `useDashboardData.ts` (`extractSolarWh` / `lifetimeSolarWh`).
+## Cache
+Solar telemetry TTL is already 60s (`useDeviceTelemetry`). Leave as-is — `production_micro` is rate-limit friendly when called once per minute per system.
 
-### Out of scope (explicitly NOT doing)
+## Verification
+- `supabase--curl_edge_functions` POST to `enphase-data` with `x-target-user-id` = Tschida + `{ mode: 'telemetry', capability: 'solar', siteId: <his envoy id> }` and confirm `current_power_w > 0` while sun is up.
+- Ask Tschida to pull-to-refresh; tile should show real kW.
+- Smoke-check Joseph too (he has same code path) — make sure we don't regress when his summary is fresh.
 
-- No new edge function, no automated backfill job, no cron.
-- No code changes to `useDashboardData`, `useEnergyLog`, or the admin panel.
-- No change to Wallbox row (already correct).
-- No baseline re-capture (would zero out pending).
-- No backfill for any other user — Tschida only.
-
-### Verification
-
-After the update:
-1. Re-query `connected_devices` for Tschida → Enphase row shows populated `lifetime_totals.solar_wh = 42140660`.
-2. Loading his dashboard renders the rich `EnergyFlowScene` with solar lifetime ≈ 42.14 MWh and pending ≈ 42.14 MWh.
-3. KPI tile (`useKpiContributions`) reflects the new Enphase contribution.
-
-### Why this is a one-off and not a feature
-
-The proper long-term mechanism — Enphase device sync materializing lifetime totals into `connected_devices` — already exists (`enphase-data` + `enphase-historical`). The cached token response shows the next regular sync will populate this naturally; this manual update just front-runs that for Tschida's reference account so his demo/investor view is correct *right now*.
+## Out of scope
+- No tokenomics, mint, or UI changes.
+- No schema / migration.
+- SolarEdge + Wallbox live wattage gaps remain (tracked separately in `live-energy-flow-beta-access.md`).
