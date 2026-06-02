@@ -71,15 +71,12 @@ function persistSigned(state: SignedState) {
     );
     // Long-lived investor pass — DemoAccessGate uses this to skip its own
     // NDA step entirely for visitors arriving from /investor with PIN+NDA done.
-    localStorage.setItem(
-      INVESTOR_PASS_KEY,
-      JSON.stringify({
-        email,
-        fullName: state.fullName,
-        ndaVersion: '1.0',
-        signedAt: state.signedAt,
-      }),
-    );
+    writeInvestorPass({
+      email,
+      fullName: state.fullName,
+      ndaVersion: '1.0',
+      signedAt: state.signedAt,
+    });
   } catch {
     /* storage blocked */
   }
