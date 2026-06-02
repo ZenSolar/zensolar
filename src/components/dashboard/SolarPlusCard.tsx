@@ -226,6 +226,12 @@ export function SolarPlusCard() {
         refreshing={refreshing}
       />
 
+      <SolarChargerFlowScene
+        solarKw={stats.currentKw}
+        hasCharger={chargers.length > 0}
+        chargerName={chargers[0]?.device_name ?? (chargers[0] ? oemLabel(chargers[0].provider) : null)}
+      />
+
       <div className="space-y-2">
         <div className="rounded-lg border border-primary/20 bg-background/45 p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.06)]">
           <div className="flex items-center justify-between">
