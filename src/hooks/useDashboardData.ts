@@ -518,7 +518,7 @@ export function useDashboardData() {
       console.error('Failed to fetch referral tokens:', error);
       return 0;
     }
-  }, []);
+  }, [viewAsUserId, authUser?.id]);
 
   const fetchMintedTokens = useCallback(async () => {
     try {
@@ -541,7 +541,8 @@ export function useDashboardData() {
       console.error('Failed to fetch minted tokens:', error);
       return 0;
     }
-  }, []);
+  }, [viewAsUserId, authUser?.id]);
+
 
   const fetchDeviceLabels = useCallback(async (): Promise<DeviceLabels> => {
     try {
