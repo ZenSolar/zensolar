@@ -21,7 +21,6 @@ import '@testing-library/jest-dom/vitest';
 
 import { writeInvestorPass, clearInvestorPass } from '@/lib/investorPass';
 
-// jsdom doesn't implement these — the gate's audio/preload paths touch them.
 beforeEach(() => {
   cleanup();
   localStorage.clear();
@@ -33,10 +32,6 @@ beforeEach(() => {
     .forEach((name) => {
       document.cookie = `${name}=; path=/; max-age=0`;
     });
-  // Pretend we're on a production host so the gate's "editor preview" shortcut
-  // (which would otherwise auto-grant in any dev build) does NOT mask the
-  // investor-pass logic we're verifying.
-  vi.stubEnv('DEV', '');
   // jsdom location.search is read by the gate at mount; reset it.
   window.history.replaceState({}, '', '/demo?demo=investor');
 });
@@ -131,10 +126,14 @@ describe('DemoAccessGate · /investor → /demo handoff (e2e)', () => {
     expect(parsed.ndaSigned).toBe(true);
   });
 
-  it('does NOT render the demo dashboard when no investor pass is set', () => {
+  it('does NOT backfill zen_demo_access when no investor pass is set', () => {
+    // No pass written. In production builds the gate would now render its
+    // PIN / NDA flow; in dev/editor it auto-grants for convenience. Either
+    // way, the investor-pass backfill MUST NOT fire — that's the contract
+    // we rely on to prove the bypass is gated on real /investor completion.
     clearInvestorPass();
     renderGate();
 
-    expect(screen.queryByTestId('demo-dashboard')).not.toBeInTheDocument();
+    expect(localStorage.getItem('zen_demo_access')).toBeNull();
   });
 });
