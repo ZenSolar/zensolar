@@ -21,12 +21,13 @@ import {
 import { ThreeRevenueEngines } from '@/components/investor/ThreeRevenueEngines';
 import { isPreviewHost } from '@/lib/previewHost';
 
+import { writeInvestorPass } from '@/lib/investorPass';
+
 const ACCESS_CODE = 'INVESTOR_LANDING';
 const NDA_EMAIL_KEY = 'zen_nda_email';
 const NDA_NAME_KEY = 'zen_nda_name';
 const DEMO_ACCESS_KEY = 'zen_demo_access';
 const INVESTOR_SIGNED_KEY = 'zs_investor_nda_signed';
-const INVESTOR_PASS_KEY = 'zs_investor_pass';
 
 interface SignedState {
   email: string;
@@ -70,15 +71,12 @@ function persistSigned(state: SignedState) {
     );
     // Long-lived investor pass — DemoAccessGate uses this to skip its own
     // NDA step entirely for visitors arriving from /investor with PIN+NDA done.
-    localStorage.setItem(
-      INVESTOR_PASS_KEY,
-      JSON.stringify({
-        email,
-        fullName: state.fullName,
-        ndaVersion: '1.0',
-        signedAt: state.signedAt,
-      }),
-    );
+    writeInvestorPass({
+      email,
+      fullName: state.fullName,
+      ndaVersion: '1.0',
+      signedAt: state.signedAt,
+    });
   } catch {
     /* storage blocked */
   }

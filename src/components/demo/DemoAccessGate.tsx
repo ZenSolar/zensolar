@@ -22,6 +22,7 @@ import { NdaSignatureStep } from '@/components/demo/NdaSignatureStep';
 import { VipWelcomeScreen, getVipWelcomeForCode } from '@/components/demo/VipWelcomeScreen';
 import { activateVipMirror, isVipMirrorCode, clearVipMirror, isVipCode, activateVipCode, clearVipCode } from '@/lib/vipDemo';
 import { getReviewerInviteFromUrl, isGregReviewerCode, GREG_REVIEWER_EMAIL } from '@/lib/reviewerAccess';
+import { hasInvestorPass, readInvestorPass } from '@/lib/investorPass';
 import { useNavigate } from 'react-router-dom';
 import { getSafeAudioStartTime, getSharedAudioContext, IMMEDIATE_SOUND_LEAD, runWhenAudioContextRunning, useMintSound } from '@/hooks/useMintSound';
 import { LiveEarningsCounter } from '@/components/marketing/LiveEarningsCounter';
@@ -31,7 +32,6 @@ import { LiveEarningsCounter } from '@/components/marketing/LiveEarningsCounter'
 const LS_KEY = 'zen_demo_access';
 const NDA_EMAIL_KEY = 'zen_nda_email';
 const NDA_NAME_KEY = 'zen_nda_name';
-const INVESTOR_PASS_KEY = 'zs_investor_pass';
 const TTL_MS = 24 * 60 * 60 * 1000;
 
 function readCookie(name: string): string | null {
@@ -125,36 +125,8 @@ function grantAccess() {
   writeStoredValue(LS_KEY, JSON.stringify({ ts: Date.now(), ndaSigned: true }), TTL_MS);
 }
 
-/**
- * Investor pass — set by /investor after the visitor clears the PIN gate AND
- * signs the NDA on that page. When present, the demo gate trusts that NDA
- * (no second signature required) and short-circuits straight into the
- * tap-to-reveal entry → dashboard.
- */
-function hasInvestorPass(): boolean {
-  try {
-    const raw = readStoredValue(INVESTOR_PASS_KEY);
-    if (!raw) return false;
-    const parsed = JSON.parse(raw) as { email?: string; fullName?: string };
-    return !!(parsed?.email && parsed?.fullName);
-  } catch {
-    return false;
-  }
-}
-
-function readInvestorPass(): { email: string; fullName: string } | null {
-  try {
-    const raw = readStoredValue(INVESTOR_PASS_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as { email?: string; fullName?: string };
-    if (parsed?.email && parsed?.fullName) {
-      return { email: parsed.email, fullName: parsed.fullName };
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
+// Investor pass helpers — see `src/lib/investorPass.ts`. Re-exported via
+// import below; kept in sync between /investor (writer) and this gate (reader).
 
 function getSavedNdaEmail(): string | null {
   const raw = readStoredValue(NDA_EMAIL_KEY);
@@ -324,10 +296,10 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
     }
     if (GATE_BYPASS_PATHS.includes(window.location.pathname)) return true;
     if (isPreviewDemoQaRoute()) return false;
-    if (isEditorPreviewHost()) return true;
     // Investors who already cleared /investor (PIN + NDA) skip the demo gate
-    // entirely — no second PIN, no second NDA. They still see the
-    // tap-to-reveal entry animation via the dashboard's own onboarding.
+    // entirely — no second PIN, no second NDA. Run BEFORE the preview-host
+    // shortcut so the backfill into zen_demo_access always happens, which
+    // keeps real production sessions open across page reloads too.
     if (hasInvestorPass()) {
       const pass = readInvestorPass();
       if (pass) {
@@ -337,6 +309,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       }
       return true;
     }
+    if (isEditorPreviewHost()) return true;
     return isAccessGranted();
   });
   // Capture deep-link params for prefill / install-path routing
