@@ -1955,6 +1955,39 @@ export type Database = {
         }
         Relationships: []
       }
+      oem_diagnostic_log: {
+        Row: {
+          created_at: string
+          detail: Json
+          diagnostic_key: string
+          id: string
+          provider: string
+          resolved_at: string | null
+          severity: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          detail?: Json
+          diagnostic_key: string
+          id?: string
+          provider: string
+          resolved_at?: string | null
+          severity?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          detail?: Json
+          diagnostic_key?: string
+          id?: string
+          provider?: string
+          resolved_at?: string | null
+          severity?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       origin_proof_keys: {
         Row: {
           algorithm: string
@@ -2119,9 +2152,11 @@ export type Database = {
           linkedin_connected: boolean | null
           linkedin_handle: string | null
           login_count: number
+          primary_charging_source: string | null
           referral_code: string | null
           referred_by: string | null
           solar_installer: string | null
+          solar_inverter_brand: string | null
           solaredge_connected: boolean | null
           state_code: string | null
           tesla_connected: boolean | null
@@ -2159,9 +2194,11 @@ export type Database = {
           linkedin_connected?: boolean | null
           linkedin_handle?: string | null
           login_count?: number
+          primary_charging_source?: string | null
           referral_code?: string | null
           referred_by?: string | null
           solar_installer?: string | null
+          solar_inverter_brand?: string | null
           solaredge_connected?: boolean | null
           state_code?: string | null
           tesla_connected?: boolean | null
@@ -2199,9 +2236,11 @@ export type Database = {
           linkedin_connected?: boolean | null
           linkedin_handle?: string | null
           login_count?: number
+          primary_charging_source?: string | null
           referral_code?: string | null
           referred_by?: string | null
           solar_installer?: string | null
+          solar_inverter_brand?: string | null
           solaredge_connected?: boolean | null
           state_code?: string | null
           tesla_connected?: boolean | null
