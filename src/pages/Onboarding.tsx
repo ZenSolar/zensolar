@@ -9,6 +9,7 @@ import { EnergySuccessScreen } from "@/components/onboarding/EnergySuccessScreen
 import { HomeChargingSetupScreen } from "@/components/onboarding/HomeChargingSetupScreen";
 import { DevicePairingScreen, DevicePairing } from "@/components/onboarding/DevicePairingScreen";
 import { SolarInstallerScreen, SolarInstaller } from "@/components/onboarding/SolarInstallerScreen";
+import { InverterBrandScreen, InverterBrand } from "@/components/onboarding/InverterBrandScreen";
 import { OnboardingProgress } from "@/components/onboarding/OnboardingProgress";
 import { OnboardingTransition } from "@/components/onboarding/OnboardingTransition";
 import { EnphaseCodeDialog } from "@/components/dashboard/EnphaseCodeDialog";
@@ -38,6 +39,7 @@ type OnboardingStep =
   | 'wallet-success'
   | 'oem-select'
   | 'solar-installer'
+  | 'inverter-brand'
   | 'device-pairing'
   | 'energy-connect'
   | 'home-charging-setup'
@@ -58,6 +60,7 @@ function getStepNumber(step: OnboardingStep): number {
       return 2; // Still step 2 (completing wallet)
     case 'oem-select':
     case 'solar-installer':
+    case 'inverter-brand':
     case 'device-pairing':
     case 'energy-connect':
     case 'device-selection':
@@ -248,7 +251,7 @@ export default function Onboarding() {
     const preview = searchParams.get('preview') as OnboardingStep | null;
     const validPreviewSteps: OnboardingStep[] = [
       'wallet-choice', 'zensolar-setup', 'external-wallet', 'wallet-success',
-      'oem-select', 'solar-installer', 'device-pairing', 'energy-connect', 'home-charging-setup', 'energy-success', 'device-selection'
+      'oem-select', 'solar-installer', 'inverter-brand', 'device-pairing', 'energy-connect', 'home-charging-setup', 'energy-success', 'device-selection'
     ];
     if (preview && validPreviewSteps.includes(preview)) {
       setStep(preview);
@@ -508,7 +511,6 @@ export default function Onboarding() {
   const handleSolarInstallerSelect = async (choice: SolarInstaller) => {
     setSolarInstaller(choice);
     trackEvent('onboarding_solar_installer_selected', { installer: choice });
-    // Best-effort persistence to profile so Profile page reflects it immediately.
     try {
       const { data: { user: currentUser } } = await supabase.auth.getUser();
       if (currentUser) {
@@ -521,7 +523,34 @@ export default function Onboarding() {
     } catch (err) {
       console.warn('[Onboarding] Failed to persist solar_installer:', err);
     }
+    // SSOT: when user picked "other", ask which inverter brand owns the solar
+    // production reading so we never query two OEMs for the same kWh.
+    if (choice === 'other') {
+      transitionToStep('inverter-brand');
+    } else {
+      transitionToStep('device-pairing');
+    }
+  };
+
+  const handleInverterBrandSelect = async (brand: InverterBrand) => {
+    trackEvent('onboarding_inverter_brand_selected', { brand });
+    try {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (currentUser) {
+        await supabase
+          .from('profiles')
+          .update({ solar_inverter_brand: brand, updated_at: new Date().toISOString() } as any)
+          .eq('user_id', currentUser.id);
+        dispatchProfileUpdated();
+      }
+    } catch (err) {
+      console.warn('[Onboarding] Failed to persist solar_inverter_brand:', err);
+    }
     transitionToStep('device-pairing');
+  };
+
+  const handleInverterBrandBack = () => {
+    transitionToStep('solar-installer');
   };
 
   const handleSolarInstallerBack = () => {
@@ -808,7 +837,9 @@ export default function Onboarding() {
       case 'wallet-success': return null;
       case 'oem-select': return 'wallet-success';
       case 'solar-installer': return 'oem-select';
+      case 'inverter-brand': return 'solar-installer';
       case 'device-pairing': {
+        if (solarInstaller === 'other') return 'inverter-brand';
         const needsSolarQuestion = selectedOems.includes('tesla');
         return needsSolarQuestion ? 'solar-installer' : 'oem-select';
       }
@@ -907,6 +938,16 @@ export default function Onboarding() {
           />
         </div>
       )}
+
+      {step === 'inverter-brand' && (
+        <div className="pt-24">
+          <InverterBrandScreen
+            onSelect={handleInverterBrandSelect}
+            onBack={handleInverterBrandBack}
+          />
+        </div>
+      )}
+
 
       {step === 'device-pairing' && (
         <div className="pt-24">

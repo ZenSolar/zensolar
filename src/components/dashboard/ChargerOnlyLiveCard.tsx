@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Plug, Sun, BatteryCharging } from 'lucide-react';
+import { ArrowRight, Info, Plug, Sun, BatteryCharging } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { LiveCardHeader } from './LiveCardHeader';
 import { useChargerDevices, type ChargerDevice } from '@/hooks/useChargerDevices';
 import { useEVTotals } from '@/hooks/useDeviceTelemetry';
@@ -76,10 +77,31 @@ export function ChargerTile({
         </span>
       </div>
 
-      <p className="mt-2 text-[10px] leading-snug text-muted-foreground/80">
-        Live session kW is unavailable for {oemLabel(charger.provider)} today —
-        totals update after each charging session completes.
-      </p>
+      <div className="mt-2 flex items-center gap-1.5 text-[10px] leading-snug text-muted-foreground/80">
+        <TooltipProvider delayDuration={150}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                aria-label="Why no live kW?"
+                className="inline-flex items-center justify-center rounded-full p-0.5 text-muted-foreground/70 hover:text-primary focus:outline-none focus:ring-1 focus:ring-primary/50"
+              >
+                <Info className="h-3 w-3" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-[240px] text-[11px] leading-snug">
+              {charger.provider === 'wallbox'
+                ? 'Live charging power is not yet available for Wallbox. Showing today\u2019s totals instead — session details refresh after each charge completes.'
+                : `Live charging power isn\u2019t available for ${oemLabel(charger.provider)} yet. Totals refresh after each session completes.`}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <span>
+          {charger.provider === 'wallbox'
+            ? 'Live kW not yet available for Wallbox \u2014 showing today\u2019s totals.'
+            : `Live kW not yet available for ${oemLabel(charger.provider)} \u2014 showing today\u2019s totals.`}
+        </span>
+      </div>
     </div>
   );
 }

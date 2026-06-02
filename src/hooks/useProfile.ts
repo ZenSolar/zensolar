@@ -41,6 +41,10 @@ interface Profile {
   // 'tesla' → solar production pulled via Tesla API.
   // 'other' → pulled from Enphase or SolarEdge (whichever is connected).
   solar_installer: 'tesla' | 'other' | null;
+  /** Which inverter brand owns the solar production reading (SSOT). */
+  solar_inverter_brand: 'enphase' | 'solaredge' | 'tesla' | 'other' | null;
+  /** Charging source winner — `tesla_vehicle` whenever a Tesla is connected. */
+  primary_charging_source: 'tesla_vehicle' | 'home_charger' | 'none' | null;
   installer_name: string | null;
   installer_company: string | null;
   installer_phone: string | null;
