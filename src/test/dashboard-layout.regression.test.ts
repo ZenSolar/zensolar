@@ -97,6 +97,6 @@ describe("Dashboard composition — live vs /demo", () => {
     const metrics = read("src/components/dashboard/ActivityMetrics.tsx");
     expect(metrics).toMatch(/import \{ SolarSiteCarousel \} from '\.\/SolarSiteCarousel'/);
     // Carousel is only rendered when there is more than one PV system.
-    expect(metrics).toMatch(/hasMultipleSolarDevices\s*\?\s*\n?\s*<SolarSiteCarousel/);
+    expect(metrics).toMatch(/hasMultipleSolarDevices\s*\?\s*\(\s*\n\s*<SolarSiteCarousel/);
   });
 });
