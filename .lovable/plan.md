@@ -1,23 +1,29 @@
-Plan to fix the current Mike Tschida View-As monitoring card:
+Goal: stop gating Tschida (Enphase solar + Wallbox, no battery) behind an "Add a battery" upsell, and give him a real live flow diagram.
 
-1. Fix the Enphase “Idle / 0.00 kW” display path
-   - Update the solar telemetry parsing so Enphase production uses every real field the backend can return, including current power, per-system power, summary power, and recent production intervals when available.
-   - If Enphase returns a valid updated sample but current power is zero, keep the UI honest: show Idle only when the selected user’s Enphase payload actually reports zero, not because parsing missed the field.
+Changes:
 
-2. Force View-As refresh at the right layer
-   - Ensure the View-As refresh runs for the child card that actually renders (`SolarPlusCard`), not only the parent `LiveEnergyMonitoringCard` render decision.
-   - The refresh will invoke Enphase/Wallbox with `X-Target-User-Id` for Mike Tschida, then read the cache for Mike’s user ID.
+1. Relax the upsell copy in `SolarPlusCard`
+   - Remove the "Add a battery to unlock real-time energy flow…" gate language.
+   - Keep a soft upgrade nudge only when something is genuinely missing, and never imply the diagram itself is locked.
 
-3. Remove Tesla/Powerwall copy from Mike’s card
-   - Update the Solar + Wallbox branch so it does not prompt “Add a Powerwall or your Tesla” for a user who has Enphase + Wallbox only.
-   - The card will show only Mike’s connected Enphase system and Wallbox charger, with no Tesla/Powerwall labels or tiles.
+2. Add a lightweight live flow diagram for the solar (+ optional charger / EV) case
+   - New small component `SolarChargerFlowScene` that renders an honest, animated diagram:
+     - Always: Solar node → Home node (flow animates when solar kW > 0).
+     - When a charger is connected: Solar → Charger node, with a sub-arrow to a Vehicle silhouette (greyed-out when no live EV telemetry).
+     - When solar kW is 0 (e.g. Mike right now): nodes still render, flow lines are dimmed and labeled "Idle" — no fake numbers.
+   - Used by `SolarPlusCard` directly above the existing tiles, so the card now shows:
+     - Live flow diagram (solar → home, solar → charger).
+     - Enphase solar tile (existing).
+     - Wallbox charger tile (existing).
+     - Optional soft upgrade nudge.
 
-4. Tighten device-source gating
-   - Keep Tesla out of solar conflict/source detection unless the viewed user has an actual Tesla solar connected-device row.
-   - Keep Powerwall UI out unless the viewed user has an actual battery/powerwall connected-device row.
+3. Update the render matrix in `LiveEnergyMonitoringCard`
+   - `empty` only when the user has zero of solar / battery / Tesla / charger (unchanged).
+   - Solar-only OR solar+charger (no battery, no Tesla EV) → `SolarPlusCard` (now with the new flow diagram).
+   - Charger-only (no solar / battery / Tesla) → `ChargerOnlyLiveCard` (unchanged).
+   - Anything with battery or Tesla → existing rich `EnergyFlowScene` cockpit (unchanged — that path needs Powerwall geometry).
 
-5. Verify after implementation
-   - Confirm the hooks crash remains gone.
-   - Confirm View-As Michael Tschida shows only Enphase + Wallbox.
-   - Confirm exiting View-As returns the admin’s full system.
-   - Confirm Mike’s Enphase tile shows real refreshed production data when Enphase reports non-zero current production, and otherwise shows a truthful zero/idle state rather than stale/admin data.
+4. Verify
+   - View-As Michael Tschida: card renders the new solar→home / solar→charger flow with his Enphase tile and Wallbox tile, no battery prompt, no Tesla/Powerwall copy.
+   - Exit View-As: admin's full cockpit (battery + Tesla) still renders via `EnergyFlowScene`.
+   - User with zero devices still sees the existing placeholder + "Connect a device" call to action.

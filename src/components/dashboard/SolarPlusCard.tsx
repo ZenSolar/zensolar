@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, BatteryCharging, Sun } from 'lucide-react';
+import { ArrowRight, BatteryCharging, Car, Home, Plug, Sun } from 'lucide-react';
 import { LiveCardHeader } from './LiveCardHeader';
 import { ChargerTile } from './ChargerOnlyLiveCard';
 import { useChargerDevices } from '@/hooks/useChargerDevices';
@@ -12,6 +12,118 @@ import {
 
 function oemLabel(oem: string) {
   return oem.charAt(0).toUpperCase() + oem.slice(1);
+}
+
+/**
+ * Honest, lightweight live flow diagram for users without a Powerwall.
+ * Solar → Home always; adds Solar → Charger → EV node when a charger is connected.
+ * Dimmed/"Idle" state when solar kW is ~0 — never fabricates numbers.
+ */
+function SolarChargerFlowScene({
+  solarKw,
+  hasCharger,
+  chargerName,
+}: {
+  solarKw: number | null;
+  hasCharger: boolean;
+  chargerName?: string | null;
+}) {
+  const producing = (solarKw ?? 0) > 0.1;
+  const lineClass = producing
+    ? 'stroke-emerald-400'
+    : 'stroke-muted-foreground/40';
+  const dashAnim = producing ? 'animate-[spc-dash_1.4s_linear_infinite]' : '';
+
+  return (
+    <div className="mb-3 rounded-lg border border-primary/15 bg-background/40 p-3">
+      <div className="mb-2 flex items-center justify-between">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Live energy flow
+        </span>
+        <span
+          className={`text-[10px] font-semibold ${
+            producing ? 'text-emerald-400' : 'text-muted-foreground'
+          }`}
+        >
+          {producing
+            ? `${(solarKw ?? 0).toFixed(2)} kW flowing`
+            : 'Idle · no production'}
+        </span>
+      </div>
+
+      <div
+        className={`grid items-center gap-2 ${
+          hasCharger
+            ? 'grid-cols-[1fr_auto_1fr_auto_1fr]'
+            : 'grid-cols-[1fr_auto_1fr]'
+        }`}
+      >
+        <FlowNode icon={<Sun className="h-5 w-5" />} label="Solar" active={producing} />
+        <FlowArrow className={lineClass} dashAnim={dashAnim} />
+        <FlowNode icon={<Home className="h-5 w-5" />} label="Home" active={producing} />
+        {hasCharger && (
+          <>
+            <FlowArrow className={lineClass} dashAnim={dashAnim} />
+            <FlowNode
+              icon={<Plug className="h-5 w-5" />}
+              label={chargerName ?? 'Charger'}
+              sub={<Car className="mt-1 h-3.5 w-3.5 text-muted-foreground/70" />}
+              active={producing}
+            />
+          </>
+        )}
+      </div>
+
+      <style>{`@keyframes spc-dash { to { stroke-dashoffset: -16; } }`}</style>
+    </div>
+  );
+}
+
+function FlowNode({
+  icon,
+  label,
+  sub,
+  active,
+}: {
+  icon: ReactNode;
+  label: string;
+  sub?: ReactNode;
+  active: boolean;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <div
+        className={`rounded-full p-2 ring-1 ${
+          active
+            ? 'bg-primary/20 text-primary ring-primary/40'
+            : 'bg-muted/30 text-muted-foreground ring-muted/40'
+        }`}
+      >
+        {icon}
+      </div>
+      <span className="max-w-[80px] truncate text-center text-[9px] font-medium uppercase tracking-wider text-muted-foreground">
+        {label}
+      </span>
+      {sub}
+    </div>
+  );
+}
+
+function FlowArrow({ className, dashAnim }: { className: string; dashAnim: string }) {
+  return (
+    <svg viewBox="0 0 40 8" className="h-2 w-full" preserveAspectRatio="none">
+      <line
+        x1="0"
+        y1="4"
+        x2="40"
+        y2="4"
+        strokeWidth="2"
+        strokeDasharray="4 4"
+        strokeLinecap="round"
+        className={`${className} ${dashAnim}`}
+      />
+    </svg>
+  );
 }
 
 function formatAge(iso: string | null) {
@@ -114,6 +226,12 @@ export function SolarPlusCard() {
         refreshing={refreshing}
       />
 
+      <SolarChargerFlowScene
+        solarKw={stats.currentKw}
+        hasCharger={chargers.length > 0}
+        chargerName={chargers[0]?.device_name ?? (chargers[0] ? oemLabel(chargers[0].provider) : null)}
+      />
+
       <div className="space-y-2">
         <div className="rounded-lg border border-primary/20 bg-background/45 p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.06)]">
           <div className="flex items-center justify-between">
@@ -173,19 +291,8 @@ export function SolarPlusCard() {
       </div>
 
       {(() => {
-        // Tailor the upsell to the viewed user's actual stack. Never prompt
-        // to "Add a Powerwall or your Tesla" for someone whose only missing
-        // piece isn't a Powerwall/Tesla — surface what they actually need
-        // (or hide the upsell entirely when their stack is already complete
-        // for the cockpit path that SolarPlusCard serves).
-        const hasCharger = chargers.length > 0;
-        const missing: string[] = [];
-        missing.push('a battery');
-        if (!hasCharger) missing.push('a home charger');
-        const copy =
-          missing.length === 1
-            ? `Add ${missing[0]} to unlock real-time energy flow between devices.`
-            : `Add ${missing.slice(0, -1).join(', ')} or ${missing.slice(-1)} to unlock real-time energy flow between devices.`;
+        // Soft nudge only — never imply the live flow above is gated.
+        // Suggests adding a battery to unlock charging/discharging arrows.
         return (
           <div className="mt-3 flex flex-col gap-3 rounded-lg border border-primary/15 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-2.5">
@@ -194,9 +301,11 @@ export function SolarPlusCard() {
               </div>
               <div>
                 <div className="text-sm font-semibold text-foreground">
-                  Unlock the full live cockpit
+                  Add a battery for full cockpit view
                 </div>
-                <div className="text-xs text-muted-foreground">{copy}</div>
+                <div className="text-xs text-muted-foreground">
+                  Connect a home battery to see live charging and discharging flows alongside your solar and charger.
+                </div>
               </div>
             </div>
             <Link
