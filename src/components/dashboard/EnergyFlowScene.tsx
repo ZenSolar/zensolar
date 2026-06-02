@@ -380,6 +380,11 @@ export interface EnergyFlowSceneProps {
   batteryPayload?: unknown;
   /** Number of connected Powerwall units (1 or 2). Default 1. */
   batteryCount?: number;
+  /** Device presence flags — drive label/halo visibility so the scene never
+   *  fabricates a Powerwall or Tesla for users who don't have one. */
+  hasBattery?: boolean;
+  hasCharger?: boolean;
+  hasTesla?: boolean;
 }
 
 export function EnergyFlowScene({
@@ -390,7 +395,11 @@ export function EnergyFlowScene({
   vehicleColor,
   teslaPayload,
   batteryCount = 1,
+  hasBattery = true,
+  hasCharger = true,
+  hasTesla = true,
 }: EnergyFlowSceneProps) {
+
 
   const scene = useMemo(() => forceScene ?? pickScene(data), [forceScene, data]);
   const hasTeslaConnection =
@@ -521,28 +530,32 @@ export function EnergyFlowScene({
         <RoofHalo active={solarProducing} intensity={intensity(solar)} />
         <WindowsBloom active={homeDrawing} intensity={intensity(home)} />
 
-        {/* Powerwall — always-on dim emerald standby; brighter when active */}
-        <DeviceHalo
-          cx={HOME_BLUEPRINT.powerwall.x}
-          cy={HOME_BLUEPRINT.powerwall.y}
-          color={EMERALD}
-          active
-          intensity={0.5}
-          radius={3.8}
-          pulseMs={5000}
-        />
-        <DeviceHalo
-          cx={HOME_BLUEPRINT.powerwall.x}
-          cy={HOME_BLUEPRINT.powerwall.y}
-          color={pwCharging ? EMERALD : AMBER}
-          active={pwCharging || pwDischarging}
-          intensity={intensity(battery)}
-          radius={4.6}
-          pulseMs={pwCharging ? 2800 : 2400}
-        />
+        {/* Powerwall — only rendered when a battery is actually connected. */}
+        {hasBattery && (
+          <>
+            <DeviceHalo
+              cx={HOME_BLUEPRINT.powerwall.x}
+              cy={HOME_BLUEPRINT.powerwall.y}
+              color={EMERALD}
+              active
+              intensity={0.5}
+              radius={3.8}
+              pulseMs={5000}
+            />
+            <DeviceHalo
+              cx={HOME_BLUEPRINT.powerwall.x}
+              cy={HOME_BLUEPRINT.powerwall.y}
+              color={pwCharging ? EMERALD : AMBER}
+              active={pwCharging || pwDischarging}
+              intensity={intensity(battery)}
+              radius={4.6}
+              pulseMs={pwCharging ? 2800 : 2400}
+            />
+          </>
+        )}
 
         {/* Second Powerwall (stacked below) — only when a 2nd unit is connected */}
-        {batteryCount >= 2 && (
+        {hasBattery && batteryCount >= 2 && (
           <>
             <DeviceHalo
               cx={HOME_BLUEPRINT.powerwall2.x}
@@ -567,6 +580,7 @@ export function EnergyFlowScene({
 
 
 
+
         {/* Grid meter — sky on import, cyan on export */}
         <DeviceHalo
           cx={HOME_BLUEPRINT.gridMeter.x}
@@ -578,16 +592,31 @@ export function EnergyFlowScene({
           pulseMs={2800}
         />
 
-        {/* Wall connector (inside garage) — emerald when EV is charging */}
-        <DeviceHalo
-          cx={HOME_BLUEPRINT.wallCharger.x}
-          cy={HOME_BLUEPRINT.wallCharger.y}
-          color={EMERALD}
-          active={isCharging}
-          intensity={intensity(data.evPower ?? 7)}
-          radius={4.2}
-          pulseMs={2400}
-        />
+        {/* Wall connector (inside garage) — soft standby when a charger is
+            connected, emerald-pulse when an EV is actively charging. */}
+        {(hasCharger || hasTesla) && (
+          <>
+            <DeviceHalo
+              cx={HOME_BLUEPRINT.wallCharger.x}
+              cy={HOME_BLUEPRINT.wallCharger.y}
+              color={EMERALD}
+              active={hasCharger || hasTesla}
+              intensity={0.45}
+              radius={3.6}
+              pulseMs={5200}
+            />
+            <DeviceHalo
+              cx={HOME_BLUEPRINT.wallCharger.x}
+              cy={HOME_BLUEPRINT.wallCharger.y}
+              color={EMERALD}
+              active={isCharging}
+              intensity={intensity(data.evPower ?? 7)}
+              radius={4.2}
+              pulseMs={2400}
+            />
+          </>
+        )}
+
 
         {/* Tiny green plug LED on the parked car when plugged & idle */}
         {isPluggedIdle && showDynamicCar && (
@@ -773,20 +802,32 @@ export function EnergyFlowScene({
         active={homeDrawing}
         hero
       />
-      <FlowLabel
-        position="bl"
-        label="Powerwall"
-        value={`${fmtKw(battery)} ${arrow(battery)}`.trim()}
-        sub={
-          pwCharging
-            ? `${soc}% · Charging`
-            : pwDischarging
-              ? `${soc}% · Discharging`
-              : `${soc}% · ${soc >= 99 ? 'Full' : 'Idle'}`
-        }
-        accent={pwCharging ? 'green' : pwDischarging ? 'amber' : 'muted'}
-        active={Math.abs(battery) > 0.05}
-      />
+      {hasBattery ? (
+        <FlowLabel
+          position="bl"
+          label="Powerwall"
+          value={`${fmtKw(battery)} ${arrow(battery)}`.trim()}
+          sub={
+            pwCharging
+              ? `${soc}% · Charging`
+              : pwDischarging
+                ? `${soc}% · Discharging`
+                : `${soc}% · ${soc >= 99 ? 'Full' : 'Idle'}`
+          }
+          accent={pwCharging ? 'green' : pwDischarging ? 'amber' : 'muted'}
+          active={Math.abs(battery) > 0.05}
+        />
+      ) : hasCharger ? (
+        <FlowLabel
+          position="bl"
+          label="Charger"
+          value={isCharging ? fmtKw(data.evPower ?? 0) : 'Idle'}
+          sub={isCharging ? 'Charging EV' : 'Standby'}
+          accent={isCharging ? 'green' : 'muted'}
+          active={isCharging}
+        />
+      ) : null}
+
       <FlowLabel
         position="br"
         label="Grid"
