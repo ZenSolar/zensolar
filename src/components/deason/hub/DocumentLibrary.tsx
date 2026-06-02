@@ -222,7 +222,13 @@ export function DocumentLibrary({
               return (
                 <div
                   key={d.id}
-                  className="group relative flex flex-col rounded-xl border border-border bg-background p-2.5 transition-colors hover:border-amber-500/40"
+                  ref={(el) => { cardRefs.current[d.id] = el; }}
+                  className={cn(
+                    "group relative flex flex-col rounded-xl border bg-background p-2.5 transition-all",
+                    highlightedId === d.id
+                      ? "border-amber-500 ring-2 ring-amber-500/60 shadow-lg shadow-amber-500/20"
+                      : "border-border hover:border-amber-500/40"
+                  )}
                 >
                   <span
                     className={cn(
