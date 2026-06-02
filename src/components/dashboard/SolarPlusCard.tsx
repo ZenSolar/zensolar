@@ -172,29 +172,43 @@ export function SolarPlusCard() {
           ))}
       </div>
 
-      <div className="mt-3 flex flex-col gap-3 rounded-lg border border-primary/15 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-start gap-2.5">
-          <div className="rounded-md bg-primary/15 p-1.5 ring-1 ring-primary/25">
-            <BatteryCharging className="h-4 w-4 text-primary" />
-          </div>
-          <div>
-            <div className="text-sm font-semibold text-foreground">
-              Unlock the full live cockpit
+      {(() => {
+        // Tailor the upsell to the viewed user's actual stack. Never prompt
+        // to "Add a Powerwall or your Tesla" for someone whose only missing
+        // piece isn't a Powerwall/Tesla — surface what they actually need
+        // (or hide the upsell entirely when their stack is already complete
+        // for the cockpit path that SolarPlusCard serves).
+        const hasCharger = chargers.length > 0;
+        const missing: string[] = [];
+        missing.push('a battery');
+        if (!hasCharger) missing.push('a home charger');
+        const copy =
+          missing.length === 1
+            ? `Add ${missing[0]} to unlock real-time energy flow between devices.`
+            : `Add ${missing.slice(0, -1).join(', ')} or ${missing.slice(-1)} to unlock real-time energy flow between devices.`;
+        return (
+          <div className="mt-3 flex flex-col gap-3 rounded-lg border border-primary/15 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-2.5">
+              <div className="rounded-md bg-primary/15 p-1.5 ring-1 ring-primary/25">
+                <BatteryCharging className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-foreground">
+                  Unlock the full live cockpit
+                </div>
+                <div className="text-xs text-muted-foreground">{copy}</div>
+              </div>
             </div>
-            <div className="text-xs text-muted-foreground">
-              Add a Powerwall or your Tesla to see real-time energy flow between
-              devices.
-            </div>
+            <Link
+              to="/clean-energy-center"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-primary/25 bg-background/40 px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-primary/10"
+            >
+              Connect more devices
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
-        </div>
-        <Link
-          to="/clean-energy-center"
-          className="inline-flex items-center justify-center gap-2 rounded-lg border border-primary/25 bg-background/40 px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-primary/10"
-        >
-          Connect more devices
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-      </div>
+        );
+      })()}
     </div>
   );
 }
