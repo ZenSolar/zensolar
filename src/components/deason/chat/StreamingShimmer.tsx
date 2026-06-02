@@ -12,9 +12,9 @@ export function StreamingShimmer() {
   }, []);
   return (
     <div className="flex items-center gap-1.5 px-1 text-xs text-muted-foreground">
-      <Sparkles className="h-3 w-3 animate-pulse text-amber-500" />
+      <Sparkles className="h-3 w-3 animate-pulse text-amber-500 motion-reduce:animate-none" />
       <span
-        className="bg-gradient-to-r from-muted-foreground via-foreground to-muted-foreground bg-[length:200%_100%] bg-clip-text text-transparent"
+        className="bg-gradient-to-r from-muted-foreground via-foreground to-muted-foreground bg-[length:200%_100%] bg-clip-text text-transparent motion-reduce:animate-none"
         style={{ animation: "deason-shimmer 1.6s linear infinite" }}
       >
         {PHRASES[i]}
