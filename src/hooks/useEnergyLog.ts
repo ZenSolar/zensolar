@@ -415,6 +415,22 @@ async function fetchHomeChargingRows(
   monthStart: Date,
   monthEnd: Date,
 ): Promise<HomeSessionRow[]> {
+  // ── Tesla vehicle skip guard ──────────────────────────────────────────────
+  // SSOT rule (see `src/lib/dataSourcePriority.ts` + memory
+  // `features/data-source-of-truth.md`): when the user owns a Tesla vehicle,
+  // Tesla `charge_state` is the single source of truth for charging energy.
+  // Returning `home_charging_sessions` alongside it would double-count kWh
+  // (Wallbox / third-party charger reports the SAME charge the vehicle does).
+  const { data: teslaVehicles } = await supabase
+    .from('connected_devices')
+    .select('device_id')
+    .eq('user_id', userId)
+    .in('device_type', ['vehicle', 'ev', 'tesla_vehicle'])
+    .limit(1);
+  if (teslaVehicles && teslaVehicles.length > 0) {
+    return [];
+  }
+
   const { data, error } = await supabase
     .from('home_charging_sessions')
     .select('total_session_kwh, start_time, device_id')
