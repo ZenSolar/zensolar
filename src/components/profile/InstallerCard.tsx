@@ -53,7 +53,10 @@ export function InstallerCard() {
       company !== (profile?.installer_company ?? "") ||
       phone !== (profile?.installer_phone ?? "") ||
       email !== (profile?.installer_email ?? "") ||
-      installer !== ((profile?.solar_installer ?? "") as string));
+      installer !== ((profile?.solar_installer ?? "") as string) ||
+      inverterBrand !== ((profile?.solar_inverter_brand && profile.solar_inverter_brand !== "tesla"
+        ? profile.solar_inverter_brand
+        : "") as string));
 
   const handleSave = async () => {
     setSaving(true);
@@ -63,9 +66,12 @@ export function InstallerCard() {
       installer_phone: phone.trim() || null,
       installer_email: email.trim() || null,
       solar_installer: installer || null,
+      // Tesla installer auto-routes inverter brand to 'tesla' for SSOT clarity.
+      solar_inverter_brand:
+        installer === "tesla" ? "tesla" : (inverterBrand || null),
     } as any);
     setSaving(false);
-    if (!error) toast.success("Installer details saved");
+    if (!error) toast.success("Energy sources saved");
   };
 
   const handleQuickPick = (choice: "tesla" | "other") => {
