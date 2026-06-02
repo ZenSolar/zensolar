@@ -251,7 +251,7 @@ export default function Onboarding() {
     const preview = searchParams.get('preview') as OnboardingStep | null;
     const validPreviewSteps: OnboardingStep[] = [
       'wallet-choice', 'zensolar-setup', 'external-wallet', 'wallet-success',
-      'oem-select', 'solar-installer', 'device-pairing', 'energy-connect', 'home-charging-setup', 'energy-success', 'device-selection'
+      'oem-select', 'solar-installer', 'inverter-brand', 'device-pairing', 'energy-connect', 'home-charging-setup', 'energy-success', 'device-selection'
     ];
     if (preview && validPreviewSteps.includes(preview)) {
       setStep(preview);
