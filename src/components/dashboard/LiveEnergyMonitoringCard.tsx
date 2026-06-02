@@ -696,10 +696,12 @@ export function LiveEnergyMonitoringCard() {
     return <ChargerOnlyLiveCard />;
   }
 
-  // 3. Solar only (no battery / Tesla EV) → SolarPlusCard (with optional charger sub-tile).
-  if (hasSolar && !hasRichCockpit) {
-    return <SolarPlusCard />;
-  }
+  // 3. Any other real device combo (solar, solar+charger, solar+battery, etc.)
+  //    → rich EnergyFlowScene cockpit. The scene is device-aware via the
+  //    hasBattery / hasCharger / hasTesla props so it never fabricates a
+  //    Powerwall or Tesla for users who don't have one.
+
+
 
   // 4. Otherwise → rich EnergyFlowScene cockpit (existing path).
   return (
