@@ -802,20 +802,32 @@ export function EnergyFlowScene({
         active={homeDrawing}
         hero
       />
-      <FlowLabel
-        position="bl"
-        label="Powerwall"
-        value={`${fmtKw(battery)} ${arrow(battery)}`.trim()}
-        sub={
-          pwCharging
-            ? `${soc}% · Charging`
-            : pwDischarging
-              ? `${soc}% · Discharging`
-              : `${soc}% · ${soc >= 99 ? 'Full' : 'Idle'}`
-        }
-        accent={pwCharging ? 'green' : pwDischarging ? 'amber' : 'muted'}
-        active={Math.abs(battery) > 0.05}
-      />
+      {hasBattery ? (
+        <FlowLabel
+          position="bl"
+          label="Powerwall"
+          value={`${fmtKw(battery)} ${arrow(battery)}`.trim()}
+          sub={
+            pwCharging
+              ? `${soc}% · Charging`
+              : pwDischarging
+                ? `${soc}% · Discharging`
+                : `${soc}% · ${soc >= 99 ? 'Full' : 'Idle'}`
+          }
+          accent={pwCharging ? 'green' : pwDischarging ? 'amber' : 'muted'}
+          active={Math.abs(battery) > 0.05}
+        />
+      ) : hasCharger ? (
+        <FlowLabel
+          position="bl"
+          label="Charger"
+          value={isCharging ? fmtKw(data.evPower ?? 0) : 'Idle'}
+          sub={isCharging ? 'Charging EV' : 'Standby'}
+          accent={isCharging ? 'green' : 'muted'}
+          active={isCharging}
+        />
+      ) : null}
+
       <FlowLabel
         position="br"
         label="Grid"
