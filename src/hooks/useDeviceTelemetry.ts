@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useViewAsUserId } from '@/hooks/useViewAsUserId';
 
 /**
  * Live telemetry hooks for Premium Energy Insights.
@@ -198,31 +199,39 @@ function hasCanonicalTelemetryShape(payload: any, capability: Capability): boole
 
 function useTelemetry(capability: Capability) {
   const { user } = useAuth();
+  const viewAsUserId = useViewAsUserId();
+  const effectiveUserId = viewAsUserId ?? user?.id ?? null;
   const [data, setData] = useState<CachedTelemetry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async (opts?: { force?: boolean }) => {
-    if (!user) return;
+    if (!effectiveUserId) {
+      setData([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
       const { data: devices, error: devErr } = await supabase
         .from('connected_devices')
         .select('provider, device_type, device_id, device_name')
-        .eq('user_id', user.id)
+        .eq('user_id', effectiveUserId)
         .order('claimed_at', { ascending: true });
       if (devErr) throw devErr;
 
       const selected = pickOnePerCapability((devices as ConnectedDeviceRow[]) ?? [], capability);
       const out: CachedTelemetry[] = [];
 
+      // When admin is viewing another user, do NOT call OEM edge functions —
+      // those run under the admin's session and would return the admin's data.
+      // Render cached rows only (or empty/idle) in View-As mode.
+      const isViewingOther = !!viewAsUserId;
+
       for (const d of selected) {
         const oem = d.provider as OEM;
-        const cached = await readCache(user.id, oem, capability, d.device_id);
-        // Tighten against TTL_MS as well as DB expires_at — older rows in the
-        // table may have been written when battery TTL was 12h, so we must not
-        // trust them past the new short window.
+        const cached = await readCache(effectiveUserId, oem, capability, d.device_id);
         const withinTtl = cached
           ? (Date.now() - new Date(cached.cached_at).getTime()) < TTL_MS[capability]
           : false;
@@ -236,9 +245,9 @@ function useTelemetry(capability: Capability) {
           });
           continue;
         }
-        const live = await fetchFromOem(oem, d.device_id, capability);
+        const live = isViewingOther ? null : await fetchFromOem(oem, d.device_id, capability);
         if (live) {
-          await writeCache(user.id, oem, capability, d.device_id, live);
+          await writeCache(effectiveUserId, oem, capability, d.device_id, live);
           out.push({
             oem, capability, site_id: d.device_id, device_name: d.device_name,
             payload: live, cached_at: new Date().toISOString(),
@@ -260,7 +269,7 @@ function useTelemetry(capability: Capability) {
     } finally {
       setLoading(false);
     }
-  }, [user, capability]);
+  }, [effectiveUserId, viewAsUserId, capability]);
 
   useEffect(() => { void refresh(); }, [refresh]);
   return { data, loading, error, refresh };
@@ -273,6 +282,8 @@ export const useSolarTelemetry = () => useTelemetry('solar');
 /** Last-N-days totals for EV charging (home + supercharger), from session tables. */
 export function useEVTotals(days = 7) {
   const { user } = useAuth();
+  const viewAsUserId = useViewAsUserId();
+  const effectiveUserId = viewAsUserId ?? user?.id ?? null;
   const [totals, setTotals] = useState<{ home_kwh: number; supercharger_kwh: number }>({
     home_kwh: 0,
     supercharger_kwh: 0,
@@ -280,7 +291,11 @@ export function useEVTotals(days = 7) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
+    if (!effectiveUserId) {
+      setTotals({ home_kwh: 0, supercharger_kwh: 0 });
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
     (async () => {
       setLoading(true);
@@ -290,12 +305,12 @@ export function useEVTotals(days = 7) {
         supabase
           .from('home_charging_sessions')
           .select('total_session_kwh')
-          .eq('user_id', user.id)
+          .eq('user_id', effectiveUserId)
           .gte('start_time', since),
         supabase
           .from('charging_sessions')
           .select('energy_kwh')
-          .eq('user_id', user.id)
+          .eq('user_id', effectiveUserId)
           .eq('charging_type', 'supercharger')
           .gte('session_date', sinceDate),
       ]);
@@ -306,7 +321,7 @@ export function useEVTotals(days = 7) {
       setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, [user, days]);
+  }, [effectiveUserId, days]);
 
   return { totals, loading };
 }

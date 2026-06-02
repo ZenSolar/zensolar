@@ -10,6 +10,7 @@ import {
   type CachedTelemetry,
 } from '@/hooks/useDeviceTelemetry';
 import { useAuth } from '@/hooks/useAuth';
+import { useViewAsUserId } from '@/hooks/useViewAsUserId';
 import { useHaptics } from '@/hooks/useHaptics';
 import { computeCo2 } from '@/lib/co2Math';
 import { supabase } from '@/integrations/supabase/client';
@@ -130,10 +131,12 @@ function freshnessClass(iso: string | null, fresh: boolean) {
 
 function useTodayMintImpact() {
   const { user } = useAuth();
+  const viewAsUserId = useViewAsUserId();
+  const effectiveUserId = viewAsUserId ?? user?.id ?? null;
   const [impact, setImpact] = useState({ tokens: 0, co2Kg: 0, loading: true });
 
   useEffect(() => {
-    if (!user) {
+    if (!effectiveUserId) {
       setImpact({ tokens: 0, co2Kg: 0, loading: false });
       return;
     }
@@ -144,7 +147,7 @@ function useTodayMintImpact() {
       const { data } = await supabase
         .from('mint_transactions')
         .select('tokens_minted, kwh_delta, miles_delta, source_breakdown')
-        .eq('user_id', user.id)
+        .eq('user_id', effectiveUserId)
         .gte('created_at', start.toISOString());
       if (cancelled) return;
       const totals = (data ?? []).reduce(
@@ -165,7 +168,7 @@ function useTodayMintImpact() {
       setImpact({ ...totals, loading: false });
     })();
     return () => { cancelled = true; };
-  }, [user]);
+  }, [effectiveUserId]);
 
   return impact;
 }
