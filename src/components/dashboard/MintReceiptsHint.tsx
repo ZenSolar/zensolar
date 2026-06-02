@@ -50,7 +50,7 @@ export function MintReceiptsHint() {
         type="button"
         onClick={() => handleOpenChange(true)}
         className="group flex w-full items-center justify-between gap-3 px-4 py-3 rounded-xl border border-border/50 bg-card/40 hover:bg-card/70 hover:border-primary/40 transition-all text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-        aria-label="View your recent mint receipts"
+        aria-label="View your Proof Feed"
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={panelId}
