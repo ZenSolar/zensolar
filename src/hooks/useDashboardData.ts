@@ -145,7 +145,7 @@ export function useDashboardData() {
     error?: string;
   };
 
-  const [lastUpdatedAt, setLastUpdatedAtRaw] = useState<string | null>(cachedLastUpdatedAt);
+  const [lastUpdatedAt, setLastUpdatedAtRaw] = useState<string | null>(seedUpdatedAt);
   const setLastUpdatedAt = useCallback((val: string | null) => {
     cachedLastUpdatedAt = val;
     writeLocalCache(CACHE_KEY_UPDATED, val);
