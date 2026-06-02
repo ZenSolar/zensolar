@@ -36,6 +36,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { RefreshIndicators } from './RefreshIndicators';
 import { SwipeableActivityField } from './SwipeableActivityField';
+import { SolarSiteCarousel } from './SolarSiteCarousel';
 import { HiddenFieldsRestore } from './HiddenFieldsRestore';
 import { SwipeHintTooltip } from './SwipeHintTooltip';
 import { useSwipeHintShown } from '@/hooks/useSwipeHintShown';
@@ -477,43 +478,69 @@ export function ActivityMetrics({
         {/* Order: 1. Solar, 2. Battery, 3. EV Miles, 4. Tesla Supercharger, 5. Home Charger */}
         <div className="relative overflow-hidden rounded-lg" data-hint-target="kpi-cards">
           <div className="relative space-y-2">
-          {/* 1. Solar Fields - Show individual devices if multiple, otherwise single field */}
+          {/* 1. Solar Fields — single tile (1 site) or swipeable carousel (≥2 sites). */}
           {!isHidden('solar') && (
             hasMultipleSolarDevices ? (
-              solarDevices.map((device, index) => {
-                const pendingKwh = Math.floor(device.pendingKwh);
-                const field = (
-                  <ActivityField
-                    key={device.deviceId}
-                    icon={Sun}
-                    label={`${device.deviceName} Solar Energy Produced`}
-                    value={pendingKwh}
-                    unit="kWh"
-                    color="gold"
-                    active={pendingKwh > 0}
-                    isLoading={isLoading}
-                    onTap={pendingKwh > 0 ? () => openSheet({
-                      category: 'solar',
-                      deviceId: device.deviceId,
-                      deviceName: device.deviceName,
-                      label: `${device.deviceName} Solar Production`,
-                      unit: 'kWh',
-                      pending: pendingKwh,
-                      accent: 'solar',
-                    }) : undefined}
-
-                  />
-                );
-                return index === 0 && onHideField ? (
-                  <SwipeableActivityField 
-                    key={device.deviceId} 
-                    onHide={() => onHideField('solar')}
-                    locked={hasSolarConnected}
-                  >
-                    {field}
-                  </SwipeableActivityField>
-                ) : field;
-              })
+              <SolarSiteCarousel
+                slides={[
+                  {
+                    key: 'all',
+                    caption: `All Sites · ${solarDevices.length}`,
+                    node: (
+                      <SwipeableActivityField
+                        onHide={() => onHideField?.('solar')}
+                        disabled={!onHideField}
+                        locked={hasSolarConnected}
+                      >
+                        <ActivityField
+                          icon={Sun}
+                          label={`All Sites · Solar Energy Produced`}
+                          value={totalPendingSolarFromDevices}
+                          unit="kWh"
+                          color="gold"
+                          active={totalPendingSolarFromDevices > 0}
+                          isLoading={isLoading}
+                          onTap={totalPendingSolarFromDevices > 0 ? () => openSheet({
+                            category: 'solar',
+                            label: 'All Sites · Solar Production',
+                            unit: 'kWh',
+                            pending: totalPendingSolarFromDevices,
+                            accent: 'solar',
+                          }) : undefined}
+                        />
+                      </SwipeableActivityField>
+                    ),
+                  },
+                  ...solarDevices.map((device) => {
+                    const pendingKwh = Math.floor(device.pendingKwh);
+                    return {
+                      key: device.deviceId,
+                      caption: device.deviceName,
+                      provider: device.provider,
+                      node: (
+                        <ActivityField
+                          icon={Sun}
+                          label={`${device.deviceName} Solar Energy Produced`}
+                          value={pendingKwh}
+                          unit="kWh"
+                          color="gold"
+                          active={pendingKwh > 0}
+                          isLoading={isLoading}
+                          onTap={pendingKwh > 0 ? () => openSheet({
+                            category: 'solar',
+                            deviceId: device.deviceId,
+                            deviceName: device.deviceName,
+                            label: `${device.deviceName} Solar Production`,
+                            unit: 'kWh',
+                            pending: pendingKwh,
+                            accent: 'solar',
+                          }) : undefined}
+                        />
+                      ),
+                    };
+                  }),
+                ]}
+              />
             ) : (
               <SwipeableActivityField 
                 onHide={() => onHideField?.('solar')} 
