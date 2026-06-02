@@ -4,7 +4,7 @@
  * This prevents the "No QueryClient set" crash on PWA cold start.
  */
 import { useWeb3Ready } from '@/components/providers/LazyWeb3Provider';
-import { useAccount, useWalletClient, useWatchAsset } from 'wagmi';
+import { useAccount, useWalletClient, useWatchAsset, useSwitchChain } from 'wagmi';
 
 // When Web3 isn't ready, return the fallback. When it is, call the real hook.
 // The conditional is stable per render (context value doesn't flip mid-render).
