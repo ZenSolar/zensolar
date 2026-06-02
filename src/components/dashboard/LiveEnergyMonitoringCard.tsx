@@ -21,6 +21,10 @@ const AnimatedEnergyFlow = lazy(() =>
   import('./AnimatedEnergyFlow').then((m) => ({ default: m.AnimatedEnergyFlow }))
 );
 import { ZenXPill } from './ZenXPill';
+import { LiveCardHeader } from './LiveCardHeader';
+import { SolarPlusCard } from './SolarPlusCard';
+import { ChargerOnlyLiveCard } from './ChargerOnlyLiveCard';
+import { useChargerDevices } from '@/hooks/useChargerDevices';
 
 function getPath(payload: any, path: string): unknown {
   return path.split('.').reduce((acc, key) => {
@@ -531,6 +535,7 @@ export function LiveEnergyMonitoringCard() {
   const solar = useSolarTelemetry();
   const battery = useBatteryTelemetry();
   const ev = useEVChargerTelemetry();
+  const chargers = useChargerDevices();
   const evTotals = useEVTotals(7);
   const mintImpact = useTodayMintImpact();
   const { data: isActivelyCharging } = useActiveChargingSession();
@@ -581,7 +586,15 @@ export function LiveEnergyMonitoringCard() {
   const loading =
     (solar.loading || battery.loading || ev.loading) &&
     solar.data.length === 0 && battery.data.length === 0 && ev.data.length === 0;
-  const empty = !loading && solar.data.length === 0 && battery.data.length === 0 && ev.data.length === 0;
+
+  // Device-combination detection — drives the render matrix below.
+  const hasSolar = solar.data.length > 0;
+  const hasBattery = battery.data.length > 0;
+  const hasTesla = ev.data.some((t) => t.oem === 'tesla');
+  const hasCharger = chargers.data.length > 0;
+  const hasRichCockpit = hasBattery || hasTesla; // EnergyFlowScene needs ≥1 of these
+  const empty =
+    !loading && !hasSolar && !hasBattery && !hasTesla && !hasCharger;
 
   const primarySolar = solar.data[0];
   const primaryBattery = battery.data[0];
