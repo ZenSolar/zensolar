@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
+import { useViewAsUserId } from '@/hooks/useViewAsUserId';
 import { detectSolarConflict, detectChargingConflict } from '@/lib/dataSourcePriority';
 
 /**
@@ -44,11 +45,13 @@ interface DeviceRow {
 export function useOemDiagnostics() {
   const { user } = useAuth();
   const { profile } = useProfile();
+  const viewAsUserId = useViewAsUserId();
+  const effectiveUserId = viewAsUserId ?? user?.id ?? null;
   const [diagnostics, setDiagnostics] = useState<OemDiagnostic[]>([]);
   const [loading, setLoading] = useState(true);
 
   const scan = useCallback(async () => {
-    if (!user) {
+    if (!effectiveUserId) {
       setDiagnostics([]);
       setLoading(false);
       return;
@@ -60,11 +63,11 @@ export function useOemDiagnostics() {
       supabase
         .from('energy_tokens')
         .select('provider, expires_at')
-        .eq('user_id', user.id),
+        .eq('user_id', effectiveUserId),
       supabase
         .from('connected_devices')
         .select('provider, device_type, device_id, device_name')
-        .eq('user_id', user.id),
+        .eq('user_id', effectiveUserId),
     ]);
 
     const now = Date.now();
@@ -117,9 +120,10 @@ export function useOemDiagnostics() {
     setLoading(false);
 
     // Mirror open findings into the audit log (best-effort, ignore failures).
-    if (findings.length > 0) {
+    // Skip in View-As mode — admin's session can't insert as another user.
+    if (findings.length > 0 && !viewAsUserId) {
       const rows = findings.map((f) => ({
-        user_id: user.id,
+        user_id: effectiveUserId,
         provider: f.provider,
         diagnostic_key: f.key,
         severity: f.severity,
@@ -127,7 +131,7 @@ export function useOemDiagnostics() {
       }));
       await supabase.from('oem_diagnostic_log').insert(rows).then(undefined, () => undefined);
     }
-  }, [user, profile?.solar_installer, profile?.solar_inverter_brand]);
+  }, [effectiveUserId, viewAsUserId, profile?.solar_installer, profile?.solar_inverter_brand]);
 
   useEffect(() => {
     void scan();
