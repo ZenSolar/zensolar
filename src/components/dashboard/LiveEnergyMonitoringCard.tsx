@@ -23,7 +23,9 @@ const AnimatedEnergyFlow = lazy(() =>
 );
 import { ZenXPill } from './ZenXPill';
 import { LiveCardHeader } from './LiveCardHeader';
-import { SolarPlusCard } from './SolarPlusCard';
+// SolarPlusCard is no longer in the render matrix — every connected user
+// now routes to the rich EnergyFlowScene (device-aware).
+
 import { ChargerOnlyLiveCard } from './ChargerOnlyLiveCard';
 import { useChargerDevices } from '@/hooks/useChargerDevices';
 
