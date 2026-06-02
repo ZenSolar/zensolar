@@ -268,24 +268,70 @@ Deno.serve(async (req) => {
 
     // ── Lightweight telemetry mode (Premium Energy Insights live card) ──────
     // Body: { mode: 'telemetry', capability: 'solar', siteId }
+    //
+    // Enphase `/summary` returns `current_power` but that field only refreshes
+    // every ~15 min and frequently reports 0 between updates. To match what the
+    // Enphase app itself shows for "producing now", we prefer the 5-min
+    // production_micro telemetry and fall back to summary on failure.
     if (telemetryReq.mode === "telemetry" && telemetryReq.siteId && telemetryReq.capability === "solar") {
       const systemId = String(telemetryReq.siteId);
       try {
-        const r = await fetch(
+        // 1) Summary — authoritative for today / lifetime totals.
+        const sumResp = await fetch(
           `${ENPHASE_API_BASE}/systems/${systemId}/summary?key=${apiKey}`,
           { headers: { "Authorization": `Bearer ${accessToken}` } }
         );
-        if (!r.ok) {
-          return new Response(JSON.stringify({ error: "summary_failed", status: r.status }), {
+        if (!sumResp.ok) {
+          return new Response(JSON.stringify({ error: "summary_failed", status: sumResp.status }), {
             status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
           });
         }
-        const s = await r.json();
+        const s = await sumResp.json();
+
+        // 2) Fresher current_power via 5-min production_micro (last 30 min window).
+        let currentPowerW = Number(s?.current_power || 0);
+        let sampleAtIso: string | null = s?.last_report_at
+          ? new Date(Number(s.last_report_at) * 1000).toISOString()
+          : null;
+        try {
+          const startAt = Math.floor(Date.now() / 1000) - 30 * 60;
+          const microResp = await fetch(
+            `${ENPHASE_API_BASE}/systems/${systemId}/telemetry/production_micro?key=${apiKey}&granularity=5mins&start_at=${startAt}`,
+            { headers: { "Authorization": `Bearer ${accessToken}` } }
+          );
+          if (microResp.ok) {
+            const micro = await microResp.json();
+            const intervals: any[] = Array.isArray(micro?.intervals) ? micro.intervals : [];
+            // Last interval with enwh > 0 → avg watts = enwh * (3600 / 300) = enwh * 12.
+            for (let i = intervals.length - 1; i >= 0; i--) {
+              const iv = intervals[i];
+              const enwh = Number(iv?.enwh ?? 0);
+              if (enwh > 0) {
+                currentPowerW = Math.round(enwh * 12);
+                const endAt = Number(iv?.end_at);
+                if (Number.isFinite(endAt)) sampleAtIso = new Date(endAt * 1000).toISOString();
+                break;
+              }
+            }
+            // If every recent interval is exactly 0, trust that (night / no production).
+            if (intervals.length > 0 && intervals.every((iv) => Number(iv?.enwh ?? 0) === 0)) {
+              currentPowerW = 0;
+              const lastIv = intervals[intervals.length - 1];
+              const endAt = Number(lastIv?.end_at);
+              if (Number.isFinite(endAt)) sampleAtIso = new Date(endAt * 1000).toISOString();
+            }
+          } else {
+            console.warn(`enphase production_micro failed (${microResp.status}) for system ${systemId} — falling back to summary current_power`);
+          }
+        } catch (microErr) {
+          console.warn("enphase production_micro error, falling back to summary:", microErr);
+        }
+
         return new Response(JSON.stringify({
-          current_power_w: Number(s?.current_power || 0),
+          current_power_w: currentPowerW,
           energy_today_wh: Number(s?.energy_today || 0),
           energy_lifetime_wh: Number(s?.energy_lifetime || 0),
-          last_report_at: s?.last_report_at,
+          last_report_at: sampleAtIso ?? s?.last_report_at,
           status: s?.status,
         }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
       } catch (e) {
@@ -295,6 +341,7 @@ Deno.serve(async (req) => {
         });
       }
     }
+
 
 
 
