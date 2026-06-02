@@ -936,6 +936,16 @@ export default function Onboarding() {
         </div>
       )}
 
+      {step === 'inverter-brand' && (
+        <div className="pt-24">
+          <InverterBrandScreen
+            onSelect={handleInverterBrandSelect}
+            onBack={handleInverterBrandBack}
+          />
+        </div>
+      )}
+
+
       {step === 'device-pairing' && (
         <div className="pt-24">
           <DevicePairingScreen
