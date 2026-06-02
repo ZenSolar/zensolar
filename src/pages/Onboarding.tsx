@@ -39,6 +39,7 @@ type OnboardingStep =
   | 'wallet-success'
   | 'oem-select'
   | 'solar-installer'
+  | 'inverter-brand'
   | 'device-pairing'
   | 'energy-connect'
   | 'home-charging-setup'
