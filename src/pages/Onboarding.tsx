@@ -510,7 +510,6 @@ export default function Onboarding() {
   const handleSolarInstallerSelect = async (choice: SolarInstaller) => {
     setSolarInstaller(choice);
     trackEvent('onboarding_solar_installer_selected', { installer: choice });
-    // Best-effort persistence to profile so Profile page reflects it immediately.
     try {
       const { data: { user: currentUser } } = await supabase.auth.getUser();
       if (currentUser) {
@@ -523,7 +522,34 @@ export default function Onboarding() {
     } catch (err) {
       console.warn('[Onboarding] Failed to persist solar_installer:', err);
     }
+    // SSOT: when user picked "other", ask which inverter brand owns the solar
+    // production reading so we never query two OEMs for the same kWh.
+    if (choice === 'other') {
+      transitionToStep('inverter-brand');
+    } else {
+      transitionToStep('device-pairing');
+    }
+  };
+
+  const handleInverterBrandSelect = async (brand: InverterBrand) => {
+    trackEvent('onboarding_inverter_brand_selected', { brand });
+    try {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (currentUser) {
+        await supabase
+          .from('profiles')
+          .update({ solar_inverter_brand: brand, updated_at: new Date().toISOString() } as any)
+          .eq('user_id', currentUser.id);
+        dispatchProfileUpdated();
+      }
+    } catch (err) {
+      console.warn('[Onboarding] Failed to persist solar_inverter_brand:', err);
+    }
     transitionToStep('device-pairing');
+  };
+
+  const handleInverterBrandBack = () => {
+    transitionToStep('solar-installer');
   };
 
   const handleSolarInstallerBack = () => {
