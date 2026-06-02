@@ -1,9 +1,7 @@
-import { useSwitchChain } from 'wagmi';
 import { useMemo, useCallback } from 'react';
 import { CHAIN_ID } from '@/lib/wagmi';
 import { baseSepolia } from 'viem/chains';
-import { useWeb3Ready } from '@/components/providers/LazyWeb3Provider';
-import { useSafeAccount } from '@/hooks/useSafeWagmi';
+import { useSafeAccount, useSafeSwitchChain } from '@/hooks/useSafeWagmi';
 
 export type WalletType = 'metamask' | 'coinbase' | 'walletconnect' | 'unknown';
 
@@ -24,15 +22,9 @@ export function useWalletType(): WalletInfo & {
   switchToBaseSepolia: () => Promise<boolean>;
   isOnCorrectNetwork: boolean;
 } {
-  const web3Ready = useWeb3Ready();
   const { connector, isConnected, chainId } = useSafeAccount();
+  const { switchChainAsync } = useSafeSwitchChain();
 
-  // useSwitchChain will throw without WagmiProvider, so we need a safe wrapper
-  let switchChainAsync: ReturnType<typeof useSwitchChain>['switchChainAsync'] | undefined;
-  if (web3Ready) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    ({ switchChainAsync } = useSwitchChain());
-  }
 
   const walletInfo = useMemo((): WalletInfo => {
     if (!isConnected || !connector) {
