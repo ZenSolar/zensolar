@@ -45,15 +45,15 @@ describe('SolarSiteCarousel', () => {
 
   it('renders one slide per device plus the aggregate', () => {
     render(<SolarSiteCarousel slides={slides} />);
-    expect(screen.getByText('All Sites Tile')).toBeInTheDocument();
-    expect(screen.getByText('Site A Tile')).toBeInTheDocument();
-    expect(screen.getByText('Site B Tile')).toBeInTheDocument();
-    expect(screen.getByText('Site C Tile')).toBeInTheDocument();
+    expect(screen.getByText('All Sites Tile')).toBeTruthy();
+    expect(screen.getByText('Site A Tile')).toBeTruthy();
+    expect(screen.getByText('Site B Tile')).toBeTruthy();
+    expect(screen.getByText('Site C Tile')).toBeTruthy();
   });
 
   it('exposes carousel semantics and one pagination dot per slide', () => {
     render(<SolarSiteCarousel slides={slides} />);
-    expect(screen.getByTestId('solar-site-carousel')).toHaveAttribute('aria-label', 'Solar sites');
+    expect(screen.getByTestId('solar-site-carousel').getAttribute('aria-label')).toBe('Solar sites');
     const dots = screen.getAllByRole('button', { name: /^Go to / });
     expect(dots).toHaveLength(slides.length);
   });
