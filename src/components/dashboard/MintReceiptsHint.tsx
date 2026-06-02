@@ -87,10 +87,10 @@ export function MintReceiptsHint() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <DrawerTitle id={`${panelId}-title`} className="text-left text-lg">
-                    Your mint receipts
+                    Proof Feed
                   </DrawerTitle>
                   <DrawerDescription id={`${panelId}-desc`} className="text-left text-xs">
-                    Recent Proof-of-Mint™ records · swipe down or press Esc to close
+                    Recent Proof-of-Genesis™ records · swipe down or press Esc to close
                   </DrawerDescription>
                 </div>
                 <DrawerClose
