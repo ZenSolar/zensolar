@@ -39,6 +39,8 @@ export function ProviderResyncPanel({ profiles }: ProviderResyncPanelProps) {
   });
   const [backfillStatus, setBackfillStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [backfillMessage, setBackfillMessage] = useState<string>('');
+  const [bulkBackfillStatus, setBulkBackfillStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [bulkBackfillMessage, setBulkBackfillMessage] = useState<string>('');
 
   const selectedProfile = profiles.find(p => p.user_id === selectedUserId);
 
