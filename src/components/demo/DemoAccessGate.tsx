@@ -22,6 +22,7 @@ import { NdaSignatureStep } from '@/components/demo/NdaSignatureStep';
 import { VipWelcomeScreen, getVipWelcomeForCode } from '@/components/demo/VipWelcomeScreen';
 import { activateVipMirror, isVipMirrorCode, clearVipMirror, isVipCode, activateVipCode, clearVipCode } from '@/lib/vipDemo';
 import { getReviewerInviteFromUrl, isGregReviewerCode, GREG_REVIEWER_EMAIL } from '@/lib/reviewerAccess';
+import { hasInvestorPass, readInvestorPass } from '@/lib/investorPass';
 import { useNavigate } from 'react-router-dom';
 import { getSafeAudioStartTime, getSharedAudioContext, IMMEDIATE_SOUND_LEAD, runWhenAudioContextRunning, useMintSound } from '@/hooks/useMintSound';
 import { LiveEarningsCounter } from '@/components/marketing/LiveEarningsCounter';
