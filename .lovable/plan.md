@@ -1,50 +1,58 @@
-## Goal
-Lock in the Telemetry Single Source of Truth rules with deterministic unit tests so future changes can't silently regress them.
+# Backfill Enphase Devices for OAuth-Connected Users
 
-## Files to add
+## Problem
 
-### 1. `src/lib/__tests__/dataSourcePriority.test.ts`
-Pure-function tests against `pickSource`, `detectSolarConflict`, and `detectChargingConflict` (no mocks needed).
+Michael Tschida has `profiles.enphase_connected = true` (OAuth token stored) but **zero Enphase rows in `connected_devices`** — only his Wallbox. Every SSOT consumer (`useSolarTelemetry`, `pickSource('solar', …)`, `LiveEnergyMonitoringCard`) reads `connected_devices`, so his Envoy/Enphase production silently disappears from the live energy flow. He currently renders as a Wallbox-only user (`ChargerOnlyLiveCard`).
 
-Covered cases:
-- **Tesla vehicle charging rule**
-  - Tesla vehicle + Wallbox present → `pickSource('charging', …)` returns `tesla` with reason `tesla_vehicle_present`.
-  - Wallbox only → returns wallbox.
-  - `detectChargingConflict` flags `conflicting=true` when both exist.
-- **Solar source rule**
-  - `solar_installer='tesla'` + Enphase + Tesla solar devices → returns `tesla`.
-  - `solar_installer='other'` + `solar_inverter_brand='enphase'` with Enphase + SolarEdge devices → returns `enphase`.
-  - Only a Tesla `powerwall` device present (no PV) → solar returns `null` (Powerwall CTs never used as solar source).
-  - Fallback order Enphase > SolarEdge > Tesla when profile unset.
-  - `detectSolarConflict` flags multi-provider PV.
-- **Anti-double-count rule (SSOT contract)**
-  - For each capability (`solar`, `battery`, `charging`, `consumption`) with multiple competing providers, `pickSource` returns exactly ONE `SourceChoice` (never an array, never merged).
-  - Parametrized loop asserts only one provider wins per capability.
+Root cause: `enphase-auth` stores the OAuth token, then the UI is supposed to call `enphase-devices` → user picks systems → `claim-devices` inserts. Tschida never completed that selection step (likely because his account predates that screen).
 
-### 2. `src/hooks/__tests__/useEnergyLog.teslaSkipGuard.test.ts`
-Targeted test for the Tesla skip guard in `fetchHomeChargingRows`. Since the function is module-internal, we exercise it through a thin mock of `@/integrations/supabase/client` and re-import the hook module.
+## Fix — two parts
 
-Approach (deterministic, no network):
-- `vi.mock('@/integrations/supabase/client')` returning a chainable builder that records each `.from(table)` call.
-- Drive the guard by calling the exported `useEnergyLog`'s `loadMonth` path is heavy; instead, refactor-free option: extract `fetchHomeChargingRows` is not exported. We will test indirectly by:
-  - Mocking supabase so `from('connected_devices').select(...).eq(...).in(...).limit(1)` resolves with one Tesla vehicle row.
-  - Rendering the hook with `@testing-library/react`'s `renderHook` wrapped in a `QueryClientProvider`, switching `activeTab` to `'home-charging'`, awaiting the query, and asserting that `home_charging_sessions` table was **never** queried (assert via the recorded `.from()` calls).
-  - Second case: zero Tesla vehicles → `home_charging_sessions` IS queried.
+### 1. New edge function: `enphase-backfill-devices`
 
-If the indirect path proves flaky, fall back to exporting `fetchHomeChargingRows` from `useEnergyLog.ts` (named export only — no behavior change) and unit-test it directly. Plan picks the indirect path first.
+Server-side, idempotent, callable two ways:
+- **Self-serve**: any authenticated user can POST `{}` and it backfills their own account.
+- **Admin batch**: founder/admin can POST `{ user_ids: [...] }` (or `{ all_missing: true }`) to backfill many users.
 
-### 3. `src/components/dashboard/__tests__/ssotContract.test.ts`
-Lightweight static contract test that greps the repo to catch obvious double-count regressions:
-- Reads `src/hooks/useEnergyLog.ts` and asserts the Tesla skip-guard comment + early-return block are still present (string match on `Tesla vehicle skip guard` and `return [];` inside `fetchHomeChargingRows`).
-- Reads `src/lib/dataSourcePriority.ts` and asserts the `SOLAR_FALLBACK` array does not contain `'powerwall'` and that `pickSource('solar', …)` never returns a powerwall device.
-- Acts as a tripwire: anyone deleting the guard or adding Powerwall to the solar fallback breaks CI.
+Logic per user:
+1. Read `energy_tokens` row where `provider='enphase'`. Skip if missing.
+2. Call Enphase `/systems` with the stored access token (refresh if expired — reuse the same refresh logic that `enphase-data` uses).
+3. For each returned system, `upsert` into `connected_devices` with:
+   - `provider='enphase'`, `device_type='solar_system'`, `device_id=String(system_id)`, `device_name`, `device_metadata` (matching the shape `enphase-devices` already produces), and `baseline_data={ captured_at: now }`.
+   - Skip if already claimed by another user (don't steal).
+4. Ensure `profiles.enphase_connected=true` (defensive).
+5. Return `{ user_id, claimed: [...], skipped_already_claimed: [...], errors: [...] }`.
 
-## Test infrastructure
-Existing setup is already in place (`vitest.config.ts`, `src/test/setup.ts`, sibling tests under `src/hooks/__tests__` and `src/components/dashboard/__tests__`). No new dev-deps, no config changes.
+Reuse existing `enphase-devices` Enphase fetch code; do not introduce new auth/refresh paths.
 
-## Out of scope
-- No production code changes (unless step 2's fallback export is needed; that's a 1-line `export` addition, no logic change).
-- No edge-function tests (Deno mirror lives in `supabase/functions/_shared/`; covered by parity via shared rule table — can be added later if requested).
+### 2. Admin trigger UI
 
-## Deliverable
-Three new test files; running `vitest` passes locally. Final reply: "Automated regression tests for Telemetry SSOT rules added."
+Add a single button on `/admin` (or wherever device-ops live) labeled **"Backfill Enphase device rows"** that calls the function with `{ all_missing: true }` and shows a toast with results. No new pages.
+
+### 3. One-shot run for Tschida
+
+After the function deploys, invoke it once with `{ user_ids: ['2827d5b3-fbc6-4f3a-8369-ccc0116b6735'] }` so his live flow lights up immediately. Verify via:
+```sql
+SELECT provider, device_type, device_id, device_name
+FROM connected_devices
+WHERE user_id='2827d5b3-fbc6-4f3a-8369-ccc0116b6735';
+```
+Expect at least one `enphase / solar_system` row.
+
+## Out of scope (explicitly)
+
+- Enphase **IQ Battery** discovery — Tschida doesn't have one; tackle separately if/when a battery user surfaces this.
+- The diagnostic-surface option (banner says "Enphase linked but no devices"). The new `OemDiagnosticsBanner` will naturally start passing for these users once devices exist, so the banner work isn't needed here.
+- Touching `enphase-devices` / `claim-devices` — they keep their interactive role for new onboarding.
+
+## Files
+
+- **New**: `supabase/functions/enphase-backfill-devices/index.ts`
+- **Edit**: `src/pages/Admin.tsx` (or nearest admin device-ops surface) — add the backfill button + handler.
+- **No** schema migration required (`connected_devices` already supports these rows).
+
+## Verification
+
+1. SQL above shows the Enphase row exists for Tschida.
+2. Loading his account in admin view-as mode renders the rich `EnergyFlowScene` (solar node + Wallbox), not `ChargerOnlyLiveCard`.
+3. `OemDiagnosticsBanner` no longer flags "Enphase token without device" for him.
