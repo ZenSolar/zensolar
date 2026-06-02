@@ -29,9 +29,15 @@ export function AppLayout({ children }: AppLayoutProps) {
   // Viewer auto-mirrors admin; explicit "view as" overrides
   const effectiveTargetUserId = targetUserId ?? viewerTargetId;
   
+  // Force a clean remount of the entire app shell when the impersonation
+  // target changes. This is critical: many data hooks (useDashboardData,
+  // useProfile, useOnChainHoldings, etc.) hold module-level / closure-bound
+  // caches that would otherwise show the previous user's data after switching.
+  const remountKey = effectiveTargetUserId ? `view:${effectiveTargetUserId}` : 'self';
+
   return (
     <ViewAsUserIdProvider value={effectiveTargetUserId}>
-      <SidebarProvider>
+      <SidebarProvider key={remountKey}>
         <div className="min-h-screen min-h-[100dvh] flex w-full min-w-0 overflow-x-hidden">
           <AppSidebar />
           <div className="flex-1 flex flex-col min-h-screen min-h-[100dvh] min-w-0">
