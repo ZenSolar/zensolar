@@ -189,6 +189,45 @@ export function ProviderResyncPanel({ profiles }: ProviderResyncPanelProps) {
     }
   };
 
+  const handleBulkBackfillEnphaseDevices = async (mode: 'all_missing' | 'selected') => {
+    setBulkBackfillStatus('loading');
+    setBulkBackfillMessage('Scanning Enphase-linked users without device rows…');
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
+      const body: Record<string, unknown> = mode === 'all_missing'
+        ? { all_missing: true }
+        : { user_ids: selectedUserId ? [selectedUserId] : [] };
+
+      if (mode === 'selected' && !selectedUserId) {
+        throw new Error('Select a user first');
+      }
+
+      const response = await supabase.functions.invoke('enphase-backfill-devices', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body,
+      });
+      if (response.error) throw new Error(response.error.message || 'Backfill failed');
+
+      const summary = response.data?.summary ?? {};
+      const msg =
+        `Processed ${summary.users_processed ?? 0} user(s) · ` +
+        `claimed ${summary.total_claimed ?? 0} new device row(s) · ` +
+        `${summary.total_already_existing ?? 0} already present · ` +
+        `${summary.total_blocked_other_user ?? 0} claimed by other users · ` +
+        `${summary.users_with_errors ?? 0} with errors`;
+      setBulkBackfillStatus('success');
+      setBulkBackfillMessage(msg);
+      toast.success(`Backfilled ${summary.total_claimed ?? 0} Enphase device row(s)`);
+    } catch (error) {
+      console.error('Enphase device backfill error:', error);
+      setBulkBackfillStatus('error');
+      setBulkBackfillMessage(error instanceof Error ? error.message : 'Backfill failed');
+      toast.error(`Enphase device backfill failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
   const handleResyncAll = async () => {
     if (!selectedProfile) {
       toast.error('Please select a user first');
