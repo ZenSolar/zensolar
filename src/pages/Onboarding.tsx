@@ -837,7 +837,9 @@ export default function Onboarding() {
       case 'wallet-success': return null;
       case 'oem-select': return 'wallet-success';
       case 'solar-installer': return 'oem-select';
+      case 'inverter-brand': return 'solar-installer';
       case 'device-pairing': {
+        if (solarInstaller === 'other') return 'inverter-brand';
         const needsSolarQuestion = selectedOems.includes('tesla');
         return needsSolarQuestion ? 'solar-installer' : 'oem-select';
       }
