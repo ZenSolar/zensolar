@@ -592,16 +592,31 @@ export function EnergyFlowScene({
           pulseMs={2800}
         />
 
-        {/* Wall connector (inside garage) — emerald when EV is charging */}
-        <DeviceHalo
-          cx={HOME_BLUEPRINT.wallCharger.x}
-          cy={HOME_BLUEPRINT.wallCharger.y}
-          color={EMERALD}
-          active={isCharging}
-          intensity={intensity(data.evPower ?? 7)}
-          radius={4.2}
-          pulseMs={2400}
-        />
+        {/* Wall connector (inside garage) — soft standby when a charger is
+            connected, emerald-pulse when an EV is actively charging. */}
+        {(hasCharger || hasTesla) && (
+          <>
+            <DeviceHalo
+              cx={HOME_BLUEPRINT.wallCharger.x}
+              cy={HOME_BLUEPRINT.wallCharger.y}
+              color={EMERALD}
+              active={hasCharger || hasTesla}
+              intensity={0.45}
+              radius={3.6}
+              pulseMs={5200}
+            />
+            <DeviceHalo
+              cx={HOME_BLUEPRINT.wallCharger.x}
+              cy={HOME_BLUEPRINT.wallCharger.y}
+              color={EMERALD}
+              active={isCharging}
+              intensity={intensity(data.evPower ?? 7)}
+              radius={4.2}
+              pulseMs={2400}
+            />
+          </>
+        )}
+
 
         {/* Tiny green plug LED on the parked car when plugged & idle */}
         {isPluggedIdle && showDynamicCar && (
