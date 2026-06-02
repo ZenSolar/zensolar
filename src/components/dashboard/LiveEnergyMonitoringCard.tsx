@@ -704,10 +704,17 @@ export function LiveEnergyMonitoringCard() {
 
 
   // 4. Otherwise → rich EnergyFlowScene cockpit (existing path).
+  const subtitleParts: string[] = [];
+  if (hasSolar) subtitleParts.push(`${oemLabel(primarySolar?.oem ?? 'solar')} solar`);
+  if (hasBattery) subtitleParts.push('Tesla Powerwall');
+  if (hasTesla) subtitleParts.push(primaryEv?.device_name ?? 'ZenX');
+  if (hasCharger && !hasTesla) subtitleParts.push(chargers.data[0]?.device_name ?? 'Wallbox');
+  const cockpitSubtitle = `Home Energy Cockpit · ${subtitleParts.join(' + ') || 'Live'}`;
+
   return (
     <div className="w-full p-4">
       <LiveCardHeader
-        subtitle="Home Energy Cockpit · Enphase solar + Tesla Powerwall + ZenX"
+        subtitle={cockpitSubtitle}
         ageLabel={formatAge(latestTelemetry?.sample_at ?? latestTelemetry?.cached_at ?? null)}
         freshnessClassName={freshnessClass(
           latestTelemetry?.sample_at ?? latestTelemetry?.cached_at ?? null,
@@ -716,6 +723,7 @@ export function LiveEnergyMonitoringCard() {
         onRefresh={handleManualRefresh}
         refreshing={manualRefreshing}
       />
+
 
 
       {(() => {
