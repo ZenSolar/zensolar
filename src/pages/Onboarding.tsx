@@ -60,6 +60,7 @@ function getStepNumber(step: OnboardingStep): number {
       return 2; // Still step 2 (completing wallet)
     case 'oem-select':
     case 'solar-installer':
+    case 'inverter-brand':
     case 'device-pairing':
     case 'energy-connect':
     case 'device-selection':
