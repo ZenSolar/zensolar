@@ -31,7 +31,6 @@ import { LiveEarningsCounter } from '@/components/marketing/LiveEarningsCounter'
 const LS_KEY = 'zen_demo_access';
 const NDA_EMAIL_KEY = 'zen_nda_email';
 const NDA_NAME_KEY = 'zen_nda_name';
-const INVESTOR_PASS_KEY = 'zs_investor_pass';
 const TTL_MS = 24 * 60 * 60 * 1000;
 
 function readCookie(name: string): string | null {
