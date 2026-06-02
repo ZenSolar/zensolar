@@ -60,9 +60,9 @@ export function MintReceiptsHint() {
             <Receipt className="h-4 w-4 text-primary" />
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-medium text-foreground">Your mint receipts</p>
+            <p className="text-sm font-medium text-foreground">Proof Feed</p>
             <p className="text-[11px] text-muted-foreground truncate">
-              Every Proof of Genesis™ generates a verifiable on-chain receipt
+              Your recent Proof-of-Genesis™ receipts, on-chain &amp; verifiable
             </p>
           </div>
         </div>
