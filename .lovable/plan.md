@@ -1,31 +1,92 @@
-# Fix: Enphase "producing now" stuck at 0 kW
+## Root cause (identified — no guessing needed)
 
-## Problem
-Tschida's Live cockpit shows `0.00 kW producing now` at 3:45 PM in full sun, even though Enphase reports 60.3 kWh produced today and the card refreshed 33s ago. Lifetime + today totals are correct; only the instantaneous wattage is wrong.
+`src/hooks/useSafeWagmi.ts` defines `useSafeHook<T>(hookFn, fallback)` which **conditionally** calls a wagmi hook based on `useWeb3Ready()`:
 
-## Root cause
-`enphase-data` (telemetry mode, lines 269–295) reads `current_power` from Enphase's `/systems/{id}/summary` endpoint. That endpoint updates only every ~15 minutes and routinely returns `0` between refreshes — it is not a real-time feed. We see the same behavior on Joseph's account intermittently; it has just been more visible on Tschida today because nothing else is masking it.
+```ts
+function useSafeHook<T>(hookFn, fallback) {
+  const ready = useWeb3Ready();
+  if (!ready) return fallback;
+  return hookFn();   // ← extra hook(s) appear only after web3 is ready
+}
+```
+
+`useWeb3Ready()` reads `Web3ReadyContext`, which `LazyWeb3Provider` flips from `false` → `true` after the Web3 chunk lazy-loads (~1.5s after first paint, or on `requestIdleCallback`). Every component that uses `useSafeAccount`, `useSafeWalletClient`, or `useSafeWatchAsset` therefore **gains hooks mid-lifetime** → React throws "Rendered more hooks than during the previous render". On the reverse transition (or React replaying the bad render), the sibling message "Rendered fewer hooks than expected" fires. This perfectly matches both screenshots.
+
+The same anti-pattern is hard-coded in `src/hooks/useWalletType.ts` lines 31-35 (conditional `useSwitchChain()` inside `if (web3Ready)`).
+
+Why this surfaces *now* on the two reported flows:
+- **After `/auth` login** — RootRoute swaps from `<Navigate>` to `<AppLayout><Index/></AppLayout>`. Many descendants (`TokenPriceCard`, wallet UI, AppKit modal, `RewardActions`) consume `useSafeAccount` / `useWalletType`. They mount while `web3Ready=false`, then the context flips → boom.
+- **Admin → View as Tschida** — `useDashboardData` re-keys on `viewAsUserId`, triggering re-renders across the same descendants while the Web3 chunk is still settling.
+
+This is unrelated to the `enphase-data` edge-function edit; the Enphase "Idle" tile is a downstream symptom of the dashboard never finishing render.
 
 ## Fix
-In `supabase/functions/enphase-data/index.ts`, telemetry branch (`mode: 'telemetry'`, `capability: 'solar'`):
 
-1. Call `/systems/{id}/telemetry/production_micro?granularity=5mins&start_at=<now-30min>` first.
-2. Take the **last interval with `enwh > 0`** and compute `current_power_w = round(enwh * 12)` (5-min Wh × 12 = avg W over that interval). This is what the Enphase app itself shows.
-3. If that endpoint returns 429 / empty / fails, fall back to the existing `/summary` `current_power` value (current behavior) so we never regress.
-4. Keep `energy_today_wh` / `lifetime_energy_wh` sourced from `/summary` (those fields are accurate there).
-5. Add `sample_at` from the chosen interval's `end_at` so `useDeviceTelemetry.extractSampleAt` picks it up and the "Updated Ns ago" pill reflects the real sample time, not the cache write.
+Two surgical edits, no behavior change beyond eliminating the violation.
 
-No client changes needed — `SolarPlusCard` and `LiveEnergyMonitoringCard` already read `current_power_w` first.
+### 1. `src/components/providers/LazyWeb3Provider.tsx`
 
-## Cache
-Solar telemetry TTL is already 60s (`useDeviceTelemetry`). Leave as-is — `production_micro` is rate-limit friendly when called once per minute per system.
+Wrap the children with a `<div style={{display:'contents'}} key="…">` whose `key` differs between the pre-Web3 and Web3-ready branches. Changing the `key` forces React to unmount the pre-Web3 subtree and mount a fresh one once wagmi is available, so every descendant sees a **stable** hook count for its entire lifetime.
+
+```tsx
+if (!shouldLoad || !LoadedProvider) {
+  return <div key="web3-pending" style={{display:'contents'}}>{children}</div>;
+}
+return (
+  <LoadedProvider>
+    <Web3ReadyGate>
+      <div key="web3-ready" style={{display:'contents'}}>{children}</div>
+    </Web3ReadyGate>
+  </LoadedProvider>
+);
+```
+
+`display:'contents'` keeps layout identical (the wrapper div has no box). The remount is a one-time event per session, ~1.5s after first paint — invisible to users and far cheaper than the current crash.
+
+### 2. `src/hooks/useWalletType.ts`
+
+Remove the inline conditional `useSwitchChain()` call and route it through the safe-wagmi pattern. After fix #1, `useSafeHook` is safe because `web3Ready` no longer flips within a single mount.
+
+Add to `useSafeWagmi.ts`:
+
+```ts
+import { useSwitchChain } from 'wagmi';
+export function useSafeSwitchChain() {
+  return useSafeHook(
+    () => useSwitchChain(),
+    { switchChainAsync: undefined } as any as ReturnType<typeof useSwitchChain>,
+  );
+}
+```
+
+Then in `useWalletType.ts` replace lines 30-35 with:
+
+```ts
+const { switchChainAsync } = useSafeSwitchChain();
+```
+
+(unconditional, no eslint-disable, no `let`).
 
 ## Verification
-- `supabase--curl_edge_functions` POST to `enphase-data` with `x-target-user-id` = Tschida + `{ mode: 'telemetry', capability: 'solar', siteId: <his envoy id> }` and confirm `current_power_w > 0` while sun is up.
-- Ask Tschida to pull-to-refresh; tile should show real kW.
-- Smoke-check Joseph too (he has same code path) — make sure we don't regress when his summary is fresh.
+
+1. Restart preview, hard reload the sandbox.
+2. Sign in via `/auth` with a test account — confirm `/` lands on the dashboard with no error overlay; check console for zero React warnings about hook order.
+3. Open admin, View-as Tschida — confirm his dashboard renders.
+4. On Tschida's Live Energy cockpit, confirm the Enphase tile reads non-zero wattage (the new `enphase-data` 5-min `production_micro` path is already deployed; once the dashboard renders, it will repopulate within ≤60s cache TTL).
+5. If the Enphase tile is still 0 in daylight after the crash is gone, that's a separate diagnosis (edge-function logs for `enphase-data` filtered to Tschida's `user_id`) and will be handled in a follow-up — out of scope for this fix.
 
 ## Out of scope
-- No tokenomics, mint, or UI changes.
-- No schema / migration.
-- SolarEdge + Wallbox live wattage gaps remain (tracked separately in `live-energy-flow-beta-access.md`).
+
+- No tokenomics, mint, schema, or RLS changes.
+- No edge-function changes (the `enphase-data` edit from earlier stays).
+- No UI/copy changes.
+- No theme work.
+
+## Risk
+
+Very low. The remount happens once per session, with no visible layout shift (`display:contents`). The `useWalletType` change uses the same safe-wagmi pattern already used by `useSafeAccount` throughout the codebase.
+
+## Deliverable
+
+- Crash-free login flow and crash-free admin view-as.
+- Confirmation of Tschida's Enphase tile state (live wattage or, if still 0, the precise log evidence pointing at the next fix).
