@@ -157,10 +157,17 @@ async function writeCache(userId: string, oem: OEM, cap: Capability, siteId: str
   );
 }
 
-async function fetchFromOem(oem: OEM, siteId: string, capability: Capability): Promise<any | null> {
+async function fetchFromOem(
+  oem: OEM,
+  siteId: string,
+  capability: Capability,
+  targetUserId?: string | null,
+): Promise<any | null> {
   try {
+    const headers = targetUserId ? { 'X-Target-User-Id': targetUserId } : undefined;
     const { data, error } = await supabase.functions.invoke(FN_BY_OEM[oem], {
       body: { mode: 'telemetry', capability, siteId },
+      headers,
     });
     if (error) return null;
     return data ?? null;
@@ -224,10 +231,10 @@ function useTelemetry(capability: Capability) {
       const selected = pickOnePerCapability((devices as ConnectedDeviceRow[]) ?? [], capability);
       const out: CachedTelemetry[] = [];
 
-      // When admin is viewing another user, do NOT call OEM edge functions —
-      // those run under the admin's session and would return the admin's data.
-      // Render cached rows only (or empty/idle) in View-As mode.
-      const isViewingOther = !!viewAsUserId;
+      // When admin is viewing another user, route OEM calls through the
+      // X-Target-User-Id header so the edge function authenticates as the
+      // admin but reads/refreshes the target user's tokens.
+      const targetHeaderId = viewAsUserId ?? null;
 
       for (const d of selected) {
         const oem = d.provider as OEM;
@@ -245,8 +252,11 @@ function useTelemetry(capability: Capability) {
           });
           continue;
         }
-        const live = isViewingOther ? null : await fetchFromOem(oem, d.device_id, capability);
-        if (live) {
+        const live = await fetchFromOem(oem, d.device_id, capability, targetHeaderId);
+        if (live && !(live as any).error) {
+          // Persist client-side cache. In View-As, this hits the new RLS
+          // policy allowing admins to upsert other users' rows; in self-view
+          // it falls under the user's own policy.
           await writeCache(effectiveUserId, oem, capability, d.device_id, live);
           out.push({
             oem, capability, site_id: d.device_id, device_name: d.device_name,
@@ -271,7 +281,11 @@ function useTelemetry(capability: Capability) {
     }
   }, [effectiveUserId, viewAsUserId, capability]);
 
-  useEffect(() => { void refresh(); }, [refresh]);
+  // Force a fresh fetch when entering View-As so expired cached rows don't
+  // render as Idle for the impersonated user.
+  useEffect(() => {
+    void refresh({ force: !!viewAsUserId });
+  }, [refresh, viewAsUserId]);
   return { data, loading, error, refresh };
 }
 
