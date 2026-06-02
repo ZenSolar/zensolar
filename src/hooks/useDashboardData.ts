@@ -110,20 +110,28 @@ export function useDashboardData() {
     if (viewAsUserId) return viewAsUserId;
     return authUser?.id ?? null;
   };
-  const [activityData, setActivityDataRaw] = useState<ActivityData>(cachedActivityData ?? defaultActivityData);
+  // Only seed from module-level cache if it belongs to the CURRENT viewer/target.
+  // Otherwise switching into "view as user" briefly shows the admin's stale data.
+  const mountKey = viewAsUserId ? `view:${viewAsUserId}` : `self:${authUser?.id ?? 'anon'}`;
+  const cacheMatchesMount = cachedForUserId === mountKey;
+  const seedActivity = cacheMatchesMount ? cachedActivityData : null;
+  const seedConnections = cacheMatchesMount ? cachedProfileConnections : null;
+  const seedUpdatedAt = cacheMatchesMount ? cachedLastUpdatedAt : null;
+
+  const [activityData, setActivityDataRaw] = useState<ActivityData>(seedActivity ?? defaultActivityData);
   const setActivityData = useCallback((data: ActivityData) => {
     cachedActivityData = data;
     writeLocalCache(CACHE_KEY_ACTIVITY, data);
     setActivityDataRaw(data);
   }, []);
   const [connectedAccounts, setConnectedAccounts] = useState<ConnectedAccount[]>([
-    { service: 'tesla', connected: cachedProfileConnections?.tesla_connected ?? false, label: 'Tesla' },
-    { service: 'enphase', connected: cachedProfileConnections?.enphase_connected ?? false, label: 'Enphase' },
-    { service: 'solaredge', connected: cachedProfileConnections?.solaredge_connected ?? false, label: 'SolarEdge' },
-    { service: 'wallbox', connected: cachedProfileConnections?.wallbox_connected ?? false, label: 'Wallbox' },
+    { service: 'tesla', connected: seedConnections?.tesla_connected ?? false, label: 'Tesla' },
+    { service: 'enphase', connected: seedConnections?.enphase_connected ?? false, label: 'Enphase' },
+    { service: 'solaredge', connected: seedConnections?.solaredge_connected ?? false, label: 'SolarEdge' },
+    { service: 'wallbox', connected: seedConnections?.wallbox_connected ?? false, label: 'Wallbox' },
   ]);
-  const [isLoading, setIsLoading] = useState(!cachedProfileConnections);
-  const [profileConnections, setProfileConnections] = useState<ProfileConnections | null>(cachedProfileConnections);
+  const [isLoading, setIsLoading] = useState(!seedConnections);
+  const [profileConnections, setProfileConnections] = useState<ProfileConnections | null>(seedConnections);
   const hasAutoRefreshedOnce = useRef(hasAutoRefreshedOnceGlobal);
 
   type ProviderKey = 'tesla' | 'enphase' | 'solaredge' | 'wallbox';
