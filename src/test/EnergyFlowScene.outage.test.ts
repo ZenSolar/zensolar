@@ -4,41 +4,45 @@ import { OUTAGE_VISUAL } from '@/components/dashboard/EnergyFlowScene';
 /**
  * Visual-regression contract for EnergyFlowScene Outage Mode.
  *
- * The pw-home dominance + grid-offline visual hierarchy is critical UX during
- * a real outage: the user must see at a glance that they are running on
- * battery. These values were tuned over multiple field iterations (see
- * `.lovable/plan.md`, 2026-06-03).
- *
- * Bumping any number here intentionally? Update the snapshot in the same
- * commit and note the change in the EnergyFlowScene header comment.
+ * v2 (2026-06-03): pw-home now mirrors the active Solar `DottedFlow`
+ * language (faint guide path + dense LED particles) — just amber, denser,
+ * and faster. The previous triple-halo stack was replaced with a single
+ * breathing amber halo. Update the snapshot below in the same commit when
+ * any value here intentionally moves.
  */
 describe('EnergyFlowScene — OUTAGE_VISUAL contract', () => {
-  it('pw-home stroke hierarchy: outer > mid > core (visual depth layering)', () => {
+  it('pw-home uses the same faint-guide language as solar DottedFlow', () => {
     const v = OUTAGE_VISUAL.pwHome;
-    expect(v.outerHaloStrokeWidth).toBeGreaterThan(v.midHaloStrokeWidth);
-    expect(v.midHaloStrokeWidth).toBeGreaterThan(v.coreStrokeWidth);
+    // Guide path is faint but slightly stronger than calm solar (0.45 / 0.18)
+    // so the dominance still reads at a glance.
+    expect(v.guideStrokeWidth).toBeGreaterThanOrEqual(0.5);
+    expect(v.guideStrokeWidth).toBeLessThanOrEqual(0.9);
+    expect(v.guideOpacity).toBeGreaterThanOrEqual(0.2);
+    expect(v.guideOpacity).toBeLessThanOrEqual(0.45);
   });
 
-  it('pw-home is the dominant route — core stroke noticeably thicker than calm DottedFlow (0.45)', () => {
-    // DottedFlow's calm baseline guide path is strokeWidth 0.45.
-    // Outage core must read as a real "current" line, not a hint.
-    expect(OUTAGE_VISUAL.pwHome.coreStrokeWidth).toBeGreaterThanOrEqual(1.2);
+  it('halo is a single soft layer — not the old triple-blur stack', () => {
+    const v = OUTAGE_VISUAL.pwHome;
+    // Single halo should sit above the guide width but stay subtle.
+    expect(v.haloStrokeWidth).toBeGreaterThan(v.guideStrokeWidth);
+    expect(v.haloStrokeWidth).toBeLessThanOrEqual(2.4);
   });
 
-  it('particle stream is dense enough to read as continuous current', () => {
-    expect(OUTAGE_VISUAL.pwHome.particleCount).toBeGreaterThanOrEqual(4);
-    expect(OUTAGE_VISUAL.pwHome.particleRadius).toBeGreaterThanOrEqual(1.0);
+  it('particle stream is dense and fast enough to read as active current', () => {
+    expect(OUTAGE_VISUAL.pwHome.particleCount).toBeGreaterThanOrEqual(5);
+    expect(OUTAGE_VISUAL.pwHome.particleRadius).toBeGreaterThan(0.6);
+    expect(OUTAGE_VISUAL.pwHome.particleDurFactor).toBeLessThanOrEqual(0.7);
   });
 
   it('particle animation has a minimum floor so motion stays legible at low kW', () => {
-    expect(OUTAGE_VISUAL.pwHome.minParticleDurSec).toBeGreaterThan(0);
-    expect(OUTAGE_VISUAL.pwHome.minParticleDurSec).toBeLessThanOrEqual(1.5);
+    expect(OUTAGE_VISUAL.pwHome.particleMinDurSec).toBeGreaterThan(0);
+    expect(OUTAGE_VISUAL.pwHome.particleMinDurSec).toBeLessThanOrEqual(2.0);
   });
 
-  it('outer halo breathes — pulse delta is perceptible (≥ 0.15)', () => {
-    const p = OUTAGE_VISUAL.pwHome.outerHaloPulse;
-    expect(p.to - p.from).toBeGreaterThanOrEqual(0.15);
-    expect(p.durMs).toBeGreaterThanOrEqual(800);
+  it('halo breathes — pulse delta is perceptible (≥ 0.10)', () => {
+    const p = OUTAGE_VISUAL.pwHome.haloPulse;
+    expect(p.to - p.from).toBeGreaterThanOrEqual(0.10);
+    expect(p.durMs).toBeGreaterThanOrEqual(900);
     expect(p.durMs).toBeLessThanOrEqual(2000);
   });
 
@@ -49,18 +53,15 @@ describe('EnergyFlowScene — OUTAGE_VISUAL contract', () => {
 
   it('grid-offline line is dashed (not solid) so disconnect reads at a glance', () => {
     expect(OUTAGE_VISUAL.gridOffline.strokeDasharray).toMatch(/\d/);
-    // Should be thinner than the pw-home core so it visibly recedes.
-    expect(OUTAGE_VISUAL.gridOffline.strokeWidth).toBeLessThan(
-      OUTAGE_VISUAL.pwHome.coreStrokeWidth,
+    // Should be no thicker than the guide so it visibly recedes.
+    expect(OUTAGE_VISUAL.gridOffline.strokeWidth).toBeLessThanOrEqual(
+      OUTAGE_VISUAL.pwHome.guideStrokeWidth + 0.01,
     );
   });
 
   it('exact snapshot — locks the currently shipping tuning', () => {
-    // Stringify the frozen palette + numerics so a single assertion fails
-    // loudly when any knob shifts. Update intentionally with the commit.
     const expected =
-      '{"pwHome":{"coreStrokeWidth":1.6,"coreStroke":"hsl(38 100% 65% / 0.95)","midHaloStrokeWidth":2.4,"midHalo":"hsl(38 95% 62% / 0.6)","outerHaloStrokeWidth":4,"outerHalo":"hsl(38 95% 60% / 0.28)","outerHaloPulse":{"from":0.18,"to":0.42,"durMs":1200},"particleCount":5,"particleRadius":1.1,"minParticleDurSec":0.9,"chevron":{"width":2.2,"height":1.4,"opacity":0.95}},"solarDimOpacity":0.35,"gridOffline":{"stroke":"hsl(0 65% 55% / 0.55)","strokeWidth":0.55,"strokeDasharray":"1.4 2.4","opacity":0.7}}';
+      '{"pwHome":{"guideStrokeWidth":0.55,"guideStroke":"hsl(38 95% 55%)","guideOpacity":0.28,"haloStrokeWidth":1.6,"haloStroke":"hsl(38 95% 60% / 0.26)","haloPulse":{"from":0.18,"to":0.32,"durMs":1400},"particleCount":6,"particleRadius":0.75,"particleColor":"hsl(45 100% 80%)","particleMinDurSec":1.6,"particleDurFactor":0.55},"solarDimOpacity":0.35,"gridOffline":{"stroke":"hsl(0 65% 55% / 0.55)","strokeWidth":0.55,"strokeDasharray":"1.4 2.4","opacity":0.7}}';
     expect(JSON.stringify(OUTAGE_VISUAL)).toBe(expected);
   });
 });
-
