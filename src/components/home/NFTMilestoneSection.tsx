@@ -108,10 +108,10 @@ export function NFTMilestoneSection() {
         {/* Header */}
         <div className="text-center mb-12">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}>
-            <Badge variant="outline" className="px-3 py-1 border-token/40 bg-token/10 text-token font-medium mb-4">
+            <span className="inline-flex items-center text-[11px] uppercase tracking-[0.24em] text-secondary/90 mb-4">
               <Award className="h-3 w-3 mr-1.5" />
               42 Achievement NFTs
-            </Badge>
+            </span>
           </motion.div>
           <motion.h2
             initial={{ opacity: 0, y: 12 }}
