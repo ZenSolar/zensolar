@@ -962,7 +962,9 @@ export function EnergyFlowScene({
       )}
 
 
-      {/* Floating labels */}
+      {/* Floating labels — during outage, top-right and bottom-right are
+          re-purposed as the integrated outage hero stats so the house
+          diagram itself carries the critical numbers (no separate panel). */}
       <FlowLabel
         position="tl"
         label="Solar"
@@ -971,15 +973,27 @@ export function EnergyFlowScene({
         accent="green"
         active={solarProducing}
       />
-      <FlowLabel
-        position="tr"
-        label="Home"
-        value={fmtKw(home)}
-        sub={isOutage && homeDrawing ? 'On Backup' : homeDrawing ? 'Drawing' : 'Idle'}
-        accent={isOutage && homeDrawing ? 'amber' : homeDrawing ? 'green' : 'muted'}
-        active={homeDrawing}
-        hero
-      />
+      {isOutage ? (
+        <FlowLabel
+          position="tr"
+          label="Backup remaining"
+          value={outageBackupLabel ?? '—'}
+          sub={`Battery ${soc}% · Providing backup`}
+          accent="amber"
+          active
+          hero
+        />
+      ) : (
+        <FlowLabel
+          position="tr"
+          label="Home"
+          value={fmtKw(home)}
+          sub={homeDrawing ? 'Drawing' : 'Idle'}
+          accent={homeDrawing ? 'green' : 'muted'}
+          active={homeDrawing}
+          hero
+        />
+      )}
       {hasBattery ? (
         <FlowLabel
           position="bl"
@@ -1006,14 +1020,58 @@ export function EnergyFlowScene({
         />
       ) : null}
 
-      <FlowLabel
-        position="br"
-        label="Grid"
-        value={isOutage ? 'Offline' : `${fmtKw(grid)} ${arrow(grid)}`.trim()}
-        sub={isOutage ? 'Disconnected' : gridImporting ? 'Importing' : gridExporting ? 'Exporting' : 'Balanced'}
-        accent={isOutage ? 'amber' : gridExporting ? 'blue' : gridImporting ? 'amber' : 'muted'}
-        active={!isOutage && Math.abs(grid) > 0.05}
-      />
+      {isOutage ? (
+        <FlowLabel
+          position="br"
+          label="From Battery"
+          value={fmtKw(Math.max(0, -battery))}
+          sub="Powering your home"
+          accent="amber"
+          active
+        />
+      ) : (
+        <FlowLabel
+          position="br"
+          label="Grid"
+          value={`${fmtKw(grid)} ${arrow(grid)}`.trim()}
+          sub={gridImporting ? 'Importing' : gridExporting ? 'Exporting' : 'Balanced'}
+          accent={gridExporting ? 'blue' : gridImporting ? 'amber' : 'muted'}
+          active={Math.abs(grid) > 0.05}
+        />
+      )}
+
+      {/* Calm "On Battery Backup" banner overlaid at the top of the scene
+          during outage. Single line, low chrome — the house diagram + corner
+          stats carry the visual weight. */}
+      {isOutage && (
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-30 flex justify-center px-3 pt-2">
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-500/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-200 shadow-[0_4px_16px_-6px_hsl(38_95%_30%/0.5)] backdrop-blur-sm">
+            <span className="relative inline-flex h-1.5 w-1.5">
+              <span className="absolute inset-0 inline-flex h-full w-full animate-ping rounded-full bg-amber-400 motion-reduce:animate-none" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-amber-400" />
+            </span>
+            On Battery Backup
+            {outageStartedAt && (
+              <span className="ml-1 font-medium normal-case tracking-normal text-amber-200/80">
+                · {formatOutageSince(outageStartedAt)}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
+}
+
+/** Format "Since 4:32 PM · 12 min ago" for the calm outage banner. */
+function formatOutageSince(value: Date | string): string {
+  const d = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(d.getTime())) return '';
+  const clock = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const elapsed = Date.now() - d.getTime();
+  if (elapsed >= 0 && elapsed < 60 * 60_000) {
+    const mins = Math.max(1, Math.round(elapsed / 60_000));
+    return `Since ${clock} · ${mins} min ago`;
+  }
+  return `Since ${clock}`;
 }
