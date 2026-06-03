@@ -49,6 +49,15 @@ interface DeasonChatProps {
   onDeleteThread?: (id: string) => void | Promise<void>;
   /** Toggle pin on a saved thread. */
   onTogglePinThread?: (id: string) => void | Promise<void>;
+  /** Surface-specific context (e.g. live grid outage) that overrides the
+   *  generic chat chrome with situation-appropriate copy + a status pill. */
+  contextMeta?: {
+    kind?: string;
+    backupLabel?: string;
+    socPct?: number | null;
+    dischargeKw?: number | null;
+    [k: string]: unknown;
+  } | null;
 }
 
 
