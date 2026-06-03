@@ -423,7 +423,7 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
             <SkeletonMessage align="left" widthClass="w-4/5" />
           </div>
         )}
-        {!loadingHistory && messages.length === 0 && (
+        {!loadingHistory && messages.length === 0 && !suppressEmptyState && (
           <EmptyState
             title={welcomeTitle}
             body={welcomeBody}
@@ -432,6 +432,7 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
             onPick={(q) => void send(q)}
           />
         )}
+
 
         <div className="space-y-3">
           {messages.map((m, i) => {
