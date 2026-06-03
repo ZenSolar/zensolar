@@ -103,7 +103,7 @@ const ONBOARDING_PROMPTS = [
  * Persona-aware: shows different welcome copy + suggested prompts depending on
  * whether the viewer is inner-circle or a regular demo/beta user.
  */
-export function DeasonChat({ onClose, compact = false, threadId = null, onNewThread, onUserMessage, highlightQuery, threads, onSwitchThread, onViewAllChats, onRenameThread, onDeleteThread, onTogglePinThread }: DeasonChatProps) {
+export function DeasonChat({ onClose, compact = false, threadId = null, onNewThread, onUserMessage, highlightQuery, threads, onSwitchThread, onViewAllChats, onRenameThread, onDeleteThread, onTogglePinThread, contextMeta = null }: DeasonChatProps) {
   const { messages, streaming, error, send, reset, seedAssistant, loadingHistory, popLastAssistant } = useDeason({
     threadId,
     onThreadTouched: onUserMessage,
