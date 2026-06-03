@@ -681,39 +681,98 @@ export function EnergyFlowScene({
           </g>
         )}
 
-        {/* Outage-mode hero glow: a wide amber halo underneath the
-            powerwall→home dotted flow so it visibly dominates the diagram. */}
+        {/* Outage-mode hero: dominant amber halo + dense particle stream
+            below the powerwall→home line so the eye lands on it instantly. */}
         {flows.has('pw-home') && isOutage && (
-          <>
+          <g style={{ pointerEvents: 'none' }}>
+            {/* Soft outer pulse */}
             <path
               d={BLUEPRINT_PATHS.powerwallToHome}
-              stroke="hsl(38 95% 60% / 0.55)"
+              stroke="hsl(38 95% 60% / 0.28)"
+              strokeWidth={4.0}
+              strokeLinecap="round"
+              fill="none"
+              style={{ filter: 'blur(4px)' }}
+            >
+              <animate
+                attributeName="stroke-opacity"
+                values="0.18;0.42;0.18"
+                dur="1.2s"
+                repeatCount="indefinite"
+              />
+            </path>
+            {/* Mid halo */}
+            <path
+              d={BLUEPRINT_PATHS.powerwallToHome}
+              stroke="hsl(38 95% 62% / 0.6)"
               strokeWidth={2.4}
               strokeLinecap="round"
               fill="none"
               style={{ filter: 'blur(2.2px)' }}
             />
+            {/* Bright core line */}
             <path
+              id="flow-pw-home"
               d={BLUEPRINT_PATHS.powerwallToHome}
-              stroke="hsl(38 95% 60% / 0.85)"
-              strokeWidth={0.9}
+              stroke="hsl(38 100% 65% / 0.95)"
+              strokeWidth={1.6}
               strokeLinecap="round"
               fill="none"
-              style={{ filter: 'blur(0.4px)' }}
+              style={{ filter: 'blur(0.3px)' }}
             />
-          </>
+            {/* Dense particle stream — 5 amber droplets, fast steady cadence */}
+            {[0, 0.2, 0.4, 0.6, 0.8].map((offset) => {
+              const dur = Math.max(0.9, flowDur(Math.max(0.5, Math.abs(battery))) * 0.5);
+              return (
+                <circle key={`pw-home-out-${offset}`} r={1.1} fill={AMBER_LED} opacity={0}>
+                  <animateMotion
+                    dur={`${dur}s`}
+                    repeatCount="indefinite"
+                    begin={`${offset * dur}s`}
+                    calcMode="linear"
+                    keyPoints="0;1"
+                    keyTimes="0;1"
+                  >
+                    <mpath href="#flow-pw-home" />
+                  </animateMotion>
+                  <animate
+                    attributeName="opacity"
+                    values="0;1;1;0"
+                    keyTimes="0;0.1;0.9;1"
+                    dur={`${dur}s`}
+                    repeatCount="indefinite"
+                    begin={`${offset * dur}s`}
+                  />
+                </circle>
+              );
+            })}
+            {/* Directional chevron riding the path — reinforces flow direction. */}
+            <polygon points="0,-1.4 2.2,0 0,1.4" fill={AMBER_LED} opacity={0.95}>
+              <animateMotion
+                dur={`${Math.max(1.2, flowDur(Math.max(0.5, Math.abs(battery))) * 0.7)}s`}
+                repeatCount="indefinite"
+                rotate="auto"
+                calcMode="linear"
+                keyPoints="0;1"
+                keyTimes="0;1"
+              >
+                <mpath href="#flow-pw-home" />
+              </animateMotion>
+            </polygon>
+          </g>
         )}
-        {flows.has('pw-home') && (
+        {flows.has('pw-home') && !isOutage && (
           <DottedFlow
             id="flow-pw-home"
             d={BLUEPRINT_PATHS.powerwallToHome}
             color={AMBER_LED}
-            dur={isOutage ? Math.max(0.55, flowDur(Math.max(0.5, Math.abs(battery))) * 0.55) : flowDur(Math.max(0.5, Math.abs(battery)))}
+            dur={flowDur(Math.max(0.5, Math.abs(battery)))}
           />
         )}
         {flows.has('pw-home') && batteryCount >= 2 && (
           <DottedFlow id="flow-pw-home-2" d={BLUEPRINT_PATHS.powerwall2ToHome} color={AMBER_LED} dur={flowDur(Math.max(0.5, Math.abs(battery)))} />
         )}
+
 
         {flows.has('charger-ev') && (
           <DottedFlow id="flow-charger-ev" d={BLUEPRINT_PATHS.chargerToEv} color={EMERALD_LED} dur={flowDur(data.evPower ?? 7)} />
