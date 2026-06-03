@@ -147,7 +147,12 @@ export function InvestorEnergyFlowCard() {
               ZenEnergy Monitoring · Live
             </h3>
             {outageSim ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-300 ring-1 ring-amber-400/40">
+              <span
+                className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-300 ring-1 ring-amber-400/40"
+                title="Grid outage simulation is active — UI, stats, and Deason are running in outage mode."
+                aria-label="Demo Outage Mode Active"
+                data-testid="outage-sim-active-chip"
+              >
                 <span className="relative inline-flex h-1.5 w-1.5">
                   <span className="absolute inset-0 inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-70" />
                   <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-amber-400" />
