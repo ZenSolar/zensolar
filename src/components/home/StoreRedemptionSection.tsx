@@ -41,10 +41,10 @@ export function StoreRedemptionSection() {
       <div className="container max-w-5xl mx-auto px-5 relative z-10">
         <div className="text-center mb-14">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-            <Badge variant="outline" className="px-3 py-1 border-solar/40 bg-solar/10 text-solar font-medium mb-4">
+            <span className="inline-flex items-center text-[11px] uppercase tracking-[0.24em] text-secondary/90 mb-4">
               <ShoppingBag className="h-3 w-3 mr-1.5" />
               $ZSOLAR Store
-            </Badge>
+            </span>
           </motion.div>
           <motion.h2
             initial={{ opacity: 0, y: 10 }}
