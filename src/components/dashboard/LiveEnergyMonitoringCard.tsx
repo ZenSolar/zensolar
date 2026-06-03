@@ -30,6 +30,7 @@ import { ChargerOnlyLiveCard } from './ChargerOnlyLiveCard';
 import { useChargerDevices } from '@/hooks/useChargerDevices';
 import { OutageModePanel } from './OutageModePanel';
 import { useGridOutage } from '@/hooks/useGridOutage';
+import { useOutageLifecycle } from '@/hooks/useOutageLifecycle';
 
 function getPath(payload: any, path: string): unknown {
   return path.split('.').reduce((acc, key) => {
@@ -618,6 +619,28 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
   const primaryEv = ev.data[0];
   const solarStats = solarSnapshot(primarySolar);
   const batteryStats = batterySnapshot(primaryBattery);
+
+  // Side-effects on outage transitions: push notifications, proactive Deason,
+  // and outage-history logging. Renders nothing.
+  useOutageLifecycle({
+    isGridOutage: autoOutage.isGridOutage,
+    since: autoOutage.since,
+    source: autoOutage.source ?? 'tesla',
+    batteryStats: {
+      soc: batteryStats.soc,
+      capacityKwh: batteryStats.capacityKwh,
+      powerKw: batteryStats.powerKw,
+    },
+    solarKw: solarStats.currentKw ?? 0,
+    primaryBattery: primaryBattery
+      ? {
+          device_id: (primaryBattery as { device_id?: string | null }).device_id ?? null,
+          device_name: (primaryBattery as { device_name?: string | null }).device_name ?? null,
+          oem: (primaryBattery as { oem?: string | null }).oem ?? null,
+        }
+      : null,
+    batteryCount: battery.data?.length ?? 1,
+  });
   const teslaFlow = useMemo(
     () => deriveTeslaFlow(primaryEv, !!isActivelyCharging),
     [primaryEv, isActivelyCharging]
