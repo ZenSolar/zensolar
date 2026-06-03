@@ -714,20 +714,21 @@ export function EnergyFlowScene({
         {/* In Outage Mode, solar flows are dimmed so the eye lands on
             battery → home as the dominant route. */}
         {flows.has('solar-home') && (
-          <g opacity={isOutage ? 0.35 : 1}>
+          <g opacity={isOutage ? OUTAGE_VISUAL.solarDimOpacity : 1}>
             <DottedFlow id="flow-solar-home" d={BLUEPRINT_PATHS.solarToHome} color={EMERALD_LED} dur={flowDur(solar)} />
           </g>
         )}
         {flows.has('solar-pw') && (
-          <g opacity={isOutage ? 0.35 : 1}>
+          <g opacity={isOutage ? OUTAGE_VISUAL.solarDimOpacity : 1}>
             <DottedFlow id="flow-solar-pw" d={BLUEPRINT_PATHS.solarToPowerwall} color={EMERALD_LED} dur={flowDur(battery)} />
           </g>
         )}
         {flows.has('solar-pw') && batteryCount >= 2 && (
-          <g opacity={isOutage ? 0.35 : 1}>
+          <g opacity={isOutage ? OUTAGE_VISUAL.solarDimOpacity : 1}>
             <DottedFlow id="flow-solar-pw-2" d={BLUEPRINT_PATHS.solarToPowerwall2} color={EMERALD_LED} dur={flowDur(battery)} />
           </g>
         )}
+
 
         {/* Outage-mode hero: dominant amber halo + dense particle stream
             below the powerwall→home line so the eye lands on it instantly.
