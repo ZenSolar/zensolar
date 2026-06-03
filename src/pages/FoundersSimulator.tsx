@@ -650,6 +650,97 @@ function SimulatorContent() {
                 }
               />
             </Collapsible>
+
+            <Collapsible title="Secondary Revenue Streams" badge="New">
+              <div className="rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-[11px] text-muted-foreground">
+                Recycle revenue from Deason AI, VPP, utility data sales, carbon credits, and other
+                non-token streams directly into the LP to accelerate flywheel self-sufficiency.
+              </div>
+              <div className="flex items-center justify-between">
+                <Label className="text-xs">Include secondary revenue in LP</Label>
+                <Switch
+                  checked={config.secondaryRevenue.enabled}
+                  onCheckedChange={(v) =>
+                    update({ secondaryRevenue: { ...config.secondaryRevenue, enabled: v } })
+                  }
+                />
+              </div>
+              <NumberField
+                label="Monthly projected revenue (USD)"
+                value={config.secondaryRevenue.monthlyUSD}
+                step={5_000}
+                onChange={(v) =>
+                  update({ secondaryRevenue: { ...config.secondaryRevenue, monthlyUSD: v } })
+                }
+              />
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Allocation mode</Label>
+                <Select
+                  value={config.secondaryRevenue.allocationMode}
+                  onValueChange={(v) =>
+                    update({
+                      secondaryRevenue: {
+                        ...config.secondaryRevenue,
+                        allocationMode: v as "percent" | "fixed",
+                      },
+                    })
+                  }
+                >
+                  <SelectTrigger className="bg-background/60">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="percent">% of revenue → LP</SelectItem>
+                    <SelectItem value="fixed">Fixed $/mo → LP</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {config.secondaryRevenue.allocationMode === "percent" ? (
+                <SliderField
+                  label={`Percent to LP (${config.secondaryRevenue.allocationPct}%)`}
+                  value={config.secondaryRevenue.allocationPct}
+                  min={0}
+                  max={100}
+                  onChange={(v) =>
+                    update({
+                      secondaryRevenue: { ...config.secondaryRevenue, allocationPct: v },
+                    })
+                  }
+                />
+              ) : (
+                <NumberField
+                  label="Fixed USD to LP / month"
+                  value={config.secondaryRevenue.allocationFixedUSD}
+                  step={2_500}
+                  onChange={(v) =>
+                    update({
+                      secondaryRevenue: { ...config.secondaryRevenue, allocationFixedUSD: v },
+                    })
+                  }
+                />
+              )}
+              <NumberField
+                label="Monthly revenue growth (decimal, e.g. 0.05 = +5%/mo)"
+                value={config.secondaryRevenue.growthRatePerMonth}
+                step={0.01}
+                onChange={(v) =>
+                  update({
+                    secondaryRevenue: { ...config.secondaryRevenue, growthRatePerMonth: v },
+                  })
+                }
+              />
+              <div className="flex items-center justify-between">
+                <Label className="text-xs">Use before treasury buyback</Label>
+                <Switch
+                  checked={config.secondaryRevenue.priorityBeforeBuyback}
+                  onCheckedChange={(v) =>
+                    update({
+                      secondaryRevenue: { ...config.secondaryRevenue, priorityBeforeBuyback: v },
+                    })
+                  }
+                />
+              </div>
+            </Collapsible>
           </div>
 
           {/* Charts */}
