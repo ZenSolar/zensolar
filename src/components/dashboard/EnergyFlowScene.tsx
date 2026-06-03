@@ -560,9 +560,9 @@ export function EnergyFlowScene({
               cy={HOME_BLUEPRINT.powerwall.y}
               color={isOutage ? AMBER : pwCharging ? EMERALD : AMBER}
               active={isOutage || pwCharging || pwDischarging}
-              intensity={isOutage ? Math.max(0.75, intensity(battery)) : intensity(battery)}
-              radius={isOutage ? 5.4 : 4.6}
-              pulseMs={isOutage ? 1400 : pwCharging ? 2800 : 2400}
+              intensity={isOutage ? Math.max(0.95, intensity(battery)) : intensity(battery)}
+              radius={isOutage ? 6.4 : 4.6}
+              pulseMs={isOutage ? 1100 : pwCharging ? 2800 : 2400}
             />
           </>
         )}
