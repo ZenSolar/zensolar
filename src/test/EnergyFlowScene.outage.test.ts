@@ -58,8 +58,9 @@ describe('EnergyFlowScene — OUTAGE_VISUAL contract', () => {
   it('exact snapshot — locks the currently shipping tuning', () => {
     // Stringify the frozen palette + numerics so a single assertion fails
     // loudly when any knob shifts. Update intentionally with the commit.
-    expect(JSON.stringify(OUTAGE_VISUAL)).toMatchInlineSnapshot(
-      `"{\\"pwHome\\":{\\"coreStrokeWidth\\":1.6,\\"coreStroke\\":\\"hsl(38 100% 65% / 0.95)\\",\\"midHaloStrokeWidth\\":2.4,\\"midHalo\\":\\"hsl(38 95% 62% / 0.6)\\",\\"outerHaloStrokeWidth\\":4,\\"outerHalo\\":\\"hsl(38 95% 60% / 0.28)\\",\\"outerHaloPulse\\":{\\"from\\":0.18,\\"to\\":0.42,\\"durMs\\":1200},\\"particleCount\\":5,\\"particleRadius\\":1.1,\\"minParticleDurSec\\":0.9,\\"chevron\\":{\\"width\\":2.2,\\"height\\":1.4,\\"opacity\\":0.95}},\\"solarDimOpacity\\":0.35,\\"gridOffline\\":{\\"stroke\\":\\"hsl(0 65% 55% / 0.55)\\",\\"strokeWidth\\":0.55,\\"strokeDasharray\\":\\"1.4 2.4\\",\\"opacity\\":0.7}}"`,
-    );
+    const expected =
+      '{"pwHome":{"coreStrokeWidth":1.6,"coreStroke":"hsl(38 100% 65% / 0.95)","midHaloStrokeWidth":2.4,"midHalo":"hsl(38 95% 62% / 0.6)","outerHaloStrokeWidth":4,"outerHalo":"hsl(38 95% 60% / 0.28)","outerHaloPulse":{"from":0.18,"to":0.42,"durMs":1200},"particleCount":5,"particleRadius":1.1,"minParticleDurSec":0.9,"chevron":{"width":2.2,"height":1.4,"opacity":0.95}},"solarDimOpacity":0.35,"gridOffline":{"stroke":"hsl(0 65% 55% / 0.55)","strokeWidth":0.55,"strokeDasharray":"1.4 2.4","opacity":0.7}}';
+    expect(JSON.stringify(OUTAGE_VISUAL)).toBe(expected);
   });
 });
+
