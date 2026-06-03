@@ -28,6 +28,7 @@ import { LiveCardHeader } from './LiveCardHeader';
 
 import { ChargerOnlyLiveCard } from './ChargerOnlyLiveCard';
 import { useChargerDevices } from '@/hooks/useChargerDevices';
+import { OutageModePanel } from './OutageModePanel';
 
 function getPath(payload: any, path: string): unknown {
   return path.split('.').reduce((acc, key) => {
@@ -536,7 +537,12 @@ export function TeslaStatusPill({ tesla, onClick }: { tesla: TeslaFlow | null; o
 }
 
 
-export function LiveEnergyMonitoringCard() {
+export interface LiveEnergyMonitoringCardProps {
+  /** When provided and active, replaces the live flow scene with Outage Mode. */
+  outage?: { active: boolean; startedAt: Date | string };
+}
+
+export function LiveEnergyMonitoringCard({ outage }: LiveEnergyMonitoringCardProps = {}) {
   const solar = useSolarTelemetry();
   const battery = useBatteryTelemetry();
   const ev = useEVChargerTelemetry();
@@ -783,36 +789,47 @@ export function LiveEnergyMonitoringCard() {
       ) : (
         <div className="space-y-3">
           <div className="overflow-hidden rounded-xl border border-primary/20 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.12),transparent_70%),radial-gradient(circle_at_bottom,hsl(220_60%_8%/0.6),transparent_60%)] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04),0_8px_30px_-8px_hsl(220_60%_4%/0.6)]">
-            <Suspense fallback={<div className="aspect-square w-full animate-pulse bg-card/10" aria-hidden="true" />}>
-              <EnergyFlowScene
-                className="aspect-square w-full"
-                data={flowData}
-                hasBattery={hasBattery}
-                hasCharger={hasCharger}
-                hasTesla={hasTesla}
-                teslaPayload={
-                  primaryEv?.oem === 'tesla'
-                    ? {
-                        ...((primaryEv?.payload as Record<string, unknown>) ?? {}),
-                        device_name: primaryEv?.device_name,
-                        display_name:
-                          (primaryEv?.payload as any)?.display_name ?? primaryEv?.device_name,
-                        metadata: {
-                          ...(((primaryEv as any)?.metadata as Record<string, unknown>) ?? {}),
-                          device_name: primaryEv?.device_name,
-                          vin:
-                            (primaryEv as any)?.device_id ?? (primaryEv?.payload as any)?.vin,
-                        },
-                      }
-                    : undefined
-                }
-                batteryPayload={primaryBattery?.payload}
-                batteryCount={battery.data?.length ?? 1}
-                vehicleModel={null}
-
+            {outage?.active ? (
+              <OutageModePanel
+                socPct={batteryStats.soc ?? 0}
+                usableCapacityKwh={batteryStats.capacityKwh ?? 13.5}
+                dischargeKw={Math.max(0, -(batteryStats.powerKw ?? 0))}
+                outageStartedAt={outage.startedAt}
+                solarProducingKw={solarStats.currentKw ?? 0}
+                className="rounded-none border-0"
               />
+            ) : (
+              <Suspense fallback={<div className="aspect-square w-full animate-pulse bg-card/10" aria-hidden="true" />}>
+                <EnergyFlowScene
+                  className="aspect-square w-full"
+                  data={flowData}
+                  hasBattery={hasBattery}
+                  hasCharger={hasCharger}
+                  hasTesla={hasTesla}
+                  teslaPayload={
+                    primaryEv?.oem === 'tesla'
+                      ? {
+                          ...((primaryEv?.payload as Record<string, unknown>) ?? {}),
+                          device_name: primaryEv?.device_name,
+                          display_name:
+                            (primaryEv?.payload as any)?.display_name ?? primaryEv?.device_name,
+                          metadata: {
+                            ...(((primaryEv as any)?.metadata as Record<string, unknown>) ?? {}),
+                            device_name: primaryEv?.device_name,
+                            vin:
+                              (primaryEv as any)?.device_id ?? (primaryEv?.payload as any)?.vin,
+                          },
+                        }
+                      : undefined
+                  }
+                  batteryPayload={primaryBattery?.payload}
+                  batteryCount={battery.data?.length ?? 1}
+                  vehicleModel={null}
 
-            </Suspense>
+                />
+
+              </Suspense>
+            )}
 
           </div>
 
