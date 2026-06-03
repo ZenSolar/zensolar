@@ -959,6 +959,7 @@ function SimulatorContent() {
         <HowItWorks />
       </main>
     </div>
+    </TooltipProvider>
   );
 }
 
