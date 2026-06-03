@@ -20,7 +20,7 @@ describe('formatBackupLabel', () => {
     expect(formatBackupLabel(3.5)).toBe('~3h 30m');
   });
   it('rounds sub-hour to nearest 5 min', () => {
-    expect(formatBackupLabel(0.7)).toBe('~45 min'); // 42 → 45
+    expect(formatBackupLabel(0.7)).toBe('~40 min'); // 42 → nearest 5 = 40
     expect(formatBackupLabel(0.05)).toBe('~5 min'); // 3 → 5 floor
   });
 });
