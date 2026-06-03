@@ -1523,7 +1523,7 @@ function KPIHint({ label, hint }: { label: string; hint: KpiExplain }) {
           <Info className="h-3 w-3" />
         </button>
       </TooltipTrigger>
-      <TooltipContent side="top" className="max-w-[280px] text-left">
+      <TooltipContent side="top" sideOffset={6} collisionPadding={12} className="max-w-[min(280px,calc(100vw-24px))] text-left">
         <div className="font-semibold text-xs mb-1 text-foreground normal-case tracking-normal">
           {label}
         </div>
