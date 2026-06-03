@@ -137,4 +137,46 @@ describe('useOutageLifecycle', () => {
     // Only the "start" push so far (no long-outage threshold crossed).
     expect(invoke).toHaveBeenCalledTimes(1);
   });
+
+  it('on recovery: records peak load and deason_interacted=true after user message', async () => {
+    const start = new Date();
+    const { rerender } = renderHook(({ p }: { p: OutageLifecycleInput }) => useOutageLifecycle(p), {
+      initialProps: { p: baseInput({ isGridOutage: true, since: start, homeKw: 3.2 }) },
+    });
+    await act(async () => { await Promise.resolve(); });
+
+    // User taps Deason and sends a message mid-outage.
+    await act(async () => {
+      window.dispatchEvent(new CustomEvent('deason:user-message'));
+    });
+
+    // Household load spikes higher.
+    await act(async () => {
+      rerender({ p: baseInput({ isGridOutage: true, since: start, homeKw: 7.4 }) });
+    });
+
+    // Recovery
+    await act(async () => {
+      rerender({ p: baseInput({ isGridOutage: false }) });
+    });
+
+    const updatePayload = updateFn.mock.calls.at(-1)?.[0] as {
+      peak_load_kw: number;
+      deason_interacted: boolean;
+    };
+    expect(updatePayload.peak_load_kw).toBeGreaterThanOrEqual(7.4);
+    expect(updatePayload.deason_interacted).toBe(true);
+  });
+
+  it('on recovery: deason_interacted=false when user never sent a message', async () => {
+    const start = new Date();
+    const { rerender } = renderHook(({ p }: { p: OutageLifecycleInput }) => useOutageLifecycle(p), {
+      initialProps: { p: baseInput({ isGridOutage: true, since: start, homeKw: 2 }) },
+    });
+    await act(async () => { await Promise.resolve(); });
+    await act(async () => { rerender({ p: baseInput({ isGridOutage: false }) }); });
+
+    const updatePayload = updateFn.mock.calls.at(-1)?.[0] as { deason_interacted: boolean };
+    expect(updatePayload.deason_interacted).toBe(false);
+  });
 });
