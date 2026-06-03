@@ -30,6 +30,7 @@ import { ChargerOnlyLiveCard } from './ChargerOnlyLiveCard';
 import { useChargerDevices } from '@/hooks/useChargerDevices';
 import { OutageModePanel } from './OutageModePanel';
 import { useGridOutage } from '@/hooks/useGridOutage';
+import { useOutageLifecycle } from '@/hooks/useOutageLifecycle';
 
 function getPath(payload: any, path: string): unknown {
   return path.split('.').reduce((acc, key) => {
