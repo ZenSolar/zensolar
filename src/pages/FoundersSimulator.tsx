@@ -383,12 +383,19 @@ function SimulatorContent() {
           </div>
         </Card>
 
+        {/* Scenario Grade — prominent A–F evaluation */}
+        <ScenarioGradeCard grade={grade} />
+
         {/* Headline KPIs */}
         <HeadlineKPIs config={config} result={result} />
 
         <RealTimeKPIs config={config} result={result} />
 
         <FlywheelHealth config={config} result={result} />
+
+        {/* Side-by-side comparison: secondary revenue ON vs OFF */}
+        <ComparisonTable config={config} result={result} baseline={baselineResult} />
+
 
 
         {/* Main grid */}
