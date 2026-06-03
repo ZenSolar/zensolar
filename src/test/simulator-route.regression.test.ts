@@ -68,4 +68,16 @@ describe("Auth.tsx — post-login redirect contract", () => {
   it("routes the value through safeRedirectPath (no raw navigate)", () => {
     expect(src).toContain("safeRedirectPath");
   });
+
+  it("does not drop simulator redirects after email/password login", () => {
+    expect(src).not.toContain("navigate('/');");
+    expect(src).toMatch(
+      /navigate\(safeRedirectPath\(searchParams\.get\(['"]redirect['"]\), ['"]\/['"]\), \{ replace: true \}\)/,
+    );
+  });
+
+  it("preserves simulator redirects through social login", () => {
+    expect(src).toContain("const redirectTo = safeRedirectPath(searchParams.get('redirect'), '/');");
+    expect(src).toContain("redirect_uri: `${window.location.origin}${redirectTo}`");
+  });
 });
