@@ -345,11 +345,14 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
     ? REVIEWER_PROMPTS
     : PUBLIC_PROMPTS;
   const persistenceLabel = threadId ? "saved" : "ephemeral";
-  const headerSubtitle = isOnboardingSurface
+  const baseHeaderSubtitle = isOnboardingSurface
     ? `Setup helper · ${persistenceLabel}`
     : isDemoSurface
     ? `Investor preview · ${persistenceLabel}`
     : `Clean Energy Optimization · ${persistenceLabel}`;
+  const headerSubtitle = outageContext?.kind === 'grid_outage'
+    ? `Grid Outage · backup ~${outageContext.backupLabel ?? '—'}`
+    : baseHeaderSubtitle;
   const welcomeTitle = isOnboardingSurface
     ? "Need a hand setting up?"
     : isDemoSurface
@@ -363,7 +366,9 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
 
 
   const activeThread = threads?.find((t) => t.id === threadId);
-  const headerTitle = activeThread?.title || "Deason";
+  const headerTitle = outageContext?.kind === 'grid_outage'
+    ? 'On Battery Backup'
+    : (activeThread?.title || "Deason");
 
   return (
     <div className="relative flex h-full min-h-0 flex-col bg-background">
