@@ -110,8 +110,13 @@ export default function Auth() {
   useEffect(() => {
     // IMPORTANT: Don't auto-redirect during signup.
     // Signup has its own post-success navigation to /onboarding.
-    if (isAuthenticated && (mode === 'login' || mode === 'forgot')) navigate('/');
-  }, [isAuthenticated, navigate, mode]);
+    if (isAuthenticated && (mode === 'login' || mode === 'forgot')) {
+      const redirect = searchParams.get('redirect');
+      const safe = redirect && redirect.startsWith('/') && !redirect.startsWith('//') ? redirect : '/';
+      navigate(safe);
+    }
+  }, [isAuthenticated, navigate, mode, searchParams]);
+
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
