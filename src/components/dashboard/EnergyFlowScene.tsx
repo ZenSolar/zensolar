@@ -385,6 +385,9 @@ export interface EnergyFlowSceneProps {
   hasBattery?: boolean;
   hasCharger?: boolean;
   hasTesla?: boolean;
+  /** When true, render the scene in Grid Outage mode (grid disabled,
+   *  battery→home becomes the hero flow). */
+  isOutage?: boolean;
 }
 
 export function EnergyFlowScene({
@@ -398,6 +401,7 @@ export function EnergyFlowScene({
   hasBattery = true,
   hasCharger = true,
   hasTesla = true,
+  isOutage = false,
 }: EnergyFlowSceneProps) {
 
 
@@ -435,16 +439,25 @@ export function EnergyFlowScene({
   const homeDrawing = home > 0.05;
 
   const flows = useMemo(
-    () =>
-      pickPrimaryFlows({
+    () => {
+      const base = pickPrimaryFlows({
         solarProducing,
         pwCharging,
         pwDischarging,
         isCharging,
         gridExporting,
         gridImporting,
-      }),
-    [solarProducing, pwCharging, pwDischarging, isCharging, gridExporting, gridImporting],
+      });
+      if (isOutage) {
+        // Drop any grid flows and force battery→home as the hero flow
+        // whenever the home is drawing or the battery is discharging.
+        base.delete('home-grid');
+        base.delete('grid-home');
+        if (pwDischarging || homeDrawing) base.add('pw-home');
+      }
+      return base;
+    },
+    [solarProducing, pwCharging, pwDischarging, isCharging, gridExporting, gridImporting, isOutage, homeDrawing],
   );
 
   const fmtKw = (v: number) => `${Math.abs(v).toFixed(1)} kW`;
@@ -477,7 +490,7 @@ export function EnergyFlowScene({
   // pull up to the garage apron with the door visually "open"; otherwise
   // stay parked in the driveway.
   const prefersReducedMotion = useReducedMotion();
-  const chargingAtHome = isCharging && scene !== 'night-ev';
+  const chargingAtHome = isCharging && scene !== 'night-ev' && !isOutage;
   const carAnchor = chargingAtHome ? HOME_BLUEPRINT.garageFront : HOME_BLUEPRINT.carPark;
   const carW = HOME_BLUEPRINT.carWidth;
   const carH = HOME_BLUEPRINT.carHeight;
@@ -545,11 +558,11 @@ export function EnergyFlowScene({
             <DeviceHalo
               cx={HOME_BLUEPRINT.powerwall.x}
               cy={HOME_BLUEPRINT.powerwall.y}
-              color={pwCharging ? EMERALD : AMBER}
-              active={pwCharging || pwDischarging}
-              intensity={intensity(battery)}
-              radius={4.6}
-              pulseMs={pwCharging ? 2800 : 2400}
+              color={isOutage ? AMBER : pwCharging ? EMERALD : AMBER}
+              active={isOutage || pwCharging || pwDischarging}
+              intensity={isOutage ? Math.max(0.75, intensity(battery)) : intensity(battery)}
+              radius={isOutage ? 5.4 : 4.6}
+              pulseMs={isOutage ? 1400 : pwCharging ? 2800 : 2400}
             />
           </>
         )}
@@ -581,16 +594,36 @@ export function EnergyFlowScene({
 
 
 
-        {/* Grid meter — sky on import, cyan on export */}
+        {/* Grid meter — sky on import, cyan on export, muted amber + X on outage */}
         <DeviceHalo
           cx={HOME_BLUEPRINT.gridMeter.x}
           cy={HOME_BLUEPRINT.gridMeter.y}
-          color={gridExporting ? CYAN : SKY}
-          active={gridImporting || gridExporting}
-          intensity={intensity(grid) * 0.75}
-          radius={4.0}
-          pulseMs={2800}
+          color={isOutage ? AMBER : gridExporting ? CYAN : SKY}
+          active={isOutage || gridImporting || gridExporting}
+          intensity={isOutage ? 0.35 : intensity(grid) * 0.75}
+          radius={isOutage ? 3.4 : 4.0}
+          pulseMs={isOutage ? 5200 : 2800}
         />
+        {isOutage && (
+          <g style={{ pointerEvents: 'none' }}>
+            <circle
+              cx={HOME_BLUEPRINT.gridMeter.x}
+              cy={HOME_BLUEPRINT.gridMeter.y}
+              r={2.2}
+              fill="hsl(220 60% 6%)"
+              opacity={0.85}
+              stroke="hsl(0 75% 55% / 0.7)"
+              strokeWidth={0.4}
+            />
+            <path
+              d={`M ${HOME_BLUEPRINT.gridMeter.x - 1.2} ${HOME_BLUEPRINT.gridMeter.y - 1.2} L ${HOME_BLUEPRINT.gridMeter.x + 1.2} ${HOME_BLUEPRINT.gridMeter.y + 1.2} M ${HOME_BLUEPRINT.gridMeter.x + 1.2} ${HOME_BLUEPRINT.gridMeter.y - 1.2} L ${HOME_BLUEPRINT.gridMeter.x - 1.2} ${HOME_BLUEPRINT.gridMeter.y + 1.2}`}
+              stroke="hsl(0 85% 65%)"
+              strokeWidth={0.55}
+              strokeLinecap="round"
+              fill="none"
+            />
+          </g>
+        )}
 
         {/* Wall connector (inside garage) — soft standby when a charger is
             connected, emerald-pulse when an EV is actively charging. */}
@@ -639,11 +672,21 @@ export function EnergyFlowScene({
         {flows.has('solar-pw') && batteryCount >= 2 && (
           <DottedFlow id="flow-solar-pw-2" d={BLUEPRINT_PATHS.solarToPowerwall2} color={EMERALD_LED} dur={flowDur(battery)} />
         )}
+        {flows.has('pw-home') && isOutage && (
+          <path
+            d={BLUEPRINT_PATHS.powerwallToHome}
+            stroke="hsl(38 95% 60% / 0.45)"
+            strokeWidth={1.4}
+            strokeLinecap="round"
+            fill="none"
+            style={{ filter: 'blur(1.2px)' }}
+          />
+        )}
         {flows.has('pw-home') && (
-          <DottedFlow id="flow-pw-home" d={BLUEPRINT_PATHS.powerwallToHome} color={AMBER_LED} dur={flowDur(Math.abs(battery))} />
+          <DottedFlow id="flow-pw-home" d={BLUEPRINT_PATHS.powerwallToHome} color={AMBER_LED} dur={flowDur(Math.max(0.5, Math.abs(battery)))} />
         )}
         {flows.has('pw-home') && batteryCount >= 2 && (
-          <DottedFlow id="flow-pw-home-2" d={BLUEPRINT_PATHS.powerwall2ToHome} color={AMBER_LED} dur={flowDur(Math.abs(battery))} />
+          <DottedFlow id="flow-pw-home-2" d={BLUEPRINT_PATHS.powerwall2ToHome} color={AMBER_LED} dur={flowDur(Math.max(0.5, Math.abs(battery)))} />
         )}
 
         {flows.has('charger-ev') && (
@@ -797,8 +840,8 @@ export function EnergyFlowScene({
         position="tr"
         label="Home"
         value={fmtKw(home)}
-        sub={homeDrawing ? 'Drawing' : 'Idle'}
-        accent={homeDrawing ? 'green' : 'muted'}
+        sub={isOutage && homeDrawing ? 'On Backup' : homeDrawing ? 'Drawing' : 'Idle'}
+        accent={isOutage && homeDrawing ? 'amber' : homeDrawing ? 'green' : 'muted'}
         active={homeDrawing}
         hero
       />
@@ -831,10 +874,10 @@ export function EnergyFlowScene({
       <FlowLabel
         position="br"
         label="Grid"
-        value={`${fmtKw(grid)} ${arrow(grid)}`.trim()}
-        sub={gridImporting ? 'Importing' : gridExporting ? 'Exporting' : 'Balanced'}
-        accent={gridExporting ? 'blue' : gridImporting ? 'amber' : 'muted'}
-        active={Math.abs(grid) > 0.05}
+        value={isOutage ? 'Offline' : `${fmtKw(grid)} ${arrow(grid)}`.trim()}
+        sub={isOutage ? 'Disconnected' : gridImporting ? 'Importing' : gridExporting ? 'Exporting' : 'Balanced'}
+        accent={isOutage ? 'amber' : gridExporting ? 'blue' : gridImporting ? 'amber' : 'muted'}
+        active={!isOutage && Math.abs(grid) > 0.05}
       />
     </div>
   );
