@@ -147,13 +147,21 @@ export function CleanEnergyCenterShowcase() {
               {/* KPI cards */}
               <div className="space-y-3">
                 {kpiItems.map((item, i) => (
-                  <motion.div
+                  <motion.button
                     key={item.label}
+                    type="button"
+                    onClick={() => {
+                      mediumTap();
+                      toast.success(`Tap-to-Mint™ · ${item.label}`, {
+                        description: `${item.value} ${item.unit} ready to mint. Continue in the live demo.`,
+                      });
+                      navigate('/demo');
+                    }}
                     initial={{ opacity: 0, x: -10 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.2 + i * 0.08 }}
-                    className={`flex items-center gap-4 p-4 rounded-xl border border-border/40 bg-muted/30 border-l-2 border-l-secondary/50 group hover:bg-muted/60 transition-colors`}
+                    className={`w-full text-left flex items-center gap-4 p-4 rounded-xl border border-border/40 bg-muted/30 border-l-2 border-l-secondary/50 group hover:bg-muted/60 active:scale-[0.99] transition-all`}
                   >
                     <div className={`p-2.5 rounded-xl ${item.iconBg} flex-shrink-0`}>
                       <item.icon className={`h-5 w-5 ${item.iconColor}`} />
@@ -166,7 +174,7 @@ export function CleanEnergyCenterShowcase() {
                       </div>
                     </div>
                     <ChevronRight className="h-5 w-5 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors flex-shrink-0" />
-                  </motion.div>
+                  </motion.button>
                 ))}
               </div>
 
