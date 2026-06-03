@@ -21,6 +21,8 @@ import {
   Flame,
   Gauge,
   Coins,
+  Info,
+  GraduationCap,
 } from "lucide-react";
 import {
   LineChart,
@@ -32,7 +34,7 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
+  Tooltip as RTooltip,
   ResponsiveContainer,
   ReferenceLine,
   Legend,
@@ -47,14 +49,26 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import {
   buildDefaultConfig,
   simulate,
   type SimulatorConfig,
+  type SimulatorResult,
   type TierId,
   type StakingMixEntry,
 } from "@/lib/founderSimulator";
+import {
+  gradeScenario,
+  letterColor,
+  type ScenarioGrade,
+} from "@/lib/founderGrader";
 import { STAKING_MULTIPLIERS, formatUSD, formatTokenAmount } from "@/lib/tokenomics";
 import { downloadCsv, downloadFile, todayStamp } from "@/lib/csvExport";
 
