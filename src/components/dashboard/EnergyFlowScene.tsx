@@ -80,6 +80,54 @@ const CYAN_LED = 'hsl(180 95% 80%)';
 const WARM = 'hsl(38 90% 62%)';
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Outage-mode visual tuning
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// During Grid Outage Mode, the Battery → Home line must read as the dominant
+// route at a glance — the user should feel "I'm running on backup" without
+// needing to look at the panel copy. These constants centralize every knob
+// that affects that hierarchy so the look can be re-tuned in one place and
+// locked behind a snapshot test (src/test/EnergyFlowScene.outage.test.ts).
+//
+// All values are calibrated against the SVG viewBox 0–100 — small absolute
+// numbers translate to visually-prominent strokes once scaled to the card.
+//
+// Last tuned: 2026-06-03. Bumping any value here intentionally? Update the
+// snapshot test in the same commit.
+export const OUTAGE_VISUAL = {
+  /** Battery → Home hero flow during outage. */
+  pwHome: {
+    /** Bright core stroke that the particles ride on. */
+    coreStrokeWidth: 1.6,
+    coreStroke: 'hsl(38 100% 65% / 0.95)',
+    /** Mid amber halo (soft blur underneath core). */
+    midHaloStrokeWidth: 2.4,
+    midHalo: 'hsl(38 95% 62% / 0.6)',
+    /** Outermost pulse — animates opacity for a slow breathing effect. */
+    outerHaloStrokeWidth: 4.0,
+    outerHalo: 'hsl(38 95% 60% / 0.28)',
+    outerHaloPulse: { from: 0.18, to: 0.42, durMs: 1200 },
+    /** Particle stream density. 5 amber droplets at r=1.1 = "dense current". */
+    particleCount: 5,
+    particleRadius: 1.1,
+    /** Minimum animation duration floor — keeps motion legible even at low kW. */
+    minParticleDurSec: 0.9,
+    /** Directional chevron polygon (triangle pointing along path direction). */
+    chevron: { width: 2.2, height: 1.4, opacity: 0.95 },
+  },
+  /** Solar flows are dimmed during outage so the eye lands on pw-home. */
+  solarDimOpacity: 0.35,
+  /** Grid line is rendered broken/dashed to signal disconnect. */
+  gridOffline: {
+    stroke: 'hsl(0 65% 55% / 0.55)',
+    strokeWidth: 0.55,
+    strokeDasharray: '1.4 2.4',
+    opacity: 0.7,
+  },
+} as const;
+
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Overlay primitives (all rendered inside one SVG, viewBox 0–100)
 // ─────────────────────────────────────────────────────────────────────────────
 
