@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { TurnstileWidget, type TurnstileHandle } from '@/components/TurnstileWidget';
 import { lovable } from '@/integrations/lovable/index';
+import { safeRedirectPath } from '@/lib/safeRedirect';
 
 const emailSchema = z.string().email('Please enter a valid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
@@ -111,10 +112,7 @@ export default function Auth() {
     // IMPORTANT: Don't auto-redirect during signup.
     // Signup has its own post-success navigation to /onboarding.
     if (isAuthenticated && (mode === 'login' || mode === 'forgot')) {
-      // Lazy import keeps Auth bundle stable; helper is pure + tested.
-      import('@/lib/safeRedirect').then(({ safeRedirectPath }) => {
-        navigate(safeRedirectPath(searchParams.get('redirect'), '/'));
-      });
+      navigate(safeRedirectPath(searchParams.get('redirect'), '/'), { replace: true });
     }
   }, [isAuthenticated, navigate, mode, searchParams]);
 
@@ -122,24 +120,30 @@ export default function Auth() {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    const { error } = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+    const redirectTo = safeRedirectPath(searchParams.get('redirect'), '/');
+    const { error, redirected } = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: `${window.location.origin}${redirectTo}`,
     });
     if (error) {
       toast.error("Failed to sign in with Google");
       setIsLoading(false);
+      return;
     }
+    if (!redirected) navigate(redirectTo, { replace: true });
   };
 
   const handleAppleSignIn = async () => {
     setIsLoading(true);
-    const { error } = await lovable.auth.signInWithOAuth("apple", {
-      redirect_uri: window.location.origin,
+    const redirectTo = safeRedirectPath(searchParams.get('redirect'), '/');
+    const { error, redirected } = await lovable.auth.signInWithOAuth("apple", {
+      redirect_uri: `${window.location.origin}${redirectTo}`,
     });
     if (error) {
       toast.error("Failed to sign in with Apple");
       setIsLoading(false);
+      return;
     }
+    if (!redirected) navigate(redirectTo, { replace: true });
   };
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -192,7 +196,7 @@ export default function Auth() {
       } else {
         toast.success('Welcome back!');
       }
-      navigate('/');
+      navigate(safeRedirectPath(searchParams.get('redirect'), '/'), { replace: true });
     }
   };
 
