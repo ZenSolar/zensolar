@@ -35,6 +35,8 @@ export interface OutageLifecycleInput {
     oem?: string | null;
   } | null;
   batteryCount?: number;
+  /** Current household load (kW), used for peak-load tracking. */
+  homeKw?: number | null;
   /** Override the 4h follow-up cadence (ms). Mostly for tests. */
   longOutageMs?: number;
 }
