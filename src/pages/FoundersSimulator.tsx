@@ -862,6 +862,26 @@ function SimulatorContent() {
               </ResponsiveContainer>
             </ChartCard>
 
+            <ChartCard title="LP inflow composition (tranche · tax · secondary · buyback)">
+              <ResponsiveContainer width="100%" height={240}>
+                <BarChart data={chartData}>
+                  <CartesianGrid strokeOpacity={0.08} />
+                  <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                  <YAxis tickFormatter={fmtCompact} tick={{ fontSize: 11 }} />
+                  <Tooltip
+                    contentStyle={tooltipStyle}
+                    formatter={(v: any) => formatUSD(Number(v))}
+                  />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  <Bar dataKey="trancheUSD" name="Tranche" stackId="a" fill="hsl(var(--muted-foreground) / 0.7)" />
+                  <Bar dataKey="taxUSD" name="Transfer tax" stackId="a" fill="hsl(var(--primary) / 0.45)" />
+                  <Bar dataKey="secondaryUSD" name="Secondary revenue" stackId="a" fill="hsl(var(--primary))" />
+                  <Bar dataKey="buybackUSD" name="Buyback" stackId="a" fill="hsl(var(--destructive) / 0.6)" />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+
             <ChartCard title="Circulating supply growth (vs 1T cap)">
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={chartData}>
