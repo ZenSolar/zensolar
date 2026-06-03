@@ -357,6 +357,11 @@ function SimulatorContent() {
         {/* Headline KPIs */}
         <HeadlineKPIs config={config} result={result} />
 
+        <RealTimeKPIs config={config} result={result} />
+
+        <FlywheelHealth config={config} result={result} />
+
+
         {/* Main grid */}
         <div className="grid lg:grid-cols-[420px_1fr] gap-6">
           {/* Inputs */}
