@@ -1457,6 +1457,51 @@ export type Database = {
         }
         Relationships: []
       }
+      grid_outage_events: {
+        Row: {
+          created_at: string
+          device_context: Json
+          duration_seconds: number | null
+          ended_at: string | null
+          estimated_backup_hours_at_start: number | null
+          id: string
+          soc_pct_end: number | null
+          soc_pct_start: number | null
+          source: string
+          started_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_context?: Json
+          duration_seconds?: number | null
+          ended_at?: string | null
+          estimated_backup_hours_at_start?: number | null
+          id?: string
+          soc_pct_end?: number | null
+          soc_pct_start?: number | null
+          source?: string
+          started_at: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_context?: Json
+          duration_seconds?: number | null
+          ended_at?: string | null
+          estimated_backup_hours_at_start?: number | null
+          id?: string
+          soc_pct_end?: number | null
+          soc_pct_start?: number | null
+          source?: string
+          started_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       home_charging_sessions: {
         Row: {
           charger_power_kw: number | null
