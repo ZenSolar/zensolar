@@ -611,10 +611,11 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
                 onSubmit();
               }
             }}
-            placeholder="Ask about your bill, rate plan, contract, or savings…   (press / for quick prompts)"
-            rows={1}
-            className="min-h-[40px] max-h-32 resize-none border-0 bg-transparent px-1 py-2 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+            placeholder="Ask about your bill, rate plan, or savings…  (/ for prompts)"
+            rows={2}
+            className="min-h-[56px] max-h-44 resize-none border-0 bg-transparent px-2 py-3 text-sm leading-relaxed shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
             disabled={streaming}
+
           />
           <Button
             type="submit"
