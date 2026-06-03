@@ -781,6 +781,7 @@ function SimulatorContent() {
                   }
                 />
               </div>
+              <SecondaryRevenueWarnings config={config} result={result} />
             </Collapsible>
           </div>
 
