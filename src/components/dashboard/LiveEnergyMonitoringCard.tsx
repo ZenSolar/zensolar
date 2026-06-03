@@ -536,7 +536,12 @@ export function TeslaStatusPill({ tesla, onClick }: { tesla: TeslaFlow | null; o
 }
 
 
-export function LiveEnergyMonitoringCard() {
+export interface LiveEnergyMonitoringCardProps {
+  /** When provided and active, replaces the live flow scene with Outage Mode. */
+  outage?: { active: boolean; startedAt: Date | string };
+}
+
+export function LiveEnergyMonitoringCard({ outage }: LiveEnergyMonitoringCardProps = {}) {
   const solar = useSolarTelemetry();
   const battery = useBatteryTelemetry();
   const ev = useEVChargerTelemetry();
