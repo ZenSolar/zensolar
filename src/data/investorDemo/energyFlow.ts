@@ -82,3 +82,35 @@ export const INVESTOR_DEMO_HEADLINE = {
   evChargingKw: 7.2,
   gridKw: 0.0,
 };
+
+/**
+ * Outage simulation fixture — drives the on-demand "Simulate Grid Outage"
+ * toggle on the Investor Demo card. Grid dead, solar idle, Powerwall
+ * discharging ~0.9 kW to keep essentials online, SOC 78%, Tesla parked
+ * but not charging.
+ */
+export const INVESTOR_DEMO_OUTAGE_FLOW: EnergyFlowData = {
+  solarPower: 0.0,
+  homePower: 0.9,
+  batteryPower: -0.9,     // negative = discharging out of the pack
+  batteryPercent: 78,
+  batteryCapacityKwh: 13.5,
+  batteryReserveKwh: 2.7,
+  gridPower: 0.0,
+  evPower: 0.0,
+  tesla: {
+    kW: 0,
+    soc: 64,
+    rangeMi: 247,
+    isCharging: false,
+    source: 'home',
+  },
+};
+
+export const INVESTOR_DEMO_OUTAGE_TESLA_PAYLOAD = {
+  ...INVESTOR_DEMO_TESLA_PAYLOAD,
+  charging_state: 'Stopped',
+  charge_rate_kw: 0,
+  charger_power: 0,
+  charger_actual_current: 0,
+};
