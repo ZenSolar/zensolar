@@ -80,6 +80,54 @@ const CYAN_LED = 'hsl(180 95% 80%)';
 const WARM = 'hsl(38 90% 62%)';
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Outage-mode visual tuning
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// During Grid Outage Mode, the Battery → Home line must read as the dominant
+// route at a glance — the user should feel "I'm running on backup" without
+// needing to look at the panel copy. These constants centralize every knob
+// that affects that hierarchy so the look can be re-tuned in one place and
+// locked behind a snapshot test (src/test/EnergyFlowScene.outage.test.ts).
+//
+// All values are calibrated against the SVG viewBox 0–100 — small absolute
+// numbers translate to visually-prominent strokes once scaled to the card.
+//
+// Last tuned: 2026-06-03. Bumping any value here intentionally? Update the
+// snapshot test in the same commit.
+export const OUTAGE_VISUAL = {
+  /** Battery → Home hero flow during outage. */
+  pwHome: {
+    /** Bright core stroke that the particles ride on. */
+    coreStrokeWidth: 1.6,
+    coreStroke: 'hsl(38 100% 65% / 0.95)',
+    /** Mid amber halo (soft blur underneath core). */
+    midHaloStrokeWidth: 2.4,
+    midHalo: 'hsl(38 95% 62% / 0.6)',
+    /** Outermost pulse — animates opacity for a slow breathing effect. */
+    outerHaloStrokeWidth: 4.0,
+    outerHalo: 'hsl(38 95% 60% / 0.28)',
+    outerHaloPulse: { from: 0.18, to: 0.42, durMs: 1200 },
+    /** Particle stream density. 5 amber droplets at r=1.1 = "dense current". */
+    particleCount: 5,
+    particleRadius: 1.1,
+    /** Minimum animation duration floor — keeps motion legible even at low kW. */
+    minParticleDurSec: 0.9,
+    /** Directional chevron polygon (triangle pointing along path direction). */
+    chevron: { width: 2.2, height: 1.4, opacity: 0.95 },
+  },
+  /** Solar flows are dimmed during outage so the eye lands on pw-home. */
+  solarDimOpacity: 0.35,
+  /** Grid line is rendered broken/dashed to signal disconnect. */
+  gridOffline: {
+    stroke: 'hsl(0 65% 55% / 0.55)',
+    strokeWidth: 0.55,
+    strokeDasharray: '1.4 2.4',
+    opacity: 0.7,
+  },
+} as const;
+
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Overlay primitives (all rendered inside one SVG, viewBox 0–100)
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -666,69 +714,75 @@ export function EnergyFlowScene({
         {/* In Outage Mode, solar flows are dimmed so the eye lands on
             battery → home as the dominant route. */}
         {flows.has('solar-home') && (
-          <g opacity={isOutage ? 0.35 : 1}>
+          <g opacity={isOutage ? OUTAGE_VISUAL.solarDimOpacity : 1}>
             <DottedFlow id="flow-solar-home" d={BLUEPRINT_PATHS.solarToHome} color={EMERALD_LED} dur={flowDur(solar)} />
           </g>
         )}
         {flows.has('solar-pw') && (
-          <g opacity={isOutage ? 0.35 : 1}>
+          <g opacity={isOutage ? OUTAGE_VISUAL.solarDimOpacity : 1}>
             <DottedFlow id="flow-solar-pw" d={BLUEPRINT_PATHS.solarToPowerwall} color={EMERALD_LED} dur={flowDur(battery)} />
           </g>
         )}
         {flows.has('solar-pw') && batteryCount >= 2 && (
-          <g opacity={isOutage ? 0.35 : 1}>
+          <g opacity={isOutage ? OUTAGE_VISUAL.solarDimOpacity : 1}>
             <DottedFlow id="flow-solar-pw-2" d={BLUEPRINT_PATHS.solarToPowerwall2} color={EMERALD_LED} dur={flowDur(battery)} />
           </g>
         )}
 
+
         {/* Outage-mode hero: dominant amber halo + dense particle stream
-            below the powerwall→home line so the eye lands on it instantly. */}
-        {flows.has('pw-home') && isOutage && (
-          <g style={{ pointerEvents: 'none' }}>
-            {/* Soft outer pulse */}
-            <path
-              d={BLUEPRINT_PATHS.powerwallToHome}
-              stroke="hsl(38 95% 60% / 0.28)"
-              strokeWidth={4.0}
-              strokeLinecap="round"
-              fill="none"
-              style={{ filter: 'blur(4px)' }}
-            >
-              <animate
-                attributeName="stroke-opacity"
-                values="0.18;0.42;0.18"
-                dur="1.2s"
-                repeatCount="indefinite"
+            below the powerwall→home line so the eye lands on it instantly.
+            Every visual knob (stroke widths, particle count, halo opacities)
+            lives in OUTAGE_VISUAL.pwHome — re-tune there, not here. */}
+        {flows.has('pw-home') && isOutage && (() => {
+          const v = OUTAGE_VISUAL.pwHome;
+          const baseDur = flowDur(Math.max(0.5, Math.abs(battery)));
+          const particleDur = Math.max(v.minParticleDurSec, baseDur * 0.5);
+          const chevronDur = Math.max(1.2, baseDur * 0.7);
+          return (
+            <g style={{ pointerEvents: 'none' }} data-testid="outage-pw-home">
+              {/* Soft outer pulse */}
+              <path
+                d={BLUEPRINT_PATHS.powerwallToHome}
+                stroke={v.outerHalo}
+                strokeWidth={v.outerHaloStrokeWidth}
+                strokeLinecap="round"
+                fill="none"
+                style={{ filter: 'blur(4px)' }}
+              >
+                <animate
+                  attributeName="stroke-opacity"
+                  values={`${v.outerHaloPulse.from};${v.outerHaloPulse.to};${v.outerHaloPulse.from}`}
+                  dur={`${v.outerHaloPulse.durMs}ms`}
+                  repeatCount="indefinite"
+                />
+              </path>
+              {/* Mid halo */}
+              <path
+                d={BLUEPRINT_PATHS.powerwallToHome}
+                stroke={v.midHalo}
+                strokeWidth={v.midHaloStrokeWidth}
+                strokeLinecap="round"
+                fill="none"
+                style={{ filter: 'blur(2.2px)' }}
               />
-            </path>
-            {/* Mid halo */}
-            <path
-              d={BLUEPRINT_PATHS.powerwallToHome}
-              stroke="hsl(38 95% 62% / 0.6)"
-              strokeWidth={2.4}
-              strokeLinecap="round"
-              fill="none"
-              style={{ filter: 'blur(2.2px)' }}
-            />
-            {/* Bright core line */}
-            <path
-              id="flow-pw-home"
-              d={BLUEPRINT_PATHS.powerwallToHome}
-              stroke="hsl(38 100% 65% / 0.95)"
-              strokeWidth={1.6}
-              strokeLinecap="round"
-              fill="none"
-              style={{ filter: 'blur(0.3px)' }}
-            />
-            {/* Dense particle stream — 5 amber droplets, fast steady cadence */}
-            {[0, 0.2, 0.4, 0.6, 0.8].map((offset) => {
-              const dur = Math.max(0.9, flowDur(Math.max(0.5, Math.abs(battery))) * 0.5);
-              return (
-                <circle key={`pw-home-out-${offset}`} r={1.1} fill={AMBER_LED} opacity={0}>
+              {/* Bright core line */}
+              <path
+                id="flow-pw-home"
+                d={BLUEPRINT_PATHS.powerwallToHome}
+                stroke={v.coreStroke}
+                strokeWidth={v.coreStrokeWidth}
+                strokeLinecap="round"
+                fill="none"
+                style={{ filter: 'blur(0.3px)' }}
+              />
+              {/* Dense particle stream — N amber droplets, steady cadence */}
+              {Array.from({ length: v.particleCount }, (_, i) => i / v.particleCount).map((offset) => (
+                <circle key={`pw-home-out-${offset}`} r={v.particleRadius} fill={AMBER_LED} opacity={0}>
                   <animateMotion
-                    dur={`${dur}s`}
+                    dur={`${particleDur}s`}
                     repeatCount="indefinite"
-                    begin={`${offset * dur}s`}
+                    begin={`${offset * particleDur}s`}
                     calcMode="linear"
                     keyPoints="0;1"
                     keyTimes="0;1"
@@ -739,28 +793,33 @@ export function EnergyFlowScene({
                     attributeName="opacity"
                     values="0;1;1;0"
                     keyTimes="0;0.1;0.9;1"
-                    dur={`${dur}s`}
+                    dur={`${particleDur}s`}
                     repeatCount="indefinite"
-                    begin={`${offset * dur}s`}
+                    begin={`${offset * particleDur}s`}
                   />
                 </circle>
-              );
-            })}
-            {/* Directional chevron riding the path — reinforces flow direction. */}
-            <polygon points="0,-1.4 2.2,0 0,1.4" fill={AMBER_LED} opacity={0.95}>
-              <animateMotion
-                dur={`${Math.max(1.2, flowDur(Math.max(0.5, Math.abs(battery))) * 0.7)}s`}
-                repeatCount="indefinite"
-                rotate="auto"
-                calcMode="linear"
-                keyPoints="0;1"
-                keyTimes="0;1"
+              ))}
+              {/* Directional chevron riding the path — reinforces direction. */}
+              <polygon
+                points={`0,-${v.chevron.height} ${v.chevron.width},0 0,${v.chevron.height}`}
+                fill={AMBER_LED}
+                opacity={v.chevron.opacity}
               >
-                <mpath href="#flow-pw-home" />
-              </animateMotion>
-            </polygon>
-          </g>
-        )}
+                <animateMotion
+                  dur={`${chevronDur}s`}
+                  repeatCount="indefinite"
+                  rotate="auto"
+                  calcMode="linear"
+                  keyPoints="0;1"
+                  keyTimes="0;1"
+                >
+                  <mpath href="#flow-pw-home" />
+                </animateMotion>
+              </polygon>
+            </g>
+          );
+        })()}
+
         {flows.has('pw-home') && !isOutage && (
           <DottedFlow
             id="flow-pw-home"
@@ -788,15 +847,17 @@ export function EnergyFlowScene({
             disconnection is obvious at a glance. No animation, low opacity. */}
         {isOutage && (
           <path
+            data-testid="outage-grid-offline"
             d={BLUEPRINT_PATHS.gridToHome}
-            stroke="hsl(0 65% 55% / 0.55)"
-            strokeWidth={0.55}
+            stroke={OUTAGE_VISUAL.gridOffline.stroke}
+            strokeWidth={OUTAGE_VISUAL.gridOffline.strokeWidth}
             strokeLinecap="round"
-            strokeDasharray="1.4 2.4"
+            strokeDasharray={OUTAGE_VISUAL.gridOffline.strokeDasharray}
             fill="none"
-            opacity={0.7}
+            opacity={OUTAGE_VISUAL.gridOffline.opacity}
           />
         )}
+
 
         {/* ── Open-garage warm bloom when EV is charging at home ── */}
         {chargingAtHome && showDynamicCar && (
