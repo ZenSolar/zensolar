@@ -169,8 +169,11 @@ export function useOutageLifecycle(input: OutageLifecycleInput) {
       return;
     }
 
-    // ── While active: long-outage follow-up ────────────────────────────────
+    // ── While active: peak-load tracking + long-outage follow-up ───────────
     if (isGridOutage && wasActive) {
+      const load = Math.max(0, homeKw ?? 0);
+      if (load > (peakLoadKwRef.current ?? 0)) peakLoadKwRef.current = load;
+
       const now = Date.now();
       const last = lastLongPingAtRef.current ?? startedAtRef.current ?? now;
       if (now - last >= longOutageMs) {
@@ -194,6 +197,8 @@ export function useOutageLifecycle(input: OutageLifecycleInput) {
       wasActiveRef.current = false;
       const eventId = eventIdRef.current;
       const socEnd = batteryStats.soc;
+      const peakKw = peakLoadKwRef.current;
+      const interacted = deasonInteractedRef.current;
 
       if (eventId) {
         void supabase
@@ -201,6 +206,8 @@ export function useOutageLifecycle(input: OutageLifecycleInput) {
           .update({
             ended_at: new Date().toISOString(),
             soc_pct_end: socEnd,
+            peak_load_kw: peakKw != null ? Number(peakKw.toFixed(3)) : null,
+            deason_interacted: interacted,
           })
           .eq('id', eventId)
           .then(({ error }) => {
