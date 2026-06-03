@@ -1739,7 +1739,45 @@ function ComparisonTable({
           </div>
         )}
       </div>
-      <div className="overflow-x-auto">
+      {/* Mobile: stacked cards */}
+      <div className="sm:hidden space-y-2.5">
+        {rows.map((r) => {
+          const trendCls =
+            r.deltaTrend === "up"
+              ? "text-primary"
+              : r.deltaTrend === "down"
+              ? "text-destructive"
+              : "text-muted-foreground";
+          return (
+            <div
+              key={r.metric}
+              className="rounded-lg border border-border/40 bg-background/40 p-3"
+            >
+              <div className="text-[11px] uppercase tracking-widest text-muted-foreground">
+                {r.metric}
+              </div>
+              <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
+                <div className="min-w-0">
+                  <div className="text-[10px] uppercase tracking-widest text-primary/80">With</div>
+                  <div className="font-medium truncate">{r.withSec}</div>
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Without</div>
+                  <div className="truncate">{r.withoutSec}</div>
+                </div>
+              </div>
+              <div className={`mt-2 flex items-center gap-1 text-xs ${trendCls}`}>
+                {r.deltaTrend === "up" && <TrendingUp className="h-3 w-3 shrink-0" />}
+                {r.deltaTrend === "down" && <TrendingDown className="h-3 w-3 shrink-0" />}
+                <span className="truncate">Δ {r.delta}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Desktop/tablet: table */}
+      <div className="hidden sm:block overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-[10px] uppercase tracking-widest text-muted-foreground border-b border-border/60">
@@ -1775,6 +1813,7 @@ function ComparisonTable({
           </tbody>
         </table>
       </div>
+
     </Card>
   );
 }
