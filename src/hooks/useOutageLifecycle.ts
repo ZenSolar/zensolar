@@ -70,8 +70,20 @@ export function useOutageLifecycle(input: OutageLifecycleInput) {
   const wasActiveRef = useRef(false);
   const lastLongPingAtRef = useRef<number | null>(null);
   const startedAtRef = useRef<number | null>(null);
+  const peakLoadKwRef = useRef<number | null>(null);
+  const deasonInteractedRef = useRef<boolean>(false);
 
   const longOutageMs = input.longOutageMs ?? DEFAULT_LONG_OUTAGE_MS;
+
+  // While an outage is active, flip `deason_interacted` to true the first
+  // time the user sends a message in the Deason chat.
+  useEffect(() => {
+    const handler = () => {
+      if (wasActiveRef.current) deasonInteractedRef.current = true;
+    };
+    window.addEventListener('deason:user-message', handler);
+    return () => window.removeEventListener('deason:user-message', handler);
+  }, []);
 
   useEffect(() => {
     if (!user) return;
