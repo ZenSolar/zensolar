@@ -95,15 +95,22 @@ export function DeasonFloatingBubble() {
   useEffect(() => {
     if (open && pendingSeed && (!user || threadId)) {
       const body = pendingSeed;
+      const meta = pendingMeta;
       setPendingSeed(null);
       setPendingMeta(null);
-      window.setTimeout(() => {
-        window.dispatchEvent(
-          new CustomEvent("deason:seed", { detail: { assistant: body } }),
-        );
-      }, 60);
+      // Fire context FIRST so DeasonChat can pre-suppress the empty-state
+      // welcome before the seeded assistant message lands.
+      if (meta) {
+        window.dispatchEvent(new CustomEvent("deason:context", { detail: { meta } }));
+      }
+      // Dispatch the seed in the same tick — no 60ms wait — so the welcome
+      // panel never flashes during outage auto-open.
+      window.dispatchEvent(
+        new CustomEvent("deason:seed", { detail: { assistant: body } }),
+      );
     }
-  }, [open, pendingSeed, threadId, user]);
+  }, [open, pendingSeed, pendingMeta, threadId, user]);
+
 
   // Always open to a fresh "New conversation" — the user can switch to a
   // saved one via the History panel. We never auto-resume the last thread.

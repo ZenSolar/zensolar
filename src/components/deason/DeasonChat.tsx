@@ -197,14 +197,31 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
   // Listen for `deason:seed` events from elsewhere in the app (e.g. the
   // OAuth error toast's "Ask Deason" handoff). Pushes a hand-written
   // assistant message into the transcript without a model call.
+  const [suppressEmptyState, setSuppressEmptyState] = useState(false);
   useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent<{ assistant?: string }>).detail;
-      if (detail?.assistant) seedAssistant(detail.assistant);
+      if (detail?.assistant) {
+        setSuppressEmptyState(true);
+        seedAssistant(detail.assistant);
+      }
+    };
+    const contextHandler = (e: Event) => {
+      const detail = (e as CustomEvent<{ meta?: Record<string, unknown> }>).detail;
+      if (detail?.meta && (detail.meta as Record<string, unknown>).kind === 'grid_outage') {
+        // Pre-suppress the welcome panel so it never flashes while the
+        // outage-seeded assistant message is being inserted.
+        setSuppressEmptyState(true);
+      }
     };
     window.addEventListener("deason:seed", handler as EventListener);
-    return () => window.removeEventListener("deason:seed", handler as EventListener);
+    window.addEventListener("deason:context", contextHandler as EventListener);
+    return () => {
+      window.removeEventListener("deason:seed", handler as EventListener);
+      window.removeEventListener("deason:context", contextHandler as EventListener);
+    };
   }, [seedAssistant]);
+
 
 
   const onPickFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -406,7 +423,7 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
             <SkeletonMessage align="left" widthClass="w-4/5" />
           </div>
         )}
-        {!loadingHistory && messages.length === 0 && (
+        {!loadingHistory && messages.length === 0 && !suppressEmptyState && (
           <EmptyState
             title={welcomeTitle}
             body={welcomeBody}
@@ -415,6 +432,7 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
             onPick={(q) => void send(q)}
           />
         )}
+
 
         <div className="space-y-3">
           {messages.map((m, i) => {
@@ -611,10 +629,11 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
                 onSubmit();
               }
             }}
-            placeholder="Ask about your bill, rate plan, contract, or savings…   (press / for quick prompts)"
-            rows={1}
-            className="min-h-[40px] max-h-32 resize-none border-0 bg-transparent px-1 py-2 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+            placeholder="Ask about your bill, rate plan, or savings…  (/ for prompts)"
+            rows={2}
+            className="min-h-[56px] max-h-44 resize-none border-0 bg-transparent px-2 py-3 text-sm leading-relaxed shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
             disabled={streaming}
+
           />
           <Button
             type="submit"
