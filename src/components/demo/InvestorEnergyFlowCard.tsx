@@ -176,19 +176,31 @@ export function InvestorEnergyFlowCard() {
           </p>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
-          <button
-            type="button"
-            onClick={toggleOutage}
-            aria-pressed={outageSim}
-            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold transition-colors ${
-              outageSim
-                ? 'border border-amber-400/60 bg-amber-500/15 text-amber-200 hover:bg-amber-500/25'
-                : 'border border-primary/25 bg-background/40 text-foreground/80 hover:text-foreground hover:border-primary/50'
-            }`}
-          >
-            {outageSim ? <ZapOff className="h-3 w-3" /> : <Zap className="h-3 w-3" />}
-            {outageSim ? 'End Outage Simulation' : 'Simulate Grid Outage'}
-          </button>
+          <TooltipProvider delayDuration={250}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={toggleOutage}
+                  aria-pressed={outageSim}
+                  data-testid="outage-sim-toggle"
+                  className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold transition-colors ${
+                    outageSim
+                      ? 'border border-amber-400/60 bg-amber-500/15 text-amber-200 hover:bg-amber-500/25'
+                      : 'border border-primary/25 bg-background/40 text-foreground/80 hover:text-foreground hover:border-primary/50'
+                  }`}
+                >
+                  {outageSim ? <ZapOff className="h-3 w-3" /> : <Zap className="h-3 w-3" />}
+                  {outageSim ? 'End Outage Simulation' : 'Simulate Grid Outage'}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-[220px] text-[11px] leading-snug">
+                {outageSim
+                  ? 'Stops the simulation and restores normal solar + grid telemetry. Deason returns to its standard chat context.'
+                  : 'Simulates a full grid outage so you can test Outage Mode UI (hero house, backup time, Battery→Home flow) and Deason\'s outage context without waiting for a real one.'}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <button
             type="button"
             onClick={() => setShowAnnotations((v) => !v)}
