@@ -3,7 +3,7 @@ import { useBatteryTelemetry } from '@/hooks/useDeviceTelemetry';
 import { detectTeslaOutage, type OutageSource } from '@/lib/gridOutage';
 
 export interface UseGridOutageOptions {
-  /** Min continuous off-grid duration before flipping to true. Default 45s. */
+  /** Min continuous off-grid duration before flipping to true. Default 30s. */
   debounceMs?: number;
 }
 
@@ -18,7 +18,7 @@ export interface UseGridOutageResult {
  * Phase 3 covers Tesla; Enphase + SolarEdge detectors can be OR-composed later.
  */
 export function useGridOutage(opts: UseGridOutageOptions = {}): UseGridOutageResult {
-  const { debounceMs = 45_000 } = opts;
+  const { debounceMs = 30_000 } = opts;
   const battery = useBatteryTelemetry();
   const primary = battery.data?.[0];
   const oem = primary?.oem;

@@ -148,23 +148,35 @@ export function useOutageLifecycle(input: OutageLifecycleInput) {
       );
 
       // 3. Deason — proactive open (gated) or subtle nudge
+      const startedClock = startedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      const socRounded = socStart != null ? Math.round(socStart) : null;
+      const dischargeKw = Math.max(0, -(batteryStats.powerKw ?? 0));
       const meta = {
         kind: 'grid_outage',
         phase: 'start',
         socPct: socStart,
         backupLabel: label,
-        dischargeKw: Math.max(0, -(batteryStats.powerKw ?? 0)),
+        dischargeKw,
+        homeKw: homeKw ?? null,
         source,
+        startedAt: startedAt.toISOString(),
       };
       const assistantSeed =
-        `Grid outage detected. Your battery is now powering your home — about ${label}. ` +
-        `Want me to put together a quick load-shedding plan to extend your backup time?`;
+        `**Grid outage detected at ${startedClock}.** Your Powerwall is now powering the home at ` +
+        `**${dischargeKw.toFixed(1)} kW**, with about **${label}** of backup remaining` +
+        (socRounded != null ? ` (battery ${socRounded}%).` : '.') +
+        `\n\nWant me to suggest a quick load-shedding plan to stretch backup, or just keep an eye on things and ping you if anything changes?`;
 
+      // Nudge first (seeds context), then open. Retry the open after a
+      // short delay in case the bubble mounts late on slow first paint.
       window.dispatchEvent(
         new CustomEvent('deason:nudge', { detail: { assistant: assistantSeed, meta } }),
       );
       if (hasAccess) {
         window.dispatchEvent(new Event('deason:open'));
+        window.setTimeout(() => {
+          window.dispatchEvent(new Event('deason:open'));
+        }, 400);
       }
       return;
     }

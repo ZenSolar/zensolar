@@ -122,39 +122,82 @@ function pickField(payload: unknown, keys: string[]): unknown {
 }
 
 /**
- * Tesla off-grid detector. Looks at explicit `grid_status` / `island_status`
- * first, falls back to a behavior heuristic (no grid power + battery
- * discharging into a real load).
+ * Tesla off-grid detector.
+ *
+ * Decision order:
+ *   1. Explicit "Active" / "OnGrid" status → always false (never override
+ *      a positive on-grid signal — homes self-consume from the Powerwall
+ *      all the time while still grid-connected).
+ *   2. Explicit off-grid / backup status (`OffGrid`, `Islanded`, `Inactive`,
+ *      `Backup`, `BackupReady`, `island_status=off_grid|islanded`) → true.
+ *   3. Behavior fallback when status is missing/unknown: grid ≈ 0 kW AND
+ *      battery clearly discharging AND home actually drawing real load.
+ *
+ * Dev tracing: emits a single `console.debug('[gridOutage] ...')` per call
+ * so the decision path is visible in the field. Gated by `import.meta.env.DEV`.
  */
 export function detectTeslaOutage(payload: unknown): boolean {
   if (!payload) return false;
+
   const gridStatusRaw = pickField(payload, ['grid_status', 'energy_sites.0.grid_status']);
-  if (typeof gridStatusRaw === 'string') {
-    const gs = gridStatusRaw.trim().toLowerCase();
-    if (gs === 'offgrid' || gs === 'off_grid' || gs === 'islanded' || gs === 'inactive') {
-      return true;
-    }
-    if (gs === 'active' || gs === 'ongrid' || gs === 'on_grid') return false;
-  }
   const islandRaw = pickField(payload, ['island_status']);
-  if (typeof islandRaw === 'string') {
-    const is = islandRaw.trim().toLowerCase();
-    if (is === 'off_grid' || is === 'islanded') return true;
-    if (is === 'on_grid') return false;
+  const gs = typeof gridStatusRaw === 'string' ? gridStatusRaw.trim().toLowerCase() : '';
+  const is = typeof islandRaw === 'string' ? islandRaw.trim().toLowerCase() : '';
+
+  // 1. Positive on-grid status always wins.
+  if (gs === 'active' || gs === 'ongrid' || gs === 'on_grid' || is === 'on_grid') {
+    if (import.meta.env.DEV) {
+      console.debug('[gridOutage] decision=false reason=explicit-active', { gs, is });
+    }
+    return false;
   }
 
-  // Fallback heuristic — only when explicit status is missing.
+  // 2. Explicit off-grid / backup status.
+  const OFF_STATES = new Set([
+    'offgrid', 'off_grid', 'islanded', 'inactive', 'backup', 'backupready', 'backup_ready',
+  ]);
+  if (OFF_STATES.has(gs) || is === 'off_grid' || is === 'islanded') {
+    if (import.meta.env.DEV) {
+      console.debug('[gridOutage] decision=true reason=explicit-off', { gs, is });
+    }
+    return true;
+  }
+
+  // 3. Behavior fallback — infer from power flows when status is missing.
   const gridPowerRaw = pickField(payload, ['grid_power']);
   const batteryPowerRaw = pickField(payload, ['battery_power']);
   const loadPowerRaw = pickField(payload, ['load_power']);
   const gridPower = typeof gridPowerRaw === 'number' ? gridPowerRaw : null;
   const batteryPower = typeof batteryPowerRaw === 'number' ? batteryPowerRaw : null;
   const loadPower = typeof loadPowerRaw === 'number' ? loadPowerRaw : null;
-  if (gridPower === null || batteryPower === null || loadPower === null) return false;
+  if (gridPower === null || batteryPower === null || loadPower === null) {
+    if (import.meta.env.DEV) {
+      console.debug('[gridOutage] decision=false reason=insufficient-data', {
+        gs, is, gridPower, batteryPower, loadPower,
+      });
+    }
+    return false;
+  }
+
+  // Normalize watts → kW.
   const normLoad = Math.abs(loadPower) > 100 ? loadPower / 1000 : loadPower;
   const normGrid = Math.abs(gridPower) > 100 ? gridPower / 1000 : gridPower;
   const normBatt = Math.abs(batteryPower) > 100 ? batteryPower / 1000 : batteryPower;
-  return Math.abs(normGrid) < 0.05 && normBatt > 0.1 && normLoad > 0.1;
+
+  // Tuned to fire on the user's real scenario (Powerwall ~0.6 kW out,
+  // grid ~0 kW, home ~0.6 kW) without false-triggering on idle drift.
+  const gridZero = Math.abs(normGrid) <= 0.10;
+  const battDischarging = normBatt >= 0.20;
+  const homeDrawing = normLoad >= 0.10;
+  const decision = gridZero && battDischarging && homeDrawing;
+
+  if (import.meta.env.DEV) {
+    console.debug('[gridOutage] decision=' + decision + ' reason=heuristic', {
+      gs, is, gridKw: normGrid, battKw: normBatt, loadKw: normLoad,
+      gridZero, battDischarging, homeDrawing,
+    });
+  }
+  return decision;
 }
 
 /** OR-combine multiple per-OEM detectors. */

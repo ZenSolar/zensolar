@@ -64,9 +64,12 @@ export function DeasonFloatingBubble() {
   // Listen for programmatic open / nudge requests from anywhere in the app.
   useEffect(() => {
     const openHandler = () => {
+      // IMPORTANT: do NOT clear pendingSeed here. If a `deason:nudge` set a
+      // seed (e.g. grid outage context), the effect below will replay it
+      // into DeasonChat as soon as the thread is ready. Clearing it here
+      // would drop the outage context and the user would see a generic
+      // greeting instead.
       setOpen(true);
-      setPendingSeed(null);
-      setPendingMeta(null);
     };
     const nudgeHandler = (e: Event) => {
       const detail = (e as CustomEvent<{ assistant?: string; meta?: Record<string, unknown> }>).detail;
