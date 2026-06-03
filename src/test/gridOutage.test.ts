@@ -3,6 +3,7 @@ import {
   estimateBackupTime,
   formatBackupLabel,
   _resetBackupSmoothing,
+  detectTeslaOutage,
 } from '@/lib/gridOutage';
 
 describe('formatBackupLabel', () => {
