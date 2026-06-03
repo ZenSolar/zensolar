@@ -58,46 +58,36 @@ export default function Home() {
 
           {/* Below-the-fold: loaded on scroll */}
           <Suspense fallback={null}>
-            <SectionDivider variant="chevron" />
             <LazySection>
               <HowItWorksSection />
             </LazySection>
-            <SectionDivider variant="diamond" />
             <LazySection>
               <DashboardShowcase />
             </LazySection>
-            <SectionDivider variant="diamond" />
             <LazySection>
               <CleanEnergyCenterShowcase />
             </LazySection>
-            <SectionDivider variant="angle" />
             <LazySection>
               <NFTMilestoneSection />
             </LazySection>
-            <SectionDivider variant="chevron" />
             <LazySection>
               <StoreRedemptionSection />
             </LazySection>
-            <SectionDivider variant="angle" />
             <LazySection>
               <WhyZenSolarSection />
             </LazySection>
-            <SectionDivider variant="angle" flip />
             <LazySection>
               <TokenizationWaveSection />
             </LazySection>
-            <SectionDivider variant="diamond" />
             <LazySection>
               <PricingSection />
             </LazySection>
             <LazySection>
               <SubscriptionTransparencyPanel />
             </LazySection>
-            <SectionDivider variant="chevron" />
             <LazySection>
               <TestimonialsSection />
             </LazySection>
-            <SectionDivider variant="angle" />
             <LazySection>
               <FAQSection />
             </LazySection>
