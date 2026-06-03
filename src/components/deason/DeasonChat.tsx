@@ -240,6 +240,12 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
     setInput("");
     setAttachedFile(null);
     setSlashOpen(false);
+    // Notify outage lifecycle (and anyone else) that the user actively
+    // interacted with Deason — used to populate
+    // `grid_outage_events.deason_interacted` when an outage is in progress.
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("deason:user-message"));
+    }
     void send(text, file?.dataUrl);
   };
 
