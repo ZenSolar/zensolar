@@ -730,53 +730,58 @@ export function EnergyFlowScene({
         )}
 
         {/* Outage-mode hero: dominant amber halo + dense particle stream
-            below the powerwall→home line so the eye lands on it instantly. */}
-        {flows.has('pw-home') && isOutage && (
-          <g style={{ pointerEvents: 'none' }}>
-            {/* Soft outer pulse */}
-            <path
-              d={BLUEPRINT_PATHS.powerwallToHome}
-              stroke="hsl(38 95% 60% / 0.28)"
-              strokeWidth={4.0}
-              strokeLinecap="round"
-              fill="none"
-              style={{ filter: 'blur(4px)' }}
-            >
-              <animate
-                attributeName="stroke-opacity"
-                values="0.18;0.42;0.18"
-                dur="1.2s"
-                repeatCount="indefinite"
+            below the powerwall→home line so the eye lands on it instantly.
+            Every visual knob (stroke widths, particle count, halo opacities)
+            lives in OUTAGE_VISUAL.pwHome — re-tune there, not here. */}
+        {flows.has('pw-home') && isOutage && (() => {
+          const v = OUTAGE_VISUAL.pwHome;
+          const baseDur = flowDur(Math.max(0.5, Math.abs(battery)));
+          const particleDur = Math.max(v.minParticleDurSec, baseDur * 0.5);
+          const chevronDur = Math.max(1.2, baseDur * 0.7);
+          return (
+            <g style={{ pointerEvents: 'none' }} data-testid="outage-pw-home">
+              {/* Soft outer pulse */}
+              <path
+                d={BLUEPRINT_PATHS.powerwallToHome}
+                stroke={v.outerHalo}
+                strokeWidth={v.outerHaloStrokeWidth}
+                strokeLinecap="round"
+                fill="none"
+                style={{ filter: 'blur(4px)' }}
+              >
+                <animate
+                  attributeName="stroke-opacity"
+                  values={`${v.outerHaloPulse.from};${v.outerHaloPulse.to};${v.outerHaloPulse.from}`}
+                  dur={`${v.outerHaloPulse.durMs}ms`}
+                  repeatCount="indefinite"
+                />
+              </path>
+              {/* Mid halo */}
+              <path
+                d={BLUEPRINT_PATHS.powerwallToHome}
+                stroke={v.midHalo}
+                strokeWidth={v.midHaloStrokeWidth}
+                strokeLinecap="round"
+                fill="none"
+                style={{ filter: 'blur(2.2px)' }}
               />
-            </path>
-            {/* Mid halo */}
-            <path
-              d={BLUEPRINT_PATHS.powerwallToHome}
-              stroke="hsl(38 95% 62% / 0.6)"
-              strokeWidth={2.4}
-              strokeLinecap="round"
-              fill="none"
-              style={{ filter: 'blur(2.2px)' }}
-            />
-            {/* Bright core line */}
-            <path
-              id="flow-pw-home"
-              d={BLUEPRINT_PATHS.powerwallToHome}
-              stroke="hsl(38 100% 65% / 0.95)"
-              strokeWidth={1.6}
-              strokeLinecap="round"
-              fill="none"
-              style={{ filter: 'blur(0.3px)' }}
-            />
-            {/* Dense particle stream — 5 amber droplets, fast steady cadence */}
-            {[0, 0.2, 0.4, 0.6, 0.8].map((offset) => {
-              const dur = Math.max(0.9, flowDur(Math.max(0.5, Math.abs(battery))) * 0.5);
-              return (
-                <circle key={`pw-home-out-${offset}`} r={1.1} fill={AMBER_LED} opacity={0}>
+              {/* Bright core line */}
+              <path
+                id="flow-pw-home"
+                d={BLUEPRINT_PATHS.powerwallToHome}
+                stroke={v.coreStroke}
+                strokeWidth={v.coreStrokeWidth}
+                strokeLinecap="round"
+                fill="none"
+                style={{ filter: 'blur(0.3px)' }}
+              />
+              {/* Dense particle stream — N amber droplets, steady cadence */}
+              {Array.from({ length: v.particleCount }, (_, i) => i / v.particleCount).map((offset) => (
+                <circle key={`pw-home-out-${offset}`} r={v.particleRadius} fill={AMBER_LED} opacity={0}>
                   <animateMotion
-                    dur={`${dur}s`}
+                    dur={`${particleDur}s`}
                     repeatCount="indefinite"
-                    begin={`${offset * dur}s`}
+                    begin={`${offset * particleDur}s`}
                     calcMode="linear"
                     keyPoints="0;1"
                     keyTimes="0;1"
@@ -787,28 +792,33 @@ export function EnergyFlowScene({
                     attributeName="opacity"
                     values="0;1;1;0"
                     keyTimes="0;0.1;0.9;1"
-                    dur={`${dur}s`}
+                    dur={`${particleDur}s`}
                     repeatCount="indefinite"
-                    begin={`${offset * dur}s`}
+                    begin={`${offset * particleDur}s`}
                   />
                 </circle>
-              );
-            })}
-            {/* Directional chevron riding the path — reinforces flow direction. */}
-            <polygon points="0,-1.4 2.2,0 0,1.4" fill={AMBER_LED} opacity={0.95}>
-              <animateMotion
-                dur={`${Math.max(1.2, flowDur(Math.max(0.5, Math.abs(battery))) * 0.7)}s`}
-                repeatCount="indefinite"
-                rotate="auto"
-                calcMode="linear"
-                keyPoints="0;1"
-                keyTimes="0;1"
+              ))}
+              {/* Directional chevron riding the path — reinforces direction. */}
+              <polygon
+                points={`0,-${v.chevron.height} ${v.chevron.width},0 0,${v.chevron.height}`}
+                fill={AMBER_LED}
+                opacity={v.chevron.opacity}
               >
-                <mpath href="#flow-pw-home" />
-              </animateMotion>
-            </polygon>
-          </g>
-        )}
+                <animateMotion
+                  dur={`${chevronDur}s`}
+                  repeatCount="indefinite"
+                  rotate="auto"
+                  calcMode="linear"
+                  keyPoints="0;1"
+                  keyTimes="0;1"
+                >
+                  <mpath href="#flow-pw-home" />
+                </animateMotion>
+              </polygon>
+            </g>
+          );
+        })()}
+
         {flows.has('pw-home') && !isOutage && (
           <DottedFlow
             id="flow-pw-home"
