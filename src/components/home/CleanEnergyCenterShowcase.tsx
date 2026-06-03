@@ -50,6 +50,22 @@ const kpiItems = [
 ];
 
 export function CleanEnergyCenterShowcase() {
+  const navigate = useNavigate();
+  const { mediumTap } = useHaptics();
+
+  const pendingKwh = 1284;
+  const expectedTokens = 1284;
+  const usdValue = '$128.40';
+  const co2Lbs = 1812;
+
+  const handleTapToMint = () => {
+    mediumTap();
+    toast.success(`Proof of Genesis™ engaged · ${expectedTokens.toLocaleString()} $ZSOLAR queued`, {
+      description: 'Continue in the live demo to write your proof on-chain.',
+    });
+    navigate('/demo');
+  };
+
   return (
     <section id="clean-energy-center" className="py-[clamp(3rem,8vw,6rem)]">
       <div className="container max-w-4xl mx-auto px-4">
