@@ -113,7 +113,11 @@ export default function FoundersSimulator() {
       </div>
     );
   }
-  if (!user) return <Navigate to="/auth?redirect=/founders/simulator" replace />;
+  if (!user) {
+    const path = typeof window !== "undefined" ? window.location.pathname : "/simulator";
+    return <Navigate to={`/auth?redirect=${encodeURIComponent(path)}`} replace />;
+  }
+
   if (!isFounder) return <Navigate to="/" replace />;
 
   return (
