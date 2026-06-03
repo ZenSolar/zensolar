@@ -558,6 +558,9 @@ function EnergyFlowGlowCard() {
           <AnimatedEnergyFlow className="w-full" />
         </Suspense>
       )}
+      <div className="mt-3 px-1">
+        <OutageRecapCard />
+      </div>
       <PremiumInsightsTeaserCard />
     </div>
   );
