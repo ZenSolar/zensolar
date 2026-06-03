@@ -38,7 +38,7 @@ export function StoreRedemptionSection() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-primary/5 rounded-full blur-[120px]" />
       </div>
 
-      <div className="container max-w-6xl mx-auto px-4 relative z-10">
+      <div className="container max-w-5xl mx-auto px-5 relative z-10">
         <div className="text-center mb-14">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
             <Badge variant="outline" className="px-3 py-1 border-solar/40 bg-solar/10 text-solar font-medium mb-4">
@@ -50,7 +50,7 @@ export function StoreRedemptionSection() {
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold tracking-tight mb-3"
+            className="text-2xl md:text-3xl font-semibold tracking-tight leading-[1.1] mb-3"
           >
             Spend Your Tokens on{' '}
             <span className="bg-gradient-to-r from-primary via-solar to-primary bg-clip-text text-transparent">

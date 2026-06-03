@@ -104,7 +104,7 @@ export function NFTMilestoneSection() {
         <FloatingHexagon delay={2} x="12%" y="78%" size={40} />
       </div>
 
-      <div className="container max-w-6xl mx-auto px-4 relative z-10">
+      <div className="container max-w-5xl mx-auto px-5 relative z-10">
         {/* Header */}
         <div className="text-center mb-12">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}>

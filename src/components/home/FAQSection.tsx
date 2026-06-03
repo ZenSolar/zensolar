@@ -86,15 +86,13 @@ export function FAQSection() {
       <div className="container max-w-3xl mx-auto px-4">
         <div className="text-center mb-10">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-            <Badge variant="outline" className="px-3 py-1 border-energy/40 bg-energy/10 text-energy font-medium mb-4">
-              FAQ
-            </Badge>
+            <span className="inline-block text-[11px] uppercase tracking-[0.24em] text-secondary/90 mb-4">FAQ</span>
           </motion.div>
           <motion.h2
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold tracking-tight mb-3"
+            className="text-2xl md:text-3xl font-semibold tracking-tight leading-[1.1] mb-3"
           >
             Frequently Asked Questions
           </motion.h2>

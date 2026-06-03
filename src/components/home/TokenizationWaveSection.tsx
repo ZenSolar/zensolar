@@ -87,20 +87,18 @@ const colorMap: Record<string, { border: string; bg: string; iconBg: string; ico
 export function TokenizationWaveSection() {
   return (
     <section id="tokenization" className="py-[clamp(3rem,8vw,6rem)] scroll-mt-20">
-      <div className="container max-w-6xl mx-auto px-4 space-y-10">
+      <div className="container max-w-5xl mx-auto px-5 space-y-10">
 
         {/* Header */}
         <div className="text-center space-y-4">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-            <Badge variant="outline" className="px-3 py-1 border-primary/40 bg-primary/10 text-primary font-medium">
-              Market Timing
-            </Badge>
+            <span className="inline-block text-[11px] uppercase tracking-[0.24em] text-secondary/90 mb-4">Market Timing</span>
           </motion.div>
           <motion.h2
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold tracking-tight"
+            className="text-2xl md:text-3xl font-semibold tracking-tight leading-[1.1]"
           >
             The Tokenization Supercycle{' '}
             <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
