@@ -78,6 +78,8 @@ interface SavedScenario {
   name: string;
   savedAt: string;
   config: SimulatorConfig;
+  /** Stored grade from the run that was saved (optional for legacy entries). */
+  grade?: { letter: ScenarioGrade["letter"]; total: number };
 }
 
 export default function FoundersSimulator() {
