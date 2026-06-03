@@ -29,8 +29,10 @@ import { LiveCardHeader } from './LiveCardHeader';
 import { ChargerOnlyLiveCard } from './ChargerOnlyLiveCard';
 import { useChargerDevices } from '@/hooks/useChargerDevices';
 import { OutageModePanel } from './OutageModePanel';
+import { OutageFooter } from './OutageFooter';
 import { useGridOutage } from '@/hooks/useGridOutage';
 import { useOutageLifecycle } from '@/hooks/useOutageLifecycle';
+import { estimateBackupTime } from '@/lib/gridOutage';
 
 function getPath(payload: any, path: string): unknown {
   return path.split('.').reduce((acc, key) => {
