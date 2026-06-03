@@ -24,6 +24,7 @@ const CO2OffsetCard = lazy(() =>
 );
 import { PremiumInsightsTeaserCard } from './dashboard/PremiumInsightsTeaserCard';
 import { LiveEnergyMonitoringCard } from './dashboard/LiveEnergyMonitoringCard';
+import { OutageRecapCard } from './dashboard/OutageRecapCard';
 import { OemDiagnosticsBanner } from './dashboard/OemDiagnosticsBanner';
 import { useEnergyInsightsSubscription } from '@/hooks/useEnergyInsightsSubscription';
 import { FlywheelContributionCard } from './dashboard/FlywheelContributionCard';
@@ -557,6 +558,9 @@ function EnergyFlowGlowCard() {
           <AnimatedEnergyFlow className="w-full" />
         </Suspense>
       )}
+      <div className="mt-3 px-1">
+        <OutageRecapCard />
+      </div>
       <PremiumInsightsTeaserCard />
     </div>
   );

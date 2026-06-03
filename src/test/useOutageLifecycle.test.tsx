@@ -179,4 +179,33 @@ describe('useOutageLifecycle', () => {
     const updatePayload = updateFn.mock.calls.at(-1)?.[0] as { deason_interacted: boolean };
     expect(updatePayload.deason_interacted).toBe(false);
   });
+
+  it('on outage start: nudge carries a contextual assistantSeed with backup label + meta', async () => {
+    const nudges: CustomEvent[] = [];
+    const handler = (e: Event) => nudges.push(e as CustomEvent);
+    window.addEventListener('deason:nudge', handler);
+
+    const { rerender } = renderHook(({ p }: { p: OutageLifecycleInput }) => useOutageLifecycle(p), {
+      initialProps: { p: baseInput() },
+    });
+    await act(async () => {
+      rerender({
+        p: baseInput({
+          isGridOutage: true,
+          since: new Date(),
+          batteryStats: { soc: 87, capacityKwh: 13.5, powerKw: -0.6 },
+          homeKw: 0.6,
+        }),
+      });
+    });
+
+    expect(nudges.length).toBeGreaterThanOrEqual(1);
+    const detail = nudges[0].detail as { assistant: string; meta: Record<string, unknown> };
+    expect(detail.assistant).toMatch(/Grid outage detected/i);
+    expect(detail.assistant).toMatch(/0\.6 kW/);
+    expect(detail.meta).toEqual(
+      expect.objectContaining({ kind: 'grid_outage', phase: 'start', source: 'tesla' }),
+    );
+    window.removeEventListener('deason:nudge', handler);
+  });
 });
