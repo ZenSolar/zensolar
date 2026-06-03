@@ -219,9 +219,16 @@ function SimulatorContent() {
     lpUSDC: Math.round(m.lpUSDC),
     price: Number(m.price.toFixed(4)),
     sellUSD: -Math.round(m.sellUSDCOut),
-    inflowUSD: Math.round(m.trancheInjectedUSDC + m.taxToLPUSDC + m.buybackUSDC),
+    trancheUSD: Math.round(m.trancheInjectedUSDC),
+    taxUSD: Math.round(m.taxToLPUSDC),
+    secondaryUSD: Math.round(m.secondaryInjectedUSDC),
+    buybackUSD: Math.round(m.buybackUSDC),
+    inflowUSD: Math.round(
+      m.trancheInjectedUSDC + m.taxToLPUSDC + m.buybackUSDC + m.secondaryInjectedUSDC,
+    ),
     netLP: Math.round(m.netLPChangeUSDC),
     supply: Math.round(m.circulatingSupply),
+    locked: Math.round(m.lockedSupply),
     treasury: Math.round(m.treasuryUSDC),
     cumBuyback: 0, // filled below
   }));
@@ -234,6 +241,9 @@ function SimulatorContent() {
   const trancheMonths = config.tranches
     .filter((t) => t.enabled && t.triggerMonth >= 0)
     .map((t) => ({ id: t.id, month: `M${t.triggerMonth}` }));
+
+  const selfSustainMonthLabel =
+    result.selfSustainingMonth !== null ? `M${result.selfSustainingMonth}` : null;
 
   return (
     <div className="min-h-[100svh] bg-background text-foreground" ref={printRef}>
