@@ -1,6 +1,10 @@
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { Card, CardContent } from '@/components/ui/card';
-import { Sun, BatteryFull, Car, Zap, ChevronRight, Wallet } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Sun, BatteryFull, Car, Zap, ChevronRight, Wallet, Sparkles, ArrowRight, Leaf } from 'lucide-react';
+import { useHaptics } from '@/hooks/useHaptics';
 
 const kpiItems = [
   {
@@ -46,6 +50,22 @@ const kpiItems = [
 ];
 
 export function CleanEnergyCenterShowcase() {
+  const navigate = useNavigate();
+  const { mediumTap } = useHaptics();
+
+  const pendingKwh = 1284;
+  const expectedTokens = 1284;
+  const usdValue = '$128.40';
+  const co2Lbs = 1812;
+
+  const handleTapToMint = () => {
+    mediumTap();
+    toast.success(`Proof of Genesis™ engaged · ${expectedTokens.toLocaleString()} $ZSOLAR queued`, {
+      description: 'Continue in the live demo to write your proof on-chain.',
+    });
+    navigate('/demo');
+  };
+
   return (
     <section id="clean-energy-center" className="py-[clamp(3rem,8vw,6rem)]">
       <div className="container max-w-4xl mx-auto px-4">
@@ -79,8 +99,17 @@ export function CleanEnergyCenterShowcase() {
           viewport={{ once: true }}
           transition={{ delay: 0.15 }}
         >
-          <Card className="rounded-2xl border border-border/60 bg-card/40 overflow-hidden">
-            <CardContent className="p-5 md:p-8">
+          <Card className="relative rounded-2xl border border-border/60 bg-card/40 overflow-hidden">
+            {/* Proof of Genesis™ glow */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 opacity-70"
+              style={{
+                background:
+                  'radial-gradient(120% 80% at 50% -10%, hsl(var(--primary) / 0.18), transparent 60%)',
+              }}
+            />
+            <CardContent className="relative p-5 md:p-8">
               {/* Wallet preview */}
               <div className="flex items-center justify-between p-4 rounded-xl border border-border/40 bg-muted/40 mb-6">
                 <div className="flex items-center gap-3">
@@ -139,6 +168,48 @@ export function CleanEnergyCenterShowcase() {
                     <ChevronRight className="h-5 w-5 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors flex-shrink-0" />
                   </motion.div>
                 ))}
+              </div>
+
+              {/* Tap to Mint — Proof of Genesis™ CTA */}
+              <div className="mt-6 pt-6 border-t border-border/40 space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
+                    <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      <Zap className="h-3 w-3 text-primary" />
+                      Expected
+                    </div>
+                    <div className="mt-1.5 text-2xl font-black text-primary tabular-nums leading-none">
+                      {expectedTokens.toLocaleString()}
+                    </div>
+                    <div className="mt-1 text-[11px] text-muted-foreground tabular-nums">
+                      $ZSOLAR · {usdValue}
+                    </div>
+                  </div>
+                  <div className="rounded-lg border border-border/60 bg-muted/30 p-3">
+                    <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      <Leaf className="h-3 w-3 text-primary" />
+                      CO₂ avoided
+                    </div>
+                    <div className="mt-1.5 text-2xl font-black text-foreground tabular-nums leading-none">
+                      {co2Lbs.toLocaleString()}
+                    </div>
+                    <div className="mt-1 text-[11px] text-muted-foreground">lbs (this mint)</div>
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-center text-muted-foreground tabular-nums">
+                  {pendingKwh.toLocaleString()} kWh pending · 1 kWh = 1 $ZSOLAR
+                </p>
+
+                <Button
+                  onClick={handleTapToMint}
+                  size="lg"
+                  className="w-full min-h-[52px] bg-primary hover:bg-primary/90 text-primary-foreground text-base font-semibold animate-pulse-glow shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform"
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Tap to Mint
+                  <ArrowRight className="ml-1 h-4 w-4" />
+                </Button>
               </div>
             </CardContent>
           </Card>
