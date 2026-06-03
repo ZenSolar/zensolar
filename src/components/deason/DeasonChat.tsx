@@ -228,6 +228,13 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
       const detail = (e as CustomEvent<{ meta?: Record<string, unknown> }>).detail;
       const meta = detail?.meta as DeasonChatProps['contextMeta'];
       if (meta && meta.kind === 'grid_outage') {
+        // Recovery phase = grid is back / outage sim turned off. Clear the
+        // amber banner + outage header overrides immediately so the chat
+        // snaps back to normal chrome.
+        if ((meta as { phase?: string }).phase === 'recovery') {
+          setOutageContext(null);
+          return;
+        }
         // Pre-suppress the welcome panel so it never flashes while the
         // outage-seeded assistant message is being inserted.
         setSuppressEmptyState(true);
