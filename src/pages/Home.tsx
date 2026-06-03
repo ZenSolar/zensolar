@@ -2,7 +2,6 @@ import { SEO } from '@/components/SEO';
 import { HomeHero } from '@/components/home/HomeHero';
 import { LiveStatsBar } from '@/components/home/LiveStatsBar';
 import { HomeNav } from '@/components/home/HomeNav';
-import { SectionDivider } from '@/components/ui/section-divider';
 import { LazySection } from '@/components/home/LazySection';
 import { lazy, Suspense } from 'react';
 
@@ -47,7 +46,7 @@ export default function Home() {
           aggregateRating: { '@type': 'AggregateRating', ratingValue: '4.8', ratingCount: '124' },
         }}
       />
-      <div className="relative min-h-screen bg-background dark:bg-gradient-to-br dark:from-background dark:via-background dark:to-primary/5">
+      <div className="relative min-h-screen bg-background text-foreground">
         <HomeNav />
         <Suspense fallback={null}>
           <FloatingSectionNav />
@@ -59,46 +58,36 @@ export default function Home() {
 
           {/* Below-the-fold: loaded on scroll */}
           <Suspense fallback={null}>
-            <SectionDivider variant="chevron" />
             <LazySection>
               <HowItWorksSection />
             </LazySection>
-            <SectionDivider variant="diamond" />
             <LazySection>
               <DashboardShowcase />
             </LazySection>
-            <SectionDivider variant="diamond" />
             <LazySection>
               <CleanEnergyCenterShowcase />
             </LazySection>
-            <SectionDivider variant="angle" />
             <LazySection>
               <NFTMilestoneSection />
             </LazySection>
-            <SectionDivider variant="chevron" />
             <LazySection>
               <StoreRedemptionSection />
             </LazySection>
-            <SectionDivider variant="angle" />
             <LazySection>
               <WhyZenSolarSection />
             </LazySection>
-            <SectionDivider variant="angle" flip />
             <LazySection>
               <TokenizationWaveSection />
             </LazySection>
-            <SectionDivider variant="diamond" />
             <LazySection>
               <PricingSection />
             </LazySection>
             <LazySection>
               <SubscriptionTransparencyPanel />
             </LazySection>
-            <SectionDivider variant="chevron" />
             <LazySection>
               <TestimonialsSection />
             </LazySection>
-            <SectionDivider variant="angle" />
             <LazySection>
               <FAQSection />
             </LazySection>

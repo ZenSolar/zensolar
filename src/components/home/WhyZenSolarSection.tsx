@@ -1,24 +1,21 @@
 import { motion } from 'framer-motion';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { AlertTriangle, TrendingDown, RefreshCcw, ArrowRight, DollarSign, ShieldOff, Repeat } from 'lucide-react';
 
 export function WhyZenSolarSection() {
   return (
     <section id="why-zensolar" className="py-[clamp(3rem,8vw,6rem)]">
-      <div className="container max-w-6xl mx-auto px-4">
+      <div className="container max-w-5xl mx-auto px-5">
         {/* Header */}
         <div className="text-center mb-10">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-            <Badge variant="outline" className="px-3 py-1 border-destructive/40 bg-destructive/10 text-destructive font-medium mb-4">
-              The Problem
-            </Badge>
+            <span className="inline-block text-[11px] uppercase tracking-[0.24em] text-secondary/90 mb-4">The Problem</span>
           </motion.div>
           <motion.h2
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold tracking-tight mb-3"
+            className="text-2xl md:text-3xl font-semibold tracking-tight leading-[1.1] mb-3"
           >
             $40 Billion in Clean Energy Incentives:{' '}
             <span className="text-destructive">Gone.</span>
@@ -69,9 +66,7 @@ export function WhyZenSolarSection() {
           <Card className="border-primary/30 bg-gradient-to-br from-primary/5 via-card to-secondary/5 overflow-hidden">
             <CardContent className="p-8 md:p-10">
               <div className="text-center mb-8">
-                <Badge variant="outline" className="px-3 py-1 border-primary/40 bg-primary/10 text-primary font-medium mb-4">
-                  The Solution
-                </Badge>
+                <span className="inline-block text-[11px] uppercase tracking-[0.24em] text-secondary/90 mb-4">The Solution</span>
                 <h3 className="text-2xl md:text-3xl font-bold tracking-tight mb-3">
                   ZenSolar Replaces Government Incentives with{' '}
                   <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">

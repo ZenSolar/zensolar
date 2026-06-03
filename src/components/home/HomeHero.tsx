@@ -1,8 +1,7 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Sparkles, Zap, Sun, BatteryFull, Car, Navigation } from 'lucide-react';
+import { ArrowRight, Zap, Sun, BatteryFull, Car, Navigation } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 import enphaseLogo from '@/assets/logos/enphase-wordmark.svg';
 import teslaLogo from '@/assets/logos/tesla-t-icon.png';
@@ -10,173 +9,170 @@ import solaredgeLogo from '@/assets/logos/solaredge-cropped.svg';
 import wallboxLogo from '@/assets/logos/wallbox-white.png';
 
 const brandLogos = [
-  { src: teslaLogo, alt: 'Tesla', extra: '' },
-  { src: enphaseLogo, alt: 'Enphase', extra: '' },
-  { src: solaredgeLogo, alt: 'SolarEdge', extra: '' },
-  { src: wallboxLogo, alt: 'Wallbox', extra: '' },
+  { src: teslaLogo, alt: 'Tesla' },
+  { src: enphaseLogo, alt: 'Enphase' },
+  { src: solaredgeLogo, alt: 'SolarEdge' },
+  { src: wallboxLogo, alt: 'Wallbox' },
+];
+
+const earnRows = [
+  { icon: Sun, label: 'Every kWh your solar panels produce' },
+  { icon: BatteryFull, label: 'Every kWh your battery storage exports' },
+  { icon: Car, label: 'Every EV mile you drive' },
+  { icon: Zap, label: 'Every kWh used to charge your EV' },
+  { icon: Navigation, label: 'Every autonomous mile driven' },
+];
+
+const heroStats = [
+  { k: 'Beta', v: 'Live on Base' },
+  { k: 'kWh', v: 'Minted as $ZSOLAR' },
+  { k: 'Patent', v: 'Pending · Est. 2025' },
 ];
 
 export function HomeHero() {
   const { mediumTap } = useHaptics();
   return (
-    <section className="relative pt-[calc(4rem+env(safe-area-inset-top)+clamp(2rem,6vw,4rem))] pb-[clamp(3rem,8vw,6rem)]">
-      {/* Background gradient orbs */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute top-20 -left-20 w-96 h-96 rounded-full opacity-15 dark:opacity-30 blur-3xl" style={{ background: 'radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)' }} />
-        <div className="absolute bottom-20 -right-20 w-96 h-96 rounded-full opacity-10 dark:opacity-25 blur-3xl" style={{ background: 'radial-gradient(circle, hsl(var(--secondary)) 0%, transparent 70%)' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full opacity-10 dark:opacity-20 blur-3xl" style={{ background: 'radial-gradient(circle, hsl(var(--solar)) 0%, transparent 70%)' }} />
-      </div>
+    <section className="relative overflow-hidden border-b border-border/40 pt-[calc(4rem+env(safe-area-inset-top)+clamp(2rem,6vw,4rem))] pb-[clamp(3rem,8vw,6rem)]">
+      {/* Single calm radial glow — matches /investor/pitch hero */}
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,hsl(var(--secondary)/0.18),transparent_60%)]"
+      />
 
-      <div className="container max-w-6xl mx-auto px-4">
-        <div className="text-center flex flex-col items-center gap-6 max-w-4xl mx-auto">
-          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5 }}>
-            <Badge variant="outline" className="inline-flex items-center px-4 py-2 text-sm border-primary/50 bg-primary/10 text-primary font-semibold ring-1 ring-primary/20 animate-breathing-glow">
-              <Sparkles className="h-4 w-4 mr-2 flex-shrink-0" />
-              Tokenizing Clean Energy · Beta Live on Base
-            </Badge>
-          </motion.div>
+      <div className="container max-w-3xl mx-auto px-5">
+        <div className="flex flex-col items-center text-center gap-6">
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4 }}
+            className="text-[11px] uppercase tracking-[0.24em] text-secondary/90"
+          >
+            Tokenizing Clean Energy · Beta Live on Base
+          </motion.span>
 
           <motion.h1
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.6 }}
-            className="text-[clamp(2.5rem,7vw,5rem)] font-bold tracking-tight leading-[1.08]"
+            transition={{ delay: 0.1, duration: 0.5 }}
+            className="text-3xl md:text-5xl font-semibold leading-[1.05] tracking-tight text-foreground"
           >
-            Creating{' '}
-            <span className="bg-gradient-to-r from-eco via-primary to-secondary bg-clip-text text-transparent">
-              Currency
-            </span>
+            Creating Currency
             <br />
-            From Energy
+            From Energy.
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15, duration: 0.5 }}
-            className="text-[clamp(1.1rem,2.8vw,1.5rem)] font-semibold text-muted-foreground tracking-tight"
+            className="text-sm md:text-base text-muted-foreground max-w-xl leading-relaxed"
           >
-            The World's First{' '}
-            <span className="bg-gradient-to-r from-solar via-accent to-destructive bg-clip-text text-transparent">
-              Mint-on-Proof<sup className="text-[0.35em] font-normal align-super text-muted-foreground">™</sup>
-            </span>{' '}
-            Platform. Tokenizing Clean Energy at the Kilowatt-Hour Level.
+            The world&apos;s first Mint-on-Proof™ platform. Tokenizing clean energy at the
+            kilowatt-hour level — for solar owners, battery storage, and EV drivers.
           </motion.p>
 
+          {/* Hero KPI tiles, matching /investor/pitch */}
           <motion.div
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="text-[clamp(1.05rem,2.5vw,1.25rem)] text-muted-foreground max-w-xl mx-auto leading-relaxed text-center"
+            className="grid grid-cols-3 gap-3 w-full max-w-md"
           >
-            <p className="mb-4 font-normal text-[clamp(0.95rem,2.3vw,1.1rem)] leading-relaxed">
-              ZenSolar rewards solar users and EV drivers with <span className="text-primary font-medium">$ZSOLAR tokens</span> and <span className="text-primary font-medium">NFTs</span> for:
-            </p>
-            <ul className="space-y-2 text-left inline-block text-[clamp(0.9rem,2.5vw,1.05rem)]">
-              <li className="flex items-center gap-2.5">
-                <Sun className="h-4 w-4 text-solar flex-shrink-0" />
-                <span>Every kWh your solar panels produce</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <BatteryFull className="h-4 w-4 text-secondary flex-shrink-0" />
-                <span>Every kWh your battery storage exports</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Car className="h-4 w-4 text-energy flex-shrink-0" />
-                <span>Every EV mile you drive</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Zap className="h-4 w-4 text-token flex-shrink-0" />
-                <span>Every kWh used to charge your EV</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Navigation className="h-4 w-4 text-primary flex-shrink-0" />
-                <span>Every autonomous mile driven</span>
-              </li>
-            </ul>
-          </motion.div>
-
-          {/* VPP / Texas differentiator */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25, duration: 0.5 }}
-            className="flex flex-wrap items-center justify-center gap-2 pt-2"
-          >
-            {[
-              { icon: '⚡', label: 'Virtual Power Plant Ready', colors: 'from-energy/15 to-primary/15 border-energy/40 hover:border-energy/60' },
-              { icon: '🇺🇸', label: 'Nationwide · Not Just Texas', colors: 'from-primary/15 to-secondary/15 border-primary/40 hover:border-primary/60' },
-              { icon: '🔒', label: 'Patent Pending · Est. 2025', colors: 'from-solar/15 to-accent/15 border-solar/40 hover:border-solar/60' },
-            ].map((badge) => (
+            {heroStats.map((s) => (
               <div
-                key={badge.label}
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r ${badge.colors} shadow-sm hover:shadow-md transition-all cursor-default text-sm`}
+                key={s.v}
+                className="rounded-xl border border-border/60 bg-card/50 px-2 py-3"
               >
-                <span>{badge.icon}</span>
-                <span className="font-medium text-foreground text-xs">{badge.label}</span>
+                <div className="text-base md:text-lg font-semibold text-foreground">{s.k}</div>
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5">
+                  {s.v}
+                </div>
               </div>
             ))}
+          </motion.div>
+
+          {/* Earn-for list */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25, duration: 0.5 }}
+            className="w-full max-w-md rounded-2xl border border-border/60 bg-card/40 p-5 text-left"
+          >
+            <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground mb-3">
+              You earn $ZSOLAR for
+            </div>
+            <ul className="space-y-2.5">
+              {earnRows.map(({ icon: Icon, label }) => (
+                <li key={label} className="flex items-center gap-3 text-sm text-foreground/90">
+                  <Icon className="h-4 w-4 text-secondary flex-shrink-0" />
+                  <span>{label}</span>
+                </li>
+              ))}
+            </ul>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35, duration: 0.5 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2"
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 w-full"
           >
-            <Link to="/demo">
-              <Button size="lg" onClick={mediumTap} className="relative overflow-hidden px-8 py-6 text-base bg-gradient-to-r from-solar via-accent to-destructive hover:opacity-90 transition-all shadow-lg shadow-accent/30 hover:shadow-accent/50 hover:scale-[1.02]">
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12 pointer-events-none"
-                  animate={{ x: ['-100%', '200%'] }}
-                  transition={{ duration: 1.2, repeat: Infinity, repeatDelay: 1, ease: 'easeInOut' }}
-                />
-                <Zap className="mr-2 h-5 w-5 relative z-10" />
-                <span className="relative z-10">Try Minting · Free Demo</span>
-                <ArrowRight className="ml-2 h-5 w-5 relative z-10" />
-              </Button>
-            </Link>
-            <Link to="/auth">
-              <Button size="lg" variant="outline" onClick={mediumTap} className="px-8 py-6 text-base border-primary/40 hover:bg-primary/10 hover:border-primary/60 transition-all">
+            <Button
+              asChild
+              size="lg"
+              onClick={mediumTap}
+              className="w-full sm:w-auto h-11 bg-secondary text-secondary-foreground hover:bg-secondary/90 px-7"
+            >
+              <Link to="/demo">
+                <Zap className="mr-2 h-4 w-4" />
+                Try Minting · Free Demo
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              onClick={mediumTap}
+              className="w-full sm:w-auto h-11 border-border/60 hover:bg-card/60 px-7"
+            >
+              <Link to="/auth">
                 Start Earning Today
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.45, duration: 0.6 }}
-            className="w-full max-w-2xl pt-8"
+            transition={{ delay: 0.45, duration: 0.5 }}
+            className="w-full max-w-2xl pt-10"
           >
-            <p className="text-xs text-muted-foreground/50 uppercase tracking-[0.2em] font-mono mb-5">Connects with</p>
-            <div className="relative overflow-hidden rounded-2xl pt-1 pb-6 px-6 border border-border/20 bg-gradient-to-br from-primary/[0.06] via-card/50 to-solar/[0.04] backdrop-blur-sm">
-              {/* Ambient glow spots */}
-              <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-32 h-32 bg-primary/10 rounded-full blur-[60px] pointer-events-none" />
-              <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-32 h-32 bg-solar/10 rounded-full blur-[60px] pointer-events-none" />
-              {/* Subtle shimmer sweep */}
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.06] to-transparent -skew-x-12 pointer-events-none"
-                animate={{ x: ['-100%', '200%'] }}
-                transition={{ duration: 2, repeat: Infinity, repeatDelay: 1.5, ease: 'easeInOut' }}
-              />
-              <div className="relative grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4 place-items-center">
-                {brandLogos.map(({ src, alt, extra }, idx) => (
-                  <motion.img
+            <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground mb-4">
+              Connects with
+            </p>
+            <div className="rounded-2xl border border-border/60 bg-card/40 px-6 py-5">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4 place-items-center">
+                {brandLogos.map(({ src, alt }) => (
+                  <img
                     key={alt}
                     src={src}
                     alt={alt}
-                    className={`${extra} w-auto object-contain opacity-60 hover:opacity-100 transition-all duration-500 ${alt === 'Tesla' ? 'max-w-[400px] md:max-w-[500px] max-h-20 md:max-h-28' : 'max-w-[120px] md:max-w-[140px] max-h-10 md:max-h-12'}`}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 0.6, y: 0 }}
-                    transition={{ delay: 0.5 + idx * 0.1, duration: 0.5 }}
-                    whileHover={{ scale: 1.05 }}
+                    loading="lazy"
+                    decoding="async"
+                    className={`w-auto object-contain opacity-70 hover:opacity-100 transition-opacity duration-300 ${
+                      alt === 'Tesla'
+                        ? 'max-w-[300px] md:max-w-[400px] max-h-16 md:max-h-20'
+                        : 'max-w-[120px] md:max-w-[140px] max-h-9 md:max-h-10'
+                    }`}
                   />
                 ))}
               </div>
             </div>
-            <p className="text-xs text-muted-foreground/40 uppercase tracking-[0.15em] font-mono mt-4">More partners coming soon…</p>
+            <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground/60 mt-4">
+              More partners coming soon
+            </p>
           </motion.div>
         </div>
       </div>

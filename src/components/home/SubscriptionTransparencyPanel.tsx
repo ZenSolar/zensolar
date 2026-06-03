@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Droplets, Building2, Receipt, ArrowDownUp, TrendingUp } from 'lucide-react';
 import {
   BLENDED_ARPU,
@@ -33,13 +32,10 @@ export function SubscriptionTransparencyPanel() {
     <section className="py-[clamp(2rem,6vw,4rem)]">
       <div className="container max-w-5xl mx-auto px-4">
         <div className="text-center mb-8">
-          <Badge
-            variant="outline"
-            className="px-3 py-1 border-eco/40 bg-eco/10 text-eco font-medium mb-3"
-          >
+          <span className="inline-block text-[11px] uppercase tracking-[0.24em] text-secondary/90 mb-3">
             Full Transparency
-          </Badge>
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-2">
+          </span>
+          <h2 className="text-2xl md:text-3xl font-semibold tracking-tight leading-[1.1] mb-2">
             Where Your Subscription Goes
           </h2>
           <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">

@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { InvestorEnergyFlowCard } from '@/components/demo/InvestorEnergyFlowCard';
 import enphaseLogo from '@/assets/logos/enphase-wordmark.svg';
@@ -69,15 +68,13 @@ export function DashboardShowcase() {
       <div className="container max-w-4xl mx-auto px-4">
         <div className="text-center mb-8">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-            <Badge variant="outline" className="px-3 py-1 border-primary/40 bg-primary/10 text-primary font-medium mb-4">
-              Unified Dashboard
-            </Badge>
+            <span className="inline-block text-[11px] uppercase tracking-[0.24em] text-secondary/90 mb-4">Unified Dashboard</span>
           </motion.div>
           <motion.h2
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold tracking-tight mb-3"
+            className="text-2xl md:text-3xl font-semibold tracking-tight leading-[1.1] mb-3"
           >
             One Dashboard for All Your Devices
           </motion.h2>
@@ -121,7 +118,7 @@ export function DashboardShowcase() {
           viewport={{ once: true }}
           transition={{ delay: 0.25 }}
         >
-          <Card className="border-primary/20 overflow-hidden shadow-2xl shadow-primary/10 bg-transparent">
+          <Card className="rounded-2xl border border-border/60 bg-card/40 overflow-hidden">
             <InvestorEnergyFlowCard />
           </Card>
         </motion.div>

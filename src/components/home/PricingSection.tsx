@@ -103,18 +103,16 @@ export function PricingSection() {
   const { mediumTap } = useHaptics();
   return (
     <section id="pricing" className="py-[clamp(3rem,8vw,6rem)]">
-      <div className="container max-w-6xl mx-auto px-4">
+      <div className="container max-w-5xl mx-auto px-5">
         <div className="text-center mb-12">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-            <Badge variant="outline" className="px-3 py-1 border-secondary/40 bg-secondary/10 text-secondary font-medium mb-4">
-              Simple Pricing
-            </Badge>
+            <span className="inline-block text-[11px] uppercase tracking-[0.24em] text-secondary/90 mb-4">Simple Pricing</span>
           </motion.div>
           <motion.h2
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold tracking-tight mb-3"
+            className="text-2xl md:text-3xl font-semibold tracking-tight leading-[1.1] mb-3"
           >
             Pay a Little, Earn a Lot
           </motion.h2>

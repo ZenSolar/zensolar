@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Sun, BatteryFull, Car, Zap, ChevronRight, Wallet } from 'lucide-react';
 
@@ -52,15 +51,13 @@ export function CleanEnergyCenterShowcase() {
       <div className="container max-w-4xl mx-auto px-4">
         <div className="text-center mb-10">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-            <Badge variant="outline" className="px-3 py-1 border-secondary/40 bg-secondary/10 text-secondary font-medium mb-4">
-              Clean Energy Center
-            </Badge>
+            <span className="inline-block text-[11px] uppercase tracking-[0.24em] text-secondary/90 mb-4">Clean Energy Center</span>
           </motion.div>
           <motion.h2
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold tracking-tight mb-3"
+            className="text-2xl md:text-3xl font-semibold tracking-tight leading-[1.1] mb-3"
           >
             Your Energy Command Center
           </motion.h2>
@@ -82,7 +79,7 @@ export function CleanEnergyCenterShowcase() {
           viewport={{ once: true }}
           transition={{ delay: 0.15 }}
         >
-          <Card className="border-primary/20 overflow-hidden shadow-2xl shadow-primary/10 bg-card">
+          <Card className="rounded-2xl border border-border/60 bg-card/40 overflow-hidden">
             <CardContent className="p-5 md:p-8">
               {/* Wallet preview */}
               <div className="flex items-center justify-between p-4 rounded-xl border border-border/40 bg-muted/40 mb-6">
@@ -127,7 +124,7 @@ export function CleanEnergyCenterShowcase() {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.2 + i * 0.08 }}
-                    className={`flex items-center gap-4 p-4 rounded-xl border border-border/40 bg-muted/30 border-l-4 ${item.borderColor} group hover:bg-muted/60 transition-colors`}
+                    className={`flex items-center gap-4 p-4 rounded-xl border border-border/40 bg-muted/30 border-l-2 border-l-secondary/50 group hover:bg-muted/60 transition-colors`}
                   >
                     <div className={`p-2.5 rounded-xl ${item.iconBg} flex-shrink-0`}>
                       <item.icon className={`h-5 w-5 ${item.iconColor}`} />

@@ -1,49 +1,59 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Zap } from 'lucide-react';
+import { ArrowRight, Zap, Sparkles } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 
 export function HomeCTA() {
   const { mediumTap } = useHaptics();
   return (
-    <section className="py-[clamp(4rem,10vw,8rem)]">
-      <div className="container max-w-4xl mx-auto px-4">
+    <section className="py-[clamp(3rem,8vw,6rem)] border-t border-border/40">
+      <div className="container max-w-3xl mx-auto px-5">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="relative overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 via-card to-solar/10 p-8 md:p-12 text-center"
+          className="rounded-3xl border border-secondary/30 bg-secondary/5 p-7 md:p-10 text-center"
         >
-          {/* Glow effects */}
-          <div className="absolute top-0 left-1/4 w-64 h-64 rounded-full bg-primary/10 blur-3xl -z-10" />
-          <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full bg-solar/10 blur-3xl -z-10" />
-
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-            Ready to Turn Your Clean Energy Into{' '}
-            <span className="bg-gradient-to-r from-solar via-accent to-primary bg-clip-text text-transparent">
-              Digital Income
-            </span>
-            ?
+          <span className="inline-block text-[11px] uppercase tracking-[0.24em] text-secondary/90 mb-4">
+            Join the Beta
+          </span>
+          <h2 className="text-2xl md:text-3xl font-semibold tracking-tight leading-[1.1] text-foreground mb-3">
+            Ready to turn your clean energy into digital income?
           </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto mb-8 text-lg">
-            Join our beta and start earning $ZSOLAR tokens for every kWh your solar panels produce, your battery stores, and your EV drives.
+          <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto mb-7 leading-relaxed">
+            Earn $ZSOLAR for every kWh your solar panels produce, your battery stores,
+            and your EV drives.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link to="/auth">
-              <Button size="lg" onClick={mediumTap} className="px-10 py-6 text-base bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-all shadow-lg shadow-primary/25 hover:shadow-primary/45 hover:scale-[1.02]">
-                <Zap className="mr-2 h-5 w-5" />
+            <Button
+              asChild
+              size="lg"
+              onClick={mediumTap}
+              className="w-full sm:w-auto h-11 bg-secondary text-secondary-foreground hover:bg-secondary/90 px-7"
+            >
+              <Link to="/auth">
+                <Zap className="mr-2 h-4 w-4" />
                 Start Earning Now
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-            <Link to="/demo">
-              <Button size="lg" variant="outline" onClick={mediumTap} className="px-8 py-6 text-base border-primary/40 hover:bg-primary/10">
-                Try the Demo First
-              </Button>
-            </Link>
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              onClick={mediumTap}
+              className="w-full sm:w-auto h-11 border-border/60 hover:bg-card/60 px-7"
+            >
+              <Link to="/demo">Try the Demo First</Link>
+            </Button>
           </div>
+
+          <p className="mt-8 text-sm italic text-muted-foreground">
+            <Sparkles className="inline h-3.5 w-3.5 text-secondary mr-1.5 -mt-0.5" />
+            Bitcoin tokenized scarcity. We&apos;re tokenizing abundance.
+          </p>
         </motion.div>
       </div>
     </section>
