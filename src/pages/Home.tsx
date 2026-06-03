@@ -2,7 +2,6 @@ import { SEO } from '@/components/SEO';
 import { HomeHero } from '@/components/home/HomeHero';
 import { LiveStatsBar } from '@/components/home/LiveStatsBar';
 import { HomeNav } from '@/components/home/HomeNav';
-import { SectionDivider } from '@/components/ui/section-divider';
 import { LazySection } from '@/components/home/LazySection';
 import { lazy, Suspense } from 'react';
 
