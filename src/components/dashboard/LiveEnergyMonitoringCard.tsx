@@ -28,6 +28,7 @@ import { LiveCardHeader } from './LiveCardHeader';
 
 import { ChargerOnlyLiveCard } from './ChargerOnlyLiveCard';
 import { useChargerDevices } from '@/hooks/useChargerDevices';
+import { OutageModePanel } from './OutageModePanel';
 
 function getPath(payload: any, path: string): unknown {
   return path.split('.').reduce((acc, key) => {
