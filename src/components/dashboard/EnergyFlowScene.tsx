@@ -84,36 +84,31 @@ const WARM = 'hsl(38 90% 62%)';
 // ─────────────────────────────────────────────────────────────────────────────
 //
 // During Grid Outage Mode, the Battery → Home line must read as the dominant
-// route at a glance — the user should feel "I'm running on backup" without
-// needing to look at the panel copy. These constants centralize every knob
-// that affects that hierarchy so the look can be re-tuned in one place and
-// locked behind a snapshot test (src/test/EnergyFlowScene.outage.test.ts).
+// route — but in the SAME visual language as the active Solar flow (a faint
+// guide path with LED particles riding on top), just amber, denser, and
+// slightly faster. The previous triple-halo stack read as a blurry smear;
+// this matches the rest of the scene.
 //
-// All values are calibrated against the SVG viewBox 0–100 — small absolute
-// numbers translate to visually-prominent strokes once scaled to the card.
-//
-// Last tuned: 2026-06-03. Bumping any value here intentionally? Update the
-// snapshot test in the same commit.
+// Tuned 2026-06-03. Bumping any value? Update the snapshot test in
+// src/test/EnergyFlowScene.outage.test.ts in the same commit.
 export const OUTAGE_VISUAL = {
-  /** Battery → Home hero flow during outage. */
+  /** Battery → Home hero flow during outage — mirrors active Solar style. */
   pwHome: {
-    /** Bright core stroke that the particles ride on. */
-    coreStrokeWidth: 1.6,
-    coreStroke: 'hsl(38 100% 65% / 0.95)',
-    /** Mid amber halo (soft blur underneath core). */
-    midHaloStrokeWidth: 2.4,
-    midHalo: 'hsl(38 95% 62% / 0.6)',
-    /** Outermost pulse — animates opacity for a slow breathing effect. */
-    outerHaloStrokeWidth: 4.0,
-    outerHalo: 'hsl(38 95% 60% / 0.28)',
-    outerHaloPulse: { from: 0.18, to: 0.42, durMs: 1200 },
-    /** Particle stream density. 5 amber droplets at r=1.1 = "dense current". */
-    particleCount: 5,
-    particleRadius: 1.1,
-    /** Minimum animation duration floor — keeps motion legible even at low kW. */
-    minParticleDurSec: 0.9,
-    /** Directional chevron polygon (triangle pointing along path direction). */
-    chevron: { width: 2.2, height: 1.4, opacity: 0.95 },
+    /** Faint guide path the particles ride on (cf. DottedFlow 0.45 / 0.18). */
+    guideStrokeWidth: 0.55,
+    guideStroke: 'hsl(38 95% 55%)',
+    guideOpacity: 0.28,
+    /** Single soft amber halo under the guide (replaces the 3-halo stack). */
+    haloStrokeWidth: 1.6,
+    haloStroke: 'hsl(38 95% 60% / 0.26)',
+    haloPulse: { from: 0.18, to: 0.32, durMs: 1400 },
+    /** Dense, fast LED particle stream — same animation profile as solar. */
+    particleCount: 6,
+    particleRadius: 0.75,
+    particleColor: 'hsl(45 100% 80%)',
+    /** Floor + factor for particle cadence. baseDur * factor, min floor. */
+    particleMinDurSec: 1.6,
+    particleDurFactor: 0.55,
   },
   /** Solar flows are dimmed during outage so the eye lands on pw-home. */
   solarDimOpacity: 0.35,
