@@ -794,50 +794,51 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
         </div>
       ) : (
         <div className="space-y-3">
-          <div className="overflow-hidden rounded-xl border border-primary/20 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.12),transparent_70%),radial-gradient(circle_at_bottom,hsl(220_60%_8%/0.6),transparent_60%)] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04),0_8px_30px_-8px_hsl(220_60%_4%/0.6)]">
-            {outage?.active ? (
+          <div
+            key={outage?.active ? 'outage' : 'normal'}
+            className="overflow-hidden rounded-xl border border-primary/20 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.12),transparent_70%),radial-gradient(circle_at_bottom,hsl(220_60%_8%/0.6),transparent_60%)] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04),0_8px_30px_-8px_hsl(220_60%_4%/0.6)] animate-in fade-in duration-300"
+          >
+            <Suspense fallback={<div className="aspect-square w-full animate-pulse bg-card/10" aria-hidden="true" />}>
+              <EnergyFlowScene
+                className={outage?.active ? 'aspect-[5/3] w-full' : 'aspect-square w-full'}
+                data={flowData}
+                hasBattery={hasBattery}
+                hasCharger={hasCharger}
+                hasTesla={hasTesla}
+                isOutage={outage?.active ?? false}
+                teslaPayload={
+                  primaryEv?.oem === 'tesla'
+                    ? {
+                        ...((primaryEv?.payload as Record<string, unknown>) ?? {}),
+                        device_name: primaryEv?.device_name,
+                        display_name:
+                          (primaryEv?.payload as any)?.display_name ?? primaryEv?.device_name,
+                        metadata: {
+                          ...(((primaryEv as any)?.metadata as Record<string, unknown>) ?? {}),
+                          device_name: primaryEv?.device_name,
+                          vin:
+                            (primaryEv as any)?.device_id ?? (primaryEv?.payload as any)?.vin,
+                        },
+                      }
+                    : undefined
+                }
+                batteryPayload={primaryBattery?.payload}
+                batteryCount={battery.data?.length ?? 1}
+                vehicleModel={null}
+              />
+            </Suspense>
+            {outage?.active && (
               <OutageModePanel
                 socPct={batteryStats.soc ?? 0}
                 usableCapacityKwh={batteryStats.capacityKwh ?? 13.5}
                 dischargeKw={Math.max(0, -(batteryStats.powerKw ?? 0))}
                 outageStartedAt={outage.startedAt}
                 solarProducingKw={solarStats.currentKw ?? 0}
-                className="rounded-none border-0"
+                className="rounded-none border-0 border-t border-primary/15"
               />
-            ) : (
-              <Suspense fallback={<div className="aspect-square w-full animate-pulse bg-card/10" aria-hidden="true" />}>
-                <EnergyFlowScene
-                  className="aspect-square w-full"
-                  data={flowData}
-                  hasBattery={hasBattery}
-                  hasCharger={hasCharger}
-                  hasTesla={hasTesla}
-                  teslaPayload={
-                    primaryEv?.oem === 'tesla'
-                      ? {
-                          ...((primaryEv?.payload as Record<string, unknown>) ?? {}),
-                          device_name: primaryEv?.device_name,
-                          display_name:
-                            (primaryEv?.payload as any)?.display_name ?? primaryEv?.device_name,
-                          metadata: {
-                            ...(((primaryEv as any)?.metadata as Record<string, unknown>) ?? {}),
-                            device_name: primaryEv?.device_name,
-                            vin:
-                              (primaryEv as any)?.device_id ?? (primaryEv?.payload as any)?.vin,
-                          },
-                        }
-                      : undefined
-                  }
-                  batteryPayload={primaryBattery?.payload}
-                  batteryCount={battery.data?.length ?? 1}
-                  vehicleModel={null}
-
-                />
-
-              </Suspense>
             )}
-
           </div>
+
 
           {/* ZenX vehicle pill — clean Tesla-style status under the scene */}
           {teslaFlow && (
