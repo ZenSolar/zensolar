@@ -20,7 +20,13 @@ export interface OutageModePanelProps {
 function formatStartedAt(value: Date | string): string {
   const d = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(d.getTime())) return '—';
-  return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const clock = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const elapsedMs = Date.now() - d.getTime();
+  if (elapsedMs >= 0 && elapsedMs < 60 * 60_000) {
+    const mins = Math.max(1, Math.round(elapsedMs / 60_000));
+    return `${clock} · ${mins} min ago`;
+  }
+  return clock;
 }
 
 export function OutageModePanel({
@@ -50,7 +56,8 @@ export function OutageModePanel({
     ? 'border-amber-400/40 bg-amber-400/10 text-amber-300'
     : 'border-primary/30 bg-primary/10 text-primary';
 
-  const maxBackupKw = Math.max(dischargeKw * 1.5, 5);
+  // Cap reflects realistic household backup capacity, not just the current draw.
+  const maxBackupKw = Math.max(5, dischargeKw * 1.5, usableCapacityKwh * 0.4);
   const progressValue = Math.min(100, (Math.max(0, dischargeKw) / maxBackupKw) * 100);
   const solarActive = solarProducingKw > 0.1;
 
@@ -88,7 +95,7 @@ export function OutageModePanel({
 
       {/* Metric + SOC */}
       <div className="grid grid-cols-1 gap-2 px-4 sm:grid-cols-2">
-        <div className="rounded-lg border border-primary/15 bg-background/45 p-3">
+        <div className="rounded-lg border border-primary/15 bg-background/45 p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.05)]">
           <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
             <BatteryCharging className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
             From Battery
@@ -101,7 +108,7 @@ export function OutageModePanel({
           </div>
         </div>
 
-        <div className="rounded-lg border border-primary/15 bg-background/45 p-3">
+        <div className="rounded-lg border border-primary/15 bg-background/45 p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.05)]">
           <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
             Battery State
           </div>
@@ -118,15 +125,15 @@ export function OutageModePanel({
 
       {/* Progress */}
       <div className="px-4 pt-4">
-        <div className="flex items-center justify-between text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+        <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
           <span>Current load vs backup capacity</span>
-          <span className="tabular-nums">{Math.round(progressValue)}%</span>
+          <span className="tabular-nums">{Math.max(0, dischargeKw).toFixed(1)} / {maxBackupKw.toFixed(1)} kW</span>
         </div>
         <Progress value={progressValue} className="mt-1.5 h-1.5" />
       </div>
 
       {/* Footer */}
-      <div className="px-4 pb-4 pt-3">
+      <div className="space-y-1 px-4 pb-4 pt-3">
         {solarActive ? (
           <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
             <Sun className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
@@ -135,6 +142,11 @@ export function OutageModePanel({
         ) : (
           <div className="text-[11px] text-muted-foreground">
             Your home is safely running on stored battery power.
+          </div>
+        )}
+        {nearReserve && (
+          <div className="text-[11px] font-medium text-amber-300/90">
+            Approaching reserve — non-essential loads will reduce automatically.
           </div>
         )}
       </div>
