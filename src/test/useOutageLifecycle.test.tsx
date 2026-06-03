@@ -3,33 +3,35 @@ import { renderHook, act } from '@testing-library/react';
 
 // ── Mocks ────────────────────────────────────────────────────────────────────
 
-const invoke = vi.fn().mockResolvedValue({ data: null, error: null });
-const insertMaybeSingle = vi.fn().mockResolvedValue({ data: { id: 'evt-1' }, error: null });
-const insertSelect = vi.fn().mockReturnValue({ maybeSingle: insertMaybeSingle });
-const insertFn = vi.fn().mockReturnValue({ select: insertSelect });
-const updateEq = vi.fn().mockResolvedValue({ data: null, error: null });
-const updateFn = vi.fn().mockReturnValue({ eq: updateEq });
-const fromFn = vi.fn((_table: string) => ({
-  insert: insertFn,
-  update: updateFn,
-  select: () => ({ eq: () => ({ maybeSingle: () => Promise.resolve({ data: null }) }) }),
-}));
+const h = vi.hoisted(() => {
+  const invoke = vi.fn().mockResolvedValue({ data: null, error: null });
+  const insertMaybeSingle = vi.fn().mockResolvedValue({ data: { id: 'evt-1' }, error: null });
+  const insertSelect = vi.fn().mockReturnValue({ maybeSingle: insertMaybeSingle });
+  const insertFn = vi.fn().mockReturnValue({ select: insertSelect });
+  const updateEq = vi.fn().mockResolvedValue({ data: null, error: null });
+  const updateFn = vi.fn().mockReturnValue({ eq: updateEq });
+  const fromFn = vi.fn((_table: string) => ({
+    insert: insertFn,
+    update: updateFn,
+    select: () => ({ eq: () => ({ maybeSingle: () => Promise.resolve({ data: null }) }) }),
+  }));
+  const accessRef = { hasAccess: true, reason: 'beta' as const, loading: false, refresh: vi.fn() };
+  return { invoke, insertFn, updateFn, updateEq, fromFn, accessRef };
+});
 
 vi.mock('@/integrations/supabase/client', () => ({
-  supabase: {
-    functions: { invoke },
-    from: fromFn,
-  },
+  supabase: { functions: { invoke: h.invoke }, from: h.fromFn },
 }));
 
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: () => ({ user: { id: 'user-1' } }),
 }));
 
-const accessRef = { hasAccess: true, reason: 'beta' as const, loading: false, refresh: vi.fn() };
 vi.mock('@/hooks/useDeasonOutageAccess', () => ({
-  useDeasonOutageAccess: () => accessRef,
+  useDeasonOutageAccess: () => h.accessRef,
 }));
+
+const { invoke, insertFn, updateFn, updateEq, fromFn, accessRef } = h;
 
 import { useOutageLifecycle, type OutageLifecycleInput } from '@/hooks/useOutageLifecycle';
 
