@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { InvestorEnergyFlowCard } from '@/components/demo/InvestorEnergyFlowCard';
 import enphaseLogo from '@/assets/logos/enphase-wordmark.svg';

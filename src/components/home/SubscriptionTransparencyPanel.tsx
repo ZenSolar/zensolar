@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Droplets, Building2, Receipt, ArrowDownUp, TrendingUp } from 'lucide-react';
 import {
   BLENDED_ARPU,

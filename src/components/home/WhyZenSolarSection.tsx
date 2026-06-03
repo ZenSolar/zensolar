@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { AlertTriangle, TrendingDown, RefreshCcw, ArrowRight, DollarSign, ShieldOff, Repeat } from 'lucide-react';
 

@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { PlugZap, ShieldCheck, Coins, Wallet, Sun, BatteryFull, Car, Zap } from 'lucide-react';
 
