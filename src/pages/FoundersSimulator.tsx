@@ -138,6 +138,17 @@ function SimulatorContent() {
   const printRef = useRef<HTMLDivElement>(null);
 
   const result = useMemo(() => simulate(config), [config]);
+  // Baseline = same config with secondary revenue forced off, for
+  // side-by-side comparison + delta KPIs. Cheap to recompute on each render.
+  const baselineResult = useMemo<SimulatorResult>(
+    () =>
+      simulate({
+        ...config,
+        secondaryRevenue: { ...config.secondaryRevenue, enabled: false },
+      }),
+    [config],
+  );
+  const grade = useMemo(() => gradeScenario(config, result), [config, result]);
 
   const update = (patch: Partial<SimulatorConfig>) =>
     setConfig((c) => ({ ...c, ...patch }));
