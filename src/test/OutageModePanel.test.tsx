@@ -15,22 +15,22 @@ describe('OutageModePanel', () => {
   it('renders banner, backup label, SOC chip, and battery metric', () => {
     _resetBackupSmoothing();
     render(<OutageModePanel {...baseProps} smoothingKey="t1" />);
-    expect(screen.getByText(/Grid Outage Active/i)).toBeInTheDocument();
-    expect(screen.getByText(/Estimated backup remaining/i)).toBeInTheDocument();
-    expect(screen.getByText(/Providing Backup Power/i)).toBeInTheDocument();
-    expect(screen.getByText(/From Battery/i)).toBeInTheDocument();
-    expect(screen.getByText('0.4')).toBeInTheDocument();
+    expect(screen.getByText(/Grid Outage Active/i)).toBeTruthy();
+    expect(screen.getByText(/Estimated backup remaining/i)).toBeTruthy();
+    expect(screen.getByText(/Providing Backup Power/i)).toBeTruthy();
+    expect(screen.getByText(/From Battery/i)).toBeTruthy();
+    expect(screen.getByText('0.4')).toBeTruthy();
   });
 
   it('hides solar footer when no solar', () => {
     _resetBackupSmoothing();
     render(<OutageModePanel {...baseProps} smoothingKey="t2" solarProducingKw={0} />);
-    expect(screen.queryByText(/Solar will recharge/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Solar will recharge/i)).toBeNull();
   });
 
   it('shows solar footer when solar is producing', () => {
     _resetBackupSmoothing();
     render(<OutageModePanel {...baseProps} smoothingKey="t3" solarProducingKw={1.2} />);
-    expect(screen.getByText(/Solar will recharge/i)).toBeInTheDocument();
+    expect(screen.getByText(/Solar will recharge/i)).toBeTruthy();
   });
 });
