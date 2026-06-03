@@ -161,11 +161,41 @@ export function useOutageLifecycle(input: OutageLifecycleInput) {
         source,
         startedAt: startedAt.toISOString(),
       };
+      const homeKwNum = homeKw ?? null;
+      const shedTips = (() => {
+        if (homeKwNum != null && homeKwNum > 3) {
+          return [
+            '• **Pause EV charging** if anything is plugged in — that alone often cuts 5–11 kW.',
+            '• **Hold off on the dryer, oven, or dishwasher** until grid power is back.',
+            '• **Nudge the thermostat** 2–3°F toward outside temp to ease the AC/heat-pump load.',
+          ];
+        }
+        if (homeKwNum != null && homeKwNum >= 1) {
+          return [
+            '• **Set the thermostat back** a few degrees so the AC/heat-pump cycles less.',
+            '• **Skip the dryer/oven** for now — those are the biggest backup-eaters.',
+            '• **Unplug anything you don\'t need** (game consoles, secondary TVs, space heaters).',
+          ];
+        }
+        return [
+          '• Your load is already lean — nice. Keep big appliances off and you\'re in great shape.',
+          '• Skip the dryer/oven until grid power is back.',
+          '• If you have an EV plugged in, pause charging just in case.',
+        ];
+      })();
+      const loadLine = homeKwNum != null
+        ? `Your home is pulling about **${homeKwNum.toFixed(1)} kW** right now.`
+        : 'I\'ll keep watching your home load.';
       const assistantSeed =
-        `**Grid outage detected at ${startedClock}.** Your Powerwall is now powering the home at ` +
-        `**${dischargeKw.toFixed(1)} kW**, with about **${label}** of backup remaining` +
-        (socRounded != null ? ` (battery ${socRounded}%).` : '.') +
-        `\n\nWant me to suggest a quick load-shedding plan to stretch backup, or just keep an eye on things and ping you if anything changes?`;
+        `**Grid outage detected at ${startedClock}.** You're on Powerwall backup — everything important should stay on.\n\n` +
+        `• **Backup remaining:** ~${label}` + (socRounded != null ? ` (battery ${socRounded}%)` : '') + `\n` +
+        `• **Battery output:** ${dischargeKw.toFixed(1)} kW\n` +
+        `• **Home load:** ${loadLine.replace(/^Your home is pulling about \*\*/, '').replace(/\*\* right now\.$/, '')}\n\n` +
+        `**A few quick ways to stretch your backup:**\n` +
+        shedTips.join('\n') + `\n\n` +
+        `**Stay safe** — if this outage lasts longer than expected or you need help, contact your utility company or 911 for emergencies.\n\n` +
+        `I'll keep monitoring and ping you if your backup window changes or power comes back. Want me to suggest more tailored load-shedding based on what's plugged in?`;
+
 
       // Nudge first (seeds context), then open. Retry the open after a
       // short delay in case the bubble mounts late on slow first paint.
