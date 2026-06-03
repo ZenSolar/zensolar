@@ -89,7 +89,7 @@ export function useOutageLifecycle(input: OutageLifecycleInput) {
     if (!user) return;
 
     const {
-      isGridOutage, since, source, batteryStats, primaryBattery, batteryCount,
+      isGridOutage, since, source, batteryStats, primaryBattery, batteryCount, homeKw,
     } = input;
 
     const wasActive = wasActiveRef.current;
@@ -100,6 +100,8 @@ export function useOutageLifecycle(input: OutageLifecycleInput) {
       const startedAt = since ?? new Date();
       startedAtRef.current = startedAt.getTime();
       lastLongPingAtRef.current = startedAt.getTime();
+      peakLoadKwRef.current = Math.max(0, homeKw ?? 0);
+      deasonInteractedRef.current = false;
 
       const label = backupLabelNow(batteryStats);
       const socStart = batteryStats.soc;
