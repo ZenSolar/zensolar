@@ -431,6 +431,10 @@ export interface EnergyFlowSceneProps {
   /** When true, render the scene in Grid Outage mode (grid disabled,
    *  battery→home becomes the hero flow). */
   isOutage?: boolean;
+  /** Outage hero stats — passed in by LiveEnergyMonitoringCard so all
+   *  estimator math stays in one place. Only consumed when isOutage. */
+  outageBackupLabel?: string;
+  outageStartedAt?: Date | string;
 }
 
 export function EnergyFlowScene({
@@ -445,6 +449,8 @@ export function EnergyFlowScene({
   hasCharger = true,
   hasTesla = true,
   isOutage = false,
+  outageBackupLabel,
+  outageStartedAt,
 }: EnergyFlowSceneProps) {
 
 
