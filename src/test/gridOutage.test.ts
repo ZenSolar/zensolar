@@ -78,5 +78,35 @@ describe('estimateBackupTime', () => {
     }
     // Without smoothing the final spike would give ~1h; smoothing keeps it much higher.
     expect(last).toBeGreaterThan(2);
+});
+
+describe('detectTeslaOutage', () => {
+  it('returns true for explicit OffGrid', () => {
+    expect(detectTeslaOutage({ grid_status: 'OffGrid' })).toBe(true);
+  });
+  it('returns true for Islanded (mixed case)', () => {
+    expect(detectTeslaOutage({ grid_status: 'islanded' })).toBe(true);
+  });
+  it('returns true for Inactive', () => {
+    expect(detectTeslaOutage({ grid_status: 'Inactive' })).toBe(true);
+  });
+  it('returns true for island_status off_grid', () => {
+    expect(detectTeslaOutage({ island_status: 'off_grid' })).toBe(true);
+  });
+  it('returns false for Active grid', () => {
+    expect(detectTeslaOutage({ grid_status: 'Active', grid_power: 1500 })).toBe(false);
+  });
+  it('uses behavior fallback when grid_status is missing', () => {
+    expect(
+      detectTeslaOutage({ grid_power: 0, battery_power: 1.2, load_power: 1.1 }),
+    ).toBe(true);
+    expect(
+      detectTeslaOutage({ grid_power: 2.5, battery_power: 0, load_power: 2.4 }),
+    ).toBe(false);
+  });
+  it('returns false on null/empty payload', () => {
+    expect(detectTeslaOutage(null)).toBe(false);
+    expect(detectTeslaOutage({})).toBe(false);
   });
 });
+
