@@ -35,6 +35,8 @@ export interface OutageLifecycleInput {
     oem?: string | null;
   } | null;
   batteryCount?: number;
+  /** Current household load (kW), used for peak-load tracking. */
+  homeKw?: number | null;
   /** Override the 4h follow-up cadence (ms). Mostly for tests. */
   longOutageMs?: number;
 }
@@ -68,14 +70,26 @@ export function useOutageLifecycle(input: OutageLifecycleInput) {
   const wasActiveRef = useRef(false);
   const lastLongPingAtRef = useRef<number | null>(null);
   const startedAtRef = useRef<number | null>(null);
+  const peakLoadKwRef = useRef<number | null>(null);
+  const deasonInteractedRef = useRef<boolean>(false);
 
   const longOutageMs = input.longOutageMs ?? DEFAULT_LONG_OUTAGE_MS;
+
+  // While an outage is active, flip `deason_interacted` to true the first
+  // time the user sends a message in the Deason chat.
+  useEffect(() => {
+    const handler = () => {
+      if (wasActiveRef.current) deasonInteractedRef.current = true;
+    };
+    window.addEventListener('deason:user-message', handler);
+    return () => window.removeEventListener('deason:user-message', handler);
+  }, []);
 
   useEffect(() => {
     if (!user) return;
 
     const {
-      isGridOutage, since, source, batteryStats, primaryBattery, batteryCount,
+      isGridOutage, since, source, batteryStats, primaryBattery, batteryCount, homeKw,
     } = input;
 
     const wasActive = wasActiveRef.current;
@@ -86,6 +100,8 @@ export function useOutageLifecycle(input: OutageLifecycleInput) {
       const startedAt = since ?? new Date();
       startedAtRef.current = startedAt.getTime();
       lastLongPingAtRef.current = startedAt.getTime();
+      peakLoadKwRef.current = Math.max(0, homeKw ?? 0);
+      deasonInteractedRef.current = false;
 
       const label = backupLabelNow(batteryStats);
       const socStart = batteryStats.soc;
@@ -153,8 +169,11 @@ export function useOutageLifecycle(input: OutageLifecycleInput) {
       return;
     }
 
-    // ── While active: long-outage follow-up ────────────────────────────────
+    // ── While active: peak-load tracking + long-outage follow-up ───────────
     if (isGridOutage && wasActive) {
+      const load = Math.max(0, homeKw ?? 0);
+      if (load > (peakLoadKwRef.current ?? 0)) peakLoadKwRef.current = load;
+
       const now = Date.now();
       const last = lastLongPingAtRef.current ?? startedAtRef.current ?? now;
       if (now - last >= longOutageMs) {
@@ -178,6 +197,8 @@ export function useOutageLifecycle(input: OutageLifecycleInput) {
       wasActiveRef.current = false;
       const eventId = eventIdRef.current;
       const socEnd = batteryStats.soc;
+      const peakKw = peakLoadKwRef.current;
+      const interacted = deasonInteractedRef.current;
 
       if (eventId) {
         void supabase
@@ -185,6 +206,8 @@ export function useOutageLifecycle(input: OutageLifecycleInput) {
           .update({
             ended_at: new Date().toISOString(),
             soc_pct_end: socEnd,
+            peak_load_kw: peakKw != null ? Number(peakKw.toFixed(3)) : null,
+            deason_interacted: interacted,
           })
           .eq('id', eventId)
           .then(({ error }) => {
@@ -212,6 +235,8 @@ export function useOutageLifecycle(input: OutageLifecycleInput) {
       eventIdRef.current = null;
       startedAtRef.current = null;
       lastLongPingAtRef.current = null;
+      peakLoadKwRef.current = null;
+      deasonInteractedRef.current = false;
     }
   }, [
     user,
@@ -225,6 +250,7 @@ export function useOutageLifecycle(input: OutageLifecycleInput) {
     input.batteryStats.powerKw,
     input.primaryBattery?.device_id,
     input.batteryCount,
+    input.homeKw,
     // Intentionally not depending on `input` identity to avoid re-firing.
     input,
   ]);

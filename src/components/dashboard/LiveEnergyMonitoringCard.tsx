@@ -620,8 +620,14 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
   const solarStats = solarSnapshot(primarySolar);
   const batteryStats = batterySnapshot(primaryBattery);
 
+  // Current household load (kW) — also re-derived below as `homeKwRaw`,
+  // computed here so we can feed it into the outage-lifecycle hook.
+  const outageHomeKw = normalizeWattsToKw(
+    pickNumber(primaryBattery?.payload, ['load_power', 'energy_sites.0.load_power'])
+  );
+
   // Side-effects on outage transitions: push notifications, proactive Deason,
-  // and outage-history logging. Renders nothing.
+  // and outage-history logging (peak load + Deason-interacted flag). Renders nothing.
   useOutageLifecycle({
     isGridOutage: autoOutage.isGridOutage,
     since: autoOutage.since,
@@ -632,6 +638,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
       powerKw: batteryStats.powerKw,
     },
     solarKw: solarStats.currentKw ?? 0,
+    homeKw: outageHomeKw,
     primaryBattery: primaryBattery
       ? {
           device_id: (primaryBattery as { device_id?: string | null }).device_id ?? null,

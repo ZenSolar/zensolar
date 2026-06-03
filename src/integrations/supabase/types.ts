@@ -1460,11 +1460,13 @@ export type Database = {
       grid_outage_events: {
         Row: {
           created_at: string
+          deason_interacted: boolean
           device_context: Json
           duration_seconds: number | null
           ended_at: string | null
           estimated_backup_hours_at_start: number | null
           id: string
+          peak_load_kw: number | null
           soc_pct_end: number | null
           soc_pct_start: number | null
           source: string
@@ -1474,11 +1476,13 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          deason_interacted?: boolean
           device_context?: Json
           duration_seconds?: number | null
           ended_at?: string | null
           estimated_backup_hours_at_start?: number | null
           id?: string
+          peak_load_kw?: number | null
           soc_pct_end?: number | null
           soc_pct_start?: number | null
           source?: string
@@ -1488,11 +1492,13 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          deason_interacted?: boolean
           device_context?: Json
           duration_seconds?: number | null
           ended_at?: string | null
           estimated_backup_hours_at_start?: number | null
           id?: string
+          peak_load_kw?: number | null
           soc_pct_end?: number | null
           soc_pct_start?: number | null
           source?: string

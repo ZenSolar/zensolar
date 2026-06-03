@@ -1,125 +1,60 @@
-## Phase 4: Notifications + Proactive Deason + Outage history
+## Phase 4.1 — Round out outage history columns
 
-Builds on the `useGridOutage()` hook already shipped.
+Phase 4 (push notifications + auto-Deason + `grid_outage_events` logging + access gate) is already live from the previous turn. Re-reading the new spec, two fields aren't yet captured:
 
-## 1. DB — `grid_outage_events` table
+- **Peak load during the outage** (kW)
+- **Whether the user interacted with Deason during the outage** (boolean)
 
-New migration. Captures one row per outage; updated on recovery.
+Everything else in the request — push at start / 4h follow-up / restore, auto-open Deason gated by founder/beta/active sub, and the `grid_outage_events` row with start/end/duration/SOC/backup estimate — already ships. Tests pass.
+
+### Changes
+
+**1. Migration — extend `grid_outage_events`**
 
 ```sql
-CREATE TABLE public.grid_outage_events (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL,
-  source text NOT NULL DEFAULT 'tesla',      -- 'tesla' | 'enphase' | 'solaredge' | 'unknown'
-  started_at timestamptz NOT NULL,
-  ended_at timestamptz,
-  duration_seconds integer GENERATED ALWAYS AS
-    (CASE WHEN ended_at IS NULL THEN NULL
-          ELSE GREATEST(0, EXTRACT(EPOCH FROM (ended_at - started_at))::int)
-     END) STORED,
-  estimated_backup_hours_at_start numeric,
-  soc_pct_start numeric,
-  soc_pct_end numeric,
-  device_context jsonb DEFAULT '{}'::jsonb,  -- {device_id, device_name, oem, battery_count}
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now()
-);
-
-GRANT SELECT, INSERT, UPDATE ON public.grid_outage_events TO authenticated;
-GRANT ALL ON public.grid_outage_events TO service_role;
-
-ALTER TABLE public.grid_outage_events ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "own outages: select" ON public.grid_outage_events FOR SELECT TO authenticated USING (user_id = auth.uid());
-CREATE POLICY "own outages: insert" ON public.grid_outage_events FOR INSERT TO authenticated WITH CHECK (user_id = auth.uid());
-CREATE POLICY "own outages: update" ON public.grid_outage_events FOR UPDATE TO authenticated USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
-
-CREATE INDEX grid_outage_events_user_started_idx ON public.grid_outage_events (user_id, started_at DESC);
-CREATE TRIGGER grid_outage_events_set_updated_at BEFORE UPDATE ON public.grid_outage_events FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+ALTER TABLE public.grid_outage_events
+  ADD COLUMN peak_load_kw numeric,
+  ADD COLUMN deason_interacted boolean NOT NULL DEFAULT false;
 ```
 
-No UI surface yet — capture only.
+(No new GRANT/RLS — inherits from existing policies.)
 
-## 2. Access gate — `src/hooks/useDeasonOutageAccess.ts`
+**2. `useOutageLifecycle.ts` — track peak load**
 
-Mirrors the existing `useEnergyInsightsSubscription` gating so we have a clear future hook for the real `$4.99 Deason` subscription:
+- Add a `peakLoadKwRef` updated on every render while `isGridOutage` is true. Source: `load_power` from `primaryBattery.payload` (already extracted as `homeKw` in `LiveEnergyMonitoringCard`) — accept it as a new optional `homeKw` input field rather than reaching into payload again.
+- On recovery, include `peak_load_kw: peakLoadKwRef.current` in the UPDATE alongside `ended_at` / `soc_pct_end`.
+- Also initialize the ref at start with the current load so single-tick outages still get a value.
 
-- Founders / admins → access.
-- Beta users (any user with ≥1 `connected_devices` row) → access.
-- `energy_subscriptions.active === true` → access.
-- Otherwise → no access.
+**3. `useOutageLifecycle.ts` — Deason-interaction flag**
 
-Returns `{ hasAccess: boolean, reason: 'founder' | 'beta' | 'subscription' | 'none', loading }`. TODO comment marking the spot to swap in a future `deason_subscriptions` table.
+- New ref `deasonInteractedRef` set to `false` on outage start.
+- Subscribe (only while an outage is active) to a new `deason:user-message` window event that the Deason chat will dispatch when the user sends a message (one-line addition in `DeasonChat`'s submit handler — fire-and-forget `CustomEvent`).
+- Also flip the flag to `true` if the user manually opens the bubble (`deason:open` initiated by tap, not by us) during an outage. Cleanest signal: have the Deason bubble dispatch `deason:user-message` on first user submission; we don't need to differentiate manual-open from auto-open.
+- On recovery, UPDATE includes `deason_interacted: deasonInteractedRef.current`.
 
-## 3. Orchestrator hook — `src/hooks/useOutageLifecycle.ts`
+**4. `DeasonChat` (or `DeasonFloatingBubble`) — emit interaction event**
 
-Single source of truth for all outage side effects. Mounted once inside `LiveEnergyMonitoringCard` (which already wires `useGridOutage`). Pure side-effects, no JSX.
-
-Inputs (read inside the hook):
-- `useAuth()` for `user.id`
-- `useGridOutage()` → `{ isGridOutage, since, source }`
-- `useBatteryTelemetry()` first row → derive `socPct`, `capacityKwh`, `dischargeKw`, `solarKw`, `device_name/id/count`
-- `estimateBackupTime(...)` for current label
-- `useDeasonOutageAccess()`
-
-Refs/state:
-- `eventIdRef` — uuid of the currently active outage row.
-- `lastLongPingAtRef` — last time we sent a "still on backup" push.
-- `transitionedRef` — guards double-fire under StrictMode/re-renders.
-
-Lifecycle actions:
-
-**On transition `false → true` (start):**
-1. INSERT into `grid_outage_events` with `started_at = since ?? new Date()`, source, SOC, backup-hours estimate, device_context. Store returned id.
-2. Invoke `send-push-notification` (best-effort, fire-and-forget):
-   - title: `Grid outage detected`
-   - body: `Your battery is now powering your home. ~{label} of backup remaining.`
-   - url: `/`
-3. If `hasAccess`, dispatch:
-   - `deason:nudge` with `assistant` seed: `"Grid outage detected. Your battery is now powering your home — about {label}. Want me to put together a quick load-shedding plan to extend your backup time?"` and `meta: { kind: 'grid_outage', phase: 'start', socPct, backupLabel, dischargeKw, source }`
-   - `deason:open`
-4. If no access, dispatch `deason:nudge` (no auto-open) so the bubble still pulses subtly.
-
-**While active (every render):**
-- If `Date.now() - (lastLongPingAtRef.current ?? startedAt) >= LONG_OUTAGE_MS` (default 4h, configurable via hook arg), send a follow-up push: `Still on battery backup`, body: `~{label} of backup remaining. Battery at {soc}%.`. Update ref.
-
-**On transition `true → false` (recovery):**
-1. UPDATE the row (`eventIdRef.current`) with `ended_at = now()`, `soc_pct_end`.
-2. Push: title `Power restored`, body: `Grid is back online. Your battery is recharging.`
-3. If `hasAccess`, dispatch `deason:nudge` only (no auto-open) summarizing recovery.
-4. Clear refs.
-
-All Supabase calls swallow errors with `console.warn` — never let logging or push failures break the dashboard. The hook also guards itself when `!user` or `!isGridOutage` on first mount (no spurious start).
-
-## 4. Wire into `LiveEnergyMonitoringCard`
-
-One line near the existing `useGridOutage()` call:
+Single line in the user-message submit handler:
 
 ```ts
-const autoOutage = useGridOutage();
-useOutageLifecycle({
-  isGridOutage: autoOutage.isGridOutage,
-  since: autoOutage.since,
-  source: autoOutage.source,
-  batteryStats,
-  solarKw: solarStats.currentKw ?? 0,
-  primaryBattery,
-  batteryCount: battery.data?.length ?? 1,
-});
+window.dispatchEvent(new CustomEvent('deason:user-message'));
 ```
 
-No visual change to the card.
+Find the existing submit handler (chat composer) and add the dispatch right after the optimistic message is appended. Cheap and decoupled.
 
-## 5. Tests
+**5. `LiveEnergyMonitoringCard` — pass `homeKw`**
 
-- `src/test/useOutageLifecycle.test.tsx` (jsdom): mock supabase + battery hook + grid-outage hook. Verify:
-  - On false→true: one INSERT, one `send-push-notification` invocation, one `deason:open` event when `hasAccess` is true.
-  - When `hasAccess` is false: no `deason:open`, push still sent.
-  - On true→false: one UPDATE with `ended_at` + recovery push.
-  - Re-rendering with the same state does not re-fire.
+`homeKwRaw` is already computed (line ~674). Pass it into `useOutageLifecycle({ homeKw: homeKwRaw, ... })`.
 
-## Out of scope
+**6. Tests**
 
-- UI list / view of outage history (data is logged only).
-- Enphase / SolarEdge detectors.
-- Custom notification preferences page.
-- Actual `$4.99` paywall plumbing (gated by founder/beta/active sub heuristic with TODO).
+Extend `src/test/useOutageLifecycle.test.tsx`:
+- Verify the recovery UPDATE includes `peak_load_kw` ≥ the highest `homeKw` seen.
+- Verify `deason_interacted: true` after firing a `deason:user-message` event mid-outage; `false` otherwise.
+
+### Out of scope (unchanged)
+
+- Outage history UI / list view
+- Long-term Deason memory across past outages
+- Enphase / SolarEdge detectors
+- Actual `$4.99` paywall plumbing (still beta/founder fallback with TODO)
