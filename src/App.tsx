@@ -869,6 +869,16 @@ const App = () => {
                         </ProtectedRoute>
                       } 
                     />
+                    <Route
+                      path="/outage-history"
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <OutageHistory />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
+                    />
                     <Route 
                       path="/store" 
                       element={
