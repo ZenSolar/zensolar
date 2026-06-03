@@ -2,23 +2,16 @@
  * Pure decision function for the /simulator route gate.
  *
  * Flow contract (must not regress):
- *   1. While auth/role lookups are pending → "loading"  (show splash, no redirect)
- *   2. No authenticated user                → "needs-auth"   (send to /auth?redirect=…)
- *   3. Authenticated but not founder/admin  → "forbidden"    (send to /)
- *   4. Founder or admin                     → "allowed"      (render PIN gate, then simulator)
+ *   1. /simulator is public at the route level — never redirect to /auth.
+ *   2. The founder PIN itself is the credential.
+ *   3. After a valid founder/admin PIN, render the simulator in place.
  */
 export type SimulatorGateInput = {
-  authLoading: boolean;
-  roleReady: boolean;
-  hasUser: boolean;
-  isFounder: boolean;
+  pinUnlocked: boolean;
 };
 
-export type SimulatorGateDecision = "loading" | "needs-auth" | "forbidden" | "allowed";
+export type SimulatorGateDecision = "needs-pin" | "allowed";
 
 export function decideSimulatorAccess(input: SimulatorGateInput): SimulatorGateDecision {
-  if (input.authLoading || !input.roleReady) return "loading";
-  if (!input.hasUser) return "needs-auth";
-  if (!input.isFounder) return "forbidden";
-  return "allowed";
+  return input.pinUnlocked ? "allowed" : "needs-pin";
 }
