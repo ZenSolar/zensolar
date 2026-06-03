@@ -5,7 +5,7 @@ import {
   BLENDED_ARPU,
   buildWaveMath,
 } from '@/lib/subscriptionSplitModel';
-import { CheetahExportButton } from './CheetahExportButton';
+
 
 const WAVE_MATH = buildWaveMath();
 const FLOOR_AT_1M = WAVE_MATH[WAVE_MATH.length - 1].floor;
@@ -228,7 +228,7 @@ export function SubscriptionTransparencyPanel() {
           </Card>
         </motion.div>
 
-        <CheetahExportButton />
+        
       </div>
     </section>
   );

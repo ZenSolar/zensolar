@@ -1,6 +1,10 @@
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { Card, CardContent } from '@/components/ui/card';
-import { Sun, BatteryFull, Car, Zap, ChevronRight, Wallet } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Sun, BatteryFull, Car, Zap, ChevronRight, Wallet, Sparkles, ArrowRight, Leaf } from 'lucide-react';
+import { useHaptics } from '@/hooks/useHaptics';
 
 const kpiItems = [
   {
