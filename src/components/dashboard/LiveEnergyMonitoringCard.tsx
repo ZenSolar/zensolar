@@ -828,25 +828,25 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
             key={outage?.active ? 'outage' : 'normal'}
             className="overflow-hidden rounded-xl border border-primary/20 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.12),transparent_70%),radial-gradient(circle_at_bottom,hsl(220_60%_8%/0.6),transparent_60%)] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04),0_8px_30px_-8px_hsl(220_60%_4%/0.6)] animate-in fade-in duration-300"
           >
-            {/* Outage banner — promoted above the scene so the alert lands first. */}
-            {outage?.active && (
-              <OutageModePanel
-                socPct={batteryStats.soc ?? 0}
-                usableCapacityKwh={batteryStats.capacityKwh ?? 13.5}
-                dischargeKw={Math.max(0, -(batteryStats.powerKw ?? 0))}
-                outageStartedAt={outage.startedAt}
-                solarProducingKw={solarStats.currentKw ?? 0}
-                className="rounded-none border-0 border-b border-amber-400/30"
-              />
-            )}
             <Suspense fallback={<div className="aspect-square w-full animate-pulse bg-card/10" aria-hidden="true" />}>
               <EnergyFlowScene
-                className={outage?.active ? 'aspect-[5/3] w-full' : 'aspect-square w-full'}
+                className="aspect-square w-full"
                 data={flowData}
                 hasBattery={hasBattery}
                 hasCharger={hasCharger}
                 hasTesla={hasTesla}
                 isOutage={outage?.active ?? false}
+                outageBackupLabel={
+                  outage?.active
+                    ? estimateBackupTime({
+                        socPct: batteryStats.soc ?? 0,
+                        usableCapacityKwh: batteryStats.capacityKwh ?? 13.5,
+                        currentDischargeKw: Math.max(0, -(batteryStats.powerKw ?? 0)),
+                        smoothingKey: 'live-card-outage',
+                      }).label
+                    : undefined
+                }
+                outageStartedAt={outage?.active ? outage.startedAt : undefined}
                 teslaPayload={
                   primaryEv?.oem === 'tesla'
                     ? {
@@ -868,7 +868,19 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
                 vehicleModel={null}
               />
             </Suspense>
+            {/* Slim outage footer — load vs capacity progress + history link.
+                Lives inside the same card so the experience reads as one
+                unified Tesla-style view rather than a stack of panels. */}
+            {outage?.active && (
+              <OutageFooter
+                socPct={batteryStats.soc ?? 0}
+                usableCapacityKwh={batteryStats.capacityKwh ?? 13.5}
+                dischargeKw={Math.max(0, -(batteryStats.powerKw ?? 0))}
+                solarProducingKw={solarStats.currentKw ?? 0}
+              />
+            )}
           </div>
+
 
 
           {/* ZenX vehicle pill — clean Tesla-style status under the scene */}
