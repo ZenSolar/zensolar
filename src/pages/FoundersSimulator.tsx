@@ -332,15 +332,12 @@ function SimulatorContent() {
                 className="mt-1 bg-background/60"
               />
             </div>
-            <div className="flex flex-wrap items-end gap-2">
-              <Button onClick={saveScenario} variant="default" size="sm" className="gap-1.5">
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-end gap-2">
+              <Button onClick={saveScenario} variant="default" size="sm" className="gap-1.5 w-full sm:w-auto">
                 <Save className="h-4 w-4" /> Save
               </Button>
-              <Select
-                onValueChange={loadScenario}
-                value=""
-              >
-                <SelectTrigger className="w-[180px] h-9 bg-background/60">
+              <Select onValueChange={loadScenario} value="">
+                <SelectTrigger className="w-full sm:w-[180px] h-9 bg-background/60">
                   <SelectValue placeholder="Load scenario…" />
                 </SelectTrigger>
                 <SelectContent>
@@ -367,16 +364,16 @@ function SimulatorContent() {
                   ))}
                 </SelectContent>
               </Select>
-              <Button onClick={reset} variant="outline" size="sm" className="gap-1.5">
+              <Button onClick={reset} variant="outline" size="sm" className="gap-1.5 col-span-2 sm:col-span-1 w-full sm:w-auto">
                 <RotateCcw className="h-4 w-4" /> Reset v3.1
               </Button>
-              <Button onClick={exportCSV} variant="outline" size="sm" className="gap-1.5">
+              <Button onClick={exportCSV} variant="outline" size="sm" className="gap-1.5 w-full sm:w-auto">
                 <Download className="h-4 w-4" /> CSV
               </Button>
-              <Button onClick={exportConfigJSON} variant="outline" size="sm" className="gap-1.5">
+              <Button onClick={exportConfigJSON} variant="outline" size="sm" className="gap-1.5 w-full sm:w-auto">
                 <Download className="h-4 w-4" /> JSON
               </Button>
-              <Button onClick={exportPDF} variant="outline" size="sm" className="gap-1.5">
+              <Button onClick={exportPDF} variant="outline" size="sm" className="gap-1.5 col-span-2 sm:col-span-1 w-full sm:w-auto">
                 <FileText className="h-4 w-4" /> PDF
               </Button>
             </div>
@@ -1526,7 +1523,7 @@ function KPIHint({ label, hint }: { label: string; hint: KpiExplain }) {
           <Info className="h-3 w-3" />
         </button>
       </TooltipTrigger>
-      <TooltipContent side="top" className="max-w-[280px] text-left">
+      <TooltipContent side="top" sideOffset={6} collisionPadding={12} className="max-w-[min(280px,calc(100vw-24px))] text-left">
         <div className="font-semibold text-xs mb-1 text-foreground normal-case tracking-normal">
           {label}
         </div>
@@ -1742,7 +1739,45 @@ function ComparisonTable({
           </div>
         )}
       </div>
-      <div className="overflow-x-auto">
+      {/* Mobile: stacked cards */}
+      <div className="sm:hidden space-y-2.5">
+        {rows.map((r) => {
+          const trendCls =
+            r.deltaTrend === "up"
+              ? "text-primary"
+              : r.deltaTrend === "down"
+              ? "text-destructive"
+              : "text-muted-foreground";
+          return (
+            <div
+              key={r.metric}
+              className="rounded-lg border border-border/40 bg-background/40 p-3"
+            >
+              <div className="text-[11px] uppercase tracking-widest text-muted-foreground">
+                {r.metric}
+              </div>
+              <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
+                <div className="min-w-0">
+                  <div className="text-[10px] uppercase tracking-widest text-primary/80">With</div>
+                  <div className="font-medium truncate">{r.withSec}</div>
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Without</div>
+                  <div className="truncate">{r.withoutSec}</div>
+                </div>
+              </div>
+              <div className={`mt-2 flex items-center gap-1 text-xs ${trendCls}`}>
+                {r.deltaTrend === "up" && <TrendingUp className="h-3 w-3 shrink-0" />}
+                {r.deltaTrend === "down" && <TrendingDown className="h-3 w-3 shrink-0" />}
+                <span className="truncate">Δ {r.delta}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Desktop/tablet: table */}
+      <div className="hidden sm:block overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-[10px] uppercase tracking-widest text-muted-foreground border-b border-border/60">
@@ -1778,6 +1813,7 @@ function ComparisonTable({
           </tbody>
         </table>
       </div>
+
     </Card>
   );
 }
