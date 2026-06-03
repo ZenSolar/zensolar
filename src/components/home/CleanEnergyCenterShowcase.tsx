@@ -125,7 +125,7 @@ export function CleanEnergyCenterShowcase() {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.2 + i * 0.08 }}
-                    className={`flex items-center gap-4 p-4 rounded-xl border border-border/40 bg-muted/30 border-l-4 ${item.borderColor} group hover:bg-muted/60 transition-colors`}
+                    className={`flex items-center gap-4 p-4 rounded-xl border border-border/40 bg-muted/30 border-l-2 border-l-secondary/50 group hover:bg-muted/60 transition-colors`}
                   >
                     <div className={`p-2.5 rounded-xl ${item.iconBg} flex-shrink-0`}>
                       <item.icon className={`h-5 w-5 ${item.iconColor}`} />
