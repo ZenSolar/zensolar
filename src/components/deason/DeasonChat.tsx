@@ -207,6 +207,15 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
   // OAuth error toast's "Ask Deason" handoff). Pushes a hand-written
   // assistant message into the transcript without a model call.
   const [suppressEmptyState, setSuppressEmptyState] = useState(false);
+  const [outageContext, setOutageContext] = useState<DeasonChatProps['contextMeta']>(
+    contextMeta?.kind === 'grid_outage' ? contextMeta : null,
+  );
+  useEffect(() => {
+    if (contextMeta?.kind === 'grid_outage') {
+      setSuppressEmptyState(true);
+      setOutageContext(contextMeta);
+    }
+  }, [contextMeta]);
   useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent<{ assistant?: string }>).detail;
@@ -217,10 +226,12 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
     };
     const contextHandler = (e: Event) => {
       const detail = (e as CustomEvent<{ meta?: Record<string, unknown> }>).detail;
-      if (detail?.meta && (detail.meta as Record<string, unknown>).kind === 'grid_outage') {
+      const meta = detail?.meta as DeasonChatProps['contextMeta'];
+      if (meta && meta.kind === 'grid_outage') {
         // Pre-suppress the welcome panel so it never flashes while the
         // outage-seeded assistant message is being inserted.
         setSuppressEmptyState(true);
+        setOutageContext(meta);
       }
     };
     window.addEventListener("deason:seed", handler as EventListener);
