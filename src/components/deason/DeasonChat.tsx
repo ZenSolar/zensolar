@@ -197,14 +197,31 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
   // Listen for `deason:seed` events from elsewhere in the app (e.g. the
   // OAuth error toast's "Ask Deason" handoff). Pushes a hand-written
   // assistant message into the transcript without a model call.
+  const [suppressEmptyState, setSuppressEmptyState] = useState(false);
   useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent<{ assistant?: string }>).detail;
-      if (detail?.assistant) seedAssistant(detail.assistant);
+      if (detail?.assistant) {
+        setSuppressEmptyState(true);
+        seedAssistant(detail.assistant);
+      }
+    };
+    const contextHandler = (e: Event) => {
+      const detail = (e as CustomEvent<{ meta?: Record<string, unknown> }>).detail;
+      if (detail?.meta && (detail.meta as Record<string, unknown>).kind === 'grid_outage') {
+        // Pre-suppress the welcome panel so it never flashes while the
+        // outage-seeded assistant message is being inserted.
+        setSuppressEmptyState(true);
+      }
     };
     window.addEventListener("deason:seed", handler as EventListener);
-    return () => window.removeEventListener("deason:seed", handler as EventListener);
+    window.addEventListener("deason:context", contextHandler as EventListener);
+    return () => {
+      window.removeEventListener("deason:seed", handler as EventListener);
+      window.removeEventListener("deason:context", contextHandler as EventListener);
+    };
   }, [seedAssistant]);
+
 
 
   const onPickFile = (e: React.ChangeEvent<HTMLInputElement>) => {
