@@ -1486,7 +1486,377 @@ function ChartCard({ title, children }: { title: string; children: React.ReactNo
   );
 }
 
-// ------- Utils -------
+// ------- New refinement components: KPIHint, ScenarioGradeCard, ComparisonTable, SecondaryRevenueWarnings -------
+
+function KPIHint({ label, hint }: { label: string; hint: KpiExplain }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          aria-label={`Explain ${label}`}
+          className="text-muted-foreground/60 hover:text-primary transition-colors"
+        >
+          <Info className="h-3 w-3" />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="top" className="max-w-[280px] text-left">
+        <div className="font-semibold text-xs mb-1 text-foreground normal-case tracking-normal">
+          {label}
+        </div>
+        <div className="text-[11px] font-mono bg-muted/40 rounded px-1.5 py-1 mb-1.5 normal-case tracking-normal">
+          {hint.formula}
+        </div>
+        <div className="text-[11px] text-muted-foreground normal-case tracking-normal">
+          {hint.note}
+        </div>
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+function ScenarioGradeCard({ grade }: { grade: ScenarioGrade }) {
+  const [open, setOpen] = useState(false);
+  const colors = letterColor(grade.letter);
+  return (
+    <Card className={`p-5 sm:p-6 bg-gradient-to-br ${colors.bg} border ${colors.border}`}>
+      <div className="flex flex-col md:flex-row md:items-center gap-5">
+        <div className="flex items-center gap-4">
+          <div
+            className={`flex items-center justify-center w-20 h-20 rounded-2xl border-2 ${colors.border} bg-background/30 ${colors.text}`}
+          >
+            <span className="text-5xl font-bold leading-none">{grade.letter}</span>
+          </div>
+          <div>
+            <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-muted-foreground">
+              <GraduationCap className="h-3 w-3" />
+              Scenario Grade
+            </div>
+            <div className="text-2xl font-semibold tracking-tight mt-1">
+              {grade.total.toFixed(0)}/100
+            </div>
+            <div className="text-xs text-muted-foreground mt-1 max-w-md">
+              {grade.summary}
+            </div>
+          </div>
+        </div>
+        <div className="md:ml-auto">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setOpen((v) => !v)}
+            className="gap-1.5"
+          >
+            {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            {open ? "Hide breakdown" : "How was this graded?"}
+          </Button>
+        </div>
+      </div>
+      {open && (
+        <div className="mt-5 grid sm:grid-cols-2 gap-3">
+          {grade.categories.map((c) => {
+            const barColor =
+              c.score >= 80 ? "bg-emerald-400" :
+              c.score >= 65 ? "bg-primary" :
+              c.score >= 50 ? "bg-amber-400" :
+              c.score >= 35 ? "bg-orange-400" :
+              "bg-destructive";
+            return (
+              <div
+                key={c.key}
+                className="rounded-lg border border-border/50 bg-background/40 p-3"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-sm font-medium">{c.label}</div>
+                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                    weight {c.weight}%
+                  </div>
+                </div>
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="flex-1 h-1.5 rounded-full bg-muted/40 overflow-hidden">
+                    <div
+                      className={`h-full ${barColor}`}
+                      style={{ width: `${c.score}%` }}
+                    />
+                  </div>
+                  <div className="text-sm font-semibold tabular-nums w-12 text-right">
+                    {c.score.toFixed(0)}
+                  </div>
+                </div>
+                <div className="text-[11px] text-muted-foreground mt-1.5">
+                  {c.rationale} <span className="text-foreground/70">· +{c.weighted.toFixed(1)} pts</span>
+                </div>
+              </div>
+            );
+          })}
+          <div className="sm:col-span-2 mt-1 rounded-md border border-border/40 bg-muted/20 px-3 py-2 text-[11px] text-muted-foreground">
+            <span className="font-medium text-foreground">How grading works:</span> Each
+            category scores 0–100, then is weighted (Flywheel 30%, Sell Pressure 25%, Token
+            Health 20%, Capital Efficiency 15%, Risk &amp; Realism 10%). Weighted points sum
+            to 0–100, mapped to A (≥90), B (≥80), C (≥70), D (≥60), F otherwise. Logic lives
+            in <code className="text-primary">src/lib/founderGrader.ts</code>.
+          </div>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function ComparisonTable({
+  config,
+  result,
+  baseline,
+}: {
+  config: SimulatorConfig;
+  result: SimulatorResult;
+  baseline: SimulatorResult;
+}) {
+  const last = result.months[result.months.length - 1];
+  const lastB = baseline.months[baseline.months.length - 1];
+  const lpGrowth = (r: SimulatorResult) =>
+    (r.months[r.months.length - 1]?.lpUSDC ?? 0) - config.initialLPUSDC;
+
+  type Row = {
+    metric: string;
+    withSec: string;
+    withoutSec: string;
+    delta?: string;
+    deltaTrend?: "up" | "down" | "neutral";
+  };
+  const fmtMonth = (m: number | null) => (m !== null ? `Month ${m}` : "Not reached");
+  const fmtDeltaMonths = () => {
+    if (result.selfSustainingMonth === null && baseline.selfSustainingMonth === null) {
+      return { text: "—", trend: "neutral" as const };
+    }
+    if (result.selfSustainingMonth === null) return { text: "Worse", trend: "down" as const };
+    if (baseline.selfSustainingMonth === null) {
+      return { text: `Saved ≥${config.horizonMonths - result.selfSustainingMonth} mo`, trend: "up" as const };
+    }
+    const d = baseline.selfSustainingMonth - result.selfSustainingMonth;
+    return {
+      text: d > 0 ? `−${d} mo earlier` : d < 0 ? `+${-d} mo later` : "No change",
+      trend: d > 0 ? ("up" as const) : d < 0 ? ("down" as const) : ("neutral" as const),
+    };
+  };
+  const ssDelta = fmtDeltaMonths();
+  const lpDelta = lpGrowth(result) - lpGrowth(baseline);
+  const ddDelta = (result.peakDrawdownPct - baseline.peakDrawdownPct) * 100;
+  const priceDelta = (last?.price ?? 0) - (lastB?.price ?? 0);
+  const capDelta = result.totalTrancheUSDC - baseline.totalTrancheUSDC;
+
+  const rows: Row[] = [
+    {
+      metric: "Self-sustaining month",
+      withSec: fmtMonth(result.selfSustainingMonth),
+      withoutSec: fmtMonth(baseline.selfSustainingMonth),
+      delta: ssDelta.text,
+      deltaTrend: ssDelta.trend,
+    },
+    {
+      metric: `Total LP growth (${config.horizonMonths}-mo)`,
+      withSec: formatUSD(lpGrowth(result)),
+      withoutSec: formatUSD(lpGrowth(baseline)),
+      delta: `${lpDelta >= 0 ? "+" : ""}${formatUSD(lpDelta)}`,
+      deltaTrend: lpDelta > 0 ? "up" : lpDelta < 0 ? "down" : "neutral",
+    },
+    {
+      metric: "Peak drawdown",
+      withSec: `${(result.peakDrawdownPct * 100).toFixed(1)}%`,
+      withoutSec: `${(baseline.peakDrawdownPct * 100).toFixed(1)}%`,
+      delta: `${ddDelta >= 0 ? "+" : ""}${ddDelta.toFixed(1)} pp`,
+      deltaTrend: ddDelta < 0 ? "up" : ddDelta > 0 ? "down" : "neutral",
+    },
+    {
+      metric: "Final token price",
+      withSec: `$${(last?.price ?? 0).toFixed(4)}`,
+      withoutSec: `$${(lastB?.price ?? 0).toFixed(4)}`,
+      delta: `${priceDelta >= 0 ? "+" : ""}$${priceDelta.toFixed(4)}`,
+      deltaTrend: priceDelta > 0 ? "up" : priceDelta < 0 ? "down" : "neutral",
+    },
+    {
+      metric: "Total external capital (tranches)",
+      withSec: formatUSD(result.totalTrancheUSDC),
+      withoutSec: formatUSD(baseline.totalTrancheUSDC),
+      delta: capDelta === 0 ? "Same" : `${capDelta > 0 ? "+" : ""}${formatUSD(capDelta)}`,
+      deltaTrend: "neutral",
+    },
+    {
+      metric: `Flywheel @ M${config.horizonMonths}`,
+      withSec: result.flywheelStrength,
+      withoutSec: baseline.flywheelStrength,
+      delta:
+        result.flywheelStrength === baseline.flywheelStrength
+          ? "Same"
+          : `${baseline.flywheelStrength} → ${result.flywheelStrength}`,
+      deltaTrend: "neutral",
+    },
+  ];
+
+  const secOn = config.secondaryRevenue.enabled;
+
+  return (
+    <Card className="p-5 sm:p-6 bg-card/60 backdrop-blur border-border/60">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-4">
+        <div>
+          <div className="text-[11px] uppercase tracking-widest text-primary">
+            Side-by-side comparison
+          </div>
+          <h3 className="text-lg font-semibold tracking-tight mt-1">
+            Secondary Revenue Impact
+          </h3>
+          <p className="text-xs text-muted-foreground mt-1">
+            Same scenario run twice — once with your secondary revenue assumptions, once
+            with them disabled. Highlights the delta caused by recycling non-token revenue
+            into the LP.
+          </p>
+        </div>
+        {!secOn && (
+          <div className="text-[11px] text-amber-300 border border-amber-400/30 bg-amber-400/5 rounded-md px-2.5 py-1.5">
+            Secondary revenue is OFF — toggle it on to see the delta.
+          </div>
+        )}
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-[10px] uppercase tracking-widest text-muted-foreground border-b border-border/60">
+              <th className="py-2 pr-4 font-medium">Metric</th>
+              <th className="py-2 pr-4 font-medium text-primary">With secondary</th>
+              <th className="py-2 pr-4 font-medium">Without secondary</th>
+              <th className="py-2 font-medium">Delta</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.metric} className="border-b border-border/30 last:border-0">
+                <td className="py-2.5 pr-4 text-muted-foreground">{r.metric}</td>
+                <td className="py-2.5 pr-4 font-medium">{r.withSec}</td>
+                <td className="py-2.5 pr-4">{r.withoutSec}</td>
+                <td className="py-2.5">
+                  <span
+                    className={
+                      r.deltaTrend === "up"
+                        ? "text-primary inline-flex items-center gap-1"
+                        : r.deltaTrend === "down"
+                        ? "text-destructive inline-flex items-center gap-1"
+                        : "text-muted-foreground"
+                    }
+                  >
+                    {r.deltaTrend === "up" && <TrendingUp className="h-3 w-3" />}
+                    {r.deltaTrend === "down" && <TrendingDown className="h-3 w-3" />}
+                    {r.delta}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  );
+}
+
+function SecondaryRevenueWarnings({
+  config,
+  result,
+}: {
+  config: SimulatorConfig;
+  result: SimulatorResult;
+}) {
+  const sec = config.secondaryRevenue;
+  if (!sec.enabled) {
+    if (sec.priorityBeforeBuyback && sec.monthlyUSD === 0) {
+      return (
+        <Warn>
+          "Use before treasury buyback" is on but secondary revenue is disabled — the toggle
+          has no effect.
+        </Warn>
+      );
+    }
+    return null;
+  }
+
+  const warns: React.ReactNode[] = [];
+  const usersAtEnd = result.months[result.months.length - 1]?.users ?? 0;
+
+  // 1. Unrealistic revenue per user
+  const revPerUserAnnual = usersAtEnd > 0 ? (sec.monthlyUSD * 12) / usersAtEnd : Infinity;
+  if (usersAtEnd < 100 && sec.monthlyUSD > 50_000) {
+    warns.push(
+      <Warn key="rev-vs-users">
+        Monthly secondary revenue is ${(sec.monthlyUSD / 1000).toFixed(0)}K but the model
+        ends at only {Math.round(usersAtEnd)} users. That implies ${revPerUserAnnual.toFixed(0)}
+        /user/yr — verify this is realistic for Deason AI / VPP / data sales at that scale.
+      </Warn>,
+    );
+  } else if (revPerUserAnnual > 250 && usersAtEnd > 0) {
+    warns.push(
+      <Warn key="rev-high">
+        Implied secondary revenue is ${revPerUserAnnual.toFixed(0)}/user/yr — that's
+        aggressive. Typical SaaS / data-resale ARPUs land $50–$150/yr per residential energy
+        user.
+      </Warn>,
+    );
+  }
+
+  // 2. Compounding makes secondary > total LP injection
+  if (sec.growthRatePerMonth > 0.05) {
+    const m12 = sec.monthlyUSD * Math.pow(1 + sec.growthRatePerMonth, 12);
+    const alloc12 =
+      sec.allocationMode === "percent"
+        ? m12 * (sec.allocationPct / 100)
+        : Math.min(m12, sec.allocationFixedUSD);
+    if (alloc12 > 250_000) {
+      warns.push(
+        <Warn key="growth">
+          At {(sec.growthRatePerMonth * 100).toFixed(0)}%/mo compounding, secondary alone
+          injects ${(alloc12 / 1000).toFixed(0)}K to LP by month 12 — that may exceed any
+          realistic single-stream growth. Consider capping growth at 2–5%/mo.
+        </Warn>,
+      );
+    }
+  }
+
+  // 3. Priority-before-buyback with $0 revenue
+  if (sec.priorityBeforeBuyback && sec.monthlyUSD === 0) {
+    warns.push(
+      <Warn key="priority-zero">
+        "Use before treasury buyback" is on but monthly revenue is $0 — the toggle has no
+        effect until you set a revenue value.
+      </Warn>,
+    );
+  }
+
+  // 4. Percent allocation 0
+  if (sec.allocationMode === "percent" && sec.allocationPct === 0) {
+    warns.push(
+      <Warn key="alloc-zero">
+        Allocation percent is 0 — no secondary revenue will reach the LP. Set a non-zero
+        share or switch to a fixed $ allocation.
+      </Warn>,
+    );
+  }
+
+  if (warns.length === 0) {
+    return (
+      <div className="flex items-center gap-2 rounded-md border border-primary/20 bg-primary/5 px-2.5 py-1.5 text-[11px] text-muted-foreground">
+        <Info className="h-3 w-3 text-primary" />
+        Inputs look reasonable.
+      </div>
+    );
+  }
+  return <div className="space-y-1.5">{warns}</div>;
+}
+
+function Warn({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex items-start gap-2 rounded-md border border-amber-400/30 bg-amber-400/5 px-2.5 py-1.5 text-[11px] text-amber-200 leading-relaxed">
+      <AlertTriangle className="h-3 w-3 mt-0.5 shrink-0" />
+      <span>{children}</span>
+    </div>
+  );
+}
+
 
 const tooltipStyle = {
   background: "hsl(var(--background))",
