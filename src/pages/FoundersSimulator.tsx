@@ -195,6 +195,8 @@ function SimulatorContent() {
       buyback_usdc: Math.round(m.buybackUSDC),
       circulating_supply: Math.round(m.circulatingSupply),
       tranche_injected_usdc: Math.round(m.trancheInjectedUSDC),
+      secondary_injected_usdc: Math.round(m.secondaryInjectedUSDC),
+      locked_supply: Math.round(m.lockedSupply),
       net_lp_change_usdc: Math.round(m.netLPChangeUSDC),
     }));
     downloadCsv(`zensolar-simulator-${todayStamp()}.csv`, rows);
