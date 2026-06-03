@@ -119,7 +119,7 @@ export function DashboardShowcase() {
           viewport={{ once: true }}
           transition={{ delay: 0.25 }}
         >
-          <Card className="border-primary/20 overflow-hidden shadow-2xl shadow-primary/10 bg-transparent">
+          <Card className="rounded-2xl border border-border/60 bg-card/40 overflow-hidden">
             <InvestorEnergyFlowCard />
           </Card>
         </motion.div>

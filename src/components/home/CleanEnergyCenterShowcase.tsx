@@ -80,7 +80,7 @@ export function CleanEnergyCenterShowcase() {
           viewport={{ once: true }}
           transition={{ delay: 0.15 }}
         >
-          <Card className="border-primary/20 overflow-hidden shadow-2xl shadow-primary/10 bg-card">
+          <Card className="rounded-2xl border border-border/60 bg-card/40 overflow-hidden">
             <CardContent className="p-5 md:p-8">
               {/* Wallet preview */}
               <div className="flex items-center justify-between p-4 rounded-xl border border-border/40 bg-muted/40 mb-6">
