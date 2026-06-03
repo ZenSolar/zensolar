@@ -1046,6 +1046,149 @@ function HeadlineKPIs({
   );
 }
 
+function RealTimeKPIs({
+  config,
+  result,
+}: {
+  config: SimulatorConfig;
+  result: ReturnType<typeof simulate>;
+}) {
+  const last = result.months[result.months.length - 1];
+  const lockedPct =
+    last && last.circulatingSupply > 0 ? (last.lockedSupply / last.circulatingSupply) * 100 : 0;
+  const items = [
+    {
+      icon: Coins,
+      label: "Tokens issued",
+      value: formatTokenAmount(last?.circulatingSupply ?? 0),
+      sub: `${((last?.circulatingSupply ?? 0) / 1_000_000_000_000 * 100).toFixed(2)}% of 1T cap`,
+    },
+    {
+      icon: Flame,
+      label: "Total burned",
+      value: formatTokenAmount(result.totalBurned),
+      sub: "permanent supply removal",
+    },
+    {
+      icon: Lock,
+      label: "Locked supply",
+      value: formatTokenAmount(last?.lockedSupply ?? 0),
+      sub: `${lockedPct.toFixed(1)}% of circulating`,
+    },
+    {
+      icon: Gauge,
+      label: "Runway remaining",
+      value: result.runwayMonths !== null ? `${result.runwayMonths} mo` : "—",
+      sub: `at $${(config.monthlyBuybackCapUSDC / 1000).toFixed(0)}K/mo defense`,
+    },
+    {
+      icon: Activity,
+      label: "Flywheel",
+      value: result.flywheelStrength,
+      sub:
+        result.selfSustainingMonth !== null
+          ? `Self-sustaining @ M${result.selfSustainingMonth}`
+          : "Not yet self-sustaining",
+      trend: result.selfSustainingMonth !== null ? "up" : undefined,
+    },
+  ];
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      {items.map((it) => {
+        const Icon = it.icon;
+        return (
+          <Card key={it.label} className="p-4 bg-card/60 backdrop-blur border-border/60">
+            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-muted-foreground">
+              <Icon className="h-3 w-3 text-primary" />
+              {it.label}
+            </div>
+            <div className="mt-1 text-lg sm:text-xl font-semibold tracking-tight flex items-center gap-1.5">
+              {it.value}
+              {it.trend === "up" && <TrendingUp className="h-3.5 w-3.5 text-primary" />}
+            </div>
+            <div className="text-[11px] text-muted-foreground mt-0.5">{it.sub}</div>
+          </Card>
+        );
+      })}
+    </div>
+  );
+}
+
+const STRENGTH_STYLES: Record<string, string> = {
+  Weak: "from-destructive/30 to-destructive/5 border-destructive/40 text-destructive",
+  Building: "from-amber-400/30 to-amber-400/5 border-amber-400/40 text-amber-300",
+  Strong: "from-primary/30 to-primary/5 border-primary/40 text-primary",
+  "Self-Sustaining": "from-primary/50 to-primary/10 border-primary/60 text-primary",
+};
+
+function FlywheelHealth({
+  config,
+  result,
+}: {
+  config: SimulatorConfig;
+  result: ReturnType<typeof simulate>;
+}) {
+  const reached = result.selfSustainingMonth !== null;
+  const monthLabel = reached ? `Month ${result.selfSustainingMonth}` : "Not reached in horizon";
+  const baseline = result.selfSustainingMonthBaseline;
+  const saved = result.monthsSavedBySecondary ?? 0;
+  const strengthClass = STRENGTH_STYLES[result.flywheelStrength] ?? STRENGTH_STYLES.Weak;
+  return (
+    <Card className="p-5 sm:p-6 bg-gradient-to-br from-primary/[0.08] via-card/60 to-card/60 border-primary/20">
+      <div className="flex items-center gap-2 text-[11px] uppercase tracking-widest text-primary mb-3">
+        <Zap className="h-3 w-3" />
+        Flywheel Health &amp; Self-Sustaining Forecast
+      </div>
+      <div className="grid md:grid-cols-3 gap-4">
+        <div>
+          <div className="text-[11px] uppercase tracking-widest text-muted-foreground">
+            Self-sustaining month
+          </div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight">{monthLabel}</div>
+          <div className="text-[11px] text-muted-foreground mt-1">
+            {config.selfSustainingWindowMonths}-mo window · organic LP growth without tranche
+          </div>
+        </div>
+        <div>
+          <div className="text-[11px] uppercase tracking-widest text-muted-foreground">
+            Flywheel strength
+          </div>
+          <div
+            className={`mt-1 inline-flex items-center gap-2 rounded-lg border bg-gradient-to-br px-3 py-1.5 text-lg font-semibold ${strengthClass}`}
+          >
+            <Activity className="h-4 w-4" />
+            {result.flywheelStrength}
+          </div>
+          <div className="text-[11px] text-muted-foreground mt-2">
+            Derived from rolling 3-mo organic LP growth vs. sell pressure.
+          </div>
+        </div>
+        <div>
+          <div className="text-[11px] uppercase tracking-widest text-muted-foreground">
+            Months saved by secondary revenue
+          </div>
+          <div className="mt-1 text-3xl font-semibold tracking-tight flex items-center gap-1.5">
+            {config.secondaryRevenue.enabled ? (saved > 0 ? `−${saved} mo` : `${saved} mo`) : "—"}
+            {saved > 0 && <TrendingUp className="h-5 w-5 text-primary" />}
+          </div>
+          <div className="text-[11px] text-muted-foreground mt-1">
+            {config.secondaryRevenue.enabled
+              ? baseline !== null
+                ? `Baseline (no secondary): Month ${baseline}`
+                : "Baseline never self-sustains"
+              : "Enable secondary revenue to compare"}
+          </div>
+        </div>
+      </div>
+      <div className="mt-4 rounded-md border border-primary/20 bg-primary/5 px-4 py-3 text-xs text-muted-foreground leading-relaxed">
+        This is the point where organic LP growth from subscriptions and secondary revenue
+        consistently exceeds sell pressure. No further external capital injections (tranches) should
+        be required after this month.
+      </div>
+    </Card>
+  );
+}
+
 function HowItWorks() {
   return (
     <Card className="p-6 sm:p-8 bg-card/40 border-border/50">
