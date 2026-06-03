@@ -274,6 +274,7 @@ function SimulatorContent() {
     result.selfSustainingMonth !== null ? `M${result.selfSustainingMonth}` : null;
 
   return (
+    <TooltipProvider delayDuration={200}>
     <div className="min-h-[100svh] bg-background text-foreground" ref={printRef}>
       {/* Print styles */}
       <style>{`
