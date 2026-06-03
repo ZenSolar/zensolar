@@ -1216,7 +1216,21 @@ function HowItWorks() {
             </li>
             <li>Fire any tranche whose trigger matches (month, LP-below, or price-below).</li>
             <li>
-              Mark "self-sustaining" once LP grew for N consecutive months without any tranche firing.
+              Inject monthly secondary revenue (Deason AI, VPP, utility data, carbon credits) into
+              LP per the chosen % or fixed allocation. Optional compounding growth applies. If the
+              "priority before buyback" toggle is on and secondary revenue already lifts price
+              above the floor, treasury buyback is skipped.
+            </li>
+            <li>
+              Mark <span className="text-primary">Self-Sustaining</span> when the LP grows
+              organically (no tranche firing) for N consecutive months. Secondary revenue counts as
+              organic; tranches do not. The engine runs a second pass with secondary disabled to
+              compute the baseline month and "months saved" KPI.
+            </li>
+            <li>
+              <span className="text-primary">Flywheel strength</span> is derived from the rolling
+              3-month ratio of organic LP growth to sell USDC out: ≥1 → Strong, ≥0.3 → Building,
+              else Weak. Reaching self-sustaining promotes the badge to Self-Sustaining.
             </li>
           </ol>
         </div>
