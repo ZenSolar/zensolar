@@ -439,6 +439,23 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-3 py-4">
+        {outageContext?.kind === 'grid_outage' && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="mb-3 flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1.5 text-[11px] font-medium text-amber-700 dark:text-amber-300"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75 motion-reduce:animate-none" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" />
+            </span>
+            <span>
+              Grid outage in progress
+              {outageContext.backupLabel ? ` · backup ~${outageContext.backupLabel}` : ''}
+              {typeof outageContext.socPct === 'number' ? ` · battery ${Math.round(outageContext.socPct)}%` : ''}
+            </span>
+          </div>
+        )}
         <TexasNowPill ctx={profileCtx} />
         <DeviceTelemetryStrip />
         {loadingHistory && (
