@@ -82,3 +82,47 @@ export const INVESTOR_DEMO_HEADLINE = {
   evChargingKw: 7.2,
   gridKw: 0.0,
 };
+
+/**
+ * Simulated Grid Outage variant — same connected devices, but grid is down
+ * and the Powerwall is now powering the home. Solar is dim (evening / early
+ * outage) so the Battery→Home flow is the unambiguous hero. EV charging is
+ * paused (typical Powerwall backup behavior when load-shedding).
+ */
+export const INVESTOR_DEMO_OUTAGE_FLOW: EnergyFlowData = {
+  solarPower: 0.0,        // sun down / outage at dusk
+  homePower: 1.4,         // lean backup load
+  batteryPower: -1.4,     // − = discharging OUT of pack
+  batteryPercent: 78,
+  batteryCapacityKwh: 13.5,
+  batteryReserveKwh: 10.5, // ~78% of 13.5
+  gridPower: 0.0,         // grid down
+  evPower: 0.0,           // EV charging paused during outage
+  tesla: {
+    kW: 0,
+    soc: 64,
+    rangeMi: 247,
+    isCharging: false,
+    source: 'home',
+  },
+};
+
+export const INVESTOR_DEMO_OUTAGE_TESLA_PAYLOAD = {
+  display_name: 'Model Y',
+  device_name: 'Model Y',
+  vehicle_config: {
+    car_type: 'modely',
+    exterior_color: 'PearlWhite',
+  },
+  charging_state: 'Stopped',
+  battery_level: 64,
+  usable_battery_level: 64,
+  battery_range: 247,
+  charge_rate_kw: 0,
+  charger_power: 0,
+  metadata: {
+    device_name: 'Model Y',
+    vin: '7SAYGDEE1RA000DEMO',
+  },
+};
+
