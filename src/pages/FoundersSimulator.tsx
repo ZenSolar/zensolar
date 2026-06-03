@@ -332,15 +332,12 @@ function SimulatorContent() {
                 className="mt-1 bg-background/60"
               />
             </div>
-            <div className="flex flex-wrap items-end gap-2">
-              <Button onClick={saveScenario} variant="default" size="sm" className="gap-1.5">
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-end gap-2">
+              <Button onClick={saveScenario} variant="default" size="sm" className="gap-1.5 w-full sm:w-auto">
                 <Save className="h-4 w-4" /> Save
               </Button>
-              <Select
-                onValueChange={loadScenario}
-                value=""
-              >
-                <SelectTrigger className="w-[180px] h-9 bg-background/60">
+              <Select onValueChange={loadScenario} value="">
+                <SelectTrigger className="w-full sm:w-[180px] h-9 bg-background/60">
                   <SelectValue placeholder="Load scenario…" />
                 </SelectTrigger>
                 <SelectContent>
@@ -367,16 +364,16 @@ function SimulatorContent() {
                   ))}
                 </SelectContent>
               </Select>
-              <Button onClick={reset} variant="outline" size="sm" className="gap-1.5">
+              <Button onClick={reset} variant="outline" size="sm" className="gap-1.5 col-span-2 sm:col-span-1 w-full sm:w-auto">
                 <RotateCcw className="h-4 w-4" /> Reset v3.1
               </Button>
-              <Button onClick={exportCSV} variant="outline" size="sm" className="gap-1.5">
+              <Button onClick={exportCSV} variant="outline" size="sm" className="gap-1.5 w-full sm:w-auto">
                 <Download className="h-4 w-4" /> CSV
               </Button>
-              <Button onClick={exportConfigJSON} variant="outline" size="sm" className="gap-1.5">
+              <Button onClick={exportConfigJSON} variant="outline" size="sm" className="gap-1.5 w-full sm:w-auto">
                 <Download className="h-4 w-4" /> JSON
               </Button>
-              <Button onClick={exportPDF} variant="outline" size="sm" className="gap-1.5">
+              <Button onClick={exportPDF} variant="outline" size="sm" className="gap-1.5 col-span-2 sm:col-span-1 w-full sm:w-auto">
                 <FileText className="h-4 w-4" /> PDF
               </Button>
             </div>
