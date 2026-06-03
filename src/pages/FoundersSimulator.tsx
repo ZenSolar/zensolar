@@ -21,6 +21,8 @@ import {
   Flame,
   Gauge,
   Coins,
+  Info,
+  GraduationCap,
 } from "lucide-react";
 import {
   LineChart,
@@ -32,7 +34,7 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
+  Tooltip as RTooltip,
   ResponsiveContainer,
   ReferenceLine,
   Legend,
@@ -47,14 +49,26 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import {
   buildDefaultConfig,
   simulate,
   type SimulatorConfig,
+  type SimulatorResult,
   type TierId,
   type StakingMixEntry,
 } from "@/lib/founderSimulator";
+import {
+  gradeScenario,
+  letterColor,
+  type ScenarioGrade,
+} from "@/lib/founderGrader";
 import { STAKING_MULTIPLIERS, formatUSD, formatTokenAmount } from "@/lib/tokenomics";
 import { downloadCsv, downloadFile, todayStamp } from "@/lib/csvExport";
 
@@ -64,6 +78,8 @@ interface SavedScenario {
   name: string;
   savedAt: string;
   config: SimulatorConfig;
+  /** Stored grade from the run that was saved (optional for legacy entries). */
+  grade?: { letter: ScenarioGrade["letter"]; total: number };
 }
 
 export default function FoundersSimulator() {
@@ -122,6 +138,17 @@ function SimulatorContent() {
   const printRef = useRef<HTMLDivElement>(null);
 
   const result = useMemo(() => simulate(config), [config]);
+  // Baseline = same config with secondary revenue forced off, for
+  // side-by-side comparison + delta KPIs. Cheap to recompute on each render.
+  const baselineResult = useMemo<SimulatorResult>(
+    () =>
+      simulate({
+        ...config,
+        secondaryRevenue: { ...config.secondaryRevenue, enabled: false },
+      }),
+    [config],
+  );
+  const grade = useMemo(() => gradeScenario(config, result), [config, result]);
 
   const update = (patch: Partial<SimulatorConfig>) =>
     setConfig((c) => ({ ...c, ...patch }));
@@ -155,11 +182,12 @@ function SimulatorContent() {
       name,
       savedAt: new Date().toISOString(),
       config,
+      grade: { letter: grade.letter, total: Math.round(grade.total) },
     };
     const next = [entry, ...scenarios.filter((s) => s.name !== name)].slice(0, 30);
     setScenarios(next);
     localStorage.setItem(SCENARIOS_KEY, JSON.stringify(next));
-    toast.success(`Saved "${name}"`);
+    toast.success(`Saved "${name}" — Grade ${grade.letter}`);
   };
 
   const loadScenario = (name: string) => {
@@ -246,6 +274,7 @@ function SimulatorContent() {
     result.selfSustainingMonth !== null ? `M${result.selfSustainingMonth}` : null;
 
   return (
+    <TooltipProvider delayDuration={200}>
     <div className="min-h-[100svh] bg-background text-foreground" ref={printRef}>
       {/* Print styles */}
       <style>{`
@@ -354,12 +383,19 @@ function SimulatorContent() {
           </div>
         </Card>
 
+        {/* Scenario Grade — prominent A–F evaluation */}
+        <ScenarioGradeCard grade={grade} />
+
         {/* Headline KPIs */}
         <HeadlineKPIs config={config} result={result} />
 
         <RealTimeKPIs config={config} result={result} />
 
         <FlywheelHealth config={config} result={result} />
+
+        {/* Side-by-side comparison: secondary revenue ON vs OFF */}
+        <ComparisonTable config={config} result={result} baseline={baselineResult} />
+
 
 
         {/* Main grid */}
@@ -745,6 +781,7 @@ function SimulatorContent() {
                   }
                 />
               </div>
+              <SecondaryRevenueWarnings config={config} result={result} />
             </Collapsible>
           </div>
 
@@ -756,7 +793,7 @@ function SimulatorContent() {
                   <CartesianGrid strokeOpacity={0.08} />
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                   <YAxis tickFormatter={fmtCompact} tick={{ fontSize: 11 }} />
-                  <Tooltip
+                  <RTooltip
                     contentStyle={tooltipStyle}
                     formatter={(v: any) => formatUSD(Number(v))}
                   />
@@ -800,7 +837,7 @@ function SimulatorContent() {
                   <CartesianGrid strokeOpacity={0.08} />
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                   <YAxis tickFormatter={(v) => `$${Number(v).toFixed(2)}`} tick={{ fontSize: 11 }} />
-                  <Tooltip
+                  <RTooltip
                     contentStyle={tooltipStyle}
                     formatter={(v: any) => `$${Number(v).toFixed(4)}`}
                   />
@@ -828,7 +865,7 @@ function SimulatorContent() {
                   <CartesianGrid strokeOpacity={0.08} />
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                   <YAxis tickFormatter={fmtCompact} tick={{ fontSize: 11 }} />
-                  <Tooltip
+                  <RTooltip
                     contentStyle={tooltipStyle}
                     formatter={(v: any) => formatUSD(Number(v))}
                   />
@@ -857,7 +894,7 @@ function SimulatorContent() {
                   <CartesianGrid strokeOpacity={0.08} />
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                   <YAxis tickFormatter={fmtCompact} tick={{ fontSize: 11 }} />
-                  <Tooltip
+                  <RTooltip
                     contentStyle={tooltipStyle}
                     formatter={(v: any) => formatUSD(Number(v))}
                   />
@@ -873,7 +910,7 @@ function SimulatorContent() {
                   <CartesianGrid strokeOpacity={0.08} />
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                   <YAxis tickFormatter={fmtCompact} tick={{ fontSize: 11 }} />
-                  <Tooltip
+                  <RTooltip
                     contentStyle={tooltipStyle}
                     formatter={(v: any) => formatUSD(Number(v))}
                   />
@@ -893,7 +930,7 @@ function SimulatorContent() {
                   <CartesianGrid strokeOpacity={0.08} />
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                   <YAxis tickFormatter={fmtCompact} tick={{ fontSize: 11 }} />
-                  <Tooltip
+                  <RTooltip
                     contentStyle={tooltipStyle}
                     formatter={(v: any) => formatTokenAmount(Number(v))}
                   />
@@ -914,7 +951,7 @@ function SimulatorContent() {
                   <CartesianGrid strokeOpacity={0.08} />
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                   <YAxis tickFormatter={fmtCompact} tick={{ fontSize: 11 }} />
-                  <Tooltip
+                  <RTooltip
                     contentStyle={tooltipStyle}
                     formatter={(v: any) => formatUSD(Number(v))}
                   />
@@ -930,6 +967,7 @@ function SimulatorContent() {
         <HowItWorks />
       </main>
     </div>
+    </TooltipProvider>
   );
 }
 
@@ -981,6 +1019,11 @@ function SimulatorIntro() {
   );
 }
 
+interface KpiExplain {
+  formula: string;
+  note: string;
+}
+
 function HeadlineKPIs({
   config,
   result,
@@ -989,17 +1032,31 @@ function HeadlineKPIs({
   result: ReturnType<typeof simulate>;
 }) {
   const last = result.months[result.months.length - 1];
-  const items = [
+  const items: Array<{
+    label: string;
+    value: string;
+    sub: string;
+    trend?: "up" | "down";
+    explain: KpiExplain;
+  }> = [
     {
       label: "Final price",
       value: `$${last?.price.toFixed(4) ?? "—"}`,
       sub: `Launch $${config.launchPriceUSD.toFixed(2)}`,
       trend: last && last.price >= config.launchPriceUSD ? "up" : "down",
+      explain: {
+        formula: "price = lpUSDC / lpTokens at the final horizon month",
+        note: "Derived from the constant-product LP each month after sells, tax recycle, buybacks, secondary revenue, and tranche injections.",
+      },
     },
     {
       label: "Final LP depth",
       value: formatUSD(last?.lpUSDC ?? 0),
       sub: `${formatTokenAmount(last?.lpTokens ?? 0)} tokens`,
+      explain: {
+        formula: "lpUSDC at horizon (sum of seed + tranches + tax recycle + secondary + buybacks − sells)",
+        note: "Direct measure of pool depth that defines slippage and price stability.",
+      },
     },
     {
       label: "Self-sustaining",
@@ -1009,30 +1066,47 @@ function HeadlineKPIs({
           : "Not reached",
       sub: `${config.selfSustainingWindowMonths}-mo window`,
       trend: result.selfSustainingMonth !== null ? "up" : "down",
+      explain: {
+        formula: `First month M where netLPChange > 0 with NO tranche firing for ${config.selfSustainingWindowMonths} consecutive months`,
+        note: "Secondary revenue counts as organic growth; tranches do not.",
+      },
     },
     {
       label: "Peak drawdown",
       value: `${(result.peakDrawdownPct * 100).toFixed(1)}%`,
       sub: "from peak price",
       trend: result.peakDrawdownPct < 0.25 ? "up" : "down",
+      explain: {
+        formula: "max((peakPrice − price[m]) / peakPrice) across all months",
+        note: "Worst-case % drop from any earlier peak. <25% is healthy.",
+      },
     },
     {
       label: "Tranche USDC used",
       value: formatUSD(result.totalTrancheUSDC),
       sub: `${config.tranches.filter((t) => t.enabled).length} active`,
+      explain: {
+        formula: "Σ usdc of every tranche whose trigger fired in the run",
+        note: "Total external capital injected. Lower is better — capital efficiency.",
+      },
     },
     {
       label: "Total burned",
       value: formatTokenAmount(result.totalBurned),
       sub: "tokens",
+      explain: {
+        formula: "Σ (rawMint × burnShare) + Σ (buybackTokens × buybackBurn%)",
+        note: "Permanent supply removal from mint split + treasury buybacks.",
+      },
     },
   ];
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
       {items.map((it) => (
         <Card key={it.label} className="p-4 bg-card/60 backdrop-blur border-border/60">
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
-            {it.label}
+          <div className="flex items-center gap-1 text-[10px] uppercase tracking-widest text-muted-foreground">
+            <span>{it.label}</span>
+            <KPIHint label={it.label} hint={it.explain} />
           </div>
           <div className="mt-1 text-lg sm:text-xl font-semibold tracking-tight flex items-center gap-1.5">
             {it.value}
@@ -1056,30 +1130,53 @@ function RealTimeKPIs({
   const last = result.months[result.months.length - 1];
   const lockedPct =
     last && last.circulatingSupply > 0 ? (last.lockedSupply / last.circulatingSupply) * 100 : 0;
-  const items = [
+  const items: Array<{
+    icon: typeof Coins;
+    label: string;
+    value: string;
+    sub: string;
+    trend?: "up";
+    explain: KpiExplain;
+  }> = [
     {
       icon: Coins,
       label: "Tokens issued",
       value: formatTokenAmount(last?.circulatingSupply ?? 0),
       sub: `${((last?.circulatingSupply ?? 0) / 1_000_000_000_000 * 100).toFixed(2)}% of 1T cap`,
+      explain: {
+        formula: "circulating = Σ (toUser + toLPDirect + toTreasuryTokens + trancheTokens) − burns",
+        note: "Live monthly tally of supply in circulation, capped at MAX_SUPPLY (1T).",
+      },
     },
     {
       icon: Flame,
       label: "Total burned",
       value: formatTokenAmount(result.totalBurned),
       sub: "permanent supply removal",
+      explain: {
+        formula: "Σ mint × burnShare + Σ buybackTokens × buybackBurn%",
+        note: "From the v3.1 burn split (20% by default) plus treasury defense buybacks.",
+      },
     },
     {
       icon: Lock,
       label: "Locked supply",
       value: formatTokenAmount(last?.lockedSupply ?? 0),
       sub: `${lockedPct.toFixed(1)}% of circulating`,
+      explain: {
+        formula: "lpTokens + (cumulativeUserTokens × lockedShare)",
+        note: "LP tokens + staked user tokens (any non-'none' staking tier). Higher = less float to sell.",
+      },
     },
     {
       icon: Gauge,
       label: "Runway remaining",
       value: result.runwayMonths !== null ? `${result.runwayMonths} mo` : "—",
       sub: `at $${(config.monthlyBuybackCapUSDC / 1000).toFixed(0)}K/mo defense`,
+      explain: {
+        formula: "floor(treasuryUSDC / monthlyBuybackCapUSDC)",
+        note: "Months of price-defense funding left at the configured monthly cap.",
+      },
     },
     {
       icon: Activity,
@@ -1090,6 +1187,10 @@ function RealTimeKPIs({
           ? `Self-sustaining @ M${result.selfSustainingMonth}`
           : "Not yet self-sustaining",
       trend: result.selfSustainingMonth !== null ? "up" : undefined,
+      explain: {
+        formula: "ratio = rolling 3-mo organic LP growth / sell USDC out  · ≥1 Strong · ≥0.3 Building · else Weak",
+        note: "Promoted to 'Self-Sustaining' once the engine confirms N consecutive tranche-free growth months.",
+      },
     },
   ];
   return (
@@ -1100,7 +1201,8 @@ function RealTimeKPIs({
           <Card key={it.label} className="p-4 bg-card/60 backdrop-blur border-border/60">
             <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-muted-foreground">
               <Icon className="h-3 w-3 text-primary" />
-              {it.label}
+              <span>{it.label}</span>
+              <KPIHint label={it.label} hint={it.explain} />
             </div>
             <div className="mt-1 text-lg sm:text-xl font-semibold tracking-tight flex items-center gap-1.5">
               {it.value}
@@ -1250,6 +1352,32 @@ function HowItWorks() {
             </li>
             <li>Treasury $500K starting; defense floor $0.08; monthly buyback cap $50K.</li>
           </ul>
+          <div className="font-medium text-foreground mt-4">Decision aids</div>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>
+              <span className="text-foreground">KPI tooltips</span> — every headline KPI has an
+              ⓘ button with the exact formula and key assumptions.
+            </li>
+            <li>
+              <span className="text-foreground">Comparison table</span> — the engine runs your
+              scenario twice (secondary ON vs OFF) so you can read the delta directly.
+            </li>
+            <li>
+              <span className="text-foreground">Scenario Grader (A–F)</span> — weighted score
+              across Flywheel (30%) · Sell Pressure (25%) · Token Health (20%) · Capital
+              Efficiency (15%) · Risk &amp; Realism (10%). Click "How was this graded?" to see
+              the breakdown. Grades persist with saved scenarios.
+            </li>
+            <li>
+              <span className="text-foreground">Secondary-revenue validation</span> — flags
+              unrealistic ARPU, aggressive compounding, and contradictory toggles inline.
+            </li>
+            <li>
+              <span className="text-foreground">Export</span> — CSV (full monthly data
+              including <code>secondary_injected_usdc</code> + <code>locked_supply</code>),
+              JSON (config snapshot), and PDF (browser print-to-PDF of this page).
+            </li>
+          </ul>
         </div>
       </div>
       <div className="mt-4 text-[11px] text-muted-foreground">
@@ -1384,7 +1512,377 @@ function ChartCard({ title, children }: { title: string; children: React.ReactNo
   );
 }
 
-// ------- Utils -------
+// ------- New refinement components: KPIHint, ScenarioGradeCard, ComparisonTable, SecondaryRevenueWarnings -------
+
+function KPIHint({ label, hint }: { label: string; hint: KpiExplain }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          aria-label={`Explain ${label}`}
+          className="text-muted-foreground/60 hover:text-primary transition-colors"
+        >
+          <Info className="h-3 w-3" />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="top" className="max-w-[280px] text-left">
+        <div className="font-semibold text-xs mb-1 text-foreground normal-case tracking-normal">
+          {label}
+        </div>
+        <div className="text-[11px] font-mono bg-muted/40 rounded px-1.5 py-1 mb-1.5 normal-case tracking-normal">
+          {hint.formula}
+        </div>
+        <div className="text-[11px] text-muted-foreground normal-case tracking-normal">
+          {hint.note}
+        </div>
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+function ScenarioGradeCard({ grade }: { grade: ScenarioGrade }) {
+  const [open, setOpen] = useState(false);
+  const colors = letterColor(grade.letter);
+  return (
+    <Card className={`p-5 sm:p-6 bg-gradient-to-br ${colors.bg} border ${colors.border}`}>
+      <div className="flex flex-col md:flex-row md:items-center gap-5">
+        <div className="flex items-center gap-4">
+          <div
+            className={`flex items-center justify-center w-20 h-20 rounded-2xl border-2 ${colors.border} bg-background/30 ${colors.text}`}
+          >
+            <span className="text-5xl font-bold leading-none">{grade.letter}</span>
+          </div>
+          <div>
+            <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-muted-foreground">
+              <GraduationCap className="h-3 w-3" />
+              Scenario Grade
+            </div>
+            <div className="text-2xl font-semibold tracking-tight mt-1">
+              {grade.total.toFixed(0)}/100
+            </div>
+            <div className="text-xs text-muted-foreground mt-1 max-w-md">
+              {grade.summary}
+            </div>
+          </div>
+        </div>
+        <div className="md:ml-auto">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setOpen((v) => !v)}
+            className="gap-1.5"
+          >
+            {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            {open ? "Hide breakdown" : "How was this graded?"}
+          </Button>
+        </div>
+      </div>
+      {open && (
+        <div className="mt-5 grid sm:grid-cols-2 gap-3">
+          {grade.categories.map((c) => {
+            const barColor =
+              c.score >= 80 ? "bg-emerald-400" :
+              c.score >= 65 ? "bg-primary" :
+              c.score >= 50 ? "bg-amber-400" :
+              c.score >= 35 ? "bg-orange-400" :
+              "bg-destructive";
+            return (
+              <div
+                key={c.key}
+                className="rounded-lg border border-border/50 bg-background/40 p-3"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-sm font-medium">{c.label}</div>
+                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                    weight {c.weight}%
+                  </div>
+                </div>
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="flex-1 h-1.5 rounded-full bg-muted/40 overflow-hidden">
+                    <div
+                      className={`h-full ${barColor}`}
+                      style={{ width: `${c.score}%` }}
+                    />
+                  </div>
+                  <div className="text-sm font-semibold tabular-nums w-12 text-right">
+                    {c.score.toFixed(0)}
+                  </div>
+                </div>
+                <div className="text-[11px] text-muted-foreground mt-1.5">
+                  {c.rationale} <span className="text-foreground/70">· +{c.weighted.toFixed(1)} pts</span>
+                </div>
+              </div>
+            );
+          })}
+          <div className="sm:col-span-2 mt-1 rounded-md border border-border/40 bg-muted/20 px-3 py-2 text-[11px] text-muted-foreground">
+            <span className="font-medium text-foreground">How grading works:</span> Each
+            category scores 0–100, then is weighted (Flywheel 30%, Sell Pressure 25%, Token
+            Health 20%, Capital Efficiency 15%, Risk &amp; Realism 10%). Weighted points sum
+            to 0–100, mapped to A (≥90), B (≥80), C (≥70), D (≥60), F otherwise. Logic lives
+            in <code className="text-primary">src/lib/founderGrader.ts</code>.
+          </div>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function ComparisonTable({
+  config,
+  result,
+  baseline,
+}: {
+  config: SimulatorConfig;
+  result: SimulatorResult;
+  baseline: SimulatorResult;
+}) {
+  const last = result.months[result.months.length - 1];
+  const lastB = baseline.months[baseline.months.length - 1];
+  const lpGrowth = (r: SimulatorResult) =>
+    (r.months[r.months.length - 1]?.lpUSDC ?? 0) - config.initialLPUSDC;
+
+  type Row = {
+    metric: string;
+    withSec: string;
+    withoutSec: string;
+    delta?: string;
+    deltaTrend?: "up" | "down" | "neutral";
+  };
+  const fmtMonth = (m: number | null) => (m !== null ? `Month ${m}` : "Not reached");
+  const fmtDeltaMonths = () => {
+    if (result.selfSustainingMonth === null && baseline.selfSustainingMonth === null) {
+      return { text: "—", trend: "neutral" as const };
+    }
+    if (result.selfSustainingMonth === null) return { text: "Worse", trend: "down" as const };
+    if (baseline.selfSustainingMonth === null) {
+      return { text: `Saved ≥${config.horizonMonths - result.selfSustainingMonth} mo`, trend: "up" as const };
+    }
+    const d = baseline.selfSustainingMonth - result.selfSustainingMonth;
+    return {
+      text: d > 0 ? `−${d} mo earlier` : d < 0 ? `+${-d} mo later` : "No change",
+      trend: d > 0 ? ("up" as const) : d < 0 ? ("down" as const) : ("neutral" as const),
+    };
+  };
+  const ssDelta = fmtDeltaMonths();
+  const lpDelta = lpGrowth(result) - lpGrowth(baseline);
+  const ddDelta = (result.peakDrawdownPct - baseline.peakDrawdownPct) * 100;
+  const priceDelta = (last?.price ?? 0) - (lastB?.price ?? 0);
+  const capDelta = result.totalTrancheUSDC - baseline.totalTrancheUSDC;
+
+  const rows: Row[] = [
+    {
+      metric: "Self-sustaining month",
+      withSec: fmtMonth(result.selfSustainingMonth),
+      withoutSec: fmtMonth(baseline.selfSustainingMonth),
+      delta: ssDelta.text,
+      deltaTrend: ssDelta.trend,
+    },
+    {
+      metric: `Total LP growth (${config.horizonMonths}-mo)`,
+      withSec: formatUSD(lpGrowth(result)),
+      withoutSec: formatUSD(lpGrowth(baseline)),
+      delta: `${lpDelta >= 0 ? "+" : ""}${formatUSD(lpDelta)}`,
+      deltaTrend: lpDelta > 0 ? "up" : lpDelta < 0 ? "down" : "neutral",
+    },
+    {
+      metric: "Peak drawdown",
+      withSec: `${(result.peakDrawdownPct * 100).toFixed(1)}%`,
+      withoutSec: `${(baseline.peakDrawdownPct * 100).toFixed(1)}%`,
+      delta: `${ddDelta >= 0 ? "+" : ""}${ddDelta.toFixed(1)} pp`,
+      deltaTrend: ddDelta < 0 ? "up" : ddDelta > 0 ? "down" : "neutral",
+    },
+    {
+      metric: "Final token price",
+      withSec: `$${(last?.price ?? 0).toFixed(4)}`,
+      withoutSec: `$${(lastB?.price ?? 0).toFixed(4)}`,
+      delta: `${priceDelta >= 0 ? "+" : ""}$${priceDelta.toFixed(4)}`,
+      deltaTrend: priceDelta > 0 ? "up" : priceDelta < 0 ? "down" : "neutral",
+    },
+    {
+      metric: "Total external capital (tranches)",
+      withSec: formatUSD(result.totalTrancheUSDC),
+      withoutSec: formatUSD(baseline.totalTrancheUSDC),
+      delta: capDelta === 0 ? "Same" : `${capDelta > 0 ? "+" : ""}${formatUSD(capDelta)}`,
+      deltaTrend: "neutral",
+    },
+    {
+      metric: `Flywheel @ M${config.horizonMonths}`,
+      withSec: result.flywheelStrength,
+      withoutSec: baseline.flywheelStrength,
+      delta:
+        result.flywheelStrength === baseline.flywheelStrength
+          ? "Same"
+          : `${baseline.flywheelStrength} → ${result.flywheelStrength}`,
+      deltaTrend: "neutral",
+    },
+  ];
+
+  const secOn = config.secondaryRevenue.enabled;
+
+  return (
+    <Card className="p-5 sm:p-6 bg-card/60 backdrop-blur border-border/60">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-4">
+        <div>
+          <div className="text-[11px] uppercase tracking-widest text-primary">
+            Side-by-side comparison
+          </div>
+          <h3 className="text-lg font-semibold tracking-tight mt-1">
+            Secondary Revenue Impact
+          </h3>
+          <p className="text-xs text-muted-foreground mt-1">
+            Same scenario run twice — once with your secondary revenue assumptions, once
+            with them disabled. Highlights the delta caused by recycling non-token revenue
+            into the LP.
+          </p>
+        </div>
+        {!secOn && (
+          <div className="text-[11px] text-amber-300 border border-amber-400/30 bg-amber-400/5 rounded-md px-2.5 py-1.5">
+            Secondary revenue is OFF — toggle it on to see the delta.
+          </div>
+        )}
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-[10px] uppercase tracking-widest text-muted-foreground border-b border-border/60">
+              <th className="py-2 pr-4 font-medium">Metric</th>
+              <th className="py-2 pr-4 font-medium text-primary">With secondary</th>
+              <th className="py-2 pr-4 font-medium">Without secondary</th>
+              <th className="py-2 font-medium">Delta</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.metric} className="border-b border-border/30 last:border-0">
+                <td className="py-2.5 pr-4 text-muted-foreground">{r.metric}</td>
+                <td className="py-2.5 pr-4 font-medium">{r.withSec}</td>
+                <td className="py-2.5 pr-4">{r.withoutSec}</td>
+                <td className="py-2.5">
+                  <span
+                    className={
+                      r.deltaTrend === "up"
+                        ? "text-primary inline-flex items-center gap-1"
+                        : r.deltaTrend === "down"
+                        ? "text-destructive inline-flex items-center gap-1"
+                        : "text-muted-foreground"
+                    }
+                  >
+                    {r.deltaTrend === "up" && <TrendingUp className="h-3 w-3" />}
+                    {r.deltaTrend === "down" && <TrendingDown className="h-3 w-3" />}
+                    {r.delta}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  );
+}
+
+function SecondaryRevenueWarnings({
+  config,
+  result,
+}: {
+  config: SimulatorConfig;
+  result: SimulatorResult;
+}) {
+  const sec = config.secondaryRevenue;
+  if (!sec.enabled) {
+    if (sec.priorityBeforeBuyback && sec.monthlyUSD === 0) {
+      return (
+        <Warn>
+          "Use before treasury buyback" is on but secondary revenue is disabled — the toggle
+          has no effect.
+        </Warn>
+      );
+    }
+    return null;
+  }
+
+  const warns: React.ReactNode[] = [];
+  const usersAtEnd = result.months[result.months.length - 1]?.users ?? 0;
+
+  // 1. Unrealistic revenue per user
+  const revPerUserAnnual = usersAtEnd > 0 ? (sec.monthlyUSD * 12) / usersAtEnd : Infinity;
+  if (usersAtEnd < 100 && sec.monthlyUSD > 50_000) {
+    warns.push(
+      <Warn key="rev-vs-users">
+        Monthly secondary revenue is ${(sec.monthlyUSD / 1000).toFixed(0)}K but the model
+        ends at only {Math.round(usersAtEnd)} users. That implies ${revPerUserAnnual.toFixed(0)}
+        /user/yr — verify this is realistic for Deason AI / VPP / data sales at that scale.
+      </Warn>,
+    );
+  } else if (revPerUserAnnual > 250 && usersAtEnd > 0) {
+    warns.push(
+      <Warn key="rev-high">
+        Implied secondary revenue is ${revPerUserAnnual.toFixed(0)}/user/yr — that's
+        aggressive. Typical SaaS / data-resale ARPUs land $50–$150/yr per residential energy
+        user.
+      </Warn>,
+    );
+  }
+
+  // 2. Compounding makes secondary > total LP injection
+  if (sec.growthRatePerMonth > 0.05) {
+    const m12 = sec.monthlyUSD * Math.pow(1 + sec.growthRatePerMonth, 12);
+    const alloc12 =
+      sec.allocationMode === "percent"
+        ? m12 * (sec.allocationPct / 100)
+        : Math.min(m12, sec.allocationFixedUSD);
+    if (alloc12 > 250_000) {
+      warns.push(
+        <Warn key="growth">
+          At {(sec.growthRatePerMonth * 100).toFixed(0)}%/mo compounding, secondary alone
+          injects ${(alloc12 / 1000).toFixed(0)}K to LP by month 12 — that may exceed any
+          realistic single-stream growth. Consider capping growth at 2–5%/mo.
+        </Warn>,
+      );
+    }
+  }
+
+  // 3. Priority-before-buyback with $0 revenue
+  if (sec.priorityBeforeBuyback && sec.monthlyUSD === 0) {
+    warns.push(
+      <Warn key="priority-zero">
+        "Use before treasury buyback" is on but monthly revenue is $0 — the toggle has no
+        effect until you set a revenue value.
+      </Warn>,
+    );
+  }
+
+  // 4. Percent allocation 0
+  if (sec.allocationMode === "percent" && sec.allocationPct === 0) {
+    warns.push(
+      <Warn key="alloc-zero">
+        Allocation percent is 0 — no secondary revenue will reach the LP. Set a non-zero
+        share or switch to a fixed $ allocation.
+      </Warn>,
+    );
+  }
+
+  if (warns.length === 0) {
+    return (
+      <div className="flex items-center gap-2 rounded-md border border-primary/20 bg-primary/5 px-2.5 py-1.5 text-[11px] text-muted-foreground">
+        <Info className="h-3 w-3 text-primary" />
+        Inputs look reasonable.
+      </div>
+    );
+  }
+  return <div className="space-y-1.5">{warns}</div>;
+}
+
+function Warn({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex items-start gap-2 rounded-md border border-amber-400/30 bg-amber-400/5 px-2.5 py-1.5 text-[11px] text-amber-200 leading-relaxed">
+      <AlertTriangle className="h-3 w-3 mt-0.5 shrink-0" />
+      <span>{children}</span>
+    </div>
+  );
+}
+
 
 const tooltipStyle = {
   background: "hsl(var(--background))",
