@@ -1019,6 +1019,11 @@ function SimulatorIntro() {
   );
 }
 
+interface KpiExplain {
+  formula: string;
+  note: string;
+}
+
 function HeadlineKPIs({
   config,
   result,
@@ -1027,17 +1032,31 @@ function HeadlineKPIs({
   result: ReturnType<typeof simulate>;
 }) {
   const last = result.months[result.months.length - 1];
-  const items = [
+  const items: Array<{
+    label: string;
+    value: string;
+    sub: string;
+    trend?: "up" | "down";
+    explain: KpiExplain;
+  }> = [
     {
       label: "Final price",
       value: `$${last?.price.toFixed(4) ?? "—"}`,
       sub: `Launch $${config.launchPriceUSD.toFixed(2)}`,
       trend: last && last.price >= config.launchPriceUSD ? "up" : "down",
+      explain: {
+        formula: "price = lpUSDC / lpTokens at the final horizon month",
+        note: "Derived from the constant-product LP each month after sells, tax recycle, buybacks, secondary revenue, and tranche injections.",
+      },
     },
     {
       label: "Final LP depth",
       value: formatUSD(last?.lpUSDC ?? 0),
       sub: `${formatTokenAmount(last?.lpTokens ?? 0)} tokens`,
+      explain: {
+        formula: "lpUSDC at horizon (sum of seed + tranches + tax recycle + secondary + buybacks − sells)",
+        note: "Direct measure of pool depth that defines slippage and price stability.",
+      },
     },
     {
       label: "Self-sustaining",
@@ -1047,30 +1066,47 @@ function HeadlineKPIs({
           : "Not reached",
       sub: `${config.selfSustainingWindowMonths}-mo window`,
       trend: result.selfSustainingMonth !== null ? "up" : "down",
+      explain: {
+        formula: `First month M where netLPChange > 0 with NO tranche firing for ${config.selfSustainingWindowMonths} consecutive months`,
+        note: "Secondary revenue counts as organic growth; tranches do not.",
+      },
     },
     {
       label: "Peak drawdown",
       value: `${(result.peakDrawdownPct * 100).toFixed(1)}%`,
       sub: "from peak price",
       trend: result.peakDrawdownPct < 0.25 ? "up" : "down",
+      explain: {
+        formula: "max((peakPrice − price[m]) / peakPrice) across all months",
+        note: "Worst-case % drop from any earlier peak. <25% is healthy.",
+      },
     },
     {
       label: "Tranche USDC used",
       value: formatUSD(result.totalTrancheUSDC),
       sub: `${config.tranches.filter((t) => t.enabled).length} active`,
+      explain: {
+        formula: "Σ usdc of every tranche whose trigger fired in the run",
+        note: "Total external capital injected. Lower is better — capital efficiency.",
+      },
     },
     {
       label: "Total burned",
       value: formatTokenAmount(result.totalBurned),
       sub: "tokens",
+      explain: {
+        formula: "Σ (rawMint × burnShare) + Σ (buybackTokens × buybackBurn%)",
+        note: "Permanent supply removal from mint split + treasury buybacks.",
+      },
     },
   ];
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
       {items.map((it) => (
         <Card key={it.label} className="p-4 bg-card/60 backdrop-blur border-border/60">
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
-            {it.label}
+          <div className="flex items-center gap-1 text-[10px] uppercase tracking-widest text-muted-foreground">
+            <span>{it.label}</span>
+            <KPIHint label={it.label} hint={it.explain} />
           </div>
           <div className="mt-1 text-lg sm:text-xl font-semibold tracking-tight flex items-center gap-1.5">
             {it.value}
@@ -1094,30 +1130,53 @@ function RealTimeKPIs({
   const last = result.months[result.months.length - 1];
   const lockedPct =
     last && last.circulatingSupply > 0 ? (last.lockedSupply / last.circulatingSupply) * 100 : 0;
-  const items = [
+  const items: Array<{
+    icon: typeof Coins;
+    label: string;
+    value: string;
+    sub: string;
+    trend?: "up";
+    explain: KpiExplain;
+  }> = [
     {
       icon: Coins,
       label: "Tokens issued",
       value: formatTokenAmount(last?.circulatingSupply ?? 0),
       sub: `${((last?.circulatingSupply ?? 0) / 1_000_000_000_000 * 100).toFixed(2)}% of 1T cap`,
+      explain: {
+        formula: "circulating = Σ (toUser + toLPDirect + toTreasuryTokens + trancheTokens) − burns",
+        note: "Live monthly tally of supply in circulation, capped at MAX_SUPPLY (1T).",
+      },
     },
     {
       icon: Flame,
       label: "Total burned",
       value: formatTokenAmount(result.totalBurned),
       sub: "permanent supply removal",
+      explain: {
+        formula: "Σ mint × burnShare + Σ buybackTokens × buybackBurn%",
+        note: "From the v3.1 burn split (20% by default) plus treasury defense buybacks.",
+      },
     },
     {
       icon: Lock,
       label: "Locked supply",
       value: formatTokenAmount(last?.lockedSupply ?? 0),
       sub: `${lockedPct.toFixed(1)}% of circulating`,
+      explain: {
+        formula: "lpTokens + (cumulativeUserTokens × lockedShare)",
+        note: "LP tokens + staked user tokens (any non-'none' staking tier). Higher = less float to sell.",
+      },
     },
     {
       icon: Gauge,
       label: "Runway remaining",
       value: result.runwayMonths !== null ? `${result.runwayMonths} mo` : "—",
       sub: `at $${(config.monthlyBuybackCapUSDC / 1000).toFixed(0)}K/mo defense`,
+      explain: {
+        formula: "floor(treasuryUSDC / monthlyBuybackCapUSDC)",
+        note: "Months of price-defense funding left at the configured monthly cap.",
+      },
     },
     {
       icon: Activity,
@@ -1128,6 +1187,10 @@ function RealTimeKPIs({
           ? `Self-sustaining @ M${result.selfSustainingMonth}`
           : "Not yet self-sustaining",
       trend: result.selfSustainingMonth !== null ? "up" : undefined,
+      explain: {
+        formula: "ratio = rolling 3-mo organic LP growth / sell USDC out  · ≥1 Strong · ≥0.3 Building · else Weak",
+        note: "Promoted to 'Self-Sustaining' once the engine confirms N consecutive tranche-free growth months.",
+      },
     },
   ];
   return (
@@ -1138,7 +1201,8 @@ function RealTimeKPIs({
           <Card key={it.label} className="p-4 bg-card/60 backdrop-blur border-border/60">
             <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-muted-foreground">
               <Icon className="h-3 w-3 text-primary" />
-              {it.label}
+              <span>{it.label}</span>
+              <KPIHint label={it.label} hint={it.explain} />
             </div>
             <div className="mt-1 text-lg sm:text-xl font-semibold tracking-tight flex items-center gap-1.5">
               {it.value}
