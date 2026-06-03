@@ -439,16 +439,25 @@ export function EnergyFlowScene({
   const homeDrawing = home > 0.05;
 
   const flows = useMemo(
-    () =>
-      pickPrimaryFlows({
+    () => {
+      const base = pickPrimaryFlows({
         solarProducing,
         pwCharging,
         pwDischarging,
         isCharging,
         gridExporting,
         gridImporting,
-      }),
-    [solarProducing, pwCharging, pwDischarging, isCharging, gridExporting, gridImporting],
+      });
+      if (isOutage) {
+        // Drop any grid flows and force battery→home as the hero flow
+        // whenever the home is drawing or the battery is discharging.
+        base.delete('home-grid');
+        base.delete('grid-home');
+        if (pwDischarging || homeDrawing) base.add('pw-home');
+      }
+      return base;
+    },
+    [solarProducing, pwCharging, pwDischarging, isCharging, gridExporting, gridImporting, isOutage, homeDrawing],
   );
 
   const fmtKw = (v: number) => `${Math.abs(v).toFixed(1)} kW`;
