@@ -79,7 +79,7 @@ export function FloatingSectionNav() {
 
   return (
     <>
-      <div ref={sentinelRef} className="absolute top-[500px] h-px w-px pointer-events-none" aria-hidden />
+      <div ref={sentinelRef} className="fixed top-[500px] left-0 h-px w-px pointer-events-none" aria-hidden />
 
       {/* ── Desktop: vertical dot pips ── */}
       <nav
