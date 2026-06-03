@@ -78,6 +78,7 @@ describe('estimateBackupTime', () => {
     }
     // Without smoothing the final spike would give ~1h; smoothing keeps it much higher.
     expect(last).toBeGreaterThan(2);
+  });
 });
 
 describe('detectTeslaOutage', () => {
