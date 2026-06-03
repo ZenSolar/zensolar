@@ -206,6 +206,7 @@ const AdminSeoStrategy = lazy(() => import("./pages/admin/SeoStrategy"));
 const AdminContentCalendar = lazy(() => import("./pages/admin/ContentCalendar"));
 const AdminBlogManager = lazy(() => import("./pages/admin/BlogManager"));
 const EnergyLog = lazy(() => import("./pages/EnergyLog"));
+const OutageHistory = lazy(() => import("./pages/OutageHistory"));
 const AdminEnergyDataArchitecture = lazy(() => import("./pages/admin/EnergyDataArchitecture"));
 const WorkJournal = lazy(() => import("./pages/admin/WorkJournal"));
 const AdminEmailAnalytics = lazy(() => import("./pages/admin/EmailAnalytics"));
