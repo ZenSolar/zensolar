@@ -226,6 +226,23 @@ export default function Settings() {
             >
               <Switch />
             </SettingRow>
+
+            <Link
+              to="/outage-history"
+              data-testid="settings-outage-history-link"
+              className="flex items-center justify-between gap-3 py-3 px-1 border-b border-border/30 last:border-0 hover:bg-muted/30 rounded-md transition-colors"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="text-muted-foreground/60 shrink-0">
+                  <History className="h-4 w-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium leading-tight">Outage History</p>
+                  <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">View every recorded grid outage on your home</p>
+                </div>
+              </div>
+              <span className="text-xs text-primary shrink-0">View →</span>
+            </Link>
           </CardContent>
         </Card>
       </motion.div>
