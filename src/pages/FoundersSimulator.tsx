@@ -765,6 +765,19 @@ function SimulatorContent() {
                       label={{ value: t.id, position: "top", fill: "hsl(var(--primary))", fontSize: 10 }}
                     />
                   ))}
+                  {selfSustainMonthLabel && (
+                    <ReferenceLine
+                      x={selfSustainMonthLabel}
+                      stroke="hsl(var(--primary))"
+                      strokeWidth={2}
+                      label={{
+                        value: "Self-Sustaining Flywheel Begins",
+                        position: "insideTopRight",
+                        fill: "hsl(var(--primary))",
+                        fontSize: 10,
+                      }}
+                    />
+                  )}
                   <Line
                     type="monotone"
                     dataKey="lpUSDC"
