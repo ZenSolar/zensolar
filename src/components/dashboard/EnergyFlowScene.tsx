@@ -385,6 +385,9 @@ export interface EnergyFlowSceneProps {
   hasBattery?: boolean;
   hasCharger?: boolean;
   hasTesla?: boolean;
+  /** When true, render the scene in Grid Outage mode (grid disabled,
+   *  battery→home becomes the hero flow). */
+  isOutage?: boolean;
 }
 
 export function EnergyFlowScene({
@@ -398,6 +401,7 @@ export function EnergyFlowScene({
   hasBattery = true,
   hasCharger = true,
   hasTesla = true,
+  isOutage = false,
 }: EnergyFlowSceneProps) {
 
 
