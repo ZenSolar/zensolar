@@ -304,7 +304,7 @@ export default function Auth() {
       toast.error(error.message);
     } else {
       toast.success('Password updated successfully!');
-      navigate('/');
+      navigate(safeRedirectPath(searchParams.get('redirect'), '/'), { replace: true });
     }
   };
 
