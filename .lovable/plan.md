@@ -1,54 +1,72 @@
-# Fix Investor Demo Routing + Polish Outage Simulation
+# Restyle /home to match /investor (visual polish only)
 
-## Problem
+Goal: bring the calm, editorial, premium feel of `/investor` + `/investor/pitch` onto `/home`, without changing the consumer-first content, section order, or CTAs. No new modules. No merging.
 
-1. `/demo?demo=investor` deep links from `InvestorPitch.tsx` (and any other investor surface that doesn't pre-flight PIN+NDA) hit `DemoAccessGate`, which only auto-grants when `hasInvestorPass()` is true. The "Live Investor Demo" CTA on `InvestorPitch.tsx` (line 212) sends visitors straight into the access-code wall.
-2. Outage-sim UX still needs: a clearer "Demo: Outage Mode Active" affordance with a tooltip, guaranteed Deason auto-open + recovery on toggle off, and snapshot coverage.
+## Visual language to lift from /investor
 
-## Routing fix (primary)
+Captured from `InvestorPitch.tsx` and `Investor.tsx`:
 
-**File: `src/components/demo/DemoAccessGate.tsx`** — inside the `useState` initializer (around lines 282–314), add an early bypass:
+- Tight content rails: `max-w-3xl` for narrative, `max-w-5xl` for module-heavy sections (today /home mostly uses `max-w-4xl`).
+- Eyebrow labels: `text-xs uppercase tracking-[0.22em] text-muted-foreground` instead of colored shadcn `Badge` pills.
+- Headings: `font-semibold tracking-tight leading-[1.05]`, sizes `text-3xl md:text-5xl` for hero, `text-2xl md:text-3xl` for section headers.
+- Section chrome: thin `border-t border-border/40` dividers between sections, instead of the current chevron/diamond/angle `SectionDivider` decorations.
+- Cards: `rounded-2xl border border-border/60 bg-card/40` (plus `rounded-3xl border border-secondary/30 bg-secondary/5` for emphasis blocks). Replaces today's heavy `shadow-2xl shadow-primary/10` cards.
+- Accent: lean on `secondary` (zen green) for emphasis; drop the rainbow of solar/secondary/primary/energy borders used in `CleanEnergyCenterShowcase`.
+- Hero background: single radial gradient `bg-[radial-gradient(ellipse_at_top,hsl(var(--secondary)/0.18),transparent_60%)]` instead of layered gradients.
+- Footer/contact line uses `text-[11px] text-muted-foreground` with secondary-tinted email link.
 
-- If `new URLSearchParams(window.location.search).get('demo') === 'investor'` (or `'outage'`), treat it as granted: write the same `LS_KEY` payload `{ ts, ndaSigned: true }` the investor-pass branch writes, and return `true`. No PIN prompt, no NDA modal.
-- Run this check BEFORE `isPreviewDemoQaRoute()` and BEFORE `hasInvestorPass()` so it works on every host.
-- Rationale: the investor demo is a marketing surface (already public via `/investor/pitch`, share links, etc.). The access-code gate exists for the private reviewer flow and should only trigger when no demo param is set.
+## Changes by file
 
-**File: `src/pages/Investor.tsx`** — no functional change needed; the existing `Live Investor Demo` CTA continues to write the investor pass for PIN-cleared investors, which is still desirable.
+```text
+src/pages/Home.tsx
+├── Remove all <SectionDivider> instances (chevron/diamond/angle).
+├── Wrap the main column to inherit the editorial rhythm (no new sections).
+└── Keep all <LazySection> + Suspense boundaries intact.
 
-**File: `src/pages/InvestorPitch.tsx`** — leave the `Link to="/demo?demo=investor"` as-is; the gate fix above is what unblocks it.
+src/components/home/HomeHero.tsx
+├── Swap layered gradient bg for the single radial-at-top secondary glow.
+├── Eyebrow chip → uppercase tracking label.
+├── Headline → font-semibold tracking-tight leading-[1.05], same copy.
+└── Stats row (if present) → 3-up card grid styled like InvestorPitch hero KPI tiles.
 
-**Test: `src/components/demo/__tests__/DemoAccessGate.investorPass.test.tsx`** — add a sibling test case: mounting `DemoAccessGate` at `/demo?demo=investor` with NO investor pass in localStorage must still render children immediately (no PIN UI).
+src/components/home/DashboardShowcase.tsx
+├── Replace shadow-heavy Card wrapper with rounded-2xl border-border/60 bg-card/40.
+├── Convert "Unified Dashboard" Badge → uppercase eyebrow.
+└── Tighten container to max-w-3xl for copy, keep max-w-5xl around the InvestorEnergyFlowCard.
 
-## Outage simulation polish
+src/components/home/CleanEnergyCenterShowcase.tsx
+├── Drop multicolor border-l-{solar,secondary,primary,energy} accents → uniform border-border/60.
+├── Eyebrow + heading restyle to match.
+└── Wallet preview + KPI rows keep their data, lose the heavy shadow and rainbow chips.
 
-**File: `src/components/demo/InvestorEnergyFlowCard.tsx`**
-- Wrap the "Simulate Grid Outage" / "End Outage Simulation" button in a shadcn `Tooltip` explaining what the toggle does ("Simulates a full grid outage so you can test Outage Mode UI + Deason context without waiting for a real one").
-- Promote the small `Demo · Outage Mode Active` chip to a slightly bolder amber pill (already in place) and add `title` / `aria-label` text for non-tooltip surfaces.
-- Confirm the existing `useEffect` already (a) dispatches `deason:nudge` + `deason:open` on enable and (b) sends the recovery `deason:nudge` on disable. Add an explicit `setShowAnnotations(false)` while sim is on (already handled by the render guard) and ensure that disabling the sim also closes the Deason outage banner by emitting a `deason:nudge` with `meta.kind: 'grid_outage', phase: 'recovery'` — already present; verify `DeasonChat` clears the amber banner when `phase === 'recovery'`.
+src/components/home/{HowItWorksSection,NFTMilestoneSection,StoreRedemptionSection,
+  WhyZenSolarSection,TokenizationWaveSection,PricingSection,
+  SubscriptionTransparencyPanel,TestimonialsSection,FAQSection,HomeCTA,HomeFooter}.tsx
+└── Apply the same 4 rules consistently:
+     1. Eyebrow chip → uppercase tracking label.
+     2. Container → max-w-3xl (or max-w-5xl for grids).
+     3. Card surfaces → rounded-2xl border-border/60 bg-card/40.
+     4. Heading weight/tracking aligned, no decorative dividers.
+```
 
-**File: `src/components/deason/DeasonChat.tsx`** — confirm the amber banner only renders while `outageContext?.kind === 'grid_outage' && outageContext.phase !== 'recovery'`. Tighten the conditional if needed so toggling off immediately removes the banner.
+## Out of scope (per your answers)
 
-## Snapshot / regression test
-
-**New file: `src/test/InvestorOutageSim.snapshot.test.tsx`**
-- Render `InvestorEnergyFlowCard` twice (sim off + sim on via `setInvestorOutageSim(true)`).
-- Assert that with sim ON:
-  - The amber `Demo · Outage Mode Active` chip is in the document.
-  - The "Grid" readout tile shows `Offline`.
-  - The card root has the amber border class signature.
-  - The lazy `EnergyFlowScene` receives `isOutage={true}` (assert via a `vi.mock` of `@/components/dashboard/EnergyFlowScene` that captures props).
-- Assert with sim OFF:
-  - Chip reads `Live`, Grid tile shows `0.0 kW`, mocked scene receives `isOutage={false}`.
-
-Use the existing pattern from `src/test/EnergyFlowScene.outage.test.ts` for prop-shape assertions; mock the heavy `EnergyFlowScene` to keep the test fast and stable.
+- No content rewrites, no new sections, no investor modules dropped into /home.
+- No IA changes, no archived pages.
+- `HomeNav`, `FloatingSectionNav`, `LiveStatsBar`, route, SEO untouched.
+- No light-mode work (dark-mode only stays).
+- `/investor` and `/investor/pitch` not touched.
 
 ## Acceptance
 
-- Tapping "Live Investor Demo" or "See it live" from any investor page lands directly on `/demo` with the house diagram visible — no access-code screen.
-- Toggling the outage sim opens Deason with the amber outage banner and a first message seeded from current sim state; toggling off restores normal Deason + EnergyFlow within one render.
-- `bunx vitest run` passes including the new snapshot test and the new DemoAccessGate bypass test.
+- Visiting `/home` feels like the same brand world as `/investor/pitch`: calm, editorial, secondary-accent, thin dividers, tight rails.
+- Every existing section still renders with the same content, CTAs, links, and lazy-loading.
+- Mobile (390×844) hierarchy reads cleanly — headings, eyebrows, and cards scale without overflow.
+- No semantic-token violations: zero new hard-coded hex colors; everything routes through `bg-card`, `border-border`, `text-muted-foreground`, `secondary`, etc.
 
-## Out of scope
+## Technical notes
 
-- The private `/demo` access-code flow for non-investor visitors stays exactly as-is.
-- No changes to `useInvestorDemoMode` storage keys or URL contract.
+- All edits stay in `src/pages/Home.tsx` + `src/components/home/*`.
+- No changes to `tailwind.config.ts` or `index.css` tokens — the investor look already uses tokens that exist.
+- `SectionDivider` import can be removed from `Home.tsx`; component itself stays in place for any other consumers.
+- No new dependencies, no route changes, no Supabase work.
