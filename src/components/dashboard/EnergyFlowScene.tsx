@@ -847,15 +847,17 @@ export function EnergyFlowScene({
             disconnection is obvious at a glance. No animation, low opacity. */}
         {isOutage && (
           <path
+            data-testid="outage-grid-offline"
             d={BLUEPRINT_PATHS.gridToHome}
-            stroke="hsl(0 65% 55% / 0.55)"
-            strokeWidth={0.55}
+            stroke={OUTAGE_VISUAL.gridOffline.stroke}
+            strokeWidth={OUTAGE_VISUAL.gridOffline.strokeWidth}
             strokeLinecap="round"
-            strokeDasharray="1.4 2.4"
+            strokeDasharray={OUTAGE_VISUAL.gridOffline.strokeDasharray}
             fill="none"
-            opacity={0.7}
+            opacity={OUTAGE_VISUAL.gridOffline.opacity}
           />
         )}
+
 
         {/* ── Open-garage warm bloom when EV is charging at home ── */}
         {chargingAtHome && showDynamicCar && (
