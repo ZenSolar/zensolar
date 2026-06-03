@@ -725,55 +725,46 @@ export function EnergyFlowScene({
         )}
 
 
-        {/* Outage-mode hero: dominant amber halo + dense particle stream
-            below the powerwall→home line so the eye lands on it instantly.
-            Every visual knob (stroke widths, particle count, halo opacities)
-            lives in OUTAGE_VISUAL.pwHome — re-tune there, not here. */}
+        {/* Outage-mode hero: Battery → Home rendered in the SAME visual
+            language as the active Solar flow — a faint guide path with
+            dense, fast LED particles riding on top — just amber. A single
+            soft halo replaces the previous triple-blur stack so the line
+            reads crisp, not smudged. All knobs live in OUTAGE_VISUAL.pwHome. */}
         {flows.has('pw-home') && isOutage && (() => {
           const v = OUTAGE_VISUAL.pwHome;
           const baseDur = flowDur(Math.max(0.5, Math.abs(battery)));
-          const particleDur = Math.max(v.minParticleDurSec, baseDur * 0.5);
-          const chevronDur = Math.max(1.2, baseDur * 0.7);
+          const particleDur = Math.max(v.particleMinDurSec, baseDur * v.particleDurFactor);
           return (
             <g style={{ pointerEvents: 'none' }} data-testid="outage-pw-home">
-              {/* Soft outer pulse */}
+              {/* Soft single halo — breathes gently underneath the guide. */}
               <path
                 d={BLUEPRINT_PATHS.powerwallToHome}
-                stroke={v.outerHalo}
-                strokeWidth={v.outerHaloStrokeWidth}
+                stroke={v.haloStroke}
+                strokeWidth={v.haloStrokeWidth}
                 strokeLinecap="round"
                 fill="none"
-                style={{ filter: 'blur(4px)' }}
+                style={{ filter: 'blur(2px)' }}
               >
                 <animate
                   attributeName="stroke-opacity"
-                  values={`${v.outerHaloPulse.from};${v.outerHaloPulse.to};${v.outerHaloPulse.from}`}
-                  dur={`${v.outerHaloPulse.durMs}ms`}
+                  values={`${v.haloPulse.from};${v.haloPulse.to};${v.haloPulse.from}`}
+                  dur={`${v.haloPulse.durMs}ms`}
                   repeatCount="indefinite"
                 />
               </path>
-              {/* Mid halo */}
-              <path
-                d={BLUEPRINT_PATHS.powerwallToHome}
-                stroke={v.midHalo}
-                strokeWidth={v.midHaloStrokeWidth}
-                strokeLinecap="round"
-                fill="none"
-                style={{ filter: 'blur(2.2px)' }}
-              />
-              {/* Bright core line */}
+              {/* Faint guide path the particles ride on (mirrors DottedFlow). */}
               <path
                 id="flow-pw-home"
                 d={BLUEPRINT_PATHS.powerwallToHome}
-                stroke={v.coreStroke}
-                strokeWidth={v.coreStrokeWidth}
+                stroke={v.guideStroke}
+                strokeOpacity={v.guideOpacity}
+                strokeWidth={v.guideStrokeWidth}
                 strokeLinecap="round"
                 fill="none"
-                style={{ filter: 'blur(0.3px)' }}
               />
-              {/* Dense particle stream — N amber droplets, steady cadence */}
+              {/* Dense, fast LED particle stream — same fade profile as solar. */}
               {Array.from({ length: v.particleCount }, (_, i) => i / v.particleCount).map((offset) => (
-                <circle key={`pw-home-out-${offset}`} r={v.particleRadius} fill={AMBER_LED} opacity={0}>
+                <circle key={`pw-home-out-${offset}`} r={v.particleRadius} fill={v.particleColor} opacity={0}>
                   <animateMotion
                     dur={`${particleDur}s`}
                     repeatCount="indefinite"
@@ -787,30 +778,13 @@ export function EnergyFlowScene({
                   <animate
                     attributeName="opacity"
                     values="0;1;1;0"
-                    keyTimes="0;0.1;0.9;1"
+                    keyTimes="0;0.12;0.88;1"
                     dur={`${particleDur}s`}
                     repeatCount="indefinite"
                     begin={`${offset * particleDur}s`}
                   />
                 </circle>
               ))}
-              {/* Directional chevron riding the path — reinforces direction. */}
-              <polygon
-                points={`0,-${v.chevron.height} ${v.chevron.width},0 0,${v.chevron.height}`}
-                fill={AMBER_LED}
-                opacity={v.chevron.opacity}
-              >
-                <animateMotion
-                  dur={`${chevronDur}s`}
-                  repeatCount="indefinite"
-                  rotate="auto"
-                  calcMode="linear"
-                  keyPoints="0;1"
-                  keyTimes="0;1"
-                >
-                  <mpath href="#flow-pw-home" />
-                </animateMotion>
-              </polygon>
             </g>
           );
         })()}
