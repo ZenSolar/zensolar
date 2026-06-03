@@ -42,6 +42,8 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { VaultPinGate } from "@/components/founders/VaultPinGate";
+import { decideSimulatorAccess } from "@/lib/simulatorGate";
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -106,19 +108,27 @@ export default function FoundersSimulator() {
     };
   }, [user]);
 
-  if (authLoading || isFounder === null) {
+  // Single source of truth for gate behavior — covered by simulatorGate tests.
+  const decision = decideSimulatorAccess({
+    authLoading,
+    roleReady: isFounder !== null,
+    hasUser: !!user,
+    isFounder: !!isFounder,
+  });
+
+  if (decision === "loading") {
     return (
       <div className="min-h-[100svh] flex items-center justify-center bg-background">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
   }
-  if (!user) {
+  if (decision === "needs-auth") {
     const path = typeof window !== "undefined" ? window.location.pathname : "/simulator";
     return <Navigate to={`/auth?redirect=${encodeURIComponent(path)}`} replace />;
   }
+  if (decision === "forbidden") return <Navigate to="/" replace />;
 
-  if (!isFounder) return <Navigate to="/" replace />;
 
   return (
     <VaultPinGate userId={user.id}>
