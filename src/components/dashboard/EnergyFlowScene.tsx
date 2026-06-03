@@ -663,27 +663,53 @@ export function EnergyFlowScene({
         )}
 
         {/* ── Max 2 ultra-minimal dotted flow lines ── */}
+        {/* In Outage Mode, solar flows are dimmed so the eye lands on
+            battery → home as the dominant route. */}
         {flows.has('solar-home') && (
-          <DottedFlow id="flow-solar-home" d={BLUEPRINT_PATHS.solarToHome} color={EMERALD_LED} dur={flowDur(solar)} />
+          <g opacity={isOutage ? 0.35 : 1}>
+            <DottedFlow id="flow-solar-home" d={BLUEPRINT_PATHS.solarToHome} color={EMERALD_LED} dur={flowDur(solar)} />
+          </g>
         )}
         {flows.has('solar-pw') && (
-          <DottedFlow id="flow-solar-pw" d={BLUEPRINT_PATHS.solarToPowerwall} color={EMERALD_LED} dur={flowDur(battery)} />
+          <g opacity={isOutage ? 0.35 : 1}>
+            <DottedFlow id="flow-solar-pw" d={BLUEPRINT_PATHS.solarToPowerwall} color={EMERALD_LED} dur={flowDur(battery)} />
+          </g>
         )}
         {flows.has('solar-pw') && batteryCount >= 2 && (
-          <DottedFlow id="flow-solar-pw-2" d={BLUEPRINT_PATHS.solarToPowerwall2} color={EMERALD_LED} dur={flowDur(battery)} />
+          <g opacity={isOutage ? 0.35 : 1}>
+            <DottedFlow id="flow-solar-pw-2" d={BLUEPRINT_PATHS.solarToPowerwall2} color={EMERALD_LED} dur={flowDur(battery)} />
+          </g>
         )}
+
+        {/* Outage-mode hero glow: a wide amber halo underneath the
+            powerwall→home dotted flow so it visibly dominates the diagram. */}
         {flows.has('pw-home') && isOutage && (
-          <path
-            d={BLUEPRINT_PATHS.powerwallToHome}
-            stroke="hsl(38 95% 60% / 0.45)"
-            strokeWidth={1.4}
-            strokeLinecap="round"
-            fill="none"
-            style={{ filter: 'blur(1.2px)' }}
-          />
+          <>
+            <path
+              d={BLUEPRINT_PATHS.powerwallToHome}
+              stroke="hsl(38 95% 60% / 0.55)"
+              strokeWidth={2.4}
+              strokeLinecap="round"
+              fill="none"
+              style={{ filter: 'blur(2.2px)' }}
+            />
+            <path
+              d={BLUEPRINT_PATHS.powerwallToHome}
+              stroke="hsl(38 95% 60% / 0.85)"
+              strokeWidth={0.9}
+              strokeLinecap="round"
+              fill="none"
+              style={{ filter: 'blur(0.4px)' }}
+            />
+          </>
         )}
         {flows.has('pw-home') && (
-          <DottedFlow id="flow-pw-home" d={BLUEPRINT_PATHS.powerwallToHome} color={AMBER_LED} dur={flowDur(Math.max(0.5, Math.abs(battery)))} />
+          <DottedFlow
+            id="flow-pw-home"
+            d={BLUEPRINT_PATHS.powerwallToHome}
+            color={AMBER_LED}
+            dur={isOutage ? Math.max(0.55, flowDur(Math.max(0.5, Math.abs(battery))) * 0.55) : flowDur(Math.max(0.5, Math.abs(battery)))}
+          />
         )}
         {flows.has('pw-home') && batteryCount >= 2 && (
           <DottedFlow id="flow-pw-home-2" d={BLUEPRINT_PATHS.powerwall2ToHome} color={AMBER_LED} dur={flowDur(Math.max(0.5, Math.abs(battery)))} />
@@ -697,6 +723,20 @@ export function EnergyFlowScene({
         )}
         {flows.has('grid-home') && (
           <DottedFlow id="flow-grid-home" d={BLUEPRINT_PATHS.gridToHome} color={SKY_LED} dur={flowDur(grid)} />
+        )}
+
+        {/* Outage: render a clearly broken/dashed grid line so the
+            disconnection is obvious at a glance. No animation, low opacity. */}
+        {isOutage && (
+          <path
+            d={BLUEPRINT_PATHS.gridToHome}
+            stroke="hsl(0 65% 55% / 0.55)"
+            strokeWidth={0.55}
+            strokeLinecap="round"
+            strokeDasharray="1.4 2.4"
+            fill="none"
+            opacity={0.7}
+          />
         )}
 
         {/* ── Open-garage warm bloom when EV is charging at home ── */}
