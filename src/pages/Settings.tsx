@@ -14,7 +14,7 @@ import {
   CheckCircle2,
   AlertCircle,
   Settings as SettingsIcon,
-  
+  History,
   Rows3,
   Rows4
 } from "lucide-react";
