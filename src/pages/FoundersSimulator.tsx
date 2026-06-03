@@ -1352,6 +1352,32 @@ function HowItWorks() {
             </li>
             <li>Treasury $500K starting; defense floor $0.08; monthly buyback cap $50K.</li>
           </ul>
+          <div className="font-medium text-foreground mt-4">Decision aids</div>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>
+              <span className="text-foreground">KPI tooltips</span> — every headline KPI has an
+              ⓘ button with the exact formula and key assumptions.
+            </li>
+            <li>
+              <span className="text-foreground">Comparison table</span> — the engine runs your
+              scenario twice (secondary ON vs OFF) so you can read the delta directly.
+            </li>
+            <li>
+              <span className="text-foreground">Scenario Grader (A–F)</span> — weighted score
+              across Flywheel (30%) · Sell Pressure (25%) · Token Health (20%) · Capital
+              Efficiency (15%) · Risk &amp; Realism (10%). Click "How was this graded?" to see
+              the breakdown. Grades persist with saved scenarios.
+            </li>
+            <li>
+              <span className="text-foreground">Secondary-revenue validation</span> — flags
+              unrealistic ARPU, aggressive compounding, and contradictory toggles inline.
+            </li>
+            <li>
+              <span className="text-foreground">Export</span> — CSV (full monthly data
+              including <code>secondary_injected_usdc</code> + <code>locked_supply</code>),
+              JSON (config snapshot), and PDF (browser print-to-PDF of this page).
+            </li>
+          </ul>
         </div>
       </div>
       <div className="mt-4 text-[11px] text-muted-foreground">
