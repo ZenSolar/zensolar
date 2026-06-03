@@ -1,5 +1,6 @@
 import { Suspense, lazy, useState, useEffect, useRef } from 'react';
 import { Sparkles, Sun, BatteryCharging, Car, Plug, Eye, EyeOff, Zap, ZapOff } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   INVESTOR_DEMO_FLOW,
   INVESTOR_DEMO_TESLA_PAYLOAD,
