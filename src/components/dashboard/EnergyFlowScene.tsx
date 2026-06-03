@@ -84,36 +84,31 @@ const WARM = 'hsl(38 90% 62%)';
 // ─────────────────────────────────────────────────────────────────────────────
 //
 // During Grid Outage Mode, the Battery → Home line must read as the dominant
-// route at a glance — the user should feel "I'm running on backup" without
-// needing to look at the panel copy. These constants centralize every knob
-// that affects that hierarchy so the look can be re-tuned in one place and
-// locked behind a snapshot test (src/test/EnergyFlowScene.outage.test.ts).
+// route — but in the SAME visual language as the active Solar flow (a faint
+// guide path with LED particles riding on top), just amber, denser, and
+// slightly faster. The previous triple-halo stack read as a blurry smear;
+// this matches the rest of the scene.
 //
-// All values are calibrated against the SVG viewBox 0–100 — small absolute
-// numbers translate to visually-prominent strokes once scaled to the card.
-//
-// Last tuned: 2026-06-03. Bumping any value here intentionally? Update the
-// snapshot test in the same commit.
+// Tuned 2026-06-03. Bumping any value? Update the snapshot test in
+// src/test/EnergyFlowScene.outage.test.ts in the same commit.
 export const OUTAGE_VISUAL = {
-  /** Battery → Home hero flow during outage. */
+  /** Battery → Home hero flow during outage — mirrors active Solar style. */
   pwHome: {
-    /** Bright core stroke that the particles ride on. */
-    coreStrokeWidth: 1.6,
-    coreStroke: 'hsl(38 100% 65% / 0.95)',
-    /** Mid amber halo (soft blur underneath core). */
-    midHaloStrokeWidth: 2.4,
-    midHalo: 'hsl(38 95% 62% / 0.6)',
-    /** Outermost pulse — animates opacity for a slow breathing effect. */
-    outerHaloStrokeWidth: 4.0,
-    outerHalo: 'hsl(38 95% 60% / 0.28)',
-    outerHaloPulse: { from: 0.18, to: 0.42, durMs: 1200 },
-    /** Particle stream density. 5 amber droplets at r=1.1 = "dense current". */
-    particleCount: 5,
-    particleRadius: 1.1,
-    /** Minimum animation duration floor — keeps motion legible even at low kW. */
-    minParticleDurSec: 0.9,
-    /** Directional chevron polygon (triangle pointing along path direction). */
-    chevron: { width: 2.2, height: 1.4, opacity: 0.95 },
+    /** Faint guide path the particles ride on (cf. DottedFlow 0.45 / 0.18). */
+    guideStrokeWidth: 0.55,
+    guideStroke: 'hsl(38 95% 55%)',
+    guideOpacity: 0.28,
+    /** Single soft amber halo under the guide (replaces the 3-halo stack). */
+    haloStrokeWidth: 1.6,
+    haloStroke: 'hsl(38 95% 60% / 0.26)',
+    haloPulse: { from: 0.18, to: 0.32, durMs: 1400 },
+    /** Dense, fast LED particle stream — same animation profile as solar. */
+    particleCount: 6,
+    particleRadius: 0.75,
+    particleColor: 'hsl(45 100% 80%)',
+    /** Floor + factor for particle cadence. baseDur * factor, min floor. */
+    particleMinDurSec: 1.6,
+    particleDurFactor: 0.55,
   },
   /** Solar flows are dimmed during outage so the eye lands on pw-home. */
   solarDimOpacity: 0.35,
@@ -436,6 +431,10 @@ export interface EnergyFlowSceneProps {
   /** When true, render the scene in Grid Outage mode (grid disabled,
    *  battery→home becomes the hero flow). */
   isOutage?: boolean;
+  /** Outage hero stats — passed in by LiveEnergyMonitoringCard so all
+   *  estimator math stays in one place. Only consumed when isOutage. */
+  outageBackupLabel?: string;
+  outageStartedAt?: Date | string;
 }
 
 export function EnergyFlowScene({
@@ -450,6 +449,8 @@ export function EnergyFlowScene({
   hasCharger = true,
   hasTesla = true,
   isOutage = false,
+  outageBackupLabel,
+  outageStartedAt,
 }: EnergyFlowSceneProps) {
 
 
@@ -730,55 +731,46 @@ export function EnergyFlowScene({
         )}
 
 
-        {/* Outage-mode hero: dominant amber halo + dense particle stream
-            below the powerwall→home line so the eye lands on it instantly.
-            Every visual knob (stroke widths, particle count, halo opacities)
-            lives in OUTAGE_VISUAL.pwHome — re-tune there, not here. */}
+        {/* Outage-mode hero: Battery → Home rendered in the SAME visual
+            language as the active Solar flow — a faint guide path with
+            dense, fast LED particles riding on top — just amber. A single
+            soft halo replaces the previous triple-blur stack so the line
+            reads crisp, not smudged. All knobs live in OUTAGE_VISUAL.pwHome. */}
         {flows.has('pw-home') && isOutage && (() => {
           const v = OUTAGE_VISUAL.pwHome;
           const baseDur = flowDur(Math.max(0.5, Math.abs(battery)));
-          const particleDur = Math.max(v.minParticleDurSec, baseDur * 0.5);
-          const chevronDur = Math.max(1.2, baseDur * 0.7);
+          const particleDur = Math.max(v.particleMinDurSec, baseDur * v.particleDurFactor);
           return (
             <g style={{ pointerEvents: 'none' }} data-testid="outage-pw-home">
-              {/* Soft outer pulse */}
+              {/* Soft single halo — breathes gently underneath the guide. */}
               <path
                 d={BLUEPRINT_PATHS.powerwallToHome}
-                stroke={v.outerHalo}
-                strokeWidth={v.outerHaloStrokeWidth}
+                stroke={v.haloStroke}
+                strokeWidth={v.haloStrokeWidth}
                 strokeLinecap="round"
                 fill="none"
-                style={{ filter: 'blur(4px)' }}
+                style={{ filter: 'blur(2px)' }}
               >
                 <animate
                   attributeName="stroke-opacity"
-                  values={`${v.outerHaloPulse.from};${v.outerHaloPulse.to};${v.outerHaloPulse.from}`}
-                  dur={`${v.outerHaloPulse.durMs}ms`}
+                  values={`${v.haloPulse.from};${v.haloPulse.to};${v.haloPulse.from}`}
+                  dur={`${v.haloPulse.durMs}ms`}
                   repeatCount="indefinite"
                 />
               </path>
-              {/* Mid halo */}
-              <path
-                d={BLUEPRINT_PATHS.powerwallToHome}
-                stroke={v.midHalo}
-                strokeWidth={v.midHaloStrokeWidth}
-                strokeLinecap="round"
-                fill="none"
-                style={{ filter: 'blur(2.2px)' }}
-              />
-              {/* Bright core line */}
+              {/* Faint guide path the particles ride on (mirrors DottedFlow). */}
               <path
                 id="flow-pw-home"
                 d={BLUEPRINT_PATHS.powerwallToHome}
-                stroke={v.coreStroke}
-                strokeWidth={v.coreStrokeWidth}
+                stroke={v.guideStroke}
+                strokeOpacity={v.guideOpacity}
+                strokeWidth={v.guideStrokeWidth}
                 strokeLinecap="round"
                 fill="none"
-                style={{ filter: 'blur(0.3px)' }}
               />
-              {/* Dense particle stream — N amber droplets, steady cadence */}
+              {/* Dense, fast LED particle stream — same fade profile as solar. */}
               {Array.from({ length: v.particleCount }, (_, i) => i / v.particleCount).map((offset) => (
-                <circle key={`pw-home-out-${offset}`} r={v.particleRadius} fill={AMBER_LED} opacity={0}>
+                <circle key={`pw-home-out-${offset}`} r={v.particleRadius} fill={v.particleColor} opacity={0}>
                   <animateMotion
                     dur={`${particleDur}s`}
                     repeatCount="indefinite"
@@ -792,30 +784,13 @@ export function EnergyFlowScene({
                   <animate
                     attributeName="opacity"
                     values="0;1;1;0"
-                    keyTimes="0;0.1;0.9;1"
+                    keyTimes="0;0.12;0.88;1"
                     dur={`${particleDur}s`}
                     repeatCount="indefinite"
                     begin={`${offset * particleDur}s`}
                   />
                 </circle>
               ))}
-              {/* Directional chevron riding the path — reinforces direction. */}
-              <polygon
-                points={`0,-${v.chevron.height} ${v.chevron.width},0 0,${v.chevron.height}`}
-                fill={AMBER_LED}
-                opacity={v.chevron.opacity}
-              >
-                <animateMotion
-                  dur={`${chevronDur}s`}
-                  repeatCount="indefinite"
-                  rotate="auto"
-                  calcMode="linear"
-                  keyPoints="0;1"
-                  keyTimes="0;1"
-                >
-                  <mpath href="#flow-pw-home" />
-                </animateMotion>
-              </polygon>
             </g>
           );
         })()}
@@ -987,7 +962,9 @@ export function EnergyFlowScene({
       )}
 
 
-      {/* Floating labels */}
+      {/* Floating labels — during outage, top-right and bottom-right are
+          re-purposed as the integrated outage hero stats so the house
+          diagram itself carries the critical numbers (no separate panel). */}
       <FlowLabel
         position="tl"
         label="Solar"
@@ -996,15 +973,27 @@ export function EnergyFlowScene({
         accent="green"
         active={solarProducing}
       />
-      <FlowLabel
-        position="tr"
-        label="Home"
-        value={fmtKw(home)}
-        sub={isOutage && homeDrawing ? 'On Backup' : homeDrawing ? 'Drawing' : 'Idle'}
-        accent={isOutage && homeDrawing ? 'amber' : homeDrawing ? 'green' : 'muted'}
-        active={homeDrawing}
-        hero
-      />
+      {isOutage ? (
+        <FlowLabel
+          position="tr"
+          label="Backup remaining"
+          value={outageBackupLabel ?? '—'}
+          sub={`Battery ${soc}% · Providing backup`}
+          accent="amber"
+          active
+          hero
+        />
+      ) : (
+        <FlowLabel
+          position="tr"
+          label="Home"
+          value={fmtKw(home)}
+          sub={homeDrawing ? 'Drawing' : 'Idle'}
+          accent={homeDrawing ? 'green' : 'muted'}
+          active={homeDrawing}
+          hero
+        />
+      )}
       {hasBattery ? (
         <FlowLabel
           position="bl"
@@ -1031,14 +1020,58 @@ export function EnergyFlowScene({
         />
       ) : null}
 
-      <FlowLabel
-        position="br"
-        label="Grid"
-        value={isOutage ? 'Offline' : `${fmtKw(grid)} ${arrow(grid)}`.trim()}
-        sub={isOutage ? 'Disconnected' : gridImporting ? 'Importing' : gridExporting ? 'Exporting' : 'Balanced'}
-        accent={isOutage ? 'amber' : gridExporting ? 'blue' : gridImporting ? 'amber' : 'muted'}
-        active={!isOutage && Math.abs(grid) > 0.05}
-      />
+      {isOutage ? (
+        <FlowLabel
+          position="br"
+          label="From Battery"
+          value={fmtKw(Math.max(0, -battery))}
+          sub="Powering your home"
+          accent="amber"
+          active
+        />
+      ) : (
+        <FlowLabel
+          position="br"
+          label="Grid"
+          value={`${fmtKw(grid)} ${arrow(grid)}`.trim()}
+          sub={gridImporting ? 'Importing' : gridExporting ? 'Exporting' : 'Balanced'}
+          accent={gridExporting ? 'blue' : gridImporting ? 'amber' : 'muted'}
+          active={Math.abs(grid) > 0.05}
+        />
+      )}
+
+      {/* Calm "On Battery Backup" banner overlaid at the top of the scene
+          during outage. Single line, low chrome — the house diagram + corner
+          stats carry the visual weight. */}
+      {isOutage && (
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-30 flex justify-center px-3 pt-2">
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-500/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-200 shadow-[0_4px_16px_-6px_hsl(38_95%_30%/0.5)] backdrop-blur-sm">
+            <span className="relative inline-flex h-1.5 w-1.5">
+              <span className="absolute inset-0 inline-flex h-full w-full animate-ping rounded-full bg-amber-400 motion-reduce:animate-none" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-amber-400" />
+            </span>
+            On Battery Backup
+            {outageStartedAt && (
+              <span className="ml-1 font-medium normal-case tracking-normal text-amber-200/80">
+                · {formatOutageSince(outageStartedAt)}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
+}
+
+/** Format "Since 4:32 PM · 12 min ago" for the calm outage banner. */
+function formatOutageSince(value: Date | string): string {
+  const d = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(d.getTime())) return '';
+  const clock = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const elapsed = Date.now() - d.getTime();
+  if (elapsed >= 0 && elapsed < 60 * 60_000) {
+    const mins = Math.max(1, Math.round(elapsed / 60_000));
+    return `Since ${clock} · ${mins} min ago`;
+  }
+  return `Since ${clock}`;
 }

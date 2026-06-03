@@ -1,74 +1,107 @@
-## Scope
+# Outage Mode — Full Reimagination
 
-Five targeted fixes to Outage Mode. No backend/migration changes.
+## Root-cause findings
 
----
+**1. House diagram battery→home flow looks "awkward"**
+`EnergyFlowScene.tsx` currently renders the outage `pw-home` path as a triple-stack of blurred halos (`outerHalo strokeWidth 4 blur(4px)` + `midHalo strokeWidth 2.4 blur(2.2px)` + `coreStroke 1.6`) plus a chevron. That treatment does NOT match the rest of the scene. The active solar flow (`solar-home`, `solar-pw`) uses `DottedFlow`: a *thin crisp guide* (`strokeWidth 0.45`, opacity 0.18) with 3 LED-bright traveling dots (`r=0.6`) that fade in/out. The amber halo stack reads as a fuzzy smear, not as confident "flowing energy."
 
-### 1. Detection speed → 15–25s (priority)
+**2. Deason auto-opens with generic chrome**
+`DeasonChat.tsx:332` hardcodes the header subtitle to `"Clean Energy Optimization · saved"` and `DeasonHeader` shows the thread title (`"New conversation"` when freshly created in `useDeasonThreads`). The seeded outage message DOES land (the seed plumbing works — context fires first, suppresses EmptyState, then seedAssistant pushes the message), but the surrounding chrome (subtitle + thread title) still reads "generic." The user is reacting to the *header*, not a missing message.
 
-`src/hooks/useGridOutage.ts`
-- Drop default `debounceMs` from `30_000` → `15_000`.
-- Add a "fast-trigger" path: when the raw signal is *unambiguous* (grid |kW| ≤ 0.05, battery discharge ≥ 0.4 kW, home load ≥ 0.3 kW, OR explicit `gs ∈ {off_grid, islanded, backup}`), flip after `8s` instead of waiting the full debounce. Track this via a second ref so ambiguous signals still wait the full 15s.
-
-`src/lib/gridOutage.ts`
-- Export a small helper `isUnambiguousOutage(payload)` so the hook can branch without duplicating field parsing.
-- Keep existing `detectTeslaOutage` behavior; just expose the stricter variant.
-
-`src/components/dashboard/LiveEnergyMonitoringCard.tsx`
-- Verify it passes no override for `debounceMs` (uses the new 15s default). Add a one-line comment explaining the two-tier debounce.
-
-### 2. Deason: contextual outage message instead of generic welcome (priority)
-
-`src/hooks/useOutageLifecycle.ts`
-- Rewrite the start-phase `assistantSeed` to cover all four items the user listed (acknowledge outage + backup status; estimate + current load; 3 concrete load-shedding tips tailored to current draw; short safety line; offer to monitor & ping). Keep calm/supportive tone, ~120–160 words, markdown bullets.
-- Include `homeKw` in the body when known; pick load-shedding tips based on `homeKw` band (e.g., > 3 kW → suggest pausing EV charging / large appliances; 1–3 kW → AC/heat-pump setback; < 1 kW → already lean).
-
-`src/components/deason/DeasonFloatingBubble.tsx`
-- When `pendingMeta.kind === 'grid_outage'` and the bubble auto-opens, **suppress the empty-state welcome** by dispatching `deason:seed` *before* the user sees the panel (already does this on open, but currently waits 60ms — reduce to 0 and dispatch synchronously inside the same tick the panel mounts so the `EmptyState` never flashes).
-- Also dispatch a one-shot `deason:context` event carrying `meta` so future tools can read outage context. (Listener added in DeasonChat is a no-op stub for now — keeps surface area for follow-ups without behavior change.)
-
-`src/components/deason/DeasonChat.tsx`
-- When the first message in the thread is an outage-seeded assistant message (detect via the seeded text containing `Grid outage detected` OR via a new `deason:context` flag), skip rendering `<EmptyState>`. Today `EmptyState` only hides when `messages.length > 0`, but the seed lands a moment after mount — gate `EmptyState` behind a `hasPendingOutageSeed` ref set by the `deason:context` listener.
-
-### 3. Energy Flow: dominant Battery → Home (priority)
-
-`src/components/dashboard/EnergyFlowScene.tsx`
-- During outage (`isOutage && flows.has('pw-home')`):
-  - Replace inline `DottedFlow` for pw-home with a beefed-up variant: `r=1.1` particles (vs 0.6), 5 particles (vs 3), `strokeWidth=1.6` base line at `strokeOpacity=0.55`, `dur` floored at `0.9s` so motion reads as steady current.
-  - Strengthen the amber halo: bump outer halo `strokeWidth` `2.4 → 4.0`, inner glow `0.9 → 1.6`, add a third soft pulse layer (`opacity 0.25`, `blur 4px`, `animate` 1.2s pulse).
-  - Add an arrow chevron midway along `BLUEPRINT_PATHS.powerwallToHome` (small amber `<polygon>` aligned via `<animateMotion rotate="auto">`) to show direction.
-- Dim non-essential flows during outage: wrap solar-related flows (`flow-solar-home`, `flow-solar-pw`) in `<g opacity={0.35}>` when `isOutage`.
-- Keep the broken/dashed grid line + red X exactly as-is (already good per user).
-
-Implement the beefed pw-home flow inline (don't refactor `DottedFlow`) so the calm default behavior elsewhere is untouched.
-
-### 4. Outage start-time accuracy
-
-`src/hooks/useGridOutage.ts`
-- When the first off-grid sample arrives, prefer the telemetry's `sample_at` timestamp (from `useBatteryTelemetry().data[0].sample_at`) over `Date.now()` as the basis for `firstSeenRef`. Fallback to `Date.now()` when `sample_at` is missing.
-- `since` continues to be set from `firstSeenRef`, so the "Since X ago" label now reflects the OEM sample time rather than the debounce-flip moment.
-
-`src/hooks/useOutageLifecycle.ts`
-- Use the same `since` value when inserting `grid_outage_events.started_at` (already does — verify no Date.now() override).
-
-### 5. Deason input field sizing
-
-`src/components/deason/DeasonChat.tsx` (line 598–618)
-- Bump textarea: `min-h-[40px]` → `min-h-[56px]`, `max-h-32` → `max-h-44`, `py-2` → `py-3`, add `text-sm leading-relaxed` so wrapped lines breathe.
-- Shorten the placeholder so it stops getting truncated on 390px viewports: `"Ask about your bill, rate plan, or savings… (/ for prompts)"`.
-- Wrap the row in `items-end` (currently likely `items-center`) so the Send/Paperclip buttons sit at the bottom when the textarea grows.
+**3. Fragmented layout**
+`LiveEnergyMonitoringCard.tsx:832–851` stacks `OutageModePanel` *above* `EnergyFlowScene` and shrinks the scene to `aspect-[5/3]`. All the critical numbers (backup time, kW from battery, SOC, load progress) live in the panel; the house is reduced to a small secondary visual. The user wants the inverse: house is hero, stats overlay on/around it.
 
 ---
+
+## Changes
+
+### A. Battery → Home flow now mirrors active Solar flow style (`EnergyFlowScene.tsx`)
+
+Remove the triple-halo stack. Render `pw-home` during outage using the **same `DottedFlow` language** as solar, tuned amber and amplified:
+
+- Faint guide path: `strokeWidth 0.55`, `strokeOpacity 0.28` (vs solar `0.45 / 0.18` — slightly stronger so dominance reads).
+- **6 amber LED particles** (`r 0.75`, `AMBER_LED`) riding the path with `keyTimes 0;0.12;0.88;1` fade — identical animation profile to solar's 3 particles, just denser.
+- Particle cadence: `dur = max(1.6, flowDur(|battery|) * 0.55)` — visibly faster than solar's calm 3.6s default, which is what sells "actively powering."
+- Single soft **amber halo** under the guide (one layer, `strokeWidth 1.6`, `opacity 0.22`, `blur(2px)`) breathing 0.18↔0.32 over 1400ms — replaces today's 3-layer stack. Keeps a faint glow without smudging.
+- Drop the directional chevron (not used elsewhere; adds noise).
+- Solar dim opacity stays at `0.35` so the eye still lands on pw-home.
+
+Refactor `OUTAGE_VISUAL.pwHome` constants to the new shape:
+```ts
+pwHome: {
+  guideStrokeWidth: 0.55,
+  guideOpacity: 0.28,
+  haloStrokeWidth: 1.6,
+  haloPulse: { from: 0.18, to: 0.32, durMs: 1400 },
+  particleCount: 6,
+  particleRadius: 0.75,
+  particleMinDurSec: 1.6,
+  particleDurFactor: 0.55,
+}
+```
+Update `src/test/EnergyFlowScene.outage.test.ts` snapshot + assertions to the new shape (still verifies hierarchy, particle floor, and that solar dims to 0.35).
+
+### B. House diagram becomes the hero with integrated stats
+
+New layout in `LiveEnergyMonitoringCard.tsx` when `outage.active`:
+
+- Drop the giant `OutageModePanel` from the top of the card.
+- Render `EnergyFlowScene` at full `aspect-square w-full` (its native form) inside a wrapper that has:
+  - A compact **calm header strip** above the scene: amber dot · `On Battery Backup` · `Since 4:32 PM · 12 min ago`. Single line, no big banner.
+  - **Two corner overlays inside the scene** (absolute, z-30, pointer-events-none) replacing two of the existing `FlowLabel` corners during outage:
+    - **Top-right hero stat**: `~3h 20m` huge tabular, label `Backup remaining`, sub `Battery 78%`.
+    - **Bottom-right**: `0.6 kW` amber, label `From Battery`, sub `Providing backup power`.
+  - The existing Solar / Home FlowLabels stay; Grid label is replaced by a muted `Grid Offline` label with red dot. (Done by passing an `isOutage` prop into the label decisions already in `EnergyFlowScene.tsx`.)
+- A **single slim footer row** below the scene (inside the same card, not a second card):
+  - Left: progress bar `Load 0.6 kW / Capacity 5.0 kW`.
+  - Right: link `View outage history →`.
+  - One inline contextual line ("Solar will recharge when sunlight returns" or "Solar is recharging now" or "Approaching reserve…").
+
+Net effect: one unified, integrated card; the house carries the weight; stats are part of the scene, not a separate panel.
+
+`OutageModePanel.tsx` is reduced to the footer row (or replaced by a small inline `OutageFooter` subcomponent in the card; keep the file for outage-history page reuse but stop using it as the hero).
+
+New compact subcomponents inside `EnergyFlowScene.tsx` (or a sibling `OutageOverlay.tsx` imported by the scene):
+- `OutageHeroStat` (top-right): backup time + battery %.
+- `OutageDrawStat` (bottom-right): kW from battery.
+
+These read from existing scene props (`data.batteryPercent`, `data.batteryPower`) plus two new optional props on `EnergyFlowScene`: `backupLabel?: string` and `usableCapacityKwh?: number` (passed down by the card so estimator math stays in one place).
+
+### C. Deason: outage-aware chrome + guaranteed first-message context
+
+`DeasonChat.tsx`:
+- Accept a new optional prop `contextMeta?: { kind?: string; backupLabel?: string; socPct?: number | null } | null`. When `contextMeta?.kind === 'grid_outage'`:
+  - Override `headerSubtitle` → `Grid Outage · backup ~${backupLabel}`.
+  - Override `welcomeTitle` / `welcomeBody` (unused once seeded, but defensive).
+  - Render a small **amber pill at the top of the transcript** ("⚡ On battery backup · ~3h 20m remaining · 78%") above the seeded assistant message so the outage framing is unmistakable even if the user scrolls.
+- Also detect outage context via the existing `deason:context` listener and keep a local `outageContext` state for the same effect — so it works whether the meta arrives via prop or event.
+
+`DeasonFloatingBubble.tsx`:
+- When `pendingMeta?.kind === 'grid_outage'`, pass `contextMeta={pendingMeta}` straight into `DeasonChat`. Clear it on close.
+- Keep current sequence: dispatch `deason:context` first, then `deason:seed` in same tick (already correct).
+- Belt-and-suppliers: if `pendingMeta?.kind === 'grid_outage'` and user is not yet authed/thread not ready, still set `suppressEmptyState`-equivalent local state immediately so the welcome panel cannot flash.
+
+`useOutageLifecycle.ts`:
+- No logic change; the seed copy is already strong. Add `backupLabel` and `socPct` to the meta (already there) — DeasonChat now consumes them for the pill.
+- Set the thread title when present: on outage start, also dispatch `deason:rename-thread` with title `Grid Outage · 4:32 PM` (best-effort — handled by FloatingBubble if a `threadId` exists, calling existing `renameThread`).
+
+### D. Tests
+
+- Update `src/test/EnergyFlowScene.outage.test.ts` — new `OUTAGE_VISUAL.pwHome` shape, assert `particleCount >= 5`, `solarDimOpacity === 0.35`, grid offline dashed.
+- Update `src/test/OutageModePanel.test.tsx` — adjust to new footer-only role (or assert the inline overlay variant the card now renders).
+- `src/test/useOutageLifecycle.test.tsx` — keep existing seed-content assertions; add one verifying `meta.backupLabel` and `meta.socPct` are dispatched.
 
 ### Out of scope
+- No backend / migration changes.
+- No new edge functions.
+- No changes to Enphase/SolarEdge detection.
+- Outage History page stays as-is.
 
-- Enphase / SolarEdge outage detectors
-- New migrations or columns
-- Deason long-term outage memory across events
-- Any change to push-notification copy beyond what already ships
+---
 
-### Test updates
+## Acceptance
 
-- `src/test/gridOutage.test.ts` — add `isUnambiguousOutage` cases (strict thresholds, missing fields, explicit off-grid status).
-- `src/test/useOutageLifecycle.test.tsx` — assert the new seed contains "Stay safe", "backup remaining", and at least one load-shedding bullet.
-- No new test file for the SVG changes (visual-only).
+1. During an outage, the card is one unified view: house diagram dominant, backup time + kW from battery + battery % visible as overlays on the scene; a slim footer row carries the load/capacity bar and history link.
+2. Battery→Home line during outage looks like a denser, faster, amber version of the active solar dotted-flow — not a blurry halo stack.
+3. Opening Deason during an outage shows: amber outage pill at the top of the transcript, header subtitle "Grid Outage · backup ~Xh", and the outage-context seeded assistant message as the first thing — never the generic Clean Energy Optimization welcome.
+4. All existing tests pass; outage snapshot/visual regression updated to the new tuning.
