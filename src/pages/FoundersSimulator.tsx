@@ -16,6 +16,11 @@ import {
   TrendingDown,
   AlertTriangle,
   Trash2,
+  Zap,
+  Activity,
+  Flame,
+  Gauge,
+  Coins,
 } from "lucide-react";
 import {
   LineChart,
