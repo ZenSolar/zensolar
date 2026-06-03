@@ -1396,8 +1396,9 @@ const App = () => {
                     <Route path="/founders/tschida" element={<FounderRoute><FoundersTschida /></FounderRoute>} />
                     <Route path="/founders/subscription-admin" element={<FounderRoute><AdminSubscriptionPanel /></FounderRoute>} />
                     <Route path="/founders/flywheel-simulation" element={<FounderRoute><FlywheelSimulation /></FounderRoute>} />
-                    <Route path="/founders/simulator" element={<FounderRoute><FoundersSimulator /></FounderRoute>} />
-                    <Route path="/simulator" element={<FounderRoute><FoundersSimulator /></FounderRoute>} />
+                    <Route path="/founders/simulator" element={<FoundersSimulator />} />
+                    <Route path="/simulator" element={<FoundersSimulator />} />
+
                     <Route path="/vault/founder-funded-lp" element={<Navigate to="/founders/funded-lp" replace />} />
                     {/* Transparency page — gated inside the component to preview hosts + founders only */}
                     <Route path="/transparency" element={<Transparency />} />
