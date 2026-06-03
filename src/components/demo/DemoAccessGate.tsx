@@ -295,6 +295,18 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
       return false;
     }
     if (GATE_BYPASS_PATHS.includes(window.location.pathname)) return true;
+    // Investor demo links (`/demo?demo=investor` or `/demo?demo=outage`)
+    // are marketing-public surfaces (e.g. the "Live Investor Demo" CTA on
+    // /investor/pitch). They must NEVER hit the private access-code gate.
+    // We backfill the same LS payload the investor-pass branch writes so
+    // refresh stays clean and the rest of the gate machinery is happy.
+    {
+      const demoParam = params.get('demo');
+      if (demoParam === 'investor' || demoParam === 'outage') {
+        writeStoredValue(LS_KEY, JSON.stringify({ ts: Date.now(), ndaSigned: true }), TTL_MS);
+        return true;
+      }
+    }
     if (isPreviewDemoQaRoute()) return false;
     // Investors who already cleared /investor (PIN + NDA) skip the demo gate
     // entirely — no second PIN, no second NDA. Run BEFORE the preview-host

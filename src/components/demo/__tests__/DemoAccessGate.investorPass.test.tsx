@@ -126,14 +126,18 @@ describe('DemoAccessGate · /investor → /demo handoff (e2e)', () => {
     expect(parsed.ndaSigned).toBe(true);
   });
 
-  it('does NOT backfill zen_demo_access when no investor pass is set', () => {
-    // No pass written. In production builds the gate would now render its
-    // PIN / NDA flow; in dev/editor it auto-grants for convenience. Either
-    // way, the investor-pass backfill MUST NOT fire — that's the contract
-    // we rely on to prove the bypass is gated on real /investor completion.
+  it('also grants when `?demo=investor` is present even without an investor pass (public marketing surface)', () => {
+    // /investor/pitch's "Live Investor Demo" CTA links to /demo?demo=investor
+    // without going through the PIN+NDA flow. That marketing surface must
+    // NEVER hit the private access-code gate.
     clearInvestorPass();
     renderGate();
 
-    expect(localStorage.getItem('zen_demo_access')).toBeNull();
+    expect(screen.getByTestId('demo-dashboard')).toBeInTheDocument();
+    expect(screen.queryByTestId('nda-signature-step')).not.toBeInTheDocument();
+    expect(screen.queryByPlaceholderText(/access code/i)).not.toBeInTheDocument();
+    // And we backfill the demo-access payload so a refresh stays clean.
+    const raw = localStorage.getItem('zen_demo_access');
+    expect(raw).toBeTruthy();
   });
 });

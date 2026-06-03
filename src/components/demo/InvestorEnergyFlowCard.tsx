@@ -1,5 +1,6 @@
 import { Suspense, lazy, useState, useEffect, useRef } from 'react';
 import { Sparkles, Sun, BatteryCharging, Car, Plug, Eye, EyeOff, Zap, ZapOff } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   INVESTOR_DEMO_FLOW,
   INVESTOR_DEMO_TESLA_PAYLOAD,
@@ -146,7 +147,12 @@ export function InvestorEnergyFlowCard() {
               ZenEnergy Monitoring · Live
             </h3>
             {outageSim ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-300 ring-1 ring-amber-400/40">
+              <span
+                className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-300 ring-1 ring-amber-400/40"
+                title="Grid outage simulation is active — UI, stats, and Deason are running in outage mode."
+                aria-label="Demo Outage Mode Active"
+                data-testid="outage-sim-active-chip"
+              >
                 <span className="relative inline-flex h-1.5 w-1.5">
                   <span className="absolute inset-0 inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-70" />
                   <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-amber-400" />
@@ -170,19 +176,31 @@ export function InvestorEnergyFlowCard() {
           </p>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
-          <button
-            type="button"
-            onClick={toggleOutage}
-            aria-pressed={outageSim}
-            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold transition-colors ${
-              outageSim
-                ? 'border border-amber-400/60 bg-amber-500/15 text-amber-200 hover:bg-amber-500/25'
-                : 'border border-primary/25 bg-background/40 text-foreground/80 hover:text-foreground hover:border-primary/50'
-            }`}
-          >
-            {outageSim ? <ZapOff className="h-3 w-3" /> : <Zap className="h-3 w-3" />}
-            {outageSim ? 'End Outage Simulation' : 'Simulate Grid Outage'}
-          </button>
+          <TooltipProvider delayDuration={250}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={toggleOutage}
+                  aria-pressed={outageSim}
+                  data-testid="outage-sim-toggle"
+                  className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold transition-colors ${
+                    outageSim
+                      ? 'border border-amber-400/60 bg-amber-500/15 text-amber-200 hover:bg-amber-500/25'
+                      : 'border border-primary/25 bg-background/40 text-foreground/80 hover:text-foreground hover:border-primary/50'
+                  }`}
+                >
+                  {outageSim ? <ZapOff className="h-3 w-3" /> : <Zap className="h-3 w-3" />}
+                  {outageSim ? 'End Outage Simulation' : 'Simulate Grid Outage'}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-[220px] text-[11px] leading-snug">
+                {outageSim
+                  ? 'Stops the simulation and restores normal solar + grid telemetry. Deason returns to its standard chat context.'
+                  : 'Simulates a full grid outage so you can test Outage Mode UI (hero house, backup time, Battery→Home flow) and Deason\'s outage context without waiting for a real one.'}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <button
             type="button"
             onClick={() => setShowAnnotations((v) => !v)}
