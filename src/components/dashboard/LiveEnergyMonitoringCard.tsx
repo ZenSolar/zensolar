@@ -538,11 +538,11 @@ export function TeslaStatusPill({ tesla, onClick }: { tesla: TeslaFlow | null; o
 
 
 export interface LiveEnergyMonitoringCardProps {
-  /** When provided and active, replaces the live flow scene with Outage Mode. */
+  /** Optional override: forces Outage Mode regardless of live detection. */
   outage?: { active: boolean; startedAt: Date | string };
 }
 
-export function LiveEnergyMonitoringCard({ outage }: LiveEnergyMonitoringCardProps = {}) {
+export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyMonitoringCardProps = {}) {
   const solar = useSolarTelemetry();
   const battery = useBatteryTelemetry();
   const ev = useEVChargerTelemetry();
@@ -555,6 +555,11 @@ export function LiveEnergyMonitoringCard({ outage }: LiveEnergyMonitoringCardPro
   const evTileRef = useRef<HTMLDivElement | null>(null);
   const [pingTile, setPingTile] = useState(false);
   const haptics = useHaptics();
+  const autoOutage = useGridOutage();
+  const outage = outageOverride ?? (autoOutage.isGridOutage
+    ? { active: true, startedAt: autoOutage.since ?? new Date() }
+    : undefined);
+
 
   // When a home charging session starts/stops, bypass cache and pull fresh EV + battery telemetry
   useEffect(() => {
