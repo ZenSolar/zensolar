@@ -770,7 +770,7 @@ function SimulatorContent() {
                   <CartesianGrid strokeOpacity={0.08} />
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                   <YAxis tickFormatter={fmtCompact} tick={{ fontSize: 11 }} />
-                  <Tooltip
+                  <RTooltip
                     contentStyle={tooltipStyle}
                     formatter={(v: any) => formatUSD(Number(v))}
                   />
@@ -814,7 +814,7 @@ function SimulatorContent() {
                   <CartesianGrid strokeOpacity={0.08} />
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                   <YAxis tickFormatter={(v) => `$${Number(v).toFixed(2)}`} tick={{ fontSize: 11 }} />
-                  <Tooltip
+                  <RTooltip
                     contentStyle={tooltipStyle}
                     formatter={(v: any) => `$${Number(v).toFixed(4)}`}
                   />
@@ -842,7 +842,7 @@ function SimulatorContent() {
                   <CartesianGrid strokeOpacity={0.08} />
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                   <YAxis tickFormatter={fmtCompact} tick={{ fontSize: 11 }} />
-                  <Tooltip
+                  <RTooltip
                     contentStyle={tooltipStyle}
                     formatter={(v: any) => formatUSD(Number(v))}
                   />
@@ -871,7 +871,7 @@ function SimulatorContent() {
                   <CartesianGrid strokeOpacity={0.08} />
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                   <YAxis tickFormatter={fmtCompact} tick={{ fontSize: 11 }} />
-                  <Tooltip
+                  <RTooltip
                     contentStyle={tooltipStyle}
                     formatter={(v: any) => formatUSD(Number(v))}
                   />
@@ -887,7 +887,7 @@ function SimulatorContent() {
                   <CartesianGrid strokeOpacity={0.08} />
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                   <YAxis tickFormatter={fmtCompact} tick={{ fontSize: 11 }} />
-                  <Tooltip
+                  <RTooltip
                     contentStyle={tooltipStyle}
                     formatter={(v: any) => formatUSD(Number(v))}
                   />
@@ -907,7 +907,7 @@ function SimulatorContent() {
                   <CartesianGrid strokeOpacity={0.08} />
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                   <YAxis tickFormatter={fmtCompact} tick={{ fontSize: 11 }} />
-                  <Tooltip
+                  <RTooltip
                     contentStyle={tooltipStyle}
                     formatter={(v: any) => formatTokenAmount(Number(v))}
                   />
@@ -928,7 +928,7 @@ function SimulatorContent() {
                   <CartesianGrid strokeOpacity={0.08} />
                   <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                   <YAxis tickFormatter={fmtCompact} tick={{ fontSize: 11 }} />
-                  <Tooltip
+                  <RTooltip
                     contentStyle={tooltipStyle}
                     formatter={(v: any) => formatUSD(Number(v))}
                   />
