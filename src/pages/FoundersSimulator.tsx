@@ -182,11 +182,12 @@ function SimulatorContent() {
       name,
       savedAt: new Date().toISOString(),
       config,
+      grade: { letter: grade.letter, total: Math.round(grade.total) },
     };
     const next = [entry, ...scenarios.filter((s) => s.name !== name)].slice(0, 30);
     setScenarios(next);
     localStorage.setItem(SCENARIOS_KEY, JSON.stringify(next));
-    toast.success(`Saved "${name}"`);
+    toast.success(`Saved "${name}" — Grade ${grade.letter}`);
   };
 
   const loadScenario = (name: string) => {
