@@ -235,6 +235,8 @@ export function useOutageLifecycle(input: OutageLifecycleInput) {
       eventIdRef.current = null;
       startedAtRef.current = null;
       lastLongPingAtRef.current = null;
+      peakLoadKwRef.current = null;
+      deasonInteractedRef.current = false;
     }
   }, [
     user,
@@ -248,6 +250,7 @@ export function useOutageLifecycle(input: OutageLifecycleInput) {
     input.batteryStats.powerKw,
     input.primaryBattery?.device_id,
     input.batteryCount,
+    input.homeKw,
     // Intentionally not depending on `input` identity to avoid re-firing.
     input,
   ]);
