@@ -3,7 +3,7 @@ import { useBatteryTelemetry } from '@/hooks/useDeviceTelemetry';
 import { detectTeslaOutage, type OutageSource } from '@/lib/gridOutage';
 
 export interface UseGridOutageOptions {
-  /** Min continuous off-grid duration before flipping to true. Default 45s. */
+  /** Min continuous off-grid duration before flipping to true. Default 30s. */
   debounceMs?: number;
 }
 
