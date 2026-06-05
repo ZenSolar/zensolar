@@ -1721,7 +1721,7 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
             >
               {showTapAgain ? '➕' : <Coins className="h-3 w-3 inline -mt-0.5" />}
             </span>
-            <span>{showTapAgain ? 'Tap again' : 'Mint this'}</span>
+            <span>{showTapAgain ? 'Tap again' : 'Mint'}</span>
           </div>
         </div>
       )}
@@ -2243,7 +2243,7 @@ function TotalTokensCard({ tokensToReceive, tokensEligible, activityUnits, token
             >
               {showTapAgain ? '➕' : <Coins className="h-3 w-3 inline -mt-0.5" />}
             </span>
-            <span>{showTapAgain ? 'Tap again' : 'Mint All'}</span>
+            <span>{showTapAgain ? 'Tap again' : 'Mint all'}</span>
           </div>
         </div>
       )}
