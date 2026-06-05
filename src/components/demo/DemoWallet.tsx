@@ -19,6 +19,9 @@ import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import { SEO } from '@/components/SEO';
 import { useDemoContext } from '@/contexts/DemoContext';
+import { useInvestorDemoMode } from '@/hooks/useInvestorDemoMode';
+
+const INVESTOR_DEMO_SEED_BALANCE = 13_750;
 
 const DEMO_WALLET_ADDRESS = '0xD3m0...7a8B';
 const LIVE_TOKEN_PRICE = 0.10;
