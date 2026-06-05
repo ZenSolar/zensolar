@@ -744,7 +744,7 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
                   className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-3.5 py-1.5 text-xs font-semibold text-primary tracking-wide shadow-[0_0_18px_hsl(var(--primary)/0.25)] hover:bg-primary/15 transition-colors"
                 >
                   <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
-                  View Proof of Genesis ✓
+                  View Proof-of-Genesis™ ✓
                 </a>
               </div>
             )}

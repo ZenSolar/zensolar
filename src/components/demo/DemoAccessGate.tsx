@@ -1541,7 +1541,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                     textShadow: '0 0 10px hsl(var(--primary) / 0.55)',
                   }}
                 >
-                  <span className="text-primary">Proof of Genesis</span>
+                  <span className="text-primary">Proof-of-Genesis</span>
                   <span className="text-solar">™</span>
                 </span>
               </div>
