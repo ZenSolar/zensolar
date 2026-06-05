@@ -1,45 +1,91 @@
-# Investor Demo Full Polish — Plan
+# Investor Demo & Hub Upgrades — Phase 1 + Phase 2
 
-Three surgical edits across three files. No tokenomics, mint logic, routes, auth, or Live Energy diagram touched.
+Surgical, mobile-first (390×844), client-side fixtures only. No schema, route, or tokenomics changes. Cinematic intro is excluded per scope.
 
-## 1. Remove debug banner in Investor Demo
-**File:** `src/components/demo/DemoLayout.tsx`
+---
 
-Currently `showRouteBanner` is `true` whenever DEV / Lovable preview host / `?routeqa` — which is exactly when investors view the demo. Suppress it when investor demo mode is active.
+## PHASE 1 — Highest Impact
 
-- Import `isInvestorDemoModeSync` from `@/hooks/useInvestorDemoMode` (or use the hook).
-- Change the gate so the `DEMO ROUTE QA` / `/demo-leonardo` banner only renders when `?routeqa` is explicitly present AND investor demo mode is OFF. (Net effect for shared investor links: never shows.)
+### 1. Guided Tour on /demo
+- **New** `src/hooks/useGuidedTour.ts` — step state, `next/skip/finish`, persists "seen" in `localStorage` `zs:demo:tour:v1`.
+- **New** `src/components/demo/GuidedTourOverlay.tsx` — dim backdrop with spotlight on the active step's element, caption card ("Next" / "Skip tour"), auto-advances every ~12s, smooth-scrolls target into view with `scrollIntoView({ behavior: 'smooth', block: 'center' })`.
+- Steps target: Live Energy → KPI cards → MINT → Wallet → Proof-of-Genesis card. Anchors added via `data-tour="energy|kpi|mint|wallet|pog"` on the existing components (no visual change otherwise).
+- **New** `src/components/demo/GuidedTourLauncher.tsx` — prominent "▶ Take the 60-second tour" CTA shown above the dashboard when investor demo is on and tour hasn't been seen yet (dismissible).
+- Mounted from `DemoLayout` so it works across all /demo subroutes.
 
-## 2. Header pill fits cleanly on 390-wide
-**File:** `src/components/demo/InvestorDemoChip.tsx`
+### 2. Persistent "← Back to Investor Hub" pill
+- **New** `src/components/demo/BackToInvestorHubPill.tsx` — fixed pill, `Link` to `/investor`.
+  - Desktop: vertically centered on the left edge, low-opacity until hover.
+  - Mobile: top-left under safe-area, small compact pill (sized to not collide with `InvestorDemoChip` which is top-center).
+- Rendered in `DemoLayout` only when `isInvestorDemoModeSync()` is true.
 
-The pill currently has `px-3 py-1.5 text-[11px]`, the Exit button `text-[10px]`, plus icon + dot + separator + label + Exit. On 390px it still fits but feels cramped. Tighten:
+### 3. Seeded Mint History + NFT Collection
+- **New** `src/data/investorDemo/mintHistory.ts` — 5 fixtures spanning the last ~14 days (timestamps, kWh, $ZSOLAR amounts, fake tx hashes, source = Tesla/Enphase mix).
+- **New** `src/data/investorDemo/nftCollection.ts` — 2 milestone NFTs (e.g. "Centaurion" + early "Sunspark" progress NFT), pulling artwork from existing `nftArtwork.ts` / `nftMilestones.ts`.
+- Wire into Mint History view and `/demo/nft-collection` via a `useInvestorDemoMode` gate that merges fixtures ahead of any real data (same seed-floor pattern already used in `DemoWallet`).
 
-- Reduce horizontal padding (`px-2.5`) and inner gap (`gap-1.5`) on the pill.
-- Drop the middle `·` separator (visual noise on small screens).
-- Shrink Exit button padding to `px-1.5` and keep `text-[10px]`.
-- Add `max-w-[calc(100vw-1.5rem)]` plus `truncate` safety on the label span.
-- Keep `whitespace-nowrap` so nothing wraps; rely on the reduced widths instead.
+### 4. ?ref= Personalization
+- **New** `src/lib/investorRef.ts` — reads `?ref=` once, persists to `localStorage` `zs:investor:ref:v1`, exports `useInvestorRef()` returning `{ raw, displayName }` (title-cased, sanitized).
+- `src/pages/Investor.tsx` — when ref present, render "Welcome, Lyndon" line above the hero headline; pass `displayName` as default value into the NDA form's name field (find the existing input and add `defaultValue`).
 
-## 3. Deason floating button visible in Investor Demo
-**File:** `src/components/deason/DeasonFloatingBubble.tsx`
+---
 
-Audit shows the bubble already renders on `/demo` even unauthenticated (line 198). The likely reason it appears hidden in investor demo is the InvestorDemoChip and bottom nav crowding — the bubble itself is fine. Verify by:
+## PHASE 2 — Polish
 
-- Confirm `z-50` bubble is not occluded by `MobileBottomNav` (also `z-50` typically). If overlap, bump bubble wrapper to `z-[60]` so it always sits above the bottom tab bar but below modal overlays (chip is `z-[130]`, unaffected).
-- No logic change to the auth/route guard.
+### 5. "What You're Seeing" Callout Overlays
+- **New** `src/components/demo/DemoCallouts.tsx` — numbered 1/2/3 chips absolutely positioned over Live kWh, MINT, and Wallet (anchored via the same `data-tour` attributes from #1).
+- Mounted when investor demo is on AND `zs:demo:callouts:seen:v1` unset. Auto-fade after 8s (`setTimeout`) or on first tap anywhere; sets seen flag.
 
-## 4. Seed wallet balance in Investor Demo
-**File:** `src/components/demo/DemoWallet.tsx`
+### 6. Live Counter on /investor Hub
+- **New** `src/components/investor/LiveVerifiedCounter.tsx` — "{n} kWh verified in the last 24h". Deterministic seed (~420 base) + `setInterval` increment every 2–4s by small random kWh; resets at midnight.
+- Mounted near the top of `/investor` hub.
 
-- Import `useInvestorDemoMode`.
-- If `enabled` is true AND `activityData.lifetimeMinted` is below the seed floor, display a seeded balance of **13,750 $ZSOLAR ≈ $1,375 USD** (midpoint of the requested 12,500–15,000 range). Implement as `const displayedBalance = investorDemo.enabled ? Math.max(activityData.lifetimeMinted, 13_750) : activityData.lifetimeMinted;` so real mints during the session still increment beyond the seed.
-- Use `displayedBalance` for both the token figure and the USD calc. NFT card untouched.
-- Pure presentational override — no Supabase writes, no effect outside the wallet card.
+### 7. Investor FAQ Accordion
+- **New** `src/components/investor/InvestorFAQ.tsx` using existing `Collapsible` primitive.
+- 6 Q&As: regulatory (SAFE + utility token framing), custody (embedded Coinbase Wallet), token unlock (founder pact-locks, LP tranches), dilution (1T cap), exit (Series A milestones, TGE), competition (multi-OEM moat).
+- Inserted in `src/pages/InvestorPitch.tsx` between "The Ask" and the footer.
 
-## Verification (at 390×844)
-1. `/demo` → no "DEMO ROUTE QA / /demo-leonardo" banner.
-2. Investor Demo pill renders on one line with no clipping; Exit button still tappable.
-3. Orange Deason bubble visible bottom-right above bottom nav; tappable.
-4. `/demo/wallet` shows 13,750 $ZSOLAR and ≈ $1,375.00 USD.
-5. No regression to MINT buttons, KPI cards, Live Energy diagram, or non-demo routes.
+### 8. PDF Combo Download
+- New "Download Deck + One-Pager" button on `/investor`. Triggers two sequential anchor-clicks (deck PDF + one-pager PDF from `public/founder-docs/`) with a short delay to avoid browser blocking. Uses existing button styling alongside current CTAs.
+
+### 9. $ZSOLAR Appreciation Calculator
+- **New** `src/components/investor/AppreciationCalculator.tsx` — slider for sample stake size (default 10,000 $ZSOLAR), table of projected USD values at the canonical price points $0.10 / $1 / $6.67 / $20 (from locked tokenomics).
+- Disclaimer: "Illustrative only — not a forecast or offer."
+- Mounted on `/investor` below the live counter.
+
+### 10. Outage Toggle in Investor Demo Chip
+- Extend `src/components/demo/InvestorDemoChip.tsx` — add small `Zap` icon button next to Exit, wired to existing `useInvestorOutageSim()` toggle.
+- Visual: dimmed when off, amber glow when on. Tooltip: "Toggle outage scene."
+
+---
+
+## Files
+
+**New:**
+- `src/hooks/useGuidedTour.ts`
+- `src/components/demo/GuidedTourOverlay.tsx`
+- `src/components/demo/GuidedTourLauncher.tsx`
+- `src/components/demo/BackToInvestorHubPill.tsx`
+- `src/components/demo/DemoCallouts.tsx`
+- `src/components/investor/LiveVerifiedCounter.tsx`
+- `src/components/investor/InvestorFAQ.tsx`
+- `src/components/investor/AppreciationCalculator.tsx`
+- `src/data/investorDemo/mintHistory.ts`
+- `src/data/investorDemo/nftCollection.ts`
+- `src/lib/investorRef.ts`
+
+**Edited:**
+- `src/components/demo/DemoLayout.tsx` — mount pill, tour launcher, overlay, callouts
+- `src/components/demo/InvestorDemoChip.tsx` — outage toggle
+- `src/pages/Investor.tsx` — ref greeting, NDA prefill, live counter, calculator, PDF combo button
+- `src/pages/InvestorPitch.tsx` — FAQ section
+- Mint History view + `/demo/nft-collection` page — fixture merge
+- Dashboard children (Live Energy card, KPI row, MINT, Wallet, PoG card) — `data-tour` anchor attrs only
+
+## Verification
+- `/demo?demo=investor` at 390×844: tour launcher visible, tour walks all 5 steps, skippable; pill anchored without colliding with chip; chip outage toggle flips scene.
+- Mint History shows 5 seeded rows; NFT collection shows 2 milestones.
+- `/investor?ref=lyndon`: greeting + NDA name prefill.
+- `/investor` live counter ticks; calculator updates; PDF combo downloads both files.
+- `/investor/pitch` FAQ expands/collapses.
+- No regression on MINT, wallet seed balance, header pill, or Deason bubble.

@@ -253,7 +253,7 @@ export function DemoDashboard() {
 
         {/* ENERGY COMMAND CENTER - matches real dashboard */}
         <AnimatedItem>
-          <div className="emerald-glow-card overflow-hidden">
+          <div className="emerald-glow-card overflow-hidden" data-tour="kpi">
             <ActivityMetrics
               data={{
                 ...activityData,
@@ -281,6 +281,7 @@ export function DemoDashboard() {
         <AnimatedItem>
           <Link
             to="/demo/mint-history"
+            data-tour="wallet"
             className="flex items-center justify-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors py-1"
           >
             <Receipt className="h-3.5 w-3.5" />
@@ -292,16 +293,20 @@ export function DemoDashboard() {
 
         {/* Prominent CO₂ Offset card with per-activity drill-down — mirrors live beta */}
         <AnimatedItem>
-          <Suspense fallback={<div className="h-64 rounded-2xl bg-card/10 animate-pulse" aria-hidden="true" />}>
-            <CO2OffsetCard activityData={activityData} isLoading={isLoading} />
-          </Suspense>
+          <div data-tour="pog">
+            <Suspense fallback={<div className="h-64 rounded-2xl bg-card/10 animate-pulse" aria-hidden="true" />}>
+              <CO2OffsetCard activityData={activityData} isLoading={isLoading} />
+            </Suspense>
+          </div>
         </AnimatedItem>
 
         <SectionDivider />
 
         {/* Live Energy Flow Diagram */}
         <AnimatedItem>
-          <EnergyFlowGlowCard />
+          <div data-tour="energy">
+            <EnergyFlowGlowCard />
+          </div>
         </AnimatedItem>
 
         <SectionDivider />
@@ -337,7 +342,7 @@ export function DemoDashboard() {
               initialCategory="ev_miles"
               featuredNftId="ev_8"
             />
-            <div id="demo-mint-button" data-hint-target="mint" className="px-4 pb-4 pt-2">
+            <div id="demo-mint-button" data-hint-target="mint" data-tour="mint" className="px-4 pb-4 pt-2">
               <MintEffectButton
                 onClick={() => navigate('/demo/nft-collection')}
                 className="w-full bg-primary hover:bg-primary/90 animate-pulse-glow h-11 rounded-md px-8 text-primary-foreground font-medium"

@@ -1,5 +1,5 @@
-import { Sparkles, X } from 'lucide-react';
-import { useInvestorDemoMode } from '@/hooks/useInvestorDemoMode';
+import { Sparkles, X, Zap } from 'lucide-react';
+import { useInvestorDemoMode, useInvestorOutageSim } from '@/hooks/useInvestorDemoMode';
 
 /**
  * Floating "Investor Demo · Exit" pill — top-center on every /demo page while

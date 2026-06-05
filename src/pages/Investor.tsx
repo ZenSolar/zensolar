@@ -9,6 +9,7 @@ import {
   ArrowDown,
   ArrowRight,
   Mail,
+  Download,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { NdaSignatureStep } from '@/components/demo/NdaSignatureStep';
@@ -20,7 +21,10 @@ import {
   readInvestorUnlocked,
 } from '@/components/investor/InvestorPinGate';
 import { ThreeRevenueEngines } from '@/components/investor/ThreeRevenueEngines';
+import { LiveVerifiedCounter } from '@/components/investor/LiveVerifiedCounter';
+import { AppreciationCalculator } from '@/components/investor/AppreciationCalculator';
 import { isPreviewHost } from '@/lib/previewHost';
+import { useInvestorRef } from '@/lib/investorRef';
 
 import { writeInvestorPass } from '@/lib/investorPass';
 
@@ -101,6 +105,25 @@ export default function Investor() {
   const [pinUnlocked, setPinUnlocked] = useState<boolean>(() => readInvestorUnlocked());
   const [signed, setSigned] = useState<SignedState | null>(() => readSigned());
   const ndaRef = useRef<HTMLDivElement>(null);
+  const { displayName: refDisplayName, firstName: refFirstName } = useInvestorRef();
+
+  const downloadDeckCombo = () => {
+    const files = [
+      '/founder-docs/seed-ask-lyndon-v8.1final.pdf',
+      '/founder-docs/seed-ask-lyndon-v8final.pdf',
+    ];
+    files.forEach((href, i) => {
+      window.setTimeout(() => {
+        const a = document.createElement('a');
+        a.href = href;
+        a.download = href.split('/').pop() || 'zensolar.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }, i * 350);
+    });
+    toast.success('Downloading deck + one-pager…');
+  };
 
   // Recheck server-side if local cache is empty.
   // IMPORTANT: this hook MUST run on every render (before any early return)
@@ -206,7 +229,7 @@ export default function Investor() {
               loading="eager"
             />
             <span className="text-[11px] uppercase tracking-[0.28em] text-secondary/90 mb-5">
-              Investor Access · Seed Round
+              {refFirstName ? `Welcome, ${refFirstName} · ` : ''}Investor Access · Seed Round
             </span>
             <h1 className="text-4xl md:text-6xl font-semibold leading-[1.02] tracking-tight">
               Creating Currency
@@ -253,6 +276,22 @@ export default function Investor() {
             )}
           </div>
         </section>
+
+        <LiveVerifiedCounter />
+
+        {/* PDF leave-behind combo */}
+        <div className="mx-auto max-w-3xl px-5 mb-10">
+          <Button
+            onClick={downloadDeckCombo}
+            variant="outline"
+            className="w-full h-12 border-secondary/40 hover:bg-secondary/5"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Download Deck + One-Pager (PDF)
+          </Button>
+        </div>
+
+        <AppreciationCalculator />
 
         {/* Why now */}
         <section className="mx-auto max-w-4xl px-5 py-16 md:py-20">
@@ -331,7 +370,7 @@ export default function Investor() {
         >
           {!signed ? (
             <div className="rounded-3xl border border-border/60 bg-card/40 overflow-hidden">
-              <NdaSignatureStep accessCodeUsed={ACCESS_CODE} onSigned={handleSigned} />
+              <NdaSignatureStep accessCodeUsed={ACCESS_CODE} onSigned={handleSigned} defaultFullName={refDisplayName ?? undefined} />
             </div>
           ) : (
             <UnlockedPanel signed={signed} onResend={resendEmail} />

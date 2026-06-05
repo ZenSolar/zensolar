@@ -20,6 +20,7 @@ interface NdaSignatureStepProps {
   accessCodeUsed: string;
   onSigned: (email?: string, fullName?: string) => void;
   requiredEmail?: string;
+  defaultFullName?: string;
 }
 
 const NDA_VERSION = '1.0';
@@ -44,9 +45,16 @@ This Confidentiality Agreement ("Agreement") is entered into as of the date of e
 
 type SignatureMethod = 'type' | 'draw';
 
-export function NdaSignatureStep({ accessCodeUsed, onSigned, requiredEmail }: NdaSignatureStepProps) {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+export function NdaSignatureStep({ accessCodeUsed, onSigned, requiredEmail, defaultFullName }: NdaSignatureStepProps) {
+  const [firstName, setFirstName] = useState(() => {
+    if (!defaultFullName) return '';
+    return defaultFullName.trim().split(/\s+/)[0] ?? '';
+  });
+  const [lastName, setLastName] = useState(() => {
+    if (!defaultFullName) return '';
+    const parts = defaultFullName.trim().split(/\s+/);
+    return parts.slice(1).join(' ');
+  });
   const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
   const [email, setEmail] = useState(requiredEmail ?? '');
   const [signatureText, setSignatureText] = useState('');
