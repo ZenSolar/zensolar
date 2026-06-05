@@ -22,7 +22,7 @@ import {
 } from '@/components/investor/InvestorPinGate';
 import { ThreeRevenueEngines } from '@/components/investor/ThreeRevenueEngines';
 import { LiveVerifiedCounter } from '@/components/investor/LiveVerifiedCounter';
-import { AppreciationCalculator } from '@/components/investor/AppreciationCalculator';
+
 import { isPreviewHost } from '@/lib/previewHost';
 import { useInvestorRef } from '@/lib/investorRef';
 
