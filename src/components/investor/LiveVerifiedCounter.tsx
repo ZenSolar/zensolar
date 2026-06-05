@@ -35,7 +35,7 @@ export function LiveVerifiedCounter() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-3xl px-5 -mt-6 mb-8">
+    <div className="mx-auto max-w-3xl px-5 mt-6 mb-8">
       <div className="flex items-center justify-center gap-2 rounded-full border border-secondary/30 bg-card/40 px-4 py-2 text-[12px]">
         <span className="relative inline-flex h-2 w-2">
           <span className="absolute inset-0 inline-flex h-full w-full animate-ping rounded-full bg-secondary/70 opacity-80" />
