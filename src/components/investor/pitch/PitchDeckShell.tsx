@@ -188,13 +188,31 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
     };
   }, []);
 
-  // Touch swipe nav
+  // Touch swipe nav.
+  // Pinch-zoom must NOT trigger a swipe or a tap-zone slide change. The
+  // browser delivers the second finger as an additional touch in `touches`,
+  // so we tag the gesture as multi-touch and skip the swipe math + suppress
+  // the synthetic click that follows the lift-off for ~350ms.
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const onTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length > 1) {
+      wasMultiTouch.current = true;
+      touchStart.current = null;
+      return;
+    }
     const t = e.touches[0];
     touchStart.current = { x: t.clientX, y: t.clientY };
   };
   const onTouchEnd = (e: React.TouchEvent) => {
+    // Still mid-pinch, or this gesture was multi-touch at any point: bail out.
+    if (e.touches.length > 0 || wasMultiTouch.current) {
+      touchStart.current = null;
+      clearTimeout(multiTouchClearTimer.current);
+      multiTouchClearTimer.current = setTimeout(() => {
+        wasMultiTouch.current = false;
+      }, 350);
+      return;
+    }
     if (!touchStart.current) return;
     const t = e.changedTouches[0];
     const dx = t.clientX - touchStart.current.x;
