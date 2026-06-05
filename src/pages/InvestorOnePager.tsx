@@ -36,7 +36,7 @@ export default function InvestorOnePager() {
     <>
       <Helmet>
         <title>ZenSolar — Investor One-Pager</title>
-        <meta name="description" content="The ZenSolar one-page investor summary — what we do, the moat, the ask." />
+        <meta name="description" content="ZenSolar one-page investor summary — Proof-of-Genesis™, three revenue engines, $5M seed." />
         <meta name="robots" content="noindex,nofollow" />
         <link rel="canonical" href="https://www.zensolar.com/investor/one-pager" />
       </Helmet>
@@ -95,7 +95,7 @@ export default function InvestorOnePager() {
               <span className="text-secondary">ZenSolar tokenizes abundance.</span>
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              Creating Currency From Energy. Patent-pending Proof of Genesis™ protocol on Base.
+              Proof-of-Genesis™ — verified clean-energy minting on Base. Bitcoin-grade integrity at ~0.001% of the energy cost.
             </p>
           </section>
 
@@ -138,33 +138,21 @@ export default function InvestorOnePager() {
               />
               <Engine
                 n="03"
-                title="Aggregated Energy Data"
-                body="Anonymized multi-OEM telemetry sold to utilities, ISOs, REC registries, climate researchers. Only possible because of Engine 01's monitoring layer."
+                title="Aggregated Data + VPP (Scale Opportunity)"
+                body="Anonymized multi-OEM telemetry sold to utilities, ISOs, REC registries + crypto-rewarding VPP settlement. $2B+ U.S. utility-analytics TAM; VPP layer adds $50–150 / household / yr at zero CapEx."
               />
-            </div>
-          </section>
-
-          {/* Phase 2 Unlock */}
-          <section className="op-card rounded-xl border border-amber-500/30 bg-amber-500/5 p-3">
-            <div className="flex items-baseline gap-2 flex-wrap">
-              <span className="text-[10px] uppercase tracking-[0.22em] text-amber-400 font-semibold">
-                Phase 2 Unlock
-              </span>
-              <span className="text-xs text-foreground">
-                VPP tokenization — tech already built. ~$50–150 / household / yr in grid-services
-                revenue · at 10K households = <span className="font-semibold text-amber-400">$0.5–1.5M ARR layer</span>,
-                all upside, no CapEx.
-              </span>
             </div>
           </section>
 
           {/* Moat + screenshots */}
           <section className="op-card">
-            <SectionLabel>The Moat — First-of-its-kind multi-OEM monitoring</SectionLabel>
+            <SectionLabel>The Moat — Proof-of-Genesis™ + multi-OEM monitoring</SectionLabel>
             <p className="text-sm leading-relaxed text-foreground/90 mb-4">
-              Tesla + Enphase + SolarEdge + Wallbox unified in one live cockpit. The prerequisite
-              for verified minting, the proprietary data set behind Engine 03, and the experience
-              homeowners with mixed systems cannot get anywhere else.
+              Proof-of-Genesis™ is the first protocol that mints a digital asset from real-world
+              clean-energy production with cryptographic proof — Bitcoin-grade integrity at near-zero
+              energy overhead. It runs on top of Tesla + Enphase + SolarEdge + Wallbox unified in one
+              live cockpit — the prerequisite for verified minting, the proprietary data set behind
+              Engine 03, and the experience homeowners with mixed systems cannot get anywhere else.
             </p>
             <div className="grid gap-4 md:grid-cols-2">
               <Shot
@@ -184,7 +172,7 @@ export default function InvestorOnePager() {
             <div className="grid grid-cols-4 gap-3">
               <Stat k="23" v="Beta users" />
               <Stat k="4" v="OEMs live" />
-              <Stat k="Patent-pending" v="U.S. App. 19/634,402" />
+              <Stat k="Patent-pending PoG" v="U.S. App. 19/634,402" />
               <Stat k="Base L2" v="Mainnet anchor at launch" />
             </div>
           </section>
