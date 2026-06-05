@@ -1,55 +1,65 @@
+# Plan: Retire SEGI → Proof-of-Genesis™ (PoG) + Slide 07 Spotlight
 
-# Full Seed Round Deck v3.1 — 11 Slides (ready to ship)
+## Part 1 — Global rename (copy + filenames + identifiers)
 
-All code is staged. Switch to build mode and I'll write 16 files in parallel.
+**Copy replacements** across ~50 files (slides, pages, components, learn/landing, proof, patent admin, memory, README, docs):
 
-## Files to create
+- `SEGI™` / `SEGI` → `Proof-of-Genesis™`
+- `SEGI protocol/verification/minting/engine/stack/architecture` → `Proof-of-Genesis™ <same suffix>`
+- "Software-Enabled Gateway Interface" expansions dropped → `Proof-of-Genesis™ protocol`
+- De-dup: `Proof-of-Genesis™ + Proof-of-Delta™ Architecture` → `Proof-of-Genesis™ Architecture`; collapse any `Proof-of-Genesis™ Proof-of-Genesis™` artifacts.
+- Where space is tight (diagram labels, table headers, footnotes), use `PoG` after first mention.
 
-**Primitives** (`src/components/investor/pitch/v3/`):
-- `SectionHeader.tsx` — kicker + title + the 1px secondary-glow divider motif
-- `DeckCard.tsx` + `CardKicker` export — mirrors `CatalystCard` / `EngineCard`
-- `StatPill.tsx` — stat row reused on hero + ask
+**File / identifier renames** (with imports updated everywhere):
 
-**Slides** (`src/components/investor/pitch/slides/v3/`):
-- `S01Hero.tsx` — variant="dark", `$5M / $7M / SAFE` stat row, founders byline
-- `S02Catalyst.tsx` — 3 cards: $1.7T market · Patent-pending · Multi-OEM moat (emphasized)
-- `S03Opportunity.tsx` — TAM/SAM/SOM stat cards + One Patent · Multiple Markets row
-- `S04Traction.tsx` — 4 hero stats + 3-col OEMs/Protocol/IP grid
-- `S05Solution.tsx` — `1 kWh = 1 $ZSOLAR` headline + Produce→Verify→Mint→Retire flow
-- `S06FoundationalMoat.tsx` — 3 walls (IP · Multi-OEM · Verification stack)
-- `S07Tech.tsx` — SEGI™ emphasized card + 4-layer stack (L1–L4)
-- `S08ThreeEngines.tsx` — Flywheel headline + 3 engine cards (Engine 02 emphasized amber-400)
-- `S09ScaleOpportunity.tsx` — Aggregated Data top + ZenSolar VPP bottom (emphasized) + Phase 2 anchor strip
-- `S10Competition.tsx` — 4 threat cards with "Our wedge" callouts
-- `S11Ask.tsx` — Use of Funds table (5 rows, verbatim from `/investor/pitch`) + milestones + capital efficiency
+- `src/components/technology/SEGIProofOfDeltaDiagram.tsx` → `ProofOfGenesisDiagram.tsx`; component `SEGIProofOfDeltaDiagram` → `ProofOfGenesisDiagram`
+- `src/components/admin/patent/SEGIArchitectureDiagram.tsx` → `ProofOfGenesisArchitectureDiagram.tsx`; matching component rename
 
-**Page wiring**:
-- `src/pages/DeckPinGated.tsx` — swap to v3 imports and 11-slide labels. PIN flow, session storage, throttle behavior untouched.
+**Memory updates**
 
-**Memory updates**:
-- `mem://features/investor-pitch-v2.md` — note v3.1 deck is canonical at /deck; VPP gets dedicated deck slide only
-- `mem://features/vpp-settlement.md` — add "Deck positioning" section with Slide 09 framing + Phase 2 anchor copy
-- `mem://index.md` — refresh Investor Pitch v2 description line
+- `mem://index.md` — add core rule: *"Proof-of-Genesis™ is the SSOT name for the verification protocol. Short form is PoG. SEGI is retired — never reintroduce."*
+- `.lovable/memory/features/trademark-roadmap.md` — retire SEGI™ mark, consolidate under Proof-of-Genesis™, note PoG short form.
+- `.lovable/memory/features/tm-stack-visualization.md`, `legal/patent-update-checklist.md`, `audit-enhancements-2026-04.md`, `plan.md` — rename references and reference PoG rule.
 
-## Aesthetic system (locked across all 11 slides)
+**Verification pass:** `grep -ric segi` across repo → expect 0.
 
-- Background: `variant="dark"` for Title + Solution + Competition + Ask · `variant="gradient"` for content slides
-- Per-slide soft radial-gradient: `radial-gradient(ellipse at top, hsl(var(--secondary) / 0.14), transparent 55%)`
-- Cards: `rounded-2xl border border-border/60 bg-card/40` · emphasized uses `border-secondary/40 bg-secondary/5`
-- Accents: `text-eco` (Subscription) · `text-amber-400` (Token Economics + Capital efficiency) · `text-sky-400` (Data + Tech) · `text-secondary` (brand)
-- Deck-wide motif: 1px secondary-glow horizontal divider under every `SectionHeader` title
-- Icons: lucide-react only (CreditCard, Sparkles, Coins, Database, ArrowRight, Zap, Shield, Sun, Lock, Layers, FileLock2, Factory, Cpu, Fingerprint, FileCheck)
+## Part 2 — Slide 07 spotlight (`src/components/investor/pitch/slides/v3/S07Tech.tsx`)
 
-## Content locks honored
+Rebuild around PoG as hero; keep v3 calm/card-based dark aesthetic.
 
-- Ask: `$5M target · $7M hard cap · SAFE (post-money)` · $20M post-money referenced on Slide 11 only
-- Engine 02 framed as "Core product and primary long-term revenue driver" with amber-400 emphasis
-- Multi-OEM moat names Tesla + Enphase + SolarEdge + Wallbox on Slides 02, 05, 06, 08, 09
-- Mint split (50/25/20/5 + separate 3% transfer tax) on Slide 08 only
-- VPP claim "first VPP that issues crypto rewards directly to participants via Proof-of-Genesis™" on Slide 09 only
-- Founders: Joseph Maushart + Michael Tschida (Slide 01 byline)
-- Old `slides/Slide*.tsx` files left on disk for diff; flag for archive via admin widget after v3.1 ships
+1. **Hero band**
+   - Kicker: "Proprietary Tech & IP"
+   - Display headline (~96px): **Proof-of-Genesis™**
+   - Small line under headline: *Short form: PoG*
+   - Subhead: "The first real-time, multi-OEM verification protocol that mints currency directly from verified clean energy."
+   - Pill: "U.S. App. 19/634,402 · Patent-pending"
 
-## Final reply on completion
+2. **Efficiency comparison** — one emphasized `DeckCard`, 2 columns with vertical secondary-glow divider:
 
-> Seed Round Deck v3.1 complete — 11 slides with dedicated Scale Opportunity slide for Aggregated Data + VPP.
+   | Bitcoin (Proof-of-Work) | $ZSOLAR (Proof-of-Genesis™ / PoG) |
+   |---|---|
+   | ~1,400,000 kWh per coin | 1 kWh of clean energy per $ZSOLAR |
+   | Energy intensive · centralized mining | Energy efficient · distributed homes |
+   | No direct tie to real-world value | Directly tied to verified clean energy |
+
+   Left column muted (white/45). Right column `text-amber-400` headline values + amber border-glow.
+
+3. **Bottom strip** — three small `DeckCard`s:
+   - **Real-time verification** — Tesla + Enphase + SolarEdge + Wallbox telemetry → mint in 30–60s.
+   - **Multi-OEM unified** — Only protocol that verifies multiple OEMs in a single system.
+   - **Patent-pending stack** — Mint-on-Proof™ · Proof-of-Delta™ · Proof-of-Origin™ chips.
+
+L1–L4 stack list removed from this slide (still rendered by `ProofOfGenesisDiagram` on Technology/patent admin pages).
+
+## Part 3 — Sibling slides
+
+`S08ThreeEngines.tsx`, `S09ScaleOpportunity.tsx`, `S03Opportunity.tsx`, `S05Solution.tsx`, `S06FoundationalMoat.tsx`: swap SEGI strings → Proof-of-Genesis™ (use PoG in tight labels). No structural changes.
+
+## Out of scope
+
+- Solidity contracts, smart-contract names, env vars, route paths.
+- PIN gate, PitchDeckShell, print mode, navigation.
+
+## Final reply
+
+> Global rename complete + Slide 07 now spotlights Proof-of-Genesis™ (PoG) with Bitcoin efficiency comparison.
