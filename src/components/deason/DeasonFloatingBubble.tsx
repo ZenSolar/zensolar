@@ -290,7 +290,7 @@ export function DeasonFloatingBubble() {
               onClick={handleBubbleTap}
               style={{ bottom: 'calc(var(--bottom-nav-total-h) + 80px)' }}
               className={cn(
-                "fixed right-4 z-50 max-w-[260px] cursor-pointer rounded-2xl border border-amber-300/40",
+                "fixed right-4 z-[60] max-w-[260px] cursor-pointer rounded-2xl border border-amber-300/40",
                 "bg-background/95 backdrop-blur p-3 pr-8 shadow-xl",
                 "md:!bottom-24",
                 "animate-in fade-in slide-in-from-bottom-2 duration-300",
