@@ -291,7 +291,7 @@ export default function Investor() {
           </Button>
         </div>
 
-        <AppreciationCalculator />
+
 
         {/* Why now */}
         <section className="mx-auto max-w-4xl px-5 py-16 md:py-20">
