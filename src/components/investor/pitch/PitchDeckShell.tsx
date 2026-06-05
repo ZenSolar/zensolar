@@ -304,11 +304,16 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
         // and stays correct across orientation changes.
         height: '100dvh',
         width: '100vw',
-        touchAction: 'pan-y',
+        // `pan-y` keeps vertical scroll responsive; `pinch-zoom` is required
+        // so the browser actually applies two-finger zoom instead of us
+        // swallowing it as a swipe gesture.
+        touchAction: 'pan-y pinch-zoom',
       }}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
       onClick={(e) => {
+        // Suppress the synthetic tap that follows a pinch lift-off.
+        if (wasMultiTouch.current) return;
         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
         if (e.clientX < rect.left + rect.width / 3) prev();
         else if (e.clientX > rect.left + (rect.width * 2) / 3) next();
