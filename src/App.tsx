@@ -223,6 +223,7 @@ const Investor = lazy(() => import("./pages/Investor"));
 const InvestorPitch = lazy(() => import("./pages/InvestorPitch"));
 const InvestorOnePager = lazy(() => import("./pages/InvestorOnePager"));
 const InvestorDataRoom = lazy(() => import("./pages/InvestorDataRoom"));
+const InvestorDataRoomPoG = lazy(() => import("./pages/InvestorDataRoomPoG"));
 const HeroTest = lazy(() => import("./pages/HeroTest"));
 
 const Blog = lazy(() => import("./pages/Blog"));
@@ -318,6 +319,7 @@ const App = () => {
                    <Route path="/investor/pitch" element={<Suspense fallback={<PageLoader />}><InvestorPitch /></Suspense>} />
                    <Route path="/investor/one-pager" element={<Suspense fallback={<PageLoader />}><InvestorOnePager /></Suspense>} />
                    <Route path="/investor/data-room" element={<Suspense fallback={<PageLoader />}><InvestorDataRoom /></Suspense>} />
+                   <Route path="/investor/data-room/pog" element={<Suspense fallback={<PageLoader />}><InvestorDataRoomPoG /></Suspense>} />
                     <Route path="/hero-test" element={<Suspense fallback={<PageLoader />}><HeroTest /></Suspense>} />
                     
                     <Route path="/dwight-preview" element={<DwightPreview />} />

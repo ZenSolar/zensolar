@@ -126,6 +126,12 @@ function DataRoomContent() {
               >
                 See live PoG receipt example <ArrowRight className="w-4 h-4" />
               </Link>
+              <Link
+                to="/investor/data-room/pog"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-border/60 bg-card/30 text-white/85 hover:bg-card/50 transition text-[14px] font-medium"
+              >
+                Read full PoG deep dive <ArrowRight className="w-4 h-4" />
+              </Link>
               <p className="text-[12px] font-mono tracking-[0.14em] uppercase text-white/35">
                 Patent-pending · U.S. App. 19/634,402
               </p>
