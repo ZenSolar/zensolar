@@ -62,7 +62,7 @@ const systemArchitectureItems = [
   { item: "1", name: "Solar Inverter Unit", status: "implemented", location: "Enphase, SolarEdge, Tesla Solar APIs", icon: Sun },
   { item: "2", name: "EV Onboard System", status: "implemented", location: "Tesla Fleet API (tesla-data, tesla-devices)", icon: Car },
   { item: "3", name: "Battery Storage System", status: "implemented", location: "Tesla Powerwall via tesla-data", icon: Battery },
-  { item: "4", name: "SEGI (Software-Enabled Gateway Interface)", status: "implemented", location: "Edge functions: enphase-data, tesla-data, solaredge-data, wallbox-data", icon: Cpu },
+  { item: "4", name: "Proof-of-Genesis™ (Proof-of-Genesis™ protocol)", status: "implemented", location: "Edge functions: enphase-data, tesla-data, solaredge-data, wallbox-data", icon: Cpu },
   { item: "5", name: "Activity Data Storage Unit", status: "implemented", location: "connected_devices.baseline_data, energy_production table", icon: Database },
   { item: "6", name: "Blockchain Network", status: "implemented", location: "Base Sepolia L2 Network", icon: Boxes },
   { item: "7", name: "Blockchain Smart Contract", status: "implemented", location: "contracts/ZSOLAR.sol, contracts/ZenSolarNFT.sol", icon: Code },
@@ -81,9 +81,9 @@ const processFlowSteps = [
   { step: 1, name: "User Registration", patent: "Via User Registration System (Item 15)", implementation: "Auth.tsx → Supabase auth.users → profiles table", status: "implemented" },
   { step: 2, name: "Device Data Collection", patent: "Solar/EV/Battery/Charger systems produce data", implementation: "tesla-devices, enphase-devices, device claiming flow", status: "implemented" },
   { step: 3, name: "Gateway Collection", patent: "Inverter Gateway collects data", implementation: "Provider API endpoints aggregate device data", status: "implemented" },
-  { step: 4, name: "SEGI Fetches via APIs", patent: "SEGI pulls from APIs", implementation: "Edge functions call Tesla Fleet API, Enphase API v4, etc.", status: "implemented" },
+  { step: 4, name: "Proof-of-Genesis™ Fetches via APIs", patent: "Proof-of-Genesis™ pulls from APIs", implementation: "Edge functions call Tesla Fleet API, Enphase API v4, etc.", status: "implemented" },
   { step: 5, name: "Activity Data Storage", patent: "Stores in Activity Data Storage Unit", implementation: "connected_devices.baseline_data, energy_production table", status: "implemented" },
-  { step: 6, name: "Calculate New Activity", patent: "SEGI calculates deltas", implementation: "claim-devices baseline logic, delta calculations in data functions", status: "implemented" },
+  { step: 6, name: "Calculate New Activity", patent: "Proof-of-Genesis™ calculates deltas", implementation: "claim-devices baseline logic, delta calculations in data functions", status: "implemented" },
   { step: 7, name: "Token Minting", patent: "Smart Contract mints $ZSOLAR", implementation: "mint-onchain edge function → ZenSolar.sol.mintRewards()", status: "implemented" },
   { step: 8, name: "Milestone Tracking", patent: "Algorithm monitors thresholds", implementation: "nftMilestones.ts with tiered thresholds per category", status: "implemented" },
   { step: 9, name: "NFT Minting", patent: "Smart Contract mints NFTs", implementation: "ZenSolarNFT.sol, 42 unique NFT types in nft-metadata-flat/", status: "implemented" },
@@ -107,7 +107,7 @@ const dashboardUIElements = [
 const patentClaims = [
   { claim: "Real-time token rewards", description: "Tokens minted based on kWh/miles", evidence: "calculate-rewards REWARD_RATES: 1 token/kWh solar, 0.1/mile EV, 0.5/kWh battery", status: "implemented" },
   { claim: "Milestone NFTs", description: "NFTs at thresholds", evidence: "8 tiers per category (1k→500k kWh, 1k→100k miles) in nftMilestones.ts", status: "implemented" },
-  { claim: "SEGI (API-first)", description: "Primary data via APIs", evidence: "4 provider integrations: Tesla, Enphase, SolarEdge, Wallbox", status: "implemented" },
+  { claim: "Proof-of-Genesis™ (API-first)", description: "Primary data via APIs", evidence: "4 provider integrations: Tesla, Enphase, SolarEdge, Wallbox", status: "implemented" },
   { claim: "Alternative hardware device", description: "IoT/smart meter fallback", evidence: "Not implemented (API-only currently)", status: "not-implemented" },
   { claim: "Baseline tracking", description: "Calculate new activity vs. stored", evidence: "claim-devices sets baseline=0, delta calculated on each mint", status: "implemented" },
   { claim: "Token burn mechanics", description: "Fee with portion burned", evidence: "v3.1: 20% mint burn + separate 3% transfer tax (LP recycle) in ZSOLAR.sol, 5% redemption burn", status: "implemented" },
@@ -125,11 +125,11 @@ const implementationGaps = [
 
 const patentabilityFactors = [
   { factor: "Novelty", score: 85, description: "Unified multi-behavior sustainability rewards using blockchain is novel. No prior art combines solar + EV + battery + charging with real-time tokenization.", positive: true },
-  { factor: "Non-Obviousness", score: 80, description: "SEGI architecture with API-first data collection + milestone NFT gamification is non-obvious combination.", positive: true },
+  { factor: "Non-Obviousness", score: 80, description: "Proof-of-Genesis™ architecture with API-first data collection + milestone NFT gamification is non-obvious combination.", positive: true },
   { factor: "Utility", score: 95, description: "Clear practical application demonstrated through working implementation with 4 provider integrations.", positive: true },
   { factor: "Enablement", score: 90, description: "Detailed specification with component relationships, process flows, and code implementation.", positive: true },
   { factor: "Written Description", score: 85, description: "Comprehensive claims covering both API and hardware embodiments.", positive: true },
-  { factor: "Prior Art Risk", score: 70, description: "Some blockchain reward systems exist, but none with this specific multi-behavior + SEGI combination.", positive: false },
+  { factor: "Prior Art Risk", score: 70, description: "Some blockchain reward systems exist, but none with this specific multi-behavior + Proof-of-Genesis™ combination.", positive: false },
 ];
 
 export default function AdminPatentMapping() {
@@ -309,10 +309,10 @@ export default function AdminPatentMapping() {
                     Based on the analysis, the utility patent has a <strong>strong likelihood of acceptance</strong>. 
                     The implementation demonstrates clear novelty in combining real-time blockchain tokenization 
                     with multi-behavior sustainability tracking (solar, EV, battery, charging) through a unified 
-                    SEGI architecture. The working prototype with 4 provider integrations and 42 NFTs 
+                    Proof-of-Genesis™ architecture. The working prototype with 4 provider integrations and 42 NFTs 
                     significantly strengthens the enablement requirement. The main risk factors are potential 
                     prior art in generic blockchain reward systems, but the specific combination of elements 
-                    and the SEGI concept appear to be novel.
+                    and the Proof-of-Genesis™ concept appear to be novel.
                   </p>
                 </div>
               </div>

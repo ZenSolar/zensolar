@@ -25,7 +25,7 @@ import {
   FileText,
 } from "lucide-react";
 import { SEO } from "@/components/SEO";
-import { SEGIProofOfDeltaDiagram } from "@/components/technology/SEGIProofOfDeltaDiagram";
+import { ProofOfGenesisDiagram } from "@/components/technology/ProofOfGenesisDiagram";
 import { MintOnProofFlowDiagram } from "@/components/whitepaper/MintOnProofFlowDiagram";
 import { DeflationaryFlywheel } from "@/components/how-it-works/DeflationaryFlywheel";
 
@@ -376,7 +376,7 @@ export default function Engineering() {
               subtitle="Four ideas that, taken together, are novel enough to defend — and the reason a tap can be trusted."
             />
 
-            <SEGIProofOfDeltaDiagram />
+            <ProofOfGenesisDiagram />
 
             {/* Trademark Glossary — front and center */}
             <Card className="bg-gradient-to-br from-violet-500/10 via-primary/5 to-transparent border-violet-500/30">
@@ -400,8 +400,8 @@ export default function Engineering() {
               <CardContent className="space-y-3">
                 {[
                   {
-                    mark: "SEGI™",
-                    expansion: "Software-Enabled Gateway Interface",
+                    mark: "Proof-of-Genesis™",
+                    expansion: "Proof-of-Genesis™ protocol",
                     etymology: "Coined to name the entire category of hardware-free energy bridges. Pronounced “SEH-jee.”",
                     means: "The single software layer that talks to every solar / battery / EV cloud and turns their data into mintable proofs. No box, no installer.",
                   },
@@ -421,7 +421,7 @@ export default function Engineering() {
                     mark: "Proof of Genesis™",
                     expansion: "The user-facing gesture of Mint-on-Proof",
                     etymology: "One tap. One proof. One mint. The simplest possible expression of the entire stack.",
-                    means: "What the user sees: a single button that triggers the SEGI fetch, the Proof-of-Delta calculation, and the on-chain Mint-on-Proof — in about 60 seconds.",
+                    means: "What the user sees: a single button that triggers the Proof-of-Genesis™ fetch, the Proof-of-Delta calculation, and the on-chain Mint-on-Proof — in about 60 seconds.",
                   },
                 ].map((tm) => (
                   <div
@@ -482,7 +482,7 @@ export default function Engineering() {
                 {
                   num: 1,
                   icon: Layers,
-                  title: "Software-Enabled Gateway Interface (SEGI™)",
+                  title: "Proof-of-Genesis™ protocol",
                   plain:
                     "One software layer that speaks fluent Tesla, Enphase, SolarEdge, and Wallbox — so we never have to ship hardware.",
                   technical:

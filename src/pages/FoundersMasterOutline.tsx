@@ -532,7 +532,7 @@ More attractive to new users → loop restarts, stronger`}
           <h4 className="text-sm font-semibold text-foreground mb-2">Trademark roadmap</h4>
           <ul className="space-y-1.5">
             <li>• <strong>Tier 1 (file immediately):</strong> Proof-of-Permanence™, Genesis Anchor™, Proof-of-Custody™</li>
-            <li>• <strong>Tier 2 (Q3 2026):</strong> SEGI™, ZPPA, Proof of Genesis™, Proof-of-Genesis™</li>
+            <li>• <strong>Tier 2 (Q3 2026):</strong> Proof-of-Genesis™, ZPPA, Proof of Genesis™, Proof-of-Genesis™</li>
             <li>• <strong>Tier 3 (post-attorney clearance):</strong> Mint-on-Proof™, Proof-of-Delta™, Proof-of-Origin™</li>
           </ul>
         </div>

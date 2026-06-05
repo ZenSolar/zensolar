@@ -199,7 +199,7 @@ This document outlines ZenSolar's fundraising strategy from Pre-seed through Ser
 - ☐ $10M+ ARR
 - ☐ $ZSOLAR debit card nationwide
 - ☐ Utility bill payment integration live
-- ☐ White-label SEGI licensing revenue
+- ☐ White-label Proof-of-Genesis™ licensing revenue
 - ☐ Token price sustainably above $1.00
 
 **Token Release Schedule:**

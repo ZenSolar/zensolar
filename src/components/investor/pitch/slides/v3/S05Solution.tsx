@@ -5,7 +5,7 @@ import { Sun, Zap, Coins, Lock, ArrowRight } from 'lucide-react';
 
 const flow = [
   { icon: Sun, label: 'Produce', desc: 'Solar panels generate kWh' },
-  { icon: Zap, label: 'Verify', desc: 'SEGI™ confirms production' },
+  { icon: Zap, label: 'Verify', desc: 'Proof-of-Genesis™ confirms production' },
   { icon: Coins, label: 'Mint', desc: 'Tokens auto-minted 1:1' },
   { icon: Lock, label: 'Retire', desc: 'Energy cryptographically locked' },
 ];

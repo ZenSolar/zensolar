@@ -135,7 +135,7 @@ All 9 founder routes registered correctly at App.tsx lines 984-994: `/founders`,
 
 **Rainbow gradient audit:**
 Surveyed 21 files using `from-purple-500 / from-pink / from-blue-500 to-indigo / from-amber-500 to-orange`. Categorized:
-- **Intentional artwork** (keep): `SEGIArchitectureDiagram`, `MintOnProofInfographic`, `SEGIProofOfDeltaDiagram`, `MintOnProofFlowDiagram`, all `whitepaper/*`, all `Admin*` pages — these are diagrams/decks.
+- **Intentional artwork** (keep): `ProofOfGenesisArchitectureDiagram`, `MintOnProofInfographic`, `ProofOfGenesisDiagram`, `MintOnProofFlowDiagram`, all `whitepaper/*`, all `Admin*` pages — these are diagrams/decks.
 - **Decorative legitimate** (keep): NFT rarity tiers (`NFTGallery`, `NFTDetailModal`) — gradients encode rarity, removing them destroys signal.
 - **Worth refactoring next pass**: `MintHistory` action gradients (4 colors for 4 action types), `RewardActions`, `Profile` tile hues. *Strategic:* introduce `--accent-warm` (amber), `--accent-cool` (indigo), `--accent-rare` (purple) as named semantic tokens so the palette is intentional, not arbitrary. Defer to Commit 6.
 

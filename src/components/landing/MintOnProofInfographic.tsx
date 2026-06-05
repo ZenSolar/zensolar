@@ -20,7 +20,7 @@ const steps = [
     number: '02',
     icon: ShieldCheck,
     title: 'Verify',
-    subtitle: 'Via SEGI™',
+    subtitle: 'Via Proof-of-Genesis™',
     description: 'Our patent-pending system validates your energy production with cryptographic timestamps.',
     gradient: 'from-emerald-500 to-green-500',
     glow: 'shadow-emerald-500/30',
@@ -192,7 +192,7 @@ export function MintOnProofInfographic({ showCTA = true, compact = false }: Mint
             className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
           >
             <ShieldCheck className="h-4 w-4" />
-            Learn more about SEGI™ technology
+            Learn more about Proof-of-Genesis™ technology
             <ArrowRight className="h-4 w-4" />
           </Link>
         </motion.div>

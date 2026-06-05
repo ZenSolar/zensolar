@@ -26,15 +26,15 @@ export function S07Tech() {
       <div className="absolute inset-0 flex flex-col px-24 pt-28 pb-20">
         <SectionHeader
           kicker="Proprietary Tech & IP"
-          title="SEGI™ — the energy-to-currency stack."
-          subtitle="Software-Enabled Gateway Interface — a hardware-agnostic architecture converting verified energy activity from any major OEM into blockchain rewards."
+          title="Proof-of-Genesis™ — the energy-to-currency stack."
+          subtitle="Proof-of-Genesis™ protocol — a hardware-agnostic architecture converting verified energy activity from any major OEM into blockchain rewards."
         />
 
         <div className="grid grid-cols-12 gap-6 flex-1">
           <DeckCard emphasized className="col-span-4 flex flex-col justify-center">
             <CardKicker className="text-secondary">Patent-pending</CardKicker>
             <p className="text-[80px] font-semibold text-white mt-4 leading-none">
-              SEGI<span className="text-secondary">™</span>
+              Proof-of-Genesis™<span className="text-secondary">™</span>
             </p>
             <p className="text-[18px] text-white/65 mt-6 leading-relaxed">
               U.S. App. 19/634,402. Filed. Covers the Proof of Genesis™ protocol

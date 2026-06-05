@@ -29,7 +29,7 @@ interface ComparisonRow {
 const segiComparison: ComparisonRow[] = [
   {
     feature: 'Architecture Model',
-    provisional: '2 embodiments: API-based (SEGI) or hardware (IoT fallback)',
+    provisional: '2 embodiments: API-based (PoG) or hardware (IoT fallback)',
     utility: '4-layer architecture: API Aggregation → Data Normalization → Verification Engine → Smart Contract Bridge',
     status: 'evolved',
     critical: true,
@@ -55,7 +55,7 @@ const segiComparison: ComparisonRow[] = [
   },
   {
     feature: 'Verification Method',
-    provisional: '"SEGI calculates new activity" — no cryptographic specification',
+    provisional: '"Proof-of-Genesis™ calculates new activity" — no cryptographic specification',
     utility: 'SHA-256 hash chain with tamper-evident timestamps and cryptographic proofs',
     status: 'new',
     critical: true,
@@ -359,7 +359,7 @@ export default function AdminPatentComparison() {
                 <div className="grid md:grid-cols-4 gap-3 text-sm">
                   <div className="p-3 rounded-lg bg-background border">
                     <p className="font-medium text-primary">Master Independent</p>
-                    <p className="text-xs text-muted-foreground mt-1">SEGI 4-layer architecture for converting verified real-world activity into blockchain assets</p>
+                    <p className="text-xs text-muted-foreground mt-1">Proof-of-Genesis™ 4-layer architecture for converting verified real-world activity into blockchain assets</p>
                   </div>
                   <div className="p-3 rounded-lg bg-background border">
                     <p className="font-medium text-emerald-600 dark:text-emerald-400">Dependent Claim 1</p>
@@ -380,10 +380,10 @@ export default function AdminPatentComparison() {
         </Card>
       </motion.div>
 
-      {/* SEGI Architecture */}
+      {/* Proof-of-Genesis™ Architecture */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
         <ComparisonSection
-          title="SEGI Architecture"
+          title="Proof-of-Genesis™ Architecture"
           icon={Layers}
           iconColor="text-primary"
           description="Master independent claim — the core system architecture"
@@ -444,7 +444,7 @@ export default function AdminPatentComparison() {
           <CardContent>
             <div className="space-y-3">
               {[
-                { text: 'Draft master independent claim covering the 4-layer SEGI architecture as a unified system', priority: 'critical' },
+                { text: 'Draft master independent claim covering the 4-layer Proof-of-Genesis™ architecture as a unified system', priority: 'critical' },
                 { text: 'Write Mint-on-Proof™ dependent claim — verification-gated, zero pre-mint, cryptographic proof required before issuance', priority: 'critical' },
                 { text: 'Write Proof-of-Delta™ dependent claim — SHA-256 hash chain for incremental-only tokenization', priority: 'critical' },
                 { text: 'Write Proof-of-Origin™ dependent claim — keccak256 device hashing, watermark registry, Merkle root snapshots', priority: 'critical' },

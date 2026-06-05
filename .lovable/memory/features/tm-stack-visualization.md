@@ -16,7 +16,7 @@ The full ZenSolar trademark stack, organized as an infrastructure diagram with B
 ## Layer 1 — Data Acquisition
 - **Bitcoin:** Block headers + nonce
 - **ZenSolar:** OAuth-authenticated manufacturer APIs (Tesla, Enphase, SolarEdge, Wallbox)
-- **TMs:** **SEGI™** (Software-Enabled Gateway Interface) — the four-layer architecture
+- **TMs:** **Proof-of-Genesis™** (Proof-of-Genesis™ protocol) — the four-layer architecture
 
 ## Layer 2 — Verification Primitives
 - **Bitcoin:** SHA-256 proof-of-work
@@ -48,7 +48,7 @@ Every layer 2–5 trademark MUST have a first-class consumer surface in the app.
 
 | TM | Surface | Status |
 |----|---------|--------|
-| SEGI™ | `/technology` page | ✅ |
+| Proof-of-Genesis™ | `/technology` page | ✅ |
 | Mint-on-Proof™ | Dashboard mint button | ✅ |
 | Proof-of-Delta™ | PoG Receipt drawer | ✅ (Phase 1) |
 | Proof-of-Origin™ | `/devices/:id/origin` per-device page | ✅ (Phase 1) |

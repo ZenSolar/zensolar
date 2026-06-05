@@ -10,7 +10,7 @@ const walls = [
     title: 'The TM Stack',
     accent: 'amber-400',
     items: [
-      'Mint-on-Proof™ · Proof-of-Delta™ · SEGI™',
+      'Mint-on-Proof™ · Proof-of-Delta™ · Proof-of-Genesis™',
       'Proof-of-Genesis™ · Genesis Anchor™',
       'Device Watermark Registry™',
       'Energy Price Oracle (Series A track)',

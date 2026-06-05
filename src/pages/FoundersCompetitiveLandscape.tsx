@@ -109,7 +109,7 @@ export default function FoundersCompetitiveLandscape() {
               <span className="text-foreground font-semibold">ZenSolar is the protocol layer underneath all of them.</span> We don't own the panels, the chargers, the batteries, or the grid. We sign every verified kilowatt-hour — solar, battery, EV mileage, EV charging — into a cryptographic proof, then mint a token only when that proof exists. No proof, no token. Ever.
             </p>
             <p>
-              That's why this is a new asset class, not a new coin: <span className="text-foreground font-semibold">the unit of account is a verified physical event</span>, not a pre-minted pool, not a yield wrapper, not a hardware subsidy. Bitcoin tokenized computational work. We tokenize clean energy work — and we did it with a 1T hard cap, 20% burn-per-mint, founders pact-locked, and patent-pending verification IP (SEGI™, Proof-of-Delta™, Proof-of-Origin™, Mint-on-Proof™).
+              That's why this is a new asset class, not a new coin: <span className="text-foreground font-semibold">the unit of account is a verified physical event</span>, not a pre-minted pool, not a yield wrapper, not a hardware subsidy. Bitcoin tokenized computational work. We tokenize clean energy work — and we did it with a 1T hard cap, 20% burn-per-mint, founders pact-locked, and patent-pending verification IP (Proof-of-Genesis™, Proof-of-Delta™, Proof-of-Origin™, Mint-on-Proof™).
             </p>
             <p>
               The competitors below are useful — they prove the category is real and that capital is flowing in ($75M into Daylight, $30M+ into Glow, $5M ask from GridPay). <span className="text-foreground font-semibold">None of them can mint our token, and we can absorb their verticals.</span> That's the asymmetry.
@@ -126,7 +126,7 @@ export default function FoundersCompetitiveLandscape() {
             icon={Fingerprint}
             label="Verification"
             them="Honor-system uploads or no verification at all."
-            us="SEGI™ pulls device APIs (Tesla, Enphase, Wallbox) and signs every kWh into Proof-of-Delta™ before any token exists. Patent-pending."
+            us="Proof-of-Genesis™ pulls device APIs (Tesla, Enphase, Wallbox) and signs every kWh into Proof-of-Delta™ before any token exists. Patent-pending."
           />
           <ReasonCard
             icon={Hexagon}
@@ -138,7 +138,7 @@ export default function FoundersCompetitiveLandscape() {
             icon={TrendingUp}
             label="Moat"
             them="Single-vertical, single-chain, no IP. Most are hackathon projects or dormant."
-            us="Live OEM rails (4 providers). POL flywheel. SEGI™ patent + 5 trademarks. Multi-vertical: solar + battery + EV + charging."
+            us="Live OEM rails (4 providers). POL flywheel. Proof-of-Genesis™ patent + 5 trademarks. Multi-vertical: solar + battery + EV + charging."
           />
         </div>
       </section>

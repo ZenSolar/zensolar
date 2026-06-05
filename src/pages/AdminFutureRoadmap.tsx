@@ -500,7 +500,7 @@ export default function AdminFutureRoadmap() {
             <div>
               <p className="font-medium text-amber-700 dark:text-amber-400">Intellectual Property Protection</p>
               <p className="text-sm text-muted-foreground mt-1">
-                <strong>Mint-on-Proof™</strong> and <strong>SEGI (Software-Enabled Gateway Interface)</strong> are 
+                <strong>Mint-on-Proof™</strong> and <strong>Proof-of-Genesis™ (Proof-of-Genesis™ protocol)</strong> are 
                 trademark pending. The underlying verification architecture is documented for provisional patent filing. 
                 All roadmap features leverage this protected core IP.
               </p>

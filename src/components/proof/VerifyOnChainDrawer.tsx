@@ -27,7 +27,7 @@ export type VerifyFocusKey =
  *
  * The first-class consumer surface for the full TM stack on a per-mint basis.
  * Surfaces Proof-of-Delta™, Proof-of-Origin™, Mint-on-Proof™, Proof of Genesis™
- * provenance, the SEGI™ source, and the Proof-of-Permanence™ Merkle anchor.
+ * provenance, the Proof-of-Genesis™ source, and the Proof-of-Permanence™ Merkle anchor.
  *
  * Used as a slide-up drawer on the Proof-of-Genesis™ Receipt.
  */
@@ -49,8 +49,8 @@ export interface VerifyOnChainData {
   permanenceRoot: string;
   /** ISO timestamp the Permanence anchor was published on-chain */
   permanenceAnchoredAt: string;
-  /** SEGI source provider name */
-  segiProvider: string;
+  /** Proof-of-Genesis™ source provider name */
+  pogProvider: string;
   /** Whether the user actively tapped to mint */
   tapToMint: boolean;
   /** Optional explorer URL */
@@ -302,12 +302,12 @@ export function VerifyOnChainDrawer({
             registerRef={registerRef}
           />
 
-          {/* SEGI provenance */}
+          {/* Proof-of-Genesis™ provenance */}
           <div className="rounded-lg border border-border/60 bg-card/60 p-3 space-y-2">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] uppercase tracking-wider text-muted-foreground">SEGI™ Source</span>
+              <span className="text-[11px] uppercase tracking-wider text-muted-foreground">Proof-of-Genesis™ Source</span>
             </div>
-            <div className="text-foreground/90 font-medium text-sm">{data.segiProvider}</div>
+            <div className="text-foreground/90 font-medium text-sm">{data.pogProvider}</div>
           </div>
 
           {data.explorerUrl && (

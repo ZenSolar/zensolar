@@ -67,7 +67,7 @@ This is the **exact same information architecture** used by ZenSolar's public be
 
 | Technology | Status | Description |
 |---|---|---|
-| **SEGI Architecture** | Patent-pending (Q1 2025) | 4-layer Software-Enabled Gateway Interface for hardware-agnostic energy data aggregation |
+| **Proof-of-Genesis™ Architecture** | Patent-pending (Q1 2025) | 4-layer Proof-of-Genesis™ protocol for hardware-agnostic energy data aggregation |
 | **Proof-of-Delta™** | Trademark filed | SHA-256 hash chain verification: `SHA-256(device_id \| timestamp \| value \| prevHash)` binding physical kWh to cryptographic proof |
 | **Proof-of-Origin™** | Trademark filed | Device Watermark Registry™ — on-chain anti-double-mint standard using manufacturer IDs (VIN, Site ID) |
 | **Mint-on-Proof™** | Trademark filed | Token issuance gated by cryptographic verification of energy data |

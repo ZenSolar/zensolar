@@ -899,7 +899,7 @@ export default function ProofOfGenesisReceiptPreview() {
                     permanenceRoot:
                       '0x9c4e7b2d5f8a1c4e7b0d3f6a9c2e5b8d1f4a7c0e3b6d9f2a5c8e1b4d7f0a3c6',
                     permanenceAnchoredAt: '2026-04-24T00:00:00Z',
-                    segiProvider: receipt.readings[0]?.provider ?? 'Unknown',
+                    pogProvider: receipt.readings[0]?.provider ?? 'Unknown',
                     tapToMint: true,
                     explorerUrl: `https://basescan.org/tx/${receipt.tx_hash}`,
                   } satisfies VerifyOnChainData}

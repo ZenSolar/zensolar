@@ -18,7 +18,7 @@ Filing strategy at the USPTO — separate from patent strategy. Each TM = its ow
 ## Tier 2 — File within Q3 2026
 | Mark | Class | Notes |
 |------|-------|-------|
-| **SEGI™** | 9, 42 | Already used in patent + product. |
+| **Proof-of-Genesis™** | 9, 42 | Already used in patent + product. |
 | **ZPPA** | 36, 42 | Zen Power Purchase Agreement. Confirm not conflicting with utility-industry "PPA." |
 | **Proof of Genesis™** | 9 | Already in active use. |
 | **Proof-of-Genesis™** | 9, 42 | Receipt name. |

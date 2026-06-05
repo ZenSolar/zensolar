@@ -145,7 +145,7 @@ export function PatentClaimsDependencyDiagram() {
             "{independentClaim.description}"
           </p>
           <p className="text-xs text-muted-foreground">
-            Covers the overall SEGI architecture + blockchain bridge as a unified invention
+            Covers the overall Proof-of-Genesis™ architecture + blockchain bridge as a unified invention
           </p>
         </motion.div>
 

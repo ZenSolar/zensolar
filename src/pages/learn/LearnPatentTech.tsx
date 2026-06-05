@@ -6,7 +6,7 @@ export default function LearnPatentTech() {
   return (
     <LearnSubPageShell
       title="Patent Tech"
-      description="SEGI — the four-layer engine behind every verified mint."
+      description="Proof-of-Genesis™ — the four-layer engine behind every verified mint."
       icon={Cpu}
       seoTitle="ZenSolar Patent Tech"
       seoUrl="https://beta.zen.solar/demo/learn/patent-tech"

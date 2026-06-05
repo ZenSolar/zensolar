@@ -33,13 +33,13 @@ export function Slide12RiskMitigation() {
             {
               icon: Cpu, title: 'Technical / API',
               risk: 'Manufacturer APIs could change or restrict access.',
-              mitigation: 'SEGI\'s normalization layer abstracts providers. Multi-vendor support reduces single-point failure.',
+              mitigation: 'Proof-of-Genesis™\'s normalization layer abstracts providers. Multi-vendor support reduces single-point failure.',
               color: 'hsl(142,76%,50%)',
             },
             {
               icon: Shield, title: 'Competition',
               risk: 'Other projects enter the energy tokenization space.',
-              mitigation: 'Patent-pending SEGI stack. First-mover on verified residential tokenization. 12–18 month head start.',
+              mitigation: 'Patent-pending Proof-of-Genesis™ stack. First-mover on verified residential tokenization. 12–18 month head start.',
               color: 'hsl(280,68%,60%)',
             },
           ].map((item, i) => (

@@ -19,7 +19,7 @@ const SECTIONS = [
 Users connect their energy devices (Tesla, Enphase, SolarEdge, Wallbox), and the platform verifies their real-world energy activity via direct API integrations, then rewards them with on-chain tokens — all within a single app. No external wallets, no seed phrases, no crypto knowledge required.
 
 **Patent-pending IP**: "Gamifying and Tokenizing Sustainable Behaviors By Using Blockchain Technology"
-**Pending Trademarks**: Mint-on-Proof™, Mint-on-Delta™, Proof-of-Delta™, SEGI™`
+**Pending Trademarks**: Mint-on-Proof™, Mint-on-Delta™, Proof-of-Delta™, Proof-of-Genesis™`
   },
   {
     id: "tech-stack",
@@ -41,7 +41,7 @@ Users connect their energy devices (Tesla, Enphase, SolarEdge, Wallbox), and the
   {
     id: "segi",
     icon: Layers,
-    title: "SEGI Architecture (Patent-Pending)",
+    title: "Proof-of-Genesis™ Architecture (Patent-Pending)",
     content: `**Layer 1: API Aggregation** — Direct API connections to Tesla, Enphase, SolarEdge, Wallbox. OAuth2 flows handled via Edge Functions. Device discovery and claiming with 1:1 watermarking.
 
 **Layer 2: Data Normalization** — Heterogeneous device data → unified schema (Wh, miles, sessions). Baseline capture at device claim time. Delta calculation (new activity since last mint).
@@ -160,9 +160,9 @@ Both engines ensure 1:1 token-to-energy binding. No energy unit is ever tokenize
     id: "moat",
     icon: Shield,
     title: "Competitive Moat (5 Pillars)",
-    content: `1. **Patent-pending** energy-to-blockchain verification (SEGI + Proof-of-Delta)
+    content: `1. **Patent-pending** energy-to-blockchain verification (Proof-of-Genesis™)
 2. **Economic Flywheel**: 50% of subscription revenue auto-injected into liquidity pool
-3. **Hardware-neutral** SEGI data aggregation (60-second setup)
+3. **Hardware-neutral** Proof-of-Genesis™ data aggregation (60-second setup)
 4. **Dual minting engines**: Mint-on-Proof™ + Mint-on-Delta™
 5. **Unified Command Center**: Replaces siloed manufacturer apps (Tesla, Enphase, etc.)`
   },

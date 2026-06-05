@@ -76,7 +76,7 @@ const proofOfDeltaSteps = [
   },
 ];
 
-export function SEGIProofOfDeltaDiagram() {
+export function ProofOfGenesisDiagram() {
   return (
     <Card className="bg-gradient-to-br from-primary/5 via-background to-amber-500/5 border-primary/20 overflow-hidden">
       <CardHeader className="pb-4">
@@ -95,7 +95,7 @@ export function SEGIProofOfDeltaDiagram() {
             >
               <Link2 className="h-5 w-5 text-white" />
             </motion.div>
-            SEGI™ + Proof-of-Delta™ Architecture
+            Proof-of-Genesis™ Architecture
           </CardTitle>
           <Badge variant="outline" className="border-amber-500/40 text-amber-600 dark:text-amber-400 text-xs">
             On-Chain Verified

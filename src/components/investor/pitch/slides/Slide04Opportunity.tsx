@@ -45,7 +45,7 @@ export function Slide04Opportunity() {
           <p className="text-[13px] font-mono tracking-[0.3em] uppercase text-white/30 mb-4">One Patent. Multiple Markets.</p>
           <div className="grid grid-cols-3 gap-6">
             {[
-              { icon: Building2, title: 'Commercial Solar & Fleet EV', desc: 'SEGI scaled to warehouses, campuses, and commercial fleets. 10–100x capacity per account.', color: 'hsl(207,90%,54%)' },
+              { icon: Building2, title: 'Commercial Solar & Fleet EV', desc: 'Proof-of-Genesis™ scaled to warehouses, campuses, and commercial fleets. 10–100x capacity per account.', color: 'hsl(207,90%,54%)' },
               { icon: Zap, title: 'Grid Demand Response & VPP', desc: 'Manufacturer-agnostic aggregation for utility dispatch signaling and capacity payments.', color: 'hsl(142,76%,50%)' },
               { icon: Wrench, title: 'Installer Mint Network', desc: 'B2B channel: installers mint 1 $ZSOLAR per 1 kW installed. Verified on-chain portfolio.', color: 'hsl(45,93%,47%)' },
             ].map((item, i) => (

@@ -16,15 +16,15 @@ export function Slide06Technology() {
 
       <div className="absolute inset-0 flex px-16 pt-24 pb-16">
         <div className="w-full flex gap-16">
-          {/* Left: SEGI overview */}
+          {/* Left: Proof-of-Genesis™ overview */}
           <div className="w-[500px] flex flex-col justify-center">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <p className="text-[13px] font-mono tracking-[0.3em] uppercase text-[hsl(207,90%,54%)]/60 mb-3">Patent-Pending</p>
               <h2 className="text-[56px] font-black leading-[1.05] mb-4">
-                SEGI<span className="text-[hsl(207,90%,54%)]">™</span>
+                Proof-of-Genesis™<span className="text-[hsl(207,90%,54%)]">™</span>
               </h2>
               <p className="text-[20px] text-white/50 leading-relaxed mb-6">
-                Software-Enabled Gateway Interface — a hardware-agnostic architecture converting verified energy activity into blockchain rewards.
+                Proof-of-Genesis™ protocol — a hardware-agnostic architecture converting verified energy activity into blockchain rewards.
               </p>
               <div className="flex gap-3">
                 {['Mint-on-Proof™', 'Proof-of-Delta™', 'Proof-of-Origin™'].map((tm) => (
