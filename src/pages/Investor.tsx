@@ -229,7 +229,7 @@ export default function Investor() {
               loading="eager"
             />
             <span className="text-[11px] uppercase tracking-[0.28em] text-secondary/90 mb-5">
-              Investor Access · Seed Round
+              {refFirstName ? `Welcome, ${refFirstName} · ` : ''}Investor Access · Seed Round
             </span>
             <h1 className="text-4xl md:text-6xl font-semibold leading-[1.02] tracking-tight">
               Creating Currency
@@ -354,7 +354,7 @@ export default function Investor() {
         >
           {!signed ? (
             <div className="rounded-3xl border border-border/60 bg-card/40 overflow-hidden">
-              <NdaSignatureStep accessCodeUsed={ACCESS_CODE} onSigned={handleSigned} />
+              <NdaSignatureStep accessCodeUsed={ACCESS_CODE} onSigned={handleSigned} defaultFullName={refDisplayName ?? undefined} />
             </div>
           ) : (
             <UnlockedPanel signed={signed} onResend={resendEmail} />
