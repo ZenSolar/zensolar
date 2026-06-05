@@ -72,7 +72,7 @@ export default function InvestorOnePager() {
       </div>
 
       <main className="op-root min-h-screen bg-background text-foreground">
-        <article className="mx-auto max-w-4xl px-6 py-8 md:py-10 space-y-7">
+        <article className="mx-auto max-w-4xl px-6 py-8 md:py-10 space-y-6">
           {/* Header */}
           <header className="flex items-start justify-between gap-4 border-b border-border/40 pb-5">
             <div>
@@ -90,12 +90,15 @@ export default function InvestorOnePager() {
 
           {/* Hero tagline */}
           <section className="op-card">
+            <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-1.5">
+              Creating Currency From Energy
+            </div>
             <h1 className="text-2xl md:text-3xl font-semibold tracking-tight leading-tight">
               Bitcoin tokenized scarcity.<br />
               <span className="text-secondary">ZenSolar tokenizes abundance.</span>
             </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Proof-of-Genesis™ — verified clean-energy minting on Base. Bitcoin-grade integrity at ~0.001% of the energy cost.
+            <p className="mt-3 text-sm text-muted-foreground">
+              Proof-of-Genesis™ turns verified clean-energy production into a hard-capped digital currency — Bitcoin-grade integrity at ~0.001% of the energy cost.
             </p>
           </section>
 
@@ -105,7 +108,7 @@ export default function InvestorOnePager() {
             <div className="grid grid-cols-3 gap-3">
               <Stat k="$5M" v="Target raise" />
               <Stat k="$7M" v="Hard cap" />
-              <Stat k="SAFE" v="Structure" />
+              <Stat k="SAFE" v="Instrument" />
             </div>
           </section>
 
@@ -113,8 +116,7 @@ export default function InvestorOnePager() {
           <section className="op-card">
             <SectionLabel>The Catalyst</SectionLabel>
             <p className="text-sm leading-relaxed text-foreground/90">
-              $1.7T flows into clean energy every year — and not a single kWh is on-chain. We turn
-              verified clean-energy production into a hard-capped, asset-backed digital currency.
+              $1.7T flows into clean energy every year — and not a single kWh is on-chain. ZenSolar makes verified clean-energy production a hard-capped, asset-backed digital currency.
             </p>
           </section>
 
@@ -128,18 +130,18 @@ export default function InvestorOnePager() {
               <Engine
                 n="01"
                 title="Subscription + Deason AI"
-                body="$9.99 / $19.99 / $49.99 base sub required to mint. Deason AI = $4.99/mo premium add-on. 50% LP / 50% treasury per sub dollar."
+                body="$9.99 / $19.99 / $49.99 subscription unlocks minting. Deason AI premium add-on at $4.99/mo. Every sub dollar splits 50% LP / 50% treasury."
               />
               <Engine
                 n="02"
                 title="Token Economics"
-                body="$ZSOLAR. 1T hard cap. $0.10 LP-seeded launch on Base. Mint split 50/25/20/5. Separate 3% transfer tax recycles to LP on every sale."
+                body="$ZSOLAR — 1T hard cap, $0.10 LP-seeded launch on Base. Mint split 50/25/20/5. Separate 3% transfer tax recycles to LP on every sale."
                 emphasized
               />
               <Engine
                 n="03"
                 title="Aggregated Data + VPP (Scale Opportunity)"
-                body="Anonymized multi-OEM telemetry sold to utilities, ISOs, REC registries + crypto-rewarding VPP settlement. $2B+ U.S. utility-analytics TAM; VPP layer adds $50–150 / household / yr at zero CapEx."
+                body="Anonymized multi-OEM telemetry licensed to utilities, ISOs, and REC registries — plus a crypto-rewarding VPP layer. $2B+ U.S. utility-analytics TAM; VPP adds $50–150 / household / yr at zero CapEx."
               />
             </div>
           </section>
@@ -147,13 +149,19 @@ export default function InvestorOnePager() {
           {/* Moat + screenshots */}
           <section className="op-card">
             <SectionLabel>The Moat — Proof-of-Genesis™ + multi-OEM monitoring</SectionLabel>
-            <p className="text-sm leading-relaxed text-foreground/90 mb-4">
-              Proof-of-Genesis™ is the first protocol that mints a digital asset from real-world
-              clean-energy production with cryptographic proof — Bitcoin-grade integrity at near-zero
-              energy overhead. It runs on top of Tesla + Enphase + SolarEdge + Wallbox unified in one
-              live cockpit — the prerequisite for verified minting, the proprietary data set behind
-              Engine 03, and the experience homeowners with mixed systems cannot get anywhere else.
+            <p className="text-sm leading-relaxed text-foreground/90 mb-3">
+              Proof-of-Genesis™ is the first protocol to mint a digital asset from real-world clean-energy production with cryptographic proof — Bitcoin-grade integrity at near-zero energy overhead. It runs on the first unified multi-OEM cockpit covering Tesla, Enphase, SolarEdge, and Wallbox: the prerequisite for verified minting, the proprietary data set behind Engine 03, and an experience mixed-system homeowners cannot get anywhere else.
             </p>
+            <div className="flex flex-wrap gap-1.5 mb-4">
+              {['Tesla', 'Enphase', 'SolarEdge', 'Wallbox'].map((oem) => (
+                <span
+                  key={oem}
+                  className="rounded-full border border-border/60 bg-card/40 px-2.5 py-0.5 text-[10px] tracking-wide text-foreground/80"
+                >
+                  {oem}
+                </span>
+              ))}
+            </div>
             <div className="grid gap-4 md:grid-cols-2">
               <Shot
                 src="/investor/one-pager/zen-monitoring.png"
