@@ -24,7 +24,12 @@ export function DemoCallouts() {
   useEffect(() => {
     if (!enabled) return;
     try { if (window.localStorage.getItem(SEEN_KEY) === '1') return; } catch { /* noop */ }
-    const t = window.setTimeout(() => setVisible(true), 1400);
+    // Defer until after any initial guided-tour invite settles.
+    const t = window.setTimeout(() => {
+      // Skip if the guided tour overlay is currently mounted.
+      if (document.querySelector('[data-guided-tour="active"]')) return;
+      setVisible(true);
+    }, 1800);
     return () => window.clearTimeout(t);
   }, [enabled]);
 
