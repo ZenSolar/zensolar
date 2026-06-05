@@ -1,58 +1,45 @@
-# Investor Demo Face Lift — Plan
+# Investor Demo Full Polish — Plan
 
-Scope: the `/demo` page (rendered by `ZenSolarDashboard` → `DemoDashboard` → `ActivityMetrics`) and its mint pills / Clean Energy Center cards. Surgical edits only. No tokenomics, routes, NDA, or section changes.
+Three surgical edits across three files. No tokenomics, mint logic, routes, auth, or Live Energy diagram touched.
 
-## 1. Mint button label standardization
+## 1. Remove debug banner in Investor Demo
+**File:** `src/components/demo/DemoLayout.tsx`
 
-In `src/components/dashboard/ActivityMetrics.tsx`:
-- Per-source pill (line ~1724): `'Mint this'` → `'MINT'`. Keep "Tap again" state unchanged.
-- "Mint All" footer pill (line ~2246): `'Mint All'` → `'MINT ALL'` (uppercase to match) — keep wording "MINT ALL" since the task says to standardize, not remove. Keep "Tap again".
-- Tighten both pills to identical sizing tokens (same `h-`, `px-`, `text-[11px] uppercase tracking-[0.18em] font-semibold`) so per-source and footer pills look like one button family.
-- Update related `aria-label`s to match new copy.
+Currently `showRouteBanner` is `true` whenever DEV / Lovable preview host / `?routeqa` — which is exactly when investors view the demo. Suppress it when investor demo mode is active.
 
-## 2. Header stability
+- Import `isInvestorDemoModeSync` from `@/hooks/useInvestorDemoMode` (or use the hook).
+- Change the gate so the `DEMO ROUTE QA` / `/demo-leonardo` banner only renders when `?routeqa` is explicitly present AND investor demo mode is OFF. (Net effect for shared investor links: never shows.)
 
-`src/components/dashboard/DashboardHeader.tsx` is already `sticky top-0 z-50`. Audit for the perceived "shift":
-- Ensure parent container in `ZenSolarDashboard.tsx` does not wrap the header in a `transform`/`overflow-hidden` ancestor that breaks `position: sticky`. If it does, lift the header out or remove the offending utility.
-- Add `will-change: transform` and `contain: layout paint` on the header to stabilize compositing during scroll.
-- Add `overscroll-behavior-y: contain` on the main scroll container to kill bounce-induced header jitter on iOS.
+## 2. Header pill fits cleanly on 390-wide
+**File:** `src/components/demo/InvestorDemoChip.tsx`
 
-## 3. Pill & badge consistency
+The pill currently has `px-3 py-1.5 text-[11px]`, the Exit button `text-[10px]`, plus icon + dot + separator + label + Exit. On 390px it still fits but feels cramped. Tighten:
 
-Across `ActivityMetrics.tsx` Clean Energy Center KPI rows:
-- Normalize all stat badges (kWh / mi chips, "Ready" / "Live" pills) to one size scale: `text-[10px] tracking-[0.16em] uppercase px-2 py-0.5 rounded-full`.
-- Use `whitespace-nowrap` + `truncate` guards so values like "28,742 kWh" never wrap at 320–375px widths.
-- Ensure every interactive pill meets a 44px tap target (wrap with `min-h-[44px]` flex container if visual chip stays small).
+- Reduce horizontal padding (`px-2.5`) and inner gap (`gap-1.5`) on the pill.
+- Drop the middle `·` separator (visual noise on small screens).
+- Shrink Exit button padding to `px-1.5` and keep `text-[10px]`.
+- Add `max-w-[calc(100vw-1.5rem)]` plus `truncate` safety on the label span.
+- Keep `whitespace-nowrap` so nothing wraps; rely on the reduced widths instead.
 
-## 4. Visual polish (Clean Energy Center + Live Energy Monitoring)
+## 3. Deason floating button visible in Investor Demo
+**File:** `src/components/deason/DeasonFloatingBubble.tsx`
 
-- Increase row vertical rhythm: bump KPI row gap from current value to `gap-3 sm:gap-4`; section padding to `p-5 md:p-7`.
-- Reduce border weight to `border-border/40`, soften backgrounds to `bg-card/40` — matches the tightened `/investor` aesthetic.
-- Strengthen section headers with consistent eyebrow style (`text-[11px] uppercase tracking-[0.24em] text-secondary/80`) used on `/investor`.
-- Live Energy Monitoring section: add breathing room (`mt-6`, internal `space-y-4`) without restructuring the diagram.
+Audit shows the bubble already renders on `/demo` even unauthenticated (line 198). The likely reason it appears hidden in investor demo is the InvestorDemoChip and bottom nav crowding — the bubble itself is fine. Verify by:
 
-## 5. Mobile-first verification (390×844)
+- Confirm `z-50` bubble is not occluded by `MobileBottomNav` (also `z-50` typically). If overlap, bump bubble wrapper to `z-[60]` so it always sits above the bottom tab bar but below modal overlays (chip is `z-[130]`, unaffected).
+- No logic change to the auth/route guard.
 
-After edits, view `/demo` at 390×844 and 1280×800 in the preview to confirm:
-- All mint pills read "MINT" / "MINT ALL" with no clipping
-- Header stays pinned during scroll, no jitter
-- No text overflow on KPI values or badges
-- Tap targets feel comfortable
+## 4. Seed wallet balance in Investor Demo
+**File:** `src/components/demo/DemoWallet.tsx`
 
-## Files touched
+- Import `useInvestorDemoMode`.
+- If `enabled` is true AND `activityData.lifetimeMinted` is below the seed floor, display a seeded balance of **13,750 $ZSOLAR ≈ $1,375 USD** (midpoint of the requested 12,500–15,000 range). Implement as `const displayedBalance = investorDemo.enabled ? Math.max(activityData.lifetimeMinted, 13_750) : activityData.lifetimeMinted;` so real mints during the session still increment beyond the seed.
+- Use `displayedBalance` for both the token figure and the USD calc. NFT card untouched.
+- Pure presentational override — no Supabase writes, no effect outside the wallet card.
 
-- `src/components/dashboard/ActivityMetrics.tsx` (labels, pill sizing, KPI spacing)
-- `src/components/dashboard/DashboardHeader.tsx` (sticky hardening)
-- `src/components/ZenSolarDashboard.tsx` (only if a transform ancestor is breaking sticky; otherwise untouched)
-
-## Out of scope (per task)
-
-- Removing any MINT / MINT ALL buttons or KPI cards
-- Tokenomics, mint mechanics, data values
-- Routes, auth, NDA flows
-- Live Energy house diagram rewrite
-- Adding/removing sections
-
-Final reply on completion will be exactly:
-
-> "Investor Demo page face lift complete — scrolling fixed, header stable, all buttons standardized to 'MINT', and visual polish improved."
+## Verification (at 390×844)
+1. `/demo` → no "DEMO ROUTE QA / /demo-leonardo" banner.
+2. Investor Demo pill renders on one line with no clipping; Exit button still tappable.
+3. Orange Deason bubble visible bottom-right above bottom nav; tappable.
+4. `/demo/wallet` shows 13,750 $ZSOLAR and ≈ $1,375.00 USD.
+5. No regression to MINT buttons, KPI cards, Live Energy diagram, or non-demo routes.

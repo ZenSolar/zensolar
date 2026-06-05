@@ -13,6 +13,7 @@ import { ReviewerWelcomeBanner } from '@/components/demo/ReviewerWelcomeBanner';
 import { DashboardShell } from '@/components/web/DashboardShell';
 import { CommandPalette } from '@/components/web/CommandPalette';
 import { resetFirstMintCelebration } from '@/lib/firstMintCelebration';
+import { isInvestorDemoModeSync } from '@/hooks/useInvestorDemoMode';
 import { toast } from 'sonner';
 
 export function DemoLayout() {
