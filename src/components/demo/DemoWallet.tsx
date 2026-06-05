@@ -28,9 +28,12 @@ const LIVE_TOKEN_PRICE = 0.10;
 
 export function DemoWallet() {
   const { activityData } = useDemoContext();
+  const { enabled: investorDemoEnabled } = useInvestorDemoMode();
   const [copied, setCopied] = useState(false);
 
-  const tokenBalance = activityData.lifetimeMinted;
+  const tokenBalance = investorDemoEnabled
+    ? Math.max(activityData.lifetimeMinted, INVESTOR_DEMO_SEED_BALANCE)
+    : activityData.lifetimeMinted;
   const formattedBalance = tokenBalance.toLocaleString(undefined, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
