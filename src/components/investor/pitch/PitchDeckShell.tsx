@@ -13,10 +13,52 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showGrid, setShowGrid] = useState(false);
   const [showControls, setShowControls] = useState(true);
+  const [isCoarsePointer, setIsCoarsePointer] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout>>();
+  // Multi-touch tracking: the sitewide viewport meta normally disables pinch-zoom
+  // so we relax it on /deck (see effect below). Once pinch-zoom is allowed, we
+  // must also stop our own swipe/tap-zone handlers from misreading the second
+  // finger as a swipe and the lift-off as a tap that changes slides.
+  const wasMultiTouch = useRef(false);
+  const multiTouchClearTimer = useRef<ReturnType<typeof setTimeout>>();
 
   const total = slides.length;
+
+  // Pinch-zoom enablement: index.html ships
+  //   user-scalable=no, maximum-scale=1.0
+  // for the PWA shell. That's right for the app, wrong for a deck where
+  // investors want to inspect numbers. Swap the viewport meta to a
+  // zoom-friendly value while this component is mounted, and restore the
+  // original on unmount, popstate (back button), or hard refresh teardown.
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="viewport"]');
+    if (!meta) return;
+    const original = meta.getAttribute('content');
+    meta.setAttribute(
+      'content',
+      'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover',
+    );
+    const restore = () => {
+      if (original != null) meta.setAttribute('content', original);
+    };
+    window.addEventListener('popstate', restore);
+    return () => {
+      window.removeEventListener('popstate', restore);
+      restore();
+    };
+  }, []);
+
+  // Coarse-pointer detection for the persistent fullscreen-exit chip.
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mq = window.matchMedia('(pointer: coarse)');
+    const update = () => setIsCoarsePointer(mq.matches);
+    update();
+    mq.addEventListener?.('change', update);
+    return () => mq.removeEventListener?.('change', update);
+  }, []);
 
   const goTo = useCallback((i: number) => {
     setCurrent(Math.max(0, Math.min(total - 1, i)));
