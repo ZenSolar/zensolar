@@ -291,17 +291,6 @@ export function DemoDashboard() {
 
         <SectionDivider />
 
-        {/* Prominent CO₂ Offset card with per-activity drill-down — mirrors live beta */}
-        <AnimatedItem>
-          <div data-tour="pog">
-            <Suspense fallback={<div className="h-64 rounded-2xl bg-card/10 animate-pulse" aria-hidden="true" />}>
-              <CO2OffsetCard activityData={activityData} isLoading={isLoading} />
-            </Suspense>
-          </div>
-        </AnimatedItem>
-
-        <SectionDivider />
-
         {/* Live Energy Flow Diagram */}
         <AnimatedItem>
           <div data-tour="energy">
@@ -360,6 +349,17 @@ export function DemoDashboard() {
         {/* API Partners — thin strip under milestones */}
         <AnimatedItem>
           <ApiPartnersCard />
+        </AnimatedItem>
+
+        <SectionDivider />
+
+        {/* Prominent CO₂ Offset card with per-activity drill-down — mirrors live beta */}
+        <AnimatedItem>
+          <div data-tour="pog">
+            <Suspense fallback={<div className="h-64 rounded-2xl bg-card/10 animate-pulse" aria-hidden="true" />}>
+              <CO2OffsetCard activityData={activityData} isLoading={isLoading} />
+            </Suspense>
+          </div>
         </AnimatedItem>
 
         {/* Hidden controller for mint dialogs — visible buttons suppressed; NFT mint CTA lives inside NFT card */}

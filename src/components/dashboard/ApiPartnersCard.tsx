@@ -27,7 +27,7 @@ export function ApiPartnersCard() {
           duration="4s"
           idleDelay="1.5s"
         />
-        <div className="relative grid grid-cols-2 gap-x-6 gap-y-8 place-items-center py-4">
+        <div className="relative grid grid-cols-2 gap-6 place-items-center py-4">
           {brandLogos.map(({ src, alt }, idx) => {
             // Per-brand sizing so each logo has roughly equal optical weight.
             const sizing =
