@@ -170,7 +170,9 @@ export function S07Tech() {
         </div>
 
         <p className="mt-5 text-[13px] font-mono tracking-[0.14em] uppercase text-white/35 text-center">
-          Full PoG technology stack &amp; architecture + real receipt example available in data room.
+          <Link to="/investor/data-room" className="hover:text-white/70 transition">
+            Full PoG technology stack &amp; architecture + real receipt example available in data room →
+          </Link>
         </p>
       </div>
 
