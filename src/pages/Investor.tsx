@@ -22,7 +22,7 @@ import {
 } from '@/components/investor/InvestorPinGate';
 import { ThreeRevenueEngines } from '@/components/investor/ThreeRevenueEngines';
 import { LiveVerifiedCounter } from '@/components/investor/LiveVerifiedCounter';
-import { AppreciationCalculator } from '@/components/investor/AppreciationCalculator';
+
 import { isPreviewHost } from '@/lib/previewHost';
 import { useInvestorRef } from '@/lib/investorRef';
 
@@ -291,7 +291,7 @@ export default function Investor() {
           </Button>
         </div>
 
-        <AppreciationCalculator />
+
 
         {/* Why now */}
         <section className="mx-auto max-w-4xl px-5 py-16 md:py-20">
