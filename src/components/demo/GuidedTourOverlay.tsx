@@ -56,7 +56,7 @@ export function GuidedTourOverlay({ active, step, stepIndex, totalSteps, onNext,
     : window.innerHeight / 2 - 100;
 
   return (
-    <div className="fixed inset-0 z-[200] pointer-events-none">
+    <div data-guided-tour="active" className="fixed inset-0 z-[200] pointer-events-none">
       {/* Dim backdrop with spotlight cutout */}
       <div
         className="absolute inset-0 pointer-events-auto"
