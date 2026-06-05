@@ -28,7 +28,10 @@ export function DashboardHeader({ isDemo = false }: DashboardHeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+    <header
+      className="sticky top-0 z-50 w-full border-b border-border/60 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/70"
+      style={{ willChange: 'transform', contain: 'layout paint', transform: 'translateZ(0)' }}
+    >
       <div className="container flex h-14 items-center justify-between px-4">
         <div className="flex items-center gap-3">
           <img src={zenLogo} alt="ZenSolar" className="h-8 w-auto dark:animate-logo-glow" />
