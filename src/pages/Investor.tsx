@@ -359,16 +359,16 @@ function UnlockedPanel({
   const demoHref = `${isPreviewHost() ? '/demo-leonardo' : '/demo'}?demo=investor`;
   return (
     <div id="unlocked" className="space-y-6">
-      <div className="rounded-3xl border border-secondary/30 bg-secondary/5 p-6 md:p-8">
-        <div className="flex items-start gap-3">
-          <CheckCircle2 className="h-6 w-6 text-secondary shrink-0 mt-0.5" />
-          <div>
-            <h2 className="text-xl md:text-2xl font-semibold text-foreground">
+      <div className="rounded-2xl border border-secondary/20 bg-secondary/[0.04] px-5 py-4">
+        <div className="flex items-start gap-2.5">
+          <CheckCircle2 className="h-4 w-4 text-secondary/80 shrink-0 mt-0.5" />
+          <div className="min-w-0">
+            <h2 className="text-sm font-medium text-foreground">
               Thank you, {firstName}.
             </h2>
-            <p className="text-sm text-muted-foreground mt-1.5">
-              NDA signed {new Date(signed.signedAt).toLocaleString()}. A copy was emailed to{' '}
-              <span className="text-foreground">{signed.email}</span>.
+            <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+              NDA signed · copy emailed to{' '}
+              <span className="text-foreground/90">{signed.email}</span>.
             </p>
           </div>
         </div>

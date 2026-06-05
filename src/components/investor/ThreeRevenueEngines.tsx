@@ -39,7 +39,7 @@ export function ThreeRevenueEngines() {
           ring="hover:border-eco/40"
           title="Subscription + Deason AI"
           tagline="The access fee — and the premium AI upgrade."
-          body="Paid tiers unlock Zen Monitoring, the first unified multi-OEM cockpit. Deason AI sits on top as a $4.99 add-on."
+          body="Paid tiers unlock Zen Monitoring — the first unified multi-OEM cockpit. Deason AI is a $4.99 add-on."
           bullets={[
             'Tiers: $9.99 · $19.99 · $49.99 — required to mint',
             'Deason AI: +$4.99/mo · bills, rates, telemetry advice',
@@ -56,7 +56,7 @@ export function ThreeRevenueEngines() {
           emphasized
           title="Token Economics"
           tagline="The core product. The long-term driver."
-          body="1T hard cap. Every verified kWh shows 1:1 in the user's wallet — the protocol matches it 1-for-1 behind the scenes."
+          body="1T hard cap. Every verified kWh shows 1:1 in the user's wallet — protocol matches it behind the scenes."
           bullets={[
             '$0.10 LP-seeded launch on Base · 1T hard cap',
             '3% transfer tax recycled to LP (separate from mint)',
@@ -72,7 +72,7 @@ export function ThreeRevenueEngines() {
           ring="hover:border-sky-400/40"
           title="Aggregated Energy Data"
           tagline="A valuable secondary revenue line."
-          body="Anonymized telemetry from Tesla, Enphase, SolarEdge, and Wallbox — sold to utilities, ISOs, REC registries, and researchers."
+          body="Anonymized Tesla, Enphase, SolarEdge, and Wallbox telemetry — licensed to utilities, ISOs, and REC registries."
           bullets={[
             'Never per-household PII · enterprise-licensed',
             'Only possible because of our multi-OEM layer',
@@ -196,10 +196,10 @@ function EngineCard({
       </div>
       <Link
         to="/deck"
-        className="mt-4 inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+        className="mt-3 inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.14em] text-muted-foreground/60 hover:text-muted-foreground transition-colors"
       >
-        Full details in the Seed Round Deck
-        <ArrowRight className="h-3 w-3" />
+        Details in deck
+        <ArrowRight className="h-2.5 w-2.5" />
       </Link>
     </div>
   );
