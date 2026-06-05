@@ -374,80 +374,107 @@ function UnlockedPanel({
       </div>
 
       {/* Canonical investor framing — flywheel + three revenue engines */}
-      <div className="rounded-3xl border border-border/60 bg-card/30 p-5 md:p-7">
-        <div className="mb-5">
-          <div className="text-xs uppercase tracking-[0.22em] text-secondary mb-1.5">
+      <div className="rounded-3xl border border-border/60 bg-card/30 p-6 md:p-9">
+        <div className="mb-7 text-center">
+          <div className="text-xs uppercase tracking-[0.28em] text-secondary mb-2">
             The Pitch · v2
           </div>
-          <h3 className="text-lg md:text-xl font-semibold text-foreground tracking-tight">
+          <h3 className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
             Three Revenue Engines. One Flywheel.
           </h3>
         </div>
         <ThreeRevenueEngines />
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-        <UnlockedCard
-          icon={FileText}
-          title="Full Seed Round Deck"
-          body="11-slide investor deck. Title → Catalyst → Engines → Ask."
-          to="/deck"
-          internal
-        />
-        <UnlockedCard
-          icon={FileText}
-          title="One-Pager"
-          body="The leave-behind. Ask, engines, moat, founders — one screen."
-          to="/investor/one-pager"
-          internal
-        />
-        <UnlockedCard
-          icon={PlayCircle}
-          title="Live Investor Demo"
-          body="Proof-of-Genesis™ flow on real data. Mobile-first."
-          to={demoHref}
-          internal
-        />
-        <UnlockedCard
-          icon={FileText}
-          title="Investor Data Room"
-          body="PoG deep dive, VPP, aggregated data, traction, IP, use of funds."
-          to="/investor/data-room"
-          internal
-        />
+      {/* Materials — the climax of the page */}
+      <div className="pt-6">
+        <div className="text-center mb-8">
+          <div className="text-xs uppercase tracking-[0.28em] text-secondary mb-2">
+            Investor Materials
+          </div>
+          <h3 className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
+            Everything you need to evaluate.
+          </h3>
+        </div>
+
+        {/* Primary CTA bar */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          <Button
+            asChild
+            size="lg"
+            className="flex-1 h-14 text-base bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-[0_8px_30px_-12px_hsl(var(--secondary)/0.6)]"
+          >
+            <Link to="/deck">
+              <FileText className="h-5 w-5 mr-2" />
+              View the Full Deck
+            </Link>
+          </Button>
+          <Button
+            asChild
+            variant="outline"
+            size="lg"
+            className="flex-1 h-14 text-base border-secondary/40 hover:bg-secondary/5"
+          >
+            <Link to={demoHref}>
+              <PlayCircle className="h-5 w-5 mr-2" />
+              Enter Live Demo
+            </Link>
+          </Button>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <UnlockedCard
+            icon={FileText}
+            title="Full Seed Round Deck"
+            body="11 slides · Title → Catalyst → Engines → Ask."
+            to="/deck"
+            internal
+          />
+          <UnlockedCard
+            icon={FileText}
+            title="One-Pager"
+            body="The leave-behind. Everything on one screen."
+            to="/investor/one-pager"
+            internal
+          />
+          <UnlockedCard
+            icon={PlayCircle}
+            title="Live Investor Demo"
+            body="Proof-of-Genesis™ on real data. Mobile-first."
+            to={demoHref}
+            internal
+          />
+          <UnlockedCard
+            icon={FileText}
+            title="Investor Data Room"
+            body="PoG, VPP, traction, IP, use of funds."
+            to="/investor/data-room"
+            internal
+          />
+        </div>
       </div>
 
-      <p className="text-center text-[11px] text-muted-foreground pt-2">
-        Direct contact:{' '}
-        <a
-          href="mailto:joe@zensolar.com?subject=ZenSolar%20Investor%20Inquiry"
-          className="text-secondary hover:text-secondary/80 underline-offset-4 hover:underline"
-        >
-          joe@zensolar.com
-        </a>
-      </p>
-
-      <div className="flex flex-col sm:flex-row gap-2.5 pt-2">
-        <Button
-          variant="outline"
+      <div className="pt-6 space-y-3 text-center">
+        <p className="text-xs text-muted-foreground">
+          Direct contact:{' '}
+          <a
+            href="mailto:joe@zensolar.com?subject=ZenSolar%20Investor%20Inquiry"
+            className="text-secondary hover:text-secondary/80 underline-offset-4 hover:underline"
+          >
+            joe@zensolar.com
+          </a>
+        </p>
+        <button
           onClick={onResend}
-          className="flex-1 h-11"
+          className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
-          <Mail className="h-4 w-4 mr-2" />
+          <Mail className="h-3.5 w-3.5" />
           Email me these links again
-        </Button>
-        <Button asChild className="flex-1 h-11 bg-secondary text-secondary-foreground hover:bg-secondary/90">
-          <Link to={demoHref}>
-            <PlayCircle className="h-4 w-4 mr-2" />
-            Enter live demo
-          </Link>
-        </Button>
+        </button>
+        <p className="text-[10px] text-muted-foreground/80 pt-2">
+          Materials are confidential under your signed NDA (v1.0). Do not share without written consent.
+        </p>
       </div>
-
-      <p className="text-[10px] text-muted-foreground text-center pt-4">
-        Materials are confidential under your signed NDA (v1.0). Do not share without written
-        consent.
-      </p>
     </div>
   );
 }
