@@ -267,7 +267,7 @@ export default function Investor() {
               },
               {
                 title: 'Patent-pending',
-                body: 'U.S. App. 19/634,402 covers the Proof of Genesis™ protocol — a novel system for turning verified clean-energy production into a hard-capped, asset-backed digital currency on Base.',
+                body: 'U.S. App. 19/634,402 covers the Proof-of-Genesis™ protocol — a novel system for turning verified clean-energy production into a hard-capped, asset-backed digital currency on Base.',
               },
               {
                 title: 'Live in beta',
