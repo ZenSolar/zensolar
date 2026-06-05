@@ -39,7 +39,7 @@ Users connect their energy devices (Tesla, Enphase, SolarEdge, Wallbox), and the
     ]
   },
   {
-    id: "segi",
+    id: "pog",
     icon: Layers,
     title: "Proof-of-Genesis™ Architecture (Patent-Pending)",
     content: `**Layer 1: API Aggregation** — Direct API connections to Tesla, Enphase, SolarEdge, Wallbox. OAuth2 flows handled via Edge Functions. Device discovery and claiming with 1:1 watermarking.

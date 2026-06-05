@@ -137,7 +137,7 @@ export function ProofOfGenesisArchitectureDiagram() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'SEGI_Architecture_Patent_Drawing.svg';
+    link.download = 'ProofOfGenesis_Architecture_Patent_Drawing.svg';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -243,7 +243,7 @@ export function ProofOfGenesisArchitectureDiagram() {
 
     // Download
     const link = document.createElement('a');
-    link.download = 'SEGI_Architecture_Patent_Drawing.png';
+    link.download = 'ProofOfGenesis_Architecture_Patent_Drawing.png';
     link.href = canvas.toDataURL('image/png');
     link.click();
     toast.success('Proof-of-Genesis™ Architecture PNG downloaded (1600x1200)');

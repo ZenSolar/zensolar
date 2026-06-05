@@ -179,8 +179,7 @@ export default function AdminCompetitiveIntel() {
 
             <h4 className="text-foreground font-medium">5.2 The Proof-of-Genesis™ Innovation: Patent-Pending Technology</h4>
             <p>
-              At the core of ZenSolar's competitive moat lies the <strong className="text-foreground">Software-Enabled Gateway 
-              Interface (PoG)</strong>—a patent-pending architecture that fundamentally reimagines how energy data translates 
+              At the core of ZenSolar's competitive moat lies the <strong className="text-foreground">Proof-of-Genesis™ protocol (PoG)</strong>—a patent-pending architecture that fundamentally reimagines how energy data translates 
               to blockchain value. Unlike legacy approaches that rely on hardware installations, periodic manual reporting, or 
               distribution from pre-minted token pools, Proof-of-Genesis™ operates as a pure software layer that:
             </p>

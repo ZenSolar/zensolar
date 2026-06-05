@@ -287,7 +287,7 @@ All tables have **Row-Level Security (RLS)** with per-user isolation and admin o
 ## 9. Component Architecture
 
 ### Landing Page (6 components)
-`HeroSection` → `SEGISection` → `CompetitiveEdge` → `FeaturesGrid` → `BenefitsAndCTA` → `LandingFooter`
+`HeroSection` → `PoGSection` → `CompetitiveEdge` → `FeaturesGrid` → `BenefitsAndCTA` → `LandingFooter`
 
 ### Dashboard (35+ components)
 Core: `ZenSolarDashboard`, `DashboardHeader`, `ActivityMetrics`, `MetricCard`, `AnimatedEnergyFlow`

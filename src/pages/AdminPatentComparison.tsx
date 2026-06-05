@@ -26,7 +26,7 @@ interface ComparisonRow {
   critical?: boolean;
 }
 
-const segiComparison: ComparisonRow[] = [
+const pogComparison: ComparisonRow[] = [
   {
     feature: 'Architecture Model',
     provisional: '2 embodiments: API-based (PoG) or hardware (IoT fallback)',
@@ -294,7 +294,7 @@ function ComparisonSection({
 }
 
 export default function AdminPatentComparison() {
-  const allRows = [...segiComparison, ...mintOnProofComparison, ...proofOfDeltaComparison, ...proofOfOriginComparison];
+  const allRows = [...pogComparison, ...mintOnProofComparison, ...proofOfDeltaComparison, ...proofOfOriginComparison];
   const totalNew = allRows.filter(r => r.status === 'new').length;
   const totalEvolved = allRows.filter(r => r.status === 'evolved').length;
   const totalCritical = allRows.filter(r => r.critical).length;
@@ -387,7 +387,7 @@ export default function AdminPatentComparison() {
           icon={Layers}
           iconColor="text-primary"
           description="Master independent claim — the core system architecture"
-          rows={segiComparison}
+          rows={pogComparison}
         />
       </motion.div>
 

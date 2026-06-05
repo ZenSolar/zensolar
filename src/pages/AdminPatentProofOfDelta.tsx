@@ -353,10 +353,10 @@ contract ProofOfDelta {
     function mintWithDelta(
         bytes32 deviceFingerprint,
         uint256 currentCumulativeValue,
-        bytes calldata segiSignature // Signed by Proof-of-Genesis™ verification engine
+        bytes calldata pogSignature // Signed by Proof-of-Genesis™ verification engine
     ) external {
         // Verify Proof-of-Genesis™ signature
-        require(_verifySEGISignature(deviceFingerprint, currentCumulativeValue, segiSignature), "Invalid signature");
+        require(_verifyPoGSignature(deviceFingerprint, currentCumulativeValue, pogSignature), "Invalid signature");
         
         uint256 previousWatermark = deviceWatermarks[deviceFingerprint];
         require(currentCumulativeValue > previousWatermark, "No new activity");

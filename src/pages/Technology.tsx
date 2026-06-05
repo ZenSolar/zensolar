@@ -28,7 +28,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { SEO } from '@/components/SEO';
 
-const segiLayers = [
+const pogLayers = [
   {
     icon: Cloud,
     title: 'Layer 1: API Aggregation',
@@ -87,12 +87,12 @@ const whyItMatters = [
 ];
 
 const comparisonTable = [
-  { feature: 'Hardware Required', traditional: 'Custom IoT devices', segi: 'None—software only ✓' },
-  { feature: 'Setup Time', traditional: '2-4 weeks', segi: '60 seconds ✓' },
-  { feature: 'Vendor Lock-In', traditional: 'Single provider', segi: 'Multi-vendor ✓' },
-  { feature: 'Verification Method', traditional: 'Self-reported', segi: 'API-verified ✓' },
-  { feature: 'Maintenance', traditional: 'Ongoing hardware upkeep', segi: 'Zero maintenance ✓' },
-  { feature: 'Cost to User', traditional: '$100-500+ devices', segi: 'Free to connect ✓' },
+  { feature: 'Hardware Required', traditional: 'Custom IoT devices', pog: 'None—software only ✓' },
+  { feature: 'Setup Time', traditional: '2-4 weeks', pog: '60 seconds ✓' },
+  { feature: 'Vendor Lock-In', traditional: 'Single provider', pog: 'Multi-vendor ✓' },
+  { feature: 'Verification Method', traditional: 'Self-reported', pog: 'API-verified ✓' },
+  { feature: 'Maintenance', traditional: 'Ongoing hardware upkeep', pog: 'Zero maintenance ✓' },
+  { feature: 'Cost to User', traditional: '$100-500+ devices', pog: 'Free to connect ✓' },
 ];
 
 const blockchainFlow = [
@@ -221,7 +221,7 @@ export default function Technology() {
         </div>
         
         <div className="grid gap-4">
-          {segiLayers.map((layer, index) => (
+          {pogLayers.map((layer, index) => (
             <motion.div
               key={layer.title}
               initial={{ opacity: 0, x: -16 }}
@@ -341,7 +341,7 @@ export default function Technology() {
                     <tr key={row.feature} className={index < comparisonTable.length - 1 ? 'border-b border-border/50' : ''}>
                       <td className="py-3 px-2 font-medium">{row.feature}</td>
                       <td className="py-3 px-2 text-muted-foreground">{row.traditional}</td>
-                      <td className="py-3 px-2 text-primary font-medium">{row.segi}</td>
+                      <td className="py-3 px-2 text-primary font-medium">{row.pog}</td>
                     </tr>
                   ))}
                 </tbody>
