@@ -399,7 +399,7 @@ function UnlockedPanel({
         </div>
 
         {/* Primary CTA bar */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-3 mb-6">
           <Button
             asChild
             size="lg"
