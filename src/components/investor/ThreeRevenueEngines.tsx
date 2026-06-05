@@ -1,70 +1,53 @@
-import { ArrowRight, CreditCard, Database, Sparkles, Coins } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, CreditCard, Database, Sparkles, Coins, ChevronRight } from 'lucide-react';
 
 /**
- * ThreeRevenueEngines — canonical investor framing (v2.2, Jun 2026 corrections pass).
- * Flywheel: Verified kWh → Data → AI → $ZSOLAR
- * Engine order (locked):
- *   01) Monthly Subscription + Deason AI ($4.99 premium add-on)
- *   02) Token Economics (core product + long-term primary revenue driver)
- *   03) Aggregated Energy Data (secondary)
+ * ThreeRevenueEngines — canonical investor framing (v2.3, Jun 2026 face-lift).
+ * Major copy reduction. Visual flywheel as centerpiece. Each engine ≤ 2 bullets.
+ * Locked SSOT numbers (50/25/20/5 mint split, $0.10 launch, 1T cap, 3% tax,
+ * $9.99/$19.99/$49.99 subs, $4.99 Deason add-on) are preserved verbatim.
  */
 export function ThreeRevenueEngines() {
   return (
-    <div className="space-y-8">
-      {/* Flywheel headline */}
-      <div className="rounded-3xl border border-border/60 bg-card/40 px-4 py-6 md:px-8 md:py-8">
-        <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-2 text-center">
-          <FlowStep label="Verified kWh" className="text-secondary" />
-          <ArrowRight className="h-4 w-4 text-muted-foreground/60" />
-          <FlowStep label="Data" className="text-sky-400" />
-          <ArrowRight className="h-4 w-4 text-muted-foreground/60" />
-          <FlowStep label="AI" className="text-eco" />
-          <ArrowRight className="h-4 w-4 text-muted-foreground/60" />
-          <FlowStep label="$ZSOLAR" className="text-amber-400" />
+    <div className="space-y-10">
+      {/* Visual flywheel — centerpiece */}
+      <div className="rounded-3xl border border-border/60 bg-gradient-to-br from-card/60 to-card/20 px-4 py-8 md:px-10 md:py-10">
+        <div className="text-center text-[11px] uppercase tracking-[0.24em] text-muted-foreground mb-5">
+          The Flywheel
         </div>
-        <p className="mt-4 text-center text-xs md:text-sm text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          A paid subscription unlocks minting and the Deason AI upgrade. Minting produces verified
-          kWh data. Data + AI drive token demand and the aggregated-data revenue line. Every loop
-          tightens the token.
+        <div className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-2">
+          <FlowChip label="Verified kWh" tone="secondary" />
+          <FlowArrow />
+          <FlowChip label="Data" tone="sky" />
+          <FlowArrow />
+          <FlowChip label="AI" tone="eco" />
+          <FlowArrow />
+          <FlowChip label="$ZSOLAR" tone="amber" emphasized />
+        </div>
+        <p className="mt-5 text-center text-xs md:text-sm text-muted-foreground max-w-lg mx-auto">
+          Every loop tightens the token.
         </p>
       </div>
 
       {/* Three engine cards */}
       <div className="grid gap-4 md:grid-cols-3">
-        {/* 01 — Monthly Subscription + Deason AI */}
         <EngineCard
           number="01"
           icon={CreditCard}
           iconAux={Sparkles}
           accent="text-eco"
           ring="hover:border-eco/40"
-          title="Monthly Subscription + Deason AI"
-          tagline="The access fee, plus the premium AI upgrade on top."
-          body={
-            <>
-              A paid base subscription is required to be a ZenSolar user and mint $ZSOLAR. Three
-              tiers — <span className="text-foreground">$9.99 Base · $19.99 Regular · $49.99 Power</span>.
-              Every paid tier opens <span className="text-foreground">Zen Monitoring</span> — the
-              first-of-its-kind multi-OEM live energy cockpit that aggregates real-time data from
-              Tesla, Enphase, SolarEdge, and Wallbox into one premium dashboard. Homeowners with
-              mixed systems finally get unified visibility — and Proof-of-Genesis™ minting on top.
-              On top of any tier, <span className="text-foreground">Deason AI is a $4.99/mo premium
-              add-on</span> that delivers the Monthly Clean Energy Report, utility bill analysis,
-              rate-plan optimization, and device-aware advice tuned to each home's actual telemetry.
-            </>
-          }
-
+          title="Subscription + Deason AI"
+          tagline="The access fee — and the premium AI upgrade."
+          body="Paid tiers unlock Zen Monitoring, the first unified multi-OEM cockpit. Deason AI sits on top as a $4.99 add-on."
           bullets={[
-            'Base sub: $9.99 / $19.99 / $49.99 — required to mint',
-            'Deason AI: +$4.99/mo premium add-on (any tier)',
-            'Monthly Clean Energy Report · bill + rate-plan optimization',
-            '50% of every sub dollar feeds LP, 50% feeds treasury',
+            'Tiers: $9.99 · $19.99 · $49.99 — required to mint',
+            'Deason AI: +$4.99/mo · bills, rates, telemetry advice',
           ]}
           metric="$9.99 + $4.99"
-          metricLabel="base sub · premium AI upgrade"
+          metricLabel="base sub · premium AI"
         />
 
-        {/* 02 — Token Economics */}
         <EngineCard
           number="02"
           icon={Coins}
@@ -72,76 +55,78 @@ export function ThreeRevenueEngines() {
           ring="hover:border-amber-400/40 ring-1 ring-amber-400/20"
           emphasized
           title="Token Economics"
-          tagline="Core product and primary long-term revenue driver."
-          body={
-            <>
-              Core product and primary long-term revenue driver.{' '}
-              <span className="text-foreground">1T hard cap. Every verified kWh shows 1:1 in the
-              user's wallet, and the protocol matches it 1-for-1 in the background — 25% LP, 20%
-              burn, 5% treasury</span>. Every mint deepens liquidity and tightens supply in the
-              same transaction — a 401(k)-style match for clean energy.
-            </>
-          }
+          tagline="The core product. The long-term driver."
+          body="1T hard cap. Every verified kWh shows 1:1 in the user's wallet — the protocol matches it 1-for-1 behind the scenes."
           bullets={[
-            'Mint split: 50 user · 25 LP · 20 burn · 5 treasury (per kWh verified)',
             '$0.10 LP-seeded launch on Base · 1T hard cap',
-            'Transfer tax: 3% on secondary swaps → recycled to LP (separate from mint split)',
-            'Mint split and transfer tax are independent — both compound supply tightening + LP depth',
+            '3% transfer tax recycled to LP (separate from mint)',
           ]}
           metric="1T cap"
-          metricLabel="transfer tax + treasury yield"
+          metricLabel="LP-deepening · supply-tightening"
         />
 
-        {/* 03 — Aggregated Energy Data */}
         <EngineCard
           number="03"
           icon={Database}
           accent="text-sky-400"
           ring="hover:border-sky-400/40"
           title="Aggregated Energy Data"
-          tagline="Valuable secondary revenue stream."
-          body={
-            <>
-              Verified production, consumption, and device telemetry from Tesla, Enphase,
-              SolarEdge, and Wallbox is already flowing through us to power minting.{' '}
-              <span className="text-foreground">
-                Anonymized and aggregated — never per-household PII.
-              </span>{' '}
-              Sold to utilities, ISOs / RTOs, REC registries (M-RETS, WREGIS, PJM-GATS), and
-              climate researchers.{' '}
-              <span className="text-foreground">
-                Only possible because we built the first unified multi-OEM monitoring layer.
-              </span>
-            </>
-          }
+          tagline="A valuable secondary revenue line."
+          body="Anonymized telemetry from Tesla, Enphase, SolarEdge, and Wallbox — sold to utilities, ISOs, REC registries, and researchers."
+          bullets={[
+            'Never per-household PII · enterprise-licensed',
+            'Only possible because of our multi-OEM layer',
+          ]}
           metric="$2B+"
           metricLabel="U.S. utility analytics TAM"
         />
       </div>
 
-      <div className="mt-6">
-        <div className="flex items-start gap-3 px-4 py-3 rounded-3xl bg-card/30 border border-border/50 text-sm shadow-sm">
-          <span className="text-amber-500 text-xl leading-none">⚡</span>
-          <div className="flex flex-wrap items-baseline gap-x-1.5 text-left">
-            <span className="uppercase tracking-[0.5px] text-[10px] font-medium text-muted-foreground whitespace-nowrap">
-              PHASE 2 UNLOCK
-            </span>
-            <span className="font-medium text-foreground">
-              VPP tokenization — tech already built. Real-time $ZSOLAR minting + monthly cash settlement for grid dispatch events.
-              <span className="text-muted-foreground"> ~$50–150 / household / yr in grid-services revenue · at 10K households = $0.5–1.5M ARR layer, all upside, no CapEx.</span>
-            </span>
-          </div>
-        </div>
+      <div className="flex items-start gap-3 px-4 py-3 rounded-2xl bg-card/30 border border-border/50 text-xs md:text-sm">
+        <span className="text-amber-500 text-lg leading-none">⚡</span>
+        <span className="text-muted-foreground">
+          <span className="uppercase tracking-[0.18em] text-[10px] font-semibold text-foreground/90 mr-2">
+            Phase 2
+          </span>
+          VPP tokenization — tech already built. ~$50–150 / household / yr in grid-services revenue, all upside, no CapEx.
+        </span>
       </div>
     </div>
   );
 }
 
-function FlowStep({ label, className }: { label: string; className: string }) {
+function FlowChip({
+  label,
+  tone,
+  emphasized,
+}: {
+  label: string;
+  tone: 'secondary' | 'sky' | 'eco' | 'amber';
+  emphasized?: boolean;
+}) {
+  const tones: Record<string, string> = {
+    secondary: 'text-secondary border-secondary/40 bg-secondary/5',
+    sky: 'text-sky-400 border-sky-400/40 bg-sky-400/5',
+    eco: 'text-eco border-eco/40 bg-eco/5',
+    amber: 'text-amber-400 border-amber-400/40 bg-amber-400/5',
+  };
   return (
-    <span className={`text-sm md:text-base font-semibold tracking-tight ${className}`}>
+    <span
+      className={`inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm md:text-base font-semibold tracking-tight ${tones[tone]} ${
+        emphasized ? 'shadow-[0_0_24px_-8px_hsl(var(--secondary)/0.6)]' : ''
+      }`}
+    >
       {label}
     </span>
+  );
+}
+
+function FlowArrow() {
+  return (
+    <>
+      <ChevronRight className="hidden md:block h-4 w-4 text-muted-foreground/50" />
+      <ArrowRight className="md:hidden h-4 w-4 text-muted-foreground/50 rotate-90" />
+    </>
   );
 }
 
@@ -158,7 +143,6 @@ function EngineCard({
   bullets,
   metric,
   metricLabel,
-  children,
 }: {
   number: string;
   icon: typeof Database;
@@ -172,15 +156,14 @@ function EngineCard({
   bullets?: string[];
   metric: string;
   metricLabel: string;
-  children?: React.ReactNode;
 }) {
   return (
     <div
-      className={`rounded-2xl border border-border/60 bg-card/40 p-5 md:p-6 transition-colors ${ring} ${
+      className={`flex flex-col rounded-2xl border border-border/60 bg-card/40 p-6 transition-colors ${ring} ${
         emphasized ? 'bg-card/60' : ''
       }`}
     >
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-4">
         <span className={`text-[11px] uppercase tracking-[0.22em] font-semibold ${accent}`}>
           Engine {number}
         </span>
@@ -189,31 +172,35 @@ function EngineCard({
           {IconAux && <IconAux className={`h-5 w-5 ${accent} opacity-70`} />}
         </div>
       </div>
-      <h3 className="text-base md:text-lg font-semibold text-foreground leading-tight">{title}</h3>
-      <p className={`text-xs md:text-sm mt-1 ${accent} italic`}>{tagline}</p>
-      <p className="text-[12px] md:text-[13px] text-muted-foreground leading-relaxed mt-3">
-        {body}
-      </p>
+      <h3 className="text-lg font-semibold text-foreground leading-tight">{title}</h3>
+      <p className={`text-xs mt-1 ${accent} italic`}>{tagline}</p>
+      <p className="text-[13px] text-muted-foreground leading-relaxed mt-3">{body}</p>
       {bullets && (
-        <ul className="mt-3 space-y-1">
+        <ul className="mt-4 space-y-1.5">
           {bullets.map((b) => (
             <li
               key={b}
-              className="text-[12px] text-foreground/90 flex items-start gap-2 leading-snug"
+              className="text-[12px] text-foreground/85 flex items-start gap-2 leading-snug"
             >
-              <span className={`mt-1 h-1 w-1 rounded-full shrink-0 ${accent.replace('text-', 'bg-')}`} />
+              <span className={`mt-1.5 h-1 w-1 rounded-full shrink-0 ${accent.replace('text-', 'bg-')}`} />
               {b}
             </li>
           ))}
         </ul>
       )}
-      {children}
-      <div className="mt-4 pt-3 border-t border-border/40">
-        <div className={`text-lg md:text-xl font-semibold ${accent}`}>{metric}</div>
+      <div className="mt-5 pt-4 border-t border-border/40">
+        <div className={`text-xl font-semibold ${accent}`}>{metric}</div>
         <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5">
           {metricLabel}
         </div>
       </div>
+      <Link
+        to="/deck"
+        className="mt-4 inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+      >
+        Full details in the Seed Round Deck
+        <ArrowRight className="h-3 w-3" />
+      </Link>
     </div>
   );
 }
