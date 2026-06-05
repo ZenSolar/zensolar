@@ -1,39 +1,36 @@
-## Plan — Data Room PIN removal + One-Pager v3.1 alignment
+## Goal
+Fix the unhyphenated "Proof of Genesis™" wordmark in `public/investor/one-pager/tap-to-mint.png` and align the underlying demo components so a future re-screenshot will match.
 
-### Part 1 — `src/pages/InvestorDataRoom.tsx`
+## Approach
 
-Rewrite the file to a thin gate-free version:
+Re-taking a fresh browser screenshot of `/demo?demo=investor` risks visual drift (different layout, different fixtures, different scroll position) vs. the carefully composed shot in the One-Pager. Safer to do a targeted text edit on the existing PNG and patch the underlying app strings in parallel.
 
-- Remove all PIN scaffolding: `useState`, `supabase`, `toast`, `readInvestorUnlocked`, `SESSION_KEY`, `Loader2/KeyRound/Delete/Check/ShieldAlert`, the verify function, the keypad JSX, and the gated Helmet block.
-- Keep `DataRoomContent()` exactly as-is (all six DeckCards, diagram embed, stat tiles, group divider, footer).
-- Add directly above the existing `Confidential · Investor Data Room` kicker:
-  `<p className="text-[11px] uppercase tracking-[0.2em] text-white/35">Confidential — For verified investors only</p>`
-- New default export:
-  ```tsx
-  export default function InvestorDataRoom() {
-    useEffect(() => { document.title = "ZenSolar · Investor Data Room"; }, []);
-    return <DataRoomContent />;
-  }
-  ```
-- `src/App.tsx` route already has no `ProtectedRoute` wrapper — no change needed.
+### Step 1 — Edit the PNG in place
+- Use `imagegen--edit_image` on `public/investor/one-pager/tap-to-mint.png` with a tight prompt: *"Replace the text 'Proof of Genesis™' with 'Proof-of-Genesis™' (hyphenated). Keep every other element — layout, colors, dark theme, badge styling, mint rows, navigation — pixel-identical."*
+- Output to a temp path first (`/tmp/tap-to-mint-v2.png`) for QA.
+- Inspect with `image_tools--zoom_image` on the badge region to confirm the hyphenated text rendered cleanly with no other regressions.
+- If clean, overwrite `public/investor/one-pager/tap-to-mint.png` via `code--copy`.
+- If the edit introduces artifacts, fall back to plan B (below).
 
-### Part 2 — `src/pages/InvestorOnePager.tsx`
+### Step 2 — Patch underlying demo strings (site-wide consistency)
+Fix the same unhyphenated form in the live components so the next refresh of this asset is correct at the source:
+- `src/components/demo/TapToMintCard.tsx` (lines 33, 106, 191)
+- `src/components/demo/DemoSidebar.tsx` (line 84)
+- `src/components/demo/DemoOnboardingHints.tsx` (line 346)
+- `src/components/demo/DemoAccessGate.tsx` (line 1544)
+- `src/components/demo/DemoRewardActions.tsx` (line 747)
 
-Five small targeted edits, all copy-only; structure, helpers, and print CSS unchanged:
+Leave `NdaSignatureStep.tsx` and `VipWelcomeScreen.tsx` alone unless requested — those are legal copy / personal letters where exact wording matters.
 
-1. **Helmet description** (L39) → `"ZenSolar one-page investor summary — Proof-of-Genesis™, three revenue engines, $5M seed."`
-2. **Hero sub-line** (L97–99) → `"Proof-of-Genesis™ — verified clean-energy minting on Base. Bitcoin-grade integrity at ~0.001% of the energy cost."`
-3. **Engine 03** (L139–143) → retitle `"Aggregated Data + VPP (Scale Opportunity)"`; body: `"Anonymized multi-OEM telemetry sold to utilities, ISOs, REC registries + crypto-rewarding VPP settlement. $2B+ U.S. utility-analytics TAM; VPP layer adds $50–150 / household / yr at zero CapEx."`
-4. **Phase 2 Unlock strip** (L148–159) → delete (folded into Engine 03).
-5. **Moat section heading + lead** (L163–168) → `"The Moat — Proof-of-Genesis™ + multi-OEM monitoring"`. Lead sentence describes PoG (Bitcoin-grade integrity / near-zero overhead) then keeps the existing Tesla+Enphase+SolarEdge+Wallbox sentence as the second moat layer.
-6. **Traction tile** (L187) → label `"Patent-pending PoG"` (value unchanged).
+### Step 3 — Verify
+- `InvestorOnePager.tsx` references `/investor/one-pager/tap-to-mint.png` (line 171) — same path, so no code edit needed.
+- Use `browser--view_preview` to load `/investor/one-pager` and confirm the new asset renders with the hyphenated wordmark (cache-bust by reloading; filename unchanged so deployed previews update on next build).
+- No other pages reference this PNG (confirmed via `rg`).
 
-Untouched: header, Ask, Founders, footer, screenshots, sticky chrome, print CSS, helper components, existing NDA/PIN gate that protects the One-Pager itself (not part of this task).
+### Plan B (fallback if image edit produces artifacts)
+Take a fresh screenshot of `/demo?demo=investor` at 375×812, crop to match the original framing, and replace. This requires the in-app strings from Step 2 to already be fixed, so do Step 2 first either way.
 
-### Out of scope
-
-No backend, no new routes, no design-system edits, no other pages.
-
-### Final reply
-
-`Investor Data Room PIN gate removed + One-Pager updated to align with Deck v3.1.`
+## Out of scope
+- No layout/aesthetic changes to the screenshot.
+- No edits to NDA legal copy or VIP letters.
+- No new components or routes.
