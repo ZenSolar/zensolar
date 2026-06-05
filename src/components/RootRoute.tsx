@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { isPreviewMode } from '@/lib/previewMode';
 
@@ -24,14 +25,17 @@ function RouteLoader() {
 }
 
 export function RootRoute() {
-  const { isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
-  // Show the marketing landing (Index) to everyone at "/" — including
-  // unauthenticated visitors hitting zensolar.com. We intentionally do NOT
-  // redirect to /demo anymore; the landing page itself routes visitors
-  // forward via its own CTAs. Auth still gates protected routes elsewhere.
-  if (!isPreviewMode() && isLoading) {
-    return <RouteLoader />;
+  // Preview-mode bypass: skip auth & demo gate so any path resolves directly.
+  if (!isPreviewMode()) {
+    if (isLoading) {
+      return <RouteLoader />;
+    }
+
+    if (!isAuthenticated) {
+      return <Navigate to="/demo" replace />;
+    }
   }
 
   return (

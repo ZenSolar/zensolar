@@ -1,21 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-import { GRID_KG_PER_KWH } from '@/lib/co2Math';
-
-/**
- * Format metric tons CO₂ avoided from kg. Used for the public landing
- * stat that replaced the "founding members" count — until we have real
- * paying customers, CO₂ avoided is a defensible, investor-friendly
- * proof-of-impact metric that scales 1:1 with mints.
- */
-function formatTons(kg: number): string {
-  const t = kg / 1000;
-  if (t >= 1_000) return `${(t / 1_000).toFixed(1)}K`;
-  if (t >= 100) return Math.round(t).toLocaleString();
-  if (t >= 10) return t.toFixed(1);
-  return t.toFixed(2);
-}
 
 interface Stats {
   lifetime_tokens: number;
@@ -88,7 +73,8 @@ export function LiveEarningsCounter({ className }: { className?: string }) {
     );
   }
 
-  const co2Tons = formatTons((Number(stats.lifetime_tokens) || 0) * GRID_KG_PER_KWH);
+  const minters = stats.unique_minters;
+  const minterLabel = minters === 1 ? 'founding member' : 'founding members';
 
   return (
     <div
@@ -108,8 +94,8 @@ export function LiveEarningsCounter({ className }: { className?: string }) {
       </span>
       <span>$ZSOLAR minted</span>
       <span className="text-muted-foreground/40">·</span>
-      <span className="tabular-nums text-foreground/80">{co2Tons}</span>
-      <span>tons CO₂ avoided</span>
+      <span className="tabular-nums text-foreground/80">{minters}</span>
+      <span>{minterLabel}</span>
     </div>
   );
 }
