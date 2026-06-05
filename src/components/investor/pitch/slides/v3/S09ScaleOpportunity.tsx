@@ -104,7 +104,11 @@ export function S09ScaleOpportunity() {
           </div>
         </DeckCard>
 
-        <div className="mt-5 flex items-center gap-3 px-5 py-3 rounded-xl border border-white/10 bg-white/[0.03]">
+        <p className="mt-5 text-[14px] text-white/45 italic leading-snug max-w-[1400px]">
+          At scale, both the Aggregated Data and VPP engines have the potential to become major high-margin contributors as the network grows.
+        </p>
+
+        <div className="mt-4 flex items-center gap-3 px-5 py-3 rounded-xl border border-white/10 bg-white/[0.03]">
           <span className="text-[11px] font-mono tracking-[0.24em] uppercase text-white/45 whitespace-nowrap">
             Phase 2 path
           </span>
