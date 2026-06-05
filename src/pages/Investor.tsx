@@ -7,6 +7,7 @@ import {
   PlayCircle,
   CheckCircle2,
   ArrowDown,
+  ArrowRight,
   Mail,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
