@@ -177,12 +177,11 @@ export default function AdminCompetitiveIntel() {
               represents a fundamental architectural breakthrough that existing and emerging competitors have not replicated.
             </p>
 
-            <h4 className="text-foreground font-medium">5.2 The SEGI Innovation: Patent-Pending Technology</h4>
+            <h4 className="text-foreground font-medium">5.2 The Proof-of-Genesis™ Innovation: Patent-Pending Technology</h4>
             <p>
-              At the core of ZenSolar's competitive moat lies the <strong className="text-foreground">Software-Enabled Gateway 
-              Interface (SEGI)</strong>—a patent-pending architecture that fundamentally reimagines how energy data translates 
+              At the core of ZenSolar's competitive moat lies the <strong className="text-foreground">Proof-of-Genesis™ protocol (PoG)</strong>—a patent-pending architecture that fundamentally reimagines how energy data translates 
               to blockchain value. Unlike legacy approaches that rely on hardware installations, periodic manual reporting, or 
-              distribution from pre-minted token pools, SEGI operates as a pure software layer that:
+              distribution from pre-minted token pools, Proof-of-Genesis™ operates as a pure software layer that:
             </p>
             <ol className="list-decimal pl-6 space-y-2">
               <li>
@@ -273,7 +272,7 @@ export default function AdminCompetitiveIntel() {
               </li>
               <li>
                 <strong className="text-foreground">Future-Proof Extensibility:</strong> As new energy devices enter the 
-                market (next-generation batteries, bidirectional chargers, vehicle-to-grid systems), SEGI can integrate 
+                market (next-generation batteries, bidirectional chargers, vehicle-to-grid systems), Proof-of-Genesis™ can integrate 
                 new APIs without hardware retrofits
               </li>
             </ol>
@@ -281,7 +280,7 @@ export default function AdminCompetitiveIntel() {
             <h4 className="text-foreground font-medium">5.6 Intellectual Property Strategy</h4>
             <p>
               ZenSolar's first-mover advantage is reinforced by a deliberate intellectual property strategy. The patent-pending 
-              SEGI architecture covers the novel combination of:
+              Proof-of-Genesis™ architecture covers the novel combination of:
             </p>
             <ul className="list-disc pl-6 space-y-2">
               <li>API-based energy data verification from consumer devices</li>
@@ -328,7 +327,7 @@ export default function AdminCompetitiveIntel() {
             <p>
               The energy-to-blockchain rewards sector is nascent but rapidly evolving, with several projects attempting to bridge clean energy 
               production and consumption with cryptocurrency incentives. Our comprehensive analysis of the competitive landscape reveals that 
-              while multiple players exist, <strong className="text-foreground">ZenSolar's SEGI (Software-Enabled Gateway Interface) architecture 
+              while multiple players exist, <strong className="text-foreground">ZenSolar's Proof-of-Genesis™ (Proof-of-Genesis™ protocol) architecture 
               maintains a unique and defensible position</strong> in the market.
             </p>
             
@@ -353,7 +352,7 @@ export default function AdminCompetitiveIntel() {
             <p>
               Our patent research across USPTO databases for EVearn, VeChain, Glow, and related entities found <strong className="text-foreground">
               no existing patents for API-based, on-demand energy-to-token minting</strong>. The closest prior art identified was SafeMoon's 
-              2023 patent application (US 2023/0385824) for off-grid solar-to-REC NFT generation, which differs substantially from SEGI's 
+              2023 patent application (US 2023/0385824) for off-grid solar-to-REC NFT generation, which differs substantially from Proof-of-Genesis™'s 
               software-only gateway approach.
             </p>
             
@@ -363,13 +362,13 @@ export default function AdminCompetitiveIntel() {
             <ol className="list-decimal pl-6 space-y-2">
               <li>
                 <strong className="text-foreground">Multi-Vertical Integration:</strong> While competitors focus on single verticals (EVearn on 
-                driving, Glow on solar farms), SEGI aggregates Solar, Battery, EV, and Charging data into a unified impact score.
+                driving, Glow on solar farms), Proof-of-Genesis™ aggregates Solar, Battery, EV, and Charging data into a unified impact score.
               </li>
               <li>
                 <strong className="text-foreground">Deflationary Tokenomics:</strong> The 20% mint-burn mechanism and separate 3% transfer tax (LP recycle) create sustainable deflationary pressure versus competitors' inflationary emission models.
               </li>
               <li>
-                <strong className="text-foreground">Hardware Agnosticism:</strong> SEGI's API-first architecture supports Tesla, Enphase, 
+                <strong className="text-foreground">Hardware Agnosticism:</strong> Proof-of-Genesis™'s API-first architecture supports Tesla, Enphase, 
                 SolarEdge, Wallbox, and can integrate Smartcar for expanded EV coverage—without requiring proprietary hardware.
               </li>
               <li>
@@ -380,7 +379,7 @@ export default function AdminCompetitiveIntel() {
             
             <h3 className="text-foreground font-semibold mt-6">Strategic Recommendations</h3>
             <p>
-              The competitive analysis suggests ZenSolar should prioritize: (1) accelerating the patent application for SEGI's on-demand 
+              The competitive analysis suggests ZenSolar should prioritize: (1) accelerating the patent application for Proof-of-Genesis™'s on-demand 
               minting methodology, (2) integrating Smartcar API to achieve feature parity with EVearn on EV brand coverage, and (3) 
               emphasizing the deflationary tokenomics as a key differentiator in investor communications. The "unified impact scoring" 
               across energy categories remains our strongest moat against single-vertical competitors.
@@ -394,7 +393,7 @@ export default function AdminCompetitiveIntel() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Coins className="h-5 w-5 text-primary" />
-            ZenSolar (SEGI) — Our Position
+            ZenSolar (PoG) — Our Position
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -522,7 +521,7 @@ export default function AdminCompetitiveIntel() {
               <div className="flex items-start gap-3">
                 <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
                 <div>
-                  <h4 className="font-medium text-green-600">SEGI Patent Opportunity</h4>
+                  <h4 className="font-medium text-green-600">Proof-of-Genesis™ Patent Opportunity</h4>
                   <p className="text-sm text-muted-foreground mt-1">
                     No existing patents found for: "API-based energy data verification triggering on-demand token minting 
                     across multiple device categories (solar, battery, EV, charging) via a unified software gateway."

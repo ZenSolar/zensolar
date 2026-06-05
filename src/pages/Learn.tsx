@@ -51,7 +51,7 @@ const TOPICS: Topic[] = [
   },
   {
     title: 'Patent Tech',
-    blurb: 'The four-layer SEGI engine that turns device data into currency.',
+    blurb: 'The four-layer Proof-of-Genesis™ engine that turns device data into currency.',
     href: '/learn/patent-tech',
     icon: Cpu,
     badge: 'The engine',

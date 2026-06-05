@@ -18,7 +18,7 @@ const proofOfDeltaProcess = [
   {
     step: 1,
     title: 'Device Registration',
-    description: 'When a user connects a device via OAuth, SEGI creates a unique device fingerprint (hash of provider + device_id).',
+    description: 'When a user connects a device via OAuth, Proof-of-Genesis™ creates a unique device fingerprint (hash of provider + device_id).',
     technical: 'deviceFingerprint = keccak256(provider, device_id)',
     icon: Fingerprint,
   },
@@ -32,7 +32,7 @@ const proofOfDeltaProcess = [
   {
     step: 3,
     title: 'Delta Calculation',
-    description: 'At mint time, SEGI calculates the difference between current readings and the stored watermark.',
+    description: 'At mint time, Proof-of-Genesis™ calculates the difference between current readings and the stored watermark.',
     technical: 'delta = currentValue - watermark[deviceFingerprint]',
     icon: TrendingUp,
   },
@@ -353,10 +353,10 @@ contract ProofOfDelta {
     function mintWithDelta(
         bytes32 deviceFingerprint,
         uint256 currentCumulativeValue,
-        bytes calldata segiSignature // Signed by SEGI verification engine
+        bytes calldata pogSignature // Signed by Proof-of-Genesis™ verification engine
     ) external {
-        // Verify SEGI signature
-        require(_verifySEGISignature(deviceFingerprint, currentCumulativeValue, segiSignature), "Invalid signature");
+        // Verify Proof-of-Genesis™ signature
+        require(_verifyPoGSignature(deviceFingerprint, currentCumulativeValue, pogSignature), "Invalid signature");
         
         uint256 previousWatermark = deviceWatermarks[deviceFingerprint];
         require(currentCumulativeValue > previousWatermark, "No new activity");

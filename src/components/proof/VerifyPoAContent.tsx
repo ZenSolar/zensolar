@@ -609,7 +609,7 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
             )}
 
             <p className="text-[10px] text-muted-foreground italic text-center pt-1">
-              Patent-pending. App. 19/634,402. SEGI™, Mint-on-Proof™, Proof-of-Delta™,
+              Patent-pending. App. 19/634,402. Proof-of-Genesis™, Mint-on-Proof™, Proof-of-Delta™,
               Proof-of-Origin™, Proof-of-Permanence™, Proof-of-Authenticity™,
               Proof-of-Genesis™ are trademarks of ZenCorp Inc.
             </p>

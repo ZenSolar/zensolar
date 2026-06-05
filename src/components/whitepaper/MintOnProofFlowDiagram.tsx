@@ -53,7 +53,7 @@ export function MintOnProofFlowDiagram() {
             The Mint-on-Proof™ Architecture
           </CardTitle>
           <Badge variant="outline" className="border-cyan-500/40 text-cyan-600 dark:text-cyan-400 text-xs">
-            Software-Enabled Gateway Interface
+            Proof-of-Genesis™ protocol
           </Badge>
         </div>
         <p className="text-muted-foreground text-sm mt-2">

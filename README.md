@@ -9,11 +9,11 @@
 ZenSolar connects to Tesla, Enphase, SolarEdge, and Wallbox via direct API integrations, verifies real-world energy activity, and rewards users with **$ZSOLAR tokens** and **milestone NFTs** on Base L2. No external wallets. No seed phrases. No crypto knowledge required.
 
 **🔒 Patent-pending IP**: *"Gamifying and Tokenizing Sustainable Behaviors By Using Blockchain Technology"*
-**™ Pending Trademarks**: Mint-on-Proof™ · Mint-on-Delta™ · Proof-of-Delta™ · SEGI™
+**™ Pending Trademarks**: Mint-on-Proof™ · Mint-on-Delta™ · Proof-of-Delta™ · Proof-of-Genesis™
 
 ---
 
-## 🏗️ SEGI Architecture (Patent-Pending)
+## 🏗️ Proof-of-Genesis™ Architecture (Patent-Pending)
 
 | Layer | Function |
 |-------|----------|

@@ -12,13 +12,13 @@ import {
   Lightbulb,
   Scale
 } from 'lucide-react';
-import { SEGIProofOfDeltaDiagram } from '@/components/technology/SEGIProofOfDeltaDiagram';
+import { ProofOfGenesisDiagram } from '@/components/technology/ProofOfGenesisDiagram';
 import { MintOnProofFlowDiagram } from '@/components/whitepaper/MintOnProofFlowDiagram';
 
 const patentClaims = [
   {
     id: 1,
-    title: 'Software-Enabled Gateway Interface (SEGI)',
+    title: 'Proof-of-Genesis™ protocol',
     description: 'A hardware-agnostic software layer that connects to multiple energy device manufacturer APIs via OAuth 2.0, normalizes disparate data formats, and bridges verified activity to blockchain smart contracts.',
     novelty: 'Eliminates need for custom IoT hardware by leveraging existing manufacturer clouds.',
   },
@@ -85,7 +85,7 @@ export default function AdminPatentMintOnProof() {
         </div>
         <h1 className="text-3xl font-bold">Mint-on-Proof™ Patent Documentation</h1>
         <p className="text-muted-foreground">
-          Internal reference for the patent-pending Mint-on-Proof architecture and SEGI technology.
+          Internal reference for the patent-pending Mint-on-Proof architecture and Proof-of-Genesis™ technology.
         </p>
       </motion.div>
 
@@ -101,7 +101,7 @@ export default function AdminPatentMintOnProof() {
           Visual Diagrams
         </h2>
         
-        <SEGIProofOfDeltaDiagram />
+        <ProofOfGenesisDiagram />
         
         <MintOnProofFlowDiagram />
       </motion.div>

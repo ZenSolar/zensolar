@@ -12,15 +12,15 @@ import {
   Tag
 } from 'lucide-react';
 import { PatentClaimsComparison } from '@/components/admin/patent/PatentClaimsComparison';
-import { SEGIArchitectureDiagram } from '@/components/admin/patent/SEGIArchitectureDiagram';
+import { ProofOfGenesisArchitectureDiagram } from '@/components/admin/patent/ProofOfGenesisArchitectureDiagram';
 import { NonProvisionalRecommendations } from '@/components/admin/patent/NonProvisionalRecommendations';
 import { PatentPageNavigation } from '@/components/admin/patent/PatentPageNavigation';
 
 // Terms that have evolved since the original provisional filing
 const updatedTerminology = [
   {
-    original: 'Software-Enabled Gateway Interface (SEGI)',
-    updated: 'SEGI™ (Software-Enabled Gateway Interface)',
+    original: 'Proof-of-Genesis™ protocol',
+    updated: 'Proof-of-Genesis™ (Proof-of-Genesis™ protocol)',
     status: 'trademark-pending',
     notes: 'Trademark filing recommended. Core branding element.',
     inOriginal: true,
@@ -88,8 +88,8 @@ const newConcepts = [
     reason: 'Supporting concept for Proof-of-Delta; not independently patentable.',
   },
   {
-    term: 'SEGI Verification Engine (Layer 3)',
-    definition: 'The third layer of SEGI architecture that generates cryptographic proofs and creates tamper-evident timestamps.',
+    term: 'Proof-of-Genesis™ Verification Engine (Layer 3)',
+    definition: 'The third layer of Proof-of-Genesis™ architecture that generates cryptographic proofs and creates tamper-evident timestamps.',
     patentable: true,
     reason: 'Novel verification layer bridging energy data to blockchain.',
   },
@@ -99,7 +99,7 @@ const trademarkVsPatent = [
   {
     type: 'Trademark (™)',
     protects: 'Brand names, logos, slogans',
-    examples: ['Mint-on-Proof™', 'Proof-of-Delta™', 'SEGI™', 'ZenSolar™'],
+    examples: ['Mint-on-Proof™', 'Proof-of-Delta™', 'Proof-of-Genesis™', 'ZenSolar™'],
     process: 'USPTO trademark application; use ™ immediately, ® after registration.',
     cost: '$250-$350 per class',
     duration: '10 years, renewable indefinitely',
@@ -107,7 +107,7 @@ const trademarkVsPatent = [
   {
     type: 'Patent',
     protects: 'Processes, methods, systems, compositions',
-    examples: ['SEGI architecture', 'Mint-on-Proof token issuance process', 'Device watermark verification system'],
+    examples: ['Proof-of-Genesis™ architecture', 'Mint-on-Proof token issuance process', 'Device watermark verification system'],
     process: 'Provisional → Non-provisional → Examination → Grant',
     cost: '$10,000-$20,000 total',
     duration: '20 years from filing, non-renewable',
@@ -117,14 +117,14 @@ const trademarkVsPatent = [
 const ipRecommendations = [
   {
     action: 'File Trademark Applications',
-    items: ['Mint-on-Proof™', 'Proof-of-Delta™', 'SEGI™'],
+    items: ['Mint-on-Proof™', 'Proof-of-Delta™', 'Proof-of-Genesis™'],
     priority: 'High',
     timeline: 'Immediately',
     notes: 'Can be filed independently of patent. Protects brand regardless of patent outcome.',
   },
   {
     action: 'Update Non-Provisional Claims',
-    items: ['Add Proof-of-Delta as independent claim', 'Add device fingerprint/watermark language', 'Strengthen SEGI verification engine claims'],
+    items: ['Add Proof-of-Delta as independent claim', 'Add device fingerprint/watermark language', 'Strengthen Proof-of-Genesis™ verification engine claims'],
     priority: 'High',
     timeline: 'Before Q1 2026 filing deadline',
     notes: 'Include all evolved terminology and new concepts not in provisional.',
@@ -166,13 +166,13 @@ export default function AdminPatentUpdatedLanguage() {
         </p>
       </motion.div>
 
-      {/* SEGI Architecture Diagram (Downloadable) */}
+      {/* Proof-of-Genesis™ Architecture Diagram (Downloadable) */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
       >
-        <SEGIArchitectureDiagram />
+        <ProofOfGenesisArchitectureDiagram />
       </motion.div>
 
       {/* Claims Comparison Table */}

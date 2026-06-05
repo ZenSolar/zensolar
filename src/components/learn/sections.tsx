@@ -174,7 +174,7 @@ export function PatentTechSection() {
       <SectionHeader
         eyebrow="04 — The Engine"
         title="Patent-pending tech"
-        description="SEGI — the four-layer engine that turns real-world clean energy into on-chain currency."
+        description="Proof-of-Genesis™ — the four-layer engine that turns real-world clean energy into on-chain currency."
         icon={Cpu}
       />
       <div className="space-y-2">

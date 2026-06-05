@@ -355,7 +355,7 @@ const ENTRIES: ChangelogEntry[] = [
         heading: "Shipped",
         icon: "shipped",
         bullets: [
-          "VerifyOnChainDrawer — slide-up drawer on every PoG Receipt surfacing Proof-of-Delta™, Proof-of-Origin™, Mint-on-Proof™, Proof-of-Permanence™, SEGI™ source, and Proof of Genesis™ provenance.",
+          "VerifyOnChainDrawer — slide-up drawer on every PoG Receipt surfacing Proof-of-Delta™, Proof-of-Origin™, Mint-on-Proof™, Proof-of-Permanence™, Proof-of-Genesis™ source, and Proof of Genesis™ provenance.",
           "PoA chip on receipt face — 7-char Proof-of-Authenticity™ hash linking to public verify page.",
           "Public /verify/:poa route — no auth required, shareable, surfaces all primitives behind a mint.",
           "Per-device Proof-of-Origin™ page at /devices/:deviceId/origin — keccak256 device hash, cumulative watermark, Genesis Anchor™ commemorative, latest Permanence root. Founder + PIN gated (Phase 1).",

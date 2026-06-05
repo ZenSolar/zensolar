@@ -18,15 +18,16 @@ Filing strategy at the USPTO — separate from patent strategy. Each TM = its ow
 ## Tier 2 — File within Q3 2026
 | Mark | Class | Notes |
 |------|-------|-------|
-| **SEGI™** | 9, 42 | Already used in patent + product. |
+| **Proof-of-Genesis™** | 9, 42 | SSOT name for the verification protocol. Replaces the retired SEGI™ mark (Jun 2026). Short form **PoG** approved for diagrams/tables/tight labels. Already used in patent + product. |
 | **ZPPA** | 36, 42 | Zen Power Purchase Agreement. Confirm not conflicting with utility-industry "PPA." |
-| **Proof of Genesis™** | 9 | Already in active use. |
-| **Proof-of-Genesis™** | 9, 42 | Receipt name. |
 
 ## Tier 3 — Already covered or already filed
 - **Mint-on-Proof™** — patent claim language; trademark filing recommended once attorney clears.
 - **Proof-of-Delta™** — same.
 - **Proof-of-Origin™** — same.
+- ~~**SEGI™**~~ — **RETIRED Jun 2026.** Consolidated under Proof-of-Genesis™. Do not refile.
+
+
 
 ## Hard rules
 - **Proof-of-Permanence™ tagline = "The Eternal Ledger"** — never use any other tagline.

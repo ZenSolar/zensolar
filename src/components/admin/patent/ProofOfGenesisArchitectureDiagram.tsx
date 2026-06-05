@@ -52,7 +52,7 @@ const layers = [
   },
 ];
 
-export function SEGIArchitectureDiagram() {
+export function ProofOfGenesisArchitectureDiagram() {
   const handleDownloadSVG = () => {
     // Create SVG content for patent drawing
     const svgContent = `<?xml version="1.0" encoding="UTF-8"?>
@@ -66,8 +66,8 @@ export function SEGIArchitectureDiagram() {
   </style>
   
   <!-- Title -->
-  <text x="400" y="40" text-anchor="middle" class="title">SEGI™ 4-Layer Architecture</text>
-  <text x="400" y="60" text-anchor="middle" class="layer-desc">(Software-Enabled Gateway Interface)</text>
+  <text x="400" y="40" text-anchor="middle" class="title">Proof-of-Genesis™ 4-Layer Architecture</text>
+  <text x="400" y="60" text-anchor="middle" class="layer-desc">(Proof-of-Genesis™ protocol)</text>
   
   <!-- Layer 1: API Aggregation -->
   <rect x="100" y="90" width="600" height="100" rx="8" fill="#E3F2FD" stroke="#1976D2" stroke-width="2"/>
@@ -130,19 +130,19 @@ export function SEGIArchitectureDiagram() {
   </defs>
   
   <!-- Patent notation -->
-  <text x="400" y="580" text-anchor="middle" class="item-num">FIG. 4 - SEGI Architecture (Patent Pending)</text>
+  <text x="400" y="580" text-anchor="middle" class="item-num">FIG. 4 - Proof-of-Genesis™ Architecture (Patent Pending)</text>
 </svg>`;
 
     const blob = new Blob([svgContent], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'SEGI_Architecture_Patent_Drawing.svg';
+    link.download = 'ProofOfGenesis_Architecture_Patent_Drawing.svg';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    toast.success('SEGI Architecture diagram downloaded');
+    toast.success('Proof-of-Genesis™ Architecture diagram downloaded');
   };
 
   const handleDownloadPNG = async () => {
@@ -165,9 +165,9 @@ export function SEGIArchitectureDiagram() {
     ctx.fillStyle = '#000000';
     ctx.font = 'bold 48px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('SEGI™ 4-Layer Architecture', 800, 80);
+    ctx.fillText('Proof-of-Genesis™ 4-Layer Architecture', 800, 80);
     ctx.font = '24px Arial';
-    ctx.fillText('(Software-Enabled Gateway Interface)', 800, 120);
+    ctx.fillText('(Proof-of-Genesis™ protocol)', 800, 120);
 
     // Layer drawing helper
     const drawLayer = (y: number, color: string, borderColor: string, label: string, title: string, desc: string) => {
@@ -239,14 +239,14 @@ export function SEGIArchitectureDiagram() {
 
     // Patent notation
     ctx.font = '20px Arial';
-    ctx.fillText('FIG. 4 - SEGI Architecture (Patent Pending)', 800, 1100);
+    ctx.fillText('FIG. 4 - Proof-of-Genesis™ Architecture (Patent Pending)', 800, 1100);
 
     // Download
     const link = document.createElement('a');
-    link.download = 'SEGI_Architecture_Patent_Drawing.png';
+    link.download = 'ProofOfGenesis_Architecture_Patent_Drawing.png';
     link.href = canvas.toDataURL('image/png');
     link.click();
-    toast.success('SEGI Architecture PNG downloaded (1600x1200)');
+    toast.success('Proof-of-Genesis™ Architecture PNG downloaded (1600x1200)');
   };
 
   return (
@@ -254,10 +254,10 @@ export function SEGIArchitectureDiagram() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileImage className="h-5 w-5 text-primary" />
-          SEGI 4-Layer Architecture Diagram
+          Proof-of-Genesis™ 4-Layer Architecture Diagram
         </CardTitle>
         <CardDescription>
-          Downloadable patent drawing showing the complete SEGI architecture
+          Downloadable patent drawing showing the complete Proof-of-Genesis™ architecture
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">

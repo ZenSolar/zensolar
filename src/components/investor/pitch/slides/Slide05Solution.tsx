@@ -26,7 +26,7 @@ export function Slide05Solution() {
         <div className="flex items-center gap-8 mb-12">
           {[
             { icon: Sun, label: 'Produce', desc: 'Solar panels generate kWh', color: 'hsl(45,93%,47%)' },
-            { icon: Zap, label: 'Verify', desc: 'SEGI confirms production', color: 'hsl(207,90%,54%)' },
+            { icon: Zap, label: 'Verify', desc: 'Proof-of-Genesis™ confirms production', color: 'hsl(207,90%,54%)' },
             { icon: Coins, label: 'Mint', desc: 'Tokens auto-minted', color: 'hsl(142,76%,50%)' },
             { icon: Lock, label: 'Retire', desc: 'Energy cryptographically locked', color: 'hsl(280,68%,60%)' },
           ].map((step, i) => (

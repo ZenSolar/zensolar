@@ -107,7 +107,7 @@ Gray area: arguably supported, arguably new. Attorney must rule whether each fit
 
 | Fig | Status | Track | Action |
 |-----|--------|-------|--------|
-| FIG. 1 (SEGI 4-layer) | As-filed | T1 | Convert to formal drawing |
+| FIG. 1 (Proof-of-Genesis™ 4-layer) | As-filed | T1 | Convert to formal drawing |
 | FIG. 2 (Mint-on-Proof flow) | As-filed | T1 | Convert to formal drawing |
 | FIG. 3 (Proof-of-Delta hash chain) | As-filed | T1 | Convert to formal drawing |
 | FIG. 4 (Proof-of-Origin registry) | As-filed | T1 | Convert to formal drawing; add Proof-of-Permanence™ Merkle anchor callout |

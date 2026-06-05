@@ -20,9 +20,9 @@ interface ClaimComparison {
 
 const claimsComparison: ClaimComparison[] = [
   {
-    claim: 'SEGI Architecture',
+    claim: 'Proof-of-Genesis™ Architecture',
     inProvisional: true,
-    provisionalLanguage: 'Software-Enabled Gateway Interface (SEGI) that pulls data from APIs',
+    provisionalLanguage: 'Proof-of-Genesis™ protocol that pulls data from APIs',
     nonProvisionalLanguage: 'A four-layer software architecture comprising: (1) API aggregation layer with OAuth 2.0 authentication to plurality of third-party data sources; (2) data normalization layer converting heterogeneous metrics to unified impact score; (3) verification engine generating cryptographic proofs; (4) smart contract bridge for blockchain token issuance',
     strengthLevel: 'enhanced',
     defensiveScope: 'ANY software-to-blockchain bridge using layered verification',
@@ -70,7 +70,7 @@ const claimsComparison: ClaimComparison[] = [
   {
     claim: 'Hardware-Agnostic Data Collection',
     inProvisional: true,
-    provisionalLanguage: 'SEGI that pulls data from APIs, or alternatively through hardware devices',
+    provisionalLanguage: 'Proof-of-Genesis™ that pulls data from APIs, or alternatively through hardware devices',
     nonProvisionalLanguage: 'A method for activity verification independent of proprietary hardware comprising: establishing authenticated connections to plurality of third-party API endpoints; retrieving activity data without requiring installation of additional measurement devices; validating data authenticity through provider-signed responses',
     strengthLevel: 'enhanced',
     defensiveScope: 'ANY software-only verification bypassing hardware requirements',

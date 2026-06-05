@@ -78,7 +78,7 @@ export default function FoundersCurrentStatus() {
           <Stat
             kpi="5"
             label="Trademarks filed"
-            sub="+ SEGI™ provisional patent"
+            sub="+ Proof-of-Genesis™ provisional patent"
           />
         </div>
       </section>
@@ -139,7 +139,7 @@ export default function FoundersCurrentStatus() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div className="rounded-2xl border border-border/60 bg-card p-5">
             <p className="text-[10px] uppercase tracking-widest text-primary mb-2">Patent</p>
-            <p className="font-semibold text-foreground mb-2">SEGI™ — Software-Enabled Gateway Interface</p>
+            <p className="font-semibold text-foreground mb-2">Proof-of-Genesis™ — Proof-of-Genesis™ protocol</p>
             <p className="text-xs text-muted-foreground leading-relaxed">
               Provisional patent filed Q1 2025. Hardware-agnostic 4-layer architecture for verified energy data → on-chain token issuance.
             </p>

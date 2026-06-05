@@ -591,7 +591,7 @@ export default function WhitePaper() {
             <p className="text-muted-foreground text-lg leading-relaxed">
               <strong className="text-foreground">ZenSolar</strong> is a blockchain-powered rewards platform that
               transforms clean energy production into verifiable digital assets. Using our patent-pending 
-              <strong className="text-primary"> Mint-on-Proof™</strong> architecture powered by SEGI (Software-Enabled Gateway Interface), 
+              <strong className="text-primary"> Mint-on-Proof™</strong> architecture powered by Proof-of-Genesis™ (Proof-of-Genesis™ protocol), 
               users earn <strong className="text-foreground">$ZSOLAR tokens</strong> and collectible NFTs proportional 
               to their verified environmental impact—with just one tap.
             </p>
@@ -643,9 +643,9 @@ export default function WhitePaper() {
                 <div>
                   <h3 className="font-semibold text-lg mb-2">Patent-Pending Mint-on-Proof™ Technology</h3>
                   <p className="text-muted-foreground">
-                    Our <strong className="text-foreground">Software-Enabled Gateway Interface (SEGI)</strong> powers the world's first 
+                    Our <strong className="text-foreground">Proof-of-Genesis™ protocol</strong> powers the world's first 
                     <strong className="text-primary"> Mint-on-Proof™</strong> architecture—a proprietary system for tokenizing sustainable 
-                    behaviors using blockchain. Unlike hardware-dependent solutions, SEGI works entirely through secure API 
+                    behaviors using blockchain. Unlike hardware-dependent solutions, Proof-of-Genesis™ works entirely through secure API 
                     connections—making onboarding instant and one-tap minting possible.
                   </p>
                 </div>
@@ -654,7 +654,7 @@ export default function WhitePaper() {
           </CardContent>
         </Card>
         
-        {/* SEGI Flow Diagram */}
+        {/* Proof-of-Genesis™ Flow Diagram */}
         <MintOnProofFlowDiagram />
 
         {/* Mint-on-Proof Comparison */}
@@ -1190,12 +1190,11 @@ export default function WhitePaper() {
             <Separator />
 
             <div>
-              <h3 className="font-semibold text-lg mb-3">The SEGI Innovation: Patent-Pending Technology</h3>
+              <h3 className="font-semibold text-lg mb-3">The Proof-of-Genesis™ Innovation: Patent-Pending Technology</h3>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                At the core of ZenSolar's competitive moat lies the <strong className="text-foreground">Software-Enabled Gateway 
-                Interface (SEGI)</strong>—a patent-pending architecture that fundamentally reimagines how energy data translates 
+                At the core of ZenSolar's competitive moat lies the <strong className="text-foreground">Proof-of-Genesis™ protocol (PoG)</strong>—a patent-pending architecture that fundamentally reimagines how energy data translates 
                 to blockchain value. Unlike legacy approaches that rely on hardware installations, periodic manual reporting, or 
-                distribution from pre-minted token pools, SEGI operates as a pure software layer that:
+                distribution from pre-minted token pools, Proof-of-Genesis™ operates as a pure software layer that:
               </p>
               <ol className="list-decimal pl-6 space-y-2 text-muted-foreground">
                 <li><strong className="text-foreground">Aggregates</strong> data from existing consumer devices (Tesla, Enphase, SolarEdge, Wallbox, and expandable to dozens of additional vehicle brands) without requiring proprietary hardware</li>
@@ -1269,7 +1268,7 @@ export default function WhitePaper() {
               <ol className="list-decimal pl-6 space-y-2 text-muted-foreground">
                 <li><strong className="text-foreground">Zero Barrier to Entry:</strong> Users with existing compatible devices can begin earning within 60 seconds of account creation</li>
                 <li><strong className="text-foreground">Scalable Economics:</strong> Without hardware costs, the platform can operate at software-company margins while alternative approaches bear manufacturing, distribution, and support costs</li>
-                <li><strong className="text-foreground">Future-Proof Extensibility:</strong> As new energy devices enter the market (next-generation batteries, bidirectional chargers, vehicle-to-grid systems), SEGI can integrate new APIs without hardware retrofits</li>
+                <li><strong className="text-foreground">Future-Proof Extensibility:</strong> As new energy devices enter the market (next-generation batteries, bidirectional chargers, vehicle-to-grid systems), Proof-of-Genesis™ can integrate new APIs without hardware retrofits</li>
               </ol>
             </div>
 
@@ -1301,7 +1300,7 @@ export default function WhitePaper() {
                     <span className="text-xs text-muted-foreground">Incremental Verification Logic</span>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    The cryptographic verification standard powering SEGI Layer 3. Each data reading generates a linked hash chain: 
+                    The cryptographic verification standard powering Proof-of-Genesis™ Layer 3. Each data reading generates a linked hash chain: 
                     <code className="text-xs bg-muted px-1.5 py-0.5 rounded mx-1">SHA-256(device_id | timestamp | value | prevHash)</code>. 
                     This ensures tokens are issued only for verified <em>incremental</em> energy activity, creating an immutable, 
                     tamper-evident audit trail that prevents gaming and double-counting.
@@ -1324,7 +1323,7 @@ export default function WhitePaper() {
 
               <p className="text-muted-foreground leading-relaxed">
                 <strong className="text-foreground">Patent Status:</strong> Non-provisional utility patent application filed 
-                ("Gamifying and Tokenizing Sustainable Behaviors By Using Blockchain Technology") covering the SEGI architecture 
+                ("Gamifying and Tokenizing Sustainable Behaviors By Using Blockchain Technology") covering the Proof-of-Genesis™ architecture 
                 with Mint-on-Proof™, Proof-of-Delta™, and Proof-of-Origin™ as dependent claims. Comprehensive patent landscape 
                 research has identified no existing claims covering this methodology.
               </p>
@@ -1752,7 +1751,7 @@ export default function WhitePaper() {
                   color: 'bg-primary',
                   items: [
                     '$ZSOLAR Debit Card and utility bill integration',
-                    'White-label SEGI licensing to energy providers',
+                    'White-label Proof-of-Genesis™ licensing to energy providers',
                     'International expansion beyond US market',
                     'Carbon credit marketplace integration',
                     'Target: 100K+ households in the global clean energy economy',

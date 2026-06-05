@@ -23,17 +23,17 @@ import {
   Trophy
 } from 'lucide-react';
 import { MintOnProofComparison } from '@/components/whitepaper/MintOnProofComparison';
-import { SEGIProofOfDeltaDiagram } from '@/components/technology/SEGIProofOfDeltaDiagram';
+import { ProofOfGenesisDiagram } from '@/components/technology/ProofOfGenesisDiagram';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { SEO } from '@/components/SEO';
 
-const segiLayers = [
+const pogLayers = [
   {
     icon: Cloud,
     title: 'Layer 1: API Aggregation',
     tagline: 'Universal Translator',
-    description: 'SEGI speaks every language in the clean energy world. Tesla, Enphase, SolarEdge, Wallbox—we connect to manufacturer clouds via secure OAuth. No hardware dongles, no gateway boxes, no technician visits.',
+    description: 'Proof-of-Genesis™ speaks every language in the clean energy world. Tesla, Enphase, SolarEdge, Wallbox—we connect to manufacturer clouds via secure OAuth. No hardware dongles, no gateway boxes, no technician visits.',
     gradient: 'from-blue-500 to-cyan-500',
     highlight: 'Zero hardware required',
   },
@@ -41,7 +41,7 @@ const segiLayers = [
     icon: RefreshCw,
     title: 'Layer 2: Data Normalization',
     tagline: 'Unified Standards',
-    description: 'Every provider reports data differently. Tesla talks in miles, Enphase speaks Watt-hours, Wallbox counts in kWh. SEGI normalizes everything into a unified "Impact Score" (0.7 kg CO₂ per kWh). One metric to rule them all.',
+    description: 'Every provider reports data differently. Tesla talks in miles, Enphase speaks Watt-hours, Wallbox counts in kWh. Proof-of-Genesis™ normalizes everything into a unified "Impact Score" (0.7 kg CO₂ per kWh). One metric to rule them all.',
     gradient: 'from-emerald-500 to-green-500',
     highlight: 'Unified impact scoring',
   },
@@ -49,7 +49,7 @@ const segiLayers = [
     icon: Fingerprint,
     title: 'Layer 3: Verification Engine',
     tagline: 'Cryptographic Proof',
-    description: 'Anyone can claim they drove 1,000 miles. SEGI doesn\'t take your word for it—it pulls cryptographically signed data directly from manufacturer APIs. Timestamps, device IDs, and production values are all tamper-evident.',
+    description: 'Anyone can claim they drove 1,000 miles. Proof-of-Genesis™ doesn\'t take your word for it—it pulls cryptographically signed data directly from manufacturer APIs. Timestamps, device IDs, and production values are all tamper-evident.',
     gradient: 'from-purple-500 to-pink-500',
     highlight: 'Tamper-proof verification',
   },
@@ -57,7 +57,7 @@ const segiLayers = [
     icon: Binary,
     title: 'Layer 4: Smart Contract Bridge',
     tagline: 'Mint-on-Proof™ + Proof-of-Origin™',
-    description: 'This is where the magic happens. SEGI calculates your new activity since your last mint, packages it into a transaction payload, and triggers our smart contracts on Base L2. Every mint simultaneously updates the Device Watermark Registry—a public, on-chain record binding each physical device to its total tokenized energy via Proof-of-Origin™. With one tap, you mint $ZSOLAR tokens AND milestone NFTs directly to your wallet, with cross-platform anti-double-mint protection built in.',
+    description: 'This is where the magic happens. Proof-of-Genesis™ calculates your new activity since your last mint, packages it into a transaction payload, and triggers our smart contracts on Base L2. Every mint simultaneously updates the Device Watermark Registry—a public, on-chain record binding each physical device to its total tokenized energy via Proof-of-Origin™. With one tap, you mint $ZSOLAR tokens AND milestone NFTs directly to your wallet, with cross-platform anti-double-mint protection built in.',
     gradient: 'from-amber-500 to-orange-500',
     highlight: 'One-tap minting + on-chain watermark',
   },
@@ -72,7 +72,7 @@ const whyItMatters = [
   {
     icon: Globe,
     title: 'Hardware Agnostic',
-    description: 'Don\'t have Tesla? No problem. SEGI works with the equipment you already own.',
+    description: 'Don\'t have Tesla? No problem. Proof-of-Genesis™ works with the equipment you already own.',
   },
   {
     icon: Shield,
@@ -87,12 +87,12 @@ const whyItMatters = [
 ];
 
 const comparisonTable = [
-  { feature: 'Hardware Required', traditional: 'Custom IoT devices', segi: 'None—software only ✓' },
-  { feature: 'Setup Time', traditional: '2-4 weeks', segi: '60 seconds ✓' },
-  { feature: 'Vendor Lock-In', traditional: 'Single provider', segi: 'Multi-vendor ✓' },
-  { feature: 'Verification Method', traditional: 'Self-reported', segi: 'API-verified ✓' },
-  { feature: 'Maintenance', traditional: 'Ongoing hardware upkeep', segi: 'Zero maintenance ✓' },
-  { feature: 'Cost to User', traditional: '$100-500+ devices', segi: 'Free to connect ✓' },
+  { feature: 'Hardware Required', traditional: 'Custom IoT devices', pog: 'None—software only ✓' },
+  { feature: 'Setup Time', traditional: '2-4 weeks', pog: '60 seconds ✓' },
+  { feature: 'Vendor Lock-In', traditional: 'Single provider', pog: 'Multi-vendor ✓' },
+  { feature: 'Verification Method', traditional: 'Self-reported', pog: 'API-verified ✓' },
+  { feature: 'Maintenance', traditional: 'Ongoing hardware upkeep', pog: 'Zero maintenance ✓' },
+  { feature: 'Cost to User', traditional: '$100-500+ devices', pog: 'Free to connect ✓' },
 ];
 
 const blockchainFlow = [
@@ -105,14 +105,14 @@ const blockchainFlow = [
   {
     step: 2,
     emoji: '📊',
-    title: 'SEGI Tracks Everything',
+    title: 'Proof-of-Genesis™ Tracks Everything',
     description: 'We pull your production data automatically—kWh generated, miles driven, energy stored.',
   },
   {
     step: 3,
     emoji: '🧮',
     title: 'Calculate Your Rewards',
-    description: 'SEGI converts your activity into token eligibility using our verified formulas.',
+    description: 'Proof-of-Genesis™ converts your activity into token eligibility using our verified formulas.',
   },
   {
     step: 4,
@@ -158,11 +158,11 @@ export default function Technology() {
           Meet <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">Mint-on-Proof™</span>
         </h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Powered by <strong>SEGI (Software-Enabled Gateway Interface)</strong>—the patent-pending tech that turns your clean energy into blockchain rewards, no hardware required.
+          Powered by <strong>Proof-of-Genesis™ (Proof-of-Genesis™ protocol)</strong>—the patent-pending tech that turns your clean energy into blockchain rewards, no hardware required.
         </p>
       </motion.div>
 
-      {/* What is SEGI - Hero Card */}
+      {/* What is Proof-of-Genesis™ - Hero Card */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -177,7 +177,7 @@ export default function Technology() {
               <div className="space-y-4">
                 <h2 className="text-2xl font-bold text-center md:text-left">What is Mint-on-Proof™?</h2>
                 <p className="text-muted-foreground leading-relaxed text-center md:text-left">
-                  Think of SEGI as a <strong className="text-foreground">universal translator</strong> that sits between your 
+                  Think of Proof-of-Genesis™ as a <strong className="text-foreground">universal translator</strong> that sits between your 
                   energy hardware and the blockchain. It's a software layer that:
                 </p>
                 <ul className="space-y-3 text-muted-foreground max-w-md mx-auto md:mx-0">
@@ -217,11 +217,11 @@ export default function Technology() {
       >
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-2">How Mint-on-Proof™ Works: The 4 Layers</h2>
-          <p className="text-muted-foreground">Under the hood, SEGI is a layered architecture—each piece doing its job perfectly.</p>
+          <p className="text-muted-foreground">Under the hood, Proof-of-Genesis™ is a layered architecture—each piece doing its job perfectly.</p>
         </div>
         
         <div className="grid gap-4">
-          {segiLayers.map((layer, index) => (
+          {pogLayers.map((layer, index) => (
             <motion.div
               key={layer.title}
               initial={{ opacity: 0, x: -16 }}
@@ -258,13 +258,13 @@ export default function Technology() {
         </div>
       </motion.div>
 
-      {/* SEGI + Proof-of-Delta Architecture */}
+      {/* Proof-of-Genesis™ Architecture */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.22 }}
       >
-        <SEGIProofOfDeltaDiagram />
+        <ProofOfGenesisDiagram />
       </motion.div>
 
       {/* Mint-on-Proof vs Pre-Minted Pools Visual Comparison */}
@@ -313,7 +313,7 @@ export default function Technology() {
         </Card>
       </motion.div>
 
-      {/* SEGI vs Traditional */}
+      {/* Proof-of-Genesis™ vs Traditional */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -323,7 +323,7 @@ export default function Technology() {
           <CardHeader className="bg-muted/40">
             <CardTitle className="flex items-center gap-3 text-xl">
               <Zap className="h-6 w-6 text-primary" />
-              SEGI vs. Traditional Approaches
+              Proof-of-Genesis™ vs. Traditional Approaches
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
@@ -333,7 +333,7 @@ export default function Technology() {
                   <tr className="border-b border-border">
                     <th className="text-left py-3 px-2 font-semibold">Feature</th>
                     <th className="text-left py-3 px-2 font-semibold text-muted-foreground">Traditional</th>
-                    <th className="text-left py-3 px-2 font-semibold text-primary">SEGI</th>
+                    <th className="text-left py-3 px-2 font-semibold text-primary">Proof-of-Genesis™</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -341,7 +341,7 @@ export default function Technology() {
                     <tr key={row.feature} className={index < comparisonTable.length - 1 ? 'border-b border-border/50' : ''}>
                       <td className="py-3 px-2 font-medium">{row.feature}</td>
                       <td className="py-3 px-2 text-muted-foreground">{row.traditional}</td>
-                      <td className="py-3 px-2 text-primary font-medium">{row.segi}</td>
+                      <td className="py-3 px-2 text-primary font-medium">{row.pog}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -485,7 +485,7 @@ export default function Technology() {
                 <h3 className="text-xl font-bold">Why Is This Patent-Pending?</h3>
                 <p className="text-muted-foreground leading-relaxed">
                   <strong className="text-foreground">The innovation is the method.</strong> Prior approaches required 
-                  custom IoT hardware or relied on self-reported data. SEGI is the first system to create a 
+                  custom IoT hardware or relied on self-reported data. Proof-of-Genesis™ is the first system to create a 
                   <strong className="text-foreground"> software-only bridge</strong> between verified energy APIs 
                   and blockchain smart contracts.
                 </p>
@@ -516,7 +516,7 @@ export default function Technology() {
         className="text-center space-y-4 py-6"
       >
         <h2 className="text-2xl font-bold">
-          Ready to Experience SEGI? ⚡
+          Ready to Experience Proof-of-Genesis™? ⚡
         </h2>
         <p className="text-muted-foreground max-w-xl mx-auto">
           Connect your devices and start earning $ZSOLAR rewards in under a minute. 

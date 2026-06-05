@@ -200,7 +200,7 @@ export function ProtocolJourney({ data }: { data: ProtocolJourneyData }) {
     blockNumber: data.blockNumber || '—',
     permanenceRoot: data.permanenceRoot || '',
     permanenceAnchoredAt: data.permanenceAnchoredAt || new Date().toISOString(),
-    segiProvider: data.primaryProvider || 'Unknown',
+    pogProvider: data.primaryProvider || 'Unknown',
     tapToMint: true,
     explorerUrl: data.mintTxHash ? `https://basescan.org/tx/${data.mintTxHash}` : undefined,
   };

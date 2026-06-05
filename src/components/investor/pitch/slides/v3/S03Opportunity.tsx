@@ -44,7 +44,7 @@ export function S03Opportunity() {
           <CardKicker className="text-secondary">One patent · multiple markets</CardKicker>
           <div className="grid grid-cols-3 gap-8 mt-4">
             {[
-              { title: 'Commercial Solar & Fleet EV', desc: 'SEGI™ scaled to warehouses, campuses, and commercial fleets. 10–100× capacity per account.' },
+              { title: 'Commercial Solar & Fleet EV', desc: 'Proof-of-Genesis™ scaled to warehouses, campuses, and commercial fleets. 10–100× capacity per account.' },
               { title: 'Grid Demand Response & VPP', desc: 'Manufacturer-agnostic aggregation for utility dispatch signaling and capacity payments.' },
               { title: 'Installer Mint Network', desc: 'B2B channel — installers mint 1 $ZSOLAR per 1 kW installed. Verified on-chain portfolio.' },
             ].map((c) => (

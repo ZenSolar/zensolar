@@ -22,7 +22,7 @@ const headToHeadRows = [
   },
   {
     category: 'Claim framing',
-    zensolar: 'Broad system/method for tokenizing sustainable behaviors using blockchain; SEGI can use APIs or hardware and spans solar, EV, battery, charging, plus other verticals.',
+    zensolar: 'Broad system/method for tokenizing sustainable behaviors using blockchain; Proof-of-Genesis™ can use APIs or hardware and spans solar, EV, battery, charging, plus other verticals.',
     gridpay: 'Footer title is narrower: distributed energy export rewards using smart-meter data, blockchain-issued digital multipliers, and AI-driven VPP coordination.',
     investorTakeaway: 'ZenSolar looks broader and earlier; GridPay looks more narrowly Texas/export/VPP oriented.',
   },
@@ -34,7 +34,7 @@ const headToHeadRows = [
   },
   {
     category: 'Data ingestion model',
-    zensolar: 'SEGI pulls from APIs first, with hardware as an alternative path.',
+    zensolar: 'Proof-of-Genesis™ pulls from APIs first, with hardware as an alternative path.',
     gridpay: 'Public language centers on smart-meter data and behind-the-meter aggregation.',
     investorTakeaway: 'ZenSolar is broader on source flexibility; GridPay appears narrower on metering/export signals.',
   },
@@ -70,7 +70,7 @@ const patentOverlapRows = [
     provisional:
       'Already supported by “System and Method for Tokenizing and Gamifying Sustainable Behaviors Using Blockchain Technology” plus token minting concepts in the provisional.',
     architecture:
-      'Mint-on-Proof™ gates issuance until verified kWh, battery export, EV charging, or EV miles data is confirmed through the SEGI flow.',
+      'Mint-on-Proof™ gates issuance until verified kWh, battery export, EV charging, or EV miles data is confirmed through the Proof-of-Genesis™ flow.',
     addition:
       'Explicitly claim verification-gated token issuance, atomic mint-after-proof logic, and no-pre-minted-pool embodiments.',
   },
@@ -79,7 +79,7 @@ const patentOverlapRows = [
     provisional:
       'Supported broadly through solar production, batteries, and connected sustainability behavior framing, but not yet broken into a modern multi-device system architecture.',
     architecture:
-      'SEGI normalizes data from solar inverters, batteries, EV charging systems, and mobility signals into a single verification pipeline.',
+      'Proof-of-Genesis™ normalizes data from solar inverters, batteries, EV charging systems, and mobility signals into a single verification pipeline.',
     addition:
       'Add claims covering a plurality of distributed energy resources, including solar generation, battery discharge/export, EV charging, and vehicle-to-grid events.',
   },
@@ -95,9 +95,9 @@ const patentOverlapRows = [
   {
     phrase: 'Smart-meter data',
     provisional:
-      'Provisional references smart meters, APIs, and inverter-linked data collection through SEGI, but the disclosure can be sharpened around meter-specific embodiments.',
+      'Provisional references smart meters, APIs, and inverter-linked data collection through Proof-of-Genesis™, but the disclosure can be sharpened around meter-specific embodiments.',
     architecture:
-      'Current design is hardware-agnostic: SEGI can ingest utility meter, inverter, charger, battery, and OEM API data through the same normalization layer.',
+      'Current design is hardware-agnostic: Proof-of-Genesis™ can ingest utility meter, inverter, charger, battery, and OEM API data through the same normalization layer.',
     addition:
       'Add embodiments covering smart-meter data as one input class among multiple data sources, preserving broader hardware-agnostic protection.',
   },
@@ -123,7 +123,7 @@ const patentOverlapRows = [
     provisional:
       'Not the dominant framing in the provisional, but consistent with the broader concept of aggregating verified energy behavior into blockchain rewards.',
     architecture:
-      'ZenSolar has already brainstormed and product-mapped a future VPP layer where SEGI coordinates distributed batteries and EVs while issuing crypto rewards for verified dispatch participation.',
+      'ZenSolar has already brainstormed and product-mapped a future VPP layer where Proof-of-Genesis™ coordinates distributed batteries and EVs while issuing crypto rewards for verified dispatch participation.',
     addition:
       'Add utility claims for verified dispatch signaling, multi-device aggregation, demand-response event participation, and reward issuance tied to verified VPP performance.',
   },
@@ -132,19 +132,19 @@ const patentOverlapRows = [
     provisional:
       'Not explicitly disclosed in the provisional, but consistent with the broader concept of tokenizing verified sustainable mobility behaviors.',
     architecture:
-      'SEGI already normalizes EV odometer data via Tesla Fleet API with Proof-of-Delta™ hash chains. Tesla displays FSD miles on-screen in 2023+ vehicles, indicating manufacturer telemetry tracks autonomous vs. manual driving — a future API endpoint is anticipated.',
+      'Proof-of-Genesis™ already normalizes EV odometer data via Tesla Fleet API with Proof-of-Delta™ hash chains. Tesla displays FSD miles on-screen in 2023+ vehicles, indicating manufacturer telemetry tracks autonomous vs. manual driving — a future API endpoint is anticipated.',
     addition:
       'Add dependent claims for tokenizing verified autonomous driving miles sourced from manufacturer API telemetry, including: (1) distinguishing FSD Supervised miles from FSD Unsupervised (fully autonomous) miles via OEM-reported driving-mode classification, (2) separate reward rate configuration for supervised vs. unsupervised autonomous driving, (3) applying Proof-of-Delta™ verification to autonomous mileage deltas for each driving mode independently, (4) device-bound anti-double-mint enforcement via the Device Watermark Registry for autonomous driving activity, and (5) future-proofed claim coverage for robotaxi fleet telemetry tokenization.',
   },
 ];
 
 const vppUtilityAdditions = [
-  'A method for aggregating distributed energy devices into a software-coordinated virtual power plant using the same SEGI ingestion and verification layers.',
+  'A method for aggregating distributed energy devices into a software-coordinated virtual power plant using the same Proof-of-Genesis™ ingestion and verification layers.',
   'Verified dispatch signaling embodiments where a utility, ISO, aggregator, or platform triggers discharge or curtailment events across enrolled devices.',
   'Reward issuance tied not only to raw kWh generation, but also to verified export, dispatch participation, demand-response compliance, and event completion.',
   'Smart-meter, inverter, battery, EV, and charger data as interchangeable or complementary verification inputs for VPP settlement.',
   'Optional AI-based optimization as a dependent feature for dispatch prediction or orchestration, while preserving the broader claim on verification-before-issuance.',
-  'A method for tokenizing verified autonomous driving miles via manufacturer API telemetry, where the SEGI gateway ingests OEM-reported driving-mode classifications (e.g., Full Self-Driving, Autopilot, manual) and applies Proof-of-Delta™ verification to each mileage delta before token issuance — extending the verification-gated mint architecture beyond energy production into verified autonomous mobility.',
+  'A method for tokenizing verified autonomous driving miles via manufacturer API telemetry, where the Proof-of-Genesis™ gateway ingests OEM-reported driving-mode classifications (e.g., Full Self-Driving, Autopilot, manual) and applies Proof-of-Delta™ verification to each mileage delta before token issuance — extending the verification-gated mint architecture beyond energy production into verified autonomous mobility.',
 ];
 
 const zensolarTokenomics = [
@@ -179,7 +179,7 @@ const timeline = [
   {
     date: 'Q1 2025',
     label: 'ZenSolar public beta / product positioning',
-    detail: 'Founder materials establish earlier public-facing product and architecture narrative around SEGI, token rewards, and milestone logic.',
+    detail: 'Founder materials establish earlier public-facing product and architecture narrative around Proof-of-Genesis™, token rewards, and milestone logic.',
   },
   {
     date: '11/22/2025',
@@ -268,7 +268,7 @@ export default function GridPayCompetition() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-muted-foreground">
-                      ZenSolar is framed as verification infrastructure with SEGI, proof-based minting, and anti-double-mint logic.
+                      ZenSolar is framed as verification infrastructure with Proof-of-Genesis™, proof-based minting, and anti-double-mint logic.
                     </p>
                   </CardContent>
                 </Card>
@@ -438,14 +438,14 @@ export default function GridPayCompetition() {
               <CardContent className="space-y-4 text-sm leading-7 text-muted-foreground md:text-base">
                 <p>
                   <strong className="text-foreground">Yes—the overlap is real.</strong> If GridPay is publicly signaling tokenized distributed energy export rewards plus AI-driven VPP coordination,
-                  and ZenSolar has already brainstormed a VPP built on SEGI that rewards users in crypto for verified grid participation, then both narratives can converge around the same future market lane.
+                  and ZenSolar has already brainstormed a VPP built on Proof-of-Genesis™ that rewards users in crypto for verified grid participation, then both narratives can converge around the same future market lane.
                 </p>
                 <p>
                   <strong className="text-foreground">The difference is architecture breadth.</strong> GridPay reads like a VPP-specific export rewards system.
                   ZenSolar reads like a broader verification infrastructure that can start with solar production, battery export, EV charging, and EV miles—then extend into VPP dispatch as one embodiment.
                 </p>
                 <p>
-                  <strong className="text-foreground">That framing matters for the utility filing.</strong> VPP should be added as an explicit supported embodiment of the existing SEGI stack,
+                  <strong className="text-foreground">That framing matters for the utility filing.</strong> VPP should be added as an explicit supported embodiment of the existing Proof-of-Genesis™ stack,
                   not as a totally separate invention. The message is: the same gateway, normalization, verification, and minting architecture can also coordinate and reward aggregated dispatch events.
                 </p>
               </CardContent>
@@ -625,7 +625,7 @@ export default function GridPayCompetition() {
               <p>
                 The strongest investor summary is this: <strong className="text-foreground">GridPay validates the category; ZenSolar owns the bigger architecture story.</strong>
                 GridPay demonstrates real market appetite for turning household energy behavior into blockchain-linked rewards, but ZenSolar’s earlier filing,
-                broader SEGI architecture, proof-based issuance framing, and more institutionally legible tokenomics make it easier to position as the long-term category platform.
+                broader Proof-of-Genesis™ architecture, proof-based issuance framing, and more institutionally legible tokenomics make it easier to position as the long-term category platform.
               </p>
               <p>
                 Said differently, GridPay can be framed as evidence of market pull, while ZenSolar should be framed as the higher-upside,

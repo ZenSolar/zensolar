@@ -9,7 +9,7 @@
 ZenSolar is a **Web3 clean energy rewards platform** that converts verified solar generation, EV driving, battery storage, and EV charging activity into blockchain tokens ($ZSOLAR) and milestone NFTs. Users connect their energy devices (Tesla, Enphase, SolarEdge, Wallbox), and the platform verifies their real-world energy activity via direct API integrations, then rewards them with on-chain tokens — all within a single app. No external wallets, no seed phrases, no crypto knowledge required.
 
 **Patent-pending IP**: "Gamifying and Tokenizing Sustainable Behaviors By Using Blockchain Technology"
-**Pending Trademarks**: Mint-on-Proof™, Mint-on-Delta™, Proof-of-Delta™, SEGI™
+**Pending Trademarks**: Mint-on-Proof™, Mint-on-Delta™, Proof-of-Delta™, Proof-of-Genesis™
 
 ---
 
@@ -30,9 +30,9 @@ ZenSolar is a **Web3 clean energy rewards platform** that converts verified sola
 
 ---
 
-## 3. Core Architecture — SEGI (Software-Enabled Gateway Interface)
+## 3. Core Architecture — Proof-of-Genesis™ (Proof-of-Genesis™ protocol)
 
-SEGI is the patent-pending, hardware-agnostic architecture that bridges real-world energy data to blockchain rewards. It has **4 layers**:
+Proof-of-Genesis™ is the patent-pending, hardware-agnostic architecture that bridges real-world energy data to blockchain rewards. It has **4 layers**:
 
 ```
 Layer 1: API Aggregation
@@ -203,7 +203,7 @@ All tables have **Row-Level Security (RLS)** with per-user isolation and admin o
 |-------|------|
 | `/` (authenticated) | Main dashboard with energy metrics, rewards, minting |
 | `/how-it-works` | How It Works explainer |
-| `/technology` | Patent technology / SEGI architecture |
+| `/technology` | Patent technology / Proof-of-Genesis™ architecture |
 | `/tokenomics` | Tokenomics overview |
 | `/store` | Redeem tokens (testnet) |
 | `/nft-collection` | User's minted NFT gallery |
@@ -287,7 +287,7 @@ All tables have **Row-Level Security (RLS)** with per-user isolation and admin o
 ## 9. Component Architecture
 
 ### Landing Page (6 components)
-`HeroSection` → `SEGISection` → `CompetitiveEdge` → `FeaturesGrid` → `BenefitsAndCTA` → `LandingFooter`
+`HeroSection` → `PoGSection` → `CompetitiveEdge` → `FeaturesGrid` → `BenefitsAndCTA` → `LandingFooter`
 
 ### Dashboard (35+ components)
 Core: `ZenSolarDashboard`, `DashboardHeader`, `ActivityMetrics`, `MetricCard`, `AnimatedEnergyFlow`
@@ -351,9 +351,9 @@ UX: `GettingStartedGuide`, `QuickStartChecklist`, `SwipeableActivityField`, `Pul
 
 ## 13. Competitive Moat (5 Pillars)
 
-1. **Patent-pending** energy-to-blockchain verification (SEGI + Proof-of-Delta)
+1. **Patent-pending** energy-to-blockchain verification (Proof-of-Genesis™)
 2. **Economic Flywheel**: 50% of subscription revenue auto-injected into liquidity pool
-3. **Hardware-neutral** SEGI data aggregation (60-second setup)
+3. **Hardware-neutral** Proof-of-Genesis™ data aggregation (60-second setup)
 4. **Dual minting engines**: Mint-on-Proof™ + Mint-on-Delta™
 5. **Unified Command Center**: Replaces siloed manufacturer apps (Tesla, Enphase, etc.)
 

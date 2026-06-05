@@ -435,11 +435,11 @@ export default function FoundersSeedPitch() {
             <h3 className="font-serif text-lg mb-2">The TM Stack</h3>
             <ul className="text-xs text-foreground/85 leading-relaxed space-y-1.5">
               <li>• <span className="font-semibold">Patent Track 1</span> — Mint-on-Proof™</li>
-              <li>• <span className="font-semibold">Patent Track 2</span> — Proof-of-Delta™ / SEGI™</li>
+              <li>• <span className="font-semibold">Patent Track 2</span> — Proof-of-Delta™ / Proof-of-Genesis™</li>
               <li>• <span className="font-semibold">Patent Track 2.5</span> — Energy Price Oracle</li>
               <li>• <span className="font-semibold">Patent Track 3</span> — Device Watermark Registry</li>
               <li>• <span className="font-semibold">Patent Track 4</span> — ZK-Proof-of-Genesis</li>
-              <li className="pt-1.5 border-t border-border/40 mt-2">TMs: Proof-of-Genesis™, Proof of Genesis™, Proof-of-Permanence™ ("The Eternal Ledger"), Genesis Anchor™, Proof-of-Custody™, SEGI™, ZPPA</li>
+              <li className="pt-1.5 border-t border-border/40 mt-2">TMs: Proof-of-Genesis™, Proof of Genesis™, Proof-of-Permanence™ ("The Eternal Ledger"), Genesis Anchor™, Proof-of-Custody™, Proof-of-Genesis™, ZPPA</li>
             </ul>
           </div>
 
