@@ -14,6 +14,11 @@ import { DashboardShell } from '@/components/web/DashboardShell';
 import { CommandPalette } from '@/components/web/CommandPalette';
 import { resetFirstMintCelebration } from '@/lib/firstMintCelebration';
 import { isInvestorDemoModeSync } from '@/hooks/useInvestorDemoMode';
+import { BackToInvestorHubPill } from '@/components/demo/BackToInvestorHubPill';
+import { GuidedTourLauncher } from '@/components/demo/GuidedTourLauncher';
+import { GuidedTourOverlay } from '@/components/demo/GuidedTourOverlay';
+import { DemoCallouts } from '@/components/demo/DemoCallouts';
+import { useGuidedTour } from '@/hooks/useGuidedTour';
 import { toast } from 'sonner';
 
 export function DemoLayout() {
@@ -22,6 +27,7 @@ export function DemoLayout() {
   const navigate = useNavigate();
   const hasRouteQaParam = new URLSearchParams(location.search).has('routeqa');
   const showRouteBanner = hasRouteQaParam && !isInvestorDemoModeSync();
+  const tour = useGuidedTour();
 
   // Convenience: ?replayCinematic=1 (anywhere) clears the flags so the next
   // mint plays the full Cinematic D again. Also exposes window.zenReplayCinematic().
@@ -93,6 +99,18 @@ export function DemoLayout() {
         <MobileBottomNav variant="demo" />
         {/* Global ⌘K command palette — demo-scoped */}
         <CommandPalette basePath="/demo" isDemo />
+        {/* Investor-demo-only chrome */}
+        <BackToInvestorHubPill />
+        <GuidedTourLauncher onStart={tour.start} />
+        <GuidedTourOverlay
+          active={tour.active}
+          step={tour.step}
+          stepIndex={tour.stepIndex}
+          totalSteps={tour.steps.length}
+          onNext={tour.next}
+          onSkip={tour.stop}
+        />
+        <DemoCallouts />
       </SidebarProvider>
     </DemoProvider>
   );
