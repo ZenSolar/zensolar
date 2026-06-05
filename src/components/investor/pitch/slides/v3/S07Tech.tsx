@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { SlideLayout, SlideHeader, SlideFooter } from '../../SlideLayout';
 import { SectionHeader } from '../../v3/SectionHeader';
 import { DeckCard, CardKicker } from '../../v3/DeckCard';
