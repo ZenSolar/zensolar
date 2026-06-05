@@ -223,7 +223,7 @@ export default function InvestorPitch() {
           </p>
         </section>
 
-        <footer className="border-t border-border/40 py-6 text-center">
+        <footer className="border-t border-border/40 py-6 text-center space-y-2">
           <p className="text-[11px] text-muted-foreground">
             ZenSolar, LLC · Austin, TX ·{' '}
             <a
@@ -234,6 +234,12 @@ export default function InvestorPitch() {
             </a>{' '}
             · Confidential under NDA
           </p>
+          <Link
+            to="/investor/data-room"
+            className="inline-block text-[11px] uppercase tracking-[0.18em] text-secondary/80 hover:text-secondary"
+          >
+            Data Room →
+          </Link>
         </footer>
       </div>
     </>
