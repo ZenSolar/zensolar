@@ -405,6 +405,20 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Persistent fullscreen-exit chip for touch devices. When controls
+          auto-hide, mobile users have no mousemove to bring them back, so
+          we keep a 44x44 Minimize button pinned top-right as an escape hatch. */}
+      {isFullscreen && !showControls && isCoarsePointer && (
+        <button
+          onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}
+          aria-label="Exit fullscreen"
+          className="fixed top-3 right-3 z-[10000] w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur-sm flex items-center justify-center text-white pointer-events-auto shadow-lg"
+          style={{ top: 'max(0.75rem, env(safe-area-inset-top))', right: 'max(0.75rem, env(safe-area-inset-right))' }}
+        >
+          <Minimize className="w-5 h-5" />
+        </button>
+      )}
     </div>
   );
 }
