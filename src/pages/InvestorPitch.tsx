@@ -224,7 +224,11 @@ export default function InvestorPitch() {
           </p>
         </section>
 
-        <footer className="border-t border-border/40 py-6 text-center space-y-2">
+        <section className="mt-12">
+          <InvestorFAQ />
+        </section>
+
+        <footer className="border-t border-border/40 py-6 text-center space-y-2 mt-12">
           <p className="text-[11px] text-muted-foreground">
             ZenSolar, LLC · Austin, TX ·{' '}
             <a
