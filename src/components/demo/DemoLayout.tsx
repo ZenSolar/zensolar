@@ -13,14 +13,15 @@ import { ReviewerWelcomeBanner } from '@/components/demo/ReviewerWelcomeBanner';
 import { DashboardShell } from '@/components/web/DashboardShell';
 import { CommandPalette } from '@/components/web/CommandPalette';
 import { resetFirstMintCelebration } from '@/lib/firstMintCelebration';
+import { isInvestorDemoModeSync } from '@/hooks/useInvestorDemoMode';
 import { toast } from 'sonner';
 
 export function DemoLayout() {
   useDemoScreenshotDetector();
   const location = useLocation();
   const navigate = useNavigate();
-  const host = typeof window === 'undefined' ? '' : window.location.hostname;
-  const showRouteBanner = import.meta.env.DEV || host.includes('lovableproject.com') || host.includes('id-preview--') || new URLSearchParams(location.search).has('routeqa');
+  const hasRouteQaParam = new URLSearchParams(location.search).has('routeqa');
+  const showRouteBanner = hasRouteQaParam && !isInvestorDemoModeSync();
 
   // Convenience: ?replayCinematic=1 (anywhere) clears the flags so the next
   // mint plays the full Cinematic D again. Also exposes window.zenReplayCinematic().
