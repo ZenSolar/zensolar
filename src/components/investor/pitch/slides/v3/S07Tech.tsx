@@ -167,6 +167,10 @@ export function S07Tech() {
             </DeckCard>
           ))}
         </div>
+
+        <p className="mt-5 text-[13px] font-mono tracking-[0.14em] uppercase text-white/35 text-center">
+          Full PoG technology stack &amp; architecture + real receipt example available in data room.
+        </p>
       </div>
 
       <SlideFooter />
