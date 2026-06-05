@@ -13,10 +13,52 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showGrid, setShowGrid] = useState(false);
   const [showControls, setShowControls] = useState(true);
+  const [isCoarsePointer, setIsCoarsePointer] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout>>();
+  // Multi-touch tracking: the sitewide viewport meta normally disables pinch-zoom
+  // so we relax it on /deck (see effect below). Once pinch-zoom is allowed, we
+  // must also stop our own swipe/tap-zone handlers from misreading the second
+  // finger as a swipe and the lift-off as a tap that changes slides.
+  const wasMultiTouch = useRef(false);
+  const multiTouchClearTimer = useRef<ReturnType<typeof setTimeout>>();
 
   const total = slides.length;
+
+  // Pinch-zoom enablement: index.html ships
+  //   user-scalable=no, maximum-scale=1.0
+  // for the PWA shell. That's right for the app, wrong for a deck where
+  // investors want to inspect numbers. Swap the viewport meta to a
+  // zoom-friendly value while this component is mounted, and restore the
+  // original on unmount, popstate (back button), or hard refresh teardown.
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="viewport"]');
+    if (!meta) return;
+    const original = meta.getAttribute('content');
+    meta.setAttribute(
+      'content',
+      'width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover',
+    );
+    const restore = () => {
+      if (original != null) meta.setAttribute('content', original);
+    };
+    window.addEventListener('popstate', restore);
+    return () => {
+      window.removeEventListener('popstate', restore);
+      restore();
+    };
+  }, []);
+
+  // Coarse-pointer detection for the persistent fullscreen-exit chip.
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mq = window.matchMedia('(pointer: coarse)');
+    const update = () => setIsCoarsePointer(mq.matches);
+    update();
+    mq.addEventListener?.('change', update);
+    return () => mq.removeEventListener?.('change', update);
+  }, []);
 
   const goTo = useCallback((i: number) => {
     setCurrent(Math.max(0, Math.min(total - 1, i)));
@@ -42,44 +84,72 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
     return () => window.removeEventListener('keydown', handler);
   }, [next, prev, showGrid]);
 
-  // Fullscreen — uses native Fullscreen API where available, falls back to
-  // a CSS "fauxscreen" on iOS Safari (which doesn't expose requestFullscreen
-  // on non-video elements).
+  // Fullscreen — uses native Fullscreen API where available (with webkit
+  // prefix for iPad Safari), falls back to a CSS "fauxscreen" on iPhone
+  // Safari which doesn't expose requestFullscreen on non-video elements.
   const [fauxFullscreen, setFauxFullscreen] = useState(false);
   const toggleFullscreen = useCallback(() => {
     const el = containerRef.current;
     if (!el) return;
-    const supportsNative = typeof el.requestFullscreen === 'function';
-    if (!supportsNative) {
+    const anyEl = el as any;
+    const anyDoc = document as any;
+    const nativeRequest: (() => Promise<void>) | undefined =
+      typeof el.requestFullscreen === 'function'
+        ? el.requestFullscreen.bind(el)
+        : typeof anyEl.webkitRequestFullscreen === 'function'
+        ? anyEl.webkitRequestFullscreen.bind(el)
+        : undefined;
+    const nativeExit: (() => Promise<void>) | undefined =
+      typeof document.exitFullscreen === 'function'
+        ? document.exitFullscreen.bind(document)
+        : typeof anyDoc.webkitExitFullscreen === 'function'
+        ? anyDoc.webkitExitFullscreen.bind(document)
+        : undefined;
+    const isNativeOn = !!(document.fullscreenElement || anyDoc.webkitFullscreenElement);
+
+    if (!nativeRequest) {
+      // iPhone Safari path
       setFauxFullscreen((v) => !v);
       return;
     }
-    if (!document.fullscreenElement) {
-      el.requestFullscreen().catch(() => setFauxFullscreen(true));
-    } else {
-      document.exitFullscreen();
+    if (!isNativeOn) {
+      Promise.resolve(nativeRequest()).catch(() => setFauxFullscreen(true));
+    } else if (nativeExit) {
+      Promise.resolve(nativeExit()).catch(() => {});
     }
   }, []);
 
   useEffect(() => {
-    const handler = () => setIsFullscreen(!!document.fullscreenElement || fauxFullscreen);
+    const anyDoc = document as any;
+    const handler = () =>
+      setIsFullscreen(
+        !!document.fullscreenElement || !!anyDoc.webkitFullscreenElement || fauxFullscreen,
+      );
     document.addEventListener('fullscreenchange', handler);
+    document.addEventListener('webkitfullscreenchange', handler as EventListener);
     handler();
-    return () => document.removeEventListener('fullscreenchange', handler);
+    return () => {
+      document.removeEventListener('fullscreenchange', handler);
+      document.removeEventListener('webkitfullscreenchange', handler as EventListener);
+    };
   }, [fauxFullscreen]);
 
-  // Auto-hide controls in fullscreen
+  // Auto-hide controls in fullscreen. Listen to touchstart too so mobile
+  // users always have a way to reveal the controls (mousemove doesn't fire
+  // on touch devices).
   useEffect(() => {
     if (!isFullscreen) { setShowControls(true); return; }
-    const handleMove = () => {
+    const reveal = () => {
       setShowControls(true);
       clearTimeout(hideTimer.current);
       hideTimer.current = setTimeout(() => setShowControls(false), 2500);
     };
-    window.addEventListener('mousemove', handleMove);
-    handleMove();
+    window.addEventListener('mousemove', reveal);
+    window.addEventListener('touchstart', reveal, { passive: true });
+    reveal();
     return () => {
-      window.removeEventListener('mousemove', handleMove);
+      window.removeEventListener('mousemove', reveal);
+      window.removeEventListener('touchstart', reveal);
       clearTimeout(hideTimer.current);
     };
   }, [isFullscreen]);
@@ -118,13 +188,31 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
     };
   }, []);
 
-  // Touch swipe nav
+  // Touch swipe nav.
+  // Pinch-zoom must NOT trigger a swipe or a tap-zone slide change. The
+  // browser delivers the second finger as an additional touch in `touches`,
+  // so we tag the gesture as multi-touch and skip the swipe math + suppress
+  // the synthetic click that follows the lift-off for ~350ms.
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const onTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length > 1) {
+      wasMultiTouch.current = true;
+      touchStart.current = null;
+      return;
+    }
     const t = e.touches[0];
     touchStart.current = { x: t.clientX, y: t.clientY };
   };
   const onTouchEnd = (e: React.TouchEvent) => {
+    // Still mid-pinch, or this gesture was multi-touch at any point: bail out.
+    if (e.touches.length > 0 || wasMultiTouch.current) {
+      touchStart.current = null;
+      clearTimeout(multiTouchClearTimer.current);
+      multiTouchClearTimer.current = setTimeout(() => {
+        wasMultiTouch.current = false;
+      }, 350);
+      return;
+    }
     if (!touchStart.current) return;
     const t = e.changedTouches[0];
     const dx = t.clientX - touchStart.current.x;
@@ -216,11 +304,16 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
         // and stays correct across orientation changes.
         height: '100dvh',
         width: '100vw',
-        touchAction: 'pan-y',
+        // `pan-y` keeps vertical scroll responsive; `pinch-zoom` is required
+        // so the browser actually applies two-finger zoom instead of us
+        // swallowing it as a swipe gesture.
+        touchAction: 'pan-y pinch-zoom',
       }}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
       onClick={(e) => {
+        // Suppress the synthetic tap that follows a pinch lift-off.
+        if (wasMultiTouch.current) return;
         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
         if (e.clientX < rect.left + rect.width / 3) prev();
         else if (e.clientX > rect.left + (rect.width * 2) / 3) next();
@@ -312,6 +405,20 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Persistent fullscreen-exit chip for touch devices. When controls
+          auto-hide, mobile users have no mousemove to bring them back, so
+          we keep a 44x44 Minimize button pinned top-right as an escape hatch. */}
+      {isFullscreen && !showControls && isCoarsePointer && (
+        <button
+          onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}
+          aria-label="Exit fullscreen"
+          className="fixed top-3 right-3 z-[10000] w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur-sm flex items-center justify-center text-white pointer-events-auto shadow-lg"
+          style={{ top: 'max(0.75rem, env(safe-area-inset-top))', right: 'max(0.75rem, env(safe-area-inset-right))' }}
+        >
+          <Minimize className="w-5 h-5" />
+        </button>
+      )}
     </div>
   );
 }
