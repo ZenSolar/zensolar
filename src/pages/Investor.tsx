@@ -213,7 +213,7 @@ export default function Investor() {
               From Energy.
             </h1>
             <p className="mt-5 text-sm md:text-base text-muted-foreground max-w-md">
-              Seed round open. Patent-pending Proof of Genesis™ protocol turning verified clean-energy
+              Seed round open. Patent-pending Proof-of-Genesis™ protocol turning verified clean-energy
               production into a hard-capped, asset-backed digital currency on Base.
             </p>
             <div className="mt-7 grid grid-cols-3 gap-3 w-full max-w-md">
