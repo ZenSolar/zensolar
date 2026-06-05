@@ -494,13 +494,18 @@ function UnlockedCard({
 }) {
   const content = (
     <>
-      <Icon className="h-5 w-5 text-secondary mb-2.5" />
-      <div className="text-sm font-semibold text-foreground">{title}</div>
-      <div className="text-[11px] text-muted-foreground leading-relaxed mt-1">{body}</div>
+      <div className="flex items-center justify-between mb-4">
+        <div className="h-10 w-10 rounded-xl bg-secondary/10 border border-secondary/20 flex items-center justify-center">
+          <Icon className="h-5 w-5 text-secondary" />
+        </div>
+        <ArrowRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-secondary group-hover:translate-x-0.5 transition-all" />
+      </div>
+      <div className="text-base font-semibold text-foreground">{title}</div>
+      <div className="text-[12px] text-muted-foreground leading-relaxed mt-1.5">{body}</div>
     </>
   );
   const className =
-    'group rounded-2xl border border-border/60 bg-card/40 p-4 hover:border-secondary/40 hover:bg-card/60 transition-colors block';
+    'group rounded-2xl border border-border/60 bg-card/40 p-6 hover:border-secondary/40 hover:bg-card/60 transition-colors block';
   if (internal) {
     return (
       <Link to={to} className={className}>
