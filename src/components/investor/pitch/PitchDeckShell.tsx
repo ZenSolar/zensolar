@@ -84,44 +84,72 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
     return () => window.removeEventListener('keydown', handler);
   }, [next, prev, showGrid]);
 
-  // Fullscreen — uses native Fullscreen API where available, falls back to
-  // a CSS "fauxscreen" on iOS Safari (which doesn't expose requestFullscreen
-  // on non-video elements).
+  // Fullscreen — uses native Fullscreen API where available (with webkit
+  // prefix for iPad Safari), falls back to a CSS "fauxscreen" on iPhone
+  // Safari which doesn't expose requestFullscreen on non-video elements.
   const [fauxFullscreen, setFauxFullscreen] = useState(false);
   const toggleFullscreen = useCallback(() => {
     const el = containerRef.current;
     if (!el) return;
-    const supportsNative = typeof el.requestFullscreen === 'function';
-    if (!supportsNative) {
+    const anyEl = el as any;
+    const anyDoc = document as any;
+    const nativeRequest: (() => Promise<void>) | undefined =
+      typeof el.requestFullscreen === 'function'
+        ? el.requestFullscreen.bind(el)
+        : typeof anyEl.webkitRequestFullscreen === 'function'
+        ? anyEl.webkitRequestFullscreen.bind(el)
+        : undefined;
+    const nativeExit: (() => Promise<void>) | undefined =
+      typeof document.exitFullscreen === 'function'
+        ? document.exitFullscreen.bind(document)
+        : typeof anyDoc.webkitExitFullscreen === 'function'
+        ? anyDoc.webkitExitFullscreen.bind(document)
+        : undefined;
+    const isNativeOn = !!(document.fullscreenElement || anyDoc.webkitFullscreenElement);
+
+    if (!nativeRequest) {
+      // iPhone Safari path
       setFauxFullscreen((v) => !v);
       return;
     }
-    if (!document.fullscreenElement) {
-      el.requestFullscreen().catch(() => setFauxFullscreen(true));
-    } else {
-      document.exitFullscreen();
+    if (!isNativeOn) {
+      Promise.resolve(nativeRequest()).catch(() => setFauxFullscreen(true));
+    } else if (nativeExit) {
+      Promise.resolve(nativeExit()).catch(() => {});
     }
   }, []);
 
   useEffect(() => {
-    const handler = () => setIsFullscreen(!!document.fullscreenElement || fauxFullscreen);
+    const anyDoc = document as any;
+    const handler = () =>
+      setIsFullscreen(
+        !!document.fullscreenElement || !!anyDoc.webkitFullscreenElement || fauxFullscreen,
+      );
     document.addEventListener('fullscreenchange', handler);
+    document.addEventListener('webkitfullscreenchange', handler as EventListener);
     handler();
-    return () => document.removeEventListener('fullscreenchange', handler);
+    return () => {
+      document.removeEventListener('fullscreenchange', handler);
+      document.removeEventListener('webkitfullscreenchange', handler as EventListener);
+    };
   }, [fauxFullscreen]);
 
-  // Auto-hide controls in fullscreen
+  // Auto-hide controls in fullscreen. Listen to touchstart too so mobile
+  // users always have a way to reveal the controls (mousemove doesn't fire
+  // on touch devices).
   useEffect(() => {
     if (!isFullscreen) { setShowControls(true); return; }
-    const handleMove = () => {
+    const reveal = () => {
       setShowControls(true);
       clearTimeout(hideTimer.current);
       hideTimer.current = setTimeout(() => setShowControls(false), 2500);
     };
-    window.addEventListener('mousemove', handleMove);
-    handleMove();
+    window.addEventListener('mousemove', reveal);
+    window.addEventListener('touchstart', reveal, { passive: true });
+    reveal();
     return () => {
-      window.removeEventListener('mousemove', handleMove);
+      window.removeEventListener('mousemove', reveal);
+      window.removeEventListener('touchstart', reveal);
       clearTimeout(hideTimer.current);
     };
   }, [isFullscreen]);
