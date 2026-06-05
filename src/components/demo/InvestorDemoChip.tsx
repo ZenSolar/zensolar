@@ -2,13 +2,13 @@ import { Sparkles, X, Zap } from 'lucide-react';
 import { useInvestorDemoMode, useInvestorOutageSim } from '@/hooks/useInvestorDemoMode';
 
 /**
- * Floating "Investor Demo · Exit" pill — top-center on every /demo page while
- * investor demo mode is active. Sits just below the editor PreviewBypassBar
- * (top: safe-area + ~3rem) so the two never collide. Bumped z-index above
- * the bypass bar so it always wins if they overlap in odd viewports.
+ * Floating "Investor Demo · Outage · Exit" pill — top-center on every /demo
+ * page while investor demo mode is active. Sits just below the editor
+ * PreviewBypassBar (top: safe-area + ~3rem) so the two never collide.
  */
 export function InvestorDemoChip() {
   const { enabled, disable } = useInvestorDemoMode();
+  const { enabled: outageOn, toggle: toggleOutage } = useInvestorOutageSim();
   if (!enabled) return null;
 
   return (
@@ -27,6 +27,21 @@ export function InvestorDemoChip() {
         </span>
         <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
         <span className="truncate">Investor Demo</span>
+        <button
+          type="button"
+          onClick={toggleOutage}
+          aria-label={outageOn ? 'Disable simulated grid outage' : 'Simulate grid outage'}
+          aria-pressed={outageOn}
+          title={outageOn ? 'Outage ON — tap to restore grid' : 'Simulate grid outage'}
+          className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-bold tracking-[0.14em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${
+            outageOn
+              ? 'bg-destructive/25 text-destructive hover:bg-destructive/35'
+              : 'text-primary/85 hover:bg-primary/20 hover:text-primary'
+          }`}
+        >
+          <Zap className="h-3 w-3" />
+          {outageOn ? 'Outage' : 'Sim'}
+        </button>
         <button
           type="button"
           onClick={disable}
