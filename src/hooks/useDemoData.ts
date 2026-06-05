@@ -1,6 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
 import { ActivityData, ConnectedAccount, calculateCO2Offset } from '@/types/dashboard';
 import { getAllEarnedNFTNames } from '@/lib/nftMilestones';
+import { isInvestorDemoModeSync } from '@/hooks/useInvestorDemoMode';
+import { buildInvestorMintHistory, INVESTOR_SEED_MINTED_NFTS } from '@/data/investorDemo/mintHistory';
 
 export interface MintReceipt {
   id: string;
@@ -202,9 +204,13 @@ export function useDemoData() {
   const [connectedAccounts, setConnectedAccounts] = useState<ConnectedAccount[]>(demoConnectedAccounts);
   const [isLoading, setIsLoading] = useState(false);
   const [profile, setProfile] = useState(createDemoProfile);
-  const [hasWelcomeNFT, setHasWelcomeNFT] = useState(false);
-  const [mintedNFTs, setMintedNFTs] = useState<number[]>([]);
-  const [mintHistory, setMintHistory] = useState<MintReceipt[]>([]);
+  const [hasWelcomeNFT, setHasWelcomeNFT] = useState<boolean>(() => isInvestorDemoModeSync());
+  const [mintedNFTs, setMintedNFTs] = useState<number[]>(() =>
+    isInvestorDemoModeSync() ? [...INVESTOR_SEED_MINTED_NFTS] : []
+  );
+  const [mintHistory, setMintHistory] = useState<MintReceipt[]>(() =>
+    isInvestorDemoModeSync() ? buildInvestorMintHistory() : []
+  );
   const [lastUpdatedAt, setLastUpdatedAt] = useState<string | null>(new Date().toISOString());
 
   // Backfill display_name when NDA name becomes available in localStorage
