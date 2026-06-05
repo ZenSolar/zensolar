@@ -4,49 +4,48 @@ import { Loader2, KeyRound, Delete, Check, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { PitchDeckShell } from "@/components/investor/pitch/PitchDeckShell";
-import { Slide01Title } from "@/components/investor/pitch/slides/Slide01Title";
-import { Slide02Catalyst } from "@/components/investor/pitch/slides/Slide02Catalyst";
-import { Slide04Opportunity } from "@/components/investor/pitch/slides/Slide04Opportunity";
-import { Slide05Solution } from "@/components/investor/pitch/slides/Slide05Solution";
-import { Slide06Technology } from "@/components/investor/pitch/slides/Slide06Technology";
-import { Slide07ThirdPrimitive } from "@/components/investor/pitch/slides/Slide07ThirdPrimitive";
-import { Slide07ValueMechanism } from "@/components/investor/pitch/slides/Slide07ValueMechanism";
-import { Slide08POLDefense } from "@/components/investor/pitch/slides/Slide08POLDefense";
-import { Slide10ThreeWallsMoat } from "@/components/investor/pitch/slides/Slide10ThreeWallsMoat";
-import { Slide09Revenue } from "@/components/investor/pitch/slides/Slide09Revenue";
-import { Slide10UnitEconomics } from "@/components/investor/pitch/slides/Slide10UnitEconomics";
-import { Slide11Traction } from "@/components/investor/pitch/slides/Slide11Traction";
-import { Slide12RiskMitigation } from "@/components/investor/pitch/slides/Slide12RiskMitigation";
-import { Slide13TheAsk } from "@/components/investor/pitch/slides/Slide13TheAsk";
-import { SlideCompetition } from "@/components/investor/pitch/slides/SlideCompetition";
+import { S01Hero } from "@/components/investor/pitch/slides/v3/S01Hero";
+import { S02Catalyst } from "@/components/investor/pitch/slides/v3/S02Catalyst";
+import { S03Opportunity } from "@/components/investor/pitch/slides/v3/S03Opportunity";
+import { S04Traction } from "@/components/investor/pitch/slides/v3/S04Traction";
+import { S05Solution } from "@/components/investor/pitch/slides/v3/S05Solution";
+import { S06FoundationalMoat } from "@/components/investor/pitch/slides/v3/S06FoundationalMoat";
+import { S07Tech } from "@/components/investor/pitch/slides/v3/S07Tech";
+import { S08ThreeEngines } from "@/components/investor/pitch/slides/v3/S08ThreeEngines";
+import { S09ScaleOpportunity } from "@/components/investor/pitch/slides/v3/S09ScaleOpportunity";
+import { S10Competition } from "@/components/investor/pitch/slides/v3/S10Competition";
+import { S11Ask } from "@/components/investor/pitch/slides/v3/S11Ask";
 import { readInvestorUnlocked } from "@/components/investor/InvestorPinGate";
 
 const SESSION_KEY = "zen.deck-pin-unlocked";
 
+// Full Seed Round Deck v3.1 — 11 slides. See mem://features/investor-pitch-v2.md
 const slides = [
-  <Slide01Title />,
-  <Slide02Catalyst />,
-  <Slide04Opportunity />,
-  <Slide11Traction />,
-  <Slide05Solution />,
-  <Slide06Technology />,
-  <Slide07ThirdPrimitive />,
-  <Slide07ValueMechanism />,
-  <Slide08POLDefense />,
-  <Slide10ThreeWallsMoat />,
-  <Slide09Revenue />,
-  <Slide10UnitEconomics />,
-  <SlideCompetition />,
-  <Slide12RiskMitigation />,
-  <Slide13TheAsk />,
+  <S01Hero />,
+  <S02Catalyst />,
+  <S03Opportunity />,
+  <S04Traction />,
+  <S05Solution />,
+  <S06FoundationalMoat />,
+  <S07Tech />,
+  <S08ThreeEngines />,
+  <S09ScaleOpportunity />,
+  <S10Competition />,
+  <S11Ask />,
 ];
 
 const slideLabels = [
-  "Title", "The Catalyst", "The Opportunity", "Traction & Beta",
-  "The Solution", "Proprietary Tech & IP", "Third Consensus Primitive",
-  "Value Mechanism", "Sell-Pressure Defense", "The Moat",
-  "Revenue Model", "Unit Economics", "Competition",
-  "Risk Mitigation", "The Ask",
+  "Title",
+  "The Catalyst",
+  "The Opportunity",
+  "Traction & Beta",
+  "The Solution",
+  "The Foundational Moat",
+  "Proprietary Tech & IP",
+  "Three Revenue Engines",
+  "Scale Opportunity",
+  "Competition",
+  "The Ask",
 ];
 
 export default function DeckPinGated() {

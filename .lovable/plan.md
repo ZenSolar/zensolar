@@ -1,42 +1,55 @@
-## Scope
 
-Two small frontend-only changes on `/home`:
+# Full Seed Round Deck v3.1 — 11 Slides (ready to ship)
 
-### 1. Remove "Export PDF for Cheetah" button
+All code is staged. Switch to build mode and I'll write 16 files in parallel.
 
-The `SubscriptionTransparencyPanel` on `/home` renders `<CheetahExportButton />` at the bottom. That's the "Export PDF for Cheetah" CTA the user wants gone from the consumer marketing page.
+## Files to create
 
-**Edit:** `src/components/home/SubscriptionTransparencyPanel.tsx`
-- Remove the `<CheetahExportButton />` render (line 231).
-- Remove the now-unused import `import { CheetahExportButton } from './CheetahExportButton';` (line 8).
-- Leave the underlying `src/components/home/CheetahExportButton.tsx` file in place (still used elsewhere? — confirmed it's only used here, but keep the file so admin/founder flows are unaffected if they import it later).
+**Primitives** (`src/components/investor/pitch/v3/`):
+- `SectionHeader.tsx` — kicker + title + the 1px secondary-glow divider motif
+- `DeckCard.tsx` + `CardKicker` export — mirrors `CatalystCard` / `EngineCard`
+- `StatPill.tsx` — stat row reused on hero + ask
 
-### 2. Activate Tap-to-Mint on the Clean Energy Center showcase
+**Slides** (`src/components/investor/pitch/slides/v3/`):
+- `S01Hero.tsx` — variant="dark", `$5M / $7M / SAFE` stat row, founders byline
+- `S02Catalyst.tsx` — 3 cards: $1.7T market · Patent-pending · Multi-OEM moat (emphasized)
+- `S03Opportunity.tsx` — TAM/SAM/SOM stat cards + One Patent · Multiple Markets row
+- `S04Traction.tsx` — 4 hero stats + 3-col OEMs/Protocol/IP grid
+- `S05Solution.tsx` — `1 kWh = 1 $ZSOLAR` headline + Produce→Verify→Mint→Retire flow
+- `S06FoundationalMoat.tsx` — 3 walls (IP · Multi-OEM · Verification stack)
+- `S07Tech.tsx` — SEGI™ emphasized card + 4-layer stack (L1–L4)
+- `S08ThreeEngines.tsx` — Flywheel headline + 3 engine cards (Engine 02 emphasized amber-400)
+- `S09ScaleOpportunity.tsx` — Aggregated Data top + ZenSolar VPP bottom (emphasized) + Phase 2 anchor strip
+- `S10Competition.tsx` — 4 threat cards with "Our wedge" callouts
+- `S11Ask.tsx` — Use of Funds table (5 rows, verbatim from `/investor/pitch`) + milestones + capital efficiency
 
-Currently `CleanEnergyCenterShowcase` is a purely static mock — no CTA, no pulse-glow, no "Tap to Mint". Add the same lively Tap-to-Mint affordance the demo uses, but in marketing-mock form (no wallet wiring needed).
+**Page wiring**:
+- `src/pages/DeckPinGated.tsx` — swap to v3 imports and 11-slide labels. PIN flow, session storage, throttle behavior untouched.
 
-**Edit:** `src/components/home/CleanEnergyCenterShowcase.tsx`
+**Memory updates**:
+- `mem://features/investor-pitch-v2.md` — note v3.1 deck is canonical at /deck; VPP gets dedicated deck slide only
+- `mem://features/vpp-settlement.md` — add "Deck positioning" section with Slide 09 framing + Phase 2 anchor copy
+- `mem://index.md` — refresh Investor Pitch v2 description line
 
-Append a "Tap to Mint" CTA section inside the existing `<CardContent>`, below the KPI list:
+## Aesthetic system (locked across all 11 slides)
 
-- Small live preview row: "Pending: 1,284 kWh · Expected: 1,284 $ZSOLAR · ~$128" (hardcoded mock numbers consistent with the KPI mock above).
-- Primary CTA button styled like the real `TapToMintCard`:
-  - `min-h-[52px] bg-primary hover:bg-primary/90 text-primary-foreground text-base font-semibold animate-pulse-glow shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform`
-  - Icon: `<Sparkles />` left, `<ArrowRight />` right.
-  - Label: `Tap to Mint`.
-- On click: trigger a `sonner` success toast (`Proof of Genesis™ engaged · 1,284 $ZSOLAR queued`) AND navigate (`<Link to="/demo">`) so the consumer reaches the live demo where the real mint happens. Use `useNavigate` + `mediumTap` haptic for the press feel that matches `HomeHero`.
-- Wrap the whole card in a subtle `Proof of Genesis™` glow: add a `radial-gradient(...)` overlay matching the `TapToMintCard` (`hsl(var(--primary) / 0.18)` at top center) so the section visually pulses in line with the CTA.
+- Background: `variant="dark"` for Title + Solution + Competition + Ask · `variant="gradient"` for content slides
+- Per-slide soft radial-gradient: `radial-gradient(ellipse at top, hsl(var(--secondary) / 0.14), transparent 55%)`
+- Cards: `rounded-2xl border border-border/60 bg-card/40` · emphasized uses `border-secondary/40 bg-secondary/5`
+- Accents: `text-eco` (Subscription) · `text-amber-400` (Token Economics + Capital efficiency) · `text-sky-400` (Data + Tech) · `text-secondary` (brand)
+- Deck-wide motif: 1px secondary-glow horizontal divider under every `SectionHeader` title
+- Icons: lucide-react only (CreditCard, Sparkles, Coins, Database, ArrowRight, Zap, Shield, Sun, Lock, Layers, FileLock2, Factory, Cpu, Fingerprint, FileCheck)
 
-This keeps the showcase consumer-facing (no wallet logic, no real mint) while making the section feel "alive" with the same Tap-to-Mint vocabulary used in `/demo`.
+## Content locks honored
 
-## Verification
+- Ask: `$5M target · $7M hard cap · SAFE (post-money)` · $20M post-money referenced on Slide 11 only
+- Engine 02 framed as "Core product and primary long-term revenue driver" with amber-400 emphasis
+- Multi-OEM moat names Tesla + Enphase + SolarEdge + Wallbox on Slides 02, 05, 06, 08, 09
+- Mint split (50/25/20/5 + separate 3% transfer tax) on Slide 08 only
+- VPP claim "first VPP that issues crypto rewards directly to participants via Proof-of-Genesis™" on Slide 09 only
+- Founders: Joseph Maushart + Michael Tschida (Slide 01 byline)
+- Old `slides/Slide*.tsx` files left on disk for diff; flag for archive via admin widget after v3.1 ships
 
-- `/home` scrolls to the Clean Energy Center section: pulse-glow CTA visible, hardcoded preview reads correctly, click navigates to `/demo` and fires the toast.
-- `/home` Subscription Transparency section no longer shows the "Export PDF for Cheetah" button.
-- No tests changed; `CheetahExportButton.tsx` file kept intact.
+## Final reply on completion
 
-## Out of scope
-
-- No changes to the real `TapToMintCard` in `/demo`.
-- No changes to mint logic, tokenomics, or wallet flows.
-- No removal of the `CheetahExportButton` file itself.
+> Seed Round Deck v3.1 complete — 11 slides with dedicated Scale Opportunity slide for Aggregated Data + VPP.

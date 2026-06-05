@@ -1,6 +1,6 @@
 ---
 name: Investor Pitch v2
-description: Canonical /investor/pitch + ThreeRevenueEngines module. Flywheel, engine order, ask, multi-OEM moat. Updated Jun 2026 video-feedback pass.
+description: Canonical /investor/pitch + ThreeRevenueEngines. Full Seed Round Deck v3.1 (11 slides) is canonical at /deck and mirrors the /investor aesthetic. VPP gets a dedicated deck slide only — still excluded from /investor, /investor/pitch, and the one-pager.
 type: feature
 ---
 
@@ -9,8 +9,8 @@ type: feature
 ## Canonical surfaces
 - **`/investor/pitch`** (`src/pages/InvestorPitch.tsx`) — full canonical narrative page. Wired into the NDA-gated `/investor` flow.
 - **`<ThreeRevenueEngines />`** (`src/components/investor/ThreeRevenueEngines.tsx`) — embedded inline on `/investor` (post-NDA) and on `/investor/pitch`.
-- **Full Seed Round Deck** (`/deck` → `src/pages/DeckPinGated.tsx` + `src/components/investor/pitch/slides/*`) — Slide 01 (Title), Slide 09 (Revenue), Slide 13 (The Ask) carry the locked numbers. Deck shell has top-left back link to `/investor` (added Jun 2026). NEVER call this "Full Pitch Deck" — always "Full Seed Round Deck" (time-bounds the round).
-- **One-Pager** (`/investor/one-pager` → `src/pages/InvestorOnePager.tsx`) — single-screen leave-behind. NDA-gated. Real app screenshots (`public/investor/one-pager/zen-monitoring.png` + `tap-to-mint.png`). Print-friendly (`@page Letter portrait`). DOES NOT show `$20M post-money` — only `$5M target / $7M cap / SAFE` (post-money kept on Slide 13 of deck). Drops in Wallbox alongside Tesla/Enphase/SolarEdge in the moat copy.
+- **Full Seed Round Deck v3.1** (`/deck` → `src/pages/DeckPinGated.tsx` + `src/components/investor/pitch/slides/v3/*` + primitives in `src/components/investor/pitch/v3/`) — **11 slides**, refreshed Jun 2026 to mirror the /investor aesthetic (calm, card-based, dark, secondary-glow divider motif). Slide list: 01 Title · 02 Catalyst · 03 Opportunity · 04 Traction · 05 Solution · 06 Foundational Moat · 07 Tech & IP · 08 Three Revenue Engines · 09 Scale Opportunity (Data + VPP) · 10 Competition · 11 The Ask. Old 15-slide set (`slides/Slide*.tsx`) is on disk for one release for diffing — flag for archive via the admin page-cleanup widget after v3.1 ships. NEVER call this "Full Pitch Deck" — always "Full Seed Round Deck".
+- **One-Pager** (`/investor/one-pager` → `src/pages/InvestorOnePager.tsx`) — single-screen leave-behind. NDA-gated. Real app screenshots (`public/investor/one-pager/zen-monitoring.png` + `tap-to-mint.png`). Print-friendly (`@page Letter portrait`). DOES NOT show `$20M post-money` — only `$5M target / $7M cap / SAFE` (post-money kept on Slide 11 of deck). Drops in Wallbox alongside Tesla/Enphase/SolarEdge in the moat copy.
 
 Don't add net-new investor narrative pages. Update these or archive them via the admin page-cleanup widget.
 
@@ -39,7 +39,7 @@ Pitch v2 · Live Demo · Full Seed Pitch · Tokenomics. Founder Bios and Schedul
 First-of-its-kind multi-OEM monitoring (Tesla + Enphase + SolarEdge + Wallbox in one UI). Surface in every framing — it's the prerequisite for all three engines.
 
 ## VPP
-Out of scope at seed except as a future-milestone reference.
+**VPP gets a dedicated slide in the Full Seed Round Deck v3.1 only (Slide 09 — Scale Opportunity).** Framed as "the first Virtual Power Plant that issues crypto rewards directly to participants via Proof-of-Genesis™" with a Phase 2 anchor strip (Leap Energy → CAISO → OEM partner-tier APIs). **Still excluded from `/investor`, `/investor/pitch`, and the one-pager** — those surfaces keep VPP as a future-milestone reference only. Do not promote VPP to /investor/pitch without a separate, deliberate update to this memory.
 
 ## Archived/superseded
 Old investor pages (admin-investor-pitch v1, founders/spacex, founders/app-overhaul, founders/lyndon-pitch-v2, founders/seed-pitch-companion-deck, etc.) redirect to `/investor/pitch`. Flag any newly discovered legacy pitch pages via the admin floating widget for archive — do not delete.
