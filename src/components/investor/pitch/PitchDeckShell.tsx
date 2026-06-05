@@ -134,6 +134,37 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
     };
   }, [fauxFullscreen]);
 
+  // Orientation-change resilience. When the user rotates their phone while
+  // in fullscreen, some browsers (notably iOS Safari and certain Android
+  // builds) silently drop the native fullscreen element after the rotation
+  // animation finishes — leaving us in a half-state where `isFullscreen` is
+  // true but the browser chrome is back. Re-check after the rotation settles
+  // (~400ms) and reconcile. If native dropped but the user still wants
+  // fullscreen, fall back to faux. Also re-run our scale measurement so the
+  // slide re-fits to the new orientation immediately.
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const anyDoc = document as any;
+    const reconcile = () => {
+      const nativeOn = !!document.fullscreenElement || !!anyDoc.webkitFullscreenElement;
+      if (!nativeOn && !fauxFullscreen) {
+        // Browser exited native fullscreen during rotate — keep the user in
+        // fullscreen via the faux path so they don't lose their place.
+        setFauxFullscreen(true);
+      }
+    };
+    const burst = () => {
+      reconcile();
+      [120, 320, 600, 900].forEach((ms) => setTimeout(reconcile, ms));
+    };
+    window.addEventListener('orientationchange', burst);
+    window.screen?.orientation?.addEventListener?.('change', burst);
+    return () => {
+      window.removeEventListener('orientationchange', burst);
+      window.screen?.orientation?.removeEventListener?.('change', burst);
+    };
+  }, [isFullscreen, fauxFullscreen]);
+
   // Auto-hide controls in fullscreen. Listen to touchstart too so mobile
   // users always have a way to reveal the controls (mousemove doesn't fire
   // on touch devices).
