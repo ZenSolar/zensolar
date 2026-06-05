@@ -277,6 +277,22 @@ export default function Investor() {
           </div>
         </section>
 
+        <LiveVerifiedCounter />
+
+        {/* PDF leave-behind combo */}
+        <div className="mx-auto max-w-3xl px-5 mb-10">
+          <Button
+            onClick={downloadDeckCombo}
+            variant="outline"
+            className="w-full h-12 border-secondary/40 hover:bg-secondary/5"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Download Deck + One-Pager (PDF)
+          </Button>
+        </div>
+
+        <AppreciationCalculator />
+
         {/* Why now */}
         <section className="mx-auto max-w-4xl px-5 py-16 md:py-20">
           <div className="mb-8 text-center">
