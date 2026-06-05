@@ -89,9 +89,10 @@ function buildUnlocks(preview: boolean): Array<{
   to: string;
 }> {
   return [
-    { icon: FileText, label: 'Full Seed Round Deck', desc: '15 slides · PIN-gated', to: '/deck' },
+    { icon: FileText, label: 'Full Seed Round Deck', desc: '11 slides · PIN-gated', to: '/deck' },
     { icon: FileText, label: 'One-Pager', desc: 'The leave-behind summary', to: '/investor/one-pager' },
     { icon: PlayCircle, label: 'Live Investor Demo', desc: 'Full Tesla + Powerwall + Wallbox home', to: `${preview ? '/demo-leonardo' : '/demo'}?demo=investor` },
+    { icon: FileText, label: 'Investor Data Room', desc: 'PoG, VPP, traction, IP, use of funds', to: '/investor/data-room' },
   ];
 }
 
@@ -384,11 +385,11 @@ function UnlockedPanel({
         <ThreeRevenueEngines />
       </div>
 
-      <div className="grid gap-3 md:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
         <UnlockedCard
           icon={FileText}
           title="Full Seed Round Deck"
-          body="15-slide investor deck. Title → Catalyst → Engines → Ask."
+          body="11-slide investor deck. Title → Catalyst → Engines → Ask."
           to="/deck"
           internal
         />
@@ -402,8 +403,15 @@ function UnlockedPanel({
         <UnlockedCard
           icon={PlayCircle}
           title="Live Investor Demo"
-          body="Proof of Genesis™ flow on real data. Mobile-first."
+          body="Proof-of-Genesis™ flow on real data. Mobile-first."
           to={demoHref}
+          internal
+        />
+        <UnlockedCard
+          icon={FileText}
+          title="Investor Data Room"
+          body="PoG deep dive, VPP, aggregated data, traction, IP, use of funds."
+          to="/investor/data-room"
           internal
         />
       </div>
