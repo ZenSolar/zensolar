@@ -317,6 +317,7 @@ const App = () => {
                    <Route path="/investor" element={<Suspense fallback={<PageLoader />}><Investor /></Suspense>} />
                    <Route path="/investor/pitch" element={<Suspense fallback={<PageLoader />}><InvestorPitch /></Suspense>} />
                    <Route path="/investor/one-pager" element={<Suspense fallback={<PageLoader />}><InvestorOnePager /></Suspense>} />
+                   <Route path="/investor/data-room" element={<Suspense fallback={<PageLoader />}><InvestorDataRoom /></Suspense>} />
                     <Route path="/hero-test" element={<Suspense fallback={<PageLoader />}><HeroTest /></Suspense>} />
                     
                     <Route path="/dwight-preview" element={<DwightPreview />} />
