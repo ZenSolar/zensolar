@@ -1,29 +1,26 @@
-# Final Polish & QA Sweep — Investor + Demo
+Two surgical changes to the /investor experience.
 
-A surgical polish pass. No new features, no logic changes, no redesigns.
+## 1. Increase the live verified-kWh number
 
-## Approach
+In `src/components/investor/LiveVerifiedCounter.tsx` the deterministic daily baseline currently sits at ~380–520 kWh. To make the metric feel substantial on the investor page, bump the scale:
 
-1. **Live audit at 390×844** using the browser tool on `/investor`, `/investor/pitch`, `/demo?demo=investor`, plus desktop 1280×800 spot checks. Capture screenshots, scan console, identify concrete defects.
-2. **Read** the touched surfaces to confirm root causes before editing:
-   - `src/components/demo/InvestorDemoChip.tsx`, `BackToInvestorHubPill.tsx`, `GuidedTourLauncher.tsx`, `GuidedTourOverlay.tsx`, `DemoCallouts.tsx`, `DemoLayout.tsx`
-   - `src/pages/Investor.tsx`, `src/pages/InvestorPitch.tsx`
-   - `src/components/investor/LiveVerifiedCounter.tsx`, `AppreciationCalculator.tsx`, `InvestorFAQ.tsx`
-3. **Fix only what the audit flags**, scoped to these defect classes:
-   - Overlap / z-index collisions between top-center Investor Demo chip, Back-to-Hub pill, Deason FAB, Tour launcher, and TopNav at 390 px.
-   - Text overflow, awkward wrapping, clipped pills/badges; tap targets <40 px.
-   - Spacing/padding inconsistencies between investor cards (catalyst cards, Ask card, FAQ, calculator, counter) — normalize to existing tokens (`rounded-2xl`, `border-border/60`, `bg-card/40`, `p-4`/`p-5`).
-   - Pill/button size drift — align with the existing `text-[11px]` / `h-11` button conventions already used in `InvestorPitch.tsx`.
-   - Typography hierarchy: confirm a single H1 per page, consistent uppercase-tracking labels.
-   - Layout shift from the persistent pill (reserve space or use `fixed` cleanly — it already is `fixed`, verify no parent margin issues).
-   - Callout fade timing / position — only adjust if visibly off.
-   - FAQ readability — trim any answer that wraps past ~4 lines on mobile.
-   - Console errors traced to the new components.
+- Multiply `dayBase()` output by a factor (e.g., `* 100`) so the daily baseline reads in the ~38,000–52,000 kWh range.
+- Keep the time-of-day growth and the periodic tick increments so the number still "feels alive."
+- Preserve the exact same UI, label, and positioning.
+
+## 2. Remove the Token Appreciation Calculator
+
+In `src/pages/Investor.tsx`:
+- Remove the `AppreciationCalculator` import.
+- Delete the `<AppreciationCalculator />` mount on line 294.
+
+Leave the component file itself in place (no need to delete source).
+
+## Verification
+- Load `/investor` at 390×844 and confirm the kWh counter is significantly larger.
+- Confirm the Appreciation Calculator section no longer renders between the PDF download button and the "Why now" section.
+- No console errors.
 
 ## Out of scope
-
-Tokenomics, copy beyond trimming, Live Energy house diagram, new routes, schema, business logic.
-
-## Deliverable
-
-A short defect list (what was found) and the matching surgical edits, then a verification screenshot pass at 390×844 + desktop. Final reply will be the exact required string.
+- No copy changes, layout reflows, or tokenomics edits.
+- The component file `AppreciationCalculator.tsx` is not deleted.

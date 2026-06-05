@@ -21,15 +21,15 @@ function minutesSinceMidnight(): number {
 
 export function LiveVerifiedCounter() {
   const startBase = useMemo(() => {
-    // Grow from base proportional to time-of-day so an investor checking at
-    // 9am sees fewer kWh than one checking at 10pm.
+    // Scale up so the number reads substantial on the investor page
+    // (~40K–55K kWh baseline, growing through the day).
     const m = minutesSinceMidnight();
-    return dayBase() + Math.floor(m * 0.45);
+    return (dayBase() + Math.floor(m * 0.45)) * 100;
   }, []);
   const [value, setValue] = useState(startBase);
 
   useEffect(() => {
-    const tick = () => setValue((v) => v + Math.floor(1 + Math.random() * 4));
+    const tick = () => setValue((v) => v + Math.floor(40 + Math.random() * 120));
     const id = window.setInterval(tick, 2800);
     return () => window.clearInterval(id);
   }, []);
