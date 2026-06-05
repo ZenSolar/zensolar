@@ -1,66 +1,39 @@
+## Plan — Data Room PIN removal + One-Pager v3.1 alignment
 
-## Plan — Investor Data Room (`/investor/data-room`)
+### Part 1 — `src/pages/InvestorDataRoom.tsx`
 
-Build one new page plus two tiny cross-links. Reuses the deck's PIN gate, design tokens, and existing components — no backend, no design-system changes.
+Rewrite the file to a thin gate-free version:
 
-### 1. New page: `src/pages/InvestorDataRoom.tsx`
+- Remove all PIN scaffolding: `useState`, `supabase`, `toast`, `readInvestorUnlocked`, `SESSION_KEY`, `Loader2/KeyRound/Delete/Check/ShieldAlert`, the verify function, the keypad JSX, and the gated Helmet block.
+- Keep `DataRoomContent()` exactly as-is (all six DeckCards, diagram embed, stat tiles, group divider, footer).
+- Add directly above the existing `Confidential · Investor Data Room` kicker:
+  `<p className="text-[11px] uppercase tracking-[0.2em] text-white/35">Confidential — For verified investors only</p>`
+- New default export:
+  ```tsx
+  export default function InvestorDataRoom() {
+    useEffect(() => { document.title = "ZenSolar · Investor Data Room"; }, []);
+    return <DataRoomContent />;
+  }
+  ```
+- `src/App.tsx` route already has no `ProtectedRoute` wrapper — no change needed.
 
-- **PIN gate**: copy `DeckPinGated.tsx`'s pattern verbatim (sessionStorage key `zen.deck-pin-unlocked`, `readInvestorUnlocked()` bypass, `deck-pin-verify` edge function, throttle/shake/check states). When unlocked, render `<DataRoomContent />`.
-- **Helmet** (both gated + content state): `<title>ZenSolar · Investor Data Room</title>`, `noindex,nofollow`, canonical `https://www.zensolar.com/investor/data-room`.
-- **Layout**: `min-h-screen bg-[hsl(220,20%,6%)] text-white`, content in `mx-auto max-w-[1280px] px-6 md:px-10 py-12 md:py-16`.
-- **Top chrome**:
-  - Row of quiet back-links: `← Back to Pitch` (`/investor/pitch`) and `View Deck →` (`/deck`), mono uppercase white/45.
-  - Kicker `CONFIDENTIAL · INVESTOR DATA ROOM` (secondary/80).
-  - H1 "Investor Data Room" (48–56px, semibold).
-  - Sub: "Deeper materials behind the seed deck — technology, revenue engines, raise milestones, traction, and IP."
-  - Secondary-glow `hr` motif (same as `SectionHeader`).
+### Part 2 — `src/pages/InvestorOnePager.tsx`
 
-### 2. Six sections — all `DeckCard` (1-column stack)
+Five small targeted edits, all copy-only; structure, helpers, and print CSS unchanged:
 
-Group 1 (cards 1–3) → glow `hr` → Group 2 (cards 4–6).
+1. **Helmet description** (L39) → `"ZenSolar one-page investor summary — Proof-of-Genesis™, three revenue engines, $5M seed."`
+2. **Hero sub-line** (L97–99) → `"Proof-of-Genesis™ — verified clean-energy minting on Base. Bitcoin-grade integrity at ~0.001% of the energy cost."`
+3. **Engine 03** (L139–143) → retitle `"Aggregated Data + VPP (Scale Opportunity)"`; body: `"Anonymized multi-OEM telemetry sold to utilities, ISOs, REC registries + crypto-rewarding VPP settlement. $2B+ U.S. utility-analytics TAM; VPP layer adds $50–150 / household / yr at zero CapEx."`
+4. **Phase 2 Unlock strip** (L148–159) → delete (folded into Engine 03).
+5. **Moat section heading + lead** (L163–168) → `"The Moat — Proof-of-Genesis™ + multi-OEM monitoring"`. Lead sentence describes PoG (Bitcoin-grade integrity / near-zero overhead) then keeps the existing Tesla+Enphase+SolarEdge+Wallbox sentence as the second moat layer.
+6. **Traction tile** (L187) → label `"Patent-pending PoG"` (value unchanged).
 
-1. **01 · Technology — Proof-of-Genesis™ Deep Dive**
-   Short PoG description · 3 chips (Real-time, Multi-OEM Tesla/Enphase/SolarEdge/Wallbox, 30–60s minting) · embeds `<ProofOfGenesisArchitectureDiagram />` inside a quiet bordered well · prominent secondary-bordered button "See live PoG receipt example →" linking `/proof-of-genesis/preview` · muted footnote "Patent-pending · U.S. App. 19/634,402".
-
-2. **02 · Virtual Power Plant** (`emphasized` DeckCard)
-   "First Crypto-Rewarding VPP" framing · 4 stat tiles for settlement split (50% LP / 30% User Cash / 15% Ops / 5% Tokens) · Phase 2 strip `Leap → CAISO → OEM partner-tier APIs` · muted line on growing VPP TAM (DOE 80–160 GW by 2030).
-
-3. **03 · Aggregated Data Opportunity**
-   High-margin anonymized multi-OEM data business · target-buyer list (utilities, ISOs/RTOs, REC registries, climate platforms) · `$2B+` TAM stat tile · muted scale note.
-
-4. **04 · Use of Funds & Milestones**
-   Four stat tiles for $5M allocation (Eng 45 / GTM 30 / Ops 15 / Reserve 10) · 5 milestone bullets pulled from S11 (mainnet anchor + LP Round 1, 10k verified homes, VPP Phase 2 live, 3 utility data contracts, patent issuance + 2 continuations).
-
-5. **05 · Traction & Metrics**
-   3 stat tiles (active beta users, kWh verified, PoG mints) · 2 short italic beta quotes.
-
-6. **06 · Legal & IP Summary**
-   Patent status, trademark portfolio, entity, founders (Joseph Maushart + Michael Tschida), muted contact line `joe@zensolar.com`.
-
-Page-level footer: "ZenSolar, LLC · Confidential under NDA".
-
-### 3. Routing — `src/App.tsx`
-
-- Add `const InvestorDataRoom = lazy(() => import("./pages/InvestorDataRoom"));` near the other investor lazy imports (line ~224).
-- Add route directly under `/investor/one-pager` (~line 318):
-  `<Route path="/investor/data-room" element={<Suspense fallback={<PageLoader />}><InvestorDataRoom /></Suspense>} />`
-- No `ProtectedRoute` wrapper — PIN gate lives in the page (matches `/deck`).
-
-### 4. Cross-links (tiny)
-
-- **`src/components/investor/pitch/slides/v3/S07Tech.tsx`** (line 171–173): wrap the "Full PoG technology stack & architecture + real receipt example available in data room." line in a `<Link to="/investor/data-room" className="hover:text-white/70 transition">…</Link>`. Keep existing classes.
-- **`src/pages/InvestorPitch.tsx`** (footer ~line 226): add a single quiet line above or beside the existing email line: `<Link to="/investor/data-room" className="text-[11px] uppercase tracking-[0.18em] text-secondary/80 hover:text-secondary">Data Room →</Link>`. No layout change.
-
-### Tech notes
-
-- Reuses `DeckCard`, `CardKicker`, `ProofOfGenesisArchitectureDiagram`, `readInvestorUnlocked`, `deck-pin-verify`.
-- Local helper components `Kicker`, `StatTile`, `GlowDivider` defined inside the page file.
-- Strictly uses semantic tokens (`secondary`, `border-border/*`, `bg-card/*`) plus the existing `text-white/XX` opacity scale already used across v3 slides.
+Untouched: header, Ask, Founders, footer, screenshots, sticky chrome, print CSS, helper components, existing NDA/PIN gate that protects the One-Pager itself (not part of this task).
 
 ### Out of scope
 
-No new backend / edge functions / secrets, no design-system changes, no other slides, no memory updates.
+No backend, no new routes, no design-system edits, no other pages.
 
-### Final reply after build
+### Final reply
 
-`Investor Data Room created at /investor/data-room.`
+`Investor Data Room PIN gate removed + One-Pager updated to align with Deck v3.1.`
