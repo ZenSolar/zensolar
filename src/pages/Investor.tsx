@@ -9,6 +9,7 @@ import {
   ArrowDown,
   ArrowRight,
   Mail,
+  Download,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { NdaSignatureStep } from '@/components/demo/NdaSignatureStep';
@@ -20,7 +21,10 @@ import {
   readInvestorUnlocked,
 } from '@/components/investor/InvestorPinGate';
 import { ThreeRevenueEngines } from '@/components/investor/ThreeRevenueEngines';
+import { LiveVerifiedCounter } from '@/components/investor/LiveVerifiedCounter';
+import { AppreciationCalculator } from '@/components/investor/AppreciationCalculator';
 import { isPreviewHost } from '@/lib/previewHost';
+import { useInvestorRef } from '@/lib/investorRef';
 
 import { writeInvestorPass } from '@/lib/investorPass';
 
@@ -101,6 +105,25 @@ export default function Investor() {
   const [pinUnlocked, setPinUnlocked] = useState<boolean>(() => readInvestorUnlocked());
   const [signed, setSigned] = useState<SignedState | null>(() => readSigned());
   const ndaRef = useRef<HTMLDivElement>(null);
+  const { displayName: refDisplayName, firstName: refFirstName } = useInvestorRef();
+
+  const downloadDeckCombo = () => {
+    const files = [
+      '/founder-docs/seed-ask-lyndon-v8.1final.pdf',
+      '/founder-docs/seed-ask-lyndon-v8final.pdf',
+    ];
+    files.forEach((href, i) => {
+      window.setTimeout(() => {
+        const a = document.createElement('a');
+        a.href = href;
+        a.download = href.split('/').pop() || 'zensolar.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }, i * 350);
+    });
+    toast.success('Downloading deck + one-pager…');
+  };
 
   // Recheck server-side if local cache is empty.
   // IMPORTANT: this hook MUST run on every render (before any early return)
