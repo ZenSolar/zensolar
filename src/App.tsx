@@ -222,6 +222,7 @@ const DeckPinGated = lazy(() => import("./pages/DeckPinGated"));
 const Investor = lazy(() => import("./pages/Investor"));
 const InvestorPitch = lazy(() => import("./pages/InvestorPitch"));
 const InvestorOnePager = lazy(() => import("./pages/InvestorOnePager"));
+const InvestorDataRoom = lazy(() => import("./pages/InvestorDataRoom"));
 const HeroTest = lazy(() => import("./pages/HeroTest"));
 
 const Blog = lazy(() => import("./pages/Blog"));
