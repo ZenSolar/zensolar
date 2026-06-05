@@ -260,9 +260,9 @@ export function ProofOfGenesisArchitectureDiagram() {
           Downloadable patent drawing showing the complete Proof-of-Genesis™ architecture
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 px-3 sm:px-6">
         {/* Interactive Diagram */}
-        <div className="p-6 rounded-xl bg-gradient-to-br from-muted/50 to-background border border-border/60 space-y-4">
+        <div className="p-3 sm:p-6 rounded-xl bg-gradient-to-br from-muted/50 to-background border border-border/60 space-y-4">
           {layers.map((layer, index) => (
             <motion.div
               key={layer.number}
@@ -270,13 +270,13 @@ export function ProofOfGenesisArchitectureDiagram() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <div className={`p-4 rounded-xl ${layer.bgColor} border ${layer.borderColor}`}>
-                <div className="flex items-start gap-4">
-                  <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${layer.color} flex items-center justify-center flex-shrink-0`}>
-                    <layer.icon className="h-6 w-6 text-white" />
+              <div className={`p-3 sm:p-4 rounded-xl ${layer.bgColor} border ${layer.borderColor}`}>
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br ${layer.color} flex items-center justify-center flex-shrink-0`}>
+                    <layer.icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
                       <Badge variant="outline" className="text-xs">Layer {layer.number}</Badge>
                       <h4 className="font-semibold">{layer.title}</h4>
                     </div>
