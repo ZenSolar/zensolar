@@ -115,7 +115,7 @@ function DataRoomContent() {
               </span>
             </div>
 
-            <div className="mt-8 rounded-xl border border-border/50 bg-black/30 p-4 overflow-hidden">
+            <div className="mt-8 rounded-xl border border-border/50 bg-black/30 p-2 sm:p-4 overflow-hidden">
               <ProofOfGenesisArchitectureDiagram />
             </div>
 
