@@ -2143,9 +2143,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
           {/* Pre-tap hint — visible only before first tap, hidden after */}
           {!hexAwake && !holdHint && !isIOSKeyboardMode && !showUnlockHint && (
-            <div className="flex justify-center">
-              <span className="text-xs font-medium text-primary/80 flex items-center gap-1.5">
-                <Sparkles className="h-3 w-3" />
+            <div className="flex justify-center mt-1">
+              <span className="text-[13px] font-medium tracking-[0.08em] text-primary/85 flex items-center gap-2">
+                <Sparkles className="h-3.5 w-3.5" />
                 press &amp; hold the $Z
               </span>
             </div>
