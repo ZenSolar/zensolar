@@ -2118,7 +2118,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             />
 
             {/* Unlock / tap hint — always shown so reviewers know the next step */}
-            <div className={cn("flex justify-center transition-all duration-200", isIOSKeyboardMode ? 'h-6 mt-1' : inputFocused ? 'h-5' : 'h-10')}>
+            <div className={cn("flex justify-center transition-all duration-200", isIOSKeyboardMode ? 'h-6 mt-1' : inputFocused ? 'h-5' : 'h-8')}>
               {inputFocused && !code.trim() ? (
                 <span className="text-[11px] font-medium text-foreground/55 flex items-center gap-1">
                   <Lock className="h-3 w-3" />
