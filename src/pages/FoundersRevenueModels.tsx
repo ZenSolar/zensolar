@@ -138,6 +138,23 @@ function FoundersRevenueModelsInner() {
               Joseph &amp; Michael — current 50/50 split vs. proposed 100%-to-LP model.
               Adjust the assumptions below; charts and tables update live.
             </p>
+            <button
+              onClick={() => {
+                const text = `\u200B${SHARE_URL}\nPIN: 0423`;
+                navigator.clipboard.writeText(text).then(() => {
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                });
+              }}
+              className="inline-flex items-center gap-1.5 mt-2 text-[11px] font-medium text-primary/90 hover:text-primary transition-colors"
+            >
+              {copied ? (
+                <Check className="h-3.5 w-3.5" />
+              ) : (
+                <Copy className="h-3.5 w-3.5" />
+              )}
+              {copied ? "Copied!" : "Copy share link"}
+            </button>
           </header>
 
           {/* Flywheel headline callouts — pinned high so it's the first thing visible */}
