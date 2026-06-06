@@ -164,17 +164,22 @@ export default function FoundersTheAsk() {
       <section className="max-w-5xl mx-auto px-5 md:px-6 pb-6">
         <div className="flex flex-wrap gap-3">
           <a
-            href={PDF_PATH}
+            href={pdfUrl ?? "#"}
+            aria-disabled={!pdfUrl}
+            onClick={(e) => { if (!pdfUrl) e.preventDefault(); }}
             download="ZenSolar_Seed_Ask_Lyndon_v8.1final.pdf"
-            className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-medium hover:bg-primary/90"
+            className={`inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-medium hover:bg-primary/90 ${!pdfUrl ? 'opacity-50 pointer-events-none' : ''}`}
           >
-            <Download className="h-4 w-4" /> Download Seed One-Pager (PDF)
+            {pdfUrl ? <Download className="h-4 w-4" /> : <Loader2 className="h-4 w-4 animate-spin" />}
+            {pdfUrl ? 'Download Seed One-Pager (PDF)' : 'Preparing secure link…'}
           </a>
           <a
-            href={PDF_PATH}
+            href={pdfUrl ?? "#"}
+            aria-disabled={!pdfUrl}
+            onClick={(e) => { if (!pdfUrl) e.preventDefault(); }}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded-full border border-border bg-card/40 px-5 py-2.5 text-sm font-medium hover:bg-card"
+            className={`inline-flex items-center gap-2 rounded-full border border-border bg-card/40 px-5 py-2.5 text-sm font-medium hover:bg-card ${!pdfUrl ? 'opacity-50 pointer-events-none' : ''}`}
           >
             <ExternalLink className="h-4 w-4" /> Open in new tab
           </a>
@@ -187,29 +192,38 @@ export default function FoundersTheAsk() {
       {/* Embedded PDF */}
       <section className="max-w-5xl mx-auto px-5 md:px-6 pb-12">
         <div className="rounded-2xl border border-border/60 overflow-hidden bg-card">
-          <object
-            data={PDF_PATH}
-            type="application/pdf"
-            className="w-full h-[80vh] hidden md:block"
-            aria-label="ZenSolar Seed Ask one-pager"
-          >
-            <iframe src={PDF_PATH} title="ZenSolar Seed Ask one-pager" className="w-full h-[80vh]" />
-          </object>
+          {pdfUrl ? (
+            <object
+              data={pdfUrl}
+              type="application/pdf"
+              className="w-full h-[80vh] hidden md:block"
+              aria-label="ZenSolar Seed Ask one-pager"
+            >
+              <iframe src={pdfUrl} title="ZenSolar Seed Ask one-pager" className="w-full h-[80vh]" />
+            </object>
+          ) : (
+            <div className="hidden md:flex w-full h-[80vh] items-center justify-center text-sm text-muted-foreground">
+              <Loader2 className="h-5 w-5 animate-spin mr-2" /> Preparing secure preview…
+            </div>
+          )}
           <div className="md:hidden p-6 text-center space-y-3">
             <p className="text-sm text-muted-foreground">
               PDF preview is best on desktop. Tap below to open.
             </p>
             <a
-              href={PDF_PATH}
+              href={pdfUrl ?? "#"}
+              aria-disabled={!pdfUrl}
+              onClick={(e) => { if (!pdfUrl) e.preventDefault(); }}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-medium"
+              className={`inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-medium ${!pdfUrl ? 'opacity-50 pointer-events-none' : ''}`}
             >
               <ExternalLink className="h-4 w-4" /> Open Seed Ask PDF
             </a>
           </div>
         </div>
       </section>
+
 
       {/* What we're NOT asking for */}
       <section className="max-w-5xl mx-auto px-5 md:px-6 pb-12">
