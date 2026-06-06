@@ -1488,8 +1488,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           className={cn(
             "relative mx-auto flex h-full max-w-sm w-full flex-col items-center justify-center px-6 pointer-events-none transition-[gap,padding] ease-out duration-200",
             hexAwake
-              ? (inputFocused ? 'gap-4' : 'gap-6')
-              : 'gap-4',
+              ? (inputFocused ? 'gap-4' : 'gap-5')
+              : 'gap-3',
           )}
           style={{
             // Center within the visible viewport region (above the keyboard).
@@ -1552,7 +1552,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               disabled={isVerifying || isBursting}
               className={cn(
                 'relative rounded-full flex items-center justify-center touch-manipulation select-none overflow-visible cursor-pointer transition-all duration-200',
-                isIOSKeyboardMode ? 'w-12 h-12' : inputFocused ? 'w-14 h-14' : 'w-20 h-20',
+                isIOSKeyboardMode ? 'w-12 h-12' : inputFocused ? 'w-14 h-14' : 'w-[5.5rem] h-[5.5rem]',
                 isBursting
                   ? 'bg-primary/30'
                   : lockedFlash
@@ -1598,7 +1598,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                   ? 'none'
                   : firstTapBurst || isBursting
                     ? 'zenMintStampBurst 0.55s cubic-bezier(0.22, 1, 0.36, 1) both'
-                    : (!isDenied && !isVerifying ? 'zenCircleBreathe 2.8s ease-in-out infinite' : 'none'),
+                    : (!isDenied && !isVerifying ? 'zenCircleBreathe 5s ease-in-out infinite' : 'none'),
               }}
               onTouchStartCapture={(e) => {
                 if (nativeGestureReadyRef.current) return;
@@ -1623,7 +1623,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                 <span
                   className="select-none font-black"
                   style={{
-                    fontSize: '1.5rem',
+                    fontSize: '1.65rem',
                     lineHeight: 1,
                     letterSpacing: '-0.02em',
                     color: holdReady
@@ -2118,7 +2118,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             />
 
             {/* Unlock / tap hint — always shown so reviewers know the next step */}
-            <div className={cn("flex justify-center transition-all duration-200", isIOSKeyboardMode ? 'h-6 mt-1' : inputFocused ? 'h-5' : 'h-10')}>
+            <div className={cn("flex justify-center transition-all duration-200", isIOSKeyboardMode ? 'h-6 mt-1' : inputFocused ? 'h-5' : 'h-8')}>
               {inputFocused && !code.trim() ? (
                 <span className="text-[11px] font-medium text-foreground/55 flex items-center gap-1">
                   <Lock className="h-3 w-3" />
@@ -2143,9 +2143,9 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
           {/* Pre-tap hint — visible only before first tap, hidden after */}
           {!hexAwake && !holdHint && !isIOSKeyboardMode && !showUnlockHint && (
-            <div className="flex justify-center">
-              <span className="text-xs font-medium text-primary/80 flex items-center gap-1.5">
-                <Sparkles className="h-3 w-3" />
+            <div className="flex justify-center mt-1">
+              <span className="text-[13px] font-medium tracking-[0.08em] text-primary/85 flex items-center gap-2">
+                <Sparkles className="h-3.5 w-3.5" />
                 press &amp; hold the $Z
               </span>
             </div>
@@ -2164,7 +2164,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
         {/* Subtle branding footer */}
         {!isIOSKeyboardMode && (
-          <div className="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-3 pointer-events-none z-10">
+          <div className="absolute bottom-10 left-0 right-0 flex flex-col items-center gap-3 pointer-events-none z-10">
             <LiveEarningsCounter
               seedStats={(() => {
                 if (typeof window === 'undefined') return undefined;
