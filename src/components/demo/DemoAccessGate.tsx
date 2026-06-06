@@ -1552,7 +1552,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               disabled={isVerifying || isBursting}
               className={cn(
                 'relative rounded-full flex items-center justify-center touch-manipulation select-none overflow-visible cursor-pointer transition-all duration-200',
-                isIOSKeyboardMode ? 'w-12 h-12' : inputFocused ? 'w-14 h-14' : 'w-20 h-20',
+                isIOSKeyboardMode ? 'w-12 h-12' : inputFocused ? 'w-14 h-14' : 'w-[5.5rem] h-[5.5rem]',
                 isBursting
                   ? 'bg-primary/30'
                   : lockedFlash
