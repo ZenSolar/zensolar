@@ -1,22 +1,19 @@
-## Refresh Bottom Stats on Initial Demo Screen
+## Remove "Download Deck + One-Pager (PDF)" button from /investor
 
-Update the two bottom stats rendered by `LiveEarningsCounter` on the demo access gate so investors see stronger numbers — only on the investor-demo entry path. All styling, color, spacing, and the pulse dot stay identical.
+### Why
+The button on `/investor` (between the live counter and the "Why now" section) downloads the seed-ask PDFs without requiring NDA signature — anyone past the PIN gate can grab them. Removing the button closes that pre-NDA path.
 
-### Files
-- `src/components/marketing/LiveEarningsCounter.tsx`
-- `src/components/demo/DemoAccessGate.tsx`
+### Change
+**`src/pages/Investor.tsx`**
+- Delete the button block (the `<div className="mx-auto max-w-3xl px-5 mb-10">…</div>` wrapping the `Download Deck + One-Pager (PDF)` Button, lines ~282–292).
+- Delete the now-unused `downloadDeckCombo` handler (lines ~110–126).
+- Remove the `Download` lucide import if no other usage remains in the file.
 
-### Changes
+Nothing else on the page changes. NDA-gated download flows elsewhere (post-signature) are untouched.
 
-**1. `LiveEarningsCounter.tsx`** — add optional `seedStats?: { lifetimeTokens: number; uniqueMinters: number }` prop. When provided, skip the Supabase RPC poll and count-up animation and render the seeded values directly through the existing `formatNumber` logic. When omitted, behavior is unchanged.
+### Caveat worth flagging (not in this change)
+The PDFs themselves still live at public static URLs (`/founder-docs/seed-ask-lyndon-v8.1final.pdf` and `v8final.pdf`) and remain directly fetchable by anyone who knows the URL. Removing the button hides the entry point, but doesn't truly gate the files. A real fix requires moving them to a private bucket + signed-URL edge function after NDA signature. Let me know if you want that as a follow-up plan.
 
-**2. `DemoAccessGate.tsx`** — detect investor-demo entry (`?demo=investor` or `?demo=outage`) using the same URL-param read already in the file. Pass seeded values to `<LiveEarningsCounter />` only on that path:
-- `lifetimeTokens: 1_230_000` → renders **1.23M $ZSOLAR minted**
-- `uniqueMinters: 23` → renders **23 founding members**
-
-All other gate entries (regular access code, VIP link, reviewer invite, etc.) continue to show the live backend stats.
-
-### Verification
-1. Load `/demo?demo=investor` at 390×844 → bottom reads **1.23M $ZSOLAR minted · 23 founding members**.
-2. Styling, color, spacing, pulse dot unchanged.
-3. Load `/demo` (non-investor) → live backend stats still appear.
+### Verify
+- Load `/investor` after PIN unlock → the green-outlined "Download Deck + One-Pager (PDF)" button is gone; layout flows from the live counter straight into "Why now".
+- No TypeScript errors from the removed handler/import.
