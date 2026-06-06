@@ -107,24 +107,6 @@ export default function Investor() {
   const ndaRef = useRef<HTMLDivElement>(null);
   const { displayName: refDisplayName, firstName: refFirstName } = useInvestorRef();
 
-  const downloadDeckCombo = () => {
-    const files = [
-      '/founder-docs/seed-ask-lyndon-v8.1final.pdf',
-      '/founder-docs/seed-ask-lyndon-v8final.pdf',
-    ];
-    files.forEach((href, i) => {
-      window.setTimeout(() => {
-        const a = document.createElement('a');
-        a.href = href;
-        a.download = href.split('/').pop() || 'zensolar.pdf';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      }, i * 350);
-    });
-    toast.success('Downloading deck + one-pager…');
-  };
-
   // Recheck server-side if local cache is empty.
   // IMPORTANT: this hook MUST run on every render (before any early return)
   // or React throws error #310 ("rendered more hooks than previous render")
