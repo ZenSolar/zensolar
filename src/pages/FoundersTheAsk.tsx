@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Navigate, Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -13,13 +14,31 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useIsFounder } from "@/hooks/useIsFounder";
 import { isPreviewMode } from "@/lib/previewMode";
+import { supabase } from "@/integrations/supabase/client";
 
-const PDF_PATH = "/founder-docs/seed-ask-lyndon-v8.1final.pdf";
+const PDF_FILENAME = "seed-ask-lyndon-v8.1final.pdf";
 
 export default function FoundersTheAsk() {
   const { user, isLoading } = useAuth();
   const { isFounder, ready } = useIsFounder();
   const preview = isPreviewMode();
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!preview && (!user || !isFounder)) return;
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase.functions.invoke(
+        "founder-doc-download",
+        { body: { filename: PDF_FILENAME } },
+      );
+      if (cancelled) return;
+      if (!error && data?.url) setPdfUrl(data.url as string);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [preview, user, isFounder]);
 
   if (!preview && (isLoading || !ready)) {
     return (
@@ -30,6 +49,7 @@ export default function FoundersTheAsk() {
   }
   if (!preview && !user) return <Navigate to="/auth" replace />;
   if (!preview && !isFounder) return <Navigate to="/" replace />;
+
 
   return (
     <div className="min-h-[100svh] bg-background text-foreground pb-safe">
