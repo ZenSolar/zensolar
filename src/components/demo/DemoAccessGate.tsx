@@ -1598,7 +1598,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                   ? 'none'
                   : firstTapBurst || isBursting
                     ? 'zenMintStampBurst 0.55s cubic-bezier(0.22, 1, 0.36, 1) both'
-                    : (!isDenied && !isVerifying ? 'zenCircleBreathe 2.8s ease-in-out infinite' : 'none'),
+                    : (!isDenied && !isVerifying ? 'zenCircleBreathe 5s ease-in-out infinite' : 'none'),
               }}
               onTouchStartCapture={(e) => {
                 if (nativeGestureReadyRef.current) return;
