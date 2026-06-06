@@ -279,17 +279,6 @@ export default function Investor() {
 
         <LiveVerifiedCounter />
 
-        {/* PDF leave-behind combo */}
-        <div className="mx-auto max-w-3xl px-5 mb-10">
-          <Button
-            onClick={downloadDeckCombo}
-            variant="outline"
-            className="w-full h-12 border-secondary/40 hover:bg-secondary/5"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Download Deck + One-Pager (PDF)
-          </Button>
-        </div>
 
 
 
