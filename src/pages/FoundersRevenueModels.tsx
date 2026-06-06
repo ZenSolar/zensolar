@@ -96,9 +96,12 @@ function FlywheelCallout({
   );
 }
 
+const SHARE_URL = "https://beta.zen.solar/founders/revenue-models";
+
 function FoundersRevenueModelsInner() {
   const [a, setA] = useState<ProjectionAssumptions>(DEFAULT_ASSUMPTIONS);
   const [tableOpen, setTableOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const projection = useMemo(() => buildProjection(a), [a]);
   const {
     rows,
