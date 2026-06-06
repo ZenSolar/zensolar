@@ -96,6 +96,7 @@ const Feedback = lazy(() => import("./pages/Feedback"));
 const OAuthCallback = lazy(() => import("./pages/OAuthCallback"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const FoundersVault = lazy(() => import("./pages/FoundersVault"));
+const FoundersRevenueModels = lazy(() => import("./pages/FoundersRevenueModels"));
 const FounderPack = lazy(() => import("./pages/FounderPack"));
 const WhitepaperPhase1 = lazy(() => import("./pages/WhitepaperPhase1"));
 const WhitepaperPhase2 = lazy(() => import("./pages/WhitepaperPhase2"));
@@ -1376,6 +1377,7 @@ const App = () => {
                     {/* Founders Vault - direct URL only, no nav link. All gated by FounderRoute. */}
                     <Route path="/founder" element={<Navigate to="/founders" replace />} />
                     <Route path="/founders" element={<FounderRoute><FoundersVault /></FounderRoute>} />
+                    <Route path="/founders/revenue-models" element={<FoundersRevenueModels />} />
                     <Route path="/founder-pack" element={<FounderRoute><FounderPack /></FounderRoute>} />
                     <Route path="/whitepaper-phase-1" element={<FounderRoute><WhitepaperPhase1 /></FounderRoute>} />
                     <Route path="/whitepaper-phase-2" element={<FounderRoute><WhitepaperPhase2 /></FounderRoute>} />
