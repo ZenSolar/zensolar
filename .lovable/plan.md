@@ -1,26 +1,22 @@
-Two surgical changes to the /investor experience.
+## Refresh Bottom Stats on Initial Demo Screen
 
-## 1. Increase the live verified-kWh number
+Update the two bottom stats rendered by `LiveEarningsCounter` on the demo access gate so investors see stronger numbers — only on the investor-demo entry path. All styling, color, spacing, and the pulse dot stay identical.
 
-In `src/components/investor/LiveVerifiedCounter.tsx` the deterministic daily baseline currently sits at ~380–520 kWh. To make the metric feel substantial on the investor page, bump the scale:
+### Files
+- `src/components/marketing/LiveEarningsCounter.tsx`
+- `src/components/demo/DemoAccessGate.tsx`
 
-- Multiply `dayBase()` output by a factor (e.g., `* 100`) so the daily baseline reads in the ~38,000–52,000 kWh range.
-- Keep the time-of-day growth and the periodic tick increments so the number still "feels alive."
-- Preserve the exact same UI, label, and positioning.
+### Changes
 
-## 2. Remove the Token Appreciation Calculator
+**1. `LiveEarningsCounter.tsx`** — add optional `seedStats?: { lifetimeTokens: number; uniqueMinters: number }` prop. When provided, skip the Supabase RPC poll and count-up animation and render the seeded values directly through the existing `formatNumber` logic. When omitted, behavior is unchanged.
 
-In `src/pages/Investor.tsx`:
-- Remove the `AppreciationCalculator` import.
-- Delete the `<AppreciationCalculator />` mount on line 294.
+**2. `DemoAccessGate.tsx`** — detect investor-demo entry (`?demo=investor` or `?demo=outage`) using the same URL-param read already in the file. Pass seeded values to `<LiveEarningsCounter />` only on that path:
+- `lifetimeTokens: 1_230_000` → renders **1.23M $ZSOLAR minted**
+- `uniqueMinters: 23` → renders **23 founding members**
 
-Leave the component file itself in place (no need to delete source).
+All other gate entries (regular access code, VIP link, reviewer invite, etc.) continue to show the live backend stats.
 
-## Verification
-- Load `/investor` at 390×844 and confirm the kWh counter is significantly larger.
-- Confirm the Appreciation Calculator section no longer renders between the PDF download button and the "Why now" section.
-- No console errors.
-
-## Out of scope
-- No copy changes, layout reflows, or tokenomics edits.
-- The component file `AppreciationCalculator.tsx` is not deleted.
+### Verification
+1. Load `/demo?demo=investor` at 390×844 → bottom reads **1.23M $ZSOLAR minted · 23 founding members**.
+2. Styling, color, spacing, pulse dot unchanged.
+3. Load `/demo` (non-investor) → live backend stats still appear.
