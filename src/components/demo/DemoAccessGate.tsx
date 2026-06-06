@@ -1488,8 +1488,8 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
           className={cn(
             "relative mx-auto flex h-full max-w-sm w-full flex-col items-center justify-center px-6 pointer-events-none transition-[gap,padding] ease-out duration-200",
             hexAwake
-              ? (inputFocused ? 'gap-4' : 'gap-6')
-              : 'gap-4',
+              ? (inputFocused ? 'gap-4' : 'gap-5')
+              : 'gap-3',
           )}
           style={{
             // Center within the visible viewport region (above the keyboard).
