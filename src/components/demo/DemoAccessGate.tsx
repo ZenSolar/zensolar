@@ -2166,18 +2166,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
         {!isIOSKeyboardMode && (
           <div className="absolute bottom-10 left-0 right-0 flex flex-col items-center gap-3 pointer-events-none z-10">
             <LiveEarningsCounter
-              seedStats={(() => {
-                if (typeof window === 'undefined') return undefined;
-                try {
-                  const demoParam = new URLSearchParams(window.location.search).get('demo');
-                  if (demoParam === 'investor' || demoParam === 'outage') {
-                    return { lifetimeTokens: 1_230_000, uniqueMinters: 23 };
-                  }
-                } catch {
-                  /* noop */
-                }
-                return undefined;
-              })()}
+              seedStats={{ lifetimeTokens: 1_230_000, uniqueMinters: 23 }}
             />
             <div
               className="text-[10px] font-medium tracking-widest uppercase text-center leading-relaxed bg-clip-text text-transparent drop-shadow-[0_0_6px_hsl(var(--primary)/0.3)]"
