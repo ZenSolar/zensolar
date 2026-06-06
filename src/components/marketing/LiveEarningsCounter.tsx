@@ -24,14 +24,32 @@ function formatNumber(n: number): string {
  * Pulls aggregate (non-personal) mint totals via the `get_live_earnings_stats` RPC.
  * Tick-up animation when the value changes — minimal, web-quality polish.
  */
-export function LiveEarningsCounter({ className }: { className?: string }) {
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [displayed, setDisplayed] = useState(0);
-  const targetRef = useRef(0);
+export function LiveEarningsCounter({
+  className,
+  seedStats,
+}: {
+  className?: string;
+  seedStats?: { lifetimeTokens: number; uniqueMinters: number };
+}) {
+  const [stats, setStats] = useState<Stats | null>(
+    seedStats
+      ? {
+          lifetime_tokens: seedStats.lifetimeTokens,
+          lifetime_mints: 0,
+          month_tokens: 0,
+          month_mints: 0,
+          unique_minters: seedStats.uniqueMinters,
+          last_mint_at: null,
+        }
+      : null,
+  );
+  const [displayed, setDisplayed] = useState(seedStats ? seedStats.lifetimeTokens : 0);
+  const targetRef = useRef(seedStats ? seedStats.lifetimeTokens : 0);
   const rafRef = useRef<number | null>(null);
 
-  // Fetch + poll
+  // Fetch + poll — skipped when seeded (investor demo path)
   useEffect(() => {
+    if (seedStats) return;
     let cancelled = false;
 
     async function fetchStats() {
@@ -48,10 +66,11 @@ export function LiveEarningsCounter({ className }: { className?: string }) {
       cancelled = true;
       clearInterval(id);
     };
-  }, []);
+  }, [seedStats]);
 
-  // Smooth tick-up animation toward target
+  // Smooth tick-up animation toward target — skipped when seeded
   useEffect(() => {
+    if (seedStats) return;
     function step() {
       const target = targetRef.current;
       setDisplayed((curr) => {
@@ -65,7 +84,7 @@ export function LiveEarningsCounter({ className }: { className?: string }) {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, []);
+  }, [seedStats]);
 
   if (!stats) {
     return (
