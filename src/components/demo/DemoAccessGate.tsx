@@ -2164,7 +2164,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
 
         {/* Subtle branding footer */}
         {!isIOSKeyboardMode && (
-          <div className="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-3 pointer-events-none z-10">
+          <div className="absolute bottom-10 left-0 right-0 flex flex-col items-center gap-3 pointer-events-none z-10">
             <LiveEarningsCounter
               seedStats={(() => {
                 if (typeof window === 'undefined') return undefined;
