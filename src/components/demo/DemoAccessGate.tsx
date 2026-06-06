@@ -1623,7 +1623,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                 <span
                   className="select-none font-black"
                   style={{
-                    fontSize: '1.5rem',
+                    fontSize: '1.65rem',
                     lineHeight: 1,
                     letterSpacing: '-0.02em',
                     color: holdReady
