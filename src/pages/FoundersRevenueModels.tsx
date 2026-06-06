@@ -14,6 +14,8 @@ import {
   TrendingUp,
   AlertTriangle,
   Zap,
+  Copy,
+  Check,
 } from "lucide-react";
 
 function Slider({
