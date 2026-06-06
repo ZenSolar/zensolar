@@ -9,7 +9,7 @@ import {
   ArrowDown,
   ArrowRight,
   Mail,
-  Download,
+  
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { NdaSignatureStep } from '@/components/demo/NdaSignatureStep';
@@ -106,24 +106,6 @@ export default function Investor() {
   const [signed, setSigned] = useState<SignedState | null>(() => readSigned());
   const ndaRef = useRef<HTMLDivElement>(null);
   const { displayName: refDisplayName, firstName: refFirstName } = useInvestorRef();
-
-  const downloadDeckCombo = () => {
-    const files = [
-      '/founder-docs/seed-ask-lyndon-v8.1final.pdf',
-      '/founder-docs/seed-ask-lyndon-v8final.pdf',
-    ];
-    files.forEach((href, i) => {
-      window.setTimeout(() => {
-        const a = document.createElement('a');
-        a.href = href;
-        a.download = href.split('/').pop() || 'zensolar.pdf';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      }, i * 350);
-    });
-    toast.success('Downloading deck + one-pager…');
-  };
 
   // Recheck server-side if local cache is empty.
   // IMPORTANT: this hook MUST run on every render (before any early return)
@@ -279,17 +261,6 @@ export default function Investor() {
 
         <LiveVerifiedCounter />
 
-        {/* PDF leave-behind combo */}
-        <div className="mx-auto max-w-3xl px-5 mb-10">
-          <Button
-            onClick={downloadDeckCombo}
-            variant="outline"
-            className="w-full h-12 border-secondary/40 hover:bg-secondary/5"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Download Deck + One-Pager (PDF)
-          </Button>
-        </div>
 
 
 
