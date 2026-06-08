@@ -376,11 +376,13 @@ export function useDashboardData() {
 
       if (response.error) {
         console.error('Enphase data error:', response.error);
-        const errorMessage = response.error.message || '';
-        if (errorMessage.includes('429') || errorMessage.includes('Too Many Requests') || errorMessage.includes('Usage limit exceeded')) {
+        const parsed = await parseFunctionInvokeError(response.error);
+        if (parsed.needsReauth) {
+          warnReauthOnce('enphase', parsed.status);
+          return { error: 'needs_reauth', needsReauth: true };
+        }
+        if (parsed.rateLimited) {
           toast.error('Enphase API rate limit reached. Please try again later.');
-        } else if (errorMessage.includes('needsReauth') || errorMessage.includes('Token expired')) {
-          toast.error('Enphase connection expired. Please reconnect your account.');
         }
         return null;
       }
@@ -407,8 +409,12 @@ export function useDashboardData() {
 
       if (response.error) {
         console.error('SolarEdge data error:', response.error);
-        const errorMessage = response.error.message || '';
-        if (errorMessage.includes('429') || errorMessage.includes('Too Many Requests')) {
+        const parsed = await parseFunctionInvokeError(response.error);
+        if (parsed.needsReauth) {
+          warnReauthOnce('solaredge', parsed.status);
+          return { error: 'needs_reauth', needsReauth: true };
+        }
+        if (parsed.rateLimited) {
           toast.error('SolarEdge API rate limit reached. Please try again later.');
         }
         return null;
@@ -442,13 +448,15 @@ export function useDashboardData() {
 
       if (response.error) {
         console.error('Tesla data error:', response.error);
-        const errorMessage = response.error.message || '';
-        if (errorMessage.includes('429') || errorMessage.includes('Too Many Requests')) {
+        const parsed = await parseFunctionInvokeError(response.error);
+        if (parsed.needsReauth) {
+          // Don't show toast - the UI surfaces a persistent reconnect CTA.
+          warnReauthOnce('tesla', parsed.status);
+          return { error: 'needs_reauth', needsReauth: true };
+        }
+        if (parsed.rateLimited) {
           toast.error('Tesla API rate limit reached. Please try again later.');
           return { error: 'rate_limited' };
-        } else if (errorMessage.includes('needsReauth') || errorMessage.includes('Token expired')) {
-          // Don't show toast - let the UI show the reconnect CTA
-          return { error: 'needs_reauth', needsReauth: true };
         }
         return { error: 'unknown' };
       }
@@ -471,9 +479,13 @@ export function useDashboardData() {
 
       if (response.error) {
         console.error('Wallbox data error:', response.error);
-        const errorMessage = response.error.message || '';
-        if (errorMessage.includes('needsReauth') || errorMessage.includes('Token expired')) {
-          toast.error('Wallbox connection expired. Please reconnect your account.');
+        const parsed = await parseFunctionInvokeError(response.error);
+        if (parsed.needsReauth) {
+          warnReauthOnce('wallbox', parsed.status);
+          return { error: 'needs_reauth', needsReauth: true };
+        }
+        if (parsed.rateLimited) {
+          toast.error('Wallbox API rate limit reached. Please try again later.');
         }
         return null;
       }
