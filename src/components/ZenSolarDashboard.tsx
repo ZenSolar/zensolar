@@ -335,7 +335,22 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           <div className="mb-3">
             <OemDiagnosticsBanner />
           </div>
-          <EnergyFlowGlowCard />
+          {(() => {
+            const reauthProviders = (['enphase', 'solaredge', 'wallbox'] as ReauthProvider[]).filter(
+              (p) => providerRefresh[p]?.needsReauth
+            );
+            const calloutNodes = reauthProviders.map((p) => (
+              <ProviderReauthCallout key={p} provider={p} className="mb-2" />
+            ));
+            return (
+              <>
+                {calloutNodes}
+                <EnergyFlowErrorBoundary fallbackExtras={calloutNodes.length ? calloutNodes : null}>
+                  <EnergyFlowGlowCard />
+                </EnergyFlowErrorBoundary>
+              </>
+            );
+          })()}
         </AnimatedItem>
 
         {/* 2. PRIMARY ACTION — Tap-to-Mint with pending $ZSOLAR count-up. */}
