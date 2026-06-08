@@ -169,7 +169,19 @@ async function fetchFromOem(
       body: { mode: 'telemetry', capability, siteId },
       headers,
     });
-    if (error) return null;
+    if (error) {
+      try {
+        const { parseFunctionInvokeError, warnReauthOnce } = await import('@/lib/functionsInvokeError');
+        const parsed = await parseFunctionInvokeError(error);
+        if (parsed.needsReauth) {
+          warnReauthOnce(oem, parsed.status);
+          return { __reauth: true, provider: oem };
+        }
+      } catch {
+        /* ignore parser failures */
+      }
+      return null;
+    }
     return data ?? null;
   } catch {
     return null;
@@ -253,7 +265,7 @@ function useTelemetry(capability: Capability) {
           continue;
         }
         const live = await fetchFromOem(oem, d.device_id, capability, targetHeaderId);
-        if (live && !(live as any).error) {
+        if (live && !(live as any).error && !(live as any).__reauth) {
           // Only persist cache when acting as self; admin View-As lacks RLS
           // write privilege on other users' cache rows (edge function writes
           // via service role for its own caching).
