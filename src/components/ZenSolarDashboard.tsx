@@ -26,6 +26,8 @@ import { PremiumInsightsTeaserCard } from './dashboard/PremiumInsightsTeaserCard
 import { LiveEnergyMonitoringCard } from './dashboard/LiveEnergyMonitoringCard';
 import { OutageRecapCard } from './dashboard/OutageRecapCard';
 import { OemDiagnosticsBanner } from './dashboard/OemDiagnosticsBanner';
+import { EnergyFlowErrorBoundary } from './dashboard/EnergyFlowErrorBoundary';
+import { ProviderReauthCallout, type ReauthProvider } from './dashboard/ProviderReauthCallout';
 import { useEnergyInsightsSubscription } from '@/hooks/useEnergyInsightsSubscription';
 import { FlywheelContributionCard } from './dashboard/FlywheelContributionCard';
 import { MintReceiptsHint } from './dashboard/MintReceiptsHint';
