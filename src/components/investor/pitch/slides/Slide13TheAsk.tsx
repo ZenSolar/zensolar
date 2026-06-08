@@ -20,7 +20,7 @@ export function Slide13TheAsk() {
       <div className="absolute inset-0 flex flex-col justify-center px-16 pt-20 pb-16">
         {/* Headline ask */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center mb-8">
-          <p className="text-[15px] font-mono tracking-[0.3em] uppercase text-white/35 mb-3">Strategic Seed · SAFE · Post-money</p>
+          <p className="text-[15px] font-mono tracking-[0.3em] uppercase text-white/35 mb-3">Strategic Seed · Convertible Note · Post-money</p>
           <h2 className="text-[64px] font-bold leading-none">
             Raising <span className="text-[hsl(45,93%,47%)]">$5M</span>
             <span className="text-white/40 text-[44px] font-light"> · </span>

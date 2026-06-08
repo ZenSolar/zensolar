@@ -27,7 +27,7 @@ export function S11Ask() {
       <div className="absolute inset-0 flex flex-col px-24 pt-28 pb-20">
         <SectionHeader
           kicker="The Ask"
-          title="$5M target · $7M hard cap · SAFE (post-money)."
+          title="$5M target · $7M hard cap · Convertible Note (post-money)."
           subtitle="18–24 month runway to mainnet TGE, first revenue, and Series A readiness. $20M post-money. Cap shared under NDA."
         />
 

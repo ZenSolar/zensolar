@@ -4,7 +4,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 const FAQ: Array<{ q: string; a: string }> = [
   {
     q: 'How is this structured from a regulatory standpoint?',
-    a: 'This round is a SAFE (post-money) — the same instrument YC pioneered. $ZSOLAR is a utility token earned through verified clean-energy production, not sold to the public for fundraising. We have securities counsel and patent counsel engaged; full memo available in the data room.',
+    a: 'This round is structured as a Convertible Note (post-money), a widely used instrument for early-stage raises. $ZSOLAR is a utility token earned through verified clean-energy production, not sold to the public for fundraising. We have securities counsel and patent counsel engaged; full memo available in the data room.',
   },
   {
     q: 'Where is $ZSOLAR custodied?',
@@ -16,7 +16,7 @@ const FAQ: Array<{ q: string; a: string }> = [
   },
   {
     q: 'How much dilution can I expect at Series A?',
-    a: 'Standard SAFE conversion math — we are targeting a Series A 18–24 months out with revenue from three engines (protocol, subscription, aggregated data) live. Cap table modeling and scenarios are in the data room.',
+    a: 'Standard convertible note conversion math — we are targeting a Series A 18–24 months out with revenue from three engines (protocol, subscription, aggregated data) live. Cap table modeling and scenarios are in the data room.',
   },
   {
     q: 'What is the exit path?',
