@@ -41,6 +41,7 @@ export function SwipeableActivityField({
   const chevronOpacity = useTransform(x, [-40, -10, 0], [0, 0.25, 0.55]);
   // Hairline border intensifies past the commit threshold (−20px).
   const borderOpacity = useTransform(x, [-100, -20, 0], [1, 0.6, 0.18]);
+  const destructiveBorderOpacity = useTransform(x, [-100, -20, 0], [1, 0, 0]);
 
   // One-time tease: gently nudge 8px left then back, so users see the rail move.
   useEffect(() => {
@@ -101,9 +102,7 @@ export function SwipeableActivityField({
       <motion.div
         aria-hidden
         className="pointer-events-none absolute inset-0 rounded-xl border border-destructive/40"
-        style={{
-          opacity: useTransform(x, [-100, -20, 0], [1, 0, 0]),
-        }}
+        style={{ opacity: destructiveBorderOpacity }}
       />
 
       {/* Swipeable content */}
