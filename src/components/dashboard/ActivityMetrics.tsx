@@ -432,25 +432,7 @@ export function ActivityMetrics({
 
 
         {/* Tesla Reconnect CTA - shown when token expired */}
-        {teslaNeedsReauth && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-between p-3 rounded-lg bg-destructive/10 border border-destructive/30"
-          >
-            <div className="flex items-center gap-2 text-sm">
-              <AlertCircle className="h-4 w-4 text-destructive" />
-              <span className="text-foreground font-medium">Tesla connection expired</span>
-            </div>
-            <Link 
-              to={`${basePath}/profile`} 
-              className="text-sm font-semibold text-primary hover:text-primary/80 flex items-center gap-1"
-            >
-              Reconnect
-              <ChevronRight className="h-4 w-4" />
-            </Link>
-          </motion.div>
-        )}
+        {teslaNeedsReauth && <ProviderReauthCallout provider="tesla" />}
 
         {/* Swipe Hint Tooltip - only show for new users with hideable fields */}
         {isNewUserView && hasHideableFields && (
