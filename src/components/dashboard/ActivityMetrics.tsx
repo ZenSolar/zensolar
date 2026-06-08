@@ -45,6 +45,7 @@ import { cn } from '@/lib/utils';
 import { useDeviceLabels } from '@/hooks/useDeviceLabels';
 import type { HideableField } from '@/hooks/useHiddenActivityFields';
 import { KpiActivityLogSheet, type KpiSheetState } from './KpiActivityLogSheet';
+import { ProviderReauthCallout } from './ProviderReauthCallout';
 
 // Import brand logos for connected providers display
 import enphaseLogo from '@/assets/logos/enphase-e-icon.svg';
