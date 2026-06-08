@@ -169,7 +169,19 @@ async function fetchFromOem(
       body: { mode: 'telemetry', capability, siteId },
       headers,
     });
-    if (error) return null;
+    if (error) {
+      try {
+        const { parseFunctionInvokeError, warnReauthOnce } = await import('@/lib/functionsInvokeError');
+        const parsed = await parseFunctionInvokeError(error);
+        if (parsed.needsReauth) {
+          warnReauthOnce(oem, parsed.status);
+          return { __reauth: true, provider: oem };
+        }
+      } catch {
+        /* ignore parser failures */
+      }
+      return null;
+    }
     return data ?? null;
   } catch {
     return null;
