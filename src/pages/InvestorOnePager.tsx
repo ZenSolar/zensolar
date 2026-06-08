@@ -108,7 +108,7 @@ export default function InvestorOnePager() {
             <div className="grid grid-cols-3 gap-3">
               <Stat k="$5M" v="Target raise" />
               <Stat k="$7M" v="Hard cap" />
-              <Stat k="SAFE" v="Instrument" />
+              <Stat k="Convertible Note" v="Instrument" />
             </div>
           </section>
 

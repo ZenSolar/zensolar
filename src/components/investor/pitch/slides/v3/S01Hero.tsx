@@ -48,7 +48,7 @@ export function S01Hero() {
           {[
             { k: '$5M', v: 'Target raise' },
             { k: '$7M', v: 'Hard cap' },
-            { k: 'SAFE', v: 'Post-money' },
+            { k: 'Convertible Note', v: 'Post-money' },
           ].map((s) => (
             <div
               key={s.v}
