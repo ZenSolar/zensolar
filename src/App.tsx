@@ -226,6 +226,7 @@ const InvestorOnePager = lazy(() => import("./pages/InvestorOnePager"));
 const InvestorDataRoom = lazy(() => import("./pages/InvestorDataRoom"));
 const InvestorDataRoomPoG = lazy(() => import("./pages/InvestorDataRoomPoG"));
 const InvestorWhyThisRound = lazy(() => import("./pages/InvestorWhyThisRound"));
+const InvestorSolarCoinComparison = lazy(() => import("./pages/InvestorSolarCoinComparison"));
 const HeroTest = lazy(() => import("./pages/HeroTest"));
 
 const Blog = lazy(() => import("./pages/Blog"));
@@ -319,6 +320,7 @@ const App = () => {
                    <Route path="/deck" element={<Suspense fallback={<PageLoader />}><DeckPinGated /></Suspense>} />
                    <Route path="/investor" element={<Suspense fallback={<PageLoader />}><Investor /></Suspense>} />
                    <Route path="/investor/why-this-round" element={<Suspense fallback={<PageLoader />}><InvestorWhyThisRound /></Suspense>} />
+                   <Route path="/investor/solarcoin-comparison" element={<Suspense fallback={<PageLoader />}><InvestorSolarCoinComparison /></Suspense>} />
                    <Route path="/investor/pitch" element={<Suspense fallback={<PageLoader />}><InvestorPitch /></Suspense>} />
                    <Route path="/investor/one-pager" element={<Suspense fallback={<PageLoader />}><InvestorOnePager /></Suspense>} />
                    <Route path="/investor/data-room" element={<Suspense fallback={<PageLoader />}><InvestorDataRoom /></Suspense>} />
