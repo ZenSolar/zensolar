@@ -229,7 +229,7 @@ export default function InvestorWhyThisRound() {
           </Section>
 
           {/* 6. GTM */}
-          <Section kicker="05 · Go-to-Market" title="High-level GTM strategy">
+          <Section kicker="06 · Go-to-Market" title="High-level GTM strategy">
             <div className="grid gap-3 md:grid-cols-2">
               {[
                 'Target users who already own compatible hardware — Tesla vehicles, Enphase / SolarEdge solar + batteries, Wallbox chargers.',
