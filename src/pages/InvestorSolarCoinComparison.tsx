@@ -132,6 +132,11 @@ const TABLES: Table[] = [
       { label: 'Wallet', zen: 'Embedded Coinbase Smart Wallet', solar: 'External wallet (MetaMask, etc.) required' },
       { label: 'Minting', zen: 'One-tap, in-app, instant feedback', solar: 'Manual production claim submission' },
       { label: 'Onboarding', zen: 'OAuth → connect OEM → mint in minutes', solar: 'Multi-step external account flow' },
+      { label: 'AI concierge', zen: 'Deason AI — bills, contracts, PPAs, ROI, warranty, 24/7 Q&A', solar: 'None' },
+      { label: 'Weekly device report', zen: 'Saturday hyper-personalized per-device performance story', solar: 'None' },
+      { label: 'Monthly clean-energy insights', zen: 'Progressive month-over-month savings & optimization report', solar: 'None' },
+      { label: 'Proactive device intelligence', zen: 'Grid-outage alerts + battery-life coaching', solar: 'None' },
+      { label: 'Token redemption', zen: '$ZSOLAR Store — gear, EV accessories, gift cards', solar: 'None' },
     ],
   },
   {
