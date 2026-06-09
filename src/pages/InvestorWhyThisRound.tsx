@@ -161,7 +161,16 @@ export default function InvestorWhyThisRound() {
                 </div>
               ))}
             </div>
+
+            <ProofOfGenesisFlow />
+
+            <p className="mt-6 text-[13px] md:text-sm text-muted-foreground leading-relaxed">
+              This design removes traditional crypto onboarding friction
+              entirely — users never need seed phrases, external wallets, or
+              gas fees to mint.
+            </p>
           </Section>
+
 
           {/* 4. Use of Funds */}
           <Section kicker="04 · Use of Funds" title="What this round will fund">
@@ -618,3 +627,64 @@ function TwoRoundTimeline() {
     </div>
   );
 }
+
+const POG_FLOW_STEPS = [
+  {
+    title: 'Hardware Telemetry',
+    body: 'Direct OAuth2 from Tesla, Enphase, SolarEdge, Wallbox',
+  },
+  {
+    title: 'Cryptographic Verification',
+    body: 'Proof-of-Delta™ Validation',
+  },
+  {
+    title: 'On-Chain Anchoring',
+    body: 'Immutable On-Chain Record',
+  },
+  {
+    title: 'One-Tap Minting',
+    body: 'Coinbase Smart Wallet — One Tap',
+  },
+];
+
+function ProofOfGenesisFlow() {
+  const reduce = useReducedMotion();
+  return (
+    <div className="mt-8 rounded-2xl border border-border/60 bg-card/30 p-5 md:p-6">
+      <div className="text-[11px] uppercase tracking-[0.24em] text-secondary/80 mb-5">
+        Proof-of-Genesis Flow
+      </div>
+      <div className="flex flex-col md:flex-row md:items-stretch gap-3 md:gap-2">
+        {POG_FLOW_STEPS.map((step, i) => (
+          <div key={step.title} className="flex flex-col md:flex-row md:items-stretch md:flex-1 gap-3 md:gap-2">
+            <motion.div
+              initial={reduce ? false : { opacity: 0, y: 8 }}
+              whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 0.4, delay: i * 0.08 }}
+              className="flex-1 rounded-xl border border-border/60 bg-background/40 px-4 py-4"
+            >
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="h-5 w-5 rounded-full border border-secondary/50 bg-secondary/10 flex items-center justify-center text-[10px] font-mono tabular-nums text-secondary">
+                  {i + 1}
+                </span>
+                <div className="text-[12px] md:text-[13px] font-semibold text-foreground leading-tight">
+                  {step.title}
+                </div>
+              </div>
+              <p className="text-[11px] md:text-[12px] text-muted-foreground leading-relaxed">
+                {step.body}
+              </p>
+            </motion.div>
+            {i < POG_FLOW_STEPS.length - 1 && (
+              <div className="flex md:items-center justify-center md:px-0.5" aria-hidden>
+                <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/50 rotate-90 md:rotate-0" />
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+

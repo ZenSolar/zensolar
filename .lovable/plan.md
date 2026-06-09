@@ -1,26 +1,41 @@
-Scope: add one new section to `src/pages/InvestorWhyThisRound.tsx`.
+## Plan: Proof-of-Genesis Flow Diagram + Minting UX
 
-Placement
-- Insert after the existing "02 · Already Live — Product capabilities shipping today" section.
-- Insert before the existing "03 · Use of Funds — What this round will fund" section.
-- Re-number subsequent kickers: "03 · Use of Funds", "04 · Round Structure", "05 · Go-to-Market", "06 · The Flywheel", "07 · Runway", "08 · The Opportunity".
+### Goal
+Insert a clean horizontal flow diagram and a short Minting UX note inside the existing "03 · Technical Foundation" section on `/investor/why-this-round`, directly below the current 5 bullet cards.
 
-Content
-- Kicker: "02 · Technical Foundation"
-- Title: "How Proof-of-Genesis Works"
-- Body (bulleted cards, same style as "Where we are today"):
-  - Direct OAuth2 integrations with Tesla, Enphase, SolarEdge, and Wallbox pull real hardware telemetry in real time — not self-reported data.
-  - Proof-of-Delta™ serves as the cryptographic verification layer that validates energy production and sustainable behavior before any tokens are minted.
-  - Verified events are immutably anchored on-chain, creating a tamper-proof record of clean energy activity.
-  - Users can mint tokens with one tap inside the app using Coinbase Smart Wallet — no seed phrases or external wallet connection required.
-  - The core Proof-of-Genesis architecture is protected by U.S. Patent Application No. 19/634,402 and is designed to scale globally as clean energy adoption accelerates.
+### Placement
+Inside `src/pages/InvestorWhyThisRound.tsx`, after the closing `</div>` of the bullet-card grid within the Technical Foundation `<Section>` and before the section ends.
 
-Styling
-- Reuse existing `Section` wrapper, `CheckCircle2` icon, and card styles (`rounded-2xl border border-border/60 bg-card/40`).
-- No new dependencies.
-- Keep mobile-first (390×844) spacing consistent with the rest of the page.
+### What to build
+1. **Inline component: `ProofOfGenesisFlowDiagram`**
+   - 4 steps in a horizontal row (stack vertically on mobile / 390×844):
+     - **Hardware Telemetry** — "Direct OAuth2 from Tesla, Enphase, SolarEdge, Wallbox"
+     - **Cryptographic Verification** — "Proof-of-Delta™ Validation"
+     - **On-Chain Anchoring** — "Immutable On-Chain Record"
+     - **One-Tap Minting** — "Coinbase Smart Wallet — One Tap"
+   - Each step rendered as a rounded card (`border-border/60 bg-card/40`) with a small icon or circle accent using `text-secondary`.
+   - Subtle connecting arrows (SVG or simple div with arrow icon) between steps.
+   - Small header above the flow: "Proof-of-Genesis Flow" (`text-[11px] uppercase tracking-[0.24em] text-secondary/80` — matching existing kicker style).
+   - Framer Motion staggered fade-in for each step, respecting `useReducedMotion()`.
+   - On mobile: steps stack vertically with arrows pointing down between them.
 
-Verification
-- Confirm the section renders cleanly at desktop and 390×844.
-- Confirm no existing content or visuals are altered.
-- Confirm kicker re-numbering is correct and consistent.
+2. **Minting UX note**
+   - After the diagram, add one supporting line:
+     > "This design removes traditional crypto onboarding friction entirely — users never need seed phrases, external wallets, or gas fees to mint."
+   - Styled as muted text (`text-sm text-muted-foreground`) with comfortable top margin.
+
+### Styling constraints
+- Use existing Tailwind design tokens only (`border-border/60`, `bg-card/40`, `text-secondary`, `text-foreground`, `text-muted-foreground`).
+- No bright colors or illustrated icons — keep it minimal and professional.
+- Fully responsive: horizontal on desktop, stacked vertical on mobile (390×844).
+- Respect `prefers-reduced-motion` via `useReducedMotion()` (already imported in the file).
+
+### File changes
+- Only edit `src/pages/InvestorWhyThisRound.tsx`.
+- Do not modify, remove, or renumber any existing content, bullets, or other visuals (Use of Funds chart, Flywheel, Timeline).
+
+### Verification
+- Preview `/investor/why-this-round` at desktop and 390×844.
+- Confirm the flow diagram and UX line render cleanly inside Technical Foundation.
+- Confirm no layout breakage or overflow.
+- Confirm all other sections remain unchanged.
