@@ -260,6 +260,47 @@ export default function InvestorSolarCoinComparison() {
             </div>
           </header>
 
+          {/* Core UX Gap — hero block */}
+          <section className="mb-14">
+            <div className="text-[11px] uppercase tracking-[0.28em] text-secondary/90 mb-3">
+              The core user experience gap
+            </div>
+            <h2 className="text-2xl md:text-3xl font-semibold tracking-tight leading-tight mb-3">
+              ZenSolar is a product. SolarCoin is a registry.
+            </h2>
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-7 max-w-2xl">
+              Eight differences a user feels the day they sign up — and every day after.
+            </p>
+            <div className="rounded-3xl border border-secondary/30 bg-gradient-to-b from-secondary/[0.07] to-transparent p-5 md:p-7 backdrop-blur-sm">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                {UX_PILLARS.map(({ icon: Icon, title, zen }) => (
+                  <div
+                    key={title}
+                    className="rounded-2xl border border-border/60 bg-card/60 p-4 md:p-5"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 rounded-lg bg-secondary/15 p-2">
+                        <Icon className="h-4 w-4 text-secondary" />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="text-sm md:text-base font-semibold tracking-tight text-foreground leading-snug">
+                          {title}
+                        </h3>
+                        <p className="mt-1.5 text-xs md:text-sm text-foreground/90 leading-relaxed">
+                          <span className="font-semibold text-secondary">ZenSolar:</span>{' '}
+                          {zen}
+                        </p>
+                        <p className="mt-1 text-xs text-muted-foreground/70 leading-snug">
+                          SolarCoin: —
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
           {/* Scoreboard */}
           <div className="rounded-2xl border border-border/60 bg-card/40 backdrop-blur-sm overflow-hidden">
             <div className="grid grid-cols-[1fr_auto_auto] items-center px-4 py-2.5 border-b border-border/60 bg-card/60 text-[10px] uppercase tracking-[0.18em]">
