@@ -313,7 +313,7 @@ export default function InvestorWhyThisRound() {
           </Section>
 
           {/* 9. Long-Term Opportunity */}
-          <Section kicker="08 · The Opportunity" title="Why this becomes a durable, multi-decade business">
+          <Section kicker="09 · The Opportunity" title="Why this becomes a durable, multi-decade business">
             <div className="grid gap-3">
               {[
                 'Proof-of-Genesis™ has the potential to become a foundational primitive for tokenizing and rewarding verified clean energy behavior at global scale.',
