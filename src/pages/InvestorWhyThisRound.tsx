@@ -24,6 +24,7 @@ import {
   PlayCircle,
   Flag,
 } from 'lucide-react';
+import { InvestorHeader } from '@/components/investor/InvestorHeader';
 
 const USE_OF_FUNDS = [
   { name: 'Token Launch & LP', value: 25 },
