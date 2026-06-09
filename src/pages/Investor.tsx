@@ -472,6 +472,13 @@ function UnlockedPanel({
             to="/investor/data-room"
             internal
           />
+          <UnlockedCard
+            icon={GitCompare}
+            title="SolarCoin Comparison"
+            body="How ZenSolar's consumer UX, AI, and tokenomics outpace legacy SolarCoin."
+            to="/investor/solarcoin-comparison"
+            internal
+          />
         </div>
       </div>
 
