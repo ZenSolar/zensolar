@@ -16,7 +16,56 @@ import {
   Car,
   Cpu,
   Minus,
+  Activity,
+  Sparkles,
+  CalendarDays,
+  LineChart,
+  BellRing,
+  Store,
 } from 'lucide-react';
+
+const UX_PILLARS = [
+  {
+    icon: Smartphone,
+    title: 'Native consumer app',
+    zen: 'iOS, Android, and PWA — designed for daily engagement.',
+  },
+  {
+    icon: Activity,
+    title: 'Live multi-OEM telemetry',
+    zen: 'Tesla + Enphase + SolarEdge + Wallbox unified in one UI — more engaging than any single OEM\'s native app.',
+  },
+  {
+    icon: Sparkles,
+    title: 'Deason AI concierge',
+    zen: 'Purpose-trained LLM. Analyzes bills, contracts, PPAs, ROI, warranty terms — answers any product question 24/7.',
+  },
+  {
+    icon: CalendarDays,
+    title: 'Weekly hyper-personalized device reports',
+    zen: 'Every Saturday Deason emails a per-user story of how each connected device performed — Tesla EV miles & charging, solar production, battery cycles, home charger sessions. No other solar app does this.',
+  },
+  {
+    icon: LineChart,
+    title: 'Monthly progressive clean-energy insights',
+    zen: 'A once-a-month deep report that compounds over time: tariff optimization, peak/off-peak shifting, battery & EV coaching, savings forecasts, year-over-year trendlines.',
+  },
+  {
+    icon: BellRing,
+    title: 'Proactive device intelligence',
+    zen: 'Auto grid-outage alerts and battery-life coaching to extend hardware lifespan during outages.',
+  },
+  {
+    icon: Store,
+    title: '$ZSOLAR Redemption Store',
+    zen: 'Spend tokens on solar gear, EV accessories, home-energy products, and gift cards. Real-world utility, not just a ledger entry.',
+  },
+  {
+    icon: Zap,
+    title: 'Tap-to-Mint™ + embedded wallet',
+    zen: 'Coinbase Smart Wallet built in. One tap, no seed phrases, no gas, no external wallet detours.',
+  },
+];
 
 const SCOREBOARD = [
   { label: 'Category wins', zen: '9', solar: '0' },
@@ -83,6 +132,11 @@ const TABLES: Table[] = [
       { label: 'Wallet', zen: 'Embedded Coinbase Smart Wallet', solar: 'External wallet (MetaMask, etc.) required' },
       { label: 'Minting', zen: 'One-tap, in-app, instant feedback', solar: 'Manual production claim submission' },
       { label: 'Onboarding', zen: 'OAuth → connect OEM → mint in minutes', solar: 'Multi-step external account flow' },
+      { label: 'AI concierge', zen: 'Deason AI — bills, contracts, PPAs, ROI, warranty, 24/7 Q&A', solar: 'None' },
+      { label: 'Weekly device report', zen: 'Saturday hyper-personalized per-device performance story', solar: 'None' },
+      { label: 'Monthly clean-energy insights', zen: 'Progressive month-over-month savings & optimization report', solar: 'None' },
+      { label: 'Proactive device intelligence', zen: 'Grid-outage alerts + battery-life coaching', solar: 'None' },
+      { label: 'Token redemption', zen: '$ZSOLAR Store — gear, EV accessories, gift cards', solar: 'None' },
     ],
   },
   {
@@ -192,19 +246,60 @@ export default function InvestorSolarCoinComparison() {
             </h1>
             <div className="mt-8 space-y-5 text-sm md:text-base text-muted-foreground leading-relaxed">
               <p>
-                SolarCoin launched in 2014 as a <span className="text-foreground font-medium">non-profit foundation</span> with an early vision to reward solar energy production. Twelve years later, the SolarCoin Foundation is still run by volunteers, has no commercial revenue model, no dedicated app, no embedded wallet, and remains solar-only on a basic Proof-of-Stake-Time (PoST) protocol — a structure that has delivered minimal adoption and minimal token liquidity.
+                SolarCoin launched in 2014 as a <span className="text-foreground font-medium">non-profit foundation</span> with an early vision to reward solar production. Twelve years later it remains a passive registry with <span className="text-foreground font-semibold">no native app, no embedded wallet, no live OEM telemetry, no AI, no redemption store, and no proactive device intelligence</span> — a third-party inspector approves a production claim and a token grant arrives by email.
               </p>
               <p>
-                <span className="text-foreground font-medium">ZenSolar is the fundamentally superior platform built for the clean energy transition.</span> Powered by our patent-pending Proof-of-Genesis™ architecture (U.S. Patent Application No. 19/634,402), ZenSolar uses real-time hardware telemetry and cryptographic verification (Proof-of-Delta™) to create verifiable, on-chain clean energy events at global scale — a clear leap beyond SolarCoin's Proof-of-Stake-Time approach.
+                <span className="text-foreground font-semibold">ZenSolar is a full consumer product built for the clean-energy era.</span> Embedded Coinbase Smart Wallet, Tap-to-Mint™, live multi-OEM monitoring (Tesla + Enphase + SolarEdge + Wallbox in one UI), the Deason AI concierge, a $ZSOLAR redemption store, proactive grid-outage and battery-health alerts, and <span className="text-foreground font-medium">weekly hyper-personalized device reports + monthly progressive clean-energy insights</span> — all powered by our patent-pending Proof-of-Genesis™ architecture (U.S. Patent Application No. 19/634,402) and Proof-of-Delta™ cryptographic verification.
               </p>
               <p>
-                With an embedded Coinbase Smart Wallet, one-tap minting, live multi-OEM monitoring, Deason AI, NFT milestones, Palmetto API integration for installers, and a 100% subscription-to-LP flywheel, ZenSolar dramatically reduces user friction while expanding the rewardable behaviors far beyond solar alone (battery discharge, EV charging kWh, miles driven, and FSD miles).
+                The rewardable surface expands far beyond solar alone — battery discharge, EV charging kWh, miles driven, and FSD miles — while a 100% subscription-to-LP flywheel, 1T hard cap, 20% burn, NFT milestones, and Palmetto installer integration create a moat SolarCoin has never built.
               </p>
               <p>
-                The opportunity is enormous. With strong execution, ZenSolar can acquire millions of users across the exploding EV and clean energy markets, generate substantial recurring revenue through subscriptions, data aggregation, and a planned VPP program, and realistically position $ZSOLAR among the top 5–10 cryptocurrencies by delivering real, verifiable utility at planetary scale.
+                The opportunity is enormous. With strong execution, ZenSolar can acquire millions of users across the exploding EV and clean-energy markets, generate substantial recurring revenue through subscriptions, data aggregation, and a planned VPP program, and credibly position $ZSOLAR among the top tier of cryptocurrencies by delivering real, verifiable utility at planetary scale.
               </p>
             </div>
           </header>
+
+          {/* Core UX Gap — hero block */}
+          <section className="mb-14">
+            <div className="text-[11px] uppercase tracking-[0.28em] text-secondary/90 mb-3">
+              The core user experience gap
+            </div>
+            <h2 className="text-2xl md:text-3xl font-semibold tracking-tight leading-tight mb-3">
+              ZenSolar is a product. SolarCoin is a registry.
+            </h2>
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-7 max-w-2xl">
+              Eight differences a user feels the day they sign up — and every day after.
+            </p>
+            <div className="rounded-3xl border border-secondary/30 bg-gradient-to-b from-secondary/[0.07] to-transparent p-5 md:p-7 backdrop-blur-sm">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                {UX_PILLARS.map(({ icon: Icon, title, zen }) => (
+                  <div
+                    key={title}
+                    className="rounded-2xl border border-border/60 bg-card/60 p-4 md:p-5"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 rounded-lg bg-secondary/15 p-2">
+                        <Icon className="h-4 w-4 text-secondary" />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="text-sm md:text-base font-semibold tracking-tight text-foreground leading-snug">
+                          {title}
+                        </h3>
+                        <p className="mt-1.5 text-xs md:text-sm text-foreground/90 leading-relaxed">
+                          <span className="font-semibold text-secondary">ZenSolar:</span>{' '}
+                          {zen}
+                        </p>
+                        <p className="mt-1 text-xs text-muted-foreground/70 leading-snug">
+                          SolarCoin: —
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
 
           {/* Scoreboard */}
           <div className="rounded-2xl border border-border/60 bg-card/40 backdrop-blur-sm overflow-hidden">
