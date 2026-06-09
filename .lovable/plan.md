@@ -1,41 +1,77 @@
-## Plan: Proof-of-Genesis Flow Diagram + Minting UX
+LOVABLE TASK — Improve Flywheel Section + Proof-of-Genesis Flow Diagram
 
-### Goal
-Insert a clean horizontal flow diagram and a short Minting UX note inside the existing "03 · Technical Foundation" section on `/investor/why-this-round`, directly below the current 5 bullet cards.
+Goal
 
-### Placement
-Inside `src/pages/InvestorWhyThisRound.tsx`, after the closing `</div>` of the bullet-card grid within the Technical Foundation `<Section>` and before the section ends.
+Make two targeted improvements to /investor/why-this-round:
 
-### What to build
-1. **Inline component: `ProofOfGenesisFlowDiagram`**
-   - 4 steps in a horizontal row (stack vertically on mobile / 390×844):
-     - **Hardware Telemetry** — "Direct OAuth2 from Tesla, Enphase, SolarEdge, Wallbox"
-     - **Cryptographic Verification** — "Proof-of-Delta™ Validation"
-     - **On-Chain Anchoring** — "Immutable On-Chain Record"
-     - **One-Tap Minting** — "Coinbase Smart Wallet — One Tap"
-   - Each step rendered as a rounded card (`border-border/60 bg-card/40`) with a small icon or circle accent using `text-secondary`.
-   - Subtle connecting arrows (SVG or simple div with arrow icon) between steps.
-   - Small header above the flow: "Proof-of-Genesis Flow" (`text-[11px] uppercase tracking-[0.24em] text-secondary/80` — matching existing kicker style).
-   - Framer Motion staggered fade-in for each step, respecting `useReducedMotion()`.
-   - On mobile: steps stack vertically with arrows pointing down between them.
+1. Tighten and sharpen the Flywheel section (07).
 
-2. **Minting UX note**
-   - After the diagram, add one supporting line:
-     > "This design removes traditional crypto onboarding friction entirely — users never need seed phrases, external wallets, or gas fees to mint."
-   - Styled as muted text (`text-sm text-muted-foreground`) with comfortable top margin.
+2. Upgrade the Proof-of-Genesis flow diagram in the Technical Foundation section (03) to feel more premium, connected, and visually cohesive.
 
-### Styling constraints
-- Use existing Tailwind design tokens only (`border-border/60`, `bg-card/40`, `text-secondary`, `text-foreground`, `text-muted-foreground`).
-- No bright colors or illustrated icons — keep it minimal and professional.
-- Fully responsive: horizontal on desktop, stacked vertical on mobile (390×844).
-- Respect `prefers-reduced-motion` via `useReducedMotion()` (already imported in the file).
+Scope
 
-### File changes
-- Only edit `src/pages/InvestorWhyThisRound.tsx`.
-- Do not modify, remove, or renumber any existing content, bullets, or other visuals (Use of Funds chart, Flywheel, Timeline).
+Only edit src/pages/InvestorWhyThisRound.tsx.
 
-### Verification
-- Preview `/investor/why-this-round` at desktop and 390×844.
-- Confirm the flow diagram and UX line render cleanly inside Technical Foundation.
-- Confirm no layout breakage or overflow.
-- Confirm all other sections remain unchanged.
+Part 1: Improve the Flywheel Section (Section 07)
+
+Current issues:
+
+- The 6-point numbered list below the diagram is repetitive and longer than necessary.
+
+Changes:
+
+- Keep the existing circular FlywheelDiagram.
+
+- Replace the current 6-point list with a tighter, sharper 4-point version using the following points (refine wording slightly if needed for flow):
+
+01. 100% of every monthly subscription goes directly into the Liquidity Pool.
+
+02. More users = more capital flowing into the LP every month.
+
+03. Stronger liquidity + real utility = better token price support and perception.
+
+04. Better token economics + growing data revenue creates a self-reinforcing loop that can eventually cover operations.
+
+Make the language concise and confident. Keep the same card + arrow styling as the current list.
+
+Part 2: Upgrade the Proof-of-Genesis Flow Diagram
+
+Current state: The four steps feel like separate cards rather than a connected process. The visual hierarchy and connections are weak.
+
+Improvements needed:
+
+- Make the 4 steps feel like a clear, connected journey rather than four isolated boxes.
+
+- Improve visual hierarchy: Use a more prominent step number (e.g. larger circle or badge with border) and clear separation between the step number, title, and description.
+
+- Strengthen the connecting elements between steps. On desktop, use clean horizontal connectors (subtle dashed line or thin gradient line). On mobile (where it stacks), add a faint vertical connector line between steps.
+
+- Increase breathing room and spacing between the 4 steps, especially on mobile (390×844), so it doesn’t feel cramped.
+
+- Keep the existing supporting sentence below the diagram:
+
+  “This design removes traditional crypto onboarding friction entirely — users never need seed phrases, external wallets, or gas fees to mint.”
+
+- Use only existing design tokens (border-border/60, bg-card/40, text-secondary, text-foreground, etc.). No new colors.
+
+Constraints
+
+- Only edit src/pages/InvestorWhyThisRound.tsx.
+
+- Do not change the circular Flywheel diagram, the Use of Funds chart, the Two-Round timeline, or any other section text.
+
+- No new dependencies.
+
+Verification
+
+- Preview /investor/why-this-round at desktop and 390×844.
+
+- Confirm the Flywheel section is now tighter (4 clear points) with less repetition.
+
+- Confirm the Proof-of-Genesis flow diagram feels more premium, connected, and well-spaced — especially on mobile.
+
+- Confirm no layout breakage or visual issues were introduced elsewhere on the page.
+
+After you finish, reply exactly with:
+
+“Flywheel section tightened + Proof-of-Genesis flow diagram upgraded — /investor/why-this-round improvements complete.”

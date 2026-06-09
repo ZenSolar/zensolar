@@ -261,29 +261,23 @@ export default function InvestorWhyThisRound() {
           {/* 7. Flywheel */}
           <Section kicker="07 · The Flywheel" title="How it actually compounds">
             <FlywheelDiagram />
-            <div className="space-y-2 mt-8">
+            <div className="grid gap-3 mt-8 md:grid-cols-2">
               {[
-                '100% of every monthly subscription goes directly into the Liquidity Pool.',
-                'More users = more capital flowing into the LP every month.',
-                'Stronger liquidity + real utility = better token price support and perception.',
-                'Better token economics = more users want to join and mint.',
-                'Data revenue grows in parallel with the user base.',
-                'Goal: LP inflows + data revenue meaningfully cover operations.',
-              ].map((line, i, arr) => (
-                <div key={line}>
-                  <div className="flex items-start gap-4 rounded-2xl border border-border/60 bg-card/40 px-5 py-4">
-                    <span className="text-secondary font-mono text-sm tabular-nums shrink-0 mt-0.5">
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    <p className="text-[13px] md:text-sm text-foreground/90 leading-relaxed">
-                      {line}
-                    </p>
-                  </div>
-                  {i < arr.length - 1 && (
-                    <div className="flex justify-center py-1">
-                      <ArrowRight className="h-3 w-3 text-muted-foreground/40 rotate-90" />
-                    </div>
-                  )}
+                '100% of every monthly subscription flows directly into the Liquidity Pool.',
+                'More users → more capital into the LP every single month.',
+                'Stronger liquidity + real utility → durable token price support.',
+                'Better token economics + growing data revenue → a self-reinforcing loop that can eventually cover operations.',
+              ].map((line, i) => (
+                <div
+                  key={line}
+                  className="flex items-start gap-4 rounded-2xl border border-border/60 bg-card/40 px-5 py-4"
+                >
+                  <span className="text-secondary font-mono text-sm tabular-nums shrink-0 mt-0.5">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <p className="text-[13px] md:text-sm text-foreground/90 leading-relaxed">
+                    {line}
+                  </p>
                 </div>
               ))}
             </div>
