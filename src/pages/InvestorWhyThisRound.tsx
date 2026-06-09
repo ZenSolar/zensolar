@@ -2,15 +2,6 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
-  Bar,
-  BarChart,
-  Cell,
-  LabelList,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-} from 'recharts';
-import {
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
@@ -24,14 +15,26 @@ import {
   PlayCircle,
   Flag,
 } from 'lucide-react';
-import { InvestorHeader } from '@/components/investor/InvestorHeader';
 
 const USE_OF_FUNDS = [
-  { name: 'Token Launch & LP', value: 25 },
-  { name: 'Legal & Audits', value: 20 },
-  { name: 'App & Onboarding', value: 15 },
-  { name: 'Growth & Acquisition', value: 15 },
-  { name: 'Operational Runway', value: 25 },
+  { name: 'Token Launch & LP', pct: 25, low: '$625K', high: '$875K', note: 'Launch infrastructure + initial LP seeding' },
+  { name: 'Legal & Audits', pct: 20, low: '$500K', high: '$700K', note: 'Securities counsel, compliance, smart-contract audits' },
+  { name: 'App & Onboarding', pct: 15, low: '$375K', high: '$525K', note: 'Mobile polish, OAuth reliability, embedded wallet flows' },
+  { name: 'Growth & Acquisition', pct: 15, low: '$375K', high: '$525K', note: 'Installer channels, creator tests, early paid acquisition' },
+  { name: 'Operational Runway', pct: 25, low: '$625K', high: '$875K', note: '18–24 months of disciplined founder-led execution' },
+];
+
+const USER_MILESTONES = [
+  { stage: 'Beta', users: '23', detail: 'Known clean-tech users validating multi-OEM monitoring' },
+  { stage: 'Launch', users: '1K', detail: 'Verified households connected and minting' },
+  { stage: 'Round 1 target', users: '10K–25K', detail: 'Paid users proving subscription + token flywheel economics' },
+  { stage: 'Round 2 target', users: '100K+', detail: 'Scaled acquisition with enough volume for data revenue pilots' },
+];
+
+const REVENUE_PROJECTIONS = [
+  { users: '25K paid users', subscription: '$3M–$6M ARR', detail: 'Base subscription + Deason AI attach rate' },
+  { users: '100K paid users', subscription: '$12M–$24M ARR', detail: 'Subscription engine before token/data upside' },
+  { users: 'Data pilots', subscription: 'High-margin upside', detail: 'Aggregated multi-OEM telemetry after scale' },
 ];
 
 const FLYWHEEL_NODES = [
@@ -44,9 +47,9 @@ const FLYWHEEL_NODES = [
 ];
 
 const TIMELINE_STEPS = [
-  { label: 'Round 1', sub: 'Token launch + first users', icon: Rocket },
-  { label: 'Flywheel Activation', sub: 'LP + minting compound', icon: Activity },
-  { label: 'Round 2', sub: 'Aggressive scaling', icon: TrendingUp },
+  { label: 'Round 1', sub: '$2.5M–$3.5M launch capital', icon: Rocket },
+  { label: 'Proof Points', sub: '10K–25K paid users + live minting', icon: Activity },
+  { label: 'Round 2', sub: 'Follow-on seed for scale', icon: TrendingUp },
   { label: 'Self-Sustainability', sub: 'Goal: no Series A needed', icon: Flag },
 ];
 
