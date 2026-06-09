@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Zap, Network, Clock } from "lucide-react";
 import { DeckCard, CardKicker } from "@/components/investor/pitch/v3/DeckCard";
 import { ProofOfGenesisArchitectureDiagram } from "@/components/admin/patent/ProofOfGenesisArchitectureDiagram";
+import { InvestorHeader } from "@/components/investor/InvestorHeader";
 
 function GlowDivider() {
   return (
