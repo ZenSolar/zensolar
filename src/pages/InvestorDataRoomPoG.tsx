@@ -83,6 +83,7 @@ const stack = [
 export default function InvestorDataRoomPoG() {
   return (
     <div className="min-h-screen bg-[hsl(220,20%,6%)] text-white">
+      <InvestorHeader compact />
       <Helmet>
         <title>ZenSolar · Proof-of-Genesis Deep Dive</title>
         <meta
