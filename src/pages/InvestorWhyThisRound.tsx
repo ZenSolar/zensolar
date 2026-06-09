@@ -143,16 +143,16 @@ export default function InvestorWhyThisRound() {
             title="How Proof-of-Genesis works"
           >
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-6">
-              A clear look at the core technology behind verified, on-chain
-              clean energy minting.
+              The core technology behind verified, on-chain clean energy
+              minting.
             </p>
             <div className="grid gap-3">
               {[
-                'Direct OAuth2 integrations with Tesla, Enphase, SolarEdge, and Wallbox pull real hardware telemetry in real time — not self-reported data.',
-                'Proof-of-Delta™ serves as the cryptographic verification layer that validates energy production and sustainable behavior before any tokens are minted.',
-                'Verified events are immutably anchored on-chain, creating a tamper-proof record of clean energy activity.',
-                'Users can mint tokens with one tap inside the app using Coinbase Smart Wallet — no seed phrases or external wallet connection required.',
-                'The core Proof-of-Genesis architecture is protected by U.S. Patent Application No. 19/634,402 and is designed to scale globally as clean energy adoption accelerates.',
+                'Direct OAuth2 integrations pull real hardware telemetry in real time — not self-reported data.',
+                'Proof-of-Delta™ cryptographically verifies energy production and sustainable behavior before any mint.',
+                'Verified events are anchored on-chain as a tamper-proof record.',
+                'One-tap in-app minting via Coinbase Smart Wallet — no seed phrases, no external wallet, no gas.',
+                'Architecture protected by U.S. Patent Application No. 19/634,402 and designed to scale globally.',
               ].map((line) => (
                 <div
                   key={line}
@@ -167,12 +167,6 @@ export default function InvestorWhyThisRound() {
             </div>
 
             <ProofOfGenesisFlow />
-
-            <p className="mt-6 text-[13px] md:text-sm text-muted-foreground leading-relaxed">
-              This design removes traditional crypto onboarding friction
-              entirely — users never need seed phrases, external wallets, or
-              gas fees to mint.
-            </p>
           </Section>
 
 
