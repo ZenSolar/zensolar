@@ -50,6 +50,9 @@ export default function InvestorOnePager() {
           .op-card, .op-shot { break-inside: avoid; }
         }
       `}</style>
+      <div className="no-print">
+        <InvestorHeader compact />
+      </div>
 
       {/* Sticky chrome (screen only) */}
       <div className="no-print sticky top-0 z-20 backdrop-blur-md bg-background/70 border-b border-border/40">
