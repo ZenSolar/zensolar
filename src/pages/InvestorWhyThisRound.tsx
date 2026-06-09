@@ -66,8 +66,6 @@ export default function InvestorWhyThisRound() {
       </Helmet>
 
       <div className="min-h-screen bg-background text-foreground">
-        <InvestorHeader eyebrow="The Round" compact />
-
         <section className="mx-auto max-w-3xl px-5 pt-10 pb-24 md:pt-16 md:pb-32">
           <Link
             to="/investor"
@@ -180,28 +178,6 @@ export default function InvestorWhyThisRound() {
 
           {/* 4. Use of Funds */}
           <Section kicker="04 · Use of Funds" title="What this round will fund">
-            <ul className="space-y-2.5">
-              {[
-                'Token launch infrastructure and initial liquidity seeding on Uniswap',
-                'Regulatory, compliance, legal, and smart contract audits',
-                'App polish, onboarding experience, and mobile optimization',
-                'Initial user acquisition and growth initiatives',
-                '18–24 months of operational runway',
-              ].map((line, i) => (
-                <li
-                  key={line}
-                  className="flex items-start gap-3 rounded-xl border border-border/60 bg-card/30 px-4 py-3"
-                >
-                  <span className="text-[11px] font-mono tabular-nums text-secondary mt-0.5 shrink-0">
-                    0{i + 1}
-                  </span>
-                  <span className="text-[13px] md:text-sm text-foreground/90 leading-relaxed">
-                    {line}
-                  </span>
-                </li>
-              ))}
-            </ul>
-
             <UseOfFundsChart />
           </Section>
 
@@ -264,8 +240,49 @@ export default function InvestorWhyThisRound() {
             </div>
           </Section>
 
+          <Section kicker="07 · User Growth" title="User acquisition milestones">
+            <div className="grid gap-3 md:grid-cols-2">
+              {USER_MILESTONES.map((item) => (
+                <div key={item.stage} className="rounded-2xl border border-border/60 bg-card/40 p-5">
+                  <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-2">
+                    {item.stage}
+                  </div>
+                  <div className="text-2xl font-semibold leading-none text-foreground">
+                    {item.users}
+                  </div>
+                  <p className="mt-3 text-[13px] text-muted-foreground leading-relaxed">
+                    {item.detail}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </Section>
+
+          <Section kicker="08 · Revenue" title="High-level revenue projections">
+            <div className="rounded-3xl border border-border/60 bg-card/40 p-5 md:p-6">
+              <div className="grid gap-3 md:grid-cols-3">
+                {REVENUE_PROJECTIONS.map((item) => (
+                  <div key={item.users} className="rounded-2xl border border-border/60 bg-background/40 p-4">
+                    <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                      {item.users}
+                    </div>
+                    <div className="mt-2 text-xl font-semibold leading-tight text-foreground">
+                      {item.subscription}
+                    </div>
+                    <p className="mt-2 text-[12px] text-muted-foreground leading-relaxed">
+                      {item.detail}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-4 text-[11px] text-muted-foreground leading-relaxed">
+                Conservative directional model based on paid subscriptions; excludes token treasury upside and large-scale data licensing.
+              </p>
+            </div>
+          </Section>
+
           {/* 7. Flywheel */}
-          <Section kicker="07 · The Flywheel" title="How it actually compounds">
+          <Section kicker="09 · The Flywheel" title="How it actually compounds">
             <FlywheelDiagram />
             <div className="grid gap-4 mt-8 md:grid-cols-2">
               {[
@@ -290,7 +307,7 @@ export default function InvestorWhyThisRound() {
           </Section>
 
           {/* 8. Runway */}
-          <Section kicker="08 · Runway" title="Path to self-sustainability">
+          <Section kicker="10 · Two-Round Strategy" title="Path to self-sustainability">
             <div className="rounded-3xl border border-border/60 bg-card/40 p-6 md:p-8">
               <div className="flex items-center gap-3 mb-5">
                 <TrendingUp className="h-5 w-5 text-secondary" />
@@ -322,7 +339,7 @@ export default function InvestorWhyThisRound() {
           </Section>
 
           {/* 9. Long-Term Opportunity */}
-          <Section kicker="09 · The Opportunity" title="Why this becomes a durable, multi-decade business">
+          <Section kicker="11 · The Opportunity" title="Why this becomes a durable, multi-decade business">
             <div className="grid gap-3">
               {[
                 'Proof-of-Genesis™ has the potential to become a foundational primitive for tokenizing and rewarding verified clean energy behavior at global scale.',
