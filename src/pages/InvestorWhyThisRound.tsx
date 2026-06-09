@@ -644,39 +644,76 @@ const POG_FLOW_STEPS = [
 function ProofOfGenesisFlow() {
   const reduce = useReducedMotion();
   return (
-    <div className="mt-8 rounded-2xl border border-border/60 bg-card/30 p-5 md:p-6">
-      <div className="text-[11px] uppercase tracking-[0.24em] text-secondary/80 mb-5">
-        Proof-of-Genesis Flow
+    <div className="mt-8 rounded-3xl border border-border/60 bg-card/30 p-5 md:p-7">
+      <div className="flex items-center justify-between mb-6">
+        <div className="text-[11px] uppercase tracking-[0.24em] text-secondary/80">
+          Proof-of-Genesis Flow
+        </div>
+        <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground/70 hidden md:block">
+          Telemetry → Mint
+        </div>
       </div>
-      <div className="flex flex-col md:flex-row md:items-stretch gap-3 md:gap-2">
-        {POG_FLOW_STEPS.map((step, i) => (
-          <div key={step.title} className="flex flex-col md:flex-row md:items-stretch md:flex-1 gap-3 md:gap-2">
+
+      {/* Desktop: horizontal with connecting line */}
+      <div className="hidden md:block relative">
+        <div
+          className="absolute top-5 left-[12%] right-[12%] h-px bg-gradient-to-r from-transparent via-secondary/40 to-transparent"
+          aria-hidden
+        />
+        <div className="relative grid grid-cols-4 gap-4">
+          {POG_FLOW_STEPS.map((step, i) => (
             <motion.div
-              initial={reduce ? false : { opacity: 0, y: 8 }}
+              key={step.title}
+              initial={reduce ? false : { opacity: 0, y: 10 }}
               whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-40px' }}
               transition={{ duration: 0.4, delay: i * 0.08 }}
-              className="flex-1 rounded-xl border border-border/60 bg-background/40 px-4 py-4"
+              className="flex flex-col items-center text-center"
             >
-              <div className="flex items-center gap-2 mb-1.5">
-                <span className="h-5 w-5 rounded-full border border-secondary/50 bg-secondary/10 flex items-center justify-center text-[10px] font-mono tabular-nums text-secondary">
-                  {i + 1}
-                </span>
-                <div className="text-[12px] md:text-[13px] font-semibold text-foreground leading-tight">
-                  {step.title}
-                </div>
+              <div className="relative z-10 h-10 w-10 rounded-full border border-secondary/50 bg-background flex items-center justify-center text-[12px] font-mono tabular-nums text-secondary shadow-[0_0_0_4px_hsl(var(--card)/0.6)]">
+                {String(i + 1).padStart(2, '0')}
               </div>
-              <p className="text-[11px] md:text-[12px] text-muted-foreground leading-relaxed">
+              <div className="mt-4 text-[13px] font-semibold text-foreground leading-tight">
+                {step.title}
+              </div>
+              <p className="mt-1.5 text-[12px] text-muted-foreground leading-relaxed max-w-[180px]">
                 {step.body}
               </p>
             </motion.div>
-            {i < POG_FLOW_STEPS.length - 1 && (
-              <div className="flex md:items-center justify-center md:px-0.5" aria-hidden>
-                <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/50 rotate-90 md:rotate-0" />
+          ))}
+        </div>
+      </div>
+
+      {/* Mobile: vertical with connecting line */}
+      <div className="md:hidden relative">
+        <div
+          className="absolute left-5 top-2 bottom-2 w-px bg-gradient-to-b from-transparent via-secondary/40 to-transparent"
+          aria-hidden
+        />
+        <div className="space-y-4">
+          {POG_FLOW_STEPS.map((step, i) => (
+            <motion.div
+              key={step.title}
+              initial={reduce ? false : { opacity: 0, x: 8 }}
+              whileInView={reduce ? undefined : { opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '-20px' }}
+              transition={{ duration: 0.35, delay: i * 0.07 }}
+              className="relative flex items-start gap-4"
+            >
+              <div className="relative z-10 h-10 w-10 rounded-full border border-secondary/50 bg-background flex items-center justify-center text-[12px] font-mono tabular-nums text-secondary shrink-0 shadow-[0_0_0_4px_hsl(var(--card)/0.6)]">
+                {String(i + 1).padStart(2, '0')}
               </div>
-            )}
-          </div>
-        ))}
+              <div className="flex-1 pt-1">
+                <div className="text-[14px] font-semibold text-foreground leading-tight">
+                  {step.title}
+                </div>
+                <p className="mt-1 text-[12.5px] text-muted-foreground leading-relaxed">
+                  {step.body}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </div>
   );
