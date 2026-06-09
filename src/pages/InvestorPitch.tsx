@@ -3,7 +3,6 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, PlayCircle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { InvestorHeader } from '@/components/investor/InvestorHeader';
 import { InvestorFAQ } from '@/components/investor/InvestorFAQ';
 
