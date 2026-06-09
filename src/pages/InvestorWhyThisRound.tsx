@@ -276,18 +276,18 @@ export default function InvestorWhyThisRound() {
           </Section>
 
           {/* 7. Flywheel */}
-          <Section kicker="09 · The Flywheel" title="How it actually compounds">
+          <Section kicker="09 · The Flywheel" title="How it compounds">
             <FlywheelDiagram />
-            <div className="grid gap-4 mt-8 md:grid-cols-2">
+            <div className="grid gap-3 mt-8 md:grid-cols-2">
               {[
-                '100% of every monthly subscription flows directly into the Liquidity Pool.',
-                'More users → more capital into the LP every single month.',
+                '100% of every monthly subscription flows directly into the LP.',
+                'More users → more capital into the LP every month.',
                 'Stronger liquidity + real utility → durable token price support.',
-                'Better token economics + growing data revenue → a self-reinforcing loop that can eventually cover operations.',
+                'Growing token + data revenue → a self-reinforcing loop that can cover operations.',
               ].map((line, i) => (
                 <div
                   key={line}
-                  className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card/40 px-4 py-5 md:px-5 md:py-4"
+                  className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card/40 px-4 py-4"
                 >
                   <span className="text-secondary font-mono text-[13px] tabular-nums shrink-0">
                     {String(i + 1).padStart(2, '0')}
@@ -313,21 +313,33 @@ export default function InvestorWhyThisRound() {
                 </span>
               </div>
 
+              <div className="grid gap-3 md:grid-cols-3 mb-6">
+                <div className="rounded-2xl border border-secondary/30 bg-secondary/[0.05] p-4">
+                  <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-1.5">Round 1 — Now</div>
+                  <div className="text-lg font-semibold text-foreground">$2.5M – $3.5M</div>
+                  <p className="mt-1.5 text-[12px] text-muted-foreground leading-relaxed">First part of our seed. Funds launch, audits, and early growth.</p>
+                </div>
+                <div className="rounded-2xl border border-border/60 bg-background/40 p-4">
+                  <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-1.5">Round 2 — Follow-on</div>
+                  <div className="text-lg font-semibold text-foreground">$5M – $7M</div>
+                  <p className="mt-1.5 text-[12px] text-muted-foreground leading-relaxed">Raised once early traction and flywheel momentum are proven.</p>
+                </div>
+                <div className="rounded-2xl border border-border/60 bg-background/40 p-4">
+                  <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-1.5">Combined Goal</div>
+                  <div className="text-lg font-semibold text-foreground">Self-sustaining</div>
+                  <p className="mt-1.5 text-[12px] text-muted-foreground leading-relaxed">Reduce or eliminate the need for a traditional Series A.</p>
+                </div>
+              </div>
+
               <TwoRoundTimeline />
 
-              <div className="grid gap-4 md:grid-cols-3 mt-8">
-                <RunwayBlock
-                  label="Round 1 Goal"
-                  body="Launch the token and acquire the first meaningful wave of minting users so the flywheel can begin operating."
-                />
-                <RunwayBlock
-                  label="Round 2 Goal"
-                  body="Aggressive scaling once early traction and flywheel mechanics are proven."
-                />
-                <RunwayBlock
-                  label="Long-Term Vision"
-                  body="Build toward a business that can become largely self-sustaining without needing a traditional Series A."
-                />
+              <div className="mt-6 rounded-2xl border border-border/60 bg-background/40 p-5">
+                <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-3">User Acquisition Milestones</div>
+                <ul className="space-y-2 text-[13px] text-foreground/90 leading-relaxed">
+                  <li>• <strong>Year 1:</strong> 2,000–4,000 paying users.</li>
+                  <li>• <strong>Year 2:</strong> 8,000–12,000 paying users.</li>
+                  <li className="text-muted-foreground">At these levels we expect meaningful monthly LP inflows from subscriptions plus growing data revenue.</li>
+                </ul>
               </div>
             </div>
           </Section>
