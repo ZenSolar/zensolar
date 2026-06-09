@@ -197,19 +197,14 @@ export default function Investor() {
       </Helmet>
 
       <div className="min-h-screen bg-background text-foreground">
+        <InvestorHeader linkHome={false} />
         {/* Hero */}
         <section className="relative overflow-hidden border-b border-border/40">
           <div
             aria-hidden
             className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--secondary)/0.2),transparent_65%)]"
           />
-          <div className="relative mx-auto max-w-3xl px-5 pt-16 pb-20 md:pt-24 md:pb-28 flex flex-col items-center text-center">
-            <img
-              src={zenLogo}
-              alt="ZenSolar"
-              className="h-9 md:h-11 w-auto mb-10 opacity-95"
-              loading="eager"
-            />
+          <div className="relative mx-auto max-w-3xl px-5 pt-10 pb-20 md:pt-14 md:pb-28 flex flex-col items-center text-center">
             <span className="text-[11px] uppercase tracking-[0.28em] text-secondary/90 mb-5">
               {refFirstName ? `Welcome, ${refFirstName} · ` : ''}Investor Access · Seed Round
             </span>
