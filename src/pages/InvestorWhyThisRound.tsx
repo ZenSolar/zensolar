@@ -262,7 +262,10 @@ export default function InvestorWhyThisRound() {
                   runway
                 </span>
               </div>
-              <div className="grid gap-4 md:grid-cols-3">
+
+              <TwoRoundTimeline />
+
+              <div className="grid gap-4 md:grid-cols-3 mt-8">
                 <RunwayBlock
                   label="Round 1 Goal"
                   body="Launch the token and acquire the first meaningful wave of minting users so the flywheel can begin operating."
