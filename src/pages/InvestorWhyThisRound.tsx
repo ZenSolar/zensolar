@@ -250,7 +250,7 @@ export default function InvestorWhyThisRound() {
           </Section>
 
           {/* 7. Flywheel */}
-          <Section kicker="06 · The Flywheel" title="How it actually compounds">
+          <Section kicker="07 · The Flywheel" title="How it actually compounds">
             <FlywheelDiagram />
             <div className="space-y-2 mt-8">
               {[
