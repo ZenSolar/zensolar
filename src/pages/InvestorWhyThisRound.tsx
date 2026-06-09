@@ -133,8 +133,38 @@ export default function InvestorWhyThisRound() {
             </div>
           </Section>
 
+          {/* 3b. Technical Foundation */}
+          <Section
+            kicker="03 · Technical Foundation"
+            title="How Proof-of-Genesis works"
+          >
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-6">
+              A clear look at the core technology behind verified, on-chain
+              clean energy minting.
+            </p>
+            <div className="grid gap-3">
+              {[
+                'Direct OAuth2 integrations with Tesla, Enphase, SolarEdge, and Wallbox pull real hardware telemetry in real time — not self-reported data.',
+                'Proof-of-Delta™ serves as the cryptographic verification layer that validates energy production and sustainable behavior before any tokens are minted.',
+                'Verified events are immutably anchored on-chain, creating a tamper-proof record of clean energy activity.',
+                'Users can mint tokens with one tap inside the app using Coinbase Smart Wallet — no seed phrases or external wallet connection required.',
+                'The core Proof-of-Genesis architecture is protected by U.S. Patent Application No. 19/634,402 and is designed to scale globally as clean energy adoption accelerates.',
+              ].map((line) => (
+                <div
+                  key={line}
+                  className="flex items-start gap-3 rounded-2xl border border-border/60 bg-card/40 px-4 py-4"
+                >
+                  <CheckCircle2 className="h-4 w-4 text-secondary mt-0.5 shrink-0" />
+                  <p className="text-[13px] md:text-sm text-foreground/90 leading-relaxed">
+                    {line}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </Section>
+
           {/* 4. Use of Funds */}
-          <Section kicker="03 · Use of Funds" title="What this round will fund">
+          <Section kicker="04 · Use of Funds" title="What this round will fund">
             <ul className="space-y-2.5">
               {[
                 'Token launch infrastructure and initial liquidity seeding on Uniswap',
@@ -161,7 +191,7 @@ export default function InvestorWhyThisRound() {
           </Section>
 
           {/* 5. Round Structure */}
-          <Section kicker="04 · Round Structure" title="A familiar, founder-aligned instrument">
+          <Section kicker="05 · Round Structure" title="A familiar, founder-aligned instrument">
             <div className="rounded-3xl border border-secondary/30 bg-secondary/[0.04] p-6 md:p-8 space-y-5">
               <div className="flex items-start gap-3">
                 <Shield className="h-5 w-5 text-secondary mt-0.5 shrink-0" />
@@ -199,7 +229,7 @@ export default function InvestorWhyThisRound() {
           </Section>
 
           {/* 6. GTM */}
-          <Section kicker="05 · Go-to-Market" title="High-level GTM strategy">
+          <Section kicker="06 · Go-to-Market" title="High-level GTM strategy">
             <div className="grid gap-3 md:grid-cols-2">
               {[
                 'Target users who already own compatible hardware — Tesla vehicles, Enphase / SolarEdge solar + batteries, Wallbox chargers.',
@@ -220,7 +250,7 @@ export default function InvestorWhyThisRound() {
           </Section>
 
           {/* 7. Flywheel */}
-          <Section kicker="06 · The Flywheel" title="How it actually compounds">
+          <Section kicker="07 · The Flywheel" title="How it actually compounds">
             <FlywheelDiagram />
             <div className="space-y-2 mt-8">
               {[
@@ -251,7 +281,7 @@ export default function InvestorWhyThisRound() {
           </Section>
 
           {/* 8. Runway */}
-          <Section kicker="07 · Runway" title="Path to self-sustainability">
+          <Section kicker="08 · Runway" title="Path to self-sustainability">
             <div className="rounded-3xl border border-border/60 bg-card/40 p-6 md:p-8">
               <div className="flex items-center gap-3 mb-5">
                 <TrendingUp className="h-5 w-5 text-secondary" />
@@ -283,7 +313,7 @@ export default function InvestorWhyThisRound() {
           </Section>
 
           {/* 9. Long-Term Opportunity */}
-          <Section kicker="08 · The Opportunity" title="Why this becomes a durable, multi-decade business">
+          <Section kicker="09 · The Opportunity" title="Why this becomes a durable, multi-decade business">
             <div className="grid gap-3">
               {[
                 'Proof-of-Genesis™ has the potential to become a foundational primitive for tokenizing and rewarding verified clean energy behavior at global scale.',
