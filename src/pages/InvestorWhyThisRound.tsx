@@ -397,7 +397,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="mt-14 md:mt-16">
+    <section className="mt-16 md:mt-20">
       <div className="text-[11px] uppercase tracking-[0.24em] text-secondary/80 mb-2">
         {kicker}
       </div>
