@@ -464,41 +464,31 @@ function UseOfFundsChart() {
   return (
     <div className="mt-6 rounded-2xl border border-border/60 bg-card/30 p-4 md:p-6">
       <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-4">
-        Allocation
+        Allocation · $2.5M – $3.5M Round
       </div>
-      <div className="w-full" style={{ height: USE_OF_FUNDS.length * 44 + 16 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={USE_OF_FUNDS}
-            layout="vertical"
-            margin={{ top: 4, right: 44, left: 0, bottom: 4 }}
-            barCategoryGap={10}
-          >
-            <XAxis type="number" hide domain={[0, 30]} />
-            <YAxis
-              type="category"
-              dataKey="name"
-              width={140}
-              tickLine={false}
-              axisLine={false}
-              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-            />
-            <Bar dataKey="value" radius={[6, 6, 6, 6]} barSize={18}>
-              {USE_OF_FUNDS.map((_, i) => (
-                <Cell key={i} fill="hsl(var(--secondary))" fillOpacity={0.55 + i * 0.06} />
-              ))}
-              <LabelList
-                dataKey="value"
-                position="right"
-                formatter={(v: number) => `${v}%`}
-                style={{ fill: 'hsl(var(--foreground))', fontSize: 12, fontWeight: 500 }}
+      <div className="space-y-4">
+        {USE_OF_FUNDS.map((item) => (
+          <div key={item.name} className="rounded-xl border border-border/50 bg-background/35 p-3.5">
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
+              <div className="text-sm font-medium leading-tight text-foreground">{item.name}</div>
+              <div className="text-[13px] font-semibold tabular-nums text-secondary">
+                {item.low} – {item.high}
+                <span className="ml-2 text-[11px] font-normal text-muted-foreground">{item.pct}%</span>
+              </div>
+            </div>
+            <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-muted/40">
+              <div
+                className="h-full rounded-full bg-secondary/75"
+                style={{ width: `${item.pct * 3.2}%` }}
+                aria-hidden
               />
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+            </div>
+            <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">{item.note}</p>
+          </div>
+        ))}
       </div>
-      <p className="text-[11px] text-muted-foreground mt-3">
-        Indicative allocation across the $2.5M – $3.5M range.
+      <p className="text-[11px] text-muted-foreground mt-4 leading-relaxed">
+        Amounts scale with the final close: $2.5M minimum gives us launch + runway; $3.5M expands launch liquidity and acquisition testing.
       </p>
     </div>
   );
