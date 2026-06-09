@@ -1,31 +1,26 @@
-## Plan: Add three visuals to /investor/why-this-round
+Scope: add one new section to `src/pages/InvestorWhyThisRound.tsx`.
 
-Edit only `src/pages/InvestorWhyThisRound.tsx`. Existing copy/sections stay intact.
+Placement
+- Insert after the existing "02 · Already Live — Product capabilities shipping today" section.
+- Insert before the existing "03 · Use of Funds — What this round will fund" section.
+- Re-number subsequent kickers: "03 · Use of Funds", "04 · Round Structure", "05 · Go-to-Market", "06 · The Flywheel", "07 · Runway", "08 · The Opportunity".
 
-### 1. Use of Funds chart (Section 4)
-- Add a horizontal bar chart below the 5-item list using Recharts (`BarChart` with `layout="vertical"`).
-- Categories use shortened labels (Token Launch & LP, Legal & Audits, App & Onboarding, Growth, Runway).
-- Allocation percentages (sum = 100): Token Launch & Liquidity 25%, Legal/Compliance/Audits 20%, App Polish & Onboarding 15%, Growth & User Acquisition 15%, Operational Runway 25%.
-- Note under chart: "Indicative allocation across the $2.5M – $3.5M range."
-- Styled with `hsl(var(--secondary))` bars on `bg-card/30` rounded container; no axis decorations beyond what's needed; labels visible on mobile.
+Content
+- Kicker: "02 · Technical Foundation"
+- Title: "How Proof-of-Genesis Works"
+- Body (bulleted cards, same style as "Where we are today"):
+  - Direct OAuth2 integrations with Tesla, Enphase, SolarEdge, and Wallbox pull real hardware telemetry in real time — not self-reported data.
+  - Proof-of-Delta™ serves as the cryptographic verification layer that validates energy production and sustainable behavior before any tokens are minted.
+  - Verified events are immutably anchored on-chain, creating a tamper-proof record of clean energy activity.
+  - Users can mint tokens with one tap inside the app using Coinbase Smart Wallet — no seed phrases or external wallet connection required.
+  - The core Proof-of-Genesis architecture is protected by U.S. Patent Application No. 19/634,402 and is designed to scale globally as clean energy adoption accelerates.
 
-### 2. Flywheel diagram (Section 7)
-- Insert an SVG flywheel visual ABOVE the existing numbered steps (keep the steps as explanatory text below).
-- Layout: 6 nodes arranged in a circle (300×300 SVG, responsive `viewBox`), connected with curved arrows forming a clockwise loop. Center label: "The Flywheel".
-- Short node labels: "Subscriptions → LP", "More Users", "Stronger Liquidity", "Better Token", "More Minting", "Data Revenue".
-- Subtle Framer Motion: rotate the connecting ring slowly (one 60s loop) and fade-in nodes on mount. Respect `prefers-reduced-motion`.
-- Use `hsl(var(--secondary))` strokes, muted fills.
+Styling
+- Reuse existing `Section` wrapper, `CheckCircle2` icon, and card styles (`rounded-2xl border border-border/60 bg-card/40`).
+- No new dependencies.
+- Keep mobile-first (390×844) spacing consistent with the rest of the page.
 
-### 3. Two-Round timeline (Section 8)
-- Add horizontal timeline ABOVE the existing 3-block grid inside the runway card.
-- 4 markers: Round 1 (Rocket) → Flywheel Activation (Activity) → Round 2 (TrendingUp) → Self-Sustainability (CheckCircle2).
-- Connecting line uses border tokens; active markers use `bg-secondary/20` with `border-secondary`.
-- On mobile, stays horizontal but scales down icon/label sizes; labels wrap under markers.
-
-### Constraints
-- No new dependencies (Recharts + framer-motion already installed).
-- Dark theme tokens only.
-- Mobile-first; verify at 390×844.
-
-### Verification
-- Load /investor/why-this-round on desktop and 390×844, confirm three visuals render without overflow and the rest of the page is unchanged.
+Verification
+- Confirm the section renders cleanly at desktop and 390×844.
+- Confirm no existing content or visuals are altered.
+- Confirm kicker re-numbering is correct and consistent.

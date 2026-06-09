@@ -133,8 +133,38 @@ export default function InvestorWhyThisRound() {
             </div>
           </Section>
 
+          {/* 3b. Technical Foundation */}
+          <Section
+            kicker="03 · Technical Foundation"
+            title="How Proof-of-Genesis works"
+          >
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-6">
+              A clear look at the core technology behind verified, on-chain
+              clean energy minting.
+            </p>
+            <div className="grid gap-3">
+              {[
+                'Direct OAuth2 integrations with Tesla, Enphase, SolarEdge, and Wallbox pull real hardware telemetry in real time — not self-reported data.',
+                'Proof-of-Delta™ serves as the cryptographic verification layer that validates energy production and sustainable behavior before any tokens are minted.',
+                'Verified events are immutably anchored on-chain, creating a tamper-proof record of clean energy activity.',
+                'Users can mint tokens with one tap inside the app using Coinbase Smart Wallet — no seed phrases or external wallet connection required.',
+                'The core Proof-of-Genesis architecture is protected by U.S. Patent Application No. 19/634,402 and is designed to scale globally as clean energy adoption accelerates.',
+              ].map((line) => (
+                <div
+                  key={line}
+                  className="flex items-start gap-3 rounded-2xl border border-border/60 bg-card/40 px-4 py-4"
+                >
+                  <CheckCircle2 className="h-4 w-4 text-secondary mt-0.5 shrink-0" />
+                  <p className="text-[13px] md:text-sm text-foreground/90 leading-relaxed">
+                    {line}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </Section>
+
           {/* 4. Use of Funds */}
-          <Section kicker="03 · Use of Funds" title="What this round will fund">
+          <Section kicker="04 · Use of Funds" title="What this round will fund">
             <ul className="space-y-2.5">
               {[
                 'Token launch infrastructure and initial liquidity seeding on Uniswap',
