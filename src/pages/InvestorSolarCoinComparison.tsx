@@ -246,16 +246,16 @@ export default function InvestorSolarCoinComparison() {
             </h1>
             <div className="mt-8 space-y-5 text-sm md:text-base text-muted-foreground leading-relaxed">
               <p>
-                SolarCoin launched in 2014 as a <span className="text-foreground font-medium">non-profit foundation</span> with an early vision to reward solar energy production. Twelve years later, the SolarCoin Foundation is still run by volunteers, has no commercial revenue model, no dedicated app, no embedded wallet, and remains solar-only on a basic Proof-of-Stake-Time (PoST) protocol — a structure that has delivered minimal adoption and minimal token liquidity.
+                SolarCoin launched in 2014 as a <span className="text-foreground font-medium">non-profit foundation</span> with an early vision to reward solar production. Twelve years later it remains a passive registry with <span className="text-foreground font-semibold">no native app, no embedded wallet, no live OEM telemetry, no AI, no redemption store, and no proactive device intelligence</span> — a third-party inspector approves a production claim and a token grant arrives by email.
               </p>
               <p>
-                <span className="text-foreground font-medium">ZenSolar is the fundamentally superior platform built for the clean energy transition.</span> Powered by our patent-pending Proof-of-Genesis™ architecture (U.S. Patent Application No. 19/634,402), ZenSolar uses real-time hardware telemetry and cryptographic verification (Proof-of-Delta™) to create verifiable, on-chain clean energy events at global scale — a clear leap beyond SolarCoin's Proof-of-Stake-Time approach.
+                <span className="text-foreground font-semibold">ZenSolar is a full consumer product built for the clean-energy era.</span> Embedded Coinbase Smart Wallet, Tap-to-Mint™, live multi-OEM monitoring (Tesla + Enphase + SolarEdge + Wallbox in one UI), the Deason AI concierge, a $ZSOLAR redemption store, proactive grid-outage and battery-health alerts, and <span className="text-foreground font-medium">weekly hyper-personalized device reports + monthly progressive clean-energy insights</span> — all powered by our patent-pending Proof-of-Genesis™ architecture (U.S. Patent Application No. 19/634,402) and Proof-of-Delta™ cryptographic verification.
               </p>
               <p>
-                With an embedded Coinbase Smart Wallet, one-tap minting, live multi-OEM monitoring, Deason AI, NFT milestones, Palmetto API integration for installers, and a 100% subscription-to-LP flywheel, ZenSolar dramatically reduces user friction while expanding the rewardable behaviors far beyond solar alone (battery discharge, EV charging kWh, miles driven, and FSD miles).
+                The rewardable surface expands far beyond solar alone — battery discharge, EV charging kWh, miles driven, and FSD miles — while a 100% subscription-to-LP flywheel, 1T hard cap, 20% burn, NFT milestones, and Palmetto installer integration create a moat SolarCoin has never built.
               </p>
               <p>
-                The opportunity is enormous. With strong execution, ZenSolar can acquire millions of users across the exploding EV and clean energy markets, generate substantial recurring revenue through subscriptions, data aggregation, and a planned VPP program, and realistically position $ZSOLAR among the top 5–10 cryptocurrencies by delivering real, verifiable utility at planetary scale.
+                The opportunity is enormous. With strong execution, ZenSolar can acquire millions of users across the exploding EV and clean-energy markets, generate substantial recurring revenue through subscriptions, data aggregation, and a planned VPP program, and credibly position $ZSOLAR among the top tier of cryptocurrencies by delivering real, verifiable utility at planetary scale.
               </p>
             </div>
           </header>
