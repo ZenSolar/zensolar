@@ -473,7 +473,7 @@ function UseOfFundsChart() {
             <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-muted/40">
               <div
                 className="h-full rounded-full bg-secondary/75"
-                style={{ width: `${item.pct * 3.2}%` }}
+                style={{ width: `${(item.pct / 25) * 100}%` }}
                 aria-hidden
               />
             </div>
@@ -482,7 +482,7 @@ function UseOfFundsChart() {
         ))}
       </div>
       <p className="text-[11px] text-muted-foreground mt-4 leading-relaxed">
-        Amounts scale with the final close: $2.5M minimum gives us launch + runway; $3.5M expands launch liquidity and acquisition testing.
+        Indicative allocation across the $2.5M – $3.5M range. $2.5M covers launch + runway; $3.5M expands launch liquidity and acquisition testing.
       </p>
     </div>
   );
