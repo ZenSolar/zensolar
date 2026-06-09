@@ -5,6 +5,7 @@ import { ArrowLeft, PlayCircle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { InvestorFAQ } from '@/components/investor/InvestorFAQ';
+import { InvestorHeader } from '@/components/investor/InvestorHeader';
 
 const ThreeRevenueEngines = lazy(() =>
   import('@/components/investor/ThreeRevenueEngines').then((m) => ({
@@ -38,6 +39,8 @@ export default function InvestorPitch() {
       </Helmet>
 
       <div className="min-h-screen bg-background text-foreground">
+        <InvestorHeader eyebrow="Investor Pitch · v2" compact />
+
         {/* Top nav */}
         <div className="border-b border-border/40">
           <div className="mx-auto max-w-5xl px-5 h-14 flex items-center justify-between">

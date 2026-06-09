@@ -24,6 +24,7 @@ import {
   PlayCircle,
   Flag,
 } from 'lucide-react';
+import { InvestorHeader } from '@/components/investor/InvestorHeader';
 
 const USE_OF_FUNDS = [
   { name: 'Token Launch & LP', value: 25 },
@@ -62,6 +63,8 @@ export default function InvestorWhyThisRound() {
       </Helmet>
 
       <div className="min-h-screen bg-background text-foreground">
+        <InvestorHeader eyebrow="The Round" compact />
+
         <section className="mx-auto max-w-3xl px-5 pt-10 pb-24 md:pt-16 md:pb-32">
           <Link
             to="/investor"
