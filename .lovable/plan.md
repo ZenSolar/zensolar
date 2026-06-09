@@ -1,31 +1,29 @@
-## Plan: Add "Why This Round" Card to /investor
+## Plan: Build full content for /investor/why-this-round
 
-### 1. Investor.tsx — Insert card & adjust grid
+Replace the placeholder in `src/pages/InvestorWhyThisRound.tsx` with a full investor-grade page. No other files change.
 
-- Add a new `<UnlockedCard>` entry **before** the existing four cards in the "Investor Materials" section.
-- Title: **"Why This Round"**
-- Body: **"Transparent breakdown of the $2.5M–$3.5M raise, use of funds, GTM approach, and our two-round path to self-sustainability."**
-- Destination: `/investor/why-this-round`
-- Icon: `FileText` (same as other document cards)
-- Adjust the grid class from `lg:grid-cols-4` → `lg:grid-cols-3` so the 5-card layout renders as a clean 3-over-2 on desktop (2×3 feel without crowding). Keep `sm:grid-cols-2` for tablet.
+### Sections (in order)
 
-### 2. Create placeholder page `/investor/why-this-round`
+1. **Header** — Back link → /investor. H1 "Why We're Raising $2.5M – $3.5M Now" + provided subtitle.
+2. **Where We Are Today** — "De-risked Progress" kicker, intro sentence, then a 4-item check-mark grid (CheckCircle2 icons) covering OAuth integrations, MVP minting, multi-OEM cockpit, Deason AI. Closing line: hardest technical work already working in beta.
+3. **Product Capabilities Already Live** — 3-card grid (icons: Activity, Sparkles, Coins): Zen Monitoring, Deason AI, Proof-of-Genesis™ Minting.
+4. **What This Round Will Fund** — 5 bullets in a styled list (5 use-of-funds items verbatim).
+5. **Round Structure** — Card with Convertible Note (post-money), Token Warrant via side letter, 4-yr vesting / 1-yr cliff, NDA data-room note.
+6. **GTM Strategy** — 4 bullets.
+7. **How the Flywheel Works** — Numbered/stepped list (6 steps) with subtle arrows.
+8. **Runway & Path to Self-Sustainability** — Card highlighting 18–24 mo runway + Round 1 / Round 2 / long-term vision.
+9. **Long-Term Opportunity** — 4 bullets, closing tone.
 
-- New file: `src/pages/InvestorWhyThisRound.tsx`
-- Dark theme, investor-grade styling (rounded cards, `border-border/60`, `bg-card/40`, generous padding)
-- Content:
-  - Page title: "Why This Round"
-  - Subhead: placeholder copy about the raise breakdown
-  - A back link returning to `/investor`
-- Wrap with `<Helmet>` for title/meta.
+End with CTA row: View Full Deck · Read One-Pager · Enter Data Room.
 
-### 3. Register route in App.tsx
+### Styling
 
-- Add lazy import: `const InvestorWhyThisRound = lazy(() => import("./pages/InvestorWhyThisRound"));`
-- Add route: `<Route path="/investor/why-this-round" element={<Suspense fallback={<PageLoader />}><InvestorWhyThisRound /></Suspense>} />`
+- Match existing investor pages: `bg-background`, `border-border/60`, `bg-card/40`, `rounded-2xl/3xl`, secondary accents, generous spacing.
+- Mobile-first (390×844), single-column at base, `md:grid-cols-{2|3}` on larger.
+- Use lucide-react icons (CheckCircle2, Activity, Sparkles, Coins, FileText, Shield, TrendingUp, Rocket, ArrowRight, ArrowLeft).
+- Helmet title/description updated.
+- Dark theme tokens only — no custom colors.
 
 ### Verification
-- Load `/investor` at desktop and mobile (390×844).
-- Confirm "Why This Round" is the first card, visually consistent, and links correctly.
-- Click through to `/investor/why-this-round` and confirm the placeholder page loads.
-- No layout breakage on the investor hub.
+
+- Visit /investor/why-this-round at desktop and 390×844; confirm all 9 sections render, no overflow/clipping, CTA links work.
