@@ -161,7 +161,16 @@ export default function InvestorWhyThisRound() {
                 </div>
               ))}
             </div>
+
+            <ProofOfGenesisFlow />
+
+            <p className="mt-6 text-[13px] md:text-sm text-muted-foreground leading-relaxed">
+              This design removes traditional crypto onboarding friction
+              entirely — users never need seed phrases, external wallets, or
+              gas fees to mint.
+            </p>
           </Section>
+
 
           {/* 4. Use of Funds */}
           <Section kicker="04 · Use of Funds" title="What this round will fund">
