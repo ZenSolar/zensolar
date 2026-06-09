@@ -109,9 +109,19 @@ const TABLES: Table[] = [
     ],
   },
   {
+    title: 'Organization & Revenue Model',
+    rows: [
+      { label: 'Entity type', zen: 'Venture-backed for-profit company built to scale', solar: 'Non-profit foundation (SolarCoin Foundation, est. 2014)' },
+      { label: 'Team', zen: 'Full-time founders + operating team with equity upside', solar: 'Volunteer-run — self-described "dedicated volunteers, 12 years of service"' },
+      { label: 'Revenue model', zen: 'Recurring subscriptions, data aggregation, planned VPP settlement, LP economics', solar: 'No commercial revenue model — foundation/donation dependent' },
+      { label: 'Growth capital', zen: 'Institutional seed round funding aggressive go-to-market', solar: 'No fundraising mechanism; no growth budget' },
+      { label: 'Accountability', zen: 'Cap table, milestones, board oversight', solar: 'Foundation governance, no commercial pressure to ship product' },
+    ],
+  },
+  {
     title: 'Additional Revenue Streams',
     rows: [
-      { label: 'Subscription revenue', zen: 'Tiered monthly subscription engine', solar: 'None' },
+      { label: 'Subscription revenue', zen: 'Tiered monthly subscription engine', solar: 'None — non-profit, no paid product' },
       { label: 'Data aggregation', zen: 'Aggregated multi-OEM telemetry — high-margin upside at scale', solar: 'None' },
       { label: 'VPP program', zen: 'Planned virtual power plant settlement layer', solar: 'None' },
     ],
