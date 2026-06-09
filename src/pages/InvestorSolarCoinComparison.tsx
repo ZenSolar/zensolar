@@ -10,7 +10,27 @@ import {
   Layers,
   Repeat,
   Trophy,
+  Sun,
+  Battery,
+  Zap,
+  Car,
+  Cpu,
+  Minus,
 } from 'lucide-react';
+
+const SCOREBOARD = [
+  { label: 'Category wins', zen: '9', solar: '0' },
+  { label: 'Reward verticals', zen: '5', solar: '1' },
+  { label: 'Years since last leap', zen: '0', solar: '12' },
+];
+
+const TAM_VERTICALS = [
+  { icon: Sun, label: 'Solar kWh', zen: true, solar: true },
+  { icon: Battery, label: 'Battery discharge', zen: true, solar: false },
+  { icon: Zap, label: 'EV charging kWh', zen: true, solar: false },
+  { icon: Car, label: 'Miles driven', zen: true, solar: false },
+  { icon: Cpu, label: 'FSD miles', zen: true, solar: false },
+];
 
 const ADVANTAGES = [
   {
