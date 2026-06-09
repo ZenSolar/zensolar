@@ -511,7 +511,7 @@ function FlywheelDiagram() {
         ))}
       </div>
 
-      <div className="relative hidden w-full max-w-[360px] aspect-square md:block md:mx-auto">
+      <div className="relative hidden w-full max-w-[420px] aspect-square md:block md:mx-auto">
         <motion.svg
           viewBox={`0 0 ${size} ${size}`}
           className="w-full h-full"
@@ -592,12 +592,12 @@ function FlywheelDiagram() {
 
         {FLYWHEEL_NODES.map((label, i) => {
           const angle = (i / FLYWHEEL_NODES.length) * Math.PI * 2 - Math.PI / 2;
-          const x = 50 + Math.cos(angle) * 42;
-          const y = 50 + Math.sin(angle) * 42;
+          const x = 50 + Math.cos(angle) * 40;
+          const y = 50 + Math.sin(angle) * 40;
           return (
             <motion.div
               key={label}
-              className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-secondary/40 bg-background/90 backdrop-blur px-2.5 py-1 text-[10px] md:text-[11px] font-medium text-foreground/90 whitespace-nowrap"
+              className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-secondary/40 bg-background/90 backdrop-blur px-2.5 py-1 text-[11px] font-medium text-foreground/90 whitespace-nowrap shadow-sm"
               style={{ left: `${x}%`, top: `${y}%` }}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
