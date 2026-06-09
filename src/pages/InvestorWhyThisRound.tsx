@@ -1,5 +1,15 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
+import { motion, useReducedMotion } from 'framer-motion';
+import {
+  Bar,
+  BarChart,
+  Cell,
+  LabelList,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import {
   ArrowLeft,
   ArrowRight,
@@ -12,7 +22,32 @@ import {
   TrendingUp,
   Rocket,
   PlayCircle,
+  Flag,
 } from 'lucide-react';
+
+const USE_OF_FUNDS = [
+  { name: 'Token Launch & LP', value: 25 },
+  { name: 'Legal & Audits', value: 20 },
+  { name: 'App & Onboarding', value: 15 },
+  { name: 'Growth & Acquisition', value: 15 },
+  { name: 'Operational Runway', value: 25 },
+];
+
+const FLYWHEEL_NODES = [
+  'Subs → LP',
+  'More Users',
+  'Stronger Liquidity',
+  'Better Token',
+  'More Minting',
+  'Data Revenue',
+];
+
+const TIMELINE_STEPS = [
+  { label: 'Round 1', sub: 'Token launch + first users', icon: Rocket },
+  { label: 'Flywheel Activation', sub: 'LP + minting compound', icon: Activity },
+  { label: 'Round 2', sub: 'Aggressive scaling', icon: TrendingUp },
+  { label: 'Self-Sustainability', sub: 'Goal: no Series A needed', icon: Flag },
+];
 
 export default function InvestorWhyThisRound() {
   return (
