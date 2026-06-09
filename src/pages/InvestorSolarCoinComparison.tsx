@@ -168,7 +168,7 @@ export default function InvestorSolarCoinComparison() {
             </h1>
             <div className="mt-8 space-y-5 text-sm md:text-base text-muted-foreground leading-relaxed">
               <p>
-                SolarCoin launched in 2014 with an early vision to reward solar energy production. After 12 years, it remains limited to solar only, relies on external wallets, has no dedicated app, and uses a basic Proof-of-Stake-Time (PoST) protocol that has delivered minimal adoption and liquidity.
+                SolarCoin launched in 2014 as a <span className="text-foreground font-medium">non-profit foundation</span> with an early vision to reward solar energy production. Twelve years later, the SolarCoin Foundation is still run by volunteers, has no commercial revenue model, no dedicated app, no embedded wallet, and remains solar-only on a basic Proof-of-Stake-Time (PoST) protocol — a structure that has delivered minimal adoption and minimal token liquidity.
               </p>
               <p>
                 <span className="text-foreground font-medium">ZenSolar is the fundamentally superior platform built for the clean energy transition.</span> Powered by our patent-pending Proof-of-Genesis™ architecture (U.S. Patent Application No. 19/634,402), ZenSolar uses real-time hardware telemetry and cryptographic verification (Proof-of-Delta™) to create verifiable, on-chain clean energy events at global scale — a clear leap beyond SolarCoin's Proof-of-Stake-Time approach.
