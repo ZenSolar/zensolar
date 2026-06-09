@@ -281,7 +281,7 @@ export default function InvestorWhyThisRound() {
           </Section>
 
           {/* 8. Runway */}
-          <Section kicker="07 · Runway" title="Path to self-sustainability">
+          <Section kicker="08 · Runway" title="Path to self-sustainability">
             <div className="rounded-3xl border border-border/60 bg-card/40 p-6 md:p-8">
               <div className="flex items-center gap-3 mb-5">
                 <TrendingUp className="h-5 w-5 text-secondary" />
