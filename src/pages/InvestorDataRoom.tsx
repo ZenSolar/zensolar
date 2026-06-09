@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Zap, Network, Clock } from "lucide-react";
 import { DeckCard, CardKicker } from "@/components/investor/pitch/v3/DeckCard";
 import { ProofOfGenesisArchitectureDiagram } from "@/components/admin/patent/ProofOfGenesisArchitectureDiagram";
-import { InvestorHeader } from "@/components/investor/InvestorHeader";
 
 function GlowDivider() {
   return (
@@ -57,8 +56,6 @@ function DataRoomContent() {
         <meta name="robots" content="noindex,nofollow" />
         <link rel="canonical" href="https://www.zensolar.com/investor/data-room" />
       </Helmet>
-
-      <InvestorHeader eyebrow="Confidential · Investor Data Room" compact />
 
       <div className="mx-auto max-w-[1280px] px-6 md:px-10 py-12 md:py-16">
         {/* Top nav */}

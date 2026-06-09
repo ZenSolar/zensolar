@@ -20,7 +20,6 @@ import {
   InvestorPinGate,
   readInvestorUnlocked,
 } from '@/components/investor/InvestorPinGate';
-import { InvestorHeader } from '@/components/investor/InvestorHeader';
 import { ThreeRevenueEngines } from '@/components/investor/ThreeRevenueEngines';
 import { LiveVerifiedCounter } from '@/components/investor/LiveVerifiedCounter';
 
@@ -198,8 +197,6 @@ export default function Investor() {
       </Helmet>
 
       <div className="min-h-screen bg-background text-foreground">
-        <InvestorHeader eyebrow="Investor Access · Seed Round" linkHome={false} />
-
         {/* Hero */}
         <section className="relative overflow-hidden border-b border-border/40">
           <div

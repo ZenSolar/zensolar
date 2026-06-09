@@ -2,15 +2,6 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
-  Bar,
-  BarChart,
-  Cell,
-  LabelList,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-} from 'recharts';
-import {
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
@@ -24,14 +15,26 @@ import {
   PlayCircle,
   Flag,
 } from 'lucide-react';
-import { InvestorHeader } from '@/components/investor/InvestorHeader';
 
 const USE_OF_FUNDS = [
-  { name: 'Token Launch & LP', value: 25 },
-  { name: 'Legal & Audits', value: 20 },
-  { name: 'App & Onboarding', value: 15 },
-  { name: 'Growth & Acquisition', value: 15 },
-  { name: 'Operational Runway', value: 25 },
+  { name: 'Token Launch & LP', pct: 25, low: '$625K', high: '$875K', note: 'Launch infrastructure + initial LP seeding' },
+  { name: 'Legal & Audits', pct: 20, low: '$500K', high: '$700K', note: 'Securities counsel, compliance, smart-contract audits' },
+  { name: 'App & Onboarding', pct: 15, low: '$375K', high: '$525K', note: 'Mobile polish, OAuth reliability, embedded wallet flows' },
+  { name: 'Growth & Acquisition', pct: 15, low: '$375K', high: '$525K', note: 'Installer channels, creator tests, early paid acquisition' },
+  { name: 'Operational Runway', pct: 25, low: '$625K', high: '$875K', note: '18–24 months of disciplined founder-led execution' },
+];
+
+const USER_MILESTONES = [
+  { stage: 'Beta', users: '23', detail: 'Known clean-tech users validating multi-OEM monitoring' },
+  { stage: 'Launch', users: '1K', detail: 'Verified households connected and minting' },
+  { stage: 'Round 1 target', users: '10K–25K', detail: 'Paid users proving subscription + token flywheel economics' },
+  { stage: 'Round 2 target', users: '100K+', detail: 'Scaled acquisition with enough volume for data revenue pilots' },
+];
+
+const REVENUE_PROJECTIONS = [
+  { users: '25K paid users', subscription: '$3M–$6M ARR', detail: 'Base subscription + Deason AI attach rate' },
+  { users: '100K paid users', subscription: '$12M–$24M ARR', detail: 'Subscription engine before token/data upside' },
+  { users: 'Data pilots', subscription: 'High-margin upside', detail: 'Aggregated multi-OEM telemetry after scale' },
 ];
 
 const FLYWHEEL_NODES = [
@@ -44,9 +47,9 @@ const FLYWHEEL_NODES = [
 ];
 
 const TIMELINE_STEPS = [
-  { label: 'Round 1', sub: 'Token launch + first users', icon: Rocket },
-  { label: 'Flywheel Activation', sub: 'LP + minting compound', icon: Activity },
-  { label: 'Round 2', sub: 'Aggressive scaling', icon: TrendingUp },
+  { label: 'Round 1', sub: '$2.5M–$3.5M launch capital', icon: Rocket },
+  { label: 'Proof Points', sub: '10K–25K paid users + live minting', icon: Activity },
+  { label: 'Round 2', sub: 'Follow-on seed for scale', icon: TrendingUp },
   { label: 'Self-Sustainability', sub: 'Goal: no Series A needed', icon: Flag },
 ];
 
@@ -63,8 +66,6 @@ export default function InvestorWhyThisRound() {
       </Helmet>
 
       <div className="min-h-screen bg-background text-foreground">
-        <InvestorHeader eyebrow="The Round" compact />
-
         <section className="mx-auto max-w-3xl px-5 pt-10 pb-24 md:pt-16 md:pb-32">
           <Link
             to="/investor"
@@ -177,28 +178,6 @@ export default function InvestorWhyThisRound() {
 
           {/* 4. Use of Funds */}
           <Section kicker="04 · Use of Funds" title="What this round will fund">
-            <ul className="space-y-2.5">
-              {[
-                'Token launch infrastructure and initial liquidity seeding on Uniswap',
-                'Regulatory, compliance, legal, and smart contract audits',
-                'App polish, onboarding experience, and mobile optimization',
-                'Initial user acquisition and growth initiatives',
-                '18–24 months of operational runway',
-              ].map((line, i) => (
-                <li
-                  key={line}
-                  className="flex items-start gap-3 rounded-xl border border-border/60 bg-card/30 px-4 py-3"
-                >
-                  <span className="text-[11px] font-mono tabular-nums text-secondary mt-0.5 shrink-0">
-                    0{i + 1}
-                  </span>
-                  <span className="text-[13px] md:text-sm text-foreground/90 leading-relaxed">
-                    {line}
-                  </span>
-                </li>
-              ))}
-            </ul>
-
             <UseOfFundsChart />
           </Section>
 
@@ -261,8 +240,49 @@ export default function InvestorWhyThisRound() {
             </div>
           </Section>
 
+          <Section kicker="07 · User Growth" title="User acquisition milestones">
+            <div className="grid gap-3 md:grid-cols-2">
+              {USER_MILESTONES.map((item) => (
+                <div key={item.stage} className="rounded-2xl border border-border/60 bg-card/40 p-5">
+                  <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-2">
+                    {item.stage}
+                  </div>
+                  <div className="text-2xl font-semibold leading-none text-foreground">
+                    {item.users}
+                  </div>
+                  <p className="mt-3 text-[13px] text-muted-foreground leading-relaxed">
+                    {item.detail}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </Section>
+
+          <Section kicker="08 · Revenue" title="High-level revenue projections">
+            <div className="rounded-3xl border border-border/60 bg-card/40 p-5 md:p-6">
+              <div className="grid gap-3 md:grid-cols-3">
+                {REVENUE_PROJECTIONS.map((item) => (
+                  <div key={item.users} className="rounded-2xl border border-border/60 bg-background/40 p-4">
+                    <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                      {item.users}
+                    </div>
+                    <div className="mt-2 text-xl font-semibold leading-tight text-foreground">
+                      {item.subscription}
+                    </div>
+                    <p className="mt-2 text-[12px] text-muted-foreground leading-relaxed">
+                      {item.detail}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-4 text-[11px] text-muted-foreground leading-relaxed">
+                Conservative directional model based on paid subscriptions; excludes token treasury upside and large-scale data licensing.
+              </p>
+            </div>
+          </Section>
+
           {/* 7. Flywheel */}
-          <Section kicker="07 · The Flywheel" title="How it actually compounds">
+          <Section kicker="09 · The Flywheel" title="How it actually compounds">
             <FlywheelDiagram />
             <div className="grid gap-4 mt-8 md:grid-cols-2">
               {[
@@ -287,7 +307,7 @@ export default function InvestorWhyThisRound() {
           </Section>
 
           {/* 8. Runway */}
-          <Section kicker="08 · Runway" title="Path to self-sustainability">
+          <Section kicker="10 · Two-Round Strategy" title="Path to self-sustainability">
             <div className="rounded-3xl border border-border/60 bg-card/40 p-6 md:p-8">
               <div className="flex items-center gap-3 mb-5">
                 <TrendingUp className="h-5 w-5 text-secondary" />
@@ -319,7 +339,7 @@ export default function InvestorWhyThisRound() {
           </Section>
 
           {/* 9. Long-Term Opportunity */}
-          <Section kicker="09 · The Opportunity" title="Why this becomes a durable, multi-decade business">
+          <Section kicker="11 · The Opportunity" title="Why this becomes a durable, multi-decade business">
             <div className="grid gap-3">
               {[
                 'Proof-of-Genesis™ has the potential to become a foundational primitive for tokenizing and rewarding verified clean energy behavior at global scale.',
@@ -376,7 +396,7 @@ function Section({
       <div className="text-[11px] uppercase tracking-[0.24em] text-secondary/80 mb-2">
         {kicker}
       </div>
-      <h2 className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight mb-6">
+      <h2 className="max-w-full text-2xl md:text-3xl font-semibold text-foreground tracking-tight mb-6 leading-tight break-words">
         {title}
       </h2>
       {children}
@@ -444,41 +464,31 @@ function UseOfFundsChart() {
   return (
     <div className="mt-6 rounded-2xl border border-border/60 bg-card/30 p-4 md:p-6">
       <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-4">
-        Allocation
+        Allocation · $2.5M – $3.5M Round
       </div>
-      <div className="w-full" style={{ height: USE_OF_FUNDS.length * 44 + 16 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={USE_OF_FUNDS}
-            layout="vertical"
-            margin={{ top: 4, right: 44, left: 0, bottom: 4 }}
-            barCategoryGap={10}
-          >
-            <XAxis type="number" hide domain={[0, 30]} />
-            <YAxis
-              type="category"
-              dataKey="name"
-              width={140}
-              tickLine={false}
-              axisLine={false}
-              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-            />
-            <Bar dataKey="value" radius={[6, 6, 6, 6]} barSize={18}>
-              {USE_OF_FUNDS.map((_, i) => (
-                <Cell key={i} fill="hsl(var(--secondary))" fillOpacity={0.55 + i * 0.06} />
-              ))}
-              <LabelList
-                dataKey="value"
-                position="right"
-                formatter={(v: number) => `${v}%`}
-                style={{ fill: 'hsl(var(--foreground))', fontSize: 12, fontWeight: 500 }}
+      <div className="space-y-4">
+        {USE_OF_FUNDS.map((item) => (
+          <div key={item.name} className="rounded-xl border border-border/50 bg-background/35 p-3.5">
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
+              <div className="text-sm font-medium leading-tight text-foreground">{item.name}</div>
+              <div className="text-[13px] font-semibold tabular-nums text-secondary">
+                {item.low} – {item.high}
+                <span className="ml-2 text-[11px] font-normal text-muted-foreground">{item.pct}%</span>
+              </div>
+            </div>
+            <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-muted/40">
+              <div
+                className="h-full rounded-full bg-secondary/75"
+                style={{ width: `${item.pct * 3.2}%` }}
+                aria-hidden
               />
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+            </div>
+            <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">{item.note}</p>
+          </div>
+        ))}
       </div>
-      <p className="text-[11px] text-muted-foreground mt-3">
-        Indicative allocation across the $2.5M – $3.5M range.
+      <p className="text-[11px] text-muted-foreground mt-4 leading-relaxed">
+        Amounts scale with the final close: $2.5M minimum gives us launch + runway; $3.5M expands launch liquidity and acquisition testing.
       </p>
     </div>
   );
@@ -492,8 +502,22 @@ function FlywheelDiagram() {
   const r = 118;
 
   return (
-    <div className="rounded-3xl border border-border/60 bg-card/30 p-4 md:p-6 flex justify-center">
-      <div className="relative w-full max-w-[360px] aspect-square">
+    <div className="rounded-3xl border border-border/60 bg-card/30 p-4 md:p-6">
+      <div className="grid gap-2 md:hidden">
+        {FLYWHEEL_NODES.map((label, i) => (
+          <div key={label} className="flex items-center gap-3 rounded-xl border border-border/50 bg-background/45 px-3 py-2.5">
+            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-secondary/45 bg-secondary/10 text-[10px] font-mono text-secondary">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <span className="min-w-0 flex-1 text-[13px] font-medium leading-tight text-foreground/90">
+              {label}
+            </span>
+            <ArrowRight className="h-3.5 w-3.5 shrink-0 text-secondary/70" />
+          </div>
+        ))}
+      </div>
+
+      <div className="relative hidden w-full max-w-[360px] aspect-square md:block md:mx-auto">
         <motion.svg
           viewBox={`0 0 ${size} ${size}`}
           className="w-full h-full"
