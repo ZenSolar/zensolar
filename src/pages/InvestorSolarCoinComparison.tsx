@@ -168,8 +168,12 @@ export default function InvestorSolarCoinComparison() {
         <link rel="canonical" href="https://www.zensolar.com/investor/solarcoin-comparison" />
       </Helmet>
 
-      <div className="min-h-screen bg-background text-foreground">
-        <section className="mx-auto max-w-3xl px-5 pt-10 pb-24 md:pt-16 md:pb-32">
+      <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
+        {/* Ambient backdrop */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(ellipse_at_top,hsl(var(--secondary)/0.12),transparent_70%)]" />
+        <div className="pointer-events-none absolute inset-x-0 top-[380px] h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
+        <section className="relative mx-auto max-w-3xl px-5 pt-10 pb-24 md:pt-16 md:pb-32">
           <Link
             to="/investor"
             className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.22em] text-muted-foreground hover:text-foreground transition-colors"
