@@ -221,7 +221,8 @@ export default function InvestorWhyThisRound() {
 
           {/* 7. Flywheel */}
           <Section kicker="06 · The Flywheel" title="How it actually compounds">
-            <div className="space-y-2">
+            <FlywheelDiagram />
+            <div className="space-y-2 mt-8">
               {[
                 '100% of every monthly subscription goes directly into the Liquidity Pool.',
                 'More users = more capital flowing into the LP every month.',
