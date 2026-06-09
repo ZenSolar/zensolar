@@ -396,7 +396,7 @@ function Section({
       <div className="text-[11px] uppercase tracking-[0.24em] text-secondary/80 mb-2">
         {kicker}
       </div>
-      <h2 className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight mb-6">
+      <h2 className="max-w-full text-2xl md:text-3xl font-semibold text-foreground tracking-tight mb-6 leading-tight break-words">
         {title}
       </h2>
       {children}
@@ -502,8 +502,22 @@ function FlywheelDiagram() {
   const r = 118;
 
   return (
-    <div className="rounded-3xl border border-border/60 bg-card/30 p-4 md:p-6 flex justify-center">
-      <div className="relative w-full max-w-[360px] aspect-square">
+    <div className="rounded-3xl border border-border/60 bg-card/30 p-4 md:p-6">
+      <div className="grid gap-2 md:hidden">
+        {FLYWHEEL_NODES.map((label, i) => (
+          <div key={label} className="flex items-center gap-3 rounded-xl border border-border/50 bg-background/45 px-3 py-2.5">
+            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-secondary/45 bg-secondary/10 text-[10px] font-mono text-secondary">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <span className="min-w-0 flex-1 text-[13px] font-medium leading-tight text-foreground/90">
+              {label}
+            </span>
+            <ArrowRight className="h-3.5 w-3.5 shrink-0 text-secondary/70" />
+          </div>
+        ))}
+      </div>
+
+      <div className="relative hidden w-full max-w-[360px] aspect-square md:block md:mx-auto">
         <motion.svg
           viewBox={`0 0 ${size} ${size}`}
           className="w-full h-full"
