@@ -2,6 +2,7 @@ import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { ArrowRight, Radio, ShieldCheck, Zap, Wallet } from "lucide-react";
 import { DeckCard, CardKicker } from "@/components/investor/pitch/v3/DeckCard";
+import { InvestorHeader } from "@/components/investor/InvestorHeader";
 
 function Kicker({ children }: { children: React.ReactNode }) {
   return <CardKicker className="text-secondary/80 mb-3">{children}</CardKicker>;
@@ -91,6 +92,8 @@ export default function InvestorDataRoomPoG() {
         <meta name="robots" content="noindex,nofollow" />
         <link rel="canonical" href="https://www.zensolar.com/investor/data-room/pog" />
       </Helmet>
+
+      <InvestorHeader eyebrow="Proof-of-Genesis™ Deep Dive" compact />
 
       <div className="mx-auto max-w-[1280px] px-6 md:px-10 py-12 md:py-16">
         {/* Top nav */}

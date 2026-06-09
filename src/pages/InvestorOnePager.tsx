@@ -5,6 +5,7 @@ import { ArrowLeft, Printer, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { readInvestorUnlocked } from '@/components/investor/InvestorPinGate';
+import { InvestorHeader } from '@/components/investor/InvestorHeader';
 import { isPreviewHost } from '@/lib/previewHost';
 
 const NDA_KEY = 'zs_investor_nda_signed';
@@ -49,6 +50,10 @@ export default function InvestorOnePager() {
           .op-card, .op-shot { break-inside: avoid; }
         }
       `}</style>
+
+      <div className="no-print">
+        <InvestorHeader eyebrow="Strategic Seed · One-Pager" compact />
+      </div>
 
       {/* Sticky chrome (screen only) */}
       <div className="no-print sticky top-0 z-20 backdrop-blur-md bg-background/70 border-b border-border/40">
