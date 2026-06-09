@@ -9,6 +9,8 @@ import {
   ArrowDown,
   ArrowRight,
   Mail,
+  GitCompare,
+  
   
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -98,6 +100,7 @@ function buildUnlocks(preview: boolean): Array<{
     { icon: FileText, label: 'One-Pager', desc: 'The leave-behind summary', to: '/investor/one-pager' },
     { icon: PlayCircle, label: 'Live Investor Demo', desc: 'Full Tesla + Powerwall + Wallbox home', to: `${preview ? '/demo-leonardo' : '/demo'}?demo=investor` },
     { icon: FileText, label: 'Investor Data Room', desc: 'PoG, VPP, traction, IP, use of funds', to: '/investor/data-room' },
+    { icon: GitCompare, label: 'SolarCoin Comparison', desc: 'UX, AI, and tokenomics vs legacy SolarCoin', to: '/investor/solarcoin-comparison' },
   ];
 }
 
@@ -467,6 +470,13 @@ function UnlockedPanel({
             title="Investor Data Room"
             body="PoG, VPP, traction, IP, use of funds."
             to="/investor/data-room"
+            internal
+          />
+          <UnlockedCard
+            icon={GitCompare}
+            title="SolarCoin Comparison"
+            body="How ZenSolar's consumer UX, AI, and tokenomics outpace legacy SolarCoin."
+            to="/investor/solarcoin-comparison"
             internal
           />
         </div>
