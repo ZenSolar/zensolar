@@ -156,6 +156,8 @@ export default function InvestorWhyThisRound() {
                 </li>
               ))}
             </ul>
+
+            <UseOfFundsChart />
           </Section>
 
           {/* 5. Round Structure */}
