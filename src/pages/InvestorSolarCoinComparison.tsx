@@ -182,6 +182,35 @@ export default function InvestorSolarCoinComparison() {
             </div>
           </header>
 
+          {/* Volunteer-Powered Non-Profit Callout */}
+          <div className="mt-10 rounded-2xl border border-secondary/30 bg-secondary/10 p-6 backdrop-blur-sm">
+            <h2 className="text-base md:text-lg font-semibold tracking-tight text-foreground mb-3 leading-tight">
+              The volunteer-powered limitation
+            </h2>
+            <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
+              <p>
+                SolarCoin is operated by the SolarCoin Foundation, a non-profit run entirely by volunteers with no commercial revenue model, no paid product, and no dedicated growth budget. This structure creates three structural constraints that are difficult to overcome:
+              </p>
+              <ul className="space-y-2 pl-1">
+                <li className="flex items-start gap-2">
+                  <span className="text-secondary font-medium flex-shrink-0">Sustainability —</span>
+                  <span>Reliance on volunteer labor and donations means roadmap progress is unpredictable. There is no recurring revenue engine to fund ongoing development, security audits, or infrastructure.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-secondary font-medium flex-shrink-0">Incentives —</span>
+                  <span>Without equity, full-time compensation, or commercial upside, attracting and retaining top-tier engineering, design, and go-to-market talent is structurally limited.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-secondary font-medium flex-shrink-0">Scalability —</span>
+                  <span>Absence of growth capital and commercial accountability means no aggressive installer partnerships, no OEM co-marketing, no user acquisition budget, and no rapid feature velocity.</span>
+                </li>
+              </ul>
+              <p className="text-foreground font-medium pt-1">
+                The result is a protocol that has remained essentially unchanged for over a decade, with minimal daily volume, no mobile product, and no path to mainstream adoption.
+              </p>
+            </div>
+          </div>
+
           {/* Strategic Advantages */}
           <section className="mt-16 md:mt-20">
             <h2 className="text-xl md:text-2xl font-semibold tracking-tight mb-6 leading-tight">
