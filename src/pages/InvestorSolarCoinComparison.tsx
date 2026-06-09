@@ -206,6 +206,98 @@ export default function InvestorSolarCoinComparison() {
             </div>
           </header>
 
+          {/* Scoreboard */}
+          <div className="rounded-2xl border border-border/60 bg-card/40 backdrop-blur-sm overflow-hidden">
+            <div className="grid grid-cols-[1fr_auto_auto] items-center px-4 py-2.5 border-b border-border/60 bg-card/60 text-[10px] uppercase tracking-[0.18em]">
+              <span className="text-muted-foreground/80">Scoreboard</span>
+              <span className="px-3 text-secondary font-semibold">ZenSolar</span>
+              <span className="pl-3 text-muted-foreground font-semibold">SolarCoin</span>
+            </div>
+            {SCOREBOARD.map((s, i) => (
+              <div
+                key={s.label}
+                className={`grid grid-cols-[1fr_auto_auto] items-center px-4 py-3 ${
+                  i < SCOREBOARD.length - 1 ? 'border-b border-border/40' : ''
+                }`}
+              >
+                <span className="text-sm text-foreground">{s.label}</span>
+                <span className="px-3 text-2xl font-semibold tracking-tight text-secondary tabular-nums">
+                  {s.zen}
+                </span>
+                <span className="pl-3 text-2xl font-semibold tracking-tight text-muted-foreground/60 tabular-nums">
+                  {s.solar}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Timeline */}
+          <div className="mt-10">
+            <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground/80 mb-4">
+              Twelve years of divergence
+            </div>
+            <div className="relative rounded-2xl border border-border/60 bg-card/30 p-5 backdrop-blur-sm">
+              <div className="absolute left-5 right-5 top-1/2 h-px bg-gradient-to-r from-muted-foreground/30 via-border to-secondary/60" />
+              <div className="relative grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">2014</div>
+                  <div className="mt-1 text-sm text-foreground font-medium">SolarCoin launches</div>
+                  <div className="mt-1 text-xs text-muted-foreground leading-snug">
+                    Honor-system PoST. No app. No wallet. Solar-only.
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs uppercase tracking-[0.18em] text-secondary">2026</div>
+                  <div className="mt-1 text-sm text-foreground font-medium">ZenSolar launches</div>
+                  <div className="mt-1 text-xs text-muted-foreground leading-snug">
+                    Proof-of-Genesis™. Embedded wallet. Multi-vertical.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* TAM Coverage */}
+          <div className="mt-10">
+            <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground/80 mb-4">
+              Rewardable behaviors — TAM coverage
+            </div>
+            <div className="rounded-2xl border border-border/60 overflow-hidden">
+              {TAM_VERTICALS.map((v, i) => (
+                <div
+                  key={v.label}
+                  className={`grid grid-cols-[1fr_auto_auto] items-center px-4 py-3 ${
+                    i < TAM_VERTICALS.length - 1 ? 'border-b border-border/40' : ''
+                  } ${i % 2 === 0 ? 'bg-background/40' : 'bg-card/20'}`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <v.icon className="h-4 w-4 text-secondary/80 flex-shrink-0" />
+                    <span className="text-sm text-foreground">{v.label}</span>
+                  </div>
+                  <span className="px-3">
+                    {v.zen ? (
+                      <CheckCircle2 className="h-4 w-4 text-secondary" />
+                    ) : (
+                      <Minus className="h-4 w-4 text-muted-foreground/40" />
+                    )}
+                  </span>
+                  <span className="pl-3">
+                    {v.solar ? (
+                      <CheckCircle2 className="h-4 w-4 text-muted-foreground/60" />
+                    ) : (
+                      <Minus className="h-4 w-4 text-muted-foreground/40" />
+                    )}
+                  </span>
+                </div>
+              ))}
+              <div className="grid grid-cols-[1fr_auto_auto] items-center px-4 py-2.5 border-t border-border/60 bg-card/60 text-[10px] uppercase tracking-[0.18em]">
+                <span className="text-muted-foreground/80">Coverage</span>
+                <span className="px-3 text-secondary font-semibold">5 / 5</span>
+                <span className="pl-3 text-muted-foreground font-semibold">1 / 5</span>
+              </div>
+            </div>
+          </div>
+
           {/* Volunteer-Powered Non-Profit Callout */}
           <div className="mt-10 rounded-2xl border border-secondary/30 bg-secondary/10 p-6 backdrop-blur-sm">
             <h2 className="text-base md:text-lg font-semibold tracking-tight text-foreground mb-3 leading-tight">
