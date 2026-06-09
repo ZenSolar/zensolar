@@ -4,8 +4,8 @@ import { Link, Navigate } from 'react-router-dom';
 import { ArrowLeft, Printer, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
-import { InvestorHeader } from '@/components/investor/InvestorHeader';
 import { readInvestorUnlocked } from '@/components/investor/InvestorPinGate';
+import { InvestorHeader } from '@/components/investor/InvestorHeader';
 import { isPreviewHost } from '@/lib/previewHost';
 
 const NDA_KEY = 'zs_investor_nda_signed';
@@ -50,8 +50,9 @@ export default function InvestorOnePager() {
           .op-card, .op-shot { break-inside: avoid; }
         }
       `}</style>
+
       <div className="no-print">
-        <InvestorHeader compact />
+        <InvestorHeader eyebrow="Strategic Seed · One-Pager" compact />
       </div>
 
       {/* Sticky chrome (screen only) */}

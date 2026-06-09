@@ -1,98 +1,93 @@
 import { Link } from 'react-router-dom';
 import zenIcon from '@/assets/zen-icon-transparent.png';
 
-/**
- * InvestorHeader — premium glowing logo header used across all
- * investor-facing subpages. Dark gradient "curtain" backdrop,
- * centered glowing orb logo, and the "zensolar" wordmark.
- */
-export function InvestorHeader({
-  /** Optional small line of text shown under the wordmark (e.g. "Investor Access"). */
-  eyebrow,
-  /** When false, the header doesn't link to /investor (useful on /investor itself). */
-  linkHome = true,
-  /** Tighter vertical padding for sub-pages that have their own hero. */
-  compact = false,
-}: {
+type InvestorHeaderProps = {
   eyebrow?: string;
-  linkHome?: boolean;
   compact?: boolean;
-}) {
-  const inner = (
-    <div className="relative flex flex-col items-center text-center">
-      {/* Spotlight halo behind the orb */}
+  linkHome?: boolean;
+};
+
+export function InvestorHeader({
+  eyebrow = 'Investor Materials',
+  compact = false,
+  linkHome = true,
+}: InvestorHeaderProps) {
+  const mark = (
+    <div className="relative inline-flex flex-col items-center gap-3 text-center">
       <div
         aria-hidden
-        className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-6 h-40 w-40 md:h-48 md:w-48 rounded-full blur-3xl opacity-70"
+        className="absolute -inset-x-16 -top-8 h-28 rounded-full blur-2xl"
         style={{
           background:
-            'radial-gradient(circle at center, hsl(var(--secondary) / 0.55), hsl(var(--secondary) / 0.15) 45%, transparent 70%)',
+            'radial-gradient(ellipse at center, hsl(var(--secondary) / 0.28), hsl(var(--primary) / 0.16) 38%, transparent 72%)',
         }}
       />
-      {/* Orb logo */}
-      <div className="relative">
-        <div
-          aria-hidden
-          className="absolute inset-0 rounded-full blur-xl opacity-80"
+      <div className="relative flex items-center gap-3">
+        <span
+          className="relative grid place-items-center rounded-full"
           style={{
-            background:
-              'radial-gradient(circle at center, hsl(var(--secondary) / 0.75), transparent 65%)',
+            width: compact ? 48 : 62,
+            height: compact ? 48 : 62,
+            boxShadow:
+              '0 0 22px hsl(var(--secondary) / 0.55), 0 0 72px hsl(var(--primary) / 0.28)',
           }}
-        />
-        <img
-          src={zenIcon}
-          alt="ZenSolar"
-          width="64"
-          height="64"
-          loading="eager"
-          decoding="async"
-          className="relative h-14 w-14 md:h-16 md:w-16 drop-shadow-[0_0_18px_hsl(var(--secondary)/0.6)]"
-        />
+        >
+          <span
+            aria-hidden
+            className="absolute inset-0 rounded-full"
+            style={{
+              background:
+                'radial-gradient(circle at 50% 42%, hsl(var(--secondary) / 0.38), transparent 68%)',
+            }}
+          />
+          <img
+            src={zenIcon}
+            alt=""
+            className="relative h-[78%] w-[78%] object-contain"
+            loading="eager"
+            decoding="async"
+          />
+        </span>
+        <span
+          className="relative text-[28px] font-semibold leading-none text-secondary md:text-[34px]"
+          style={{ textShadow: '0 0 18px hsl(var(--secondary) / 0.5)' }}
+        >
+          zensolar
+        </span>
       </div>
-      {/* Wordmark */}
-      <div
-        className="relative mt-3 text-[18px] md:text-[20px] font-medium tracking-[0.04em] text-secondary"
-        style={{
-          textShadow:
-            '0 0 14px hsl(var(--secondary) / 0.45), 0 0 28px hsl(var(--secondary) / 0.25)',
-        }}
-      >
-        zensolar
-      </div>
-      {eyebrow && (
-        <div className="relative mt-2 text-[10px] md:text-[11px] uppercase tracking-[0.28em] text-muted-foreground">
-          {eyebrow}
-        </div>
-      )}
+      <span className="relative text-[10px] uppercase tracking-[0.28em] text-muted-foreground">
+        {eyebrow}
+      </span>
     </div>
   );
 
   return (
-    <header
-      className={`relative overflow-hidden border-b border-border/40 bg-background ${
-        compact ? 'py-10 md:py-12' : 'py-14 md:py-20'
-      }`}
-    >
-      {/* Dark curtain gradient backdrop */}
+    <header className="relative overflow-hidden border-b border-border/40 bg-background">
       <div
         aria-hidden
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(ellipse 80% 60% at 50% 0%, hsl(var(--secondary) / 0.18), transparent 70%), linear-gradient(to bottom, hsl(var(--background)), hsl(var(--background)) 60%, hsl(var(--background) / 0.95))',
+            'radial-gradient(ellipse at top, hsl(var(--secondary) / 0.16), transparent 58%), linear-gradient(180deg, hsl(var(--background)), hsl(var(--card) / 0.72) 55%, hsl(var(--background)))',
         }}
       />
-      <div className="relative mx-auto max-w-3xl px-5">
+      <div
+        aria-hidden
+        className="absolute inset-x-0 top-0 h-24 opacity-70"
+        style={{
+          background:
+            'linear-gradient(90deg, transparent, hsl(var(--secondary) / 0.12), transparent)',
+        }}
+      />
+      <div className={`relative mx-auto flex max-w-5xl justify-center px-5 ${compact ? 'py-7' : 'py-9 md:py-11'}`}>
         {linkHome ? (
-          <Link to="/investor" aria-label="ZenSolar investor home" className="block">
-            {inner}
+          <Link to="/investor" aria-label="ZenSolar investor home" className="focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary/70">
+            {mark}
           </Link>
         ) : (
-          inner
+          mark
         )}
       </div>
     </header>
   );
 }
-
-export default InvestorHeader;

@@ -51,13 +51,14 @@ function StatTile({
 function DataRoomContent() {
   return (
     <div className="min-h-screen bg-[hsl(220,20%,6%)] text-white">
-      <InvestorHeader compact />
       <Helmet>
         <title>ZenSolar · Investor Data Room</title>
         <meta name="description" content="ZenSolar investor data room — Proof-of-Genesis™, VPP, aggregated data, use of funds, traction, and IP." />
         <meta name="robots" content="noindex,nofollow" />
         <link rel="canonical" href="https://www.zensolar.com/investor/data-room" />
       </Helmet>
+
+      <InvestorHeader eyebrow="Confidential · Investor Data Room" compact />
 
       <div className="mx-auto max-w-[1280px] px-6 md:px-10 py-12 md:py-16">
         {/* Top nav */}

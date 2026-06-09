@@ -83,7 +83,6 @@ const stack = [
 export default function InvestorDataRoomPoG() {
   return (
     <div className="min-h-screen bg-[hsl(220,20%,6%)] text-white">
-      <InvestorHeader compact />
       <Helmet>
         <title>ZenSolar · Proof-of-Genesis Deep Dive</title>
         <meta
@@ -93,6 +92,8 @@ export default function InvestorDataRoomPoG() {
         <meta name="robots" content="noindex,nofollow" />
         <link rel="canonical" href="https://www.zensolar.com/investor/data-room/pog" />
       </Helmet>
+
+      <InvestorHeader eyebrow="Proof-of-Genesis™ Deep Dive" compact />
 
       <div className="mx-auto max-w-[1280px] px-6 md:px-10 py-12 md:py-16">
         {/* Top nav */}

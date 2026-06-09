@@ -23,24 +23,23 @@ import {
   Rocket,
   PlayCircle,
   Flag,
-  Users,
-  Target,
 } from 'lucide-react';
 import { InvestorHeader } from '@/components/investor/InvestorHeader';
 
 const USE_OF_FUNDS = [
-  { name: 'Token Launch & LP', value: 25, range: '$625K – $875K' },
-  { name: 'Legal & Audits', value: 20, range: '$500K – $700K' },
-  { name: 'App & Onboarding', value: 15, range: '$375K – $525K' },
-  { name: 'Growth & Acquisition', value: 15, range: '$375K – $525K' },
-  { name: 'Operational Runway', value: 25, range: '$625K – $875K' },
+  { name: 'Token Launch & LP', value: 25 },
+  { name: 'Legal & Audits', value: 20 },
+  { name: 'App & Onboarding', value: 15 },
+  { name: 'Growth & Acquisition', value: 15 },
+  { name: 'Operational Runway', value: 25 },
 ];
 
 const FLYWHEEL_NODES = [
   'Subs → LP',
   'More Users',
   'Stronger Liquidity',
-  'Token Demand',
+  'Better Token',
+  'More Minting',
   'Data Revenue',
 ];
 
@@ -58,14 +57,15 @@ export default function InvestorWhyThisRound() {
         <title>ZenSolar — Why We're Raising $2.5M–$3.5M</title>
         <meta
           name="description"
-          content="What this round funds, real dollar allocations, and our two-round path to self-sustainability."
+          content="Transparent look at progress already shipped, what this round funds, and our two-round path to self-sustainability."
         />
         <link rel="canonical" href="https://www.zensolar.com/investor/why-this-round" />
       </Helmet>
 
       <div className="min-h-screen bg-background text-foreground">
-        <InvestorHeader compact />
-        <section className="mx-auto max-w-3xl px-5 pt-8 pb-24 md:pt-10 md:pb-32">
+        <InvestorHeader eyebrow="The Round" compact />
+
+        <section className="mx-auto max-w-3xl px-5 pt-10 pb-24 md:pt-16 md:pb-32">
           <Link
             to="/investor"
             className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.22em] text-muted-foreground hover:text-foreground transition-colors"
@@ -84,21 +84,23 @@ export default function InvestorWhyThisRound() {
               <br className="hidden md:block" /> $2.5M – $3.5M Now
             </h1>
             <p className="mt-5 text-base md:text-lg text-muted-foreground leading-relaxed">
-              What's already shipped, what this round funds, and how we reach self-sustainability.
+              A transparent look at the real progress already shipped, what this
+              round funds, and how we reach self-sustainability.
             </p>
           </header>
 
           {/* 2. Where We Are Today */}
           <Section kicker="01 · De-risked Progress" title="Where we are today">
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-6">
-              The hardest technical work — verified real-world energy flowing into on-chain minting — is live in beta today.
+              The hardest technical work — verified real-world energy data
+              flowing into on-chain minting — is already working in beta today.
             </p>
             <div className="grid gap-3 md:grid-cols-2">
               {[
-                'Live OAuth2 integrations with Tesla, Enphase, SolarEdge, and Wallbox — pulling real telemetry.',
-                'Core MVP operational with working token minting via Proof-of-Genesis™.',
-                'Multi-OEM Clean Energy Center and live monitoring cockpit functional.',
-                'Deason AI (monthly energy analysis + outage intelligence) built.',
+                'Direct OAuth2 integrations with Tesla, Enphase, SolarEdge, and Wallbox are live and pulling real telemetry today.',
+                'Core MVP is operational with working token minting via Proof-of-Genesis™.',
+                'Multi-OEM Clean Energy Center and live energy monitoring cockpit are functional.',
+                'Deason AI (monthly energy analysis + outage intelligence) is built.',
               ].map((line) => (
                 <div
                   key={line}
@@ -119,17 +121,17 @@ export default function InvestorWhyThisRound() {
               <CapabilityCard
                 icon={Activity}
                 title="Zen Monitoring"
-                body="First-of-its-kind multi-OEM live energy cockpit. Tesla · Enphase · SolarEdge · Wallbox in one screen."
+                body="First-of-its-kind multi-OEM live energy cockpit. Tesla · Enphase · SolarEdge · Wallbox — all in one screen."
               />
               <CapabilityCard
                 icon={Sparkles}
                 title="Deason AI"
-                body="Personalized monthly Clean Energy Reports and real-time outage support."
+                body="Personalized monthly Clean Energy Reports plus real-time outage support."
               />
               <CapabilityCard
                 icon={Coins}
                 title="Proof-of-Genesis™ Minting"
-                body="One-tap in-app minting via Coinbase Smart Wallet. No seed phrases."
+                body="One-tap, in-app minting through Coinbase Smart Wallet. No seed phrases required."
               />
             </div>
           </Section>
@@ -139,33 +141,59 @@ export default function InvestorWhyThisRound() {
             kicker="03 · Technical Foundation"
             title="How Proof-of-Genesis works"
           >
-            <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-2">
-              Real hardware telemetry → cryptographic verification → on-chain anchor → one-tap mint. Protected by U.S. Patent Application No. 19/634,402.
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-6">
+              A clear look at the core technology behind verified, on-chain
+              clean energy minting.
             </p>
+            <div className="grid gap-3">
+              {[
+                'Direct OAuth2 integrations with Tesla, Enphase, SolarEdge, and Wallbox pull real hardware telemetry in real time — not self-reported data.',
+                'Proof-of-Delta™ serves as the cryptographic verification layer that validates energy production and sustainable behavior before any tokens are minted.',
+                'Verified events are immutably anchored on-chain, creating a tamper-proof record of clean energy activity.',
+                'Users can mint tokens with one tap inside the app using Coinbase Smart Wallet — no seed phrases or external wallet connection required.',
+                'The core Proof-of-Genesis architecture is protected by U.S. Patent Application No. 19/634,402 and is designed to scale globally as clean energy adoption accelerates.',
+              ].map((line) => (
+                <div
+                  key={line}
+                  className="flex items-start gap-3 rounded-2xl border border-border/60 bg-card/40 px-4 py-4"
+                >
+                  <CheckCircle2 className="h-4 w-4 text-secondary mt-0.5 shrink-0" />
+                  <p className="text-[13px] md:text-sm text-foreground/90 leading-relaxed">
+                    {line}
+                  </p>
+                </div>
+              ))}
+            </div>
 
             <ProofOfGenesisFlow />
+
+            <p className="mt-6 text-[13px] md:text-sm text-muted-foreground leading-relaxed">
+              This design removes traditional crypto onboarding friction
+              entirely — users never need seed phrases, external wallets, or
+              gas fees to mint.
+            </p>
           </Section>
 
 
           {/* 4. Use of Funds */}
           <Section kicker="04 · Use of Funds" title="What this round will fund">
             <ul className="space-y-2.5">
-              {USE_OF_FUNDS.map((item, i) => (
+              {[
+                'Token launch infrastructure and initial liquidity seeding on Uniswap',
+                'Regulatory, compliance, legal, and smart contract audits',
+                'App polish, onboarding experience, and mobile optimization',
+                'Initial user acquisition and growth initiatives',
+                '18–24 months of operational runway',
+              ].map((line, i) => (
                 <li
-                  key={item.name}
-                  className="flex items-center gap-3 rounded-xl border border-border/60 bg-card/30 px-4 py-3"
+                  key={line}
+                  className="flex items-start gap-3 rounded-xl border border-border/60 bg-card/30 px-4 py-3"
                 >
-                  <span className="text-[11px] font-mono tabular-nums text-secondary shrink-0">
+                  <span className="text-[11px] font-mono tabular-nums text-secondary mt-0.5 shrink-0">
                     0{i + 1}
                   </span>
-                  <span className="flex-1 text-[13px] md:text-sm text-foreground/90 leading-relaxed">
-                    {item.name === 'Operational Runway' ? 'Operational Runway (18–24 mo)' : item.name}
-                  </span>
-                  <span className="text-[12px] md:text-[13px] font-mono tabular-nums text-foreground shrink-0">
-                    {item.range}
-                  </span>
-                  <span className="text-[10px] font-mono tabular-nums text-secondary/80 shrink-0 w-7 text-right">
-                    {item.value}%
+                  <span className="text-[13px] md:text-sm text-foreground/90 leading-relaxed">
+                    {line}
                   </span>
                 </li>
               ))}
@@ -180,23 +208,30 @@ export default function InvestorWhyThisRound() {
               <div className="flex items-start gap-3">
                 <Shield className="h-5 w-5 text-secondary mt-0.5 shrink-0" />
                 <p className="text-sm md:text-base text-foreground/90 leading-relaxed">
-                  Raising on a <strong className="text-foreground">Convertible Note</strong> (post-money) — a familiar instrument for clean energy and infrastructure investors.
+                  We are raising on a <strong className="text-foreground">Convertible Note</strong>{' '}
+                  (post-money) — a familiar and professional instrument for
+                  sophisticated clean energy and infrastructure investors.
                 </p>
               </div>
               <div className="flex items-start gap-3">
                 <Coins className="h-5 w-5 text-secondary mt-0.5 shrink-0" />
                 <p className="text-sm md:text-base text-foreground/90 leading-relaxed">
-                  Includes a <strong className="text-foreground">Token Warrant</strong> (via side letter) for $ZSOLAR at TGE price with a modest discount.
+                  The round includes a <strong className="text-foreground">Token Warrant</strong>{' '}
+                  (via side letter) granting investors the right to purchase
+                  $ZSOLAR at TGE price with a modest discount.
                 </p>
               </div>
               <div className="flex items-start gap-3">
                 <CheckCircle2 className="h-5 w-5 text-secondary mt-0.5 shrink-0" />
                 <p className="text-sm md:text-base text-foreground/90 leading-relaxed">
-                  Both subject to a <strong className="text-foreground">4-year vest with a 1-year cliff</strong> — strong long-term alignment on both sides.
+                  Both the Convertible Note and Token Warrants are subject to a{' '}
+                  <strong className="text-foreground">4-year vesting schedule with a 1-year cliff</strong>
+                  , demonstrating strong long-term alignment from both the founding
+                  team and investors.
                 </p>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed pt-2 border-t border-border/40">
-                Full term sheet in the{' '}
+                Full term sheet and detailed economics are available in the{' '}
                 <Link to="/investor/data-room" className="text-secondary hover:underline">
                   Data Room
                 </Link>{' '}
@@ -209,10 +244,10 @@ export default function InvestorWhyThisRound() {
           <Section kicker="06 · Go-to-Market" title="High-level GTM strategy">
             <div className="grid gap-3 md:grid-cols-2">
               {[
-                'Target users who already own compatible hardware — Tesla, Enphase, SolarEdge, Wallbox.',
-                'Leverage existing demo users, the waitlist, and strategic relationships for early network effects.',
-                '$4.99/mo Deason AI as both engagement driver and premium upsell.',
-                'Organic growth via real utility plus token rewards once the flywheel compounds.',
+                'Target users who already own compatible hardware — Tesla vehicles, Enphase / SolarEdge solar + batteries, Wallbox chargers.',
+                'Leverage early network effects through existing demo users, the waitlist, and strategic relationships.',
+                'Use the $4.99/mo Deason AI tool as both an engagement driver and a premium upsell.',
+                'Drive organic growth through real utility value plus token rewards once the flywheel begins compounding.',
               ].map((line) => (
                 <div
                   key={line}
@@ -229,11 +264,12 @@ export default function InvestorWhyThisRound() {
           {/* 7. Flywheel */}
           <Section kicker="07 · The Flywheel" title="How it actually compounds">
             <FlywheelDiagram />
-            <div className="grid gap-4 mt-8 md:grid-cols-3">
+            <div className="grid gap-4 mt-8 md:grid-cols-2">
               {[
                 '100% of every monthly subscription flows directly into the Liquidity Pool.',
-                'Stronger liquidity + real utility creates durable token price support.',
-                'Token demand + data revenue compound into a self-reinforcing loop.',
+                'More users → more capital into the LP every single month.',
+                'Stronger liquidity + real utility → durable token price support.',
+                'Better token economics + growing data revenue → a self-reinforcing loop that can eventually cover operations.',
               ].map((line, i) => (
                 <div
                   key={line}
@@ -263,68 +299,20 @@ export default function InvestorWhyThisRound() {
                 </span>
               </div>
 
-              {/* Two-Part Seed Strategy */}
-              <div className="mt-2">
-                <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-4">
-                  A two-part seed, not a Series A treadmill
-                </div>
-                <div className="grid gap-3 md:grid-cols-3">
-                  <SeedPartCard
-                    label="Now · Part 1"
-                    amount="$2.5M – $3.5M"
-                    body="Launch the token and ignite the flywheel."
-                  />
-                  <SeedPartCard
-                    label="Follow-on · Part 2"
-                    amount="$5M – $7M"
-                    body="Raised once early traction and flywheel momentum are proven."
-                  />
-                  <SeedPartCard
-                    label="Goal"
-                    amount="Self-sustaining"
-                    body="Combined raises carry the business — reducing or eliminating the need for a traditional Series A."
-                  />
-                </div>
-              </div>
-
               <TwoRoundTimeline />
-
-              {/* Milestones & Trajectory */}
-              <div className="mt-8">
-                <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-4">
-                  Milestones & Trajectory
-                </div>
-                <div className="grid gap-3 md:grid-cols-2">
-                  <MilestoneCard
-                    icon={Users}
-                    when="End of Year 1"
-                    headline="2,000 – 4,000 paying users"
-                    body="Meaningful monthly LP inflows from subscriptions begin."
-                  />
-                  <MilestoneCard
-                    icon={Target}
-                    when="End of Year 2"
-                    headline="8,000 – 12,000 paying users"
-                    body="Compounding LP inflows plus early data-revenue pilots."
-                  />
-                </div>
-                <p className="mt-3 text-[11px] text-muted-foreground">
-                  Conservative ranges, not a forecast.
-                </p>
-              </div>
 
               <div className="grid gap-4 md:grid-cols-3 mt-8">
                 <RunwayBlock
                   label="Round 1 Goal"
-                  body="Launch the token and acquire the first meaningful wave of minting users."
+                  body="Launch the token and acquire the first meaningful wave of minting users so the flywheel can begin operating."
                 />
                 <RunwayBlock
                   label="Round 2 Goal"
-                  body="Aggressive scaling once early traction is proven."
+                  body="Aggressive scaling once early traction and flywheel mechanics are proven."
                 />
                 <RunwayBlock
                   label="Long-Term Vision"
-                  body="A business that becomes largely self-sustaining without a traditional Series A."
+                  body="Build toward a business that can become largely self-sustaining without needing a traditional Series A."
                 />
               </div>
             </div>
@@ -334,9 +322,10 @@ export default function InvestorWhyThisRound() {
           <Section kicker="09 · The Opportunity" title="Why this becomes a durable, multi-decade business">
             <div className="grid gap-3">
               {[
-                'Proof-of-Genesis™ can become a foundational primitive for tokenizing verified clean energy behavior at global scale.',
-                'TAM is enormous: every Tesla driver, every solar + battery owner, every EV household is a potential user.',
-                'Real utility + a self-reinforcing flywheel + a growing data moat = the conditions for durable long-term scale.',
+                'Proof-of-Genesis™ has the potential to become a foundational primitive for tokenizing and rewarding verified clean energy behavior at global scale.',
+                'The addressable market is enormous: every Tesla driver, every solar + battery owner, and every EV household represents a potential user.',
+                'With proper execution, the combination of real utility, a self-reinforcing flywheel, and a growing data moat creates the conditions for significant long-term scale.',
+                'Our goal is to build a durable, multi-decade business that can compound over time as clean energy adoption accelerates worldwide.',
               ].map((line) => (
                 <div
                   key={line}
@@ -383,7 +372,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="mt-16 md:mt-20">
+    <section className="mt-14 md:mt-16">
       <div className="text-[11px] uppercase tracking-[0.24em] text-secondary/80 mb-2">
         {kicker}
       </div>
@@ -428,59 +417,6 @@ function RunwayBlock({ label, body }: { label: string; body: string }) {
   );
 }
 
-function SeedPartCard({
-  label,
-  amount,
-  body,
-}: {
-  label: string;
-  amount: string;
-  body: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-secondary/25 bg-secondary/[0.04] p-5">
-      <div className="text-[10px] uppercase tracking-[0.22em] text-secondary/90 mb-2">
-        {label}
-      </div>
-      <div className="text-base md:text-lg font-semibold text-foreground mb-2">
-        {amount}
-      </div>
-      <p className="text-[12px] md:text-[13px] text-muted-foreground leading-relaxed">
-        {body}
-      </p>
-    </div>
-  );
-}
-
-function MilestoneCard({
-  icon: Icon,
-  when,
-  headline,
-  body,
-}: {
-  icon: typeof Users;
-  when: string;
-  headline: string;
-  body: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-border/60 bg-background/40 p-5">
-      <div className="flex items-center gap-2 mb-3">
-        <Icon className="h-4 w-4 text-secondary" />
-        <div className="text-[10px] uppercase tracking-[0.22em] text-secondary">
-          {when}
-        </div>
-      </div>
-      <div className="text-[15px] md:text-base font-semibold text-foreground mb-1.5">
-        {headline}
-      </div>
-      <p className="text-[12px] md:text-[13px] text-muted-foreground leading-relaxed">
-        {body}
-      </p>
-    </div>
-  );
-}
-
 function CtaLink({
   to,
   icon: Icon,
@@ -510,31 +446,32 @@ function UseOfFundsChart() {
       <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-4">
         Allocation
       </div>
-      <div className="w-full" style={{ height: USE_OF_FUNDS.length * 46 + 16 }}>
+      <div className="w-full" style={{ height: USE_OF_FUNDS.length * 44 + 16 }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={USE_OF_FUNDS}
             layout="vertical"
-            margin={{ top: 4, right: 96, left: 0, bottom: 4 }}
+            margin={{ top: 4, right: 44, left: 0, bottom: 4 }}
             barCategoryGap={10}
           >
             <XAxis type="number" hide domain={[0, 30]} />
             <YAxis
               type="category"
               dataKey="name"
-              width={130}
+              width={140}
               tickLine={false}
               axisLine={false}
-              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
+              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
             />
             <Bar dataKey="value" radius={[6, 6, 6, 6]} barSize={18}>
               {USE_OF_FUNDS.map((_, i) => (
                 <Cell key={i} fill="hsl(var(--secondary))" fillOpacity={0.55 + i * 0.06} />
               ))}
               <LabelList
-                dataKey="range"
+                dataKey="value"
                 position="right"
-                style={{ fill: 'hsl(var(--foreground))', fontSize: 11, fontWeight: 500 }}
+                formatter={(v: number) => `${v}%`}
+                style={{ fill: 'hsl(var(--foreground))', fontSize: 12, fontWeight: 500 }}
               />
             </Bar>
           </BarChart>
@@ -552,11 +489,11 @@ function FlywheelDiagram() {
   const size = 320;
   const cx = size / 2;
   const cy = size / 2;
-  const r = 108;
+  const r = 118;
 
   return (
-    <div className="rounded-3xl border border-border/60 bg-card/30 p-6 md:p-8 flex justify-center">
-      <div className="relative w-full max-w-[400px] aspect-square">
+    <div className="rounded-3xl border border-border/60 bg-card/30 p-4 md:p-6 flex justify-center">
+      <div className="relative w-full max-w-[360px] aspect-square">
         <motion.svg
           viewBox={`0 0 ${size} ${size}`}
           className="w-full h-full"
@@ -637,12 +574,12 @@ function FlywheelDiagram() {
 
         {FLYWHEEL_NODES.map((label, i) => {
           const angle = (i / FLYWHEEL_NODES.length) * Math.PI * 2 - Math.PI / 2;
-          const x = 50 + Math.cos(angle) * 36;
-          const y = 50 + Math.sin(angle) * 36;
+          const x = 50 + Math.cos(angle) * 42;
+          const y = 50 + Math.sin(angle) * 42;
           return (
             <motion.div
               key={label}
-              className="absolute -translate-x-1/2 -translate-y-1/2 rounded-xl border border-secondary/40 bg-background/95 backdrop-blur px-2 py-1 text-[10px] md:text-[11px] font-medium text-foreground/90 text-center leading-tight max-w-[92px]"
+              className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-secondary/40 bg-background/90 backdrop-blur px-2.5 py-1 text-[10px] md:text-[11px] font-medium text-foreground/90 whitespace-nowrap"
               style={{ left: `${x}%`, top: `${y}%` }}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -723,7 +660,7 @@ function ProofOfGenesisFlow() {
       {/* Desktop: horizontal with connecting line */}
       <div className="hidden md:block relative">
         <div
-          className="absolute top-5 left-[12%] right-[12%] h-px bg-gradient-to-r from-transparent via-secondary/40 to-transparent shadow-[0_0_8px_hsl(var(--secondary)/0.25)]"
+          className="absolute top-5 left-[12%] right-[12%] h-px bg-gradient-to-r from-transparent via-secondary/40 to-transparent"
           aria-hidden
         />
         <div className="relative grid grid-cols-4 gap-4">
@@ -753,7 +690,7 @@ function ProofOfGenesisFlow() {
       {/* Mobile: vertical with connecting line */}
       <div className="md:hidden relative">
         <div
-          className="absolute left-5 top-3 bottom-3 w-px bg-gradient-to-b from-transparent via-secondary/50 to-transparent"
+          className="absolute left-5 top-3 bottom-3 w-px bg-gradient-to-b from-transparent via-secondary/40 to-transparent"
           aria-hidden
         />
         <div className="space-y-5">
@@ -769,7 +706,7 @@ function ProofOfGenesisFlow() {
               <div className="relative z-10 h-10 w-10 rounded-full border border-secondary/50 bg-background flex items-center justify-center text-[12px] font-mono tabular-nums text-secondary shrink-0 shadow-[0_0_0_4px_hsl(var(--card)/0.6)]">
                 {String(i + 1).padStart(2, '0')}
               </div>
-              <div className="flex-1 pt-1.5 pr-1">
+              <div className="flex-1 pt-1.5">
                 <div className="text-[13px] font-semibold text-foreground leading-tight">
                   {step.title}
                 </div>
@@ -784,3 +721,4 @@ function ProofOfGenesisFlow() {
     </div>
   );
 }
+
