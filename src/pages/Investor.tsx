@@ -433,7 +433,14 @@ function UnlockedPanel({
           </Button>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <UnlockedCard
+            icon={FileText}
+            title="Why This Round"
+            body="Transparent breakdown of the $2.5M–$3.5M raise, use of funds, GTM approach, and our two-round path to self-sustainability."
+            to="/investor/why-this-round"
+            internal
+          />
           <UnlockedCard
             icon={FileText}
             title="Full Seed Round Deck"
