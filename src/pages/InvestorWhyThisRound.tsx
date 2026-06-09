@@ -85,23 +85,23 @@ export default function InvestorWhyThisRound() {
               <br className="hidden md:block" /> $2.5M – $3.5M Now
             </h1>
             <p className="mt-5 text-base md:text-lg text-muted-foreground leading-relaxed">
-              A transparent look at the real progress already shipped, what this
-              round funds, and how we reach self-sustainability.
+              What's already shipped, what this round funds, and the two-round
+              path to self-sustainability.
             </p>
           </header>
 
           {/* 2. Where We Are Today */}
           <Section kicker="01 · De-risked Progress" title="Where we are today">
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-6">
-              The hardest technical work — verified real-world energy data
-              flowing into on-chain minting — is already working in beta today.
+              The hard part — verified real-world energy flowing into on-chain
+              minting — is already live in beta.
             </p>
             <div className="grid gap-3 md:grid-cols-2">
               {[
-                'Direct OAuth2 integrations with Tesla, Enphase, SolarEdge, and Wallbox are live and pulling real telemetry today.',
-                'Core MVP is operational with working token minting via Proof-of-Genesis™.',
-                'Multi-OEM Clean Energy Center and live energy monitoring cockpit are functional.',
-                'Deason AI (monthly energy analysis + outage intelligence) is built.',
+                'OAuth2 integrations with Tesla, Enphase, SolarEdge, and Wallbox pulling live telemetry.',
+                'Core MVP operational with working Proof-of-Genesis™ minting.',
+                'Multi-OEM Clean Energy Center and live monitoring cockpit shipped.',
+                'Deason AI — monthly energy analysis + outage intelligence — built.',
               ].map((line) => (
                 <div
                   key={line}
@@ -143,16 +143,16 @@ export default function InvestorWhyThisRound() {
             title="How Proof-of-Genesis works"
           >
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-6">
-              A clear look at the core technology behind verified, on-chain
-              clean energy minting.
+              The core technology behind verified, on-chain clean energy
+              minting.
             </p>
             <div className="grid gap-3">
               {[
-                'Direct OAuth2 integrations with Tesla, Enphase, SolarEdge, and Wallbox pull real hardware telemetry in real time — not self-reported data.',
-                'Proof-of-Delta™ serves as the cryptographic verification layer that validates energy production and sustainable behavior before any tokens are minted.',
-                'Verified events are immutably anchored on-chain, creating a tamper-proof record of clean energy activity.',
-                'Users can mint tokens with one tap inside the app using Coinbase Smart Wallet — no seed phrases or external wallet connection required.',
-                'The core Proof-of-Genesis architecture is protected by U.S. Patent Application No. 19/634,402 and is designed to scale globally as clean energy adoption accelerates.',
+                'Direct OAuth2 integrations pull real hardware telemetry in real time — not self-reported data.',
+                'Proof-of-Delta™ cryptographically verifies energy production and sustainable behavior before any mint.',
+                'Verified events are anchored on-chain as a tamper-proof record.',
+                'One-tap in-app minting via Coinbase Smart Wallet — no seed phrases, no external wallet, no gas.',
+                'Architecture protected by U.S. Patent Application No. 19/634,402 and designed to scale globally.',
               ].map((line) => (
                 <div
                   key={line}
@@ -167,12 +167,6 @@ export default function InvestorWhyThisRound() {
             </div>
 
             <ProofOfGenesisFlow />
-
-            <p className="mt-6 text-[13px] md:text-sm text-muted-foreground leading-relaxed">
-              This design removes traditional crypto onboarding friction
-              entirely — users never need seed phrases, external wallets, or
-              gas fees to mint.
-            </p>
           </Section>
 
 
@@ -282,18 +276,18 @@ export default function InvestorWhyThisRound() {
           </Section>
 
           {/* 7. Flywheel */}
-          <Section kicker="09 · The Flywheel" title="How it actually compounds">
+          <Section kicker="09 · The Flywheel" title="How it compounds">
             <FlywheelDiagram />
-            <div className="grid gap-4 mt-8 md:grid-cols-2">
+            <div className="grid gap-3 mt-8 md:grid-cols-2">
               {[
-                '100% of every monthly subscription flows directly into the Liquidity Pool.',
-                'More users → more capital into the LP every single month.',
+                '100% of every monthly subscription flows directly into the LP.',
+                'More users → more capital into the LP every month.',
                 'Stronger liquidity + real utility → durable token price support.',
-                'Better token economics + growing data revenue → a self-reinforcing loop that can eventually cover operations.',
+                'Growing token + data revenue → a self-reinforcing loop that can cover operations.',
               ].map((line, i) => (
                 <div
                   key={line}
-                  className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card/40 px-4 py-5 md:px-5 md:py-4"
+                  className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card/40 px-4 py-4"
                 >
                   <span className="text-secondary font-mono text-[13px] tabular-nums shrink-0">
                     {String(i + 1).padStart(2, '0')}
@@ -319,33 +313,44 @@ export default function InvestorWhyThisRound() {
                 </span>
               </div>
 
+              <div className="grid gap-3 md:grid-cols-3 mb-6">
+                <div className="rounded-2xl border border-secondary/30 bg-secondary/[0.05] p-4">
+                  <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-1.5">Round 1 — Now</div>
+                  <div className="text-lg font-semibold text-foreground">$2.5M – $3.5M</div>
+                  <p className="mt-1.5 text-[12px] text-muted-foreground leading-relaxed">First part of our seed. Funds launch, audits, and early growth.</p>
+                </div>
+                <div className="rounded-2xl border border-border/60 bg-background/40 p-4">
+                  <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-1.5">Round 2 — Follow-on</div>
+                  <div className="text-lg font-semibold text-foreground">$5M – $7M</div>
+                  <p className="mt-1.5 text-[12px] text-muted-foreground leading-relaxed">Raised once early traction and flywheel momentum are proven.</p>
+                </div>
+                <div className="rounded-2xl border border-border/60 bg-background/40 p-4">
+                  <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-1.5">Combined Goal</div>
+                  <div className="text-lg font-semibold text-foreground">Self-sustaining</div>
+                  <p className="mt-1.5 text-[12px] text-muted-foreground leading-relaxed">Reduce or eliminate the need for a traditional Series A.</p>
+                </div>
+              </div>
+
               <TwoRoundTimeline />
 
-              <div className="grid gap-4 md:grid-cols-3 mt-8">
-                <RunwayBlock
-                  label="Round 1 Goal"
-                  body="Launch the token and acquire the first meaningful wave of minting users so the flywheel can begin operating."
-                />
-                <RunwayBlock
-                  label="Round 2 Goal"
-                  body="Aggressive scaling once early traction and flywheel mechanics are proven."
-                />
-                <RunwayBlock
-                  label="Long-Term Vision"
-                  body="Build toward a business that can become largely self-sustaining without needing a traditional Series A."
-                />
+              <div className="mt-6 rounded-2xl border border-border/60 bg-background/40 p-5">
+                <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-3">User Acquisition Milestones</div>
+                <ul className="space-y-2 text-[13px] text-foreground/90 leading-relaxed">
+                  <li>• <strong>Year 1:</strong> 2,000–4,000 paying users.</li>
+                  <li>• <strong>Year 2:</strong> 8,000–12,000 paying users.</li>
+                  <li className="text-muted-foreground">At these levels we expect meaningful monthly LP inflows from subscriptions plus growing data revenue.</li>
+                </ul>
               </div>
             </div>
           </Section>
 
           {/* 9. Long-Term Opportunity */}
-          <Section kicker="11 · The Opportunity" title="Why this becomes a durable, multi-decade business">
+          <Section kicker="11 · The Opportunity" title="A durable, multi-decade business">
             <div className="grid gap-3">
               {[
-                'Proof-of-Genesis™ has the potential to become a foundational primitive for tokenizing and rewarding verified clean energy behavior at global scale.',
-                'The addressable market is enormous: every Tesla driver, every solar + battery owner, and every EV household represents a potential user.',
-                'With proper execution, the combination of real utility, a self-reinforcing flywheel, and a growing data moat creates the conditions for significant long-term scale.',
-                'Our goal is to build a durable, multi-decade business that can compound over time as clean energy adoption accelerates worldwide.',
+                'Proof-of-Genesis™ can become a foundational primitive for tokenizing verified clean energy behavior at global scale.',
+                'TAM is enormous: every Tesla driver, every solar + battery owner, every EV household is a potential user.',
+                'Real utility + self-reinforcing flywheel + growing data moat = the conditions for durable, long-term scale.',
               ].map((line) => (
                 <div
                   key={line}
@@ -392,7 +397,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="mt-14 md:mt-16">
+    <section className="mt-16 md:mt-20">
       <div className="text-[11px] uppercase tracking-[0.24em] text-secondary/80 mb-2">
         {kicker}
       </div>
@@ -479,7 +484,7 @@ function UseOfFundsChart() {
             <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-muted/40">
               <div
                 className="h-full rounded-full bg-secondary/75"
-                style={{ width: `${item.pct * 3.2}%` }}
+                style={{ width: `${(item.pct / 25) * 100}%` }}
                 aria-hidden
               />
             </div>
@@ -488,7 +493,7 @@ function UseOfFundsChart() {
         ))}
       </div>
       <p className="text-[11px] text-muted-foreground mt-4 leading-relaxed">
-        Amounts scale with the final close: $2.5M minimum gives us launch + runway; $3.5M expands launch liquidity and acquisition testing.
+        Indicative allocation across the $2.5M – $3.5M range. $2.5M covers launch + runway; $3.5M expands launch liquidity and acquisition testing.
       </p>
     </div>
   );
@@ -517,7 +522,7 @@ function FlywheelDiagram() {
         ))}
       </div>
 
-      <div className="relative hidden w-full max-w-[360px] aspect-square md:block md:mx-auto">
+      <div className="relative hidden w-full max-w-[420px] aspect-square md:block md:mx-auto">
         <motion.svg
           viewBox={`0 0 ${size} ${size}`}
           className="w-full h-full"
@@ -598,12 +603,12 @@ function FlywheelDiagram() {
 
         {FLYWHEEL_NODES.map((label, i) => {
           const angle = (i / FLYWHEEL_NODES.length) * Math.PI * 2 - Math.PI / 2;
-          const x = 50 + Math.cos(angle) * 42;
-          const y = 50 + Math.sin(angle) * 42;
+          const x = 50 + Math.cos(angle) * 40;
+          const y = 50 + Math.sin(angle) * 40;
           return (
             <motion.div
               key={label}
-              className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-secondary/40 bg-background/90 backdrop-blur px-2.5 py-1 text-[10px] md:text-[11px] font-medium text-foreground/90 whitespace-nowrap"
+              className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-secondary/40 bg-background/90 backdrop-blur px-2.5 py-1 text-[11px] font-medium text-foreground/90 whitespace-nowrap shadow-sm"
               style={{ left: `${x}%`, top: `${y}%` }}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
