@@ -191,7 +191,7 @@ export default function InvestorWhyThisRound() {
           </Section>
 
           {/* 5. Round Structure */}
-          <Section kicker="04 · Round Structure" title="A familiar, founder-aligned instrument">
+          <Section kicker="05 · Round Structure" title="A familiar, founder-aligned instrument">
             <div className="rounded-3xl border border-secondary/30 bg-secondary/[0.04] p-6 md:p-8 space-y-5">
               <div className="flex items-start gap-3">
                 <Shield className="h-5 w-5 text-secondary mt-0.5 shrink-0" />
