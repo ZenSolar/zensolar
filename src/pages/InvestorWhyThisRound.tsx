@@ -63,7 +63,8 @@ export default function InvestorWhyThisRound() {
       </Helmet>
 
       <div className="min-h-screen bg-background text-foreground">
-        <section className="mx-auto max-w-3xl px-5 pt-10 pb-24 md:pt-16 md:pb-32">
+        <InvestorHeader compact />
+        <section className="mx-auto max-w-3xl px-5 pt-8 pb-24 md:pt-10 md:pb-32">
           <Link
             to="/investor"
             className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.22em] text-muted-foreground hover:text-foreground transition-colors"
