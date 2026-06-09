@@ -1,77 +1,32 @@
-LOVABLE TASK — Improve Flywheel Section + Proof-of-Genesis Flow Diagram
+## Plan: Mobile Spacing & Typography Fixes (390×844)
 
-Goal
+### Goal
+Fix cramped stacking and inconsistent alignment in the Flywheel section (07) and Proof-of-Genesis flow (03) at mobile viewport 390×844.
 
-Make two targeted improvements to /investor/why-this-round:
+### Changes
 
-1. Tighten and sharpen the Flywheel section (07).
+#### 1. Flywheel Section (07 · The Flywheel)
+**Current issue:** The 4-point grid stacks vertically with `gap-3` and `px-5 py-4` cards. Text feels dense and number alignment is inconsistent with other sections.
 
-2. Upgrade the Proof-of-Genesis flow diagram in the Technical Foundation section (03) to feel more premium, connected, and visually cohesive.
+**Fixes:**
+- Increase mobile grid gap from `gap-3` to `gap-4` (`16px`).
+- Increase card vertical padding from `py-4` to `py-5` on mobile (`md:py-4`).
+- Reduce card horizontal padding from `px-5` to `px-4` on mobile to give text more room relative to the narrow viewport.
+- Change the `font-mono` step number from `text-sm` to `text-[13px]` so it no longer looks oversized next to `text-[13px]` body copy.
+- Add `items-center` to the card flex container so the number badge sits cleanly aligned with the first line of text instead of top-aligned with `mt-0.5`.
 
-Scope
+#### 2. Proof-of-Genesis Flow (03 · Technical Foundation)
+**Current issue:** Vertical stack uses `space-y-4` which feels cramped for 4 steps. Titles are `text-[14px]` while body is `text-[12.5px]`, creating an inconsistent hierarchy compared to the rest of the page where titles are typically `text-[13px]` on mobile.
 
-Only edit src/pages/InvestorWhyThisRound.tsx.
+**Fixes:**
+- Increase mobile step spacing from `space-y-4` to `space-y-5` (`20px`).
+- Reduce step title on mobile from `text-[14px]` to `text-[13px]` (`md:text-[13px]` is fine), matching other card titles on the page.
+- Reduce step body on mobile from `text-[12.5px]` to `text-[12px]` for cleaner hierarchy.
+- Increase the top/bottom fade on the vertical connecting gradient line from `top-2 bottom-2` to `top-3 bottom-3` so the line feels less cramped against the first/last circles.
+- Ensure the `rounded-3xl` container has `p-5` on mobile but consider `md:p-7` as already present.
 
-Part 1: Improve the Flywheel Section (Section 07)
+### Scope
+Only `src/pages/InvestorWhyThisRound.tsx`. No new dependencies. No desktop changes other than responsive prefixes.
 
-Current issues:
-
-- The 6-point numbered list below the diagram is repetitive and longer than necessary.
-
-Changes:
-
-- Keep the existing circular FlywheelDiagram.
-
-- Replace the current 6-point list with a tighter, sharper 4-point version using the following points (refine wording slightly if needed for flow):
-
-01. 100% of every monthly subscription goes directly into the Liquidity Pool.
-
-02. More users = more capital flowing into the LP every month.
-
-03. Stronger liquidity + real utility = better token price support and perception.
-
-04. Better token economics + growing data revenue creates a self-reinforcing loop that can eventually cover operations.
-
-Make the language concise and confident. Keep the same card + arrow styling as the current list.
-
-Part 2: Upgrade the Proof-of-Genesis Flow Diagram
-
-Current state: The four steps feel like separate cards rather than a connected process. The visual hierarchy and connections are weak.
-
-Improvements needed:
-
-- Make the 4 steps feel like a clear, connected journey rather than four isolated boxes.
-
-- Improve visual hierarchy: Use a more prominent step number (e.g. larger circle or badge with border) and clear separation between the step number, title, and description.
-
-- Strengthen the connecting elements between steps. On desktop, use clean horizontal connectors (subtle dashed line or thin gradient line). On mobile (where it stacks), add a faint vertical connector line between steps.
-
-- Increase breathing room and spacing between the 4 steps, especially on mobile (390×844), so it doesn’t feel cramped.
-
-- Keep the existing supporting sentence below the diagram:
-
-  “This design removes traditional crypto onboarding friction entirely — users never need seed phrases, external wallets, or gas fees to mint.”
-
-- Use only existing design tokens (border-border/60, bg-card/40, text-secondary, text-foreground, etc.). No new colors.
-
-Constraints
-
-- Only edit src/pages/InvestorWhyThisRound.tsx.
-
-- Do not change the circular Flywheel diagram, the Use of Funds chart, the Two-Round timeline, or any other section text.
-
-- No new dependencies.
-
-Verification
-
-- Preview /investor/why-this-round at desktop and 390×844.
-
-- Confirm the Flywheel section is now tighter (4 clear points) with less repetition.
-
-- Confirm the Proof-of-Genesis flow diagram feels more premium, connected, and well-spaced — especially on mobile.
-
-- Confirm no layout breakage or visual issues were introduced elsewhere on the page.
-
-After you finish, reply exactly with:
-
-“Flywheel section tightened + Proof-of-Genesis flow diagram upgraded — /investor/why-this-round improvements complete.”
+### Validation
+Preview on 390×844. Verify no overflow, text truncation, or visual misalignment in either section. Confirm the rest of the page is untouched.

@@ -261,7 +261,7 @@ export default function InvestorWhyThisRound() {
           {/* 7. Flywheel */}
           <Section kicker="07 · The Flywheel" title="How it actually compounds">
             <FlywheelDiagram />
-            <div className="grid gap-3 mt-8 md:grid-cols-2">
+            <div className="grid gap-4 mt-8 md:grid-cols-2">
               {[
                 '100% of every monthly subscription flows directly into the Liquidity Pool.',
                 'More users → more capital into the LP every single month.',
@@ -270,9 +270,9 @@ export default function InvestorWhyThisRound() {
               ].map((line, i) => (
                 <div
                   key={line}
-                  className="flex items-start gap-4 rounded-2xl border border-border/60 bg-card/40 px-5 py-4"
+                  className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card/40 px-4 py-5 md:px-5 md:py-4"
                 >
-                  <span className="text-secondary font-mono text-sm tabular-nums shrink-0 mt-0.5">
+                  <span className="text-secondary font-mono text-[13px] tabular-nums shrink-0">
                     {String(i + 1).padStart(2, '0')}
                   </span>
                   <p className="text-[13px] md:text-sm text-foreground/90 leading-relaxed">
@@ -687,10 +687,10 @@ function ProofOfGenesisFlow() {
       {/* Mobile: vertical with connecting line */}
       <div className="md:hidden relative">
         <div
-          className="absolute left-5 top-2 bottom-2 w-px bg-gradient-to-b from-transparent via-secondary/40 to-transparent"
+          className="absolute left-5 top-3 bottom-3 w-px bg-gradient-to-b from-transparent via-secondary/40 to-transparent"
           aria-hidden
         />
-        <div className="space-y-4">
+        <div className="space-y-5">
           {POG_FLOW_STEPS.map((step, i) => (
             <motion.div
               key={step.title}
@@ -703,11 +703,11 @@ function ProofOfGenesisFlow() {
               <div className="relative z-10 h-10 w-10 rounded-full border border-secondary/50 bg-background flex items-center justify-center text-[12px] font-mono tabular-nums text-secondary shrink-0 shadow-[0_0_0_4px_hsl(var(--card)/0.6)]">
                 {String(i + 1).padStart(2, '0')}
               </div>
-              <div className="flex-1 pt-1">
-                <div className="text-[14px] font-semibold text-foreground leading-tight">
+              <div className="flex-1 pt-1.5">
+                <div className="text-[13px] font-semibold text-foreground leading-tight">
                   {step.title}
                 </div>
-                <p className="mt-1 text-[12.5px] text-muted-foreground leading-relaxed">
+                <p className="mt-1 text-[12px] text-muted-foreground leading-relaxed">
                   {step.body}
                 </p>
               </div>
