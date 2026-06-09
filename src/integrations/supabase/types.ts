@@ -3159,6 +3159,7 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      founder_pin_status: { Args: never; Returns: Json }
       get_admin_live_snapshot: { Args: never; Returns: Json }
       get_connected_providers: {
         Args: { _user_id: string }
@@ -3246,8 +3247,10 @@ export type Database = {
         Args: { _id: string; _note: string }
         Returns: boolean
       }
+      set_founder_pin: { Args: { _pin: string }; Returns: boolean }
       verify_chain_integrity: { Args: never; Returns: number }
       verify_demo_code: { Args: { _code: string }; Returns: boolean }
+      verify_founder_pin: { Args: { _pin: string }; Returns: Json }
       verify_kpi_reconciliation: { Args: never; Returns: number }
       verify_kpi_vs_mint_window_7d: { Args: never; Returns: number }
       verify_user_sum_invariant: { Args: never; Returns: number }
