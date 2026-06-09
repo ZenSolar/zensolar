@@ -345,13 +345,12 @@ export default function InvestorWhyThisRound() {
           </Section>
 
           {/* 9. Long-Term Opportunity */}
-          <Section kicker="11 · The Opportunity" title="Why this becomes a durable, multi-decade business">
+          <Section kicker="11 · The Opportunity" title="A durable, multi-decade business">
             <div className="grid gap-3">
               {[
-                'Proof-of-Genesis™ has the potential to become a foundational primitive for tokenizing and rewarding verified clean energy behavior at global scale.',
-                'The addressable market is enormous: every Tesla driver, every solar + battery owner, and every EV household represents a potential user.',
-                'With proper execution, the combination of real utility, a self-reinforcing flywheel, and a growing data moat creates the conditions for significant long-term scale.',
-                'Our goal is to build a durable, multi-decade business that can compound over time as clean energy adoption accelerates worldwide.',
+                'Proof-of-Genesis™ can become a foundational primitive for tokenizing verified clean energy behavior at global scale.',
+                'TAM is enormous: every Tesla driver, every solar + battery owner, every EV household is a potential user.',
+                'Real utility + self-reinforcing flywheel + growing data moat = the conditions for durable, long-term scale.',
               ].map((line) => (
                 <div
                   key={line}
