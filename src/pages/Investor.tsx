@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { NdaSignatureStep } from '@/components/demo/NdaSignatureStep';
 import { supabase } from '@/integrations/supabase/client';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+import { InvestorHeader } from '@/components/investor/InvestorHeader';
 import { toast } from 'sonner';
 import {
   InvestorPinGate,
