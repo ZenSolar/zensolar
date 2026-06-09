@@ -93,15 +93,15 @@ export default function InvestorWhyThisRound() {
           {/* 2. Where We Are Today */}
           <Section kicker="01 · De-risked Progress" title="Where we are today">
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-6">
-              The hardest technical work — verified real-world energy data
-              flowing into on-chain minting — is already working in beta today.
+              The hard part — verified real-world energy flowing into on-chain
+              minting — is already live in beta.
             </p>
             <div className="grid gap-3 md:grid-cols-2">
               {[
-                'Direct OAuth2 integrations with Tesla, Enphase, SolarEdge, and Wallbox are live and pulling real telemetry today.',
-                'Core MVP is operational with working token minting via Proof-of-Genesis™.',
-                'Multi-OEM Clean Energy Center and live energy monitoring cockpit are functional.',
-                'Deason AI (monthly energy analysis + outage intelligence) is built.',
+                'OAuth2 integrations with Tesla, Enphase, SolarEdge, and Wallbox pulling live telemetry.',
+                'Core MVP operational with working Proof-of-Genesis™ minting.',
+                'Multi-OEM Clean Energy Center and live monitoring cockpit shipped.',
+                'Deason AI — monthly energy analysis + outage intelligence — built.',
               ].map((line) => (
                 <div
                   key={line}
