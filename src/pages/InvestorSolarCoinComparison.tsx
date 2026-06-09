@@ -103,9 +103,9 @@ const TABLES: Table[] = [
   {
     title: 'Ecosystem Reach',
     rows: [
-      { label: 'OEM integrations', zen: 'Tesla, Enphase, SolarEdge, Wallbox — unified UI', solar: 'No OEM integrations' },
+      { label: 'OEM integrations', zen: 'Tesla, Enphase, SolarEdge, Wallbox — unified app', solar: 'SolarEdge, Enphase, SMA — web portal, solar-only' },
       { label: 'Installer channel', zen: 'Palmetto API integration for installer-led onboarding', solar: 'None' },
-      { label: 'Multi-OEM advantage', zen: 'First-of-its-kind cross-brand monitoring + minting', solar: 'Solar-only, brand-agnostic uploads' },
+      { label: 'Multi-OEM advantage', zen: 'Solar + battery + EV charging + miles in one UI', solar: 'Solar generation only' },
     ],
   },
   {
