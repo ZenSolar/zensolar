@@ -85,8 +85,8 @@ export default function InvestorWhyThisRound() {
               <br className="hidden md:block" /> $2.5M – $3.5M Now
             </h1>
             <p className="mt-5 text-base md:text-lg text-muted-foreground leading-relaxed">
-              A transparent look at the real progress already shipped, what this
-              round funds, and how we reach self-sustainability.
+              What's already shipped, what this round funds, and the two-round
+              path to self-sustainability.
             </p>
           </header>
 
