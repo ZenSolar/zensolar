@@ -16,7 +16,56 @@ import {
   Car,
   Cpu,
   Minus,
+  Activity,
+  Sparkles,
+  CalendarDays,
+  LineChart,
+  BellRing,
+  Store,
 } from 'lucide-react';
+
+const UX_PILLARS = [
+  {
+    icon: Smartphone,
+    title: 'Native consumer app',
+    zen: 'iOS, Android, and PWA — designed for daily engagement.',
+  },
+  {
+    icon: Activity,
+    title: 'Live multi-OEM telemetry',
+    zen: 'Tesla + Enphase + SolarEdge + Wallbox unified in one UI — more engaging than any single OEM\'s native app.',
+  },
+  {
+    icon: Sparkles,
+    title: 'Deason AI concierge',
+    zen: 'Purpose-trained LLM. Analyzes bills, contracts, PPAs, ROI, warranty terms — answers any product question 24/7.',
+  },
+  {
+    icon: CalendarDays,
+    title: 'Weekly hyper-personalized device reports',
+    zen: 'Every Saturday Deason emails a per-user story of how each connected device performed — Tesla EV miles & charging, solar production, battery cycles, home charger sessions. No other solar app does this.',
+  },
+  {
+    icon: LineChart,
+    title: 'Monthly progressive clean-energy insights',
+    zen: 'A once-a-month deep report that compounds over time: tariff optimization, peak/off-peak shifting, battery & EV coaching, savings forecasts, year-over-year trendlines.',
+  },
+  {
+    icon: BellRing,
+    title: 'Proactive device intelligence',
+    zen: 'Auto grid-outage alerts and battery-life coaching to extend hardware lifespan during outages.',
+  },
+  {
+    icon: Store,
+    title: '$ZSOLAR Redemption Store',
+    zen: 'Spend tokens on solar gear, EV accessories, home-energy products, and gift cards. Real-world utility, not just a ledger entry.',
+  },
+  {
+    icon: Zap,
+    title: 'Tap-to-Mint™ + embedded wallet',
+    zen: 'Coinbase Smart Wallet built in. One tap, no seed phrases, no gas, no external wallet detours.',
+  },
+];
 
 const SCOREBOARD = [
   { label: 'Category wins', zen: '9', solar: '0' },
