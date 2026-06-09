@@ -4,6 +4,7 @@ import { Link, Navigate } from 'react-router-dom';
 import { ArrowLeft, Printer, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+import { InvestorHeader } from '@/components/investor/InvestorHeader';
 import { readInvestorUnlocked } from '@/components/investor/InvestorPinGate';
 import { isPreviewHost } from '@/lib/previewHost';
 
@@ -49,6 +50,9 @@ export default function InvestorOnePager() {
           .op-card, .op-shot { break-inside: avoid; }
         }
       `}</style>
+      <div className="no-print">
+        <InvestorHeader compact />
+      </div>
 
       {/* Sticky chrome (screen only) */}
       <div className="no-print sticky top-0 z-20 backdrop-blur-md bg-background/70 border-b border-border/40">

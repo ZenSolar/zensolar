@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, PlayCircle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+import { InvestorHeader } from '@/components/investor/InvestorHeader';
 import { InvestorFAQ } from '@/components/investor/InvestorFAQ';
 
 const ThreeRevenueEngines = lazy(() =>
@@ -38,9 +38,9 @@ export default function InvestorPitch() {
       </Helmet>
 
       <div className="min-h-screen bg-background text-foreground">
-        {/* Top nav */}
+        <InvestorHeader compact />
         <div className="border-b border-border/40">
-          <div className="mx-auto max-w-5xl px-5 h-14 flex items-center justify-between">
+          <div className="mx-auto max-w-5xl px-5 h-12 flex items-center">
             <Link
               to="/investor"
               className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
@@ -48,9 +48,9 @@ export default function InvestorPitch() {
               <ArrowLeft className="h-4 w-4" />
               Investor home
             </Link>
-            <img src={zenLogo} alt="ZenSolar" className="h-6 w-auto opacity-90" loading="lazy" decoding="async" width="120" height="24" />
           </div>
         </div>
+
 
         {/* Hero */}
         <section className="relative overflow-hidden border-b border-border/40">
