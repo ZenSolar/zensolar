@@ -1,5 +1,15 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
+import { motion, useReducedMotion } from 'framer-motion';
+import {
+  Bar,
+  BarChart,
+  Cell,
+  LabelList,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import {
   ArrowLeft,
   ArrowRight,
@@ -12,7 +22,32 @@ import {
   TrendingUp,
   Rocket,
   PlayCircle,
+  Flag,
 } from 'lucide-react';
+
+const USE_OF_FUNDS = [
+  { name: 'Token Launch & LP', value: 25 },
+  { name: 'Legal & Audits', value: 20 },
+  { name: 'App & Onboarding', value: 15 },
+  { name: 'Growth & Acquisition', value: 15 },
+  { name: 'Operational Runway', value: 25 },
+];
+
+const FLYWHEEL_NODES = [
+  'Subs → LP',
+  'More Users',
+  'Stronger Liquidity',
+  'Better Token',
+  'More Minting',
+  'Data Revenue',
+];
+
+const TIMELINE_STEPS = [
+  { label: 'Round 1', sub: 'Token launch + first users', icon: Rocket },
+  { label: 'Flywheel Activation', sub: 'LP + minting compound', icon: Activity },
+  { label: 'Round 2', sub: 'Aggressive scaling', icon: TrendingUp },
+  { label: 'Self-Sustainability', sub: 'Goal: no Series A needed', icon: Flag },
+];
 
 export default function InvestorWhyThisRound() {
   return (
@@ -121,6 +156,8 @@ export default function InvestorWhyThisRound() {
                 </li>
               ))}
             </ul>
+
+            <UseOfFundsChart />
           </Section>
 
           {/* 5. Round Structure */}
@@ -184,7 +221,8 @@ export default function InvestorWhyThisRound() {
 
           {/* 7. Flywheel */}
           <Section kicker="06 · The Flywheel" title="How it actually compounds">
-            <div className="space-y-2">
+            <FlywheelDiagram />
+            <div className="space-y-2 mt-8">
               {[
                 '100% of every monthly subscription goes directly into the Liquidity Pool.',
                 'More users = more capital flowing into the LP every month.',
@@ -224,7 +262,10 @@ export default function InvestorWhyThisRound() {
                   runway
                 </span>
               </div>
-              <div className="grid gap-4 md:grid-cols-3">
+
+              <TwoRoundTimeline />
+
+              <div className="grid gap-4 md:grid-cols-3 mt-8">
                 <RunwayBlock
                   label="Round 1 Goal"
                   body="Launch the token and acquire the first meaningful wave of minting users so the flywheel can begin operating."
@@ -360,5 +401,190 @@ function CtaLink({
       </span>
       <ArrowRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-secondary group-hover:translate-x-0.5 transition-all" />
     </Link>
+  );
+}
+
+function UseOfFundsChart() {
+  return (
+    <div className="mt-6 rounded-2xl border border-border/60 bg-card/30 p-4 md:p-6">
+      <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-4">
+        Allocation
+      </div>
+      <div className="w-full" style={{ height: USE_OF_FUNDS.length * 44 + 16 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={USE_OF_FUNDS}
+            layout="vertical"
+            margin={{ top: 4, right: 44, left: 0, bottom: 4 }}
+            barCategoryGap={10}
+          >
+            <XAxis type="number" hide domain={[0, 30]} />
+            <YAxis
+              type="category"
+              dataKey="name"
+              width={140}
+              tickLine={false}
+              axisLine={false}
+              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+            />
+            <Bar dataKey="value" radius={[6, 6, 6, 6]} barSize={18}>
+              {USE_OF_FUNDS.map((_, i) => (
+                <Cell key={i} fill="hsl(var(--secondary))" fillOpacity={0.55 + i * 0.06} />
+              ))}
+              <LabelList
+                dataKey="value"
+                position="right"
+                formatter={(v: number) => `${v}%`}
+                style={{ fill: 'hsl(var(--foreground))', fontSize: 12, fontWeight: 500 }}
+              />
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+      <p className="text-[11px] text-muted-foreground mt-3">
+        Indicative allocation across the $2.5M – $3.5M range.
+      </p>
+    </div>
+  );
+}
+
+function FlywheelDiagram() {
+  const reduce = useReducedMotion();
+  const size = 320;
+  const cx = size / 2;
+  const cy = size / 2;
+  const r = 118;
+
+  return (
+    <div className="rounded-3xl border border-border/60 bg-card/30 p-4 md:p-6 flex justify-center">
+      <div className="relative w-full max-w-[360px] aspect-square">
+        <motion.svg
+          viewBox={`0 0 ${size} ${size}`}
+          className="w-full h-full"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6 }}
+        >
+          <defs>
+            <marker
+              id="fw-arrow"
+              viewBox="0 0 10 10"
+              refX="8"
+              refY="5"
+              markerWidth="6"
+              markerHeight="6"
+              orient="auto"
+            >
+              <path d="M0,0 L10,5 L0,10 z" fill="hsl(var(--secondary))" />
+            </marker>
+          </defs>
+
+          <motion.circle
+            cx={cx}
+            cy={cy}
+            r={r}
+            fill="none"
+            stroke="hsl(var(--secondary))"
+            strokeOpacity={0.25}
+            strokeWidth={1.25}
+            strokeDasharray="4 6"
+            style={{ transformOrigin: `${cx}px ${cy}px` }}
+            animate={reduce ? undefined : { rotate: 360 }}
+            transition={reduce ? undefined : { duration: 60, repeat: Infinity, ease: 'linear' }}
+          />
+
+          {FLYWHEEL_NODES.map((_, i) => {
+            const next = (i + 1) % FLYWHEEL_NODES.length;
+            const a1 = (i / FLYWHEEL_NODES.length) * Math.PI * 2 - Math.PI / 2;
+            const a2 = (next / FLYWHEEL_NODES.length) * Math.PI * 2 - Math.PI / 2;
+            const x1 = cx + Math.cos(a1) * (r - 14);
+            const y1 = cy + Math.sin(a1) * (r - 14);
+            const x2 = cx + Math.cos(a2) * (r - 14);
+            const y2 = cy + Math.sin(a2) * (r - 14);
+            return (
+              <path
+                key={i}
+                d={`M ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2}`}
+                fill="none"
+                stroke="hsl(var(--secondary))"
+                strokeOpacity={0.55}
+                strokeWidth={1.5}
+                markerEnd="url(#fw-arrow)"
+              />
+            );
+          })}
+
+          <text
+            x={cx}
+            y={cy - 6}
+            textAnchor="middle"
+            fill="hsl(var(--muted-foreground))"
+            fontSize="10"
+            style={{ letterSpacing: '0.22em', textTransform: 'uppercase' }}
+          >
+            The
+          </text>
+          <text
+            x={cx}
+            y={cy + 14}
+            textAnchor="middle"
+            fill="hsl(var(--foreground))"
+            fontSize="18"
+            fontWeight={600}
+          >
+            Flywheel
+          </text>
+        </motion.svg>
+
+        {FLYWHEEL_NODES.map((label, i) => {
+          const angle = (i / FLYWHEEL_NODES.length) * Math.PI * 2 - Math.PI / 2;
+          const x = 50 + Math.cos(angle) * 42;
+          const y = 50 + Math.sin(angle) * 42;
+          return (
+            <motion.div
+              key={label}
+              className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-secondary/40 bg-background/90 backdrop-blur px-2.5 py-1 text-[10px] md:text-[11px] font-medium text-foreground/90 whitespace-nowrap"
+              style={{ left: `${x}%`, top: `${y}%` }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 + i * 0.07, duration: 0.4 }}
+            >
+              {label}
+            </motion.div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function TwoRoundTimeline() {
+  return (
+    <div className="mt-6 rounded-2xl border border-border/60 bg-background/40 p-5 md:p-6">
+      <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-5">
+        Two-Round Path
+      </div>
+      <div className="relative">
+        <div className="absolute left-0 right-0 top-4 h-px bg-border/60" aria-hidden />
+        <div className="relative grid grid-cols-4 gap-2">
+          {TIMELINE_STEPS.map(({ label, sub, icon: Icon }, i) => (
+            <div key={label} className="flex flex-col items-center text-center">
+              <div className="relative z-10 h-8 w-8 rounded-full border border-secondary/60 bg-secondary/15 flex items-center justify-center">
+                <Icon className="h-3.5 w-3.5 text-secondary" />
+              </div>
+              <div className="mt-2 text-[10px] md:text-[11px] font-semibold text-foreground leading-tight">
+                {label}
+              </div>
+              <div className="mt-0.5 text-[9px] md:text-[10px] text-muted-foreground leading-tight">
+                {sub}
+              </div>
+              {i < TIMELINE_STEPS.length - 1 && (
+                <div className="hidden" aria-hidden />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
