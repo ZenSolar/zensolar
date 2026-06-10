@@ -1162,7 +1162,53 @@ Deno.serve(async (req) => {
       };
     }
 
+    // ---------- Phase 4 — document insights (always computed; cheap) ----------
+    const docInsights: DocInsight[] = allDocs.map(d => analyzeDocument(d, findAnalysisForDoc(d), rate_plan));
+    const docSummary = summarizeDocs(docInsights);
+
+    // Mode dispatch for Phase 4 user-facing payloads.
+    if (mode === 'document_insights') {
+      return new Response(JSON.stringify({
+        generated_at: new Date().toISOString(),
+        user_id: userId, mode, currency: 'USD',
+        rate_plan,
+        documents: { count: docInsights.length, by_kind: docSummary.by_kind, insights: docInsights, summary: docSummary },
+        engine: { phase: 4, type: 'document_insights', version: '4.0.0' },
+      }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    if (mode === 'monthly_report') {
+      const report = buildMonthlyReport({
+        userId, periodMonth, profile, ratePlan: rate_plan, bill,
+        insights: docInsights, docSummary, recs: ranked,
+        summary: { est_monthly_savings_usd: estMonthly, est_annual_savings_usd: round2(estMonthly * 12), confidence },
+        schedule: phase2, forecast: forecastPayload,
+        telemetryPresent: { battery: telemetry.battery.length > 0, ev: telemetry.ev.length > 0, solar: telemetry.solar.length > 0 },
+      });
+      return new Response(JSON.stringify({
+        generated_at: new Date().toISOString(),
+        user_id: userId, mode, currency: 'USD',
+        monthly_report: report,
+        engine: { phase: 4, type: 'monthly_report', version: '4.0.0' },
+      }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    if (mode === 'concierge') {
+      const answer = buildConciergeAnswer({
+        question, recs: ranked, schedule: phase2, forecast: forecastPayload,
+        docInsights, ratePlan: rate_plan,
+        telemetryPresent: { battery: telemetry.battery.length > 0, ev: telemetry.ev.length > 0, solar: telemetry.solar.length > 0 },
+      });
+      return new Response(JSON.stringify({
+        generated_at: new Date().toISOString(),
+        user_id: userId, mode, currency: 'USD',
+        concierge: answer,
+        engine: { phase: 4, type: 'concierge', version: '4.0.0' },
+      }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     const result = {
+
       generated_at: new Date().toISOString(),
       user_id: userId,
       currency: 'USD',
