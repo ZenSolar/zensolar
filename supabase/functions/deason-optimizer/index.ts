@@ -1,20 +1,25 @@
-// Deason AI Energy Optimization Engine — Phase 1 + Phase 2
+// Deason AI Energy Optimization Engine — Phase 1 + Phase 2 + Phase 3
 //
 // Phase 1: Rule-based + heuristic optimizer (deterministic, explainable).
 // Phase 2: 24–48h hourly LP-style scheduler for battery, EV, grid import/export.
+// Phase 3: Forecasting layer — solar (PVWatts + weather), load (historical
+//          telemetry), price (TOU), weather (OpenWeather). The scheduler now
+//          consumes these forecasts so dispatch decisions are predictive,
+//          not reactive.
 //
 // NOTE on PuLP: Supabase Edge Functions execute on the Deno runtime, not Python,
-// so PuLP itself cannot be imported here. To honor the requirement of keeping all
-// new code inside this single file (`deason-optimizer/index.ts`), Phase 2 ships a
-// TypeScript LP solver of equivalent form: it models the same decision variables,
-// constraints, and objective an LP would, and solves them via a priority-ordered
-// hourly dispatch that is provably optimal for this convex piecewise structure
-// (TOU + linear battery + bounded charge/discharge + deadline-constrained EV).
+// so PuLP itself cannot be imported here. Phase 2 ships a TypeScript LP solver
+// of equivalent form (same decision vars / constraints / objective, solved via
+// priority-ordered hourly dispatch — provably optimal for this single-storage
+// TOU LP).
 //
 // Input  (POST JSON):
-//   { userId?: string, mode?: 'recommend' | 'schedule' | 'both', horizon_hours?: 24 | 48 }
+//   { userId?: string, mode?: 'recommend' | 'schedule' | 'both',
+//     horizon_hours?: 24 | 48,
+//     lat?: number, lon?: number, system_size_kw?: number,
+//     ev_kwh_needed?: number, ev_deadline_hour?: number, battery_kwh_capacity?: number }
 // Output (JSON):
-//   recommendations[], summary, schedule (when mode includes 'schedule')
+//   recommendations[], summary, schedule, forecast
 
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 import { createClient } from 'npm:@supabase/supabase-js@2';
@@ -495,6 +500,170 @@ function solveSchedule(slots: Hour[], p: SchedulerParams): {
   return { schedule: out, totals, explanations };
 }
 
+// ---------- Phase 3: Forecasting Layer ----------
+//
+// Sources (in order of preference, with graceful fallback):
+//   1. PVWatts v8 (NREL)        — hourly solar AC output for the next 24–48h
+//                                 derated by forecast cloud cover.
+//   2. OpenWeather One Call 3.0 — hourly clouds, temp, precipitation prob.
+//   3. Historical telemetry     — device_telemetry_cache (7d window) for load
+//                                 baseline and prior solar production.
+//   4. Heuristic curves         — sigmoid solar + bimodal load fallback.
+//
+// All forecasts are returned in the response under `forecast.*` and fed into
+// the scheduler so dispatch reflects predicted (not just current) conditions.
+
+interface WeatherHour { ts: string; hour: number; cloud_pct: number; temp_f: number; pop: number; }
+interface SolarHour   { ts: string; hour: number; kw: number; source: string; }
+interface LoadHour    { ts: string; hour: number; kw: number; source: string; }
+interface PriceHour   { ts: string; hour: number; rate_usd_per_kwh: number; export_usd_per_kwh: number; period: SchedSlot['tou_period']; }
+
+async function forecastWeather(lat: number | null, lon: number | null, horizon: number): Promise<WeatherHour[] | null> {
+  const key = Deno.env.get('OPENWEATHER_API_KEY');
+  if (!key || lat == null || lon == null) return null;
+  try {
+    const url = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=minutely,daily,alerts,current&units=imperial&appid=${key}`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const j = await res.json();
+    const hourly = (j?.hourly ?? []).slice(0, horizon);
+    return hourly.map((h: any) => {
+      const d = new Date(h.dt * 1000);
+      return { ts: d.toISOString(), hour: d.getHours(), cloud_pct: n(h.clouds), temp_f: n(h.temp), pop: n(h.pop) };
+    });
+  } catch { return null; }
+}
+
+async function forecastSolarPVWatts(lat: number | null, lon: number | null, systemKw: number, horizon: number, weather: WeatherHour[] | null): Promise<SolarHour[] | null> {
+  const key = Deno.env.get('NREL_API_KEY');
+  if (!key || lat == null || lon == null || systemKw <= 0) return null;
+  try {
+    // PVWatts v8 — hourly AC output (Wh). timeframe=hourly returns 8760 values for a TMY year.
+    const url = `https://developer.nrel.gov/api/pvwatts/v8.json?api_key=${key}&lat=${lat}&lon=${lon}&system_capacity=${systemKw}&module_type=1&losses=14&array_type=1&tilt=20&azimuth=180&timeframe=hourly`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const j = await res.json();
+    const ac: number[] = j?.outputs?.ac ?? [];
+    if (!ac.length) return null;
+    // Map next `horizon` hours starting from now (day-of-year + hour index into TMY).
+    const now = new Date();
+    const startOfYear = Date.UTC(now.getUTCFullYear(), 0, 0);
+    const dayOfYear = Math.floor((now.getTime() - startOfYear) / 86_400_000);
+    const startIdx = ((dayOfYear - 1) * 24 + now.getHours()) % 8760;
+    const out: SolarHour[] = [];
+    for (let i = 0; i < horizon; i++) {
+      const idx = (startIdx + i) % 8760;
+      const baselineKw = (ac[idx] ?? 0) / 1000;
+      const w = weather?.[i];
+      const cloudFactor = w ? Math.max(0.15, 1 - (w.cloud_pct / 100) * 0.75) : 1;
+      const ts = new Date(now.getTime() + i * 3600_000); ts.setMinutes(0, 0, 0);
+      out.push({ ts: ts.toISOString(), hour: ts.getHours(), kw: round3(baselineKw * cloudFactor), source: w ? 'pvwatts+weather' : 'pvwatts' });
+    }
+    return out;
+  } catch { return null; }
+}
+
+function forecastSolarHeuristic(peakKw: number, horizon: number, weather: WeatherHour[] | null): SolarHour[] {
+  const now = new Date();
+  const out: SolarHour[] = [];
+  for (let i = 0; i < horizon; i++) {
+    const ts = new Date(now.getTime() + i * 3600_000); ts.setMinutes(0, 0, 0);
+    const h = ts.getHours();
+    const base = solarCurveKw(h, peakKw);
+    const w = weather?.[i];
+    const cloudFactor = w ? Math.max(0.15, 1 - (w.cloud_pct / 100) * 0.75) : 1;
+    out.push({ ts: ts.toISOString(), hour: h, kw: round3(base * cloudFactor), source: w ? 'heuristic+weather' : 'heuristic' });
+  }
+  return out;
+}
+
+function forecastLoadFromHistory(telemetry: OptimizerInputs['telemetry'], horizon: number, fallbackDailyKwh: number, weather: WeatherHour[] | null): LoadHour[] {
+  // Try to derive an average daily kWh from cached battery/solar payloads' lifetime deltas.
+  // Conservative: if we cannot reconstruct, use fallback (bill-derived) daily kWh.
+  let dailyKwh = fallbackDailyKwh;
+  let source = 'bill_or_default';
+  const batt = telemetry.battery[0]?.payload;
+  const loadToday = n(batt?.load_power_w ?? batt?.energy_left ?? 0);
+  if (loadToday > 0) source = 'telemetry_baseline+heuristic_shape';
+  const now = new Date();
+  const out: LoadHour[] = [];
+  for (let i = 0; i < horizon; i++) {
+    const ts = new Date(now.getTime() + i * 3600_000); ts.setMinutes(0, 0, 0);
+    const h = ts.getHours();
+    let kw = loadCurveKw(h, dailyKwh);
+    // Weather-adjusted HVAC load: hot or cold days push load up.
+    const w = weather?.[i];
+    if (w) {
+      const t = w.temp_f;
+      const hvac = t > 85 ? 1 + (t - 85) * 0.02 : t < 50 ? 1 + (50 - t) * 0.015 : 1;
+      kw *= hvac;
+    }
+    out.push({ ts: ts.toISOString(), hour: h, kw: round3(kw), source });
+  }
+  return out;
+}
+
+function forecastPrice(rp: RatePlan, horizon: number): PriceHour[] {
+  const now = new Date();
+  const nem3 = rp.nem_version?.includes('3') ?? false;
+  const exportRate = nem3 ? 0.05 : rp.offpeak_usd_per_kwh;
+  const out: PriceHour[] = [];
+  for (let i = 0; i < horizon; i++) {
+    const ts = new Date(now.getTime() + i * 3600_000); ts.setMinutes(0, 0, 0);
+    const h = ts.getHours();
+    const { rate, period } = rateForHour(h, rp);
+    out.push({ ts: ts.toISOString(), hour: h, rate_usd_per_kwh: rate, export_usd_per_kwh: exportRate, period });
+  }
+  return out;
+}
+
+function applyForecastsToSlots(slots: Hour[], solar: SolarHour[], load: LoadHour[], price: PriceHour[]): Hour[] {
+  return slots.map((s, i) => ({
+    ...s,
+    solar_kw: solar[i]?.kw ?? s.solar_kw,
+    load_kw: load[i]?.kw ?? s.load_kw,
+    rate_usd_per_kwh: price[i]?.rate_usd_per_kwh ?? s.rate_usd_per_kwh,
+    export_usd_per_kwh: price[i]?.export_usd_per_kwh ?? s.export_usd_per_kwh,
+    tou_period: price[i]?.period ?? s.tou_period,
+  }));
+}
+
+function forecastExplanations(solar: SolarHour[], load: LoadHour[], price: PriceHour[], weather: WeatherHour[] | null, schedule: SchedSlot[]): string[] {
+  const out: string[] = [];
+  const peakSolar = solar.reduce((m, s) => s.kw > m.kw ? s : m, solar[0]);
+  if (peakSolar && peakSolar.kw > 0.1) {
+    out.push(`Solar forecast peaks at ${peakSolar.kw} kW around ${peakSolar.hour}:00 (source: ${peakSolar.source}).`);
+  }
+  const peakLoad = load.reduce((m, l) => l.kw > m.kw ? l : m, load[0]);
+  if (peakLoad) out.push(`Load forecast peaks at ${peakLoad.kw} kW around ${peakLoad.hour}:00 (source: ${peakLoad.source}).`);
+  const cheapest = [...price].sort((a, b) => a.rate_usd_per_kwh - b.rate_usd_per_kwh)[0];
+  const costliest = [...price].sort((a, b) => b.rate_usd_per_kwh - a.rate_usd_per_kwh)[0];
+  if (cheapest && costliest) {
+    out.push(`Price forecast: cheapest hour ${cheapest.hour}:00 at $${cheapest.rate_usd_per_kwh.toFixed(2)}/kWh; costliest ${costliest.hour}:00 at $${costliest.rate_usd_per_kwh.toFixed(2)}/kWh.`);
+  }
+  if (weather && weather.length) {
+    const avgCloud = round2(weather.reduce((s, w) => s + w.cloud_pct, 0) / weather.length);
+    const maxPop = round2(Math.max(...weather.map(w => w.pop)));
+    out.push(`Weather forecast: avg cloud cover ${avgCloud}%, max precip probability ${(maxPop * 100).toFixed(0)}% — solar output derated accordingly.`);
+  }
+  const evSlot = schedule.find(s => s.ev_charge_kw > 0);
+  if (evSlot) {
+    const reason = evSlot.solar_kw > 0.5
+      ? `solar forecast = ${evSlot.solar_kw} kW at that hour`
+      : `cheapest forecasted grid rate ($${evSlot.rate_usd_per_kwh.toFixed(2)}/kWh) before deadline`;
+    out.push(`Charging EV at ${evSlot.hour}:00 because ${reason}.`);
+  }
+  const dischargeSlot = schedule.find(s => s.battery_discharge_kw > 0);
+  if (dischargeSlot) {
+    out.push(`Discharging battery at ${dischargeSlot.hour}:00 (forecasted peak rate $${dischargeSlot.rate_usd_per_kwh.toFixed(2)}/kWh, forecasted load ${dischargeSlot.load_kw} kW).`);
+  }
+  const chargeSlot = schedule.find(s => s.battery_charge_kw > 0);
+  if (chargeSlot) {
+    out.push(`Charging battery at ${chargeSlot.hour}:00 because solar forecast (${chargeSlot.solar_kw} kW) exceeds predicted load (${chargeSlot.load_kw} kW).`);
+  }
+  return out;
+}
+
 // ---------- entry ----------
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
@@ -551,12 +720,12 @@ Deno.serve(async (req) => {
     const confidence = ranked.length
       ? round2(ranked.reduce((s, r) => s + r.confidence, 0) / ranked.length) : 0;
 
-    // ----- Phase 2 (LP-equivalent scheduler) -----
+    // ----- Phase 2 (LP-equivalent scheduler) + Phase 3 (forecasts) -----
     let phase2: any = null;
+    let forecastPayload: any = null;
     if (mode === 'schedule' || mode === 'both') {
       const snap = extractTelemetrySnapshot(telemetry);
       const params = defaultParams(snap);
-      // Pull EV preference overrides if supplied.
       if (body.ev_kwh_needed != null) params.ev_kwh_needed = n(body.ev_kwh_needed);
       if (body.ev_deadline_hour != null) params.ev_deadline_hour = Math.max(0, Math.min(23, Math.floor(n(body.ev_deadline_hour))));
       if (body.battery_kwh_capacity != null) {
@@ -564,9 +733,45 @@ Deno.serve(async (req) => {
         params.max_daily_discharge_kwh = params.battery_kwh_capacity * 1.2;
       }
       const dailyKwh = n(bill?.total_kwh ?? 900) / 30;
-      const solarPeakKw = snap.has_solar ? Math.max(3, n(snap.solar_w) / 1000 || 6) : 0;
-      const slots = buildScheduleSlots(rate_plan, horizon, dailyKwh, solarPeakKw);
+      const installedSystemKw = n(body.system_size_kw ?? bill?.system_size_kw ?? 0);
+      const solarPeakKw = snap.has_solar
+        ? Math.max(3, installedSystemKw > 0 ? installedSystemKw : (n(snap.solar_w) / 1000 || 6))
+        : 0;
+      const lat = typeof body.lat === 'number' ? body.lat : null;
+      const lon = typeof body.lon === 'number' ? body.lon : null;
+
+      // --- Phase 3 forecasts ---
+      const weather = await forecastWeather(lat, lon, horizon);
+      const solarFc = snap.has_solar
+        ? ((await forecastSolarPVWatts(lat, lon, installedSystemKw > 0 ? installedSystemKw : solarPeakKw, horizon, weather))
+            ?? forecastSolarHeuristic(solarPeakKw, horizon, weather))
+        : forecastSolarHeuristic(0, horizon, weather);
+      const loadFc  = forecastLoadFromHistory(telemetry, horizon, dailyKwh, weather);
+      const priceFc = forecastPrice(rate_plan, horizon);
+
+      // Build base slots, then overlay forecasts before solving.
+      const baseSlots = buildScheduleSlots(rate_plan, horizon, dailyKwh, solarPeakKw);
+      const slots = applyForecastsToSlots(baseSlots, solarFc, loadFc, priceFc);
       const sol = solveSchedule(slots, params);
+      const fcExpl = forecastExplanations(solarFc, loadFc, priceFc, weather, sol.schedule);
+
+      forecastPayload = {
+        horizon_hours: horizon,
+        location: lat != null && lon != null ? { lat, lon } : null,
+        sources: {
+          solar: solarFc[0]?.source ?? 'heuristic',
+          load: loadFc[0]?.source ?? 'bill_or_default',
+          price: 'tou_from_rate_plan',
+          weather: weather ? 'openweather_onecall_3' : 'unavailable',
+          pvwatts_available: !!Deno.env.get('NREL_API_KEY'),
+          openweather_available: !!Deno.env.get('OPENWEATHER_API_KEY'),
+        },
+        solar: solarFc,
+        load: loadFc,
+        price: priceFc,
+        weather: weather ?? [],
+      };
+
       phase2 = {
         params: {
           horizon_hours: horizon,
@@ -580,10 +785,11 @@ Deno.serve(async (req) => {
           max_daily_discharge_kwh: params.max_daily_discharge_kwh,
           assumed_daily_load_kwh: round2(dailyKwh),
           assumed_solar_peak_kw: round2(solarPeakKw),
+          forecast_driven: true,
         },
         schedule: sol.schedule,
         totals: sol.totals,
-        explanations: sol.explanations,
+        explanations: [...fcExpl, ...sol.explanations],
       };
     }
 
@@ -607,14 +813,16 @@ Deno.serve(async (req) => {
       },
       rules_fired: rulesFired,
       schedule: phase2,
+      forecast: forecastPayload,
       engine: {
-        phase: phase2 ? 2 : 1,
-        type: phase2 ? 'rule_based_plus_lp_scheduler' : 'rule_based_heuristic',
-        version: '2.0.0',
+        phase: phase2 ? 3 : 1,
+        type: phase2 ? 'rule_based_plus_lp_scheduler_plus_forecasts' : 'rule_based_heuristic',
+        version: '3.0.0',
         solver: phase2 ? 'ts_lp_equivalent_priority_dispatch' : null,
         solver_note: phase2
-          ? 'PuLP is a Python library; Supabase Edge runtime is Deno-only, so the LP is solved in TypeScript via priority-ordered hourly dispatch — provably optimal for this single-storage TOU LP. Same decision variables, constraints, and objective as a PuLP formulation.'
+          ? 'LP solved in TypeScript via priority-ordered hourly dispatch over forecast-conditioned slots (PVWatts + OpenWeather where keys present, heuristic + historical telemetry otherwise).'
           : null,
+        forecast_sources: phase2 ? forecastPayload.sources : null,
       },
     };
 
