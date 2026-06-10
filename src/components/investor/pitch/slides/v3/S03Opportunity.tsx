@@ -40,6 +40,13 @@ export function S03Opportunity() {
           ))}
         </div>
 
+        <DeckCard className="mb-6">
+          <CardKicker className="text-secondary">Proof-of-Work vs Proof-of-Genesis™</CardKicker>
+          <p className="text-[18px] text-white/75 mt-4 leading-relaxed max-w-[1500px]">
+            Bitcoin's Proof-of-Work consumes enormous amounts of energy to create digital scarcity with no direct environmental benefit. ZenSolar's Proof-of-Genesis™ rewards the actual creation of clean energy — one verified clean kilowatt-hour produced generates one $ZSOLAR token. We turn energy abundance into digital value instead of consuming massive energy to create artificial scarcity.
+          </p>
+        </DeckCard>
+
         <DeckCard emphasized>
           <CardKicker className="text-secondary">One patent · multiple markets</CardKicker>
           <div className="grid grid-cols-3 gap-8 mt-4">

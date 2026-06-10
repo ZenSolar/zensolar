@@ -104,9 +104,12 @@ export function S09ScaleOpportunity() {
           </div>
         </DeckCard>
 
-        <p className="mt-5 text-[14px] text-white/45 italic leading-snug max-w-[1400px]">
-          At scale, both the Aggregated Data and VPP engines have the potential to become major high-margin contributors as the network grows.
-        </p>
+        <DeckCard className="mt-5">
+          <CardKicker className="text-secondary">The Long-Term Vision</CardKicker>
+          <p className="text-[18px] text-white/80 mt-3 leading-relaxed">
+            With strong execution, the combination of real utility, a self-reinforcing 100% subscription-to-LP flywheel, and expanding rewardable behaviors positions ZenSolar to acquire millions of users and generate substantial recurring revenue. The tokenomics are designed so that success compounds — as user acquisition grows, the flywheel creates structural pressure toward significant long-term value creation, with the potential for $ZSOLAR to become one of the most important clean energy infrastructure tokens globally.
+          </p>
+        </DeckCard>
 
         <div className="mt-4 flex items-center gap-3 px-5 py-3 rounded-xl border border-white/10 bg-white/[0.03]">
           <span className="text-[11px] font-mono tracking-[0.24em] uppercase text-white/45 whitespace-nowrap">
