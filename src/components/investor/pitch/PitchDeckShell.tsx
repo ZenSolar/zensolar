@@ -260,7 +260,11 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
       <div ref={containerRef} className="w-full h-screen bg-[hsl(220,20%,6%)] overflow-auto p-8">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-white/70 text-lg font-medium">All Slides ({total})</h2>
-          <button onClick={() => setShowGrid(false)} className="text-white/50 hover:text-white text-sm">
+          <button
+            onClick={() => setShowGrid(false)}
+            aria-label="Close slide grid"
+            className="inline-flex items-center justify-center min-h-11 min-w-11 px-3 rounded-lg text-white/60 hover:text-white hover:bg-white/10 text-sm transition-colors"
+          >
             ✕ Close Grid
           </button>
         </div>
