@@ -1045,12 +1045,15 @@ Deno.serve(async (req) => {
       });
     }
 
-    const [profileRes, devicesRes, analysisRes, cacheRes] = await Promise.all([
+    const [profileRes, devicesRes, analysisRes, cacheRes, docsRes, docAnalysesRes] = await Promise.all([
       admin.from('profiles').select('state_code, utility_name, esid').eq('user_id', userId).maybeSingle(),
       admin.from('connected_devices').select('provider, device_type, device_id, device_name').eq('user_id', userId),
-      admin.from('deason_doc_analyses').select('analysis, created_at').eq('user_id', userId).order('created_at', { ascending: false }).limit(1).maybeSingle(),
+      admin.from('deason_doc_analyses').select('report, created_at').eq('user_id', userId).order('created_at', { ascending: false }).limit(1).maybeSingle(),
       admin.from('device_telemetry_cache').select('oem_type, device_type, payload, cached_at').eq('user_id', userId),
+      admin.from('deason_documents').select('id, kind, label, storage_path, source, period_month, uploaded_at, financing_type, linked_analysis_id').eq('user_id', userId).order('uploaded_at', { ascending: false }).limit(50),
+      admin.from('deason_doc_analyses').select('id, report, doc_paths, created_at').eq('user_id', userId).order('created_at', { ascending: false }).limit(20),
     ]);
+
 
     const profile = profileRes.data;
     const devices = devicesRes.data ?? [];
