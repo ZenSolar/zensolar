@@ -302,28 +302,30 @@ export default function InvestorSolarCoinComparison() {
           </section>
 
           {/* Scoreboard */}
-          <div className="rounded-2xl border border-border/60 bg-card/40 backdrop-blur-sm overflow-hidden">
-            <div className="grid grid-cols-[1fr_auto_auto] items-center px-4 py-2.5 border-b border-border/60 bg-card/60 text-[10px] uppercase tracking-[0.18em]">
-              <span className="text-muted-foreground/80">Scoreboard</span>
-              <span className="px-3 text-secondary font-semibold">ZenSolar</span>
-              <span className="pl-3 text-muted-foreground font-semibold">SolarCoin</span>
-            </div>
-            {SCOREBOARD.map((s, i) => (
-              <div
-                key={s.label}
-                className={`grid grid-cols-[1fr_auto_auto] items-center px-4 py-3 ${
-                  i < SCOREBOARD.length - 1 ? 'border-b border-border/40' : ''
-                }`}
-              >
-                <span className="text-sm text-foreground">{s.label}</span>
-                <span className="px-3 text-2xl font-semibold tracking-tight text-secondary tabular-nums">
-                  {s.zen}
-                </span>
-                <span className="pl-3 text-2xl font-semibold tracking-tight text-muted-foreground/60 tabular-nums">
-                  {s.solar}
-                </span>
+          <div className="table-wrap rounded-2xl border border-border/60 bg-card/40 backdrop-blur-sm">
+            <div className="min-w-[320px]">
+              <div className="grid grid-cols-[1fr_auto_auto] items-center px-4 py-2.5 border-b border-border/60 bg-card/60 text-[10px] uppercase tracking-[0.18em]">
+                <span className="text-muted-foreground/80 break-words">Scoreboard</span>
+                <span className="px-3 text-secondary font-semibold break-words">ZenSolar</span>
+                <span className="pl-3 text-muted-foreground font-semibold break-words">SolarCoin</span>
               </div>
-            ))}
+              {SCOREBOARD.map((s, i) => (
+                <div
+                  key={s.label}
+                  className={`grid grid-cols-[1fr_auto_auto] items-center px-4 py-3 ${
+                    i < SCOREBOARD.length - 1 ? 'border-b border-border/40' : ''
+                  }`}
+                >
+                  <span className="text-sm text-foreground break-words pr-2">{s.label}</span>
+                  <span className="px-3 text-xl md:text-2xl font-semibold tracking-tight text-secondary tabular-nums">
+                    {s.zen}
+                  </span>
+                  <span className="pl-3 text-xl md:text-2xl font-semibold tracking-tight text-muted-foreground/60 tabular-nums">
+                    {s.solar}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Timeline */}
