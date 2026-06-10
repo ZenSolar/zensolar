@@ -44,6 +44,17 @@ export default function Settings() {
   
   
   const { density, setDensity } = useDensity();
+  const { run: runOptimizer, loading: optRunning } = useDeasonOptimizer();
+
+  const triggerOptimizer = async (label: string) => {
+    toast.info(`${label} — analyzing your setup…`);
+    const res = await runOptimizer({ mode: "both" });
+    if (res?.summary?.est_monthly_savings_usd != null) {
+      toast.success(`Found ~$${res.summary.est_monthly_savings_usd.toFixed(0)}/mo in potential savings.`);
+    } else {
+      toast.message("Optimizer ran — open Deason to see the full plan.");
+    }
+  };
 
   // Generate helpful message based on device/browser state
   const getPushNotificationMessage = () => {
