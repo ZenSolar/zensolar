@@ -488,21 +488,21 @@ function UnlockedPanel({
           <UnlockedCard
             icon={FileText}
             title="Why This Round"
-            body="Transparent breakdown of the $2.5M–$3.5M raise, use of funds, GTM approach, and our two-round path to self-sustainability."
+            body="Two-part seed: $2.5M–$3.5M now to launch and ignite the flywheel. Part 2 scales once proven — with the goal of reaching self-sustainability without a traditional Series A."
             to="/investor/why-this-round"
             internal
           />
           <UnlockedCard
             icon={FileText}
             title="Full Seed Round Deck"
-            body="11 slides · Title → Catalyst → Engines → Ask."
+            body="11 slides. The two-part seed thesis, three engines, and the ask."
             to="/deck"
             internal
           />
           <UnlockedCard
             icon={FileText}
             title="One-Pager"
-            body="The leave-behind. Everything on one screen."
+            body="The leave-behind. Two-part seed at a glance."
             to="/investor/one-pager"
             internal
           />
