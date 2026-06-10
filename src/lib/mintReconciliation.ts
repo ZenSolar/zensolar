@@ -122,6 +122,12 @@ export const WATERMARK_NUMERIC_KEYS = [
   'lifetime_charging_kwh',
   'battery_discharge_wh',
   'battery_charge_wh',
+  // FSD miles — cumulative Autopilot/FSD-engaged miles credited 1:1 to $ZSOLAR.
+  // FSD miles are a SUBSET of total EV miles (odometer) and are tracked on a
+  // separate watermark so Proof-of-Delta can enforce baseline ≤ lifetime
+  // independently from the odometer counter.
+  'fsd_miles',
+  'lifetime_fsd_miles',
 ] as const;
 
 export function verifyBaselineLeLifetime(
