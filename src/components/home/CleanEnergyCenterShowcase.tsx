@@ -47,6 +47,16 @@ const kpiItems = [
     iconColor: 'text-energy',
     iconBg: 'bg-energy/10',
   },
+  {
+    icon: Navigation,
+    label: 'FSD Miles (Proof-of-Delta™)',
+    value: '14,206',
+    unit: 'mi',
+    name: '',
+    borderColor: 'border-l-accent',
+    iconColor: 'text-accent-foreground',
+    iconBg: 'bg-accent/20',
+  },
 ];
 
 export function CleanEnergyCenterShowcase() {
