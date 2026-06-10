@@ -25,6 +25,9 @@ import { Link } from "react-router-dom";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { WalletSetupCard } from "@/components/settings/WalletSetupCard";
 import { SecurityBadge } from "@/components/security/SecurityBadge";
+import { OptimizerInsightsSummary } from "@/components/settings/OptimizerInsightsSummary";
+import { useDeasonOptimizer } from "@/hooks/useDeasonOptimizer";
+import { toast } from "sonner";
 
 import { useDensity } from "@/hooks/useDensity";
 
