@@ -17,11 +17,11 @@ import {
 } from 'lucide-react';
 
 const USE_OF_FUNDS = [
-  { name: 'Token Launch & LP', pct: 25, low: '$625K', high: '$875K', note: 'Launch infrastructure + initial LP seeding' },
-  { name: 'Legal & Audits', pct: 20, low: '$500K', high: '$700K', note: 'Securities counsel, compliance, smart-contract audits' },
-  { name: 'App & Onboarding', pct: 15, low: '$375K', high: '$525K', note: 'Mobile polish, OAuth reliability, embedded wallet flows' },
-  { name: 'Growth & Acquisition', pct: 15, low: '$375K', high: '$525K', note: 'Installer channels, creator tests, early paid acquisition' },
-  { name: 'Operational Runway', pct: 25, low: '$625K', high: '$875K', note: '18–24 months of disciplined founder-led execution' },
+  { name: 'Token Launch & Liquidity', weight: 25, low: '$625K', high: '$875K', note: 'Launch infrastructure + initial LP seeding' },
+  { name: 'Legal, Compliance & Audits', weight: 20, low: '$500K', high: '$700K', note: 'Securities counsel, compliance, smart-contract audits' },
+  { name: 'App Polish & Onboarding', weight: 15, low: '$375K', high: '$525K', note: 'Mobile polish, OAuth reliability, embedded wallet flows' },
+  { name: 'Growth & User Acquisition', weight: 15, low: '$375K', high: '$525K', note: 'Installer channels, creator tests, early paid acquisition' },
+  { name: 'Operational Runway (18–24 months)', weight: 25, low: '$625K', high: '$875K', note: 'Disciplined founder-led execution' },
 ];
 
 const USER_MILESTONES = [
@@ -469,7 +469,7 @@ function UseOfFundsChart() {
   return (
     <div className="mt-6 rounded-2xl border border-border/60 bg-card/30 p-4 md:p-6">
       <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-4">
-        Allocation · $2.5M – $3.5M Round
+        Allocation · Part 1 ($2.5M – $3.5M)
       </div>
       <div className="space-y-4">
         {USE_OF_FUNDS.map((item) => (
@@ -478,13 +478,12 @@ function UseOfFundsChart() {
               <div className="text-sm font-medium leading-tight text-foreground">{item.name}</div>
               <div className="text-[13px] font-semibold tabular-nums text-secondary">
                 {item.low} – {item.high}
-                <span className="ml-2 text-[11px] font-normal text-muted-foreground">{item.pct}%</span>
               </div>
             </div>
             <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-muted/40">
               <div
                 className="h-full rounded-full bg-secondary/75"
-                style={{ width: `${(item.pct / 25) * 100}%` }}
+                style={{ width: `${(item.weight / 25) * 100}%` }}
                 aria-hidden
               />
             </div>
@@ -493,7 +492,7 @@ function UseOfFundsChart() {
         ))}
       </div>
       <p className="text-[11px] text-muted-foreground mt-4 leading-relaxed">
-        Indicative allocation across the $2.5M – $3.5M range. $2.5M covers launch + runway; $3.5M expands launch liquidity and acquisition testing.
+        Indicative allocations across the $2.5M – $3.5M Part 1 range.
       </p>
     </div>
   );
