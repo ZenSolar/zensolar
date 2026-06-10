@@ -24,7 +24,15 @@ import {
 } from '@/components/investor/InvestorPinGate';
 import { ThreeRevenueEngines } from '@/components/investor/ThreeRevenueEngines';
 import { LiveVerifiedCounter } from '@/components/investor/LiveVerifiedCounter';
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 import { isPreviewHost } from '@/lib/previewHost';
 import { useInvestorRef } from '@/lib/investorRef';
@@ -606,8 +614,8 @@ function CompoundingVisual() {
     { year: 'Yr 4', value: 100 },
   ];
   return (
-    <div className="mt-6 rounded-xl border border-border/60 bg-background/40 p-4">
-      <div className="flex items-center justify-between mb-3">
+    <div className="mt-6 rounded-xl border border-border/60 bg-background/40 p-3 sm:p-4">
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between mb-3">
         <div className="text-[11px] uppercase tracking-[0.22em] text-secondary">
           Success compounds
         </div>
@@ -615,30 +623,41 @@ function CompoundingVisual() {
           User growth · LP strength · token value
         </div>
       </div>
-      <div className="h-40 w-full">
+      <div className="h-40 sm:h-48 w-full" aria-label="Compounding growth chart" role="img">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+          <AreaChart data={data} margin={{ top: 8, right: 12, bottom: 4, left: 4 }}>
             <defs>
               <linearGradient id="compoundFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="hsl(var(--secondary))" stopOpacity={0.5} />
+                <stop offset="0%" stopColor="hsl(var(--secondary))" stopOpacity={0.45} />
                 <stop offset="100%" stopColor="hsl(var(--secondary))" stopOpacity={0} />
               </linearGradient>
             </defs>
+            <CartesianGrid
+              stroke="hsl(var(--border) / 0.35)"
+              strokeDasharray="3 4"
+              vertical={false}
+            />
             <XAxis
               dataKey="year"
               tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
               axisLine={false}
               tickLine={false}
+              tickMargin={6}
+              interval={0}
             />
             <YAxis hide domain={[0, 'dataMax + 10']} />
             <Tooltip
-              cursor={{ stroke: 'hsl(var(--border))' }}
+              cursor={{ stroke: 'hsl(var(--secondary) / 0.5)', strokeDasharray: '3 3' }}
               contentStyle={{
                 background: 'hsl(var(--card))',
                 border: '1px solid hsl(var(--border))',
                 borderRadius: 8,
                 fontSize: 12,
+                color: 'hsl(var(--foreground))',
+                boxShadow: '0 10px 30px -10px hsl(0 0% 0% / 0.5)',
               }}
+              labelStyle={{ color: 'hsl(var(--muted-foreground))', fontSize: 11 }}
+              itemStyle={{ color: 'hsl(var(--foreground))' }}
               formatter={(v: number) => [`${v}`, 'Compounding index']}
             />
             <Area
@@ -647,9 +666,18 @@ function CompoundingVisual() {
               stroke="hsl(var(--secondary))"
               strokeWidth={2}
               fill="url(#compoundFill)"
+              activeDot={{
+                r: 4,
+                stroke: 'hsl(var(--background))',
+                strokeWidth: 2,
+                fill: 'hsl(var(--secondary))',
+              }}
             />
           </AreaChart>
         </ResponsiveContainer>
+      </div>
+      <div className="mt-2 text-[10px] text-muted-foreground/70 leading-relaxed">
+        Illustrative — directional shape, not a forecast.
       </div>
     </div>
   );
