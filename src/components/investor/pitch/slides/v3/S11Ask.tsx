@@ -4,11 +4,11 @@ import { DeckCard, CardKicker } from '../../v3/DeckCard';
 import { Sparkles } from 'lucide-react';
 
 const useOfFunds = [
-  { bucket: 'LP Reserve (3 tranches)', amt: '$2.0M', pct: '40%', note: 'Critical for flywheel health' },
-  { bucket: 'Team & Ops (18–24 mo)', amt: '$1.8M', pct: '36%', note: 'Founders + 3 hires' },
-  { bucket: 'Audits, Legal, Patents', amt: '$400K', pct: '8%', note: 'Smart-contract + security audits, securities counsel, patents' },
-  { bucket: 'Growth / User Acquisition', amt: '$500K', pct: '10%', note: 'Paid acquisition, creator partnerships, Proof-of-Genesis viral loop' },
-  { bucket: 'Reserves / Buffer', amt: '$300K', pct: '6%', note: 'Contingency' },
+  { bucket: 'Token Launch & Liquidity', range: '$625K – $875K' },
+  { bucket: 'Legal, Compliance & Audits', range: '$500K – $700K' },
+  { bucket: 'App Polish & Onboarding', range: '$375K – $525K' },
+  { bucket: 'Growth & User Acquisition', range: '$375K – $525K' },
+  { bucket: 'Operational Runway (18–24 months)', range: '$625K – $875K' },
 ];
 
 export function S11Ask() {
@@ -27,49 +27,33 @@ export function S11Ask() {
       <div className="absolute inset-0 flex flex-col px-24 pt-28 pb-20">
         <SectionHeader
           kicker="The Ask"
-          title="$5M target · $7M hard cap · Convertible Note (post-money)."
-          subtitle="18–24 month runway to mainnet TGE, first revenue, and Series A readiness. $20M post-money. Cap shared under NDA."
+          title="Seed Round — Part 1 of 2 · $2.5M – $3.5M · Convertible Note."
+          subtitle="Part 1 launches the token and ignites the flywheel. Part 2 scales once traction is proven — designed to reach self-sustainability without a traditional Series A."
         />
 
         <div className="grid grid-cols-12 gap-6 flex-1">
           <DeckCard className="col-span-8 !p-0 overflow-hidden">
             <div className="px-5 py-3 border-b border-border/60 bg-card/40">
               <CardKicker className="text-white/55">
-                Use of Funds · $5M Target
+                Use of Funds · Part 1 ($2.5M – $3.5M)
               </CardKicker>
             </div>
             <div className="divide-y divide-border/40">
               {useOfFunds.map((r) => (
                 <div
                   key={r.bucket}
-                  className="grid grid-cols-[1.6fr_auto_auto] gap-5 px-5 py-4 items-start"
+                  className="grid grid-cols-[1.6fr_auto] gap-5 px-5 py-4 items-center"
                 >
-                  <div className="min-w-0">
-                    <div className="text-[18px] font-semibold text-white leading-tight">
-                      {r.bucket}
-                    </div>
-                    <div className="text-[14px] text-white/50 mt-1 leading-snug">
-                      {r.note}
-                    </div>
+                  <div className="text-[18px] font-semibold text-white leading-tight">
+                    {r.bucket}
                   </div>
-                  <div className="text-[20px] font-semibold text-secondary tabular-nums">
-                    {r.amt}
-                  </div>
-                  <div className="text-[14px] text-white/55 tabular-nums pt-1.5">
-                    {r.pct}
+                  <div className="text-[20px] font-semibold text-secondary tabular-nums whitespace-nowrap">
+                    {r.range}
                   </div>
                 </div>
               ))}
-              <div className="grid grid-cols-[1.6fr_auto_auto] gap-5 px-5 py-4 bg-card/40">
-                <div className="text-[14px] font-semibold uppercase tracking-wider text-white">
-                  Total
-                </div>
-                <div className="text-[20px] font-bold text-white tabular-nums">
-                  $5.0M
-                </div>
-                <div className="text-[14px] text-white/80 tabular-nums pt-1.5">
-                  100%
-                </div>
+              <div className="px-5 py-3 bg-card/40 text-[13px] italic text-white/55">
+                Indicative allocations across the $2.5M – $3.5M Part 1 range.
               </div>
             </div>
           </DeckCard>
@@ -83,7 +67,7 @@ export function S11Ask() {
                   '1,000 verified homes',
                   'Subscriptions live ($9.99 + Deason $4.99)',
                   '2nd LP tranche seeded',
-                  'Series A in 18–24 months',
+                  'Path to self-sustainability (no Series A required)',
                 ].map((m) => (
                   <li
                     key={m}
@@ -97,13 +81,11 @@ export function S11Ask() {
             </DeckCard>
 
             <DeckCard className="flex-1">
-              <CardKicker className="text-amber-400/80">Capital efficiency</CardKicker>
-              <p className="text-[44px] font-semibold text-amber-400 mt-3 leading-none">
-                76%
-              </p>
-              <p className="text-[15px] text-white/65 mt-3 leading-snug">
-                deployed directly into the flywheel (LP + team). Audits, growth,
-                and a flexible reserve cover the rest.
+              <CardKicker className="text-amber-400/80">What Part 2 unlocks</CardKicker>
+              <p className="text-[16px] text-white/75 mt-3 leading-relaxed">
+                Scale user acquisition, deepen liquidity, and expand rewardable
+                behaviors once Part 1 milestones are achieved and the flywheel
+                is validated.
               </p>
             </DeckCard>
           </div>

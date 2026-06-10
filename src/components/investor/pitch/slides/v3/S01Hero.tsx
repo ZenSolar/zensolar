@@ -15,7 +15,7 @@ export function S01Hero() {
 
       <div className="absolute inset-0 flex flex-col items-center justify-center px-24 text-center">
         <p className="text-[18px] font-mono tracking-[0.32em] uppercase text-secondary/80 mb-10">
-          Investor Pitch · v3 · Strategic Seed · Confidential
+          Investor Pitch · v3 · Seed Round · Part 1 of 2 · Confidential
         </p>
 
         <img
@@ -44,17 +44,23 @@ export function S01Hero() {
           </span>
         </p>
 
+        <p className="mt-6 text-[24px] text-white/75 leading-relaxed max-w-[1400px]">
+          Part 1 launches the token and ignites the flywheel. Part 2 scales once
+          traction is proven — with the goal of reaching self-sustainability
+          without needing a traditional Series A.
+        </p>
+
         <div className="mt-14 grid grid-cols-3 gap-5 w-full max-w-[1100px]">
           {[
-            { k: '$5M', v: 'Target raise' },
-            { k: '$7M', v: 'Hard cap' },
-            { k: 'Convertible Note', v: 'Post-money' },
+            { k: '$2.5M – $3.5M', v: 'Part 1 — Now' },
+            { k: 'Two-Part', v: 'Seed strategy' },
+            { k: 'Convertible Note', v: 'Instrument' },
           ].map((s) => (
             <div
               key={s.v}
               className="rounded-2xl border border-border/60 bg-card/40 px-6 py-6"
             >
-              <div className="text-[48px] font-semibold leading-none text-white">
+              <div className="text-[44px] font-semibold leading-none text-white">
                 {s.k}
               </div>
               <div className="text-[15px] uppercase tracking-[0.22em] text-white/45 mt-3">
