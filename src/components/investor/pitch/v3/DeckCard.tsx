@@ -13,7 +13,7 @@ export function DeckCard({
 }) {
   return (
     <div
-      className={`rounded-2xl border bg-card/40 p-6 ${
+      className={`rounded-2xl border bg-card/40 p-5 md:p-7 shadow-[inset_0_1px_0_0_hsl(var(--border)/0.5)] ${
         emphasized ? 'border-secondary/40 bg-secondary/5' : 'border-border/60'
       } ${accentClass ?? ''} ${className}`}
     >
