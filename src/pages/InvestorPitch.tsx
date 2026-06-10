@@ -74,9 +74,9 @@ export default function InvestorPitch() {
             </p>
             <div className="mt-7 grid grid-cols-3 gap-3 w-full max-w-md">
               {[
-                { k: '$5M', v: 'Target raise' },
-                { k: '$7M', v: 'Hard cap' },
-                { k: 'Convertible Note', v: 'Structure' },
+                { k: '$2.5M – $3.5M', v: 'Part 1 — now' },
+                { k: 'Two-Part', v: 'Seed strategy' },
+                { k: 'Convertible Note', v: 'Instrument' },
               ].map((s) => (
                 <div
                   key={s.v}
@@ -150,39 +150,37 @@ export default function InvestorPitch() {
           </h2>
           <div className="rounded-3xl border border-secondary/30 bg-secondary/5 p-6 md:p-8">
             <div className="text-base md:text-lg font-semibold text-foreground">
-              $5M target · $7M hard cap · Convertible Note (post-money)
+              Seed Round — Part 1 of 2 · $2.5M – $3.5M · Convertible Note
             </div>
+            <p className="mt-2 text-[13px] text-muted-foreground leading-relaxed">
+              Part 1 launches the token and ignites the flywheel. Part 2 scales once traction is
+              proven — designed to reach self-sustainability without a traditional Series A.
+            </p>
 
-            {/* Use of Funds — $5M target, locked Feb 2026 */}
+            {/* Use of Funds — Part 1 ($2.5M – $3.5M) */}
             <div className="mt-6 rounded-2xl border border-border/60 bg-background/40 overflow-hidden">
               <div className="px-4 py-2.5 border-b border-border/60 bg-card/40">
                 <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-semibold">
-                  Use of Funds · $5M Target
+                  Use of Funds · Part 1 ($2.5M – $3.5M)
                 </div>
               </div>
               <div className="divide-y divide-border/40">
                 {[
-                  { bucket: 'LP Reserve (3 tranches)', amt: '$2.0M', pct: '40%', note: 'Critical for flywheel health' },
-                  { bucket: 'Team & Ops (18–24 mo)', amt: '$1.8M', pct: '36%', note: 'Founders + 3 hires' },
-                  { bucket: 'Audits, Legal, Patents', amt: '$400K', pct: '8%', note: 'Smart-contract + security audits, securities counsel, patents' },
-                  { bucket: 'Growth / User Acquisition', amt: '$500K', pct: '10%', note: 'Paid acquisition, creator partnerships, Proof-of-Genesis viral loop' },
-                  { bucket: 'Reserves / Buffer', amt: '$300K', pct: '6%', note: 'Contingency' },
+                  { bucket: 'Token Launch & Liquidity', range: '$625K – $875K' },
+                  { bucket: 'Legal, Compliance & Audits', range: '$500K – $700K' },
+                  { bucket: 'App Polish & Onboarding', range: '$375K – $525K' },
+                  { bucket: 'Growth & User Acquisition', range: '$375K – $525K' },
+                  { bucket: 'Operational Runway (18–24 months)', range: '$625K – $875K' },
                 ].map((row) => (
-                  <div key={row.bucket} className="grid grid-cols-[1.4fr_auto_auto] gap-3 px-4 py-2.5 items-start">
-                    <div className="min-w-0">
-                      <div className="text-[13px] font-medium text-foreground leading-tight">{row.bucket}</div>
-                      <div className="text-[11px] text-muted-foreground mt-0.5 leading-snug">{row.note}</div>
-                    </div>
-                    <div className="text-[13px] font-semibold text-secondary tabular-nums">{row.amt}</div>
-                    <div className="text-[11px] text-muted-foreground tabular-nums pt-0.5">{row.pct}</div>
+                  <div key={row.bucket} className="flex items-baseline justify-between gap-3 px-4 py-2.5">
+                    <div className="text-[13px] font-medium text-foreground leading-tight">{row.bucket}</div>
+                    <div className="text-[13px] font-semibold text-secondary tabular-nums whitespace-nowrap">{row.range}</div>
                   </div>
                 ))}
-                <div className="grid grid-cols-[1.4fr_auto_auto] gap-3 px-4 py-2.5 bg-card/30">
-                  <div className="text-[12px] font-semibold uppercase tracking-wider text-foreground">Total</div>
-                  <div className="text-[13px] font-bold text-foreground tabular-nums">$5.0M</div>
-                  <div className="text-[11px] text-foreground/80 tabular-nums pt-0.5">100%</div>
-                </div>
               </div>
+              <p className="px-4 py-2.5 text-[11px] italic text-muted-foreground border-t border-border/40 bg-card/20">
+                Indicative allocations across the $2.5M – $3.5M Part 1 range.
+              </p>
             </div>
 
             <ul className="mt-5 space-y-3 text-[13px] text-muted-foreground leading-relaxed">
@@ -194,14 +192,15 @@ export default function InvestorPitch() {
                 <span className="text-secondary font-semibold shrink-0">Milestones —</span>
                 <span>
                   Mainnet TGE on Base (chain 8453), 1,000 verified homes, subscription revenue live
-                  with Deason AI add-on, 2nd LP tranche seeded, Series A in 18–24 months.
+                  with Deason AI add-on, 2nd LP tranche seeded, path to self-sustainability (no
+                  Series A required).
                 </span>
               </li>
               <li className="flex gap-3">
-                <span className="text-secondary font-semibold shrink-0">Capital efficiency —</span>
+                <span className="text-secondary font-semibold shrink-0">What Part 2 unlocks —</span>
                 <span>
-                  76% deployed into the flywheel (LP + team). Audits, growth, and a flexible
-                  reserve cover the rest.
+                  Scales acquisition, LP depth, and rewardable behaviors once Part 1 milestones
+                  are hit and the flywheel is proven.
                 </span>
               </li>
             </ul>
