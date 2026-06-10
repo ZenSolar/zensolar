@@ -236,7 +236,7 @@ export default function Investor() {
             <p className="mt-4 text-sm md:text-base text-muted-foreground/90 max-w-xl leading-relaxed">
               We're raising the first part of a two-part seed ($2.5M–$3.5M now) to launch the token and ignite the flywheel. Part 2 scales once traction is proven — designed to reach self-sustainability without a traditional Series A.
             </p>
-            <div className="mt-10 grid grid-cols-3 gap-3 w-full max-w-md">
+            <div className="mt-10 grid grid-cols-3 gap-2.5 sm:gap-3 w-full max-w-md">
               {[
                 { k: '$0.10', v: 'Launch price' },
                 { k: '1T', v: 'Hard cap' },
@@ -244,10 +244,10 @@ export default function Investor() {
               ].map((s) => (
                 <div
                   key={s.v}
-                  className="rounded-2xl border border-border/60 bg-card/50 px-2 py-4"
+                  className="rounded-2xl border border-border/60 bg-card/50 px-2 py-4 md:py-5 shadow-[inset_0_1px_0_0_hsl(var(--border)/0.45)]"
                 >
-                  <div className="text-xl md:text-2xl font-semibold text-foreground tabular-nums">{s.k}</div>
-                  <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground mt-1">
+                  <div className="text-lg md:text-2xl font-semibold text-foreground tabular-nums">{s.k}</div>
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground mt-1.5 leading-tight">
                     {s.v}
                   </div>
                 </div>
