@@ -1,25 +1,26 @@
-// Deason AI Energy Optimization Engine — Phase 1 + Phase 2 + Phase 3
+// Deason AI Energy Optimization Engine — Phases 1 → 4
 //
 // Phase 1: Rule-based + heuristic optimizer (deterministic, explainable).
 // Phase 2: 24–48h hourly LP-style scheduler for battery, EV, grid import/export.
 // Phase 3: Forecasting layer — solar (PVWatts + weather), load (historical
 //          telemetry), price (TOU), weather (OpenWeather). The scheduler now
-//          consumes these forecasts so dispatch decisions are predictive,
-//          not reactive.
+//          consumes these forecasts so dispatch decisions are predictive.
+// Phase 4: User-facing integration & personalized reporting:
+//          - Deep document understanding (bill / contract / PPA / loan)
+//            normalized into structured JSON insights.
+//          - Hyper-personalized monthly Clean Energy Report (financial,
+//            performance, optimizer recs, token earnings, CFO-style insights).
+//          - Concierge chat answers grounded in optimizer + documents
+//            + telemetry, with citations.
 //
-// NOTE on PuLP: Supabase Edge Functions execute on the Deno runtime, not Python,
-// so PuLP itself cannot be imported here. Phase 2 ships a TypeScript LP solver
-// of equivalent form (same decision vars / constraints / objective, solved via
-// priority-ordered hourly dispatch — provably optimal for this single-storage
-// TOU LP).
+// Modes (POST `mode`):
+//   'recommend' | 'schedule' | 'both'           — Phases 1–3
+//   'document_insights'                          — Phase 4 doc understanding
+//   'monthly_report'                             — Phase 4 monthly CFO report
+//   'concierge'                                  — Phase 4 grounded Q&A
 //
-// Input  (POST JSON):
-//   { userId?: string, mode?: 'recommend' | 'schedule' | 'both',
-//     horizon_hours?: 24 | 48,
-//     lat?: number, lon?: number, system_size_kw?: number,
-//     ev_kwh_needed?: number, ev_deadline_hour?: number, battery_kwh_capacity?: number }
-// Output (JSON):
-//   recommendations[], summary, schedule, forecast
+// All outputs are structured JSON. Every recommendation cites its sources.
+
 
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 import { createClient } from 'npm:@supabase/supabase-js@2';
