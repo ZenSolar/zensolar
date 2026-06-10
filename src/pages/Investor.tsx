@@ -24,6 +24,7 @@ import {
 } from '@/components/investor/InvestorPinGate';
 import { ThreeRevenueEngines } from '@/components/investor/ThreeRevenueEngines';
 import { LiveVerifiedCounter } from '@/components/investor/LiveVerifiedCounter';
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 import { isPreviewHost } from '@/lib/previewHost';
 import { useInvestorRef } from '@/lib/investorRef';
@@ -279,7 +280,7 @@ export default function Investor() {
           </div>
           <div className="rounded-2xl border border-border/60 bg-card/40 p-6 md:p-8">
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              Bitcoin's Proof-of-Work consumes enormous amounts of energy to create digital scarcity with no direct environmental benefit. ZenSolar's Proof-of-Genesis™ rewards the actual creation of clean energy — one verified clean kilowatt-hour produced generates one $ZSOLAR token. We turn energy abundance into digital value instead of consuming massive energy to create artificial scarcity.
+              ZenSolar’s Proof-of-Genesis™ rewards the actual creation of clean energy — one verified clean kilowatt-hour produced generates one $ZSOLAR token. We turn energy abundance into digital value instead of consuming massive energy to create artificial scarcity. Bitcoin’s Proof-of-Work consumes enormous amounts of energy to create digital scarcity with no direct environmental benefit. 1 verified clean kWh = 1 $ZSOLAR token.
             </p>
             <div className="mt-6 grid gap-3 md:grid-cols-2">
               <div className="rounded-xl border border-border/60 bg-background/40 p-5">
@@ -345,6 +346,7 @@ export default function Investor() {
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
               With strong execution, the combination of real utility, a self-reinforcing 100% subscription-to-LP flywheel, and expanding rewardable behaviors positions ZenSolar to acquire millions of users and generate substantial recurring revenue. The tokenomics are designed so that success compounds — as user acquisition grows, the flywheel creates structural pressure toward significant long-term value creation, with the potential for $ZSOLAR to become one of the most important clean energy infrastructure tokens globally.
             </p>
+            <CompoundingVisual />
           </div>
         </section>
 
@@ -593,5 +595,62 @@ function UnlockedCard({
     <a href={to} className={className}>
       {content}
     </a>
+  );
+}
+
+function CompoundingVisual() {
+  const data = [
+    { year: 'Yr 1', value: 8 },
+    { year: 'Yr 2', value: 22 },
+    { year: 'Yr 3', value: 55 },
+    { year: 'Yr 4', value: 100 },
+  ];
+  return (
+    <div className="mt-6 rounded-xl border border-border/60 bg-background/40 p-4">
+      <div className="flex items-center justify-between mb-3">
+        <div className="text-[11px] uppercase tracking-[0.22em] text-secondary">
+          Success compounds
+        </div>
+        <div className="text-[10px] text-muted-foreground">
+          User growth · LP strength · token value
+        </div>
+      </div>
+      <div className="h-40 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+            <defs>
+              <linearGradient id="compoundFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="hsl(var(--secondary))" stopOpacity={0.5} />
+                <stop offset="100%" stopColor="hsl(var(--secondary))" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <XAxis
+              dataKey="year"
+              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <YAxis hide domain={[0, 'dataMax + 10']} />
+            <Tooltip
+              cursor={{ stroke: 'hsl(var(--border))' }}
+              contentStyle={{
+                background: 'hsl(var(--card))',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: 8,
+                fontSize: 12,
+              }}
+              formatter={(v: number) => [`${v}`, 'Compounding index']}
+            />
+            <Area
+              type="monotone"
+              dataKey="value"
+              stroke="hsl(var(--secondary))"
+              strokeWidth={2}
+              fill="url(#compoundFill)"
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
   );
 }
