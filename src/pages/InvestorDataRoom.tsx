@@ -33,14 +33,14 @@ function StatTile({
 }) {
   return (
     <div
-      className={`rounded-xl border p-4 ${
+      className={`rounded-xl border p-4 md:p-5 shadow-[inset_0_1px_0_0_hsl(var(--border)/0.45)] ${
         emphasized ? "border-secondary/40 bg-secondary/5" : "border-border/60 bg-card/30"
       }`}
     >
-      <div className={`text-[26px] font-semibold leading-none ${emphasized ? "text-secondary" : "text-white"}`}>
+      <div className={`text-xl md:text-[26px] font-semibold leading-none ${emphasized ? "text-secondary" : "text-white"}`}>
         {value}
       </div>
-      <div className="mt-2 text-[12px] uppercase tracking-[0.14em] text-white/45 font-mono">
+      <div className="mt-2 text-[11px] md:text-[12px] uppercase tracking-[0.14em] text-white/45 font-mono">
         {label}
       </div>
     </div>
