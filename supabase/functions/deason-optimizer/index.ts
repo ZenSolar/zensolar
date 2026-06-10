@@ -1229,6 +1229,8 @@ Deno.serve(async (req) => {
       rules_fired: rulesFired,
       schedule: phase2,
       forecast: forecastPayload,
+      documents: { count: docInsights.length, by_kind: docSummary.by_kind, summary: docSummary, insights: docInsights },
+
       engine: {
         phase: phase2 ? 3 : 1,
         type: phase2 ? 'rule_based_plus_lp_scheduler_plus_forecasts' : 'rule_based_heuristic',
