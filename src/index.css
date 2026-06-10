@@ -1102,3 +1102,40 @@ html {
 /* Learn-section themes (scoped via [data-learn-theme]) */
 @import "./styles/learn-themes.css";
 
+
+/* ============================================================
+ * Defensive table styling
+ * ============================================================
+ * Native <table> elements never overflow viewport on small screens.
+ * Long headers wrap rather than push horizontal scroll, and any
+ * overflow that remains becomes a scrollable region instead of
+ * blowing out the page width.
+ * Wrap any table (native or grid-based "data" table) in
+ * `.table-wrap` (or `.scroll-x`) when you need explicit horizontal
+ * scroll with momentum.
+ * ============================================================ */
+@layer components {
+  .table-wrap,
+  .scroll-x {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+  .table-wrap > table {
+    min-width: 100%;
+  }
+  table {
+    max-width: 100%;
+    border-collapse: collapse;
+  }
+  th, td {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
+  }
+  th {
+    white-space: normal;
+  }
+}

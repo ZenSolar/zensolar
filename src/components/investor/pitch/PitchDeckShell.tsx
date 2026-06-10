@@ -260,20 +260,27 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
       <div ref={containerRef} className="w-full h-screen bg-[hsl(220,20%,6%)] overflow-auto p-8">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-white/70 text-lg font-medium">All Slides ({total})</h2>
-          <button onClick={() => setShowGrid(false)} className="text-white/50 hover:text-white text-sm">
+          <button
+            onClick={() => setShowGrid(false)}
+            aria-label="Close slide grid"
+            className="inline-flex items-center justify-center min-h-11 min-w-11 px-3 rounded-lg text-white/60 hover:text-white hover:bg-white/10 text-sm transition-colors"
+          >
             ✕ Close Grid
           </button>
         </div>
-        <div className="grid grid-cols-3 xl:grid-cols-4 gap-6">
+        <div role="list" className="grid grid-cols-3 xl:grid-cols-4 gap-6">
           {slides.map((slide, i) => (
             <button
               key={i}
+              role="listitem"
               onClick={() => goTo(i)}
-              className={`relative group rounded-lg overflow-hidden border-2 transition-all ${
+              aria-label={`Go to slide ${i + 1}: ${slideLabels[i]}`}
+              aria-current={i === current ? 'true' : undefined}
+              className={`relative group rounded-lg overflow-hidden border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(207,90%,54%)] ${
                 i === current ? 'border-[hsl(207,90%,54%)] shadow-lg shadow-[hsl(207,90%,54%)]/20' : 'border-white/10 hover:border-white/30'
               }`}
             >
-              <div className="w-full aspect-video overflow-hidden">
+              <div className="w-full aspect-video overflow-hidden" aria-hidden="true">
                 <div style={{ transform: `scale(${0.17})`, transformOrigin: 'top left', width: 1920, height: 1080 }}>
                   {slide}
                 </div>
@@ -325,7 +332,11 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
   return (
     <div
       ref={containerRef}
-      className={`bg-[hsl(220,20%,6%)] relative overflow-hidden select-none ${
+      role="region"
+      aria-roledescription="slideshow"
+      aria-label={`Pitch deck, slide ${current + 1} of ${total}: ${slideLabels[current] ?? ''}`}
+      tabIndex={0}
+      className={`bg-[hsl(220,20%,6%)] relative overflow-hidden select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(207,90%,54%)] ${
         fauxFullscreen
           ? 'fixed inset-0 z-[9999] w-screen'
           : 'w-screen'
@@ -385,25 +396,43 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
           >
             {/* Bottom bar */}
             <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 sm:gap-3 pointer-events-auto max-w-[95vw]">
-              <button onClick={(e) => { e.stopPropagation(); prev(); }} disabled={current === 0}
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white disabled:opacity-30 backdrop-blur-sm transition-all shrink-0">
-                <ChevronLeft className="w-5 h-5" />
+              <button
+                onClick={(e) => { e.stopPropagation(); prev(); }}
+                disabled={current === 0}
+                aria-label="Previous slide"
+                className="min-w-11 min-h-11 w-11 h-11 sm:w-10 sm:h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white disabled:opacity-30 backdrop-blur-sm transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(207,90%,54%)]"
+              >
+                <ChevronLeft className="w-5 h-5" aria-hidden="true" />
               </button>
 
               {/* Progress: dots on desktop, page counter on mobile */}
-              <div className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-full bg-black/50 backdrop-blur-sm">
+              <div className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-full bg-black/50 backdrop-blur-sm" role="tablist" aria-label="Slide navigation">
                 {slides.map((_, i) => (
-                  <button key={i} onClick={(e) => { e.stopPropagation(); goTo(i); }}
-                    className={`w-2 h-2 rounded-full transition-all ${i === current ? 'w-6 bg-[hsl(207,90%,54%)]' : 'bg-white/30 hover:bg-white/50'}`} />
+                  <button
+                    key={i}
+                    onClick={(e) => { e.stopPropagation(); goTo(i); }}
+                    role="tab"
+                    aria-label={`Go to slide ${i + 1}: ${slideLabels[i] ?? ''}`}
+                    aria-selected={i === current}
+                    className={`relative h-6 w-6 flex items-center justify-center rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(207,90%,54%)] before:content-[''] before:block before:rounded-full before:transition-all ${
+                      i === current
+                        ? 'before:w-6 before:h-2 before:bg-[hsl(207,90%,54%)]'
+                        : 'before:w-2 before:h-2 before:bg-white/30 hover:before:bg-white/50'
+                    }`}
+                  />
                 ))}
               </div>
-              <div className="sm:hidden px-4 py-2 rounded-full bg-black/50 backdrop-blur-sm text-[13px] font-mono text-white/70">
-                {current + 1} / {total}
+              <div className="sm:hidden px-4 py-2 rounded-full bg-black/50 backdrop-blur-sm text-[13px] font-mono text-white/70" aria-live="polite">
+                <span className="sr-only">Slide </span>{current + 1} / {total}
               </div>
 
-              <button onClick={(e) => { e.stopPropagation(); next(); }} disabled={current === total - 1}
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white disabled:opacity-30 backdrop-blur-sm transition-all shrink-0">
-                <ChevronRight className="w-5 h-5" />
+              <button
+                onClick={(e) => { e.stopPropagation(); next(); }}
+                disabled={current === total - 1}
+                aria-label="Next slide"
+                className="min-w-11 min-h-11 w-11 h-11 sm:w-10 sm:h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white disabled:opacity-30 backdrop-blur-sm transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(207,90%,54%)]"
+              >
+                <ChevronRight className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
 
@@ -412,25 +441,33 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
               <Link
                 to="/investor"
                 onClick={(e) => e.stopPropagation()}
-                className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white/70 hover:text-white text-[12px] backdrop-blur-sm transition-colors"
+                aria-label="Back to investor hub"
+                className="inline-flex items-center gap-1.5 min-h-11 h-11 sm:h-9 px-3 rounded-lg bg-white/10 hover:bg-white/20 text-white/70 hover:text-white text-[13px] sm:text-[12px] backdrop-blur-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(207,90%,54%)]"
               >
-                <ArrowLeft className="w-3.5 h-3.5" />
+                <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
                 Investor
               </Link>
             </div>
 
             {/* Top-right controls */}
             <div className="absolute top-4 right-4 flex items-center gap-2 pointer-events-auto">
-              <span className="text-[13px] text-white/40 font-mono mr-2">
-                {current + 1} / {total}
+              <span className="text-[13px] text-white/40 font-mono mr-2 tabular-nums" aria-live="polite">
+                <span className="sr-only">Slide </span>{current + 1} / {total}
               </span>
-              <button onClick={(e) => { e.stopPropagation(); setShowGrid(true); }}
-                className="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 backdrop-blur-sm">
-                <Grid3X3 className="w-4 h-4" />
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowGrid(true); }}
+                aria-label="Show slide grid overview"
+                className="min-w-11 min-h-11 w-11 h-11 sm:w-9 sm:h-9 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(207,90%,54%)]"
+              >
+                <Grid3X3 className="w-4 h-4" aria-hidden="true" />
               </button>
-              <button onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}
-                className="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 backdrop-blur-sm">
-                {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+              <button
+                onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}
+                aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+                aria-pressed={isFullscreen}
+                className="min-w-11 min-h-11 w-11 h-11 sm:w-9 sm:h-9 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(207,90%,54%)]"
+              >
+                {isFullscreen ? <Minimize className="w-4 h-4" aria-hidden="true" /> : <Maximize className="w-4 h-4" aria-hidden="true" />}
               </button>
             </div>
           </motion.div>
