@@ -24,6 +24,7 @@ import {
 } from '@/components/investor/InvestorPinGate';
 import { ThreeRevenueEngines } from '@/components/investor/ThreeRevenueEngines';
 import { LiveVerifiedCounter } from '@/components/investor/LiveVerifiedCounter';
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 import { isPreviewHost } from '@/lib/previewHost';
 import { useInvestorRef } from '@/lib/investorRef';
@@ -594,5 +595,62 @@ function UnlockedCard({
     <a href={to} className={className}>
       {content}
     </a>
+  );
+}
+
+function CompoundingVisual() {
+  const data = [
+    { year: 'Yr 1', value: 8 },
+    { year: 'Yr 2', value: 22 },
+    { year: 'Yr 3', value: 55 },
+    { year: 'Yr 4', value: 100 },
+  ];
+  return (
+    <div className="mt-6 rounded-xl border border-border/60 bg-background/40 p-4">
+      <div className="flex items-center justify-between mb-3">
+        <div className="text-[11px] uppercase tracking-[0.22em] text-secondary">
+          Success compounds
+        </div>
+        <div className="text-[10px] text-muted-foreground">
+          User growth · LP strength · token value
+        </div>
+      </div>
+      <div className="h-40 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+            <defs>
+              <linearGradient id="compoundFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="hsl(var(--secondary))" stopOpacity={0.5} />
+                <stop offset="100%" stopColor="hsl(var(--secondary))" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <XAxis
+              dataKey="year"
+              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <YAxis hide domain={[0, 'dataMax + 10']} />
+            <Tooltip
+              cursor={{ stroke: 'hsl(var(--border))' }}
+              contentStyle={{
+                background: 'hsl(var(--card))',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: 8,
+                fontSize: 12,
+              }}
+              formatter={(v: number) => [`${v}`, 'Compounding index']}
+            />
+            <Area
+              type="monotone"
+              dataKey="value"
+              stroke="hsl(var(--secondary))"
+              strokeWidth={2}
+              fill="url(#compoundFill)"
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
   );
 }
