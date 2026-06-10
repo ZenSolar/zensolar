@@ -52,7 +52,7 @@ function DataRoomContent() {
     <div className="min-h-screen bg-[hsl(220,20%,6%)] text-white">
       <Helmet>
         <title>ZenSolar · Investor Data Room</title>
-        <meta name="description" content="ZenSolar investor data room — Proof-of-Genesis™, VPP, aggregated data, use of funds, traction, and IP." />
+        <meta name="description" content="ZenSolar investor data room — Proof-of-Genesis™, VPP, aggregated data, traction, and IP. Two-part seed strategy ($2.5M–$3.5M Part 1)." />
         <meta name="robots" content="noindex,nofollow" />
         <link rel="canonical" href="https://www.zensolar.com/investor/data-room" />
       </Helmet>
@@ -69,7 +69,10 @@ function DataRoomContent() {
         </div>
 
         <p className="text-[11px] uppercase tracking-[0.2em] text-white/35">Confidential — For verified investors only</p>
-        <p className="mt-3 text-[14px] font-mono tracking-[0.28em] uppercase text-secondary/80 mb-4">
+        <p className="mt-3 text-[14px] font-mono tracking-[0.28em] uppercase text-secondary">
+          Seed Round — Part 1 of 2
+        </p>
+        <p className="mt-1 text-[12px] font-mono tracking-[0.24em] uppercase text-white/45 mb-4">
           Confidential · Investor Data Room
         </p>
         <h1 className="text-[48px] md:text-[56px] font-semibold leading-[1.05] tracking-tight">
@@ -77,7 +80,9 @@ function DataRoomContent() {
         </h1>
         <p className="mt-4 text-[18px] md:text-[20px] text-white/55 max-w-[900px] leading-relaxed">
           Deeper materials behind the seed deck — technology, revenue engines,
-          raise milestones, traction, and IP.
+          raise milestones, traction, and IP. Part 1 launches the token and
+          ignites the flywheel. Part 2 scales once traction is proven — designed
+          to reach self-sustainability without a traditional Series A.
         </p>
         <div
           className="mt-6 h-px w-full"
@@ -87,6 +92,47 @@ function DataRoomContent() {
             boxShadow: "0 0 12px hsl(var(--secondary) / 0.35)",
           }}
         />
+
+        {/* Round Overview */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-3">
+          <StatTile value="$2.5M – $3.5M" label="Part 1 — now" emphasized />
+          <StatTile value="Convertible Note" label="Instrument" />
+          <StatTile value="Two-Part Seed" label="Path to self-sustainability" />
+        </div>
+
+        {/* Related materials */}
+        <div className="mt-6 rounded-xl border border-border/50 bg-card/20 p-4">
+          <p className="text-[11px] font-mono tracking-[0.22em] uppercase text-white/40 mb-3">
+            Related materials
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <Link to="/investor/one-pager" className="group rounded-lg border border-border/50 bg-background/30 hover:bg-background/50 transition p-3">
+              <div className="text-[14px] font-medium text-white/90 inline-flex items-center gap-1.5">
+                One-Pager <ArrowRight className="w-3.5 h-3.5 text-white/40 group-hover:text-secondary transition" />
+              </div>
+              <p className="mt-1 text-[12px] text-white/50 leading-snug">
+                Two-part seed at a glance — $2.5M–$3.5M Part 1.
+              </p>
+            </Link>
+            <Link to="/investor/why-this-round" className="group rounded-lg border border-border/50 bg-background/30 hover:bg-background/50 transition p-3">
+              <div className="text-[14px] font-medium text-white/90 inline-flex items-center gap-1.5">
+                Why This Round <ArrowRight className="w-3.5 h-3.5 text-white/40 group-hover:text-secondary transition" />
+              </div>
+              <p className="mt-1 text-[12px] text-white/50 leading-snug">
+                What Part 1 funds and the path to self-sustainability.
+              </p>
+            </Link>
+            <Link to="/deck" className="group rounded-lg border border-border/50 bg-background/30 hover:bg-background/50 transition p-3">
+              <div className="text-[14px] font-medium text-white/90 inline-flex items-center gap-1.5">
+                Full Deck <ArrowRight className="w-3.5 h-3.5 text-white/40 group-hover:text-secondary transition" />
+              </div>
+              <p className="mt-1 text-[12px] text-white/50 leading-snug">
+                Full narrative — Part 1 launch, Part 2 scale, long-term vision.
+              </p>
+            </Link>
+          </div>
+        </div>
+
 
         {/* Group 1 */}
         <div className="mt-12 space-y-6">
