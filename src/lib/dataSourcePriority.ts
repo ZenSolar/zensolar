@@ -31,7 +31,7 @@
  * Keep `supabase/functions/_shared/dataSourcePriority.ts` in lockstep.
  */
 
-export type Capability = 'solar' | 'battery' | 'charging' | 'consumption';
+export type Capability = 'solar' | 'battery' | 'charging' | 'consumption' | 'fsd_miles';
 export type Provider = 'tesla' | 'enphase' | 'solaredge' | 'wallbox' | 'chargepoint';
 
 export interface DeviceLike {
