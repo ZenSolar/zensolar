@@ -460,37 +460,39 @@ export default function InvestorSolarCoinComparison() {
                   <h3 className="text-base md:text-lg font-semibold tracking-tight mb-4 text-foreground break-words leading-tight">
                     {table.title}
                   </h3>
-                  <div className="rounded-2xl border border-border/60 overflow-hidden">
-                    <div className="grid grid-cols-2 text-[10px] md:text-xs uppercase tracking-[0.18em] bg-card/60 border-b border-border/60">
-                      <div className="px-3 py-2.5 text-secondary font-semibold border-r border-border/60">
-                        ZenSolar
+                  <div className="table-wrap rounded-2xl border border-border/60">
+                    <div className="min-w-[320px]">
+                      <div className="grid grid-cols-2 text-[10px] md:text-xs uppercase tracking-[0.18em] bg-card/60 border-b border-border/60">
+                        <div className="px-3 py-2.5 text-secondary font-semibold border-r border-border/60 break-words">
+                          ZenSolar
+                        </div>
+                        <div className="px-3 py-2.5 text-muted-foreground font-semibold break-words">
+                          SolarCoin
+                        </div>
                       </div>
-                      <div className="px-3 py-2.5 text-muted-foreground font-semibold">
-                        SolarCoin
-                      </div>
+                      {table.rows.map((row, i) => (
+                        <div
+                          key={row.label}
+                          className={`border-b border-border/40 last:border-b-0 ${
+                            i % 2 === 0 ? 'bg-background/40' : 'bg-card/20'
+                          }`}
+                        >
+                          <div className="px-3 pt-3 pb-1.5 text-[10px] uppercase tracking-[0.16em] text-muted-foreground/80 break-words">
+                            {row.label}
+                          </div>
+                          <div className="grid grid-cols-2 gap-0">
+                            <div className="px-3 py-3 border-r border-border/40 flex items-start gap-2 text-sm text-foreground min-w-0">
+                              <CheckCircle2 className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
+                              <span className="leading-snug break-words">{row.zen}</span>
+                            </div>
+                            <div className="px-3 py-3 flex items-start gap-2 text-sm text-muted-foreground min-w-0">
+                              <XCircle className="h-4 w-4 text-muted-foreground/50 flex-shrink-0 mt-0.5" />
+                              <span className="leading-snug break-words">{row.solar}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    {table.rows.map((row, i) => (
-                      <div
-                        key={row.label}
-                        className={`border-b border-border/40 last:border-b-0 ${
-                          i % 2 === 0 ? 'bg-background/40' : 'bg-card/20'
-                        }`}
-                      >
-                        <div className="px-3 pt-3 pb-1.5 text-[10px] uppercase tracking-[0.16em] text-muted-foreground/80">
-                          {row.label}
-                        </div>
-                        <div className="grid grid-cols-2 gap-0">
-                          <div className="px-3 py-3 border-r border-border/40 flex items-start gap-2 text-sm text-foreground">
-                            <CheckCircle2 className="h-4 w-4 text-secondary flex-shrink-0 mt-0.5" />
-                            <span className="leading-snug">{row.zen}</span>
-                          </div>
-                          <div className="px-3 py-3 flex items-start gap-2 text-sm text-muted-foreground">
-                            <XCircle className="h-4 w-4 text-muted-foreground/50 flex-shrink-0 mt-0.5" />
-                            <span className="leading-snug">{row.solar}</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
                   </div>
                 </div>
               ))}
