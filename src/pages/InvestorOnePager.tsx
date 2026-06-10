@@ -108,8 +108,6 @@ export default function InvestorOnePager() {
           {/* The Ask */}
           <section className="op-card rounded-2xl border border-border/60 bg-card/40 p-4">
             <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-2">The Ask</div>
-          <section className="op-card rounded-2xl border border-border/60 bg-card/40 p-4">
-            <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-2">The Ask</div>
             <div className="grid grid-cols-3 gap-3">
               <Stat k="$2.5M – $3.5M" v="Part 1 — now" />
               <Stat k="Two-Part" v="Seed strategy" />
