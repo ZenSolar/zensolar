@@ -31,12 +31,20 @@ export function MonthlyReportCard({ report, pastReports = [] }: Props) {
   // ── Empty / early-month state ──────────────────────────────────────────────
   if (!report) {
     return (
-      <div className="rounded-2xl border border-dashed border-amber-500/40 bg-amber-500/5 p-4 text-center">
-        <Sparkles className="mx-auto h-5 w-5 text-amber-500" />
-        <div className="mt-2 text-sm font-semibold">Your first Monthly Clean Energy Report</div>
-        <div className="mt-1 text-xs text-muted-foreground">
-          Upload your latest utility bill to start tracking month-over-month savings and earning bonus $ZSOLAR.
+      <div className="space-y-3">
+        <div className="rounded-2xl border border-dashed border-amber-500/40 bg-amber-500/5 p-4 text-center">
+          <Sparkles className="mx-auto h-5 w-5 text-amber-500" />
+          <div className="mt-2 text-sm font-semibold">Your first Monthly Clean Energy Report</div>
+          <div className="mt-1 text-xs text-muted-foreground">
+            Upload your latest utility bill to start tracking month-over-month savings and earning bonus $ZSOLAR.
+          </div>
         </div>
+        {optimizer?.schedule && (
+          <OptimizerScheduleStrip schedule={optimizer.schedule} />
+        )}
+        {optimizer?.recommendations && optimizer.recommendations.length > 0 && (
+          <OptimizerRecommendations recommendations={optimizer.recommendations} max={5} />
+        )}
       </div>
     );
   }
