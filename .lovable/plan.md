@@ -1,38 +1,60 @@
-# Settings — Deason AI Integration (additive only)
+## FSD Miles KPI — Plan
 
-## Heads up
-I searched the codebase and the rows referenced in the screenshots (Phone Pairing, Operational Mode, Storm Watch, Utility Rate Plan, Powerwall, Vehicle Charging, Wi-Fi) do **not** exist in `src/pages/Settings.tsx` or anywhere else in the project. The live `/settings` page currently shows: Wallet Setup, Security, Density, Notifications, Privacy & Preferences, Blockchain Network.
+Add **FSD Miles** as a first-class verified KPI alongside Solar kWh, Battery Export, EV Miles, and Supercharging. Mints **1:1** (1 FSD mile = 1 $ZSOLAR), consistent with the locked mint-ratio SSOT. Sourced from Tesla Fleet telemetry streaming (Autopilot engagement + odometer delta), not from a non-existent `SelfDrivingMilesSinceReset` field.
 
-So the rename/badge items in the original task can't apply. I'll do the two purely additive pieces, which work regardless of the surrounding rows, and match Tesla-style row chrome (icon left, title + subtitle, chevron right).
+### 1. Data model (migration)
 
-## Changes (only `src/pages/Settings.tsx`)
+- New `data_type` value: `fsd_miles` in `energy_production` (no schema change — column is text). Tesla writes rows with `data_type='fsd_miles'`, `kwh` field reused to store cumulative FSD miles (matches how `ev_miles` already uses the column).
+- Extend `connected_devices.metadata` optional field `fsd_enabled` (no migration — JSONB).
+- Extend `WATERMARK_NUMERIC_KEYS` in `src/lib/mintReconciliation.ts` with `fsd_miles` and `lifetime_fsd_miles` so Proof-of-Delta baseline≤lifetime invariants cover it.
+- No new table needed. No new RLS.
 
-1. **New section: "Deason AI Insights"**
-   - Inserted near the top of the two-column grid (first card), so it's prominent on mobile.
-   - Single row:
-     - Icon: `Sparkles` (amber)
-     - Title: **Energy Optimization**
-     - Subtitle: *Your personal AI Energy CFO — monthly reports, bill analysis, contract review, and proactive tips*
-     - Chevron right
-     - Wrapped in `<Link to="/deason">`
+### 2. Ingestion (Tesla telemetry streaming)
 
-2. **New row: "Utility Bill Analysis"**
-   - Added as a second row in the same Deason AI Insights card (keeps both Deason entries grouped).
-   - Icon: `FileText`
-   - Title: **Utility Bill Analysis**
-   - Subtitle: *Upload your latest bill — Deason will analyze your rate plan and find savings opportunities*
-   - Chevron right
-   - Wrapped in `<Link to="/deason?intent=bill-upload">` (Deason can read the `intent` query param later to auto-open the upload flow; no Deason-side changes in this task)
+In `supabase/functions/tesla-data/index.ts` (and the streaming consumer if separate):
+- Subscribe to / poll `vehicle_data` for `drive_state.shift_state`, `vehicle_state.odometer`, and the Autopilot fields available in `vehicle_state` (`autopark_state_v3`, `autopilot_state`) plus the Fleet Telemetry stream fields `AutopilotState` / `AutosteerCmd`.
+- Maintain a per-vehicle in-memory accumulator: when `AutopilotState ∈ {Active, Engaged}` (FSD/Autosteer on), credit the odometer delta to `fsd_miles`. When disengaged, do not credit.
+- Persist cumulative `fsd_miles` to `energy_production` (same cumulative-delta pattern as `ev_miles`) and to `connected_devices.last_known_state.lifetime_fsd_miles`.
 
-3. **Row styling**
-   - Reuses the existing `SettingRow`-style markup pattern (border-b, py-3, icon + title/subtitle), with a small `ChevronRight` on the right to match Tesla list rows.
-   - No changes to existing rows, density toggle, notifications, privacy, blockchain, or wallet cards.
+### 3. Source-of-truth + KPI hooks
 
-## Out of scope (explicitly skipped)
-- No rename of non-existent "Storm Watch" row.
-- No badge on non-existent "Operational Mode" row.
-- No new pages, no Live Energy card changes, no other sections.
+- `src/lib/dataSourcePriority.ts`: add `'fsd_miles'` capability, Tesla-only.
+- `src/hooks/useDashboardData.ts`: add `fsdMiles` (cumulative odometer-delta math, same as `ev_miles`).
+- `src/hooks/useEnergyLog.ts`: add an `FSD` tab mirroring the EV-miles math; update `mem://features/energy-log-kpi-parity.md` row table.
+- `src/hooks/useKpiContributions.ts`: add FSD contribution slice.
 
-## Final reply
-After implementation I will reply exactly with:
-> Settings menu polished — Tesla-inspired layout + Deason AI integration added to existing page.
+### 4. Proof-of-Delta + mint pipeline
+
+- `supabase/functions/mint-onchain/index.ts`: add `fsd_miles` to the categories iterated (same `verifyMintProof` call, 1:1 ratio, baseline-vs-lifetime watermark, three-way reconciliation).
+- `src/lib/dailyMintBreakdown.ts` and `src/lib/originVerification.ts`: include FSD as a verifiable origin source.
+- Mint receipts (`RecentMintProofs.tsx`, `useLatestMintReceipt.ts`): render FSD miles 1:1 (no `* 10`, no `/ USER_SHARE`).
+
+### 5. UI
+
+**Homepage showcase** — `src/components/home/CleanEnergyCenterShowcase.tsx`:
+- Add a 5th KPI card: `FSD Miles` · icon `Sparkles` or `Navigation` · sample value (seeded, consistent with existing showcase pattern).
+- Rebalance: the four-card list becomes five; spacing stays vertical-stack on mobile (no grid change needed since current layout is already a single column of `motion.button` rows).
+
+**Live dashboard** — Clean Energy Center on `/dashboard`:
+- Add a `MetricCard` (tone `accent`) for FSD Miles, wired to `useDashboardData().fsdMiles`.
+- Add to the Tap-to-Mint pending breakdown so FSD miles count toward "X ready to mint".
+
+### 6. Tests
+
+- Extend `src/lib/__tests__/mintReconciliation.test.ts` with an FSD fixture (1:1 ratio, baseline≤lifetime).
+- Extend `src/__tests__/chargingSplitInvariants.test.ts` style coverage for FSD (no double-count with `ev_miles`: FSD miles are a SUBSET of EV miles, so dashboard headlines must not sum them — show FSD as a sub-metric, not added to total miles).
+
+### 7. Memory updates
+
+- Append FSD row to `mem://features/energy-log-kpi-parity.md` (Tesla-only, cumulative delta math).
+- Add note to `mem://features/mint-ratio-ssot.md`: "1 FSD mile = 1 $ZSOLAR; FSD miles are a subset of EV miles, never summed into EV-miles total."
+
+### Out of scope
+
+- No changes to Live Energy Monitoring card.
+- No Deason changes.
+- No new on-chain contract; reuses existing $ZSOLAR mint path.
+
+### Open caveat
+
+Tesla Fleet Telemetry streaming requires the `vehicle_device_data` scope (already granted) plus an active streaming subscription. If a user hasn't enabled streaming, FSD miles will read `0` and the card will display "Awaiting Tesla telemetry stream" — same fallback pattern as today's empty-state cards.
