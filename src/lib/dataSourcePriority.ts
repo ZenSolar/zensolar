@@ -114,6 +114,17 @@ export function pickSource(
     return null;
   }
 
+  if (capability === 'fsd_miles') {
+    // FSD/Autopilot engagement is only reported by the Tesla Fleet Telemetry
+    // stream. Tesla-only, no fallback. FSD miles are a subset of total EV
+    // miles and must never be summed into the odometer-based EV miles KPI.
+    const teslaVehicle = devices.find((d) => VEHICLE_DEVICE_TYPES.has(d.device_type) && d.provider === 'tesla');
+    if (teslaVehicle) {
+      return { provider: 'tesla', deviceId: teslaVehicle.device_id, deviceName: teslaVehicle.device_name, reason: 'tesla_fleet_telemetry_only' };
+    }
+    return null;
+  }
+
   // consumption
   for (const prov of BATTERY_PRIORITY) {
     const d = devices.find((x) => BATTERY_DEVICE_TYPES.has(x.device_type) && x.provider === prov);
