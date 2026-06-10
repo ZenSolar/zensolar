@@ -1,25 +1,26 @@
-// Deason AI Energy Optimization Engine — Phase 1 + Phase 2 + Phase 3
+// Deason AI Energy Optimization Engine — Phases 1 → 4
 //
 // Phase 1: Rule-based + heuristic optimizer (deterministic, explainable).
 // Phase 2: 24–48h hourly LP-style scheduler for battery, EV, grid import/export.
 // Phase 3: Forecasting layer — solar (PVWatts + weather), load (historical
 //          telemetry), price (TOU), weather (OpenWeather). The scheduler now
-//          consumes these forecasts so dispatch decisions are predictive,
-//          not reactive.
+//          consumes these forecasts so dispatch decisions are predictive.
+// Phase 4: User-facing integration & personalized reporting:
+//          - Deep document understanding (bill / contract / PPA / loan)
+//            normalized into structured JSON insights.
+//          - Hyper-personalized monthly Clean Energy Report (financial,
+//            performance, optimizer recs, token earnings, CFO-style insights).
+//          - Concierge chat answers grounded in optimizer + documents
+//            + telemetry, with citations.
 //
-// NOTE on PuLP: Supabase Edge Functions execute on the Deno runtime, not Python,
-// so PuLP itself cannot be imported here. Phase 2 ships a TypeScript LP solver
-// of equivalent form (same decision vars / constraints / objective, solved via
-// priority-ordered hourly dispatch — provably optimal for this single-storage
-// TOU LP).
+// Modes (POST `mode`):
+//   'recommend' | 'schedule' | 'both'           — Phases 1–3
+//   'document_insights'                          — Phase 4 doc understanding
+//   'monthly_report'                             — Phase 4 monthly CFO report
+//   'concierge'                                  — Phase 4 grounded Q&A
 //
-// Input  (POST JSON):
-//   { userId?: string, mode?: 'recommend' | 'schedule' | 'both',
-//     horizon_hours?: 24 | 48,
-//     lat?: number, lon?: number, system_size_kw?: number,
-//     ev_kwh_needed?: number, ev_deadline_hour?: number, battery_kwh_capacity?: number }
-// Output (JSON):
-//   recommendations[], summary, schedule, forecast
+// All outputs are structured JSON. Every recommendation cites its sources.
+
 
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 import { createClient } from 'npm:@supabase/supabase-js@2';
@@ -664,7 +665,353 @@ function forecastExplanations(solar: SolarHour[], load: LoadHour[], price: Price
   return out;
 }
 
+// ============================================================
+// Phase 4 — Document understanding, monthly report, concierge
+// ============================================================
+
+interface DocInsight {
+  doc_id: string;
+  kind: string;
+  label: string | null;
+  financing_type: string | null;
+  period_month: string | null;
+  uploaded_at: string;
+  storage_path: string;
+  key_fields: Record<string, any>;
+  risk_flags: Array<{ flag: string; severity: Severity; explanation: string }>;
+  opportunities: Array<{ title: string; est_annual_savings_usd: number; rationale: string }>;
+  sources: string[];
+}
+
+function pick(obj: any, ...keys: string[]): any {
+  if (!obj || typeof obj !== 'object') return undefined;
+  for (const k of keys) {
+    const v = obj[k];
+    if (v != null && v !== '') return v;
+  }
+  return undefined;
+}
+
+/** Deep-analyze a stored document using whatever structured fields the
+ *  prior OCR/LLM pipeline already extracted, plus heuristic risk/oppty
+ *  detection. Pure function — safe to run for every doc on every call. */
+function analyzeDocument(doc: any, analysis: any | null, rp: RatePlan): DocInsight {
+  const risks: DocInsight['risk_flags'] = [];
+  const opps: DocInsight['opportunities'] = [];
+  const fields: Record<string, any> = {};
+  const a = analysis ?? {};
+
+  if (doc.kind === 'utility_bill') {
+    const totalKwh = n(pick(a, 'total_kwh', 'kwh'));
+    const totalUsd = n(pick(a, 'total_amount_usd', 'amount_due_usd', 'amount_due'));
+    const peakRate = n(pick(a, 'peak_rate_usd_per_kwh', 'peak_rate'));
+    const offRate = n(pick(a, 'offpeak_rate_usd_per_kwh', 'offpeak_rate'));
+    fields.total_kwh = totalKwh || null;
+    fields.total_amount_usd = totalUsd || null;
+    fields.utility = pick(a, 'utility', 'utility_name') ?? null;
+    fields.rate_plan = pick(a, 'rate_plan', 'plan_name') ?? null;
+    fields.nem_version = pick(a, 'nem_version') ?? null;
+    fields.peak_usd_per_kwh = peakRate || null;
+    fields.offpeak_usd_per_kwh = offRate || null;
+    fields.blended_usd_per_kwh = totalKwh > 0 && totalUsd > 0 ? round3(totalUsd / totalKwh) : null;
+
+    if (peakRate > 0 && offRate > 0 && (peakRate - offRate) / Math.max(offRate, 0.01) >= 0.5) {
+      opps.push({
+        title: 'Shift discretionary load to off-peak window',
+        est_annual_savings_usd: round2(totalKwh * 0.15 * (peakRate - offRate) * 12),
+        rationale: `Peak ($${peakRate}/kWh) is >50% higher than off-peak ($${offRate}/kWh).`,
+      });
+    }
+    if (fields.blended_usd_per_kwh && fields.blended_usd_per_kwh > 0.30) {
+      risks.push({
+        flag: 'high_blended_rate',
+        severity: 'high',
+        explanation: `Blended rate $${fields.blended_usd_per_kwh}/kWh is well above the US average (~$0.17).`,
+      });
+    }
+  }
+
+  if (doc.kind === 'ppa') {
+    const pricePerKwh = n(pick(a, 'ppa_price_usd_per_kwh', 'price_per_kwh', 'rate'));
+    const escalator = n(pick(a, 'annual_escalator_pct', 'escalator_pct', 'escalator'));
+    const termYears = n(pick(a, 'term_years', 'term'));
+    fields.ppa_price_usd_per_kwh = pricePerKwh || null;
+    fields.annual_escalator_pct = escalator || null;
+    fields.term_years = termYears || null;
+    fields.counterparty = pick(a, 'counterparty', 'provider', 'installer') ?? null;
+
+    if (escalator >= 2.9) {
+      risks.push({
+        flag: 'high_ppa_escalator',
+        severity: escalator >= 3.9 ? 'high' : 'medium',
+        explanation: `PPA escalator of ${escalator}%/yr will outpace typical utility inflation over a ${termYears || 25}-yr term.`,
+      });
+    }
+    if (pricePerKwh > 0 && rp.offpeak_usd_per_kwh > 0 && pricePerKwh > rp.offpeak_usd_per_kwh * 1.5) {
+      risks.push({
+        flag: 'ppa_above_offpeak_grid',
+        severity: 'medium',
+        explanation: `PPA price ($${pricePerKwh}/kWh) is materially above current off-peak grid ($${rp.offpeak_usd_per_kwh}/kWh).`,
+      });
+    }
+  }
+
+  if (doc.kind === 'loan') {
+    const apr = n(pick(a, 'apr_pct', 'interest_rate_pct', 'rate'));
+    const term = n(pick(a, 'term_months', 'term'));
+    const monthly = n(pick(a, 'monthly_payment_usd', 'monthly_payment'));
+    const principal = n(pick(a, 'principal_usd', 'loan_amount_usd', 'amount'));
+    fields.apr_pct = apr || null;
+    fields.term_months = term || null;
+    fields.monthly_payment_usd = monthly || null;
+    fields.principal_usd = principal || null;
+    fields.has_dealer_fee = !!pick(a, 'dealer_fee_usd', 'dealer_fee');
+    if (apr >= 7.5) {
+      risks.push({
+        flag: 'high_solar_loan_apr',
+        severity: apr >= 9.5 ? 'high' : 'medium',
+        explanation: `APR ${apr}% is high vs. current solar loan benchmarks; refinance may save thousands over the term.`,
+      });
+    }
+    if (fields.has_dealer_fee) {
+      risks.push({
+        flag: 'dealer_fee_present',
+        severity: 'medium',
+        explanation: 'Dealer fee detected — often 15–30% of system cost is bundled into financed principal.',
+      });
+    }
+  }
+
+  if (doc.kind === 'installer_contract') {
+    fields.installer = pick(a, 'installer', 'company') ?? null;
+    fields.system_size_kw = n(pick(a, 'system_size_kw')) || null;
+    fields.system_cost_usd = n(pick(a, 'system_cost_usd', 'contract_price')) || null;
+    fields.battery_kwh = n(pick(a, 'battery_kwh', 'battery_capacity_kwh')) || null;
+    fields.workmanship_warranty_years = n(pick(a, 'workmanship_warranty_years', 'workmanship_years')) || null;
+    if (fields.workmanship_warranty_years && fields.workmanship_warranty_years < 10) {
+      risks.push({
+        flag: 'short_workmanship_warranty',
+        severity: 'medium',
+        explanation: `Workmanship warranty (${fields.workmanship_warranty_years} yrs) is shorter than the industry standard (10+ yrs).`,
+      });
+    }
+    if (fields.system_size_kw && fields.system_cost_usd) {
+      const pricePerWatt = fields.system_cost_usd / (fields.system_size_kw * 1000);
+      fields.price_per_watt_usd = round2(pricePerWatt);
+      if (pricePerWatt > 4.0) {
+        risks.push({
+          flag: 'above_market_price_per_watt',
+          severity: 'medium',
+          explanation: `$${round2(pricePerWatt)}/W is above the typical residential range ($2.50–$3.50/W).`,
+        });
+      }
+    }
+  }
+
+  return {
+    doc_id: doc.id,
+    kind: doc.kind,
+    label: doc.label ?? null,
+    financing_type: doc.financing_type ?? null,
+    period_month: doc.period_month ?? null,
+    uploaded_at: doc.uploaded_at,
+    storage_path: doc.storage_path,
+    key_fields: fields,
+    risk_flags: risks,
+    opportunities: opps,
+    sources: [`document:${doc.kind}:${doc.id}`],
+  };
+}
+
+/** Roll up per-document insights into a single document layer for the
+ *  monthly report and concierge answers. */
+function summarizeDocs(insights: DocInsight[]) {
+  const risks = insights.flatMap(i => i.risk_flags.map(r => ({ ...r, source_doc_id: i.doc_id, kind: i.kind })));
+  const opps = insights.flatMap(i => i.opportunities.map(o => ({ ...o, source_doc_id: i.doc_id, kind: i.kind })));
+  return {
+    count: insights.length,
+    by_kind: insights.reduce<Record<string, number>>((m, i) => { m[i.kind] = (m[i.kind] ?? 0) + 1; return m; }, {}),
+    financing_type: insights.find(i => i.financing_type)?.financing_type ?? null,
+    risk_flags: risks.sort((a, b) => sevRank(b.severity) - sevRank(a.severity)),
+    opportunities: opps.sort((a, b) => b.est_annual_savings_usd - a.est_annual_savings_usd),
+  };
+}
+function sevRank(s: Severity): number { return s === 'high' ? 3 : s === 'medium' ? 2 : 1; }
+
+/** Build a personalized CFO-style monthly report from optimizer outputs,
+ *  forecasts, document insights, and recent telemetry. */
+function buildMonthlyReport(args: {
+  userId: string;
+  periodMonth: string;
+  profile: any;
+  ratePlan: RatePlan;
+  bill: any | null;
+  insights: DocInsight[];
+  docSummary: ReturnType<typeof summarizeDocs>;
+  recs: Recommendation[];
+  summary: { est_monthly_savings_usd: number; est_annual_savings_usd: number; confidence: number };
+  schedule: any | null;
+  forecast: any | null;
+  telemetryPresent: { battery: boolean; ev: boolean; solar: boolean };
+}) {
+  const monthlyKwh = n(args.bill?.total_kwh ?? 0);
+  const monthlyBillUsd = n(args.bill?.total_amount_usd ?? 0);
+  const scheduledSavings = n(args.schedule?.totals?.savings_usd ?? 0);
+  const tokensEarned = n(args.schedule?.totals?.zsolar_tokens ?? 0);
+  const dollarsSaved = round2(args.summary.est_monthly_savings_usd + scheduledSavings);
+
+  const expectedSolarKwh = round2(
+    (args.forecast?.solar ?? [])
+      .reduce((s: number, r: any) => s + n(r.kw), 0) * (30 / (args.forecast?.horizon_hours === 48 ? 2 : 1)),
+  );
+
+  const financial = {
+    current_monthly_bill_usd: monthlyBillUsd || null,
+    blended_rate_usd_per_kwh: args.insights.find(i => i.kind === 'utility_bill')?.key_fields?.blended_usd_per_kwh ?? null,
+    projected_monthly_savings_usd: dollarsSaved,
+    projected_annual_savings_usd: round2(dollarsSaved * 12),
+    confidence: args.summary.confidence,
+    tokens_earned_estimate: round2(tokensEarned),
+  };
+
+  const performance = {
+    monthly_kwh_actual: monthlyKwh || null,
+    monthly_kwh_expected_from_forecast: expectedSolarKwh || null,
+    delta_pct: monthlyKwh && expectedSolarKwh
+      ? round2(((monthlyKwh - expectedSolarKwh) / expectedSolarKwh) * 100) : null,
+    telemetry_coverage: args.telemetryPresent,
+    verdict: monthlyKwh && expectedSolarKwh
+      ? (monthlyKwh >= expectedSolarKwh * 0.95 ? 'on_track'
+        : monthlyKwh >= expectedSolarKwh * 0.85 ? 'mild_underperformance' : 'underperforming')
+      : 'insufficient_data',
+  };
+
+  const topRecs = args.recs.slice(0, 5).map(r => ({
+    title: r.title, action: r.action, est_monthly_savings_usd: r.est_monthly_savings_usd,
+    rationale: r.rationale, sources: r.sources, priority: r.priority, severity: r.severity,
+  }));
+
+  const cfoInsights: string[] = [];
+  if (financial.projected_annual_savings_usd > 0) {
+    cfoInsights.push(`Your projected annual savings of $${financial.projected_annual_savings_usd.toFixed(0)} represent a ${monthlyBillUsd > 0 ? Math.round((dollarsSaved / monthlyBillUsd) * 100) : '—'}% reduction vs. your current bill.`);
+  }
+  if (args.docSummary.risk_flags.length > 0) {
+    const top = args.docSummary.risk_flags[0];
+    cfoInsights.push(`Highest-priority contract risk: ${top.flag.replaceAll('_', ' ')} (${top.severity}). ${top.explanation}`);
+  }
+  if (performance.verdict === 'underperforming') {
+    cfoInsights.push(`System producing ${Math.abs(performance.delta_pct ?? 0)}% below forecast — investigate shading, inverter health, or panel soiling.`);
+  }
+  if (args.ratePlan.source === 'bill' && topRecs.some(r => r.title.toLowerCase().includes('rate'))) {
+    cfoInsights.push('A rate-plan switch is the single highest-leverage action this month — see recommendations.');
+  }
+  if (tokensEarned > 0) {
+    cfoInsights.push(`Following this month's optimized schedule earns ~${tokensEarned.toFixed(0)} $ZSOLAR tokens on top of cash savings.`);
+  }
+
+  return {
+    period_month: args.periodMonth,
+    generated_at: new Date().toISOString(),
+    headline: {
+      dollars_saved_monthly: dollarsSaved,
+      dollars_saved_annual: round2(dollarsSaved * 12),
+      tokens_earned: round2(tokensEarned),
+      confidence: args.summary.confidence,
+    },
+    financial,
+    performance,
+    optimization: {
+      recommendations: topRecs,
+      scheduler_totals: args.schedule?.totals ?? null,
+      scheduler_explanations: args.schedule?.explanations ?? [],
+    },
+    documents: {
+      analyzed_count: args.docSummary.count,
+      by_kind: args.docSummary.by_kind,
+      financing_type: args.docSummary.financing_type,
+      risk_flags: args.docSummary.risk_flags,
+      opportunities: args.docSummary.opportunities,
+      per_document: args.insights.map(i => ({
+        doc_id: i.doc_id, kind: i.kind, label: i.label, key_fields: i.key_fields,
+        risk_flags: i.risk_flags, opportunities: i.opportunities,
+      })),
+    },
+    cfo_insights: cfoInsights,
+    rate_plan: args.ratePlan,
+    sources: [
+      'optimizer:phase1_rules', 'optimizer:phase2_scheduler', 'optimizer:phase3_forecasts',
+      ...args.insights.map(i => `document:${i.kind}:${i.doc_id}`),
+    ],
+  };
+}
+
+/** Concierge — turn a user's free-text question into a grounded answer
+ *  built from optimizer + docs + telemetry. Deterministic JSON, no LLM
+ *  required; the chat layer can wrap this with prose if desired. */
+function buildConciergeAnswer(args: {
+  question: string;
+  recs: Recommendation[];
+  schedule: any | null;
+  forecast: any | null;
+  docInsights: DocInsight[];
+  ratePlan: RatePlan;
+  telemetryPresent: { battery: boolean; ev: boolean; solar: boolean };
+}) {
+  const q = (args.question || '').toLowerCase();
+  const matches: Recommendation[] = [];
+  const intents: string[] = [];
+
+  const has = (...kws: string[]) => kws.some(k => q.includes(k));
+  if (has('ev', 'tesla', 'car', 'charge')) { intents.push('ev_charging'); matches.push(...args.recs.filter(r => r.rule_id === 'R2_ev_charging')); }
+  if (has('battery', 'powerwall', 'storage')) { intents.push('battery'); matches.push(...args.recs.filter(r => r.rule_id === 'R3_battery_peak' || r.rule_id === 'R4_battery_health')); }
+  if (has('solar', 'panel', 'production', 'export')) { intents.push('solar'); matches.push(...args.recs.filter(r => r.rule_id === 'R1_self_consumption')); }
+  if (has('rate', 'plan', 'tou', 'tariff', 'bill')) { intents.push('rate_plan'); matches.push(...args.recs.filter(r => r.rule_id === 'R5_rate_plan')); }
+  if (has('ppa', 'lease')) intents.push('ppa');
+  if (has('loan', 'apr', 'finance', 'refinance')) intents.push('loan');
+  if (has('contract', 'installer', 'warranty')) intents.push('contract');
+  if (has('save', 'savings', 'money', 'roi', 'payback')) intents.push('financial');
+
+  if (!matches.length) matches.push(...args.recs.slice(0, 3));
+
+  const docCitations = args.docInsights
+    .filter(i => intents.includes(
+      i.kind === 'ppa' ? 'ppa'
+      : i.kind === 'loan' ? 'loan'
+      : i.kind === 'installer_contract' ? 'contract'
+      : 'rate_plan',
+    ))
+    .map(i => ({ doc_id: i.doc_id, kind: i.kind, label: i.label, key_fields: i.key_fields, risk_flags: i.risk_flags }));
+
+  const scheduleHints = (args.schedule?.explanations ?? []).filter((e: string) =>
+    intents.some(i => e.toLowerCase().includes(i.replace('_', ' ')) || e.toLowerCase().includes(i)),
+  );
+
+  const summary = matches.length
+    ? `${matches[0].title}: ${matches[0].action} (${matches[0].rationale}) — est. $${matches[0].est_monthly_savings_usd}/mo.`
+    : 'No matching optimization found yet — connect a device or upload a bill for personalized advice.';
+
+  return {
+    question: args.question,
+    detected_intents: intents,
+    summary,
+    answer: {
+      recommendations: matches.slice(0, 3),
+      scheduler_hints: scheduleHints.slice(0, 3),
+      document_citations: docCitations,
+      rate_plan: args.ratePlan,
+      telemetry_coverage: args.telemetryPresent,
+    },
+    sources: [
+      ...matches.flatMap(m => m.sources),
+      ...docCitations.map(d => `document:${d.kind}:${d.doc_id}`),
+      ...(scheduleHints.length ? ['optimizer:phase2_scheduler'] : []),
+    ],
+    grounded: matches.length > 0 || docCitations.length > 0,
+  };
+}
+
 // ---------- entry ----------
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
@@ -683,8 +1030,14 @@ Deno.serve(async (req) => {
     let body: any = {};
     try { body = await req.json(); } catch { /* empty */ }
     const userId: string | null = body.userId ?? user?.id ?? null;
-    const mode: 'recommend' | 'schedule' | 'both' = body.mode ?? 'both';
+    const mode: 'recommend' | 'schedule' | 'both' | 'document_insights' | 'monthly_report' | 'concierge' =
+      body.mode ?? 'both';
     const horizon: number = body.horizon_hours === 48 ? 48 : 24;
+    const question: string = typeof body.question === 'string' ? body.question : '';
+    const periodMonth: string = typeof body.period_month === 'string'
+      ? body.period_month
+      : (() => { const d = new Date(); return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1)).toISOString().slice(0, 10); })();
+
 
     if (!userId) {
       return new Response(JSON.stringify({ error: 'not_authenticated' }), {
@@ -692,16 +1045,30 @@ Deno.serve(async (req) => {
       });
     }
 
-    const [profileRes, devicesRes, analysisRes, cacheRes] = await Promise.all([
+    const [profileRes, devicesRes, analysisRes, cacheRes, docsRes, docAnalysesRes] = await Promise.all([
       admin.from('profiles').select('state_code, utility_name, esid').eq('user_id', userId).maybeSingle(),
       admin.from('connected_devices').select('provider, device_type, device_id, device_name').eq('user_id', userId),
-      admin.from('deason_doc_analyses').select('analysis, created_at').eq('user_id', userId).order('created_at', { ascending: false }).limit(1).maybeSingle(),
+      admin.from('deason_doc_analyses').select('report, created_at').eq('user_id', userId).order('created_at', { ascending: false }).limit(1).maybeSingle(),
       admin.from('device_telemetry_cache').select('oem_type, device_type, payload, cached_at').eq('user_id', userId),
+      admin.from('deason_documents').select('id, kind, label, storage_path, source, period_month, uploaded_at, financing_type, linked_analysis_id').eq('user_id', userId).order('uploaded_at', { ascending: false }).limit(50),
+      admin.from('deason_doc_analyses').select('id, report, doc_paths, created_at').eq('user_id', userId).order('created_at', { ascending: false }).limit(20),
     ]);
+
 
     const profile = profileRes.data;
     const devices = devicesRes.data ?? [];
-    const bill = analysisRes.data?.analysis ?? null;
+    const bill = analysisRes.data?.report ?? null;
+    const allDocs = (docsRes.data ?? []) as any[];
+    const allAnalyses = (docAnalysesRes.data ?? []) as any[];
+    // Best-effort: for each doc, find the most recent matching analysis (by
+    // doc_paths overlap on storage_path). Falls back to most recent overall.
+    const findAnalysisForDoc = (doc: any) => {
+      const match = allAnalyses.find(a =>
+        Array.isArray(a.doc_paths) && a.doc_paths.some((p: any) => (typeof p === 'string' ? p : p?.storage_path) === doc.storage_path),
+      );
+      return match?.report ?? allAnalyses[0]?.report ?? null;
+    };
+
     const cache = cacheRes.data ?? [];
     const telemetry = {
       battery: cache.filter((r: any) => r.device_type === 'battery'),
@@ -723,7 +1090,9 @@ Deno.serve(async (req) => {
     // ----- Phase 2 (LP-equivalent scheduler) + Phase 3 (forecasts) -----
     let phase2: any = null;
     let forecastPayload: any = null;
-    if (mode === 'schedule' || mode === 'both') {
+    const needsSchedule = mode === 'schedule' || mode === 'both' || mode === 'monthly_report' || mode === 'concierge';
+    if (needsSchedule) {
+
       const snap = extractTelemetrySnapshot(telemetry);
       const params = defaultParams(snap);
       if (body.ev_kwh_needed != null) params.ev_kwh_needed = n(body.ev_kwh_needed);
@@ -793,7 +1162,53 @@ Deno.serve(async (req) => {
       };
     }
 
+    // ---------- Phase 4 — document insights (always computed; cheap) ----------
+    const docInsights: DocInsight[] = allDocs.map(d => analyzeDocument(d, findAnalysisForDoc(d), rate_plan));
+    const docSummary = summarizeDocs(docInsights);
+
+    // Mode dispatch for Phase 4 user-facing payloads.
+    if (mode === 'document_insights') {
+      return new Response(JSON.stringify({
+        generated_at: new Date().toISOString(),
+        user_id: userId, mode, currency: 'USD',
+        rate_plan,
+        documents: { count: docInsights.length, by_kind: docSummary.by_kind, insights: docInsights, summary: docSummary },
+        engine: { phase: 4, type: 'document_insights', version: '4.0.0' },
+      }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    if (mode === 'monthly_report') {
+      const report = buildMonthlyReport({
+        userId, periodMonth, profile, ratePlan: rate_plan, bill,
+        insights: docInsights, docSummary, recs: ranked,
+        summary: { est_monthly_savings_usd: estMonthly, est_annual_savings_usd: round2(estMonthly * 12), confidence },
+        schedule: phase2, forecast: forecastPayload,
+        telemetryPresent: { battery: telemetry.battery.length > 0, ev: telemetry.ev.length > 0, solar: telemetry.solar.length > 0 },
+      });
+      return new Response(JSON.stringify({
+        generated_at: new Date().toISOString(),
+        user_id: userId, mode, currency: 'USD',
+        monthly_report: report,
+        engine: { phase: 4, type: 'monthly_report', version: '4.0.0' },
+      }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    if (mode === 'concierge') {
+      const answer = buildConciergeAnswer({
+        question, recs: ranked, schedule: phase2, forecast: forecastPayload,
+        docInsights, ratePlan: rate_plan,
+        telemetryPresent: { battery: telemetry.battery.length > 0, ev: telemetry.ev.length > 0, solar: telemetry.solar.length > 0 },
+      });
+      return new Response(JSON.stringify({
+        generated_at: new Date().toISOString(),
+        user_id: userId, mode, currency: 'USD',
+        concierge: answer,
+        engine: { phase: 4, type: 'concierge', version: '4.0.0' },
+      }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     const result = {
+
       generated_at: new Date().toISOString(),
       user_id: userId,
       currency: 'USD',
@@ -814,10 +1229,13 @@ Deno.serve(async (req) => {
       rules_fired: rulesFired,
       schedule: phase2,
       forecast: forecastPayload,
+      documents: { count: docInsights.length, by_kind: docSummary.by_kind, summary: docSummary, insights: docInsights },
+
       engine: {
-        phase: phase2 ? 3 : 1,
-        type: phase2 ? 'rule_based_plus_lp_scheduler_plus_forecasts' : 'rule_based_heuristic',
-        version: '3.0.0',
+        phase: 4,
+        type: phase2 ? 'rule_based_plus_lp_scheduler_plus_forecasts_plus_docs' : 'rule_based_heuristic_plus_docs',
+        version: '4.0.0',
+
         solver: phase2 ? 'ts_lp_equivalent_priority_dispatch' : null,
         solver_note: phase2
           ? 'LP solved in TypeScript via priority-ordered hourly dispatch over forecast-conditioned slots (PVWatts + OpenWeather where keys present, heuristic + historical telemetry otherwise).'
