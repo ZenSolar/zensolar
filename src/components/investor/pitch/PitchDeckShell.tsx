@@ -268,16 +268,19 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
             ✕ Close Grid
           </button>
         </div>
-        <div className="grid grid-cols-3 xl:grid-cols-4 gap-6">
+        <div role="list" className="grid grid-cols-3 xl:grid-cols-4 gap-6">
           {slides.map((slide, i) => (
             <button
               key={i}
+              role="listitem"
               onClick={() => goTo(i)}
-              className={`relative group rounded-lg overflow-hidden border-2 transition-all ${
+              aria-label={`Go to slide ${i + 1}: ${slideLabels[i]}`}
+              aria-current={i === current ? 'true' : undefined}
+              className={`relative group rounded-lg overflow-hidden border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(207,90%,54%)] ${
                 i === current ? 'border-[hsl(207,90%,54%)] shadow-lg shadow-[hsl(207,90%,54%)]/20' : 'border-white/10 hover:border-white/30'
               }`}
             >
-              <div className="w-full aspect-video overflow-hidden">
+              <div className="w-full aspect-video overflow-hidden" aria-hidden="true">
                 <div style={{ transform: `scale(${0.17})`, transformOrigin: 'top left', width: 1920, height: 1080 }}>
                   {slide}
                 </div>
