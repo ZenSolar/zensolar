@@ -720,12 +720,12 @@ Deno.serve(async (req) => {
     const confidence = ranked.length
       ? round2(ranked.reduce((s, r) => s + r.confidence, 0) / ranked.length) : 0;
 
-    // ----- Phase 2 (LP-equivalent scheduler) -----
+    // ----- Phase 2 (LP-equivalent scheduler) + Phase 3 (forecasts) -----
     let phase2: any = null;
+    let forecastPayload: any = null;
     if (mode === 'schedule' || mode === 'both') {
       const snap = extractTelemetrySnapshot(telemetry);
       const params = defaultParams(snap);
-      // Pull EV preference overrides if supplied.
       if (body.ev_kwh_needed != null) params.ev_kwh_needed = n(body.ev_kwh_needed);
       if (body.ev_deadline_hour != null) params.ev_deadline_hour = Math.max(0, Math.min(23, Math.floor(n(body.ev_deadline_hour))));
       if (body.battery_kwh_capacity != null) {
@@ -733,9 +733,45 @@ Deno.serve(async (req) => {
         params.max_daily_discharge_kwh = params.battery_kwh_capacity * 1.2;
       }
       const dailyKwh = n(bill?.total_kwh ?? 900) / 30;
-      const solarPeakKw = snap.has_solar ? Math.max(3, n(snap.solar_w) / 1000 || 6) : 0;
-      const slots = buildScheduleSlots(rate_plan, horizon, dailyKwh, solarPeakKw);
+      const installedSystemKw = n(body.system_size_kw ?? bill?.system_size_kw ?? 0);
+      const solarPeakKw = snap.has_solar
+        ? Math.max(3, installedSystemKw > 0 ? installedSystemKw : (n(snap.solar_w) / 1000 || 6))
+        : 0;
+      const lat = typeof body.lat === 'number' ? body.lat : null;
+      const lon = typeof body.lon === 'number' ? body.lon : null;
+
+      // --- Phase 3 forecasts ---
+      const weather = await forecastWeather(lat, lon, horizon);
+      const solarFc = snap.has_solar
+        ? ((await forecastSolarPVWatts(lat, lon, installedSystemKw > 0 ? installedSystemKw : solarPeakKw, horizon, weather))
+            ?? forecastSolarHeuristic(solarPeakKw, horizon, weather))
+        : forecastSolarHeuristic(0, horizon, weather);
+      const loadFc  = forecastLoadFromHistory(telemetry, horizon, dailyKwh, weather);
+      const priceFc = forecastPrice(rate_plan, horizon);
+
+      // Build base slots, then overlay forecasts before solving.
+      const baseSlots = buildScheduleSlots(rate_plan, horizon, dailyKwh, solarPeakKw);
+      const slots = applyForecastsToSlots(baseSlots, solarFc, loadFc, priceFc);
       const sol = solveSchedule(slots, params);
+      const fcExpl = forecastExplanations(solarFc, loadFc, priceFc, weather, sol.schedule);
+
+      forecastPayload = {
+        horizon_hours: horizon,
+        location: lat != null && lon != null ? { lat, lon } : null,
+        sources: {
+          solar: solarFc[0]?.source ?? 'heuristic',
+          load: loadFc[0]?.source ?? 'bill_or_default',
+          price: 'tou_from_rate_plan',
+          weather: weather ? 'openweather_onecall_3' : 'unavailable',
+          pvwatts_available: !!Deno.env.get('NREL_API_KEY'),
+          openweather_available: !!Deno.env.get('OPENWEATHER_API_KEY'),
+        },
+        solar: solarFc,
+        load: loadFc,
+        price: priceFc,
+        weather: weather ?? [],
+      };
+
       phase2 = {
         params: {
           horizon_hours: horizon,
@@ -749,10 +785,11 @@ Deno.serve(async (req) => {
           max_daily_discharge_kwh: params.max_daily_discharge_kwh,
           assumed_daily_load_kwh: round2(dailyKwh),
           assumed_solar_peak_kw: round2(solarPeakKw),
+          forecast_driven: true,
         },
         schedule: sol.schedule,
         totals: sol.totals,
-        explanations: sol.explanations,
+        explanations: [...fcExpl, ...sol.explanations],
       };
     }
 
@@ -776,14 +813,16 @@ Deno.serve(async (req) => {
       },
       rules_fired: rulesFired,
       schedule: phase2,
+      forecast: forecastPayload,
       engine: {
-        phase: phase2 ? 2 : 1,
-        type: phase2 ? 'rule_based_plus_lp_scheduler' : 'rule_based_heuristic',
-        version: '2.0.0',
+        phase: phase2 ? 3 : 1,
+        type: phase2 ? 'rule_based_plus_lp_scheduler_plus_forecasts' : 'rule_based_heuristic',
+        version: '3.0.0',
         solver: phase2 ? 'ts_lp_equivalent_priority_dispatch' : null,
         solver_note: phase2
-          ? 'PuLP is a Python library; Supabase Edge runtime is Deno-only, so the LP is solved in TypeScript via priority-ordered hourly dispatch — provably optimal for this single-storage TOU LP. Same decision variables, constraints, and objective as a PuLP formulation.'
+          ? 'LP solved in TypeScript via priority-ordered hourly dispatch over forecast-conditioned slots (PVWatts + OpenWeather where keys present, heuristic + historical telemetry otherwise).'
           : null,
+        forecast_sources: phase2 ? forecastPayload.sources : null,
       },
     };
 
