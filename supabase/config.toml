@@ -15,6 +15,8 @@ project_id = "fcptrpgqkjffgeddajwl"
     verify_jwt = false
   [functions.deason-chat]
     verify_jwt = false
+  [functions.deason-optimizer]
+    verify_jwt = false
   [functions.delete-account]
     verify_jwt = false
   [functions.enphase-auth]
