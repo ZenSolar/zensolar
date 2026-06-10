@@ -10,6 +10,9 @@ import { WhatChanged } from "@/components/deason/report/WhatChanged";
 import { BillSavingsStrip } from "@/components/deason/report/BillSavingsStrip";
 import { TrendSparkline, type TrendPoint } from "@/components/deason/report/TrendSparkline";
 import { ShareMonthButton } from "@/components/deason/report/ShareMonthButton";
+import { OptimizerScheduleStrip } from "@/components/deason/hub/OptimizerScheduleStrip";
+import { OptimizerRecommendations } from "@/components/deason/hub/OptimizerRecommendations";
+import { useDeasonOptimizer } from "@/hooks/useDeasonOptimizer";
 
 interface Props {
   report: MonthlyReport | null;
