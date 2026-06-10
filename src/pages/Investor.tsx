@@ -214,7 +214,7 @@ export default function Investor() {
               loading="eager"
             />
             <span className="text-[11px] uppercase tracking-[0.28em] text-secondary/90 mb-5">
-              {refFirstName ? `Welcome, ${refFirstName} · ` : ''}Investor Access · Seed Round
+              {refFirstName ? `Welcome, ${refFirstName} · ` : ''}Investor Access · Seed Round · Part 1 of 2
             </span>
             <h1 className="text-4xl md:text-6xl font-semibold leading-[1.02] tracking-tight">
               Creating Currency
@@ -223,6 +223,9 @@ export default function Investor() {
             </h1>
             <p className="mt-6 text-base md:text-lg text-muted-foreground max-w-lg leading-relaxed">
               The patent-pending protocol turning verified clean energy into a hard-capped digital currency on Base.
+            </p>
+            <p className="mt-4 text-sm md:text-base text-muted-foreground/90 max-w-xl leading-relaxed">
+              We're raising the first part of a two-part seed ($2.5M–$3.5M now) to launch the token and ignite the flywheel. Part 2 scales once traction is proven — designed to reach self-sustainability without a traditional Series A.
             </p>
             <div className="mt-10 grid grid-cols-3 gap-3 w-full max-w-md">
               {[
