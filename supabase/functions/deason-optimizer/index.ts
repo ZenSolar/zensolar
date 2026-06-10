@@ -893,21 +893,22 @@ function buildMonthlyReport(args: {
 
   const cfoInsights: string[] = [];
   if (financial.projected_annual_savings_usd > 0) {
-    cfoInsights.push(`Your projected annual savings of $${financial.projected_annual_savings_usd.toFixed(0)} represent a ${monthlyBillUsd > 0 ? Math.round((dollarsSaved / monthlyBillUsd) * 100) : '—'}% reduction vs. your current bill.`);
+    cfoInsights.push(`Great month — your projected annual savings of $${financial.projected_annual_savings_usd.toFixed(0)} represent a ${monthlyBillUsd > 0 ? Math.round((dollarsSaved / monthlyBillUsd) * 100) : '—'}% reduction vs. your current bill. Nice work keeping your system tuned.`);
   }
   if (args.docSummary.risk_flags.length > 0) {
     const top = args.docSummary.risk_flags[0];
-    cfoInsights.push(`Highest-priority contract risk: ${top.flag.replaceAll('_', ' ')} (${top.severity}). ${top.explanation}`);
+    cfoInsights.push(`Heads up — the biggest item to address in your paperwork is ${top.flag.replaceAll('_', ' ')} (${top.severity}). ${top.explanation} Want me to draft an email to your installer about this?`);
   }
   if (performance.verdict === 'underperforming') {
-    cfoInsights.push(`System producing ${Math.abs(performance.delta_pct ?? 0)}% below forecast — investigate shading, inverter health, or panel soiling.`);
+    cfoInsights.push(`Your system is producing ${Math.abs(performance.delta_pct ?? 0)}% below forecast this month — usually shading, soiling, or one offline inverter/optimizer. A quick check in your OEM app (Enphase/SolarEdge/Tesla) will usually pinpoint it. Want help reading the screen?`);
   }
   if (args.ratePlan.source === 'bill' && topRecs.some(r => r.title.toLowerCase().includes('rate'))) {
-    cfoInsights.push('A rate-plan switch is the single highest-leverage action this month — see recommendations.');
+    cfoInsights.push('Your single highest-leverage move this month is a rate-plan switch — see the top recommendation. Happy to walk you through the call to your utility if helpful.');
   }
   if (tokensEarned > 0) {
-    cfoInsights.push(`Following this month's optimized schedule earns ~${tokensEarned.toFixed(0)} $ZSOLAR tokens on top of cash savings.`);
+    cfoInsights.push(`Bonus: following this month's optimized schedule earns you ~${tokensEarned.toFixed(0)} $ZSOLAR tokens on top of the cash savings. Nice stacking. 👏`);
   }
+
 
   return {
     period_month: args.periodMonth,

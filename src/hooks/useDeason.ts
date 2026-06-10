@@ -185,49 +185,63 @@ export function useDeason(opts: UseDeasonOptions = {}) {
           throw new Error("Please sign in to chat with Deason.");
         }
 
-        // ── Branch A: bill image → structured analysis.
+        // ── Branch A: image upload.
+        // Route to bill analyzer ONLY when the note (or absence of note) looks
+        // bill-shaped. Equipment / troubleshooting photos (inverters, batteries,
+        // chargers, error screens, app screenshots) flow into the regular
+        // multimodal chat stream so Deason can troubleshoot.
         if (imageDataUrl) {
-          setMessages((prev) => {
-            const copy = [...prev];
-            copy[copy.length - 1] = { role: "assistant", content: "Reading your bill…" };
-            return copy;
-          });
+          const noteLower = trimmed.toLowerCase();
+          const billKeywords = /\b(bill|invoice|statement|utility|rate plan|tou|kwh|kilowatt|usage|tier|peak|charges?|due|reliant|octopus|rhythm|pg&?e|sce|sdg&?e|coned|duke|xcel|aps|srp)\b/;
+          const troubleshootKeywords = /\b(error|fault|code|light|red|yellow|orange|blink|flash|trouble|broken|fix|issue|problem|offline|down|reset|reboot|firmware|inverter|battery|powerwall|gateway|enphase|solaredge|tesla|wallbox|charger|breaker|panel|meter|screen|app|connect|pair|commission|warning|alarm)\b/;
+          const looksLikeBill = noteLower === "" || (billKeywords.test(noteLower) && !troubleshootKeywords.test(noteLower));
 
-          const analyzeRes = await fetch(ANALYZE_URL, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${session.access_token}`,
-            },
-            body: JSON.stringify({ image: imageDataUrl, note: trimmed || undefined }),
-            signal: ac.signal,
-          });
+          if (looksLikeBill) {
+            setMessages((prev) => {
+              const copy = [...prev];
+              copy[copy.length - 1] = { role: "assistant", content: "Reading your bill…" };
+              return copy;
+            });
 
-          if (!analyzeRes.ok) {
-            let detail = `HTTP ${analyzeRes.status}`;
-            try {
-              const j = await analyzeRes.clone().json();
-              detail = j.detail ?? j.error ?? detail;
-              if (j.error === "rate_limited") detail = "Slow down a moment and try again.";
-              if (j.error === "credits_exhausted") detail = "AI credits exhausted — try again later.";
-            } catch { /* */ }
-            throw new Error(detail);
+            const analyzeRes = await fetch(ANALYZE_URL, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${session.access_token}`,
+              },
+              body: JSON.stringify({ image: imageDataUrl, note: trimmed || undefined }),
+              signal: ac.signal,
+            });
+
+            if (!analyzeRes.ok) {
+              let detail = `HTTP ${analyzeRes.status}`;
+              try {
+                const j = await analyzeRes.clone().json();
+                detail = j.detail ?? j.error ?? detail;
+                if (j.error === "rate_limited") detail = "Slow down a moment and try again.";
+                if (j.error === "credits_exhausted") detail = "AI credits exhausted — try again later.";
+              } catch { /* */ }
+              throw new Error(detail);
+            }
+
+            const { report } = (await analyzeRes.json()) as { report: BillReport };
+            const assistantMsg: DeasonMessage = {
+              role: "assistant",
+              content: report.summary,
+              billReport: report,
+            };
+            setMessages((prev) => {
+              const copy = [...prev];
+              copy[copy.length - 1] = assistantMsg;
+              return copy;
+            });
+            void persistMessage(assistantMsg);
+            return;
           }
-
-          const { report } = (await analyzeRes.json()) as { report: BillReport };
-          const assistantMsg: DeasonMessage = {
-            role: "assistant",
-            content: report.summary,
-            billReport: report,
-          };
-          setMessages((prev) => {
-            const copy = [...prev];
-            copy[copy.length - 1] = assistantMsg;
-            return copy;
-          });
-          void persistMessage(assistantMsg);
-          return;
+          // Otherwise fall through to the multimodal chat stream below —
+          // Gemini 2.5 Flash will see the image and troubleshoot.
         }
+
 
         // ── Branch B: streaming chat.
         const res = await fetch(CHAT_URL, {
