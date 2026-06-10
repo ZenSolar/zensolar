@@ -36,7 +36,7 @@ export default function InvestorOnePager() {
     <>
       <Helmet>
         <title>ZenSolar — Investor One-Pager</title>
-        <meta name="description" content="ZenSolar one-page investor summary — Proof-of-Genesis™, three revenue engines, $5M seed." />
+        <meta name="description" content="ZenSolar one-page investor summary — Proof-of-Genesis™, three revenue engines, two-part seed ($2.5M–$3.5M Part 1)." />
         <meta name="robots" content="noindex,nofollow" />
         <link rel="canonical" href="https://www.zensolar.com/investor/one-pager" />
       </Helmet>
@@ -78,7 +78,7 @@ export default function InvestorOnePager() {
             <div>
               <img src={zenLogo} alt="ZenSolar" className="h-7 w-auto mb-2 opacity-95" loading="eager" decoding="async" fetchPriority="high" width="140" height="28" />
               <div className="text-[10px] uppercase tracking-[0.22em] text-secondary">
-                Strategic Seed · One-Pager · Confidential
+                Seed Round · Part 1 of 2 · One-Pager · Confidential
               </div>
             </div>
             <div className="text-right text-[10px] text-muted-foreground leading-tight">
@@ -100,16 +100,44 @@ export default function InvestorOnePager() {
             <p className="mt-3 text-sm text-muted-foreground">
               Proof-of-Genesis™ turns verified clean-energy production into a hard-capped digital currency — Bitcoin-grade integrity at ~0.001% of the energy cost.
             </p>
+            <p className="mt-2 text-sm text-foreground/90">
+              Part 1 launches the token and ignites the flywheel. Part 2 scales once traction is proven — with the goal of reaching self-sustainability without needing a traditional Series A.
+            </p>
           </section>
 
           {/* The Ask */}
           <section className="op-card rounded-2xl border border-border/60 bg-card/40 p-4">
             <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-2">The Ask</div>
             <div className="grid grid-cols-3 gap-3">
-              <Stat k="$5M" v="Target raise" />
-              <Stat k="$7M" v="Hard cap" />
+              <Stat k="$2.5M – $3.5M" v="Part 1 — now" />
+              <Stat k="Two-Part" v="Seed strategy" />
               <Stat k="Convertible Note" v="Instrument" />
             </div>
+            <p className="mt-3 text-[11px] text-muted-foreground leading-snug">
+              Part 2 scales once Part 1 traction is proven — designed to reach self-sustainability without a traditional Series A.
+            </p>
+          </section>
+
+          {/* Use of Funds */}
+          <section className="op-card rounded-2xl border border-border/60 bg-card/40 p-4">
+            <SectionLabel className="mb-2">Use of Funds · Part 1</SectionLabel>
+            <ul className="divide-y divide-border/40">
+              {[
+                ['Token Launch & Liquidity', '$625K – $875K'],
+                ['Legal, Compliance & Audits', '$500K – $700K'],
+                ['App Polish & Onboarding', '$375K – $525K'],
+                ['Growth & User Acquisition', '$375K – $525K'],
+                ['Operational Runway (18–24 months)', '$625K – $875K'],
+              ].map(([label, range]) => (
+                <li key={label} className="flex items-baseline justify-between gap-3 py-1.5">
+                  <span className="text-[12px] text-foreground/90">{label}</span>
+                  <span className="text-[12px] font-medium text-foreground tabular-nums">{range}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2 text-[10px] text-muted-foreground">
+              Indicative allocations across the $2.5M – $3.5M Part 1 range.
+            </p>
           </section>
 
           {/* Catalyst */}
@@ -117,6 +145,14 @@ export default function InvestorOnePager() {
             <SectionLabel>The Catalyst</SectionLabel>
             <p className="text-sm leading-relaxed text-foreground/90">
               $1.7T flows into clean energy every year — and not a single kWh is on-chain. ZenSolar makes verified clean-energy production a hard-capped, asset-backed digital currency.
+            </p>
+          </section>
+
+          {/* Bitcoin vs ZenSolar */}
+          <section className="op-card rounded-2xl border border-border/60 bg-card/40 p-4">
+            <SectionLabel className="mb-2">Proof-of-Work vs Proof-of-Genesis™</SectionLabel>
+            <p className="text-sm leading-relaxed text-foreground/90">
+              Bitcoin's Proof-of-Work consumes enormous amounts of energy to create digital scarcity with no direct environmental benefit. ZenSolar's Proof-of-Genesis™ rewards the actual creation of clean energy — one verified clean kilowatt-hour produced generates one $ZSOLAR token. We turn energy abundance into digital value instead of consuming massive energy to create artificial scarcity.
             </p>
           </section>
 
@@ -193,6 +229,14 @@ export default function InvestorOnePager() {
               and <span className="font-semibold text-foreground">Michael Tschida</span> —
               clean-tech users & best friends. 150B / 50B pact-locked equity, crossovers at $6.67
               and $20 only if $ZSOLAR reaches a $1T market cap.
+            </p>
+          </section>
+
+          {/* Long-Term Vision */}
+          <section className="op-card rounded-2xl border border-border/60 bg-card/40 p-4">
+            <SectionLabel className="mb-2">The Long-Term Vision</SectionLabel>
+            <p className="text-sm leading-relaxed text-foreground/90">
+              With strong execution, the combination of real utility, a self-reinforcing 100% subscription-to-LP flywheel, and expanding rewardable behaviors positions ZenSolar to acquire millions of users and generate substantial recurring revenue. The tokenomics are designed so that success compounds — as user acquisition grows, the flywheel creates structural pressure toward significant long-term value creation, with the potential for $ZSOLAR to become one of the most important clean energy infrastructure tokens globally.
             </p>
           </section>
 
