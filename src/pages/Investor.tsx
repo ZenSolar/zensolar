@@ -267,8 +267,36 @@ export default function Investor() {
 
         <LiveVerifiedCounter />
 
-
-
+        {/* Bitcoin vs ZenSolar — Proof-of-Work vs Proof-of-Genesis */}
+        <section className="mx-auto max-w-4xl px-5 py-16 md:py-20">
+          <div className="mb-8 text-center">
+            <h2 className="text-xs uppercase tracking-[0.28em] text-secondary">
+              Proof-of-Work vs Proof-of-Genesis™
+            </h2>
+            <h3 className="mt-3 text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
+              We tokenize energy abundance — not artificial scarcity.
+            </h3>
+          </div>
+          <div className="rounded-2xl border border-border/60 bg-card/40 p-6 md:p-8">
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+              Bitcoin's Proof-of-Work consumes enormous amounts of energy to create digital scarcity with no direct environmental benefit. ZenSolar's Proof-of-Genesis™ rewards the actual creation of clean energy — one verified clean kilowatt-hour produced generates one $ZSOLAR token. We turn energy abundance into digital value instead of consuming massive energy to create artificial scarcity.
+            </p>
+            <div className="mt-6 grid gap-3 md:grid-cols-2">
+              <div className="rounded-xl border border-border/60 bg-background/40 p-5">
+                <div className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Bitcoin</div>
+                <div className="mt-2 text-sm text-foreground/90 leading-relaxed">
+                  Massive energy burned to create artificial scarcity.
+                </div>
+              </div>
+              <div className="rounded-xl border border-secondary/30 bg-secondary/[0.04] p-5">
+                <div className="text-xs uppercase tracking-[0.22em] text-secondary">ZenSolar</div>
+                <div className="mt-2 text-sm text-foreground/90 leading-relaxed">
+                  One verified clean kWh = One $ZSOLAR token.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Why now */}
         <section className="mx-auto max-w-4xl px-5 py-16 md:py-20">
@@ -300,6 +328,23 @@ export default function Investor() {
                 <p className="text-sm text-muted-foreground leading-relaxed mt-2">{t.body}</p>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* Long-term vision */}
+        <section className="mx-auto max-w-3xl px-5 pb-16 md:pb-20">
+          <div className="mb-6 text-center">
+            <h2 className="text-xs uppercase tracking-[0.28em] text-secondary">
+              The long-term vision
+            </h2>
+            <h3 className="mt-3 text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
+              Designed so success compounds.
+            </h3>
+          </div>
+          <div className="rounded-2xl border border-border/60 bg-card/40 p-6 md:p-8">
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+              With strong execution, the combination of real utility, a self-reinforcing 100% subscription-to-LP flywheel, and expanding rewardable behaviors positions ZenSolar to acquire millions of users and generate substantial recurring revenue. The tokenomics are designed so that success compounds — as user acquisition grows, the flywheel creates structural pressure toward significant long-term value creation, with the potential for $ZSOLAR to become one of the most important clean energy infrastructure tokens globally.
+            </p>
           </div>
         </section>
 
