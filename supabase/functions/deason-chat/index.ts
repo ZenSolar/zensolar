@@ -385,6 +385,56 @@ Deno.serve(async (req) => {
       }
 
       if (parts.length) userContext = `\n\n--- USER CONTEXT ---\n${parts.join("\n\n")}\n--- END USER CONTEXT ---`;
+
+      // ── Optimization grounding ────────────────────────────────────────────
+      // If the user's latest message looks optimization-related, call the
+      // deason-optimizer concierge mode to get a deterministic, data-backed
+      // answer (recs, scheduler hints, doc citations). The model uses this
+      // as ground truth — no inventing numbers.
+      try {
+        const lastMsg = messages[messages.length - 1];
+        const lastText = typeof lastMsg?.content === "string"
+          ? lastMsg.content
+          : Array.isArray(lastMsg?.content)
+            ? lastMsg.content.map((p: any) => p?.text ?? "").join(" ")
+            : "";
+        const optKeywords = /\b(optimi[sz]|save|saving|bill|rate|tou|tariff|ev|charge|charging|battery|powerwall|solar|export|self.?consum|schedule|ppa|loan|apr|payback|roi|token|zsolar)\b/i;
+        if (lastText && optKeywords.test(lastText)) {
+          const optRes = await fetch(`${SUPABASE_URL}/functions/v1/deason-optimizer`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${SERVICE_KEY}`,
+            },
+            body: JSON.stringify({ userId: user.id, mode: "concierge", question: lastText }),
+          });
+          if (optRes.ok) {
+            const optJson = await optRes.json() as { concierge?: any };
+            const c = optJson.concierge;
+            if (c && c.grounded) {
+              const recLines = (c.answer?.recommendations ?? []).slice(0, 3)
+                .map((r: any, i: number) => `${i + 1}. ${r.title} — ${r.action} (est. $${r.est_monthly_savings_usd}/mo, ${Math.round(r.confidence * 100)}% confidence). Why: ${r.rationale}`)
+                .join("\n");
+              const hints = (c.answer?.scheduler_hints ?? []).slice(0, 3).map((h: string) => `- ${h}`).join("\n");
+              const cites = (c.answer?.document_citations ?? []).slice(0, 4)
+                .map((d: any) => `[doc:${d.doc_id}] ${d.kind}${d.label ? ` (${d.label})` : ""}`)
+                .join(", ");
+              const block = [
+                "OPTIMIZER GROUNDING (deterministic — use these numbers, do not invent):",
+                `Summary: ${c.summary}`,
+                `Detected intents: ${(c.detected_intents ?? []).join(", ") || "general"}`,
+                recLines ? `Top recommendations:\n${recLines}` : null,
+                hints ? `Scheduler hints:\n${hints}` : null,
+                cites ? `Backing documents to cite: ${cites}` : null,
+                "Use these numbers verbatim in your answer; cite the documents above with [doc:<id>] when you reference them.",
+              ].filter(Boolean).join("\n\n");
+              userContext += `\n\n--- OPTIMIZER GROUNDING ---\n${block}\n--- END OPTIMIZER GROUNDING ---`;
+            }
+          }
+        }
+      } catch (e) {
+        log("optimizer grounding failed (non-fatal)", String(e));
+      }
     }
 
 
