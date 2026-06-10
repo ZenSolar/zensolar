@@ -32,6 +32,7 @@ import {
   AlertCircle,
   Loader2,
   BarChart3,
+  Navigation,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { RefreshIndicators } from './RefreshIndicators';
