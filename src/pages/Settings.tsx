@@ -143,9 +143,12 @@ export default function Settings() {
             <Sparkles className="h-4 w-4 text-amber-500" />
             <p className="text-sm font-semibold">Deason AI Insights</p>
           </div>
-          <CardContent className="p-4 space-y-1">
+          <CardContent className="p-4 space-y-2">
+            <OptimizerInsightsSummary />
+
             <Link
               to="/deason"
+              onClick={() => { void triggerOptimizer("Energy Optimization"); }}
               className="flex items-center justify-between gap-3 py-3 px-1 border-b border-border/30 last:border-0 hover:bg-muted/30 rounded-md transition-colors"
             >
               <div className="flex items-center gap-2.5 min-w-0">
@@ -159,11 +162,16 @@ export default function Settings() {
                   </p>
                 </div>
               </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground/60 shrink-0" />
+              {optRunning ? (
+                <Loader2 className="h-4 w-4 animate-spin text-amber-500 shrink-0" />
+              ) : (
+                <ChevronRight className="h-4 w-4 text-muted-foreground/60 shrink-0" />
+              )}
             </Link>
 
             <Link
               to="/deason?intent=bill-upload"
+              onClick={() => { void triggerOptimizer("Utility Bill Analysis"); }}
               className="flex items-center justify-between gap-3 py-3 px-1 border-b border-border/30 last:border-0 hover:bg-muted/30 rounded-md transition-colors"
             >
               <div className="flex items-center gap-2.5 min-w-0">
@@ -177,7 +185,11 @@ export default function Settings() {
                   </p>
                 </div>
               </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground/60 shrink-0" />
+              {optRunning ? (
+                <Loader2 className="h-4 w-4 animate-spin text-amber-500 shrink-0" />
+              ) : (
+                <ChevronRight className="h-4 w-4 text-muted-foreground/60 shrink-0" />
+              )}
             </Link>
           </CardContent>
         </Card>
