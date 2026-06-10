@@ -104,6 +104,13 @@ export function MonthlyReportCard({ report, pastReports = [] }: Props) {
 
       <TrendSparkline data={trend} />
 
+      {optimizer?.schedule && (
+        <OptimizerScheduleStrip schedule={optimizer.schedule} />
+      )}
+      {optimizer?.recommendations && optimizer.recommendations.length > 0 && (
+        <OptimizerRecommendations recommendations={optimizer.recommendations} max={5} />
+      )}
+
       <div className="grid grid-cols-2 gap-2">
         <ShareMonthButton
           monthLabel={monthLabel}
