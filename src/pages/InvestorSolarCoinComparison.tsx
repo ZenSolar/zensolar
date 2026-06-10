@@ -359,38 +359,40 @@ export default function InvestorSolarCoinComparison() {
             <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground/80 mb-4">
               Rewardable behaviors — TAM coverage
             </div>
-            <div className="rounded-2xl border border-border/60 overflow-hidden">
-              {TAM_VERTICALS.map((v, i) => (
-                <div
-                  key={v.label}
-                  className={`grid grid-cols-[1fr_auto_auto] items-center px-4 py-3 ${
-                    i < TAM_VERTICALS.length - 1 ? 'border-b border-border/40' : ''
-                  } ${i % 2 === 0 ? 'bg-background/40' : 'bg-card/20'}`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <v.icon className="h-4 w-4 text-secondary/80 flex-shrink-0" />
-                    <span className="text-sm text-foreground">{v.label}</span>
+            <div className="table-wrap rounded-2xl border border-border/60">
+              <div className="min-w-[320px]">
+                {TAM_VERTICALS.map((v, i) => (
+                  <div
+                    key={v.label}
+                    className={`grid grid-cols-[1fr_auto_auto] items-center px-4 py-3 ${
+                      i < TAM_VERTICALS.length - 1 ? 'border-b border-border/40' : ''
+                    } ${i % 2 === 0 ? 'bg-background/40' : 'bg-card/20'}`}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <v.icon className="h-4 w-4 text-secondary/80 flex-shrink-0" />
+                      <span className="text-sm text-foreground break-words">{v.label}</span>
+                    </div>
+                    <span className="px-3">
+                      {v.zen ? (
+                        <CheckCircle2 className="h-4 w-4 text-secondary" />
+                      ) : (
+                        <Minus className="h-4 w-4 text-muted-foreground/40" />
+                      )}
+                    </span>
+                    <span className="pl-3">
+                      {v.solar ? (
+                        <CheckCircle2 className="h-4 w-4 text-muted-foreground/60" />
+                      ) : (
+                        <Minus className="h-4 w-4 text-muted-foreground/40" />
+                      )}
+                    </span>
                   </div>
-                  <span className="px-3">
-                    {v.zen ? (
-                      <CheckCircle2 className="h-4 w-4 text-secondary" />
-                    ) : (
-                      <Minus className="h-4 w-4 text-muted-foreground/40" />
-                    )}
-                  </span>
-                  <span className="pl-3">
-                    {v.solar ? (
-                      <CheckCircle2 className="h-4 w-4 text-muted-foreground/60" />
-                    ) : (
-                      <Minus className="h-4 w-4 text-muted-foreground/40" />
-                    )}
-                  </span>
+                ))}
+                <div className="grid grid-cols-[1fr_auto_auto] items-center px-4 py-2.5 border-t border-border/60 bg-card/60 text-[10px] uppercase tracking-[0.18em]">
+                  <span className="text-muted-foreground/80 break-words">Coverage</span>
+                  <span className="px-3 text-secondary font-semibold">5 / 5</span>
+                  <span className="pl-3 text-muted-foreground font-semibold">1 / 5</span>
                 </div>
-              ))}
-              <div className="grid grid-cols-[1fr_auto_auto] items-center px-4 py-2.5 border-t border-border/60 bg-card/60 text-[10px] uppercase tracking-[0.18em]">
-                <span className="text-muted-foreground/80">Coverage</span>
-                <span className="px-3 text-secondary font-semibold">5 / 5</span>
-                <span className="pl-3 text-muted-foreground font-semibold">1 / 5</span>
               </div>
             </div>
           </div>
