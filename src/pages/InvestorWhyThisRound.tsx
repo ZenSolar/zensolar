@@ -17,11 +17,11 @@ import {
 } from 'lucide-react';
 
 const USE_OF_FUNDS = [
-  { name: 'Token Launch & LP', pct: 25, low: '$625K', high: '$875K', note: 'Launch infrastructure + initial LP seeding' },
-  { name: 'Legal & Audits', pct: 20, low: '$500K', high: '$700K', note: 'Securities counsel, compliance, smart-contract audits' },
-  { name: 'App & Onboarding', pct: 15, low: '$375K', high: '$525K', note: 'Mobile polish, OAuth reliability, embedded wallet flows' },
-  { name: 'Growth & Acquisition', pct: 15, low: '$375K', high: '$525K', note: 'Installer channels, creator tests, early paid acquisition' },
-  { name: 'Operational Runway', pct: 25, low: '$625K', high: '$875K', note: '18–24 months of disciplined founder-led execution' },
+  { name: 'Token Launch & Liquidity', weight: 25, low: '$625K', high: '$875K', note: 'Launch infrastructure + initial LP seeding' },
+  { name: 'Legal, Compliance & Audits', weight: 20, low: '$500K', high: '$700K', note: 'Securities counsel, compliance, smart-contract audits' },
+  { name: 'App Polish & Onboarding', weight: 15, low: '$375K', high: '$525K', note: 'Mobile polish, OAuth reliability, embedded wallet flows' },
+  { name: 'Growth & User Acquisition', weight: 15, low: '$375K', high: '$525K', note: 'Installer channels, creator tests, early paid acquisition' },
+  { name: 'Operational Runway (18–24 months)', weight: 25, low: '$625K', high: '$875K', note: 'Disciplined founder-led execution' },
 ];
 
 const USER_MILESTONES = [
