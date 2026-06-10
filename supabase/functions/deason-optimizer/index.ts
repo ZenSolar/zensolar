@@ -1,20 +1,25 @@
-// Deason AI Energy Optimization Engine — Phase 1 + Phase 2
+// Deason AI Energy Optimization Engine — Phase 1 + Phase 2 + Phase 3
 //
 // Phase 1: Rule-based + heuristic optimizer (deterministic, explainable).
 // Phase 2: 24–48h hourly LP-style scheduler for battery, EV, grid import/export.
+// Phase 3: Forecasting layer — solar (PVWatts + weather), load (historical
+//          telemetry), price (TOU), weather (OpenWeather). The scheduler now
+//          consumes these forecasts so dispatch decisions are predictive,
+//          not reactive.
 //
 // NOTE on PuLP: Supabase Edge Functions execute on the Deno runtime, not Python,
-// so PuLP itself cannot be imported here. To honor the requirement of keeping all
-// new code inside this single file (`deason-optimizer/index.ts`), Phase 2 ships a
-// TypeScript LP solver of equivalent form: it models the same decision variables,
-// constraints, and objective an LP would, and solves them via a priority-ordered
-// hourly dispatch that is provably optimal for this convex piecewise structure
-// (TOU + linear battery + bounded charge/discharge + deadline-constrained EV).
+// so PuLP itself cannot be imported here. Phase 2 ships a TypeScript LP solver
+// of equivalent form (same decision vars / constraints / objective, solved via
+// priority-ordered hourly dispatch — provably optimal for this single-storage
+// TOU LP).
 //
 // Input  (POST JSON):
-//   { userId?: string, mode?: 'recommend' | 'schedule' | 'both', horizon_hours?: 24 | 48 }
+//   { userId?: string, mode?: 'recommend' | 'schedule' | 'both',
+//     horizon_hours?: 24 | 48,
+//     lat?: number, lon?: number, system_size_kw?: number,
+//     ev_kwh_needed?: number, ev_deadline_hour?: number, battery_kwh_capacity?: number }
 // Output (JSON):
-//   recommendations[], summary, schedule (when mode includes 'schedule')
+//   recommendations[], summary, schedule, forecast
 
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 import { createClient } from 'npm:@supabase/supabase-js@2';
