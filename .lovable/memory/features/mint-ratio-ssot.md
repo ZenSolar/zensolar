@@ -28,3 +28,15 @@ chain, and that figure equals the physical unit 1:1.
   back to `tokens_minted` 1:1.
 - Files known to enforce this: `src/components/wallet/RecentMintProofs.tsx`,
   `src/hooks/useLatestMintReceipt.ts`. Audit any new mint-display surface.
+
+**FSD miles (added 2026-06):**
+- 1 FSD-engaged mile = 1 $ZSOLAR (same 1:1 rule).
+- FSD miles are a SUBSET of total EV miles (the Autopilot/FSD-engaged portion
+  of the odometer delta). NEVER sum FSD miles into the EV Miles headline —
+  show FSD as a separate sub-KPI under EV Miles in the Clean Energy Center
+  and in the Energy Log. Adding them would double-credit the same odometer.
+- Source: Tesla Fleet Telemetry stream only (`AutopilotState` engagement
+  events + odometer delta). No Fleet API endpoint exposes a cumulative FSD
+  counter; the cumulative figure is derived server-side from the stream.
+- Watermark keys: `fsd_miles` (baseline) / `lifetime_fsd_miles` (lifetime) —
+  enforced by `WATERMARK_NUMERIC_KEYS` in `src/lib/mintReconciliation.ts`.

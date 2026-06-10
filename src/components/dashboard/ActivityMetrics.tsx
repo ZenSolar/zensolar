@@ -32,6 +32,7 @@ import {
   AlertCircle,
   Loader2,
   BarChart3,
+  Navigation,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { RefreshIndicators } from './RefreshIndicators';
@@ -658,6 +659,38 @@ export function ActivityMetrics({
               </SwipeableActivityField>
             )
           )}
+
+          {/* 3b. FSD Miles — Tesla-only, Proof-of-Delta verified, 1:1 mint.
+              FSD miles are a SUBSET of total EV miles (Autopilot/FSD-engaged
+              portion of the odometer delta) and are tracked separately so
+              they never double-count against the EV Miles KPI above. */}
+          {hasEvConnected && (() => {
+            const fsdPending = Math.max(
+              0,
+              Math.floor(
+                (effectiveData.pendingFsdSupervisedMiles || 0) +
+                (effectiveData.pendingFsdUnsupervisedMiles || 0),
+              ),
+            );
+            return (
+              <ActivityField
+                icon={Navigation}
+                label="FSD Miles"
+                value={fsdPending}
+                unit="mi"
+                color="green"
+                active={fsdPending > 0}
+                isLoading={isLoading}
+                onTap={fsdPending > 0 ? () => openSheet({
+                  category: 'ev_miles',
+                  label: 'FSD Miles',
+                  unit: 'mi',
+                  pending: fsdPending,
+                  accent: 'primary',
+                }) : undefined}
+              />
+            );
+          })()}
           
           {/* 4. Tesla Supercharger + 5. Home Charger - show separate fields */}
           {hasSeparateCharging ? (

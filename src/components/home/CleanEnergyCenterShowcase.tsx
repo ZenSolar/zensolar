@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Sun, BatteryFull, Car, Zap, ChevronRight, Wallet, Sparkles, ArrowRight, Leaf } from 'lucide-react';
+import { Sun, BatteryFull, Car, Zap, ChevronRight, Wallet, Sparkles, ArrowRight, Leaf, Navigation } from 'lucide-react';
 import { useHaptics } from '@/hooks/useHaptics';
 
 const kpiItems = [
@@ -46,6 +46,16 @@ const kpiItems = [
     borderColor: 'border-l-energy',
     iconColor: 'text-energy',
     iconBg: 'bg-energy/10',
+  },
+  {
+    icon: Navigation,
+    label: 'FSD Miles (Proof-of-Delta™)',
+    value: '14,206',
+    unit: 'mi',
+    name: '',
+    borderColor: 'border-l-accent',
+    iconColor: 'text-accent-foreground',
+    iconBg: 'bg-accent/20',
   },
 ];
 

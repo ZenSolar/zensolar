@@ -31,7 +31,7 @@
  * Keep `supabase/functions/_shared/dataSourcePriority.ts` in lockstep.
  */
 
-export type Capability = 'solar' | 'battery' | 'charging' | 'consumption';
+export type Capability = 'solar' | 'battery' | 'charging' | 'consumption' | 'fsd_miles';
 export type Provider = 'tesla' | 'enphase' | 'solaredge' | 'wallbox' | 'chargepoint';
 
 export interface DeviceLike {
@@ -110,6 +110,17 @@ export function pickSource(
         deviceName: charger.device_name,
         reason: `home_charger:${charger.provider}`,
       };
+    }
+    return null;
+  }
+
+  if (capability === 'fsd_miles') {
+    // FSD/Autopilot engagement is only reported by the Tesla Fleet Telemetry
+    // stream. Tesla-only, no fallback. FSD miles are a subset of total EV
+    // miles and must never be summed into the odometer-based EV miles KPI.
+    const teslaVehicle = devices.find((d) => VEHICLE_DEVICE_TYPES.has(d.device_type) && d.provider === 'tesla');
+    if (teslaVehicle) {
+      return { provider: 'tesla', deviceId: teslaVehicle.device_id, deviceName: teslaVehicle.device_name, reason: 'tesla_fleet_telemetry_only' };
     }
     return null;
   }
