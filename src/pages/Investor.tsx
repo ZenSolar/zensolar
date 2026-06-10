@@ -214,7 +214,7 @@ export default function Investor() {
               loading="eager"
             />
             <span className="text-[11px] uppercase tracking-[0.28em] text-secondary/90 mb-5">
-              {refFirstName ? `Welcome, ${refFirstName} · ` : ''}Investor Access · Seed Round
+              {refFirstName ? `Welcome, ${refFirstName} · ` : ''}Investor Access · Seed Round · Part 1 of 2
             </span>
             <h1 className="text-4xl md:text-6xl font-semibold leading-[1.02] tracking-tight">
               Creating Currency
@@ -223,6 +223,9 @@ export default function Investor() {
             </h1>
             <p className="mt-6 text-base md:text-lg text-muted-foreground max-w-lg leading-relaxed">
               The patent-pending protocol turning verified clean energy into a hard-capped digital currency on Base.
+            </p>
+            <p className="mt-4 text-sm md:text-base text-muted-foreground/90 max-w-xl leading-relaxed">
+              We're raising the first part of a two-part seed ($2.5M–$3.5M now) to launch the token and ignite the flywheel. Part 2 scales once traction is proven — designed to reach self-sustainability without a traditional Series A.
             </p>
             <div className="mt-10 grid grid-cols-3 gap-3 w-full max-w-md">
               {[
@@ -264,8 +267,36 @@ export default function Investor() {
 
         <LiveVerifiedCounter />
 
-
-
+        {/* Bitcoin vs ZenSolar — Proof-of-Work vs Proof-of-Genesis */}
+        <section className="mx-auto max-w-4xl px-5 py-16 md:py-20">
+          <div className="mb-8 text-center">
+            <h2 className="text-xs uppercase tracking-[0.28em] text-secondary">
+              Proof-of-Work vs Proof-of-Genesis™
+            </h2>
+            <h3 className="mt-3 text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
+              We tokenize energy abundance — not artificial scarcity.
+            </h3>
+          </div>
+          <div className="rounded-2xl border border-border/60 bg-card/40 p-6 md:p-8">
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+              Bitcoin's Proof-of-Work consumes enormous amounts of energy to create digital scarcity with no direct environmental benefit. ZenSolar's Proof-of-Genesis™ rewards the actual creation of clean energy — one verified clean kilowatt-hour produced generates one $ZSOLAR token. We turn energy abundance into digital value instead of consuming massive energy to create artificial scarcity.
+            </p>
+            <div className="mt-6 grid gap-3 md:grid-cols-2">
+              <div className="rounded-xl border border-border/60 bg-background/40 p-5">
+                <div className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Bitcoin</div>
+                <div className="mt-2 text-sm text-foreground/90 leading-relaxed">
+                  Massive energy burned to create artificial scarcity.
+                </div>
+              </div>
+              <div className="rounded-xl border border-secondary/30 bg-secondary/[0.04] p-5">
+                <div className="text-xs uppercase tracking-[0.22em] text-secondary">ZenSolar</div>
+                <div className="mt-2 text-sm text-foreground/90 leading-relaxed">
+                  One verified clean kWh = One $ZSOLAR token.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Why now */}
         <section className="mx-auto max-w-4xl px-5 py-16 md:py-20">
@@ -297,6 +328,23 @@ export default function Investor() {
                 <p className="text-sm text-muted-foreground leading-relaxed mt-2">{t.body}</p>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* Long-term vision */}
+        <section className="mx-auto max-w-3xl px-5 pb-16 md:pb-20">
+          <div className="mb-6 text-center">
+            <h2 className="text-xs uppercase tracking-[0.28em] text-secondary">
+              The long-term vision
+            </h2>
+            <h3 className="mt-3 text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
+              Designed so success compounds.
+            </h3>
+          </div>
+          <div className="rounded-2xl border border-border/60 bg-card/40 p-6 md:p-8">
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+              With strong execution, the combination of real utility, a self-reinforcing 100% subscription-to-LP flywheel, and expanding rewardable behaviors positions ZenSolar to acquire millions of users and generate substantial recurring revenue. The tokenomics are designed so that success compounds — as user acquisition grows, the flywheel creates structural pressure toward significant long-term value creation, with the potential for $ZSOLAR to become one of the most important clean energy infrastructure tokens globally.
+            </p>
           </div>
         </section>
 
@@ -440,21 +488,21 @@ function UnlockedPanel({
           <UnlockedCard
             icon={FileText}
             title="Why This Round"
-            body="Transparent breakdown of the $2.5M–$3.5M raise, use of funds, GTM approach, and our two-round path to self-sustainability."
+            body="Two-part seed: $2.5M–$3.5M now to launch and ignite the flywheel. Part 2 scales once proven — with the goal of reaching self-sustainability without a traditional Series A."
             to="/investor/why-this-round"
             internal
           />
           <UnlockedCard
             icon={FileText}
             title="Full Seed Round Deck"
-            body="11 slides · Title → Catalyst → Engines → Ask."
+            body="11 slides. The two-part seed thesis, three engines, and the ask."
             to="/deck"
             internal
           />
           <UnlockedCard
             icon={FileText}
             title="One-Pager"
-            body="The leave-behind. Everything on one screen."
+            body="The leave-behind. Two-part seed at a glance."
             to="/investor/one-pager"
             internal
           />
