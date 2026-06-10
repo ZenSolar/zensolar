@@ -332,7 +332,11 @@ export function PitchDeckShell({ slides, slideLabels }: PitchDeckShellProps) {
   return (
     <div
       ref={containerRef}
-      className={`bg-[hsl(220,20%,6%)] relative overflow-hidden select-none ${
+      role="region"
+      aria-roledescription="slideshow"
+      aria-label={`Pitch deck, slide ${current + 1} of ${total}: ${slideLabels[current] ?? ''}`}
+      tabIndex={0}
+      className={`bg-[hsl(220,20%,6%)] relative overflow-hidden select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(207,90%,54%)] ${
         fauxFullscreen
           ? 'fixed inset-0 z-[9999] w-screen'
           : 'w-screen'
