@@ -74,9 +74,9 @@ export default function InvestorPitch() {
             </p>
             <div className="mt-7 grid grid-cols-3 gap-3 w-full max-w-md">
               {[
-                { k: '$5M', v: 'Target raise' },
-                { k: '$7M', v: 'Hard cap' },
-                { k: 'Convertible Note', v: 'Structure' },
+                { k: '$2.5M – $3.5M', v: 'Part 1 — now' },
+                { k: 'Two-Part', v: 'Seed strategy' },
+                { k: 'Convertible Note', v: 'Instrument' },
               ].map((s) => (
                 <div
                   key={s.v}
