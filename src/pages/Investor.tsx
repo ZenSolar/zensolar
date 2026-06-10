@@ -279,7 +279,7 @@ export default function Investor() {
         {/* Bitcoin vs ZenSolar — Proof-of-Work vs Proof-of-Genesis */}
         <section className="mx-auto max-w-4xl px-5 py-16 md:py-20">
           <div className="mb-8 text-center">
-            <h2 className="text-xs uppercase tracking-[0.28em] text-secondary">
+            <h2 className="text-xs uppercase tracking-[0.28em] text-secondary pl-[0.28em]">
               Proof-of-Work vs Proof-of-Genesis™
             </h2>
             <h3 className="mt-3 text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
