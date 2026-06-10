@@ -273,15 +273,26 @@ function DataRoomContent() {
           <DeckCard>
             <Kicker>04 · Use of Funds</Kicker>
             <h2 className="text-[32px] font-semibold leading-tight">
-              $5M Seed — Use of Funds &amp; Milestones
+              Part 1 ($2.5M – $3.5M) — Use of Funds &amp; Milestones
             </h2>
 
-            <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
-              <StatTile value="45%" label="Engineering / Product" emphasized />
-              <StatTile value="30%" label="GTM / Beta Expansion" />
-              <StatTile value="15%" label="Ops / Legal / IP" />
-              <StatTile value="10%" label="Reserve" />
+            <div className="mt-6 space-y-2.5">
+              {[
+                ['Token Launch & Liquidity', '$625K – $875K'],
+                ['Legal, Compliance & Audits', '$500K – $700K'],
+                ['App Polish & Onboarding', '$375K – $525K'],
+                ['Growth & User Acquisition', '$375K – $525K'],
+                ['Operational Runway (18–24 months)', '$625K – $875K'],
+              ].map(([name, range]) => (
+                <div key={name} className="flex items-baseline justify-between gap-4 rounded-lg border border-border/50 bg-background/30 px-4 py-3">
+                  <span className="text-[15px] text-white/85">{name}</span>
+                  <span className="text-[14px] font-semibold tabular-nums text-secondary whitespace-nowrap">{range}</span>
+                </div>
+              ))}
             </div>
+            <p className="mt-3 text-[12px] text-white/45 leading-snug">
+              Indicative allocations across the $2.5M – $3.5M Part 1 range.
+            </p>
 
             <div className="mt-8">
               <p className="text-[12px] font-mono tracking-[0.18em] uppercase text-white/45 mb-3">
@@ -293,6 +304,7 @@ function DataRoomContent() {
                 <li>· VPP Phase 2 live (Leap pilot → CAISO settlement)</li>
                 <li>· Aggregated data product — first 3 utility / ISO contracts</li>
                 <li>· Utility patent issuance + 2 continuations filed</li>
+                <li>· Path to self-sustainability (no Series A required)</li>
               </ul>
             </div>
           </DeckCard>
