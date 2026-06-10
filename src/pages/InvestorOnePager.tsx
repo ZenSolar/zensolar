@@ -272,9 +272,9 @@ function SectionLabel({
 
 function Stat({ k, v }: { k: string; v: string }) {
   return (
-    <div className="rounded-lg border border-border/50 bg-card/50 px-2.5 py-2">
-      <div className="text-base font-semibold text-foreground leading-tight">{k}</div>
-      <div className="text-[9px] uppercase tracking-wider text-muted-foreground mt-0.5">{v}</div>
+    <div className="rounded-lg border border-border/50 bg-card/50 px-2.5 py-2.5 shadow-[inset_0_1px_0_0_hsl(var(--border)/0.45)]">
+      <div className="text-sm sm:text-base font-semibold text-foreground leading-tight tabular-nums">{k}</div>
+      <div className="text-[9px] uppercase tracking-wider text-muted-foreground mt-1 leading-tight">{v}</div>
     </div>
   );
 }
