@@ -469,7 +469,7 @@ function UseOfFundsChart() {
   return (
     <div className="mt-6 rounded-2xl border border-border/60 bg-card/30 p-4 md:p-6">
       <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-4">
-        Allocation · $2.5M – $3.5M Round
+        Allocation · Part 1 ($2.5M – $3.5M)
       </div>
       <div className="space-y-4">
         {USE_OF_FUNDS.map((item) => (
@@ -478,13 +478,12 @@ function UseOfFundsChart() {
               <div className="text-sm font-medium leading-tight text-foreground">{item.name}</div>
               <div className="text-[13px] font-semibold tabular-nums text-secondary">
                 {item.low} – {item.high}
-                <span className="ml-2 text-[11px] font-normal text-muted-foreground">{item.pct}%</span>
               </div>
             </div>
             <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-muted/40">
               <div
                 className="h-full rounded-full bg-secondary/75"
-                style={{ width: `${(item.pct / 25) * 100}%` }}
+                style={{ width: `${(item.weight / 25) * 100}%` }}
                 aria-hidden
               />
             </div>
@@ -493,7 +492,7 @@ function UseOfFundsChart() {
         ))}
       </div>
       <p className="text-[11px] text-muted-foreground mt-4 leading-relaxed">
-        Indicative allocation across the $2.5M – $3.5M range. $2.5M covers launch + runway; $3.5M expands launch liquidity and acquisition testing.
+        Indicative allocations across the $2.5M – $3.5M Part 1 range.
       </p>
     </div>
   );
