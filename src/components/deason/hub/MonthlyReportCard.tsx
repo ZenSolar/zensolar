@@ -25,7 +25,8 @@ function shortMonth(iso: string) {
 }
 
 export function MonthlyReportCard({ report, pastReports = [] }: Props) {
-  const { data: optimizer, loading: optimizerLoading } = useDeasonOptimizer();
+  const [expanded, setExpanded] = useState(false);
+  const { data: optimizer } = useDeasonOptimizer();
 
   // ── Empty / early-month state ──────────────────────────────────────────────
   if (!report) {
