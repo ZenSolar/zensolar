@@ -16,7 +16,10 @@ import {
   Settings as SettingsIcon,
   History,
   Rows3,
-  Rows4
+  Rows4,
+  Sparkles,
+  FileText,
+  ChevronRight
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
