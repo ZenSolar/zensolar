@@ -1030,8 +1030,14 @@ Deno.serve(async (req) => {
     let body: any = {};
     try { body = await req.json(); } catch { /* empty */ }
     const userId: string | null = body.userId ?? user?.id ?? null;
-    const mode: 'recommend' | 'schedule' | 'both' = body.mode ?? 'both';
+    const mode: 'recommend' | 'schedule' | 'both' | 'document_insights' | 'monthly_report' | 'concierge' =
+      body.mode ?? 'both';
     const horizon: number = body.horizon_hours === 48 ? 48 : 24;
+    const question: string = typeof body.question === 'string' ? body.question : '';
+    const periodMonth: string = typeof body.period_month === 'string'
+      ? body.period_month
+      : (() => { const d = new Date(); return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1)).toISOString().slice(0, 10); })();
+
 
     if (!userId) {
       return new Response(JSON.stringify({ error: 'not_authenticated' }), {
