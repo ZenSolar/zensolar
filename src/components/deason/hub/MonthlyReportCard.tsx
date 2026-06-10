@@ -10,6 +10,9 @@ import { WhatChanged } from "@/components/deason/report/WhatChanged";
 import { BillSavingsStrip } from "@/components/deason/report/BillSavingsStrip";
 import { TrendSparkline, type TrendPoint } from "@/components/deason/report/TrendSparkline";
 import { ShareMonthButton } from "@/components/deason/report/ShareMonthButton";
+import { OptimizerScheduleStrip } from "@/components/deason/hub/OptimizerScheduleStrip";
+import { OptimizerRecommendations } from "@/components/deason/hub/OptimizerRecommendations";
+import { useDeasonOptimizer } from "@/hooks/useDeasonOptimizer";
 
 interface Props {
   report: MonthlyReport | null;
@@ -23,16 +26,25 @@ function shortMonth(iso: string) {
 
 export function MonthlyReportCard({ report, pastReports = [] }: Props) {
   const [expanded, setExpanded] = useState(false);
+  const { data: optimizer } = useDeasonOptimizer();
 
   // ── Empty / early-month state ──────────────────────────────────────────────
   if (!report) {
     return (
-      <div className="rounded-2xl border border-dashed border-amber-500/40 bg-amber-500/5 p-4 text-center">
-        <Sparkles className="mx-auto h-5 w-5 text-amber-500" />
-        <div className="mt-2 text-sm font-semibold">Your first Monthly Clean Energy Report</div>
-        <div className="mt-1 text-xs text-muted-foreground">
-          Upload your latest utility bill to start tracking month-over-month savings and earning bonus $ZSOLAR.
+      <div className="space-y-3">
+        <div className="rounded-2xl border border-dashed border-amber-500/40 bg-amber-500/5 p-4 text-center">
+          <Sparkles className="mx-auto h-5 w-5 text-amber-500" />
+          <div className="mt-2 text-sm font-semibold">Your first Monthly Clean Energy Report</div>
+          <div className="mt-1 text-xs text-muted-foreground">
+            Upload your latest utility bill to start tracking month-over-month savings and earning bonus $ZSOLAR.
+          </div>
         </div>
+        {optimizer?.schedule && (
+          <OptimizerScheduleStrip schedule={optimizer.schedule} />
+        )}
+        {optimizer?.recommendations && optimizer.recommendations.length > 0 && (
+          <OptimizerRecommendations recommendations={optimizer.recommendations} max={5} />
+        )}
       </div>
     );
   }
@@ -91,6 +103,13 @@ export function MonthlyReportCard({ report, pastReports = [] }: Props) {
       />
 
       <TrendSparkline data={trend} />
+
+      {optimizer?.schedule && (
+        <OptimizerScheduleStrip schedule={optimizer.schedule} />
+      )}
+      {optimizer?.recommendations && optimizer.recommendations.length > 0 && (
+        <OptimizerRecommendations recommendations={optimizer.recommendations} max={5} />
+      )}
 
       <div className="grid grid-cols-2 gap-2">
         <ShareMonthButton
