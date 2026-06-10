@@ -1090,7 +1090,9 @@ Deno.serve(async (req) => {
     // ----- Phase 2 (LP-equivalent scheduler) + Phase 3 (forecasts) -----
     let phase2: any = null;
     let forecastPayload: any = null;
-    if (mode === 'schedule' || mode === 'both') {
+    const needsSchedule = mode === 'schedule' || mode === 'both' || mode === 'monthly_report' || mode === 'concierge';
+    if (needsSchedule) {
+
       const snap = extractTelemetrySnapshot(telemetry);
       const params = defaultParams(snap);
       if (body.ev_kwh_needed != null) params.ev_kwh_needed = n(body.ev_kwh_needed);
