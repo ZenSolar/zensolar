@@ -288,19 +288,22 @@ export default function Investor() {
           </div>
           <div className="rounded-2xl border border-border/60 bg-card/40 p-6 md:p-8">
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              Bitcoin's Proof-of-Work consumes enormous amounts of energy to create digital scarcity with no direct environmental benefit. ZenSolar's Proof-of-Genesis™ rewards the actual creation of clean energy — one verified clean kilowatt-hour produced generates one $ZSOLAR token. We turn energy abundance into digital value instead of consuming massive energy to create artificial scarcity.
+              ZenSolar's Proof-of-Genesis™ rewards the actual creation of clean energy — one verified clean kilowatt-hour produced generates one $ZSOLAR token. We turn energy abundance into digital value instead of consuming massive energy to create artificial scarcity.
+            </p>
+            <p className="mt-4 text-sm md:text-base text-muted-foreground leading-relaxed">
+              Bitcoin's Proof-of-Work consumes enormous amounts of energy to create digital scarcity with no direct environmental benefit.
             </p>
             <div className="mt-6 grid gap-3 md:grid-cols-2">
               <div className="rounded-xl border border-border/60 bg-background/40 p-5">
                 <div className="text-xs uppercase tracking-[0.22em] text-muted-foreground">Bitcoin</div>
                 <div className="mt-2 text-sm text-foreground/90 leading-relaxed">
-                  Massive energy burned to create artificial scarcity.
+                  Bitcoin's Proof-of-Work consumes enormous amounts of energy to create digital scarcity with no direct environmental benefit.
                 </div>
               </div>
               <div className="rounded-xl border border-secondary/30 bg-secondary/[0.04] p-5">
                 <div className="text-xs uppercase tracking-[0.22em] text-secondary">ZenSolar</div>
                 <div className="mt-2 text-sm text-foreground/90 leading-relaxed">
-                  One verified clean kWh = One $ZSOLAR token.
+                  1 verified clean kWh = 1 $ZSOLAR token.
                 </div>
               </div>
             </div>
