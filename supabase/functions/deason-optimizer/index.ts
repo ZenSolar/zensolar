@@ -1232,9 +1232,10 @@ Deno.serve(async (req) => {
       documents: { count: docInsights.length, by_kind: docSummary.by_kind, summary: docSummary, insights: docInsights },
 
       engine: {
-        phase: phase2 ? 3 : 1,
-        type: phase2 ? 'rule_based_plus_lp_scheduler_plus_forecasts' : 'rule_based_heuristic',
-        version: '3.0.0',
+        phase: 4,
+        type: phase2 ? 'rule_based_plus_lp_scheduler_plus_forecasts_plus_docs' : 'rule_based_heuristic_plus_docs',
+        version: '4.0.0',
+
         solver: phase2 ? 'ts_lp_equivalent_priority_dispatch' : null,
         solver_note: phase2
           ? 'LP solved in TypeScript via priority-ordered hourly dispatch over forecast-conditioned slots (PVWatts + OpenWeather where keys present, heuristic + historical telemetry otherwise).'
