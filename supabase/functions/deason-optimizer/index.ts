@@ -1057,7 +1057,18 @@ Deno.serve(async (req) => {
 
     const profile = profileRes.data;
     const devices = devicesRes.data ?? [];
-    const bill = analysisRes.data?.analysis ?? null;
+    const bill = analysisRes.data?.report ?? null;
+    const allDocs = (docsRes.data ?? []) as any[];
+    const allAnalyses = (docAnalysesRes.data ?? []) as any[];
+    // Best-effort: for each doc, find the most recent matching analysis (by
+    // doc_paths overlap on storage_path). Falls back to most recent overall.
+    const findAnalysisForDoc = (doc: any) => {
+      const match = allAnalyses.find(a =>
+        Array.isArray(a.doc_paths) && a.doc_paths.some((p: any) => (typeof p === 'string' ? p : p?.storage_path) === doc.storage_path),
+      );
+      return match?.report ?? allAnalyses[0]?.report ?? null;
+    };
+
     const cache = cacheRes.data ?? [];
     const telemetry = {
       battery: cache.filter((r: any) => r.device_type === 'battery'),
