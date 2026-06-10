@@ -118,6 +118,57 @@ export default function Settings() {
       {/* Two-column grid for setting cards on desktop */}
       <div className="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-5 lg:items-start">
 
+      {/* Deason AI Insights — Tesla-style list */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.065 }}
+      >
+        <Card className="overflow-hidden border-amber-500/25 bg-gradient-to-br from-amber-500/5 via-card to-card">
+          <div className="flex items-center gap-2.5 p-4 pb-0">
+            <Sparkles className="h-4 w-4 text-amber-500" />
+            <p className="text-sm font-semibold">Deason AI Insights</p>
+          </div>
+          <CardContent className="p-4 space-y-1">
+            <Link
+              to="/deason"
+              className="flex items-center justify-between gap-3 py-3 px-1 border-b border-border/30 last:border-0 hover:bg-muted/30 rounded-md transition-colors"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="text-amber-500 shrink-0">
+                  <Sparkles className="h-4 w-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium leading-tight">Energy Optimization</p>
+                  <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">
+                    Your personal AI Energy CFO — monthly reports, bill analysis, contract review, and proactive tips
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground/60 shrink-0" />
+            </Link>
+
+            <Link
+              to="/deason?intent=bill-upload"
+              className="flex items-center justify-between gap-3 py-3 px-1 border-b border-border/30 last:border-0 hover:bg-muted/30 rounded-md transition-colors"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="text-muted-foreground/80 shrink-0">
+                  <FileText className="h-4 w-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium leading-tight">Utility Bill Analysis</p>
+                  <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">
+                    Upload your latest bill — Deason will analyze your rate plan and find savings opportunities
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground/60 shrink-0" />
+            </Link>
+          </CardContent>
+        </Card>
+      </motion.div>
+
       {/* Appearance — light mode archived; ZenSolar is dark-only (Tesla-style). */}
 
       {/* Density (desktop-only effect; setting is still saved on mobile) */}
