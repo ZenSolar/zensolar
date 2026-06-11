@@ -775,8 +775,8 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
     batteryCount: battery.data?.length ?? 1,
   });
   const teslaFlow = useMemo(
-    () => deriveTeslaFlow(primaryEv, !!isActivelyCharging),
-    [primaryEv, isActivelyCharging]
+    () => (hideVehicle ? null : deriveTeslaFlow(primaryEv, !!isActivelyCharging)),
+    [hideVehicle, primaryEv, isActivelyCharging]
   );
 
   // Haptic ping on Tesla pill state change
