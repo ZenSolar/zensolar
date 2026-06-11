@@ -415,6 +415,43 @@ export function resolveVehicleAsset(
   return { model: detectedModel, color, src, generic: false };
 }
 
+/**
+ * v5 — Pull the user's Tesla wheel_type from telemetry. Used as a data-attr
+ * on the SVG car group so future asset matrices can react; today's matrix
+ * doesn't vary by wheel, but the value is surfaced for accuracy/QA.
+ */
+export function resolveVehicleWheelType(input: unknown): string | null {
+  const candidates = collectStrings(input, [
+    'vehicle_config.wheel_type',
+    'vehicles.0.vehicle_config.wheel_type',
+    'response.vehicle_config.wheel_type',
+    'wheel_type',
+  ]);
+  for (const raw of candidates) {
+    const s = (raw ?? '').toString().trim();
+    if (s) return s;
+  }
+  return null;
+}
+
+/**
+ * v5 — Pull the Tesla display_name (owner-set nickname) from telemetry.
+ */
+export function resolveVehicleDisplayName(input: unknown): string | null {
+  const candidates = collectStrings(input, [
+    'display_name',
+    'vehicles.0.display_name',
+    'response.display_name',
+    'metadata.display_name',
+    'device_name',
+  ]);
+  for (const raw of candidates) {
+    const s = (raw ?? '').toString().trim();
+    if (s) return s;
+  }
+  return null;
+}
+
 export function collectBatteryTelemetryDebug(
   input: unknown,
   renderedBatteryPowerKw: number | null | undefined,
