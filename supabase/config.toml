@@ -79,6 +79,8 @@ project_id = "fcptrpgqkjffgeddajwl"
     verify_jwt = false
   [functions.tesla-fsd-backfill]
     verify_jwt = false
+  [functions.tesla-fsd-sampler]
+    verify_jwt = false
   [functions.verify-user-invariants]
     verify_jwt = false
   [functions.verify-mint-receipt]
