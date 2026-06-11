@@ -1382,6 +1382,8 @@ export function useDashboardData() {
         homeChargerKwh: homeChargerKwh,
         fsdSupervisedMiles,
         fsdUnsupervisedMiles: 0,
+        fsdSource,
+        fsdSinceDate,
         // Pending (since last mint, eligible for token rewards)
         pendingSolarKwh: pendingSolar,
         pendingEvMiles: pendingEvMiles,
