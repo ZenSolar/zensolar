@@ -36,6 +36,8 @@ const defaultActivityData: ActivityData = {
   homeChargerKwh: 0,
   fsdSupervisedMiles: 0,
   fsdUnsupervisedMiles: 0,
+  fsdSource: null,
+  fsdSinceDate: null,
   // Pending rewards (since last mint)
   pendingSolarKwh: 0,
   pendingEvMiles: 0,
