@@ -1364,7 +1364,7 @@ export function useDashboardData() {
         batteryStorageDischarged: batteryDischarge,
         teslaSuperchargerKwh: superchargerKwh,
         homeChargerKwh: homeChargerKwh,
-        fsdSupervisedMiles: 0,
+        fsdSupervisedMiles,
         fsdUnsupervisedMiles: 0,
         // Pending (since last mint, eligible for token rewards)
         pendingSolarKwh: pendingSolar,
@@ -1373,7 +1373,7 @@ export function useDashboardData() {
         pendingChargingKwh: pendingCharging,
         pendingSuperchargerKwh: pendingSupercharger,
         pendingHomeChargerKwh: pendingHomeCharger,
-        pendingFsdSupervisedMiles: 0,
+        pendingFsdSupervisedMiles,
         pendingFsdUnsupervisedMiles: 0,
         // Totals
         tokensEarned,
