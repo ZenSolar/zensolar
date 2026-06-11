@@ -109,32 +109,24 @@ describe('detectTeslaOutage', () => {
       grid_status: 'Active', grid_power: 0, battery_power: 1.2, load_power: 1.1,
     })).toBe(false);
   });
-  it('uses behavior fallback when grid_status is missing', () => {
+  it('does NOT use behavior fallback when grid_status is missing (self-consumption is not outage)', () => {
+    // Real-world Powerwall self-consumption: grid≈0, battery discharging, home drawing.
+    // Previously the heuristic falsely flipped this to outage. Now → false.
     expect(
       detectTeslaOutage({ grid_power: 0, battery_power: 1.2, load_power: 1.1 }),
-    ).toBe(true);
-    expect(
-      detectTeslaOutage({ grid_power: 2.5, battery_power: 0, load_power: 2.4 }),
     ).toBe(false);
-  });
-  it('fires on the real-world 0.6 kW Powerwall discharge scenario', () => {
     expect(
       detectTeslaOutage({ grid_power: 0, battery_power: 0.6, load_power: 0.6 }),
-    ).toBe(true);
-  });
-  it('normalizes watt-valued payloads (Tesla raw API)', () => {
+    ).toBe(false);
+    // Watt-valued payloads also stay false without explicit grid_status.
     expect(
       detectTeslaOutage({ grid_power: 0, battery_power: 600, load_power: 600 }),
-    ).toBe(true);
-  });
-  it('does NOT trigger on tiny discharge below threshold', () => {
-    expect(
-      detectTeslaOutage({ grid_power: 0, battery_power: 0.1, load_power: 0.1 }),
     ).toBe(false);
   });
   it('returns false on null/empty payload', () => {
     expect(detectTeslaOutage(null)).toBe(false);
     expect(detectTeslaOutage({})).toBe(false);
   });
+
 });
 
