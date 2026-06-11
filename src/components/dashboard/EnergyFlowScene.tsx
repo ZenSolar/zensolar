@@ -663,6 +663,20 @@ export function EnergyFlowScene({
   const evSoc = data.tesla?.soc;
   const evRange = data.tesla?.rangeMi;
 
+  // v5 Phase B — Supercharger detection. Tesla telemetry exposes
+  // `fast_charger_present` / `fast_charger_brand` when plugged into a
+  // DC fast charger (Supercharger, EA, etc). When the car is actively
+  // charging on a fast charger we hide the home cable arc + dynamic car
+  // (the car is not at home) and surface a "Supercharging" badge so the
+  // user can still see live charge state at a glance.
+  const tp = teslaPayload as
+    | { fast_charger_present?: boolean; fast_charger_brand?: string | null }
+    | undefined;
+  const isSupercharging =
+    isCharging &&
+    (tp?.fast_charger_present === true ||
+      (typeof tp?.fast_charger_brand === 'string' && tp.fast_charger_brand.length > 0));
+
   // v5 — extract Tesla wheel_type and display_name for accuracy data-attrs
   const wheelType = useMemo(() => resolveVehicleWheelType(teslaPayload), [teslaPayload]);
   const displayName = useMemo(() => resolveVehicleDisplayName(teslaPayload), [teslaPayload]);
