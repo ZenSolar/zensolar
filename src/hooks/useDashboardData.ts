@@ -727,6 +727,14 @@ export function useDashboardData() {
       // FSD miles (subset of EV miles — Tesla telemetry only, do NOT sum into evMiles)
       const fsdSupervisedMiles = sum(vehicleDevices, d => Number(d.lifetime_totals?.lifetime_fsd_miles || 0));
       const pendingFsdSupervisedMiles = sum(vehicleDevices, d => Math.max(0, Number(d.lifetime_totals?.lifetime_fsd_miles || 0) - Number(d.baseline_data?.fsd_baseline_miles || 0)));
+      // Source label: 'official' wins if ANY vehicle reports it; earliest first_sample_at drives "since".
+      const fsdSource: 'official' | 'calculated_hw3' | null = vehicleDevices.some(d => (d.last_known_state as any)?.fsd_source === 'official')
+        ? 'official'
+        : (vehicleDevices.some(d => (d.last_known_state as any)?.fsd_source === 'calculated_hw3') ? 'calculated_hw3' : null);
+      const fsdSinceDate: string | null = vehicleDevices
+        .map(d => (d.last_known_state as any)?.fsd_source_meta?.first_sample_at)
+        .filter((s): s is string => typeof s === 'string')
+        .sort()[0] ?? null;
 
       const homeChargerKwh = homeChargingMonitorKwh;
       const pendingHomeCharger = pendingHomeChargingMonitorKwh;
