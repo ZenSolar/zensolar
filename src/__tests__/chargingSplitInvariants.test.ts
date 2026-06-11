@@ -107,3 +107,25 @@ describe("charging split invariants — dashboard drift card", () => {
     expect(card).not.toMatch(/home_charging.*\+.*supercharger/);
   });
 });
+
+describe("FSD miles invariants — subset of EV miles, never summed", () => {
+  const hook = read("src/hooks/useDashboardData.ts");
+
+  it("never adds fsdSupervisedMiles into evMiles aggregate", () => {
+    // Guard against accidental double-count: FSD miles are a SUBSET of EV miles.
+    expect(hook).not.toMatch(/evMiles\s*\+\s*fsdSupervisedMiles/);
+    expect(hook).not.toMatch(/fsdSupervisedMiles\s*\+\s*evMiles/);
+  });
+
+  it("sources FSD miles from Tesla telemetry watermark only", () => {
+    expect(hook).toMatch(/lifetime_fsd_miles/);
+    expect(hook).toMatch(/fsd_baseline_miles/);
+  });
+
+  it("tesla-data exposes pending_fsd_supervised_miles as a separate totals field", () => {
+    const td = read("supabase/functions/tesla-data/index.ts");
+    expect(td).toMatch(/pending_fsd_supervised_miles/);
+    expect(td).toMatch(/fsd_supervised_miles/);
+  });
+});
+
