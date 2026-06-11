@@ -386,16 +386,25 @@ function EVTile({ t, totals7d, liveDot, sourceLabel: sourceLabelOverride }: { t:
 
 function MetricTile({ icon: Icon, label, value, detail }: { icon: LucideIcon; label: string; value: string; detail: string }) {
   return (
-    <div className="rounded-lg border border-primary/15 bg-background/45 p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.05)]">
-      <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-        <Icon className="h-3.5 w-3.5 text-primary" />
+    <div className="rounded-xl border border-border/40 bg-background/40 p-3.5 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04)] transition-colors hover:border-primary/30">
+      <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/80">
+        <Icon className="h-3.5 w-3.5 text-primary/80" />
         {label}
       </div>
-      <div className="mt-2 text-2xl font-bold tabular-nums text-foreground">{value}</div>
-      <div className="mt-0.5 text-[11px] text-muted-foreground">{detail}</div>
+      <div className="mt-2.5 text-[22px] font-bold leading-none tabular-nums text-foreground">{value}</div>
+      <div className="mt-1.5 text-[11px] leading-snug text-muted-foreground/80">{detail}</div>
     </div>
   );
 }
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="px-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
+      {children}
+    </div>
+  );
+}
+
 
 export type TeslaPillState = 'charging' | 'idle' | 'unplugged';
 
