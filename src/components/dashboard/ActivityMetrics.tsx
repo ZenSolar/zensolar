@@ -672,6 +672,22 @@ export function ActivityMetrics({
                 (effectiveData.pendingFsdUnsupervisedMiles || 0),
               ),
             );
+            // User-friendly source + start-date label, per spec:
+            //   - "FSD miles · Tesla verified · since Jun 11, 2026" (HW4 official)
+            //   - "FSD miles · Calculated for HW3 · since Jun 11, 2026" (HW3 sampler)
+            const fsdSource = effectiveData.fsdSource ?? null;
+            const fsdSince = effectiveData.fsdSinceDate ?? null;
+            const sinceStr = fsdSince
+              ? new Date(fsdSince).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+              : null;
+            const sourceStr = fsdSource === 'official'
+              ? 'Tesla verified'
+              : fsdSource === 'calculated_hw3'
+                ? 'Calculated for HW3'
+                : null;
+            const sublabel = sourceStr
+              ? `${sourceStr}${sinceStr ? ` · since ${sinceStr}` : ''}`
+              : undefined;
             return (
               <ActivityField
                 icon={Navigation}
@@ -681,6 +697,7 @@ export function ActivityMetrics({
                 color="green"
                 active={fsdPending > 0}
                 isLoading={isLoading}
+                sublabel={sublabel}
                 onTap={fsdPending > 0 ? () => openSheet({
                   category: 'ev_miles',
                   label: 'FSD Miles',
