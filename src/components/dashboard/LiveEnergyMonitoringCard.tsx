@@ -386,16 +386,25 @@ function EVTile({ t, totals7d, liveDot, sourceLabel: sourceLabelOverride }: { t:
 
 function MetricTile({ icon: Icon, label, value, detail }: { icon: LucideIcon; label: string; value: string; detail: string }) {
   return (
-    <div className="rounded-lg border border-primary/15 bg-background/45 p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.05)]">
-      <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-        <Icon className="h-3.5 w-3.5 text-primary" />
+    <div className="rounded-xl border border-border/40 bg-background/40 p-3.5 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04)] transition-colors hover:border-primary/30">
+      <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/80">
+        <Icon className="h-3.5 w-3.5 text-primary/80" />
         {label}
       </div>
-      <div className="mt-2 text-2xl font-bold tabular-nums text-foreground">{value}</div>
-      <div className="mt-0.5 text-[11px] text-muted-foreground">{detail}</div>
+      <div className="mt-2.5 text-[22px] font-bold leading-none tabular-nums text-foreground">{value}</div>
+      <div className="mt-1.5 text-[11px] leading-snug text-muted-foreground/80">{detail}</div>
     </div>
   );
 }
+
+function SectionLabel({ children }: { children: string }) {
+  return (
+    <div className="px-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
+      {children}
+    </div>
+  );
+}
+
 
 export type TeslaPillState = 'charging' | 'idle' | 'unplugged';
 
@@ -843,7 +852,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
           <Loader2 className="h-5 w-5 animate-spin text-primary" />
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-5">
           <div
             key={outage?.active ? 'outage' : 'normal'}
             className="overflow-hidden rounded-xl border border-primary/20 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.12),transparent_70%),radial-gradient(circle_at_bottom,hsl(220_60%_8%/0.6),transparent_60%)] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04),0_8px_30px_-8px_hsl(220_60%_4%/0.6)] animate-in fade-in duration-300"
@@ -904,83 +913,93 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
 
 
 
-          {/* ZenX vehicle pill — clean Tesla-style status under the scene */}
-          {teslaFlow && (
-            <ZenXPill
-              tesla={teslaFlow}
-              nickname={primaryEv?.device_name ?? 'ZenX'}
-              onClick={handlePillClick}
-            />
-          )}
+          {/* Live Devices group — ZenX pill + EV details, clearly grouped */}
+          {(teslaFlow || ev.data.length > 0) && (
+            <section className="space-y-2.5">
+              <SectionLabel>Live Devices</SectionLabel>
 
-          {/* Tesla / EV tile — promoted directly under diagram */}
-          {ev.data.length > 0 && (
-            <div
-              ref={evTileRef}
-              id="tesla-ev-tile"
-              tabIndex={-1}
-              aria-label="Tesla details"
-              className={`rounded-lg outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-primary ${pingTile ? 'ring-2 ring-primary/60 shadow-[0_0_24px_hsl(var(--primary)/0.35)]' : ''}`}
-            >
-
-              {ev.data.map((t) => (
-                <EVTile
-                  key={`e-${t.oem}-${t.site_id}`}
-                  t={t}
-                  totals7d={evTotals.totals}
-                  liveDot={teslaFlow?.isCharging && t.oem === 'tesla'}
-                  sourceLabel={t.oem === 'tesla' ? teslaFlow?.sourceLabel : undefined}
+              {/* ZenX vehicle pill — clean Tesla-style status under the scene */}
+              {teslaFlow && (
+                <ZenXPill
+                  tesla={teslaFlow}
+                  nickname={primaryEv?.device_name ?? 'ZenX'}
+                  onClick={handlePillClick}
                 />
-              ))}
-            </div>
+              )}
+
+              {/* Tesla / EV tile — promoted directly under diagram */}
+              {ev.data.length > 0 && (
+                <div
+                  ref={evTileRef}
+                  id="tesla-ev-tile"
+                  tabIndex={-1}
+                  aria-label="Tesla details"
+                  className={`rounded-lg outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-primary ${pingTile ? 'ring-2 ring-primary/60 shadow-[0_0_24px_hsl(var(--primary)/0.35)]' : ''}`}
+                >
+                  {ev.data.map((t) => (
+                    <EVTile
+                      key={`e-${t.oem}-${t.site_id}`}
+                      t={t}
+                      totals7d={evTotals.totals}
+                      liveDot={teslaFlow?.isCharging && t.oem === 'tesla'}
+                      sourceLabel={t.oem === 'tesla' ? teslaFlow?.sourceLabel : undefined}
+                    />
+                  ))}
+                </div>
+              )}
+            </section>
           )}
 
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-            <MetricTile
-              icon={Sun}
-              label="Today"
-              value={formatKwh(solarStats.todayKwh)}
-              detail={`${formatKw(solarStats.currentKw)} now · ${solarStats.label}`}
-            />
-            {hasBattery ? (
-              <MetricTile
-                icon={BatteryCharging}
-                label="Powerwall"
-                value={
-                  batteryStats.reserveKwh !== null && batteryStats.capacityKwh !== null
-                    ? `${batteryStats.reserveKwh.toFixed(1)} / ${batteryStats.capacityKwh.toFixed(1)} kWh`
-                    : batteryStats.soc !== null ? `${Math.round(batteryStats.soc)}%` : '—'
-                }
-                detail={(() => {
-                  const pct = batteryStats.soc !== null ? `${Math.round(batteryStats.soc)}%` : '—';
-                  if (batteryStats.powerKw === null) return `${pct} · ${batteryStats.status}`;
-                  if (batteryStats.powerKw > 0.05) return `${pct} · +${batteryStats.powerKw.toFixed(1)} kW charging`;
-                  if (batteryStats.powerKw < -0.05) return `${pct} · ${batteryStats.powerKw.toFixed(1)} kW discharging`;
-                  const isFull = batteryStats.soc !== null && batteryStats.soc >= 99;
-                  return `${pct} · ${isFull ? 'Full' : 'Idle'}`;
-                })()}
-              />
-            ) : hasCharger ? (
-              <MetricTile
-                icon={Zap}
-                label={chargers.data[0]?.device_name ?? 'Home Charger'}
-                value={
-                  chargers.data[0]?.lifetime_kwh !== null && chargers.data[0]?.lifetime_kwh !== undefined
-                    ? `${chargers.data[0].lifetime_kwh.toFixed(0)} kWh`
-                    : '—'
-                }
-                detail={`Lifetime · ${chargers.data[0]?.total_sessions ?? 0} sessions`}
-              />
-            ) : null}
 
-            <MetricTile
-              icon={Gauge}
-              label="This Week"
-              value={formatKwh(evTotals.totals.home_kwh + evTotals.totals.supercharger_kwh)}
-              detail={`Super ${evTotals.totals.supercharger_kwh.toFixed(1)} · Home ${evTotals.totals.home_kwh.toFixed(1)} kWh`}
+          <section className="space-y-2.5">
+            <SectionLabel>At a glance</SectionLabel>
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+              <MetricTile
+                icon={Sun}
+                label="Today"
+                value={formatKwh(solarStats.todayKwh)}
+                detail={`${formatKw(solarStats.currentKw)} now · ${solarStats.label}`}
+              />
+              {hasBattery ? (
+                <MetricTile
+                  icon={BatteryCharging}
+                  label="Powerwall"
+                  value={
+                    batteryStats.reserveKwh !== null && batteryStats.capacityKwh !== null
+                      ? `${batteryStats.reserveKwh.toFixed(1)} / ${batteryStats.capacityKwh.toFixed(1)} kWh`
+                      : batteryStats.soc !== null ? `${Math.round(batteryStats.soc)}%` : '—'
+                  }
+                  detail={(() => {
+                    const pct = batteryStats.soc !== null ? `${Math.round(batteryStats.soc)}%` : '—';
+                    if (batteryStats.powerKw === null) return `${pct} · ${batteryStats.status}`;
+                    if (batteryStats.powerKw > 0.05) return `${pct} · +${batteryStats.powerKw.toFixed(1)} kW charging`;
+                    if (batteryStats.powerKw < -0.05) return `${pct} · ${batteryStats.powerKw.toFixed(1)} kW discharging`;
+                    const isFull = batteryStats.soc !== null && batteryStats.soc >= 99;
+                    return `${pct} · ${isFull ? 'Full' : 'Idle'}`;
+                  })()}
+                />
+              ) : hasCharger ? (
+                <MetricTile
+                  icon={Zap}
+                  label={chargers.data[0]?.device_name ?? 'Home Charger'}
+                  value={
+                    chargers.data[0]?.lifetime_kwh !== null && chargers.data[0]?.lifetime_kwh !== undefined
+                      ? `${chargers.data[0].lifetime_kwh.toFixed(0)} kWh`
+                      : '—'
+                  }
+                  detail={`Lifetime · ${chargers.data[0]?.total_sessions ?? 0} sessions`}
+                />
+              ) : null}
 
-            />
-          </div>
+              <MetricTile
+                icon={Gauge}
+                label="This Week"
+                value={formatKwh(evTotals.totals.home_kwh + evTotals.totals.supercharger_kwh)}
+                detail={`Super ${evTotals.totals.supercharger_kwh.toFixed(1)} · Home ${evTotals.totals.home_kwh.toFixed(1)} kWh`}
+              />
+            </div>
+          </section>
+
 
 
           <div className="flex flex-col gap-3 rounded-lg border border-primary/15 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between">
