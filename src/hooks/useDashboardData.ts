@@ -865,6 +865,8 @@ export function useDashboardData() {
       // FSD miles (subset of EV miles — Tesla telemetry only)
       let fsdSupervisedMiles = 0;
       let pendingFsdSupervisedMiles = 0;
+      let fsdSource: 'official' | 'calculated_hw3' | null = null;
+      let fsdSinceDate: string | null = null;
 
       // Fetch data in parallel (including device labels and minted tokens)
       const fetchHomeChargingTotal = async (): Promise<{ lifetime: number; sessions: Array<{ total_session_kwh: number; start_time: string }> }> => {
