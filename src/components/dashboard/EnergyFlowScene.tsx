@@ -620,18 +620,50 @@ export function EnergyFlowScene({
   const evSoc = data.tesla?.soc;
   const evRange = data.tesla?.rangeMi;
 
+  // v5 — extract Tesla wheel_type and display_name for accuracy data-attrs
+  const wheelType = useMemo(() => resolveVehicleWheelType(teslaPayload), [teslaPayload]);
+  const displayName = useMemo(() => resolveVehicleDisplayName(teslaPayload), [teslaPayload]);
+
+  // v5 — weather-aware sky tint. Cloudy/overcast → cool grey; rainy →
+  // deep slate; thunderstorm → violet edge. Day-only; night scenes already
+  // carry their own mood. Sits ABOVE the ambient floor but BELOW the hero img.
+  const skyTint = useMemo<string | null>(() => {
+    if (weatherCode == null || scene === 'night' || scene === 'night-ev') return null;
+    if (weatherCode === 0 || weatherCode === 1) return null; // clear / mostly clear
+    if (weatherCode === 2) return 'linear-gradient(to bottom, hsl(210 35% 35% / 0.18), transparent 55%)';
+    if (weatherCode === 3) return 'linear-gradient(to bottom, hsl(210 20% 30% / 0.32), transparent 60%)';
+    if (weatherCode >= 45 && weatherCode <= 48) return 'linear-gradient(to bottom, hsl(210 15% 40% / 0.40), transparent 60%)';
+    if ((weatherCode >= 51 && weatherCode <= 67) || (weatherCode >= 80 && weatherCode <= 82)) return 'linear-gradient(to bottom, hsl(215 35% 22% / 0.50), transparent 65%)';
+    if (weatherCode >= 71 && weatherCode <= 86) return 'linear-gradient(to bottom, hsl(220 15% 55% / 0.30), transparent 60%)';
+    if (weatherCode >= 95) return 'linear-gradient(to bottom, hsl(265 35% 20% / 0.55), transparent 65%)';
+    return null;
+  }, [weatherCode, scene]);
+
   return (
     <div
       className={`relative isolate aspect-square w-full overflow-hidden ${className ?? ''}`}
       data-scene={scene}
+      data-composition={composition}
+      data-weather-code={weatherCode ?? ''}
       data-vehicle={resolvedVehicle ?? (vehicleGeneric ? 'generic' : 'none')}
       data-vehicle-color={resolvedColor ?? 'none'}
+      data-vehicle-wheel={wheelType ?? ''}
+      data-vehicle-name={displayName ?? ''}
     >
       {/* Ambient gradient floor with subtle depth */}
       <div
         aria-hidden="true"
         className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_50%_40%,hsl(220_50%_12%/0.85),transparent_65%),radial-gradient(circle_at_50%_95%,hsl(var(--primary)/0.14),transparent_55%),linear-gradient(to_bottom,hsl(220_60%_6%/0.4),hsl(220_70%_3%/0.7))]"
       />
+
+      {/* v5 — weather sky tint overlay (only when conditions warrant) */}
+      {skyTint && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-[5] transition-opacity duration-700"
+          style={{ background: skyTint }}
+        />
+      )}
 
       {/* Crossfading hero scene */}
       <AnimatePresence mode="sync">
