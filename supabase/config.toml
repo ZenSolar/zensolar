@@ -73,6 +73,12 @@ project_id = "fcptrpgqkjffgeddajwl"
     verify_jwt = false
   [functions.tesla-register]
     verify_jwt = false
+  [functions.tesla-telemetry-config]
+    verify_jwt = false
+  [functions.tesla-telemetry-webhook]
+    verify_jwt = false
+  [functions.tesla-fsd-backfill]
+    verify_jwt = false
   [functions.verify-user-invariants]
     verify_jwt = false
   [functions.verify-mint-receipt]
