@@ -638,6 +638,52 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
   const solarStats = solarSnapshot(primarySolar);
   const batteryStats = batterySnapshot(primaryBattery);
 
+  // v5 Phase 5 — aggregate across ALL connected PV systems for supporting tiles.
+  // Scene still uses primarySolar (per active tab); tiles show whole-home truth.
+  const solarStatsAll = useMemo(() => {
+    if (solar.data.length <= 1) return solarStats;
+    const snaps = solar.data.map(solarSnapshot);
+    const sum = (xs: Array<number | null>) =>
+      xs.some((v) => v !== null) ? xs.reduce<number>((a, v) => a + (v ?? 0), 0) : null;
+    return {
+      currentKw: sum(snaps.map((s) => s.currentKw)),
+      todayKwh: sum(snaps.map((s) => s.todayKwh)),
+      lifetimeMwh: sum(snaps.map((s) => s.lifetimeMwh)),
+      label: `${solar.data.length} systems`,
+    };
+  }, [solar.data, solarStats]);
+
+  // v5 Phase 5 — aggregate across ALL connected Powerwalls / batteries.
+  const batteryStatsAll = useMemo(() => {
+    if (battery.data.length <= 1) return batteryStats;
+    const snaps = battery.data.map(batterySnapshot);
+    const sumNonNull = (xs: Array<number | null>) =>
+      xs.some((v) => v !== null) ? xs.reduce<number>((a, v) => a + (v ?? 0), 0) : null;
+    const cap = sumNonNull(snaps.map((s) => s.capacityKwh));
+    const reserve = sumNonNull(snaps.map((s) => s.reserveKwh));
+    const power = sumNonNull(snaps.map((s) => s.powerKw));
+    // Capacity-weighted SOC so two unequal packs report a true blended %.
+    const socs = snaps
+      .map((s) => ({ soc: s.soc, cap: s.capacityKwh ?? POWERWALL_DEFAULT_CAPACITY_KWH }))
+      .filter((s) => s.soc !== null) as Array<{ soc: number; cap: number }>;
+    const totalCap = socs.reduce((a, s) => a + s.cap, 0) || 1;
+    const soc = socs.length
+      ? socs.reduce((a, s) => a + s.soc * (s.cap / totalCap), 0)
+      : null;
+    return {
+      ...batteryStats,
+      soc,
+      powerKw: power,
+      capacityKwh: cap,
+      reserveKwh: reserve,
+      energyLeft: reserve,
+      status:
+        power === null ? 'State pending' : power > 0.05 ? 'Charging' : power < -0.05 ? 'Discharging' : 'Idle',
+      label: `${battery.data.length} Powerwalls`,
+    };
+  }, [battery.data, batteryStats]);
+
+
   // Current household load (kW) — also re-derived below as `homeKwRaw`,
   // computed here so we can feed it into the outage-lifecycle hook.
   const { weather: liveWeather } = useWeather();
