@@ -25,6 +25,7 @@ export function PrimaryMintAction({
   onMint,
   disabled = false,
   isViewer = false,
+  momentumPerMinute = 0,
 }: PrimaryMintActionProps) {
   const [displayed, setDisplayed] = useState(pendingZsolar);
   useEffect(() => {
