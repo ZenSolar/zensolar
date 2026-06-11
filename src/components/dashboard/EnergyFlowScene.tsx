@@ -28,6 +28,8 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import type { EnergyFlowData } from './AnimatedEnergyFlow';
 import {
   resolveVehicleAsset,
+  resolveVehicleWheelType,
+  resolveVehicleDisplayName,
   type VehicleColor,
   type VehicleModel,
 } from './EnergyFlowScene.scenes';
