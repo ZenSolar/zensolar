@@ -937,9 +937,11 @@ interface ActivityFieldProps {
   historyLink?: string;
   liveIndicator?: boolean;
   showBadge?: boolean;
+  /** Small caption rendered under the value (e.g. FSD source + "since" date). */
+  sublabel?: string;
 }
 
-function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, isLoading = false, historyLink, liveIndicator, showBadge }: ActivityFieldProps) {
+function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, isLoading = false, historyLink, liveIndicator, showBadge, sublabel }: ActivityFieldProps) {
   const navigate = useNavigate();
   const styles = colorStyles[color];
   const colorIndex = Object.keys(colorStyles).indexOf(color);
