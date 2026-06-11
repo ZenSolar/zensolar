@@ -713,13 +713,24 @@ export function EnergyFlowScene({
         className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_50%_40%,hsl(220_50%_12%/0.85),transparent_65%),radial-gradient(circle_at_50%_95%,hsl(var(--primary)/0.14),transparent_55%),linear-gradient(to_bottom,hsl(220_60%_6%/0.4),hsl(220_70%_3%/0.7))]"
       />
 
-      {/* v5 — weather sky tint overlay (only when conditions warrant) */}
+      {/* v5 Phase C — weather sky tint. An ambient base tint sits BEHIND
+          the house (sets the mood of the air around it), and a soft-light
+          blended tint sits ABOVE the house so the building itself picks
+          up the color cast — overcast greys the walls, rain cools them,
+          storm pushes them violet. Both fade smoothly between codes. */}
       {skyTint && (
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 -z-[5] transition-opacity duration-700"
-          style={{ background: skyTint }}
-        />
+        <>
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 -z-[5] transition-opacity duration-700"
+            style={{ background: skyTint }}
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 transition-opacity duration-700"
+            style={{ background: skyTint, mixBlendMode: 'soft-light', zIndex: 10 }}
+          />
+        </>
       )}
 
       {/* v5 Phase 1 — pure-SVG HouseSceneV5 (replaces baked PNGs).
