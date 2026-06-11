@@ -722,6 +722,10 @@ export function useDashboardData() {
       const superchargerKwh = sum(vehicleDevices, d => Number(d.lifetime_totals?.charging_kwh || 0));
       const pendingSupercharger = sum(vehicleDevices, d => Math.max(0, Number(d.lifetime_totals?.charging_kwh || 0) - Number(d.baseline_data?.charging_kwh || 0)));
 
+      // FSD miles (subset of EV miles — Tesla telemetry only, do NOT sum into evMiles)
+      const fsdSupervisedMiles = sum(vehicleDevices, d => Number(d.lifetime_totals?.lifetime_fsd_miles || 0));
+      const pendingFsdSupervisedMiles = sum(vehicleDevices, d => Math.max(0, Number(d.lifetime_totals?.lifetime_fsd_miles || 0) - Number(d.baseline_data?.fsd_baseline_miles || 0)));
+
       const homeChargerKwh = homeChargingMonitorKwh;
       const pendingHomeCharger = pendingHomeChargingMonitorKwh;
       const pendingCharging = pendingSupercharger + pendingHomeCharger;
