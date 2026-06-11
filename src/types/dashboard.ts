@@ -84,8 +84,13 @@ export interface ActivityData {
   batteryStorageDischarged: number;
   teslaSuperchargerKwh: number;
   homeChargerKwh: number;
-  fsdSupervisedMiles: number;    // FSD Supervised miles (future Tesla API)
+  fsdSupervisedMiles: number;    // FSD Supervised miles (Tesla)
   fsdUnsupervisedMiles: number;  // FSD Unsupervised/autonomous miles (future Tesla API)
+  /** Source for FSD miles. 'official' = Tesla SelfDrivingMilesSinceReset (HW4),
+   *  'calculated_hw3' = engagement-delta polling fallback (HW3). null when unknown. */
+  fsdSource?: 'official' | 'calculated_hw3' | null;
+  /** First time FSD miles started being tracked for this user (ISO string). Drives "since [date]" label. */
+  fsdSinceDate?: string | null;
   
   // Pending rewards (since last mint, eligible for token issuance)
   pendingSolarKwh: number;
