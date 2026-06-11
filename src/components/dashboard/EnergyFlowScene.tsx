@@ -978,6 +978,36 @@ export function EnergyFlowScene({
           </g>
         )}
 
+        {/* v5 — Realistic charging cable arc from wall connector to the
+            Tesla's charge port while actively charging. Thin emerald guide
+            curve with a tight glow, no particles to keep the read clean. */}
+        {chargingAtHome && showDynamicCar && (() => {
+          const wc = HOME_BLUEPRINT.wallCharger;
+          const port = { x: carAnchor.x + carW * 0.30, y: carAnchor.y - carH * 0.05 };
+          const cableD = `M ${wc.x} ${wc.y} C ${wc.x - 2} ${wc.y + 8} ${port.x - 3} ${port.y + 6} ${port.x} ${port.y}`;
+          return (
+            <g style={{ pointerEvents: 'none' }} data-testid="ev-cable">
+              <path
+                d={cableD}
+                stroke="hsl(142 70% 45% / 0.55)"
+                strokeWidth={0.9}
+                strokeLinecap="round"
+                fill="none"
+                style={{ filter: 'blur(0.6px)' }}
+              />
+              <path
+                d={cableD}
+                stroke={EMERALD_LED}
+                strokeWidth={0.45}
+                strokeLinecap="round"
+                fill="none"
+                opacity={0.85}
+              />
+            </g>
+          );
+        })()}
+
+
         {/* ── Dynamic Tesla, locked to the same coordinate system ── */}
         {showDynamicCar && vehicleSrc && (
           <g>
