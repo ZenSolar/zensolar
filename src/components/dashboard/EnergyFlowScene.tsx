@@ -36,15 +36,14 @@ import {
 import { HOME_BLUEPRINT, BLUEPRINT_PATHS } from './HomeBlueprint';
 import { HouseSceneV5 } from './HouseSceneV5';
 
-import sceneDay from '@/assets/zencasa/house-day.png';
-import sceneNight from '@/assets/zencasa/house-night.png';
-import sceneNightEv from '@/assets/zencasa/house-night-ev.png';
-import sceneRain from '@/assets/zencasa/house-rain.png';
+// v5 Phase 1: legacy baked house PNG imports removed — HouseSceneV5 owns the
+// hero render now. SCENE_SRC and the four PNG imports were deleted to prove
+// the new bones are the only thing drawing the house.
 
 export type SceneKey = 'day' | 'night' | 'night-ev' | 'rain';
 
 /**
- * v5 — High-level composition archetype, separate from the baked PNG scene.
+ * v5 — High-level composition archetype, separate from the scene palette.
  * Drives overlay weighting, car size, and which halos light up.
  *
  *   full-stack    — solar + battery + EV  (current rich cockpit)
@@ -59,13 +58,6 @@ export type CompositionKey =
   | 'solar-only'
   | 'charger-only'
   | 'outage';
-
-const SCENE_SRC: Record<SceneKey, string> = {
-  day: sceneDay,
-  night: sceneNight,
-  'night-ev': sceneNightEv,
-  rain: sceneRain,
-};
 
 /**
  * Pure scene-selection function.
