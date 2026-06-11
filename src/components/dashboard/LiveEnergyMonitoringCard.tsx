@@ -606,9 +606,17 @@ export function TeslaStatusPill({ tesla, onClick }: { tesla: TeslaFlow | null; o
 export interface LiveEnergyMonitoringCardProps {
   /** Optional override: forces Outage Mode regardless of live detection. */
   outage?: { active: boolean; startedAt: Date | string };
+  /**
+   * When true, this card behaves as the pure "ZenEnergy · Live" surface:
+   * Solar + Powerwall + Grid + Home only. The Tesla vehicle is removed
+   * from the scene, the ZenX pill is hidden, the Live Devices (EV) tile
+   * is suppressed, and the EV-only metric tiles are dropped. The vehicle
+   * lives on its own ZenDrive card.
+   */
+  hideVehicle?: boolean;
 }
 
-export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyMonitoringCardProps = {}) {
+export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle = false }: LiveEnergyMonitoringCardProps = {}) {
   const solar = useSolarTelemetry();
   const battery = useBatteryTelemetry();
   const ev = useEVChargerTelemetry();
