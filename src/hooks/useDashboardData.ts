@@ -1141,8 +1141,11 @@ export function useDashboardData() {
         pendingSupercharger = teslaPendingSupercharger;
         pendingHomeCharger = teslaPendingHomeAc + wallboxPendingKwh + pendingHomeChargingMonitorKwh;
         pendingCharging = pendingSupercharger + pendingHomeCharger;
+        // FSD miles — subset of EV miles, never summed into evMiles
+        fsdSupervisedMiles = Number(teslaData.totals.fsd_supervised_miles || 0);
+        pendingFsdSupervisedMiles = Number(teslaData.totals.pending_fsd_supervised_miles || 0);
 
-        console.log('Tesla data:', { batteryDischarge, evMiles, superchargerKwh, homeChargerKwh, hasDedicatedSolarProvider });
+        console.log('Tesla data:', { batteryDischarge, evMiles, superchargerKwh, homeChargerKwh, hasDedicatedSolarProvider, fsdSupervisedMiles });
       }
 
       // If only Wallbox connected (no Tesla), set home charger from Wallbox data
