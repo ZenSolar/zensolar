@@ -286,7 +286,7 @@ function chargerKindBadge(fastChargerType: string | null, chargerPhases: number 
   return { icon: Car, label: 'Plug' };
 }
 
-function EVTile({ t, totals7d, liveDot, sourceLabel: sourceLabelOverride }: { t: CachedTelemetry; totals7d: { home_kwh: number; supercharger_kwh: number }; liveDot?: boolean; sourceLabel?: string }) {
+export function EVTile({ t, totals7d, liveDot, sourceLabel: sourceLabelOverride }: { t: CachedTelemetry; totals7d: { home_kwh: number; supercharger_kwh: number }; liveDot?: boolean; sourceLabel?: string }) {
   const soc = pickNumber(t.payload, ['battery_level', 'vehicles.0.battery_level', 'usable_battery_level', 'response.charge_state.battery_level']);
   const range = pickNumber(t.payload, ['battery_range', 'vehicles.0.battery_range', 'ideal_battery_range', 'est_battery_range', 'response.charge_state.battery_range']);
   const odometer = pickNumber(t.payload, ['odometer', 'vehicles.0.odometer', 'response.drive_state.odometer']);
@@ -606,9 +606,17 @@ export function TeslaStatusPill({ tesla, onClick }: { tesla: TeslaFlow | null; o
 export interface LiveEnergyMonitoringCardProps {
   /** Optional override: forces Outage Mode regardless of live detection. */
   outage?: { active: boolean; startedAt: Date | string };
+  /**
+   * When true, this card behaves as the pure "ZenEnergy · Live" surface:
+   * Solar + Powerwall + Grid + Home only. The Tesla vehicle is removed
+   * from the scene, the ZenX pill is hidden, the Live Devices (EV) tile
+   * is suppressed, and the EV-only metric tiles are dropped. The vehicle
+   * lives on its own ZenDrive card.
+   */
+  hideVehicle?: boolean;
 }
 
-export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyMonitoringCardProps = {}) {
+export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle = false }: LiveEnergyMonitoringCardProps = {}) {
   const solar = useSolarTelemetry();
   const battery = useBatteryTelemetry();
   const ev = useEVChargerTelemetry();
@@ -672,11 +680,12 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
   // Device-combination detection — drives the render matrix below.
   const hasSolar = solar.data.length > 0;
   const hasBattery = battery.data.length > 0;
-  const hasTesla = ev.data.some((t) => t.oem === 'tesla');
+  const hasTeslaRaw = ev.data.some((t) => t.oem === 'tesla');
+  const hasTesla = hideVehicle ? false : hasTeslaRaw;
   const hasCharger = chargers.data.length > 0;
   const hasRichCockpit = hasBattery || hasTesla; // EnergyFlowScene needs ≥1 of these
   const empty =
-    !loading && !hasSolar && !hasBattery && !hasTesla && !hasCharger;
+    !loading && !hasSolar && !hasBattery && !hasTeslaRaw && !hasCharger;
 
   // v5 — multi-PV: let user pick which PV system feeds the scene + tiles.
   const [activeSolarSiteId, setActiveSolarSiteId] = useState<string | null>(null);
@@ -766,8 +775,8 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
     batteryCount: battery.data?.length ?? 1,
   });
   const teslaFlow = useMemo(
-    () => deriveTeslaFlow(primaryEv, !!isActivelyCharging),
-    [primaryEv, isActivelyCharging]
+    () => (hideVehicle ? null : deriveTeslaFlow(primaryEv, !!isActivelyCharging)),
+    [hideVehicle, primaryEv, isActivelyCharging]
   );
 
   // Haptic ping on Tesla pill state change
@@ -819,7 +828,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
     batteryCapacityKwh: batteryStats.capacityKwh ?? undefined,
     batteryReserveKwh: batteryStats.reserveKwh ?? undefined,
     gridPower: reconciledFlow.gridKw,
-    evPower: evKwRaw,
+    evPower: hideVehicle ? 0 : evKwRaw,
     tesla: teslaFlow
       ? {
           kW: teslaFlow.kW,
@@ -870,7 +879,9 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
   if (hasBattery) subtitleParts.push('Tesla Powerwall');
   if (hasTesla) subtitleParts.push(primaryEv?.device_name ?? 'ZenX');
   if (hasCharger && !hasTesla) subtitleParts.push(chargers.data[0]?.device_name ?? 'Wallbox');
-  const cockpitSubtitle = `Home Energy Cockpit · ${subtitleParts.join(' + ') || 'Live'}`;
+  const cockpitSubtitle = hideVehicle
+    ? `ZenEnergy · ${subtitleParts.join(' + ') || 'Live'}`
+    : `Home Energy Cockpit · ${subtitleParts.join(' + ') || 'Live'}`;
 
   return (
     <div className="w-full p-4">
@@ -980,7 +991,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
                 }
                 outageStartedAt={outage?.active ? outage.startedAt : undefined}
                 teslaPayload={
-                  primaryEv?.oem === 'tesla'
+                  !hideVehicle && primaryEv?.oem === 'tesla'
                     ? {
                         ...((primaryEv?.payload as Record<string, unknown>) ?? {}),
                         device_name: primaryEv?.device_name,
@@ -1017,7 +1028,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
 
 
           {/* Live Devices group — ZenX pill + EV details, clearly grouped */}
-          {(teslaFlow || ev.data.length > 0) && (
+          {!hideVehicle && (teslaFlow || ev.data.length > 0) && (
             <section className="space-y-3 border-t border-border/30 pt-5">
               <SectionLabel>Live Devices</SectionLabel>
 
@@ -1101,24 +1112,28 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
               )}
 
               {/* Blue — EV charging (today only) */}
-              <MetricTile
-                tone="blue"
-                icon={Zap}
-                label="EV Charging · Today"
-                value={formatKwh(evTotals.totals.home_kwh + evTotals.totals.supercharger_kwh)}
-                detail={`Super ${evTotals.totals.supercharger_kwh.toFixed(1)} · Home ${evTotals.totals.home_kwh.toFixed(1)} kWh`}
-              />
+              {!hideVehicle && (
+                <MetricTile
+                  tone="blue"
+                  icon={Zap}
+                  label="EV Charging · Today"
+                  value={formatKwh(evTotals.totals.home_kwh + evTotals.totals.supercharger_kwh)}
+                  detail={`Super ${evTotals.totals.supercharger_kwh.toFixed(1)} · Home ${evTotals.totals.home_kwh.toFixed(1)} kWh`}
+                />
+              )}
 
               {/* Teal — EV mileage estimate from energy charged today
                    (≈ 3.3 mi/kWh — derived; replaced by live Tesla odometer
                    delta in Phase F when FSD streaming aggregation lands). */}
-              <MetricTile
-                tone="teal"
-                icon={Route}
-                label="EV Mileage · Today"
-                value={`${Math.round((evTotals.totals.home_kwh + evTotals.totals.supercharger_kwh) * 3.3).toLocaleString()} mi`}
-                detail="Estimated from today's energy charged"
-              />
+              {!hideVehicle && (
+                <MetricTile
+                  tone="teal"
+                  icon={Route}
+                  label="EV Mileage · Today"
+                  value={`${Math.round((evTotals.totals.home_kwh + evTotals.totals.supercharger_kwh) * 3.3).toLocaleString()} mi`}
+                  detail="Estimated from today's energy charged"
+                />
+              )}
             </div>
             <div className="px-0.5 text-[10px] leading-snug text-muted-foreground/70">
               ≈ {Math.max(0, solarStatsAll.todayKwh ?? 0).toFixed(1)} $ZSOLAR ready to mint today

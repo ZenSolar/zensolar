@@ -24,6 +24,7 @@ const CO2OffsetCard = lazy(() =>
 );
 import { PremiumInsightsTeaserCard } from './dashboard/PremiumInsightsTeaserCard';
 import { LiveEnergyMonitoringCard } from './dashboard/LiveEnergyMonitoringCard';
+import { ZenDriveLiveCard } from './dashboard/ZenDriveLiveCard';
 import { OutageRecapCard } from './dashboard/OutageRecapCard';
 import { OemDiagnosticsBanner } from './dashboard/OemDiagnosticsBanner';
 import { EnergyFlowErrorBoundary } from './dashboard/EnergyFlowErrorBoundary';
@@ -602,7 +603,14 @@ function EnergyFlowGlowCard() {
           <AnimatedEnergyFlow className="w-full" />
         </Suspense>
       ) : subscribed ? (
-        <LiveEnergyMonitoringCard />
+        <>
+          {/* ZenEnergy · Live — solar / Powerwall / grid / home only */}
+          <LiveEnergyMonitoringCard hideVehicle />
+          {/* ZenDrive · Live — vehicle hero, only when a Tesla / EV is linked */}
+          <div className="mt-4">
+            <ZenDriveLiveCard />
+          </div>
+        </>
       ) : (
         // Default placeholder/mock card everyone sees until they pay $4.99/mo.
         <Suspense fallback={<div className="w-full h-64 bg-card/10 animate-pulse" aria-hidden="true" />}>
