@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Zap } from 'lucide-react';
+import { Sparkles, Zap } from 'lucide-react';
 import { MintEffectButton } from './MintEffectButton';
 
 interface PrimaryMintActionProps {
@@ -12,12 +12,10 @@ interface PrimaryMintActionProps {
 /**
  * Primary Tap-to-Mint™ hero action.
  *
- * Sits directly under the Zen Monitoring flow diagram and gives the user the
- * single most important affordance on the dashboard: convert today's pending
- * energy into $ZSOLAR. Uses MintEffectButton for haptics + burst FX.
- *
- * 1:1 UX is preserved — we present `pendingZsolar` as the user's share
- * (1 kWh = 1 $ZSOLAR). Backend reconciles on the raw 100% mint.
+ * Now the emotional & visual anchor of the dashboard — sits directly under
+ * the Clean Energy Center KPI grid and turns today's pending energy into
+ * $ZSOLAR with one tap. 1 kWh = 1 $ZSOLAR (UI SSOT — backend reconciles
+ * on the raw 100% mint).
  */
 export function PrimaryMintAction({
   pendingZsolar,
@@ -25,7 +23,6 @@ export function PrimaryMintAction({
   disabled = false,
   isViewer = false,
 }: PrimaryMintActionProps) {
-  // Animated count-up for the pending number — feels alive without being noisy.
   const [displayed, setDisplayed] = useState(pendingZsolar);
   useEffect(() => {
     const start = displayed;
@@ -51,36 +48,37 @@ export function PrimaryMintAction({
 
   return (
     <div className="relative">
-      {/* Soft halo to anchor the eye coming off the live-flow hero */}
+      {/* Outer halo — anchors the hero block and ties it to the Clean Energy Center above */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10 rounded-3xl blur-2xl opacity-60"
+        className="pointer-events-none absolute -inset-2 -z-10 rounded-[2rem] blur-3xl opacity-80"
         style={{
           background:
-            'radial-gradient(60% 60% at 50% 50%, hsl(var(--primary)/0.25), transparent 70%)',
+            'radial-gradient(60% 60% at 50% 50%, hsl(var(--primary)/0.32), transparent 70%)',
         }}
       />
 
       <MintEffectButton
         onClick={onMint}
         disabled={disabled || !hasPending}
-        className="w-full rounded-3xl bg-gradient-to-b from-primary/95 to-primary text-primary-foreground border border-primary/40 shadow-[0_18px_44px_-12px_hsl(var(--primary)/0.55)] hover:shadow-[0_22px_48px_-10px_hsl(var(--primary)/0.7)] transition-shadow"
+        className="w-full rounded-3xl bg-gradient-to-b from-primary/95 to-primary text-primary-foreground border border-primary/50 shadow-[0_20px_50px_-12px_hsl(var(--primary)/0.65)] hover:shadow-[0_24px_56px_-10px_hsl(var(--primary)/0.8)] transition-shadow animate-pulse-glow"
       >
-        <div className="flex flex-col items-center justify-center gap-1 py-5 px-4">
-          <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] font-semibold opacity-90">
-            <Zap className="h-3.5 w-3.5" aria-hidden="true" />
-            Tap-to-Mint
-            <span className="text-[10px] opacity-70">™</span>
+        <div className="flex flex-col items-center justify-center gap-1.5 py-6 px-4">
+          <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.22em] font-bold opacity-95">
+            <Sparkles className="h-3 w-3" aria-hidden="true" />
+            Proof-of-Genesis
+            <span className="text-[9px] opacity-70">™</span>
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-4xl sm:text-5xl font-extrabold tabular-nums leading-none">
+          <div className="flex items-baseline gap-2 mt-0.5">
+            <span className="text-5xl sm:text-6xl font-black tabular-nums leading-none tracking-tight drop-shadow-[0_2px_8px_hsl(var(--primary-foreground)/0.25)]">
               {displayed.toLocaleString()}
             </span>
-            <span className="text-xs sm:text-sm font-semibold opacity-85">
-              $ZSOLAR pending
-            </span>
           </div>
-          <div className="text-[11px] opacity-80 mt-0.5">
+          <div className="text-sm sm:text-base font-bold opacity-95 -mt-0.5">
+            $ZSOLAR ready to mint
+          </div>
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold opacity-85 mt-1">
+            <Zap className="h-3 w-3" aria-hidden="true" />
             {hasPending
               ? 'Tap to convert today\u2019s energy into currency'
               : 'No energy pending — your meter is caught up'}

@@ -1677,6 +1677,15 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         {liveIndicator && !(isLoading && value === 0) && (
           <p className="text-[10px] text-success font-medium tracking-wide">Charging in progress…</p>
         )}
+        {/* Per-KPI token reward impact chip — reinforces "this kWh/mi = $ZSOLAR" at 1:1 SSOT */}
+        {active && value > 0 && !isLoading && (
+          <span
+            className="mt-1 inline-flex items-center gap-1 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary tabular-nums border border-primary/25"
+            aria-label={`${value.toLocaleString()} $ZSOLAR ready to mint from this source`}
+          >
+            +{value.toLocaleString()} $ZSOLAR ready
+          </span>
+        )}
       </div>
       
       {/* History link icon */}

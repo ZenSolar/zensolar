@@ -85,12 +85,16 @@ describe("Dashboard composition — live vs /demo", () => {
     expect(hint).toMatch(/Proof Feed/);
   });
 
-  it("live beta dashboard surfaces the Zen Monitoring hero above the Tap-to-Mint action", () => {
-    const heroIdx = live.indexOf("<EnergyFlowGlowCard");
+  it("live beta dashboard surfaces the Clean Energy Center + Tap-to-Mint hero above Live Energy Monitoring", () => {
+    const metricsIdx = live.indexOf("<ActivityMetrics");
     const mintIdx = live.indexOf("<PrimaryMintAction");
-    expect(heroIdx).toBeGreaterThan(-1);
+    const heroIdx = live.indexOf("<EnergyFlowGlowCard");
+    expect(metricsIdx).toBeGreaterThan(-1);
     expect(mintIdx).toBeGreaterThan(-1);
-    expect(heroIdx).toBeLessThan(mintIdx);
+    expect(heroIdx).toBeGreaterThan(-1);
+    // Clean Energy Center → Tap-to-Mint → Live Energy Monitoring
+    expect(metricsIdx).toBeLessThan(mintIdx);
+    expect(mintIdx).toBeLessThan(heroIdx);
   });
 
   it("ActivityMetrics gates the multi-site solar carousel on hasMultipleSolarDevices", () => {
