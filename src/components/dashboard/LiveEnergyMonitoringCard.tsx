@@ -846,14 +846,17 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
 
 
       {(() => {
-        // Master live pill — Tesla charging wins, then Powerwall discharging, charging, solar, grid import, idle.
-        const pw = batteryStats.powerKw;
-        const solarKw = solarStats.currentKw ?? 0;
+        // Master live pill — Tesla charging wins, then Powerwall discharging, charging, solar export, solar, grid import, idle.
+        const pw = batteryStatsAll.powerKw;
+        const solarKw = solarStatsAll.currentKw ?? 0;
         const gridKw = reconciledFlow.gridKw;
-        let pillState: 'tesla-charging' | 'discharging' | 'charging' | 'solar' | 'grid-import' | 'idle' = 'idle';
+        let pillState:
+          | 'tesla-charging' | 'discharging' | 'charging' | 'grid-export'
+          | 'solar' | 'grid-import' | 'idle' = 'idle';
         if (teslaFlow?.isCharging) pillState = 'tesla-charging';
         else if (pw !== null && pw < -0.05) pillState = 'discharging';
         else if (pw !== null && pw > 0.05) pillState = 'charging';
+        else if (gridKw < -0.1) pillState = 'grid-export';
         else if (solarKw > 0.1) pillState = 'solar';
         else if (gridKw > 0.1) pillState = 'grid-import';
 
@@ -866,14 +869,17 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
         }
 
         // Non-Tesla fallback pill — keeps the cockpit always-narrated
+        const socPct = Math.round(batteryStatsAll.soc ?? 0);
         const pillCfg: Record<typeof pillState, { dot: string; ring: string; label: string }> = {
           'tesla-charging': { dot: 'bg-emerald-400', ring: 'border-emerald-400/40 bg-emerald-400/10 text-emerald-300', label: '' },
-          'discharging':    { dot: 'bg-amber-400',   ring: 'border-amber-400/40 bg-amber-400/10 text-amber-300',     label: `Powerwall Discharging • ${Math.abs(pw ?? 0).toFixed(1)} kW • ${Math.round(batteryStats.soc ?? 0)}% SOC` },
-          'charging':       { dot: 'bg-emerald-400', ring: 'border-emerald-400/40 bg-emerald-400/10 text-emerald-300', label: `Powerwall Charging • ${(pw ?? 0).toFixed(1)} kW • ${Math.round(batteryStats.soc ?? 0)}% SOC` },
+          'discharging':    { dot: 'bg-amber-400',   ring: 'border-amber-400/40 bg-amber-400/10 text-amber-300',     label: `Powerwall Discharging • ${Math.abs(pw ?? 0).toFixed(1)} kW • ${socPct}% SOC` },
+          'charging':       { dot: 'bg-emerald-400', ring: 'border-emerald-400/40 bg-emerald-400/10 text-emerald-300', label: `Powerwall Charging • ${(pw ?? 0).toFixed(1)} kW • ${socPct}% SOC` },
+          'grid-export':    { dot: 'bg-cyan-400',    ring: 'border-cyan-400/40 bg-cyan-400/10 text-cyan-300',         label: `Exporting to Grid • ${Math.abs(gridKw).toFixed(1)} kW` },
           'solar':          { dot: 'bg-amber-400',   ring: 'border-amber-400/40 bg-amber-400/10 text-amber-300',     label: `Solar Producing • ${solarKw.toFixed(1)} kW` },
           'grid-import':    { dot: 'bg-violet-400',  ring: 'border-violet-400/40 bg-violet-400/10 text-violet-300',   label: `Grid Import • ${gridKw.toFixed(1)} kW` },
           'idle':           { dot: 'bg-muted-foreground/60', ring: 'border-muted-foreground/20 bg-muted/30 text-muted-foreground', label: 'System Idle' },
         };
+
         const cfg = pillCfg[pillState];
         if (!cfg.label) return null;
         return (
