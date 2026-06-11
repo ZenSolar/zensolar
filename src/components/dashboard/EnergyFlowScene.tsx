@@ -34,6 +34,7 @@ import {
   type VehicleModel,
 } from './EnergyFlowScene.scenes';
 import { HOME_BLUEPRINT, BLUEPRINT_PATHS } from './HomeBlueprint';
+import { HouseSceneV5 } from './HouseSceneV5';
 
 import sceneDay from '@/assets/zencasa/house-day.png';
 import sceneNight from '@/assets/zencasa/house-night.png';
