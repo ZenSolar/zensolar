@@ -124,17 +124,18 @@ function pickField(payload: unknown, keys: string[]): unknown {
 /**
  * Tesla off-grid detector.
  *
- * Decision order:
- *   1. Explicit "Active" / "OnGrid" status → always false (never override
- *      a positive on-grid signal — homes self-consume from the Powerwall
- *      all the time while still grid-connected).
- *   2. Explicit off-grid / backup status (`OffGrid`, `Islanded`, `Inactive`,
- *      `Backup`, `BackupReady`, `island_status=off_grid|islanded`) → true.
- *   3. Behavior fallback when status is missing/unknown: grid ≈ 0 kW AND
- *      battery clearly discharging AND home actually drawing real load.
+ * NOTE: We removed the old grid≈0 + battery-discharge heuristic because it
+ * falsely triggered during normal self-consumption (Powerwall covering home
+ * load while the grid is connected — `grid_power` is genuinely ~0 by design).
+ * Only an explicit `grid_status = "OffGrid" / "Islanded" / "Inactive" /
+ * "Backup" / "BackupReady"` (or `island_status = off_grid|islanded`) now
+ * triggers outage mode. If Tesla's `grid_status` signal ever becomes
+ * unreliable, we can re-enable the heuristic behind a dev flag.
  *
- * Dev tracing: emits a single `console.debug('[gridOutage] ...')` per call
- * so the decision path is visible in the field. Gated by `import.meta.env.DEV`.
+ * Decision order:
+ *   1. Explicit "Active" / "OnGrid" status → always false.
+ *   2. Explicit off-grid / backup status → true.
+ *   3. Otherwise → false. (No behavior fallback.)
  */
 export function detectTeslaOutage(payload: unknown): boolean {
   if (!payload) return false;
@@ -163,49 +164,18 @@ export function detectTeslaOutage(payload: unknown): boolean {
     return true;
   }
 
-  // 3. Behavior fallback — infer from power flows when status is missing.
-  const gridPowerRaw = pickField(payload, ['grid_power']);
-  const batteryPowerRaw = pickField(payload, ['battery_power']);
-  const loadPowerRaw = pickField(payload, ['load_power']);
-  const gridPower = typeof gridPowerRaw === 'number' ? gridPowerRaw : null;
-  const batteryPower = typeof batteryPowerRaw === 'number' ? batteryPowerRaw : null;
-  const loadPower = typeof loadPowerRaw === 'number' ? loadPowerRaw : null;
-  if (gridPower === null || batteryPower === null || loadPower === null) {
-    if (import.meta.env.DEV) {
-      console.debug('[gridOutage] decision=false reason=insufficient-data', {
-        gs, is, gridPower, batteryPower, loadPower,
-      });
-    }
-    return false;
-  }
-
-  // Normalize watts → kW.
-  const normLoad = Math.abs(loadPower) > 100 ? loadPower / 1000 : loadPower;
-  const normGrid = Math.abs(gridPower) > 100 ? gridPower / 1000 : gridPower;
-  const normBatt = Math.abs(batteryPower) > 100 ? batteryPower / 1000 : batteryPower;
-
-  // Tuned to fire on the user's real scenario (Powerwall ~0.6 kW out,
-  // grid ~0 kW, home ~0.6 kW) without false-triggering on idle drift.
-  const gridZero = Math.abs(normGrid) <= 0.10;
-  const battDischarging = normBatt >= 0.20;
-  const homeDrawing = normLoad >= 0.10;
-  const decision = gridZero && battDischarging && homeDrawing;
-
+  // 3. No explicit signal → assume on-grid. Self-consumption is
+  // indistinguishable from outage without a real `grid_status` flag.
   if (import.meta.env.DEV) {
-    console.debug('[gridOutage] decision=' + decision + ' reason=heuristic', {
-      gs, is, gridKw: normGrid, battKw: normBatt, loadKw: normLoad,
-      gridZero, battDischarging, homeDrawing,
-    });
+    console.debug('[gridOutage] decision=false reason=no-explicit-off-status', { gs, is });
   }
-  return decision;
+  return false;
 }
 
 /**
- * Strict variant: returns true only when the off-grid signal is so clear that
- * we can flip Outage Mode after a shorter debounce (~8s instead of 15s).
- *
- * Either an explicit off-grid status, OR strict heuristic match:
- *   |grid_power| ≤ 0.05 kW, battery discharge ≥ 0.4 kW, home load ≥ 0.3 kW.
+ * Strict variant: same rules as `detectTeslaOutage` — explicit off-grid
+ * status only. Used by `useGridOutage` to flip Outage Mode after a shorter
+ * (~8s) debounce when the signal is clear.
  */
 export function isUnambiguousTeslaOutage(payload: unknown): boolean {
   if (!payload) return false;
@@ -214,28 +184,14 @@ export function isUnambiguousTeslaOutage(payload: unknown): boolean {
   const gs = typeof gridStatusRaw === 'string' ? gridStatusRaw.trim().toLowerCase() : '';
   const is = typeof islandRaw === 'string' ? islandRaw.trim().toLowerCase() : '';
 
-  // Positive on-grid status always disqualifies.
   if (gs === 'active' || gs === 'ongrid' || gs === 'on_grid' || is === 'on_grid') return false;
 
   const OFF_STATES = new Set([
     'offgrid', 'off_grid', 'islanded', 'inactive', 'backup', 'backupready', 'backup_ready',
   ]);
-  if (OFF_STATES.has(gs) || is === 'off_grid' || is === 'islanded') return true;
-
-  const gridPowerRaw = pickField(payload, ['grid_power']);
-  const batteryPowerRaw = pickField(payload, ['battery_power']);
-  const loadPowerRaw = pickField(payload, ['load_power']);
-  const gridPower = typeof gridPowerRaw === 'number' ? gridPowerRaw : null;
-  const batteryPower = typeof batteryPowerRaw === 'number' ? batteryPowerRaw : null;
-  const loadPower = typeof loadPowerRaw === 'number' ? loadPowerRaw : null;
-  if (gridPower === null || batteryPower === null || loadPower === null) return false;
-
-  const normLoad = Math.abs(loadPower) > 100 ? loadPower / 1000 : loadPower;
-  const normGrid = Math.abs(gridPower) > 100 ? gridPower / 1000 : gridPower;
-  const normBatt = Math.abs(batteryPower) > 100 ? batteryPower / 1000 : batteryPower;
-
-  return Math.abs(normGrid) <= 0.05 && normBatt >= 0.4 && normLoad >= 0.3;
+  return OFF_STATES.has(gs) || is === 'off_grid' || is === 'islanded';
 }
+
 
 /** OR-combine multiple per-OEM detectors. */
 export function combineOutageSignals(...signals: OutageSignal[]): OutageSignal {
