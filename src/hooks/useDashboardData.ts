@@ -1158,6 +1158,8 @@ export function useDashboardData() {
         // FSD miles — subset of EV miles, never summed into evMiles
         fsdSupervisedMiles = Number(teslaData.totals.fsd_supervised_miles || 0);
         pendingFsdSupervisedMiles = Number(teslaData.totals.pending_fsd_supervised_miles || 0);
+        fsdSource = (teslaData.totals.fsd_source as 'official' | 'calculated_hw3' | undefined) ?? null;
+        fsdSinceDate = (teslaData.totals.fsd_since as string | undefined) ?? null;
 
         console.log('Tesla data:', { batteryDischarge, evMiles, superchargerKwh, homeChargerKwh, hasDedicatedSolarProvider, fsdSupervisedMiles });
       }
