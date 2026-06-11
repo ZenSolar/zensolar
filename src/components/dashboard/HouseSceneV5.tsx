@@ -247,6 +247,45 @@ function HouseSceneV5Inner({ scene, homeActive, solarActive, garageOpen, weather
         </g>
       )}
 
+      {/* v5 Phase 4 — Snowfall */}
+      {isSnow && (
+        <g fill="#e7eef7" opacity="0.85">
+          {Array.from({ length: 26 }).map((_, i) => (
+            <circle key={i} cx={(i * 4.1) % 100} cy={(i * 6.3) % 70} r="0.4" />
+          ))}
+        </g>
+      )}
+
+      {/* v5 Phase 4 — Clouds (partly cloudy, overcast, fog, storm) */}
+      {!isNight && (isPartlyCloudy || isOvercast || isFog || isStorm) && (
+        <g
+          fill={isStorm ? '#1a1830' : isFog ? '#3a4252' : isOvercast ? '#2b3344' : '#3b4660'}
+          opacity={isFog ? 0.85 : isOvercast ? 0.75 : isStorm ? 0.7 : 0.55}
+        >
+          <ellipse cx="22" cy="14" rx="14" ry="3.4" />
+          <ellipse cx="55" cy="10" rx="18" ry="4" />
+          <ellipse cx="82" cy="16" rx="13" ry="3.2" />
+          {(isOvercast || isFog || isStorm) && (
+            <>
+              <ellipse cx="40" cy="22" rx="22" ry="3" />
+              <ellipse cx="78" cy="26" rx="20" ry="2.6" />
+            </>
+          )}
+        </g>
+      )}
+
+      {/* v5 Phase 4 — Lightning flash hint for thunderstorms */}
+      {isStorm && (
+        <polyline
+          points="62,12 60,22 64,22 60,34"
+          fill="none"
+          stroke="#fff4a8"
+          strokeWidth="0.6"
+          opacity="0.85"
+        />
+      )}
+
+
       {/* Subtle stars on night scenes */}
       {isNight &&
         Array.from({ length: 14 }).map((_, i) => (
