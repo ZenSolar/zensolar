@@ -674,7 +674,9 @@ export function EnergyFlowScene({
             homeActive={homeDrawing}
             solarActive={solarProducing}
             garageOpen={chargingAtHome || carConnected}
+            weatherCode={weatherCode}
           />
+
         </motion.div>
       </AnimatePresence>
 

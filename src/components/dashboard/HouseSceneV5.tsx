@@ -23,15 +23,37 @@ interface Props {
   homeActive?: boolean;
   solarActive?: boolean;
   garageOpen?: boolean;
+  /** v5 Phase 4 — Open-Meteo WMO weather code to tint sky + add precip. */
+  weatherCode?: number | null;
 }
 
-function HouseSceneV5Inner({ scene, homeActive, solarActive, garageOpen }: Props) {
+function HouseSceneV5Inner({ scene, homeActive, solarActive, garageOpen, weatherCode }: Props) {
   const isNight = scene === 'night' || scene === 'night-ev';
-  const isRain = scene === 'rain';
+  const wx = weatherCode ?? null;
+  // Derive weather flags (Open-Meteo WMO).
+  const isOvercast = wx === 3;
+  const isPartlyCloudy = wx === 2;
+  const isFog = wx != null && wx >= 45 && wx <= 48;
+  const isDrizzleOrRain =
+    wx != null && ((wx >= 51 && wx <= 67) || (wx >= 80 && wx <= 82));
+  const isSnow = wx != null && wx >= 71 && wx <= 86;
+  const isStorm = wx != null && wx >= 95;
+  const isRain = scene === 'rain' || isDrizzleOrRain || isStorm;
+
 
   // Palette per scene — kept design-token-adjacent (slate/primary).
-  const skyTop = isNight ? '#06090f' : isRain ? '#1a2230' : '#0e1626';
-  const skyBot = isNight ? '#020306' : isRain ? '#0a0f17' : '#050912';
+  // Weather modulates day sky: overcast/fog warm grey, storm deep violet, snow pale.
+  let skyTop = isNight ? '#06090f' : '#0e1626';
+  let skyBot = isNight ? '#020306' : '#050912';
+  if (!isNight) {
+    if (isStorm) { skyTop = '#1a1430'; skyBot = '#0a0814'; }
+    else if (isRain) { skyTop = '#1a2230'; skyBot = '#0a0f17'; }
+    else if (isFog) { skyTop = '#2a2f38'; skyBot = '#10141a'; }
+    else if (isOvercast) { skyTop = '#1d242f'; skyBot = '#0a0f17'; }
+    else if (isSnow) { skyTop = '#2a3344'; skyBot = '#0f1622'; }
+    else if (isPartlyCloudy) { skyTop = '#152038'; skyBot = '#060a16'; }
+  }
+
   const ground = isNight ? '#070b14' : '#0b1322';
   const wallFront = isNight ? '#1a2236' : '#2a3550';
   const wallSide = isNight ? '#121a2c' : '#1d2740';
@@ -224,6 +246,45 @@ function HouseSceneV5Inner({ scene, homeActive, solarActive, garageOpen }: Props
           })}
         </g>
       )}
+
+      {/* v5 Phase 4 — Snowfall */}
+      {isSnow && (
+        <g fill="#e7eef7" opacity="0.85">
+          {Array.from({ length: 26 }).map((_, i) => (
+            <circle key={i} cx={(i * 4.1) % 100} cy={(i * 6.3) % 70} r="0.4" />
+          ))}
+        </g>
+      )}
+
+      {/* v5 Phase 4 — Clouds (partly cloudy, overcast, fog, storm) */}
+      {!isNight && (isPartlyCloudy || isOvercast || isFog || isStorm) && (
+        <g
+          fill={isStorm ? '#1a1830' : isFog ? '#3a4252' : isOvercast ? '#2b3344' : '#3b4660'}
+          opacity={isFog ? 0.85 : isOvercast ? 0.75 : isStorm ? 0.7 : 0.55}
+        >
+          <ellipse cx="22" cy="14" rx="14" ry="3.4" />
+          <ellipse cx="55" cy="10" rx="18" ry="4" />
+          <ellipse cx="82" cy="16" rx="13" ry="3.2" />
+          {(isOvercast || isFog || isStorm) && (
+            <>
+              <ellipse cx="40" cy="22" rx="22" ry="3" />
+              <ellipse cx="78" cy="26" rx="20" ry="2.6" />
+            </>
+          )}
+        </g>
+      )}
+
+      {/* v5 Phase 4 — Lightning flash hint for thunderstorms */}
+      {isStorm && (
+        <polyline
+          points="62,12 60,22 64,22 60,34"
+          fill="none"
+          stroke="#fff4a8"
+          strokeWidth="0.6"
+          opacity="0.85"
+        />
+      )}
+
 
       {/* Subtle stars on night scenes */}
       {isNight &&
