@@ -915,7 +915,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
 
           {/* Live Devices group — ZenX pill + EV details, clearly grouped */}
           {(teslaFlow || ev.data.length > 0) && (
-            <section className="space-y-2.5">
+            <section className="space-y-3 border-t border-border/30 pt-5">
               <SectionLabel>Live Devices</SectionLabel>
 
               {/* ZenX vehicle pill — clean Tesla-style status under the scene */}
@@ -951,9 +951,9 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
           )}
 
 
-          <section className="space-y-2.5">
+          <section className="space-y-3 border-t border-border/30 pt-5">
             <SectionLabel>At a glance</SectionLabel>
-            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <MetricTile
                 icon={Sun}
                 label="Today"
