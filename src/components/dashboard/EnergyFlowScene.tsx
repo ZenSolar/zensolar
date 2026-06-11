@@ -487,6 +487,11 @@ export interface EnergyFlowSceneProps {
    *  estimator math stays in one place. Only consumed when isOutage. */
   outageBackupLabel?: string;
   outageStartedAt?: Date | string;
+  /** v5 — current Open-Meteo WMO weather code. Drives sky tinting and
+   *  may swap day → rain when stormy. */
+  weatherCode?: number | null;
+  /** v5 — Tesla composition override for parents that already know it. */
+  forceComposition?: CompositionKey;
 }
 
 export function EnergyFlowScene({
@@ -503,10 +508,22 @@ export function EnergyFlowScene({
   isOutage = false,
   outageBackupLabel,
   outageStartedAt,
+  weatherCode = null,
+  forceComposition,
 }: EnergyFlowSceneProps) {
 
 
-  const scene = useMemo(() => forceScene ?? pickScene(data), [forceScene, data]);
+  const { scene, composition } = useMemo(
+    () =>
+      forceScene
+        ? { scene: forceScene, composition: forceComposition ?? 'full-stack' as CompositionKey }
+        : chooseSceneType(
+            data,
+            { hasSolar: true, hasBattery, hasTesla, hasCharger, isOutage },
+            { weatherCode },
+          ),
+    [forceScene, forceComposition, data, hasBattery, hasTesla, hasCharger, isOutage, weatherCode],
+  );
   const hasTeslaConnection =
     Boolean(teslaPayload) || Boolean(data.tesla) || (data.evPower ?? 0) > 0.1;
 
