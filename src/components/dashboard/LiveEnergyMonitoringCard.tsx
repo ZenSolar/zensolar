@@ -1110,24 +1110,28 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
               )}
 
               {/* Blue — EV charging (today only) */}
-              <MetricTile
-                tone="blue"
-                icon={Zap}
-                label="EV Charging · Today"
-                value={formatKwh(evTotals.totals.home_kwh + evTotals.totals.supercharger_kwh)}
-                detail={`Super ${evTotals.totals.supercharger_kwh.toFixed(1)} · Home ${evTotals.totals.home_kwh.toFixed(1)} kWh`}
-              />
+              {!hideVehicle && (
+                <MetricTile
+                  tone="blue"
+                  icon={Zap}
+                  label="EV Charging · Today"
+                  value={formatKwh(evTotals.totals.home_kwh + evTotals.totals.supercharger_kwh)}
+                  detail={`Super ${evTotals.totals.supercharger_kwh.toFixed(1)} · Home ${evTotals.totals.home_kwh.toFixed(1)} kWh`}
+                />
+              )}
 
               {/* Teal — EV mileage estimate from energy charged today
                    (≈ 3.3 mi/kWh — derived; replaced by live Tesla odometer
                    delta in Phase F when FSD streaming aggregation lands). */}
-              <MetricTile
-                tone="teal"
-                icon={Route}
-                label="EV Mileage · Today"
-                value={`${Math.round((evTotals.totals.home_kwh + evTotals.totals.supercharger_kwh) * 3.3).toLocaleString()} mi`}
-                detail="Estimated from today's energy charged"
-              />
+              {!hideVehicle && (
+                <MetricTile
+                  tone="teal"
+                  icon={Route}
+                  label="EV Mileage · Today"
+                  value={`${Math.round((evTotals.totals.home_kwh + evTotals.totals.supercharger_kwh) * 3.3).toLocaleString()} mi`}
+                  detail="Estimated from today's energy charged"
+                />
+              )}
             </div>
             <div className="px-0.5 text-[10px] leading-snug text-muted-foreground/70">
               ≈ {Math.max(0, solarStatsAll.todayKwh ?? 0).toFixed(1)} $ZSOLAR ready to mint today
