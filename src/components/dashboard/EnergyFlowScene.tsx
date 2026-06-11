@@ -693,7 +693,7 @@ export function EnergyFlowScene({
         aria-hidden="true"
         viewBox="0 0 100 100"
         preserveAspectRatio="xMidYMid meet"
-        className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-[80%] w-auto max-w-[94%] -translate-y-1/2"
+        className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-[88%] w-auto max-w-[98%] -translate-y-1/2"
         style={{ aspectRatio: '1 / 1', zIndex: 15 }}
       >
         {/* ── Device halos (primary visual language) ── */}
