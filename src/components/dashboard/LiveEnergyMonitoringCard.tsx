@@ -1002,7 +1002,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
 
 
 
-          <div className="flex flex-col gap-3 rounded-lg border border-primary/15 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 rounded-lg border border-primary/15 bg-primary/5 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-2.5">
               <div className="rounded-md bg-primary/15 p-1.5 ring-1 ring-primary/25">
                 <Route className="h-4 w-4 text-primary" />
