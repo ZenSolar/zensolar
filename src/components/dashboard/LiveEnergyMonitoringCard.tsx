@@ -613,7 +613,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
   const battery = useBatteryTelemetry();
   const ev = useEVChargerTelemetry();
   const chargers = useChargerDevices();
-  const evTotals = useEVTotals(7);
+  const evTotals = useEVTotals(1);
   const mintImpact = useTodayMintImpact();
   const { data: isActivelyCharging } = useActiveChargingSession();
   const [manualRefreshing, setManualRefreshing] = useState(false);
@@ -1100,24 +1100,24 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
                 />
               )}
 
-              {/* Blue — EV charging (last 7 days) */}
+              {/* Blue — EV charging (today only) */}
               <MetricTile
                 tone="blue"
                 icon={Zap}
-                label="EV Charging · 7d"
+                label="EV Charging · Today"
                 value={formatKwh(evTotals.totals.home_kwh + evTotals.totals.supercharger_kwh)}
                 detail={`Super ${evTotals.totals.supercharger_kwh.toFixed(1)} · Home ${evTotals.totals.home_kwh.toFixed(1)} kWh`}
               />
 
-              {/* Teal — EV mileage estimate from energy charged
+              {/* Teal — EV mileage estimate from energy charged today
                    (≈ 3.3 mi/kWh — derived; replaced by live Tesla odometer
                    delta in Phase F when FSD streaming aggregation lands). */}
               <MetricTile
                 tone="teal"
                 icon={Route}
-                label="EV Mileage · 7d"
+                label="EV Mileage · Today"
                 value={`${Math.round((evTotals.totals.home_kwh + evTotals.totals.supercharger_kwh) * 3.3).toLocaleString()} mi`}
-                detail="Estimated from energy charged"
+                detail="Estimated from today's energy charged"
               />
             </div>
             <div className="px-0.5 text-[10px] leading-snug text-muted-foreground/70">

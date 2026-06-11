@@ -327,7 +327,16 @@ export function useEVTotals(days = 7) {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+      // days <= 1 → scope to "today" (local midnight → now), otherwise rolling N×24h window.
+      let sinceMs: number;
+      if (days <= 1) {
+        const d = new Date();
+        d.setHours(0, 0, 0, 0);
+        sinceMs = d.getTime();
+      } else {
+        sinceMs = Date.now() - days * 24 * 60 * 60 * 1000;
+      }
+      const since = new Date(sinceMs).toISOString();
       const sinceDate = since.slice(0, 10);
       const [{ data: home }, { data: sc }] = await Promise.all([
         supabase
