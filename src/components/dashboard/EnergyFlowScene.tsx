@@ -1046,31 +1046,69 @@ export function EnergyFlowScene({
           </g>
         )}
 
-        {/* v5 — Realistic charging cable arc from wall connector to the
-            Tesla's charge port while actively charging. Thin emerald guide
-            curve with a tight glow, no particles to keep the read clean. */}
-        {chargingAtHome && showDynamicCar && (() => {
+        {/* v5 Phase B — State-aware EV charging cable arc.
+            · Plugged & idle at home → muted grey cable (no glow, no flow)
+            · Actively charging at home → emerald glow + traveling LED
+            · Supercharging away from home → no cable (badge instead) */}
+        {(isPluggedIdle || chargingAtHome) && showDynamicCar && (() => {
           const wc = HOME_BLUEPRINT.wallCharger;
           const port = { x: carAnchor.x + carW * 0.30, y: carAnchor.y - carH * 0.05 };
           const cableD = `M ${wc.x} ${wc.y} C ${wc.x - 2} ${wc.y + 8} ${port.x - 3} ${port.y + 6} ${port.x} ${port.y}`;
+          const cableId = 'ev-cable-path';
+          if (!chargingAtHome) {
+            // Plugged & idle — muted grey cable only.
+            return (
+              <g style={{ pointerEvents: 'none' }} data-testid="ev-cable" data-state="idle">
+                <path
+                  d={cableD}
+                  stroke="hsl(220 10% 55% / 0.55)"
+                  strokeWidth={0.55}
+                  strokeLinecap="round"
+                  fill="none"
+                />
+              </g>
+            );
+          }
+          // Actively charging — emerald glow + a single traveling LED.
           return (
-            <g style={{ pointerEvents: 'none' }} data-testid="ev-cable">
+            <g style={{ pointerEvents: 'none' }} data-testid="ev-cable" data-state="charging">
               <path
                 d={cableD}
                 stroke="hsl(142 70% 45% / 0.55)"
-                strokeWidth={0.9}
+                strokeWidth={1.1}
                 strokeLinecap="round"
                 fill="none"
-                style={{ filter: 'blur(0.6px)' }}
+                style={{ filter: 'blur(0.8px)' }}
               />
               <path
+                id={cableId}
                 d={cableD}
                 stroke={EMERALD_LED}
-                strokeWidth={0.45}
+                strokeWidth={0.5}
                 strokeLinecap="round"
                 fill="none"
-                opacity={0.85}
+                opacity={0.9}
               />
+              {!prefersReducedMotion && (
+                <circle r={0.8} fill={EMERALD_LED} opacity={0}>
+                  <animateMotion
+                    dur="2.2s"
+                    repeatCount="indefinite"
+                    calcMode="linear"
+                    keyPoints="0;1"
+                    keyTimes="0;1"
+                  >
+                    <mpath href={`#${cableId}`} />
+                  </animateMotion>
+                  <animate
+                    attributeName="opacity"
+                    values="0;1;1;0"
+                    keyTimes="0;0.2;0.8;1"
+                    dur="2.2s"
+                    repeatCount="indefinite"
+                  />
+                </circle>
+              )}
             </g>
           );
         })()}
