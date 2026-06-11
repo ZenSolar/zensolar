@@ -35,6 +35,8 @@ import {
 } from './EnergyFlowScene.scenes';
 import { HOME_BLUEPRINT, BLUEPRINT_PATHS } from './HomeBlueprint';
 import { HouseSceneV5 } from './HouseSceneV5';
+import { EvChargingCable } from './EvChargingCable';
+
 
 // v5 Phase 1: legacy baked house PNG imports removed — HouseSceneV5 owns the
 // hero render now. SCENE_SRC and the four PNG imports were deleted to prove
@@ -345,9 +347,10 @@ function DottedFlow({
       <defs>
         <linearGradient id={gradId} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="100" y2="0">
           <stop offset="0%" stopColor={color} stopOpacity="0.05" />
-          <stop offset="35%" stopColor={color} stopOpacity="0.55" />
-          <stop offset="65%" stopColor={color} stopOpacity="0.55" />
+          <stop offset="35%" stopColor={color} stopOpacity="0.85" />
+          <stop offset="65%" stopColor={color} stopOpacity="0.85" />
           <stop offset="100%" stopColor={color} stopOpacity="0.05" />
+
         </linearGradient>
         <filter id={glowId} x="-20%" y="-20%" width="140%" height="140%">
           <feGaussianBlur stdDeviation="0.55" result="b" />
@@ -357,26 +360,27 @@ function DottedFlow({
           </feMerge>
         </filter>
       </defs>
-      {/* Soft outer halo stroke */}
+      {/* Soft outer halo stroke — wider glow for Tesla-style ribbon read */}
       <path
         d={d}
         stroke={color}
-        strokeOpacity={0.18}
-        strokeWidth={1.4}
+        strokeOpacity={0.22}
+        strokeWidth={2.4}
         strokeLinecap="round"
         fill="none"
-        style={{ filter: 'blur(1.2px)' }}
+        style={{ filter: 'blur(1.6px)' }}
       />
-      {/* Hero ribbon — gradient stroke with subtle glow */}
+      {/* Hero ribbon — thicker gradient stroke with subtle glow */}
       <path
         id={id}
         d={d}
         stroke={`url(#${gradId})`}
-        strokeWidth={0.55}
+        strokeWidth={1.1}
         strokeLinecap="round"
         fill="none"
         filter={`url(#${glowId})`}
       />
+
       {/* Two sparse traveling LED particles */}
       {[0, 0.5].map((offset) => (
         <circle key={`${id}-${offset}`} r={0.75} fill={color} opacity={0}>
@@ -1057,72 +1061,18 @@ export function EnergyFlowScene({
           </g>
         )}
 
-        {/* v5 Phase B — State-aware EV charging cable arc.
-            · Plugged & idle at home → muted grey cable (no glow, no flow)
-            · Actively charging at home → emerald glow + traveling LED
-            · Supercharging away from home → no cable (badge instead) */}
-        {(isPluggedIdle || chargingAtHome) && showDynamicCar && (() => {
-          const wc = HOME_BLUEPRINT.wallCharger;
-          const port = { x: carAnchor.x + carW * 0.30, y: carAnchor.y - carH * 0.05 };
-          const cableD = `M ${wc.x} ${wc.y} C ${wc.x - 2} ${wc.y + 8} ${port.x - 3} ${port.y + 6} ${port.x} ${port.y}`;
-          const cableId = 'ev-cable-path';
-          if (!chargingAtHome) {
-            // Plugged & idle — muted grey cable only.
-            return (
-              <g style={{ pointerEvents: 'none' }} data-testid="ev-cable" data-state="idle">
-                <path
-                  d={cableD}
-                  stroke="hsl(220 10% 55% / 0.55)"
-                  strokeWidth={0.55}
-                  strokeLinecap="round"
-                  fill="none"
-                />
-              </g>
-            );
-          }
-          // Actively charging — emerald glow + a single traveling LED.
-          return (
-            <g style={{ pointerEvents: 'none' }} data-testid="ev-cable" data-state="charging">
-              <path
-                d={cableD}
-                stroke="hsl(142 70% 45% / 0.55)"
-                strokeWidth={1.1}
-                strokeLinecap="round"
-                fill="none"
-                style={{ filter: 'blur(0.8px)' }}
-              />
-              <path
-                id={cableId}
-                d={cableD}
-                stroke={EMERALD_LED}
-                strokeWidth={0.5}
-                strokeLinecap="round"
-                fill="none"
-                opacity={0.9}
-              />
-              {!prefersReducedMotion && (
-                <circle r={0.8} fill={EMERALD_LED} opacity={0}>
-                  <animateMotion
-                    dur="2.2s"
-                    repeatCount="indefinite"
-                    calcMode="linear"
-                    keyPoints="0;1"
-                    keyTimes="0;1"
-                  >
-                    <mpath href={`#${cableId}`} />
-                  </animateMotion>
-                  <animate
-                    attributeName="opacity"
-                    values="0;1;1;0"
-                    keyTimes="0;0.2;0.8;1"
-                    dur="2.2s"
-                    repeatCount="indefinite"
-                  />
-                </circle>
-              )}
-            </g>
-          );
-        })()}
+        {/* v5 Structural — dedicated EV charging cable layer.
+            Hidden when supercharging away from home (gated by showDynamicCar). */}
+        {(isPluggedIdle || chargingAtHome) && showDynamicCar && (
+          <EvChargingCable
+            state={chargingAtHome ? 'charging' : 'idle'}
+            carAnchor={carAnchor}
+            carWidth={carW}
+            carHeight={carH}
+            reducedMotion={prefersReducedMotion ?? false}
+          />
+        )}
+
 
 
         {/* ── Dynamic Tesla, locked to the same coordinate system ── */}

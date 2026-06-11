@@ -152,27 +152,38 @@ function HouseSceneV5Inner({ scene, weatherCode }: Props) {
             <circle cx="78" cy="16" r="7" fill="hsl(45 95% 65%)" opacity="0.25" style={{ filter: 'blur(1.4px)' }} />
           </g>
         )}
-        {/* Drifting clouds (partly-cloudy, overcast, storm) */}
+        {/* Drifting clouds — radial gradient bodies + screen blend so the
+            clouds pick up the sky color and feel volumetric instead of flat. */}
         {showClouds && (
-          <g fill={isNight ? 'hsl(220 18% 70%)' : 'hsl(210 14% 90%)'}>
-            {clouds.map((c, i) => (
-              <g key={`cl-${i}`} opacity={c.opacity} style={{ filter: 'blur(0.6px)' }}>
-                <ellipse cx={c.x} cy={c.y} rx={c.rx} ry={c.ry} />
-                <ellipse cx={c.x + c.rx * 0.4} cy={c.y - c.ry * 0.5} rx={c.rx * 0.55} ry={c.ry * 0.85} />
-                <ellipse cx={c.x - c.rx * 0.4} cy={c.y + c.ry * 0.2} rx={c.rx * 0.45} ry={c.ry * 0.7} />
-                <animateTransform
-                  attributeName="transform"
-                  type="translate"
-                  from="-10 0"
-                  to="10 0"
-                  dur={`${c.dur}s`}
-                  repeatCount="indefinite"
-                  additive="sum"
-                />
-              </g>
-            ))}
-          </g>
+          <>
+            <defs>
+              <radialGradient id="cloud-grad" cx="50%" cy="45%" r="55%">
+                <stop offset="0%" stopColor={isNight ? 'hsl(220 20% 78%)' : 'hsl(210 20% 98%)'} stopOpacity="0.95" />
+                <stop offset="60%" stopColor={isNight ? 'hsl(220 18% 60%)' : 'hsl(210 16% 88%)'} stopOpacity="0.55" />
+                <stop offset="100%" stopColor={isNight ? 'hsl(220 18% 50%)' : 'hsl(210 14% 82%)'} stopOpacity="0" />
+              </radialGradient>
+            </defs>
+            <g style={{ mixBlendMode: 'screen' }}>
+              {clouds.map((c, i) => (
+                <g key={`cl-${i}`} opacity={c.opacity} style={{ filter: 'blur(1.4px)' }}>
+                  <ellipse cx={c.x} cy={c.y} rx={c.rx} ry={c.ry} fill="url(#cloud-grad)" />
+                  <ellipse cx={c.x + c.rx * 0.4} cy={c.y - c.ry * 0.5} rx={c.rx * 0.55} ry={c.ry * 0.85} fill="url(#cloud-grad)" />
+                  <ellipse cx={c.x - c.rx * 0.4} cy={c.y + c.ry * 0.2} rx={c.rx * 0.45} ry={c.ry * 0.7} fill="url(#cloud-grad)" />
+                  <animateTransform
+                    attributeName="transform"
+                    type="translate"
+                    from="-10 0"
+                    to="10 0"
+                    dur={`${c.dur}s`}
+                    repeatCount="indefinite"
+                    additive="sum"
+                  />
+                </g>
+              ))}
+            </g>
+          </>
         )}
+
         {/* Fog band */}
         {isFog && (
           <g>
