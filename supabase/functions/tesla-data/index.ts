@@ -1194,36 +1194,53 @@ Deno.serve(async (req) => {
     }
     
     // Update vehicles with lifetime totals and last known odometer (for future asleep states)
+    let totalPendingFsdSupervised = 0;
+    let totalLifetimeFsdMiles = 0;
     for (const vehicle of vehiclesData) {
+      // Pull current device row so we can preserve FSD accumulator state
+      // written by tesla-telemetry-webhook (must not be clobbered here).
+      const { data: currentDevice } = await supabaseClient
+        .from("connected_devices")
+        .select("baseline_data, lifetime_totals, last_known_state")
+        .eq("user_id", targetUserId)
+        .eq("device_id", vehicle.vin)
+        .eq("provider", "tesla")
+        .single();
+
+      const prevLifetime = (currentDevice?.lifetime_totals as any) || {};
+      const prevBaseline = (currentDevice?.baseline_data as any) || {};
+      const prevLastState = (currentDevice?.last_known_state as any) || {};
+      const acc = (prevLastState as any).fsd_accumulator || null;
+
+      const lifetimeFsdMiles = Number(
+        prevLifetime.lifetime_fsd_miles
+          ?? (acc ? (acc.supervised_miles || 0) + (acc.unsupervised_miles || 0) : 0),
+      );
+      const baselineFsdMiles = Number(prevBaseline.fsd_baseline_miles || 0);
+      const pendingFsdSupervised = Math.max(0, lifetimeFsdMiles - baselineFsdMiles);
+      totalPendingFsdSupervised += pendingFsdSupervised;
+      totalLifetimeFsdMiles += lifetimeFsdMiles;
+
       const updateData: any = {
         lifetime_totals: {
+          ...prevLifetime,
           odometer: vehicle.odometer,
           charging_kwh: totalEvChargingKwh, // Total charging across all vehicles
+          // Preserve telemetry-written FSD watermark.
+          lifetime_fsd_miles: lifetimeFsdMiles,
           updated_at: new Date().toISOString(),
         }
       };
-      
+
       // If we got a real odometer reading (not asleep/estimated), update baseline with last_known_odometer
       if (vehicle.status !== "asleep" && vehicle.odometer > 0) {
-        // Get current baseline and update with last_known_odometer
-        const { data: currentDevice } = await supabaseClient
-          .from("connected_devices")
-          .select("baseline_data")
-          .eq("user_id", targetUserId)
-          .eq("device_id", vehicle.vin)
-          .eq("provider", "tesla")
-          .single();
-        
-        if (currentDevice) {
-          const currentBaseline = currentDevice.baseline_data || {};
-          updateData.baseline_data = {
-            ...currentBaseline,
-            last_known_odometer: vehicle.odometer,
-          };
-          console.log(`Updated last_known_odometer for ${vehicle.vin}: ${vehicle.odometer}`);
-        }
+        updateData.baseline_data = {
+          ...prevBaseline,
+          last_known_odometer: vehicle.odometer,
+        };
+        console.log(`Updated last_known_odometer for ${vehicle.vin}: ${vehicle.odometer}`);
       }
-      
+
       await supabaseClient
         .from("connected_devices")
         .update(updateData)
@@ -1231,7 +1248,7 @@ Deno.serve(async (req) => {
         .eq("device_id", vehicle.vin)
         .eq("provider", "tesla");
     }
-    
+
     console.log("Stored lifetime totals in connected_devices for admin reporting");
 
     return new Response(JSON.stringify({
@@ -1247,6 +1264,9 @@ Deno.serve(async (req) => {
         wall_connector_kwh: wallConnectorKwh,
         home_ac_charging_kwh: homeAcChargingKwh,
         billing_home_charging_kwh: billingHomeChargingKwh,
+        // FSD (subset of ev_miles — never summed into totals)
+        fsd_supervised_miles: totalLifetimeFsdMiles,
+        fsd_unsupervised_miles: 0,
         // Pending (since last mint)
         pending_solar_wh: pendingSolarProduction,
         pending_battery_discharge_wh: pendingBatteryDischarge,
@@ -1255,6 +1275,8 @@ Deno.serve(async (req) => {
         pending_supercharger_kwh: pendingSuperchargerKwh,
         pending_wall_connector_kwh: pendingWallConnectorKwh,
         pending_home_ac_charging_kwh: pendingHomeAcKwh,
+        pending_fsd_supervised_miles: totalPendingFsdSupervised,
+        pending_fsd_unsupervised_miles: 0,
       },
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

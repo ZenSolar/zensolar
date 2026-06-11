@@ -722,6 +722,10 @@ export function useDashboardData() {
       const superchargerKwh = sum(vehicleDevices, d => Number(d.lifetime_totals?.charging_kwh || 0));
       const pendingSupercharger = sum(vehicleDevices, d => Math.max(0, Number(d.lifetime_totals?.charging_kwh || 0) - Number(d.baseline_data?.charging_kwh || 0)));
 
+      // FSD miles (subset of EV miles — Tesla telemetry only, do NOT sum into evMiles)
+      const fsdSupervisedMiles = sum(vehicleDevices, d => Number(d.lifetime_totals?.lifetime_fsd_miles || 0));
+      const pendingFsdSupervisedMiles = sum(vehicleDevices, d => Math.max(0, Number(d.lifetime_totals?.lifetime_fsd_miles || 0) - Number(d.baseline_data?.fsd_baseline_miles || 0)));
+
       const homeChargerKwh = homeChargingMonitorKwh;
       const pendingHomeCharger = pendingHomeChargingMonitorKwh;
       const pendingCharging = pendingSupercharger + pendingHomeCharger;
@@ -789,7 +793,7 @@ export function useDashboardData() {
         batteryStorageDischarged: batteryDischarge,
         teslaSuperchargerKwh: superchargerKwh,
         homeChargerKwh,
-        fsdSupervisedMiles: 0,
+        fsdSupervisedMiles,
         fsdUnsupervisedMiles: 0,
         pendingSolarKwh: pendingSolar,
         pendingEvMiles,
@@ -797,7 +801,7 @@ export function useDashboardData() {
         pendingChargingKwh: pendingCharging,
         pendingSuperchargerKwh: pendingSupercharger,
         pendingHomeChargerKwh: pendingHomeCharger,
-        pendingFsdSupervisedMiles: 0,
+        pendingFsdSupervisedMiles,
         pendingFsdUnsupervisedMiles: 0,
         tokensEarned,
         pendingTokens,
@@ -846,6 +850,9 @@ export function useDashboardData() {
       let pendingCharging = 0;
       let pendingSupercharger = 0;
       let pendingHomeCharger = 0;
+      // FSD miles (subset of EV miles — Tesla telemetry only)
+      let fsdSupervisedMiles = 0;
+      let pendingFsdSupervisedMiles = 0;
 
       // Fetch data in parallel (including device labels and minted tokens)
       const fetchHomeChargingTotal = async (): Promise<{ lifetime: number; sessions: Array<{ total_session_kwh: number; start_time: string }> }> => {
@@ -1134,8 +1141,11 @@ export function useDashboardData() {
         pendingSupercharger = teslaPendingSupercharger;
         pendingHomeCharger = teslaPendingHomeAc + wallboxPendingKwh + pendingHomeChargingMonitorKwh;
         pendingCharging = pendingSupercharger + pendingHomeCharger;
+        // FSD miles — subset of EV miles, never summed into evMiles
+        fsdSupervisedMiles = Number(teslaData.totals.fsd_supervised_miles || 0);
+        pendingFsdSupervisedMiles = Number(teslaData.totals.pending_fsd_supervised_miles || 0);
 
-        console.log('Tesla data:', { batteryDischarge, evMiles, superchargerKwh, homeChargerKwh, hasDedicatedSolarProvider });
+        console.log('Tesla data:', { batteryDischarge, evMiles, superchargerKwh, homeChargerKwh, hasDedicatedSolarProvider, fsdSupervisedMiles });
       }
 
       // If only Wallbox connected (no Tesla), set home charger from Wallbox data
@@ -1354,7 +1364,7 @@ export function useDashboardData() {
         batteryStorageDischarged: batteryDischarge,
         teslaSuperchargerKwh: superchargerKwh,
         homeChargerKwh: homeChargerKwh,
-        fsdSupervisedMiles: 0,
+        fsdSupervisedMiles,
         fsdUnsupervisedMiles: 0,
         // Pending (since last mint, eligible for token rewards)
         pendingSolarKwh: pendingSolar,
@@ -1363,7 +1373,7 @@ export function useDashboardData() {
         pendingChargingKwh: pendingCharging,
         pendingSuperchargerKwh: pendingSupercharger,
         pendingHomeChargerKwh: pendingHomeCharger,
-        pendingFsdSupervisedMiles: 0,
+        pendingFsdSupervisedMiles,
         pendingFsdUnsupervisedMiles: 0,
         // Totals
         tokensEarned,
