@@ -42,8 +42,18 @@ function HouseSceneV5Inner({ scene, homeActive, solarActive, garageOpen, weather
 
 
   // Palette per scene — kept design-token-adjacent (slate/primary).
-  const skyTop = isNight ? '#06090f' : isRain ? '#1a2230' : '#0e1626';
-  const skyBot = isNight ? '#020306' : isRain ? '#0a0f17' : '#050912';
+  // Weather modulates day sky: overcast/fog warm grey, storm deep violet, snow pale.
+  let skyTop = isNight ? '#06090f' : '#0e1626';
+  let skyBot = isNight ? '#020306' : '#050912';
+  if (!isNight) {
+    if (isStorm) { skyTop = '#1a1430'; skyBot = '#0a0814'; }
+    else if (isRain) { skyTop = '#1a2230'; skyBot = '#0a0f17'; }
+    else if (isFog) { skyTop = '#2a2f38'; skyBot = '#10141a'; }
+    else if (isOvercast) { skyTop = '#1d242f'; skyBot = '#0a0f17'; }
+    else if (isSnow) { skyTop = '#2a3344'; skyBot = '#0f1622'; }
+    else if (isPartlyCloudy) { skyTop = '#152038'; skyBot = '#060a16'; }
+  }
+
   const ground = isNight ? '#070b14' : '#0b1322';
   const wallFront = isNight ? '#1a2236' : '#2a3550';
   const wallSide = isNight ? '#121a2c' : '#1d2740';
