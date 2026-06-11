@@ -322,14 +322,15 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         <SectionDivider className="xl:hidden" />
 
         {/* ───────────────────────────────────────────────────────────
-            STRATEGIC TOP-OF-DASHBOARD ARC
-            Hero (Zen Monitoring) → Tap-to-Mint → Reward Snapshot →
-            Deason/Subscription → Proof Feed.
-            Detail cards (ActivityMetrics, CO₂ deep-dive, Flywheel,
-            NFT milestones) continue below.
+            REALIGNED DASHBOARD HIERARCHY
+            1. Clean Energy Center + Tap-to-Mint (THE HERO)
+            2. Live Energy Monitoring (supporting context)
+            3. Today's Stats & Recent Activity
+            4. Deason Insights
+            5. Deep-dive cards (CO₂, Flywheel, NFTs)
            ─────────────────────────────────────────────────────────── */}
 
-        {/* 1. HERO — Zen Monitoring live energy flow (visual centerpiece). */}
+        {/* 1a. HERO — Clean Energy Center (KPI grid w/ per-source +$ZSOLAR chips) */}
         <AnimatedItem className="xl:col-span-2">
           {/* OEM diagnostics — auto-hides when no active issues. SSOT for connection health. */}
           <div className="mb-3">
@@ -345,16 +346,32 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             return (
               <>
                 {calloutNodes}
-                <EnergyFlowErrorBoundary fallbackExtras={calloutNodes.length ? calloutNodes : null}>
-                  <EnergyFlowGlowCard />
-                </EnergyFlowErrorBoundary>
+                <PerfProbe id="ActivityMetrics">
+                  <ActivityMetrics
+                    data={activityData}
+                    currentActivity={currentActivity}
+                    refreshInfo={{ lastUpdatedAt }}
+                    connectedProviders={connectedProviders}
+                    onMintRequest={!isViewer && profile?.wallet_address ? handleMintRequest : undefined}
+                    onMintSuccess={handleMintSuccess}
+                    tokenPrice={tokenPrice}
+                    lifetimeMinted={activityData.lifetimeMinted}
+                    hiddenFields={hiddenFields}
+                    onHideField={hideField}
+                    onShowField={showField}
+                    onShowAllFields={showAllFields}
+                    isNewUserView={isNewUserView}
+                    teslaNeedsReauth={providerRefresh.tesla?.needsReauth}
+                    isLoading={dataLoading || isAutoSyncing}
+                  />
+                </PerfProbe>
               </>
             );
           })()}
         </AnimatedItem>
 
-        {/* 2. PRIMARY ACTION — Tap-to-Mint with pending $ZSOLAR count-up. */}
-        <AnimatedItem className="xl:col-span-2">
+        {/* 1b. HERO — Tap-to-Mint primary action, fused with the Clean Energy Center above */}
+        <AnimatedItem className="xl:col-span-2 -mt-2">
           <PrimaryMintAction
             pendingZsolar={
               currentActivity.solarKwh +
@@ -368,7 +385,21 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           />
         </AnimatedItem>
 
-        {/* 3. REWARD SNAPSHOT — 3-up: today, balance, CO₂ tier badge. */}
+        <SectionDivider className="xl:hidden" />
+
+        {/* 2. LIVE ENERGY MONITORING — supporting context for the hero above */}
+        <AnimatedItem className="xl:col-span-2">
+          <p className="text-[11px] uppercase tracking-[0.18em] font-semibold text-muted-foreground/80 mb-2 text-center">
+            This is why you're earning today
+          </p>
+          <EnergyFlowErrorBoundary>
+            <EnergyFlowGlowCard />
+          </EnergyFlowErrorBoundary>
+        </AnimatedItem>
+
+        <SectionDivider className="xl:hidden" />
+
+        {/* 3. TODAY'S STATS & RECENT ACTIVITY */}
         <AnimatedItem className="xl:col-span-2">
           <RewardSnapshotGrid
             todayMinted={
@@ -384,40 +415,15 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
           />
         </AnimatedItem>
 
-        {/* 4. DEASON + SUBSCRIPTION STATUS */}
-        <AnimatedItem className="xl:col-span-2">
-          <SubscriptionStatusCard />
-        </AnimatedItem>
-
-        {/* 5. PROOF FEED — recent Proof-of-Genesis receipts */}
         <AnimatedItem className="xl:col-span-2">
           <MintReceiptsHint />
         </AnimatedItem>
 
         <SectionDivider className="xl:hidden" />
 
-        {/* ENERGY COMMAND CENTER — full per-source detail (kept below the
-            strategic arc so the hero stays uncluttered). */}
+        {/* 4. DEASON INSIGHTS */}
         <AnimatedItem className="xl:col-span-2">
-          <PerfProbe id="ActivityMetrics">
-            <ActivityMetrics
-              data={activityData}
-              currentActivity={currentActivity}
-              refreshInfo={{ lastUpdatedAt }}
-              connectedProviders={connectedProviders}
-              onMintRequest={!isViewer && profile?.wallet_address ? handleMintRequest : undefined}
-              onMintSuccess={handleMintSuccess}
-              tokenPrice={tokenPrice}
-              lifetimeMinted={activityData.lifetimeMinted}
-              hiddenFields={hiddenFields}
-              onHideField={hideField}
-              onShowField={showField}
-              onShowAllFields={showAllFields}
-              isNewUserView={isNewUserView}
-              teslaNeedsReauth={providerRefresh.tesla?.needsReauth}
-              isLoading={dataLoading || isAutoSyncing}
-            />
-          </PerfProbe>
+          <SubscriptionStatusCard />
         </AnimatedItem>
 
         <SectionDivider className="xl:hidden" />
