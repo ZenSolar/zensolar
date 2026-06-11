@@ -951,52 +951,55 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
           )}
 
 
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-            <MetricTile
-              icon={Sun}
-              label="Today"
-              value={formatKwh(solarStats.todayKwh)}
-              detail={`${formatKw(solarStats.currentKw)} now · ${solarStats.label}`}
-            />
-            {hasBattery ? (
+          <section className="space-y-2.5">
+            <SectionLabel>At a glance</SectionLabel>
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
               <MetricTile
-                icon={BatteryCharging}
-                label="Powerwall"
-                value={
-                  batteryStats.reserveKwh !== null && batteryStats.capacityKwh !== null
-                    ? `${batteryStats.reserveKwh.toFixed(1)} / ${batteryStats.capacityKwh.toFixed(1)} kWh`
-                    : batteryStats.soc !== null ? `${Math.round(batteryStats.soc)}%` : '—'
-                }
-                detail={(() => {
-                  const pct = batteryStats.soc !== null ? `${Math.round(batteryStats.soc)}%` : '—';
-                  if (batteryStats.powerKw === null) return `${pct} · ${batteryStats.status}`;
-                  if (batteryStats.powerKw > 0.05) return `${pct} · +${batteryStats.powerKw.toFixed(1)} kW charging`;
-                  if (batteryStats.powerKw < -0.05) return `${pct} · ${batteryStats.powerKw.toFixed(1)} kW discharging`;
-                  const isFull = batteryStats.soc !== null && batteryStats.soc >= 99;
-                  return `${pct} · ${isFull ? 'Full' : 'Idle'}`;
-                })()}
+                icon={Sun}
+                label="Today"
+                value={formatKwh(solarStats.todayKwh)}
+                detail={`${formatKw(solarStats.currentKw)} now · ${solarStats.label}`}
               />
-            ) : hasCharger ? (
+              {hasBattery ? (
+                <MetricTile
+                  icon={BatteryCharging}
+                  label="Powerwall"
+                  value={
+                    batteryStats.reserveKwh !== null && batteryStats.capacityKwh !== null
+                      ? `${batteryStats.reserveKwh.toFixed(1)} / ${batteryStats.capacityKwh.toFixed(1)} kWh`
+                      : batteryStats.soc !== null ? `${Math.round(batteryStats.soc)}%` : '—'
+                  }
+                  detail={(() => {
+                    const pct = batteryStats.soc !== null ? `${Math.round(batteryStats.soc)}%` : '—';
+                    if (batteryStats.powerKw === null) return `${pct} · ${batteryStats.status}`;
+                    if (batteryStats.powerKw > 0.05) return `${pct} · +${batteryStats.powerKw.toFixed(1)} kW charging`;
+                    if (batteryStats.powerKw < -0.05) return `${pct} · ${batteryStats.powerKw.toFixed(1)} kW discharging`;
+                    const isFull = batteryStats.soc !== null && batteryStats.soc >= 99;
+                    return `${pct} · ${isFull ? 'Full' : 'Idle'}`;
+                  })()}
+                />
+              ) : hasCharger ? (
+                <MetricTile
+                  icon={Zap}
+                  label={chargers.data[0]?.device_name ?? 'Home Charger'}
+                  value={
+                    chargers.data[0]?.lifetime_kwh !== null && chargers.data[0]?.lifetime_kwh !== undefined
+                      ? `${chargers.data[0].lifetime_kwh.toFixed(0)} kWh`
+                      : '—'
+                  }
+                  detail={`Lifetime · ${chargers.data[0]?.total_sessions ?? 0} sessions`}
+                />
+              ) : null}
+
               <MetricTile
-                icon={Zap}
-                label={chargers.data[0]?.device_name ?? 'Home Charger'}
-                value={
-                  chargers.data[0]?.lifetime_kwh !== null && chargers.data[0]?.lifetime_kwh !== undefined
-                    ? `${chargers.data[0].lifetime_kwh.toFixed(0)} kWh`
-                    : '—'
-                }
-                detail={`Lifetime · ${chargers.data[0]?.total_sessions ?? 0} sessions`}
+                icon={Gauge}
+                label="This Week"
+                value={formatKwh(evTotals.totals.home_kwh + evTotals.totals.supercharger_kwh)}
+                detail={`Super ${evTotals.totals.supercharger_kwh.toFixed(1)} · Home ${evTotals.totals.home_kwh.toFixed(1)} kWh`}
               />
-            ) : null}
+            </div>
+          </section>
 
-            <MetricTile
-              icon={Gauge}
-              label="This Week"
-              value={formatKwh(evTotals.totals.home_kwh + evTotals.totals.supercharger_kwh)}
-              detail={`Super ${evTotals.totals.supercharger_kwh.toFixed(1)} · Home ${evTotals.totals.home_kwh.toFixed(1)} kWh`}
-
-            />
-          </div>
 
 
           <div className="flex flex-col gap-3 rounded-lg border border-primary/15 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between">
