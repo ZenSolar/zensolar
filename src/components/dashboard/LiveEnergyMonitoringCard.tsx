@@ -828,7 +828,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
     batteryCapacityKwh: batteryStats.capacityKwh ?? undefined,
     batteryReserveKwh: batteryStats.reserveKwh ?? undefined,
     gridPower: reconciledFlow.gridKw,
-    evPower: evKwRaw,
+    evPower: hideVehicle ? 0 : evKwRaw,
     tesla: teslaFlow
       ? {
           kW: teslaFlow.kW,
