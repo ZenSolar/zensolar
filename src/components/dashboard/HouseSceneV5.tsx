@@ -23,11 +23,23 @@ interface Props {
   homeActive?: boolean;
   solarActive?: boolean;
   garageOpen?: boolean;
+  /** v5 Phase 4 — Open-Meteo WMO weather code to tint sky + add precip. */
+  weatherCode?: number | null;
 }
 
-function HouseSceneV5Inner({ scene, homeActive, solarActive, garageOpen }: Props) {
+function HouseSceneV5Inner({ scene, homeActive, solarActive, garageOpen, weatherCode }: Props) {
   const isNight = scene === 'night' || scene === 'night-ev';
-  const isRain = scene === 'rain';
+  const wx = weatherCode ?? null;
+  // Derive weather flags (Open-Meteo WMO).
+  const isOvercast = wx === 3;
+  const isPartlyCloudy = wx === 2;
+  const isFog = wx != null && wx >= 45 && wx <= 48;
+  const isDrizzleOrRain =
+    wx != null && ((wx >= 51 && wx <= 67) || (wx >= 80 && wx <= 82));
+  const isSnow = wx != null && wx >= 71 && wx <= 86;
+  const isStorm = wx != null && wx >= 95;
+  const isRain = scene === 'rain' || isDrizzleOrRain || isStorm;
+
 
   // Palette per scene — kept design-token-adjacent (slate/primary).
   const skyTop = isNight ? '#06090f' : isRain ? '#1a2230' : '#0e1626';
