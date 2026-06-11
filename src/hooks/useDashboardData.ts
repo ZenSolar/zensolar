@@ -805,6 +805,8 @@ export function useDashboardData() {
         homeChargerKwh,
         fsdSupervisedMiles,
         fsdUnsupervisedMiles: 0,
+        fsdSource,
+        fsdSinceDate,
         pendingSolarKwh: pendingSolar,
         pendingEvMiles,
         pendingBatteryKwh: pendingBattery,
