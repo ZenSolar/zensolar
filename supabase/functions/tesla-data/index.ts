@@ -1241,8 +1241,12 @@ Deno.serve(async (req) => {
       const pendingFsdSupervised = Math.max(0, lifetimeFsdMiles - baselineFsdMiles);
       totalPendingFsdSupervised += pendingFsdSupervised;
       totalLifetimeFsdMiles += lifetimeFsdMiles;
+      if (fsdSource === "official") anyOfficialFsd = true;
 
       const firstSampleAt = sourceMeta.first_sample_at || new Date().toISOString();
+      if (!earliestFsdSince || new Date(firstSampleAt).getTime() < new Date(earliestFsdSince).getTime()) {
+        earliestFsdSince = firstSampleAt;
+      }
 
       const updateData: any = {
         lifetime_totals: {
