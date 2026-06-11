@@ -1305,6 +1305,8 @@ Deno.serve(async (req) => {
         // FSD (subset of ev_miles — never summed into totals)
         fsd_supervised_miles: totalLifetimeFsdMiles,
         fsd_unsupervised_miles: 0,
+        fsd_source: anyOfficialFsd ? "official" : "calculated_hw3",
+        fsd_since: earliestFsdSince,
         // Pending (since last mint)
         pending_solar_wh: pendingSolarProduction,
         pending_battery_discharge_wh: pendingBatteryDischarge,
