@@ -777,6 +777,15 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
         refreshing={manualRefreshing}
       />
 
+      {/* v5 — multi-PV site selector (only renders when ≥2 PV systems) */}
+      <SolarSiteTabs
+        sites={solar.data}
+        activeSiteId={activeSolarSiteId ?? solar.data[0]?.site_id ?? null}
+        onSelect={setActiveSolarSiteId}
+      />
+
+
+
 
 
       {(() => {
