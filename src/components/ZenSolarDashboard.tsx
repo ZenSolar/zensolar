@@ -222,6 +222,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
     chargingKwh: Math.max(0, Math.floor(activityData.pendingChargingKwh || 0)),
     superchargerKwh: Math.max(0, Math.floor(activityData.pendingSuperchargerKwh || 0)),
     homeChargerKwh: Math.max(0, Math.floor(activityData.pendingHomeChargerKwh || 0)),
+    fsdMiles: Math.max(0, Math.floor(activityData.pendingFsdSupervisedMiles || 0)),
   };
 
   if (profileLoading) {
