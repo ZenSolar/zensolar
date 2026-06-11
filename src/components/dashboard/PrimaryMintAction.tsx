@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Sparkles, Zap } from 'lucide-react';
 import { MintEffectButton } from './MintEffectButton';
+import { MintingMomentumGauge } from './MintingMomentumGauge';
 
 interface PrimaryMintActionProps {
   pendingZsolar: number;
   onMint: () => void;
   disabled?: boolean;
   isViewer?: boolean;
+  /** Live minting rate in $ZSOLAR/minute. Gauge only renders when > 0. */
+  momentumPerMinute?: number;
 }
 
 /**
