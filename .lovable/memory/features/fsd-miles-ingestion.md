@@ -1,17 +1,83 @@
 ---
-name: FSD Miles ingestion pipeline
-description: Tesla Fleet Telemetry stream → tesla-telemetry-webhook → energy_production(data_type=fsd_miles) → useDashboardData
+name: FSD Miles ingestion pipeline (hybrid HW3 + HW4)
+description: Hybrid Tesla FSD miles — official SelfDrivingMilesSinceReset (HW4) + adaptive-polling sampler (HW3) → energy_production(fsd_miles) → useDashboardData
 type: feature
 ---
-Real FSD miles come from Tesla Fleet Telemetry streaming, NOT polling (no `SelfDrivingMilesSinceReset` field exists).
+FSD miles are populated via TWO complementary paths. They are NEVER summed —
+the resolver picks one source per VIN and tags it via `connected_devices.last_known_state.fsd_source`.
 
-Pipeline:
-1. `tesla-telemetry-config` (per-VIN, one-shot, re-run on drift) POSTs Fleet Telemetry config: AutopilotState, AutosteerCmd, Gear, Odometer, VehicleSpeed @ 1Hz → webhook.
-2. `tesla-telemetry-webhook` (verify_jwt=false, validates Tesla JWS via `TESLA_TELEMETRY_PUBLIC_KEY` or shared-secret `TESLA_TELEMETRY_SHARED_SECRET`) updates `connected_devices.last_known_state.fsd_accumulator` and writes cumulative `data_type='fsd_miles'` rows with Proof-of-Delta metadata. Engaged states: Active/Engaged/FullSelfDriving/Autosteer/TrafficAwareCruiseControl. Glitch cap: 5 mi/event.
-3. `tesla-fsd-backfill` seeds `lifetime_fsd_miles=0` only — no historical AutopilotState exists, so any estimate would break Proof-of-Delta.
-4. `tesla-data` reads `lifetime_fsd_miles` + `baseline_data.fsd_baseline_miles` and exposes `pending_fsd_supervised_miles` in totals payload (NEVER overwrites accumulator).
-5. `useDashboardData` surfaces `fsdSupervisedMiles` / `pendingFsdSupervisedMiles` in both fast and slow paths.
+## Primary path — Official (HW4 + recent firmware)
+Tesla's `SelfDrivingMilesSinceReset` field (a.k.a. `self_driving_miles_since_reset`)
+is read whenever it appears in `vehicle_state`. Three writers honor it:
+1. `tesla-telemetry-webhook` — when Fleet Telemetry emits the field (mapped to
+   `SelfDrivingMilesSinceReset` / `FSDMilesSinceReset` events).
+2. `tesla-data` — opportunistically each dashboard refresh.
+3. `tesla-fsd-sampler` — also checks each poll and prefers official when present.
 
-Invariants: 1:1 mint ratio. FSD miles are a SUBSET of EV miles — never summed into `evMiles` (test in `chargingSplitInvariants.test.ts`). Tesla-only via `pickSource('fsd_miles', …)`.
+All three set `last_known_state.fsd_source = 'official'` and tag
+`proof_metadata.source = 'official'` on the resulting `energy_production` row.
 
-`tesla-telemetry-config` + `tesla-fsd-backfill` are invoked fire-and-forget from `DeviceSelectionDialog` immediately after a Tesla vehicle is claimed.
+## Fallback path — Calculated for HW3 (`tesla-fsd-sampler`)
+`supabase/functions/tesla-fsd-sampler` runs every 5 min via pg_cron. Per VIN
+it applies adaptive cadence (see `_shared/fsdSampler.ts → nextPollIntervalSec`):
+- active driving (Drive + moving): poll every 5 min
+- idle/awake:                      poll every 30 min
+- asleep/offline:                  poll every 6 h (NEVER force-wakes)
+
+It calls `/vehicles/{id}/vehicle_data?endpoints=vehicle_state;drive_state`
+and credits an odometer delta to `lifetime_fsd_miles_calc` ONLY when:
+- previous sample had `autopilot_state ∈ {Active, Engaged, FullSelfDriving, Autosteer, TrafficAwareCruiseControl}`
+- current `shift_state === 'D'`
+- current `speed > 0`
+- delta ∈ (0, 5 mi] (glitch cap)
+
+Skipped if `fsd_source='official'` was set in the last 7 days (avoids waste).
+
+## Shared helpers — `supabase/functions/_shared/fsdSampler.ts`
+`extractOfficialFsdMiles`, `extractAutopilotState`, `applyOdometerSample`,
+`resolveFsdMiles`, `nextPollIntervalSec`. Used by sampler + webhook.
+
+## Resolver
+`resolveFsdMiles(official, samplerState)`:
+- official present and > 0 → `{ miles: official, source: 'official' }`
+- otherwise              → `{ miles: lifetime_fsd_miles_calc, source: 'calculated_hw3' }`
+
+## State shape on `connected_devices`
+- `lifetime_totals.lifetime_fsd_miles` — published cumulative (already gates Proof-of-Delta)
+- `last_known_state.fsd_accumulator`   — webhook stream accumulator
+- `last_known_state.fsd_sampler`       — poll-based HW3 accumulator (`FsdSamplerState`)
+- `last_known_state.fsd_source`        — `'official' | 'calculated_hw3'`
+- `last_known_state.fsd_source_meta`   — `{ first_sample_at, last_source, last_updated_at }`
+- `last_known_state.last_shift_state`  — drives next-poll cadence
+- `last_known_state.last_speed_mph`    — drives next-poll cadence
+- `baseline_data.fsd_baseline_miles`   — Proof-of-Delta baseline (untouched by sampler)
+
+## Dashboard surface
+`tesla-data.totals` now exposes `fsd_source` and `fsd_since` alongside
+`fsd_supervised_miles` / `pending_fsd_supervised_miles`. `useDashboardData`
+maps them to `ActivityData.fsdSource` and `ActivityData.fsdSinceDate`. The
+Clean Energy Center FSD tile renders a sub-label:
+- official → "Tesla verified · since {Mon D, YYYY}"
+- HW3      → "Calculated for HW3 · since {Mon D, YYYY}"
+
+Tile layout, mint flow, 1:1 ratio, and Proof-of-Delta invariants unchanged.
+
+## Cron registration (run once via SQL editor — service-role required)
+```sql
+select cron.schedule(
+  'tesla-fsd-sampler-every-5min',
+  '*/5 * * * *',
+  $$ select net.http_post(
+       url:='https://<PROJECT_REF>.supabase.co/functions/v1/tesla-fsd-sampler',
+       headers:='{"Content-Type":"application/json","apikey":"<ANON_KEY>"}'::jsonb,
+       body:='{}'::jsonb
+     ); $$
+);
+```
+
+## Invariants
+- 1:1 mint ratio preserved (1 FSD mile = 1 $ZSOLAR).
+- FSD miles are a SUBSET of EV miles — never summed into `evMiles`
+  (`chargingSplitInvariants.test.ts`).
+- Tesla-only (`pickSource('fsd_miles', …)`).
+- Sources never summed — resolver picks one per VIN.

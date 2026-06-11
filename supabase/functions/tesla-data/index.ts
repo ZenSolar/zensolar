@@ -935,6 +935,14 @@ Deno.serve(async (req) => {
             charge_energy_added: chargeState.charge_energy_added || 0,
             charge_rate: chargeState.charge_rate || 0,
             charger_power: chargeState.charger_power || 0,
+            // Surface official Tesla FSD field for HW4 vehicles. When present,
+            // the writer block below uses this as the source of truth and tags
+            // last_known_state.fsd_source = 'official'. HW3 cars omit this and
+            // fall back to the tesla-fsd-sampler adaptive-polling accumulator.
+            self_driving_miles_since_reset:
+              (vehicleState.self_driving_miles_since_reset
+                ?? (vehicleState as any).SelfDrivingMilesSinceReset
+                ?? null),
           });
 
           totalEvMiles += currentOdometer;
@@ -1196,6 +1204,8 @@ Deno.serve(async (req) => {
     // Update vehicles with lifetime totals and last known odometer (for future asleep states)
     let totalPendingFsdSupervised = 0;
     let totalLifetimeFsdMiles = 0;
+    let anyOfficialFsd = false;
+    let earliestFsdSince: string | null = null;
     for (const vehicle of vehiclesData) {
       // Pull current device row so we can preserve FSD accumulator state
       // written by tesla-telemetry-webhook (must not be clobbered here).
@@ -1211,25 +1221,52 @@ Deno.serve(async (req) => {
       const prevBaseline = (currentDevice?.baseline_data as any) || {};
       const prevLastState = (currentDevice?.last_known_state as any) || {};
       const acc = (prevLastState as any).fsd_accumulator || null;
+      const sampler = (prevLastState as any).fsd_sampler || null;
+      const sourceMeta = (prevLastState as any).fsd_source_meta || {};
 
-      const lifetimeFsdMiles = Number(
-        prevLifetime.lifetime_fsd_miles
-          ?? (acc ? (acc.supervised_miles || 0) + (acc.unsupervised_miles || 0) : 0),
-      );
+      // HW4: Tesla's official `self_driving_miles_since_reset` from vehicle_state.
+      // When present this wins; otherwise fall back to telemetry/sampler watermark.
+      const officialFsd = (vehicle as any).self_driving_miles_since_reset;
+      const haveOfficial = typeof officialFsd === "number" && Number.isFinite(officialFsd) && officialFsd >= 0;
+
+      const lifetimeFromAcc = acc ? (acc.supervised_miles || 0) + (acc.unsupervised_miles || 0) : 0;
+      const lifetimeFromSampler = Number(sampler?.lifetime_fsd_miles_calc || 0);
+      const lifetimeFromWatermark = Number(prevLifetime.lifetime_fsd_miles ?? 0);
+
+      const lifetimeFsdMiles = haveOfficial
+        ? Number(officialFsd)
+        : Math.max(lifetimeFromWatermark, lifetimeFromAcc, lifetimeFromSampler);
+      const fsdSource: "official" | "calculated_hw3" = haveOfficial ? "official" : (sourceMeta.last_source ?? "calculated_hw3");
       const baselineFsdMiles = Number(prevBaseline.fsd_baseline_miles || 0);
       const pendingFsdSupervised = Math.max(0, lifetimeFsdMiles - baselineFsdMiles);
       totalPendingFsdSupervised += pendingFsdSupervised;
       totalLifetimeFsdMiles += lifetimeFsdMiles;
+      if (fsdSource === "official") anyOfficialFsd = true;
+
+      const firstSampleAt = sourceMeta.first_sample_at || new Date().toISOString();
+      if (!earliestFsdSince || new Date(firstSampleAt).getTime() < new Date(earliestFsdSince).getTime()) {
+        earliestFsdSince = firstSampleAt;
+      }
 
       const updateData: any = {
         lifetime_totals: {
           ...prevLifetime,
           odometer: vehicle.odometer,
           charging_kwh: totalEvChargingKwh, // Total charging across all vehicles
-          // Preserve telemetry-written FSD watermark.
+          // Preserve telemetry-written FSD watermark when not overridden by official.
           lifetime_fsd_miles: lifetimeFsdMiles,
           updated_at: new Date().toISOString(),
-        }
+        },
+        last_known_state: {
+          ...prevLastState,
+          fsd_source: fsdSource,
+          fsd_source_meta: {
+            ...sourceMeta,
+            first_sample_at: firstSampleAt,
+            last_source: fsdSource,
+            last_updated_at: new Date().toISOString(),
+          },
+        },
       };
 
       // If we got a real odometer reading (not asleep/estimated), update baseline with last_known_odometer
@@ -1237,6 +1274,7 @@ Deno.serve(async (req) => {
         updateData.baseline_data = {
           ...prevBaseline,
           last_known_odometer: vehicle.odometer,
+          fsd_baseline_miles: prevBaseline.fsd_baseline_miles ?? 0,
         };
         console.log(`Updated last_known_odometer for ${vehicle.vin}: ${vehicle.odometer}`);
       }
@@ -1267,6 +1305,8 @@ Deno.serve(async (req) => {
         // FSD (subset of ev_miles — never summed into totals)
         fsd_supervised_miles: totalLifetimeFsdMiles,
         fsd_unsupervised_miles: 0,
+        fsd_source: anyOfficialFsd ? "official" : "calculated_hw3",
+        fsd_since: earliestFsdSince,
         // Pending (since last mint)
         pending_solar_wh: pendingSolarProduction,
         pending_battery_discharge_wh: pendingBatteryDischarge,

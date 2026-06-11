@@ -112,9 +112,12 @@ function defaultAccumulator(seedOdo = 0): FsdAccumulator {
   };
 }
 
-/** Apply a batch of events to an accumulator. Returns updated accumulator + miles added. */
+/** Apply a batch of events to an accumulator. Returns updated accumulator + miles added.
+ *  Also surfaces the latest official `SelfDrivingMilesSinceReset` value when Tesla emits it
+ *  (HW4 + recent firmware). When present, this wins over the engagement-delta math. */
 function applyBatch(acc: FsdAccumulator, events: TelemetryEvent[]) {
   let supervisedAdded = 0;
+  let officialFsdMiles: number | null = null;
   // Sort chronologically — Tesla batches can arrive out of order.
   const ordered = [...events].sort((a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime());
 
@@ -126,6 +129,10 @@ function applyBatch(acc: FsdAccumulator, events: TelemetryEvent[]) {
       if (typeof ev.value === "number" && ev.value > 0) acc.engaged = true;
     } else if (ev.field === "Gear") {
       acc.in_drive = String(ev.value).toUpperCase().startsWith("D");
+    } else if (ev.field === "SelfDrivingMilesSinceReset" || ev.field === "FSDMilesSinceReset") {
+      // Official Tesla field (HW4). Use last value in the batch.
+      const n = Number(ev.value);
+      if (Number.isFinite(n) && n >= 0) officialFsdMiles = n;
     } else if (ev.field === "Odometer") {
       const odo = Number(ev.value);
       if (!Number.isFinite(odo) || odo <= 0) continue;
@@ -146,7 +153,7 @@ function applyBatch(acc: FsdAccumulator, events: TelemetryEvent[]) {
     acc.last_event_at = ev.ts;
   }
 
-  return { acc, supervisedAdded };
+  return { acc, supervisedAdded, officialFsdMiles };
 }
 
 Deno.serve(async (req) => {
@@ -205,13 +212,24 @@ Deno.serve(async (req) => {
       const lastState = (device.last_known_state as any) || {};
       const prevAcc: FsdAccumulator = lastState.fsd_accumulator || defaultAccumulator(lifetime.odometer ?? 0);
 
-      const { acc, supervisedAdded } = applyBatch({ ...prevAcc }, batch.events);
+      const { acc, supervisedAdded, officialFsdMiles } = applyBatch({ ...prevAcc }, batch.events);
       totalSupervisedAdded += supervisedAdded;
 
+      // Decide which value to publish for this VIN.
+      //   - Tesla's SelfDrivingMilesSinceReset (HW4) wins when present.
+      //   - Otherwise fall back to the engagement-delta accumulator (HW3 path).
+      const useOfficial = typeof officialFsdMiles === "number";
+      const cumulative = useOfficial
+        ? (officialFsdMiles as number)
+        : acc.supervised_miles + acc.unsupervised_miles;
+      const fsdSource: "official" | "calculated_hw3" = useOfficial ? "official" : "calculated_hw3";
+      const cumulativeChanged = useOfficial
+        ? cumulative > Number(lifetime.lifetime_fsd_miles ?? 0)
+        : supervisedAdded > 0;
+
       // Write a Proof-of-Delta cumulative row whenever miles changed.
-      if (supervisedAdded > 0) {
+      if (cumulativeChanged) {
         const tsNow = acc.last_event_at || new Date().toISOString();
-        const cumulative = acc.supervised_miles + acc.unsupervised_miles;
 
         const { data: prevRow } = await supabase
           .from("energy_production")
@@ -249,21 +267,36 @@ Deno.serve(async (req) => {
               timestamp: tsNow,
               algorithm: "SHA-256",
               preimage_format: "device_id|timestamp|value|prevHash",
+              source: fsdSource,
             },
           }, { onConflict: "device_id,provider,recorded_at,data_type" });
       }
 
       // Persist updated accumulator + lifetime watermark + ensure baseline exists.
+      const firstSampleAt =
+        (lastState.fsd_source_meta as any)?.first_sample_at
+        || acc.last_event_at
+        || new Date().toISOString();
       const nextLifetime = {
         ...lifetime,
-        lifetime_fsd_miles: acc.supervised_miles + acc.unsupervised_miles,
+        lifetime_fsd_miles: cumulative,
         updated_at: new Date().toISOString(),
       };
       const nextBaseline = {
         ...baseline,
         fsd_baseline_miles: baseline.fsd_baseline_miles ?? 0,
       };
-      const nextLastState = { ...lastState, fsd_accumulator: acc };
+      const nextLastState = {
+        ...lastState,
+        fsd_accumulator: acc,
+        fsd_source: fsdSource,
+        fsd_source_meta: {
+          ...((lastState.fsd_source_meta as any) || {}),
+          first_sample_at: firstSampleAt,
+          last_source: fsdSource,
+          last_updated_at: new Date().toISOString(),
+        },
+      };
 
       await supabase
         .from("connected_devices")

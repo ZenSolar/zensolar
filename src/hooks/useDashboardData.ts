@@ -36,6 +36,8 @@ const defaultActivityData: ActivityData = {
   homeChargerKwh: 0,
   fsdSupervisedMiles: 0,
   fsdUnsupervisedMiles: 0,
+  fsdSource: null,
+  fsdSinceDate: null,
   // Pending rewards (since last mint)
   pendingSolarKwh: 0,
   pendingEvMiles: 0,
@@ -725,6 +727,14 @@ export function useDashboardData() {
       // FSD miles (subset of EV miles — Tesla telemetry only, do NOT sum into evMiles)
       const fsdSupervisedMiles = sum(vehicleDevices, d => Number(d.lifetime_totals?.lifetime_fsd_miles || 0));
       const pendingFsdSupervisedMiles = sum(vehicleDevices, d => Math.max(0, Number(d.lifetime_totals?.lifetime_fsd_miles || 0) - Number(d.baseline_data?.fsd_baseline_miles || 0)));
+      // Source label: 'official' wins if ANY vehicle reports it; earliest first_sample_at drives "since".
+      const fsdSource: 'official' | 'calculated_hw3' | null = vehicleDevices.some(d => (d.last_known_state as any)?.fsd_source === 'official')
+        ? 'official'
+        : (vehicleDevices.some(d => (d.last_known_state as any)?.fsd_source === 'calculated_hw3') ? 'calculated_hw3' : null);
+      const fsdSinceDate: string | null = vehicleDevices
+        .map(d => (d.last_known_state as any)?.fsd_source_meta?.first_sample_at)
+        .filter((s): s is string => typeof s === 'string')
+        .sort()[0] ?? null;
 
       const homeChargerKwh = homeChargingMonitorKwh;
       const pendingHomeCharger = pendingHomeChargingMonitorKwh;
@@ -795,6 +805,8 @@ export function useDashboardData() {
         homeChargerKwh,
         fsdSupervisedMiles,
         fsdUnsupervisedMiles: 0,
+        fsdSource,
+        fsdSinceDate,
         pendingSolarKwh: pendingSolar,
         pendingEvMiles,
         pendingBatteryKwh: pendingBattery,
@@ -853,6 +865,8 @@ export function useDashboardData() {
       // FSD miles (subset of EV miles — Tesla telemetry only)
       let fsdSupervisedMiles = 0;
       let pendingFsdSupervisedMiles = 0;
+      let fsdSource: 'official' | 'calculated_hw3' | null = null;
+      let fsdSinceDate: string | null = null;
 
       // Fetch data in parallel (including device labels and minted tokens)
       const fetchHomeChargingTotal = async (): Promise<{ lifetime: number; sessions: Array<{ total_session_kwh: number; start_time: string }> }> => {
@@ -1144,6 +1158,8 @@ export function useDashboardData() {
         // FSD miles — subset of EV miles, never summed into evMiles
         fsdSupervisedMiles = Number(teslaData.totals.fsd_supervised_miles || 0);
         pendingFsdSupervisedMiles = Number(teslaData.totals.pending_fsd_supervised_miles || 0);
+        fsdSource = (teslaData.totals.fsd_source as 'official' | 'calculated_hw3' | undefined) ?? null;
+        fsdSinceDate = (teslaData.totals.fsd_since as string | undefined) ?? null;
 
         console.log('Tesla data:', { batteryDischarge, evMiles, superchargerKwh, homeChargerKwh, hasDedicatedSolarProvider, fsdSupervisedMiles });
       }
@@ -1366,6 +1382,8 @@ export function useDashboardData() {
         homeChargerKwh: homeChargerKwh,
         fsdSupervisedMiles,
         fsdUnsupervisedMiles: 0,
+        fsdSource,
+        fsdSinceDate,
         // Pending (since last mint, eligible for token rewards)
         pendingSolarKwh: pendingSolar,
         pendingEvMiles: pendingEvMiles,
