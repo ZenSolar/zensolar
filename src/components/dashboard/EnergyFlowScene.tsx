@@ -1205,6 +1205,26 @@ export function EnergyFlowScene({
         </div>
       )}
 
+      {/* v5 Phase B — Supercharging badge. Shown when Tesla telemetry
+          reports a fast charger present (Supercharger, EA, etc). The car
+          is away from home so the dynamic car + cable arc are suppressed;
+          this pill keeps live charge state visible. */}
+      {isSupercharging && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-2 z-30 flex justify-center px-3"
+        >
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/50 bg-amber-500/15 px-2.5 py-1 text-[11px] font-semibold tabular-nums text-amber-200 shadow-[0_0_18px_hsla(38,95%,55%,0.4)] backdrop-blur">
+            <span className="text-[12px] leading-none">⚡</span>
+            <span className="uppercase tracking-[0.14em]">Supercharging</span>
+            <span className="text-amber-100/90">· {evKw.toFixed(0)} kW</span>
+            {typeof evSoc === 'number' && (
+              <span className="text-amber-100/70">· {evSoc}%</span>
+            )}
+          </div>
+        </div>
+      )}
+
 
       {/* Floating labels — during outage, top-right and bottom-right are
           re-purposed as the integrated outage hero stats so the house
