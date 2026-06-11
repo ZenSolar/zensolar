@@ -28,6 +28,8 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import type { EnergyFlowData } from './AnimatedEnergyFlow';
 import {
   resolveVehicleAsset,
+  resolveVehicleWheelType,
+  resolveVehicleDisplayName,
   type VehicleColor,
   type VehicleModel,
 } from './EnergyFlowScene.scenes';
@@ -39,6 +41,23 @@ import sceneNightEv from '@/assets/zencasa/house-night-ev.png';
 import sceneRain from '@/assets/zencasa/house-rain.png';
 
 export type SceneKey = 'day' | 'night' | 'night-ev' | 'rain';
+
+/**
+ * v5 — High-level composition archetype, separate from the baked PNG scene.
+ * Drives overlay weighting, car size, and which halos light up.
+ *
+ *   full-stack    — solar + battery + EV  (current rich cockpit)
+ *   ev-only       — Tesla connected, no PV / no battery
+ *   solar-only    — PV only (roof emphasis)
+ *   charger-only  — wallbox only (simple house + charger)
+ *   outage        — amber/green backup styling (gated by useGridOutage)
+ */
+export type CompositionKey =
+  | 'full-stack'
+  | 'ev-only'
+  | 'solar-only'
+  | 'charger-only'
+  | 'outage';
 
 const SCENE_SRC: Record<SceneKey, string> = {
   day: sceneDay,
@@ -64,6 +83,41 @@ export function pickScene(d: EnergyFlowData, now: Date = new Date()): SceneKey {
   if (!sunUp && evCharging) return 'night-ev';
   if (!sunUp && !isDayTime) return 'night';
   return 'day';
+}
+
+/**
+ * v5 — Adaptive Scene Composer.
+ *
+ * Returns both the baked-PNG scene key and the high-level composition
+ * archetype. Weather code (Open-Meteo WMO) optionally swaps `day` → `rain`
+ * for stormy conditions so the sky matches what the user sees outside.
+ */
+export function chooseSceneType(
+  d: EnergyFlowData,
+  devices: {
+    hasSolar?: boolean;
+    hasBattery?: boolean;
+    hasTesla?: boolean;
+    hasCharger?: boolean;
+    isOutage?: boolean;
+  } = {},
+  opts: { weatherCode?: number | null; now?: Date } = {},
+): { scene: SceneKey; composition: CompositionKey } {
+  const now = opts.now ?? new Date();
+  let scene = pickScene(d, now);
+  // Weather override: rainy / showery WMO codes → rain scene (only when not night-ev).
+  const wx = opts.weatherCode ?? null;
+  const isRainy = wx !== null && ((wx >= 51 && wx <= 67) || (wx >= 80 && wx <= 82) || (wx >= 95 && wx <= 99));
+  if (isRainy && scene !== 'night-ev') scene = scene === 'night' ? 'night' : 'rain';
+
+  let composition: CompositionKey = 'full-stack';
+  if (devices.isOutage) composition = 'outage';
+  else if (devices.hasBattery || devices.hasTesla || (devices.hasSolar && devices.hasCharger)) composition = 'full-stack';
+  else if (devices.hasTesla && !devices.hasSolar && !devices.hasBattery) composition = 'ev-only';
+  else if (devices.hasSolar && !devices.hasBattery && !devices.hasTesla && !devices.hasCharger) composition = 'solar-only';
+  else if (devices.hasCharger && !devices.hasSolar && !devices.hasBattery && !devices.hasTesla) composition = 'charger-only';
+
+  return { scene, composition };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -435,6 +489,11 @@ export interface EnergyFlowSceneProps {
    *  estimator math stays in one place. Only consumed when isOutage. */
   outageBackupLabel?: string;
   outageStartedAt?: Date | string;
+  /** v5 — current Open-Meteo WMO weather code. Drives sky tinting and
+   *  may swap day → rain when stormy. */
+  weatherCode?: number | null;
+  /** v5 — Tesla composition override for parents that already know it. */
+  forceComposition?: CompositionKey;
 }
 
 export function EnergyFlowScene({
@@ -451,10 +510,22 @@ export function EnergyFlowScene({
   isOutage = false,
   outageBackupLabel,
   outageStartedAt,
+  weatherCode = null,
+  forceComposition,
 }: EnergyFlowSceneProps) {
 
 
-  const scene = useMemo(() => forceScene ?? pickScene(data), [forceScene, data]);
+  const { scene, composition } = useMemo(
+    () =>
+      forceScene
+        ? { scene: forceScene, composition: forceComposition ?? 'full-stack' as CompositionKey }
+        : chooseSceneType(
+            data,
+            { hasSolar: true, hasBattery, hasTesla, hasCharger, isOutage },
+            { weatherCode },
+          ),
+    [forceScene, forceComposition, data, hasBattery, hasTesla, hasCharger, isOutage, weatherCode],
+  );
   const hasTeslaConnection =
     Boolean(teslaPayload) || Boolean(data.tesla) || (data.evPower ?? 0) > 0.1;
 
@@ -549,18 +620,50 @@ export function EnergyFlowScene({
   const evSoc = data.tesla?.soc;
   const evRange = data.tesla?.rangeMi;
 
+  // v5 — extract Tesla wheel_type and display_name for accuracy data-attrs
+  const wheelType = useMemo(() => resolveVehicleWheelType(teslaPayload), [teslaPayload]);
+  const displayName = useMemo(() => resolveVehicleDisplayName(teslaPayload), [teslaPayload]);
+
+  // v5 — weather-aware sky tint. Cloudy/overcast → cool grey; rainy →
+  // deep slate; thunderstorm → violet edge. Day-only; night scenes already
+  // carry their own mood. Sits ABOVE the ambient floor but BELOW the hero img.
+  const skyTint = useMemo<string | null>(() => {
+    if (weatherCode == null || scene === 'night' || scene === 'night-ev') return null;
+    if (weatherCode === 0 || weatherCode === 1) return null; // clear / mostly clear
+    if (weatherCode === 2) return 'linear-gradient(to bottom, hsl(210 35% 35% / 0.18), transparent 55%)';
+    if (weatherCode === 3) return 'linear-gradient(to bottom, hsl(210 20% 30% / 0.32), transparent 60%)';
+    if (weatherCode >= 45 && weatherCode <= 48) return 'linear-gradient(to bottom, hsl(210 15% 40% / 0.40), transparent 60%)';
+    if ((weatherCode >= 51 && weatherCode <= 67) || (weatherCode >= 80 && weatherCode <= 82)) return 'linear-gradient(to bottom, hsl(215 35% 22% / 0.50), transparent 65%)';
+    if (weatherCode >= 71 && weatherCode <= 86) return 'linear-gradient(to bottom, hsl(220 15% 55% / 0.30), transparent 60%)';
+    if (weatherCode >= 95) return 'linear-gradient(to bottom, hsl(265 35% 20% / 0.55), transparent 65%)';
+    return null;
+  }, [weatherCode, scene]);
+
   return (
     <div
       className={`relative isolate aspect-square w-full overflow-hidden ${className ?? ''}`}
       data-scene={scene}
+      data-composition={composition}
+      data-weather-code={weatherCode ?? ''}
       data-vehicle={resolvedVehicle ?? (vehicleGeneric ? 'generic' : 'none')}
       data-vehicle-color={resolvedColor ?? 'none'}
+      data-vehicle-wheel={wheelType ?? ''}
+      data-vehicle-name={displayName ?? ''}
     >
       {/* Ambient gradient floor with subtle depth */}
       <div
         aria-hidden="true"
         className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_50%_40%,hsl(220_50%_12%/0.85),transparent_65%),radial-gradient(circle_at_50%_95%,hsl(var(--primary)/0.14),transparent_55%),linear-gradient(to_bottom,hsl(220_60%_6%/0.4),hsl(220_70%_3%/0.7))]"
       />
+
+      {/* v5 — weather sky tint overlay (only when conditions warrant) */}
+      {skyTint && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-[5] transition-opacity duration-700"
+          style={{ background: skyTint }}
+        />
+      )}
 
       {/* Crossfading hero scene */}
       <AnimatePresence mode="sync">
@@ -616,29 +719,34 @@ export function EnergyFlowScene({
           </>
         )}
 
-        {/* Second Powerwall (stacked below) — only when a 2nd unit is connected */}
-        {hasBattery && batteryCount >= 2 && (
-          <>
-            <DeviceHalo
-              cx={HOME_BLUEPRINT.powerwall2.x}
-              cy={HOME_BLUEPRINT.powerwall2.y}
-              color={EMERALD}
-              active
-              intensity={0.5}
-              radius={3.8}
-              pulseMs={5000}
-            />
-            <DeviceHalo
-              cx={HOME_BLUEPRINT.powerwall2.x}
-              cy={HOME_BLUEPRINT.powerwall2.y}
-              color={pwCharging ? EMERALD : AMBER}
-              active={pwCharging || pwDischarging}
-              intensity={intensity(battery)}
-              radius={4.6}
-              pulseMs={pwCharging ? 2800 : 2400}
-            />
-          </>
-        )}
+        {/* v5 — Additional Powerwalls (slots 2..N), capped at 5 total.
+            Each unit gets the same halo pair as the primary so 1–5+ stacks
+            read cleanly along the front porch. */}
+        {hasBattery && batteryCount >= 2 &&
+          HOME_BLUEPRINT.powerwallSlots
+            .slice(1, Math.min(5, batteryCount))
+            .map((slot, i) => (
+              <g key={`pw-slot-${i + 1}`}>
+                <DeviceHalo
+                  cx={slot.x}
+                  cy={slot.y}
+                  color={EMERALD}
+                  active
+                  intensity={0.5}
+                  radius={3.8}
+                  pulseMs={5000}
+                />
+                <DeviceHalo
+                  cx={slot.x}
+                  cy={slot.y}
+                  color={pwCharging ? EMERALD : AMBER}
+                  active={pwCharging || pwDischarging}
+                  intensity={intensity(battery)}
+                  radius={4.6}
+                  pulseMs={pwCharging ? 2800 : 2400}
+                />
+              </g>
+            ))}
 
 
 
@@ -869,6 +977,36 @@ export function EnergyFlowScene({
             </rect>
           </g>
         )}
+
+        {/* v5 — Realistic charging cable arc from wall connector to the
+            Tesla's charge port while actively charging. Thin emerald guide
+            curve with a tight glow, no particles to keep the read clean. */}
+        {chargingAtHome && showDynamicCar && (() => {
+          const wc = HOME_BLUEPRINT.wallCharger;
+          const port = { x: carAnchor.x + carW * 0.30, y: carAnchor.y - carH * 0.05 };
+          const cableD = `M ${wc.x} ${wc.y} C ${wc.x - 2} ${wc.y + 8} ${port.x - 3} ${port.y + 6} ${port.x} ${port.y}`;
+          return (
+            <g style={{ pointerEvents: 'none' }} data-testid="ev-cable">
+              <path
+                d={cableD}
+                stroke="hsl(142 70% 45% / 0.55)"
+                strokeWidth={0.9}
+                strokeLinecap="round"
+                fill="none"
+                style={{ filter: 'blur(0.6px)' }}
+              />
+              <path
+                d={cableD}
+                stroke={EMERALD_LED}
+                strokeWidth={0.45}
+                strokeLinecap="round"
+                fill="none"
+                opacity={0.85}
+              />
+            </g>
+          );
+        })()}
+
 
         {/* ── Dynamic Tesla, locked to the same coordinate system ── */}
         {showDynamicCar && vehicleSrc && (

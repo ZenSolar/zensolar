@@ -23,6 +23,8 @@ const AnimatedEnergyFlow = lazy(() =>
 );
 import { ZenXPill } from './ZenXPill';
 import { LiveCardHeader } from './LiveCardHeader';
+import { SolarSiteTabs } from './SolarSiteTabs';
+import { useWeather } from '@/hooks/useWeather';
 // SolarPlusCard is no longer in the render matrix — every connected user
 // now routes to the rich EnergyFlowScene (device-aware).
 
@@ -616,7 +618,12 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
   const empty =
     !loading && !hasSolar && !hasBattery && !hasTesla && !hasCharger;
 
-  const primarySolar = solar.data[0];
+  // v5 — multi-PV: let user pick which PV system feeds the scene + tiles.
+  const [activeSolarSiteId, setActiveSolarSiteId] = useState<string | null>(null);
+  const primarySolar = useMemo(
+    () => solar.data.find((s) => s.site_id === activeSolarSiteId) ?? solar.data[0],
+    [solar.data, activeSolarSiteId],
+  );
   const primaryBattery = battery.data[0];
   const primaryEv = ev.data[0];
   const solarStats = solarSnapshot(primarySolar);
@@ -624,6 +631,8 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
 
   // Current household load (kW) — also re-derived below as `homeKwRaw`,
   // computed here so we can feed it into the outage-lifecycle hook.
+  const { weather: liveWeather } = useWeather();
+  const weatherCodeForScene = liveWeather?.weatherCode ?? null;
   const outageHomeKw = normalizeWattsToKw(
     pickNumber(primaryBattery?.payload, ['load_power', 'energy_sites.0.load_power'])
   );
@@ -770,6 +779,15 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
         refreshing={manualRefreshing}
       />
 
+      {/* v5 — multi-PV site selector (only renders when ≥2 PV systems) */}
+      <SolarSiteTabs
+        sites={solar.data}
+        activeSiteId={activeSolarSiteId ?? solar.data[0]?.site_id ?? null}
+        onSelect={setActiveSolarSiteId}
+      />
+
+
+
 
 
       {(() => {
@@ -867,6 +885,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
                 }
                 batteryPayload={primaryBattery?.payload}
                 batteryCount={battery.data?.length ?? 1}
+                weatherCode={weatherCodeForScene}
                 vehicleModel={null}
               />
             </Suspense>
