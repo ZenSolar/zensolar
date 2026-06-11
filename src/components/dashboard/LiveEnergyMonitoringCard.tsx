@@ -638,6 +638,52 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
   const solarStats = solarSnapshot(primarySolar);
   const batteryStats = batterySnapshot(primaryBattery);
 
+  // v5 Phase 5 — aggregate across ALL connected PV systems for supporting tiles.
+  // Scene still uses primarySolar (per active tab); tiles show whole-home truth.
+  const solarStatsAll = useMemo(() => {
+    if (solar.data.length <= 1) return solarStats;
+    const snaps = solar.data.map(solarSnapshot);
+    const sum = (xs: Array<number | null>) =>
+      xs.some((v) => v !== null) ? xs.reduce<number>((a, v) => a + (v ?? 0), 0) : null;
+    return {
+      currentKw: sum(snaps.map((s) => s.currentKw)),
+      todayKwh: sum(snaps.map((s) => s.todayKwh)),
+      lifetimeMwh: sum(snaps.map((s) => s.lifetimeMwh)),
+      label: `${solar.data.length} systems`,
+    };
+  }, [solar.data, solarStats]);
+
+  // v5 Phase 5 — aggregate across ALL connected Powerwalls / batteries.
+  const batteryStatsAll = useMemo(() => {
+    if (battery.data.length <= 1) return batteryStats;
+    const snaps = battery.data.map(batterySnapshot);
+    const sumNonNull = (xs: Array<number | null>) =>
+      xs.some((v) => v !== null) ? xs.reduce<number>((a, v) => a + (v ?? 0), 0) : null;
+    const cap = sumNonNull(snaps.map((s) => s.capacityKwh));
+    const reserve = sumNonNull(snaps.map((s) => s.reserveKwh));
+    const power = sumNonNull(snaps.map((s) => s.powerKw));
+    // Capacity-weighted SOC so two unequal packs report a true blended %.
+    const socs = snaps
+      .map((s) => ({ soc: s.soc, cap: s.capacityKwh ?? POWERWALL_DEFAULT_CAPACITY_KWH }))
+      .filter((s) => s.soc !== null) as Array<{ soc: number; cap: number }>;
+    const totalCap = socs.reduce((a, s) => a + s.cap, 0) || 1;
+    const soc = socs.length
+      ? socs.reduce((a, s) => a + s.soc * (s.cap / totalCap), 0)
+      : null;
+    return {
+      ...batteryStats,
+      soc,
+      powerKw: power,
+      capacityKwh: cap,
+      reserveKwh: reserve,
+      energyLeft: reserve,
+      status:
+        power === null ? 'State pending' : power > 0.05 ? 'Charging' : power < -0.05 ? 'Discharging' : 'Idle',
+      label: `${battery.data.length} Powerwalls`,
+    };
+  }, [battery.data, batteryStats]);
+
+
   // Current household load (kW) — also re-derived below as `homeKwRaw`,
   // computed here so we can feed it into the outage-lifecycle hook.
   const { weather: liveWeather } = useWeather();
@@ -800,14 +846,17 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
 
 
       {(() => {
-        // Master live pill — Tesla charging wins, then Powerwall discharging, charging, solar, grid import, idle.
-        const pw = batteryStats.powerKw;
-        const solarKw = solarStats.currentKw ?? 0;
+        // Master live pill — Tesla charging wins, then Powerwall discharging, charging, solar export, solar, grid import, idle.
+        const pw = batteryStatsAll.powerKw;
+        const solarKw = solarStatsAll.currentKw ?? 0;
         const gridKw = reconciledFlow.gridKw;
-        let pillState: 'tesla-charging' | 'discharging' | 'charging' | 'solar' | 'grid-import' | 'idle' = 'idle';
+        let pillState:
+          | 'tesla-charging' | 'discharging' | 'charging' | 'grid-export'
+          | 'solar' | 'grid-import' | 'idle' = 'idle';
         if (teslaFlow?.isCharging) pillState = 'tesla-charging';
         else if (pw !== null && pw < -0.05) pillState = 'discharging';
         else if (pw !== null && pw > 0.05) pillState = 'charging';
+        else if (gridKw < -0.1) pillState = 'grid-export';
         else if (solarKw > 0.1) pillState = 'solar';
         else if (gridKw > 0.1) pillState = 'grid-import';
 
@@ -820,14 +869,17 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
         }
 
         // Non-Tesla fallback pill — keeps the cockpit always-narrated
+        const socPct = Math.round(batteryStatsAll.soc ?? 0);
         const pillCfg: Record<typeof pillState, { dot: string; ring: string; label: string }> = {
           'tesla-charging': { dot: 'bg-emerald-400', ring: 'border-emerald-400/40 bg-emerald-400/10 text-emerald-300', label: '' },
-          'discharging':    { dot: 'bg-amber-400',   ring: 'border-amber-400/40 bg-amber-400/10 text-amber-300',     label: `Powerwall Discharging • ${Math.abs(pw ?? 0).toFixed(1)} kW • ${Math.round(batteryStats.soc ?? 0)}% SOC` },
-          'charging':       { dot: 'bg-emerald-400', ring: 'border-emerald-400/40 bg-emerald-400/10 text-emerald-300', label: `Powerwall Charging • ${(pw ?? 0).toFixed(1)} kW • ${Math.round(batteryStats.soc ?? 0)}% SOC` },
+          'discharging':    { dot: 'bg-amber-400',   ring: 'border-amber-400/40 bg-amber-400/10 text-amber-300',     label: `Powerwall Discharging • ${Math.abs(pw ?? 0).toFixed(1)} kW • ${socPct}% SOC` },
+          'charging':       { dot: 'bg-emerald-400', ring: 'border-emerald-400/40 bg-emerald-400/10 text-emerald-300', label: `Powerwall Charging • ${(pw ?? 0).toFixed(1)} kW • ${socPct}% SOC` },
+          'grid-export':    { dot: 'bg-cyan-400',    ring: 'border-cyan-400/40 bg-cyan-400/10 text-cyan-300',         label: `Exporting to Grid • ${Math.abs(gridKw).toFixed(1)} kW` },
           'solar':          { dot: 'bg-amber-400',   ring: 'border-amber-400/40 bg-amber-400/10 text-amber-300',     label: `Solar Producing • ${solarKw.toFixed(1)} kW` },
           'grid-import':    { dot: 'bg-violet-400',  ring: 'border-violet-400/40 bg-violet-400/10 text-violet-300',   label: `Grid Import • ${gridKw.toFixed(1)} kW` },
           'idle':           { dot: 'bg-muted-foreground/60', ring: 'border-muted-foreground/20 bg-muted/30 text-muted-foreground', label: 'System Idle' },
         };
+
         const cfg = pillCfg[pillState];
         if (!cfg.label) return null;
         return (
@@ -956,25 +1008,29 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <MetricTile
                 icon={Sun}
-                label="Today"
-                value={formatKwh(solarStats.todayKwh)}
-                detail={`${formatKw(solarStats.currentKw)} now · ${solarStats.label}`}
+                label={solar.data.length > 1 ? `Today · ${solar.data.length} systems` : 'Today'}
+                value={formatKwh(solarStatsAll.todayKwh)}
+                detail={
+                  solar.data.length > 1
+                    ? `${formatKw(solarStatsAll.currentKw)} now · ${solar.data.length} PV combined`
+                    : `${formatKw(solarStatsAll.currentKw)} now · ${solarStats.label}`
+                }
               />
               {hasBattery ? (
                 <MetricTile
                   icon={BatteryCharging}
-                  label="Powerwall"
+                  label={battery.data.length > 1 ? `Powerwalls · ${battery.data.length}` : 'Powerwall'}
                   value={
-                    batteryStats.reserveKwh !== null && batteryStats.capacityKwh !== null
-                      ? `${batteryStats.reserveKwh.toFixed(1)} / ${batteryStats.capacityKwh.toFixed(1)} kWh`
-                      : batteryStats.soc !== null ? `${Math.round(batteryStats.soc)}%` : '—'
+                    batteryStatsAll.reserveKwh !== null && batteryStatsAll.capacityKwh !== null
+                      ? `${batteryStatsAll.reserveKwh.toFixed(1)} / ${batteryStatsAll.capacityKwh.toFixed(1)} kWh`
+                      : batteryStatsAll.soc !== null ? `${Math.round(batteryStatsAll.soc)}%` : '—'
                   }
                   detail={(() => {
-                    const pct = batteryStats.soc !== null ? `${Math.round(batteryStats.soc)}%` : '—';
-                    if (batteryStats.powerKw === null) return `${pct} · ${batteryStats.status}`;
-                    if (batteryStats.powerKw > 0.05) return `${pct} · +${batteryStats.powerKw.toFixed(1)} kW charging`;
-                    if (batteryStats.powerKw < -0.05) return `${pct} · ${batteryStats.powerKw.toFixed(1)} kW discharging`;
-                    const isFull = batteryStats.soc !== null && batteryStats.soc >= 99;
+                    const pct = batteryStatsAll.soc !== null ? `${Math.round(batteryStatsAll.soc)}%` : '—';
+                    if (batteryStatsAll.powerKw === null) return `${pct} · ${batteryStatsAll.status}`;
+                    if (batteryStatsAll.powerKw > 0.05) return `${pct} · +${batteryStatsAll.powerKw.toFixed(1)} kW charging`;
+                    if (batteryStatsAll.powerKw < -0.05) return `${pct} · ${batteryStatsAll.powerKw.toFixed(1)} kW discharging`;
+                    const isFull = batteryStatsAll.soc !== null && batteryStatsAll.soc >= 99;
                     return `${pct} · ${isFull ? 'Full' : 'Idle'}`;
                   })()}
                 />
@@ -990,6 +1046,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
                   detail={`Lifetime · ${chargers.data[0]?.total_sessions ?? 0} sessions`}
                 />
               ) : null}
+
 
               <MetricTile
                 icon={Gauge}
