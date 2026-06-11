@@ -35,6 +35,8 @@ import {
 } from './EnergyFlowScene.scenes';
 import { HOME_BLUEPRINT, BLUEPRINT_PATHS } from './HomeBlueprint';
 import { HouseSceneV5 } from './HouseSceneV5';
+import { EvChargingCable } from './EvChargingCable';
+
 
 // v5 Phase 1: legacy baked house PNG imports removed — HouseSceneV5 owns the
 // hero render now. SCENE_SRC and the four PNG imports were deleted to prove
