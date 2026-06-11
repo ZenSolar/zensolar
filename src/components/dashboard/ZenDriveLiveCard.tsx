@@ -146,6 +146,8 @@ export function ZenDriveLiveCard({ alwaysRender = false }: ZenDriveLiveCardProps
           subtitle="ZenDrive · No vehicle connected"
           ageLabel="—"
           freshnessClassName="bg-muted/40 text-muted-foreground ring-muted/50"
+          onRefresh={async () => {}}
+          refreshing={false}
         />
         <div className="flex flex-col gap-3 rounded-lg border border-primary/15 bg-primary/5 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-2.5">
