@@ -397,7 +397,7 @@ function MetricTile({ icon: Icon, label, value, detail }: { icon: LucideIcon; la
   );
 }
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function SectionLabel({ children }: { children: string }) {
   return (
     <div className="px-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
       {children}
