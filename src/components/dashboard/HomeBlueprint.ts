@@ -41,10 +41,11 @@ export const HOME_BLUEPRINT = Object.freeze({
     x: number; y: number; w: number; h: number;
   }>,
   /** Dynamic-vehicle <image> overlay dimensions, % of viewBox.
-   *  v5 Final: large enough to read as a real car in the driveway,
-   *  matching the IMG_0549 isometric reference. */
-  carWidth: 46,
-  carHeight: 26,
+   *  v5 Structural: scaled up so the car reads as a real vehicle in the
+   *  driveway instead of a toy — matches the pre-Phase-1 hero proportions. */
+  carWidth: 54,
+  carHeight: 30,
+
   /**
    * v5 multi-battery support — up to 5 Powerwall units stacked vertically
    * along the right exterior wall. Slot 0 == legacy `powerwall` anchor.
