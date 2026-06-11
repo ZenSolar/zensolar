@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { chooseSceneType, type EnergyFlowData } from '@/components/dashboard/EnergyFlowScene';
+import { chooseSceneType } from '@/components/dashboard/EnergyFlowScene';
+import type { EnergyFlowData } from '@/components/dashboard/AnimatedEnergyFlow';
 
 const NOON = new Date('2026-06-15T12:00:00');
 const NIGHT = new Date('2026-06-15T22:00:00');
