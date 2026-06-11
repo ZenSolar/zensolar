@@ -687,29 +687,34 @@ export function EnergyFlowScene({
           </>
         )}
 
-        {/* Second Powerwall (stacked below) — only when a 2nd unit is connected */}
-        {hasBattery && batteryCount >= 2 && (
-          <>
-            <DeviceHalo
-              cx={HOME_BLUEPRINT.powerwall2.x}
-              cy={HOME_BLUEPRINT.powerwall2.y}
-              color={EMERALD}
-              active
-              intensity={0.5}
-              radius={3.8}
-              pulseMs={5000}
-            />
-            <DeviceHalo
-              cx={HOME_BLUEPRINT.powerwall2.x}
-              cy={HOME_BLUEPRINT.powerwall2.y}
-              color={pwCharging ? EMERALD : AMBER}
-              active={pwCharging || pwDischarging}
-              intensity={intensity(battery)}
-              radius={4.6}
-              pulseMs={pwCharging ? 2800 : 2400}
-            />
-          </>
-        )}
+        {/* v5 — Additional Powerwalls (slots 2..N), capped at 5 total.
+            Each unit gets the same halo pair as the primary so 1–5+ stacks
+            read cleanly along the front porch. */}
+        {hasBattery && batteryCount >= 2 &&
+          HOME_BLUEPRINT.powerwallSlots
+            .slice(1, Math.min(5, batteryCount))
+            .map((slot, i) => (
+              <g key={`pw-slot-${i + 1}`}>
+                <DeviceHalo
+                  cx={slot.x}
+                  cy={slot.y}
+                  color={EMERALD}
+                  active
+                  intensity={0.5}
+                  radius={3.8}
+                  pulseMs={5000}
+                />
+                <DeviceHalo
+                  cx={slot.x}
+                  cy={slot.y}
+                  color={pwCharging ? EMERALD : AMBER}
+                  active={pwCharging || pwDischarging}
+                  intensity={intensity(battery)}
+                  radius={4.6}
+                  pulseMs={pwCharging ? 2800 : 2400}
+                />
+              </g>
+            ))}
 
 
 
