@@ -33,6 +33,7 @@ import { FlywheelContributionCard } from './dashboard/FlywheelContributionCard';
 import { MintReceiptsHint } from './dashboard/MintReceiptsHint';
 import { PrimaryMintAction } from './dashboard/PrimaryMintAction';
 import { RewardSnapshotGrid } from './dashboard/RewardSnapshotGrid';
+import { TodaysCleanEnergyStats } from './dashboard/TodaysCleanEnergyStats';
 import { SubscriptionStatusCard } from './dashboard/SubscriptionStatusCard';
 
 import { DashboardHexBackground } from './dashboard/DashboardHexBackground';
