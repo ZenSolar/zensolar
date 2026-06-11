@@ -384,14 +384,65 @@ function EVTile({ t, totals7d, liveDot, sourceLabel: sourceLabelOverride }: { t:
   );
 }
 
-function MetricTile({ icon: Icon, label, value, detail }: { icon: LucideIcon; label: string; value: string; detail: string }) {
+function MetricTile({
+  icon: Icon,
+  label,
+  value,
+  detail,
+  tone,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+  detail: string;
+  tone?: 'orange' | 'green' | 'blue' | 'teal';
+}) {
+  const toneMap = {
+    orange: {
+      border: 'border-amber-400/25 hover:border-amber-400/45',
+      bg: 'from-amber-500/[0.06] to-transparent',
+      icon: 'text-amber-300',
+      value: 'text-amber-50 [text-shadow:_0_0_18px_hsla(38,95%,60%,0.35)]',
+      ring: 'ring-amber-400/20',
+    },
+    green: {
+      border: 'border-emerald-400/25 hover:border-emerald-400/45',
+      bg: 'from-emerald-500/[0.06] to-transparent',
+      icon: 'text-emerald-300',
+      value: 'text-emerald-50 [text-shadow:_0_0_18px_hsla(142,76%,55%,0.35)]',
+      ring: 'ring-emerald-400/20',
+    },
+    blue: {
+      border: 'border-sky-400/25 hover:border-sky-400/45',
+      bg: 'from-sky-500/[0.06] to-transparent',
+      icon: 'text-sky-300',
+      value: 'text-sky-50 [text-shadow:_0_0_18px_hsla(205,90%,60%,0.35)]',
+      ring: 'ring-sky-400/20',
+    },
+    teal: {
+      border: 'border-teal-400/25 hover:border-teal-400/45',
+      bg: 'from-teal-500/[0.06] to-transparent',
+      icon: 'text-teal-300',
+      value: 'text-teal-50 [text-shadow:_0_0_18px_hsla(180,85%,55%,0.35)]',
+      ring: 'ring-teal-400/20',
+    },
+  } as const;
+  const t = tone ? toneMap[tone] : null;
   return (
-    <div className="rounded-xl border border-border/40 bg-background/40 p-3.5 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04)] transition-colors hover:border-primary/30">
+    <div
+      className={`relative overflow-hidden rounded-xl border p-3.5 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04)] transition-colors ${
+        t
+          ? `${t.border} bg-gradient-to-br ${t.bg} bg-background/40`
+          : 'border-border/40 bg-background/40 hover:border-primary/30'
+      }`}
+    >
       <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/80">
-        <Icon className="h-3.5 w-3.5 text-primary/80" />
+        <span className={t ? `inline-flex h-5 w-5 items-center justify-center rounded-md bg-background/40 ring-1 ${t.ring}` : ''}>
+          <Icon className={`h-3.5 w-3.5 ${t ? t.icon : 'text-primary/80'}`} />
+        </span>
         {label}
       </div>
-      <div className="mt-2.5 text-[22px] font-bold leading-none tabular-nums text-foreground">{value}</div>
+      <div className={`mt-2.5 text-[22px] font-bold leading-none tabular-nums ${t ? t.value : 'text-foreground'}`}>{value}</div>
       <div className="mt-1.5 text-[11px] leading-snug text-muted-foreground/80">{detail}</div>
     </div>
   );
@@ -1004,25 +1055,26 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
 
 
           <section className="space-y-3 border-t border-border/30 pt-5">
-            <SectionLabel>At a glance</SectionLabel>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <SectionLabel>Today’s Clean Energy</SectionLabel>
+            <div className="grid grid-cols-2 gap-2.5">
+              {/* Orange — Solar produced today */}
               <MetricTile
+                tone="orange"
                 icon={Sun}
-                label={solar.data.length > 1 ? `Today · ${solar.data.length} systems` : 'Today'}
+                label={solar.data.length > 1 ? `Solar · ${solar.data.length} systems` : 'Solar Produced'}
                 value={formatKwh(solarStatsAll.todayKwh)}
-                detail={
-                  solar.data.length > 1
-                    ? `${formatKw(solarStatsAll.currentKw)} now · ${solar.data.length} PV combined`
-                    : `${formatKw(solarStatsAll.currentKw)} now · ${solarStats.label}`
-                }
+                detail={`${formatKw(solarStatsAll.currentKw)} now · today`}
               />
+
+              {/* Green — Battery reserve / EV-routed energy */}
               {hasBattery ? (
                 <MetricTile
+                  tone="green"
                   icon={BatteryCharging}
-                  label={battery.data.length > 1 ? `Powerwalls · ${battery.data.length}` : 'Powerwall'}
+                  label={battery.data.length > 1 ? `Powerwalls · ${battery.data.length}` : 'Battery Reserve'}
                   value={
                     batteryStatsAll.reserveKwh !== null && batteryStatsAll.capacityKwh !== null
-                      ? `${batteryStatsAll.reserveKwh.toFixed(1)} / ${batteryStatsAll.capacityKwh.toFixed(1)} kWh`
+                      ? `${batteryStatsAll.reserveKwh.toFixed(1)} kWh`
                       : batteryStatsAll.soc !== null ? `${Math.round(batteryStatsAll.soc)}%` : '—'
                   }
                   detail={(() => {
@@ -1034,8 +1086,9 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
                     return `${pct} · ${isFull ? 'Full' : 'Idle'}`;
                   })()}
                 />
-              ) : hasCharger ? (
+              ) : (
                 <MetricTile
+                  tone="green"
                   icon={Zap}
                   label={chargers.data[0]?.device_name ?? 'Home Charger'}
                   value={
@@ -1045,15 +1098,30 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
                   }
                   detail={`Lifetime · ${chargers.data[0]?.total_sessions ?? 0} sessions`}
                 />
-              ) : null}
+              )}
 
-
+              {/* Blue — EV charging (last 7 days) */}
               <MetricTile
-                icon={Gauge}
-                label="This Week"
+                tone="blue"
+                icon={Zap}
+                label="EV Charging · 7d"
                 value={formatKwh(evTotals.totals.home_kwh + evTotals.totals.supercharger_kwh)}
                 detail={`Super ${evTotals.totals.supercharger_kwh.toFixed(1)} · Home ${evTotals.totals.home_kwh.toFixed(1)} kWh`}
               />
+
+              {/* Teal — EV mileage estimate from energy charged
+                   (≈ 3.3 mi/kWh — derived; replaced by live Tesla odometer
+                   delta in Phase F when FSD streaming aggregation lands). */}
+              <MetricTile
+                tone="teal"
+                icon={Route}
+                label="EV Mileage · 7d"
+                value={`${Math.round((evTotals.totals.home_kwh + evTotals.totals.supercharger_kwh) * 3.3).toLocaleString()} mi`}
+                detail="Estimated from energy charged"
+              />
+            </div>
+            <div className="px-0.5 text-[10px] leading-snug text-muted-foreground/70">
+              ≈ {Math.max(0, solarStatsAll.todayKwh ?? 0).toFixed(1)} $ZSOLAR ready to mint today
             </div>
           </section>
 
