@@ -345,9 +345,10 @@ function DottedFlow({
       <defs>
         <linearGradient id={gradId} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="100" y2="0">
           <stop offset="0%" stopColor={color} stopOpacity="0.05" />
-          <stop offset="35%" stopColor={color} stopOpacity="0.55" />
-          <stop offset="65%" stopColor={color} stopOpacity="0.55" />
+          <stop offset="35%" stopColor={color} stopOpacity="0.85" />
+          <stop offset="65%" stopColor={color} stopOpacity="0.85" />
           <stop offset="100%" stopColor={color} stopOpacity="0.05" />
+
         </linearGradient>
         <filter id={glowId} x="-20%" y="-20%" width="140%" height="140%">
           <feGaussianBlur stdDeviation="0.55" result="b" />
