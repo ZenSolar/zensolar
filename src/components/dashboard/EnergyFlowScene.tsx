@@ -319,8 +319,13 @@ function WindowsBloom({ active, intensity }: { active: boolean; intensity: numbe
 }
 
 /**
- * Ultra-minimal flow: faint guide path + 3 traveling dots that fade in at
- * the source and fade out at the destination (no floating endpoint dots).
+ * v5 Phase B — Premium gradient ribbon flow.
+ *
+ * Replaces the legacy dotted-line look with a soft glowing stroke that
+ * fades along the path (gradient `stroke-opacity`) plus two sparse,
+ * larger LED particles. Reads as a clean energy ribbon, not a dotted
+ * trail. Gradient + glow filter ids are scoped per-instance so multiple
+ * ribbons in the same SVG never collide.
  */
 function DottedFlow({
   id,
@@ -333,19 +338,48 @@ function DottedFlow({
   color: string;
   dur?: number;
 }) {
+  const gradId = `${id}-grad`;
+  const glowId = `${id}-glow`;
   return (
     <g style={{ pointerEvents: 'none' }}>
+      <defs>
+        <linearGradient id={gradId} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="100" y2="0">
+          <stop offset="0%" stopColor={color} stopOpacity="0.05" />
+          <stop offset="35%" stopColor={color} stopOpacity="0.55" />
+          <stop offset="65%" stopColor={color} stopOpacity="0.55" />
+          <stop offset="100%" stopColor={color} stopOpacity="0.05" />
+        </linearGradient>
+        <filter id={glowId} x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="0.55" result="b" />
+          <feMerge>
+            <feMergeNode in="b" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+      {/* Soft outer halo stroke */}
       <path
-        id={id}
         d={d}
         stroke={color}
         strokeOpacity={0.18}
-        strokeWidth={0.45}
+        strokeWidth={1.4}
         strokeLinecap="round"
         fill="none"
+        style={{ filter: 'blur(1.2px)' }}
       />
-      {[0, 0.33, 0.66].map((offset) => (
-        <circle key={`${id}-${offset}`} r={0.6} fill={color} opacity={0}>
+      {/* Hero ribbon — gradient stroke with subtle glow */}
+      <path
+        id={id}
+        d={d}
+        stroke={`url(#${gradId})`}
+        strokeWidth={0.55}
+        strokeLinecap="round"
+        fill="none"
+        filter={`url(#${glowId})`}
+      />
+      {/* Two sparse traveling LED particles */}
+      {[0, 0.5].map((offset) => (
+        <circle key={`${id}-${offset}`} r={0.75} fill={color} opacity={0}>
           <animateMotion
             dur={`${dur}s`}
             repeatCount="indefinite"
@@ -358,8 +392,8 @@ function DottedFlow({
           </animateMotion>
           <animate
             attributeName="opacity"
-            values="0;0.95;0.95;0"
-            keyTimes="0;0.15;0.85;1"
+            values="0;1;1;0"
+            keyTimes="0;0.18;0.82;1"
             dur={`${dur}s`}
             repeatCount="indefinite"
             begin={`${offset * dur}s`}
@@ -619,7 +653,21 @@ export function EnergyFlowScene({
   // pull up to the garage apron with the door visually "open"; otherwise
   // stay parked in the driveway.
   const prefersReducedMotion = useReducedMotion();
-  const chargingAtHome = isCharging && scene !== 'night-ev' && !isOutage;
+
+  // v5 Phase B — Supercharger detection. Tesla telemetry exposes
+  // `fast_charger_present` / `fast_charger_brand` when plugged into a
+  // DC fast charger. When supercharging we hide the home cable arc +
+  // dynamic car (the car is not at home) and surface a "Supercharging"
+  // badge so the user can still see live charge state at a glance.
+  const tp = teslaPayload as
+    | { fast_charger_present?: boolean; fast_charger_brand?: string | null }
+    | undefined;
+  const isSupercharging =
+    isCharging &&
+    (tp?.fast_charger_present === true ||
+      (typeof tp?.fast_charger_brand === 'string' && tp.fast_charger_brand.length > 0));
+
+  const chargingAtHome = isCharging && !isSupercharging && scene !== 'night-ev' && !isOutage;
   const carAnchor = chargingAtHome ? HOME_BLUEPRINT.garageFront : HOME_BLUEPRINT.carPark;
   const carW = HOME_BLUEPRINT.carWidth;
   const carH = HOME_BLUEPRINT.carHeight;
@@ -998,31 +1046,69 @@ export function EnergyFlowScene({
           </g>
         )}
 
-        {/* v5 — Realistic charging cable arc from wall connector to the
-            Tesla's charge port while actively charging. Thin emerald guide
-            curve with a tight glow, no particles to keep the read clean. */}
-        {chargingAtHome && showDynamicCar && (() => {
+        {/* v5 Phase B — State-aware EV charging cable arc.
+            · Plugged & idle at home → muted grey cable (no glow, no flow)
+            · Actively charging at home → emerald glow + traveling LED
+            · Supercharging away from home → no cable (badge instead) */}
+        {(isPluggedIdle || chargingAtHome) && showDynamicCar && (() => {
           const wc = HOME_BLUEPRINT.wallCharger;
           const port = { x: carAnchor.x + carW * 0.30, y: carAnchor.y - carH * 0.05 };
           const cableD = `M ${wc.x} ${wc.y} C ${wc.x - 2} ${wc.y + 8} ${port.x - 3} ${port.y + 6} ${port.x} ${port.y}`;
+          const cableId = 'ev-cable-path';
+          if (!chargingAtHome) {
+            // Plugged & idle — muted grey cable only.
+            return (
+              <g style={{ pointerEvents: 'none' }} data-testid="ev-cable" data-state="idle">
+                <path
+                  d={cableD}
+                  stroke="hsl(220 10% 55% / 0.55)"
+                  strokeWidth={0.55}
+                  strokeLinecap="round"
+                  fill="none"
+                />
+              </g>
+            );
+          }
+          // Actively charging — emerald glow + a single traveling LED.
           return (
-            <g style={{ pointerEvents: 'none' }} data-testid="ev-cable">
+            <g style={{ pointerEvents: 'none' }} data-testid="ev-cable" data-state="charging">
               <path
                 d={cableD}
                 stroke="hsl(142 70% 45% / 0.55)"
-                strokeWidth={0.9}
+                strokeWidth={1.1}
                 strokeLinecap="round"
                 fill="none"
-                style={{ filter: 'blur(0.6px)' }}
+                style={{ filter: 'blur(0.8px)' }}
               />
               <path
+                id={cableId}
                 d={cableD}
                 stroke={EMERALD_LED}
-                strokeWidth={0.45}
+                strokeWidth={0.5}
                 strokeLinecap="round"
                 fill="none"
-                opacity={0.85}
+                opacity={0.9}
               />
+              {!prefersReducedMotion && (
+                <circle r={0.8} fill={EMERALD_LED} opacity={0}>
+                  <animateMotion
+                    dur="2.2s"
+                    repeatCount="indefinite"
+                    calcMode="linear"
+                    keyPoints="0;1"
+                    keyTimes="0;1"
+                  >
+                    <mpath href={`#${cableId}`} />
+                  </animateMotion>
+                  <animate
+                    attributeName="opacity"
+                    values="0;1;1;0"
+                    keyTimes="0;0.2;0.8;1"
+                    dur="2.2s"
+                    repeatCount="indefinite"
+                  />
+                </circle>
+              )}
             </g>
           );
         })()}
@@ -1115,6 +1201,26 @@ export function EnergyFlowScene({
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* v5 Phase B — Supercharging badge. Shown when Tesla telemetry
+          reports a fast charger present (Supercharger, EA, etc). The car
+          is away from home so the dynamic car + cable arc are suppressed;
+          this pill keeps live charge state visible. */}
+      {isSupercharging && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-2 z-30 flex justify-center px-3"
+        >
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/50 bg-amber-500/15 px-2.5 py-1 text-[11px] font-semibold tabular-nums text-amber-200 shadow-[0_0_18px_hsla(38,95%,55%,0.4)] backdrop-blur">
+            <span className="text-[12px] leading-none">⚡</span>
+            <span className="uppercase tracking-[0.14em]">Supercharging</span>
+            <span className="text-amber-100/90">· {evKw.toFixed(0)} kW</span>
+            {typeof evSoc === 'number' && (
+              <span className="text-amber-100/70">· {evSoc}%</span>
+            )}
           </div>
         </div>
       )}
