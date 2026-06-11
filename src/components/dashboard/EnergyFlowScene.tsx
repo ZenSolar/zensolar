@@ -357,26 +357,27 @@ function DottedFlow({
           </feMerge>
         </filter>
       </defs>
-      {/* Soft outer halo stroke */}
+      {/* Soft outer halo stroke — wider glow for Tesla-style ribbon read */}
       <path
         d={d}
         stroke={color}
-        strokeOpacity={0.18}
-        strokeWidth={1.4}
+        strokeOpacity={0.22}
+        strokeWidth={2.4}
         strokeLinecap="round"
         fill="none"
-        style={{ filter: 'blur(1.2px)' }}
+        style={{ filter: 'blur(1.6px)' }}
       />
-      {/* Hero ribbon — gradient stroke with subtle glow */}
+      {/* Hero ribbon — thicker gradient stroke with subtle glow */}
       <path
         id={id}
         d={d}
         stroke={`url(#${gradId})`}
-        strokeWidth={0.55}
+        strokeWidth={1.1}
         strokeLinecap="round"
         fill="none"
         filter={`url(#${glowId})`}
       />
+
       {/* Two sparse traveling LED particles */}
       {[0, 0.5].map((offset) => (
         <circle key={`${id}-${offset}`} r={0.75} fill={color} opacity={0}>
