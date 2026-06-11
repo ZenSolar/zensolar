@@ -935,6 +935,14 @@ Deno.serve(async (req) => {
             charge_energy_added: chargeState.charge_energy_added || 0,
             charge_rate: chargeState.charge_rate || 0,
             charger_power: chargeState.charger_power || 0,
+            // Surface official Tesla FSD field for HW4 vehicles. When present,
+            // the writer block below uses this as the source of truth and tags
+            // last_known_state.fsd_source = 'official'. HW3 cars omit this and
+            // fall back to the tesla-fsd-sampler adaptive-polling accumulator.
+            self_driving_miles_since_reset:
+              (vehicleState.self_driving_miles_since_reset
+                ?? (vehicleState as any).SelfDrivingMilesSinceReset
+                ?? null),
           });
 
           totalEvMiles += currentOdometer;
