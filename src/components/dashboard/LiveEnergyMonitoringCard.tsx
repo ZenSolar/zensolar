@@ -852,7 +852,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
           <Loader2 className="h-5 w-5 animate-spin text-primary" />
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-5">
           <div
             key={outage?.active ? 'outage' : 'normal'}
             className="overflow-hidden rounded-xl border border-primary/20 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.12),transparent_70%),radial-gradient(circle_at_bottom,hsl(220_60%_8%/0.6),transparent_60%)] shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04),0_8px_30px_-8px_hsl(220_60%_4%/0.6)] animate-in fade-in duration-300"
