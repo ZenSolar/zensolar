@@ -439,6 +439,8 @@ export function resolveVehicleWheelType(input: unknown): string | null {
  */
 export function resolveVehicleDisplayName(input: unknown): string | null {
   const candidates = collectStrings(input, [
+    'vehicle_config.display_name',
+    'vehicles.0.vehicle_config.display_name',
     'display_name',
     'vehicles.0.display_name',
     'response.display_name',
