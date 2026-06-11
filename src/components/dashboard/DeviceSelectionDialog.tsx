@@ -212,6 +212,30 @@ export function DeviceSelectionDialog({
         }).catch(err => console.error('[DeviceSelection] Historical import error:', err));
       }
 
+      // Subscribe each newly-claimed Tesla vehicle to Fleet Telemetry streaming
+      // so AutopilotState/Odometer events start flowing to tesla-telemetry-webhook
+      // (powers the FSD Miles KPI). Fire-and-forget; tesla-fsd-backfill is
+      // invoked in parallel to seed lifetime_fsd_miles=0 on first config.
+      if (provider === 'tesla' && results.claimed.length > 0) {
+        const claimedVehicles = devicesToClaim.filter(d =>
+          results.claimed.includes(d.device_id) &&
+          ['vehicle', 'ev', 'tesla_vehicle'].includes(d.device_type),
+        );
+        for (const v of claimedVehicles) {
+          supabase.functions.invoke('tesla-telemetry-config', {
+            body: { vin: v.device_id },
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          }).then(res => {
+            console.log(`[DeviceSelection] Telemetry config for ${v.device_id}:`, res.data || res.error);
+          }).catch(err => console.error('[DeviceSelection] Telemetry config error:', err));
+
+          supabase.functions.invoke('tesla-fsd-backfill', {
+            body: { vin: v.device_id },
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          }).catch(err => console.error('[DeviceSelection] FSD backfill error:', err));
+        }
+      }
+
       onComplete();
       onOpenChange(false);
       
