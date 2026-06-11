@@ -879,7 +879,9 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
   if (hasBattery) subtitleParts.push('Tesla Powerwall');
   if (hasTesla) subtitleParts.push(primaryEv?.device_name ?? 'ZenX');
   if (hasCharger && !hasTesla) subtitleParts.push(chargers.data[0]?.device_name ?? 'Wallbox');
-  const cockpitSubtitle = `Home Energy Cockpit · ${subtitleParts.join(' + ') || 'Live'}`;
+  const cockpitSubtitle = hideVehicle
+    ? `ZenEnergy · ${subtitleParts.join(' + ') || 'Live'}`
+    : `Home Energy Cockpit · ${subtitleParts.join(' + ') || 'Live'}`;
 
   return (
     <div className="w-full p-4">
