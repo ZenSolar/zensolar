@@ -389,6 +389,19 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         <SectionDivider className="xl:hidden" />
 
+        {/* 1c. TODAY'S CLEAN ENERGY STATS — 2x2 grid bridging hero → live monitoring */}
+        <AnimatedItem className="xl:col-span-2">
+          <TodaysCleanEnergyStats
+            solarKwh={currentActivity.solarKwh}
+            batteryKwh={currentActivity.batteryKwh}
+            chargingKwh={currentActivity.chargingKwh}
+            evMiles={currentActivity.evMiles}
+            fsdMiles={currentActivity.fsdMiles}
+          />
+        </AnimatedItem>
+
+        <SectionDivider className="xl:hidden" />
+
         {/* 2. LIVE ENERGY MONITORING — supporting context for the hero above */}
         <AnimatedItem className="xl:col-span-2">
           <p className="text-[11px] uppercase tracking-[0.18em] font-semibold text-muted-foreground/80 mb-2 text-center">
