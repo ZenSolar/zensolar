@@ -40,6 +40,23 @@ import sceneRain from '@/assets/zencasa/house-rain.png';
 
 export type SceneKey = 'day' | 'night' | 'night-ev' | 'rain';
 
+/**
+ * v5 — High-level composition archetype, separate from the baked PNG scene.
+ * Drives overlay weighting, car size, and which halos light up.
+ *
+ *   full-stack    — solar + battery + EV  (current rich cockpit)
+ *   ev-only       — Tesla connected, no PV / no battery
+ *   solar-only    — PV only (roof emphasis)
+ *   charger-only  — wallbox only (simple house + charger)
+ *   outage        — amber/green backup styling (gated by useGridOutage)
+ */
+export type CompositionKey =
+  | 'full-stack'
+  | 'ev-only'
+  | 'solar-only'
+  | 'charger-only'
+  | 'outage';
+
 const SCENE_SRC: Record<SceneKey, string> = {
   day: sceneDay,
   night: sceneNight,
@@ -64,6 +81,41 @@ export function pickScene(d: EnergyFlowData, now: Date = new Date()): SceneKey {
   if (!sunUp && evCharging) return 'night-ev';
   if (!sunUp && !isDayTime) return 'night';
   return 'day';
+}
+
+/**
+ * v5 — Adaptive Scene Composer.
+ *
+ * Returns both the baked-PNG scene key and the high-level composition
+ * archetype. Weather code (Open-Meteo WMO) optionally swaps `day` → `rain`
+ * for stormy conditions so the sky matches what the user sees outside.
+ */
+export function chooseSceneType(
+  d: EnergyFlowData,
+  devices: {
+    hasSolar?: boolean;
+    hasBattery?: boolean;
+    hasTesla?: boolean;
+    hasCharger?: boolean;
+    isOutage?: boolean;
+  } = {},
+  opts: { weatherCode?: number | null; now?: Date } = {},
+): { scene: SceneKey; composition: CompositionKey } {
+  const now = opts.now ?? new Date();
+  let scene = pickScene(d, now);
+  // Weather override: rainy / showery WMO codes → rain scene (only when not night-ev).
+  const wx = opts.weatherCode ?? null;
+  const isRainy = wx !== null && ((wx >= 51 && wx <= 67) || (wx >= 80 && wx <= 82) || (wx >= 95 && wx <= 99));
+  if (isRainy && scene !== 'night-ev') scene = scene === 'night' ? 'night' : 'rain';
+
+  let composition: CompositionKey = 'full-stack';
+  if (devices.isOutage) composition = 'outage';
+  else if (devices.hasBattery || devices.hasTesla || (devices.hasSolar && devices.hasCharger)) composition = 'full-stack';
+  else if (devices.hasTesla && !devices.hasSolar && !devices.hasBattery) composition = 'ev-only';
+  else if (devices.hasSolar && !devices.hasBattery && !devices.hasTesla && !devices.hasCharger) composition = 'solar-only';
+  else if (devices.hasCharger && !devices.hasSolar && !devices.hasBattery && !devices.hasTesla) composition = 'charger-only';
+
+  return { scene, composition };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
