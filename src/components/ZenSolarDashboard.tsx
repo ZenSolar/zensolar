@@ -374,17 +374,30 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         {/* 1b. HERO — Tap-to-Mint primary action, fused with the Clean Energy Center above */}
         <AnimatedItem className="xl:col-span-2 -mt-2">
-          <PrimaryMintAction
-            pendingZsolar={
+          {(() => {
+            const pending =
               currentActivity.solarKwh +
               currentActivity.batteryKwh +
               currentActivity.chargingKwh +
-              currentActivity.evMiles
-            }
-            onMint={handleMintTokens}
-            disabled={dataLoading || !hasWalletConnected}
-            isViewer={isViewer}
-          />
+              currentActivity.evMiles;
+            const now = new Date();
+            const minutesSinceMidnight = Math.max(
+              30,
+              now.getHours() * 60 + now.getMinutes(),
+            );
+            // Active-earning proxy: today's mintable units / elapsed minutes today.
+            // Hidden automatically when nothing is earning (pending === 0).
+            const momentum = pending > 0 ? pending / minutesSinceMidnight : 0;
+            return (
+              <PrimaryMintAction
+                pendingZsolar={pending}
+                onMint={handleMintTokens}
+                disabled={dataLoading || !hasWalletConnected}
+                isViewer={isViewer}
+                momentumPerMinute={momentum}
+              />
+            );
+          })()}
         </AnimatedItem>
 
         <SectionDivider className="xl:hidden" />
