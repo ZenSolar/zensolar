@@ -1008,25 +1008,29 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <MetricTile
                 icon={Sun}
-                label="Today"
-                value={formatKwh(solarStats.todayKwh)}
-                detail={`${formatKw(solarStats.currentKw)} now · ${solarStats.label}`}
+                label={solar.data.length > 1 ? `Today · ${solar.data.length} systems` : 'Today'}
+                value={formatKwh(solarStatsAll.todayKwh)}
+                detail={
+                  solar.data.length > 1
+                    ? `${formatKw(solarStatsAll.currentKw)} now · ${solar.data.length} PV combined`
+                    : `${formatKw(solarStatsAll.currentKw)} now · ${solarStats.label}`
+                }
               />
               {hasBattery ? (
                 <MetricTile
                   icon={BatteryCharging}
-                  label="Powerwall"
+                  label={battery.data.length > 1 ? `Powerwalls · ${battery.data.length}` : 'Powerwall'}
                   value={
-                    batteryStats.reserveKwh !== null && batteryStats.capacityKwh !== null
-                      ? `${batteryStats.reserveKwh.toFixed(1)} / ${batteryStats.capacityKwh.toFixed(1)} kWh`
-                      : batteryStats.soc !== null ? `${Math.round(batteryStats.soc)}%` : '—'
+                    batteryStatsAll.reserveKwh !== null && batteryStatsAll.capacityKwh !== null
+                      ? `${batteryStatsAll.reserveKwh.toFixed(1)} / ${batteryStatsAll.capacityKwh.toFixed(1)} kWh`
+                      : batteryStatsAll.soc !== null ? `${Math.round(batteryStatsAll.soc)}%` : '—'
                   }
                   detail={(() => {
-                    const pct = batteryStats.soc !== null ? `${Math.round(batteryStats.soc)}%` : '—';
-                    if (batteryStats.powerKw === null) return `${pct} · ${batteryStats.status}`;
-                    if (batteryStats.powerKw > 0.05) return `${pct} · +${batteryStats.powerKw.toFixed(1)} kW charging`;
-                    if (batteryStats.powerKw < -0.05) return `${pct} · ${batteryStats.powerKw.toFixed(1)} kW discharging`;
-                    const isFull = batteryStats.soc !== null && batteryStats.soc >= 99;
+                    const pct = batteryStatsAll.soc !== null ? `${Math.round(batteryStatsAll.soc)}%` : '—';
+                    if (batteryStatsAll.powerKw === null) return `${pct} · ${batteryStatsAll.status}`;
+                    if (batteryStatsAll.powerKw > 0.05) return `${pct} · +${batteryStatsAll.powerKw.toFixed(1)} kW charging`;
+                    if (batteryStatsAll.powerKw < -0.05) return `${pct} · ${batteryStatsAll.powerKw.toFixed(1)} kW discharging`;
+                    const isFull = batteryStatsAll.soc !== null && batteryStatsAll.soc >= 99;
                     return `${pct} · ${isFull ? 'Full' : 'Idle'}`;
                   })()}
                 />
@@ -1042,6 +1046,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
                   detail={`Lifetime · ${chargers.data[0]?.total_sessions ?? 0} sessions`}
                 />
               ) : null}
+
 
               <MetricTile
                 icon={Gauge}
