@@ -33,6 +33,7 @@ import { FlywheelContributionCard } from './dashboard/FlywheelContributionCard';
 import { MintReceiptsHint } from './dashboard/MintReceiptsHint';
 import { PrimaryMintAction } from './dashboard/PrimaryMintAction';
 import { RewardSnapshotGrid } from './dashboard/RewardSnapshotGrid';
+import { TodaysCleanEnergyStats } from './dashboard/TodaysCleanEnergyStats';
 import { SubscriptionStatusCard } from './dashboard/SubscriptionStatusCard';
 
 import { DashboardHexBackground } from './dashboard/DashboardHexBackground';
@@ -222,6 +223,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
     chargingKwh: Math.max(0, Math.floor(activityData.pendingChargingKwh || 0)),
     superchargerKwh: Math.max(0, Math.floor(activityData.pendingSuperchargerKwh || 0)),
     homeChargerKwh: Math.max(0, Math.floor(activityData.pendingHomeChargerKwh || 0)),
+    fsdMiles: Math.max(0, Math.floor(activityData.pendingFsdSupervisedMiles || 0)),
   };
 
   if (profileLoading) {
@@ -382,6 +384,19 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             onMint={handleMintTokens}
             disabled={dataLoading || !hasWalletConnected}
             isViewer={isViewer}
+          />
+        </AnimatedItem>
+
+        <SectionDivider className="xl:hidden" />
+
+        {/* 1c. TODAY'S CLEAN ENERGY STATS — 2x2 grid bridging hero → live monitoring */}
+        <AnimatedItem className="xl:col-span-2">
+          <TodaysCleanEnergyStats
+            solarKwh={currentActivity.solarKwh}
+            batteryKwh={currentActivity.batteryKwh}
+            chargingKwh={currentActivity.chargingKwh}
+            evMiles={currentActivity.evMiles}
+            fsdMiles={currentActivity.fsdMiles}
           />
         </AnimatedItem>
 
