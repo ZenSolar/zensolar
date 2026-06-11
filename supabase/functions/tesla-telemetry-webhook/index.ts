@@ -112,9 +112,12 @@ function defaultAccumulator(seedOdo = 0): FsdAccumulator {
   };
 }
 
-/** Apply a batch of events to an accumulator. Returns updated accumulator + miles added. */
+/** Apply a batch of events to an accumulator. Returns updated accumulator + miles added.
+ *  Also surfaces the latest official `SelfDrivingMilesSinceReset` value when Tesla emits it
+ *  (HW4 + recent firmware). When present, this wins over the engagement-delta math. */
 function applyBatch(acc: FsdAccumulator, events: TelemetryEvent[]) {
   let supervisedAdded = 0;
+  let officialFsdMiles: number | null = null;
   // Sort chronologically — Tesla batches can arrive out of order.
   const ordered = [...events].sort((a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime());
 
@@ -126,6 +129,10 @@ function applyBatch(acc: FsdAccumulator, events: TelemetryEvent[]) {
       if (typeof ev.value === "number" && ev.value > 0) acc.engaged = true;
     } else if (ev.field === "Gear") {
       acc.in_drive = String(ev.value).toUpperCase().startsWith("D");
+    } else if (ev.field === "SelfDrivingMilesSinceReset" || ev.field === "FSDMilesSinceReset") {
+      // Official Tesla field (HW4). Use last value in the batch.
+      const n = Number(ev.value);
+      if (Number.isFinite(n) && n >= 0) officialFsdMiles = n;
     } else if (ev.field === "Odometer") {
       const odo = Number(ev.value);
       if (!Number.isFinite(odo) || odo <= 0) continue;
@@ -146,7 +153,7 @@ function applyBatch(acc: FsdAccumulator, events: TelemetryEvent[]) {
     acc.last_event_at = ev.ts;
   }
 
-  return { acc, supervisedAdded };
+  return { acc, supervisedAdded, officialFsdMiles };
 }
 
 Deno.serve(async (req) => {
