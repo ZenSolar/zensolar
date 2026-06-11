@@ -40,7 +40,15 @@ import { HouseSceneV5 } from './HouseSceneV5';
 // hero render now. SCENE_SRC and the four PNG imports were deleted to prove
 // the new bones are the only thing drawing the house.
 
-export type SceneKey = 'day' | 'night' | 'night-ev' | 'rain';
+export type SceneKey =
+  | 'day'
+  | 'dusk'
+  | 'night'
+  | 'night-ev'
+  | 'night-pw-discharge'
+  | 'night-pw-discharge-ev'
+  | 'day-export'
+  | 'rain';
 
 /**
  * v5 — High-level composition archetype, separate from the scene palette.
@@ -68,14 +76,22 @@ export type CompositionKey =
  */
 export function pickScene(d: EnergyFlowData, now: Date = new Date()): SceneKey {
   const solar = d.solarPower ?? 0;
+  const grid = d.gridPower ?? 0;
+  const battery = d.batteryPower ?? 0;
   const evCharging = (d.tesla?.isCharging ?? false) || (d.evPower ?? 0) > 0.1;
+  const pwDischarging = battery < -0.1;
+  const exporting = grid < -0.1;
   const sunUp = solar > 0.1;
-  const hour = now.getHours();
-  const isDayTime = hour >= 6 && hour < 19;
 
+  if (!sunUp && pwDischarging && evCharging) return 'night-pw-discharge-ev';
+  if (!sunUp && pwDischarging) return 'night-pw-discharge';
   if (!sunUp && evCharging) return 'night-ev';
-  if (!sunUp && !isDayTime) return 'night';
-  return 'day';
+  if (sunUp && exporting) return 'day-export';
+  if (sunUp) {
+    const hour = now.getHours();
+    return hour >= 17 || hour < 6 ? 'dusk' : 'day';
+  }
+  return 'night';
 }
 
 /**
