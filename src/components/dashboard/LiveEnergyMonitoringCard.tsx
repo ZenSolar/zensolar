@@ -883,6 +883,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
                 }
                 batteryPayload={primaryBattery?.payload}
                 batteryCount={battery.data?.length ?? 1}
+                weatherCode={weatherCodeForScene}
                 vehicleModel={null}
               />
             </Suspense>
