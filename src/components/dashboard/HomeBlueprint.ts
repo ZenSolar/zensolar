@@ -38,9 +38,22 @@ export const HOME_BLUEPRINT = Object.freeze({
   garageOpening: { x: 13, y: 50, w: 22, h: 22 } as Readonly<{
     x: number; y: number; w: number; h: number;
   }>,
-  /** Dynamic-vehicle <image> overlay dimensions, % of viewBox. */
-  carWidth: 38,
-  carHeight: 21,
+  /** Dynamic-vehicle <image> overlay dimensions, % of viewBox.
+   *  v5: bumped from 38×21 → 44×24 for a more readable Tesla replica. */
+  carWidth: 44,
+  carHeight: 24,
+  /**
+   * v5 multi-battery support — up to 5 Powerwall units stacked horizontally
+   * along the front porch wall, left of `windows`. Slot 0 == legacy
+   * `powerwall` anchor. Spacing tuned so 5 halos fit without overlap.
+   */
+  powerwallSlots: [
+    { x: 78, y: 62 },
+    { x: 72, y: 64 },
+    { x: 66, y: 65 },
+    { x: 60, y: 66 },
+    { x: 54, y: 67 },
+  ] as readonly BlueprintAnchor[],
 } as const);
 
 /**
