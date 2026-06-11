@@ -616,7 +616,12 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
   const empty =
     !loading && !hasSolar && !hasBattery && !hasTesla && !hasCharger;
 
-  const primarySolar = solar.data[0];
+  // v5 — multi-PV: let user pick which PV system feeds the scene + tiles.
+  const [activeSolarSiteId, setActiveSolarSiteId] = useState<string | null>(null);
+  const primarySolar = useMemo(
+    () => solar.data.find((s) => s.site_id === activeSolarSiteId) ?? solar.data[0],
+    [solar.data, activeSolarSiteId],
+  );
   const primaryBattery = battery.data[0];
   const primaryEv = ev.data[0];
   const solarStats = solarSnapshot(primarySolar);
