@@ -1204,6 +1204,8 @@ Deno.serve(async (req) => {
     // Update vehicles with lifetime totals and last known odometer (for future asleep states)
     let totalPendingFsdSupervised = 0;
     let totalLifetimeFsdMiles = 0;
+    let anyOfficialFsd = false;
+    let earliestFsdSince: string | null = null;
     for (const vehicle of vehiclesData) {
       // Pull current device row so we can preserve FSD accumulator state
       // written by tesla-telemetry-webhook (must not be clobbered here).
