@@ -653,7 +653,21 @@ export function EnergyFlowScene({
   // pull up to the garage apron with the door visually "open"; otherwise
   // stay parked in the driveway.
   const prefersReducedMotion = useReducedMotion();
-  const chargingAtHome = isCharging && scene !== 'night-ev' && !isOutage;
+
+  // v5 Phase B — Supercharger detection. Tesla telemetry exposes
+  // `fast_charger_present` / `fast_charger_brand` when plugged into a
+  // DC fast charger. When supercharging we hide the home cable arc +
+  // dynamic car (the car is not at home) and surface a "Supercharging"
+  // badge so the user can still see live charge state at a glance.
+  const tp = teslaPayload as
+    | { fast_charger_present?: boolean; fast_charger_brand?: string | null }
+    | undefined;
+  const isSupercharging =
+    isCharging &&
+    (tp?.fast_charger_present === true ||
+      (typeof tp?.fast_charger_brand === 'string' && tp.fast_charger_brand.length > 0));
+
+  const chargingAtHome = isCharging && !isSupercharging && scene !== 'night-ev' && !isOutage;
   const carAnchor = chargingAtHome ? HOME_BLUEPRINT.garageFront : HOME_BLUEPRINT.carPark;
   const carW = HOME_BLUEPRINT.carWidth;
   const carH = HOME_BLUEPRINT.carHeight;
@@ -662,20 +676,6 @@ export function EnergyFlowScene({
   const evKw = data.tesla?.kW ?? data.evPower ?? 0;
   const evSoc = data.tesla?.soc;
   const evRange = data.tesla?.rangeMi;
-
-  // v5 Phase B — Supercharger detection. Tesla telemetry exposes
-  // `fast_charger_present` / `fast_charger_brand` when plugged into a
-  // DC fast charger (Supercharger, EA, etc). When the car is actively
-  // charging on a fast charger we hide the home cable arc + dynamic car
-  // (the car is not at home) and surface a "Supercharging" badge so the
-  // user can still see live charge state at a glance.
-  const tp = teslaPayload as
-    | { fast_charger_present?: boolean; fast_charger_brand?: string | null }
-    | undefined;
-  const isSupercharging =
-    isCharging &&
-    (tp?.fast_charger_present === true ||
-      (typeof tp?.fast_charger_brand === 'string' && tp.fast_charger_brand.length > 0));
 
   // v5 — extract Tesla wheel_type and display_name for accuracy data-attrs
   const wheelType = useMemo(() => resolveVehicleWheelType(teslaPayload), [teslaPayload]);
