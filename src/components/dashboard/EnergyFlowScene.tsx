@@ -34,6 +34,7 @@ import {
   type VehicleModel,
 } from './EnergyFlowScene.scenes';
 import { HOME_BLUEPRINT, BLUEPRINT_PATHS } from './HomeBlueprint';
+import { HouseSceneV5 } from './HouseSceneV5';
 
 import sceneDay from '@/assets/zencasa/house-day.png';
 import sceneNight from '@/assets/zencasa/house-night.png';
@@ -665,20 +666,24 @@ export function EnergyFlowScene({
         />
       )}
 
-      {/* Crossfading hero scene */}
+      {/* v5 Phase 1 — pure-SVG HouseSceneV5 (replaces baked PNGs).
+          Geometry & anchors live in HouseSceneV5.tsx + HomeBlueprint.ts. */}
       <AnimatePresence mode="sync">
-        <motion.img
+        <motion.div
           key={scene}
-          src={SCENE_SRC[scene]}
-          alt=""
-          aria-hidden="true"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.45, ease: 'easeInOut' }}
-          className="absolute inset-x-0 top-1/2 mx-auto h-[80%] w-auto max-w-[94%] -translate-y-1/2 select-none object-contain drop-shadow-[0_24px_40px_hsl(220_70%_3%/0.55)]"
-          draggable={false}
-        />
+          className="absolute inset-0"
+        >
+          <HouseSceneV5
+            scene={scene}
+            homeActive={homeDrawing}
+            solarActive={solarProducing}
+            garageOpen={chargingAtHome || carConnected}
+          />
+        </motion.div>
       </AnimatePresence>
 
       {/* Single hero-aligned overlay: halos + dotted flows + dynamic car.
@@ -688,7 +693,7 @@ export function EnergyFlowScene({
         aria-hidden="true"
         viewBox="0 0 100 100"
         preserveAspectRatio="xMidYMid meet"
-        className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-[80%] w-auto max-w-[94%] -translate-y-1/2"
+        className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-[88%] w-auto max-w-[98%] -translate-y-1/2"
         style={{ aspectRatio: '1 / 1', zIndex: 15 }}
       >
         {/* ── Device halos (primary visual language) ── */}
