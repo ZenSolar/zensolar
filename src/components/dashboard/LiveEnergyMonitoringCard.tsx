@@ -286,7 +286,7 @@ function chargerKindBadge(fastChargerType: string | null, chargerPhases: number 
   return { icon: Car, label: 'Plug' };
 }
 
-function EVTile({ t, totals7d, liveDot, sourceLabel: sourceLabelOverride }: { t: CachedTelemetry; totals7d: { home_kwh: number; supercharger_kwh: number }; liveDot?: boolean; sourceLabel?: string }) {
+export function EVTile({ t, totals7d, liveDot, sourceLabel: sourceLabelOverride }: { t: CachedTelemetry; totals7d: { home_kwh: number; supercharger_kwh: number }; liveDot?: boolean; sourceLabel?: string }) {
   const soc = pickNumber(t.payload, ['battery_level', 'vehicles.0.battery_level', 'usable_battery_level', 'response.charge_state.battery_level']);
   const range = pickNumber(t.payload, ['battery_range', 'vehicles.0.battery_range', 'ideal_battery_range', 'est_battery_range', 'response.charge_state.battery_range']);
   const odometer = pickNumber(t.payload, ['odometer', 'vehicles.0.odometer', 'response.drive_state.odometer']);
