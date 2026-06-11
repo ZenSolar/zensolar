@@ -1679,6 +1679,9 @@ function ActivityField({ icon: Icon, label, value, unit, color, active, onTap, i
         {liveIndicator && !(isLoading && value === 0) && (
           <p className="text-[10px] text-success font-medium tracking-wide">Charging in progress…</p>
         )}
+        {sublabel && !(isLoading && value === 0) && (
+          <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{sublabel}</p>
+        )}
         {/* Per-KPI token reward impact chip — reinforces "this kWh/mi = $ZSOLAR" at 1:1 SSOT */}
         {active && value > 0 && !isLoading && (
           <span
