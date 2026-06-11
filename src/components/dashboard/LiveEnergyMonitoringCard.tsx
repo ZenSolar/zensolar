@@ -1055,25 +1055,26 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
 
 
           <section className="space-y-3 border-t border-border/30 pt-5">
-            <SectionLabel>At a glance</SectionLabel>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <SectionLabel>Today’s Clean Energy</SectionLabel>
+            <div className="grid grid-cols-2 gap-2.5">
+              {/* Orange — Solar produced today */}
               <MetricTile
+                tone="orange"
                 icon={Sun}
-                label={solar.data.length > 1 ? `Today · ${solar.data.length} systems` : 'Today'}
+                label={solar.data.length > 1 ? `Solar · ${solar.data.length} systems` : 'Solar Produced'}
                 value={formatKwh(solarStatsAll.todayKwh)}
-                detail={
-                  solar.data.length > 1
-                    ? `${formatKw(solarStatsAll.currentKw)} now · ${solar.data.length} PV combined`
-                    : `${formatKw(solarStatsAll.currentKw)} now · ${solarStats.label}`
-                }
+                detail={`${formatKw(solarStatsAll.currentKw)} now · today`}
               />
+
+              {/* Green — Battery reserve / EV-routed energy */}
               {hasBattery ? (
                 <MetricTile
+                  tone="green"
                   icon={BatteryCharging}
-                  label={battery.data.length > 1 ? `Powerwalls · ${battery.data.length}` : 'Powerwall'}
+                  label={battery.data.length > 1 ? `Powerwalls · ${battery.data.length}` : 'Battery Reserve'}
                   value={
                     batteryStatsAll.reserveKwh !== null && batteryStatsAll.capacityKwh !== null
-                      ? `${batteryStatsAll.reserveKwh.toFixed(1)} / ${batteryStatsAll.capacityKwh.toFixed(1)} kWh`
+                      ? `${batteryStatsAll.reserveKwh.toFixed(1)} kWh`
                       : batteryStatsAll.soc !== null ? `${Math.round(batteryStatsAll.soc)}%` : '—'
                   }
                   detail={(() => {
@@ -1085,8 +1086,9 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
                     return `${pct} · ${isFull ? 'Full' : 'Idle'}`;
                   })()}
                 />
-              ) : hasCharger ? (
+              ) : (
                 <MetricTile
+                  tone="green"
                   icon={Zap}
                   label={chargers.data[0]?.device_name ?? 'Home Charger'}
                   value={
@@ -1096,15 +1098,30 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
                   }
                   detail={`Lifetime · ${chargers.data[0]?.total_sessions ?? 0} sessions`}
                 />
-              ) : null}
+              )}
 
-
+              {/* Blue — EV charging (last 7 days) */}
               <MetricTile
-                icon={Gauge}
-                label="This Week"
+                tone="blue"
+                icon={Zap}
+                label="EV Charging · 7d"
                 value={formatKwh(evTotals.totals.home_kwh + evTotals.totals.supercharger_kwh)}
                 detail={`Super ${evTotals.totals.supercharger_kwh.toFixed(1)} · Home ${evTotals.totals.home_kwh.toFixed(1)} kWh`}
               />
+
+              {/* Teal — EV mileage estimate from energy charged
+                   (≈ 3.3 mi/kWh — derived; replaced by live Tesla odometer
+                   delta in Phase F when FSD streaming aggregation lands). */}
+              <MetricTile
+                tone="teal"
+                icon={Route}
+                label="EV Mileage · 7d"
+                value={`${Math.round((evTotals.totals.home_kwh + evTotals.totals.supercharger_kwh) * 3.3).toLocaleString()} mi`}
+                detail="Estimated from energy charged"
+              />
+            </div>
+            <div className="px-0.5 text-[10px] leading-snug text-muted-foreground/70">
+              ≈ {Math.max(0, solarStatsAll.todayKwh ?? 0).toFixed(1)} $ZSOLAR ready to mint today
             </div>
           </section>
 
