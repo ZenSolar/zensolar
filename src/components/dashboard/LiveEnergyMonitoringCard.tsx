@@ -989,7 +989,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                 }
                 outageStartedAt={outage?.active ? outage.startedAt : undefined}
                 teslaPayload={
-                  primaryEv?.oem === 'tesla'
+                  !hideVehicle && primaryEv?.oem === 'tesla'
                     ? {
                         ...((primaryEv?.payload as Record<string, unknown>) ?? {}),
                         device_name: primaryEv?.device_name,
