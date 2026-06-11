@@ -1026,7 +1026,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
 
 
           {/* Live Devices group — ZenX pill + EV details, clearly grouped */}
-          {(teslaFlow || ev.data.length > 0) && (
+          {!hideVehicle && (teslaFlow || ev.data.length > 0) && (
             <section className="space-y-3 border-t border-border/30 pt-5">
               <SectionLabel>Live Devices</SectionLabel>
 
