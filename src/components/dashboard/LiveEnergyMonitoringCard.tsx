@@ -631,6 +631,8 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
 
   // Current household load (kW) — also re-derived below as `homeKwRaw`,
   // computed here so we can feed it into the outage-lifecycle hook.
+  const { weather: liveWeather } = useWeather();
+  const weatherCodeForScene = liveWeather?.weatherCode ?? null;
   const outageHomeKw = normalizeWattsToKw(
     pickNumber(primaryBattery?.payload, ['load_power', 'energy_sites.0.load_power'])
   );
