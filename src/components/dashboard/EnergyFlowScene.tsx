@@ -319,8 +319,13 @@ function WindowsBloom({ active, intensity }: { active: boolean; intensity: numbe
 }
 
 /**
- * Ultra-minimal flow: faint guide path + 3 traveling dots that fade in at
- * the source and fade out at the destination (no floating endpoint dots).
+ * v5 Phase B — Premium gradient ribbon flow.
+ *
+ * Replaces the legacy dotted-line look with a soft glowing stroke that
+ * fades along the path (gradient `stroke-opacity`) plus two sparse,
+ * larger LED particles. Reads as a clean energy ribbon, not a dotted
+ * trail. Gradient + glow filter ids are scoped per-instance so multiple
+ * ribbons in the same SVG never collide.
  */
 function DottedFlow({
   id,
@@ -333,19 +338,48 @@ function DottedFlow({
   color: string;
   dur?: number;
 }) {
+  const gradId = `${id}-grad`;
+  const glowId = `${id}-glow`;
   return (
     <g style={{ pointerEvents: 'none' }}>
+      <defs>
+        <linearGradient id={gradId} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="100" y2="0">
+          <stop offset="0%" stopColor={color} stopOpacity="0.05" />
+          <stop offset="35%" stopColor={color} stopOpacity="0.55" />
+          <stop offset="65%" stopColor={color} stopOpacity="0.55" />
+          <stop offset="100%" stopColor={color} stopOpacity="0.05" />
+        </linearGradient>
+        <filter id={glowId} x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="0.55" result="b" />
+          <feMerge>
+            <feMergeNode in="b" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+      {/* Soft outer halo stroke */}
       <path
-        id={id}
         d={d}
         stroke={color}
         strokeOpacity={0.18}
-        strokeWidth={0.45}
+        strokeWidth={1.4}
         strokeLinecap="round"
         fill="none"
+        style={{ filter: 'blur(1.2px)' }}
       />
-      {[0, 0.33, 0.66].map((offset) => (
-        <circle key={`${id}-${offset}`} r={0.6} fill={color} opacity={0}>
+      {/* Hero ribbon — gradient stroke with subtle glow */}
+      <path
+        id={id}
+        d={d}
+        stroke={`url(#${gradId})`}
+        strokeWidth={0.55}
+        strokeLinecap="round"
+        fill="none"
+        filter={`url(#${glowId})`}
+      />
+      {/* Two sparse traveling LED particles */}
+      {[0, 0.5].map((offset) => (
+        <circle key={`${id}-${offset}`} r={0.75} fill={color} opacity={0}>
           <animateMotion
             dur={`${dur}s`}
             repeatCount="indefinite"
@@ -358,8 +392,8 @@ function DottedFlow({
           </animateMotion>
           <animate
             attributeName="opacity"
-            values="0;0.95;0.95;0"
-            keyTimes="0;0.15;0.85;1"
+            values="0;1;1;0"
+            keyTimes="0;0.18;0.82;1"
             dur={`${dur}s`}
             repeatCount="indefinite"
             begin={`${offset * dur}s`}
