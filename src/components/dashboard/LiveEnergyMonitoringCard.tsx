@@ -384,14 +384,65 @@ function EVTile({ t, totals7d, liveDot, sourceLabel: sourceLabelOverride }: { t:
   );
 }
 
-function MetricTile({ icon: Icon, label, value, detail }: { icon: LucideIcon; label: string; value: string; detail: string }) {
+function MetricTile({
+  icon: Icon,
+  label,
+  value,
+  detail,
+  tone,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+  detail: string;
+  tone?: 'orange' | 'green' | 'blue' | 'teal';
+}) {
+  const toneMap = {
+    orange: {
+      border: 'border-amber-400/25 hover:border-amber-400/45',
+      bg: 'from-amber-500/[0.06] to-transparent',
+      icon: 'text-amber-300',
+      value: 'text-amber-50 [text-shadow:_0_0_18px_hsla(38,95%,60%,0.35)]',
+      ring: 'ring-amber-400/20',
+    },
+    green: {
+      border: 'border-emerald-400/25 hover:border-emerald-400/45',
+      bg: 'from-emerald-500/[0.06] to-transparent',
+      icon: 'text-emerald-300',
+      value: 'text-emerald-50 [text-shadow:_0_0_18px_hsla(142,76%,55%,0.35)]',
+      ring: 'ring-emerald-400/20',
+    },
+    blue: {
+      border: 'border-sky-400/25 hover:border-sky-400/45',
+      bg: 'from-sky-500/[0.06] to-transparent',
+      icon: 'text-sky-300',
+      value: 'text-sky-50 [text-shadow:_0_0_18px_hsla(205,90%,60%,0.35)]',
+      ring: 'ring-sky-400/20',
+    },
+    teal: {
+      border: 'border-teal-400/25 hover:border-teal-400/45',
+      bg: 'from-teal-500/[0.06] to-transparent',
+      icon: 'text-teal-300',
+      value: 'text-teal-50 [text-shadow:_0_0_18px_hsla(180,85%,55%,0.35)]',
+      ring: 'ring-teal-400/20',
+    },
+  } as const;
+  const t = tone ? toneMap[tone] : null;
   return (
-    <div className="rounded-xl border border-border/40 bg-background/40 p-3.5 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04)] transition-colors hover:border-primary/30">
+    <div
+      className={`relative overflow-hidden rounded-xl border p-3.5 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.04)] transition-colors ${
+        t
+          ? `${t.border} bg-gradient-to-br ${t.bg} bg-background/40`
+          : 'border-border/40 bg-background/40 hover:border-primary/30'
+      }`}
+    >
       <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/80">
-        <Icon className="h-3.5 w-3.5 text-primary/80" />
+        <span className={t ? `inline-flex h-5 w-5 items-center justify-center rounded-md bg-background/40 ring-1 ${t.ring}` : ''}>
+          <Icon className={`h-3.5 w-3.5 ${t ? t.icon : 'text-primary/80'}`} />
+        </span>
         {label}
       </div>
-      <div className="mt-2.5 text-[22px] font-bold leading-none tabular-nums text-foreground">{value}</div>
+      <div className={`mt-2.5 text-[22px] font-bold leading-none tabular-nums ${t ? t.value : 'text-foreground'}`}>{value}</div>
       <div className="mt-1.5 text-[11px] leading-snug text-muted-foreground/80">{detail}</div>
     </div>
   );
