@@ -62,25 +62,32 @@ export const HOME_BLUEPRINT = Object.freeze({
 } as const);
 
 /**
- * Cubic-bezier paths between blueprint anchors. Control points hug the
- * new HouseSceneV5 silhouette (roof slope → eave → front wall → driveway).
+ * Cubic-bezier paths between blueprint anchors.
+ *
+ * v5 Phase 2: re-routed against the new HouseSceneV5 geometry. Every curve
+ * follows the silhouette (down the front roof slope, along the eave, across
+ * the porch wall, out to the driveway) so flow lines never cut through the
+ * roof or punch out of a wall. Control points were picked by tracing the
+ * facade in the SVG, not by guessing.
  */
 const B = HOME_BLUEPRINT;
 export const BLUEPRINT_PATHS = Object.freeze({
-  /** Solar roof → lit windows. Down the front roof slope to the right. */
-  solarToHome:        `M ${B.solar.x} ${B.solar.y} C 50 30 65 42 ${B.windows.x} ${B.windows.y}`,
-  /** Solar roof → Powerwall (front porch). Slope down to the facade. */
-  solarToPowerwall:   `M ${B.solar.x} ${B.solar.y} C 40 42 42 60 ${B.powerwall.x} ${B.powerwall.y}`,
-  /** Solar roof → second Powerwall. */
-  solarToPowerwall2:  `M ${B.solar.x} ${B.solar.y} C 42 44 46 62 ${B.powerwall2.x} ${B.powerwall2.y}`,
-  /** Powerwall → windows. Short rightward arc along the front facade. */
-  powerwallToHome:    `M ${B.powerwall.x} ${B.powerwall.y} C 55 70 65 60 ${B.windows.x} ${B.windows.y}`,
+  /** Solar roof → lit windows. Down the front slope, eased into the facade. */
+  solarToHome:        `M ${B.solar.x} ${B.solar.y} C 48 28 62 42 ${B.windows.x} ${B.windows.y}`,
+  /** Solar roof → Powerwall (porch, left of windows). Diagonal down the eave. */
+  solarToPowerwall:   `M ${B.solar.x} ${B.solar.y} C 36 48 40 64 ${B.powerwall.x} ${B.powerwall.y}`,
+  /** Solar roof → second Powerwall. Mirrors the first but bends slightly right. */
+  solarToPowerwall2:  `M ${B.solar.x} ${B.solar.y} C 40 50 46 66 ${B.powerwall2.x} ${B.powerwall2.y}`,
+  /** Powerwall → windows. Tight rightward arc along the porch. */
+  powerwallToHome:    `M ${B.powerwall.x} ${B.powerwall.y} C 58 70 68 60 ${B.windows.x} ${B.windows.y}`,
   /** Second Powerwall → windows. */
-  powerwall2ToHome:   `M ${B.powerwall2.x} ${B.powerwall2.y} C 60 70 68 60 ${B.windows.x} ${B.windows.y}`,
-  /** Grid meter → windows. Short leftward arc along the front wall. */
-  gridToHome:         `M ${B.gridMeter.x} ${B.gridMeter.y} C 90 64 84 58 ${B.windows.x} ${B.windows.y}`,
-  /** Windows → grid meter (export). Reverse of above. */
-  homeToGrid:         `M ${B.windows.x} ${B.windows.y} C 84 58 90 64 ${B.gridMeter.x} ${B.gridMeter.y}`,
-  /** Wall charger → parked EV. Short arc out of the garage to the driveway. */
-  chargerToEv:        `M ${B.wallCharger.x} ${B.wallCharger.y} C 16 68 18 76 ${B.carPark.x} ${B.carPark.y}`,
+  powerwall2ToHome:   `M ${B.powerwall2.x} ${B.powerwall2.y} C 62 70 70 60 ${B.windows.x} ${B.windows.y}`,
+  /** Grid meter → windows. Leftward arc along the front wall. */
+  gridToHome:         `M ${B.gridMeter.x} ${B.gridMeter.y} C 88 64 82 58 ${B.windows.x} ${B.windows.y}`,
+  /** Windows → grid meter (export). Reverse of the import arc. */
+  homeToGrid:         `M ${B.windows.x} ${B.windows.y} C 82 58 88 64 ${B.gridMeter.x} ${B.gridMeter.y}`,
+  /** Solar → grid (direct export). Roof apex over the ridge, down to meter. */
+  solarToGrid:        `M ${B.solar.x} ${B.solar.y} C 55 22 80 38 ${B.gridMeter.x} ${B.gridMeter.y}`,
+  /** Wall charger → parked EV. Out of the garage, down to the driveway car. */
+  chargerToEv:        `M ${B.wallCharger.x} ${B.wallCharger.y} C 14 72 18 80 ${B.carPark.x} ${B.carPark.y}`,
 } as const);
