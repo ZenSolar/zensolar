@@ -11,6 +11,7 @@ const empty: EnergyFlowData = {
   batteryPower: 0,
   batteryPercent: 50,
   gridPower: 0,
+  evPower: 0,
 };
 
 describe('chooseSceneType — v5 adaptive composer', () => {
