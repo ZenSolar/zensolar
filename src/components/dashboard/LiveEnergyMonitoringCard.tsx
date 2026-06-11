@@ -913,36 +913,43 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride }: LiveEnergyM
 
 
 
-          {/* ZenX vehicle pill — clean Tesla-style status under the scene */}
-          {teslaFlow && (
-            <ZenXPill
-              tesla={teslaFlow}
-              nickname={primaryEv?.device_name ?? 'ZenX'}
-              onClick={handlePillClick}
-            />
-          )}
+          {/* Live Devices group — ZenX pill + EV details, clearly grouped */}
+          {(teslaFlow || ev.data.length > 0) && (
+            <section className="space-y-2.5">
+              <SectionLabel>Live Devices</SectionLabel>
 
-          {/* Tesla / EV tile — promoted directly under diagram */}
-          {ev.data.length > 0 && (
-            <div
-              ref={evTileRef}
-              id="tesla-ev-tile"
-              tabIndex={-1}
-              aria-label="Tesla details"
-              className={`rounded-lg outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-primary ${pingTile ? 'ring-2 ring-primary/60 shadow-[0_0_24px_hsl(var(--primary)/0.35)]' : ''}`}
-            >
-
-              {ev.data.map((t) => (
-                <EVTile
-                  key={`e-${t.oem}-${t.site_id}`}
-                  t={t}
-                  totals7d={evTotals.totals}
-                  liveDot={teslaFlow?.isCharging && t.oem === 'tesla'}
-                  sourceLabel={t.oem === 'tesla' ? teslaFlow?.sourceLabel : undefined}
+              {/* ZenX vehicle pill — clean Tesla-style status under the scene */}
+              {teslaFlow && (
+                <ZenXPill
+                  tesla={teslaFlow}
+                  nickname={primaryEv?.device_name ?? 'ZenX'}
+                  onClick={handlePillClick}
                 />
-              ))}
-            </div>
+              )}
+
+              {/* Tesla / EV tile — promoted directly under diagram */}
+              {ev.data.length > 0 && (
+                <div
+                  ref={evTileRef}
+                  id="tesla-ev-tile"
+                  tabIndex={-1}
+                  aria-label="Tesla details"
+                  className={`rounded-lg outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-primary ${pingTile ? 'ring-2 ring-primary/60 shadow-[0_0_24px_hsl(var(--primary)/0.35)]' : ''}`}
+                >
+                  {ev.data.map((t) => (
+                    <EVTile
+                      key={`e-${t.oem}-${t.site_id}`}
+                      t={t}
+                      totals7d={evTotals.totals}
+                      liveDot={teslaFlow?.isCharging && t.oem === 'tesla'}
+                      sourceLabel={t.oem === 'tesla' ? teslaFlow?.sourceLabel : undefined}
+                    />
+                  ))}
+                </div>
+              )}
+            </section>
           )}
+
 
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             <MetricTile
