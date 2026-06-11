@@ -81,6 +81,9 @@ export function PrimaryMintAction({
           <div className="text-sm sm:text-base font-bold opacity-95 -mt-0.5">
             $ZSOLAR ready to mint
           </div>
+          {momentumPerMinute > 0 && (
+            <MintingMomentumGauge perMinute={momentumPerMinute} className="mt-2" />
+          )}
           <div className="flex items-center gap-1.5 text-[11px] font-semibold opacity-85 mt-1">
             <Zap className="h-3 w-3" aria-hidden="true" />
             {hasPending
