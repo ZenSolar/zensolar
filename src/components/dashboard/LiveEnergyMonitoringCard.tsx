@@ -680,11 +680,12 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
   // Device-combination detection — drives the render matrix below.
   const hasSolar = solar.data.length > 0;
   const hasBattery = battery.data.length > 0;
-  const hasTesla = ev.data.some((t) => t.oem === 'tesla');
+  const hasTeslaRaw = ev.data.some((t) => t.oem === 'tesla');
+  const hasTesla = hideVehicle ? false : hasTeslaRaw;
   const hasCharger = chargers.data.length > 0;
   const hasRichCockpit = hasBattery || hasTesla; // EnergyFlowScene needs ≥1 of these
   const empty =
-    !loading && !hasSolar && !hasBattery && !hasTesla && !hasCharger;
+    !loading && !hasSolar && !hasBattery && !hasTeslaRaw && !hasCharger;
 
   // v5 — multi-PV: let user pick which PV system feeds the scene + tiles.
   const [activeSolarSiteId, setActiveSolarSiteId] = useState<string | null>(null);
