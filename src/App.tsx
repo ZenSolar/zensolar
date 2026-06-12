@@ -102,13 +102,13 @@ const FoundersSpaceX = lazy(() => import("./pages/archive/FoundersSpaceX"));
 const FoundersAppOverhaul = lazy(() => import("./pages/archive/FoundersAppOverhaul"));
 const FoundersDeasonV3 = lazy(() => import("./pages/archive/FoundersDeasonV3"));
 const FoundersDeasonUtilityAI = lazy(() => import("./pages/archive/FoundersDeasonUtilityAI"));
-const FoundersProofOfGenesis = lazy(() => import("./pages/FoundersProofOfGenesis"));
+const FoundersProofOfGenesis = lazy(() => import("./pages/archive/FoundersProofOfGenesis"));
 
 
 const FoundersCompetitiveLandscape = lazy(() => import("./pages/FoundersCompetitiveLandscape"));
 const FoundersTheAsk = lazy(() => import("./pages/archive/FoundersTheAsk"));
 const FoundersSeedAllocation = lazy(() => import("./pages/archive/FoundersSeedAllocation"));
-const FoundersCurrentStatus = lazy(() => import("./pages/FoundersCurrentStatus"));
+const FoundersCurrentStatus = lazy(() => import("./pages/archive/FoundersCurrentStatus"));
 const FoundersChangelog = lazy(() => import("./pages/archive/FoundersChangelog"));
 const FoundersCatchup = lazy(() => import("./pages/archive/FoundersCatchup"));
 const FoundersCreative1to1Tokenomics = lazy(() => import("./pages/archive/FoundersCreative1to1Tokenomics"));
@@ -158,22 +158,22 @@ const LearnGlossary = lazy(() => import("./pages/learn/LearnGlossary"));
 const Glossary = lazy(() => import("./pages/Glossary"));
 const LearnThemes = lazy(() => import("./pages/archive/LearnThemes"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
-const InvestmentThesis = lazy(() => import("./pages/InvestmentThesis"));
-const GridPayCompetition = lazy(() => import("./pages/GridPayCompetition"));
+const InvestmentThesis = lazy(() => import("./pages/archive/InvestmentThesis"));
+const GridPayCompetition = lazy(() => import("./pages/archive/GridPayCompetition"));
 const AdminPatentMapping = lazy(() => import("./pages/AdminPatentMapping"));
 const AdminFundraising = lazy(() => import("./pages/AdminFundraising"));
-const AdminTokenEstimator = lazy(() => import("./pages/AdminTokenEstimator"));
+const AdminTokenEstimator = lazy(() => import("./pages/archive/AdminTokenEstimator"));
 const AdminTokenomics10B = lazy(() => import("./pages/archive/AdminTokenomics10B"));
 const AdminInvestorOnePager = lazy(() => import("./pages/archive/AdminInvestorOnePager"));
-const AdminCostSavings = lazy(() => import("./pages/AdminCostSavings"));
-const AdminTokenomicsFramework = lazy(() => import("./pages/AdminTokenomicsFramework"));
+const AdminCostSavings = lazy(() => import("./pages/archive/AdminCostSavings"));
+const AdminTokenomicsFramework = lazy(() => import("./pages/archive/AdminTokenomicsFramework"));
 const AdminAIFeedbackLoop = lazy(() => import("./pages/archive/AdminAIFeedbackLoop"));
 const AdminAIAgentOpportunities = lazy(() => import("./pages/archive/AdminAIAgentOpportunities"));
-const AdminFlywheelTracker = lazy(() => import("./pages/AdminFlywheelTracker"));
+const AdminFlywheelTracker = lazy(() => import("./pages/archive/AdminFlywheelTracker"));
 const AdminFinalTokenomics = lazy(() => import("./pages/AdminFinalTokenomics"));
-const AdminGlossary = lazy(() => import("./pages/AdminGlossary"));
-const AdminGrowthProjections = lazy(() => import("./pages/AdminGrowthProjections"));
-const AdminLiveBetaEconomics = lazy(() => import("./pages/AdminLiveBetaEconomics"));
+const AdminGlossary = lazy(() => import("./pages/archive/AdminGlossary"));
+const AdminGrowthProjections = lazy(() => import("./pages/archive/AdminGrowthProjections"));
+const AdminLiveBetaEconomics = lazy(() => import("./pages/archive/AdminLiveBetaEconomics"));
 const AdminCompetitiveIntel = lazy(() => import("./pages/AdminCompetitiveIntel"));
 const AdminSecurityArchitecture = lazy(() => import("./pages/AdminSecurityArchitecture"));
 const AdminBootstrapCalculator = lazy(() => import("./pages/archive/AdminBootstrapCalculator"));
@@ -184,8 +184,8 @@ const AdminTodo = lazy(() => import("./pages/AdminTodo"));
 const AdminWalletProviders = lazy(() => import("./pages/AdminWalletProviders"));
 const AdminYCApplication = lazy(() => import("./pages/archive/AdminYCApplication"));
 const A16ZSpeedrunApplication = lazy(() => import("./pages/archive/A16ZSpeedrunApplication"));
-const AdminFutureRoadmap = lazy(() => import("./pages/AdminFutureRoadmap"));
-const AdminMarketDefenseMechanisms = lazy(() => import("./pages/AdminMarketDefenseMechanisms"));
+const AdminFutureRoadmap = lazy(() => import("./pages/archive/AdminFutureRoadmap"));
+const AdminMarketDefenseMechanisms = lazy(() => import("./pages/archive/AdminMarketDefenseMechanisms"));
 const AdminPatentMintOnProof = lazy(() => import("./pages/AdminPatentMintOnProof"));
 const AdminPatentProofOfDelta = lazy(() => import("./pages/AdminPatentProofOfDelta"));
 const AdminPatentApplication = lazy(() => import("./pages/AdminPatentApplication"));
@@ -385,7 +385,7 @@ const App = () => {
                         global top nav (back button + safe-area-top) and bottom nav. */}
                     <Route path="/subscribe" element={<Suspense fallback={<PageLoader />}><AppLayout><Subscribe /></AppLayout></Suspense>} />
                     <Route path="/demo/subscribe" element={<Suspense fallback={<PageLoader />}><AppLayout><Subscribe /></AppLayout></Suspense>} />
-                    <Route path="/competition/gridpay" element={<GridPayCompetition />} />
+                    <Route path="/competition/gridpay" element={<Navigate to="/admin/archive/competition-gridpay" replace />} />
                     <Route path="/blog" element={<Blog />} />
                     <Route path="/blog/what-is-solar-energy-blockchain-rewards" element={<BlogWhatIsSolar />} />
                     <Route path="/blog/how-to-earn-crypto-from-solar-panels" element={<BlogHowToEarn />} />
@@ -861,16 +861,7 @@ const App = () => {
                         </ProtectedRoute>
                       } 
                     />
-                    <Route 
-                      path="/admin/investment-thesis" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <InvestmentThesis />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
+                    <Route path="/admin/investment-thesis" element={<Navigate to="/admin/archive/admin-investment-thesis" replace />} />
                     <Route 
                       path="/admin/patent-mapping" 
                       element={
@@ -891,51 +882,15 @@ const App = () => {
                         </ProtectedRoute>
                       } 
                     />
-                    <Route 
-                      path="/admin/token-estimator" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminTokenEstimator />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
+                    <Route path="/admin/token-estimator" element={<Navigate to="/admin/archive/admin-token-estimator" replace />} />
                     <Route path="/admin/tokenomics-10b" element={<Navigate to="/admin/archive/admin-tokenomics-10b" replace />} />
                     {/* Legacy investor pitch routes — superseded by /investor/pitch. Redirect for any bookmarked links. */}
                     <Route path="/admin/investor-one-pager" element={<Navigate to="/investor/pitch" replace />} />
                     <Route path="/admin/investor-pitch" element={<Navigate to="/investor/pitch" replace />} />
                     <Route path="/admin/coffee-pitch" element={<Navigate to="/investor/pitch" replace />} />
-                    <Route 
-                      path="/admin/cost-savings" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminCostSavings />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin/tokenomics-framework" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminTokenomicsFramework />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin/flywheel-tracker" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminFlywheelTracker />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
+                    <Route path="/admin/cost-savings" element={<Navigate to="/admin/archive/admin-cost-savings" replace />} />
+                    <Route path="/admin/tokenomics-framework" element={<Navigate to="/admin/archive/admin-tokenomics-framework" replace />} />
+                    <Route path="/admin/flywheel-tracker" element={<Navigate to="/admin/archive/admin-flywheel-tracker" replace />} />
                     <Route 
                       path="/admin/final-tokenomics" 
                       element={
@@ -946,38 +901,11 @@ const App = () => {
                         </ProtectedRoute>
                       } 
                     />
-                    <Route 
-                      path="/admin/glossary" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminGlossary />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin/growth-projections" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminGrowthProjections />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
+                    <Route path="/admin/glossary" element={<Navigate to="/admin/archive/admin-glossary" replace />} />
+                    <Route path="/admin/growth-projections" element={<Navigate to="/admin/archive/admin-growth-projections" replace />} />
                     <Route path="/admin/ai-feedback-loop" element={<Navigate to="/admin/archive/admin-ai-feedback-loop" replace />} />
                     <Route path="/admin/ai-agents" element={<Navigate to="/admin/archive/admin-ai-agents" replace />} />
-                    <Route 
-                      path="/admin/live-beta-economics" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminLiveBetaEconomics />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
+                    <Route path="/admin/live-beta-economics" element={<Navigate to="/admin/archive/admin-live-beta-economics" replace />} />
                     <Route 
                       path="/admin/competitive-intel" 
                       element={
@@ -1064,26 +992,8 @@ const App = () => {
                     <Route path="/admin/yc-application" element={<Navigate to="/admin/archive/yc-application" replace />} />
                     <Route path="/admin/a16z-speedrun" element={<Navigate to="/admin/archive/a16z-speedrun" replace />} />
                     <Route path="/admin/embedded-wallet-demo" element={<Navigate to="/admin/archive/embedded-wallet-demo" replace />} />
-                    <Route 
-                      path="/admin/future-roadmap" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminFutureRoadmap />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin/market-defense" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminMarketDefenseMechanisms />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
+                    <Route path="/admin/future-roadmap" element={<Navigate to="/admin/archive/admin-future-roadmap" replace />} />
+                    <Route path="/admin/market-defense" element={<Navigate to="/admin/archive/admin-market-defense" replace />} />
                     <Route 
                       path="/admin/patent/mint-on-proof" 
                       element={
@@ -1315,6 +1225,36 @@ const App = () => {
                         </AppLayout></ProtectedRoute>
                       } />
                     ))}
+                    {/* Pre-launch cleanup wave 2 — Jun 2026: dupes, stale narrative artifacts, dead admin tools */}
+                    {([
+                      { slug: 'founders-proof-of-genesis', model: 'Founders Proof-of-Genesis', Comp: FoundersProofOfGenesis, reason: 'Duplicates canonical /proof-of-genesis receipt' },
+                      { slug: 'founders-current-status', model: 'Founders Current Status', Comp: FoundersCurrentStatus, reason: 'Status lives in /admin/todo + /admin/ssot — one board, not three' },
+                      { slug: 'admin-glossary', model: 'Admin Glossary', Comp: AdminGlossary, reason: 'Duplicates public /glossary — one glossary' },
+                      { slug: 'admin-investment-thesis', model: 'Investment Thesis', Comp: InvestmentThesis, reason: 'Investor narrative SSOT is /investor/pitch' },
+                      { slug: 'admin-cost-savings', model: 'Cost Savings Analysis', Comp: AdminCostSavings, reason: 'One-off investor artifact — not a live operational tool' },
+                      { slug: 'admin-market-defense', model: 'Market Defense Mechanisms', Comp: AdminMarketDefenseMechanisms, reason: 'Moat narrative belongs in /investor/pitch' },
+                      { slug: 'admin-future-roadmap', model: 'Future Roadmap', Comp: AdminFutureRoadmap, reason: 'Roadmap lives in mem://, /admin/todo, /admin/ssot' },
+                      { slug: 'admin-growth-projections', model: 'Growth Projections', Comp: AdminGrowthProjections, reason: 'Superseded by /admin/fundraising (live tracker)' },
+                      { slug: 'admin-tokenomics-framework', model: 'Tokenomics Framework', Comp: AdminTokenomicsFramework, reason: 'Superseded by src/lib/tokenomics.ts SSOT + /admin/final-tokenomics' },
+                      { slug: 'admin-token-estimator', model: 'Token Estimator', Comp: AdminTokenEstimator, reason: 'One-off math tool — superseded by /admin/kpi-reconciliation' },
+                      { slug: 'admin-flywheel-tracker', model: 'Flywheel Tracker', Comp: AdminFlywheelTracker, reason: 'Duplicates /admin/revenue-flywheel + /admin/kpi-reconciliation' },
+                      { slug: 'admin-live-beta-economics', model: 'Live Beta Economics', Comp: AdminLiveBetaEconomics, reason: 'Superseded by /admin/analytics' },
+                      { slug: 'competition-gridpay', model: 'GridPay Competition', Comp: GridPayCompetition, reason: 'Founder pitch artifact — not a customer-facing landing' },
+                    ] as const).map(({ slug, model, Comp, reason }) => (
+                      <Route key={slug} path={`/admin/archive/${slug}`} element={
+                        <ProtectedRoute><AppLayout>
+                          <ArchivedPageWrapper
+                            modelName={model}
+                            archivedDate="June 2026"
+                            supersededBy="Pre-launch cleanup wave 2"
+                            reason={reason}
+                          >
+                            <Comp />
+                          </ArchivedPageWrapper>
+                        </AppLayout></ProtectedRoute>
+                      } />
+                    ))}
+
 
                     {/* Founders Vault - direct URL only, no nav link. All gated by FounderRoute. */}
                     <Route path="/founder" element={<Navigate to="/founders" replace />} />
@@ -1326,7 +1266,7 @@ const App = () => {
                     <Route path="/founders/spacex" element={<Navigate to="/investor/pitch" replace />} />
                     <Route path="/founders/app-overhaul-plan" element={<Navigate to="/investor/pitch" replace />} />
                     <Route path="/founders/app-overhaul" element={<Navigate to="/investor/pitch" replace />} />
-                    <Route path="/founders/proof-of-genesis" element={<FounderRoute><FoundersProofOfGenesis /></FounderRoute>} />
+                    <Route path="/founders/proof-of-genesis" element={<Navigate to="/admin/archive/founders-proof-of-genesis" replace />} />
                     
                     <Route path="/founders/deason-v3" element={<Navigate to="/admin/archive/founders-deason-v3" replace />} />
                     <Route path="/founders/deason-utility-ai-revstream" element={<Navigate to="/admin/archive/founders-deason-utility-ai" replace />} />
@@ -1335,7 +1275,7 @@ const App = () => {
                     <Route path="/founders/competitive-landscape" element={<FounderRoute><FoundersCompetitiveLandscape /></FounderRoute>} />
                     <Route path="/founders/the-ask" element={<Navigate to="/admin/archive/founders-the-ask" replace />} />
                     <Route path="/founders/seed-allocation" element={<Navigate to="/admin/archive/founders-seed-allocation" replace />} />
-                    <Route path="/founders/current-status" element={<FounderRoute><FoundersCurrentStatus /></FounderRoute>} />
+                    <Route path="/founders/current-status" element={<Navigate to="/admin/archive/founders-current-status" replace />} />
                     <Route path="/founders/changelog" element={<Navigate to="/admin/archive/founders-changelog" replace />} />
                     <Route path="/founders/creative-1to1-tokenomics-ideas" element={<Navigate to="/admin/archive/founders-creative-1to1-tokenomics" replace />} />
                     <Route path="/founders/catchup" element={<Navigate to="/investor/pitch" replace />} />
@@ -1353,7 +1293,8 @@ const App = () => {
                     <Route path="/founders/bitcoin-thesis" element={<Navigate to="/admin/archive/founders-bitcoin-thesis" replace />} />
                     <Route path="/founders/funded-lp" element={<Navigate to="/admin/archive/founders-funded-lp" replace />} />
                     <Route path="/founders/tschida" element={<Navigate to="/admin/archive/founders-tschida" replace />} />
-                    <Route path="/founders/subscription-admin" element={<FounderRoute><AdminSubscriptionPanel /></FounderRoute>} />
+                    <Route path="/admin/subscriptions" element={<ProtectedRoute><AppLayout><AdminSubscriptionPanel /></AppLayout></ProtectedRoute>} />
+                    <Route path="/founders/subscription-admin" element={<Navigate to="/admin/subscriptions" replace />} />
                     <Route path="/founders/flywheel-simulation" element={<Navigate to="/admin/archive/founders-flywheel-simulation" replace />} />
                     <Route path="/founders/simulator" element={<Navigate to="/admin/archive/founders-simulator" replace />} />
                     <Route path="/simulator" element={<Navigate to="/admin/archive/founders-simulator" replace />} />
