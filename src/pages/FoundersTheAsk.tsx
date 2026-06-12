@@ -66,6 +66,8 @@ export default function FoundersTheAsk() {
         </div>
       </header>
 
+      <FounderInvestorSsotBanner note="This page shows a legacy $5M / board-seat framing for Lyndon. The current canonical ask is $2.5–3.5M Part 1 (convertible note) at /investor/pitch. Use this page only for internal context — share /investor/pitch externally." />
+
       {/* Hero */}
       <section className="max-w-5xl mx-auto px-5 md:px-6 pt-10 md:pt-14 pb-8">
         <p className="text-[11px] uppercase tracking-[0.28em] text-amber-400 mb-3 inline-flex items-center gap-2">
