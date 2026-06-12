@@ -385,7 +385,7 @@ const App = () => {
                         global top nav (back button + safe-area-top) and bottom nav. */}
                     <Route path="/subscribe" element={<Suspense fallback={<PageLoader />}><AppLayout><Subscribe /></AppLayout></Suspense>} />
                     <Route path="/demo/subscribe" element={<Suspense fallback={<PageLoader />}><AppLayout><Subscribe /></AppLayout></Suspense>} />
-                    <Route path="/competition/gridpay" element={<GridPayCompetition />} />
+                    <Route path="/competition/gridpay" element={<Navigate to="/admin/archive/competition-gridpay" replace />} />
                     <Route path="/blog" element={<Blog />} />
                     <Route path="/blog/what-is-solar-energy-blockchain-rewards" element={<BlogWhatIsSolar />} />
                     <Route path="/blog/how-to-earn-crypto-from-solar-panels" element={<BlogHowToEarn />} />
@@ -861,16 +861,7 @@ const App = () => {
                         </ProtectedRoute>
                       } 
                     />
-                    <Route 
-                      path="/admin/investment-thesis" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <InvestmentThesis />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
+                    <Route path="/admin/investment-thesis" element={<Navigate to="/admin/archive/admin-investment-thesis" replace />} />
                     <Route 
                       path="/admin/patent-mapping" 
                       element={
@@ -891,51 +882,15 @@ const App = () => {
                         </ProtectedRoute>
                       } 
                     />
-                    <Route 
-                      path="/admin/token-estimator" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminTokenEstimator />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
+                    <Route path="/admin/token-estimator" element={<Navigate to="/admin/archive/admin-token-estimator" replace />} />
                     <Route path="/admin/tokenomics-10b" element={<Navigate to="/admin/archive/admin-tokenomics-10b" replace />} />
                     {/* Legacy investor pitch routes — superseded by /investor/pitch. Redirect for any bookmarked links. */}
                     <Route path="/admin/investor-one-pager" element={<Navigate to="/investor/pitch" replace />} />
                     <Route path="/admin/investor-pitch" element={<Navigate to="/investor/pitch" replace />} />
                     <Route path="/admin/coffee-pitch" element={<Navigate to="/investor/pitch" replace />} />
-                    <Route 
-                      path="/admin/cost-savings" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminCostSavings />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin/tokenomics-framework" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminTokenomicsFramework />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin/flywheel-tracker" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminFlywheelTracker />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
+                    <Route path="/admin/cost-savings" element={<Navigate to="/admin/archive/admin-cost-savings" replace />} />
+                    <Route path="/admin/tokenomics-framework" element={<Navigate to="/admin/archive/admin-tokenomics-framework" replace />} />
+                    <Route path="/admin/flywheel-tracker" element={<Navigate to="/admin/archive/admin-flywheel-tracker" replace />} />
                     <Route 
                       path="/admin/final-tokenomics" 
                       element={
@@ -946,38 +901,11 @@ const App = () => {
                         </ProtectedRoute>
                       } 
                     />
-                    <Route 
-                      path="/admin/glossary" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminGlossary />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin/growth-projections" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminGrowthProjections />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
+                    <Route path="/admin/glossary" element={<Navigate to="/admin/archive/admin-glossary" replace />} />
+                    <Route path="/admin/growth-projections" element={<Navigate to="/admin/archive/admin-growth-projections" replace />} />
                     <Route path="/admin/ai-feedback-loop" element={<Navigate to="/admin/archive/admin-ai-feedback-loop" replace />} />
                     <Route path="/admin/ai-agents" element={<Navigate to="/admin/archive/admin-ai-agents" replace />} />
-                    <Route 
-                      path="/admin/live-beta-economics" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminLiveBetaEconomics />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
+                    <Route path="/admin/live-beta-economics" element={<Navigate to="/admin/archive/admin-live-beta-economics" replace />} />
                     <Route 
                       path="/admin/competitive-intel" 
                       element={
@@ -1064,26 +992,8 @@ const App = () => {
                     <Route path="/admin/yc-application" element={<Navigate to="/admin/archive/yc-application" replace />} />
                     <Route path="/admin/a16z-speedrun" element={<Navigate to="/admin/archive/a16z-speedrun" replace />} />
                     <Route path="/admin/embedded-wallet-demo" element={<Navigate to="/admin/archive/embedded-wallet-demo" replace />} />
-                    <Route 
-                      path="/admin/future-roadmap" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminFutureRoadmap />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin/market-defense" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminMarketDefenseMechanisms />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
+                    <Route path="/admin/future-roadmap" element={<Navigate to="/admin/archive/admin-future-roadmap" replace />} />
+                    <Route path="/admin/market-defense" element={<Navigate to="/admin/archive/admin-market-defense" replace />} />
                     <Route 
                       path="/admin/patent/mint-on-proof" 
                       element={
@@ -1326,7 +1236,7 @@ const App = () => {
                     <Route path="/founders/spacex" element={<Navigate to="/investor/pitch" replace />} />
                     <Route path="/founders/app-overhaul-plan" element={<Navigate to="/investor/pitch" replace />} />
                     <Route path="/founders/app-overhaul" element={<Navigate to="/investor/pitch" replace />} />
-                    <Route path="/founders/proof-of-genesis" element={<FounderRoute><FoundersProofOfGenesis /></FounderRoute>} />
+                    <Route path="/founders/proof-of-genesis" element={<Navigate to="/admin/archive/founders-proof-of-genesis" replace />} />
                     
                     <Route path="/founders/deason-v3" element={<Navigate to="/admin/archive/founders-deason-v3" replace />} />
                     <Route path="/founders/deason-utility-ai-revstream" element={<Navigate to="/admin/archive/founders-deason-utility-ai" replace />} />
@@ -1335,7 +1245,7 @@ const App = () => {
                     <Route path="/founders/competitive-landscape" element={<FounderRoute><FoundersCompetitiveLandscape /></FounderRoute>} />
                     <Route path="/founders/the-ask" element={<Navigate to="/admin/archive/founders-the-ask" replace />} />
                     <Route path="/founders/seed-allocation" element={<Navigate to="/admin/archive/founders-seed-allocation" replace />} />
-                    <Route path="/founders/current-status" element={<FounderRoute><FoundersCurrentStatus /></FounderRoute>} />
+                    <Route path="/founders/current-status" element={<Navigate to="/admin/archive/founders-current-status" replace />} />
                     <Route path="/founders/changelog" element={<Navigate to="/admin/archive/founders-changelog" replace />} />
                     <Route path="/founders/creative-1to1-tokenomics-ideas" element={<Navigate to="/admin/archive/founders-creative-1to1-tokenomics" replace />} />
                     <Route path="/founders/catchup" element={<Navigate to="/investor/pitch" replace />} />
