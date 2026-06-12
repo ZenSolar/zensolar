@@ -94,7 +94,7 @@ const Feedback = lazy(() => import("./pages/Feedback"));
 const OAuthCallback = lazy(() => import("./pages/OAuthCallback"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const FoundersVault = lazy(() => import("./pages/FoundersVault"));
-const FoundersRevenueModels = lazy(() => import("./pages/FoundersRevenueModels"));
+const FoundersRevenueModels = lazy(() => import("./pages/archive/FoundersRevenueModels"));
 const FounderPack = lazy(() => import("./pages/archive/FounderPack"));
 const WhitepaperPhase1 = lazy(() => import("./pages/WhitepaperPhase1"));
 const WhitepaperPhase2 = lazy(() => import("./pages/WhitepaperPhase2"));
@@ -116,7 +116,7 @@ const FoundersLyndonOnePager = lazy(() => import("./pages/FoundersLyndonOnePager
 const FoundersLyndonPitchV2 = lazy(() => import("./pages/archive/FoundersLyndonPitchV2"));
 const FoundersSeedPitch = lazy(() => import("./pages/archive/FoundersSeedPitch"));
 const FoundersSeedPitchCompanionDeck = lazy(() => import("./pages/archive/FoundersSeedPitchCompanionDeck"));
-const FoundersSecondaryRevenue = lazy(() => import("./pages/FoundersSecondaryRevenue"));
+const FoundersSecondaryRevenue = lazy(() => import("./pages/archive/FoundersSecondaryRevenue"));
 const FoundersVPPRoadmap = lazy(() => import("./pages/FoundersVPPRoadmap"));
 const FoundersEnergyOracle = lazy(() => import("./pages/FoundersEnergyOracle"));
 const FoundersPatentExpansion = lazy(() => import("./pages/FoundersPatentExpansion"));
@@ -1364,7 +1364,7 @@ const App = () => {
                     {/* Founders Vault - direct URL only, no nav link. All gated by FounderRoute. */}
                     <Route path="/founder" element={<Navigate to="/founders" replace />} />
                     <Route path="/founders" element={<FounderRoute><FoundersVault /></FounderRoute>} />
-                    <Route path="/founders/revenue-models" element={<FoundersRevenueModels />} />
+                    <Route path="/founders/revenue-models" element={<Navigate to="/admin/archive/founders-revenue-models" replace />} />
                     <Route path="/founder-pack" element={<Navigate to="/admin/archive/founder-pack" replace />} />
                     <Route path="/whitepaper-phase-1" element={<FounderRoute><WhitepaperPhase1 /></FounderRoute>} />
                     <Route path="/whitepaper-phase-2" element={<FounderRoute><WhitepaperPhase2 /></FounderRoute>} />
@@ -1388,7 +1388,7 @@ const App = () => {
                     <Route path="/founders/lyndon-pitch-v2" element={<Navigate to="/investor/pitch" replace />} />
                    <Route path="/founders/seed-pitch-greg" element={<Navigate to="/investor" replace />} />
                    <Route path="/founders/seed-pitch-companion-deck" element={<Navigate to="/investor/pitch" replace />} />
-                    <Route path="/founders/secondary-revenue" element={<FounderRoute><FoundersSecondaryRevenue /></FounderRoute>} />
+                    <Route path="/founders/secondary-revenue" element={<Navigate to="/admin/archive/founders-secondary-revenue" replace />} />
                     <Route path="/founders/vpp-roadmap" element={<FounderRoute><FoundersVPPRoadmap /></FounderRoute>} />
                     <Route path="/founders/energy-oracle" element={<FounderRoute><FoundersEnergyOracle /></FounderRoute>} />
                     <Route path="/founders/patent-expansion" element={<FounderRoute><FoundersPatentExpansion /></FounderRoute>} />
