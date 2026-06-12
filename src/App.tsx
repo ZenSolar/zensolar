@@ -95,13 +95,13 @@ const OAuthCallback = lazy(() => import("./pages/OAuthCallback"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const FoundersVault = lazy(() => import("./pages/FoundersVault"));
 const FoundersRevenueModels = lazy(() => import("./pages/FoundersRevenueModels"));
-const FounderPack = lazy(() => import("./pages/FounderPack"));
+const FounderPack = lazy(() => import("./pages/archive/FounderPack"));
 const WhitepaperPhase1 = lazy(() => import("./pages/WhitepaperPhase1"));
 const WhitepaperPhase2 = lazy(() => import("./pages/WhitepaperPhase2"));
 const FoundersSpaceX = lazy(() => import("./pages/archive/FoundersSpaceX"));
 const FoundersAppOverhaul = lazy(() => import("./pages/archive/FoundersAppOverhaul"));
 const FoundersDeasonV3 = lazy(() => import("./pages/FoundersDeasonV3"));
-const FoundersDeasonUtilityAI = lazy(() => import("./pages/FoundersDeasonUtilityAI"));
+const FoundersDeasonUtilityAI = lazy(() => import("./pages/archive/FoundersDeasonUtilityAI"));
 const FoundersProofOfGenesis = lazy(() => import("./pages/FoundersProofOfGenesis"));
 
 
@@ -111,7 +111,7 @@ const FoundersSeedAllocation = lazy(() => import("./pages/FoundersSeedAllocation
 const FoundersCurrentStatus = lazy(() => import("./pages/FoundersCurrentStatus"));
 const FoundersChangelog = lazy(() => import("./pages/FoundersChangelog"));
 const FoundersCatchup = lazy(() => import("./pages/archive/FoundersCatchup"));
-const FoundersCreative1to1Tokenomics = lazy(() => import("./pages/FoundersCreative1to1Tokenomics"));
+const FoundersCreative1to1Tokenomics = lazy(() => import("./pages/archive/FoundersCreative1to1Tokenomics"));
 const FoundersLyndonOnePager = lazy(() => import("./pages/FoundersLyndonOnePager"));
 const FoundersLyndonPitchV2 = lazy(() => import("./pages/archive/FoundersLyndonPitchV2"));
 const FoundersSeedPitch = lazy(() => import("./pages/archive/FoundersSeedPitch"));
@@ -121,7 +121,7 @@ const FoundersVPPRoadmap = lazy(() => import("./pages/FoundersVPPRoadmap"));
 const FoundersEnergyOracle = lazy(() => import("./pages/FoundersEnergyOracle"));
 const FoundersPatentExpansion = lazy(() => import("./pages/FoundersPatentExpansion"));
 const FoundersMasterOutline = lazy(() => import("./pages/FoundersMasterOutline"));
-const FoundersSsotZen = lazy(() => import("./pages/FoundersSsotZen"));
+const FoundersSsotZen = lazy(() => import("./pages/archive/FoundersSsotZen"));
 const FoundersSsotOnePager = lazy(() => import("./pages/archive/FoundersSsotOnePager"));
 const FoundersBitcoinThesis = lazy(() => import("./pages/FoundersBitcoinThesis"));
 const FoundersFundedLP = lazy(() => import("./pages/FoundersFundedLP"));
