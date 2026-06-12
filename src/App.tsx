@@ -1347,6 +1347,8 @@ const App = () => {
                       { slug: 'founders-creative-1to1-tokenomics', model: 'Creative 1:1 Tokenomics Ideas', Comp: FoundersCreative1to1Tokenomics, reason: 'Superseded by Mint Split v3.1 lock (src/lib/tokenomics.ts)' },
                       { slug: 'founders-ssot-zen', model: 'SSOT Zen', Comp: FoundersSsotZen, reason: 'Duplicates /founders/master-outline' },
                       { slug: 'founders-simulator', model: 'Founders Simulator', Comp: FoundersSimulator, reason: 'One-off math sandbox — superseded by /founders/flywheel-simulation' },
+                      { slug: 'founders-revenue-models', model: 'Revenue Models (founder math)', Comp: FoundersRevenueModels, reason: 'Investor narrative now lives at /investor/pitch (ThreeRevenueEngines SSOT)' },
+                      { slug: 'founders-secondary-revenue', model: 'Secondary Revenue Streams', Comp: FoundersSecondaryRevenue, reason: 'Investor narrative now lives at /investor/pitch (ThreeRevenueEngines SSOT)' },
                     ] as const).map(({ slug, model, Comp, reason }) => (
                       <Route key={slug} path={`/admin/archive/${slug}`} element={
                         <ProtectedRoute><AppLayout>
