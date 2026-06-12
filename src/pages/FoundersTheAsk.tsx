@@ -15,6 +15,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIsFounder } from "@/hooks/useIsFounder";
 import { isPreviewMode } from "@/lib/previewMode";
 import { supabase } from "@/integrations/supabase/client";
+import { FounderInvestorSsotBanner } from "@/components/founders/FounderInvestorSsotBanner";
+import { ThreeRevenueEngines } from "@/components/investor/ThreeRevenueEngines";
 
 const PDF_FILENAME = "seed-ask-lyndon-v8.1final.pdf";
 
