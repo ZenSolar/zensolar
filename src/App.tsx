@@ -321,7 +321,7 @@ const App = () => {
                    <Route path="/investor/one-pager" element={<Suspense fallback={<PageLoader />}><InvestorOnePager /></Suspense>} />
                    <Route path="/investor/data-room" element={<Suspense fallback={<PageLoader />}><InvestorDataRoom /></Suspense>} />
                    <Route path="/investor/data-room/pog" element={<Suspense fallback={<PageLoader />}><InvestorDataRoomPoG /></Suspense>} />
-                    <Route path="/hero-test" element={<Suspense fallback={<PageLoader />}><HeroTest /></Suspense>} />
+                    <Route path="/hero-test" element={<Navigate to="/admin/archive/hero-test" replace />} />
                     
                     <Route path="/proof-of-genesis-receipt-preview" element={<ProofOfGenesisReceiptPreview />} />
                     <Route path="/demo/proof-of-genesis-receipt-preview" element={<ProofOfGenesisReceiptPreview />} />
@@ -402,8 +402,8 @@ const App = () => {
                     <Route path="/onboarding" element={<Onboarding />} />
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/privacy" element={<Privacy />} />
-                    <Route path="/yc-application" element={<AdminYCApplication />} />
-                    <Route path="/a16z-speedrun" element={<A16ZSpeedrunApplication />} />
+                    <Route path="/yc-application" element={<Navigate to="/admin/archive/yc-application" replace />} />
+                    <Route path="/a16z-speedrun" element={<Navigate to="/admin/archive/a16z-speedrun" replace />} />
                     <Route path="/oauth/callback" element={<OAuthCallback />} />
                     <Route 
                       path="/admin" 
@@ -684,16 +684,7 @@ const App = () => {
                       }
                     />
                     {/* Admin-only theme gallery for the Learn section */}
-                    <Route
-                      path="/learn/themes"
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <LearnThemes />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      }
-                    />
+                    <Route path="/learn/themes" element={<Navigate to="/admin/archive/learn-themes" replace />} />
                     <Route
                       path="/proof-of-genesis"
                       element={
@@ -910,16 +901,7 @@ const App = () => {
                         </ProtectedRoute>
                       } 
                     />
-                    <Route 
-                      path="/admin/tokenomics-10b" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminTokenomics10B />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
+                    <Route path="/admin/tokenomics-10b" element={<Navigate to="/admin/archive/admin-tokenomics-10b" replace />} />
                     {/* Legacy investor pitch routes — superseded by /investor/pitch. Redirect for any bookmarked links. */}
                     <Route path="/admin/investor-one-pager" element={<Navigate to="/investor/pitch" replace />} />
                     <Route path="/admin/investor-pitch" element={<Navigate to="/investor/pitch" replace />} />
@@ -984,26 +966,8 @@ const App = () => {
                         </ProtectedRoute>
                       } 
                     />
-                    <Route 
-                      path="/admin/ai-feedback-loop" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminAIFeedbackLoop />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin/ai-agents" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminAIAgentOpportunities />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      }
-                    />
+                    <Route path="/admin/ai-feedback-loop" element={<Navigate to="/admin/archive/admin-ai-feedback-loop" replace />} />
+                    <Route path="/admin/ai-agents" element={<Navigate to="/admin/archive/admin-ai-agents" replace />} />
                     <Route 
                       path="/admin/live-beta-economics" 
                       element={
@@ -1054,36 +1018,9 @@ const App = () => {
                         </ProtectedRoute>
                       } 
                     />
-                    <Route 
-                      path="/admin/bootstrap-calculator" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminBootstrapCalculator />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin/bootstrap-simulator" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminBootstrapSimulator />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin/lp-capacity" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminLPCapacityCalculator />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
+                    <Route path="/admin/bootstrap-calculator" element={<Navigate to="/admin/archive/admin-bootstrap-calculator" replace />} />
+                    <Route path="/admin/bootstrap-simulator" element={<Navigate to="/admin/archive/admin-bootstrap-simulator" replace />} />
+                    <Route path="/admin/lp-capacity" element={<Navigate to="/admin/archive/admin-lp-capacity" replace />} />
                     <Route 
                       path="/admin/beta-deployment" 
                       element={
@@ -1124,36 +1061,9 @@ const App = () => {
                         </ProtectedRoute>
                       } 
                     />
-                    <Route 
-                      path="/admin/yc-application" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <AdminYCApplication />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin/a16z-speedrun" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <A16ZSpeedrunApplication />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
-                    <Route 
-                      path="/admin/embedded-wallet-demo" 
-                      element={
-                        <ProtectedRoute>
-                          <AppLayout>
-                            <EmbeddedWalletDemo />
-                          </AppLayout>
-                        </ProtectedRoute>
-                      } 
-                    />
+                    <Route path="/admin/yc-application" element={<Navigate to="/admin/archive/yc-application" replace />} />
+                    <Route path="/admin/a16z-speedrun" element={<Navigate to="/admin/archive/a16z-speedrun" replace />} />
+                    <Route path="/admin/embedded-wallet-demo" element={<Navigate to="/admin/archive/embedded-wallet-demo" replace />} />
                     <Route 
                       path="/admin/future-roadmap" 
                       element={
@@ -1411,14 +1321,14 @@ const App = () => {
                     <Route path="/founders" element={<FounderRoute><FoundersVault /></FounderRoute>} />
                     <Route path="/founders/revenue-models" element={<Navigate to="/admin/archive/founders-revenue-models" replace />} />
                     <Route path="/founder-pack" element={<Navigate to="/admin/archive/founder-pack" replace />} />
-                    <Route path="/whitepaper-phase-1" element={<FounderRoute><WhitepaperPhase1 /></FounderRoute>} />
-                    <Route path="/whitepaper-phase-2" element={<FounderRoute><WhitepaperPhase2 /></FounderRoute>} />
+                    <Route path="/whitepaper-phase-1" element={<Navigate to="/admin/archive/whitepaper-phase-1" replace />} />
+                    <Route path="/whitepaper-phase-2" element={<Navigate to="/admin/archive/whitepaper-phase-2" replace />} />
                     <Route path="/founders/spacex" element={<Navigate to="/investor/pitch" replace />} />
                     <Route path="/founders/app-overhaul-plan" element={<Navigate to="/investor/pitch" replace />} />
                     <Route path="/founders/app-overhaul" element={<Navigate to="/investor/pitch" replace />} />
                     <Route path="/founders/proof-of-genesis" element={<FounderRoute><FoundersProofOfGenesis /></FounderRoute>} />
                     
-                    <Route path="/founders/deason-v3" element={<FounderRoute><FoundersDeasonV3 /></FounderRoute>} />
+                    <Route path="/founders/deason-v3" element={<Navigate to="/admin/archive/founders-deason-v3" replace />} />
                     <Route path="/founders/deason-utility-ai-revstream" element={<Navigate to="/admin/archive/founders-deason-utility-ai" replace />} />
                     <Route path="/founders/vault/deason-utility-ai-revstream" element={<Navigate to="/admin/archive/founders-deason-utility-ai" replace />} />
                     <Route path="/founders/seed-ask" element={<Navigate to="/founders/the-ask" replace />} />
@@ -1426,7 +1336,7 @@ const App = () => {
                     <Route path="/founders/the-ask" element={<Navigate to="/admin/archive/founders-the-ask" replace />} />
                     <Route path="/founders/seed-allocation" element={<Navigate to="/admin/archive/founders-seed-allocation" replace />} />
                     <Route path="/founders/current-status" element={<FounderRoute><FoundersCurrentStatus /></FounderRoute>} />
-                    <Route path="/founders/changelog" element={<FounderRoute><FoundersChangelog /></FounderRoute>} />
+                    <Route path="/founders/changelog" element={<Navigate to="/admin/archive/founders-changelog" replace />} />
                     <Route path="/founders/creative-1to1-tokenomics-ideas" element={<Navigate to="/admin/archive/founders-creative-1to1-tokenomics" replace />} />
                     <Route path="/founders/catchup" element={<Navigate to="/investor/pitch" replace />} />
                     <Route path="/founders/lyndon" element={<Navigate to="/admin/archive/founders-lyndon-one-pager" replace />} />
@@ -1434,17 +1344,17 @@ const App = () => {
                    <Route path="/founders/seed-pitch-greg" element={<Navigate to="/investor" replace />} />
                    <Route path="/founders/seed-pitch-companion-deck" element={<Navigate to="/investor/pitch" replace />} />
                     <Route path="/founders/secondary-revenue" element={<Navigate to="/admin/archive/founders-secondary-revenue" replace />} />
-                    <Route path="/founders/vpp-roadmap" element={<FounderRoute><FoundersVPPRoadmap /></FounderRoute>} />
-                    <Route path="/founders/energy-oracle" element={<FounderRoute><FoundersEnergyOracle /></FounderRoute>} />
-                    <Route path="/founders/patent-expansion" element={<FounderRoute><FoundersPatentExpansion /></FounderRoute>} />
-                    <Route path="/founders/master-outline" element={<FounderRoute><FoundersMasterOutline /></FounderRoute>} />
+                    <Route path="/founders/vpp-roadmap" element={<Navigate to="/admin/archive/founders-vpp-roadmap" replace />} />
+                    <Route path="/founders/energy-oracle" element={<Navigate to="/admin/archive/founders-energy-oracle" replace />} />
+                    <Route path="/founders/patent-expansion" element={<Navigate to="/admin/archive/founders-patent-expansion" replace />} />
+                    <Route path="/founders/master-outline" element={<Navigate to="/admin/archive/founders-master-outline" replace />} />
                     <Route path="/founders/ssot-zen" element={<Navigate to="/admin/archive/founders-ssot-zen" replace />} />
                     <Route path="/founders/ssot-one-pager" element={<Navigate to="/investor/one-pager" replace />} />
-                    <Route path="/founders/bitcoin-thesis" element={<FounderRoute><FoundersBitcoinThesis /></FounderRoute>} />
-                    <Route path="/founders/funded-lp" element={<FounderRoute><FoundersFundedLP /></FounderRoute>} />
+                    <Route path="/founders/bitcoin-thesis" element={<Navigate to="/admin/archive/founders-bitcoin-thesis" replace />} />
+                    <Route path="/founders/funded-lp" element={<Navigate to="/admin/archive/founders-funded-lp" replace />} />
                     <Route path="/founders/tschida" element={<Navigate to="/admin/archive/founders-tschida" replace />} />
                     <Route path="/founders/subscription-admin" element={<FounderRoute><AdminSubscriptionPanel /></FounderRoute>} />
-                    <Route path="/founders/flywheel-simulation" element={<FounderRoute><FlywheelSimulation /></FounderRoute>} />
+                    <Route path="/founders/flywheel-simulation" element={<Navigate to="/admin/archive/founders-flywheel-simulation" replace />} />
                     <Route path="/founders/simulator" element={<Navigate to="/admin/archive/founders-simulator" replace />} />
                     <Route path="/simulator" element={<Navigate to="/admin/archive/founders-simulator" replace />} />
 
