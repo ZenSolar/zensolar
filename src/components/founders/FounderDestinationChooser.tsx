@@ -83,12 +83,7 @@ export const FOUNDER_DESTINATIONS: FounderDestination[] = [
     blurb: "The full project blueprint.",
     Icon: Map,
   },
-  {
-    to: "/founders/lyndon",
-    label: "Lyndon One-Pager · v1",
-    blurb: "Homeowner-distribution framing.",
-    Icon: ScrollText,
-  },
+  // Lyndon One-Pager archived May 2026 → /investor/pitch is the canonical artifact
   {
     to: "/founders/vpp-roadmap",
     label: "VPP Roadmap",
