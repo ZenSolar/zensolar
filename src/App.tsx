@@ -146,8 +146,8 @@ const ProofOfGenesisMainnetReadiness = lazy(() => import("./pages/ProofOfGenesis
 const ProofOfGenesisReceiptPreview = lazy(() => import("./pages/ProofOfGenesisReceiptPreview"));
 const NftCollection = lazy(() => import("./pages/NftCollection"));
 const Wallet = lazy(() => import("./pages/Wallet"));
-// Combined pages
-const NFTs = lazy(() => import("./pages/NFTs"));
+// (NFTs combined page removed — /nfts now redirects to /nft-collection)
+
 const Learn = lazy(() => import("./pages/Learn"));
 const LearnHowItWorks = lazy(() => import("./pages/learn/LearnHowItWorks"));
 const LearnTokenomics = lazy(() => import("./pages/learn/LearnTokenomics"));
