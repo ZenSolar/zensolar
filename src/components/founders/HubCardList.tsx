@@ -89,26 +89,7 @@ export const HUB_CARDS: HubCardDef[] = [
     tone: "primary",
     createdAt: "2026-05-11",
   },
-  {
-    id: "the-ask",
-    to: "/founders/the-ask",
-    eyebrow: "For Lyndon · Board Seat + $5M Seed",
-    title: "The Ask — Lyndon",
-    blurb: "Board seat to co-shape the protocol + $5M seed to ship the next 24 months. One conversation, two parts.",
-    icon: Banknote,
-    tone: "amber",
-    createdAt: "2026-05-11",
-  },
-  {
-    id: "lyndon-one-pager-redirect",
-    to: "/founders/lyndon",
-    eyebrow: "Pitch · Short-Form",
-    title: "Lyndon One-Pager",
-    blurb: "The quick read companion to the long pitch. Print-friendly.",
-    icon: FileText,
-    tone: "primary",
-    createdAt: "2026-04-29",
-  },
+  // Archived May 2026: The Ask + Lyndon One-Pager superseded by /investor/pitch
   {
     id: "master-outline",
     to: "/founders/master-outline",
@@ -119,16 +100,7 @@ export const HUB_CARDS: HubCardDef[] = [
     tone: "primary",
     createdAt: "2026-04-28",
   },
-  {
-    id: "tschida",
-    to: "/founders/tschida",
-    eyebrow: "Private · For Michael Tschida",
-    title: "50/50 Split Handout",
-    blurb: "Branded one-pager PDF. Verified against the live transparency model.",
-    icon: Download,
-    tone: "eco",
-    createdAt: "2026-04-28",
-  },
+  // Archived May 2026: Tschida 50/50 handout — math lives in src/lib/subscriptionSplitModel.ts
   {
     id: "bitcoin-thesis",
     to: "/founders/bitcoin-thesis",

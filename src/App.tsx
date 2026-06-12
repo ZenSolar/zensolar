@@ -106,13 +106,13 @@ const FoundersProofOfGenesis = lazy(() => import("./pages/FoundersProofOfGenesis
 
 
 const FoundersCompetitiveLandscape = lazy(() => import("./pages/FoundersCompetitiveLandscape"));
-const FoundersTheAsk = lazy(() => import("./pages/FoundersTheAsk"));
-const FoundersSeedAllocation = lazy(() => import("./pages/FoundersSeedAllocation"));
+const FoundersTheAsk = lazy(() => import("./pages/archive/FoundersTheAsk"));
+const FoundersSeedAllocation = lazy(() => import("./pages/archive/FoundersSeedAllocation"));
 const FoundersCurrentStatus = lazy(() => import("./pages/FoundersCurrentStatus"));
 const FoundersChangelog = lazy(() => import("./pages/FoundersChangelog"));
 const FoundersCatchup = lazy(() => import("./pages/archive/FoundersCatchup"));
 const FoundersCreative1to1Tokenomics = lazy(() => import("./pages/archive/FoundersCreative1to1Tokenomics"));
-const FoundersLyndonOnePager = lazy(() => import("./pages/FoundersLyndonOnePager"));
+const FoundersLyndonOnePager = lazy(() => import("./pages/archive/FoundersLyndonOnePager"));
 const FoundersLyndonPitchV2 = lazy(() => import("./pages/archive/FoundersLyndonPitchV2"));
 const FoundersSeedPitch = lazy(() => import("./pages/archive/FoundersSeedPitch"));
 const FoundersSeedPitchCompanionDeck = lazy(() => import("./pages/archive/FoundersSeedPitchCompanionDeck"));
@@ -125,7 +125,7 @@ const FoundersSsotZen = lazy(() => import("./pages/archive/FoundersSsotZen"));
 const FoundersSsotOnePager = lazy(() => import("./pages/archive/FoundersSsotOnePager"));
 const FoundersBitcoinThesis = lazy(() => import("./pages/FoundersBitcoinThesis"));
 const FoundersFundedLP = lazy(() => import("./pages/FoundersFundedLP"));
-const FoundersTschida = lazy(() => import("./pages/FoundersTschida"));
+const FoundersTschida = lazy(() => import("./pages/archive/FoundersTschida"));
 const Transparency = lazy(() => import("./pages/Transparency"));
 const Pulse = lazy(() => import("./pages/Pulse"));
 const Deason = lazy(() => import("./pages/Deason"));
@@ -1349,6 +1349,10 @@ const App = () => {
                       { slug: 'founders-simulator', model: 'Founders Simulator', Comp: FoundersSimulator, reason: 'One-off math sandbox — superseded by /founders/flywheel-simulation' },
                       { slug: 'founders-revenue-models', model: 'Revenue Models (founder math)', Comp: FoundersRevenueModels, reason: 'Investor narrative now lives at /investor/pitch (ThreeRevenueEngines SSOT)' },
                       { slug: 'founders-secondary-revenue', model: 'Secondary Revenue Streams', Comp: FoundersSecondaryRevenue, reason: 'Investor narrative now lives at /investor/pitch (ThreeRevenueEngines SSOT)' },
+                      { slug: 'founders-the-ask', model: 'The Ask (Lyndon $5M / board seat)', Comp: FoundersTheAsk, reason: 'Stale raise framing — current ask is $2.5–3.5M Part 1 at /investor/pitch' },
+                      { slug: 'founders-seed-allocation', model: 'Seed Allocation (editable $5M one-pager)', Comp: FoundersSeedAllocation, reason: 'Stale $5M / $0.25-launch numbers — canonical raise lives at /investor/pitch' },
+                      { slug: 'founders-lyndon-one-pager', model: 'Lyndon One-Pager (distribution framing)', Comp: FoundersLyndonOnePager, reason: 'Superseded by /investor/pitch as the canonical outbound artifact' },
+                      { slug: 'founders-tschida', model: 'Tschida Cofounder Handout (50/50 PDF)', Comp: FoundersTschida, reason: 'Archived per founder request — math remains in src/lib/subscriptionSplitModel.ts' },
                     ] as const).map(({ slug, model, Comp, reason }) => (
                       <Route key={slug} path={`/admin/archive/${slug}`} element={
                         <ProtectedRoute><AppLayout>
@@ -1380,13 +1384,13 @@ const App = () => {
                     <Route path="/founders/vault/deason-utility-ai-revstream" element={<Navigate to="/admin/archive/founders-deason-utility-ai" replace />} />
                     <Route path="/founders/seed-ask" element={<Navigate to="/founders/the-ask" replace />} />
                     <Route path="/founders/competitive-landscape" element={<FounderRoute><FoundersCompetitiveLandscape /></FounderRoute>} />
-                    <Route path="/founders/the-ask" element={<FounderRoute><FoundersTheAsk /></FounderRoute>} />
-                    <Route path="/founders/seed-allocation" element={<FounderRoute><FoundersSeedAllocation /></FounderRoute>} />
+                    <Route path="/founders/the-ask" element={<Navigate to="/admin/archive/founders-the-ask" replace />} />
+                    <Route path="/founders/seed-allocation" element={<Navigate to="/admin/archive/founders-seed-allocation" replace />} />
                     <Route path="/founders/current-status" element={<FounderRoute><FoundersCurrentStatus /></FounderRoute>} />
                     <Route path="/founders/changelog" element={<FounderRoute><FoundersChangelog /></FounderRoute>} />
                     <Route path="/founders/creative-1to1-tokenomics-ideas" element={<Navigate to="/admin/archive/founders-creative-1to1-tokenomics" replace />} />
                     <Route path="/founders/catchup" element={<Navigate to="/investor/pitch" replace />} />
-                    <Route path="/founders/lyndon" element={<FounderRoute><FoundersLyndonOnePager /></FounderRoute>} />
+                    <Route path="/founders/lyndon" element={<Navigate to="/admin/archive/founders-lyndon-one-pager" replace />} />
                     <Route path="/founders/lyndon-pitch-v2" element={<Navigate to="/investor/pitch" replace />} />
                    <Route path="/founders/seed-pitch-greg" element={<Navigate to="/investor" replace />} />
                    <Route path="/founders/seed-pitch-companion-deck" element={<Navigate to="/investor/pitch" replace />} />
@@ -1399,7 +1403,7 @@ const App = () => {
                     <Route path="/founders/ssot-one-pager" element={<Navigate to="/investor/one-pager" replace />} />
                     <Route path="/founders/bitcoin-thesis" element={<FounderRoute><FoundersBitcoinThesis /></FounderRoute>} />
                     <Route path="/founders/funded-lp" element={<FounderRoute><FoundersFundedLP /></FounderRoute>} />
-                    <Route path="/founders/tschida" element={<FounderRoute><FoundersTschida /></FounderRoute>} />
+                    <Route path="/founders/tschida" element={<Navigate to="/admin/archive/founders-tschida" replace />} />
                     <Route path="/founders/subscription-admin" element={<FounderRoute><AdminSubscriptionPanel /></FounderRoute>} />
                     <Route path="/founders/flywheel-simulation" element={<FounderRoute><FlywheelSimulation /></FounderRoute>} />
                     <Route path="/founders/simulator" element={<Navigate to="/admin/archive/founders-simulator" replace />} />

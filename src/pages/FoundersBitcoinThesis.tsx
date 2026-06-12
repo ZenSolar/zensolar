@@ -494,8 +494,7 @@ function ThesisContent() {
           <p>
             Cross-references:{" "}
             <Link to="/founders/master-outline" className="text-primary hover:underline">Master Outline</Link>
-            {" · "}
-            <Link to="/founders/lyndon" className="text-primary hover:underline">Lyndon One-Pager</Link>
+            <Link to="/investor/pitch" className="text-primary hover:underline">Investor Pitch</Link>
             {" · "}
             <Link to="/founders/proof-of-genesis" className="text-primary hover:underline">Proof of Genesis</Link>
             {" · "}
