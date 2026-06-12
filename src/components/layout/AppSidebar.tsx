@@ -332,38 +332,31 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Founder Pack">
-                    <NavLink to="/founder-pack" onClick={handleFounderNavClick} className={founderNavClass}>
+                  <SidebarMenuButton asChild tooltip="SSOT — Single Source of Truth">
+                    <NavLink to="/admin/ssot" onClick={handleFounderNavClick} className={founderNavClass}>
                       <ScrollText className="h-4 w-4 text-amber-400" />
-                      <span>Founder Pack</span>
+                      <span>SSOT</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="White Paper · Phase 1">
-                    <NavLink to="/whitepaper-phase-1" onClick={handleFounderNavClick} className={founderNavClass}>
+                  <SidebarMenuButton asChild tooltip="Investor Pitch">
+                    <NavLink to="/investor/pitch" onClick={handleFounderNavClick} className={founderNavClass}>
                       <FileText className="h-4 w-4 text-amber-400" />
-                      <span>White Paper · Phase 1</span>
+                      <span>Investor Pitch</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="White Paper · Phase 2">
-                    <NavLink to="/whitepaper-phase-2" onClick={handleFounderNavClick} className={founderNavClass}>
-                      <Rocket className="h-4 w-4 text-amber-400" />
-                      <span>White Paper · Phase 2</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip="Seed Ask · Lyndon">
-                    <NavLink to="/founders/seed-ask" onClick={handleFounderNavClick} className={founderNavClass}>
+                  <SidebarMenuButton asChild tooltip="Deason (AI)">
+                    <NavLink to="/deason" onClick={handleFounderNavClick} className={founderNavClass}>
                       <Banknote className="h-4 w-4 text-amber-400" />
-                      <span>Seed Ask · Lyndon</span>
+                      <span>Deason (AI)</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
+
             </SidebarGroupContent>
           </SidebarGroup>
         )}
