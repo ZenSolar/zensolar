@@ -1390,7 +1390,7 @@ const App = () => {
                     <Route path="/founders/changelog" element={<FounderRoute><FoundersChangelog /></FounderRoute>} />
                     <Route path="/founders/creative-1to1-tokenomics-ideas" element={<Navigate to="/admin/archive/founders-creative-1to1-tokenomics" replace />} />
                     <Route path="/founders/catchup" element={<Navigate to="/investor/pitch" replace />} />
-                    <Route path="/founders/lyndon" element={<FounderRoute><FoundersLyndonOnePager /></FounderRoute>} />
+                    <Route path="/founders/lyndon" element={<Navigate to="/admin/archive/founders-lyndon-one-pager" replace />} />
                     <Route path="/founders/lyndon-pitch-v2" element={<Navigate to="/investor/pitch" replace />} />
                    <Route path="/founders/seed-pitch-greg" element={<Navigate to="/investor" replace />} />
                    <Route path="/founders/seed-pitch-companion-deck" element={<Navigate to="/investor/pitch" replace />} />
