@@ -158,6 +158,22 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
   const { isInnerCircle } = useUserPersona();
   const { library, profileCtx } = useDeasonHub();
   const [input, setInput] = useState("");
+  const voice = useVoiceDictation();
+  const voiceStartedRef = useRef(false);
+
+  const beginVoice = () => {
+    if (!voice.supported || streaming || voice.recording) return;
+    voiceStartedRef.current = true;
+    voice.start();
+  };
+  const endVoice = () => {
+    if (!voiceStartedRef.current) return;
+    voiceStartedRef.current = false;
+    const text = voice.stop();
+    if (text) {
+      setInput((prev) => (prev ? `${prev.trimEnd()} ${text}` : text));
+    }
+  };
   const [attachedFile, setAttachedFile] = useState<{ dataUrl: string; name: string; kind: "image" | "pdf" } | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [energySheetOpen, setEnergySheetOpen] = useState(false);
