@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIsFounder } from "@/hooks/useIsFounder";
 import { isPreviewMode } from "@/lib/previewMode";
 import zenLogo from "@/assets/zen-logo-horizontal-transparent.png";
+import { FounderInvestorSsotBanner } from "@/components/founders/FounderInvestorSsotBanner";
 
 /**
  * Editable in-app twin of ZenSolar_Seed_OnePager_OptionB_v2_FINAL.pdf
