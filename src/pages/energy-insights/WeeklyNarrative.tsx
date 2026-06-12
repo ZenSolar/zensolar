@@ -189,7 +189,7 @@ export default function WeeklyNarrative() {
               Generated {new Date(narrative.generated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
             </span>
           </p>
-          <Link to="/dashboard" className="inline-block mt-4 text-xs text-primary hover:underline">
+          <Link to="/" className="inline-block mt-4 text-xs text-primary hover:underline">
             See live data on your dashboard →
           </Link>
         </div>
