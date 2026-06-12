@@ -107,7 +107,7 @@ function buildUnlocks(preview: boolean): Array<{
   return [
     { icon: FileText, label: 'Full Seed Round Deck', desc: '11 slides · PIN-gated', to: '/deck' },
     { icon: FileText, label: 'One-Pager', desc: 'The leave-behind summary', to: '/investor/one-pager' },
-    { icon: PlayCircle, label: 'Live Investor Demo', desc: 'Full Tesla + Powerwall + Wallbox home', to: `${preview ? '/demo-leonardo' : '/demo'}?demo=investor` },
+    { icon: PlayCircle, label: 'Live Investor Demo', desc: 'Full Tesla + Powerwall + Wallbox home', to: '/demo?demo=investor' },
     { icon: FileText, label: 'Investor Data Room', desc: 'PoG, VPP, traction, IP, use of funds', to: '/investor/data-room' },
     { icon: GitCompare, label: 'SolarCoin Comparison', desc: 'UX, AI, and tokenomics vs legacy SolarCoin', to: '/investor/solarcoin-comparison' },
   ];
