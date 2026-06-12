@@ -106,8 +106,8 @@ const FoundersProofOfGenesis = lazy(() => import("./pages/FoundersProofOfGenesis
 
 
 const FoundersCompetitiveLandscape = lazy(() => import("./pages/FoundersCompetitiveLandscape"));
-const FoundersTheAsk = lazy(() => import("./pages/FoundersTheAsk"));
-const FoundersSeedAllocation = lazy(() => import("./pages/FoundersSeedAllocation"));
+const FoundersTheAsk = lazy(() => import("./pages/archive/FoundersTheAsk"));
+const FoundersSeedAllocation = lazy(() => import("./pages/archive/FoundersSeedAllocation"));
 const FoundersCurrentStatus = lazy(() => import("./pages/FoundersCurrentStatus"));
 const FoundersChangelog = lazy(() => import("./pages/FoundersChangelog"));
 const FoundersCatchup = lazy(() => import("./pages/archive/FoundersCatchup"));
