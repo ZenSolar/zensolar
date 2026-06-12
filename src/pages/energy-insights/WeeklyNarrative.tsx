@@ -121,7 +121,7 @@ export default function WeeklyNarrative() {
           <Button onClick={() => navigate(-1)} variant="ghost" size="sm" className="text-muted-foreground -ml-2">
             <ArrowLeft className="h-4 w-4 mr-2" /> Back
           </Button>
-          <Link to="/dashboard" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition">
+          <Link to="/" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition">
             Dashboard
           </Link>
         </div>
