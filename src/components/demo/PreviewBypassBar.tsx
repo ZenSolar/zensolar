@@ -53,7 +53,7 @@ export function PreviewBypassBar({ granted, onBypass }: Props) {
               <Unlock className="h-3 w-3 text-primary" /> Unlocked for this preview
             </span>
             <Link
-              to="/demo/dashboard"
+              to="/demo"
               className="inline-flex items-center gap-1 rounded-full bg-primary text-primary-foreground text-[11px] font-medium px-3 py-1.5 hover:bg-primary/90 transition-colors"
             >
               Demo Dashboard <ArrowRight className="h-3 w-3" />

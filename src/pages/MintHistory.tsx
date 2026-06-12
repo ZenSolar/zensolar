@@ -332,7 +332,7 @@ export default function MintHistory() {
                   </p>
                   <div className="flex flex-col sm:flex-row gap-2 justify-center">
                     <button
-                      onClick={() => navigate('/dashboard')}
+                      onClick={() => navigate('/')}
                       className="inline-flex items-center justify-center gap-1.5 h-10 px-5 rounded-md bg-primary text-primary-foreground text-sm font-semibold shadow-md shadow-primary/20 transition-all hover:shadow-primary/40 active:scale-[0.98]"
                     >
                       <Zap className="h-4 w-4" />

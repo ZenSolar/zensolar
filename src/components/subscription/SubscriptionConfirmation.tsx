@@ -135,7 +135,7 @@ export function SubscriptionConfirmation({ tier, onChange }: Props) {
         transition={{ delay: 0.32 }}
         className="flex flex-col gap-2"
       >
-        <Button size="lg" className="w-full h-12 gap-2" onClick={() => navigate('/dashboard')}>
+        <Button size="lg" className="w-full h-12 gap-2" onClick={() => navigate('/')}>
           Go to dashboard
           <ArrowRight className="h-4 w-4" />
         </Button>

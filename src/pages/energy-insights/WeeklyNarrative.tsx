@@ -121,7 +121,7 @@ export default function WeeklyNarrative() {
           <Button onClick={() => navigate(-1)} variant="ghost" size="sm" className="text-muted-foreground -ml-2">
             <ArrowLeft className="h-4 w-4 mr-2" /> Back
           </Button>
-          <Link to="/dashboard" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition">
+          <Link to="/" className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition">
             Dashboard
           </Link>
         </div>
@@ -189,7 +189,7 @@ export default function WeeklyNarrative() {
               Generated {new Date(narrative.generated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
             </span>
           </p>
-          <Link to="/dashboard" className="inline-block mt-4 text-xs text-primary hover:underline">
+          <Link to="/" className="inline-block mt-4 text-xs text-primary hover:underline">
             See live data on your dashboard →
           </Link>
         </div>
