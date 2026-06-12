@@ -1225,6 +1225,36 @@ const App = () => {
                         </AppLayout></ProtectedRoute>
                       } />
                     ))}
+                    {/* Pre-launch cleanup wave 2 — Jun 2026: dupes, stale narrative artifacts, dead admin tools */}
+                    {([
+                      { slug: 'founders-proof-of-genesis', model: 'Founders Proof-of-Genesis', Comp: FoundersProofOfGenesis, reason: 'Duplicates canonical /proof-of-genesis receipt' },
+                      { slug: 'founders-current-status', model: 'Founders Current Status', Comp: FoundersCurrentStatus, reason: 'Status lives in /admin/todo + /admin/ssot — one board, not three' },
+                      { slug: 'admin-glossary', model: 'Admin Glossary', Comp: AdminGlossary, reason: 'Duplicates public /glossary — one glossary' },
+                      { slug: 'admin-investment-thesis', model: 'Investment Thesis', Comp: InvestmentThesis, reason: 'Investor narrative SSOT is /investor/pitch' },
+                      { slug: 'admin-cost-savings', model: 'Cost Savings Analysis', Comp: AdminCostSavings, reason: 'One-off investor artifact — not a live operational tool' },
+                      { slug: 'admin-market-defense', model: 'Market Defense Mechanisms', Comp: AdminMarketDefenseMechanisms, reason: 'Moat narrative belongs in /investor/pitch' },
+                      { slug: 'admin-future-roadmap', model: 'Future Roadmap', Comp: AdminFutureRoadmap, reason: 'Roadmap lives in mem://, /admin/todo, /admin/ssot' },
+                      { slug: 'admin-growth-projections', model: 'Growth Projections', Comp: AdminGrowthProjections, reason: 'Superseded by /admin/fundraising (live tracker)' },
+                      { slug: 'admin-tokenomics-framework', model: 'Tokenomics Framework', Comp: AdminTokenomicsFramework, reason: 'Superseded by src/lib/tokenomics.ts SSOT + /admin/final-tokenomics' },
+                      { slug: 'admin-token-estimator', model: 'Token Estimator', Comp: AdminTokenEstimator, reason: 'One-off math tool — superseded by /admin/kpi-reconciliation' },
+                      { slug: 'admin-flywheel-tracker', model: 'Flywheel Tracker', Comp: AdminFlywheelTracker, reason: 'Duplicates /admin/revenue-flywheel + /admin/kpi-reconciliation' },
+                      { slug: 'admin-live-beta-economics', model: 'Live Beta Economics', Comp: AdminLiveBetaEconomics, reason: 'Superseded by /admin/analytics' },
+                      { slug: 'competition-gridpay', model: 'GridPay Competition', Comp: GridPayCompetition, reason: 'Founder pitch artifact — not a customer-facing landing' },
+                    ] as const).map(({ slug, model, Comp, reason }) => (
+                      <Route key={slug} path={`/admin/archive/${slug}`} element={
+                        <ProtectedRoute><AppLayout>
+                          <ArchivedPageWrapper
+                            modelName={model}
+                            archivedDate="June 2026"
+                            supersededBy="Pre-launch cleanup wave 2"
+                            reason={reason}
+                          >
+                            <Comp />
+                          </ArchivedPageWrapper>
+                        </AppLayout></ProtectedRoute>
+                      } />
+                    ))}
+
 
                     {/* Founders Vault - direct URL only, no nav link. All gated by FounderRoute. */}
                     <Route path="/founder" element={<Navigate to="/founders" replace />} />
