@@ -125,7 +125,7 @@ const FoundersSsotZen = lazy(() => import("./pages/archive/FoundersSsotZen"));
 const FoundersSsotOnePager = lazy(() => import("./pages/archive/FoundersSsotOnePager"));
 const FoundersBitcoinThesis = lazy(() => import("./pages/FoundersBitcoinThesis"));
 const FoundersFundedLP = lazy(() => import("./pages/FoundersFundedLP"));
-const FoundersTschida = lazy(() => import("./pages/FoundersTschida"));
+const FoundersTschida = lazy(() => import("./pages/archive/FoundersTschida"));
 const Transparency = lazy(() => import("./pages/Transparency"));
 const Pulse = lazy(() => import("./pages/Pulse"));
 const Deason = lazy(() => import("./pages/Deason"));
