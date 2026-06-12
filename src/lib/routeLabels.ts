@@ -43,7 +43,7 @@ export interface Crumb {
 export function buildCrumbs(pathname: string): Crumb[] {
   const segments = pathname.split("/").filter(Boolean);
   // Demo trees get their own root crumb so we don't show "Dashboard › Demo".
-  const isDemo = segments[0] === "demo" || segments[0] === "demo-leonardo";
+  const isDemo = segments[0] === "demo";
   const rootLabel = isDemo
     ? STATIC_LABELS[segments[0]] ?? "Demo"
     : "Dashboard";
