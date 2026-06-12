@@ -725,6 +725,27 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
             <Paperclip className="h-4 w-4" />
           </Button>
 
+          {voice.supported && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onPointerDown={(e) => { e.preventDefault(); beginVoice(); }}
+              onPointerUp={endVoice}
+              onPointerLeave={endVoice}
+              onPointerCancel={endVoice}
+              title="Press and hold to talk"
+              aria-label={voice.recording ? "Recording — release to insert" : "Press and hold to speak"}
+              disabled={streaming}
+              className={cn(
+                "h-9 w-9 flex-shrink-0 rounded-full transition-colors touch-none select-none",
+                voice.recording && "bg-amber-500 text-black hover:bg-amber-400 animate-pulse"
+              )}
+            >
+              <Mic className="h-4 w-4" />
+            </Button>
+          )}
+
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
