@@ -88,6 +88,52 @@ const PUBLIC_PROMPTS = [
   "How can I cut my bill the most this month?",
 ];
 
+// Route-aware contextual prompts. When a user opens Deason from a specific
+// screen, surface 3-4 prompts that match what they're looking at — much
+// higher signal than the generic public set. Falls back to PUBLIC_PROMPTS
+// when no route matches.
+function getContextualPrompts(pathname: string): string[] | null {
+  if (pathname === "/" || pathname === "/index" || pathname.startsWith("/dashboard")) {
+    return [
+      "Explain what I'm seeing on the dashboard",
+      "Why did my mint change today?",
+      "How is my battery being used right now?",
+      "What should I do to mint more this week?",
+    ];
+  }
+  if (pathname.startsWith("/energy-insights")) {
+    return [
+      "Walk me through this week's energy report",
+      "Where am I leaving savings on the table?",
+      "Compare my peak vs off-peak usage",
+      "What rate plan would save me the most?",
+    ];
+  }
+  if (pathname.startsWith("/notifications")) {
+    return [
+      "Explain my most recent alert",
+      "Which notifications should I act on first?",
+      "Help me troubleshoot the latest device issue",
+    ];
+  }
+  if (pathname.startsWith("/learn") || pathname.startsWith("/help") || pathname.startsWith("/blog")) {
+    return [
+      "Explain how minting works in plain English",
+      "How does $ZSOLAR get its value?",
+      "What's the difference between solar credits and tokens?",
+      "How do I get the most from my battery?",
+    ];
+  }
+  if (pathname.startsWith("/referrals") || pathname.startsWith("/subscribe")) {
+    return [
+      "Which plan is right for me?",
+      "How does the referral bonus work?",
+      "What do I unlock by upgrading?",
+    ];
+  }
+  return null;
+}
+
 // Shown when Deason is opened *during* onboarding. Scoped to questions
 // a user is most likely to have mid-setup — wallet, OEM connections,
 // what gets minted, what's safe. Replaces the founder/insider set
