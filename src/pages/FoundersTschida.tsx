@@ -15,6 +15,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { VaultPinGate } from "@/components/founders/VaultPinGate";
+import { FounderInvestorSsotBanner } from "@/components/founders/FounderInvestorSsotBanner";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { summarizeModel, buildWaveMath } from "@/lib/subscriptionSplitModel";
