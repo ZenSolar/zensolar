@@ -107,7 +107,7 @@ function buildUnlocks(preview: boolean): Array<{
   return [
     { icon: FileText, label: 'Full Seed Round Deck', desc: '11 slides · PIN-gated', to: '/deck' },
     { icon: FileText, label: 'One-Pager', desc: 'The leave-behind summary', to: '/investor/one-pager' },
-    { icon: PlayCircle, label: 'Live Investor Demo', desc: 'Full Tesla + Powerwall + Wallbox home', to: `${preview ? '/demo-leonardo' : '/demo'}?demo=investor` },
+    { icon: PlayCircle, label: 'Live Investor Demo', desc: 'Full Tesla + Powerwall + Wallbox home', to: '/demo?demo=investor' },
     { icon: FileText, label: 'Investor Data Room', desc: 'PoG, VPP, traction, IP, use of funds', to: '/investor/data-room' },
     { icon: GitCompare, label: 'SolarCoin Comparison', desc: 'UX, AI, and tokenomics vs legacy SolarCoin', to: '/investor/solarcoin-comparison' },
   ];
@@ -430,7 +430,7 @@ function UnlockedPanel({
   onResend: () => void;
 }) {
   const firstName = signed.fullName.split(' ')[0] || 'there';
-  const demoHref = `${isPreviewHost() ? '/demo-leonardo' : '/demo'}?demo=investor`;
+  const demoHref = '/demo?demo=investor';
   return (
     <div id="unlocked" className="space-y-6">
       <div className="rounded-2xl border border-secondary/20 bg-secondary/[0.04] px-5 py-4">

@@ -63,8 +63,6 @@ const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 // Lazy load all other pages for code splitting
 const Install = lazy(() => import("./pages/Install"));
 const Demo = lazy(() => import("./pages/Demo"));
-const DwightPreview = lazy(() => import("./pages/DwightPreview"));
-const TaylorPreview = lazy(() => import("./pages/TaylorPreview"));
 const DemoLayout = lazy(() => import("./components/demo/DemoLayout").then(m => ({ default: m.DemoLayout })));
 const ZenSolarDashboard = lazy(() => import("./components/ZenSolarDashboard").then(m => ({ default: m.ZenSolarDashboard })));
 
@@ -146,8 +144,6 @@ const Technology = lazy(() => import("./pages/Technology"));
 const ProofOfGenesis = lazy(() => import("./pages/ProofOfGenesis"));
 const ProofOfGenesisMainnetReadiness = lazy(() => import("./pages/ProofOfGenesisMainnetReadiness"));
 const ProofOfGenesisReceiptPreview = lazy(() => import("./pages/ProofOfGenesisReceiptPreview"));
-const MintAllReceiptMock = lazy(() => import("./pages/MintAllReceiptMock"));
-const MintFlowMicroPreview = lazy(() => import("./pages/MintFlowMicroPreview"));
 const NftCollection = lazy(() => import("./pages/NftCollection"));
 const Wallet = lazy(() => import("./pages/Wallet"));
 // Combined pages
@@ -327,13 +323,8 @@ const App = () => {
                    <Route path="/investor/data-room/pog" element={<Suspense fallback={<PageLoader />}><InvestorDataRoomPoG /></Suspense>} />
                     <Route path="/hero-test" element={<Suspense fallback={<PageLoader />}><HeroTest /></Suspense>} />
                     
-                    <Route path="/dwight-preview" element={<DwightPreview />} />
-                    <Route path="/taylor-preview" element={<TaylorPreview />} />
                     <Route path="/proof-of-genesis-receipt-preview" element={<ProofOfGenesisReceiptPreview />} />
                     <Route path="/demo/proof-of-genesis-receipt-preview" element={<ProofOfGenesisReceiptPreview />} />
-                    <Route path="/mock/mint-all-receipt" element={<Suspense fallback={<PageLoader />}><MintAllReceiptMock /></Suspense>} />
-                    <Route path="/preview/mint-flow-micro" element={<Suspense fallback={<PageLoader />}><MintFlowMicroPreview /></Suspense>} />
-                    <Route path="/demo/mint-flow-micro" element={<Suspense fallback={<PageLoader />}><MintFlowMicroPreview /></Suspense>} />
                     {/* Resilient aliases — catch common typos / old paths so the link never 404s */}
                     <Route path="/proof-of-genesis-receipt" element={<Navigate to="/proof-of-genesis-receipt-preview" replace />} />
                     <Route path="/pog-receipt-preview" element={<Navigate to="/proof-of-genesis-receipt-preview" replace />} />
@@ -384,38 +375,9 @@ const App = () => {
                       <Route path="reviewer" element={<DemoReviewerHub />} />
                     </Route>
 
-                    {/* Leonardo's private ungated demo — same synthetic showcase as /demo
-                        but bypasses the access code + NDA gate. Unlisted URL. */}
-                    <Route path="/demo-leonardo" element={<DemoLayout />}>
-                      <Route index element={<DemoDashboard />} />
-                      <Route path="energy-log" element={<DemoEnergyLog />} />
-                      <Route path="nft-collection" element={<DemoNftCollection />} />
-                      <Route path="mint-history" element={<MintHistory />} />
-                      <Route path="learn" element={<Learn />} />
-                      <Route path="learn/tour" element={<LearnTour />} />
-                      <Route path="learn/glossary" element={<LearnGlossary />} />
-                      <Route path="learn/how-it-works" element={<LearnHowItWorks />} />
-                      <Route path="learn/tokenomics" element={<LearnTokenomics />} />
-                      <Route path="learn/proof-of-genesis" element={<LearnProofOfGenesis />} />
-                      <Route path="learn/patent-tech" element={<LearnPatentTech />} />
-                      <Route path="proof-of-genesis" element={<ProofOfGenesis />} />
-                      <Route path="white-paper" element={<WhitePaper />} />
-                      <Route path="engineering" element={<Engineering />} />
-                      <Route path="technology" element={<Technology />} />
-                      <Route path="store" element={<Store />} />
-                      <Route path="referrals" element={<Referrals />} />
-                      <Route path="notifications" element={<Notifications />} />
-                      <Route path="profile" element={<Profile />} />
-                      <Route path="wallet" element={<DemoWallet />} />
-                      <Route path="settings" element={<Settings />} />
-                      <Route path="help-center" element={<HelpCenter />} />
-                      <Route path="how-it-works" element={<HowItWorks />} />
-                      <Route path="tokenomics" element={<Tokenomics />} />
-                      <Route path="terms" element={<Terms />} />
-                      <Route path="privacy" element={<Privacy />} />
-                      <Route path="blog" element={<Blog />} />
-                      <Route path="reviewer" element={<DemoReviewerHub />} />
-                    </Route>
+                    {/* /demo-leonardo retired — redirect to /demo for any old links. */}
+                    <Route path="/demo-leonardo" element={<Navigate to="/demo" replace />} />
+                    <Route path="/demo-leonardo/*" element={<Navigate to="/demo" replace />} />
 
 
                     <Route path="/home" element={<Home />} />
