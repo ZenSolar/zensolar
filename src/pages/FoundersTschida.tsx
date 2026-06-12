@@ -15,6 +15,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { VaultPinGate } from "@/components/founders/VaultPinGate";
+import { FounderInvestorSsotBanner } from "@/components/founders/FounderInvestorSsotBanner";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { summarizeModel, buildWaveMath } from "@/lib/subscriptionSplitModel";
@@ -137,6 +138,7 @@ function TschidaContent() {
 
   return (
     <div className="min-h-[100svh] bg-background text-foreground">
+      <FounderInvestorSsotBanner note="Cofounder handout. The 50/50 subscription-split math here is internal modeling — investor-facing engine framing lives at /investor/pitch (ThreeRevenueEngines)." />
       <div
         className="max-w-3xl mx-auto px-4 sm:px-6 pb-16"
         style={{ paddingTop: "calc(env(safe-area-inset-top) + 1.5rem)" }}

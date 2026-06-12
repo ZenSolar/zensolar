@@ -15,6 +15,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIsFounder } from "@/hooks/useIsFounder";
 import { isPreviewMode } from "@/lib/previewMode";
 import { supabase } from "@/integrations/supabase/client";
+import { FounderInvestorSsotBanner } from "@/components/founders/FounderInvestorSsotBanner";
+import { ThreeRevenueEngines } from "@/components/investor/ThreeRevenueEngines";
 
 const PDF_FILENAME = "seed-ask-lyndon-v8.1final.pdf";
 
@@ -63,6 +65,8 @@ export default function FoundersTheAsk() {
           </div>
         </div>
       </header>
+
+      <FounderInvestorSsotBanner note="This page shows a legacy $5M / board-seat framing for Lyndon. The current canonical ask is $2.5–3.5M Part 1 (convertible note) at /investor/pitch. Use this page only for internal context — share /investor/pitch externally." />
 
       {/* Hero */}
       <section className="max-w-5xl mx-auto px-5 md:px-6 pt-10 md:pt-14 pb-8">
@@ -239,6 +243,14 @@ export default function FoundersTheAsk() {
             <li>• Not a follow-on commitment. Series A is its own metrics-triggered conversation.</li>
           </ul>
         </div>
+      </section>
+
+      {/* Canonical investor framing — single source of truth */}
+      <section className="max-w-5xl mx-auto px-5 md:px-6 pb-12">
+        <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-3">
+          Canonical investor framing · /investor/pitch
+        </p>
+        <ThreeRevenueEngines />
       </section>
 
       <footer className="max-w-5xl mx-auto px-5 md:px-6 py-8 border-t border-border/40 text-[10px] uppercase tracking-widest text-muted-foreground text-center">
