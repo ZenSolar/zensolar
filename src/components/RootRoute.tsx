@@ -34,7 +34,7 @@ export function RootRoute() {
     }
 
     if (!isAuthenticated) {
-      return <Navigate to="/demo" replace />;
+      return <Navigate to="/home" replace />;
     }
   }
 
