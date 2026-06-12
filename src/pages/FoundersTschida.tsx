@@ -138,6 +138,7 @@ function TschidaContent() {
 
   return (
     <div className="min-h-[100svh] bg-background text-foreground">
+      <FounderInvestorSsotBanner note="Cofounder handout. The 50/50 subscription-split math here is internal modeling — investor-facing engine framing lives at /investor/pitch (ThreeRevenueEngines)." />
       <div
         className="max-w-3xl mx-auto px-4 sm:px-6 pb-16"
         style={{ paddingTop: "calc(env(safe-area-inset-top) + 1.5rem)" }}
