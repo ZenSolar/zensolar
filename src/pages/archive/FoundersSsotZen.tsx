@@ -33,7 +33,7 @@ import { SEO } from "@/components/SEO";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { cn } from "@/lib/utils";
 
-const ChartsBlock = lazy(() => import("./founders-ssot/SsotCharts"));
+const ChartsBlock = lazy(() => import("../founders-ssot/SsotCharts"));
 import { ScarcityOutlookSection } from "@/components/founders/ScarcityOutlookSection";
 
 const SSOT = {
