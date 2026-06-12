@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Send, Sparkles, RotateCcw, X, Paperclip, Image as ImageIcon, ChevronUp, ChevronDown, Save, FileText, ArrowRight, MessageSquare, Pin, PinOff, Pencil, Trash2, Check, FileCheck2, Copy, RefreshCw, AlertTriangle } from "lucide-react";
+import { Send, Sparkles, RotateCcw, X, Paperclip, Image as ImageIcon, ChevronUp, ChevronDown, Save, FileText, ArrowRight, MessageSquare, Pin, PinOff, Pencil, Trash2, Check, FileCheck2, Copy, RefreshCw, AlertTriangle, Mic } from "lucide-react";
+import { useVoiceDictation } from "@/hooks/useVoiceDictation";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
