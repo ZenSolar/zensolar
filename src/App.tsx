@@ -63,8 +63,6 @@ const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 // Lazy load all other pages for code splitting
 const Install = lazy(() => import("./pages/Install"));
 const Demo = lazy(() => import("./pages/Demo"));
-const DwightPreview = lazy(() => import("./pages/DwightPreview"));
-const TaylorPreview = lazy(() => import("./pages/TaylorPreview"));
 const DemoLayout = lazy(() => import("./components/demo/DemoLayout").then(m => ({ default: m.DemoLayout })));
 const ZenSolarDashboard = lazy(() => import("./components/ZenSolarDashboard").then(m => ({ default: m.ZenSolarDashboard })));
 
