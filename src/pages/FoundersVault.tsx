@@ -9,8 +9,6 @@ import {
   RefreshCw,
   ScrollText,
   LogOut,
-  BookOpen,
-  ArrowRight,
   Home,
   Compass,
 } from "lucide-react";
@@ -18,7 +16,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useVaultSnapshot } from "@/hooks/useVaultSnapshot";
 import { VaultPinGate } from "@/components/founders/VaultPinGate";
-import { JumpToChapter } from "@/components/founders/JumpToChapter";
+
 import { openFounderChooser } from "@/lib/founderChooser";
 import { FounderCard } from "@/components/founders/FounderCard";
 import { PriceScenarioToggle } from "@/components/founders/PriceScenarioToggle";
