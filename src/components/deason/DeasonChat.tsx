@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Send, Sparkles, RotateCcw, X, Paperclip, Image as ImageIcon, ChevronUp, ChevronDown, Save, FileText, ArrowRight, MessageSquare, Pin, PinOff, Pencil, Trash2, Check, FileCheck2, Copy, RefreshCw, AlertTriangle } from "lucide-react";
+import { Send, Sparkles, RotateCcw, X, Paperclip, Image as ImageIcon, ChevronUp, ChevronDown, Save, FileText, ArrowRight, MessageSquare, Pin, PinOff, Pencil, Trash2, Check, FileCheck2, Copy, RefreshCw, AlertTriangle, Mic } from "lucide-react";
+import { useVoiceDictation } from "@/hooks/useVoiceDictation";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -88,6 +89,52 @@ const PUBLIC_PROMPTS = [
   "How can I cut my bill the most this month?",
 ];
 
+// Route-aware contextual prompts. When a user opens Deason from a specific
+// screen, surface 3-4 prompts that match what they're looking at — much
+// higher signal than the generic public set. Falls back to PUBLIC_PROMPTS
+// when no route matches.
+function getContextualPrompts(pathname: string): string[] | null {
+  if (pathname === "/" || pathname === "/index" || pathname.startsWith("/dashboard")) {
+    return [
+      "Explain what I'm seeing on the dashboard",
+      "Why did my mint change today?",
+      "How is my battery being used right now?",
+      "What should I do to mint more this week?",
+    ];
+  }
+  if (pathname.startsWith("/energy-insights")) {
+    return [
+      "Walk me through this week's energy report",
+      "Where am I leaving savings on the table?",
+      "Compare my peak vs off-peak usage",
+      "What rate plan would save me the most?",
+    ];
+  }
+  if (pathname.startsWith("/notifications")) {
+    return [
+      "Explain my most recent alert",
+      "Which notifications should I act on first?",
+      "Help me troubleshoot the latest device issue",
+    ];
+  }
+  if (pathname.startsWith("/learn") || pathname.startsWith("/help") || pathname.startsWith("/blog")) {
+    return [
+      "Explain how minting works in plain English",
+      "How does $ZSOLAR get its value?",
+      "What's the difference between solar credits and tokens?",
+      "How do I get the most from my battery?",
+    ];
+  }
+  if (pathname.startsWith("/referrals") || pathname.startsWith("/subscribe")) {
+    return [
+      "Which plan is right for me?",
+      "How does the referral bonus work?",
+      "What do I unlock by upgrading?",
+    ];
+  }
+  return null;
+}
+
 // Shown when Deason is opened *during* onboarding. Scoped to questions
 // a user is most likely to have mid-setup — wallet, OEM connections,
 // what gets minted, what's safe. Replaces the founder/insider set
@@ -111,6 +158,22 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
   const { isInnerCircle } = useUserPersona();
   const { library, profileCtx } = useDeasonHub();
   const [input, setInput] = useState("");
+  const voice = useVoiceDictation();
+  const voiceStartedRef = useRef(false);
+
+  const beginVoice = () => {
+    if (!voice.supported || streaming || voice.recording) return;
+    voiceStartedRef.current = true;
+    voice.start();
+  };
+  const endVoice = () => {
+    if (!voiceStartedRef.current) return;
+    voiceStartedRef.current = false;
+    const text = voice.stop();
+    if (text) {
+      setInput((prev) => (prev ? `${prev.trimEnd()} ${text}` : text));
+    }
+  };
   const [attachedFile, setAttachedFile] = useState<{ dataUrl: string; name: string; kind: "image" | "pdf" } | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [energySheetOpen, setEnergySheetOpen] = useState(false);
@@ -350,7 +413,7 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
     ? ONBOARDING_PROMPTS
     : isDemoSurface
     ? REVIEWER_PROMPTS
-    : PUBLIC_PROMPTS;
+    : (getContextualPrompts(location.pathname) ?? PUBLIC_PROMPTS);
   const persistenceLabel = threadId ? "saved" : "ephemeral";
   const baseHeaderSubtitle = isOnboardingSurface
     ? `Setup helper · ${persistenceLabel}`
@@ -637,6 +700,21 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
             </Button>
           </div>
         )}
+        {voice.recording && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="mb-1.5 flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1.5 text-[11px] font-medium text-amber-700 dark:text-amber-300"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" />
+            </span>
+            <span className="truncate">
+              {voice.interim || "Listening… release to insert"}
+            </span>
+          </div>
+        )}
         <div className="relative flex items-end gap-1.5 rounded-2xl border border-border bg-background px-1.5 py-1 focus-within:border-amber-500/60 focus-within:ring-1 focus-within:ring-amber-500/30 transition-colors">
           {slashOpen && slashItems.length > 0 && (
             <Suspense fallback={null}>
@@ -661,6 +739,27 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
           >
             <Paperclip className="h-4 w-4" />
           </Button>
+
+          {voice.supported && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onPointerDown={(e) => { e.preventDefault(); beginVoice(); }}
+              onPointerUp={endVoice}
+              onPointerLeave={endVoice}
+              onPointerCancel={endVoice}
+              title="Press and hold to talk"
+              aria-label={voice.recording ? "Recording — release to insert" : "Press and hold to speak"}
+              disabled={streaming}
+              className={cn(
+                "h-9 w-9 flex-shrink-0 rounded-full transition-colors touch-none select-none",
+                voice.recording && "bg-amber-500 text-black hover:bg-amber-400 animate-pulse"
+              )}
+            >
+              <Mic className="h-4 w-4" />
+            </Button>
+          )}
 
           <Textarea
             value={input}
