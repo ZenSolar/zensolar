@@ -1293,7 +1293,8 @@ const App = () => {
                     <Route path="/founders/bitcoin-thesis" element={<Navigate to="/admin/archive/founders-bitcoin-thesis" replace />} />
                     <Route path="/founders/funded-lp" element={<Navigate to="/admin/archive/founders-funded-lp" replace />} />
                     <Route path="/founders/tschida" element={<Navigate to="/admin/archive/founders-tschida" replace />} />
-                    <Route path="/founders/subscription-admin" element={<FounderRoute><AdminSubscriptionPanel /></FounderRoute>} />
+                    <Route path="/admin/subscriptions" element={<ProtectedRoute><AppLayout><AdminSubscriptionPanel /></AppLayout></ProtectedRoute>} />
+                    <Route path="/founders/subscription-admin" element={<Navigate to="/admin/subscriptions" replace />} />
                     <Route path="/founders/flywheel-simulation" element={<Navigate to="/admin/archive/founders-flywheel-simulation" replace />} />
                     <Route path="/founders/simulator" element={<Navigate to="/admin/archive/founders-simulator" replace />} />
                     <Route path="/simulator" element={<Navigate to="/admin/archive/founders-simulator" replace />} />
