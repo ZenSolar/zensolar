@@ -100,16 +100,7 @@ export const HUB_CARDS: HubCardDef[] = [
     tone: "primary",
     createdAt: "2026-04-28",
   },
-  {
-    id: "tschida",
-    to: "/founders/tschida",
-    eyebrow: "Private · For Michael Tschida",
-    title: "50/50 Split Handout",
-    blurb: "Branded one-pager PDF. Verified against the live transparency model.",
-    icon: Download,
-    tone: "eco",
-    createdAt: "2026-04-28",
-  },
+  // Archived May 2026: Tschida 50/50 handout — math lives in src/lib/subscriptionSplitModel.ts
   {
     id: "bitcoin-thesis",
     to: "/founders/bitcoin-thesis",
