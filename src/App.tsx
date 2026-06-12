@@ -77,7 +77,7 @@ const AdminEvApiReference = lazy(() => import("./pages/AdminEvApiReference"));
 const AdminRevenueFlywheel = lazy(() => import("./pages/AdminRevenueFlywheel"));
 const AdminSubscriptionPanel = lazy(() => import("./pages/AdminSubscriptionPanel"));
 const FlywheelSimulation = lazy(() => import("./pages/FlywheelSimulation"));
-const FoundersSimulator = lazy(() => import("./pages/FoundersSimulator"));
+const FoundersSimulator = lazy(() => import("./pages/archive/FoundersSimulator"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const AdminMintRequests = lazy(() => import("./pages/AdminMintRequests"));
 const AdminPageCleanup = lazy(() => import("./pages/AdminPageCleanup"));
