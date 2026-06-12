@@ -144,8 +144,6 @@ const Technology = lazy(() => import("./pages/Technology"));
 const ProofOfGenesis = lazy(() => import("./pages/ProofOfGenesis"));
 const ProofOfGenesisMainnetReadiness = lazy(() => import("./pages/ProofOfGenesisMainnetReadiness"));
 const ProofOfGenesisReceiptPreview = lazy(() => import("./pages/ProofOfGenesisReceiptPreview"));
-const MintAllReceiptMock = lazy(() => import("./pages/MintAllReceiptMock"));
-const MintFlowMicroPreview = lazy(() => import("./pages/MintFlowMicroPreview"));
 const NftCollection = lazy(() => import("./pages/NftCollection"));
 const Wallet = lazy(() => import("./pages/Wallet"));
 // Combined pages
