@@ -700,6 +700,21 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
             </Button>
           </div>
         )}
+        {voice.recording && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="mb-1.5 flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1.5 text-[11px] font-medium text-amber-700 dark:text-amber-300"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" />
+            </span>
+            <span className="truncate">
+              {voice.interim || "Listening… release to insert"}
+            </span>
+          </div>
+        )}
         <div className="relative flex items-end gap-1.5 rounded-2xl border border-border bg-background px-1.5 py-1 focus-within:border-amber-500/60 focus-within:ring-1 focus-within:ring-amber-500/30 transition-colors">
           {slashOpen && slashItems.length > 0 && (
             <Suspense fallback={null}>
