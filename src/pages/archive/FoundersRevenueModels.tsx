@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { SimplePinGate } from "@/components/founders/SimplePinGate";
-import { ProjectionChart } from "@/components/founders/revenue-models/ProjectionChart";
+import { ProjectionChart } from "../../components/founders/revenue-models/ProjectionChart";
 import {
   DEFAULT_ASSUMPTIONS,
   buildProjection,
