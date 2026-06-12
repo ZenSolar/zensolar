@@ -1403,7 +1403,7 @@ const App = () => {
                     <Route path="/founders/ssot-one-pager" element={<Navigate to="/investor/one-pager" replace />} />
                     <Route path="/founders/bitcoin-thesis" element={<FounderRoute><FoundersBitcoinThesis /></FounderRoute>} />
                     <Route path="/founders/funded-lp" element={<FounderRoute><FoundersFundedLP /></FounderRoute>} />
-                    <Route path="/founders/tschida" element={<FounderRoute><FoundersTschida /></FounderRoute>} />
+                    <Route path="/founders/tschida" element={<Navigate to="/admin/archive/founders-tschida" replace />} />
                     <Route path="/founders/subscription-admin" element={<FounderRoute><AdminSubscriptionPanel /></FounderRoute>} />
                     <Route path="/founders/flywheel-simulation" element={<FounderRoute><FlywheelSimulation /></FounderRoute>} />
                     <Route path="/founders/simulator" element={<Navigate to="/admin/archive/founders-simulator" replace />} />
