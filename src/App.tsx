@@ -1384,8 +1384,8 @@ const App = () => {
                     <Route path="/founders/vault/deason-utility-ai-revstream" element={<Navigate to="/admin/archive/founders-deason-utility-ai" replace />} />
                     <Route path="/founders/seed-ask" element={<Navigate to="/founders/the-ask" replace />} />
                     <Route path="/founders/competitive-landscape" element={<FounderRoute><FoundersCompetitiveLandscape /></FounderRoute>} />
-                    <Route path="/founders/the-ask" element={<FounderRoute><FoundersTheAsk /></FounderRoute>} />
-                    <Route path="/founders/seed-allocation" element={<FounderRoute><FoundersSeedAllocation /></FounderRoute>} />
+                    <Route path="/founders/the-ask" element={<Navigate to="/admin/archive/founders-the-ask" replace />} />
+                    <Route path="/founders/seed-allocation" element={<Navigate to="/admin/archive/founders-seed-allocation" replace />} />
                     <Route path="/founders/current-status" element={<FounderRoute><FoundersCurrentStatus /></FounderRoute>} />
                     <Route path="/founders/changelog" element={<FounderRoute><FoundersChangelog /></FounderRoute>} />
                     <Route path="/founders/creative-1to1-tokenomics-ideas" element={<Navigate to="/admin/archive/founders-creative-1to1-tokenomics" replace />} />
