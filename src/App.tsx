@@ -1349,6 +1349,10 @@ const App = () => {
                       { slug: 'founders-simulator', model: 'Founders Simulator', Comp: FoundersSimulator, reason: 'One-off math sandbox — superseded by /founders/flywheel-simulation' },
                       { slug: 'founders-revenue-models', model: 'Revenue Models (founder math)', Comp: FoundersRevenueModels, reason: 'Investor narrative now lives at /investor/pitch (ThreeRevenueEngines SSOT)' },
                       { slug: 'founders-secondary-revenue', model: 'Secondary Revenue Streams', Comp: FoundersSecondaryRevenue, reason: 'Investor narrative now lives at /investor/pitch (ThreeRevenueEngines SSOT)' },
+                      { slug: 'founders-the-ask', model: 'The Ask (Lyndon $5M / board seat)', Comp: FoundersTheAsk, reason: 'Stale raise framing — current ask is $2.5–3.5M Part 1 at /investor/pitch' },
+                      { slug: 'founders-seed-allocation', model: 'Seed Allocation (editable $5M one-pager)', Comp: FoundersSeedAllocation, reason: 'Stale $5M / $0.25-launch numbers — canonical raise lives at /investor/pitch' },
+                      { slug: 'founders-lyndon-one-pager', model: 'Lyndon One-Pager (distribution framing)', Comp: FoundersLyndonOnePager, reason: 'Superseded by /investor/pitch as the canonical outbound artifact' },
+                      { slug: 'founders-tschida', model: 'Tschida Cofounder Handout (50/50 PDF)', Comp: FoundersTschida, reason: 'Archived per founder request — math remains in src/lib/subscriptionSplitModel.ts' },
                     ] as const).map(({ slug, model, Comp, reason }) => (
                       <Route key={slug} path={`/admin/archive/${slug}`} element={
                         <ProtectedRoute><AppLayout>
