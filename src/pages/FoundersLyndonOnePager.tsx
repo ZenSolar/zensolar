@@ -92,6 +92,7 @@ const PROOF_LINKS: ProofLink[] = [
 function OnePagerContent() {
   return (
     <div className="min-h-[100svh] bg-background text-foreground">
+      <FounderInvestorSsotBanner note="One-pager framing for Lyndon Rive. Investor-facing pitch SSOT lives at /investor/pitch — share that, not this." />
       <div
         className="max-w-3xl mx-auto px-4 sm:px-6 pb-16"
         style={{ paddingTop: "calc(env(safe-area-inset-top) + 1.5rem)" }}
