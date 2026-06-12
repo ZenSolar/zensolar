@@ -302,7 +302,10 @@ export default function Deason() {
   const highlightQuery = searchParams.get("q") ?? undefined;
 
   return (
-    <div className="mx-auto flex h-[100svh] w-full max-w-5xl">
+    <div
+      className="mx-auto flex h-[100svh] w-full max-w-5xl"
+      style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
+    >
       <div className={cn("h-full w-full md:flex md:w-72", threadId ? "hidden md:flex" : "flex")}>
         {sidebar}
       </div>
