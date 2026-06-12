@@ -245,6 +245,14 @@ export default function FoundersTheAsk() {
         </div>
       </section>
 
+      {/* Canonical investor framing — single source of truth */}
+      <section className="max-w-5xl mx-auto px-5 md:px-6 pb-12">
+        <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-3">
+          Canonical investor framing · /investor/pitch
+        </p>
+        <ThreeRevenueEngines />
+      </section>
+
       <footer className="max-w-5xl mx-auto px-5 md:px-6 py-8 border-t border-border/40 text-[10px] uppercase tracking-widest text-muted-foreground text-center">
         ZenSolar · Founders · Confidential
       </footer>
