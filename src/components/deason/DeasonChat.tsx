@@ -396,7 +396,7 @@ export function DeasonChat({ onClose, compact = false, threadId = null, onNewThr
     ? ONBOARDING_PROMPTS
     : isDemoSurface
     ? REVIEWER_PROMPTS
-    : PUBLIC_PROMPTS;
+    : (getContextualPrompts(location.pathname) ?? PUBLIC_PROMPTS);
   const persistenceLabel = threadId ? "saved" : "ephemeral";
   const baseHeaderSubtitle = isOnboardingSurface
     ? `Setup helper · ${persistenceLabel}`
