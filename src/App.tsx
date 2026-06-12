@@ -323,13 +323,8 @@ const App = () => {
                    <Route path="/investor/data-room/pog" element={<Suspense fallback={<PageLoader />}><InvestorDataRoomPoG /></Suspense>} />
                     <Route path="/hero-test" element={<Suspense fallback={<PageLoader />}><HeroTest /></Suspense>} />
                     
-                    <Route path="/dwight-preview" element={<DwightPreview />} />
-                    <Route path="/taylor-preview" element={<TaylorPreview />} />
                     <Route path="/proof-of-genesis-receipt-preview" element={<ProofOfGenesisReceiptPreview />} />
                     <Route path="/demo/proof-of-genesis-receipt-preview" element={<ProofOfGenesisReceiptPreview />} />
-                    <Route path="/mock/mint-all-receipt" element={<Suspense fallback={<PageLoader />}><MintAllReceiptMock /></Suspense>} />
-                    <Route path="/preview/mint-flow-micro" element={<Suspense fallback={<PageLoader />}><MintFlowMicroPreview /></Suspense>} />
-                    <Route path="/demo/mint-flow-micro" element={<Suspense fallback={<PageLoader />}><MintFlowMicroPreview /></Suspense>} />
                     {/* Resilient aliases — catch common typos / old paths so the link never 404s */}
                     <Route path="/proof-of-genesis-receipt" element={<Navigate to="/proof-of-genesis-receipt-preview" replace />} />
                     <Route path="/pog-receipt-preview" element={<Navigate to="/proof-of-genesis-receipt-preview" replace />} />
