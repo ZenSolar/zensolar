@@ -196,9 +196,25 @@ export function DeasonFloatingBubble() {
   // Allow on /demo even without auth (concierge persona handles unauthenticated demo visitors).
   if (isLoading) return null;
   if (!user && !isDemoRoute) return null;
-  if (location.pathname.startsWith("/deason")) return null;
-  if (location.pathname.startsWith("/auth")) return null;
-  if (location.pathname.startsWith("/deck")) return null;
+  // Routes where the floating Deason bubble should NEVER appear.
+  // Gated/utility surfaces (founders vault, admin, investor materials,
+  // onboarding flows, OAuth callbacks, install/verify pages) have their
+  // own focus and shouldn't show the public chat affordance.
+  const DENY_PREFIXES = [
+    "/deason",
+    "/auth",
+    "/deck",
+    "/founders",
+    "/admin",
+    "/investor",
+    "/onboarding",
+    "/install",
+    "/oauth",
+    "/verify-poa",
+    "/proof-of-genesis",
+    "/device-proof",
+  ];
+  if (DENY_PREFIXES.some((p) => location.pathname.startsWith(p))) return null;
   // Hide during the full-screen AI Concierge intake (signaled by Onboarding.tsx).
   if (typeof document !== 'undefined' && document.body.dataset.hideDeasonBubble === '1') return null;
 

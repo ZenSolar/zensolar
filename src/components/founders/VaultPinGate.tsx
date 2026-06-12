@@ -209,7 +209,7 @@ export function VaultPinGate({ userId, children }: Props) {
         setSetupStage("create");
         return;
       }
-      toast.success("PIN set. Vault unlocked.");
+      toast.success("PIN set. Vault unlocked.", { id: "vault-pin-set" });
       await markUnlocked();
     } finally {
       setBusy(false);
