@@ -1,22 +1,19 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
-  BookOpen,
   Vault,
-  Atom,
-  Rocket,
   ChevronRight,
   Check,
   X,
   Clock,
-  Bitcoin,
   Sparkles,
-  FileText,
+  ListTree,
   Banknote,
-  Map,
-  ScrollText,
-  Zap,
+  Presentation,
   ShieldCheck,
+  Atom,
+  Coins,
+  Activity,
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,6 +24,7 @@ import {
   isFounderRoute,
 } from "@/lib/founderLastVisit";
 
+
 export type FounderDestination = {
   to: string;
   label: string;
@@ -34,79 +32,67 @@ export type FounderDestination = {
   Icon: LucideIcon;
 };
 
+// Only LIVE destinations — archived brainstorm pages removed June 2026.
 export const FOUNDER_DESTINATIONS: FounderDestination[] = [
   {
     to: "/founders",
     label: "Founders Hub",
-    blurb: "Vault overview, founder cards, LP rounds.",
+    blurb: "Vault overview and pinned cards.",
     Icon: Vault,
   },
   {
-    to: "/founder-pack",
-    label: "The Founder Pack",
-    blurb: "All twelve chapters — Evolution → The Pact.",
-    Icon: BookOpen,
+    to: "/admin/ssot",
+    label: "SSOT",
+    blurb: "Single source of truth — canonical decisions.",
+    Icon: ListTree,
   },
   {
-    to: "/whitepaper-phase-1",
-    label: "White Paper · Phase 1",
-    blurb: "The foundational thesis and protocol.",
-    Icon: FileText,
+    to: "/admin/todo",
+    label: "Todo Board",
+    blurb: "Live work queue.",
+    Icon: ListTree,
   },
   {
-    to: "/whitepaper-phase-2",
-    label: "White Paper · Phase 2",
-    blurb: "The expansion roadmap.",
-    Icon: Rocket,
+    to: "/investor/pitch",
+    label: "Investor Pitch",
+    blurb: "Canonical deck — Three Revenue Engines.",
+    Icon: Presentation,
   },
   {
-    to: "/founders/seed-ask",
-    label: "Seed Ask · Lyndon",
-    blurb: "The Lyndon Rive seed round ask.",
+    to: "/investor/one-pager",
+    label: "Investor One-Pager",
+    blurb: "NDA-shareable single-page brief.",
     Icon: Banknote,
   },
   {
-    to: "/founders/bitcoin-thesis",
-    label: "Bitcoin Conviction",
-    blurb: "5-Layer thesis — why we overtake BTC.",
-    Icon: Bitcoin,
+    to: "/admin/fundraising",
+    label: "Fundraising",
+    blurb: "Live round tracker.",
+    Icon: Banknote,
   },
   {
-    to: "/founders/proof-of-genesis",
-    label: "Proof of Genesis™",
-    blurb: "The cryptographic primitive thesis.",
-    Icon: Atom,
+    to: "/admin/final-tokenomics",
+    label: "Final Tokenomics",
+    blurb: "Mint Split v3.1 — locked model.",
+    Icon: Coins,
   },
   {
-    to: "/founders/master-outline",
-    label: "Master Outline",
-    blurb: "The full project blueprint.",
-    Icon: Map,
-  },
-  // Lyndon One-Pager archived May 2026 → /investor/pitch is the canonical artifact
-  {
-    to: "/founders/vpp-roadmap",
-    label: "VPP Roadmap",
-    blurb: "Virtual Power Plant strategy.",
-    Icon: Zap,
-  },
-  {
-    to: "/founders/patent-expansion",
-    label: "Patent Expansion",
-    blurb: "IP moat — claim expansion plan.",
+    to: "/founders/competitive-landscape",
+    label: "Competitive Landscape",
+    blurb: "Per-competitor wedge and moat.",
     Icon: ShieldCheck,
   },
   {
-    to: "/founders/v2app",
-    label: "v2 App Sandbox",
-    blurb: "Next-gen app prototype.",
-    Icon: Sparkles,
+    to: "/proof-of-genesis",
+    label: "Proof of Genesis™",
+    blurb: "The cryptographic primitive.",
+    Icon: Atom,
   },
   {
-    to: "/founders/deason-v3",
-    label: "Deason V3 — Wow Stack",
-    blurb: "Next-gen Deason interface.",
-    Icon: Sparkles,
+    to: "/transparency",
+    label: "Transparency",
+    blurb: "Live network stats and LP reserves.",
+    Icon: Activity,
   },
   {
     to: "/deason",
@@ -114,13 +100,8 @@ export const FOUNDER_DESTINATIONS: FounderDestination[] = [
     blurb: "Founders-only AI agent.",
     Icon: Sparkles,
   },
-  {
-    to: "/founders/changelog",
-    label: "Changelog",
-    blurb: "Recent vault updates.",
-    Icon: FileText,
-  },
 ];
+
 
 interface Props {
   userId: string;

@@ -9,8 +9,6 @@ import {
   RefreshCw,
   ScrollText,
   LogOut,
-  BookOpen,
-  ArrowRight,
   Home,
   Compass,
 } from "lucide-react";
@@ -18,7 +16,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useVaultSnapshot } from "@/hooks/useVaultSnapshot";
 import { VaultPinGate } from "@/components/founders/VaultPinGate";
-import { JumpToChapter } from "@/components/founders/JumpToChapter";
+
 import { openFounderChooser } from "@/lib/founderChooser";
 import { FounderCard } from "@/components/founders/FounderCard";
 import { PriceScenarioToggle } from "@/components/founders/PriceScenarioToggle";
@@ -240,35 +238,9 @@ function VaultDashboard({ isAdmin }: { isAdmin: boolean }) {
           </h1>
         </motion.div>
 
-        {/* Founder Pack CTA */}
-        <Link
-          to="/founder-pack"
-          className="block rounded-2xl border border-amber-400/40 bg-gradient-to-br from-amber-400/10 via-amber-400/5 to-transparent p-4 hover:border-amber-400/70 transition-colors group"
-        >
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="h-10 w-10 rounded-xl bg-amber-400/15 flex items-center justify-center">
-                <BookOpen className="h-5 w-5 text-amber-400" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[10px] uppercase tracking-widest text-amber-400">
-                  Eyes-Only · v5.6 Northstar
-                </p>
-                <p className="text-sm font-semibold">The Founder Pack</p>
-                <p className="text-[11px] text-muted-foreground line-clamp-2">
-                  Allocations, halving, patent moat, ARR ladder, flywheel, 20-yr trajectory
-                </p>
-              </div>
-            </div>
-            <ArrowRight className="h-4 w-4 text-amber-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
-          </div>
-        </Link>
-
-        {/* Jump to Chapter — skip the chooser, drop straight into a chapter */}
-        <JumpToChapter />
-
         {/* Hub cards — sorted newest first, with pin-to-top support */}
         <HubCardList />
+
 
         {/* Live Price */}
         <section className="rounded-2xl border border-border/60 bg-card/40 p-4 space-y-3">
