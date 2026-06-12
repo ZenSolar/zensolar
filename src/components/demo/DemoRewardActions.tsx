@@ -503,7 +503,7 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
         pendingRewards={pendingRewards}
         totalPendingTokens={totalPendingTokens}
         onRequestMint={(cat) => handleRequestMint(cat as MintCategory)}
-        onNavigateHistory={() => navigate('/demo-leonardo/clean-energy-center')}
+        onNavigateHistory={() => navigate('/demo/clean-energy-center')}
       />
 
 
