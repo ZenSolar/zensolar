@@ -27,7 +27,7 @@ const STATIC_LABELS: Record<string, string> = {
   "founder-pack": "Founder Pack",
   "auth": "Sign In",
   "demo": "Demo",
-  "demo-leonardo": "Investor Demo",
+  
 };
 
 const titleCase = (s: string) =>
