@@ -1367,6 +1367,45 @@ const App = () => {
                         </AppLayout></ProtectedRoute>
                       } />
                     ))}
+                    {/* Pre-launch cleanup — Jun 2026: bulk sweep of stale brainstorm / test / one-off pages */}
+                    {([
+                      { slug: 'founders-changelog', model: 'Founders Changelog', Comp: FoundersChangelog, reason: 'Internal dev bookkeeping — not a ship surface' },
+                      { slug: 'founders-master-outline', model: 'Founders Master Outline', Comp: FoundersMasterOutline, reason: 'Superseded by /admin/ssot' },
+                      { slug: 'founders-bitcoin-thesis', model: 'Bitcoin Thesis', Comp: FoundersBitcoinThesis, reason: 'Macro brainstorm — not tied to product surface' },
+                      { slug: 'founders-funded-lp', model: 'Funded LP Scenarios', Comp: FoundersFundedLP, reason: 'Founder financial modeling — not customer-facing' },
+                      { slug: 'founders-flywheel-simulation', model: 'Flywheel Simulation', Comp: FlywheelSimulation, reason: 'Tokenomics sandbox — superseded by /investor/pitch narrative' },
+                      { slug: 'founders-energy-oracle', model: 'Energy Oracle (R&D)', Comp: FoundersEnergyOracle, reason: 'Concept sketch — Energy Price Oracle is parked for Series A' },
+                      { slug: 'founders-deason-v3', model: 'Deason v3 (investor strategy)', Comp: FoundersDeasonV3, reason: 'Superseded by /investor/pitch ThreeRevenueEngines' },
+                      { slug: 'founders-vpp-roadmap', model: 'VPP Roadmap (internal)', Comp: FoundersVPPRoadmap, reason: 'Internal planning doc — VPP narrative excluded from investor surfaces' },
+                      { slug: 'founders-patent-expansion', model: 'Patent Expansion Brainstorm', Comp: FoundersPatentExpansion, reason: 'Patent SSOT lives in /admin/patent/*' },
+                      { slug: 'whitepaper-phase-1', model: 'Whitepaper Phase 1 (draft)', Comp: WhitepaperPhase1, reason: 'Superseded by canonical /white-paper' },
+                      { slug: 'whitepaper-phase-2', model: 'Whitepaper Phase 2 (draft)', Comp: WhitepaperPhase2, reason: 'Superseded by canonical /white-paper' },
+                      { slug: 'hero-test', model: 'Hero A/B Test', Comp: HeroTest, reason: 'Test page — no production use' },
+                      { slug: 'learn-themes', model: 'Learn Theme Gallery', Comp: LearnThemes, reason: 'Internal dev preview — not a user surface' },
+                      { slug: 'embedded-wallet-demo', model: 'Embedded Wallet Demo', Comp: EmbeddedWalletDemo, reason: 'Dev sandbox — real wallet lives at /wallet' },
+                      { slug: 'yc-application', model: 'YC Application', Comp: AdminYCApplication, reason: 'Stale application artifact' },
+                      { slug: 'a16z-speedrun', model: 'a16z Speedrun Application', Comp: A16ZSpeedrunApplication, reason: 'Stale application artifact' },
+                      { slug: 'admin-tokenomics-10b', model: 'Admin Tokenomics 10B', Comp: AdminTokenomics10B, reason: 'Superseded by 1T-era tokenomics SSOT' },
+                      { slug: 'admin-bootstrap-calculator', model: 'Bootstrap Calculator', Comp: AdminBootstrapCalculator, reason: 'One-off math tool — superseded by /admin/kpi-reconciliation' },
+                      { slug: 'admin-bootstrap-simulator', model: 'Bootstrap Simulator', Comp: AdminBootstrapSimulator, reason: 'One-off simulator — superseded by /admin/kpi-reconciliation' },
+                      { slug: 'admin-lp-capacity', model: 'LP Capacity Calculator', Comp: AdminLPCapacityCalculator, reason: 'One-off calc — not referenced in active fundraising docs' },
+                      { slug: 'admin-ai-feedback-loop', model: 'AI Feedback Loop', Comp: AdminAIFeedbackLoop, reason: 'Concept exploration — no active implementation' },
+                      { slug: 'admin-ai-agents', model: 'AI Agent Opportunities', Comp: AdminAIAgentOpportunities, reason: 'Brainstorm doc — not actionable pre-launch' },
+                    ] as const).map(({ slug, model, Comp, reason }) => (
+                      <Route key={slug} path={`/admin/archive/${slug}`} element={
+                        <ProtectedRoute><AppLayout>
+                          <ArchivedPageWrapper
+                            modelName={model}
+                            archivedDate="June 2026"
+                            supersededBy="Pre-launch cleanup"
+                            reason={reason}
+                          >
+                            <Comp />
+                          </ArchivedPageWrapper>
+                        </AppLayout></ProtectedRoute>
+                      } />
+                    ))}
+
                     {/* Founders Vault - direct URL only, no nav link. All gated by FounderRoute. */}
                     <Route path="/founder" element={<Navigate to="/founders" replace />} />
                     <Route path="/founders" element={<FounderRoute><FoundersVault /></FounderRoute>} />
