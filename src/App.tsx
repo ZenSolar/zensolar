@@ -971,6 +971,16 @@ const App = () => {
                       } 
                     />
                     <Route 
+                      path="/admin/cockpit" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminCockpit />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
                       path="/admin/todo" 
                       element={
                         <ProtectedRoute>
