@@ -35,6 +35,13 @@ export function DashboardFooter() {
             $ZSOLAR Store
           </Link>
           <Link 
+            to={`${basePath}/ecosystem`} 
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
+          >
+            <BarChart3 className="h-4 w-4" />
+            Ecosystem
+          </Link>
+          <Link 
             to={`${basePath}/learn`} 
             className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
           >
