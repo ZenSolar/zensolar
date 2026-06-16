@@ -183,9 +183,11 @@ Deno.serve(async (req) => {
         const ds = resp.drive_state || {};
 
         const odo = Number(vs.odometer ?? ds.odometer ?? 0);
-        const ap = extractAutopilotState(resp);
         const shift = ds.shift_state ?? null;
         const speed = typeof ds.speed === "number" ? ds.speed : null;
+        const rawAp = extractAutopilotState(resp);
+        const ap = rawAp
+          ?? ((shift ?? "").toUpperCase().startsWith("D") && (speed ?? 0) > 0 ? "InferredDriveMoving" : null);
 
         const result = applyOdometerSample(sampler, {
           odometer_mi: odo,
@@ -238,6 +240,8 @@ Deno.serve(async (req) => {
               preimage_format: "device_id|timestamp|value|prevHash",
               source: fsdSource,
               sampler_reason: result.reason,
+               autopilot_state: rawAp,
+               autopilot_inferred: rawAp === null && ap === "InferredDriveMoving",
             },
           }, { onConflict: "device_id,provider,recorded_at,data_type" });
         }
