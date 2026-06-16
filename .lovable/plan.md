@@ -1,60 +1,126 @@
-## FSD Miles KPI — Plan
 
-Add **FSD Miles** as a first-class verified KPI alongside Solar kWh, Battery Export, EV Miles, and Supercharging. Mints **1:1** (1 FSD mile = 1 $ZSOLAR), consistent with the locked mint-ratio SSOT. Sourced from Tesla Fleet telemetry streaming (Autopilot engagement + odometer delta), not from a non-existent `SelfDrivingMilesSinceReset` field.
+## Goal
 
-### 1. Data model (migration)
+Ship `/ecosystem` as a fully polished, auth-gated, mobile-first "State of the ZenSolar Economy" dashboard on the first build. Visual target: Tesla Energy × Robinhood × Notion — dark glassmorphism, neon-green/violet accents, rich Framer Motion, real Supabase data only.
 
-- New `data_type` value: `fsd_miles` in `energy_production` (no schema change — column is text). Tesla writes rows with `data_type='fsd_miles'`, `kwh` field reused to store cumulative FSD miles (matches how `ev_miles` already uses the column).
-- Extend `connected_devices.metadata` optional field `fsd_enabled` (no migration — JSONB).
-- Extend `WATERMARK_NUMERIC_KEYS` in `src/lib/mintReconciliation.ts` with `fsd_miles` and `lifetime_fsd_miles` so Proof-of-Delta baseline≤lifetime invariants cover it.
-- No new table needed. No new RLS.
+Sub-headline anchor: *"Your monthly subscription is 100% powering the liquidity pool and the flywheel. This is what you're investing in."*
 
-### 2. Ingestion (Tesla telemetry streaming)
+## Page structure (top → bottom)
 
-In `supabase/functions/tesla-data/index.ts` (and the streaming consumer if separate):
-- Subscribe to / poll `vehicle_data` for `drive_state.shift_state`, `vehicle_state.odometer`, and the Autopilot fields available in `vehicle_state` (`autopark_state_v3`, `autopilot_state`) plus the Fleet Telemetry stream fields `AutopilotState` / `AutosteerCmd`.
-- Maintain a per-vehicle in-memory accumulator: when `AutopilotState ∈ {Active, Engaged}` (FSD/Autosteer on), credit the odometer delta to `fsd_miles`. When disengaged, do not credit.
-- Persist cumulative `fsd_miles` to `energy_production` (same cumulative-delta pattern as `ev_miles`) and to `connected_devices.last_known_state.lifetime_fsd_miles`.
+```text
+1. HERO
+   - LIVE pulse dot + "Live Network" badge
+   - H1: "The ZenSolar Economy"
+   - Sub-headline (subscription = investment thesis)
+   - $ZSOLAR Launch Price + Lifetime kWh (animated counters)
+   - Background: aurora gradient + subtle dot pattern
 
-### 3. Source-of-truth + KPI hooks
+2. FLYWHEEL HEALTH GAUGE  (tappable, animated)
+   - States: 💪 Strong / 🚀 Accelerating / ⚡ Supercharged
+   - Big animated radial-style progress (framer-motion svg)
+   - Tap → tooltip + neon-particle burst
+   - Confetti burst on first reach of "Supercharged"
+   - Tagline: "Every subscription + mint adds net buy pressure to the LP"
 
-- `src/lib/dataSourcePriority.ts`: add `'fsd_miles'` capability, Tesla-only.
-- `src/hooks/useDashboardData.ts`: add `fsdMiles` (cumulative odometer-delta math, same as `ev_miles`).
-- `src/hooks/useEnergyLog.ts`: add an `FSD` tab mirroring the EV-miles math; update `mem://features/energy-log-kpi-parity.md` row table.
-- `src/hooks/useKpiContributions.ts`: add FSD contribution slice.
+3. 4-UP KPI GRID  (glass cards, hover-lift, AnimatedCounter)
+   Subscribers | Lifetime kWh | Tokens Minted | NFTs Minted
 
-### 4. Proof-of-Delta + mint pipeline
+4. LIQUIDITY POOL CARD
+   - USDC depth + $ZSOLAR depth (animated counters)
+   - "This Month's LP Growth" sub-card:
+     - "+$X added this month • 100% from subscriptions"
+     - Gradient-filled Recharts AreaChart sparkline with interactive tooltip
 
-- `supabase/functions/mint-onchain/index.ts`: add `fsd_miles` to the categories iterated (same `verifyMintProof` call, 1:1 ratio, baseline-vs-lifetime watermark, three-way reconciliation).
-- `src/lib/dailyMintBreakdown.ts` and `src/lib/originVerification.ts`: include FSD as a verifiable origin source.
-- Mint receipts (`RecentMintProofs.tsx`, `useLatestMintReceipt.ts`): render FSD miles 1:1 (no `* 10`, no `/ USER_SHARE`).
+5. SUPPLY BREAKDOWN
+   - Stacked horizontal bar vs 1T cap with neon segment colors
+   - Legend chips
+   - Burn impact callout (rose glow):
+     "X% of all tokens are still locked or burned • This month's burn permanently removed Y tokens"
+   - Internal math grosses up user-share by 100/MINT_DISTRIBUTION.user; copy NEVER exposes the 50/25/20/5 split labels.
 
-### 5. UI
+6. NETWORK GROWTH CHART
+   - Recharts LineChart, gradient strokes, smooth motion
+   - 30d / 90d / All toggle pill group
 
-**Homepage showcase** — `src/components/home/CleanEnergyCenterShowcase.tsx`:
-- Add a 5th KPI card: `FSD Miles` · icon `Sparkles` or `Navigation` · sample value (seeded, consistent with existing showcase pattern).
-- Rebalance: the four-card list becomes five; spacing stays vertical-stack on mobile (no grid change needed since current layout is already a single column of `motion.button` rows).
+7. RECENT MINTS TICKER
+   - Horizontal marquee (framer-motion auto-scroll loop, pauses on tap)
+   - Edge fade masks, anonymized "Anon · X kWh · Ys ago"
 
-**Live dashboard** — Clean Energy Center on `/dashboard`:
-- Add a `MetricCard` (tone `accent`) for FSD Miles, wired to `useDashboardData().fsdMiles`.
-- Add to the Tap-to-Mint pending breakdown so FSD miles count toward "X ready to mint".
+8. YOUR STAKE SNAPSHOT  (premium hero card)
+   - Tokens earned (locked) — animated counter
+   - Your LP push this month +$X — emerald glow
+   - Your share of circulating + animated progress bar
+   - Projected 3-year upside band ($0.50–$2.00 illustrative)
+   - CTAs with ripple: "Invite a friend → bonus tokens" / "See my referrals"
 
-### 6. Tests
+9. METHODOLOGY FOOTER + last-updated timestamp
+```
 
-- Extend `src/lib/__tests__/mintReconciliation.test.ts` with an FSD fixture (1:1 ratio, baseline≤lifetime).
-- Extend `src/__tests__/chargingSplitInvariants.test.ts` style coverage for FSD (no double-count with `ev_miles`: FSD miles are a SUBSET of EV miles, so dashboard headlines must not sum them — show FSD as a sub-metric, not added to total miles).
+## Files to create
 
-### 7. Memory updates
+- `src/hooks/useEcosystemStats.ts` — React Query (60s stale, 90s refetch). Parallel fetches:
+  - `supabase.rpc('get_live_earnings_stats')`
+  - `profiles` head count (subscribers)
+  - `energy_subscriptions` where `active=true` head count
+  - `lp_rounds` all rows → sum USDC, sum tokens, latest spot price
+  - `mint_transactions` confirmed: latest 10 (ticker), all rows for growth + lifetime kWh, current-user slice (stake)
+  - `profiles.created_at` ordered → subscriber growth series
+  - Derives `tokensBurned`, `tokensToLp`, `tokensToTreasury`, `circulating`, `myShareOfCirculating`, `monthLpFromSubs` (subscribers × $19.99 × 50%), bucketed daily growth array.
 
-- Append FSD row to `mem://features/energy-log-kpi-parity.md` (Tesla-only, cumulative delta math).
-- Add note to `mem://features/mint-ratio-ssot.md`: "1 FSD mile = 1 $ZSOLAR; FSD miles are a subset of EV miles, never summed into EV-miles total."
+- `src/components/ecosystem/`
+  - `EcosystemHero.tsx` — aurora gradient + live pulse + animated counters
+  - `FlywheelHealthGauge.tsx` — svg radial gauge, framer-motion, particle burst, confetti on "Supercharged"
+  - `KpiGrid.tsx` — 4 glass tiles with AnimatedCounter, hover-lift
+  - `LiquidityPoolCard.tsx` — depth + monthly-growth sparkline (Recharts AreaChart, gradient fill)
+  - `SupplyBreakdown.tsx` — stacked bar + legend + rose burn callout
+  - `GrowthChart.tsx` — LineChart with range toggle (30/90/All)
+  - `RecentMintsTicker.tsx` — framer-motion marquee, fade masks
+  - `YourStakeCard.tsx` — animated counters, progress bar, upside band, ripple CTAs
+  - `glass.ts` — shared className helper for glass card surface
 
-### Out of scope
+- `src/pages/Ecosystem.tsx` — composes the above with staggered `motion` container, Helmet SEO (`The ZenSolar Economy — Live Network Stats` + 1-line meta), skeleton loading.
 
-- No changes to Live Energy Monitoring card.
-- No Deason changes.
-- No new on-chain contract; reuses existing $ZSOLAR mint path.
+## File to modify
 
-### Open caveat
+- `src/App.tsx` — add lazy import and route above the catch-all:
 
-Tesla Fleet Telemetry streaming requires the `vehicle_device_data` scope (already granted) plus an active streaming subscription. If a user hasn't enabled streaming, FSD miles will read `0` and the card will display "Awaiting Tesla telemetry stream" — same fallback pattern as today's empty-state cards.
+  ```tsx
+  const Ecosystem = lazy(() => import("./pages/Ecosystem"));
+  ...
+  <Route
+    path="/ecosystem"
+    element={
+      <ProtectedRoute>
+        <AppLayout>
+          <Ecosystem />
+        </AppLayout>
+      </ProtectedRoute>
+    }
+  />
+  ```
+
+## Dependencies
+
+- All required deps already in repo: `framer-motion`, `recharts`, `@tanstack/react-query`, `lucide-react`, `react-helmet-async`, existing `AnimatedCounter`, `Progress`, `Card`, `Button`, `Skeleton`, `Badge` shadcn primitives.
+- Add one tiny dep: `canvas-confetti` (≈3 KB) for the Supercharged burst. Imported only inside `FlywheelHealthGauge` so it tree-shakes cleanly.
+
+## Locked-memory compliance
+
+- Dark-mode only, mobile-first (390×844)
+- Auth-gated via `ProtectedRoute`
+- 1 kWh = 1 $ZSOLAR framing; UI never shows the 50/25/20/5 split labels
+- Launch price uses `PRICES.launchFloor` / `lp_rounds.spot_price_usd`
+- All numbers are live from Supabase (no mock data)
+- No DB migration required
+
+## Out of scope (not in this build)
+
+- Live DEX price feed (uses LP-round spot price)
+- VPP / Optimus / Starlink panels
+- Nav-bar / sidebar entry (can add after page is verified)
+- Public unauthenticated version
+
+## Closing message
+
+After build, respond exactly:
+"/ecosystem page complete — live ZenSolar Economy dashboard with stunning premium glassmorphism UI, rich Framer Motion animations, Flywheel Health Gauge, enhanced LP card, supply + burn impact, and fully upgraded Your Stake Snapshot is live and fully wired."
