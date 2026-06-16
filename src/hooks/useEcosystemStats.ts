@@ -137,6 +137,13 @@ async function fetchStats(userId: string | null): Promise<EcosystemStats> {
     SUBSCRIPTION.monthlyPrice *
     (SUBSCRIPTION.lpContribution / 100);
 
+  // 25% of this month's raw mint → LP, converted to USD at current spot price.
+  // monthTokens is the user-share (50%); back-derive raw = monthTokens / 0.5.
+  const monthRawMint = monthTokens * (100 / MINT_DISTRIBUTION.user);
+  const monthLpFromMintsUsd =
+    monthRawMint * (MINT_DISTRIBUTION.lp / 100) * (Number.isFinite(spotPrice) ? spotPrice : PRICES.launchFloor);
+  const monthLpTotalUsd = monthLpFromSubs + monthLpFromMintsUsd;
+
   let myTokens = 0;
   let myKwh = 0;
   for (const row of (myMintsRes.data ?? []) as any[]) {
