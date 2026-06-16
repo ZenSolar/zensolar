@@ -31,6 +31,8 @@ export interface EcosystemStats {
   lpTokens: number;
   spotPrice: number;
   monthLpFromSubs: number;
+  monthLpFromMintsUsd: number;
+  monthLpTotalUsd: number;
   recentMints: Array<{
     user_id: string | null;
     tokens_minted: number;
