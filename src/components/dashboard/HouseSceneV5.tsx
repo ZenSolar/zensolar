@@ -21,18 +21,22 @@ import sceneDay from '@/assets/zencasa/house-day.png';
 import sceneDusk from '@/assets/zencasa/house-dusk.png';
 import sceneNight from '@/assets/zencasa/house-night.png';
 import sceneNightEv from '@/assets/zencasa/house-night-ev.png';
-import sceneNightPw from '@/assets/zencasa/house-night-pw-discharge.png';
-import sceneNightPwEv from '@/assets/zencasa/house-night-pw-discharge-ev.png';
 import sceneDayExport from '@/assets/zencasa/house-day-export.png';
 import sceneRain from '@/assets/zencasa/house-rain.png';
 
+// NOTE: The baked `house-night-pw-discharge*.png` artwork includes a
+// painted green "spine" line shooting from the Powerwall up through the
+// roof, which read as an incorrect flow path. Until those PNGs are
+// re-baked, the discharge scenes reuse the plain night artwork — the
+// actual flow is drawn by the animated SVG paths in EnergyFlowScene,
+// which already routes Powerwall → windows correctly.
 const SCENE_SRC: Record<SceneKey, string> = {
   day: sceneDay,
   dusk: sceneDusk,
   night: sceneNight,
   'night-ev': sceneNightEv,
-  'night-pw-discharge': sceneNightPw,
-  'night-pw-discharge-ev': sceneNightPwEv,
+  'night-pw-discharge': sceneNight,
+  'night-pw-discharge-ev': sceneNightEv,
   'day-export': sceneDayExport,
   rain: sceneRain,
 };
