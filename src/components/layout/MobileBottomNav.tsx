@@ -77,6 +77,7 @@ const MORE_LINKS_DEMO: MoreLink[] = [
   { to: "/demo", label: "Demo Home", icon: Sparkles, description: "Back to the demo dashboard", group: "primary" },
   { to: "/", label: "Exit Demo", icon: ArrowLeftRight, description: "Return to marketing site", group: "primary" },
   { to: "/subscribe", label: "Subscription Plans", icon: CreditCard, description: "Plan & billing", group: "secondary" },
+  { to: "/ecosystem", label: "Ecosystem", icon: BarChart3, description: "State of the ZenSolar economy", group: "secondary" },
   { to: "/tokenomics", label: "Tokenomics", icon: BarChart3, description: "Supply, burn & LP", group: "secondary" },
   { to: "/glossary", label: "Glossary", icon: BookOpen, description: "Definitions", group: "secondary" },
 ];
