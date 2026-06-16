@@ -66,6 +66,7 @@ const MORE_LINKS_APP: MoreLink[] = [
   { to: "/settings", label: "Settings", icon: SettingsIcon, description: "Preferences & alerts", group: "primary" },
   { to: "/devices", label: "Devices", icon: Cpu, description: "Connected energy hardware", group: "primary" },
   { to: "/subscribe", label: "Subscription", icon: CreditCard, description: "Plan & billing", group: "primary" },
+  { to: "/ecosystem", label: "Ecosystem", icon: BarChart3, description: "State of the ZenSolar economy", group: "secondary" },
   { to: "/tokenomics", label: "Tokenomics", icon: BarChart3, description: "Supply, burn & LP", group: "secondary" },
   { to: "/glossary", label: "Glossary", icon: BookOpen, description: "Definitions", group: "secondary" },
   { to: "/help", label: "Help", icon: LifeBuoy, description: "Guides & support", group: "secondary" },
