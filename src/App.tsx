@@ -197,6 +197,7 @@ const WhitePaper = lazy(() => import("./pages/WhitePaper"));
 const Engineering = lazy(() => import("./pages/Engineering"));
 const WhitePaperWrapper = lazy(() => import("./components/WhitePaperWrapper"));
 const AdminLiveEnergyFlow = lazy(() => import("./pages/AdminLiveEnergyFlow"));
+const AdminCockpit = lazy(() => import("./pages/AdminCockpit"));
 const AdminProjectSummary = lazy(() => import("./pages/AdminProjectSummary"));
 const AdminSSOT = lazy(() => import("./pages/AdminSSOT"));
 const AdminSeoStrategy = lazy(() => import("./pages/admin/SeoStrategy"));
@@ -965,6 +966,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminLiveEnergyFlow />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/cockpit" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminCockpit />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
