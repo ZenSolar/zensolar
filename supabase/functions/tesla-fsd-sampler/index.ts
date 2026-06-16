@@ -85,6 +85,7 @@ Deno.serve(async (req) => {
   let body: any = {};
   try { body = await req.json(); } catch { /* cron sends empty body */ }
   const onlyVin: string | null = body?.vin ?? null;
+  const forcePoll = body?.force === true;
 
   const nowMs = Date.now();
   const nowIso = new Date().toISOString();
@@ -126,11 +127,13 @@ Deno.serve(async (req) => {
       // Adaptive cadence based on the LAST observed activity.
       const lastSampleAtMs = sampler.last_sample_at ? new Date(sampler.last_sample_at).getTime() : 0;
       const wasAwake = lastState.online === true || lastState.online === undefined;
-      const wasInDrive = (sampler.last_autopilot_state || "").length > 0
-        && lastState.last_shift_state === "D";
+      const wasInDrive = (lastState.last_shift_state ?? "").toUpperCase().startsWith("D");
       const wasMoving = (lastState.last_speed_mph ?? 0) > 0;
-      const intervalSec = nextPollIntervalSec({ in_drive: wasInDrive, moving: wasMoving, awake: wasAwake });
-      if (lastSampleAtMs && (nowMs - lastSampleAtMs) < intervalSec * 1000) {
+      const hasActivityHints = lastState.last_shift_state != null || lastState.last_speed_mph != null;
+      const intervalSec = hasActivityHints
+        ? nextPollIntervalSec({ in_drive: wasInDrive, moving: wasMoving, awake: wasAwake })
+        : 5 * 60;
+      if (!forcePoll && lastSampleAtMs && (nowMs - lastSampleAtMs) < intervalSec * 1000) {
         skipped += 1;
         continue;
       }
