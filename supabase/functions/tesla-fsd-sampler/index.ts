@@ -85,6 +85,7 @@ Deno.serve(async (req) => {
   let body: any = {};
   try { body = await req.json(); } catch { /* cron sends empty body */ }
   const onlyVin: string | null = body?.vin ?? null;
+  const forcePoll = body?.force === true;
 
   const nowMs = Date.now();
   const nowIso = new Date().toISOString();
@@ -126,11 +127,13 @@ Deno.serve(async (req) => {
       // Adaptive cadence based on the LAST observed activity.
       const lastSampleAtMs = sampler.last_sample_at ? new Date(sampler.last_sample_at).getTime() : 0;
       const wasAwake = lastState.online === true || lastState.online === undefined;
-      const wasInDrive = (sampler.last_autopilot_state || "").length > 0
-        && lastState.last_shift_state === "D";
+      const wasInDrive = (lastState.last_shift_state ?? "").toUpperCase().startsWith("D");
       const wasMoving = (lastState.last_speed_mph ?? 0) > 0;
-      const intervalSec = nextPollIntervalSec({ in_drive: wasInDrive, moving: wasMoving, awake: wasAwake });
-      if (lastSampleAtMs && (nowMs - lastSampleAtMs) < intervalSec * 1000) {
+      const hasActivityHints = lastState.last_shift_state != null || lastState.last_speed_mph != null;
+      const intervalSec = hasActivityHints
+        ? nextPollIntervalSec({ in_drive: wasInDrive, moving: wasMoving, awake: wasAwake })
+        : 5 * 60;
+      if (!forcePoll && lastSampleAtMs && (nowMs - lastSampleAtMs) < intervalSec * 1000) {
         skipped += 1;
         continue;
       }
@@ -183,9 +186,13 @@ Deno.serve(async (req) => {
         const ds = resp.drive_state || {};
 
         const odo = Number(vs.odometer ?? ds.odometer ?? 0);
-        const ap = extractAutopilotState(resp);
         const shift = ds.shift_state ?? null;
         const speed = typeof ds.speed === "number" ? ds.speed : null;
+        const rawAp = extractAutopilotState(resp);
+        const ap = rawAp
+          ?? ((shift ?? "").toUpperCase().startsWith("D") || (speed ?? 0) > 0 || odo > (sampler.last_odometer_mi || 0)
+            ? "InferredDriveMoving"
+            : null);
 
         const result = applyOdometerSample(sampler, {
           odometer_mi: odo,
@@ -238,6 +245,8 @@ Deno.serve(async (req) => {
               preimage_format: "device_id|timestamp|value|prevHash",
               source: fsdSource,
               sampler_reason: result.reason,
+               autopilot_state: rawAp,
+               autopilot_inferred: rawAp === null && ap === "InferredDriveMoving",
             },
           }, { onConflict: "device_id,provider,recorded_at,data_type" });
         }

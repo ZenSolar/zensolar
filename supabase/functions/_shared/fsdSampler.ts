@@ -9,6 +9,9 @@
 //   - 'official'        — Tesla's SelfDrivingMilesSinceReset field (HW4 + recent fw)
 //   - 'calculated_hw3'  — odometer-delta math gated on (AutopilotState engaged) AND
 //                         (shift_state == D) AND (speed > 0). Per-sample glitch cap = 5 mi.
+//                         When Tesla Fleet REST omits AutopilotState for HW3,
+//                         the sampler may mark a moving Drive sample as
+//                         `InferredDriveMoving` so real-time drives still accrue.
 //
 // Resolver rule: if EITHER source has ever produced a value for a VIN, use the
 // 'official' value when present, otherwise fall back to 'calculated_hw3'. The
@@ -21,6 +24,7 @@ export const ENGAGED_AUTOPILOT_STATES = new Set([
   "FullSelfDriving",
   "Autosteer",
   "TrafficAwareCruiseControl",
+  "InferredDriveMoving",
 ]);
 
 export const MAX_PER_SAMPLE_DELTA_MI = 5;
@@ -95,7 +99,7 @@ export interface OdometerSampleInput {
 export interface OdometerSampleResult {
   state: FsdSamplerState;
   miles_added: number;
-  reason: "credited" | "first_sample" | "not_engaged" | "not_in_drive" | "not_moving" | "glitch" | "no_delta";
+  reason: "credited" | "credited_inferred" | "first_sample" | "not_engaged" | "not_in_drive" | "not_moving" | "glitch" | "no_delta";
 }
 
 /**
@@ -143,20 +147,27 @@ export function applyOdometerSample(
     return { state: next, miles_added: 0, reason: "glitch" };
   }
 
-  // Gate the credit on PREVIOUS engagement + current Drive + moving.
+  // Gate the credit on engagement + current Drive + moving. For real-time HW3
+  // polling, Tesla Fleet REST often omits AutopilotState; when the caller has
+  // inferred engagement from Drive+moving, allow the current sample to credit
+  // so a live FSD drive starts accruing immediately instead of waiting one cycle.
   const prevEngaged =
     !!prev.last_autopilot_state && ENGAGED_AUTOPILOT_STATES.has(prev.last_autopilot_state);
-  const inDrive = (sample.shift_state ?? "").toUpperCase().startsWith("D");
-  const moving = (sample.speed ?? 0) > 0;
+  const currentEngaged =
+    !!sample.autopilot_state && ENGAGED_AUTOPILOT_STATES.has(sample.autopilot_state);
+  const inferredCurrent = sample.autopilot_state === "InferredDriveMoving";
+  const inDrive = inferredCurrent || (sample.shift_state ?? "").toUpperCase().startsWith("D");
+  const moving = inferredCurrent || (sample.speed ?? 0) > 0;
 
   next.last_odometer_mi = odo;
   next.last_autopilot_state = sample.autopilot_state;
 
-  if (!prevEngaged) return { state: next, miles_added: 0, reason: "not_engaged" };
   if (!inDrive) return { state: next, miles_added: 0, reason: "not_in_drive" };
   if (!moving) return { state: next, miles_added: 0, reason: "not_moving" };
+  if (!prevEngaged && !currentEngaged) return { state: next, miles_added: 0, reason: "not_engaged" };
 
   next.lifetime_fsd_miles_calc = (prev.lifetime_fsd_miles_calc || 0) + delta;
+  if (!prevEngaged && inferredCurrent) return { state: next, miles_added: delta, reason: "credited_inferred" };
   return { state: next, miles_added: delta, reason: "credited" };
 }
 

@@ -31,6 +31,14 @@ and credits an odometer delta to `lifetime_fsd_miles_calc` ONLY when:
 - current `speed > 0`
 - delta ∈ (0, 5 mi] (glitch cap)
 
+Live HW3 fallback: Tesla Fleet REST may return odometer while omitting
+`autopilot_state`, `shift_state`, and `speed`. In that case, if the odometer
+advanced since the previous sample, `tesla-fsd-sampler` tags the sample as
+`InferredDriveMoving`, credits the odometer delta, and writes
+`proof_metadata.autopilot_inferred = true` with `sampler_reason = 'credited_inferred'`.
+This keeps live FSD drives from dropping to zero when Tesla withholds the REST
+engagement flag; official HW4 / telemetry fields still win whenever present.
+
 Skipped if `fsd_source='official'` was set in the last 7 days (avoids waste).
 
 ## Shared helpers — `supabase/functions/_shared/fsdSampler.ts`
