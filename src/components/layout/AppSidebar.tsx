@@ -79,6 +79,7 @@ import {
 // High-frequency items only — keep ≤ 7 for scannability.
 const mainNavItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard, desc: "Your home — energy + token overview" },
+  { title: "Ecosystem", url: "/ecosystem", icon: TrendingUp, desc: "State of the ZenSolar economy" },
   { title: "Mint History", url: "/mint-history", icon: History, desc: "All your past mints and receipts" },
   { title: "$ZSOLAR Store", url: "/store", icon: ShoppingBag, desc: "Spend $ZSOLAR on rewards" },
   { title: "My Energy Logs", url: "/energy-log", icon: BarChart3, desc: "Detailed kWh production & charging" },
