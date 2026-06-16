@@ -784,7 +784,7 @@ function StakeSnapshot({
           <div className="mt-1 text-2xl font-bold text-emerald-300">
             +<CountNum value={lpThisMonth} decimals={2} prefix="$" />
           </div>
-          <div className="text-[10px] text-muted-foreground">from your subscription</div>
+          <div className="text-[10px] text-muted-foreground">100% of your subscription → LP</div>
         </div>
       </div>
 
