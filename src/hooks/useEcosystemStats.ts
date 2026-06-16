@@ -116,9 +116,9 @@ async function fetchStats(userId: string | null): Promise<EcosystemStats> {
     lifetimeKwh += Number((row as any).kwh_delta ?? 0);
   }
 
-  let lpUsdc = seed.usdcAmount;
-  let lpTokens = seed.tokenAmount;
-  let spotPrice = seed.initialPrice;
+  let lpUsdc: number = seed.usdcAmount;
+  let lpTokens: number = seed.tokenAmount;
+  let spotPrice: number = seed.initialPrice;
   if (lpRoundsRes.data && lpRoundsRes.data.length > 0) {
     lpUsdc = 0;
     lpTokens = 0;
