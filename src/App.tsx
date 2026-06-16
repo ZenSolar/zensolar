@@ -94,6 +94,7 @@ const Feedback = lazy(() => import("./pages/Feedback"));
 const OAuthCallback = lazy(() => import("./pages/OAuthCallback"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Ecosystem = lazy(() => import("./pages/Ecosystem"));
+const StarlinkMint = lazy(() => import("./pages/StarlinkMint"));
 const FoundersVault = lazy(() => import("./pages/FoundersVault"));
 const FoundersRevenueModels = lazy(() => import("./pages/archive/FoundersRevenueModels"));
 const FounderPack = lazy(() => import("./pages/archive/FounderPack"));
@@ -1335,6 +1336,17 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <Suspense fallback={<PageLoader />}><Ecosystem /></Suspense>
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
+                    />
+                    {/* Starlink — manual attestation mint (beta) */}
+                    <Route
+                      path="/starlink"
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <Suspense fallback={<PageLoader />}><StarlinkMint /></Suspense>
                           </AppLayout>
                         </ProtectedRoute>
                       }
