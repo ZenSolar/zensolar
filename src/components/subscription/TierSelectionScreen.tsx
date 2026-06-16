@@ -1,4 +1,4 @@
-import { Check, Zap, Battery, Rocket } from "lucide-react";
+import { Check, Zap, Battery, Rocket, Crown } from "lucide-react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,9 +22,9 @@ const TIER_META: Record<SubscriptionTierId, {
 }> = {
   base: {
     icon: Battery,
-    tagline: "Just getting started",
+    tagline: "Spark — just getting started",
     benefits: [
-      "Earn up to ~1,000 $ZSOLAR per month",
+      "1× token rewards",
       "Cash out anytime",
       "Connect any solar, battery, or EV device",
     ],
@@ -32,9 +32,9 @@ const TIER_META: Record<SubscriptionTierId, {
   },
   regular: {
     icon: Zap,
-    tagline: "The sweet spot",
+    tagline: "Flame — the sweet spot",
     benefits: [
-      "Earn unlimited $ZSOLAR every month",
+      "2.5× token rewards",
       "Bigger rewards if you lock longer",
       "Helps strengthen the token price faster",
     ],
@@ -43,17 +43,27 @@ const TIER_META: Record<SubscriptionTierId, {
   },
   power: {
     icon: Rocket,
-    tagline: "For prosumers & fleets",
+    tagline: "Inferno — for prosumers & fleets",
     benefits: [
-      "Unlimited earning + priority processing",
+      "5× token rewards + priority processing",
       "First access to bonus staking rewards (up to 2× at 12-mo lock)",
       "Maximum impact on token strength",
     ],
     badge: "Power user",
   },
+  titan: {
+    icon: Crown,
+    tagline: "Titan — maximum conviction",
+    benefits: [
+      "10× token rewards",
+      "Top-tier staking multipliers",
+      "100% of your fee fuels the LP",
+    ],
+    badge: "Whale",
+  },
 };
 
-const TIER_ORDER: SubscriptionTierId[] = ["base", "regular", "power"];
+const TIER_ORDER: SubscriptionTierId[] = ["base", "regular", "power", "titan"];
 
 export function TierSelectionScreen({
   selectedTier,

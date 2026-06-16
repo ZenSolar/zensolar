@@ -14,9 +14,10 @@ interface Props {
 }
 
 const TIER_LABELS: Record<SubscriptionTierId, string> = {
-  base: "Base",
-  regular: "Regular",
-  power: "Power",
+  base: "Spark",
+  regular: "Flame",
+  power: "Inferno",
+  titan: "Titan",
 };
 
 export function SubscriptionConfirmation({ tier, onChange }: Props) {

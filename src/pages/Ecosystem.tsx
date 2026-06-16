@@ -349,12 +349,15 @@ function Kpi({
 function LpCard({
   usdc,
   tokens,
-  monthGrowth,
+  monthFromSubs,
+  monthFromMints,
 }: {
   usdc: number;
   tokens: number;
-  monthGrowth: number;
+  monthFromSubs: number;
+  monthFromMints: number;
 }) {
+  const monthGrowth = monthFromSubs + monthFromMints;
   const sparkline = useMemo(
     () =>
       Array.from({ length: 14 }, (_, i) => ({
@@ -400,7 +403,16 @@ function LpCard({
             +<CountNum value={monthGrowth} decimals={0} prefix="$" />
           </div>
         </div>
-        <div className="text-[10px] text-muted-foreground mb-2">100% from subscriptions</div>
+        <div className="mb-2 space-y-0.5 text-[10px] text-muted-foreground">
+          <div className="flex justify-between">
+            <span>From subscriptions</span>
+            <span className="tabular-nums text-foreground/80">+${monthFromSubs.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>From mint reflows</span>
+            <span className="tabular-nums text-foreground/80">+${monthFromMints.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+          </div>
+        </div>
         <ResponsiveContainer width="100%" height={48}>
           <AreaChart data={sparkline} margin={{ top: 2, bottom: 2, left: 0, right: 0 }}>
             <defs>
@@ -772,7 +784,7 @@ function StakeSnapshot({
           <div className="mt-1 text-2xl font-bold text-emerald-300">
             +<CountNum value={lpThisMonth} decimals={2} prefix="$" />
           </div>
-          <div className="text-[10px] text-muted-foreground">from your subscription</div>
+          <div className="text-[10px] text-muted-foreground">100% of your subscription → LP</div>
         </div>
       </div>
 
@@ -917,7 +929,12 @@ export default function Ecosystem() {
         />
       </div>
 
-      <LpCard usdc={data.lpUsdc} tokens={data.lpTokens} monthGrowth={data.monthLpFromSubs} />
+      <LpCard
+        usdc={data.lpUsdc}
+        tokens={data.lpTokens}
+        monthFromSubs={data.monthLpFromSubs}
+        monthFromMints={data.monthLpFromMintsUsd}
+      />
 
       <SupplyBar
         circulating={data.circulating}

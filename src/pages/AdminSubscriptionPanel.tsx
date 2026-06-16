@@ -47,6 +47,7 @@ const tierIcons: Record<SubscriptionTierId, typeof Zap> = {
   base: Zap,
   regular: Sparkles,
   power: Crown,
+  titan: Crown,
 };
 
 /**

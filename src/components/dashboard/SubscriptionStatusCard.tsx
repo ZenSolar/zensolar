@@ -72,6 +72,13 @@ const tierMeta: Record<SubscriptionTierId, TierMeta> = {
     iconColor: 'text-solar',
     borderColor: 'border-l-solar',
   },
+  titan: {
+    icon: Crown,
+    gradient: 'from-amber-400/25 via-amber-400/5 to-transparent',
+    iconBg: 'bg-amber-400/15',
+    iconColor: 'text-amber-300',
+    borderColor: 'border-l-amber-400',
+  },
 };
 
 interface SubscriptionStatusCardProps {
