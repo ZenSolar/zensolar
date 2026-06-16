@@ -647,11 +647,16 @@ export function EnergyFlowScene({
 
   // Suppress dynamic car overlay when the baked night-ev art already shows
   // a Tesla parked in the garage. This is the only scene that bakes a car in.
+  // v5.2: render the dynamic car whenever a Tesla is connected and we
+  // have ANY usable silhouette — including the generic Model 3 fallback
+  // returned by resolveVehicleAsset when telemetry hasn't yet revealed
+  // the exact model. Previously `!vehicleGeneric` hid the EV node for
+  // freshly-linked accounts, which was the "EV doesn't populate" bug.
   const showDynamicCar =
     scene !== 'night-ev' &&
     carConnected &&
-    Boolean(vehicleSrc) &&
-    !vehicleGeneric;
+    Boolean(vehicleSrc);
+
 
   // Car geometry in viewBox (0–100) space. When actively charging at home,
   // pull up to the garage apron with the door visually "open"; otherwise
