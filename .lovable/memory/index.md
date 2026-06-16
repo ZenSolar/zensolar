@@ -26,6 +26,7 @@ Telemetry SSOT: one OEM per KPI, never sum across providers. Resolver = `src/lib
 - [Fundraising Strategy (Strategic Seed)](mem://features/fundraising-strategy.md) — $3M/$5M cap, Lyndon Rive anchor via Jo Ferrier, MZ Group plan B, use-of-funds, deck rules
 - [Mint Split v3.1 (LIVE)](mem://features/mint-split-v3-locked) — v3.1 LIVE: 50/25/20/5 split, UI 1:1, 401(k)-match framing. Supersedes 50/25/20/3/2 and 75/20/3/2.
 - [Subscription Revenue → 100% LP](mem://features/subscription-100-pct-lp) — v3.2: 100% of subs to LP, 0% treasury, 4 tiers Spark/Flame/Inferno/Titan, LP stacked with 25% mint reflow.
+- [Evergreen Grassroots Model — Prod Remix (LOCKED)](mem://features/evergreen-grassroots-model) — Prod remix (zensolar.com) rules: 100% gross subs→LP (ZenSolar absorbs Stripe fees), 4 tiers w/ multipliers 1×/2.5×/7×/15×, weekly tap-to-claim (skip=forfeit), 1-yr rolling lock, investment-first copy. R&D project unchanged.
 - [Mint ratio SSoT (1:1)](mem://features/mint-ratio-ssot) — Strictly 1 $ZSOLAR = 1 kWh = 1 mile. Never multiply tokens by 10. Never back-calc via `tokens / USER_SHARE`.
 - [Battery bi-dir not integrated](mem://features/battery-bidir-not-integrated) — Receipts/KPIs must NOT read bidir_export/bidir_out/bidir_import rows yet.
 - [Tiered Subscriptions Flywheel (v3.1)](mem://features/tiered-subscriptions-flywheel) — 3 tiers + steady-state per-tier flywheel math under continuous 20% burn (halving deprecated).
