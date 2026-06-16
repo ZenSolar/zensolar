@@ -15,6 +15,7 @@ import {
   Wrench,
   Sparkles,
   ShieldCheck,
+  TrendingUp,
 } from "lucide-react";
 import { isAuthorizedReviewer } from "@/lib/reviewerAccess";
 import { isPreviewMode } from "@/lib/previewMode";
