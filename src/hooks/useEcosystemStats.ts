@@ -210,6 +210,8 @@ async function fetchStats(userId: string | null): Promise<EcosystemStats> {
     lpTokens,
     spotPrice,
     monthLpFromSubs,
+    monthLpFromMintsUsd,
+    monthLpTotalUsd,
     recentMints: (recentMintsRes.data ?? []) as any[],
     myTokens,
     myKwh,
