@@ -321,6 +321,7 @@ export type Database = {
           home_location: Json | null
           home_setup_type: string | null
           id: string
+          last_known_state: Json
           last_minted_at: string | null
           lifetime_totals: Json | null
           provider: string
@@ -340,6 +341,7 @@ export type Database = {
           home_location?: Json | null
           home_setup_type?: string | null
           id?: string
+          last_known_state?: Json
           last_minted_at?: string | null
           lifetime_totals?: Json | null
           provider: string
@@ -359,6 +361,7 @@ export type Database = {
           home_location?: Json | null
           home_setup_type?: string | null
           id?: string
+          last_known_state?: Json
           last_minted_at?: string | null
           lifetime_totals?: Json | null
           provider?: string
