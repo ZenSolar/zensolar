@@ -190,7 +190,9 @@ Deno.serve(async (req) => {
         const speed = typeof ds.speed === "number" ? ds.speed : null;
         const rawAp = extractAutopilotState(resp);
         const ap = rawAp
-          ?? ((shift ?? "").toUpperCase().startsWith("D") && (speed ?? 0) > 0 ? "InferredDriveMoving" : null);
+          ?? ((shift ?? "").toUpperCase().startsWith("D") || (speed ?? 0) > 0 || odo > (sampler.last_odometer_mi || 0)
+            ? "InferredDriveMoving"
+            : null);
 
         const result = applyOdometerSample(sampler, {
           odometer_mi: odo,
