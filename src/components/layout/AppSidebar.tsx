@@ -80,6 +80,7 @@ import {
 const mainNavItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard, desc: "Your home — energy + token overview" },
   { title: "Ecosystem", url: "/ecosystem", icon: TrendingUp, desc: "State of the ZenSolar economy" },
+  { title: "Starlink Mint", url: "/starlink", icon: Satellite, desc: "Mint $ZSOLAR from Starlink data usage (beta)" },
   { title: "Mint History", url: "/mint-history", icon: History, desc: "All your past mints and receipts" },
   { title: "$ZSOLAR Store", url: "/store", icon: ShoppingBag, desc: "Spend $ZSOLAR on rewards" },
   { title: "My Energy Logs", url: "/energy-log", icon: BarChart3, desc: "Detailed kWh production & charging" },
