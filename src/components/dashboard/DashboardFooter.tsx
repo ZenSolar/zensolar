@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Store, BookOpen, FileText, ExternalLink } from 'lucide-react';
+import { Store, BookOpen, FileText, ExternalLink, BarChart3 } from 'lucide-react';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { useBasePath } from '@/hooks/useBasePath';
 
