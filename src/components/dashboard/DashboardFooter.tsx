@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Store, BookOpen, FileText, ExternalLink } from 'lucide-react';
+import { Store, BookOpen, FileText, ExternalLink, BarChart3 } from 'lucide-react';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { useBasePath } from '@/hooks/useBasePath';
 
@@ -33,6 +33,13 @@ export function DashboardFooter() {
           >
             <Store className="h-4 w-4" />
             $ZSOLAR Store
+          </Link>
+          <Link 
+            to={`${basePath}/ecosystem`} 
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
+          >
+            <BarChart3 className="h-4 w-4" />
+            Ecosystem
           </Link>
           <Link 
             to={`${basePath}/learn`} 
