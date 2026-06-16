@@ -1,126 +1,126 @@
+# Production Remix Plan — Evergreen Grassroots Edition (LOCKED)
 
-## Goal
+## Core Philosophy (non-negotiable, baked in day 1)
 
-Ship `/ecosystem` as a fully polished, auth-gated, mobile-first "State of the ZenSolar Economy" dashboard on the first build. Visual target: Tesla Energy × Robinhood × Notion — dark glassmorphism, neon-green/violet accents, rich Framer Motion, real Supabase data only.
+**Literal promise to every subscriber:** "100% of your subscription — every gross dollar, before Stripe fees — goes directly into the $ZSOLAR Liquidity Pool. ZenSolar Inc. takes zero cut from your subscription."
 
-Sub-headline anchor: *"Your monthly subscription is 100% powering the liquidity pool and the flywheel. This is what you're investing in."*
+- **Ops funding:** 5% mint treasury slice + seed capital. NOT subscription revenue.
+- **Stripe fees:** Absorbed by ZenSolar (treasury), never netted from the LP transfer. The LP receives the full $9.99 / $19.99 / $49.99 / $99.99.
+- **Messaging rule:** Every subscription surface (pricing page, checkout, settings, receipts, emails) must state "100% to LP" with a tooltip explaining ZenSolar covers processing fees.
 
-## Page structure (top → bottom)
+## Subscription Tiers (4)
 
-```text
-1. HERO
-   - LIVE pulse dot + "Live Network" badge
-   - H1: "The ZenSolar Economy"
-   - Sub-headline (subscription = investment thesis)
-   - $ZSOLAR Launch Price + Lifetime kWh (animated counters)
-   - Background: aurora gradient + subtle dot pattern
+| Tier | Price | Mint Multiplier | Audience |
+|---|---|---|---|
+| Spark | $9.99/mo | 1.0× | Entry / friends & family |
+| Flame | $19.99/mo | 2.5× | Standard household |
+| Inferno | $49.99/mo | 7× | Power user / multi-asset |
+| Titan | $99.99/mo | 15× | Whale / fleet / commercial |
 
-2. FLYWHEEL HEALTH GAUGE  (tappable, animated)
-   - States: 💪 Strong / 🚀 Accelerating / ⚡ Supercharged
-   - Big animated radial-style progress (framer-motion svg)
-   - Tap → tooltip + neon-particle burst
-   - Confetti burst on first reach of "Supercharged"
-   - Tagline: "Every subscription + mint adds net buy pressure to the LP"
+## Weekly Tap-to-Claim Minting
 
-3. 4-UP KPI GRID  (glass cards, hover-lift, AnimatedCounter)
-   Subscribers | Lifetime kWh | Tokens Minted | NFTs Minted
+- Verified kWh accrue **off-chain** in a `weekly_accrual_ledger` table, Mon 00:00 UTC → Sun 23:59 UTC.
+- Users see live accrual counter on CEC dashboard all week.
+- **Mandatory "Tap to Claim This Week's Rewards" button** unlocks Monday 00:00 UTC and stays open 7 days.
+- Skipped weeks → accrual forfeited to LP (anti-passive-farming, drives engagement).
+- Claim mints to user wallet on Base Sepolia (beta) → real Base mainnet at launch.
 
-4. LIQUIDITY POOL CARD
-   - USDC depth + $ZSOLAR depth (animated counters)
-   - "This Month's LP Growth" sub-card:
-     - "+$X added this month • 100% from subscriptions"
-     - Gradient-filled Recharts AreaChart sparkline with interactive tooltip
+## 1-Year Rolling Lock
 
-5. SUPPLY BREAKDOWN
-   - Stacked horizontal bar vs 1T cap with neon segment colors
-   - Legend chips
-   - Burn impact callout (rose glow):
-     "X% of all tokens are still locked or burned • This month's burn permanently removed Y tokens"
-   - Internal math grosses up user-share by 100/MINT_DISTRIBUTION.user; copy NEVER exposes the 50/25/20/5 split labels.
+- Every claimed batch enters a 365-day lock from claim timestamp.
+- Wallet UI shows: Liquid balance, Locked balance, "Next unlock" countdown ribbon.
+- Enforced on-chain via vesting contract (Sepolia stub → mainnet real).
+- Prevents dump-on-mint behavior, aligns subscribers with long-term LP health.
 
-6. NETWORK GROWTH CHART
-   - Recharts LineChart, gradient strokes, smooth motion
-   - 30d / 90d / All toggle pill group
+## Investment-First Messaging
 
-7. RECENT MINTS TICKER
-   - Horizontal marquee (framer-motion auto-scroll loop, pauses on tap)
-   - Edge fade masks, anonymized "Anon · X kWh · Ys ago"
+Replace all "earn rewards / passive income / get tokens" copy with:
+- "Fund the flywheel you own."
+- "Your $9.99 is an investment in the LP that backs your own minted tokens."
+- "Every subscriber strengthens the floor under every other subscriber."
+- Founding-member badge framed as "Day-1 LP backer."
 
-8. YOUR STAKE SNAPSHOT  (premium hero card)
-   - Tokens earned (locked) — animated counter
-   - Your LP push this month +$X — emerald glow
-   - Your share of circulating + animated progress bar
-   - Projected 3-year upside band ($0.50–$2.00 illustrative)
-   - CTAs with ripple: "Invite a friend → bonus tokens" / "See my referrals"
+## Founding Member Pledge Flow (LLC-pending mode)
 
-9. METHODOLOGY FOOTER + last-updated timestamp
+Unchanged from prior plan:
+- Pledge form (email + wallet + tier + e-signature) → `founding_members` table.
+- Auto-issues "Founding Member #001–100" badge.
+- Phase B (after LLC + business checking): Stripe $1 pre-auth, then full billing at mainnet launch.
+
+## Refinement Prompt (paste as first message in zensolar-prod remix)
+
+```
+This is the production-ready remix of ZenSolar (R&D project stays on beta.zen.solar).
+Domain: zensolar.com (+ zen.solar). Mainnet launch is post-raise; we are in
+Beta Sepolia mode with a Founding Member Pledge flow until LLC + business
+checking are in place.
+
+CORE PHILOSOPHY — EVERGREEN GRASSROOTS MODEL (LOCKED, NON-NEGOTIABLE):
+
+1. 100% of EVERY subscription dollar (gross, before Stripe fees) goes
+   directly to the $ZSOLAR Liquidity Pool. ZenSolar Inc. takes zero cut
+   from subscriptions. Stripe processing fees are absorbed by ZenSolar
+   treasury — the LP receives the full sticker price ($9.99/$19.99/
+   $49.99/$99.99). Ops are funded by the 5% mint treasury slice + seed
+   capital, never by subscription revenue.
+
+2. Four subscription tiers with mint multipliers:
+   - Spark   $9.99/mo  — 1.0× mint multiplier
+   - Flame   $19.99/mo — 2.5× mint multiplier
+   - Inferno $49.99/mo — 7×   mint multiplier
+   - Titan   $99.99/mo — 15×  mint multiplier
+
+3. Weekly accrual + mandatory Tap-to-Claim:
+   - Verified kWh accrue off-chain Mon 00:00 UTC → Sun 23:59 UTC.
+   - "Tap to Claim This Week's Rewards" button opens Monday 00:00 UTC
+     for 7 days. Skipped weeks forfeit to LP.
+   - Claims mint on Base Sepolia (labeled BETA) — flip to Base mainnet
+     at launch via single config switch.
+
+4. 1-year rolling lock on every claimed batch (365 days from claim
+   timestamp). Wallet shows Liquid / Locked / Next-unlock countdown.
+   Enforced on-chain by vesting contract.
+
+5. Investment-first messaging everywhere. No "earn / passive income /
+   free tokens" copy. Use "fund the flywheel you own", "Day-1 LP
+   backer", "your subscription strengthens the floor under every
+   subscriber's tokens".
+
+PRUNE TO CORE FUNNEL + RETENTION HOOKS:
+Keep: Home (consumer copy), Auth, Onboarding, OEM Connect (Tesla,
+Enphase, SolarEdge, Wallbox), Clean Energy Center dashboard + Tap-to-
+Mint, Wallet (Liquid/Locked/Unlock schedule), Receipts, Proof-of-
+Genesis, NFT Milestones, Store Redemption, Subscribe (4 tiers + 100%-
+to-LP messaging), Founding Member Pledge, Settings, Support.
+
+Remove: all /admin/* tools, investor pitch pages, patent docs, Starlink
+plan, future-projects pages, founder vault, Deason internal tools, all
+simulator/demo/VIP gates, all experimental routes.
+
+BACKEND: Fresh Lovable Cloud project. Migrate ~15 essential tables
+(profiles, user_roles, connected_devices, energy_production, mint_
+transactions, mint_idempotency_keys, user_rewards, bidirectional_mint_
+events, home_charging_sessions, charging_sessions, referrals, feedback,
+support_requests, kpi_tap_events + new founding_members + new weekly_
+accrual_ledger + new locked_token_batches). No mainnet contracts. No
+tokenomics changes — mint split v3.1 stays locked (50/25/20/5 + 3%
+transfer tax).
+
+FOUNDING MEMBER PLEDGE (LLC-pending):
+Phase A: pledge form (email + wallet + tier + e-sig) → founding_members
+table, auto-issues "Founding Member #001–100" badge, admin CSV export.
+Phase B (after LLC): enable Stripe $1 pre-auth, convert pledges, full
+billing at mainnet launch.
+
+Confirm you understand the Evergreen Grassroots Model is locked and
+will be enforced across every subscription surface, then start pruning.
 ```
 
-## Files to create
+## Memory writes (build mode)
 
-- `src/hooks/useEcosystemStats.ts` — React Query (60s stale, 90s refetch). Parallel fetches:
-  - `supabase.rpc('get_live_earnings_stats')`
-  - `profiles` head count (subscribers)
-  - `energy_subscriptions` where `active=true` head count
-  - `lp_rounds` all rows → sum USDC, sum tokens, latest spot price
-  - `mint_transactions` confirmed: latest 10 (ticker), all rows for growth + lifetime kWh, current-user slice (stake)
-  - `profiles.created_at` ordered → subscriber growth series
-  - Derives `tokensBurned`, `tokensToLp`, `tokensToTreasury`, `circulating`, `myShareOfCirculating`, `monthLpFromSubs` (subscribers × $19.99 × 50%), bucketed daily growth array.
+When approved I will:
+1. Save `mem://features/evergreen-grassroots-model.md` (full ruleset) and add a Core line to `mem://index.md`.
+2. Reply exactly: "Evergreen Grassroots Model locked and refinement prompt updated for the production remix."
 
-- `src/components/ecosystem/`
-  - `EcosystemHero.tsx` — aurora gradient + live pulse + animated counters
-  - `FlywheelHealthGauge.tsx` — svg radial gauge, framer-motion, particle burst, confetti on "Supercharged"
-  - `KpiGrid.tsx` — 4 glass tiles with AnimatedCounter, hover-lift
-  - `LiquidityPoolCard.tsx` — depth + monthly-growth sparkline (Recharts AreaChart, gradient fill)
-  - `SupplyBreakdown.tsx` — stacked bar + legend + rose burn callout
-  - `GrowthChart.tsx` — LineChart with range toggle (30/90/All)
-  - `RecentMintsTicker.tsx` — framer-motion marquee, fade masks
-  - `YourStakeCard.tsx` — animated counters, progress bar, upside band, ripple CTAs
-  - `glass.ts` — shared className helper for glass card surface
-
-- `src/pages/Ecosystem.tsx` — composes the above with staggered `motion` container, Helmet SEO (`The ZenSolar Economy — Live Network Stats` + 1-line meta), skeleton loading.
-
-## File to modify
-
-- `src/App.tsx` — add lazy import and route above the catch-all:
-
-  ```tsx
-  const Ecosystem = lazy(() => import("./pages/Ecosystem"));
-  ...
-  <Route
-    path="/ecosystem"
-    element={
-      <ProtectedRoute>
-        <AppLayout>
-          <Ecosystem />
-        </AppLayout>
-      </ProtectedRoute>
-    }
-  />
-  ```
-
-## Dependencies
-
-- All required deps already in repo: `framer-motion`, `recharts`, `@tanstack/react-query`, `lucide-react`, `react-helmet-async`, existing `AnimatedCounter`, `Progress`, `Card`, `Button`, `Skeleton`, `Badge` shadcn primitives.
-- Add one tiny dep: `canvas-confetti` (≈3 KB) for the Supercharged burst. Imported only inside `FlywheelHealthGauge` so it tree-shakes cleanly.
-
-## Locked-memory compliance
-
-- Dark-mode only, mobile-first (390×844)
-- Auth-gated via `ProtectedRoute`
-- 1 kWh = 1 $ZSOLAR framing; UI never shows the 50/25/20/5 split labels
-- Launch price uses `PRICES.launchFloor` / `lp_rounds.spot_price_usd`
-- All numbers are live from Supabase (no mock data)
-- No DB migration required
-
-## Out of scope (not in this build)
-
-- Live DEX price feed (uses LP-round spot price)
-- VPP / Optimus / Starlink panels
-- Nav-bar / sidebar entry (can add after page is verified)
-- Public unauthenticated version
-
-## Closing message
-
-After build, respond exactly:
-"/ecosystem page complete — live ZenSolar Economy dashboard with stunning premium glassmorphism UI, rich Framer Motion animations, Flywheel Health Gauge, enhanced LP card, supply + burn impact, and fully upgraded Your Stake Snapshot is live and fully wired."
+## Reminder
+I cannot create the remix from here. After you approve, I save memory + you right-click the project → Remix → paste the prompt above into the new project's first message.
