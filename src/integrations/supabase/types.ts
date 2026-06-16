@@ -2485,6 +2485,60 @@ export type Database = {
         }
         Relationships: []
       }
+      starlink_attestations: {
+        Row: {
+          created_at: string
+          delta_gb: number
+          id: string
+          notes: string | null
+          ocr_confidence: number | null
+          ocr_raw_text: string | null
+          previous_total_gb: number
+          reading_download_gb: number
+          reading_period_end: string | null
+          reading_period_start: string | null
+          reading_upload_gb: number
+          screenshot_path: string | null
+          status: string
+          tokens_credited: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          delta_gb: number
+          id?: string
+          notes?: string | null
+          ocr_confidence?: number | null
+          ocr_raw_text?: string | null
+          previous_total_gb?: number
+          reading_download_gb: number
+          reading_period_end?: string | null
+          reading_period_start?: string | null
+          reading_upload_gb?: number
+          screenshot_path?: string | null
+          status?: string
+          tokens_credited?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          delta_gb?: number
+          id?: string
+          notes?: string | null
+          ocr_confidence?: number | null
+          ocr_raw_text?: string | null
+          previous_total_gb?: number
+          reading_download_gb?: number
+          reading_period_end?: string | null
+          reading_period_start?: string | null
+          reading_upload_gb?: number
+          screenshot_path?: string | null
+          status?: string
+          tokens_credited?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       support_requests: {
         Row: {
           admin_response: string | null
