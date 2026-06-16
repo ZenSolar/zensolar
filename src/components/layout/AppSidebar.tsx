@@ -144,6 +144,7 @@ const adminMenuGroups = {
   technical: [
     { title: "AI Agent Opportunities", url: "/admin/ai-agents", icon: Cpu, highlight: true },
     { title: "Beta Deployment", url: "/admin/beta-deployment", icon: Rocket, highlight: true },
+    { title: "Starlink Plan", url: "/admin/starlink-plan", icon: Satellite, highlight: true },
     { title: "Wallet Providers", url: "/admin/wallet-providers", icon: Wallet, highlight: true },
     { title: "Embedded Wallet Demo", url: "/admin/embedded-wallet-demo", icon: Wallet, highlight: true },
     { title: "Security Architecture", url: "/admin/security", icon: Shield },
