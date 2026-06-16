@@ -43,6 +43,7 @@ import {
 
 const mainNavItems = [
   { title: "Dashboard", url: "/demo", icon: LayoutDashboard },
+  { title: "Ecosystem", url: "/ecosystem", icon: TrendingUp },
   { title: "$ZSOLAR Store", url: "/demo/store", icon: ShoppingBag },
   { title: "NFT Collection", url: "/demo/nft-collection", icon: Award },
   { title: "Mint History", url: "/demo/mint-history", icon: History },
