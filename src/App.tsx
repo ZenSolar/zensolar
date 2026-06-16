@@ -183,6 +183,7 @@ const AdminBootstrapSimulator = lazy(() => import("./pages/archive/AdminBootstra
 const AdminLPCapacityCalculator = lazy(() => import("./pages/archive/AdminLPCapacityCalculator"));
 const AdminBetaDeployment = lazy(() => import("./pages/AdminBetaDeployment"));
 const AdminTodo = lazy(() => import("./pages/AdminTodo"));
+const AdminStarlinkPlan = lazy(() => import("./pages/AdminStarlinkPlan"));
 const AdminWalletProviders = lazy(() => import("./pages/AdminWalletProviders"));
 const AdminYCApplication = lazy(() => import("./pages/archive/AdminYCApplication"));
 const A16ZSpeedrunApplication = lazy(() => import("./pages/archive/A16ZSpeedrunApplication"));
@@ -988,6 +989,16 @@ const App = () => {
                         <ProtectedRoute>
                           <AppLayout>
                             <AdminTodo />
+                          </AppLayout>
+                        </ProtectedRoute>
+                      } 
+                    />
+                    <Route 
+                      path="/admin/starlink-plan" 
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <AdminStarlinkPlan />
                           </AppLayout>
                         </ProtectedRoute>
                       } 
