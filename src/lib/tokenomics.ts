@@ -158,48 +158,64 @@ export const REWARD_RATES = {
   fsdUnsupervisedMiles: BASE_REWARD_RATES.fsdUnsupervisedMiles * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
 } as const;
 
-// === SUBSCRIPTION (v2 — Base / Regular / Power, 50/50 LP/treasury) ===
-// Locked 2026-05. See: .lovable/memory/features/tiered-subscriptions-halving-flywheel.md
+// === SUBSCRIPTION (v3.2 — 100% of every subscription dollar → LP) ===
+// Locked 2026-06. Treasury is funded ONLY by the 5% mint slice, never by subs.
+// 4 tiers: Spark / Flame / Inferno / Titan with displayed token-mint multipliers.
 export const SUBSCRIPTION = {
-  monthlyPrice: 19.99, // Default tier (Regular) — kept for back-compat
-  tier1Price: 9.99,    // Base
-  tier2Price: 19.99,   // Regular
-  tier3Price: 49.99,   // Power
-  lpContribution: 50,  // 50% of every subscription dollar → LP
-  treasuryContribution: 50, // 50% → treasury
-  ladderNotes: 'Base $9.99 / Regular $19.99 / Power $49.99 — every dollar splits 50% LP / 50% treasury.',
+  monthlyPrice: 19.99, // Default (Flame) — kept for back-compat formulas
+  tier1Price: 9.99,    // Spark
+  tier2Price: 19.99,   // Flame
+  tier3Price: 49.99,   // Inferno
+  tier4Price: 99.99,   // Titan
+  lpContribution: 100, // 100% of every subscription dollar → LP
+  treasuryContribution: 0,
+  ladderNotes: 'Spark $9.99 (1×) / Flame $19.99 (2.5×) / Inferno $49.99 (5×) / Titan $99.99 (10×). 100% of every dollar routes to the $ZSOLAR LP.',
 } as const;
 
 export const SUBSCRIPTION_TIERS = {
   base: {
     id: 'base',
-    name: 'Base',
+    name: 'Spark',
     monthlyPrice: 9.99,
-    lpPerMonth: 4.995,
-    treasuryPerMonth: 4.995,
-    assumedMonthlySellRate: 0.90, // 90% of minted tokens sold
-    softMintCapPerMonth: 1_000,    // optional soft cap (Base only)
-    description: 'Cash-out / light-producer on-ramp. Soft cap protects whales from squatting.',
+    tokenMultiplier: 1,
+    lpPerMonth: 9.99,
+    treasuryPerMonth: 0,
+    assumedMonthlySellRate: 0.90,
+    softMintCapPerMonth: 1_000,
+    description: 'Spark — on-ramp tier. 1× token rewards. 100% of fee fuels the LP.',
   },
   regular: {
     id: 'regular',
-    name: 'Regular',
+    name: 'Flame',
     monthlyPrice: 19.99,
-    lpPerMonth: 9.995,
-    treasuryPerMonth: 9.995,
+    tokenMultiplier: 2.5,
+    lpPerMonth: 19.99,
+    treasuryPerMonth: 0,
     assumedMonthlySellRate: 0.25,
     softMintCapPerMonth: null,
-    description: 'Default homeowner / EV driver. Uncapped minting.',
+    description: 'Flame — default homeowner / EV driver. 2.5× token rewards. 100% to LP.',
   },
   power: {
     id: 'power',
-    name: 'Power',
+    name: 'Inferno',
     monthlyPrice: 49.99,
-    lpPerMonth: 24.995,
-    treasuryPerMonth: 24.995,
+    tokenMultiplier: 5,
+    lpPerMonth: 49.99,
+    treasuryPerMonth: 0,
     assumedMonthlySellRate: 0.05,
     softMintCapPerMonth: null,
-    description: 'Prosumer / fleet / staker. Future staking multipliers (1.5× at 6mo lock, 2× at 12mo).',
+    description: 'Inferno — prosumer / fleet / staker. 5× token rewards. 100% to LP.',
+  },
+  titan: {
+    id: 'titan',
+    name: 'Titan',
+    monthlyPrice: 99.99,
+    tokenMultiplier: 10,
+    lpPerMonth: 99.99,
+    treasuryPerMonth: 0,
+    assumedMonthlySellRate: 0.03,
+    softMintCapPerMonth: null,
+    description: 'Titan — maximum conviction. 10× token rewards. 100% to LP.',
   },
 } as const;
 
