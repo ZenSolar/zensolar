@@ -14,7 +14,7 @@ Founders pact-locked: Joseph 150B, Michael 50B. $1T crossovers: $6.67 / $20.
 ALL demo/preview/share URLs MUST use https://beta.zen.solar — NEVER lovable.app or lovable.dev domains.
 NEVER say "cheetah" for sell cohorts. Tschida = co-founder Michael only.
 Satoshi-Mirror v2: EIA monthly oracle = guaranteed floor; Treasury auto-buyback via POL = floor defense.
-Subscriptions v2 (LOCKED 2026-05): Base $9.99 / Regular $19.99 / Power $49.99 — every dollar splits 50% LP / 50% treasury. External names always Base/Regular/Power (never Tier-1/2/3, never "Auto-Mint"/"Pro"/"Elite").
+Subscriptions v3.2 (LOCKED 2026-06): 4 tiers — Spark $9.99 (1×) / Flame $19.99 (2.5×) / Inferno $49.99 (5×) / Titan $99.99 (10×). **100% of every subscription dollar → LP** (0% treasury). Treasury funded ONLY by the 5% mint slice. Tier IDs in code remain `base/regular/power/titan` for back-compat; display names are Spark/Flame/Inferno/Titan. LP receives TWO monthly inflows: (1) 100% of subs + (2) 25% of new mints. Supersedes the 50/50 sub split.
 Genesis Halving DEPRECATED in v3.1 narrative — continuous 20% burn per mint is the deflation mechanism. Do NOT surface "halving" in new user/investor copy. Code constants (`GENESIS_HALVING`, modal, simulation) retained for optional future re-activation only.
 Billing infra not wired yet (no Stripe). `/subscribe` route shows tier picker only — checkout pending Michael sign-off on provider.
 Patent status: ONLY the non-provisional "Gamifying and Tokenizing Sustainable Behaviors" patent is filed. Starlink/SpaceX/Optimus tokenization angle is roadmap/concept only — NOT filed. Never say "Starlink patent filed."
