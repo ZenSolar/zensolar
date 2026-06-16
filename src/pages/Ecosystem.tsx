@@ -929,7 +929,12 @@ export default function Ecosystem() {
         />
       </div>
 
-      <LpCard usdc={data.lpUsdc} tokens={data.lpTokens} monthGrowth={data.monthLpFromSubs} />
+      <LpCard
+        usdc={data.lpUsdc}
+        tokens={data.lpTokens}
+        monthFromSubs={data.monthLpFromSubs}
+        monthFromMints={data.monthLpFromMintsUsd}
+      />
 
       <SupplyBar
         circulating={data.circulating}
