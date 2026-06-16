@@ -93,6 +93,7 @@ const MintHistory = lazy(() => import("./pages/MintHistory"));
 const Feedback = lazy(() => import("./pages/Feedback"));
 const OAuthCallback = lazy(() => import("./pages/OAuthCallback"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const Ecosystem = lazy(() => import("./pages/Ecosystem"));
 const FoundersVault = lazy(() => import("./pages/FoundersVault"));
 const FoundersRevenueModels = lazy(() => import("./pages/archive/FoundersRevenueModels"));
 const FounderPack = lazy(() => import("./pages/archive/FounderPack"));
@@ -1327,6 +1328,17 @@ const App = () => {
                     {/* Deason — founders-only AI agent */}
                     <Route path="/deason" element={<FounderRoute><Deason /></FounderRoute>} />
                     <Route path="/deason/:threadId" element={<FounderRoute><Deason /></FounderRoute>} />
+                    {/* Live ZenSolar Economy dashboard */}
+                    <Route
+                      path="/ecosystem"
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <Suspense fallback={<PageLoader />}><Ecosystem /></Suspense>
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
+                    />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                     </Routes>
