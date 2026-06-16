@@ -3186,7 +3186,36 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      origin_proof_keys_metadata: {
+        Row: {
+          algorithm: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          key_id: string | null
+          provider: string | null
+          revoked_at: string | null
+        }
+        Insert: {
+          algorithm?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          key_id?: string | null
+          provider?: string | null
+          revoked_at?: string | null
+        }
+        Update: {
+          algorithm?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          key_id?: string | null
+          provider?: string | null
+          revoked_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       can_user_mint: { Args: { _user_id: string }; Returns: Json }
