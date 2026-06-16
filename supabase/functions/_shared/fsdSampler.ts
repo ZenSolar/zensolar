@@ -156,8 +156,8 @@ export function applyOdometerSample(
   const currentEngaged =
     !!sample.autopilot_state && ENGAGED_AUTOPILOT_STATES.has(sample.autopilot_state);
   const inferredCurrent = sample.autopilot_state === "InferredDriveMoving";
-  const inDrive = (sample.shift_state ?? "").toUpperCase().startsWith("D");
-  const moving = (sample.speed ?? 0) > 0;
+  const inDrive = inferredCurrent || (sample.shift_state ?? "").toUpperCase().startsWith("D");
+  const moving = inferredCurrent || (sample.speed ?? 0) > 0;
 
   next.last_odometer_mi = odo;
   next.last_autopilot_state = sample.autopilot_state;
