@@ -379,7 +379,7 @@ export function resolveVehicleColor(
 export function resolveVehicleAsset(
   input: unknown,
   overrides?: { model?: VehicleModel | null; color?: VehicleColor | null },
-  _options?: { fallbackWhenConnected?: boolean },
+  options?: { fallbackWhenConnected?: boolean },
 ): { model: VehicleModel | null; color: VehicleColor | null; src: string | null; generic: boolean } {
   const urlOverride = readUrlOverride();
   const lastKnown = readLastKnown();
@@ -392,8 +392,21 @@ export function resolveVehicleAsset(
     null;
 
   if (!detectedModel) {
+    // v5.2: when the user clearly has a Tesla connected but telemetry
+    // hasn't yet revealed the exact model (or nickname is unparseable),
+    // fall back to a generic Model 3 silhouette instead of blanking the
+    // EV node entirely. Flagged `generic: true` so callers can decide
+    // whether to render — the live-energy card opts in by gating on
+    // `!vehicleGeneric`, but the EV status tile reads the flag too.
+    if (options?.fallbackWhenConnected) {
+      const fallbackColor: VehicleColor = 'pearl-white';
+      const matrix = VEHICLE_COLOR_SRC.model3;
+      const src = matrix[fallbackColor] ?? VEHICLE_SRC.model3 ?? null;
+      return { model: 'model3', color: fallbackColor, src, generic: true };
+    }
     return { model: null, color: null, src: null, generic: false };
   }
+
 
   const detectedColor =
     overrides?.color ??
