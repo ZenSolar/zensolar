@@ -16,6 +16,7 @@ import {
   Car,
   BookOpen,
   TrendingUp,
+  Satellite,
   Cpu,
   Award,
   Target,
