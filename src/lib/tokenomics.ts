@@ -38,7 +38,7 @@ export const LIVE_BETA_MULTIPLIER = 10;
 
 // === MODEL METADATA ===
 export const MODEL_NAME = '1T Trillionaire Strategy';
-export const MODEL_VERSION = 3.1; // v3.1 — Mint split locked at 50/25/20/5 (user/LP/burn/treasury) + separate 3% transfer tax (LP recycle only)
+export const MODEL_VERSION = 3.2; // v3.2 — 100% of subscription revenue → LP (0% treasury). 4 tiers (Spark/Flame/Inferno/Titan). Mint split unchanged at 50/25/20/5.
 
 // === MINT RATIO (v3.0 LOCKED — 2026-05-18) ===
 // 1 kWh (or 1 mile) of verified clean-energy activity = 1 $ZSOLAR minted.
