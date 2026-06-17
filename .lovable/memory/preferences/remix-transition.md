@@ -8,8 +8,9 @@ type: preference
 User attempted to remix this lab project 3x — all failed. Support email sent, waiting on reply.
 
 ## Prep already done (in THIS project, won't paste until remix exists)
-- `.lovable/REMIX_MANIFEST.md` — 16 customer routes, ~25 edge functions (down from 80), DB tables to keep/drop, secrets list, 5-min smoke test
-- `.lovable/routes.config.ts` — typed `AppRoute[]` with lazy() imports, bottom nav (5) + more menu (5), `PRODUCTION_PATHS` Set for 404 guard
+- `.lovable/REMIX_MANIFEST.md` (v1) — 16 customer routes, ~25 edge functions, DB tables to keep/drop, secrets, 5-min smoke test
+- `.lovable/REMIX_MANIFEST_V2.md` — **STRUCTURAL SSOT**. Refined around 3 pillars (Clean Energy Center, Deason AI optimizer+chat, Multi-OEM Cockpit). Promotes Deason + Cockpit functions back into remix scope, updates bottom nav, lists open decisions (Deason chat shape, trial length, nav order, onboarding flow).
+- `.lovable/routes.config.ts` — typed `AppRoute[]` with lazy() imports + `PRODUCTION_PATHS` Set. **Needs bottom-nav reorder per v2 manifest before paste.**
 
 ## Decisions locked
 - Strategy = Option 2: clean remix with ONLY production routes; original lab project preserved as-is for ongoing R&D
