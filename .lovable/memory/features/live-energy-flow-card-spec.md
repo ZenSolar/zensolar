@@ -106,11 +106,34 @@ src/features/cockpit/LiveEnergyFlowCard/
 
 ## Out of scope for this card
 - Wallet / mint / NFT content (sibling cards)
-- Historical charts beyond the 24h drawer sparkline (lives on `/app/cockpit/history`)
-- Manual overrides / settings (lives on `/app/cockpit/settings`)
+- Historical charts beyond the 24h drawer sparkline
+- Manual overrides / settings
+- Per-Powerwall-count dedicated hero renders (use sprite overlay)
+- Non-Tesla battery brands in v1 (Powerwall only)
+- Time-of-day variants beyond outage in v1
+
+## Hero variants (v4)
+| Variant       | Asset                                     | Trigger                            |
+| ------------- | ----------------------------------------- | ---------------------------------- |
+| `default`     | `energy-flow-house-hero.jpg`              | `hasBattery && hasEV && !outage`   |
+| `no-ev`       | `energy-flow-house-hero-no-ev.jpg`        | `hasBattery && !hasEV && !outage`  |
+| `no-battery`  | `energy-flow-house-hero-no-battery.jpg`   | `!hasBattery && !outage`           |
+| `outage`      | `energy-flow-house-hero-outage.jpg`       | `outage === true`                  |
+
+Outage behavior: Solar→Standby, Grid→Offline (red, dimmed), Powerwall→Backup (faster 1.0s pulse), EV row "Charging paused", amber "GRID OUTAGE · ISLAND MODE" banner.
+
+## KPI layout (overlap-safe)
+- Solar: top-left  · Home: top-right
+- Powerwall: mid-left (top:44%, translateY(-50%)) — only when `hasBattery`
+- Grid: bottom-left  · EV: row list below hero (never overlay)
+
+## Multi-Powerwall stacking (sprite overlay)
+Asset: `powerwall-sprite.png`. Anchor `{left:46%, top:70%}`, width 7% of hero.
+1=hidden under hero · 2=side-by-side · 3=row · 4=2×2 grid · 5+ caps at 4 + "+N" badge. Aggregate kWh = `units × 13.5`. Label `POWERWALL ×N` when N>1.
 
 ## Status
-- ✅ Direction picked (C, Stacked Flow)
-- ✅ Tokens locked (Sora/Manrope, emerald/cyan)
+- ✅ Direction C, Stacked Flow
+- ✅ Tokens locked (Sora/Manrope, emerald/cyan/amber)
 - ✅ Dynamic asset detection scoped
-- ⏳ Build in remix project only — do NOT implement in current app
+- ✅ v4 — variants + multi-Powerwall sprite stack shipped to `/prototype/energy-flow`
+- ⏳ Build in remix project
