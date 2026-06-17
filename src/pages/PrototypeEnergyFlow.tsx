@@ -1,16 +1,37 @@
 /**
- * Prototype v3 — Unified Live Energy Flow Card (Tesla-app fidelity)
- * -----------------------------------------------------------------
- * Full-bleed 3D hero render + minimal floating labels positioned NEAR
- * (not on) the architectural feature. Matches the actual Tesla app
- * Energy card. Our differentiator: Model Y + FSD live in the row list,
- * not as an overlay (preserves the cinematic feel of the hero).
+ * Prototype v4 — Unified Live Energy Flow Card (Tesla-fidelity, asset-aware)
+ * --------------------------------------------------------------------------
+ * Adds:
+ *   1. 4 hero-render variants swapped by connected-asset state
+ *      - default          (Solar + Powerwall + Model Y, dusk)
+ *      - no-ev            (Solar + Powerwall, empty driveway, dusk)
+ *      - no-battery       (Solar only, clean garage wall, dusk)
+ *      - outage           (night, grid-down, Powerwall island mode)
+ *   2. KPI overlap fix — Powerwall moved to mid-left, Grid stays bottom-left,
+ *      Home top-right, Solar top-left. 12px safe gutters.
+ *   3. Multi-Powerwall stacking (1–4 units) via transparent sprite overlay.
+ *      5+ caps at 4 with "+N" badge. Aggregate kWh = units × 13.5.
+ *   4. Top-right dev segmented control to flip variant + Powerwall count.
  *
- * Hero asset: src/assets/energy-flow-house-hero.jpg
+ * All hero renders share matched camera, lens, and house geometry so KPI
+ * positions and sprite anchors are reusable across variants.
  */
 
-import { useEffect, useState } from "react";
-import heroHouse from "@/assets/energy-flow-house-hero.jpg";
+import { useEffect, useMemo, useState } from "react";
+import heroDefault from "@/assets/energy-flow-house-hero.jpg";
+import heroNoEv from "@/assets/energy-flow-house-hero-no-ev.jpg";
+import heroNoBattery from "@/assets/energy-flow-house-hero-no-battery.jpg";
+import heroOutage from "@/assets/energy-flow-house-hero-outage.jpg";
+import powerwallSprite from "@/assets/powerwall-sprite.png";
+
+type Variant = "default" | "no-ev" | "no-battery" | "outage";
+
+const HEROES: Record<Variant, string> = {
+  default: heroDefault,
+  "no-ev": heroNoEv,
+  "no-battery": heroNoBattery,
+  outage: heroOutage,
+};
 
 const FIXTURE = {
   homeName: "ZenCasa",
@@ -21,16 +42,68 @@ const FIXTURE = {
   ev: { model: "Model Y", soc: 64, kw: 7.2, etaMin: 80, fsd: true },
 };
 
+// Powerwall mount anchor on the garage wall (% of hero box)
+// Tuned to the existing default render. All variants share geometry.
+const PW_ANCHOR = { left: 46, top: 70 }; // center of bottommost unit
+const PW_W = 7;   // width as % of hero
+const PW_GAP = 0.8; // % gap between units
+
 export default function PrototypeEnergyFlow() {
   const [tick, setTick] = useState(0);
+  const [variant, setVariant] = useState<Variant>("default");
+  const [pwCount, setPwCount] = useState(1);
+
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 4000);
     return () => clearInterval(id);
   }, []);
+
   const wob = (b: number, a = 0.15) => +(b + Math.sin(tick * 1.7) * a).toFixed(1);
-  const solarKw = wob(FIXTURE.solar.kw, 0.3);
+
+  // Derived asset state from variant
+  const hasBattery = variant !== "no-battery";
+  const hasEV = variant !== "no-ev";
+  const isOutage = variant === "outage";
+
+  // KPI values per variant
+  const solarKw = isOutage ? 0 : wob(FIXTURE.solar.kw, 0.3);
   const homeKw = wob(FIXTURE.home.kw, 0.2);
-  const gridKw = wob(FIXTURE.grid.kw, 0.3);
+  const gridKw = isOutage ? 0 : wob(FIXTURE.grid.kw, 0.3);
+  const pwKw = isOutage ? -2.4 : FIXTURE.powerwall.kw;
+  const pwSoc = isOutage ? 87 : FIXTURE.powerwall.soc;
+  const pwLabel = isOutage ? "Backup" : FIXTURE.powerwall.label;
+  const gridLabel = isOutage ? "Offline" : FIXTURE.grid.label;
+  const solarLabel = isOutage ? "Standby" : FIXTURE.solar.label;
+
+  // Aggregated Powerwall capacity
+  const totalPwKwh = (Math.min(pwCount, 4) * 13.5).toFixed(1);
+  const cappedCount = Math.min(pwCount, 4);
+  const overflow = pwCount > 4 ? pwCount - 4 : 0;
+
+  // Sprite stack positions relative to anchor (returns array of {leftPct,topPct})
+  const spritePositions = useMemo(() => {
+    const n = cappedCount;
+    const positions: Array<{ left: number; top: number; z: number }> = [];
+    if (n === 1) {
+      positions.push({ left: PW_ANCHOR.left, top: PW_ANCHOR.top, z: 1 });
+    } else if (n === 2) {
+      positions.push({ left: PW_ANCHOR.left - (PW_W + PW_GAP) / 2, top: PW_ANCHOR.top, z: 1 });
+      positions.push({ left: PW_ANCHOR.left + (PW_W + PW_GAP) / 2, top: PW_ANCHOR.top, z: 1 });
+    } else if (n === 3) {
+      positions.push({ left: PW_ANCHOR.left - (PW_W + PW_GAP), top: PW_ANCHOR.top, z: 1 });
+      positions.push({ left: PW_ANCHOR.left, top: PW_ANCHOR.top, z: 1 });
+      positions.push({ left: PW_ANCHOR.left + (PW_W + PW_GAP), top: PW_ANCHOR.top, z: 1 });
+    } else {
+      // 4 → 2×2
+      const dx = (PW_W + PW_GAP) / 2;
+      const dy = 7; // vertical row offset in %
+      positions.push({ left: PW_ANCHOR.left - dx, top: PW_ANCHOR.top - dy, z: 1 });
+      positions.push({ left: PW_ANCHOR.left + dx, top: PW_ANCHOR.top - dy, z: 1 });
+      positions.push({ left: PW_ANCHOR.left - dx, top: PW_ANCHOR.top, z: 2 });
+      positions.push({ left: PW_ANCHOR.left + dx, top: PW_ANCHOR.top, z: 2 });
+    }
+    return positions;
+  }, [cappedCount]);
 
   return (
     <div
@@ -59,24 +132,79 @@ export default function PrototypeEnergyFlow() {
           </div>
         </header>
 
+        {/* Dev controls (variant + powerwall count) */}
+        <DevControls
+          variant={variant}
+          setVariant={setVariant}
+          pwCount={pwCount}
+          setPwCount={setPwCount}
+        />
+
         {/* THE CARD — full-bleed render */}
         <article className="relative w-full overflow-hidden" style={{ aspectRatio: "1024 / 1280" }}>
           <img
-            src={heroHouse}
+            src={HEROES[variant]}
             alt=""
             className="absolute inset-0 w-full h-full object-cover"
             draggable={false}
           />
-          {/* subtle bottom fade only */}
+          {/* subtle bottom fade */}
           <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-black/70" />
+          {isOutage && (
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/40 backdrop-blur-md">
+              <span className="text-[10px] tracking-[0.22em] text-amber-200 font-semibold">
+                GRID OUTAGE · ISLAND MODE
+              </span>
+            </div>
+          )}
 
-          {/* SOLAR — top center-left (above roof panels) */}
+          {/* Multi-Powerwall sprite overlay (only when battery present and >1 unit) */}
+          {hasBattery && pwCount > 1 && (
+            <div className="absolute inset-0 pointer-events-none">
+              {spritePositions.map((p, i) => (
+                <img
+                  key={i}
+                  src={powerwallSprite}
+                  alt=""
+                  className="absolute"
+                  style={{
+                    left: `${p.left}%`,
+                    top: `${p.top}%`,
+                    width: `${PW_W}%`,
+                    transform: "translate(-50%, -50%)",
+                    zIndex: p.z,
+                    filter: isOutage
+                      ? "drop-shadow(0 0 8px rgba(34,201,138,0.6))"
+                      : "drop-shadow(0 4px 10px rgba(0,0,0,0.5))",
+                  }}
+                />
+              ))}
+              {overflow > 0 && (
+                <div
+                  className="absolute px-1.5 py-0.5 rounded bg-emerald-500/90 text-black text-[10px] font-bold tabular-nums"
+                  style={{
+                    left: `${PW_ANCHOR.left + PW_W}%`,
+                    top: `${PW_ANCHOR.top - 6}%`,
+                    transform: "translate(-50%, -50%)",
+                    fontFamily: "'Sora', sans-serif",
+                  }}
+                >
+                  +{overflow}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* SOLAR — top-left, 12px safe gutter */}
           <Label
-            style={{ top: "5%", left: "38%", transform: "translateX(-50%)" }}
+            style={{ top: "5%", left: "5%" }}
             label="SOLAR"
             value={`${solarKw.toFixed(1)} kW`}
-            sub={FIXTURE.solar.label}
-            align="center"
+            sub={solarLabel}
+            align="left"
+            dot
+            dotColor="#f5c84c"
+            dimmed={isOutage}
           />
 
           {/* HOME — top right */}
@@ -90,43 +218,50 @@ export default function PrototypeEnergyFlow() {
             dotColor="#7ce0ff"
           />
 
-          {/* POWERWALL — bottom left, just below the wall unit */}
+          {/* POWERWALL — mid-left (was bottom-left), only when battery present */}
+          {hasBattery && (
+            <Label
+              style={{ top: "44%", left: "5%", transform: "translateY(-50%)" }}
+              label={pwCount > 1 ? `POWERWALL ×${pwCount}` : "POWERWALL"}
+              value={`${Math.abs(pwKw).toFixed(1)} kW · ${pwSoc}%`}
+              sub={`${pwLabel} · ${totalPwKwh} kWh`}
+              align="left"
+              dot
+              dotColor="#22c98a"
+            />
+          )}
+
+          {/* GRID — bottom-left */}
           <Label
-            style={{ bottom: "20%", left: "5%" }}
-            label="POWERWALL"
-            value={`${FIXTURE.powerwall.kw.toFixed(1)} kW · ${FIXTURE.powerwall.soc}%`}
-            sub={FIXTURE.powerwall.label}
+            style={{ bottom: "6%", left: "5%" }}
+            label="GRID"
+            value={isOutage ? "—" : `${gridKw.toFixed(1)} kW`}
+            sub={gridLabel}
             align="left"
             dot
-            dotColor="#22c98a"
+            dotColor={isOutage ? "#ef4444" : "#f5c84c"}
+            dimmed={isOutage}
           />
 
-          {/* GRID — bottom right */}
-          <Label
-            style={{ bottom: "20%", right: "5%" }}
-            label="GRID"
-            value={`${gridKw.toFixed(1)} kW`}
-            sub={FIXTURE.grid.label}
-            align="right"
-            dot
-            dotColor="#f5c84c"
-          />
+          {/* Powerwall LED pulse — only when battery present (anchored to bottommost unit) */}
+          {hasBattery && (
+            <span
+              className="absolute rounded-full pointer-events-none"
+              style={{
+                left: `${PW_ANCHOR.left}%`,
+                top: `${PW_ANCHOR.top + 1.5}%`,
+                width: 10,
+                height: 10,
+                transform: "translate(-50%, -50%)",
+                background:
+                  "radial-gradient(circle, #22c98a 0%, rgba(34,201,138,0) 70%)",
+                animation: `glowpulse ${isOutage ? "1.0s" : "1.8s"} ease-in-out infinite`,
+                filter: "blur(0.5px)",
+              }}
+            />
+          )}
 
-          {/* Powerwall LED pulse (anchored to the green strip on the wall unit) */}
-          <span
-            className="absolute rounded-full"
-            style={{
-              left: "45.5%",
-              top: "73.5%",
-              width: 10,
-              height: 10,
-              background: "radial-gradient(circle, #22c98a 0%, rgba(34,201,138,0) 70%)",
-              animation: "glowpulse 1.8s ease-in-out infinite",
-              filter: "blur(0.5px)",
-            }}
-          />
-
-          {/* tiny chevron hint */}
+          {/* chevron hint */}
           <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-white/40">
             <svg width="22" height="10" viewBox="0 0 22 10">
               <path d="M2 2l9 6 9-6" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -134,26 +269,92 @@ export default function PrototypeEnergyFlow() {
           </div>
         </article>
 
-        {/* Row list — EV / Energy / Impact / Settings / Off-Grid */}
+        {/* Row list */}
         <nav className="bg-black">
-          <Row
-            icon={<IconBolt />}
-            iconBg="#22c98a"
-            iconColor="#0a0a0a"
-            title="Model Y · Charging"
-            sub={`${FIXTURE.ev.kw.toFixed(1)} kW · ${FIXTURE.ev.soc}% · ETA ${Math.floor(FIXTURE.ev.etaMin/60)}h ${FIXTURE.ev.etaMin%60}m`}
-            badge={FIXTURE.ev.fsd ? "FSD" : undefined}
-          />
+          {hasEV && (
+            <Row
+              icon={<IconBolt />}
+              iconBg="#22c98a"
+              iconColor="#0a0a0a"
+              title={`${FIXTURE.ev.model} · ${isOutage ? "Idle" : "Charging"}`}
+              sub={
+                isOutage
+                  ? `${FIXTURE.ev.soc}% · Charging paused (outage)`
+                  : `${FIXTURE.ev.kw.toFixed(1)} kW · ${FIXTURE.ev.soc}% · ETA ${Math.floor(
+                      FIXTURE.ev.etaMin / 60
+                    )}h ${FIXTURE.ev.etaMin % 60}m`
+              }
+              badge={FIXTURE.ev.fsd ? "FSD" : undefined}
+            />
+          )}
           <Row icon={<IconChart />} title="Energy" sub="38.6 kWh Generated Today" />
           <Row icon={<IconLeaf />} title="Impact" sub="74% Self-Powered Today" />
           <Row icon={<IconGear />} title="Settings" sub="3 devices connected" hasDot />
-          <Row icon={<IconShield />} title="Go Off-Grid" sub="Powerwall reserve · 20%" />
+          {hasBattery && (
+            <Row icon={<IconShield />} title="Go Off-Grid" sub="Powerwall reserve · 20%" />
+          )}
         </nav>
       </div>
 
       <style>{`
-        @keyframes glowpulse { 0%,100% { transform: scale(1); opacity: 0.7 } 50% { transform: scale(1.6); opacity: 1 } }
+        @keyframes glowpulse { 0%,100% { transform: translate(-50%,-50%) scale(1); opacity: 0.7 } 50% { transform: translate(-50%,-50%) scale(1.6); opacity: 1 } }
       `}</style>
+    </div>
+  );
+}
+
+/* ---------- dev controls ---------- */
+function DevControls({
+  variant,
+  setVariant,
+  pwCount,
+  setPwCount,
+}: {
+  variant: Variant;
+  setVariant: (v: Variant) => void;
+  pwCount: number;
+  setPwCount: (n: number) => void;
+}) {
+  const variants: Array<{ key: Variant; label: string }> = [
+    { key: "default", label: "All" },
+    { key: "no-ev", label: "No EV" },
+    { key: "no-battery", label: "No Battery" },
+    { key: "outage", label: "Outage" },
+  ];
+  return (
+    <div className="px-3 pb-3 flex flex-col gap-2 bg-black">
+      <div className="flex gap-1 p-1 rounded-full bg-white/[0.04] border border-white/[0.06]">
+        {variants.map((v) => (
+          <button
+            key={v.key}
+            onClick={() => setVariant(v.key)}
+            className={`flex-1 text-[10px] font-semibold tracking-wider uppercase py-1.5 rounded-full transition ${
+              variant === v.key ? "bg-emerald-500 text-black" : "text-white/60"
+            }`}
+          >
+            {v.label}
+          </button>
+        ))}
+      </div>
+      <div className="flex items-center justify-between gap-2 text-[10px] text-white/50 px-1">
+        <span className="tracking-[0.18em] uppercase">Powerwalls</span>
+        <div className="flex gap-1">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <button
+              key={n}
+              onClick={() => setPwCount(n)}
+              disabled={variant === "no-battery"}
+              className={`w-6 h-6 rounded text-[11px] font-semibold tabular-nums transition ${
+                pwCount === n
+                  ? "bg-white text-black"
+                  : "bg-white/5 text-white/60 disabled:opacity-30"
+              }`}
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -167,6 +368,7 @@ function Label({
   align,
   dot = false,
   dotColor = "#22c98a",
+  dimmed = false,
 }: {
   style: React.CSSProperties;
   label: string;
@@ -175,6 +377,7 @@ function Label({
   align: "left" | "center" | "right";
   dot?: boolean;
   dotColor?: string;
+  dimmed?: boolean;
 }) {
   const textAlign = align;
   const justify =
@@ -182,7 +385,12 @@ function Label({
   return (
     <div
       className="absolute"
-      style={{ ...style, textAlign, textShadow: "0 2px 14px rgba(0,0,0,0.7)" }}
+      style={{
+        ...style,
+        textAlign,
+        textShadow: "0 2px 14px rgba(0,0,0,0.7)",
+        opacity: dimmed ? 0.55 : 1,
+      }}
     >
       <div className={`flex items-center gap-1.5 mb-1 ${justify}`}>
         {dot && (
