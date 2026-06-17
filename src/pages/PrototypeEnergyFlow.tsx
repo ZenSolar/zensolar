@@ -53,6 +53,11 @@ export default function PrototypeEnergyFlow() {
   const [variant, setVariant] = useState<Variant>("default");
   const [pwCount, setPwCount] = useState(1);
 
+  // Dev controls only render when ?dev=1 is in the URL (kept out of production UI)
+  const showDev =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("dev") === "1";
+
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 4000);
     return () => clearInterval(id);
@@ -132,13 +137,15 @@ export default function PrototypeEnergyFlow() {
           </div>
         </header>
 
-        {/* Dev controls (variant + powerwall count) */}
-        <DevControls
-          variant={variant}
-          setVariant={setVariant}
-          pwCount={pwCount}
-          setPwCount={setPwCount}
-        />
+        {/* Dev controls — only when ?dev=1 (hidden in production) */}
+        {showDev && (
+          <DevControls
+            variant={variant}
+            setVariant={setVariant}
+            pwCount={pwCount}
+            setPwCount={setPwCount}
+          />
+        )}
 
         {/* THE CARD — full-bleed render */}
         <article className="relative w-full overflow-hidden" style={{ aspectRatio: "1024 / 1280" }}>
