@@ -53,6 +53,11 @@ export default function PrototypeEnergyFlow() {
   const [variant, setVariant] = useState<Variant>("default");
   const [pwCount, setPwCount] = useState(1);
 
+  // Dev controls only render when ?dev=1 is in the URL (kept out of production UI)
+  const showDev =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("dev") === "1";
+
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 4000);
     return () => clearInterval(id);
