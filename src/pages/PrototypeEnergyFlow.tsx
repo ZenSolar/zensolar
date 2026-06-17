@@ -1,42 +1,36 @@
 /**
- * Prototype v2 — Unified Live Energy Flow Card (Tesla-app fidelity)
+ * Prototype v3 — Unified Live Energy Flow Card (Tesla-app fidelity)
  * -----------------------------------------------------------------
- * Full-bleed 3D hero render + corner KPIs with leader lines + animated
- * energy conduits anchored to architectural features. Includes Model Y
- * + Wallbox + FSD chip — our differentiator over Tesla's card.
+ * Full-bleed 3D hero render + minimal floating labels positioned NEAR
+ * (not on) the architectural feature. Matches the actual Tesla app
+ * Energy card. Our differentiator: Model Y + FSD live in the row list,
+ * not as an overlay (preserves the cinematic feel of the hero).
  *
- * Lift this whole file into the remix at
- * src/features/cockpit/LiveEnergyFlowCard/. Hero asset:
- * src/assets/energy-flow-house-hero.jpg
+ * Hero asset: src/assets/energy-flow-house-hero.jpg
  */
 
 import { useEffect, useState } from "react";
 import heroHouse from "@/assets/energy-flow-house-hero.jpg";
 
-/* ---------- fixture ---------- */
 const FIXTURE = {
   homeName: "ZenCasa",
   solar: { kw: 4.8, label: "Producing" },
   home: { kw: 1.7, label: "Drawing" },
   powerwall: { kw: 0.0, soc: 100, label: "Charged" },
-  grid: { kw: 3.1, direction: "export" as const, label: "Exporting" },
+  grid: { kw: 3.1, label: "Exporting" },
   ev: { model: "Model Y", soc: 64, kw: 7.2, etaMin: 80, fsd: true },
 };
 
-/* ---------- page ---------- */
 export default function PrototypeEnergyFlow() {
   const [tick, setTick] = useState(0);
-
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 4000);
     return () => clearInterval(id);
   }, []);
-
   const wob = (b: number, a = 0.15) => +(b + Math.sin(tick * 1.7) * a).toFixed(1);
   const solarKw = wob(FIXTURE.solar.kw, 0.3);
   const homeKw = wob(FIXTURE.home.kw, 0.2);
   const gridKw = wob(FIXTURE.grid.kw, 0.3);
-  const evKw = wob(FIXTURE.ev.kw, 0.2);
 
   return (
     <div
@@ -46,7 +40,7 @@ export default function PrototypeEnergyFlow() {
       <FontLoader />
 
       <div className="w-full max-w-[420px] flex flex-col">
-        {/* Header — Tesla style: home name + chat + menu */}
+        {/* Header */}
         <header className="flex items-center justify-between px-5 pt-5 pb-3 bg-black">
           <button className="flex items-center gap-1.5">
             <span
@@ -65,346 +59,193 @@ export default function PrototypeEnergyFlow() {
           </div>
         </header>
 
-        {/* THE CARD — full-bleed render + overlays */}
-        <article className="relative w-full" style={{ aspectRatio: "1024 / 1280" }}>
-          {/* 3D hero render */}
+        {/* THE CARD — full-bleed render */}
+        <article className="relative w-full overflow-hidden" style={{ aspectRatio: "1024 / 1280" }}>
           <img
             src={heroHouse}
             alt=""
             className="absolute inset-0 w-full h-full object-cover"
             draggable={false}
           />
-          {/* subtle bottom fade so the row list reads cleanly */}
-          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-black/80" />
+          {/* subtle bottom fade only */}
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-black/70" />
 
-          {/* Energy conduit overlay (anchored to architectural features) */}
-          <ConduitOverlay
-            solarOn={solarKw > 0.3}
-            evOn={evKw > 0.3}
-            gridExport={FIXTURE.grid.direction === "export" && gridKw > 0.2}
-          />
-
-          {/* 4 KPI corner labels with leader lines */}
-          <KpiCorner
-            placement="top-left"
+          {/* SOLAR — top center-left (above roof panels) */}
+          <Label
+            style={{ top: "5%", left: "38%", transform: "translateX(-50%)" }}
             label="SOLAR"
             value={`${solarKw.toFixed(1)} kW`}
             sub={FIXTURE.solar.label}
-            /* leader to roof solar panels */
-            leaderTo={{ x: 56, y: 47 }}
-            anchor={{ x: 22, y: 14 }}
+            align="center"
           />
-          <KpiCorner
-            placement="top-right"
+
+          {/* HOME — top right */}
+          <Label
+            style={{ top: "5%", right: "5%" }}
             label="HOME"
             value={`${homeKw.toFixed(1)} kW`}
             sub={FIXTURE.home.label}
+            align="right"
             dot
-            /* leader through window */
-            leaderTo={{ x: 80, y: 70 }}
-            anchor={{ x: 78, y: 14 }}
+            dotColor="#7ce0ff"
           />
-          <KpiCorner
-            placement="bottom-left"
+
+          {/* POWERWALL — bottom left, just below the wall unit */}
+          <Label
+            style={{ bottom: "20%", left: "5%" }}
             label="POWERWALL"
             value={`${FIXTURE.powerwall.kw.toFixed(1)} kW · ${FIXTURE.powerwall.soc}%`}
             sub={FIXTURE.powerwall.label}
-            dotColor="#22c98a"
+            align="left"
             dot
-            /* leader to Powerwall green LED strip */
-            leaderTo={{ x: 48, y: 76 }}
-            anchor={{ x: 22, y: 90 }}
+            dotColor="#22c98a"
           />
-          <KpiCorner
-            placement="bottom-right"
+
+          {/* GRID — bottom right */}
+          <Label
+            style={{ bottom: "20%", right: "5%" }}
             label="GRID"
             value={`${gridKw.toFixed(1)} kW`}
             sub={FIXTURE.grid.label}
-            dotColor="#f5c84c"
+            align="right"
             dot
-            /* leader to ground/grid line */
-            leaderTo={{ x: 64, y: 85 }}
-            anchor={{ x: 78, y: 90 }}
+            dotColor="#f5c84c"
           />
 
-          {/* EV chip — our differentiator, anchored to Model Y */}
-          <EVChip
-            soc={FIXTURE.ev.soc}
-            kw={evKw}
-            etaMin={FIXTURE.ev.etaMin}
-            fsd={FIXTURE.ev.fsd}
-            /* anchored above the car */
-            anchor={{ x: 18, y: 80 }}
-            leaderTo={{ x: 22, y: 86 }}
+          {/* Powerwall LED pulse (anchored to the green strip on the wall unit) */}
+          <span
+            className="absolute rounded-full"
+            style={{
+              left: "45.5%",
+              top: "73.5%",
+              width: 10,
+              height: 10,
+              background: "radial-gradient(circle, #22c98a 0%, rgba(34,201,138,0) 70%)",
+              animation: "glowpulse 1.8s ease-in-out infinite",
+              filter: "blur(0.5px)",
+            }}
           />
 
-          {/* tiny chevron hint at the very bottom */}
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-white/40">
-            <svg width="20" height="10" viewBox="0 0 20 10">
-              <path d="M2 2l8 6 8-6" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          {/* tiny chevron hint */}
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-white/40">
+            <svg width="22" height="10" viewBox="0 0 22 10">
+              <path d="M2 2l9 6 9-6" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
         </article>
 
-        {/* Tesla-style row list below */}
-        <nav className="bg-black px-1">
+        {/* Row list — EV / Energy / Impact / Settings / Off-Grid */}
+        <nav className="bg-black">
+          <Row
+            icon={<IconBolt />}
+            iconBg="#22c98a"
+            iconColor="#0a0a0a"
+            title="Model Y · Charging"
+            sub={`${FIXTURE.ev.kw.toFixed(1)} kW · ${FIXTURE.ev.soc}% · ETA ${Math.floor(FIXTURE.ev.etaMin/60)}h ${FIXTURE.ev.etaMin%60}m`}
+            badge={FIXTURE.ev.fsd ? "FSD" : undefined}
+          />
           <Row icon={<IconChart />} title="Energy" sub="38.6 kWh Generated Today" />
           <Row icon={<IconLeaf />} title="Impact" sub="74% Self-Powered Today" />
-          <Row icon={<IconBolt />} title="EV · Model Y" sub={`Charging · 64% · ETA 1h 20m`} />
           <Row icon={<IconGear />} title="Settings" sub="3 devices connected" hasDot />
           <Row icon={<IconShield />} title="Go Off-Grid" sub="Powerwall reserve · 20%" />
         </nav>
       </div>
 
       <style>{`
-        @keyframes pulseflow { to { stroke-dashoffset: -32; } }
-        @keyframes pulseflow-rev { to { stroke-dashoffset: 32; } }
-        @keyframes glowpulse { 0%,100% { opacity: 0.55 } 50% { opacity: 1 } }
-        @keyframes leaderdraw { from { stroke-dashoffset: 60 } to { stroke-dashoffset: 0 } }
+        @keyframes glowpulse { 0%,100% { transform: scale(1); opacity: 0.7 } 50% { transform: scale(1.6); opacity: 1 } }
       `}</style>
     </div>
   );
 }
 
-/* ---------- KPI corner with leader line ---------- */
-function KpiCorner({
-  placement,
+/* ---------- floating label ---------- */
+function Label({
+  style,
   label,
   value,
   sub,
+  align,
   dot = false,
   dotColor = "#22c98a",
-  leaderTo,
-  anchor,
 }: {
-  placement: "top-left" | "top-right" | "bottom-left" | "bottom-right";
+  style: React.CSSProperties;
   label: string;
   value: string;
   sub?: string;
+  align: "left" | "center" | "right";
   dot?: boolean;
   dotColor?: string;
-  leaderTo: { x: number; y: number }; // % within the card
-  anchor: { x: number; y: number };   // % within the card (label anchor pt)
 }) {
-  const isRight = placement.includes("right");
-  const isBottom = placement.includes("bottom");
+  const textAlign = align;
+  const justify =
+    align === "center" ? "justify-center" : align === "right" ? "justify-end" : "justify-start";
   return (
-    <>
-      {/* leader line as SVG */}
-      <svg
-        className="absolute inset-0 w-full h-full pointer-events-none"
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-      >
-        <line
-          x1={anchor.x}
-          y1={anchor.y}
-          x2={leaderTo.x}
-          y2={leaderTo.y}
-          stroke="rgba(255,255,255,0.55)"
-          strokeWidth="0.18"
-          vectorEffect="non-scaling-stroke"
-          strokeDasharray="60"
-          style={{ animation: "leaderdraw 900ms ease-out forwards" }}
-        />
-        <circle cx={leaderTo.x} cy={leaderTo.y} r="0.5" fill="white" vectorEffect="non-scaling-stroke" />
-      </svg>
-
-      {/* the label */}
-      <div
-        className={`absolute px-3 ${isRight ? "text-right" : "text-left"}`}
-        style={{
-          top: isBottom ? undefined : "3.5%",
-          bottom: isBottom ? "16%" : undefined,
-          left: isRight ? undefined : "4%",
-          right: isRight ? "4%" : undefined,
-        }}
-      >
-        <div
-          className={`flex items-center gap-1.5 ${isRight ? "justify-end" : ""} mb-0.5`}
-        >
-          {dot && !isRight && (
-            <span className="w-1.5 h-1.5 rounded-full" style={{ background: dotColor }} />
-          )}
-          <span
-            className="text-[10px] text-white/65 font-medium tracking-[0.18em]"
-          >
-            {label}
-          </span>
-          {dot && isRight && (
-            <span className="w-1.5 h-1.5 rounded-full" style={{ background: dotColor }} />
-          )}
-        </div>
-        <div
-          className="text-white text-[26px] leading-none font-medium tabular-nums tracking-tight"
-          style={{ fontFamily: "'Sora', sans-serif", textShadow: "0 2px 12px rgba(0,0,0,0.55)" }}
-        >
-          {value}
-        </div>
-        {sub && (
-          <div className="text-[11px] text-white/55 mt-0.5">{sub}</div>
-        )}
-      </div>
-    </>
-  );
-}
-
-/* ---------- EV chip ---------- */
-function EVChip({
-  soc,
-  kw,
-  etaMin,
-  fsd,
-  anchor,
-  leaderTo,
-}: {
-  soc: number;
-  kw: number;
-  etaMin: number;
-  fsd: boolean;
-  anchor: { x: number; y: number };
-  leaderTo: { x: number; y: number };
-}) {
-  return (
-    <>
-      <svg
-        className="absolute inset-0 w-full h-full pointer-events-none"
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-      >
-        <line
-          x1={anchor.x}
-          y1={anchor.y}
-          x2={leaderTo.x}
-          y2={leaderTo.y}
-          stroke="rgba(124,224,255,0.7)"
-          strokeWidth="0.22"
-          vectorEffect="non-scaling-stroke"
-        />
-        <circle cx={leaderTo.x} cy={leaderTo.y} r="0.6" fill="#7ce0ff" vectorEffect="non-scaling-stroke" />
-      </svg>
-
-      <div
-        className="absolute left-[4%]"
-        style={{ top: `${anchor.y - 6}%` }}
-      >
-        <div className="flex items-center gap-1.5 mb-0.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#7ce0ff]" style={{ animation: "glowpulse 1.6s ease-in-out infinite" }} />
-          <span className="text-[10px] text-white/65 font-medium tracking-[0.18em]">MODEL Y</span>
-        </div>
-        <div
-          className="text-white text-[20px] leading-none font-medium tabular-nums tracking-tight"
-          style={{ fontFamily: "'Sora', sans-serif", textShadow: "0 2px 10px rgba(0,0,0,0.6)" }}
-        >
-          {kw.toFixed(1)} kW
-        </div>
-        <div className="text-[11px] text-white/65 mt-0.5">
-          {soc}% · ETA {Math.floor(etaMin / 60)}h {etaMin % 60}m
-        </div>
-        {fsd && (
-          <span className="inline-flex items-center gap-1 mt-1.5 px-1.5 py-0.5 rounded bg-[#22c98a]/20 border border-[#22c98a]/40">
-            <span className="w-1 h-1 rounded-full bg-[#22c98a]" />
-            <span className="text-[9px] font-bold uppercase text-[#22c98a] tracking-wider">FSD</span>
-          </span>
-        )}
-      </div>
-    </>
-  );
-}
-
-/* ---------- conduit overlay (animated amber pulses) ---------- */
-function ConduitOverlay({
-  solarOn,
-  evOn,
-  gridExport,
-}: {
-  solarOn: boolean;
-  evOn: boolean;
-  gridExport: boolean;
-}) {
-  return (
-    <svg
-      className="absolute inset-0 w-full h-full pointer-events-none mix-blend-screen"
-      viewBox="0 0 100 100"
-      preserveAspectRatio="none"
+    <div
+      className="absolute"
+      style={{ ...style, textAlign, textShadow: "0 2px 14px rgba(0,0,0,0.7)" }}
     >
-      {/* solar panel → eave → wall conduit → Powerwall */}
-      <path
-        id="conduit-pv"
-        d="M58 50 L 50 60 L 42 73 L 47 78"
-        fill="none"
-        stroke="#f5c84c"
-        strokeWidth="0.45"
-        strokeLinecap="round"
-        vectorEffect="non-scaling-stroke"
-        strokeDasharray="2 4"
-        opacity={solarOn ? 0.95 : 0.2}
-        style={{ animation: "pulseflow 1.3s linear infinite" }}
-      />
-      {/* Powerwall → ground → grid */}
-      <path
-        d="M48 80 L 55 86 L 66 86"
-        fill="none"
-        stroke="#f5c84c"
-        strokeWidth="0.45"
-        strokeLinecap="round"
-        vectorEffect="non-scaling-stroke"
-        strokeDasharray="2 4"
-        opacity={gridExport ? 0.85 : 0.15}
-        style={{ animation: "pulseflow-rev 1.6s linear infinite" }}
-      />
-      {/* Wallbox → Model Y charging cable */}
-      <path
-        d="M40 84 L 32 88 L 24 90"
-        fill="none"
-        stroke="#7ce0ff"
-        strokeWidth="0.5"
-        strokeLinecap="round"
-        vectorEffect="non-scaling-stroke"
-        strokeDasharray="2 3"
-        opacity={evOn ? 0.95 : 0.2}
-        style={{ animation: "pulseflow 1.1s linear infinite" }}
-      />
-      {/* Powerwall LED glow halo */}
-      <circle
-        cx="47"
-        cy="76"
-        r="1.2"
-        fill="#22c98a"
-        opacity="0.7"
-        vectorEffect="non-scaling-stroke"
-        style={{ animation: "glowpulse 2s ease-in-out infinite" }}
-      />
-    </svg>
+      <div className={`flex items-center gap-1.5 mb-1 ${justify}`}>
+        {dot && (
+          <span
+            className="w-1.5 h-1.5 rounded-full"
+            style={{ background: dotColor, boxShadow: `0 0 6px ${dotColor}` }}
+          />
+        )}
+        <span className="text-[10px] text-white/70 font-medium tracking-[0.22em]">{label}</span>
+      </div>
+      <div
+        className="text-white text-[26px] leading-none font-medium tabular-nums tracking-tight"
+        style={{ fontFamily: "'Sora', sans-serif" }}
+      >
+        {value}
+      </div>
+      {sub && <div className="text-[11px] text-white/60 mt-0.5">{sub}</div>}
+    </div>
   );
 }
 
 /* ---------- row list ---------- */
 function Row({
   icon,
+  iconBg = "rgba(255,255,255,0.08)",
+  iconColor = "rgba(255,255,255,0.7)",
   title,
   sub,
   hasDot = false,
+  badge,
 }: {
   icon: React.ReactNode;
+  iconBg?: string;
+  iconColor?: string;
   title: string;
   sub: string;
   hasDot?: boolean;
+  badge?: string;
 }) {
   return (
     <button className="w-full flex items-center gap-4 px-4 py-3.5 border-b border-white/[0.06] active:bg-white/[0.03] transition-colors">
-      <div className="relative w-9 h-9 rounded-full bg-white/[0.08] flex items-center justify-center text-white/70">
+      <div
+        className="relative w-9 h-9 rounded-full flex items-center justify-center"
+        style={{ background: iconBg, color: iconColor }}
+      >
         {icon}
         {hasDot && <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#3b82f6]" />}
       </div>
       <div className="flex-1 text-left">
-        <div
-          className="text-white text-[16px] font-semibold tracking-tight leading-tight"
-          style={{ fontFamily: "'Sora', sans-serif" }}
-        >
-          {title}
+        <div className="flex items-center gap-2">
+          <span
+            className="text-white text-[16px] font-semibold tracking-tight leading-tight"
+            style={{ fontFamily: "'Sora', sans-serif" }}
+          >
+            {title}
+          </span>
+          {badge && (
+            <span className="px-1.5 py-0.5 rounded bg-[#22c98a]/20 border border-[#22c98a]/40 text-[9px] font-bold uppercase text-[#22c98a] tracking-wider">
+              {badge}
+            </span>
+          )}
         </div>
-        <div className="text-[12px] text-white/45 leading-tight mt-0.5">{sub}</div>
+        <div className="text-[12px] text-white/50 leading-tight mt-0.5">{sub}</div>
       </div>
       <svg width="10" height="14" viewBox="0 0 10 14" className="text-white/35">
         <path d="M2 2l5 5-5 5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -435,7 +276,7 @@ const IconLeaf = () => (
   </svg>
 );
 const IconBolt = () => (
-  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" stroke="none">
     <path d="M10 2L3 11h5l-1 5 7-9h-5z" />
   </svg>
 );
