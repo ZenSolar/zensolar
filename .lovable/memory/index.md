@@ -45,3 +45,4 @@ Telemetry SSOT: one OEM per KPI, never sum across providers. Resolver = `src/lib
 - [Global Theme & Brand](mem://style/theme) — Visual aesthetics, terminology, tokens.
 - [Animations & Sensory Feedback](mem://style/animations-and-audio) — Performance, audio architecture.
 - [Tech Stack & Resilience](mem://technical/architecture) — Core libraries, mobile-first, auto-recovery.
+- [Live Energy Flow Card spec (REMIX)](mem://features/live-energy-flow-card-spec.md) — Hero card for /app/cockpit. Direction C "Stacked Flow" locked. Sora/Manrope, emerald/cyan glass. Dynamic asset detection: house grows solar panels, battery unit per OEM, Tesla auto-renders model+color+trim+wheels+FSD badge. 3D perspective flow lines + radial distribution ring. Build in remix ONLY.
