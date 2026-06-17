@@ -93,6 +93,7 @@ const MintHistory = lazy(() => import("./pages/MintHistory"));
 const Feedback = lazy(() => import("./pages/Feedback"));
 const OAuthCallback = lazy(() => import("./pages/OAuthCallback"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const PrototypeEnergyFlow = lazy(() => import("./pages/PrototypeEnergyFlow"));
 const Ecosystem = lazy(() => import("./pages/Ecosystem"));
 const StarlinkMint = lazy(() => import("./pages/StarlinkMint"));
 const FoundersVault = lazy(() => import("./pages/FoundersVault"));
@@ -1362,6 +1363,7 @@ const App = () => {
                         </ProtectedRoute>
                       }
                     />
+                    <Route path="/prototype/energy-flow" element={<Suspense fallback={<PageLoader />}><PrototypeEnergyFlow /></Suspense>} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                     </Routes>
