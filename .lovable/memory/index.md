@@ -22,6 +22,7 @@ Telemetry SSOT: one OEM per KPI, never sum across providers. Resolver = `src/lib
 
 
 ## Memories
+- [Remix v2 Resolved Decisions](mem://features/remix-v2-decisions) — Deason=threaded+DB, Cockpit=free-on-Spark (capability-gated), nav=Home/Cockpit/Mint/Deason/More, onboarding=3-pillar tour then OEM connect.
 - [Patent Roadmap (ZEN-001/002/003)](mem://legal/patent-roadmap.md) — ZEN-001 filed (19/634,402); ZEN-002 (Starlink+Optimus) and ZEN-003 (bidir+vehicles+storage+charging DePIN) to file as separate provisionals.
 - [Fundraising Strategy (Strategic Seed)](mem://features/fundraising-strategy.md) — $3M/$5M cap, Lyndon Rive anchor via Jo Ferrier, MZ Group plan B, use-of-funds, deck rules
 - [Mint Split v3.1 (LIVE)](mem://features/mint-split-v3-locked) — v3.1 LIVE: 50/25/20/5 split, UI 1:1, 401(k)-match framing. Supersedes 50/25/20/3/2 and 75/20/3/2.
