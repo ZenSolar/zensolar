@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, FileText, Lock, PlayCircle, Sparkles } from 'lucide-react';
+import { ArrowLeft, FileText, Lock, PlayCircle, Sparkles, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
@@ -131,7 +131,7 @@ export default function SeedOnePager() {
               <Link to="/seed/deck"><FileText className="h-4 w-4 mr-2" />Full Deck</Link>
             </Button>
             <Button asChild variant="outline" className="h-12">
-              <Link to="/seed/data-room"><Lock className="h-4 w-4 mr-2" />Data Room</Link>
+              <Link to="/seed/ip"><ShieldCheck className="h-4 w-4 mr-2" />Intellectual Property</Link>
             </Button>
             <Button asChild variant="outline" className="h-12">
               <Link to="/demo?demo=investor"><PlayCircle className="h-4 w-4 mr-2" />Live Demo</Link>
