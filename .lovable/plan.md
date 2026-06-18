@@ -1,32 +1,67 @@
 ## Goal
+Make `/seed` and its sub-pages 100% consistent with the lean ask. Instrument everywhere: **Convertible Note + 10% Token Warrant (4-year vesting, 1-year cliff)**. Ask everywhere: **$1M Target · $2M Hard Cap**. No "SAFE", "Strategic Seed", "$2.5M", "$3.5M", "Part 1" anywhere on `/seed/*`.
 
-Ship the 3 new hero variants, asset-aware swap, KPI overlap fix, and multi-Powerwall stacking on `/prototype/energy-flow`. Then deliver a full ruleset outline for Grok review.
+## Files
 
-## Build steps
+### 1. `src/pages/Seed.tsx` (edit)
+- Remove the green **Schedule a Call** button (and `Phone` import).
+- Add a fourth CTA **One-Pager** → `/seed/one-pager` so the grid stays balanced.
+- Re-point CTAs:
+  - View Full Deck → `/seed/deck`
+  - Enter Data Room → `/seed/data-room`
+  - One-Pager → `/seed/one-pager`
+  - See Live Demo → `/demo?demo=investor`
+- Footer "Data Room →" link → `/seed/data-room`.
+- Under hero stats add a single line: *"Instrument: Convertible Note + 10% Token Warrant · 4-year vesting · 1-year cliff."*
+- Keep the existing use-of-funds table verbatim (Joseph $250K, LP $200K, Legal $55K, Audits $40K, Ops $15K, Buffer $440K).
+- Keep flywheel line: "100% of every user subscription goes directly into the $ZSOLAR Liquidity Pool."
 
-1. **Generate 4 new image assets** (premium quality, 16:9, matched camera/lens/house geometry to existing hero):
-   - `src/assets/energy-flow-house-hero-no-ev.jpg` — empty driveway
-   - `src/assets/energy-flow-house-hero-no-battery.jpg` — clean garage wall, no Powerwall
-   - `src/assets/energy-flow-house-hero-outage.jpg` — night, neighborhood dark, only this house lit, Powerwall LEDs glowing
-   - `src/assets/powerwall-sprite.png` — transparent, perspective-matched single Powerwall for stacking overlays
+### 2. `src/pages/SeedOnePager.tsx` (new, route `/seed/one-pager`)
+Single-page printable summary, dark theme, mirrors `InvestorOnePager` visual rhythm but contains ONLY:
+- Hero: "ZenSolar — Lean Seed Round" · $1M / $2M / Convertible Note + 10% Token Warrant
+- Three stat tiles: `$1M Target`, `$2M Hard Cap`, `Conv. Note + 10% Warrant`
+- Flywheel one-liner (100% → LP)
+- Use-of-funds table (identical 6 rows + Total)
+- Two revenue-engine cards (Aggregated Data, Deason AI $4.99/mo)
+- Footer CTAs back to `/seed`, `/seed/deck`, `/seed/data-room`
+- Helmet title + canonical `https://www.zensolar.com/seed/one-pager`
 
-2. **Refactor `src/pages/PrototypeEnergyFlow.tsx`:**
-   - Add `variant` state: `'default' | 'no-ev' | 'no-battery' | 'outage'`
-   - Add `powerwallCount` state (1–4) with `+N` badge for 5+
-   - Top-right segmented control to flip variants and Powerwall count live
-   - Conditional rendering of Model Y row, Powerwall KPI, flow paths, grid status per variant
-   - Reposition Powerwall KPI from bottom-left → mid-left; add 12px safe-area gutters
-   - Powerwall sprite stack with positions: 1=center, 2=side-by-side, 3=row of 3, 4=2×2 grid
-   - Aggregate kWh display: `units × 13.5 kWh`
+### 3. `src/pages/SeedDeck.tsx` (new, route `/seed/deck`)
+Long-form narrative deck, single scrollable page (not slide carousel) styled like `/investor/pitch` but lean-ask only. Sections:
+1. Hero — "$1M / $2M · Convertible Note + 10% Token Warrant (4y vesting, 1y cliff)"
+2. Why this round is different — lean, 100% subs → LP, no Series A required
+3. The Flywheel (Subscribe → LP deepens → adoption)
+4. Three revenue engines (Subscription+Deason, Token Economics, Aggregated Data)
+5. Multi-OEM moat (Tesla + Enphase + SolarEdge + Wallbox)
+6. Use of Funds — same 6-row table
+7. Milestones funded by $1M (LP seeded at $0.10, audited mainnet TGE, first 1k paying subs)
+8. Closing CTA row → `/seed/data-room`, `/seed/one-pager`, `/demo?demo=investor`
+- No VPP slide, no post-money cap, no Part 1/Part 2.
 
-3. **Update spec memory** `.lovable/memory/features/live-energy-flow-card-spec.md` with variant rules + multi-Powerwall stacking.
+### 4. `src/pages/SeedDataRoom.tsx` (new, route `/seed/data-room`)
+Mirror of `InvestorDataRoom` visual cards, but ask block + use-of-funds replaced. Sections:
+- Hero stat tiles: `$1M Target`, `$2M Hard Cap`, `Conv. Note + 10% Warrant`, `4y vest / 1y cliff`
+- Round summary paragraph (lean, founder-led, 100% subs → LP)
+- Use of Funds (same 6 rows)
+- Milestones funded
+- Proof-of-Genesis + multi-OEM moat + IP cards (re-use copy/components from existing data room where they don't mention numbers)
+- Contact: `joe@zensolar.com`
+- No SAFE / Strategic Seed / Part 1 / $2.5–3.5M anywhere.
 
-4. **Verify** with browser--view_preview at 393×844 across all 4 variants × counts 1/2/3/4.
+### 5. `src/App.tsx` (edit)
+Add three lazy imports next to existing `Seed` import and three `<Route>` entries inside the same `Routes` block as `/seed`:
+- `/seed/one-pager` → `SeedOnePager`
+- `/seed/deck` → `SeedDeck`
+- `/seed/data-room` → `SeedDataRoom`
 
-5. **Deliver ruleset outline** in the final chat reply — full markdown, ready to paste into Grok. Covers: variants, swap logic, KPI positions, multi-Powerwall stacking, flow path colors, animation rules, asset-aware visibility, and out-of-scope items.
+### 6. Memory
+Append to `mem://features/investor-pitch-v2.md` (and update index entry): document that `/seed/*` is the **lean-ask surface** locked to $1M/$2M + Convertible Note + 10% Token Warrant, fully separate from `/investor/*` (Strategic Seed). Cross-linking between the two surfaces is forbidden — they describe different round structures.
 
 ## Out of scope
+- No edits to `/investor/pitch`, `/investor/one-pager`, `/investor/data-room`, `/investor/why-this-round`, deck v3 slides, or `<ThreeRevenueEngines/>`.
+- No new scheduling/Calendly integration.
+- No edits to `/demo`.
 
-- Wiring to live `connected_devices`
-- Non-Tesla battery brands
-- Per-count dedicated hero renders
+## Final reply
+After all six items land, reply EXACTLY:
+"/seed ecosystem fully aligned — all pages now show $1M target / $2M hard cap + Convertible Note + token warrant, no legacy numbers remain."

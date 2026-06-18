@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, PlayCircle, Sparkles, Phone, FileText, Lock } from 'lucide-react';
+import { ArrowLeft, PlayCircle, Sparkles, FileText, Lock, ScrollText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
