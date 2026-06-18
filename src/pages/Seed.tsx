@@ -277,7 +277,7 @@ export default function Seed() {
             · Confidential under NDA
           </p>
           <Link
-            to="/investor/data-room"
+            to="/seed/data-room"
             className="inline-block text-[11px] uppercase tracking-[0.18em] text-secondary/80 hover:text-secondary"
           >
             Data Room →
