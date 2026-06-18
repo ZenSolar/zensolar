@@ -229,6 +229,7 @@ const InvestorDataRoomPoG = lazy(() => import("./pages/InvestorDataRoomPoG"));
 const InvestorWhyThisRound = lazy(() => import("./pages/InvestorWhyThisRound"));
 const InvestorSolarCoinComparison = lazy(() => import("./pages/InvestorSolarCoinComparison"));
 const Seed = lazy(() => import("./pages/Seed"));
+import SeedPinGate from "./components/SeedPinGate";
 const SeedOnePager = lazy(() => import("./pages/SeedOnePager"));
 const SeedDeck = lazy(() => import("./pages/SeedDeck"));
 const SeedDataRoom = lazy(() => import("./pages/SeedDataRoom"));
@@ -330,10 +331,10 @@ const App = () => {
                    <Route path="/investor/one-pager" element={<Suspense fallback={<PageLoader />}><InvestorOnePager /></Suspense>} />
                    <Route path="/investor/data-room" element={<Suspense fallback={<PageLoader />}><InvestorDataRoom /></Suspense>} />
                    <Route path="/investor/data-room/pog" element={<Suspense fallback={<PageLoader />}><InvestorDataRoomPoG /></Suspense>} />
-                   <Route path="/seed" element={<Suspense fallback={<PageLoader />}><Seed /></Suspense>} />
-                   <Route path="/seed/one-pager" element={<Suspense fallback={<PageLoader />}><SeedOnePager /></Suspense>} />
-                   <Route path="/seed/deck" element={<Suspense fallback={<PageLoader />}><SeedDeck /></Suspense>} />
-                   <Route path="/seed/data-room" element={<Suspense fallback={<PageLoader />}><SeedDataRoom /></Suspense>} />
+                   <Route path="/seed" element={<SeedPinGate><Suspense fallback={<PageLoader />}><Seed /></Suspense></SeedPinGate>} />
+                   <Route path="/seed/one-pager" element={<SeedPinGate><Suspense fallback={<PageLoader />}><SeedOnePager /></Suspense></SeedPinGate>} />
+                   <Route path="/seed/deck" element={<SeedPinGate><Suspense fallback={<PageLoader />}><SeedDeck /></Suspense></SeedPinGate>} />
+                   <Route path="/seed/data-room" element={<SeedPinGate><Suspense fallback={<PageLoader />}><SeedDataRoom /></Suspense></SeedPinGate>} />
                     <Route path="/hero-test" element={<Navigate to="/admin/archive/hero-test" replace />} />
                     
                     <Route path="/proof-of-genesis-receipt-preview" element={<ProofOfGenesisReceiptPreview />} />
