@@ -232,7 +232,7 @@ const Seed = lazy(() => import("./pages/Seed"));
 import SeedPinGate from "./components/SeedPinGate";
 const SeedOnePager = lazy(() => import("./pages/SeedOnePager"));
 const SeedDeck = lazy(() => import("./pages/SeedDeck"));
-const SeedDataRoom = lazy(() => import("./pages/SeedDataRoom"));
+const SeedIP = lazy(() => import("./pages/SeedIP"));
 const HeroTest = lazy(() => import("./pages/archive/HeroTest"));
 
 const Blog = lazy(() => import("./pages/Blog"));
@@ -334,7 +334,8 @@ const App = () => {
                    <Route path="/seed" element={<SeedPinGate><Suspense fallback={<PageLoader />}><Seed /></Suspense></SeedPinGate>} />
                    <Route path="/seed/one-pager" element={<SeedPinGate><Suspense fallback={<PageLoader />}><SeedOnePager /></Suspense></SeedPinGate>} />
                    <Route path="/seed/deck" element={<SeedPinGate><Suspense fallback={<PageLoader />}><SeedDeck /></Suspense></SeedPinGate>} />
-                   <Route path="/seed/data-room" element={<SeedPinGate><Suspense fallback={<PageLoader />}><SeedDataRoom /></Suspense></SeedPinGate>} />
+                   <Route path="/seed/ip" element={<SeedPinGate><Suspense fallback={<PageLoader />}><SeedIP /></Suspense></SeedPinGate>} />
+                   <Route path="/seed/data-room" element={<Navigate to="/seed/ip" replace />} />
                     <Route path="/hero-test" element={<Navigate to="/admin/archive/hero-test" replace />} />
                     
                     <Route path="/proof-of-genesis-receipt-preview" element={<ProofOfGenesisReceiptPreview />} />

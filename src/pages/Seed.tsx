@@ -246,9 +246,9 @@ export default function Seed() {
               </Link>
             </Button>
             <Button asChild variant="outline" className="h-12">
-              <Link to="/seed/data-room">
-                <Lock className="h-4 w-4 mr-2" />
-                Enter Data Room
+              <Link to="/seed/ip">
+                <ShieldCheck className="h-4 w-4 mr-2" />
+                Intellectual Property
               </Link>
             </Button>
             <Button asChild variant="outline" className="h-12">
@@ -277,10 +277,10 @@ export default function Seed() {
             · Confidential under NDA
           </p>
           <Link
-            to="/seed/data-room"
+            to="/seed/ip"
             className="inline-block text-[11px] uppercase tracking-[0.18em] text-secondary/80 hover:text-secondary"
           >
-            Data Room →
+            Intellectual Property →
           </Link>
         </footer>
       </div>

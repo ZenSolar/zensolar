@@ -236,7 +236,7 @@ export default function SeedDeck() {
         <section className="mx-auto max-w-3xl px-5 py-12">
           <div className="grid gap-3 md:grid-cols-3">
             <Button asChild className="h-12 bg-secondary text-secondary-foreground hover:bg-secondary/90">
-              <Link to="/seed/data-room"><Lock className="h-4 w-4 mr-2" />Enter Data Room</Link>
+              <Link to="/seed/ip"><ShieldCheck className="h-4 w-4 mr-2" />Intellectual Property</Link>
             </Button>
             <Button asChild variant="outline" className="h-12">
               <Link to="/seed/one-pager"><ScrollText className="h-4 w-4 mr-2" />One-Pager</Link>
