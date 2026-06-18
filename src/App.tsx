@@ -228,6 +228,7 @@ const InvestorDataRoom = lazy(() => import("./pages/InvestorDataRoom"));
 const InvestorDataRoomPoG = lazy(() => import("./pages/InvestorDataRoomPoG"));
 const InvestorWhyThisRound = lazy(() => import("./pages/InvestorWhyThisRound"));
 const InvestorSolarCoinComparison = lazy(() => import("./pages/InvestorSolarCoinComparison"));
+const Seed = lazy(() => import("./pages/Seed"));
 const HeroTest = lazy(() => import("./pages/archive/HeroTest"));
 
 const Blog = lazy(() => import("./pages/Blog"));
@@ -326,6 +327,7 @@ const App = () => {
                    <Route path="/investor/one-pager" element={<Suspense fallback={<PageLoader />}><InvestorOnePager /></Suspense>} />
                    <Route path="/investor/data-room" element={<Suspense fallback={<PageLoader />}><InvestorDataRoom /></Suspense>} />
                    <Route path="/investor/data-room/pog" element={<Suspense fallback={<PageLoader />}><InvestorDataRoomPoG /></Suspense>} />
+                   <Route path="/seed" element={<Suspense fallback={<PageLoader />}><Seed /></Suspense>} />
                     <Route path="/hero-test" element={<Navigate to="/admin/archive/hero-test" replace />} />
                     
                     <Route path="/proof-of-genesis-receipt-preview" element={<ProofOfGenesisReceiptPreview />} />
