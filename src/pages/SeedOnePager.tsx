@@ -213,7 +213,7 @@ export default function SeedOnePager() {
           <section className="op-card">
             <SectionLabel>Founders</SectionLabel>
             <p className="text-sm leading-relaxed text-foreground/90">
-              <span className="font-semibold text-foreground">Joseph Maushart</span> (ex-SolarCity)
+              <span className="font-semibold text-foreground">Joe Maushart</span>
               and <span className="font-semibold text-foreground">Michael Tschida</span> —
               clean-tech users & best friends. 150B / 50B pact-locked equity, crossovers at $6.67
               and $20 only if $ZSOLAR reaches a $1T market cap.
