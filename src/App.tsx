@@ -228,6 +228,7 @@ const InvestorDataRoom = lazy(() => import("./pages/InvestorDataRoom"));
 const InvestorDataRoomPoG = lazy(() => import("./pages/InvestorDataRoomPoG"));
 const InvestorWhyThisRound = lazy(() => import("./pages/InvestorWhyThisRound"));
 const InvestorSolarCoinComparison = lazy(() => import("./pages/InvestorSolarCoinComparison"));
+const Seed = lazy(() => import("./pages/Seed"));
 const HeroTest = lazy(() => import("./pages/archive/HeroTest"));
 
 const Blog = lazy(() => import("./pages/Blog"));
