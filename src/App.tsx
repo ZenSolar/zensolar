@@ -331,6 +331,9 @@ const App = () => {
                    <Route path="/investor/data-room" element={<Suspense fallback={<PageLoader />}><InvestorDataRoom /></Suspense>} />
                    <Route path="/investor/data-room/pog" element={<Suspense fallback={<PageLoader />}><InvestorDataRoomPoG /></Suspense>} />
                    <Route path="/seed" element={<Suspense fallback={<PageLoader />}><Seed /></Suspense>} />
+                   <Route path="/seed/one-pager" element={<Suspense fallback={<PageLoader />}><SeedOnePager /></Suspense>} />
+                   <Route path="/seed/deck" element={<Suspense fallback={<PageLoader />}><SeedDeck /></Suspense>} />
+                   <Route path="/seed/data-room" element={<Suspense fallback={<PageLoader />}><SeedDataRoom /></Suspense>} />
                     <Route path="/hero-test" element={<Navigate to="/admin/archive/hero-test" replace />} />
                     
                     <Route path="/proof-of-genesis-receipt-preview" element={<ProofOfGenesisReceiptPreview />} />
