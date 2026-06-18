@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, PlayCircle, Sparkles, Phone, FileText, Lock } from 'lucide-react';
+import { ArrowLeft, PlayCircle, Sparkles, FileText, Lock, ScrollText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
@@ -98,6 +98,9 @@ export default function Seed() {
                 </div>
               ))}
             </div>
+            <p className="mt-5 text-[12px] md:text-[13px] text-muted-foreground/90">
+              Instrument: <span className="text-foreground/90">Convertible Note + 10% Token Warrant</span> · 4-year vesting · 1-year cliff
+            </p>
           </div>
         </section>
 
@@ -230,23 +233,20 @@ export default function Seed() {
             Next Steps
           </h2>
           <div className="grid gap-3 md:grid-cols-2">
-            <Button
-              asChild
-              className="h-12 bg-secondary text-secondary-foreground hover:bg-secondary/90"
-            >
-              <a href="mailto:joe@zensolar.com?subject=ZenSolar%20Seed%20—%20Schedule%20a%20Call">
-                <Phone className="h-4 w-4 mr-2" />
-                Schedule a Call
-              </a>
-            </Button>
-            <Button asChild variant="outline" className="h-12">
-              <Link to="/investor/pitch">
+            <Button asChild className="h-12 bg-secondary text-secondary-foreground hover:bg-secondary/90">
+              <Link to="/seed/deck">
                 <FileText className="h-4 w-4 mr-2" />
                 View Full Deck
               </Link>
             </Button>
             <Button asChild variant="outline" className="h-12">
-              <Link to="/investor/data-room">
+              <Link to="/seed/one-pager">
+                <ScrollText className="h-4 w-4 mr-2" />
+                One-Pager
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="h-12">
+              <Link to="/seed/data-room">
                 <Lock className="h-4 w-4 mr-2" />
                 Enter Data Room
               </Link>
@@ -277,7 +277,7 @@ export default function Seed() {
             · Confidential under NDA
           </p>
           <Link
-            to="/investor/data-room"
+            to="/seed/data-room"
             className="inline-block text-[11px] uppercase tracking-[0.18em] text-secondary/80 hover:text-secondary"
           >
             Data Room →
