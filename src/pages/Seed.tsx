@@ -98,6 +98,9 @@ export default function Seed() {
                 </div>
               ))}
             </div>
+            <p className="mt-5 text-[12px] md:text-[13px] text-muted-foreground/90">
+              Instrument: <span className="text-foreground/90">Convertible Note + 10% Token Warrant</span> · 4-year vesting · 1-year cliff
+            </p>
           </div>
         </section>
 
