@@ -229,6 +229,9 @@ const InvestorDataRoomPoG = lazy(() => import("./pages/InvestorDataRoomPoG"));
 const InvestorWhyThisRound = lazy(() => import("./pages/InvestorWhyThisRound"));
 const InvestorSolarCoinComparison = lazy(() => import("./pages/InvestorSolarCoinComparison"));
 const Seed = lazy(() => import("./pages/Seed"));
+const SeedOnePager = lazy(() => import("./pages/SeedOnePager"));
+const SeedDeck = lazy(() => import("./pages/SeedDeck"));
+const SeedDataRoom = lazy(() => import("./pages/SeedDataRoom"));
 const HeroTest = lazy(() => import("./pages/archive/HeroTest"));
 
 const Blog = lazy(() => import("./pages/Blog"));
