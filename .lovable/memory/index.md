@@ -22,6 +22,8 @@ Telemetry SSOT: one OEM per KPI, never sum across providers. Resolver = `src/lib
 
 
 ## Memories
+- [Supercharger Mint](mem://features/supercharger-mint) — Tesla Supercharger classification + full 1:1 mint via REC claim. Phase 1 (schema + classifier) live; Phase 2-4 pending.
+- [Minting Loudness Levels](mem://features/minting-loudness-levels) — L1 silent default / L2 light first-time + paused/error / L3 delight milestones. Applies to every mint surface.
 - [Seed Surface (Lean Ask)](mem://features/seed-surface-lean-ask.md) — /seed/* locked to $1M target / $2M hard cap + Convertible Note + 10% Token Warrant (4y vest, 1y cliff). Separate from /investor/* (Strategic Seed). No cross-linking, no SAFE/Part 1/$2.5–3.5M.
 - [Remix v2 Resolved Decisions](mem://features/remix-v2-decisions) — Deason=threaded+DB, Cockpit=free-on-Spark (capability-gated), nav=Home/Cockpit/Mint/Deason/More, onboarding=3-pillar tour then OEM connect.
 - [Patent Roadmap (ZEN-001/002/003)](mem://legal/patent-roadmap.md) — ZEN-001 filed (19/634,402); ZEN-002 (Starlink+Optimus) and ZEN-003 (bidir+vehicles+storage+charging DePIN) to file as separate provisionals.
