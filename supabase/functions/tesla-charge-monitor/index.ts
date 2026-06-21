@@ -499,9 +499,14 @@ async function processVehicle(
     }
 
     const isAwayUnverified = locationKind === 'away_unverified';
+    const matchedLoc = cls.matchedId
+      ? homeLocations.find((h) => h.id === cls.matchedId)
+      : null;
     const locationLabel = isAwayUnverified
-      ? (vehicleLat && vehicleLng ? 'AC away' : 'Home')
-      : (homeAddress || 'Home');
+      ? (vehicleLat && vehicleLng
+          ? `AC away (${vehicleLat.toFixed(4)}, ${vehicleLng.toFixed(4)})`
+          : 'AC away')
+      : (matchedLoc?.label || homeAddress || 'Home');
 
     if (!activeSession) {
       // ── START new session ──
@@ -563,10 +568,29 @@ async function processVehicle(
           total_session_kwh: Math.max(0, chargeEnergyAdded - activeSession.start_kwh_added),
           charger_power_kw: chargerPower,
           proof_chain: updatedChain,
+          // Re-classify each tick so a session started before Phase B (or
+          // before the user moved homes) gets re-tagged once GPS arrives.
+          ...(vehicleLat != null && vehicleLng != null
+            ? {
+                latitude: vehicleLat,
+                longitude: vehicleLng,
+                location: locationLabel,
+                location_kind: locationKind,
+              }
+            : {}),
           session_metadata: {
             ...activeSession.session_metadata,
             battery_level_latest: batteryLevel,
             last_poll: now,
+            ...(vehicleLat != null && vehicleLng != null
+              ? {
+                  location_kind: locationKind,
+                  matched_home_location_id: cls.matchedId,
+                  new_location_prompt:
+                    isAwayUnverified || activeSession.session_metadata?.new_location_prompt === true,
+                  reclassified_at: now,
+                }
+              : {}),
           },
         })
         .eq("id", activeSession.id);
