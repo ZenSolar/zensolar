@@ -22,6 +22,7 @@ Telemetry SSOT: one OEM per KPI, never sum across providers. Resolver = `src/lib
 
 
 ## Memories
+- [Calm Minting UX](mem://features/calm-minting-ux) — LOCKED L1/L2/L3 tone contract + copy for Solar, Battery Export, EV Mileage, FSD. Mirrors Tesla charging calm UX.
 - [Supercharger Mint](mem://features/supercharger-mint) — Tesla Supercharger classification + full 1:1 mint via REC claim. Phase 1 (schema + classifier) live; Phase 2-4 pending.
 - [Home & AC Charging (renamed + multi-home)](mem://features/home-ac-charging.md) — KPI renamed to "Home & AC Charging" everywhere. Multi-home addresses (`user_home_locations`) + `location_kind` classifier shipped (Phase A). Vehicle-side AC fallback + "Is this your new home?" prompt = Phase B.
 - [Minting Loudness Levels](mem://features/minting-loudness-levels) — L1 silent default / L2 light first-time + paused/error / L3 delight milestones. Applies to every mint surface.

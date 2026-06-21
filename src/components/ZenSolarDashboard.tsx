@@ -28,6 +28,7 @@ import { ZenDriveLiveCard } from './dashboard/ZenDriveLiveCard';
 import { SuperchargerLiveCard } from './dashboard/SuperchargerLiveCard';
 import { TeslaStatusCard } from './dashboard/TeslaStatusCard';
 import { SilentChargingStatus } from './dashboard/SilentChargingStatus';
+import { CalmMintingStatus } from './dashboard/CalmMintingStatus';
 import { SuperchargerBanner } from './dashboard/SuperchargerBanner';
 import { NewLocationPrompt } from './dashboard/NewLocationPrompt';
 import { OutageRecapCard } from './dashboard/OutageRecapCard';
@@ -618,6 +619,10 @@ function EnergyFlowGlowCard() {
           {/* Silent home/wallbox status line (L1) */}
           <div className="mt-2">
             <SilentChargingStatus />
+            {/* Calm minting UX: Solar / Battery Export / EV Mileage / FSD
+                L1 silent lines + L2 first-time banners + L3 milestone chimes.
+                Mirrors the Tesla charging calm UX. */}
+            <CalmMintingStatus />
           </div>
           {/* Tesla Supercharger calm live card (renders only during a Supercharger / DC fast session) */}
           <div className="mt-3">

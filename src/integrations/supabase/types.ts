@@ -3003,6 +3003,27 @@ export type Database = {
         }
         Relationships: []
       }
+      ux_first_seen: {
+        Row: {
+          event_key: string
+          id: string
+          seen_at: string
+          user_id: string
+        }
+        Insert: {
+          event_key: string
+          id?: string
+          seen_at?: string
+          user_id: string
+        }
+        Update: {
+          event_key?: string
+          id?: string
+          seen_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       vault_access_log: {
         Row: {
           created_at: string
