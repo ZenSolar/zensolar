@@ -23,6 +23,7 @@ Telemetry SSOT: one OEM per KPI, never sum across providers. Resolver = `src/lib
 
 ## Memories
 - [Supercharger Mint](mem://features/supercharger-mint) — Tesla Supercharger classification + full 1:1 mint via REC claim. Phase 1 (schema + classifier) live; Phase 2-4 pending.
+- [Home & AC Charging (renamed + multi-home)](mem://features/home-ac-charging.md) — KPI renamed to "Home & AC Charging" everywhere. Multi-home addresses (`user_home_locations`) + `location_kind` classifier shipped (Phase A). Vehicle-side AC fallback + "Is this your new home?" prompt = Phase B.
 - [Minting Loudness Levels](mem://features/minting-loudness-levels) — L1 silent default / L2 light first-time + paused/error / L3 delight milestones. Applies to every mint surface.
 - [Seed Surface (Lean Ask)](mem://features/seed-surface-lean-ask.md) — /seed/* locked to $1M target / $2M hard cap + Convertible Note + 10% Token Warrant (4y vest, 1y cliff). Separate from /investor/* (Strategic Seed). No cross-linking, no SAFE/Part 1/$2.5–3.5M.
 - [Remix v2 Resolved Decisions](mem://features/remix-v2-decisions) — Deason=threaded+DB, Cockpit=free-on-Spark (capability-gated), nav=Home/Cockpit/Mint/Deason/More, onboarding=3-pillar tour then OEM connect.
