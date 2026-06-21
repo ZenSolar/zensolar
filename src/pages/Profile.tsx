@@ -14,6 +14,7 @@ import { SolarEdgeConnectDialog } from "@/components/dashboard/SolarEdgeConnectD
 import { WallboxConnectDialog } from "@/components/dashboard/WallboxConnectDialog";
 import { EnphaseCodeDialog } from "@/components/dashboard/EnphaseCodeDialog";
 import { EnergySourcesCard } from "@/components/profile/EnergySourcesCard";
+import { HomeAddressesSection } from "@/components/profile/HomeAddressesSection";
 import {
   AlertDialog,
   AlertDialogAction,
