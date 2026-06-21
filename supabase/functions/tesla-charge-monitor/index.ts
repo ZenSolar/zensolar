@@ -334,8 +334,8 @@ async function processUser(supabase: any, userId: string, results: any[]) {
     }
   }
 
-  // Get vehicles + home address
-  const [{ data: vehicles }, { data: profile }] = await Promise.all([
+  // Get vehicles + home address + saved home locations (Phase B)
+  const [{ data: vehicles }, { data: profile }, { data: savedLocations }] = await Promise.all([
     supabase
       .from("connected_devices")
       .select("device_id")
@@ -347,6 +347,11 @@ async function processUser(supabase: any, userId: string, results: any[]) {
       .select("home_address, timezone")
       .eq("user_id", userId)
       .single(),
+    supabase
+      .from("user_home_locations")
+      .select("id, label, lat, lon, radius_m, is_primary, is_active")
+      .eq("user_id", userId)
+      .eq("is_active", true),
   ]);
 
   if (!vehicles || vehicles.length === 0) return;
@@ -360,6 +365,11 @@ async function processUser(supabase: any, userId: string, results: any[]) {
       console.log(`[ChargeMonitor] Home coords for ${userId.slice(0, 8)}: ${homeCoords.lat.toFixed(4)}, ${homeCoords.lng.toFixed(4)}`);
     }
   }
+
+  const homeLocations = (savedLocations || []) as Array<{
+    id: string; label: string; lat: number; lon: number;
+    radius_m: number; is_primary: boolean; is_active: boolean;
+  }>;
 
   for (const vehicle of vehicles) {
     const vin = vehicle.device_id;
