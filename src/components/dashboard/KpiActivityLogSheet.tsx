@@ -406,7 +406,7 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
                   : category === 'battery' ? 'Daily Battery Exports'
                   : category === 'ev_miles' ? 'Daily Miles Driven'
                   : category === 'supercharger' ? 'Supercharging Sessions'
-                  : category === 'home_charger' ? 'Home Charging Sessions'
+                  : category === 'home_charger' ? 'Home & AC Charging Sessions'
                   : category === 'charging' ? 'Charging Sessions'
                   : 'Contributions';
                 const meta = isInterval

@@ -478,7 +478,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     if (category === 'ev_miles') return 'EV Miles Driven';
     if (category === 'battery') return 'Battery Storage Discharged';
     if (category === 'charging') return 'EV Charging';
-    if (category === 'home_charging') return 'Home Charging';
+    if (category === 'home_charging') return 'Home & AC Charging';
     if (category === 'supercharging') return 'Tesla Supercharging';
     return category;
   };
@@ -490,7 +490,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
     if (category === 'ev_miles') return 'EV Miles Driven';
     if (category === 'battery') return 'Battery Storage — kWh';
     if (category === 'charging') return 'EV Charging — kWh';
-    if (category === 'home_charging') return 'Home Charging — kWh';
+    if (category === 'home_charging') return 'Home & AC Charging — kWh';
     if (category === 'supercharging') return 'Tesla Supercharging — kWh';
     return category;
   };
@@ -1104,7 +1104,7 @@ export const RewardActions = forwardRef<RewardActionsRef, RewardActionsProps>(fu
                     { key: 'solar' as MintCategory, label: 'Solar', icon: Sun, tint: 'text-solar', units: pendingRewards.solar, unit: 'kWh', tokens: getCategoryTokens('solar') },
                     { key: 'battery' as MintCategory, label: 'Battery', icon: BatteryFull, tint: 'text-secondary', units: pendingRewards.battery, unit: 'kWh', tokens: getCategoryTokens('battery') },
                     { key: 'supercharging' as MintCategory, label: 'Supercharging', icon: Zap, tint: 'text-destructive', units: pendingRewards.superchargerKwh ?? 0, unit: 'kWh', tokens: getCategoryTokens('supercharging') },
-                    { key: 'home_charging' as MintCategory, label: 'Home Charging', icon: Zap, tint: 'text-accent', units: pendingRewards.homeChargerKwh ?? 0, unit: 'kWh', tokens: getCategoryTokens('home_charging') },
+                    { key: 'home_charging' as MintCategory, label: 'Home & AC Charging', icon: Zap, tint: 'text-accent', units: pendingRewards.homeChargerKwh ?? 0, unit: 'kWh', tokens: getCategoryTokens('home_charging') },
                     { key: 'ev_miles' as MintCategory, label: 'EV Miles', icon: Car, tint: 'text-energy', units: pendingRewards.evMiles, unit: 'mi', tokens: getCategoryTokens('ev_miles') },
                   ].filter(r => r.units > 0)) : [];
 

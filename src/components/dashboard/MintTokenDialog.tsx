@@ -119,7 +119,7 @@ export function MintTokenDialog({
       hasInvoiceLag: true,
       lagLabel: 'Pending Tesla invoice — usually posts within 24–48h',
     },
-    { key: 'home_charging' as MintTokenCategory, label: 'Home Charging', amount: pendingRewards.homeChargerKwh ?? 0, icon: Zap, colorClass: 'text-accent', iconBg: 'from-accent/20 to-accent/10' },
+    { key: 'home_charging' as MintTokenCategory, label: 'Home & AC Charging', amount: pendingRewards.homeChargerKwh ?? 0, icon: Zap, colorClass: 'text-accent', iconBg: 'from-accent/20 to-accent/10' },
     { key: 'charging' as MintTokenCategory, label: 'EV Charging', amount: pendingRewards.charging, icon: Zap, colorClass: 'text-accent', iconBg: 'from-accent/20 to-accent/10' },
   ].filter((c) => c.amount > 0);
 

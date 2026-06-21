@@ -94,8 +94,8 @@ const CATEGORIES: CategoryMeta[] = [
   },
   {
     key: 'home_charger',
-    label: 'Home Charging',
-    shortLabel: 'Home Charger',
+    label: 'Home & AC Charging',
+    shortLabel: 'Home & AC',
     icon: Home,
     accentClass: 'border-l-eco/70',
     iconBgClass: 'bg-eco/15',

@@ -578,11 +578,14 @@ export default function Profile() {
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                Charging sessions at or near this address will be classified as "Home Charging"
+                Charging sessions at or near this address are tagged as Home; sessions elsewhere
+                still count as <strong>AC away</strong> under Home &amp; AC Charging.
               </p>
             </CardContent>
           </Card>
         </motion.div>
+
+        <HomeAddressesSection />
 
         <AlertDialog open={!!disconnectConfirm} onOpenChange={(open) => !open && setDisconnectConfirm(null)}>
           <AlertDialogContent>
