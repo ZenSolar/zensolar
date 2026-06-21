@@ -27,6 +27,8 @@ import { LiveEnergyMonitoringCard } from './dashboard/LiveEnergyMonitoringCard';
 import { ZenDriveLiveCard } from './dashboard/ZenDriveLiveCard';
 import { SuperchargerLiveCard } from './dashboard/SuperchargerLiveCard';
 import { TeslaStatusCard } from './dashboard/TeslaStatusCard';
+import { SilentChargingStatus } from './dashboard/SilentChargingStatus';
+import { SuperchargerBanner } from './dashboard/SuperchargerBanner';
 import { OutageRecapCard } from './dashboard/OutageRecapCard';
 import { OemDiagnosticsBanner } from './dashboard/OemDiagnosticsBanner';
 import { EnergyFlowErrorBoundary } from './dashboard/EnergyFlowErrorBoundary';
