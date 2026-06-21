@@ -29,6 +29,7 @@ import { SuperchargerLiveCard } from './dashboard/SuperchargerLiveCard';
 import { TeslaStatusCard } from './dashboard/TeslaStatusCard';
 import { SilentChargingStatus } from './dashboard/SilentChargingStatus';
 import { SuperchargerBanner } from './dashboard/SuperchargerBanner';
+import { NewLocationPrompt } from './dashboard/NewLocationPrompt';
 import { OutageRecapCard } from './dashboard/OutageRecapCard';
 import { OemDiagnosticsBanner } from './dashboard/OemDiagnosticsBanner';
 import { EnergyFlowErrorBoundary } from './dashboard/EnergyFlowErrorBoundary';
@@ -610,6 +611,8 @@ function EnergyFlowGlowCard() {
         <>
           {/* L2 first-ever loudness banner (8s, no audio, never for repeat sessions) */}
           <SuperchargerBanner />
+          {/* "Is this your new home?" — Phase B, once per unfamiliar charging lat/lon */}
+          <NewLocationPrompt />
           {/* ZenEnergy · Live — solar / Powerwall / grid / home only */}
           <LiveEnergyMonitoringCard hideVehicle />
           {/* Silent home/wallbox status line (L1) */}
