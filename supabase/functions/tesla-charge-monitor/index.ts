@@ -484,14 +484,24 @@ async function processVehicle(
   // ── STATE MACHINE ──────────────────────────────────────────────────────
 
   if (chargingState === "Charging" && isAcCharging) {
-    // Vehicle is AC charging
-    const isHome = isNearHome || (!homeCoords && isAcCharging);
+    // Phase B: classify against user_home_locations. Sessions outside any
+    // saved location are STILL credited as Home & AC Charging — they're just
+    // tagged `away_unverified` so the "Is this your new home?" prompt can
+    // ask the user once. No location now means "AC away", not "skip".
+    const cls = classifyAgainstSavedLocations(vehicleLat ?? null, vehicleLng ?? null, homeLocations);
+    let locationKind: LocationKind = cls.kind;
 
-    if (!isHome) {
-      // AC charging but NOT at home — skip (destination charger)
-      results.push({ vin, action: "ac_not_home", dist: distFromHome });
-      return;
+    // Backward-compat: if user has NO saved homes yet but the legacy
+    // profile.home_address geofence matches, treat as home_primary so we
+    // don't regress users who haven't migrated to the new UI.
+    if (homeLocations.length === 0 && (isNearHome || (!homeCoords && isAcCharging))) {
+      locationKind = 'home_primary';
     }
+
+    const isAwayUnverified = locationKind === 'away_unverified';
+    const locationLabel = isAwayUnverified
+      ? (vehicleLat && vehicleLng ? 'AC away' : 'Home')
+      : (homeAddress || 'Home');
 
     if (!activeSession) {
       // ── START new session ──
@@ -511,18 +521,24 @@ async function processVehicle(
         end_kwh_added: chargeEnergyAdded,
         total_session_kwh: chargeEnergyAdded,
         status: "charging",
-        location: homeAddress || "Home",
+        location: locationLabel,
         latitude: vehicleLat,
         longitude: vehicleLng,
         charger_power_kw: chargerPower,
         proof_chain: proofChain,
         verified: false,
+        location_kind: locationKind,
         session_metadata: {
           battery_level_start: batteryLevel,
           first_observed_kwh: chargeEnergyAdded,
           distance_from_home_mi: distFromHome,
+          location_kind: locationKind,
+          matched_home_location_id: cls.matchedId,
+          new_location_prompt: isAwayUnverified,
+          source: 'tesla_vehicle_ac_fallback',
         },
       });
+
 
       if (error) {
         console.error(`[ChargeMonitor] Insert error:`, error);
