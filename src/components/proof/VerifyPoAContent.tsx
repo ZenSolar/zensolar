@@ -29,6 +29,7 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { TamperEvidentProofPanel } from '@/components/proof/TamperEvidentProofPanel';
 import { MintedForBadge, ReceiptSourceLines, type ApiResponse as SourceLinesResponse } from '@/components/proof/ReceiptSourceLines';
+import { TeslaRecBadge } from '@/components/proof/TeslaRecBadge';
 import { ProofOfAuthenticityStamp } from '@/components/proof/ProofOfAuthenticityStamp';
 
 export type VerifyReceipt = {
@@ -352,6 +353,19 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
             <MintedForBadge chainHash={data.chain_hash} className="justify-center" mockResponse={mockSourceLines} />
           </div>
         )}
+
+        {/* Phase 4 — Tesla Supercharger REC badge + dual CO₂ line */}
+        {(() => {
+          const scKwh = Number(
+            (data.source_breakdown as any)?.supercharging_kwh ?? 0,
+          );
+          if (scKwh <= 0) return null;
+          return (
+            <div className="relative mt-3 flex justify-center">
+              <TeslaRecBadge superchargerKwh={scKwh} />
+            </div>
+          );
+        })()}
       </div>
 
 
