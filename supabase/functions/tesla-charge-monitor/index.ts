@@ -334,8 +334,8 @@ async function processUser(supabase: any, userId: string, results: any[]) {
     }
   }
 
-  // Get vehicles + home address
-  const [{ data: vehicles }, { data: profile }] = await Promise.all([
+  // Get vehicles + home address + saved home locations (Phase B)
+  const [{ data: vehicles }, { data: profile }, { data: savedLocations }] = await Promise.all([
     supabase
       .from("connected_devices")
       .select("device_id")
@@ -347,6 +347,11 @@ async function processUser(supabase: any, userId: string, results: any[]) {
       .select("home_address, timezone")
       .eq("user_id", userId)
       .single(),
+    supabase
+      .from("user_home_locations")
+      .select("id, label, lat, lon, radius_m, is_primary, is_active")
+      .eq("user_id", userId)
+      .eq("is_active", true),
   ]);
 
   if (!vehicles || vehicles.length === 0) return;
@@ -361,10 +366,44 @@ async function processUser(supabase: any, userId: string, results: any[]) {
     }
   }
 
+  const homeLocations = (savedLocations || []) as Array<{
+    id: string; label: string; lat: number; lon: number;
+    radius_m: number; is_primary: boolean; is_active: boolean;
+  }>;
+
   for (const vehicle of vehicles) {
     const vin = vehicle.device_id;
-    await processVehicle(supabase, userId, vin, accessToken, homeAddress, homeCoords, results, userTimezone);
+    await processVehicle(supabase, userId, vin, accessToken, homeAddress, homeCoords, homeLocations, results, userTimezone);
   }
+}
+
+type HomeLoc = { id: string; label: string; lat: number; lon: number; radius_m: number; is_primary: boolean; is_active: boolean };
+type LocationKind = 'home_primary' | 'home_secondary' | 'away_known' | 'away_unverified';
+
+function classifyAgainstSavedLocations(
+  lat: number | null,
+  lon: number | null,
+  saved: HomeLoc[],
+): { kind: LocationKind; matchedId: string | null } {
+  if (lat == null || lon == null) return { kind: 'away_unverified', matchedId: null };
+  const R = 6_371_000;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dist = (aLat: number, aLon: number, bLat: number, bLon: number) => {
+    const dLat = toRad(bLat - aLat);
+    const dLon = toRad(bLon - aLon);
+    const h = Math.sin(dLat / 2) ** 2 +
+      Math.cos(toRad(aLat)) * Math.cos(toRad(bLat)) * Math.sin(dLon / 2) ** 2;
+    return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+  };
+  const matches = saved
+    .filter((s) => s.is_active)
+    .map((s) => ({ s, d: dist(lat, lon, Number(s.lat), Number(s.lon)) }))
+    .filter((m) => m.d <= m.s.radius_m)
+    .sort((a, b) => a.d - b.d);
+  if (matches.length === 0) return { kind: 'away_unverified', matchedId: null };
+  const primary = matches.find((m) => m.s.is_primary);
+  if (primary) return { kind: 'home_primary', matchedId: primary.s.id };
+  return { kind: 'home_secondary', matchedId: matches[0].s.id };
 }
 
 async function processVehicle(
@@ -374,6 +413,7 @@ async function processVehicle(
   accessToken: string,
   homeAddress: string,
   homeCoords: { lat: number; lng: number } | null,
+  homeLocations: HomeLoc[],
   results: any[],
   userTimezone: string | null,
 ) {
@@ -444,14 +484,24 @@ async function processVehicle(
   // ── STATE MACHINE ──────────────────────────────────────────────────────
 
   if (chargingState === "Charging" && isAcCharging) {
-    // Vehicle is AC charging
-    const isHome = isNearHome || (!homeCoords && isAcCharging);
+    // Phase B: classify against user_home_locations. Sessions outside any
+    // saved location are STILL credited as Home & AC Charging — they're just
+    // tagged `away_unverified` so the "Is this your new home?" prompt can
+    // ask the user once. No location now means "AC away", not "skip".
+    const cls = classifyAgainstSavedLocations(vehicleLat ?? null, vehicleLng ?? null, homeLocations);
+    let locationKind: LocationKind = cls.kind;
 
-    if (!isHome) {
-      // AC charging but NOT at home — skip (destination charger)
-      results.push({ vin, action: "ac_not_home", dist: distFromHome });
-      return;
+    // Backward-compat: if user has NO saved homes yet but the legacy
+    // profile.home_address geofence matches, treat as home_primary so we
+    // don't regress users who haven't migrated to the new UI.
+    if (homeLocations.length === 0 && (isNearHome || (!homeCoords && isAcCharging))) {
+      locationKind = 'home_primary';
     }
+
+    const isAwayUnverified = locationKind === 'away_unverified';
+    const locationLabel = isAwayUnverified
+      ? (vehicleLat && vehicleLng ? 'AC away' : 'Home')
+      : (homeAddress || 'Home');
 
     if (!activeSession) {
       // ── START new session ──
@@ -471,27 +521,33 @@ async function processVehicle(
         end_kwh_added: chargeEnergyAdded,
         total_session_kwh: chargeEnergyAdded,
         status: "charging",
-        location: homeAddress || "Home",
+        location: locationLabel,
         latitude: vehicleLat,
         longitude: vehicleLng,
         charger_power_kw: chargerPower,
         proof_chain: proofChain,
         verified: false,
+        location_kind: locationKind,
         session_metadata: {
           battery_level_start: batteryLevel,
           first_observed_kwh: chargeEnergyAdded,
           distance_from_home_mi: distFromHome,
+          location_kind: locationKind,
+          matched_home_location_id: cls.matchedId,
+          new_location_prompt: isAwayUnverified,
+          source: 'tesla_vehicle_ac_fallback',
         },
       });
+
 
       if (error) {
         console.error(`[ChargeMonitor] Insert error:`, error);
       } else {
-        console.log(`[ChargeMonitor] ▶ STARTED session for ${vin}: ${chargeEnergyAdded} kWh already observed (hash: ${firstObservedHash.slice(0, 12)}…)`);
+        console.log(`[ChargeMonitor] ▶ STARTED ${locationKind} session for ${vin}: ${chargeEnergyAdded} kWh (hash: ${firstObservedHash.slice(0, 12)}…)`);
         // Send push notification that charging has started
-        await sendChargingStartNotification(userId, chargerPower, homeAddress || "Home");
+        await sendChargingStartNotification(userId, chargerPower, locationLabel);
       }
-      results.push({ vin, action: "started", energy: chargeEnergyAdded });
+      results.push({ vin, action: "started", energy: chargeEnergyAdded, location_kind: locationKind });
     } else {
       // ── UPDATE existing session with new hash chain link ──
       const now = new Date().toISOString();
