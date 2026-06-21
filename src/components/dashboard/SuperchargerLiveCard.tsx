@@ -59,13 +59,17 @@ function ThinSocRing({ pct, accent }: { pct: number; accent: boolean }) {
 export function SuperchargerLiveCard() {
   const { data: session } = useActiveChargingSessionV2();
   const { data: tesla } = useTeslaVehicleStatus();
+  const siteId =
+    session && (session.source === 'supercharger' || session.source === 'third_party_dc')
+      ? session.site_id
+      : null;
+  const { data: site } = useSuperchargerSite(siteId);
   const [sheetOpen, setSheetOpen] = useState(false);
 
   if (!session) return null;
   if (session.source !== 'supercharger' && session.source !== 'third_party_dc') return null;
 
   const isTesla = session.source === 'supercharger';
-  const { data: site } = useSuperchargerSite(session.site_id);
 
   const kw = session.charger_power_kw ?? 0;
   const kwh = session.kwh_so_far;
