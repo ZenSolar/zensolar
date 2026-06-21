@@ -54,7 +54,7 @@ export function SuperchargerDetailSheet({ open, onOpenChange, session, site }: P
         <div className="mt-4 rounded-lg border border-border/40 bg-background/40 p-3 text-[12px] text-muted-foreground">
           <div className="font-medium text-foreground">100% REC-matched clean energy</div>
           <div className="mt-1">
-            0.00 t CO₂ via Tesla REC · {(co2.gridComparatorKg / 1000).toFixed(2)} t vs local grid avg
+            {(co2.tesla_rec_kg / 1000).toFixed(2)} t CO₂ via Tesla REC · {(co2.grid_avg_kg / 1000).toFixed(2)} t vs local grid avg
           </div>
         </div>
 
