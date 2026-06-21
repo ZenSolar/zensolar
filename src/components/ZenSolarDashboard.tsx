@@ -25,6 +25,8 @@ const CO2OffsetCard = lazy(() =>
 import { PremiumInsightsTeaserCard } from './dashboard/PremiumInsightsTeaserCard';
 import { LiveEnergyMonitoringCard } from './dashboard/LiveEnergyMonitoringCard';
 import { ZenDriveLiveCard } from './dashboard/ZenDriveLiveCard';
+import { SuperchargerLiveCard } from './dashboard/SuperchargerLiveCard';
+import { TeslaStatusCard } from './dashboard/TeslaStatusCard';
 import { OutageRecapCard } from './dashboard/OutageRecapCard';
 import { OemDiagnosticsBanner } from './dashboard/OemDiagnosticsBanner';
 import { EnergyFlowErrorBoundary } from './dashboard/EnergyFlowErrorBoundary';
@@ -606,6 +608,14 @@ function EnergyFlowGlowCard() {
         <>
           {/* ZenEnergy · Live — solar / Powerwall / grid / home only */}
           <LiveEnergyMonitoringCard hideVehicle />
+          {/* Tesla Supercharger calm live card (renders only during a Supercharger / DC fast session) */}
+          <div className="mt-3">
+            <SuperchargerLiveCard />
+          </div>
+          {/* Always-on compact Tesla status (renders only when a Tesla is connected) */}
+          <div className="mt-3">
+            <TeslaStatusCard />
+          </div>
           {/* ZenDrive · Live — vehicle hero, only when a Tesla / EV is linked */}
           <div className="mt-4">
             <ZenDriveLiveCard />
