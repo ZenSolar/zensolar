@@ -58,7 +58,7 @@ export function CalmMintingStatus() {
   const fsdActive = fsdMi > FSD_ACTIVE_MI;
 
   const solarLifetime = (activityData.solarEnergyProduced ?? 0) + solarKwh;
-  const batteryLifetime = (activityData.batteryEnergyExported ?? 0) + batteryKwh;
+  const batteryLifetime = (activityData.batteryStorageDischarged ?? 0) + batteryKwh;
   const drivingLifetime = (activityData.evMilesDriven ?? 0) + drivingMi;
   const fsdLifetime =
     (activityData.fsdSupervisedMiles ?? 0) +
