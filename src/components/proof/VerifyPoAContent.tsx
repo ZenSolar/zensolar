@@ -71,7 +71,7 @@ type SourceRow = {
 const SOURCE_DEFS: Record<string, { label: string; Icon: typeof Sun; accent: string; ring: string; unit: 'kwh' | 'mi'; lineSources: string[] }> = {
   solar_kwh:           { label: 'Solar Production',  Icon: Sun,     accent: 'text-accent',       ring: 'border-accent/30',       unit: 'kwh', lineSources: ['solar'] },
   battery_kwh:         { label: 'Battery Discharge', Icon: Battery, accent: 'text-eco',          ring: 'border-eco/30',          unit: 'kwh', lineSources: ['battery'] },
-  home_charging_kwh:   { label: 'Home Charging',     Icon: Plug,    accent: 'text-accent-cool',  ring: 'border-accent-cool/30',  unit: 'kwh', lineSources: ['home_charger'] },
+  home_charging_kwh:   { label: 'Home & AC Charging', Icon: Plug,  accent: 'text-accent-cool',  ring: 'border-accent-cool/30',  unit: 'kwh', lineSources: ['home_charger'] },
   supercharging_kwh:   { label: 'Tesla Supercharging', Icon: Zap,   accent: 'text-primary',      ring: 'border-primary/30',      unit: 'kwh', lineSources: ['supercharger'] },
   ev_kwh:              { label: 'EV Charging',       Icon: Zap,     accent: 'text-primary',      ring: 'border-primary/30',      unit: 'kwh', lineSources: ['supercharger', 'home_charger'] },
   // EV miles come from the vehicle's odometer snapshot — there are no per-trip rows to list.

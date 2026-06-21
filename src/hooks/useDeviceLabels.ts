@@ -69,7 +69,7 @@ export function getEnergyLogTitle(activityType: ActivityType, labels: DeviceLabe
     case 'supercharger':
       return labels.vehicle ? `${labels.vehicle} Supercharger Log` : 'Supercharger Log';
     case 'home-charging':
-      return 'Home Charging Log';
+      return 'Home & AC Charging Log';
     case 'ev-miles':
       return labels.vehicle ? `${labels.vehicle} EV Miles Log` : 'EV Miles Log';
   }

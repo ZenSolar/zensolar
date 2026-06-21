@@ -3,6 +3,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { startOfMonth, endOfMonth } from 'date-fns';
 import { useViewAsUserId } from '@/hooks/useViewAsUserId';
 
+export type ChargingLocationKind =
+  | 'home_primary'
+  | 'home_secondary'
+  | 'away_known'
+  | 'away_unverified';
+
 export interface HomeChargingSession {
   id: string;
   device_id: string;
@@ -15,6 +21,7 @@ export interface HomeChargingSession {
   location: string | null;
   charger_power_kw: number;
   session_metadata: Record<string, unknown> | null;
+  location_kind?: ChargingLocationKind | null;
 }
 
 export function useHomeChargingSessions(currentMonth: Date) {

@@ -12,7 +12,7 @@ const fieldLabels: Record<HideableField, string> = {
   battery: 'Battery',
   charging: 'EV Charging',
   supercharger: 'Supercharger',
-  home_charger: 'Home Charging',
+  home_charger: 'Home & AC Charging',
 };
 
 interface HiddenFieldsRestoreProps {

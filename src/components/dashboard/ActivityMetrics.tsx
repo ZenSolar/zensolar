@@ -263,12 +263,13 @@ export function ActivityMetrics({
   const batteryLabel = batteryName ? `${batteryName} Exported kWh` : 'Battery Exported kWh';
   const evLabel = vehicleName ? `${vehicleName} EV Miles` : 'EV Miles';
   const superchargerLabel = vehicleName ? `${vehicleName} Supercharging` : 'Tesla Supercharging';
-  // Home Charging label: prefer dedicated home charger name, otherwise tag the vehicle's home charging
+  // Home & AC Charging label: prefer dedicated home charger name, otherwise
+  // tag the vehicle's AC charging (covers home + away L2).
   const homeChargerLabel = homeChargerName
-    ? `${homeChargerName} Home Charging`
+    ? `${homeChargerName} Home & AC Charging`
     : vehicleName
-      ? `${vehicleName} Home Charging`
-      : 'Home Charging';
+      ? `${vehicleName} Home & AC Charging`
+      : 'Home & AC Charging';
 
   // Header device chips — each dot color matches its KPI field color below.
   // ev_miles=green, solar=gold/amber, battery=teal/emerald, supercharger/charging=cyan

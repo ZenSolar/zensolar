@@ -12,7 +12,9 @@ export function SilentChargingStatus() {
   if (!session) return null;
   if (session.source !== 'home' && session.source !== 'wallbox') return null;
 
-  const label = session.source === 'wallbox' ? 'Wallbox charging' : 'Home charging';
+  // Always say "AC charging" — covers home + away L2 (friend's house, hotel,
+  // unpaired Tesla Wall Connector). Per "Home & AC Charging" rename.
+  const label = 'AC charging';
   return (
     <div
       role="status"
