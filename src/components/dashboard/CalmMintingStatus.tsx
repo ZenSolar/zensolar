@@ -48,29 +48,30 @@ const DRIVING_MILESTONE_MI = 1000;
 const FSD_MILESTONE_MI = 600; // ~10 hours @ 60 mph proxy
 
 export function CalmMintingStatus() {
-  const { data } = useDashboardData();
-  if (!data) return null;
+  const { activityData } = useDashboardData();
+  if (!activityData) return null;
 
-  const solarKwh = data.pendingSolarKwh ?? 0;
-  const batteryKwh = data.pendingBatteryKwh ?? 0;
-  const drivingMi = data.pendingEvMiles ?? 0;
+  const solarKwh = activityData.pendingSolarKwh ?? 0;
+  const batteryKwh = activityData.pendingBatteryKwh ?? 0;
+  const drivingMi = activityData.pendingEvMiles ?? 0;
   const fsdMi =
-    (data.pendingFsdSupervisedMiles ?? 0) +
-    (data.pendingFsdUnsupervisedMiles ?? 0);
+    (activityData.pendingFsdSupervisedMiles ?? 0) +
+    (activityData.pendingFsdUnsupervisedMiles ?? 0);
 
   const solarActive = solarKwh > SOLAR_ACTIVE_KWH;
   const batteryActive = batteryKwh > BATTERY_ACTIVE_KWH;
   const drivingActive = drivingMi > DRIVING_ACTIVE_MI;
   const fsdActive = fsdMi > FSD_ACTIVE_MI;
 
-  // Lifetime totals for milestones (best-effort: pending is current accrual,
-  // earned is lifetime side. Fall back to pending if not present.)
+  // Lifetime totals for milestones.
   const solarLifetime =
-    (data.solarEnergyKwh ?? 0) + solarKwh;
+    (activityData.solarEnergyProduced ?? 0) + solarKwh;
   const drivingLifetime =
-    (data.evMiles ?? 0) + drivingMi;
+    (activityData.evMilesDriven ?? 0) + drivingMi;
   const fsdLifetime =
-    (data.fsdMiles ?? 0) + fsdMi;
+    (activityData.fsdSupervisedMiles ?? 0) +
+    (activityData.fsdUnsupervisedMiles ?? 0) +
+    fsdMi;
 
   return (
     <>
