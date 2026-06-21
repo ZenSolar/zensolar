@@ -29,6 +29,7 @@ import { toast } from "sonner";
 import { useBasePath } from "@/hooks/useBasePath";
 import { useCountUp } from "@/hooks/useCountUp";
 import { useHaptics } from "@/hooks/useHaptics";
+import { TeslaRecBadge } from "@/components/proof/TeslaRecBadge";
 
 export interface MintReceiptTx {
   id: string;
@@ -241,6 +242,21 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
                   )}
                 </div>
               )}
+
+              {/* Phase 4 — Tesla Supercharger REC badge + dual CO₂ line (compact) */}
+              {(() => {
+                const scKwh = Number(
+                  (tx.source_breakdown as any)?.supercharging_kwh ??
+                    (tx.source_breakdown as any)?.supercharger ??
+                    0,
+                );
+                if (scKwh <= 0) return null;
+                return (
+                  <div className="pt-1">
+                    <TeslaRecBadge superchargerKwh={scKwh} compact />
+                  </div>
+                );
+              })()}
 
               <DrawerDescription className="text-xs leading-relaxed">
                 {meta.description}
