@@ -543,11 +543,11 @@ async function processVehicle(
       if (error) {
         console.error(`[ChargeMonitor] Insert error:`, error);
       } else {
-        console.log(`[ChargeMonitor] ▶ STARTED session for ${vin}: ${chargeEnergyAdded} kWh already observed (hash: ${firstObservedHash.slice(0, 12)}…)`);
+        console.log(`[ChargeMonitor] ▶ STARTED ${locationKind} session for ${vin}: ${chargeEnergyAdded} kWh (hash: ${firstObservedHash.slice(0, 12)}…)`);
         // Send push notification that charging has started
-        await sendChargingStartNotification(userId, chargerPower, homeAddress || "Home");
+        await sendChargingStartNotification(userId, chargerPower, locationLabel);
       }
-      results.push({ vin, action: "started", energy: chargeEnergyAdded });
+      results.push({ vin, action: "started", energy: chargeEnergyAdded, location_kind: locationKind });
     } else {
       // ── UPDATE existing session with new hash chain link ──
       const now = new Date().toISOString();
