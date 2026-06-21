@@ -608,8 +608,14 @@ function EnergyFlowGlowCard() {
         </Suspense>
       ) : subscribed ? (
         <>
+          {/* L2 first-ever loudness banner (8s, no audio, never for repeat sessions) */}
+          <SuperchargerBanner />
           {/* ZenEnergy · Live — solar / Powerwall / grid / home only */}
           <LiveEnergyMonitoringCard hideVehicle />
+          {/* Silent home/wallbox status line (L1) */}
+          <div className="mt-2">
+            <SilentChargingStatus />
+          </div>
           {/* Tesla Supercharger calm live card (renders only during a Supercharger / DC fast session) */}
           <div className="mt-3">
             <SuperchargerLiveCard />
