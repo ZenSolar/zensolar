@@ -74,6 +74,11 @@ export function SuperchargerLiveCard() {
   const kw = session.charger_power_kw ?? 0;
   const kwh = session.kwh_so_far;
   const soc = tesla?.battery_level ?? 0;
+
+  // Hide entirely when the session isn't actually drawing power (0 kW / idle).
+  // Avoids showing a "live" card for a car that isn't charging.
+  if (kw <= 0.1) return null;
+
   const accentColor = isTesla ? 'hsl(28 95% 60%)' : 'hsl(var(--primary))';
 
   return (
