@@ -499,9 +499,14 @@ async function processVehicle(
     }
 
     const isAwayUnverified = locationKind === 'away_unverified';
+    const matchedLoc = cls.matchedId
+      ? homeLocations.find((h) => h.id === cls.matchedId)
+      : null;
     const locationLabel = isAwayUnverified
-      ? (vehicleLat && vehicleLng ? 'AC away' : 'Home')
-      : (homeAddress || 'Home');
+      ? (vehicleLat && vehicleLng
+          ? `AC away (${vehicleLat.toFixed(4)}, ${vehicleLng.toFixed(4)})`
+          : 'AC away')
+      : (matchedLoc?.label || homeAddress || 'Home');
 
     if (!activeSession) {
       // ── START new session ──
