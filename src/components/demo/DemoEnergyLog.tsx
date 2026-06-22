@@ -120,7 +120,7 @@ const tabTitles: Record<ActivityType, string> = {
   solar: 'Solar Production',
   battery: 'Battery Storage Exported',
   supercharger: 'Supercharger',
-  'home-charging': 'Home & AC Charging',
+  'home-charging': 'Home Charging',
   'ev-miles': 'EV Miles',
 };
 

@@ -25,12 +25,6 @@ const CO2OffsetCard = lazy(() =>
 import { PremiumInsightsTeaserCard } from './dashboard/PremiumInsightsTeaserCard';
 import { LiveEnergyMonitoringCard } from './dashboard/LiveEnergyMonitoringCard';
 import { ZenDriveLiveCard } from './dashboard/ZenDriveLiveCard';
-import { SuperchargerLiveCard } from './dashboard/SuperchargerLiveCard';
-import { TeslaStatusCard } from './dashboard/TeslaStatusCard';
-import { SilentChargingStatus } from './dashboard/SilentChargingStatus';
-import { CalmMintingStatus } from './dashboard/CalmMintingStatus';
-import { SuperchargerBanner } from './dashboard/SuperchargerBanner';
-import { NewLocationPrompt } from './dashboard/NewLocationPrompt';
 import { OutageRecapCard } from './dashboard/OutageRecapCard';
 import { OemDiagnosticsBanner } from './dashboard/OemDiagnosticsBanner';
 import { EnergyFlowErrorBoundary } from './dashboard/EnergyFlowErrorBoundary';
@@ -42,7 +36,6 @@ import { PrimaryMintAction } from './dashboard/PrimaryMintAction';
 import { RewardSnapshotGrid } from './dashboard/RewardSnapshotGrid';
 import { TodaysCleanEnergyStats } from './dashboard/TodaysCleanEnergyStats';
 import { SubscriptionStatusCard } from './dashboard/SubscriptionStatusCard';
-import { ZenMonitoringCard } from './dashboard/ZenMonitoringCard';
 
 import { DashboardHexBackground } from './dashboard/DashboardHexBackground';
 import { PageTransition } from './layout/PageTransition';
@@ -332,84 +325,214 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
         <SectionDivider className="xl:hidden" />
 
         {/* ───────────────────────────────────────────────────────────
-            MINIMALIST DASHBOARD v2
-            The dashboard answers ONE question:
-            "Is my clean energy working right now?"
-
-            Earning UX  → Clean Energy Center
-            Collecting  → NFT Collection
-            Monitoring  → this card
+            REALIGNED DASHBOARD HIERARCHY
+            1. Clean Energy Center + Tap-to-Mint (THE HERO)
+            2. Live Energy Monitoring (supporting context)
+            3. Today's Stats & Recent Activity
+            4. Deason Insights
+            5. Deep-dive cards (CO₂, Flywheel, NFTs)
            ─────────────────────────────────────────────────────────── */}
 
+        {/* 1a. HERO — Clean Energy Center (KPI grid w/ per-source +$ZSOLAR chips) */}
         <AnimatedItem className="xl:col-span-2">
-          <ZenMonitoringCard
-            connectedAccounts={connectedAccounts}
-            providerRefresh={providerRefresh}
+          {/* OEM diagnostics — auto-hides when no active issues. SSOT for connection health. */}
+          <div className="mb-3">
+            <OemDiagnosticsBanner />
+          </div>
+          {(() => {
+            const reauthProviders = (['enphase', 'solaredge', 'wallbox'] as ReauthProvider[]).filter(
+              (p) => providerRefresh[p]?.needsReauth
+            );
+            const calloutNodes = reauthProviders.map((p) => (
+              <ProviderReauthCallout key={p} provider={p} className="mb-2" />
+            ));
+            return (
+              <>
+                {calloutNodes}
+                <PerfProbe id="ActivityMetrics">
+                  <ActivityMetrics
+                    data={activityData}
+                    currentActivity={currentActivity}
+                    refreshInfo={{ lastUpdatedAt }}
+                    connectedProviders={connectedProviders}
+                    onMintRequest={!isViewer && profile?.wallet_address ? handleMintRequest : undefined}
+                    onMintSuccess={handleMintSuccess}
+                    tokenPrice={tokenPrice}
+                    lifetimeMinted={activityData.lifetimeMinted}
+                    hiddenFields={hiddenFields}
+                    onHideField={hideField}
+                    onShowField={showField}
+                    onShowAllFields={showAllFields}
+                    isNewUserView={isNewUserView}
+                    teslaNeedsReauth={providerRefresh.tesla?.needsReauth}
+                    isLoading={dataLoading || isAutoSyncing}
+                  />
+                </PerfProbe>
+              </>
+            );
+          })()}
+        </AnimatedItem>
+
+        {/* 1b. HERO — Tap-to-Mint primary action, fused with the Clean Energy Center above */}
+        <AnimatedItem className="xl:col-span-2 -mt-2">
+          {(() => {
+            const pending =
+              currentActivity.solarKwh +
+              currentActivity.batteryKwh +
+              currentActivity.chargingKwh +
+              currentActivity.evMiles;
+            const now = new Date();
+            const minutesSinceMidnight = Math.max(
+              30,
+              now.getHours() * 60 + now.getMinutes(),
+            );
+            // Active-earning proxy: today's mintable units / elapsed minutes today.
+            // Hidden automatically when nothing is earning (pending === 0).
+            const momentum = pending > 0 ? pending / minutesSinceMidnight : 0;
+            return (
+              <PrimaryMintAction
+                pendingZsolar={pending}
+                onMint={handleMintTokens}
+                disabled={dataLoading || !hasWalletConnected}
+                isViewer={isViewer}
+                momentumPerMinute={momentum}
+              />
+            );
+          })()}
+        </AnimatedItem>
+
+        <SectionDivider className="xl:hidden" />
+
+        {/* 1c. TODAY'S CLEAN ENERGY STATS — 2x2 grid bridging hero → live monitoring */}
+        <AnimatedItem className="xl:col-span-2">
+          <TodaysCleanEnergyStats
+            solarKwh={currentActivity.solarKwh}
+            batteryKwh={currentActivity.batteryKwh}
+            chargingKwh={currentActivity.chargingKwh}
+            evMiles={currentActivity.evMiles}
+            fsdMiles={currentActivity.fsdMiles}
           />
         </AnimatedItem>
 
         <SectionDivider className="xl:hidden" />
 
-        {/* Quick links to the two deeper pages */}
-        {!isViewer && (
-          <AnimatedItem className="xl:col-span-2">
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => navigate('/clean-energy-center')}
-                className="h-auto py-4 flex-col gap-1 border-primary/20 bg-card/40 hover:bg-card/60"
-              >
-                <span className="text-sm font-semibold">Clean Energy Center</span>
-                <span className="text-[11px] text-muted-foreground font-normal">
-                  Stats · Tap-to-Mint
-                </span>
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => navigate('/nft-collection')}
-                className="h-auto py-4 flex-col gap-1 border-primary/20 bg-card/40 hover:bg-card/60"
-              >
-                <span className="text-sm font-semibold flex items-center gap-1.5">
-                  <Images className="h-4 w-4" />
-                  NFT Collection
-                </span>
-                <span className="text-[11px] text-muted-foreground font-normal">
-                  {totalNftsAvailable} available
-                </span>
-              </Button>
-            </div>
-          </AnimatedItem>
-        )}
+        {/* 2. LIVE ENERGY MONITORING — supporting context for the hero above */}
+        <AnimatedItem className="xl:col-span-2">
+          <p className="text-[11px] uppercase tracking-[0.18em] font-semibold text-muted-foreground/80 mb-2 text-center">
+            This is why you're earning today
+          </p>
+          <EnergyFlowErrorBoundary>
+            <EnergyFlowGlowCard />
+          </EnergyFlowErrorBoundary>
+        </AnimatedItem>
 
-        {/* Hidden RewardActions — kept mounted so the mint dialog ref still works
-            for ReadyToMintCard above. */}
+        <SectionDivider className="xl:hidden" />
+
+        {/* 3. TODAY'S STATS & RECENT ACTIVITY */}
+        <AnimatedItem className="xl:col-span-2">
+          <RewardSnapshotGrid
+            todayMinted={
+              isNewUserView
+                ? 0
+                : currentActivity.solarKwh +
+                  currentActivity.batteryKwh +
+                  currentActivity.chargingKwh +
+                  currentActivity.evMiles
+            }
+            walletBalance={isNewUserView ? 0 : activityData.lifetimeMinted}
+            lifetimeCo2Lbs={isNewUserView ? 0 : activityData.co2OffsetPounds}
+          />
+        </AnimatedItem>
+
+        <AnimatedItem className="xl:col-span-2">
+          <MintReceiptsHint />
+        </AnimatedItem>
+
+        <SectionDivider className="xl:hidden" />
+
+        {/* 4. DEASON INSIGHTS */}
+        <AnimatedItem className="xl:col-span-2">
+          <SubscriptionStatusCard />
+        </AnimatedItem>
+
+        <SectionDivider className="xl:hidden" />
+
+        {/* CO₂ Offset deep-dive (chart + breakdown) */}
+        <AnimatedItem className="xl:col-span-1">
+          <Suspense fallback={<div className="h-64 rounded-2xl bg-card/10 animate-pulse" aria-hidden="true" />}>
+            <CO2OffsetCard
+              activityData={isNewUserView ? undefined : activityData}
+              co2Pounds={isNewUserView ? 0 : activityData.co2OffsetPounds}
+              isLoading={dataLoading && !isNewUserView}
+            />
+          </Suspense>
+        </AnimatedItem>
+
+        {/* Subscription-Fee Flywheel — live cumulative LP/Treasury contribution
+            from the active mock subscription. Renders nothing if no plan. */}
+        <AnimatedItem className="xl:col-span-1">
+          <FlywheelContributionCard />
+        </AnimatedItem>
+
         {!isViewer && (
-          <div className="hidden" aria-hidden="true">
+          <div className="hidden xl:col-span-1" aria-hidden="true">
             <Suspense fallback={null}>
-              <RewardActions
-                ref={rewardActionsRef}
-                onRefresh={refreshDashboard}
-                isLoading={dataLoading}
-                walletAddress={isNewUserView ? undefined : profile?.wallet_address}
-                pendingRewards={isNewUserView ? {
-                  solar: 0,
-                  evMiles: 0,
-                  battery: 0,
-                  charging: 0,
-                } : {
-                  solar: currentActivity.solarKwh,
-                  evMiles: currentActivity.evMiles,
-                  battery: currentActivity.batteryKwh,
-                  charging: currentActivity.chargingKwh,
-                  superchargerKwh: currentActivity.superchargerKwh,
-                  homeChargerKwh: currentActivity.homeChargerKwh,
-                }}
-              />
+              <PerfProbe id="RewardActions">
+                <RewardActions 
+                  ref={rewardActionsRef}
+                  onRefresh={refreshDashboard} 
+                  isLoading={dataLoading}
+                  walletAddress={isNewUserView ? undefined : profile?.wallet_address}
+                  pendingRewards={isNewUserView ? {
+                    solar: 0,
+                    evMiles: 0,
+                    battery: 0,
+                    charging: 0,
+                  } : {
+                    solar: currentActivity.solarKwh,
+                    evMiles: currentActivity.evMiles,
+                    battery: currentActivity.batteryKwh,
+                    charging: currentActivity.chargingKwh,
+                    superchargerKwh: currentActivity.superchargerKwh,
+                    homeChargerKwh: currentActivity.homeChargerKwh,
+                  }}
+                />
+              </PerfProbe>
             </Suspense>
           </div>
         )}
+
+        <SectionDivider className="xl:hidden" />
+
+        {/* NFT Milestones - Beta (with integrated Mint CTA) */}
+        <AnimatedItem id="reward-progress" className="xl:col-span-2">
+          <Suspense fallback={<CardSkeleton height="h-56" />}>
+            <RewardProgress
+              tokensEarned={isNewUserView ? 0 : activityData.tokensEarned}
+              solarKwh={isNewUserView ? 0 : activityData.solarEnergyProduced}
+              evMilesDriven={isNewUserView ? 0 : activityData.evMilesDriven}
+              evChargingKwh={isNewUserView ? 0 : activityData.teslaSuperchargerKwh + activityData.homeChargerKwh}
+              batteryDischargedKwh={isNewUserView ? 0 : activityData.batteryStorageDischarged}
+              nftsEarned={isNewUserView ? [] : activityData.nftsEarned}
+              lifetimeMinted={isNewUserView ? 0 : activityData.lifetimeMinted}
+              isNewUser={true}
+            />
+          </Suspense>
+          {!isViewer && (
+            <Button
+              onClick={() => navigate('/nft-collection')}
+              disabled={dataLoading}
+              className="w-full mt-3 bg-primary hover:bg-primary/90 animate-pulse-glow zen-btn-glow shadow-lg shadow-primary/20"
+              size="lg"
+            >
+              <Images className="mr-2 h-4 w-4" />
+              MINT ZENSOLAR NFTs
+              <Badge variant="secondary" className="ml-2 bg-white/20 text-white hover:bg-white/30">
+                {totalNftsAvailable}
+              </Badge>
+            </Button>
+          )}
+        </AnimatedItem>
 
         {/* API Partners card lives on the demo dashboard only. */}
 
@@ -462,4 +585,43 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   );
 }
 
+function EnergyFlowGlowCard() {
+  const { subscription, loading: subLoading } = useEnergyInsightsSubscription();
+  const subscribed = !!subscription?.active;
+
+  return (
+    <div
+      className="rounded-xl overflow-hidden bg-card/5"
+      style={{
+        border: '1px solid hsla(142, 76%, 36%, 0.25)',
+      }}
+    >
+
+      {subLoading ? (
+        // While we don't yet know sub status, show the placeholder to avoid flicker.
+        <Suspense fallback={<div className="w-full h-64 bg-card/10 animate-pulse" aria-hidden="true" />}>
+          <AnimatedEnergyFlow className="w-full" />
+        </Suspense>
+      ) : subscribed ? (
+        <>
+          {/* ZenEnergy · Live — solar / Powerwall / grid / home only */}
+          <LiveEnergyMonitoringCard hideVehicle />
+          {/* ZenDrive · Live — vehicle hero, only when a Tesla / EV is linked */}
+          <div className="mt-4">
+            <ZenDriveLiveCard />
+          </div>
+        </>
+      ) : (
+        // Default placeholder/mock card everyone sees until they pay $4.99/mo.
+        <Suspense fallback={<div className="w-full h-64 bg-card/10 animate-pulse" aria-hidden="true" />}>
+          <AnimatedEnergyFlow className="w-full" />
+        </Suspense>
+      )}
+      <div className="mt-3 px-1">
+        <OutageRecapCard />
+      </div>
+      <PremiumInsightsTeaserCard />
+    </div>
+  );
+}
 

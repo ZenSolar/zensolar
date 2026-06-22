@@ -548,7 +548,7 @@ export const DemoRewardActions = forwardRef<DemoRewardActionsRef, DemoRewardActi
                     { key: 'solar', label: 'Solar', icon: Sun, tint: 'text-solar', units: pendingRewards.solar, unit: 'kWh', tokens: getCategoryTokens('solar' as any) },
                     { key: 'battery', label: 'Battery', icon: BatteryFull, tint: 'text-secondary', units: pendingRewards.battery, unit: 'kWh', tokens: getCategoryTokens('battery' as any) },
                     { key: 'supercharging', label: 'Supercharging', icon: Zap, tint: 'text-destructive', units: pendingRewards.superchargerKwh ?? 0, unit: 'kWh', tokens: getCategoryTokens('supercharging' as any) },
-                    { key: 'home_charging', label: 'Home & AC Charging', icon: Zap, tint: 'text-accent', units: pendingRewards.homeChargerKwh ?? 0, unit: 'kWh', tokens: getCategoryTokens('home_charging' as any) },
+                    { key: 'home_charging', label: 'Home Charging', icon: Zap, tint: 'text-accent', units: pendingRewards.homeChargerKwh ?? 0, unit: 'kWh', tokens: getCategoryTokens('home_charging' as any) },
                     { key: 'ev_miles', label: 'EV Miles', icon: Car, tint: 'text-energy', units: pendingRewards.evMiles, unit: 'mi', tokens: getCategoryTokens('ev_miles' as any) },
                   ].filter(r => r.units > 0);
                   if (rows.length === 0) return null;

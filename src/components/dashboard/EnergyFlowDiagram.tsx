@@ -287,6 +287,15 @@ export function EnergyFlowDiagram({
             <p className="text-lg xs:text-xl sm:text-2xl font-bold text-primary leading-tight tabular-nums">{metrics.gridIndependence}%</p>
             <p className="text-[10px] xs:text-[11px] sm:text-xs text-muted-foreground leading-tight mt-0.5">Grid Independence</p>
           </motion.div>
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="p-2 xs:p-2.5 sm:p-3 rounded-lg bg-accent/10 border border-accent/20 text-center"
+          >
+            <p className="text-lg xs:text-xl sm:text-2xl font-bold text-accent leading-tight tabular-nums">{metrics.solarPoweredEV}%</p>
+            <p className="text-[10px] xs:text-[11px] sm:text-xs text-muted-foreground leading-tight mt-0.5">Solar-Powered EV</p>
+          </motion.div>
         </div>
         
         {/* Sankey Diagram */}

@@ -1,50 +1,38 @@
 ---
-name: Tesla Charging Experience v2 — Phase 4 (PoG receipt + edge cases)
-description: Tesla REC badge + dual CO₂ line on PoG receipt + ReceiptDrawer, third-party DC handling, L3 reserved milestones
+name: Supercharger Mint
+description: Tesla Supercharger session classification, mint treatment (full 1:1 via REC claim), and data model used by Charging Experience v2
 type: feature
 ---
 
-Phase 4 ships the calm receipt surfaces and locks the edge-case rules for the
-Tesla Charging Experience v2.
+## Trigger & detection
+- Auto-detect via Tesla Fleet API: `fast_charger_present === true` + `fast_charger_brand === 'Tesla'` + `charging_state === 'Charging'`. Polled every 30s.
+- One-tap user confirm banner only fires for the very first Supercharger session (L2 — see `minting-loudness-levels.md`).
 
-## Receipt surfaces (live)
+## Classification (edge function `classify-charging-session`)
+Reads a `charging_sessions` or `home_charging_sessions` row and writes back:
+- `source`: `home | wallbox | supercharger | third_party_dc`
+- `clean_claim`: `self_produced | tesla_rec | unknown`
+- `site_id`: nearest `supercharger_sites` row within 250 m, else null
 
-- `TeslaRecBadge` component renders the locked copy whenever a mint includes
-  Supercharger-attributed energy (`source_breakdown.supercharging_kwh > 0`):
-  - Badge: `⚡ Tesla Supercharger · 100% REC-matched clean energy`
-  - Dual CO₂ line: `0.00 t via Tesla REC · X.XX t vs local grid avg`
-- Mounted on:
-  - `VerifyPoAContent` (the canonical /verify/:chain_hash receipt page) —
-    centred, beneath `MintedForBadge`.
-  - `ReceiptDrawer` (Quick-View peek) — compact variant in the header chip
-    row, sized to not compete with the source pill.
-- CO₂ math comes from `teslaRecCo2(kwh)` — single source of truth.
+Brand gate: only `fast_charger_brand === 'Tesla'` becomes `source: supercharger` + `clean_claim: tesla_rec`. Anything else is `third_party_dc` + `unknown`.
 
-## Edge-case rules (locked)
+## Mint treatment
+- **Supercharger (tesla_rec)** → full 1:1 mint. Tesla retires RECs covering 100% of Supercharger electricity, so we count the kWh as clean.
+- **Third-party DC fast** → 0.5× mint, no orange accent, no Supercharger badge.
+- Mint Split v3.1 unchanged: 50% user / 25% LP / 20% burn / 5% treasury + separate 3% transfer tax. UI always shows 1 kWh = 1 $ZSOLAR (401(k)-match framing). Never expose backend split %.
 
-- **Non-Tesla DC fast chargers** (`source: 'third_party_dc'`):
-  - 0.5× mint multiplier applied server-side during classify (NOT in UI).
-  - `SuperchargerLiveCard` renders without orange accent — uses primary token
-    colour for the SOC ring, kW number, and cable glow is suppressed.
-  - `TeslaRecBadge` does NOT render (no REC claim).
-- **Connectivity loss**: client buffers the active session locally; the
-  classify edge function is idempotent on session id, so reconnect just
-  replays without double-credit. UI keeps showing the last-known kW/kWh.
-- **Multi-vehicle**: `TeslaStatusCard` shows the most-recently-updated Tesla
-  by `connected_devices.updated_at`. Nicknames come from
-  `connected_devices.device_name`.
-- **Tier-based start**:
-  - Free / new users → one-tap Claim to confirm the session (no silent
-    auto-start; teaches the rhythm).
-  - Paid users → silent auto-start, no confirmation.
-  - Source of truth: `useUserTier()`.
-- **L3 Delight** is reserved for: first-ever mint, lifetime 1k kWh, lifetime
-  10k $ZSOLAR. No confetti, no audio — scale-in + sparkle only.
+## Receipt additions (Phase 4)
+- Badge: `⚡ Tesla Supercharger · 100% REC-matched clean energy`
+- Dual CO₂ line: `0.00 t via Tesla REC · vs local grid avg X.XX t`
+- Uses `teslaRecCo2(kwh)` from `src/lib/co2Math.ts`.
 
-## What did NOT change
+## Data model
+- `charging_sessions.source` (text + check)
+- `charging_sessions.site_id` → `supercharger_sites(id)` ON DELETE SET NULL
+- `charging_sessions.clean_claim` (text + check)
+- `home_charging_sessions.source` / `.clean_claim` (defaults `home` / `self_produced`)
+- `supercharger_sites` (lat/lng + tesla_site_id, RLS: read for authenticated, write for admin/editor)
+- `profiles.first_supercharger_at` and `profiles.first_home_charge_at` — gate the one-time L2 banner.
 
-- Mint Split v3.1 unchanged. Receipts continue to show 1 kWh = 1 $ZSOLAR (the
-  user's 50% share, presented 1:1). Backend splits remain invisible.
-- Loudness levels unchanged: L1 silent default; L2 only for first-ever or
-  paused/resumed/error; L3 only for milestones.
-- No light-mode reintroduced. Dark-mode only.
+## Out of scope
+Full-screen takeover, discounted mint, Tesla payment, VPP discharge, audio.

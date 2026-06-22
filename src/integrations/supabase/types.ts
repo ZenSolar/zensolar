@@ -1543,9 +1543,6 @@ export type Database = {
           id: string
           latitude: number | null
           location: string | null
-          location_kind:
-            | Database["public"]["Enums"]["charging_location_kind"]
-            | null
           longitude: number | null
           origin_proof: Json | null
           proof_chain: Json | null
@@ -1573,9 +1570,6 @@ export type Database = {
           id?: string
           latitude?: number | null
           location?: string | null
-          location_kind?:
-            | Database["public"]["Enums"]["charging_location_kind"]
-            | null
           longitude?: number | null
           origin_proof?: Json | null
           proof_chain?: Json | null
@@ -1603,9 +1597,6 @@ export type Database = {
           id?: string
           latitude?: number | null
           location?: string | null
-          location_kind?:
-            | Database["public"]["Enums"]["charging_location_kind"]
-            | null
           longitude?: number | null
           origin_proof?: Json | null
           proof_chain?: Json | null
@@ -2826,48 +2817,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_home_locations: {
-        Row: {
-          archived_at: string | null
-          created_at: string
-          id: string
-          is_active: boolean
-          is_primary: boolean
-          label: string
-          lat: number
-          lon: number
-          radius_m: number
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          archived_at?: string | null
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          is_primary?: boolean
-          label: string
-          lat: number
-          lon: number
-          radius_m?: number
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          archived_at?: string | null
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          is_primary?: boolean
-          label?: string
-          lat?: number
-          lon?: number
-          radius_m?: number
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       user_invariant_violations: {
         Row: {
           actual: number | null
@@ -3000,27 +2949,6 @@ export type Database = {
           updated_at?: string
           user_id?: string
           view_key?: string
-        }
-        Relationships: []
-      }
-      ux_first_seen: {
-        Row: {
-          event_key: string
-          id: string
-          seen_at: string
-          user_id: string
-        }
-        Insert: {
-          event_key: string
-          id?: string
-          seen_at?: string
-          user_id: string
-        }
-        Update: {
-          event_key?: string
-          id?: string
-          seen_at?: string
-          user_id?: string
         }
         Relationships: []
       }
@@ -3489,11 +3417,6 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user" | "editor" | "viewer" | "founder"
-      charging_location_kind:
-        | "home_primary"
-        | "home_secondary"
-        | "away_known"
-        | "away_unverified"
       energy_subscription_tier: "standard" | "pro"
       genesis_status:
         | "pending_genesis"
@@ -3628,12 +3551,6 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user", "editor", "viewer", "founder"],
-      charging_location_kind: [
-        "home_primary",
-        "home_secondary",
-        "away_known",
-        "away_unverified",
-      ],
       energy_subscription_tier: ["standard", "pro"],
       genesis_status: [
         "pending_genesis",

@@ -29,7 +29,6 @@ import { toast } from "sonner";
 import { useBasePath } from "@/hooks/useBasePath";
 import { useCountUp } from "@/hooks/useCountUp";
 import { useHaptics } from "@/hooks/useHaptics";
-import { TeslaRecBadge } from "@/components/proof/TeslaRecBadge";
 
 export interface MintReceiptTx {
   id: string;
@@ -55,7 +54,7 @@ const SOURCE_META: Record<string, { label: string; unit: 'kWh' | 'mi'; accent: s
   solar:         { label: 'Solar Production',     unit: 'kWh', accent: 'border-amber-400/40 text-amber-300 bg-amber-400/10',   dot: 'bg-amber-400' },
   battery:       { label: 'Battery Export',       unit: 'kWh', accent: 'border-emerald-400/40 text-emerald-300 bg-emerald-400/10', dot: 'bg-emerald-400' },
   supercharger:  { label: 'Tesla Supercharging',  unit: 'kWh', accent: 'border-[hsl(0_85%_55%)]/40 text-[hsl(0_85%_70%)] bg-[hsl(0_85%_45%)]/10', dot: 'bg-[hsl(0_85%_55%)]' },
-  home_charger:  { label: 'Home & AC Charging',   unit: 'kWh', accent: 'border-cyan-400/40 text-cyan-300 bg-cyan-400/10',     dot: 'bg-cyan-400' },
+  home_charger:  { label: 'Home Charging',        unit: 'kWh', accent: 'border-cyan-400/40 text-cyan-300 bg-cyan-400/10',     dot: 'bg-cyan-400' },
   charging:      { label: 'EV Charging',          unit: 'kWh', accent: 'border-cyan-400/40 text-cyan-300 bg-cyan-400/10',     dot: 'bg-cyan-400' },
   ev_charging:   { label: 'EV Charging',          unit: 'kWh', accent: 'border-cyan-400/40 text-cyan-300 bg-cyan-400/10',     dot: 'bg-cyan-400' },
   ev_miles:      { label: 'EV Miles Driven',      unit: 'mi',  accent: 'border-green-400/40 text-green-300 bg-green-400/10',  dot: 'bg-green-400' },
@@ -242,21 +241,6 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
                   )}
                 </div>
               )}
-
-              {/* Phase 4 — Tesla Supercharger REC badge + dual CO₂ line (compact) */}
-              {(() => {
-                const scKwh = Number(
-                  (tx.source_breakdown as any)?.supercharging_kwh ??
-                    (tx.source_breakdown as any)?.supercharger ??
-                    0,
-                );
-                if (scKwh <= 0) return null;
-                return (
-                  <div className="pt-1">
-                    <TeslaRecBadge superchargerKwh={scKwh} compact />
-                  </div>
-                );
-              })()}
 
               <DrawerDescription className="text-xs leading-relaxed">
                 {meta.description}

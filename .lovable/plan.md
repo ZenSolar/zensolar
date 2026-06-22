@@ -1,116 +1,104 @@
-# Home & AC Charging — coverage + multi-home support (v2)
 
-## Answer to your scenario first
+# Tesla Charging Experience v2 — Phased Production Build
 
-**Today: no — those kWh would not land in your ZenSolar account.** The current pipeline only writes to `home_charging_sessions` when a paired charger (Wallbox, ChargePoint, or a Wi-Fi-linked Tesla Wall Connector) streams a session up through its cloud. Your new Wall Connector has no Wi-Fi and isn't linked to your Tesla account, so it produces zero telemetry. The Tesla vehicle itself *does* know it's charging (`charge_state.charging_state = "Charging"`, `charge_energy_added`, `fast_charger_present = false`) — we just don't currently treat that as a creditable source for home/AC charging.
+Split into 4 phases so each is independently shippable, testable, and billable. You approve phase-by-phase.
 
-The fix is to add a **vehicle-side AC fallback** and broaden the concept from "home" to **"Home & AC Charging"** — covering your unpaired Tesla Wall Connector, a friend's house, hotel L2, workplace, etc.
+---
 
-## What this plan changes
+## Phase 1 — Foundations (data + primitives)
 
-### 1. Rename "Home Charging" → "Home & AC Charging" everywhere
+**Goal:** Schema, hooks, and shared utilities. No visible UI yet.
 
-Single consistent label across every surface (per your call):
-- Dashboard KPI tile + drill-in sheet
-- Clean Energy Center section header
-- `SilentChargingStatus` line: `● AC charging • accruing silently +X.X kWh` (with a location chip when known)
-- `ReceiptDrawer` + `VerifyPoAContent` source line
-- Mint history filter label
-- Blog copy in `EVChargingCryptoEarnings.tsx`
-- Onboarding + Profile strings
-- KPI display label (DB key `home_charger_kwh` stays for stability)
+- Supabase migration:
+  - `charging_sessions.source` enum: `home | wallbox | supercharger | third_party_dc`
+  - `charging_sessions.site_id`, `clean_claim` (`self_produced | tesla_rec | unknown`)
+  - `supercharger_sites` table (id, name, lat/lng, address) + GRANTs + RLS
+  - `profiles.first_supercharger_at`, `profiles.first_home_charge_at` (for one-time L2)
+- New hooks/libs:
+  - `useActiveChargingSession.ts` — unified active session (home / wallbox / supercharger)
+  - `useUserTier.ts` — free vs paid (drives auto-start vs tap-to-claim)
+  - `useMintLoudness.ts` — returns `L1 | L2 | L3` per event using rules in `mem://features/minting-loudness-levels.md`
+  - `useTeslaVehicleStatus.ts` — SOC, range, charging_state, fast_charger_brand
+  - `co2Math.ts` extension: `teslaRecCO2()` returns 0 + grid-avg comparator
+  - `originVerification.ts` extension: `supercharger` + `tesla_rec` claim
+- Edge function: `classify-charging-session` (POI lookup, brand detect, writes source/site_id/clean_claim)
+- Memory files: `mem://features/supercharger-mint.md`, `mem://features/minting-loudness-levels.md`
+- Unit tests for loudness rules, classifier, CO2 math
 
-DB table `home_charging_sessions` keeps its name (rename is too invasive); we add a `location_kind` column.
+**Out of scope this phase:** any UI changes.
 
-### 2. Vehicle-side AC fallback (the actual coverage fix)
+---
 
-A new Tesla poller branch — `tesla-vehicle-ac-session` — runs when the vehicle is plugged in and `fast_charger_present = false` AND no paired-charger session covers the same window.
+## Phase 2 — SuperchargerLiveCard + Tesla Status Card (calm visual layer)
 
-- Open a `home_charging_sessions` row with `source = 'tesla_vehicle'`, `device_id = <VIN>`, `charger_power_kw` from `charger_power`, `location` reverse-geocoded from `drive_state.latitude/longitude`.
-- Increment `total_session_kwh` from `charge_energy_added` deltas (idempotent via `last_charge_energy_added`; resets on new session).
-- Close on `charging_state` leaving `Charging`/`Complete`.
+**Goal:** Premium calm UI for active Supercharger sessions, plus persistent Tesla Status Card.
 
-Anti-double-count: `crossSourceOverlap` extended so a paired charger session always wins over vehicle telemetry for the same window (existing data-source-of-truth rule).
+- `SuperchargerLiveCard.tsx`:
+  - Muted header `Supercharging • live` (small, low-contrast), tiny status dot
+  - Bold kW number with **soft orange glow only on the number** (no card-wide accent)
+  - Thin SOC ring, single quiet `$ZSOLAR minting` line
+  - Muted italic `↳ Strengthening LP for all holders`
+  - Subtle orange cable glow on the connector icon
+  - Buttons (small, secondary): `[View Progress] [Pause] [Done]`
+  - No particles, no audio, no pulsing on default
+- `SuperchargerDetailSheet.tsx`: opt-in deeper view from `View Progress`
+- `TeslaStatusCard.tsx`: compact card shown below main card whenever a Tesla is connected — SOC ring, range (mi/km per pref), status pill (`Idle | Charging | Driving`). Always visible when vehicle linked, regardless of active session.
+- Mount logic in Clean Energy Center / Dashboard
+- Storybook-equivalent demo route under existing demo fixture; investor demo mode wiring
 
-### 3. Friendly "Is this your new home?" prompt (your suggestion)
+**Depends on:** Phase 1.
 
-When the vehicle-side fallback opens its **first session at a lat/lon that doesn't match any saved home or known away location**, we surface a single, warm, non-blocking prompt — once per new location, never repeated:
+---
 
-> ⚡ **New charging location detected**
-> Looks like you're charging somewhere new. Want to save it?
-> [ Yes — Set as my Home ]   [ Temporary stay ]   [ Just AC away, ignore ]
+## Phase 3 — Home charging silent line + Loudness Banner system
 
-Behavior per choice:
-- **Yes — Set as my Home** → opens a tiny confirm sheet ("Name this home" prefilled with the city, e.g. "Austin home"), saves to `user_home_locations` as `is_primary = true` (auto-flips previous primary to non-primary, keeps it active for 30 days for straggler sessions).
-- **Temporary stay** → saves as `is_active = true`, `location_kind = away_known`, label like "Stay near Austin (Jan 2026)". No "home" treatment.
-- **Just AC away, ignore** → no save; future sessions at this lat/lon classify as `away_unverified`. kWh still credited.
+**Goal:** Almost-invisible home charging surface, plus the L2 banner used for first-time and exceptions.
 
-Surface rules (calm by default, per loudness memory):
-- Appears as an L2 banner at the top of the dashboard the next time the user opens the app, not as a takeover. Auto-dismisses after 12s if untouched; reappears next open until answered or the session ends. No sound, no haptic.
-- Suppressed entirely if the user has Do-Not-Disturb / silent default enabled — the session still classifies (as `away_unverified`) and credits silently; the prompt waits.
-- Dismissed state persisted per location fingerprint so we never re-ask for the same spot.
+- `SilentChargingStatus.tsx`: thin one-liner `● Home charging • accruing silently` inside Clean Energy Center. No card, no toast, no card takeover.
+- `SuperchargerBanner.tsx` (L2): thin semi-transparent top banner, 8s auto-dismiss, no sound. Used for:
+  - First-ever Supercharger session
+  - First-ever home charging session (single message: `This is the rhythm.`)
+  - Paused / resumed / classifier error
+- One-time gating via `profiles.first_supercharger_at` / `first_home_charge_at` — guaranteed to fire once per user, then never again (Phase 1 schema).
+- Repeat sessions at known sites → strict L1 (no banner, no toast, no card growth).
+- KPI cards animate value changes only (no celebration on normal accrual).
 
-### 4. Location classification
+**Depends on:** Phase 1.
 
-`location_kind` enum on `home_charging_sessions`:
-- `home_primary` — within current primary home radius
-- `home_secondary` — within another active saved home (the move case)
-- `away_known` — saved non-home location (work, friend, temp stay)
-- `away_unverified` — anywhere else; still credited
+---
 
-Receipt chip: "AC · Home (new address)" / "AC · Away — Austin, TX." No mint-rate difference — kWh is kWh.
+## Phase 4 — PoG receipt integration + edge cases + polish
 
-### 5. Multi-home addresses
+**Goal:** Make the receipt and edge behaviors production-grade.
 
-New `user_home_locations` table:
-- `label`, `lat`, `lon`, `radius_m` (default 150m)
-- `is_primary` (exactly one true per user, enforced by partial unique index)
-- `is_active` (false = archived; kept for historical attribution)
-- timestamps + `archived_at`
+- PoG unified receipt additions:
+  - Badge: `⚡ Tesla Supercharger · 100% REC-matched clean energy`
+  - Dual CO₂ line: `0.00 t via Tesla REC · vs local grid avg X.XX t`
+  - `source` + `clean_claim` surfaced in receipt metadata; share link unchanged
+- Edge cases:
+  - Non-Tesla DC fast chargers → `third_party_dc`, 0.5× mint, no orange accent
+  - Connectivity loss → local buffer, reconcile on reconnect
+  - Multi-vehicle nicknames in card header
+  - Pause/resume preserves `session_id`
+- Tier-based start behavior:
+  - Free/new → require one-tap Claim to start mint
+  - Any paid → silent auto-start (no toast under L1)
+- L3 Delight reserved strictly for: first-ever mint, 1k kWh, 10k $ZSOLAR. Scale-in only, no confetti.
+- Tests: loudness matrix, first-time gating, classifier edge cases, receipt snapshot.
 
-Profile UI:
-- "Home addresses" section: list, add (map picker or "use my current location"), mark primary, archive.
-- During a move: tap "Add new home" → drop pin or use GPS → mark primary. Old address auto-flips to non-primary, stays active 30 days.
-- "Is this your new home?" prompt writes here directly.
+**Depends on:** Phases 1–3.
 
-### 6. Your unpaired Tesla Wall Connector
+---
 
-Treated like AC anywhere until it gets Wi-Fi: vehicle-side fallback credits the kWh, the friendly prompt asks once if your new house should be saved as Home, receipt shows "AC · Home (new address) · via vehicle telemetry." When the Wall Connector eventually pairs over Wi-Fi, data-source-of-truth auto-prefers charger telemetry going forward; historical vehicle-sourced rows aren't rewritten.
+## Locked rules (apply across all phases)
 
-## Files touched
+- Mint Split v3.1 unchanged. UI always shows 1 kWh = 1 $ZSOLAR (50% share, 401(k)-match framing). Backend reconciles on raw 100%.
+- No crypto jargon. "Strengthening the LP" everywhere.
+- Dark-mode only. Mobile-first 390×844. Existing design tokens; no hardcoded colors.
+- No audio anywhere in this feature.
 
-**New**
-- `supabase/migrations/<ts>_home_ac_charging.sql` — `location_kind` enum + column on `home_charging_sessions`, `user_home_locations` table + RLS + GRANTs, partial unique index for one primary.
-- `src/hooks/useHomeLocations.ts`
-- `src/hooks/useNewLocationPrompt.ts` — owns the "Is this your new home?" detection + dismissal state
-- `src/components/profile/HomeAddressesSection.tsx`
-- `src/components/dashboard/NewLocationPrompt.tsx` — the friendly L2 banner
-- `supabase/functions/tesla-vehicle-ac-session/index.ts`
-- `src/lib/locationClassifier.ts` + tests
+---
 
-**Edited**
-- `src/hooks/useHomeChargingSessions.ts` — surface `location_kind`, label
-- `src/hooks/useActiveChargingSessionV2.ts` — accept vehicle-sourced AC sessions
-- `src/components/dashboard/SilentChargingStatus.tsx` — "AC charging" + location chip
-- `src/components/proof/VerifyPoAContent.tsx`, `src/components/mint-history/ReceiptDrawer.tsx`, `src/components/proof/ReceiptSourceLines.tsx`
-- KPI label strings in `useKpiContributions.ts`, `ActivityMetrics.tsx`, `KpiActivityLogSheet.tsx`, `CO2OffsetCard.tsx`, `ChargerOnlyLiveCard.tsx`, `RewardActions.tsx`, `MintTokenDialog.tsx`
-- `src/components/energy-log/ChargingSessionList.tsx`, `ComingSoon.tsx`
-- `src/pages/Onboarding.tsx`, `src/pages/Profile.tsx`, `src/pages/blog/EVChargingCryptoEarnings.tsx`
-- `src/components/ZenSolarDashboard.tsx` — mount `NewLocationPrompt`
-- `src/lib/crossSourceOverlap.ts` — paired charger > vehicle telemetry
-- `src/lib/dataSourcePriority.ts` — add vehicle-AC tier
-- `.lovable/memory/features/supercharger-mint.md` + new `home-ac-charging.md`
-- `.lovable/memory/index.md`
+## Suggested approval flow
 
-## Phasing
-
-- **Phase A (this PR)** — rename everywhere, add `location_kind` + `user_home_locations`, Profile multi-home UI, classifier. Visible immediately; no new telemetry yet.
-- **Phase B (next)** — vehicle-side AC fallback edge function + "Is this your new home?" prompt + idempotency / overlap tests. This is the part that actually credits your current session at the new house.
-
-Say the word if you'd rather ship A+B together.
-
-## Out of scope
-
-- Public L2 networks (ChargePoint public, EVgo L2) via their own APIs — vehicle fallback already covers them functionally.
-- Different mint multiplier by location — kWh is kWh; supercharger REC matching is the only multiplier difference and doesn't apply to AC.
-- Renaming the DB table `home_charging_sessions`.
+Approve phases individually. Each phase ends with a working, deployable slice and its own bill. Reply with which phase(s) to start, or "all" to proceed sequentially.

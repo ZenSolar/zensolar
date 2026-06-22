@@ -36,15 +36,14 @@ export default function EVChargingCryptoEarnings() {
         The more you drive electric, the more you earn.
       </p>
 
-      <h2>Home &amp; AC Charging vs. Public DC Fast Charging</h2>
+      <h2>Home Charging vs. Public Charging</h2>
       <p>
-        ZenSolar supports every kind of charging session — at home, at a friend's house, at work, or on a road trip:
+        ZenSolar supports both home and public charging sessions:
       </p>
       <ul>
-        <li><strong>Home AC (solar-powered):</strong> If you charge your EV from your own solar panels, you earn <em>both</em> solar production rewards AND EV charging rewards — a powerful double-earn scenario</li>
-        <li><strong>Home AC (grid):</strong> Even grid-powered home charging earns $ZSOLAR, because EV driving still displaces gasoline</li>
-        <li><strong>AC away (friend's house, hotel, work):</strong> Level 2 sessions anywhere count toward your Home &amp; AC Charging total</li>
-        <li><strong>Public DC fast charging:</strong> Supercharger and public DC sessions tracked via your vehicle's API</li>
+        <li><strong>Home charging (solar-powered):</strong> If you charge your EV from your own solar panels, you earn <em>both</em> solar production rewards AND EV charging rewards — a powerful double-earn scenario</li>
+        <li><strong>Home charging (grid):</strong> Even grid-powered home charging earns $ZSOLAR, because EV driving still displaces gasoline</li>
+        <li><strong>Public charging:</strong> Supercharger and public EVSE sessions tracked via your vehicle's API</li>
       </ul>
 
       <h2>Bi-Directional Charging: Earn Even More</h2>

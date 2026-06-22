@@ -5,7 +5,7 @@ const labels: Record<ActivityType, string> = {
   solar: 'Solar Energy',
   battery: 'Battery Storage',
   supercharger: 'Supercharger',
-  'home-charging': 'Home & AC Charging',
+  'home-charging': 'Home Charging',
   'ev-miles': 'EV Miles',
 };
 

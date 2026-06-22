@@ -29,7 +29,6 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { TamperEvidentProofPanel } from '@/components/proof/TamperEvidentProofPanel';
 import { MintedForBadge, ReceiptSourceLines, type ApiResponse as SourceLinesResponse } from '@/components/proof/ReceiptSourceLines';
-import { TeslaRecBadge } from '@/components/proof/TeslaRecBadge';
 import { ProofOfAuthenticityStamp } from '@/components/proof/ProofOfAuthenticityStamp';
 
 export type VerifyReceipt = {
@@ -71,7 +70,7 @@ type SourceRow = {
 const SOURCE_DEFS: Record<string, { label: string; Icon: typeof Sun; accent: string; ring: string; unit: 'kwh' | 'mi'; lineSources: string[] }> = {
   solar_kwh:           { label: 'Solar Production',  Icon: Sun,     accent: 'text-accent',       ring: 'border-accent/30',       unit: 'kwh', lineSources: ['solar'] },
   battery_kwh:         { label: 'Battery Discharge', Icon: Battery, accent: 'text-eco',          ring: 'border-eco/30',          unit: 'kwh', lineSources: ['battery'] },
-  home_charging_kwh:   { label: 'Home & AC Charging', Icon: Plug,  accent: 'text-accent-cool',  ring: 'border-accent-cool/30',  unit: 'kwh', lineSources: ['home_charger'] },
+  home_charging_kwh:   { label: 'Home Charging',     Icon: Plug,    accent: 'text-accent-cool',  ring: 'border-accent-cool/30',  unit: 'kwh', lineSources: ['home_charger'] },
   supercharging_kwh:   { label: 'Tesla Supercharging', Icon: Zap,   accent: 'text-primary',      ring: 'border-primary/30',      unit: 'kwh', lineSources: ['supercharger'] },
   ev_kwh:              { label: 'EV Charging',       Icon: Zap,     accent: 'text-primary',      ring: 'border-primary/30',      unit: 'kwh', lineSources: ['supercharger', 'home_charger'] },
   // EV miles come from the vehicle's odometer snapshot — there are no per-trip rows to list.
@@ -353,19 +352,6 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
             <MintedForBadge chainHash={data.chain_hash} className="justify-center" mockResponse={mockSourceLines} />
           </div>
         )}
-
-        {/* Phase 4 — Tesla Supercharger REC badge + dual CO₂ line */}
-        {(() => {
-          const scKwh = Number(
-            (data.source_breakdown as any)?.supercharging_kwh ?? 0,
-          );
-          if (scKwh <= 0) return null;
-          return (
-            <div className="relative mt-3 flex justify-center">
-              <TeslaRecBadge superchargerKwh={scKwh} />
-            </div>
-          );
-        })()}
       </div>
 
 

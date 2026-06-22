@@ -199,7 +199,7 @@ export function ChargingSessionList({ sessions }: ChargingSessionListProps) {
   return (
     <div className="space-y-4">
       <CategorySection
-        label="Home & AC Charging"
+        label="Home Charging"
         icon={<Home className="h-4 w-4 text-success dark:text-success" />}
         sessions={homeSessions}
         accentClass="bg-success/15"

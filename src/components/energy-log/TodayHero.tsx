@@ -11,7 +11,7 @@ const tabConfig: Record<ActivityType, { icon: React.ReactNode; unit: string; emp
   solar: { icon: <Sun className="h-6 w-6 text-primary self-center" />, unit: 'kWh', emptyLabel: 'No production recorded yet today' },
   battery: { icon: <BatteryFull className="h-6 w-6 text-primary self-center" />, unit: 'kWh', emptyLabel: 'No battery export recorded yet today' },
   supercharger: { icon: <Zap className="h-6 w-6 text-primary self-center" />, unit: 'kWh', emptyLabel: 'No Supercharger sessions yet today' },
-  'home-charging': { icon: <Home className="h-6 w-6 text-primary self-center" />, unit: 'kWh', emptyLabel: 'No AC charging recorded yet today' },
+  'home-charging': { icon: <Home className="h-6 w-6 text-primary self-center" />, unit: 'kWh', emptyLabel: 'No home charging recorded yet today' },
   'ev-miles': { icon: <Car className="h-6 w-6 text-primary self-center" />, unit: 'mi', emptyLabel: 'No miles recorded yet today' },
 };
 
