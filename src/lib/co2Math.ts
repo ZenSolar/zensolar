@@ -106,29 +106,3 @@ export function computeCo2(input: {
 
   return { tokens, kwh, miles: milesRaw, co2Kg, breakdown: [] };
 }
-
-/**
- * Tesla Supercharger receipt helper — returns the two CO₂ numbers the
- * Proof-of-Genesis receipt displays side-by-side.
- *
- *   tesla_rec_kg          → 0 (Tesla retires RECs covering 100% of Supercharger
- *                              electricity, so the grid offset is already claimed)
- *   grid_avg_kg           → what the same kWh would have emitted on the local
- *                              grid — used purely as a "vs grid" comparator.
- *   ice_miles_avoided_kg  → ICE-equivalent miles the driver did not burn; the
- *                              number we DO credit on the receipt.
- */
-export function teslaRecCo2(kwh: number): {
-  tesla_rec_kg: number;
-  grid_avg_kg: number;
-  ice_miles_avoided_kg: number;
-} {
-  const k = Number(kwh);
-  const safe = Number.isFinite(k) && k > 0 ? k : 0;
-  return {
-    tesla_rec_kg: 0,
-    grid_avg_kg: safe * GRID_KG_PER_KWH,
-    ice_miles_avoided_kg: safe * EV_MI_PER_KWH * CO2_KG_PER_EV_MILE,
-  };
-}
-

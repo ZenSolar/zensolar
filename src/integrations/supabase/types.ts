@@ -214,7 +214,6 @@ export type Database = {
       charging_sessions: {
         Row: {
           charging_type: string
-          clean_claim: string
           created_at: string
           device_id: string
           energy_kwh: number
@@ -229,13 +228,10 @@ export type Database = {
           provider: string
           session_date: string
           session_metadata: Json | null
-          site_id: string | null
-          source: string
           user_id: string
         }
         Insert: {
           charging_type?: string
-          clean_claim?: string
           created_at?: string
           device_id: string
           energy_kwh?: number
@@ -250,13 +246,10 @@ export type Database = {
           provider: string
           session_date: string
           session_metadata?: Json | null
-          site_id?: string | null
-          source?: string
           user_id: string
         }
         Update: {
           charging_type?: string
-          clean_claim?: string
           created_at?: string
           device_id?: string
           energy_kwh?: number
@@ -271,19 +264,9 @@ export type Database = {
           provider?: string
           session_date?: string
           session_metadata?: Json | null
-          site_id?: string | null
-          source?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "charging_sessions_site_id_fkey"
-            columns: ["site_id"]
-            isOneToOne: false
-            referencedRelation: "supercharger_sites"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       collusion_signals: {
         Row: {
@@ -1531,7 +1514,6 @@ export type Database = {
       home_charging_sessions: {
         Row: {
           charger_power_kw: number | null
-          clean_claim: string
           created_at: string
           delta_proof: string | null
           device_id: string
@@ -1547,7 +1529,6 @@ export type Database = {
           origin_proof: Json | null
           proof_chain: Json | null
           session_metadata: Json | null
-          source: string
           start_kwh_added: number
           start_time: string
           status: string
@@ -1558,7 +1539,6 @@ export type Database = {
         }
         Insert: {
           charger_power_kw?: number | null
-          clean_claim?: string
           created_at?: string
           delta_proof?: string | null
           device_id: string
@@ -1574,7 +1554,6 @@ export type Database = {
           origin_proof?: Json | null
           proof_chain?: Json | null
           session_metadata?: Json | null
-          source?: string
           start_kwh_added?: number
           start_time?: string
           status?: string
@@ -1585,7 +1564,6 @@ export type Database = {
         }
         Update: {
           charger_power_kw?: number | null
-          clean_claim?: string
           created_at?: string
           delta_proof?: string | null
           device_id?: string
@@ -1601,7 +1579,6 @@ export type Database = {
           origin_proof?: Json | null
           proof_chain?: Json | null
           session_metadata?: Json | null
-          source?: string
           start_kwh_added?: number
           start_time?: string
           status?: string
@@ -2215,8 +2192,6 @@ export type Database = {
           esid: string | null
           facebook_connected: boolean | null
           facebook_handle: string | null
-          first_home_charge_at: string | null
-          first_supercharger_at: string | null
           hidden_activity_fields: string[] | null
           home_address: string | null
           id: string
@@ -2259,8 +2234,6 @@ export type Database = {
           esid?: string | null
           facebook_connected?: boolean | null
           facebook_handle?: string | null
-          first_home_charge_at?: string | null
-          first_supercharger_at?: string | null
           hidden_activity_fields?: string[] | null
           home_address?: string | null
           id?: string
@@ -2303,8 +2276,6 @@ export type Database = {
           esid?: string | null
           facebook_connected?: boolean | null
           facebook_handle?: string | null
-          first_home_charge_at?: string | null
-          first_supercharger_at?: string | null
           hidden_activity_fields?: string[] | null
           home_address?: string | null
           id?: string
@@ -2565,51 +2536,6 @@ export type Database = {
           status?: string
           tokens_credited?: number
           user_id?: string
-        }
-        Relationships: []
-      }
-      supercharger_sites: {
-        Row: {
-          address: string | null
-          city: string | null
-          country: string | null
-          created_at: string
-          id: string
-          latitude: number
-          longitude: number
-          name: string
-          region: string | null
-          stall_count: number | null
-          tesla_site_id: string | null
-          updated_at: string
-        }
-        Insert: {
-          address?: string | null
-          city?: string | null
-          country?: string | null
-          created_at?: string
-          id?: string
-          latitude: number
-          longitude: number
-          name: string
-          region?: string | null
-          stall_count?: number | null
-          tesla_site_id?: string | null
-          updated_at?: string
-        }
-        Update: {
-          address?: string | null
-          city?: string | null
-          country?: string | null
-          created_at?: string
-          id?: string
-          latitude?: number
-          longitude?: number
-          name?: string
-          region?: string | null
-          stall_count?: number | null
-          tesla_site_id?: string | null
-          updated_at?: string
         }
         Relationships: []
       }
