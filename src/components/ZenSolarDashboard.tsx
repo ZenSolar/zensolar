@@ -42,6 +42,7 @@ import { PrimaryMintAction } from './dashboard/PrimaryMintAction';
 import { RewardSnapshotGrid } from './dashboard/RewardSnapshotGrid';
 import { TodaysCleanEnergyStats } from './dashboard/TodaysCleanEnergyStats';
 import { SubscriptionStatusCard } from './dashboard/SubscriptionStatusCard';
+import { ZenMonitoringCard } from './dashboard/ZenMonitoringCard';
 
 import { DashboardHexBackground } from './dashboard/DashboardHexBackground';
 import { PageTransition } from './layout/PageTransition';
