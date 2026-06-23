@@ -214,6 +214,7 @@ export type Database = {
       charging_sessions: {
         Row: {
           charging_type: string
+          clean_claim: string
           created_at: string
           device_id: string
           energy_kwh: number
@@ -228,10 +229,13 @@ export type Database = {
           provider: string
           session_date: string
           session_metadata: Json | null
+          site_id: string | null
+          source: string
           user_id: string
         }
         Insert: {
           charging_type?: string
+          clean_claim?: string
           created_at?: string
           device_id: string
           energy_kwh?: number
@@ -246,10 +250,13 @@ export type Database = {
           provider: string
           session_date: string
           session_metadata?: Json | null
+          site_id?: string | null
+          source?: string
           user_id: string
         }
         Update: {
           charging_type?: string
+          clean_claim?: string
           created_at?: string
           device_id?: string
           energy_kwh?: number
@@ -264,9 +271,19 @@ export type Database = {
           provider?: string
           session_date?: string
           session_metadata?: Json | null
+          site_id?: string | null
+          source?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "charging_sessions_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "supercharger_sites"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       collusion_signals: {
         Row: {
@@ -1514,6 +1531,7 @@ export type Database = {
       home_charging_sessions: {
         Row: {
           charger_power_kw: number | null
+          clean_claim: string
           created_at: string
           delta_proof: string | null
           device_id: string
@@ -1525,10 +1543,14 @@ export type Database = {
           id: string
           latitude: number | null
           location: string | null
+          location_kind:
+            | Database["public"]["Enums"]["charging_location_kind"]
+            | null
           longitude: number | null
           origin_proof: Json | null
           proof_chain: Json | null
           session_metadata: Json | null
+          source: string
           start_kwh_added: number
           start_time: string
           status: string
@@ -1539,6 +1561,7 @@ export type Database = {
         }
         Insert: {
           charger_power_kw?: number | null
+          clean_claim?: string
           created_at?: string
           delta_proof?: string | null
           device_id: string
@@ -1550,10 +1573,14 @@ export type Database = {
           id?: string
           latitude?: number | null
           location?: string | null
+          location_kind?:
+            | Database["public"]["Enums"]["charging_location_kind"]
+            | null
           longitude?: number | null
           origin_proof?: Json | null
           proof_chain?: Json | null
           session_metadata?: Json | null
+          source?: string
           start_kwh_added?: number
           start_time?: string
           status?: string
@@ -1564,6 +1591,7 @@ export type Database = {
         }
         Update: {
           charger_power_kw?: number | null
+          clean_claim?: string
           created_at?: string
           delta_proof?: string | null
           device_id?: string
@@ -1575,10 +1603,14 @@ export type Database = {
           id?: string
           latitude?: number | null
           location?: string | null
+          location_kind?:
+            | Database["public"]["Enums"]["charging_location_kind"]
+            | null
           longitude?: number | null
           origin_proof?: Json | null
           proof_chain?: Json | null
           session_metadata?: Json | null
+          source?: string
           start_kwh_added?: number
           start_time?: string
           status?: string
@@ -2192,6 +2224,8 @@ export type Database = {
           esid: string | null
           facebook_connected: boolean | null
           facebook_handle: string | null
+          first_home_charge_at: string | null
+          first_supercharger_at: string | null
           hidden_activity_fields: string[] | null
           home_address: string | null
           id: string
@@ -2234,6 +2268,8 @@ export type Database = {
           esid?: string | null
           facebook_connected?: boolean | null
           facebook_handle?: string | null
+          first_home_charge_at?: string | null
+          first_supercharger_at?: string | null
           hidden_activity_fields?: string[] | null
           home_address?: string | null
           id?: string
@@ -2276,6 +2312,8 @@ export type Database = {
           esid?: string | null
           facebook_connected?: boolean | null
           facebook_handle?: string | null
+          first_home_charge_at?: string | null
+          first_supercharger_at?: string | null
           hidden_activity_fields?: string[] | null
           home_address?: string | null
           id?: string
@@ -2539,6 +2577,51 @@ export type Database = {
         }
         Relationships: []
       }
+      supercharger_sites: {
+        Row: {
+          address: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          id: string
+          latitude: number
+          longitude: number
+          name: string
+          region: string | null
+          stall_count: number | null
+          tesla_site_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          latitude: number
+          longitude: number
+          name: string
+          region?: string | null
+          stall_count?: number | null
+          tesla_site_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          latitude?: number
+          longitude?: number
+          name?: string
+          region?: string | null
+          stall_count?: number | null
+          tesla_site_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       support_requests: {
         Row: {
           admin_response: string | null
@@ -2743,6 +2826,48 @@ export type Database = {
         }
         Relationships: []
       }
+      user_home_locations: {
+        Row: {
+          archived_at: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          is_primary: boolean
+          label: string
+          lat: number
+          lon: number
+          radius_m: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          archived_at?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_primary?: boolean
+          label: string
+          lat: number
+          lon: number
+          radius_m?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          archived_at?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_primary?: boolean
+          label?: string
+          lat?: number
+          lon?: number
+          radius_m?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_invariant_violations: {
         Row: {
           actual: number | null
@@ -2875,6 +3000,27 @@ export type Database = {
           updated_at?: string
           user_id?: string
           view_key?: string
+        }
+        Relationships: []
+      }
+      ux_first_seen: {
+        Row: {
+          event_key: string
+          id: string
+          seen_at: string
+          user_id: string
+        }
+        Insert: {
+          event_key: string
+          id?: string
+          seen_at?: string
+          user_id: string
+        }
+        Update: {
+          event_key?: string
+          id?: string
+          seen_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -3343,6 +3489,11 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user" | "editor" | "viewer" | "founder"
+      charging_location_kind:
+        | "home_primary"
+        | "home_secondary"
+        | "away_known"
+        | "away_unverified"
       energy_subscription_tier: "standard" | "pro"
       genesis_status:
         | "pending_genesis"
@@ -3477,6 +3628,12 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user", "editor", "viewer", "founder"],
+      charging_location_kind: [
+        "home_primary",
+        "home_secondary",
+        "away_known",
+        "away_unverified",
+      ],
       energy_subscription_tier: ["standard", "pro"],
       genesis_status: [
         "pending_genesis",
