@@ -31,6 +31,11 @@ const corsHeaders = {
 const TESLA_API_BASE = "https://fleet-api.prd.na.vn.cloud.tesla.com";
 const TESLA_TOKEN_URL = "https://auth.tesla.com/oauth2/v3/token";
 const OFFICIAL_PREFERENCE_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+// Telemetry-gated inference: only credit `InferredDriveMoving` miles when
+// tesla-telemetry-webhook has previously seen a confirmed engaged AutopilotState
+// for this VIN within this window. Without a trust anchor, we refuse to credit
+// HW3 fallback miles — preventing normal manual driving from being counted as FSD.
+const INFERRED_TRUST_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
 async function sha256Hex(input: string): Promise<string> {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
