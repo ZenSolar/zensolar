@@ -81,10 +81,10 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Locate the user's Tesla device + access token (stored by tesla-auth).
+    // Locate the user's Tesla device (token lives in energy_tokens).
     const { data: device } = await supabase
       .from("connected_devices")
-      .select("device_id, metadata, lifetime_totals, baseline_data, last_known_state")
+      .select("device_id, device_metadata, lifetime_totals, baseline_data, last_known_state")
       .eq("user_id", userId)
       .eq("provider", "tesla")
       .eq("device_id", vin)
@@ -96,18 +96,23 @@ Deno.serve(async (req) => {
       });
     }
 
-    const accessToken = (device.metadata as any)?.access_token
-      || (device.metadata as any)?.tesla_access_token;
+    const { data: tokenRow } = await supabase
+      .from("energy_tokens")
+      .select("access_token")
+      .eq("user_id", userId)
+      .eq("provider", "tesla")
+      .maybeSingle();
+    const accessToken = tokenRow?.access_token as string | undefined;
 
+    const deviceMeta = (device.device_metadata as any) || {};
     const webhookUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/tesla-telemetry-webhook`;
     const cfg = buildTelemetryConfig(webhookUrl);
     const newHash = await configHash(cfg);
-    const currentHash = (device.metadata as any)?.telemetry_config?.hash;
+    const currentHash = deviceMeta?.telemetry_config?.hash;
 
     let teslaResult: { ok: boolean; status: number; body: string } = { ok: true, status: 0, body: "skipped_no_token" };
 
     if (accessToken && currentHash !== newHash) {
-      // POST per-VIN config to Tesla Fleet API.
       const resp = await fetch(`${TESLA_API_BASE}/api/1/vehicles/fleet_telemetry_config`, {
         method: "POST",
         headers: {
@@ -117,19 +122,25 @@ Deno.serve(async (req) => {
         body: JSON.stringify({ vins: [vin], config: cfg }),
       });
       teslaResult = { ok: resp.ok, status: resp.status, body: await resp.text() };
+    } else if (!accessToken) {
+      teslaResult = { ok: false, status: 0, body: "no_access_token_in_energy_tokens" };
     }
 
-    // Persist applied-config metadata + seed FSD accumulator if first time.
-    const meta = (device.metadata as any) || {};
     const lifetime = (device.lifetime_totals as any) || {};
     const baseline = (device.baseline_data as any) || {};
     const lastState = (device.last_known_state as any) || {};
 
-    const firstTime = !meta.telemetry_config;
+    const firstTime = !deviceMeta.telemetry_config;
     const updatedMeta = {
-      ...meta,
-      telemetry_config: { hash: newHash, applied_at: new Date().toISOString(), ok: teslaResult.ok },
-      fsd_backfill_done: firstTime ? true : meta.fsd_backfill_done ?? false,
+      ...deviceMeta,
+      telemetry_config: {
+        hash: newHash,
+        applied_at: new Date().toISOString(),
+        ok: teslaResult.ok,
+        status: teslaResult.status,
+        response: teslaResult.body?.slice(0, 500),
+      },
+      fsd_backfill_done: firstTime ? true : deviceMeta.fsd_backfill_done ?? false,
     };
 
     const updatedLifetime = {
@@ -154,7 +165,7 @@ Deno.serve(async (req) => {
     await supabase
       .from("connected_devices")
       .update({
-        metadata: updatedMeta,
+        device_metadata: updatedMeta,
         lifetime_totals: updatedLifetime,
         baseline_data: updatedBaseline,
         last_known_state: updatedLastState,
@@ -162,6 +173,7 @@ Deno.serve(async (req) => {
       .eq("user_id", userId)
       .eq("provider", "tesla")
       .eq("device_id", vin);
+
 
     return new Response(JSON.stringify({
       success: true,
