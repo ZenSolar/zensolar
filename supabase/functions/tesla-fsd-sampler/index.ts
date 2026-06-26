@@ -31,6 +31,11 @@ const corsHeaders = {
 const TESLA_API_BASE = "https://fleet-api.prd.na.vn.cloud.tesla.com";
 const TESLA_TOKEN_URL = "https://auth.tesla.com/oauth2/v3/token";
 const OFFICIAL_PREFERENCE_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+// Telemetry-gated inference: only credit `InferredDriveMoving` miles when
+// tesla-telemetry-webhook has previously seen a confirmed engaged AutopilotState
+// for this VIN within this window. Without a trust anchor, we refuse to credit
+// HW3 fallback miles — preventing normal manual driving from being counted as FSD.
+const INFERRED_TRUST_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
 async function sha256Hex(input: string): Promise<string> {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
@@ -189,10 +194,19 @@ Deno.serve(async (req) => {
         const shift = ds.shift_state ?? null;
         const speed = typeof ds.speed === "number" ? ds.speed : null;
         const rawAp = extractAutopilotState(resp);
+        // Telemetry-gated inference: only fall back to `InferredDriveMoving`
+        // when Fleet Telemetry has previously confirmed real FSD engagement on
+        // this VIN within INFERRED_TRUST_WINDOW_MS. Otherwise leave ap = null
+        // so applyOdometerSample returns `not_engaged` (no credit).
+        const lastEngagedAtMs = sourceMeta.last_engaged_at
+          ? new Date(sourceMeta.last_engaged_at).getTime() : 0;
+        const inferenceTrusted = lastEngagedAtMs > 0
+          && (nowMs - lastEngagedAtMs) < INFERRED_TRUST_WINDOW_MS;
         const ap = rawAp
-          ?? ((shift ?? "").toUpperCase().startsWith("D") || (speed ?? 0) > 0 || odo > (sampler.last_odometer_mi || 0)
-            ? "InferredDriveMoving"
-            : null);
+          ?? (inferenceTrusted
+            && ((shift ?? "").toUpperCase().startsWith("D") || (speed ?? 0) > 0 || odo > (sampler.last_odometer_mi || 0))
+              ? "InferredDriveMoving"
+              : null);
 
         const result = applyOdometerSample(sampler, {
           odometer_mi: odo,
@@ -247,6 +261,7 @@ Deno.serve(async (req) => {
               sampler_reason: result.reason,
                autopilot_state: rawAp,
                autopilot_inferred: rawAp === null && ap === "InferredDriveMoving",
+               inference_trusted: inferenceTrusted,
             },
           }, { onConflict: "device_id,provider,recorded_at,data_type" });
         }
