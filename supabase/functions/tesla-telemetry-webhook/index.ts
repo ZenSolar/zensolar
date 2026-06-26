@@ -218,7 +218,7 @@ Deno.serve(async (req) => {
       const lastState = (device.last_known_state as any) || {};
       const prevAcc: FsdAccumulator = lastState.fsd_accumulator || defaultAccumulator(lifetime.odometer ?? 0);
 
-      const { acc, supervisedAdded, officialFsdMiles } = applyBatch({ ...prevAcc }, batch.events);
+      const { acc, supervisedAdded, officialFsdMiles, lastEngagedAt } = applyBatch({ ...prevAcc }, batch.events);
       totalSupervisedAdded += supervisedAdded;
 
       // Decide which value to publish for this VIN.
