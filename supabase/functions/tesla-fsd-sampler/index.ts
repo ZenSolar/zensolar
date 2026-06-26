@@ -194,10 +194,19 @@ Deno.serve(async (req) => {
         const shift = ds.shift_state ?? null;
         const speed = typeof ds.speed === "number" ? ds.speed : null;
         const rawAp = extractAutopilotState(resp);
+        // Telemetry-gated inference: only fall back to `InferredDriveMoving`
+        // when Fleet Telemetry has previously confirmed real FSD engagement on
+        // this VIN within INFERRED_TRUST_WINDOW_MS. Otherwise leave ap = null
+        // so applyOdometerSample returns `not_engaged` (no credit).
+        const lastEngagedAtMs = sourceMeta.last_engaged_at
+          ? new Date(sourceMeta.last_engaged_at).getTime() : 0;
+        const inferenceTrusted = lastEngagedAtMs > 0
+          && (nowMs - lastEngagedAtMs) < INFERRED_TRUST_WINDOW_MS;
         const ap = rawAp
-          ?? ((shift ?? "").toUpperCase().startsWith("D") || (speed ?? 0) > 0 || odo > (sampler.last_odometer_mi || 0)
-            ? "InferredDriveMoving"
-            : null);
+          ?? (inferenceTrusted
+            && ((shift ?? "").toUpperCase().startsWith("D") || (speed ?? 0) > 0 || odo > (sampler.last_odometer_mi || 0))
+              ? "InferredDriveMoving"
+              : null);
 
         const result = applyOdometerSample(sampler, {
           odometer_mi: odo,
