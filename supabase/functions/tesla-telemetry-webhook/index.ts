@@ -118,15 +118,20 @@ function defaultAccumulator(seedOdo = 0): FsdAccumulator {
 function applyBatch(acc: FsdAccumulator, events: TelemetryEvent[]) {
   let supervisedAdded = 0;
   let officialFsdMiles: number | null = null;
+  let lastEngagedAt: string | null = null;
   // Sort chronologically — Tesla batches can arrive out of order.
   const ordered = [...events].sort((a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime());
 
   for (const ev of ordered) {
     if (ev.field === "AutopilotState") {
       acc.engaged = ENGAGED_STATES.has(String(ev.value));
+      if (acc.engaged) lastEngagedAt = ev.ts;
     } else if (ev.field === "AutosteerCmd") {
       // Treat any Autosteer command above 0 as engaged.
-      if (typeof ev.value === "number" && ev.value > 0) acc.engaged = true;
+      if (typeof ev.value === "number" && ev.value > 0) {
+        acc.engaged = true;
+        lastEngagedAt = ev.ts;
+      }
     } else if (ev.field === "Gear") {
       acc.in_drive = String(ev.value).toUpperCase().startsWith("D");
     } else if (ev.field === "SelfDrivingMilesSinceReset" || ev.field === "FSDMilesSinceReset") {
@@ -145,6 +150,7 @@ function applyBatch(acc: FsdAccumulator, events: TelemetryEvent[]) {
         if (acc.engaged && acc.in_drive) {
           acc.supervised_miles += delta;
           supervisedAdded += delta;
+          lastEngagedAt = ev.ts;
         }
       }
       // Always advance the odometer pointer so we don't double-credit on next reading.
@@ -153,7 +159,7 @@ function applyBatch(acc: FsdAccumulator, events: TelemetryEvent[]) {
     acc.last_event_at = ev.ts;
   }
 
-  return { acc, supervisedAdded, officialFsdMiles };
+  return { acc, supervisedAdded, officialFsdMiles, lastEngagedAt };
 }
 
 Deno.serve(async (req) => {
