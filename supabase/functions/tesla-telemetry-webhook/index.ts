@@ -301,6 +301,11 @@ Deno.serve(async (req) => {
           first_sample_at: firstSampleAt,
           last_source: fsdSource,
           last_updated_at: new Date().toISOString(),
+          // Trust-anchor for the HW3 sampler's `InferredDriveMoving` fallback.
+          // The sampler only credits inferred miles when this timestamp is recent.
+          last_engaged_at: lastEngagedAt
+            ?? (lastState.fsd_source_meta as any)?.last_engaged_at
+            ?? null,
         },
       };
 
