@@ -261,6 +261,7 @@ Deno.serve(async (req) => {
               sampler_reason: result.reason,
                autopilot_state: rawAp,
                autopilot_inferred: rawAp === null && ap === "InferredDriveMoving",
+               inference_trusted: inferenceTrusted,
             },
           }, { onConflict: "device_id,provider,recorded_at,data_type" });
         }
