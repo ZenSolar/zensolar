@@ -96,7 +96,12 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { data: tokenRow } = await supabase
+    // energy_tokens is service-role-only (RLS). Use a privileged client just for this read.
+    const admin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+    const { data: tokenRow } = await admin
       .from("energy_tokens")
       .select("access_token")
       .eq("user_id", userId)
