@@ -14,7 +14,7 @@ Every KPI pulls from **exactly one** OEM API. Never sum or merge the same metric
 
 | Capability | Rule |
 |---|---|
-| **Solar production** | 1) `profiles.solar_installer === 'tesla'` → Tesla solar API. 2) Else `profiles.solar_inverter_brand` (enphase / solaredge / tesla / other). 3) Legacy fallback Enphase > SolarEdge > Tesla. **Powerwall CTs are NEVER used as the solar source.** |
+| **Solar production** | 1) `profiles.solar_installer === 'tesla'` → Tesla solar API. 2) Else `profiles.solar_inverter_brand` (enphase / solaredge / tesla / other). 3) Legacy fallback Enphase > SolarEdge > Tesla. **Powerwall CTs ARE valid solar when no third-party PV brand (Enphase/SolarEdge/etc.) is connected.** They are excluded as the solar source ONLY when a higher-priority PV brand is connected, to prevent double-counting. |
 | **Battery (discharge/export)** | Whichever battery hardware the user owns: Tesla Powerwall > Enphase IQ Battery > SolarEdge Home Battery. Never summed. |
 | **Charging energy (home + Supercharger)** | Tesla vehicle connected → Tesla `charge_state` ONLY (skip `home_charging_sessions` to avoid double-count). Else → user's home charger (Wallbox / ChargePoint). |
 | **Home consumption** | Same hardware that owns the battery / CTs: Powerwall site > Envoy > SolarEdge meter. |
