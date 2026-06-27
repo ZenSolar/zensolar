@@ -18,7 +18,7 @@ Subscriptions v3.2 (LOCKED 2026-06): 4 tiers — Spark $9.99 (1×) / Flame $19.9
 Genesis Halving DEPRECATED in v3.1 narrative — continuous 20% burn per mint is the deflation mechanism. Do NOT surface "halving" in new user/investor copy. Code constants (`GENESIS_HALVING`, modal, simulation) retained for optional future re-activation only.
 Billing infra not wired yet (no Stripe). `/subscribe` route shows tier picker only — checkout pending Michael sign-off on provider.
 Patent status: ONLY the non-provisional "Gamifying and Tokenizing Sustainable Behaviors" patent is filed. Starlink/SpaceX/Optimus tokenization angle is roadmap/concept only — NOT filed. Never say "Starlink patent filed."
-Telemetry SSOT: one OEM per KPI, never sum across providers. Resolver = `src/lib/dataSourcePriority.ts` (mirrored in `supabase/functions/_shared/dataSourcePriority.ts`). Charging = Tesla vehicle whenever connected (skip Wallbox/`home_charging_sessions`). Solar = `solar_installer` then `solar_inverter_brand`. Battery = Powerwall > Enphase > SolarEdge. Powerwall CTs NEVER count as solar. Deason consumes `oem_diagnostic_log` to explain connection issues.
+Telemetry SSOT: one OEM per KPI, never sum across providers. Resolver = `src/lib/dataSourcePriority.ts` (mirrored in `supabase/functions/_shared/dataSourcePriority.ts`). Charging = Tesla vehicle whenever connected (skip Wallbox/`home_charging_sessions`). Solar = `solar_installer` then `solar_inverter_brand`. Battery = Powerwall > Enphase > SolarEdge. Powerwall CTs DO count as solar when no third-party PV brand (Enphase/SolarEdge) is connected; excluded ONLY when a higher-priority PV source is present. Deason consumes `oem_diagnostic_log` to explain connection issues.
 
 
 ## Memories
