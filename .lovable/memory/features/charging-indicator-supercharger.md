@@ -26,5 +26,6 @@ type: feature
 - For Supercharger sessions, swap the Wall Connector node for a Supercharger stall icon and use red/Tesla-red accent for the flow line.
 
 ## Status
-- ⏳ Both gaps deferred to Remix v1 (do NOT bolt onto legacy app per `remix-transition.md`)
+- ✅ **Gap #1 (Supercharger LIVE pill) SHIPPED to legacy app 2026-06-28** — `deriveTeslaFlow` now treats `fast_charger_present=true` / `fast_charger_brand` as positive DC-fast evidence; `ChargingFromHomeLine` renders a red "Charging from Supercharger · {kW} kW · +{mi}/hr" pill for `source==='supercharger'|'public'`.
+- ⏳ Gap #2 (vehicle hero image + animated charge arc) still deferred to Remix v1.
 - ✅ Decision locked: session detection stays location-agnostic — never gate the LIVE pill on geofence/home_address presence.

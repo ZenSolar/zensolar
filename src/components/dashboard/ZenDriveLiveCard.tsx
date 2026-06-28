@@ -44,9 +44,10 @@ function freshnessClass(iso: string | null, fresh: boolean) {
   return 'bg-muted/40 text-muted-foreground ring-muted/50';
 }
 
-/** One-line "where the electrons are coming from" callout. Only renders when
- *  the vehicle is actively home-charging — the single, intentional touch-point
- *  between the Drive card and the Energy card. */
+/** One-line "where the electrons are coming from" callout. Renders for any
+ *  active Tesla charging session — home (solar/Powerwall/grid) or Supercharger /
+ *  public DC fast. Keeps a single intentional touch-point between the Drive
+ *  card and the Energy card. */
 function ChargingFromHomeLine({
   tesla,
   solarKw,
@@ -56,9 +57,28 @@ function ChargingFromHomeLine({
   solarKw: number;
   batteryKw: number; // + charging, − discharging
 }) {
-  if (!tesla.isCharging || tesla.source !== 'home') return null;
+  if (!tesla.isCharging) return null;
   const kw = tesla.kW.toFixed(1);
   const milesPerHr = Math.round(tesla.kW * 3.3);
+
+  // Supercharger / public DC fast — show the red Tesla-style indicator.
+  if (tesla.source === 'supercharger' || tesla.source === 'public') {
+    const label = tesla.source === 'supercharger' ? 'Supercharger' : 'a public charger';
+    return (
+      <div className="flex items-center gap-2 rounded-lg border border-red-400/30 bg-red-500/[0.08] px-3 py-2 text-[12px] text-red-100/90">
+        <span className="relative inline-flex h-2 w-2 rounded-full bg-red-400 shadow-[0_0_8px_hsla(0,90%,60%,0.7)]">
+          <span className="absolute inset-0 inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-70" />
+        </span>
+        <BatteryCharging className="h-3.5 w-3.5 text-red-300" />
+        <span>
+          Charging from <span className="font-semibold">{label}</span>
+          <span className="text-red-200/70"> · {kw} kW · +{milesPerHr} mi/hr</span>
+        </span>
+      </div>
+    );
+  }
+
+  if (tesla.source !== 'home') return null;
 
   // Best-guess narration: solar covers it, Powerwall covers it, or grid.
   let source = 'home';

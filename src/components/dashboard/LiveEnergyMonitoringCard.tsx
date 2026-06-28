@@ -490,6 +490,10 @@ export function deriveTeslaFlow(t: CachedTelemetry | undefined, sessionActive: b
   const energyAdded = pickNumber(p, ['charge_energy_added', 'vehicles.0.charge_energy_added', 'response.charge_state.charge_energy_added']);
   const timeToFullHrs = pickNumber(p, ['time_to_full_charge', 'response.charge_state.time_to_full_charge']);
   const fastChargerType = pickString(p, ['fast_charger_type', 'charger_type', 'response.charge_state.fast_charger_type']);
+  const fastChargerPresent = (p as any)?.fast_charger_present === true ||
+    (p as any)?.response?.charge_state?.fast_charger_present === true ||
+    (p as any)?.vehicles?.[0]?.fast_charger_present === true;
+  const fastChargerBrand = pickString(p, ['fast_charger_brand', 'response.charge_state.fast_charger_brand']);
   const phases = pickNumber(p, ['charger_phases', 'response.charge_state.charger_phases']);
 
   const stateStr = (rawChargingState ?? '').toLowerCase();
@@ -500,7 +504,10 @@ export function deriveTeslaFlow(t: CachedTelemetry | undefined, sessionActive: b
   // unknown AC charging defaults to HOME (not Public L2). Only label
   // 'supercharger' when we have positive DC-fast evidence.
   const fc = (fastChargerType ?? '').toLowerCase();
-  const isDcFast = fc.includes('supercharger') || fc.includes('combo') || fc.includes('chademo') || fc === 'tesla';
+  const brand = (fastChargerBrand ?? '').toLowerCase();
+  const isDcFast = fastChargerPresent ||
+    fc.includes('supercharger') || fc.includes('combo') || fc.includes('chademo') || fc === 'tesla' ||
+    brand.includes('tesla') || brand.includes('supercharger');
   let source: TeslaFlow['source'];
   let sourceLabel: string;
   if (isDcFast) {
