@@ -752,6 +752,7 @@ const App = () => {
                       } 
                     />
                     <Route path="/white-paper" element={<WhitePaperWrapper />} />
+                    <Route path="/nft/genesis-founder" element={<Suspense fallback={<PageLoader />}><NftGenesisFounder /></Suspense>} />
                     <Route
                       path="/engineering"
                       element={
