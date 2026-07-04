@@ -50,6 +50,7 @@ const InstallNudge = lazy(() =>
 );
 // Home only renders on `/` for unauthed visitors — keep it out of entry bundle
 const Home = lazy(() => import("./pages/Home"));
+const NftGenesisFounder = lazy(() => import("./pages/NftGenesisFounder"));
 
 // Lazy load layout and auth components to reduce main bundle size
 const ProtectedRoute = lazy(() => import("@/components/ProtectedRoute").then(m => ({ default: m.ProtectedRoute })));
