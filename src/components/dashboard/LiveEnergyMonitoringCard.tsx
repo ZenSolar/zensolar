@@ -35,6 +35,7 @@ import { OutageFooter } from './OutageFooter';
 import { useGridOutage } from '@/hooks/useGridOutage';
 import { useOutageLifecycle } from '@/hooks/useOutageLifecycle';
 import { estimateBackupTime } from '@/lib/gridOutage';
+import { resolveVehicleAsset, VEHICLE_LABEL, VEHICLE_COLOR_LABEL } from './EnergyFlowScene.scenes';
 
 function getPath(payload: any, path: string): unknown {
   return path.split('.').reduce((acc, key) => {
@@ -707,6 +708,15 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
   const solarStats = solarSnapshot(primarySolar);
   const batteryStats = batterySnapshot(primaryBattery);
 
+  // Pull exact model + color from Tesla vehicle_config so the EV area
+  // mirrors the user's actual car (matches the Tesla app).
+  const vehicleAsset = useMemo(
+    () => resolveVehicleAsset(primaryEv?.payload ?? primaryEv, undefined, {
+      fallbackWhenConnected: ev.data.length > 0,
+    }),
+    [primaryEv, ev.data.length],
+  );
+
   // v5 Phase 5 — aggregate across ALL connected PV systems for supporting tiles.
   // Scene still uses primarySolar (per active tab); tiles show whole-home truth.
   const solarStatsAll = useMemo(() => {
@@ -1125,14 +1135,47 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
               {/* Divider between home-generation (solar + battery) and vehicle tiles */}
               {!hideVehicle && <div className="col-span-2 h-px bg-border/40 my-1" aria-hidden="true" />}
 
-              {/* Blue — EV charging (today only) */}
+              {/* Vehicle hero image — pulled from Tesla vehicle_config (model + color) */}
+              {!hideVehicle && vehicleAsset.src && (
+                <div className="col-span-2 flex flex-col items-center gap-1 pt-1 pb-2">
+                  <img
+                    src={vehicleAsset.src}
+                    alt={
+                      vehicleAsset.model
+                        ? `${VEHICLE_LABEL[vehicleAsset.model]}${vehicleAsset.color ? ` · ${VEHICLE_COLOR_LABEL[vehicleAsset.color]}` : ''}`
+                        : 'Your Tesla'
+                    }
+                    loading="lazy"
+                    className="h-24 w-auto object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.55)]"
+                  />
+                  {vehicleAsset.model && !vehicleAsset.generic && (
+                    <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground/80">
+                      {VEHICLE_LABEL[vehicleAsset.model]}
+                      {vehicleAsset.color ? ` · ${VEHICLE_COLOR_LABEL[vehicleAsset.color]}` : ''}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Blue — Home & AC charging (today only) */}
               {!hideVehicle && (
                 <MetricTile
                   tone="blue"
+                  icon={Home}
+                  label="Home & AC Charging"
+                  value={formatKwh(evTotals.totals.home_kwh)}
+                  detail="Today · Level 1 / Level 2"
+                />
+              )}
+
+              {/* Orange — Tesla Supercharging (today only) */}
+              {!hideVehicle && (
+                <MetricTile
+                  tone="orange"
                   icon={Zap}
-                  label="EV Charging · Today"
-                  value={formatKwh(evTotals.totals.home_kwh + evTotals.totals.supercharger_kwh)}
-                  detail={`Super ${evTotals.totals.supercharger_kwh.toFixed(1)} · Home ${evTotals.totals.home_kwh.toFixed(1)} kWh`}
+                  label="Tesla Supercharging"
+                  value={formatKwh(evTotals.totals.supercharger_kwh)}
+                  detail="Today · DC Fast Charging"
                 />
               )}
 
