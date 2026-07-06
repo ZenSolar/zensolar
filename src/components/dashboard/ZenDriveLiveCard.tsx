@@ -12,7 +12,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, BatteryCharging, Car, Home, Route, Sun, Zap } from 'lucide-react';
 import { LiveCardHeader } from './LiveCardHeader';
-import { ZenXPill } from './ZenXPill';
+
 import {
   EVTile,
   MetricTile,
