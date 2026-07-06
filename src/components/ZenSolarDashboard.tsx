@@ -525,7 +525,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   );
 }
 
-function EnergyFlowGlowCard() {
+function EnergyFlowGlowCard({ batteryKwhExportedToday }: { batteryKwhExportedToday?: number }) {
   const { subscription, loading: subLoading } = useEnergyInsightsSubscription();
   const subscribed = !!subscription?.active;
 
