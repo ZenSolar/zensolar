@@ -378,7 +378,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             This is why you're earning today
           </p>
           <EnergyFlowErrorBoundary>
-            <EnergyFlowGlowCard />
+            <EnergyFlowGlowCard batteryKwhExportedToday={currentActivity.batteryKwh} />
           </EnergyFlowErrorBoundary>
         </AnimatedItem>
 
