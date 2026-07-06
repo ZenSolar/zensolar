@@ -708,6 +708,15 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
   const solarStats = solarSnapshot(primarySolar);
   const batteryStats = batterySnapshot(primaryBattery);
 
+  // Pull exact model + color from Tesla vehicle_config so the EV area
+  // mirrors the user's actual car (matches the Tesla app).
+  const vehicleAsset = useMemo(
+    () => resolveVehicleAsset(primaryEv?.payload ?? primaryEv, undefined, {
+      fallbackWhenConnected: ev.data.length > 0,
+    }),
+    [primaryEv, ev.data.length],
+  );
+
   // v5 Phase 5 — aggregate across ALL connected PV systems for supporting tiles.
   // Scene still uses primarySolar (per active tab); tiles show whole-home truth.
   const solarStatsAll = useMemo(() => {
