@@ -243,20 +243,29 @@ function detectColorFromString(raw: string): VehicleColor | null {
     if (pattern.test(trimmed)) return color;
   }
   const s = trimmed.toLowerCase().replace(/[\s_-]/g, '');
+  // Order: check specific compound tokens before generic single-word ones so
+  // e.g. "MetallicBlack" hits the black branch, not the silver branch.
   if (s.includes('pearlwhite') || s === 'white') return 'pearl-white';
-  if (s.includes('solidblack') || s === 'black' || s.includes('obsidian')) return 'solid-black';
+  // Any Tesla paint whose canonical name ends in "black" (SolidBlack,
+  // MetallicBlack, ObsidianBlack) is a black. Bare "black" also counts.
+  if (s.endsWith('black') || s === 'black' || s.includes('obsidian')) return 'solid-black';
   if (s.includes('deepblue') || s.includes('blue')) return 'deep-blue';
-  if (s.includes('red')) return 'red';
+  if (s.includes('ultrared') || s.includes('redmulti') || s.includes('red')) return 'red';
   if (
     s.includes('stealthgrey') ||
     s.includes('stealthgray') ||
     s.includes('midnightsilver') ||
     s.includes('quicksilver') ||
+    s.includes('steelgrey') ||
+    s.includes('steelgray') ||
+    s.includes('silvermetallic') ||
     s.includes('grey') ||
     s.includes('gray') ||
     s.includes('silver')
   ) return 'stealth-grey';
-  if (s.includes('stainless') || s.includes('steel')) return 'stainless';
+  // Cybertruck stainless — require the full word so "SteelGrey" paint on a
+  // Model S doesn't get routed to the stainless asset.
+  if (s.includes('stainless')) return 'stainless';
   return null;
 }
 
@@ -309,12 +318,86 @@ export function resolveVehicleModel(
 
 /**
  * Resolve a canonical Tesla color id from arbitrary telemetry shapes.
- * Reads vehicle_config.exterior_color and common variants.
+ *
+ * Priority order (highest wins):
+ *   1. `vehicle_config.exterior_color` — authoritative Tesla Fleet API field.
+ *   2. Plain `exterior_color` / `paint_color` on the payload root.
+ *   3. Owner nickname / display_name (only kicks in when Tesla withholds
+ *      the exterior_color — e.g. non-Fleet OAuth scopes). Never allowed to
+ *      override a real paint code from Tesla.
+ *
+ * If nothing resolves cleanly we return null and the caller falls back to
+ * DEFAULT_COLOR or the persisted lastKnown value.
  */
 export function resolveVehicleColor(
   input: unknown,
 ): VehicleColor | null {
-  const candidates = collectStrings(input, [
+  // Tier 1 — authoritative Tesla paint fields
+  const authoritative = collectStrings(input, [
+    'vehicle_config.exterior_color',
+    'vehicles.0.vehicle_config.exterior_color',
+    'response.vehicle_config.exterior_color',
+    'exterior_color',
+    'paint_color',
+    'color',
+    // paint_first_hex_color / paint_second_hex_color are hex — separate tier below.
+  ]);
+
+  const matchPaintCode = (raw: string): VehicleColor | null => {
+    const s = raw.toLowerCase().replace(/[\s_-]/g, '');
+    // Tesla observed paint codes:
+    //   PBSB / PMBL  → Solid Black
+    //   PPSW / PBCW  → Pearl White Multi-Coat
+    //   PPMR / PPSR  → Red Multi-Coat (older / current)
+    //   PPSB / PMBS  → Deep Blue Metallic
+    //   PMNG         → Midnight Silver Metallic (dark grey → stealth-grey)
+    //   PMSS         → Steel Grey (Model S/X)
+    //   MT9##        → Cybertruck matte / stainless variants
+    if (s === 'pbsb' || s === 'pmbl' || s === 'pbss') return 'solid-black';
+    if (s === 'ppsw' || s === 'pbcw') return 'pearl-white';
+    if (s === 'ppmr' || s === 'ppsr' || s === 'ppmr2' || s === 'pr01') return 'red';
+    if (s === 'ppsb' || s === 'pmbs') return 'deep-blue';
+    if (s === 'pmng' || s === 'pmss') return 'stealth-grey';
+    if (s.startsWith('mt9')) return 'stainless';
+    return null;
+  };
+
+  for (const raw of authoritative) {
+    const detected = detectColorFromString(raw);
+    if (detected) return detected;
+    const code = matchPaintCode(raw);
+    if (code) return code;
+  }
+
+  // Tier 2 — hex paint (nice-to-have from paint_first_hex_color)
+  const hexes = collectStrings(input, [
+    'vehicle_config.paint_first_hex_color',
+    'vehicles.0.vehicle_config.paint_first_hex_color',
+    'paint_first_hex_color',
+  ]);
+  for (const hex of hexes) {
+    const h = hex.trim().replace(/^#/, '').toLowerCase();
+    if (!/^[0-9a-f]{6}$/.test(h)) continue;
+    const r = parseInt(h.slice(0, 2), 16);
+    const g = parseInt(h.slice(2, 4), 16);
+    const b = parseInt(h.slice(4, 6), 16);
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const chroma = max - min;
+    // Near-neutral: white / black / grey
+    if (chroma < 24) {
+      if (max > 220) return 'pearl-white';
+      if (max < 45) return 'solid-black';
+      return 'stealth-grey';
+    }
+    if (r > 140 && r > g + 40 && r > b + 40) return 'red';
+    if (b > 100 && b > r + 20 && b > g + 20) return 'deep-blue';
+    // Fall through — silver-ish neutrals with a tint
+    return 'stealth-grey';
+  }
+
+  // Tier 3 — nickname / display_name fallback (only when Tesla withheld paint)
+  const fallbackNames = collectStrings(input, [
     'device_name',
     'metadata.device_name',
     'name',
@@ -323,44 +406,15 @@ export function resolveVehicleColor(
     'vehicles.0.display_name',
     'response.display_name',
     'metadata.display_name',
-    'vehicle_config.exterior_color',
-    'vehicles.0.vehicle_config.exterior_color',
-    'response.vehicle_config.exterior_color',
-    'exterior_color',
-    'color',
-    'paint_color',
   ]);
-
-  for (const raw of candidates) {
-    const hit = detectColorFromString(raw);
-    if (hit) return hit;
-    const s = raw.toLowerCase().replace(/[\s_-]/g, '');
-    // Tesla paint codes observed in owner/API payloads.
-    if (s === 'pbsb' || s === 'pmbl' || s === 'pbss') return 'solid-black';
-    if (s === 'ppsw' || s === 'pbcw') return 'pearl-white';
-    if (s === 'ppmr' || s === 'pr01' || s === 'ppmr2') return 'red';
-    if (s === 'ppsB'.toLowerCase() || s === 'pmbs' || s === 'ppsb') return 'deep-blue';
-    if (s === 'pmng' || s === 'pn00' || s === 'pmss') return 'stealth-grey';
-    // Tesla canonical exterior_color strings: PearlWhite, MidnightSilver,
-    // DeepBlue, Red / RedMulti, SolidBlack, StealthGrey, Quicksilver,
-    // SilverMetallic, UltraRed, etc.
-    if (s.includes('pearlwhite') || s === 'white') return 'pearl-white';
-    if (s.includes('solidblack') || s === 'black' || s.includes('obsidian'))
-      return 'solid-black';
-    if (s.includes('deepblue') || s.includes('blue')) return 'deep-blue';
-    if (s.includes('red')) return 'red';
-    if (
-      s.includes('stealthgrey') ||
-      s.includes('stealthgray') ||
-      s.includes('midnightsilver') ||
-      s.includes('quicksilver') ||
-      s.includes('grey') ||
-      s.includes('gray') ||
-      s.includes('silver')
-    )
-      return 'stealth-grey';
-    if (s.includes('stainless') || s.includes('steel')) return 'stainless';
+  for (const raw of fallbackNames) {
+    // Only apply the branded nickname map here — free-text names like
+    // "Silver Bullet" are too ambiguous to override missing telemetry.
+    for (const [pattern, color] of NICKNAME_COLOR_MAP) {
+      if (pattern.test(raw)) return color;
+    }
   }
+
   return null;
 }
 
