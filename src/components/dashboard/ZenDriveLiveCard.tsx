@@ -129,6 +129,15 @@ export function ZenDriveLiveCard({ alwaysRender = false }: ZenDriveLiveCardProps
     [primaryEv, isActivelyCharging]
   );
 
+  // Pull exact model + color from Tesla vehicle_config so the image mirrors
+  // the user's actual car (matches the Tesla app trim/color).
+  const vehicleAsset = useMemo(
+    () => resolveVehicleAsset(primaryEv?.payload ?? primaryEv, undefined, {
+      fallbackWhenConnected: ev.data.length > 0,
+    }),
+    [primaryEv, ev.data.length],
+  );
+
   // Force-refresh EV telemetry when a charging session toggles.
   const lastCharging = useRef<boolean | undefined>(undefined);
   useEffect(() => {
