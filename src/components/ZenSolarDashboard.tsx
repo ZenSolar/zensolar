@@ -326,9 +326,8 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             REALIGNED DASHBOARD HIERARCHY
             1. Clean Energy Center (THE HERO)
             2. Live Energy Monitoring (supporting context)
-            3. Today's Stats & Recent Activity
-            4. Deason Insights
-            5. Deep-dive cards (CO₂, Flywheel, NFTs)
+            3. Deason Insights
+            4. Deep-dive cards (CO₂, Flywheel, NFTs)
            ─────────────────────────────────────────────────────────── */}
 
         {/* 1a. HERO — Clean Energy Center (KPI grid w/ per-source +$ZSOLAR chips) */}
