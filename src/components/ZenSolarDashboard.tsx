@@ -385,6 +385,12 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         <SectionDivider className="xl:hidden" />
 
+        <AnimatedItem className="xl:col-span-2">
+          <MintReceiptsHint />
+        </AnimatedItem>
+
+        <SectionDivider className="xl:hidden" />
+
         {/* 3. DEASON INSIGHTS */}
         <AnimatedItem className="xl:col-span-2">
           <SubscriptionStatusCard />
