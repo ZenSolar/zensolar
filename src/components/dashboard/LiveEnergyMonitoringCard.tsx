@@ -1118,6 +1118,9 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                 />
               )}
 
+              {/* Divider between home-generation (solar + battery) and vehicle tiles */}
+              <div className="col-span-2 h-px bg-border/40 my-1" aria-hidden="true" />
+
               {/* Blue — EV charging (today only) */}
               {!hideVehicle && (
                 <MetricTile
