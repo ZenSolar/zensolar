@@ -235,15 +235,27 @@ export function ZenDriveLiveCard({ alwaysRender = false }: ZenDriveLiveCardProps
         refreshing={refreshing}
       />
 
-      {teslaFlow && (
-        <div className="mb-3">
-          <ZenXPill
-            tesla={teslaFlow}
-            nickname={primaryEv?.device_name ?? 'ZenX'}
-            onClick={handlePillClick}
+      {/* Compact vehicle status card (replaces the old ZenXPill) — sits above
+          the car image, mirroring the Tesla app's vehicle summary tile. */}
+      <div
+        ref={tileRef}
+        id="zendrive-ev-tile"
+        tabIndex={-1}
+        aria-label="Vehicle details"
+        className={`mb-3 rounded-lg outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-primary ${
+          ping ? 'ring-2 ring-primary/60 shadow-[0_0_24px_hsl(var(--primary)/0.35)]' : ''
+        }`}
+      >
+        {ev.data.map((t) => (
+          <EVTile
+            key={`zd-${t.oem}-${t.site_id}`}
+            t={t}
+            totals7d={evTotals.totals}
+            liveDot={teslaFlow?.isCharging && t.oem === 'tesla'}
+            sourceLabel={t.oem === 'tesla' ? teslaFlow?.sourceLabel : undefined}
           />
-        </div>
-      )}
+        ))}
+      </div>
 
       {teslaFlow && (
         <div className="mb-3">
@@ -278,7 +290,7 @@ export function ZenDriveLiveCard({ alwaysRender = false }: ZenDriveLiveCardProps
       )}
 
       {/* Charging split — Home & AC vs Tesla Supercharging (today) */}
-      <div className="mb-3 grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         <MetricTile
           tone="blue"
           icon={Home}
@@ -293,26 +305,6 @@ export function ZenDriveLiveCard({ alwaysRender = false }: ZenDriveLiveCardProps
           value={`${(evTotals.totals.supercharger_kwh ?? 0).toFixed(1)} kWh`}
           detail="Today · DC Fast Charging"
         />
-      </div>
-
-      <div
-        ref={tileRef}
-        id="zendrive-ev-tile"
-        tabIndex={-1}
-        aria-label="Vehicle details"
-        className={`rounded-lg outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-primary ${
-          ping ? 'ring-2 ring-primary/60 shadow-[0_0_24px_hsl(var(--primary)/0.35)]' : ''
-        }`}
-      >
-        {ev.data.map((t) => (
-          <EVTile
-            key={`zd-${t.oem}-${t.site_id}`}
-            t={t}
-            totals7d={evTotals.totals}
-            liveDot={teslaFlow?.isCharging && t.oem === 'tesla'}
-            sourceLabel={t.oem === 'tesla' ? teslaFlow?.sourceLabel : undefined}
-          />
-        ))}
       </div>
     </div>
   );
