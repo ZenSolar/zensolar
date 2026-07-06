@@ -1086,16 +1086,18 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                 detail={`${formatKw(solarStatsAll.currentKw)} now · today`}
               />
 
-              {/* Green — Battery reserve / EV-routed energy */}
+              {/* Green — Battery kWh exported today */}
               {hasBattery ? (
                 <MetricTile
                   tone="green"
                   icon={BatteryCharging}
-                  label={battery.data.length > 1 ? `Powerwalls · ${battery.data.length}` : 'Battery Reserve'}
+                  label={battery.data.length > 1 ? `${battery.data.length} Batteries · kWh Exported` : 'Battery kWh Exported'}
                   value={
-                    batteryStatsAll.reserveKwh !== null && batteryStatsAll.capacityKwh !== null
-                      ? `${batteryStatsAll.reserveKwh.toFixed(1)} kWh`
-                      : batteryStatsAll.soc !== null ? `${Math.round(batteryStatsAll.soc)}%` : '—'
+                    batteryKwhExportedToday !== undefined
+                      ? `${batteryKwhExportedToday.toFixed(1)} kWh`
+                      : batteryStatsAll.reserveKwh !== null && batteryStatsAll.capacityKwh !== null
+                        ? `${batteryStatsAll.reserveKwh.toFixed(1)} kWh`
+                        : batteryStatsAll.soc !== null ? `${Math.round(batteryStatsAll.soc)}%` : '—'
                   }
                   detail={(() => {
                     const pct = batteryStatsAll.soc !== null ? `${Math.round(batteryStatsAll.soc)}%` : '—';
