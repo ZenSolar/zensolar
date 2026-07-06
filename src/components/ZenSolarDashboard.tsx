@@ -32,7 +32,7 @@ import { ProviderReauthCallout, type ReauthProvider } from './dashboard/Provider
 import { useEnergyInsightsSubscription } from '@/hooks/useEnergyInsightsSubscription';
 import { FlywheelContributionCard } from './dashboard/FlywheelContributionCard';
 import { MintReceiptsHint } from './dashboard/MintReceiptsHint';
-import { PrimaryMintAction } from './dashboard/PrimaryMintAction';
+
 import { RewardSnapshotGrid } from './dashboard/RewardSnapshotGrid';
 import { SubscriptionStatusCard } from './dashboard/SubscriptionStatusCard';
 
@@ -325,7 +325,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         {/* ───────────────────────────────────────────────────────────
             REALIGNED DASHBOARD HIERARCHY
-            1. Clean Energy Center + Tap-to-Mint (THE HERO)
+            1. Clean Energy Center (THE HERO)
             2. Live Energy Monitoring (supporting context)
             3. Today's Stats & Recent Activity
             4. Deason Insights
@@ -368,34 +368,6 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
                   />
                 </PerfProbe>
               </>
-            );
-          })()}
-        </AnimatedItem>
-
-        {/* 1b. HERO — Tap-to-Mint primary action, fused with the Clean Energy Center above */}
-        <AnimatedItem className="xl:col-span-2 -mt-2">
-          {(() => {
-            const pending =
-              currentActivity.solarKwh +
-              currentActivity.batteryKwh +
-              currentActivity.chargingKwh +
-              currentActivity.evMiles;
-            const now = new Date();
-            const minutesSinceMidnight = Math.max(
-              30,
-              now.getHours() * 60 + now.getMinutes(),
-            );
-            // Active-earning proxy: today's mintable units / elapsed minutes today.
-            // Hidden automatically when nothing is earning (pending === 0).
-            const momentum = pending > 0 ? pending / minutesSinceMidnight : 0;
-            return (
-              <PrimaryMintAction
-                pendingZsolar={pending}
-                onMint={handleMintTokens}
-                disabled={dataLoading || !hasWalletConnected}
-                isViewer={isViewer}
-                momentumPerMinute={momentum}
-              />
             );
           })()}
         </AnimatedItem>
