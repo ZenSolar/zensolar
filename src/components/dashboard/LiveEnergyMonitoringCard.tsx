@@ -1156,7 +1156,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
 
 
 
-          <div className="flex flex-col gap-3 rounded-lg border border-primary/15 bg-primary/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-2 rounded-lg border border-primary/15 bg-primary/5 p-4">
             <div className="flex items-start gap-2.5">
               <div className="rounded-md bg-primary/15 p-1.5 ring-1 ring-primary/25">
                 <Route className="h-4 w-4 text-primary" />
@@ -1180,10 +1180,6 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                 </div>
               </div>
             </div>
-            <Link to="/energy-insights" className="inline-flex items-center justify-center gap-2 rounded-lg border border-primary/20 px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-primary/10">
-              Open Insights
-              <ArrowRight className="h-4 w-4" />
-            </Link>
           </div>
 
         </div>
