@@ -34,7 +34,6 @@ import { FlywheelContributionCard } from './dashboard/FlywheelContributionCard';
 import { MintReceiptsHint } from './dashboard/MintReceiptsHint';
 import { PrimaryMintAction } from './dashboard/PrimaryMintAction';
 import { RewardSnapshotGrid } from './dashboard/RewardSnapshotGrid';
-import { TodaysCleanEnergyStats } from './dashboard/TodaysCleanEnergyStats';
 import { SubscriptionStatusCard } from './dashboard/SubscriptionStatusCard';
 
 import { DashboardHexBackground } from './dashboard/DashboardHexBackground';
@@ -399,19 +398,6 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
               />
             );
           })()}
-        </AnimatedItem>
-
-        <SectionDivider className="xl:hidden" />
-
-        {/* 1c. TODAY'S CLEAN ENERGY STATS — 2x2 grid bridging hero → live monitoring */}
-        <AnimatedItem className="xl:col-span-2">
-          <TodaysCleanEnergyStats
-            solarKwh={currentActivity.solarKwh}
-            batteryKwh={currentActivity.batteryKwh}
-            chargingKwh={currentActivity.chargingKwh}
-            evMiles={currentActivity.evMiles}
-            fsdMiles={currentActivity.fsdMiles}
-          />
         </AnimatedItem>
 
         <SectionDivider className="xl:hidden" />
