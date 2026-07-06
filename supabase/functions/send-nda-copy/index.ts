@@ -258,6 +258,35 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
+    // Anti-abuse: only send NDA emails for real signatures that exist in the
+    // database. The NDA flow itself is anonymous (users sign before auth), so
+    // we can't require a JWT — but we CAN require that a matching
+    // nda_signatures row exists for this email. Anonymous callers can no
+    // longer trigger arbitrary NDA emails or flood the admin inbox.
+    const { data: signatureRow, error: signatureLookupError } = await supabase
+      .from('nda_signatures')
+      .select('id, signed_at')
+      .eq('email', recipientEmail.toLowerCase().trim())
+      .order('signed_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (signatureLookupError) {
+      console.error('NDA signature lookup failed', signatureLookupError)
+      return new Response(JSON.stringify({ error: 'Unable to verify signature' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    if (!signatureRow) {
+      // No signature on file for this address — refuse to send.
+      return new Response(JSON.stringify({ error: 'No NDA signature on record for this email' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     const [signerResult, adminResult] = await Promise.all([
       queueTemplateEmail(supabase, {
         templateName: 'nda-signed-copy',
