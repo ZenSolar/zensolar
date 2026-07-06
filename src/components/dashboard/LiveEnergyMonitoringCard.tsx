@@ -35,6 +35,7 @@ import { OutageFooter } from './OutageFooter';
 import { useGridOutage } from '@/hooks/useGridOutage';
 import { useOutageLifecycle } from '@/hooks/useOutageLifecycle';
 import { estimateBackupTime } from '@/lib/gridOutage';
+import { resolveVehicleAsset, VEHICLE_LABEL, VEHICLE_COLOR_LABEL } from './EnergyFlowScene.scenes';
 
 function getPath(payload: any, path: string): unknown {
   return path.split('.').reduce((acc, key) => {
