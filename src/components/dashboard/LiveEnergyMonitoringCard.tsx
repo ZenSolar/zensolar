@@ -621,6 +621,8 @@ export interface LiveEnergyMonitoringCardProps {
    * lives on its own ZenDrive card.
    */
   hideVehicle?: boolean;
+  /** Daily battery energy exported (kWh) — overrides the live reserve snapshot. */
+  batteryKwhExportedToday?: number;
 }
 
 export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle = false }: LiveEnergyMonitoringCardProps = {}) {
