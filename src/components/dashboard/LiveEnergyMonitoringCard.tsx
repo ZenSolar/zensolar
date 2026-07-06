@@ -385,7 +385,7 @@ export function EVTile({ t, totals7d, liveDot, sourceLabel: sourceLabelOverride 
   );
 }
 
-function MetricTile({
+export function MetricTile({
   icon: Icon,
   label,
   value,

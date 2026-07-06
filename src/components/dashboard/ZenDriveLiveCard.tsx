@@ -10,11 +10,12 @@
  * any solar flow lines — that's the ZenEnergy card's job.
  */
 import { Link } from 'react-router-dom';
-import { ArrowRight, BatteryCharging, Car, Sun } from 'lucide-react';
+import { ArrowRight, BatteryCharging, Car, Home, Route, Sun, Zap } from 'lucide-react';
 import { LiveCardHeader } from './LiveCardHeader';
 import { ZenXPill } from './ZenXPill';
 import {
   EVTile,
+  MetricTile,
   deriveTeslaFlow,
   type TeslaFlow,
 } from './LiveEnergyMonitoringCard';
@@ -25,6 +26,7 @@ import {
   useEVTotals,
 } from '@/hooks/useDeviceTelemetry';
 import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
+import { resolveVehicleAsset, VEHICLE_LABEL, VEHICLE_COLOR_LABEL } from './EnergyFlowScene.scenes';
 import { useState, useEffect, useRef, useMemo } from 'react';
 
 function formatAge(iso: string | null) {
@@ -125,6 +127,15 @@ export function ZenDriveLiveCard({ alwaysRender = false }: ZenDriveLiveCardProps
   const teslaFlow = useMemo(
     () => deriveTeslaFlow(primaryEv, !!isActivelyCharging),
     [primaryEv, isActivelyCharging]
+  );
+
+  // Pull exact model + color from Tesla vehicle_config so the image mirrors
+  // the user's actual car (matches the Tesla app trim/color).
+  const vehicleAsset = useMemo(
+    () => resolveVehicleAsset(primaryEv?.payload ?? primaryEv, undefined, {
+      fallbackWhenConnected: ev.data.length > 0,
+    }),
+    [primaryEv, ev.data.length],
   );
 
   // Force-refresh EV telemetry when a charging session toggles.
@@ -243,6 +254,46 @@ export function ZenDriveLiveCard({ alwaysRender = false }: ZenDriveLiveCardProps
           />
         </div>
       )}
+
+      {/* Vehicle hero image — pulled from Tesla vehicle_config (model + color) */}
+      {vehicleAsset.src && (
+        <div className="mb-3 flex flex-col items-center gap-1">
+          <img
+            src={vehicleAsset.src}
+            alt={
+              vehicleAsset.model
+                ? `${VEHICLE_LABEL[vehicleAsset.model]}${vehicleAsset.color ? ` · ${VEHICLE_COLOR_LABEL[vehicleAsset.color]}` : ''}`
+                : 'Your Tesla'
+            }
+            loading="lazy"
+            className="h-32 w-auto object-contain drop-shadow-[0_14px_28px_rgba(0,0,0,0.55)]"
+          />
+          {vehicleAsset.model && !vehicleAsset.generic && (
+            <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground/80">
+              {VEHICLE_LABEL[vehicleAsset.model]}
+              {vehicleAsset.color ? ` · ${VEHICLE_COLOR_LABEL[vehicleAsset.color]}` : ''}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Charging split — Home & AC vs Tesla Supercharging (today) */}
+      <div className="mb-3 grid grid-cols-2 gap-2">
+        <MetricTile
+          tone="blue"
+          icon={Home}
+          label="Home & AC Charging"
+          value={`${(evTotals.totals.home_kwh ?? 0).toFixed(1)} kWh`}
+          detail="Today · Level 1 / Level 2"
+        />
+        <MetricTile
+          tone="orange"
+          icon={Zap}
+          label="Tesla Supercharging"
+          value={`${(evTotals.totals.supercharger_kwh ?? 0).toFixed(1)} kWh`}
+          detail="Today · DC Fast Charging"
+        />
+      </div>
 
       <div
         ref={tileRef}
