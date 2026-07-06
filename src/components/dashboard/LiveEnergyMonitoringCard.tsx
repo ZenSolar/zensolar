@@ -625,7 +625,7 @@ export interface LiveEnergyMonitoringCardProps {
   batteryKwhExportedToday?: number;
 }
 
-export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle = false }: LiveEnergyMonitoringCardProps = {}) {
+export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle = false, batteryKwhExportedToday }: LiveEnergyMonitoringCardProps = {}) {
   const solar = useSolarTelemetry();
   const battery = useBatteryTelemetry();
   const ev = useEVChargerTelemetry();
