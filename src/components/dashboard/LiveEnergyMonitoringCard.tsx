@@ -1168,10 +1168,10 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                 />
               )}
 
-              {/* Red — Tesla Supercharging (today only) */}
+              {/* Orange — Tesla Supercharging (today only) */}
               {!hideVehicle && (
                 <MetricTile
-                  tone="red"
+                  tone="orange"
                   icon={Zap}
                   label="Tesla Supercharging"
                   value={formatKwh(evTotals.totals.supercharger_kwh)}
