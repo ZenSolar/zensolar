@@ -545,7 +545,7 @@ function EnergyFlowGlowCard({ batteryKwhExportedToday }: { batteryKwhExportedTod
       ) : subscribed ? (
         <>
           {/* ZenEnergy · Live — solar / Powerwall / grid / home only */}
-          <LiveEnergyMonitoringCard hideVehicle />
+          <LiveEnergyMonitoringCard hideVehicle batteryKwhExportedToday={batteryKwhExportedToday} />
           {/* ZenDrive · Live — vehicle hero, only when a Tesla / EV is linked */}
           <div className="mt-4">
             <ZenDriveLiveCard />
