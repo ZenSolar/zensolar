@@ -378,7 +378,10 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             This is why you're earning today
           </p>
           <EnergyFlowErrorBoundary>
-            <EnergyFlowGlowCard batteryKwhExportedToday={currentActivity.batteryKwh} />
+            {/* TODO: replace 0 with a real per-day battery-discharge aggregate
+                (equivalent to solar's energy_today_wh). currentActivity.batteryKwh
+                is cumulative since last mint, not today. */}
+            <EnergyFlowGlowCard batteryKwhExportedToday={0} />
           </EnergyFlowErrorBoundary>
         </AnimatedItem>
 
