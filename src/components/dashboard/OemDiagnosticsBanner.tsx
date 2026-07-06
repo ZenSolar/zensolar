@@ -1,6 +1,7 @@
-import { AlertCircle, Info, MessageCircle } from 'lucide-react';
+import { AlertCircle, Info, MessageCircle, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useOemDiagnostics } from '@/hooks/useOemDiagnostics';
+import { useDismissedDiagnostics } from '@/hooks/useDismissedDiagnostics';
 
 /**
  * Friendly banner shown above the dashboard / energy-sources card when Deason
@@ -8,16 +9,26 @@ import { useOemDiagnostics } from '@/hooks/useOemDiagnostics';
  * Tesla-vehicle + home-charger overlap).
  *
  * Tone: calm, customer-service. Never an error state for routine info finds.
+ *
+ * Info-severity diagnostics are dismissable (per-user, per-device via
+ * localStorage). Warn/error diagnostics stay non-dismissable — they need
+ * action, not acknowledgment.
  */
 export function OemDiagnosticsBanner() {
   const { diagnostics, loading } = useOemDiagnostics();
-  if (loading || diagnostics.length === 0) return null;
+  const { isDismissed, dismiss } = useDismissedDiagnostics();
+
+  if (loading) return null;
+
+  const visible = diagnostics.filter((d) => !(d.severity === 'info' && isDismissed(d.key)));
+  if (visible.length === 0) return null;
 
   return (
     <div className="space-y-2">
-      {diagnostics.map((d, i) => {
+      {visible.map((d, i) => {
         const isWarn = d.severity === 'warn' || d.severity === 'error';
         const Icon = isWarn ? AlertCircle : Info;
+        const dismissable = d.severity === 'info';
         return (
           <div
             key={`${d.key}-${i}`}
@@ -49,6 +60,16 @@ export function OemDiagnosticsBanner() {
                 </Link>
               </div>
             </div>
+            {dismissable && (
+              <button
+                type="button"
+                onClick={() => dismiss(d.key)}
+                aria-label="Dismiss"
+                className="shrink-0 rounded-md p-1 -m-1 text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
         );
       })}
