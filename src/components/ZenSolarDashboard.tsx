@@ -325,7 +325,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         {/* ───────────────────────────────────────────────────────────
             REALIGNED DASHBOARD HIERARCHY
-            1. Clean Energy Center + Tap-to-Mint (THE HERO)
+            1. Clean Energy Center (THE HERO)
             2. Live Energy Monitoring (supporting context)
             3. Today's Stats & Recent Activity
             4. Deason Insights
