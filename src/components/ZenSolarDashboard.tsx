@@ -378,7 +378,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
             This is why you're earning today
           </p>
           <EnergyFlowErrorBoundary>
-            <EnergyFlowGlowCard />
+            <EnergyFlowGlowCard batteryKwhExportedToday={currentActivity.batteryKwh} />
           </EnergyFlowErrorBoundary>
         </AnimatedItem>
 
@@ -525,7 +525,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
   );
 }
 
-function EnergyFlowGlowCard() {
+function EnergyFlowGlowCard({ batteryKwhExportedToday }: { batteryKwhExportedToday?: number }) {
   const { subscription, loading: subLoading } = useEnergyInsightsSubscription();
   const subscribed = !!subscription?.active;
 
@@ -545,7 +545,7 @@ function EnergyFlowGlowCard() {
       ) : subscribed ? (
         <>
           {/* ZenEnergy · Live — solar / Powerwall / grid / home only */}
-          <LiveEnergyMonitoringCard hideVehicle />
+          <LiveEnergyMonitoringCard hideVehicle batteryKwhExportedToday={batteryKwhExportedToday} />
           {/* ZenDrive · Live — vehicle hero, only when a Tesla / EV is linked */}
           <div className="mt-4">
             <ZenDriveLiveCard />

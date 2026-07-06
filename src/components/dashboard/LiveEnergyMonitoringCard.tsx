@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, BatteryCharging, Car, Clock3, Gauge, Home, Loader2, RefreshCw, Route, Sparkles, Sun, Zap, type LucideIcon } from 'lucide-react';
+import { BatteryCharging, Car, Clock3, Gauge, Home, Loader2, RefreshCw, Route, Sparkles, Sun, Zap, type LucideIcon } from 'lucide-react';
 import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
 import {
   useBatteryTelemetry,
@@ -621,9 +621,11 @@ export interface LiveEnergyMonitoringCardProps {
    * lives on its own ZenDrive card.
    */
   hideVehicle?: boolean;
+  /** Daily battery energy exported (kWh) — overrides the live reserve snapshot. */
+  batteryKwhExportedToday?: number;
 }
 
-export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle = false }: LiveEnergyMonitoringCardProps = {}) {
+export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle = false, batteryKwhExportedToday }: LiveEnergyMonitoringCardProps = {}) {
   const solar = useSolarTelemetry();
   const battery = useBatteryTelemetry();
   const ev = useEVChargerTelemetry();
@@ -1084,16 +1086,18 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                 detail={`${formatKw(solarStatsAll.currentKw)} now · today`}
               />
 
-              {/* Green — Battery reserve / EV-routed energy */}
+              {/* Green — Battery kWh exported today */}
               {hasBattery ? (
                 <MetricTile
                   tone="green"
                   icon={BatteryCharging}
-                  label={battery.data.length > 1 ? `Powerwalls · ${battery.data.length}` : 'Battery Reserve'}
+                  label={battery.data.length > 1 ? `${battery.data.length} Batteries · kWh Exported` : 'Battery kWh Exported'}
                   value={
-                    batteryStatsAll.reserveKwh !== null && batteryStatsAll.capacityKwh !== null
-                      ? `${batteryStatsAll.reserveKwh.toFixed(1)} kWh`
-                      : batteryStatsAll.soc !== null ? `${Math.round(batteryStatsAll.soc)}%` : '—'
+                    batteryKwhExportedToday !== undefined
+                      ? `${batteryKwhExportedToday.toFixed(1)} kWh`
+                      : batteryStatsAll.reserveKwh !== null && batteryStatsAll.capacityKwh !== null
+                        ? `${batteryStatsAll.reserveKwh.toFixed(1)} kWh`
+                        : batteryStatsAll.soc !== null ? `${Math.round(batteryStatsAll.soc)}%` : '—'
                   }
                   detail={(() => {
                     const pct = batteryStatsAll.soc !== null ? `${Math.round(batteryStatsAll.soc)}%` : '—';
@@ -1152,7 +1156,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
 
 
 
-          <div className="flex flex-col gap-3 rounded-lg border border-primary/15 bg-primary/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-2 rounded-lg border border-primary/15 bg-primary/5 p-4">
             <div className="flex items-start gap-2.5">
               <div className="rounded-md bg-primary/15 p-1.5 ring-1 ring-primary/25">
                 <Route className="h-4 w-4 text-primary" />
@@ -1176,10 +1180,6 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                 </div>
               </div>
             </div>
-            <Link to="/energy-insights" className="inline-flex items-center justify-center gap-2 rounded-lg border border-primary/20 px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-primary/10">
-              Open Insights
-              <ArrowRight className="h-4 w-4" />
-            </Link>
           </div>
 
         </div>
