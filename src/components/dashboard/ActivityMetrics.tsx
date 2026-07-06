@@ -606,7 +606,7 @@ export function ActivityMetrics({
 
           {/* Divider between home-generation (solar + battery) and vehicle sections */}
           {(!isHidden('solar') || !isHidden('battery')) &&
-           (!isHidden('ev_miles') || (hasEvConnected && (effectiveData.pendingFsdSupervisedMiles || effectiveData.pendingFsdUnsupervisedMiles)) || !isHidden('supercharger') || !isHidden('home_charger') || (current.chargingKwh > 0 && !isHidden('charging'))) && (
+           (!isHidden('ev_miles') || !isHidden('supercharger') || !isHidden('home_charger') || (current.chargingKwh > 0 && !isHidden('charging'))) && (
             <div className="h-px bg-border/40 my-2" aria-hidden="true" />
           )}
 
