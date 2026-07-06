@@ -1,29 +1,39 @@
-# Port /investor content → /seed pages, keep seed ask numbers
+# Dismissable OEM Diagnostics Banner
 
-## Direction (reversed from before)
-The `/investor` one-pager and pitch deck are the richer, canonical versions. Copy their content onto the `/seed` pages, but swap in the seed ask:
-- **$1M target / $2M hard cap**
-- **Convertible Note + 10% Token Warrant (4-year vesting, 1-year cliff)**
-- **Use of funds:** Joseph $250k · LP $200k · Legal $55k · Audits $40k · Ops $15k · Buffer $440k
+## Goal
+Let the user permanently dismiss informational OEM diagnostic banners on the dashboard (like "Multiple solar sources connected"). Once dismissed, they never reappear on that device.
 
-## Files to rewrite
+## Behavior
+- Add an `X` (close) button to the top-right of each banner card in `OemDiagnosticsBanner`.
+- Clicking `X` records the dismissal in `localStorage` under a key scoped to the current user + the diagnostic's `key` (e.g. `oem-diag-dismissed:<userId>:solar_source_conflict`).
+- On next render, the hook/component filters out any diagnostic whose dismissal key is set.
+- **Only `info`-severity diagnostics are dismissable.** `warn`/`error` (like "Tesla token expired — reconnect") stay non-dismissable because they need action, not acknowledgment.
 
-### `src/pages/SeedOnePager.tsx`
-- Replace body with the structure/copy from `InvestorOnePager.tsx` (hero, Three Revenue Engines framing, multi-OEM moat, founder pact, etc.).
-- Keep the `/seed` nav/back link, Helmet canonical (`/seed/one-pager`), and PIN-gate flow intact.
-- Override only the ask block + use-of-funds table with the seed numbers above.
+## Why localStorage (not database)
+- Zero backend/RLS changes — safe for a pre-demo commit.
+- Truly per-device "I've seen this" acknowledgment matches (c) from the earlier question.
+- If a diagnostic condition changes (e.g. user later disconnects one solar source), dismissal is still keyed to the finding type — reasonable behavior since the finding won't re-fire once the conflict is gone.
+- Trade-off: dismissal doesn't sync across browsers/devices. Acceptable for a UX banner.
 
-### `src/pages/SeedDeck.tsx`
-- Replace body with the structure/copy from `InvestorPitch.tsx` (hero, Catalyst, `<ThreeRevenueEngines />`, FAQ, footer).
-- Keep `/seed` nav, Helmet canonical (`/seed/deck`), PIN-gate flow.
-- Override "The Ask" section with the seed numbers + instrument language.
+## Files changed
+1. **New:** `src/hooks/useDismissedDiagnostics.ts`
+   - `useDismissedDiagnostics()` returns `{ isDismissed(key), dismiss(key) }`.
+   - Reads/writes `localStorage` keyed by user id (via `useAuth`) + diagnostic key.
+   - Uses a single JSON blob `oem-diag-dismissed:<userId>` → `{ [key]: true }` to keep writes simple.
+   - Component-level `useState` mirror so React re-renders on `dismiss()`.
+
+2. **Edit:** `src/components/dashboard/OemDiagnosticsBanner.tsx`
+   - Wire `useDismissedDiagnostics`.
+   - Filter `diagnostics` to exclude dismissed keys before rendering.
+   - Add an `X` button (top-right of each card) for `info` diagnostics only. Calls `dismiss(d.key)`.
+   - Non-dismissable diagnostics (`warn`/`error`) render unchanged.
 
 ## Not touched
-- `/investor/*` pages — unchanged.
-- `/seed/ip`, `/seed` index — unchanged.
-- PIN gate (`SeedPinGate`) — unchanged.
+- `useOemDiagnostics.ts` — still scans and logs findings to `oem_diagnostic_log`. Dismissal is UI-only.
+- The audit-log insert still fires on every scan (server-side/admin visibility unaffected).
+- Database schema, RLS, edge functions.
 
-## Verification
-- Read both `/investor` sources + both `/seed` targets before writing.
-- After edits, grep `src/pages/Seed*.tsx` for `2.5M` / `3.5M` / `Part 1 of 2` → expect zero hits.
-- Confirm `/seed/one-pager` and `/seed/deck` render with seed ask + investor narrative.
+## Verification (post-implementation)
+- Load `/` (dashboard) → see the "Multiple solar sources connected" banner → click `X` → banner disappears.
+- Reload the page → banner stays gone.
+- Confirm any `warn`/`error` diagnostics (e.g. expired token) do NOT show an `X` button.
