@@ -385,29 +385,7 @@ export function ZenSolarDashboard({ isDemo = false }: ZenSolarDashboardProps) {
 
         <SectionDivider className="xl:hidden" />
 
-        {/* 3. TODAY'S STATS & RECENT ACTIVITY */}
-        <AnimatedItem className="xl:col-span-2">
-          <RewardSnapshotGrid
-            todayMinted={
-              isNewUserView
-                ? 0
-                : currentActivity.solarKwh +
-                  currentActivity.batteryKwh +
-                  currentActivity.chargingKwh +
-                  currentActivity.evMiles
-            }
-            walletBalance={isNewUserView ? 0 : activityData.lifetimeMinted}
-            lifetimeCo2Lbs={isNewUserView ? 0 : activityData.co2OffsetPounds}
-          />
-        </AnimatedItem>
-
-        <AnimatedItem className="xl:col-span-2">
-          <MintReceiptsHint />
-        </AnimatedItem>
-
-        <SectionDivider className="xl:hidden" />
-
-        {/* 4. DEASON INSIGHTS */}
+        {/* 3. DEASON INSIGHTS */}
         <AnimatedItem className="xl:col-span-2">
           <SubscriptionStatusCard />
         </AnimatedItem>
