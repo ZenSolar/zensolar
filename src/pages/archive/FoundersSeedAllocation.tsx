@@ -151,7 +151,7 @@ export default function FoundersSeedAllocation() {
   return (
     <div className="min-h-[100svh] bg-background text-foreground pb-safe print:bg-white">
       <div className="print:hidden">
-        <FounderInvestorSsotBanner note="Editable in-app twin of the legacy $5M / $0.25-launch one-pager. The current canonical raise framing ($2.5–3.5M Part 1 · $0.10 launch) lives at /investor/pitch." />
+        <FounderInvestorSsotBanner note="Editable in-app twin of the legacy $5M / $0.25-launch one-pager. The current canonical raise framing ($1M target / $2M hard cap · $0.10 launch) lives at /investor/pitch." />
       </div>
       {/* Sticky toolbar (hidden when printing) */}
       <header className="sticky top-0 z-30 border-b border-border/40 bg-background/92 pt-safe backdrop-blur-xl print:hidden">

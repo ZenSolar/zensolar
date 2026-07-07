@@ -223,7 +223,7 @@ export default function Investor() {
               loading="eager"
             />
             <span className="text-[11px] uppercase tracking-[0.28em] text-secondary/90 mb-5">
-              {refFirstName ? `Welcome, ${refFirstName} · ` : ''}Investor Access · Seed Round · Part 1 of 2
+              {refFirstName ? `Welcome, ${refFirstName} · ` : ''}Investor Access · Seed Round
             </span>
             <h1 className="text-4xl md:text-6xl font-semibold leading-[1.02] tracking-tight">
               Creating Currency
@@ -234,7 +234,7 @@ export default function Investor() {
               The patent-pending protocol turning verified clean energy into a hard-capped digital currency on Base.
             </p>
             <p className="mt-4 text-sm md:text-base text-muted-foreground/90 max-w-xl leading-relaxed">
-              We're raising the first part of a two-part seed ($2.5M–$3.5M now) to launch the token and ignite the flywheel. Part 2 scales once traction is proven — designed to reach self-sustainability without a traditional Series A.
+              We're raising a lean seed round ($1M target / $2M hard cap) to launch the token, seed the LP, and prove the subscription flywheel — designed to reach self-sustainability without a traditional Series A.
             </p>
             <div className="mt-10 grid grid-cols-3 gap-2.5 sm:gap-3 w-full max-w-md">
               {[
@@ -501,21 +501,21 @@ function UnlockedPanel({
           <UnlockedCard
             icon={FileText}
             title="Why This Round"
-            body="Two-part seed: $2.5M–$3.5M now to launch and ignite the flywheel. Part 2 scales once proven — with the goal of reaching self-sustainability without a traditional Series A."
+            body="Lean seed: $1M target / $2M hard cap to launch the token, seed the LP, and prove the flywheel."
             to="/investor/why-this-round"
             internal
           />
           <UnlockedCard
             icon={FileText}
             title="Full Seed Round Deck"
-            body="11 slides. The two-part seed thesis, three engines, and the ask."
+            body="11 slides. The lean seed thesis, three engines, and the ask."
             to="/deck"
             internal
           />
           <UnlockedCard
             icon={FileText}
             title="One-Pager"
-            body="The leave-behind. Two-part seed at a glance."
+            body="The leave-behind. $1M target / $2M hard cap at a glance."
             to="/investor/one-pager"
             internal
           />

@@ -4,11 +4,11 @@ import { DeckCard, CardKicker } from '../../v3/DeckCard';
 import { Sparkles } from 'lucide-react';
 
 const useOfFunds = [
-  { bucket: 'Token Launch & Liquidity', range: '$625K – $875K' },
-  { bucket: 'Legal, Compliance & Audits', range: '$500K – $700K' },
-  { bucket: 'App Polish & Onboarding', range: '$375K – $525K' },
-  { bucket: 'Growth & User Acquisition', range: '$375K – $525K' },
-  { bucket: 'Operational Runway (18–24 months)', range: '$625K – $875K' },
+  { bucket: 'Token Launch & Liquidity', amount: '$250K' },
+  { bucket: 'Legal, Compliance & Audits', amount: '$200K' },
+  { bucket: 'App Polish & Onboarding', amount: '$150K' },
+  { bucket: 'Growth & User Acquisition', amount: '$150K' },
+  { bucket: 'Operational Runway (18–24 months)', amount: '$250K' },
 ];
 
 export function S11Ask() {
@@ -27,15 +27,15 @@ export function S11Ask() {
       <div className="absolute inset-0 flex flex-col px-24 pt-28 pb-20">
         <SectionHeader
           kicker="The Ask"
-          title="Seed Round — Part 1 of 2 · $2.5M – $3.5M · Convertible Note."
-          subtitle="Part 1 launches the token and ignites the flywheel. Part 2 scales once traction is proven — designed to reach self-sustainability without a traditional Series A."
+          title="Seed Round — $1M Target · $2M Hard Cap · Convertible Note."
+          subtitle="We are raising the absolute minimum required to ship mainnet, seed the LP, and prove the subscription flywheel — designed to reach self-sustainability without a traditional Series A."
         />
 
         <div className="grid grid-cols-12 gap-6 flex-1">
           <DeckCard className="col-span-8 !p-0 overflow-hidden">
             <div className="px-5 py-3 border-b border-border/60 bg-card/40">
               <CardKicker className="text-white/55">
-                Use of Funds · Part 1 ($2.5M – $3.5M)
+                Use of Funds · $1M Target
               </CardKicker>
             </div>
             <div className="divide-y divide-border/40">
@@ -48,12 +48,12 @@ export function S11Ask() {
                     {r.bucket}
                   </div>
                   <div className="text-[20px] font-semibold text-secondary tabular-nums whitespace-nowrap">
-                    {r.range}
+                    {r.amount}
                   </div>
                 </div>
               ))}
               <div className="px-5 py-3 bg-card/40 text-[13px] italic text-white/55">
-                Indicative allocations across the $2.5M – $3.5M Part 1 range.
+                Hard cap of $2M absorbs oversubscription into LP depth and extended runway.
               </div>
             </div>
           </DeckCard>
@@ -64,9 +64,9 @@ export function S11Ask() {
               <ul className="mt-4 space-y-2.5">
                 {[
                   'Mainnet TGE on Base (chain 8453)',
-                  '1,000 verified homes',
-                  'Subscriptions live ($9.99 + Deason $4.99)',
-                  '2nd LP tranche seeded',
+                  'LP seeded at $0.10 ($200K USDC + 2M $ZSOLAR)',
+                  '1,000 paying subscribers',
+                  'Deason AI premium add-on live',
                   'Path to self-sustainability (no Series A required)',
                 ].map((m) => (
                   <li
@@ -81,11 +81,10 @@ export function S11Ask() {
             </DeckCard>
 
             <DeckCard className="flex-1">
-              <CardKicker className="text-amber-400/80">What Part 2 unlocks</CardKicker>
+              <CardKicker className="text-amber-400/80">Why so lean</CardKicker>
               <p className="text-[16px] text-white/75 mt-3 leading-relaxed">
-                Scale user acquisition, deepen liquidity, and expand rewardable
-                behaviors once Part 1 milestones are achieved and the flywheel
-                is validated.
+                Disciplined founder-led execution. 100% of subscription revenue
+                compounds into the LP. Scale on usage, not on the next round.
               </p>
             </DeckCard>
           </div>

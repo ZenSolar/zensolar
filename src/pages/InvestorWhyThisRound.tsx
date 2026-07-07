@@ -17,18 +17,17 @@ import {
 } from 'lucide-react';
 
 const USE_OF_FUNDS = [
-  { name: 'Token Launch & Liquidity', weight: 25, low: '$625K', high: '$875K', note: 'Launch infrastructure + initial LP seeding' },
-  { name: 'Legal, Compliance & Audits', weight: 20, low: '$500K', high: '$700K', note: 'Securities counsel, compliance, smart-contract audits' },
-  { name: 'App Polish & Onboarding', weight: 15, low: '$375K', high: '$525K', note: 'Mobile polish, OAuth reliability, embedded wallet flows' },
-  { name: 'Growth & User Acquisition', weight: 15, low: '$375K', high: '$525K', note: 'Installer channels, creator tests, early paid acquisition' },
-  { name: 'Operational Runway (18–24 months)', weight: 25, low: '$625K', high: '$875K', note: 'Disciplined founder-led execution' },
+  { name: 'Token Launch & Liquidity', weight: 25, low: '$250K', high: '$500K', note: 'Launch infrastructure + initial LP seeding' },
+  { name: 'Legal, Compliance & Audits', weight: 20, low: '$200K', high: '$400K', note: 'Securities counsel, compliance, smart-contract audits' },
+  { name: 'App Polish & Onboarding', weight: 15, low: '$150K', high: '$300K', note: 'Mobile polish, OAuth reliability, embedded wallet flows' },
+  { name: 'Growth & User Acquisition', weight: 15, low: '$150K', high: '$300K', note: 'Installer channels, creator tests, early paid acquisition' },
+  { name: 'Operational Runway (18–24 months)', weight: 25, low: '$250K', high: '$500K', note: 'Disciplined founder-led execution' },
 ];
 
 const USER_MILESTONES = [
   { stage: 'Beta', users: '23', detail: 'Known clean-tech users validating multi-OEM monitoring' },
-  { stage: 'Launch', users: '1K', detail: 'Verified households connected and minting' },
-  { stage: 'Round 1 target', users: '10K–25K', detail: 'Paid users proving subscription + token flywheel economics' },
-  { stage: 'Round 2 target', users: '100K+', detail: 'Scaled acquisition with enough volume for data revenue pilots' },
+  { stage: 'Launch', users: '1K', detail: 'Paying subscribers connected and minting' },
+  { stage: 'Scale target', users: '10K–25K', detail: 'Paid users proving subscription + token flywheel economics' },
 ];
 
 const REVENUE_PROJECTIONS = [
@@ -47,9 +46,9 @@ const FLYWHEEL_NODES = [
 ];
 
 const TIMELINE_STEPS = [
-  { label: 'Round 1', sub: '$2.5M–$3.5M launch capital', icon: Rocket },
-  { label: 'Proof Points', sub: '10K–25K paid users + live minting', icon: Activity },
-  { label: 'Round 2', sub: 'Follow-on seed for scale', icon: TrendingUp },
+  { label: 'Seed Round', sub: '$1M–$2M launch capital', icon: Rocket },
+  { label: 'Proof Points', sub: '1K–25K paid users + live minting', icon: Activity },
+  { label: 'Follow-on', sub: 'Seed extension for scale', icon: TrendingUp },
   { label: 'Self-Sustainability', sub: 'Goal: no Series A needed', icon: Flag },
 ];
 
@@ -57,10 +56,10 @@ export default function InvestorWhyThisRound() {
   return (
     <>
       <Helmet>
-        <title>ZenSolar — Why We're Raising $2.5M–$3.5M</title>
+        <title>ZenSolar — Why We're Raising $1M–$2M</title>
         <meta
           name="description"
-          content="Transparent look at progress already shipped, what this round funds, and our two-round path to self-sustainability."
+          content="Transparent look at progress already shipped, what this lean seed funds, and our path to self-sustainability."
         />
         <link rel="canonical" href="https://www.zensolar.com/investor/why-this-round" />
       </Helmet>
@@ -82,11 +81,11 @@ export default function InvestorWhyThisRound() {
             </div>
             <h1 className="text-3xl md:text-5xl font-semibold leading-[1.05] tracking-tight">
               Why We're Raising
-              <br className="hidden md:block" /> $2.5M – $3.5M Now
+              <br className="hidden md:block" /> $1M – $2M Now
             </h1>
             <p className="mt-5 text-base md:text-lg text-muted-foreground leading-relaxed">
-              What's already shipped, what this round funds, and the two-round
-              path to self-sustainability.
+              What's already shipped, what this lean seed funds, and the path to
+              self-sustainability.
             </p>
           </header>
 
@@ -315,13 +314,13 @@ export default function InvestorWhyThisRound() {
 
               <div className="grid gap-3 md:grid-cols-3 mb-6">
                 <div className="rounded-2xl border border-secondary/30 bg-secondary/[0.05] p-4">
-                  <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-1.5">Round 1 — Now</div>
-                  <div className="text-lg font-semibold text-foreground">$2.5M – $3.5M</div>
-                  <p className="mt-1.5 text-[12px] text-muted-foreground leading-relaxed">First part of our seed. Funds launch, audits, and early growth.</p>
+                  <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-1.5">Seed Round — Now</div>
+                  <div className="text-lg font-semibold text-foreground">$1M – $2M</div>
+                  <p className="mt-1.5 text-[12px] text-muted-foreground leading-relaxed">Lean seed. Funds launch, audits, and early growth.</p>
                 </div>
                 <div className="rounded-2xl border border-border/60 bg-background/40 p-4">
-                  <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-1.5">Round 2 — Follow-on</div>
-                  <div className="text-lg font-semibold text-foreground">$5M – $7M</div>
+                  <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-1.5">Follow-on — Extension</div>
+                  <div className="text-lg font-semibold text-foreground">$2M – $4M</div>
                   <p className="mt-1.5 text-[12px] text-muted-foreground leading-relaxed">Raised once early traction and flywheel momentum are proven.</p>
                 </div>
                 <div className="rounded-2xl border border-border/60 bg-background/40 p-4">
@@ -469,7 +468,7 @@ function UseOfFundsChart() {
   return (
     <div className="mt-6 rounded-2xl border border-border/60 bg-card/30 p-4 md:p-6">
       <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-4">
-        Allocation · Part 1 ($2.5M – $3.5M)
+        Allocation · $1M Target ($2M Hard Cap)
       </div>
       <div className="space-y-4">
         {USE_OF_FUNDS.map((item) => (
@@ -492,7 +491,7 @@ function UseOfFundsChart() {
         ))}
       </div>
       <p className="text-[11px] text-muted-foreground mt-4 leading-relaxed">
-        Indicative allocations across the $2.5M – $3.5M Part 1 range.
+        Low end = $1M target; high end = $2M hard cap. Oversubscription goes to LP depth and extended runway.
       </p>
     </div>
   );
@@ -626,7 +625,7 @@ function TwoRoundTimeline() {
   return (
     <div className="mt-6 rounded-2xl border border-border/60 bg-background/40 p-5 md:p-6">
       <div className="text-[10px] uppercase tracking-[0.22em] text-secondary mb-5">
-        Two-Round Path
+        Path to Self-Sustainability
       </div>
       <div className="relative">
         <div className="absolute left-0 right-0 top-4 h-px bg-border/60" aria-hidden />

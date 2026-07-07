@@ -74,8 +74,8 @@ export default function InvestorPitch() {
             </p>
             <div className="mt-7 grid grid-cols-3 gap-3 w-full max-w-md">
               {[
-                { k: '$2.5M – $3.5M', v: 'Part 1 — now' },
-                { k: 'Two-Part', v: 'Seed strategy' },
+                { k: '$1M Target', v: 'Lean seed — now' },
+                { k: '$2M Hard Cap', v: 'Oversub → LP' },
                 { k: 'Convertible Note', v: 'Instrument' },
               ].map((s) => (
                 <div
@@ -150,36 +150,41 @@ export default function InvestorPitch() {
           </h2>
           <div className="rounded-3xl border border-secondary/30 bg-secondary/5 p-6 md:p-8">
             <div className="text-base md:text-lg font-semibold text-foreground">
-              Seed Round — Part 1 of 2 · $2.5M – $3.5M · Convertible Note
+              Seed Round — $1M Target · $2M Hard Cap · Convertible Note
             </div>
             <p className="mt-2 text-[13px] text-muted-foreground leading-relaxed">
-              Part 1 launches the token and ignites the flywheel. Part 2 scales once traction is
-              proven — designed to reach self-sustainability without a traditional Series A.
+              We are raising the absolute minimum required to ship mainnet, seed the LP, and prove
+              the subscription flywheel — designed to reach self-sustainability without a
+              traditional Series A.
             </p>
 
-            {/* Use of Funds — Part 1 ($2.5M – $3.5M) */}
+            {/* Use of Funds — $1M Target */}
             <div className="mt-6 rounded-2xl border border-border/60 bg-background/40 overflow-hidden">
               <div className="px-4 py-2.5 border-b border-border/60 bg-card/40">
                 <div className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground font-semibold">
-                  Use of Funds · Part 1 ($2.5M – $3.5M)
+                  Use of Funds · $1M Target
                 </div>
               </div>
               <div className="divide-y divide-border/40">
                 {[
-                  { bucket: 'Token Launch & Liquidity', range: '$625K – $875K' },
-                  { bucket: 'Legal, Compliance & Audits', range: '$500K – $700K' },
-                  { bucket: 'App Polish & Onboarding', range: '$375K – $525K' },
-                  { bucket: 'Growth & User Acquisition', range: '$375K – $525K' },
-                  { bucket: 'Operational Runway (18–24 months)', range: '$625K – $875K' },
+                  { bucket: 'Token Launch & Liquidity', amount: '$250K' },
+                  { bucket: 'Legal, Compliance & Audits', amount: '$200K' },
+                  { bucket: 'App Polish & Onboarding', amount: '$150K' },
+                  { bucket: 'Growth & User Acquisition', amount: '$150K' },
+                  { bucket: 'Operational Runway (18–24 months)', amount: '$250K' },
                 ].map((row) => (
                   <div key={row.bucket} className="flex items-baseline justify-between gap-3 px-4 py-2.5">
                     <div className="text-[13px] font-medium text-foreground leading-tight">{row.bucket}</div>
-                    <div className="text-[13px] font-semibold text-secondary tabular-nums whitespace-nowrap">{row.range}</div>
+                    <div className="text-[13px] font-semibold text-secondary tabular-nums whitespace-nowrap">{row.amount}</div>
                   </div>
                 ))}
+                <div className="flex items-baseline justify-between gap-3 px-4 py-3 bg-secondary/10">
+                  <div className="text-[13px] font-semibold text-foreground">Total</div>
+                  <div className="text-[14px] font-bold text-secondary tabular-nums">$1M</div>
+                </div>
               </div>
               <p className="px-4 py-2.5 text-[11px] italic text-muted-foreground border-t border-border/40 bg-card/20">
-                Indicative allocations across the $2.5M – $3.5M Part 1 range.
+                Hard cap of $2M absorbs oversubscription into LP depth and extended runway — no bloat, no headcount creep.
               </p>
             </div>
 
@@ -191,16 +196,16 @@ export default function InvestorPitch() {
               <li className="flex gap-3">
                 <span className="text-secondary font-semibold shrink-0">Milestones —</span>
                 <span>
-                  Mainnet TGE on Base (chain 8453), 1,000 verified homes, subscription revenue live
-                  with Deason AI add-on, 2nd LP tranche seeded, path to self-sustainability (no
-                  Series A required).
+                  Mainnet TGE on Base (chain 8453), LP seeded at $0.10 with the $200K tranche, first
+                  1,000 paying subscribers, Deason AI premium add-on live, Proof-of-Genesis™ IP
+                  filings completed.
                 </span>
               </li>
               <li className="flex gap-3">
-                <span className="text-secondary font-semibold shrink-0">What Part 2 unlocks —</span>
+                <span className="text-secondary font-semibold shrink-0">Why so lean —</span>
                 <span>
-                  Scales acquisition, LP depth, and rewardable behaviors once Part 1 milestones
-                  are hit and the flywheel is proven.
+                  Disciplined founder-led execution. 100% of subscription revenue compounds into the
+                  LP. Scale on usage, not on the next round.
                 </span>
               </li>
             </ul>
