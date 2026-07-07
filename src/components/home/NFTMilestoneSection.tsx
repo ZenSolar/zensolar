@@ -1,65 +1,9 @@
 import { motion } from 'framer-motion';
-import { Badge } from '@/components/ui/badge';
 import { Award, Sun, BatteryFull, Zap, Car, Trophy, Star, Hexagon } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { ArrowRight } from 'lucide-react';
 import { CategoryProgressRing } from './nft/CategoryProgressRing';
-import { TrophyShelf } from './nft/TrophyShelf';
-
-// Demo "earned" state — first few in each category are earned for showcase
-const solarNFTs = [
-  { id: 'solar_1', name: 'Sunspark', earned: true },
-  { id: 'solar_2', name: 'Photonic', earned: true },
-  { id: 'solar_3', name: 'Rayforge', earned: true },
-  { id: 'solar_4', name: 'Solaris', earned: false },
-  { id: 'solar_5', name: 'Helios', earned: false },
-  { id: 'solar_6', name: 'Sunforge', earned: false },
-  { id: 'solar_7', name: 'Gigasun', earned: false },
-  { id: 'solar_8', name: 'Starforge', earned: false },
-];
-
-const batteryNFTs = [
-  { id: 'battery_1', name: 'Voltbank', earned: true },
-  { id: 'battery_2', name: 'Gridpulse', earned: true },
-  { id: 'battery_3', name: 'Megacell', earned: false },
-  { id: 'battery_4', name: 'Reservex', earned: false },
-  { id: 'battery_5', name: 'Dynamax', earned: false },
-  { id: 'battery_6', name: 'Ultracell', earned: false },
-  { id: 'battery_7', name: 'Gigavolt', earned: false },
-];
-
-const chargeNFTs = [
-  { id: 'charge_1', name: 'Ignite', earned: true },
-  { id: 'charge_2', name: 'Voltcharge', earned: true },
-  { id: 'charge_3', name: 'Kilovolt', earned: true },
-  { id: 'charge_4', name: 'Ampforge', earned: true },
-  { id: 'charge_5', name: 'Chargeon', earned: false },
-  { id: 'charge_6', name: 'Gigacharge', earned: false },
-  { id: 'charge_7', name: 'Megacharge', earned: false },
-  { id: 'charge_8', name: 'Teracharge', earned: false },
-];
-
-const evNFTs = [
-  { id: 'ev_1', name: 'Sparkstart', earned: true },
-  { id: 'ev_2', name: 'Velocity', earned: false },
-  { id: 'ev_3', name: 'Autobahn', earned: false },
-  { id: 'ev_4', name: 'Hyperdrive', earned: false },
-  { id: 'ev_5', name: 'Electra', earned: false },
-  { id: 'ev_6', name: 'Velocity Pro', earned: false },
-  { id: 'ev_7', name: 'Mach One', earned: false },
-  { id: 'ev_8', name: 'Centauri', earned: false },
-  { id: 'ev_9', name: 'Voyager', earned: false },
-  { id: 'ev_10', name: 'Odyssey', earned: false },
-];
-
-const comboNFTs = [
-  { id: 'combo_1', name: 'Duality', earned: true },
-  { id: 'combo_2', name: 'Trifecta', earned: false },
-  { id: 'combo_3', name: 'Quadrant', earned: false },
-  { id: 'combo_4', name: 'Constellation', earned: false },
-  { id: 'combo_5', name: 'Cyber Echo', earned: false },
-  { id: 'combo_6', name: 'Zenith', earned: false },
-  { id: 'combo_7', name: 'ZenMaster', earned: false },
-  { id: 'combo_8', name: 'Total Eclipse', earned: false },
-];
 
 const categories = [
   { icon: Sun, label: 'Solar', earned: 3, total: 8, from: '#f59e0b', to: '#f97316' },
@@ -196,14 +140,20 @@ export function NFTMilestoneSection() {
           </div>
         </motion.div>
 
-        {/* ── Trophy Shelf — NFT Artwork Grid ── */}
-        <div className="space-y-8">
-          <TrophyShelf title="Solar Production" nfts={solarNFTs} accentColor="solar" delay={0} />
-          <TrophyShelf title="Battery Storage" nfts={batteryNFTs} accentColor="eco" delay={0.05} />
-          <TrophyShelf title="EV Charging" nfts={chargeNFTs} accentColor="primary" delay={0.1} />
-          <TrophyShelf title="EV Miles Driven" nfts={evNFTs} accentColor="token" delay={0.15} />
-          <TrophyShelf title="Combo Achievements" nfts={comboNFTs} accentColor="accent" delay={0.2} />
-        </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2 }}
+          className="flex justify-center mt-8"
+        >
+          <Button asChild variant="outline" className="border-token/30 hover:bg-token/10">
+            <Link to="/nft-collection">
+              Preview Full Collection
+              <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+            </Link>
+          </Button>
+        </motion.div>
 
         {/* Bottom note */}
         <motion.div

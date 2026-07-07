@@ -13,12 +13,12 @@ const FloatingSectionNav = lazy(() =>
 
 // Lazy-load below-the-fold sections for faster initial paint
 const HowItWorksSection = lazy(() => import('@/components/home/HowItWorksSection').then(m => ({ default: m.HowItWorksSection })));
-const DashboardShowcase = lazy(() => import('@/components/home/DashboardShowcase').then(m => ({ default: m.DashboardShowcase })));
+
 const CleanEnergyCenterShowcase = lazy(() => import('@/components/home/CleanEnergyCenterShowcase').then(m => ({ default: m.CleanEnergyCenterShowcase })));
 const NFTMilestoneSection = lazy(() => import('@/components/home/NFTMilestoneSection').then(m => ({ default: m.NFTMilestoneSection })));
 const StoreRedemptionSection = lazy(() => import('@/components/home/StoreRedemptionSection').then(m => ({ default: m.StoreRedemptionSection })));
 const WhyZenSolarSection = lazy(() => import('@/components/home/WhyZenSolarSection').then(m => ({ default: m.WhyZenSolarSection })));
-const TokenizationWaveSection = lazy(() => import('@/components/home/TokenizationWaveSection').then(m => ({ default: m.TokenizationWaveSection })));
+
 const PricingSection = lazy(() => import('@/components/home/PricingSection').then(m => ({ default: m.PricingSection })));
 const SubscriptionTransparencyPanel = lazy(() => import('@/components/home/SubscriptionTransparencyPanel').then(m => ({ default: m.SubscriptionTransparencyPanel })));
 const TestimonialsSection = lazy(() => import('@/components/home/TestimonialsSection').then(m => ({ default: m.TestimonialsSection })));
@@ -62,9 +62,6 @@ export default function Home() {
               <HowItWorksSection />
             </LazySection>
             <LazySection>
-              <DashboardShowcase />
-            </LazySection>
-            <LazySection>
               <CleanEnergyCenterShowcase />
             </LazySection>
             <LazySection>
@@ -75,9 +72,6 @@ export default function Home() {
             </LazySection>
             <LazySection>
               <WhyZenSolarSection />
-            </LazySection>
-            <LazySection>
-              <TokenizationWaveSection />
             </LazySection>
             <LazySection>
               <PricingSection />
