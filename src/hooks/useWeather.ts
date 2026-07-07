@@ -53,9 +53,9 @@ export function getWeatherDescription(code: number): string {
   return WMO_DESCRIPTIONS[code] || 'Unknown';
 }
 
-const WEATHER_CACHE_KEY = 'weather_cache';
+const WEATHER_CACHE_KEY = 'weather_cache_v2';
 const WEATHER_CACHE_TTL = 30 * 60 * 1000; // 30 minutes
-const LOCATION_CACHE_KEY = 'user_location_cache';
+const LOCATION_CACHE_KEY = 'user_location_cache_v2';
 const LOCATION_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
 
 interface CachedLocation {
