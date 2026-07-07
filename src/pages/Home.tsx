@@ -4,6 +4,17 @@ import { LiveStatsBar } from '@/components/home/LiveStatsBar';
 import { HomeNav } from '@/components/home/HomeNav';
 import { LazySection } from '@/components/home/LazySection';
 import { lazy, Suspense } from 'react';
+import { Navigate } from 'react-router-dom';
+
+// Hosts that should always land on the gated /demo experience instead of
+// the marketing home page.
+const GATED_HOSTS = new Set([
+  'zensolar.com',
+  'www.zensolar.com',
+  'zen.solar',
+  'www.zen.solar',
+]);
+
 
 // Defer the floating section nav — it pulls in framer-motion, Vaul drawer,
 // and @capacitor/haptics, none of which are needed for first paint.
