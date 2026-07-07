@@ -45,6 +45,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
     });
 
+    // Validate any cached session against the server. If the session was
+    // revoked elsewhere (e.g. signed out on another origin), clear it locally
+    // so we stop firing edge-function calls with a dead JWT.
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) return;
+      supabase.auth.getUser().then(({ error }) => {
+        const code = (error as any)?.code || (error as any)?.name || '';
+        const status = (error as any)?.status;
+        if (error && (status === 401 || status === 403 || String(code).includes('session_not_found'))) {
+          console.warn('[Auth] Cached session is invalid on server; signing out');
+          supabase.auth.signOut();
+        }
+      });
+    });
+
     // Fallback: if onAuthStateChange hasn't fired within 2s (e.g. no cached session),
     // stop loading to prevent infinite spinner.
     const fallbackTimer = setTimeout(() => {
