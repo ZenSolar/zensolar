@@ -52,7 +52,7 @@ function DataRoomContent() {
     <div className="min-h-screen bg-[hsl(220,20%,6%)] text-white">
       <Helmet>
         <title>ZenSolar · Investor Data Room</title>
-        <meta name="description" content="ZenSolar investor data room — Proof-of-Genesis™, VPP, aggregated data, traction, and IP. Two-part seed strategy ($2.5M–$3.5M Part 1)." />
+        <meta name="description" content="ZenSolar investor data room — Proof-of-Genesis™, VPP, aggregated data, traction, and IP. Lean seed strategy ($1M target / $2M hard cap)." />
         <meta name="robots" content="noindex,nofollow" />
         <link rel="canonical" href="https://www.zensolar.com/investor/data-room" />
       </Helmet>
@@ -70,7 +70,7 @@ function DataRoomContent() {
 
         <p className="text-[11px] uppercase tracking-[0.2em] text-white/35">Confidential — For verified investors only</p>
         <p className="mt-3 text-[14px] font-mono tracking-[0.28em] uppercase text-secondary">
-          Seed Round — Part 1 of 2
+          Seed Round — $1M Target · $2M Hard Cap
         </p>
         <p className="mt-1 text-[12px] font-mono tracking-[0.24em] uppercase text-white/45 mb-4">
           Confidential · Investor Data Room
@@ -80,9 +80,9 @@ function DataRoomContent() {
         </h1>
         <p className="mt-4 text-[18px] md:text-[20px] text-white/55 max-w-[900px] leading-relaxed">
           Deeper materials behind the seed deck — technology, revenue engines,
-          raise milestones, traction, and IP. Part 1 launches the token and
-          ignites the flywheel. Part 2 scales once traction is proven — designed
-          to reach self-sustainability without a traditional Series A.
+          raise milestones, traction, and IP. We are raising a lean seed to ship
+          mainnet, seed the LP, and prove the flywheel — designed to reach
+          self-sustainability without a traditional Series A.
         </p>
         <div
           className="mt-6 h-px w-full"
@@ -95,9 +95,9 @@ function DataRoomContent() {
 
         {/* Round Overview */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-3">
-          <StatTile value="$2.5M – $3.5M" label="Part 1 — now" emphasized />
+          <StatTile value="$1M Target" label="Lean seed — now" emphasized />
+          <StatTile value="$2M Hard Cap" label="Oversub → LP" />
           <StatTile value="Convertible Note" label="Instrument" />
-          <StatTile value="Two-Part Seed" label="Path to self-sustainability" />
         </div>
 
         {/* Related materials */}
@@ -111,7 +111,7 @@ function DataRoomContent() {
                 One-Pager <ArrowRight className="w-3.5 h-3.5 text-white/40 group-hover:text-secondary transition" />
               </div>
               <p className="mt-1 text-[12px] text-white/50 leading-snug">
-                Two-part seed at a glance — $2.5M–$3.5M Part 1.
+                Lean seed at a glance — $1M target / $2M hard cap.
               </p>
             </Link>
             <Link to="/investor/why-this-round" className="group rounded-lg border border-border/50 bg-background/30 hover:bg-background/50 transition p-3">
@@ -119,7 +119,7 @@ function DataRoomContent() {
                 Why This Round <ArrowRight className="w-3.5 h-3.5 text-white/40 group-hover:text-secondary transition" />
               </div>
               <p className="mt-1 text-[12px] text-white/50 leading-snug">
-                What Part 1 funds and the path to self-sustainability.
+                What the seed funds and the path to self-sustainability.
               </p>
             </Link>
             <Link to="/deck" className="group rounded-lg border border-border/50 bg-background/30 hover:bg-background/50 transition p-3">
@@ -127,7 +127,7 @@ function DataRoomContent() {
                 Full Deck <ArrowRight className="w-3.5 h-3.5 text-white/40 group-hover:text-secondary transition" />
               </div>
               <p className="mt-1 text-[12px] text-white/50 leading-snug">
-                Full narrative — Part 1 launch, Part 2 scale, long-term vision.
+                Full narrative — lean seed, three engines, long-term vision.
               </p>
             </Link>
           </div>
@@ -273,25 +273,25 @@ function DataRoomContent() {
           <DeckCard>
             <Kicker>04 · Use of Funds</Kicker>
             <h2 className="text-[32px] font-semibold leading-tight">
-              Part 1 ($2.5M – $3.5M) — Use of Funds &amp; Milestones
+              Use of Funds &amp; Milestones · $1M Target
             </h2>
 
             <div className="mt-6 space-y-2.5">
               {[
-                ['Token Launch & Liquidity', '$625K – $875K'],
-                ['Legal, Compliance & Audits', '$500K – $700K'],
-                ['App Polish & Onboarding', '$375K – $525K'],
-                ['Growth & User Acquisition', '$375K – $525K'],
-                ['Operational Runway (18–24 months)', '$625K – $875K'],
-              ].map(([name, range]) => (
+                ['Token Launch & Liquidity', '$250K'],
+                ['Legal, Compliance & Audits', '$200K'],
+                ['App Polish & Onboarding', '$150K'],
+                ['Growth & User Acquisition', '$150K'],
+                ['Operational Runway (18–24 months)', '$250K'],
+              ].map(([name, amount]) => (
                 <div key={name} className="flex items-baseline justify-between gap-4 rounded-lg border border-border/50 bg-background/30 px-4 py-3">
                   <span className="text-[15px] text-white/85">{name}</span>
-                  <span className="text-[14px] font-semibold tabular-nums text-secondary whitespace-nowrap">{range}</span>
+                  <span className="text-[14px] font-semibold tabular-nums text-secondary whitespace-nowrap">{amount}</span>
                 </div>
               ))}
             </div>
             <p className="mt-3 text-[12px] text-white/45 leading-snug">
-              Indicative allocations across the $2.5M – $3.5M Part 1 range.
+              Hard cap of $2M absorbs oversubscription into LP depth and extended runway — no bloat, no headcount creep.
             </p>
 
             <div className="mt-8">
@@ -300,8 +300,8 @@ function DataRoomContent() {
               </p>
               <ul className="space-y-2.5 text-[15px] text-white/75 leading-relaxed">
                 <li>· Mainnet anchor switch + LP Round 1 ($200K USDC + 2M $ZSOLAR @ $0.10)</li>
-                <li>· 10,000+ verified homes across Tesla, Enphase, SolarEdge, Wallbox</li>
-                <li>· VPP Phase 2 live (Leap pilot → CAISO settlement)</li>
+                <li>· 1,000 paying subscribers (100% of fees routed to LP)</li>
+                <li>· Deason AI premium add-on live</li>
                 <li>· Aggregated data product — first 3 utility / ISO contracts</li>
                 <li>· Utility patent issuance + 2 continuations filed</li>
                 <li>· Path to self-sustainability (no Series A required)</li>
