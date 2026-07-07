@@ -174,7 +174,7 @@ Deno.serve(async (req) => {
                   : `Here is my utility bill (${isPdf ? "PDF" : "photo"}). Please analyze it and produce my savings report.`,
               },
               { type: "image_url", image_url: { url: imageDataUrl } },
-
+            ],
           },
         ],
         tools: [ANALYZE_TOOL],
