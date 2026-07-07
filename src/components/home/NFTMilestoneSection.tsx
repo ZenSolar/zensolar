@@ -196,14 +196,6 @@ export function NFTMilestoneSection() {
           </div>
         </motion.div>
 
-        {/* ── Trophy Shelf — NFT Artwork Grid ── */}
-        <div className="space-y-8">
-          <TrophyShelf title="Solar Production" nfts={solarNFTs} accentColor="solar" delay={0} />
-          <TrophyShelf title="Battery Storage" nfts={batteryNFTs} accentColor="eco" delay={0.05} />
-          <TrophyShelf title="EV Charging" nfts={chargeNFTs} accentColor="primary" delay={0.1} />
-          <TrophyShelf title="EV Miles Driven" nfts={evNFTs} accentColor="token" delay={0.15} />
-          <TrophyShelf title="Combo Achievements" nfts={comboNFTs} accentColor="accent" delay={0.2} />
-        </div>
 
         {/* Bottom note */}
         <motion.div
