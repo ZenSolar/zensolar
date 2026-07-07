@@ -73,7 +73,8 @@ function getCachedLocation(): CachedLocation | null {
   try {
     const raw = localStorage.getItem(LOCATION_CACHE_KEY);
     if (!raw) return null;
-    if (raw) return JSON.parse(raw);
+    const cached: CachedLocation = JSON.parse(raw);
+    if (Date.now() - cached.timestamp < LOCATION_CACHE_TTL) return cached;
   } catch {}
   return null;
 }
