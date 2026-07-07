@@ -38,6 +38,9 @@ const HomeCTA = lazy(() => import('@/components/home/HomeCTA').then(m => ({ defa
 const HomeFooter = lazy(() => import('@/components/home/HomeFooter').then(m => ({ default: m.HomeFooter })));
 
 export default function Home() {
+  if (typeof window !== 'undefined' && GATED_HOSTS.has(window.location.hostname)) {
+    return <Navigate to="/demo" replace />;
+  }
   return (
     <>
       <SEO
