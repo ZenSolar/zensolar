@@ -140,6 +140,20 @@ export function NFTMilestoneSection() {
           </div>
         </motion.div>
 
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2 }}
+          className="flex justify-center mt-8"
+        >
+          <Button asChild variant="outline" className="border-token/30 hover:bg-token/10">
+            <Link to="/nft-collection">
+              Preview Full Collection
+              <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+            </Link>
+          </Button>
+        </motion.div>
 
         {/* Bottom note */}
         <motion.div
