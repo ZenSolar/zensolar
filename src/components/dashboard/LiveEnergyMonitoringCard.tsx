@@ -494,7 +494,7 @@ export function deriveTeslaFlow(t: CachedTelemetry | undefined, sessionActive: b
   const fastChargerPresent = (p as any)?.fast_charger_present === true ||
     (p as any)?.response?.charge_state?.fast_charger_present === true ||
     (p as any)?.vehicles?.[0]?.fast_charger_present === true;
-  const fastChargerBrand = pickString(p, ['fast_charger_brand', 'response.charge_state.fast_charger_brand']);
+  // fast_charger_brand intentionally not used — "Tesla" appears on Wall Connectors too.
   const phases = pickNumber(p, ['charger_phases', 'response.charge_state.charger_phases']);
 
   const stateStr = (rawChargingState ?? '').toLowerCase();
