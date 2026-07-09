@@ -504,11 +504,20 @@ export function deriveTeslaFlow(t: CachedTelemetry | undefined, sessionActive: b
   // Source detection — mirror tesla-charge-monitor backend heuristic:
   // unknown AC charging defaults to HOME (not Public L2). Only label
   // 'supercharger' when we have positive DC-fast evidence.
+  //
+  // NOTE: Tesla's `fast_charger_type` returns "Tesla" for BOTH Superchargers
+  // and Tesla Wall Connectors, and `fast_charger_brand` is "Tesla" on any
+  // Tesla-branded charger. Neither string alone proves DC-fast. The reliable
+  // positive signals are `fast_charger_present === true`, an explicit
+  // non-Tesla DC connector (CCS/Combo/CHAdeMO), or delivered power above
+  // ~25 kW (Wall Connectors top out around 11.5 kW). AC charging on a Wall
+  // Connector will report `fast_charger_present: false` even when
+  // `fast_charger_type: "Tesla"` — so we no longer treat that string as DC.
   const fc = (fastChargerType ?? '').toLowerCase();
-  const brand = (fastChargerBrand ?? '').toLowerCase();
-  const isDcFast = fastChargerPresent ||
-    fc.includes('supercharger') || fc.includes('combo') || fc.includes('chademo') || fc === 'tesla' ||
-    brand.includes('tesla') || brand.includes('supercharger');
+  const isDcConnector =
+    fc.includes('combo') || fc.includes('ccs') || fc.includes('chademo') ||
+    fc.includes('supercharger');
+  const isDcFast = fastChargerPresent === true || isDcConnector || kW > 25;
   let source: TeslaFlow['source'];
   let sourceLabel: string;
   if (isDcFast) {
