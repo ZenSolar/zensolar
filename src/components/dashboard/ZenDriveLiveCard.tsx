@@ -10,15 +10,14 @@
  * any solar flow lines — that's the ZenEnergy card's job.
  */
 import { Link } from 'react-router-dom';
-import { ArrowRight, BatteryCharging, Car, Home, Route, Sun, Zap } from 'lucide-react';
+import { ArrowRight, Car, Home, Zap } from 'lucide-react';
 import { LiveCardHeader } from './LiveCardHeader';
 
 import {
-  EVTile,
   MetricTile,
   deriveTeslaFlow,
-  type TeslaFlow,
 } from './LiveEnergyMonitoringCard';
+import { ChargingHero } from './ChargingHero';
 import {
   useEVChargerTelemetry,
   useBatteryTelemetry,
@@ -26,7 +25,7 @@ import {
   useEVTotals,
 } from '@/hooks/useDeviceTelemetry';
 import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
-import { resolveVehicleAsset, VEHICLE_LABEL, VEHICLE_COLOR_LABEL } from './EnergyFlowScene.scenes';
+import { resolveVehicleAsset } from './EnergyFlowScene.scenes';
 import { useState, useEffect, useRef, useMemo } from 'react';
 
 function formatAge(iso: string | null) {
