@@ -45,67 +45,7 @@ function freshnessClass(iso: string | null, fresh: boolean) {
   return 'bg-muted/40 text-muted-foreground ring-muted/50';
 }
 
-/** One-line "where the electrons are coming from" callout. Renders for any
- *  active Tesla charging session — home (solar/Powerwall/grid) or Supercharger /
- *  public DC fast. Keeps a single intentional touch-point between the Drive
- *  card and the Energy card. */
-function ChargingFromHomeLine({
-  tesla,
-  solarKw,
-  batteryKw,
-}: {
-  tesla: TeslaFlow;
-  solarKw: number;
-  batteryKw: number; // + charging, − discharging
-}) {
-  if (!tesla.isCharging) return null;
-  const kw = tesla.kW.toFixed(1);
-  const milesPerHr = Math.round(tesla.kW * 3.3);
-
-  // Supercharger / public DC fast — green "in progress" pill, matching the
-  // home/AC pattern. kW + mi/hr details live in the EVTile card below.
-  if (tesla.source === 'supercharger' || tesla.source === 'public') {
-    const label =
-      tesla.source === 'supercharger'
-        ? 'Supercharging in progress'
-        : 'Fast charging in progress';
-    return (
-      <div className="flex items-center gap-2 rounded-lg border border-emerald-400/25 bg-emerald-500/[0.06] px-3 py-2 text-[12px] text-emerald-100/90">
-        <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_hsla(142,76%,50%,0.7)]">
-          <span className="absolute inset-0 inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
-        </span>
-        <BatteryCharging className="h-3.5 w-3.5 text-emerald-300" />
-        <span className="font-semibold">{label}</span>
-      </div>
-    );
-  }
-
-  if (tesla.source !== 'home') return null;
-
-  // Best-guess narration: solar covers it, Powerwall covers it, or grid.
-  let source = 'home';
-  if (solarKw > tesla.kW * 0.75) source = 'your solar';
-  else if (batteryKw < -0.2 && Math.abs(batteryKw) >= tesla.kW * 0.5) source = 'your Powerwall';
-  else if (solarKw > 0.3) source = 'solar + grid';
-  else source = 'the grid';
-
-  return (
-    <div className="flex items-center gap-2 rounded-lg border border-emerald-400/25 bg-emerald-500/[0.06] px-3 py-2 text-[12px] text-emerald-100/90">
-      <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_hsla(142,76%,50%,0.7)]">
-        <span className="absolute inset-0 inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
-      </span>
-      {source.startsWith('your solar') ? (
-        <Sun className="h-3.5 w-3.5 text-amber-300" />
-      ) : (
-        <BatteryCharging className="h-3.5 w-3.5 text-emerald-300" />
-      )}
-      <span>
-        Charging from <span className="font-semibold">{source}</span>
-        <span className="text-emerald-200/70"> · {kw} kW · +{milesPerHr} mi/hr</span>
-      </span>
-    </div>
-  );
-}
+/* Charging source narration lives inside ChargingHero now. */
 
 export interface ZenDriveLiveCardProps {
   /** Render even when no Tesla is connected (shows an empty/connect state). */
