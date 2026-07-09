@@ -50,17 +50,17 @@ export function ChargingHero({
   const cs = payload?.charge_state ?? payload?.response?.charge_state ?? payload;
   const soc = num(pick(payload, ['battery_level', 'usable_battery_level', 'response.charge_state.battery_level'])) ?? num(cs?.battery_level);
   const range = num(pick(payload, ['battery_range', 'ideal_battery_range', 'est_battery_range', 'response.charge_state.battery_range']));
-  const chargeLimit = num(pick(payload, ['charge_limit_soc', 'response.charge_state.charge_limit_soc'])) ?? 80;
-  const minutesToLimit = num(pick(payload, ['minutes_to_charge_limit', 'response.charge_state.minutes_to_charge_limit', 'time_to_full_charge']));
+  const chargeLimit = num(pick(payload, ['charge_limit_soc', 'response.charge_state.charge_limit_soc']));
+  const minutesToLimit = num(pick(payload, ['minutes_to_charge_limit', 'response.charge_state.minutes_to_charge_limit']));
   const rawTtf = num(pick(payload, ['time_to_full_charge', 'response.charge_state.time_to_full_charge']));
   const timeMins = minutesToLimit ?? (rawTtf ? rawTtf * 60 : null);
   const amps = num(pick(payload, ['charger_actual_current', 'response.charge_state.charger_actual_current']));
   const pilot = num(pick(payload, ['charger_pilot_current', 'response.charge_state.charger_pilot_current']));
   const volts = num(pick(payload, ['charger_voltage', 'response.charge_state.charger_voltage']));
+  const energyAdded = num(pick(payload, ['charge_energy_added', 'response.charge_state.charge_energy_added']));
 
   const isCharging = !!tesla?.isCharging;
   const kW = tesla?.kW ?? 0;
-  const miPerHr = Math.round(kW * 3.3);
 
   // Best-guess source narration for the pill (mirrors ChargingFromHomeLine)
   const sourceLabel = (() => {
@@ -74,26 +74,28 @@ export function ChargingHero({
     return { text: 'the grid', icon: Home };
   })();
 
+  const limitTarget = chargeLimit !== null ? `${Math.round(chargeLimit)}% limit` : 'charge limit';
   const etaText = (() => {
     if (!isCharging) return `Ready · ${soc !== null ? `${Math.round(soc)}% charged` : 'plug to charge'}`;
     if (timeMins && timeMins > 0) {
       const h = Math.floor(timeMins / 60);
       const m = Math.round(timeMins % 60);
       const dur = h > 0 ? `${h}h ${m}m` : `${m}m`;
-      return `${dur} to ${Math.round(chargeLimit)}% limit`;
+      return `${dur} remaining to ${limitTarget}`;
     }
-    return `Charging to ${Math.round(chargeLimit)}% limit`;
+    return `Charging to ${limitTarget}`;
   })();
 
   const dataChips: string[] = [];
-  if (isCharging && kW > 0) dataChips.push(`${kW.toFixed(1)} kW`);
-  if (isCharging && miPerHr > 0) dataChips.push(`+${miPerHr} mi/hr`);
+  if (isCharging && kW > 0) dataChips.push(`${kW.toFixed(0)} kW`);
+  if (isCharging && energyAdded !== null) dataChips.push(`+${energyAdded.toFixed(energyAdded < 10 ? 1 : 0)} kWh`);
   if (isCharging && amps !== null) dataChips.push(`${Math.round(amps)}${pilot ? `/${Math.round(pilot)}` : ''} A`);
   if (isCharging && volts !== null) dataChips.push(`${Math.round(volts)} V`);
-  if (soc !== null) dataChips.push(`${Math.round(soc)}% → ${Math.round(chargeLimit)}%`);
+  if (soc !== null && chargeLimit !== null) dataChips.push(`${Math.round(soc)}% → ${Math.round(chargeLimit)}%`);
+  else if (soc !== null) dataChips.push(`${Math.round(soc)}%`);
 
   const socPct = Math.max(0, Math.min(100, soc ?? 0));
-  const limitPct = Math.max(socPct, Math.min(100, chargeLimit));
+  const limitPct = chargeLimit !== null ? Math.max(socPct, Math.min(100, chargeLimit)) : socPct;
 
   return (
     <div className="relative mb-3 overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-b from-background/60 to-background/30 p-4 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.05)]">
@@ -208,7 +210,7 @@ export function ChargingHero({
           {range !== null && (
             <div className="mt-1 flex justify-between text-[10px] uppercase tracking-[0.14em] text-muted-foreground/70">
               <span>{Math.round(range)} mi range</span>
-              <span>{Math.round(chargeLimit)}% limit</span>
+              <span>{chargeLimit !== null ? `${Math.round(chargeLimit)}% limit` : ''}</span>
             </div>
           )}
         </div>
