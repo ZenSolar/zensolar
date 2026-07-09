@@ -11,7 +11,8 @@
  * Presentation-only. No telemetry side effects. All values passed in.
  */
 import { Zap, Sun, BatteryCharging, Home } from 'lucide-react';
-import { VEHICLE_LABEL, VEHICLE_COLOR_LABEL, type ResolvedVehicleAsset } from './EnergyFlowScene.scenes';
+import { VEHICLE_LABEL, VEHICLE_COLOR_LABEL, resolveVehicleAsset } from './EnergyFlowScene.scenes';
+type ResolvedVehicleAsset = ReturnType<typeof resolveVehicleAsset>;
 import type { TeslaFlow } from './LiveEnergyMonitoringCard';
 
 function pick(obj: any, paths: string[]): any {
