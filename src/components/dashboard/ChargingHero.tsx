@@ -210,7 +210,7 @@ export function ChargingHero({
           {range !== null && (
             <div className="mt-1 flex justify-between text-[10px] uppercase tracking-[0.14em] text-muted-foreground/70">
               <span>{Math.round(range)} mi range</span>
-              <span>{Math.round(chargeLimit)}% limit</span>
+              <span>{chargeLimit !== null ? `${Math.round(chargeLimit)}% limit` : ''}</span>
             </div>
           )}
         </div>
