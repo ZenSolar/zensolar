@@ -95,7 +95,7 @@ export function ChargingHero({
   else if (soc !== null) dataChips.push(`${Math.round(soc)}%`);
 
   const socPct = Math.max(0, Math.min(100, soc ?? 0));
-  const limitPct = Math.max(socPct, Math.min(100, chargeLimit));
+  const limitPct = chargeLimit !== null ? Math.max(socPct, Math.min(100, chargeLimit)) : socPct;
 
   return (
     <div className="relative mb-3 overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-b from-background/60 to-background/30 p-4 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.05)]">
