@@ -174,75 +174,43 @@ export function ZenDriveLiveCard({ alwaysRender = false }: ZenDriveLiveCardProps
         refreshing={refreshing}
       />
 
-      {/* Compact vehicle status card (replaces the old ZenXPill) — sits above
-          the car image, mirroring the Tesla app's vehicle summary tile. */}
+      {/* Tesla-app–grade charging hero: name, SOC%, ETA, animated cable,
+          car image, dense data row, and slim SOC→limit progress bar. */}
       <div
         ref={tileRef}
         id="zendrive-ev-tile"
         tabIndex={-1}
         aria-label="Vehicle details"
-        className={`mb-3 rounded-lg outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-primary ${
+        className={`rounded-2xl outline-none transition-shadow focus-visible:ring-2 focus-visible:ring-primary ${
           ping ? 'ring-2 ring-primary/60 shadow-[0_0_24px_hsl(var(--primary)/0.35)]' : ''
         }`}
       >
-        {ev.data.map((t) => (
-          <EVTile
-            key={`zd-${t.oem}-${t.site_id}`}
-            t={t}
-            totals7d={evTotals.totals}
-            liveDot={teslaFlow?.isCharging && t.oem === 'tesla'}
-            sourceLabel={t.oem === 'tesla' ? teslaFlow?.sourceLabel : undefined}
-          />
-        ))}
+        <ChargingHero
+          vehicleName={primaryEv?.device_name ?? 'ZenX'}
+          vehicleAsset={vehicleAsset}
+          payload={primaryEv?.payload}
+          tesla={teslaFlow}
+          sourceKw={teslaFlow?.kW ?? 0}
+          solarKw={solarKw}
+          batteryKw={batteryKw}
+        />
       </div>
 
-      {teslaFlow && (
-        <div className="mb-3">
-          <ChargingFromHomeLine
-            tesla={teslaFlow}
-            solarKw={solarKw}
-            batteryKw={batteryKw}
-          />
-        </div>
-      )}
-
-      {/* Vehicle hero image — pulled from Tesla vehicle_config (model + color) */}
-      {vehicleAsset.src && (
-        <div className="mb-3 flex flex-col items-center gap-1">
-          <img
-            src={vehicleAsset.src}
-            alt={
-              vehicleAsset.model
-                ? `${VEHICLE_LABEL[vehicleAsset.model]}${vehicleAsset.color ? ` · ${VEHICLE_COLOR_LABEL[vehicleAsset.color]}` : ''}`
-                : 'Your Tesla'
-            }
-            loading="lazy"
-            className="h-32 w-auto object-contain drop-shadow-[0_14px_28px_rgba(0,0,0,0.55)]"
-          />
-          {vehicleAsset.model && !vehicleAsset.generic && (
-            <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground/80">
-              {VEHICLE_LABEL[vehicleAsset.model]}
-              {vehicleAsset.color ? ` · ${VEHICLE_COLOR_LABEL[vehicleAsset.color]}` : ''}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Charging split — Home & AC vs Tesla Supercharging (today) */}
+      {/* Charging split — Home & AC vs Tesla Supercharging (today, condensed) */}
       <div className="grid grid-cols-2 gap-2">
         <MetricTile
           tone="blue"
           icon={Home}
-          label="Home & AC Charging"
+          label="Home & AC"
           value={`${(evTotals.totals.home_kwh ?? 0).toFixed(1)} kWh`}
-          detail="Today · Level 1 / Level 2"
+          detail="Today"
         />
         <MetricTile
           tone="orange"
           icon={Zap}
-          label="Tesla Supercharging"
+          label="Supercharging"
           value={`${(evTotals.totals.supercharger_kwh ?? 0).toFixed(1)} kWh`}
-          detail="Today · DC Fast Charging"
+          detail="Today"
         />
       </div>
     </div>
