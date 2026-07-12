@@ -114,7 +114,7 @@ export function useProfile(overrideUserId?: string | null) {
         typeof window !== 'undefined'
           ? window.localStorage.getItem('zensolar_wallet_address')
           : null;
-      const insertPayload: Record<string, unknown> = { user_id: targetUserId };
+      const insertPayload: { user_id: string; wallet_address?: string } = { user_id: targetUserId };
       if (cachedWallet && /^0x[a-fA-F0-9]{40}$/.test(cachedWallet)) {
         insertPayload.wallet_address = cachedWallet;
       }
