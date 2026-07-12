@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { detectHwVersion } from "../_shared/fsdSampler.ts";
 
 // ── Cryptographic Helpers (Proof-of-Delta™ for EV Miles) ─────────────────────
 
@@ -896,7 +897,7 @@ Deno.serve(async (req) => {
     for (const vehicle of vehicleDevices) {
       try {
         const vehicleResponse = await fetch(
-          `${TESLA_API_BASE}/api/1/vehicles/${vehicle.id}/vehicle_data?endpoints=vehicle_state;drive_state;charge_state`,
+          `${TESLA_API_BASE}/api/1/vehicles/${vehicle.id}/vehicle_data?endpoints=vehicle_state;drive_state;charge_state;vehicle_config`,
           { headers: { "Authorization": `Bearer ${accessToken}` } }
         );
 
@@ -912,8 +913,17 @@ Deno.serve(async (req) => {
           
           const chargeState = response.charge_state || {};
           const vehicleState = response.vehicle_state || {};
+          const vehicleConfig = response.vehicle_config || {};
           
           const currentOdometer = vehicleState.odometer || 0;
+
+          // Detect Autopilot hardware once per fetch. HW4 vehicles surface
+          // `self_driving_miles_since_reset` (even at 0); HW3 falls back to
+          // the tesla-fsd-sampler adaptive accumulator.
+          const hwVersion = detectHwVersion(vehicle.id, response);
+          const officialKeyPresent =
+            Object.prototype.hasOwnProperty.call(vehicleState, "self_driving_miles_since_reset") ||
+            Object.prototype.hasOwnProperty.call(vehicleState, "SelfDrivingMilesSinceReset");
           
           // Pending = current lifetime - baseline
           // If baseline is 0 (first mint), pending = full lifetime
@@ -927,6 +937,8 @@ Deno.serve(async (req) => {
             pending_miles: pendingMiles,
             battery_level: chargeState.battery_level,
             charging_state: chargeState.charging_state,
+            hw_version: hwVersion,
+            official_fsd_key_present: officialKeyPresent,
           }));
           
           vehiclesData.push({
@@ -939,6 +951,14 @@ Deno.serve(async (req) => {
             charge_energy_added: chargeState.charge_energy_added || 0,
             charge_rate: chargeState.charge_rate || 0,
             charger_power: chargeState.charger_power || 0,
+            // Autopilot hardware detection for FSD source-of-truth routing.
+            hw_version: hwVersion,
+            official_fsd_key_present: officialKeyPresent,
+            vehicle_config: {
+              car_type: vehicleConfig.car_type ?? null,
+              trim_badging: vehicleConfig.trim_badging ?? null,
+              has_autopilot_hw_ap4: vehicleConfig.has_autopilot_hw_ap4 ?? null,
+            },
             // Surface official Tesla FSD field for HW4 vehicles. When present,
             // the writer block below uses this as the source of truth and tags
             // last_known_state.fsd_source = 'official'. HW3 cars omit this and
@@ -1231,16 +1251,27 @@ Deno.serve(async (req) => {
       // HW4: Tesla's official `self_driving_miles_since_reset` from vehicle_state.
       // When present this wins; otherwise fall back to telemetry/sampler watermark.
       const officialFsd = (vehicle as any).self_driving_miles_since_reset;
-      const haveOfficial = typeof officialFsd === "number" && Number.isFinite(officialFsd) && officialFsd >= 0;
+      const haveOfficialValue = typeof officialFsd === "number" && Number.isFinite(officialFsd) && officialFsd >= 0;
+
+      // Hardware detection (VIN + vehicle_config + key-presence) — HW4 cars
+      // are 'official' source-of-truth even when the current value is null/0
+      // (e.g. Tesla just reset the counter, or FSD hasn't been engaged yet).
+      const hwVersion: "HW3" | "HW4" | null = (vehicle as any).hw_version ?? null;
+      const officialKeyPresent: boolean = (vehicle as any).official_fsd_key_present === true;
+      const isHw4 = hwVersion === "HW4" || officialKeyPresent;
 
       const lifetimeFromAcc = acc ? (acc.supervised_miles || 0) + (acc.unsupervised_miles || 0) : 0;
       const lifetimeFromSampler = Number(sampler?.lifetime_fsd_miles_calc || 0);
       const lifetimeFromWatermark = Number(prevLifetime.lifetime_fsd_miles ?? 0);
 
-      const lifetimeFsdMiles = haveOfficial
+      const lifetimeFsdMiles = haveOfficialValue
         ? Number(officialFsd)
-        : Math.max(lifetimeFromWatermark, lifetimeFromAcc, lifetimeFromSampler);
-      const fsdSource: "official" | "calculated_hw3" = haveOfficial ? "official" : (sourceMeta.last_source ?? "calculated_hw3");
+        : (isHw4
+            ? lifetimeFromWatermark // HW4 with no numeric yet — keep prior watermark, don't mix in HW3 sampler
+            : Math.max(lifetimeFromWatermark, lifetimeFromAcc, lifetimeFromSampler));
+      const fsdSource: "official" | "calculated_hw3" = isHw4
+        ? "official"
+        : (sourceMeta.last_source ?? "calculated_hw3");
       const baselineFsdMiles = Number(prevBaseline.fsd_baseline_miles || 0);
       const pendingFsdSupervised = Math.max(0, lifetimeFsdMiles - baselineFsdMiles);
       totalPendingFsdSupervised += pendingFsdSupervised;
@@ -1263,11 +1294,14 @@ Deno.serve(async (req) => {
         },
         last_known_state: {
           ...prevLastState,
+          hw_version: hwVersion ?? (prevLastState as any).hw_version ?? null,
+          vehicle_config: (vehicle as any).vehicle_config ?? (prevLastState as any).vehicle_config ?? null,
           fsd_source: fsdSource,
           fsd_source_meta: {
             ...sourceMeta,
             first_sample_at: firstSampleAt,
             last_source: fsdSource,
+            hw_version: hwVersion ?? sourceMeta.hw_version ?? null,
             last_updated_at: new Date().toISOString(),
           },
         },

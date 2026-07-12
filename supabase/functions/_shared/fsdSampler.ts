@@ -78,6 +78,60 @@ export function extractOfficialFsdMiles(vehicleDataResponse: any): number | null
 }
 
 /**
+ * Detect Autopilot hardware version for a Tesla vehicle.
+ *
+ * Priority:
+ *   1. Explicit `vehicle_config.autopark_style` / `has_autopilot_hw_ap4` flags
+ *      when Tesla surfaces them (rare but authoritative).
+ *   2. Presence of `vehicle_state.self_driving_miles_since_reset` in the
+ *      payload — Tesla only emits this key on HW4 firmware, even when the
+ *      value is 0.
+ *   3. VIN heuristic — model + model-year decoded from the VIN:
+ *        · Model 3 Highland (2024+ MY, VIN[10] >= 'R')     → HW4
+ *        · Model Y refreshed (2024+ MY, VIN[10] >= 'R')    → HW4
+ *        · Model S/X refresh (2023+ MY, VIN[10] >= 'P')    → HW4
+ *        · Cybertruck (all VIN[3] = 'A' i.e. `7G2`)        → HW4
+ *        · Everything older                                → HW3
+ *
+ * Returns 'HW4' | 'HW3' | null when we truly can't tell.
+ */
+export function detectHwVersion(
+  vin: string | null | undefined,
+  vehicleDataResponse: any,
+): "HW3" | "HW4" | null {
+  const vs = vehicleDataResponse?.vehicle_state ?? vehicleDataResponse?.response?.vehicle_state ?? {};
+  const vc = vehicleDataResponse?.vehicle_config ?? vehicleDataResponse?.response?.vehicle_config ?? {};
+
+  // 1. Explicit flags Tesla sometimes exposes
+  if (vc.has_autopilot_hw_ap4 === true) return "HW4";
+  if (typeof vc.autopark_style === "string" && vc.autopark_style.toLowerCase().includes("ap4")) return "HW4";
+
+  // 2. Key-presence check on the SelfDrivingMilesSinceReset field
+  const hasOfficialKey =
+    Object.prototype.hasOwnProperty.call(vs, "self_driving_miles_since_reset") ||
+    Object.prototype.hasOwnProperty.call(vs, "SelfDrivingMilesSinceReset") ||
+    Object.prototype.hasOwnProperty.call(vs, "fsd_miles_since_reset");
+  if (hasOfficialKey) return "HW4";
+
+  // 3. VIN heuristic
+  if (typeof vin === "string" && vin.length >= 11) {
+    const upper = vin.toUpperCase();
+    const model = upper[3]; // Tesla VIN position 4: S/3/X/Y/A(Cybertruck)/R(Roadster)
+    const yearChar = upper[9]; // Position 10 = model year
+    // Model-year code table (Tesla uses standard NHTSA VIN year codes):
+    //   L=2020 M=2021 N=2022 P=2023 R=2024 S=2025 T=2026
+    const yearRank = "LMNPRSTVWXY".indexOf(yearChar); // ordered post-2020
+    if (model === "A") return "HW4"; // Cybertruck ships HW4
+    if (model === "3" && yearRank >= 4) return "HW4"; // Model 3 Highland (2024+)
+    if (model === "Y" && yearRank >= 4) return "HW4"; // Model Y refresh (2024+)
+    if ((model === "S" || model === "X") && yearRank >= 3) return "HW4"; // S/X refresh (2023+)
+    if (yearRank >= 0) return "HW3";
+  }
+
+  return null;
+}
+
+/**
  * Read the AutopilotState string from a vehicle_data payload. Tesla exposes
  * this in `vehicle_state` as `autopilot_state` (snake_case) on the REST API.
  */
