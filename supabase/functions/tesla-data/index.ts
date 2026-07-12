@@ -114,39 +114,51 @@ function extractStreetName(address: string): string {
 }
 
 /**
- * Classify a charging session as "home" or "supercharger" based on street-name matching.
+ * Classify a charging session as "home" or "supercharger". Fee alone is NOT
+ * diagnostic — paid destination/L2 chargers exist (e.g. Bishop Momo apartment
+ * garage, third-party AC). Prefer Tesla sessionType, then home-address match,
+ * then a kW physics heuristic (avg ≥ 25 kW ⇒ Supercharger, else AC).
  */
 function classifyChargingType(
   location: string | null,
   homeAddress: string,
   totalFee: number,
   sessionType: string,
+  energyKwh: number = 0,
+  durationMinutes: number = 0,
 ): string {
-  // Paid sessions from billing API are always Supercharger/DC
-  if (totalFee > 0) return "supercharger";
-
-  // Check session type hints
   const st = String(sessionType).toLowerCase();
-  if (st.includes("supercharger") || st.includes("dc_fast")) return "supercharger";
+  if (st.includes("supercharger") || st.includes("dc_fast") || st === "dc") return "supercharger";
+  if (
+    st.includes("destination") || st.includes("third_party") || st.includes("mobile") ||
+    st.includes("wall") || st.includes("connector") || st === "ac"
+  ) return "home";
 
-  // Match against home address for free AC sessions
   if (homeAddress && location) {
     const homeStreet = extractStreetName(homeAddress);
     const locStreet = extractStreetName(location);
     if (homeStreet.length > 3 && locStreet.length > 3) {
-      if (locStreet.includes(homeStreet) || homeStreet.includes(locStreet)) {
-        return "home";
-      }
-      const homeCore = homeStreet.replace(/\b(dr|drive|st|street|ave|avenue|blvd|boulevard|ln|lane|ct|court|cir|circle|way|pl|place|rd|road)\b/g, "").trim();
-      const locCore = locStreet.replace(/\b(dr|drive|st|street|ave|avenue|blvd|boulevard|ln|lane|ct|court|cir|circle|way|pl|place|rd|road)\b/g, "").trim();
-      if (homeCore.length > 3 && locCore.length > 3 && (locCore.includes(homeCore) || homeCore.includes(locCore))) {
-        return "home";
-      }
+      if (locStreet.includes(homeStreet) || homeStreet.includes(locStreet)) return "home";
+      const strip = (s: string) => s.replace(/\b(dr|drive|st|street|ave|avenue|blvd|boulevard|ln|lane|ct|court|cir|circle|way|pl|place|rd|road)\b/g, "").trim();
+      const homeCore = strip(homeStreet);
+      const locCore = strip(locStreet);
+      if (homeCore.length > 3 && locCore.length > 3 && (locCore.includes(homeCore) || homeCore.includes(locCore))) return "home";
     }
   }
 
+  // Physics heuristic: Superchargers deliver ≥25 kW avg; L2 tops out ~19 kW.
+  if (energyKwh > 0 && durationMinutes > 0) {
+    const avgKw = (energyKwh / durationMinutes) * 60;
+    if (avgKw >= 25) return "supercharger";
+    if (avgKw > 0) return "home";
+  }
+
+  const loc = String(location || "").toLowerCase();
+  if (loc.includes("supercharger")) return "supercharger";
+
   return "home";
 }
+
 
 // Helper to refresh Tesla token
 async function refreshTeslaToken(
