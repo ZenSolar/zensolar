@@ -555,11 +555,14 @@ Deno.serve(async (req) => {
               (dailyChargingMap.get(dateStr) || 0) + sessionKwh * 1000
             );
 
-            // Collect per-session detail with home address classification
-            const location = session.siteLocationName || session.chargeLocationName || session.superchargerName || null;
-            
-            // Classify charging type via street-name matching
-            const chargingType = classifyChargingType(location, homeAddress, totalFee, session.sessionType || "");
+            // Classify charging type via sessionType/address/physics
+            const startIso = session.chargeStartDateTime || session.charge_start_date_time || session.startDateTime || null;
+            const stopIso = session.chargeStopDateTime || session.charge_stop_date_time || session.endDateTime || null;
+            const durMin = startIso && stopIso
+              ? Math.max(0, (new Date(stopIso).getTime() - new Date(startIso).getTime()) / 60000)
+              : 0;
+            const chargingType = classifyChargingType(location, homeAddress, totalFee, session.sessionType || "", sessionKwh, durMin);
+
 
             sessionDetailRecords.push({
               user_id: targetUserId,
