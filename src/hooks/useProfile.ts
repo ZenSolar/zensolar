@@ -85,13 +85,42 @@ export function useProfile(overrideUserId?: string | null) {
       console.error('Error fetching profile:', error);
       setProfile(null);
     } else if (data) {
-      setProfile(data as Profile);
+      let current = data as Profile;
+      // Self-heal: if a wallet address is cached locally from a prior session
+      // but the profile row has none, persist it now so "Connected" state
+      // reflects the wallet the user actually created.
+      if (
+        targetUserId === user?.id &&
+        !current.wallet_address &&
+        typeof window !== 'undefined'
+      ) {
+        const cached = window.localStorage.getItem('zensolar_wallet_address');
+        if (cached && /^0x[a-fA-F0-9]{40}$/.test(cached)) {
+          console.log('[useProfile] Self-healing wallet_address from localStorage:', cached);
+          const { data: healed, error: healErr } = await supabase
+            .from('profiles')
+            .update({ wallet_address: cached, updated_at: new Date().toISOString() })
+            .eq('user_id', targetUserId)
+            .select()
+            .maybeSingle();
+          if (!healErr && healed) current = healed as Profile;
+        }
+      }
+      setProfile(current);
     } else if (targetUserId === user?.id) {
       // Profile doesn't exist yet - only create if fetching our OWN profile
       console.log('Profile not found for user, creating one...');
+      const cachedWallet =
+        typeof window !== 'undefined'
+          ? window.localStorage.getItem('zensolar_wallet_address')
+          : null;
+      const insertPayload: Record<string, unknown> = { user_id: targetUserId };
+      if (cachedWallet && /^0x[a-fA-F0-9]{40}$/.test(cachedWallet)) {
+        insertPayload.wallet_address = cachedWallet;
+      }
       const { data: newProfile, error: insertError } = await supabase
         .from('profiles')
-        .insert({ user_id: targetUserId })
+        .insert(insertPayload)
         .select()
         .single();
       
