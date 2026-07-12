@@ -19,22 +19,35 @@ function extractStreetName(address: string): string {
 }
 
 /**
- * Classify a charging session as "home" or "supercharger" based on street-name matching.
+ * Classify a charging session as "home" or "supercharger". Fee alone is NOT
+ * diagnostic — paid destination/L2 chargers exist (Bishop Momo apartment
+ * garage, third-party AC). Prefer Tesla sessionType, then home-address match,
+ * then a kW physics heuristic.
  */
 function classifyChargingType(
   location: string | null,
   homeAddress: string,
   totalFee: number,
   sessionType: string,
+  energyKwh: number = 0,
+  durationMinutes: number = 0,
 ): string {
-  // Paid sessions from billing API are always Supercharger/DC
-  if (totalFee > 0) return "supercharger";
-
-  // Check session type hints
   const st = String(sessionType).toLowerCase();
-  if (st.includes("supercharger") || st.includes("dc_fast")) return "supercharger";
 
-  // Match against home address for free AC sessions
+  if (st.includes("supercharger") || st.includes("dc_fast") || st === "dc") {
+    return "supercharger";
+  }
+  if (
+    st.includes("destination") ||
+    st.includes("third_party") ||
+    st.includes("mobile") ||
+    st.includes("wall") ||
+    st.includes("connector") ||
+    st === "ac"
+  ) {
+    return "home";
+  }
+
   if (homeAddress && location) {
     const homeStreet = extractStreetName(homeAddress);
     const locStreet = extractStreetName(location);
@@ -49,6 +62,16 @@ function classifyChargingType(
       }
     }
   }
+
+  // Physics heuristic: Superchargers deliver >=25 kW avg; L2 tops out ~19 kW.
+  if (energyKwh > 0 && durationMinutes > 0) {
+    const avgKw = (energyKwh / durationMinutes) * 60;
+    if (avgKw >= 25) return "supercharger";
+    if (avgKw > 0) return "home";
+  }
+
+  const loc = String(location || "").toLowerCase();
+  if (loc.includes("supercharger")) return "supercharger";
 
   return "home";
 }
@@ -532,11 +555,15 @@ Deno.serve(async (req) => {
               (dailyChargingMap.get(dateStr) || 0) + sessionKwh * 1000
             );
 
-            // Collect per-session detail with home address classification
+            // Classify charging type via sessionType/address/physics
             const location = session.siteLocationName || session.chargeLocationName || session.superchargerName || null;
-            
-            // Classify charging type via street-name matching
-            const chargingType = classifyChargingType(location, homeAddress, totalFee, session.sessionType || "");
+            const startIso = session.chargeStartDateTime || session.charge_start_date_time || session.startDateTime || null;
+            const stopIso = session.chargeStopDateTime || session.charge_stop_date_time || session.endDateTime || null;
+            const durMin = startIso && stopIso
+              ? Math.max(0, (new Date(stopIso).getTime() - new Date(startIso).getTime()) / 60000)
+              : 0;
+            const chargingType = classifyChargingType(location, homeAddress, totalFee, session.sessionType || "", sessionKwh, durMin);
+
 
             sessionDetailRecords.push({
               user_id: targetUserId,

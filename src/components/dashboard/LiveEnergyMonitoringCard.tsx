@@ -1244,10 +1244,22 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                       <span className="font-semibold text-foreground">{lifetime.homeKwh.toFixed(0)} kWh</span>
                     </div>
                   )}
-                  {lifetime.fsdMiles > 0 && (
+                  {(lifetime.fsdMiles > 0 || lifetime.fsdSource === 'official') && (
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">FSD miles</span>
-                      <span className="font-semibold text-foreground">{Math.round(lifetime.fsdMiles).toLocaleString()} mi</span>
+                      <span className="text-muted-foreground">
+                        FSD miles
+                        {lifetime.fsdSource === 'official' && (
+                          <span className="ml-1 text-[10px] uppercase tracking-wider text-primary/80">Tesla verified</span>
+                        )}
+                        {lifetime.fsdSource === 'calculated_hw3' && (
+                          <span className="ml-1 text-[10px] uppercase tracking-wider text-muted-foreground/70">HW3 calc</span>
+                        )}
+                      </span>
+                      <span className="font-semibold text-foreground">
+                        {lifetime.fsdMiles > 0
+                          ? `${Math.round(lifetime.fsdMiles).toLocaleString()} mi`
+                          : 'Awaiting first FSD drive'}
+                      </span>
                     </div>
                   )}
                 </div>
