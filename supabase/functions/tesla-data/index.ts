@@ -896,7 +896,7 @@ Deno.serve(async (req) => {
     for (const vehicle of vehicleDevices) {
       try {
         const vehicleResponse = await fetch(
-          `${TESLA_API_BASE}/api/1/vehicles/${vehicle.id}/vehicle_data?endpoints=vehicle_state;drive_state;charge_state`,
+          `${TESLA_API_BASE}/api/1/vehicles/${vehicle.id}/vehicle_data?endpoints=vehicle_state;drive_state;charge_state;vehicle_config`,
           { headers: { "Authorization": `Bearer ${accessToken}` } }
         );
 
