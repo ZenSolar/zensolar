@@ -642,6 +642,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
   const ev = useEVChargerTelemetry();
   const chargers = useChargerDevices();
   const evTotals = useEVTotals(1);
+  const { totals: lifetime } = useLifetimeTotals();
   const mintImpact = useTodayMintImpact();
   const { data: isActivelyCharging } = useActiveChargingSession();
   const [manualRefreshing, setManualRefreshing] = useState(false);
