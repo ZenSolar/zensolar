@@ -1251,16 +1251,27 @@ Deno.serve(async (req) => {
       // HW4: Tesla's official `self_driving_miles_since_reset` from vehicle_state.
       // When present this wins; otherwise fall back to telemetry/sampler watermark.
       const officialFsd = (vehicle as any).self_driving_miles_since_reset;
-      const haveOfficial = typeof officialFsd === "number" && Number.isFinite(officialFsd) && officialFsd >= 0;
+      const haveOfficialValue = typeof officialFsd === "number" && Number.isFinite(officialFsd) && officialFsd >= 0;
+
+      // Hardware detection (VIN + vehicle_config + key-presence) — HW4 cars
+      // are 'official' source-of-truth even when the current value is null/0
+      // (e.g. Tesla just reset the counter, or FSD hasn't been engaged yet).
+      const hwVersion: "HW3" | "HW4" | null = (vehicle as any).hw_version ?? null;
+      const officialKeyPresent: boolean = (vehicle as any).official_fsd_key_present === true;
+      const isHw4 = hwVersion === "HW4" || officialKeyPresent;
 
       const lifetimeFromAcc = acc ? (acc.supervised_miles || 0) + (acc.unsupervised_miles || 0) : 0;
       const lifetimeFromSampler = Number(sampler?.lifetime_fsd_miles_calc || 0);
       const lifetimeFromWatermark = Number(prevLifetime.lifetime_fsd_miles ?? 0);
 
-      const lifetimeFsdMiles = haveOfficial
+      const lifetimeFsdMiles = haveOfficialValue
         ? Number(officialFsd)
-        : Math.max(lifetimeFromWatermark, lifetimeFromAcc, lifetimeFromSampler);
-      const fsdSource: "official" | "calculated_hw3" = haveOfficial ? "official" : (sourceMeta.last_source ?? "calculated_hw3");
+        : (isHw4
+            ? lifetimeFromWatermark // HW4 with no numeric yet — keep prior watermark, don't mix in HW3 sampler
+            : Math.max(lifetimeFromWatermark, lifetimeFromAcc, lifetimeFromSampler));
+      const fsdSource: "official" | "calculated_hw3" = isHw4
+        ? "official"
+        : (sourceMeta.last_source ?? "calculated_hw3");
       const baselineFsdMiles = Number(prevBaseline.fsd_baseline_miles || 0);
       const pendingFsdSupervised = Math.max(0, lifetimeFsdMiles - baselineFsdMiles);
       totalPendingFsdSupervised += pendingFsdSupervised;
@@ -1283,11 +1294,14 @@ Deno.serve(async (req) => {
         },
         last_known_state: {
           ...prevLastState,
+          hw_version: hwVersion ?? (prevLastState as any).hw_version ?? null,
+          vehicle_config: (vehicle as any).vehicle_config ?? (prevLastState as any).vehicle_config ?? null,
           fsd_source: fsdSource,
           fsd_source_meta: {
             ...sourceMeta,
             first_sample_at: firstSampleAt,
             last_source: fsdSource,
+            hw_version: hwVersion ?? sourceMeta.hw_version ?? null,
             last_updated_at: new Date().toISOString(),
           },
         },
