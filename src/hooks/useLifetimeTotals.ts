@@ -53,7 +53,7 @@ export function useLifetimeTotals() {
       const [devicesRes, sessionsRes] = await Promise.all([
         supabase
           .from('connected_devices')
-          .select('device_type, lifetime_totals')
+          .select('device_type, lifetime_totals, last_known_state')
           .eq('user_id', effectiveUserId),
         supabase
           .from('charging_sessions')
@@ -67,6 +67,7 @@ export function useLifetimeTotals() {
       let miles = 0;
       let chargingKwhLifetime = 0;
       let fsdMiles = 0;
+      let fsdSource: 'official' | 'calculated_hw3' | null = null;
       for (const d of rows) {
         const l: any = d.lifetime_totals ?? {};
         solar += solarWh(l);
@@ -75,6 +76,8 @@ export function useLifetimeTotals() {
           miles += Number(l.odometer || 0);
           chargingKwhLifetime += Number(l.charging_kwh || 0);
           fsdMiles += Number(l.lifetime_fsd_miles || 0);
+          const src = (d as any).last_known_state?.fsd_source;
+          if (src === 'official' || fsdSource === null) fsdSource = src ?? fsdSource;
         }
       }
       // Split home vs supercharger using session history
@@ -99,7 +102,8 @@ export function useLifetimeTotals() {
         superchargerKwh: superKwh,
         homeKwh,
         fsdMiles,
-        hasAny: solar > 0 || battery > 0 || miles > 0 || superKwh > 0 || homeKwh > 0 || fsdMiles > 0,
+        fsdSource,
+        hasAny: solar > 0 || battery > 0 || miles > 0 || superKwh > 0 || homeKwh > 0 || fsdMiles > 0 || fsdSource !== null,
       };
       setTotals(next);
       setLoading(false);
