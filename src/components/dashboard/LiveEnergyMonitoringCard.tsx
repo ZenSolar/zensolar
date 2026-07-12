@@ -1238,6 +1238,18 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                       <span className="font-semibold text-foreground">{lifetime.superchargerKwh.toFixed(0)} kWh</span>
                     </div>
                   )}
+                  {lifetime.homeKwh > 0 && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Home charged</span>
+                      <span className="font-semibold text-foreground">{lifetime.homeKwh.toFixed(0)} kWh</span>
+                    </div>
+                  )}
+                  {lifetime.fsdMiles > 0 && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">FSD miles</span>
+                      <span className="font-semibold text-foreground">{Math.round(lifetime.fsdMiles).toLocaleString()} mi</span>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
