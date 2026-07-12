@@ -913,8 +913,17 @@ Deno.serve(async (req) => {
           
           const chargeState = response.charge_state || {};
           const vehicleState = response.vehicle_state || {};
+          const vehicleConfig = response.vehicle_config || {};
           
           const currentOdometer = vehicleState.odometer || 0;
+
+          // Detect Autopilot hardware once per fetch. HW4 vehicles surface
+          // `self_driving_miles_since_reset` (even at 0); HW3 falls back to
+          // the tesla-fsd-sampler adaptive accumulator.
+          const hwVersion = detectHwVersion(vehicle.id, response);
+          const officialKeyPresent =
+            Object.prototype.hasOwnProperty.call(vehicleState, "self_driving_miles_since_reset") ||
+            Object.prototype.hasOwnProperty.call(vehicleState, "SelfDrivingMilesSinceReset");
           
           // Pending = current lifetime - baseline
           // If baseline is 0 (first mint), pending = full lifetime
@@ -928,6 +937,8 @@ Deno.serve(async (req) => {
             pending_miles: pendingMiles,
             battery_level: chargeState.battery_level,
             charging_state: chargeState.charging_state,
+            hw_version: hwVersion,
+            official_fsd_key_present: officialKeyPresent,
           }));
           
           vehiclesData.push({
@@ -940,6 +951,14 @@ Deno.serve(async (req) => {
             charge_energy_added: chargeState.charge_energy_added || 0,
             charge_rate: chargeState.charge_rate || 0,
             charger_power: chargeState.charger_power || 0,
+            // Autopilot hardware detection for FSD source-of-truth routing.
+            hw_version: hwVersion,
+            official_fsd_key_present: officialKeyPresent,
+            vehicle_config: {
+              car_type: vehicleConfig.car_type ?? null,
+              trim_badging: vehicleConfig.trim_badging ?? null,
+              has_autopilot_hw_ap4: vehicleConfig.has_autopilot_hw_ap4 ?? null,
+            },
             // Surface official Tesla FSD field for HW4 vehicles. When present,
             // the writer block below uses this as the source of truth and tags
             // last_known_state.fsd_source = 'official'. HW3 cars omit this and
