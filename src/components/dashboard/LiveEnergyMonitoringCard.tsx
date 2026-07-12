@@ -25,6 +25,7 @@ import { ZenXPill } from './ZenXPill';
 import { LiveCardHeader } from './LiveCardHeader';
 import { SolarSiteTabs } from './SolarSiteTabs';
 import { useWeather } from '@/hooks/useWeather';
+import { useLifetimeTotals } from '@/hooks/useLifetimeTotals';
 // SolarPlusCard is no longer in the render matrix — every connected user
 // now routes to the rich EnergyFlowScene (device-aware).
 
@@ -641,6 +642,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
   const ev = useEVChargerTelemetry();
   const chargers = useChargerDevices();
   const evTotals = useEVTotals(1);
+  const { totals: lifetime } = useLifetimeTotals();
   const mintImpact = useTodayMintImpact();
   const { data: isActivelyCharging } = useActiveChargingSession();
   const [manualRefreshing, setManualRefreshing] = useState(false);
@@ -1201,6 +1203,44 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                 />
               )}
             </div>
+            {lifetime.hasAny && (
+              <div className="mt-1 rounded-lg border border-primary/15 bg-background/40 px-3 py-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                    Lifetime · Since Connected
+                  </span>
+                  <span className="text-[9px] uppercase tracking-wider text-muted-foreground/60">
+                    Pre-mint baseline
+                  </span>
+                </div>
+                <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 text-[11px]">
+                  {lifetime.solarKwh > 0 && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Solar</span>
+                      <span className="font-semibold text-foreground">{(lifetime.solarKwh / 1000).toFixed(2)} MWh</span>
+                    </div>
+                  )}
+                  {lifetime.batteryDischargeKwh > 0 && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Battery discharged</span>
+                      <span className="font-semibold text-foreground">{lifetime.batteryDischargeKwh.toFixed(0)} kWh</span>
+                    </div>
+                  )}
+                  {lifetime.evMiles > 0 && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">EV odometer</span>
+                      <span className="font-semibold text-foreground">{Math.round(lifetime.evMiles).toLocaleString()} mi</span>
+                    </div>
+                  )}
+                  {lifetime.superchargerKwh > 0 && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Supercharged</span>
+                      <span className="font-semibold text-foreground">{lifetime.superchargerKwh.toFixed(0)} kWh</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
             <div className="px-0.5 text-[10px] leading-snug text-muted-foreground/70">
               ≈ {Math.max(0, solarStatsAll.todayKwh ?? 0).toFixed(1)} $ZSOLAR ready to mint today
             </div>
