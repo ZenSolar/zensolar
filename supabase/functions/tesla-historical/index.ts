@@ -556,6 +556,7 @@ Deno.serve(async (req) => {
             );
 
             // Classify charging type via sessionType/address/physics
+            const location = session.siteLocationName || session.chargeLocationName || session.superchargerName || null;
             const startIso = session.chargeStartDateTime || session.charge_start_date_time || session.startDateTime || null;
             const stopIso = session.chargeStopDateTime || session.charge_stop_date_time || session.endDateTime || null;
             const durMin = startIso && stopIso
