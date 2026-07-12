@@ -10,6 +10,7 @@ export interface LifetimeTotals {
   superchargerKwh: number;
   homeKwh: number;
   fsdMiles: number;
+  fsdSource: 'official' | 'calculated_hw3' | null;
   hasAny: boolean;
 }
 
@@ -20,6 +21,7 @@ const EMPTY: LifetimeTotals = {
   superchargerKwh: 0,
   homeKwh: 0,
   fsdMiles: 0,
+  fsdSource: null,
   hasAny: false,
 };
 
