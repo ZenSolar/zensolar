@@ -25,6 +25,7 @@ import { ZenXPill } from './ZenXPill';
 import { LiveCardHeader } from './LiveCardHeader';
 import { SolarSiteTabs } from './SolarSiteTabs';
 import { useWeather } from '@/hooks/useWeather';
+import { useLifetimeTotals } from '@/hooks/useLifetimeTotals';
 // SolarPlusCard is no longer in the render matrix — every connected user
 // now routes to the rich EnergyFlowScene (device-aware).
 
