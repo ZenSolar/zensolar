@@ -8,6 +8,8 @@ export interface LifetimeTotals {
   batteryDischargeKwh: number;
   evMiles: number;
   superchargerKwh: number;
+  homeKwh: number;
+  fsdMiles: number;
   hasAny: boolean;
 }
 
@@ -16,6 +18,8 @@ const EMPTY: LifetimeTotals = {
   batteryDischargeKwh: 0,
   evMiles: 0,
   superchargerKwh: 0,
+  homeKwh: 0,
+  fsdMiles: 0,
   hasAny: false,
 };
 
@@ -26,7 +30,7 @@ const batteryWh = (o: any): number =>
 
 /**
  * Sums lifetime_totals across every connected device for the current (or viewed) user.
- * Zero-cost fast path: reads only the connected_devices row.
+ * Also splits home vs supercharger from charging_sessions history.
  */
 export function useLifetimeTotals() {
   const { user } = useAuth();
@@ -44,31 +48,56 @@ export function useLifetimeTotals() {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const { data } = await supabase
-        .from('connected_devices')
-        .select('device_type, lifetime_totals')
-        .eq('user_id', effectiveUserId);
+      const [devicesRes, sessionsRes] = await Promise.all([
+        supabase
+          .from('connected_devices')
+          .select('device_type, lifetime_totals')
+          .eq('user_id', effectiveUserId),
+        supabase
+          .from('charging_sessions')
+          .select('charging_type, energy_kwh')
+          .eq('user_id', effectiveUserId),
+      ]);
       if (cancelled) return;
-      const rows = data ?? [];
+      const rows = devicesRes.data ?? [];
       let solar = 0;
       let battery = 0;
       let miles = 0;
-      let supercharger = 0;
+      let chargingKwhLifetime = 0;
+      let fsdMiles = 0;
       for (const d of rows) {
         const l: any = d.lifetime_totals ?? {};
         solar += solarWh(l);
         battery += batteryWh(l);
         if (d.device_type === 'vehicle') {
           miles += Number(l.odometer || 0);
-          supercharger += Number(l.charging_kwh || 0);
+          chargingKwhLifetime += Number(l.charging_kwh || 0);
+          fsdMiles += Number(l.lifetime_fsd_miles || 0);
         }
       }
+      // Split home vs supercharger using session history
+      let sessionSuper = 0;
+      let sessionHome = 0;
+      for (const s of sessionsRes.data ?? []) {
+        const kwh = Number((s as any).energy_kwh || 0);
+        if ((s as any).charging_type === 'home') sessionHome += kwh;
+        else sessionSuper += kwh;
+      }
+      // If session sum roughly matches lifetime, trust the split; otherwise
+      // fall back to putting everything under supercharger.
+      const sessionSum = sessionSuper + sessionHome;
+      const useSplit = sessionSum > 0 && Math.abs(sessionSum - chargingKwhLifetime) / Math.max(sessionSum, chargingKwhLifetime) < 0.15;
+      const superKwh = useSplit ? sessionSuper : chargingKwhLifetime;
+      const homeKwh = useSplit ? sessionHome : 0;
+
       const next: LifetimeTotals = {
         solarKwh: solar / 1000,
         batteryDischargeKwh: battery / 1000,
         evMiles: miles,
-        superchargerKwh: supercharger,
-        hasAny: solar > 0 || battery > 0 || miles > 0 || supercharger > 0,
+        superchargerKwh: superKwh,
+        homeKwh,
+        fsdMiles,
+        hasAny: solar > 0 || battery > 0 || miles > 0 || superKwh > 0 || homeKwh > 0 || fsdMiles > 0,
       };
       setTotals(next);
       setLoading(false);
