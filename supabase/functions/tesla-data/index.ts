@@ -769,8 +769,13 @@ Deno.serve(async (req) => {
                   }
                 }
                 if (!chargingSessionDetails) chargingSessionDetails = [];
-                // Classify charging type via street-name matching
-                const chargingType = classifyChargingType(location, homeAddress, totalFee, session.sessionType || session.chargerType || "");
+                // Classify charging type via sessionType / address / kW physics
+                const startIso = session.chargeStartDateTime || session.charge_start_date_time || session.startDateTime || null;
+                const stopIso = session.chargeStopDateTime || session.charge_stop_date_time || session.endDateTime || null;
+                const durMin = startIso && stopIso
+                  ? Math.max(0, (new Date(stopIso).getTime() - new Date(startIso).getTime()) / 60000)
+                  : 0;
+                const chargingType = classifyChargingType(location, homeAddress, totalFee, session.sessionType || session.chargerType || "", sessionKwh, durMin);
                 
                 // Track home vs supercharger kWh from billing API
                 if (chargingType === 'home') {
