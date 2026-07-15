@@ -24,7 +24,7 @@ export function LiveVerifiedCounter() {
     // Scale up so the number reads substantial on the investor page
     // (~40K–55K kWh baseline, growing through the day).
     const m = minutesSinceMidnight();
-    return (dayBase() + Math.floor(m * 0.45)) * 100;
+    return (dayBase() + Math.floor(m * 0.45)) * 1000;
   }, []);
   const [value, setValue] = useState(startBase);
 
