@@ -214,9 +214,9 @@ export default function InvestorOnePager() {
           <section className="op-card rounded-2xl border border-border/60 bg-card/40 p-4">
             <SectionLabel className="mb-2">Traction</SectionLabel>
             <div className="grid grid-cols-4 gap-3">
-              <Stat k="23" v="Beta users" />
-              <Stat k="4" v="OEMs live" />
-              <Stat k="Patent-pending PoG" v="U.S. App. 19/634,402" />
+              <Stat k="12" v="Beta users" />
+              <Stat k="21" v="Milestone NFTs" />
+              <Stat k="644k" v="kWh/miles verified" />
               <Stat k="Base L2" v="Mainnet anchor at launch" />
             </div>
           </section>
