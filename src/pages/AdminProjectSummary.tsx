@@ -148,7 +148,7 @@ Both engines ensure 1:1 token-to-energy binding. No energy unit is ever tokenize
     title: "Current Status",
     items: [
       { label: "Network", value: "Base Sepolia testnet" },
-      { label: "Beta users", value: "19 active" },
+      { label: "Beta users", value: "12 active" },
       { label: "Reward rate", value: "10x multiplier (10 $ZSOLAR per 1 kWh)" },
       { label: "LP seed", value: "$5,000 USDC / 50,000 $ZSOLAR" },
       { label: "Price floor", value: "$0.10" },

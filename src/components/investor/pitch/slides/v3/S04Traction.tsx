@@ -3,10 +3,10 @@ import { SectionHeader } from '../../v3/SectionHeader';
 import { DeckCard, CardKicker } from '../../v3/DeckCard';
 
 const stats = [
-  { label: 'Beta users', value: '23', sub: 'real wallets, real homes' },
-  { label: 'kWh verified', value: '3.34M', sub: 'across Tesla, Enphase, Wallbox' },
+  { label: 'Beta users', value: '12', sub: 'real wallets, real homes' },
+  { label: 'kWh/miles verified', value: '644k', sub: 'across Tesla, Enphase, Wallbox' },
   { label: '$ZSOLAR minted', value: '496K', sub: '45 on-chain mint txns' },
-  { label: 'Pioneer NFTs', value: '6', sub: 'minted on Base Sepolia' },
+  { label: 'Milestone\u00A0 NFTs', value: '21', sub: 'minted on Base Sepolia' },
 ];
 
 const cols = [

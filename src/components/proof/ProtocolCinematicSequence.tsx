@@ -69,7 +69,7 @@ const SCENES: Scene[] = [
     key: 'delta',
     mark: 'Proof-of-Delta™',
     tagline: 'Energy change verified',
-    detail: 'Δ kWh is real, signed, time-bound.',
+    detail: 'Δ kWh/miles is real, signed, time-bound.',
     icon: Layers,
   },
   {

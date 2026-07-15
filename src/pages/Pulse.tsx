@@ -283,7 +283,7 @@ export default function Pulse() {
                 />
                 <ImpactCard
                   icon={<Trophy className="h-4 w-4" />}
-                  label="Proof of Genesiss"
+                  label="Milestone NFTs"
                   value={fmt(me?.myMintCount ?? 0)}
                   tint="primary"
                 />

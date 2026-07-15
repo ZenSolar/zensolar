@@ -921,7 +921,7 @@ export default function Ecosystem() {
         />
         <Kpi
           icon={ImageIcon}
-          label="NFTs Minted"
+          label="Milestone NFTs"
           value={<CountNum value={data.nftCount} />}
           sub="proof badges"
           delay={0.3}

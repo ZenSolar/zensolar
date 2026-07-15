@@ -247,7 +247,7 @@ export default function Transparency() {
           />
           <HeroStat
             icon={<Zap className="h-4 w-4" />}
-            label="kWh Verified"
+            label="kWh/miles Verified"
             value={fmtNum(stats?.totalKwh ?? 0, 1)}
             loading={loading}
             tint="amber"
