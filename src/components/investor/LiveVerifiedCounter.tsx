@@ -43,7 +43,7 @@ export function LiveVerifiedCounter() {
         </span>
         <Activity className="h-3.5 w-3.5 text-secondary" />
         <span className="font-semibold tabular-nums text-foreground">{value.toLocaleString()}</span>
-        <span className="text-muted-foreground">kWh verified in the last 24h</span>
+        <span className="text-muted-foreground">kWh/miles verified in the last 24h</span>
       </div>
     </div>
   );
