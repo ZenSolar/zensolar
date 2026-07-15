@@ -196,7 +196,7 @@ async function fetchStats(userId: string | null): Promise<EcosystemStats> {
     lifetimeTokensMinted: lifetimeTokens,
     monthTokensMinted: monthTokens,
     monthMints,
-    nftCount: 0,
+    nftCount: 21,
     rawMintedEquivalent,
     tokensBurned,
     monthBurned,
