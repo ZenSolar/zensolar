@@ -23,8 +23,8 @@ export function S03Opportunity() {
 
       <div className="absolute inset-0 flex flex-col px-24 pt-28 pb-20">
         <SectionHeader
-          kicker="The Opportunity"
-          title="A $240B market nobody's tokenized."
+          kicker="Our Addressable Market"
+          title="$240B residential solar + storage — nobody's tokenized it."
           subtitle="1.5 billion solar-capable homes globally. 4M+ US solar + EV households today. Zero platforms tokenize verified energy production as a real-world asset."
         />
 

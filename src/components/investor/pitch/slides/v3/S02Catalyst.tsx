@@ -18,19 +18,18 @@ export function S02Catalyst() {
       <div className="absolute inset-0 flex flex-col px-24 pt-28 pb-20">
         <SectionHeader
           kicker="The Catalyst"
-          title="A $1.7T market — and nobody has tokenized the kWh itself."
+          title="A $1.7T/yr tailwind — and nobody has tokenized the kWh itself."
           subtitle="Federal incentives just collapsed. Households need a permanent, market-driven incentive — and the multi-OEM monitoring layer it requires has never existed before now."
         />
 
         <div className="grid grid-cols-3 gap-6 flex-1">
           <DeckCard className="flex flex-col">
-            <CardKicker className="text-amber-400/80">Market</CardKicker>
+            <CardKicker className="text-amber-400/80">Macro tailwind</CardKicker>
             <p className="text-[64px] font-semibold text-amber-400 mt-3 leading-none">
-              $1.7T
+              $1.7T<span className="text-[32px] text-amber-400/70">/yr</span>
             </p>
             <p className="text-[22px] text-white/65 mt-6 leading-snug">
-              Annual clean-energy capex globally. Nobody has tokenized the kWh
-              itself.
+              Global clean-energy capex per year (BloombergNEF). The wave we ride — our addressable slice is on the next slide.
             </p>
           </DeckCard>
 
