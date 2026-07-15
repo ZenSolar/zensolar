@@ -297,29 +297,37 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned, requiredEmail, defa
       {/* NDA Text - scrollable */}
       <div className="md:flex-1 md:min-h-0 px-5 pb-2">
         <div
+          ref={ndaScrollRef}
           className="max-h-[40vh] md:max-h-none md:h-full overflow-y-auto rounded-lg border border-border bg-card/50 p-4"
           onScroll={handleScroll}
         >
           <pre className="whitespace-pre-wrap text-[11px] md:text-xs leading-relaxed text-foreground/80 font-sans">
             {NDA_TEXT}
           </pre>
+          <div ref={ndaEndRef} aria-hidden className="h-px w-full" />
           {!scrolledToBottom && (
             <div className="sticky bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-card/90 to-transparent pointer-events-none" />
           )}
         </div>
         {!scrolledToBottom && (
-          <p className="text-[10px] text-muted-foreground text-center mt-1 animate-pulse">
-            ↓ Scroll to bottom to continue
-          </p>
+          <button
+            type="button"
+            onClick={() => {
+              const el = ndaScrollRef.current;
+              if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+              setScrolledToBottom(true);
+            }}
+            className="block mx-auto mt-1 text-[10px] text-secondary hover:text-secondary/80 underline underline-offset-2"
+          >
+            ↓ Tap here after reading to continue
+          </button>
         )}
       </div>
 
 
-      {/* Signature form — only interactive after scrolling to bottom */}
-      <div className={cn(
-        "shrink-0 px-5 pb-5 pt-2 space-y-3 transition-opacity duration-300",
-        scrolledToBottom ? 'opacity-100' : 'opacity-40 pointer-events-none'
-      )}>
+      {/* Signature form — fields always editable; submit gated by scroll + checkbox */}
+      <div className="shrink-0 px-5 pb-5 pt-2 space-y-3">
+
         {/* Name fields */}
         <div className="grid grid-cols-2 gap-2">
           <Input
