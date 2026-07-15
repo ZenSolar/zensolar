@@ -87,6 +87,35 @@ export function NdaSignatureStep({ accessCodeUsed, onSigned, requiredEmail, defa
   const isDrawingRef = useRef(false);
   const lastPosRef = useRef({ x: 0, y: 0 });
 
+  // NDA scroll container + sentinel for robust "read to end" detection
+  const ndaScrollRef = useRef<HTMLDivElement>(null);
+  const ndaEndRef = useRef<HTMLDivElement>(null);
+
+  // Detect when the bottom sentinel becomes visible inside the scroll box,
+  // OR when the content already fits without scrolling. Works on iOS Safari
+  // where onScroll math can be off by a few pixels.
+  useEffect(() => {
+    const root = ndaScrollRef.current;
+    const target = ndaEndRef.current;
+    if (!root || !target) return;
+
+    // If content already fits (no scroll needed), unlock immediately.
+    if (root.scrollHeight - root.clientHeight <= 4) {
+      setScrolledToBottom(true);
+      return;
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) setScrolledToBottom(true);
+      },
+      { root, threshold: 0.01, rootMargin: '0px 0px 40px 0px' }
+    );
+    io.observe(target);
+    return () => io.disconnect();
+  }, []);
+
+
   const normalizedEmail = email.trim().toLowerCase();
   const hasValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
   const emailMatchesInvite = !requiredEmail || normalizedEmail === requiredEmail.toLowerCase();
