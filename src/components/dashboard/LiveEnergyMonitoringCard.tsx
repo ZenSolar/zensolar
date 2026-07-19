@@ -391,12 +391,14 @@ export function MetricTile({
   label,
   value,
   detail,
+  sublabel,
   tone,
 }: {
   icon: LucideIcon;
   label: string;
   value: string;
   detail: string;
+  sublabel?: React.ReactNode;
   tone?: 'orange' | 'green' | 'blue' | 'teal';
 }) {
   const toneMap = {
