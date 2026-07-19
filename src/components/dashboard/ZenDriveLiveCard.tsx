@@ -53,11 +53,14 @@ export interface ZenDriveLiveCardProps {
 }
 
 export function ZenDriveLiveCard({ alwaysRender = false }: ZenDriveLiveCardProps = {}) {
-  const ev = useEVChargerTelemetry();
+  const { data: isActivelyCharging } = useActiveChargingSession();
+  // While a charging session is live and the app is foregrounded, poll Tesla
+  // telemetry every 20s so `charge_energy_added` advances in near-real-time.
+  // Idle → no polling (single fetch on mount).
+  const ev = useEVChargerTelemetry({ pollMs: isActivelyCharging ? 20_000 : 0 });
   const battery = useBatteryTelemetry();
   const solar = useSolarTelemetry();
   const evTotals = useEVTotals(1);
-  const { data: isActivelyCharging } = useActiveChargingSession();
   const [refreshing, setRefreshing] = useState(false);
   const tileRef = useRef<HTMLDivElement | null>(null);
   const [ping, setPing] = useState(false);

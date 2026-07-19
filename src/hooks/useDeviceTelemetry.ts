@@ -216,13 +216,14 @@ function hasCanonicalTelemetryShape(payload: any, capability: Capability): boole
   return hasCoreCharge && hasVehicleConfig;
 }
 
-function useTelemetry(capability: Capability) {
+function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
   const { user } = useAuth();
   const viewAsUserId = useViewAsUserId();
   const effectiveUserId = viewAsUserId ?? user?.id ?? null;
   const [data, setData] = useState<CachedTelemetry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const pollMs = opts?.pollMs ?? 0;
 
   const refresh = useCallback(async (opts?: { force?: boolean }) => {
     if (!effectiveUserId) {
@@ -266,9 +267,6 @@ function useTelemetry(capability: Capability) {
         }
         const live = await fetchFromOem(oem, d.device_id, capability, targetHeaderId);
         if (live && !(live as any).error && !(live as any).__reauth) {
-          // Only persist cache when acting as self; admin View-As lacks RLS
-          // write privilege on other users' cache rows (edge function writes
-          // via service role for its own caching).
           if (!targetHeaderId) {
             await writeCache(effectiveUserId, oem, capability, d.device_id, live);
           }
@@ -300,12 +298,51 @@ function useTelemetry(capability: Capability) {
   useEffect(() => {
     void refresh({ force: !!viewAsUserId });
   }, [refresh, viewAsUserId]);
+
+  // Foreground polling — only when a caller opts in via pollMs. Paused when
+  // the tab/PWA is hidden so we don't burn OEM quota in the background, and
+  // resumed with an immediate refresh when the app returns to foreground.
+  useEffect(() => {
+    if (!pollMs || pollMs <= 0 || !effectiveUserId) return;
+    let timer: ReturnType<typeof setInterval> | null = null;
+    const start = () => {
+      if (timer) return;
+      timer = setInterval(() => {
+        if (typeof document !== 'undefined' && document.hidden) return;
+        void refresh({ force: true });
+      }, pollMs);
+    };
+    const stop = () => {
+      if (timer) { clearInterval(timer); timer = null; }
+    };
+    const onVis = () => {
+      if (typeof document === 'undefined') return;
+      if (document.hidden) {
+        stop();
+      } else {
+        void refresh({ force: true });
+        start();
+      }
+    };
+    start();
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', onVis);
+    }
+    return () => {
+      stop();
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', onVis);
+      }
+    };
+  }, [pollMs, effectiveUserId, refresh]);
+
   return { data, loading, error, refresh };
 }
 
-export const useBatteryTelemetry = () => useTelemetry('battery');
-export const useEVChargerTelemetry = () => useTelemetry('ev');
-export const useSolarTelemetry = () => useTelemetry('solar');
+export const useBatteryTelemetry = (opts?: { pollMs?: number }) => useTelemetry('battery', opts);
+export const useEVChargerTelemetry = (opts?: { pollMs?: number }) => useTelemetry('ev', opts);
+export const useSolarTelemetry = (opts?: { pollMs?: number }) => useTelemetry('solar', opts);
+
 
 /** Last-N-days totals for EV charging (home + supercharger), from session tables. */
 export function useEVTotals(days = 7) {
@@ -318,47 +355,68 @@ export function useEVTotals(days = 7) {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchTotals = useCallback(async () => {
     if (!effectiveUserId) {
       setTotals({ home_kwh: 0, supercharger_kwh: 0 });
       setLoading(false);
       return;
     }
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      // days <= 1 → scope to "today" (local midnight → now), otherwise rolling N×24h window.
-      let sinceMs: number;
-      if (days <= 1) {
-        const d = new Date();
-        d.setHours(0, 0, 0, 0);
-        sinceMs = d.getTime();
-      } else {
-        sinceMs = Date.now() - days * 24 * 60 * 60 * 1000;
-      }
-      const since = new Date(sinceMs).toISOString();
-      const sinceDate = since.slice(0, 10);
-      const [{ data: home }, { data: sc }] = await Promise.all([
-        supabase
-          .from('home_charging_sessions')
-          .select('total_session_kwh')
-          .eq('user_id', effectiveUserId)
-          .gte('start_time', since),
-        supabase
-          .from('charging_sessions')
-          .select('energy_kwh')
-          .eq('user_id', effectiveUserId)
-          .eq('charging_type', 'supercharger')
-          .gte('session_date', sinceDate),
-      ]);
-      if (cancelled) return;
-      const home_kwh = (home ?? []).reduce((s: number, r: any) => s + Number(r.total_session_kwh || 0), 0);
-      const supercharger_kwh = (sc ?? []).reduce((s: number, r: any) => s + Number(r.energy_kwh || 0), 0);
-      setTotals({ home_kwh, supercharger_kwh });
-      setLoading(false);
-    })();
-    return () => { cancelled = true; };
+    // days <= 1 → scope to "today" (local midnight → now), otherwise rolling N×24h window.
+    let sinceMs: number;
+    if (days <= 1) {
+      const d = new Date();
+      d.setHours(0, 0, 0, 0);
+      sinceMs = d.getTime();
+    } else {
+      sinceMs = Date.now() - days * 24 * 60 * 60 * 1000;
+    }
+    const since = new Date(sinceMs).toISOString();
+    const sinceDate = since.slice(0, 10);
+    const [{ data: home }, { data: sc }] = await Promise.all([
+      supabase
+        .from('home_charging_sessions')
+        .select('total_session_kwh')
+        .eq('user_id', effectiveUserId)
+        .gte('start_time', since),
+      supabase
+        .from('charging_sessions')
+        .select('energy_kwh')
+        .eq('user_id', effectiveUserId)
+        .eq('charging_type', 'supercharger')
+        .gte('session_date', sinceDate),
+    ]);
+    const home_kwh = (home ?? []).reduce((s: number, r: any) => s + Number(r.total_session_kwh || 0), 0);
+    const supercharger_kwh = (sc ?? []).reduce((s: number, r: any) => s + Number(r.energy_kwh || 0), 0);
+    setTotals({ home_kwh, supercharger_kwh });
+    setLoading(false);
   }, [effectiveUserId, days]);
 
-  return { totals, loading };
+  useEffect(() => {
+    setLoading(true);
+    void fetchTotals();
+  }, [fetchTotals]);
+
+  // Realtime: whenever a session row for this user is inserted / updated
+  // (tesla-charge-monitor writes energy_kwh + total_session_kwh incrementally),
+  // re-aggregate immediately so the tile advances as kWh commit.
+  useEffect(() => {
+    if (!effectiveUserId) return;
+    const channel = supabase
+      .channel(`ev-totals-realtime-${effectiveUserId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'home_charging_sessions', filter: `user_id=eq.${effectiveUserId}` },
+        () => { void fetchTotals(); }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'charging_sessions', filter: `user_id=eq.${effectiveUserId}` },
+        () => { void fetchTotals(); }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [effectiveUserId, fetchTotals]);
+
+  return { totals, loading, refetch: fetchTotals };
 }
+
