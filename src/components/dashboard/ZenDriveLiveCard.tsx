@@ -196,23 +196,49 @@ export function ZenDriveLiveCard({ alwaysRender = false }: ZenDriveLiveCardProps
         />
       </div>
 
-      {/* Charging split — Home & AC vs Tesla Supercharging (today, condensed) */}
-      <div className="grid grid-cols-2 gap-2">
-        <MetricTile
-          tone="blue"
-          icon={Home}
-          label="Home & AC"
-          value={`${(evTotals.totals.home_kwh ?? 0).toFixed(1)} kWh`}
-          detail="Today"
-        />
-        <MetricTile
-          tone="orange"
-          icon={Zap}
-          label="Supercharging"
-          value={`${(evTotals.totals.supercharger_kwh ?? 0).toFixed(1)} kWh`}
-          detail="Today"
-        />
-      </div>
+      {/* Charging split — Home & AC vs Tesla Supercharging (today + live session delta) */}
+      {(() => {
+        const liveAdd = teslaFlow?.isCharging ? Math.max(0, teslaFlow?.energyAdded ?? 0) : 0;
+        const liveHomeAdd = teslaFlow?.source === 'home' ? liveAdd : 0;
+        const liveScAdd = teslaFlow?.source === 'supercharger' ? liveAdd : 0;
+        const homeToday = (evTotals.totals.home_kwh ?? 0) + liveHomeAdd;
+        const scToday = (evTotals.totals.supercharger_kwh ?? 0) + liveScAdd;
+        const kwLabel = teslaFlow?.kW ? teslaFlow.kW.toFixed(1) : '0';
+        return (
+          <div className="grid grid-cols-2 gap-2">
+            <MetricTile
+              tone="blue"
+              icon={Home}
+              label="Home & AC"
+              value={`${homeToday.toFixed(1)} kWh`}
+              detail={liveHomeAdd > 0 ? `+${liveHomeAdd.toFixed(1)} kWh live · ${kwLabel} kW` : 'Today'}
+              sublabel={
+                liveHomeAdd > 0 ? (
+                  <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-400 ring-1 ring-emerald-500/25">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    +{liveHomeAdd.toFixed(1)} $ZSOLAR this session
+                  </span>
+                ) : undefined
+              }
+            />
+            <MetricTile
+              tone="orange"
+              icon={Zap}
+              label="Supercharging"
+              value={`${scToday.toFixed(1)} kWh`}
+              detail={liveScAdd > 0 ? `+${liveScAdd.toFixed(1)} kWh live · ${kwLabel} kW` : 'Today'}
+              sublabel={
+                liveScAdd > 0 ? (
+                  <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-400 ring-1 ring-emerald-500/25">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    +{liveScAdd.toFixed(1)} $ZSOLAR this session
+                  </span>
+                ) : undefined
+              }
+            />
+          </div>
+        );
+      })()}
     </div>
   );
 }
