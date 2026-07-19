@@ -448,6 +448,7 @@ export function MetricTile({
       </div>
       <div className={`mt-2.5 text-[22px] font-bold leading-none tabular-nums ${t ? t.value : 'text-foreground'}`}>{value}</div>
       <div className="mt-1.5 text-[11px] leading-snug text-muted-foreground/80">{detail}</div>
+      {sublabel ? <div className="mt-1 text-[11px] leading-snug">{sublabel}</div> : null}
     </div>
   );
 }
