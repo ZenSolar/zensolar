@@ -1189,6 +1189,14 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                         ? `+${liveHomeAdd.toFixed(1)} kWh live · ${teslaFlow?.kW ? teslaFlow.kW.toFixed(1) : '0'} kW`
                         : 'Today · Level 1 / Level 2'
                     }
+                    sublabel={
+                      liveHomeAdd > 0 ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-sky-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-sky-300 ring-1 ring-sky-400/30">
+                          <Sparkles className="h-3 w-3" />
+                          +{liveHomeAdd.toFixed(1)} $ZSOLAR this session
+                        </span>
+                      ) : null
+                    }
                   />
                 );
               })()}
