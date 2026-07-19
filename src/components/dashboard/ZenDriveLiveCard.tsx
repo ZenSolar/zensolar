@@ -199,8 +199,18 @@ export function ZenDriveLiveCard({ alwaysRender = false }: ZenDriveLiveCardProps
       {/* Charging split — Home & AC vs Tesla Supercharging (today + live session delta) */}
       {(() => {
         const liveAdd = teslaFlow?.isCharging ? Math.max(0, teslaFlow?.energyAdded ?? 0) : 0;
-        const liveHomeAdd = teslaFlow?.source === 'home' ? liveAdd : 0;
-        const liveScAdd = teslaFlow?.source === 'supercharger' ? liveAdd : 0;
+        // Authoritative source classification: an active row in
+        // `home_charging_sessions` (via useActiveChargingSession) means the
+        // in-progress session was classified as Home/AC by the backend
+        // tesla-charge-monitor. Trust that over the transient
+        // fast_charger_present / kW heuristic in deriveTeslaFlow, which can
+        // briefly mis-tag an AC session as Supercharger.
+        const liveIsHome = !!isActivelyCharging || teslaFlow?.source === 'home';
+        const liveHomeAdd = teslaFlow?.isCharging && liveIsHome ? liveAdd : 0;
+        const liveScAdd =
+          teslaFlow?.isCharging && !liveIsHome && teslaFlow?.source === 'supercharger'
+            ? liveAdd
+            : 0;
         const homeToday = (evTotals.totals.home_kwh ?? 0) + liveHomeAdd;
         const scToday = (evTotals.totals.supercharger_kwh ?? 0) + liveScAdd;
         const kwLabel = teslaFlow?.kW ? teslaFlow.kW.toFixed(1) : '0';
