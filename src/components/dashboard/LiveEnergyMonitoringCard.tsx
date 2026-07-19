@@ -1168,27 +1168,49 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                 </div>
               )}
 
-              {/* Blue — Home & AC charging (today only) */}
-              {!hideVehicle && (
-                <MetricTile
-                  tone="blue"
-                  icon={Home}
-                  label="Home & AC Charging"
-                  value={formatKwh(evTotals.totals.home_kwh)}
-                  detail="Today · Level 1 / Level 2"
-                />
-              )}
+              {/* Blue — Home & AC charging (today + live session delta) */}
+              {!hideVehicle && (() => {
+                const liveHomeAdd =
+                  teslaFlow?.isCharging && teslaFlow.source === 'home' && teslaFlow.energyAdded
+                    ? teslaFlow.energyAdded
+                    : 0;
+                const homeToday = evTotals.totals.home_kwh + liveHomeAdd;
+                return (
+                  <MetricTile
+                    tone="blue"
+                    icon={Home}
+                    label="Home & AC Charging"
+                    value={formatKwh(homeToday)}
+                    detail={
+                      liveHomeAdd > 0
+                        ? `+${liveHomeAdd.toFixed(1)} kWh live · ${teslaFlow?.kW ? teslaFlow.kW.toFixed(1) : '0'} kW`
+                        : 'Today · Level 1 / Level 2'
+                    }
+                  />
+                );
+              })()}
 
-              {/* Orange — Tesla Supercharging (today only) */}
-              {!hideVehicle && (
-                <MetricTile
-                  tone="orange"
-                  icon={Zap}
-                  label="Tesla Supercharging"
-                  value={formatKwh(evTotals.totals.supercharger_kwh)}
-                  detail="Today · DC Fast Charging"
-                />
-              )}
+              {/* Orange — Tesla Supercharging (today + live session delta) */}
+              {!hideVehicle && (() => {
+                const liveScAdd =
+                  teslaFlow?.isCharging && teslaFlow.source === 'supercharger' && teslaFlow.energyAdded
+                    ? teslaFlow.energyAdded
+                    : 0;
+                const scToday = evTotals.totals.supercharger_kwh + liveScAdd;
+                return (
+                  <MetricTile
+                    tone="orange"
+                    icon={Zap}
+                    label="Tesla Supercharging"
+                    value={formatKwh(scToday)}
+                    detail={
+                      liveScAdd > 0
+                        ? `+${liveScAdd.toFixed(1)} kWh live · ${teslaFlow?.kW ? teslaFlow.kW.toFixed(1) : '0'} kW`
+                        : 'Today · DC Fast Charging'
+                    }
+                  />
+                );
+              })()}
 
               {/* Teal — EV mileage estimate from energy charged today
                    (≈ 3.3 mi/kWh — derived; replaced by live Tesla odometer
