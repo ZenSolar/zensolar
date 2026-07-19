@@ -216,13 +216,14 @@ function hasCanonicalTelemetryShape(payload: any, capability: Capability): boole
   return hasCoreCharge && hasVehicleConfig;
 }
 
-function useTelemetry(capability: Capability) {
+function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
   const { user } = useAuth();
   const viewAsUserId = useViewAsUserId();
   const effectiveUserId = viewAsUserId ?? user?.id ?? null;
   const [data, setData] = useState<CachedTelemetry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const pollMs = opts?.pollMs ?? 0;
 
   const refresh = useCallback(async (opts?: { force?: boolean }) => {
     if (!effectiveUserId) {
@@ -266,9 +267,6 @@ function useTelemetry(capability: Capability) {
         }
         const live = await fetchFromOem(oem, d.device_id, capability, targetHeaderId);
         if (live && !(live as any).error && !(live as any).__reauth) {
-          // Only persist cache when acting as self; admin View-As lacks RLS
-          // write privilege on other users' cache rows (edge function writes
-          // via service role for its own caching).
           if (!targetHeaderId) {
             await writeCache(effectiveUserId, oem, capability, d.device_id, live);
           }
@@ -300,12 +298,51 @@ function useTelemetry(capability: Capability) {
   useEffect(() => {
     void refresh({ force: !!viewAsUserId });
   }, [refresh, viewAsUserId]);
+
+  // Foreground polling — only when a caller opts in via pollMs. Paused when
+  // the tab/PWA is hidden so we don't burn OEM quota in the background, and
+  // resumed with an immediate refresh when the app returns to foreground.
+  useEffect(() => {
+    if (!pollMs || pollMs <= 0 || !effectiveUserId) return;
+    let timer: ReturnType<typeof setInterval> | null = null;
+    const start = () => {
+      if (timer) return;
+      timer = setInterval(() => {
+        if (typeof document !== 'undefined' && document.hidden) return;
+        void refresh({ force: true });
+      }, pollMs);
+    };
+    const stop = () => {
+      if (timer) { clearInterval(timer); timer = null; }
+    };
+    const onVis = () => {
+      if (typeof document === 'undefined') return;
+      if (document.hidden) {
+        stop();
+      } else {
+        void refresh({ force: true });
+        start();
+      }
+    };
+    start();
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', onVis);
+    }
+    return () => {
+      stop();
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', onVis);
+      }
+    };
+  }, [pollMs, effectiveUserId, refresh]);
+
   return { data, loading, error, refresh };
 }
 
-export const useBatteryTelemetry = () => useTelemetry('battery');
-export const useEVChargerTelemetry = () => useTelemetry('ev');
-export const useSolarTelemetry = () => useTelemetry('solar');
+export const useBatteryTelemetry = (opts?: { pollMs?: number }) => useTelemetry('battery', opts);
+export const useEVChargerTelemetry = (opts?: { pollMs?: number }) => useTelemetry('ev', opts);
+export const useSolarTelemetry = (opts?: { pollMs?: number }) => useTelemetry('solar', opts);
+
 
 /** Last-N-days totals for EV charging (home + supercharger), from session tables. */
 export function useEVTotals(days = 7) {
