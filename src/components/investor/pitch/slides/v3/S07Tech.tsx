@@ -46,7 +46,7 @@ const bottomCards = [
 export function S07Tech() {
   return (
     <SlideLayout variant="dark">
-      <SlideHeader label="Proprietary Tech & IP" number={7} />
+      <SlideHeader label="Proprietary Tech & IP" number={8} />
       <div
         aria-hidden
         className="absolute inset-0"

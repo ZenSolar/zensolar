@@ -6,7 +6,7 @@ import { Database, Zap } from 'lucide-react';
 export function S09ScaleOpportunity() {
   return (
     <SlideLayout variant="gradient">
-      <SlideHeader label="Scale Opportunity" number={9} />
+      <SlideHeader label="Scale Opportunity" number={10} />
       <div
         aria-hidden
         className="absolute inset-0"

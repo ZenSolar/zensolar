@@ -51,7 +51,7 @@ const walls = [
 export function S06FoundationalMoat() {
   return (
     <SlideLayout variant="gradient">
-      <SlideHeader label="The Foundational Moat" number={6} />
+      <SlideHeader label="The Foundational Moat" number={7} />
       <div
         aria-hidden
         className="absolute inset-0"

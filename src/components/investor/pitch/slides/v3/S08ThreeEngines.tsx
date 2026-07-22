@@ -6,7 +6,7 @@ import { CreditCard, Coins, Database, ArrowRight, Sparkles } from 'lucide-react'
 export function S08ThreeEngines() {
   return (
     <SlideLayout variant="gradient">
-      <SlideHeader label="Three Revenue Engines" number={8} />
+      <SlideHeader label="Three Revenue Engines" number={9} />
       <div
         aria-hidden
         className="absolute inset-0"

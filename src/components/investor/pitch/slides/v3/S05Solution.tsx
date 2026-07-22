@@ -13,7 +13,7 @@ const flow = [
 export function S05Solution() {
   return (
     <SlideLayout variant="dark">
-      <SlideHeader label="The Solution" number={5} />
+      <SlideHeader label="The Solution" number={6} />
       <div
         aria-hidden
         className="absolute inset-0"
