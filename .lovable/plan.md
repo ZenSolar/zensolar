@@ -1,68 +1,71 @@
-# Dashboard Charging-State Redesign
+# Deck v3.2 — Simpler, Personal, Demo-Proven
 
-The screen recording you shared is the Tesla app while ZenX is plugged in. That's the visual bar: a big vehicle hero with a live green charging cable, a calm icon strip, one dense data row, and a slim progress bar. Right now ZenSolar's `ZenDriveLiveCard` has all the same information but reads as several stacked pills + a small static car image + two square tiles. This plan brings it up to Tesla-app polish for the charging state specifically, without touching business logic.
+Refining the existing 11-slide `/deck` (v3.1) based on Greg Velez-Nick's feedback: **too wordy, needs the founder story, and needs to feel like a demo — not a whitepaper.**
 
-## Scope
-Frontend/presentation only. Files:
-- `src/components/dashboard/ZenDriveLiveCard.tsx` — main restructure
-- `src/components/dashboard/LiveEnergyMonitoringCard.tsx` — reuse/adjust `EVTile` where needed
-- New: `src/components/dashboard/ChargingHero.tsx` — the Tesla-style vehicle + cable hero
+Locked from prior decisions: 11-slide count, existing structure, $1M target / $2M cap ask, calm dark aesthetic, secondary-glow motif.
 
-No changes to telemetry hooks, detection logic, edge functions, or the Tesla AC/DC classification (that fix from earlier stays).
+## What changes
 
-## What changes visually
+### 1. Voice — first-person founder throughout
+Rewrite every headline and body copy as **Joseph speaking**. No more "ZenSolar is a protocol that…" — it becomes "I spent [X years] at SolarCity watching…" Michael appears as co-founder on Slide 01 and Slide 11 only.
 
-**1. New charging hero (replaces current static image + separate pill)**
-```text
-┌──────────────────────────────────────────┐
-│ ZenX  ⌄                    59%  ⚡        │  ← name, SOC%, charging bolt (green)
-│ 3h 12m to 82% limit                       │  ← ETA line (muted)
-│                                            │
-│         ▄▄▄▄████████▄▄▄                   │
-│      ██████████████████████               │  ← car hero, bigger (h-40)
-│     ██████████████████████████            │
-│        ●●●●●●●═════════════               │  ← animated green cable → port
-│                                            │
-│ ● Charging from your solar · 11.0 kW      │  ← single source line
-└──────────────────────────────────────────┘
-```
-- Car image scaled up (~h-40 on mobile), centered, dramatic shadow.
-- Animated SVG cable path with flowing green dots (respects `prefers-reduced-motion`).
-- SOC% + charging bolt promoted to a top-right cluster, replacing the current standalone EVTile header.
-- ETA to charge limit pulled from existing `charge_state` fields (`minutes_to_charge_limit`).
+### 2. Copy diet — cut ~50% per slide
+- Each slide gets **one headline, one supporting line, at most 3 bullets or 3 cards.**
+- Kill sub-sub-explanations. If it needs a paragraph, it goes in the appendix or the read-along one-pager.
+- Every card gets a hard word budget (title ≤6 words, body ≤20 words).
 
-**2. Collapse the redundant data row into one dense line (Tesla-style)**
-Current: multiple pills + tiles stacked. New: one `text-[13px] text-muted` row directly under the hero:
-```
-11.0 kW  ·  +36 mi/hr  ·  47/48 A  ·  246 V  ·  59% → 82%
-```
-Values already available in `primaryEv.payload.charge_state`.
+### 3. App screenshots as demo proof
+Embed real ZenSolar app screenshots directly in-slide on **four slides** so the deck feels like a live demo:
 
-**3. Slim progress bar**
-Replace the current EVTile's 7d line-chart with a single Tesla-style progress bar showing current SOC → charge limit. The 7d Home/Super history moves down as a secondary collapsed section (tap to expand) so it doesn't compete with the live state.
+| Slide | Screenshot |
+|---|---|
+| 04 Traction | Live Clean Energy Center (Joseph's or Harrison's real dashboard) |
+| 05 Solution | Tap-to-Mint™ moment (charging tile with live $ZSOLAR sublabel) |
+| 06 Foundational Moat | Multi-OEM unified view (Tesla + Enphase + Wallbox tiles) |
+| 08 Three Revenue Engines | Subscription tier / Deason AI card |
 
-**4. Charging source pill upgrade**
-Keep the "Charging from your solar / Powerwall / grid / Supercharger" line — but move it *inside* the hero card, right under the ETA, as one calm line with the green pulsing dot. Remove the separate bordered green box.
+I'll capture these from the running preview via Playwright (using your session), then run each through the product-shot skill (macOS window chrome + subtle gradient) so they read as polished demo shots, not raw phone screengrabs.
 
-**5. Home & AC / Supercharging tiles — condensed**
-Today they're two chunky tiles below. Convert to a single 2-column strip with smaller type (h-14 instead of h-20), matching the density of Tesla's status row. Keep the blue/orange accent hairline on the left edge only.
+### 4. Slide-by-slide changes
 
-**6. Idle vs charging states**
-- `isCharging === true`: full hero with animated cable, ETA, live data row.
-- `isCharging === false`: same layout but cable is static/dim, ETA replaced with "Ready · Last charged 2h ago", data row hidden.
+| # | Slide | Change |
+|---|---|---|
+| 01 | Hero | Cut sub-subtitle paragraph. Keep headline + one line + ask strip. |
+| 02 | Catalyst | First-person: "The 30% federal solar credit died. Homeowners lost their permanent incentive. I lived through it at SolarCity." Keep $1.7T card, cut patent card (moves to 07), keep moat card. |
+| 03 | Opportunity | Keep TAM/SAM/SOM. Drop "One patent · multiple markets" block (moves to Slide 09). Tighten PoW-vs-PoG copy to 2 lines. |
+| 04 | Traction | **New hero: real dashboard screenshot.** Metrics strip below (21 milestone NFTs, 12, 644k kWh/miles verified). |
+| 05 | Solution | **Tap-to-Mint screenshot as centerpiece.** Three-step caption: Produce → Verify → Mint. |
+| 06 | Foundational Moat | **Multi-OEM screenshot.** Under it: "Tesla + Enphase + SolarEdge + Wallbox in one app. Nobody else has this." |
+| 07 | Tech & IP | Patent card + Base L2 + Proof-of-Genesis™. Cut to 3 bullets. |
+| 08 | Three Revenue Engines | Keep 3-card structure. Each card ≤25 words. Subscription card gets the Deason screenshot. |
+| 09 | Scale (Data + VPP) | Keep. Trim to headline + 3 bullets + one anchor strip. |
+| 10 | Competition | Keep table. Cut prose above it. |
+| 11 | The Ask | Ask strip + one-line founder bios (Joseph + Michael) + mailto. |
+
+### 5. Founder story arc (needs your input)
+You picked "Other" on the story arc — I need **3–5 sentences from you** on how ZenSolar came to be, in your own voice, before I can write Slides 01, 02, and 11. Suggested prompts to answer in the reply:
+- What did you see at SolarCity that nobody else did?
+- What was the "I have to build this" moment?
+- Why you + Michael specifically?
+- What are you betting your career on?
+
+I'll take those sentences and translate them into deck copy — you'll approve before it ships.
+
+## What I need from you to start
+
+1. **Your story** (3–5 sentences per the prompts above).
+2. **Screenshot go-ahead**: OK if I capture from the live preview using your session? Or would you rather send me 4 specific screenshots?
 
 ## Technical notes
-- All colors via semantic tokens (`--primary`, `--emerald`, `--muted-foreground`, etc.) — no hardcoded hex.
-- Animation via CSS `@keyframes` (dashoffset on SVG path). No new dependencies.
-- Respects `useSoundPreference` and existing reduced-motion handling.
-- No changes to `deriveTeslaFlow`, `useActiveChargingSession`, or edge functions.
-- No new routes, no new backend calls.
+
+- Files touched: `src/components/investor/pitch/slides/v3/S01Hero.tsx` through `S11Ask.tsx` (11 files).
+- New asset dir: `src/assets/deck/v3-2/` for the polished product-shot screenshots.
+- No route changes — `/deck` continues to render the same list, just refreshed content.
+- Old v3.1 copy stays in git history; no separate archive needed.
+- One-pager (`/investor/one-pager`) and `/investor/pitch` stay as-is this pass — deck-only refactor. I'll flag them for a follow-up if the new voice lands.
 
 ## Out of scope
-- Live Energy Flow hero (solar/battery/grid) — untouched this pass.
-- Solar Produced / Battery kWh Exported tiles — untouched.
-- Dashboard section ordering — untouched.
-- Any minting or business logic.
 
-## Design directions
-After you approve this plan, next step is to run design--create_directions against a screenshot of your current ZenDriveLiveCard (charging state) with the Tesla reference locked in, then show you 3 rendered variants of the hero to pick from before I build.
+- No new slides, no reordering.
+- No VPP promotion to `/investor` or `/investor/pitch` (per SSOT lock).
+- No changes to ask numbers or mint split.
