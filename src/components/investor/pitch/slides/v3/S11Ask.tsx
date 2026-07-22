@@ -14,7 +14,7 @@ const useOfFunds = [
 export function S11Ask() {
   return (
     <SlideLayout variant="dark">
-      <SlideHeader label="The Ask" number={11} />
+      <SlideHeader label="The Ask" number={12} />
       <div
         aria-hidden
         className="absolute inset-0"

@@ -41,7 +41,7 @@ const threats = [
 export function S10Competition() {
   return (
     <SlideLayout variant="dark">
-      <SlideHeader label="Competition" number={10} />
+      <SlideHeader label="Competition" number={11} />
       <div
         aria-hidden
         className="absolute inset-0"

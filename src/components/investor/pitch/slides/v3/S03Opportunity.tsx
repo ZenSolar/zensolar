@@ -11,7 +11,7 @@ const tam = [
 export function S03Opportunity() {
   return (
     <SlideLayout variant="gradient">
-      <SlideHeader label="The Opportunity" number={3} />
+      <SlideHeader label="The Opportunity" number={4} />
       <div
         aria-hidden
         className="absolute inset-0"
@@ -23,8 +23,8 @@ export function S03Opportunity() {
 
       <div className="absolute inset-0 flex flex-col px-24 pt-28 pb-20">
         <SectionHeader
-          kicker="Our Addressable Market"
-          title="$240B residential solar + storage — nobody's tokenized it."
+          kicker="The Opportunity"
+          title="$1.7T/yr flows into clean energy. Nobody has tokenized the kWh itself."
           subtitle="1.5 billion solar-capable homes globally. 4M+ US solar + EV households today. Zero platforms tokenize verified energy production as a real-world asset."
         />
 
@@ -40,31 +40,15 @@ export function S03Opportunity() {
           ))}
         </div>
 
-        <DeckCard className="mb-6">
-          <CardKicker className="text-secondary">Proof-of-Work vs Proof-of-Genesis™</CardKicker>
-          <p className="text-[18px] text-white/75 mt-4 leading-relaxed max-w-[1500px]">
-            Bitcoin's Proof-of-Work consumes enormous amounts of energy to create digital scarcity with no direct environmental benefit. ZenSolar's Proof-of-Genesis™ rewards the actual creation of clean energy — one verified clean kilowatt-hour produced generates one $ZSOLAR token. We turn energy abundance into digital value instead of consuming massive energy to create artificial scarcity.
-          </p>
-        </DeckCard>
-
         <DeckCard emphasized>
-          <CardKicker className="text-secondary">One patent · multiple markets</CardKicker>
-          <div className="grid grid-cols-3 gap-8 mt-4">
-            {[
-              { title: 'Commercial Solar & Fleet EV', desc: 'Proof-of-Genesis™ scaled to warehouses, campuses, and commercial fleets. 10–100× capacity per account.' },
-              { title: 'Grid Demand Response & VPP', desc: 'Manufacturer-agnostic aggregation for utility dispatch signaling and capacity payments.' },
-              { title: 'Installer Mint Network', desc: 'B2B channel — installers mint 1 $ZSOLAR per 1 kW installed. Verified on-chain portfolio.' },
-            ].map((c) => (
-              <div key={c.title}>
-                <p className="text-[22px] font-semibold text-white leading-tight">
-                  {c.title}
-                </p>
-                <p className="text-[16px] text-white/60 mt-3 leading-relaxed">
-                  {c.desc}
-                </p>
-              </div>
-            ))}
-          </div>
+          <CardKicker className="text-secondary">Proof-of-Work vs Proof-of-Genesis™</CardKicker>
+          <p className="text-[22px] text-white/85 mt-4 leading-relaxed max-w-[1500px]">
+            <span className="text-white font-semibold">Bitcoin burns energy to create scarcity.</span>{' '}
+            <span className="text-secondary">We reward energy to create currency.</span>
+          </p>
+          <p className="text-[17px] text-white/60 mt-3 leading-relaxed max-w-[1500px]">
+            One verified clean kilowatt-hour → one $ZSOLAR. Abundance becomes value, instead of consumption becoming artificial scarcity.
+          </p>
         </DeckCard>
       </div>
 

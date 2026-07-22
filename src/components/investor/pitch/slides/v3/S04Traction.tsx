@@ -42,7 +42,7 @@ const cols = [
 export function S04Traction() {
   return (
     <SlideLayout variant="gradient">
-      <SlideHeader label="Traction & Beta" number={4} />
+      <SlideHeader label="Traction & Beta" number={5} />
       <div
         aria-hidden
         className="absolute inset-0"

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { PitchDeckShell } from "@/components/investor/pitch/PitchDeckShell";
 import { S01Hero } from "@/components/investor/pitch/slides/v3/S01Hero";
 import { S02Catalyst } from "@/components/investor/pitch/slides/v3/S02Catalyst";
+import { S03WhyMe } from "@/components/investor/pitch/slides/v3/S03WhyMe";
 import { S03Opportunity } from "@/components/investor/pitch/slides/v3/S03Opportunity";
 import { S04Traction } from "@/components/investor/pitch/slides/v3/S04Traction";
 import { S05Solution } from "@/components/investor/pitch/slides/v3/S05Solution";
@@ -19,10 +20,11 @@ import { readInvestorUnlocked } from "@/components/investor/InvestorPinGate";
 
 const SESSION_KEY = "zen.deck-pin-unlocked";
 
-// Full Seed Round Deck v3.1 — 11 slides. See mem://features/investor-pitch-v2.md
+// Full Seed Round Deck v3.2 — 12 slides. Catalyst = repealed federal incentives; Slide 03 = founder story.
 const slides = [
   <S01Hero />,
   <S02Catalyst />,
+  <S03WhyMe />,
   <S03Opportunity />,
   <S04Traction />,
   <S05Solution />,
@@ -37,6 +39,7 @@ const slides = [
 const slideLabels = [
   "Title",
   "The Catalyst",
+  "Why Me",
   "The Opportunity",
   "Traction & Beta",
   "The Solution",
