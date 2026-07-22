@@ -35,20 +35,13 @@ export function S01Hero() {
         </h1>
 
         <p className="mt-10 text-[28px] text-white/60 leading-relaxed max-w-[1400px]">
-          The first patent-pending protocol turning verified clean-energy
-          production into a hard-capped digital currency — built on the
-          first-ever unified multi-manufacturer monitoring app, live today
-          across{' '}
+          The first consumer app that turns verified clean energy into a
+          hard-capped digital currency — live today across{' '}
           <span className="text-white">
             Tesla, Enphase, SolarEdge, and Wallbox.
           </span>
         </p>
 
-        <p className="mt-6 text-[24px] text-white/75 leading-relaxed max-w-[1400px]">
-          We are raising a lean seed to ship mainnet, seed the LP, and prove the
-          flywheel — designed to reach self-sustainability without needing a
-          traditional Series A.
-        </p>
 
         <div className="mt-14 grid grid-cols-3 gap-5 w-full max-w-[1100px]">
           {[
