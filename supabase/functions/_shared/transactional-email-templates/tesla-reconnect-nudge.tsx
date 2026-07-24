@@ -22,17 +22,21 @@ interface Props {
   firstName?: string
   vehicleName?: string
   lastSyncedLabel?: string
+  newVehicleName?: string
 }
 
-const TeslaReconnectEmail = ({ firstName, vehicleName, lastSyncedLabel }: Props) => {
+const TeslaReconnectEmail = ({ firstName, vehicleName, lastSyncedLabel, newVehicleName }: Props) => {
   const name = firstName || 'there'
   const veh = vehicleName || 'your Tesla'
   const last = lastSyncedLabel || 'a while ago'
+  const hasNewCar = !!newVehicleName
 
   return (
     <Html lang="en" dir="ltr">
       <Head />
-      <Preview>{`${name} — reconnect ${veh} to keep your ZenSolar miles + charging flowing.`}</Preview>
+      <Preview>{hasNewCar
+        ? `${name} — reconnect Tesla to add ${newVehicleName} to ZenSolar.`
+        : `${name} — reconnect ${veh} to keep your ZenSolar miles + charging flowing.`}</Preview>
       <Body style={main}>
         <Container style={container}>
           <Section style={logoWrap}>
@@ -41,17 +45,30 @@ const TeslaReconnectEmail = ({ firstName, vehicleName, lastSyncedLabel }: Props)
 
           <Text style={eyebrow}>Action needed · Tesla connection</Text>
 
-          <Heading style={heroTitle}>Hey {name} — your Tesla link expired.</Heading>
+          <Heading style={heroTitle}>
+            {hasNewCar
+              ? `Hey ${name} — let's add ${newVehicleName} to ZenSolar.`
+              : `Hey ${name} — your Tesla link expired.`}
+          </Heading>
 
-          <Text style={paragraph}>
-            Quick heads up: your ZenSolar connection to <strong>{veh}</strong> stopped syncing on
-            {' '}<strong>{last}</strong>. Tesla requires a fresh sign-in every so often, and yours
-            has aged out.
-          </Text>
+          {hasNewCar ? (
+            <Text style={paragraph}>
+              Congrats on the new ride! I noticed <strong>{veh}</strong> is no longer on your
+              Tesla account, and your ZenSolar link expired back on <strong>{last}</strong>.
+              A quick re-sign-in will retire {veh} and pull <strong>{newVehicleName}</strong> in
+              automatically — miles, charging, and $ZSOLAR earnings all start flowing.
+            </Text>
+          ) : (
+            <Text style={paragraph}>
+              Quick heads up: your ZenSolar connection to <strong>{veh}</strong> stopped syncing on
+              {' '}<strong>{last}</strong>. Tesla requires a fresh sign-in every so often, and yours
+              has aged out.
+            </Text>
+          )}
 
           <Section style={noteCard}>
             <Text style={noteText}>
-              <strong>What's paused until you reconnect:</strong>
+              <strong>What starts flowing once you reconnect:</strong>
             </Text>
             <Text style={listItem}>• EV miles driven (odometer syncing)</Text>
             <Text style={listItem}>• FSD Supervised miles</Text>
@@ -61,13 +78,13 @@ const TeslaReconnectEmail = ({ firstName, vehicleName, lastSyncedLabel }: Props)
 
           <Section style={pathCardRecommended}>
             <Text style={pathBadgeRecommended}>Takes 30 seconds</Text>
-            <Text style={pathTitle}>Reconnect Tesla</Text>
+            <Text style={pathTitle}>{hasNewCar ? `Reconnect Tesla & add ${newVehicleName}` : 'Reconnect Tesla'}</Text>
             <Text style={pathText}>
               Tap the button, sign into your Tesla account, and we'll immediately start
-              back-filling everything you missed.
+              {hasNewCar ? ' syncing your new car.' : ' back-filling everything you missed.'}
             </Text>
             <Link href={RECONNECT_URL} style={buttonPrimary}>
-              Reconnect Tesla
+              {hasNewCar ? `Reconnect & add ${newVehicleName}` : 'Reconnect Tesla'}
             </Link>
           </Section>
 
