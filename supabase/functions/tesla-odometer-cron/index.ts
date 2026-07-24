@@ -106,10 +106,24 @@ Deno.serve(async (req) => {
     const { data: devices, error } = await q;
     if (error) throw error;
 
+    // Smart-skip: only poll users seen in the last 30 days (skip abandoned accounts
+    // to keep Tesla Fleet API cost bounded). onlyVin/onlyUser bypass the filter.
+    let activeUserIds: Set<string> | null = null;
+    if (!onlyVin && !onlyUser) {
+      const cutoff = new Date(nowMs - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const { data: activeProfiles } = await supabase
+        .from("profiles")
+        .select("user_id")
+        .gte("last_seen_at", cutoff);
+      activeUserIds = new Set((activeProfiles || []).map((p: any) => p.user_id));
+    }
+
     for (const d of devices || []) {
+      if (activeUserIds && !activeUserIds.has(d.user_id)) { skipped += 1; continue; }
       if (d.device_type && !["vehicle", "ev", "tesla_vehicle"].includes(d.device_type)) {
         continue;
       }
+
 
       const { data: tokenRow } = await supabase
         .from("energy_tokens")
