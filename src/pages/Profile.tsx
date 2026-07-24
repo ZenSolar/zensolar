@@ -122,6 +122,23 @@ export default function Profile() {
     }
   }, [profile, homeAddressInitialized]);
 
+  // Auto-trigger Tesla reconnect when arriving via ?reconnect=tesla (from reconnect nudge email)
+  const autoReconnectTriggered = React.useRef(false);
+  useEffect(() => {
+    if (autoReconnectTriggered.current) return;
+    if (!user || !profile) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('reconnect') === 'tesla') {
+      autoReconnectTriggered.current = true;
+      // Clear the query param so a refresh doesn't re-trigger
+      const url = new URL(window.location.href);
+      url.searchParams.delete('reconnect');
+      window.history.replaceState({}, '', url.toString());
+      handleConnectEnergy('tesla');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, profile]);
+
   const homeAddressDirty = homeAddressInitialized && homeAddress !== (profile?.home_address || '');
 
   const handleSaveHomeAddress = async () => {
