@@ -155,36 +155,39 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(
-      authHeader.replace("Bearer ", "")
-    );
-
-    if (authError || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // Check for admin override - allows admins to sync on behalf of other users
-    let targetUserId = user.id;
+    const bearer = authHeader.replace("Bearer ", "");
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     const targetUserIdHeader = req.headers.get("X-Target-User-Id");
-    
-    if (targetUserIdHeader && targetUserIdHeader !== user.id) {
-      // Verify the caller is an admin
-      const { data: isAdmin } = await supabaseClient.rpc('is_admin', { _user_id: user.id });
-      
-      if (!isAdmin) {
-        console.log(`User ${user.id} attempted admin override but is not admin`);
-        return new Response(JSON.stringify({ error: "Admin access required" }), {
-          status: 403,
+    let targetUserId: string | null = null;
+
+    // Cron/service-role bypass: allow enphase-data-cron to sync any user.
+    if (serviceRoleKey && bearer === serviceRoleKey && targetUserIdHeader) {
+      targetUserId = targetUserIdHeader;
+      console.log(`[enphase-data] service-role cron sync for user ${targetUserId}`);
+    } else {
+      const { data: { user }, error: authError } = await supabaseClient.auth.getUser(bearer);
+      if (authError || !user) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      
-      targetUserId = targetUserIdHeader;
-      console.log(`Admin ${user.id} syncing Enphase data for user ${targetUserId}`);
+      targetUserId = user.id;
+
+      if (targetUserIdHeader && targetUserIdHeader !== user.id) {
+        const { data: isAdmin } = await supabaseClient.rpc('is_admin', { _user_id: user.id });
+        if (!isAdmin) {
+          console.log(`User ${user.id} attempted admin override but is not admin`);
+          return new Response(JSON.stringify({ error: "Admin access required" }), {
+            status: 403,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        targetUserId = targetUserIdHeader;
+        console.log(`Admin ${user.id} syncing Enphase data for user ${targetUserId}`);
+      }
     }
+
 
     const apiKey = Deno.env.get("ENPHASE_API_KEY");
     if (!apiKey) {
