@@ -123,7 +123,7 @@ export default function Profile() {
   }, [profile, homeAddressInitialized]);
 
   // Auto-trigger Tesla reconnect when arriving via ?reconnect=tesla (from reconnect nudge email)
-  const autoReconnectTriggered = React.useRef(false);
+  const autoReconnectTriggered = useRef(false);
   useEffect(() => {
     if (autoReconnectTriggered.current) return;
     if (!user || !profile) return;
