@@ -23,6 +23,9 @@ project_id = "fcptrpgqkjffgeddajwl"
     verify_jwt = false
   [functions.enphase-data]
     verify_jwt = false
+  [functions.enphase-data-cron]
+    verify_jwt = false
+
   [functions.enphase-devices]
     verify_jwt = false
   [functions.generate-vapid-keys]
