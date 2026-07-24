@@ -39,5 +39,7 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'jo-founder-vip-welcome': joFounderVipWelcome,
   'weekly-energy-digest': weeklyEnergyDigest,
   'weekly-narrative-teaser': weeklyNarrativeTeaser,
+  'tesla-reconnect-nudge': teslaReconnectNudge,
 }
+
 
