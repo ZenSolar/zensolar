@@ -886,17 +886,29 @@ export function useDashboardData() {
         try {
           const userId = getEffectiveUserId();
           if (!userId) return { lifetime: 0, sessions: [] };
-          const { data, error } = await supabase
-            .from('home_charging_sessions')
-            .select('total_session_kwh, start_time')
-            .eq('user_id', userId)
-            .eq('status', 'completed');
-          if (error) { console.error('Home charging fetch error:', error); return { lifetime: 0, sessions: [] }; }
-          const sessions = data || [];
-          const lifetime = sessions.reduce((sum, s) => sum + Number(s.total_session_kwh || 0), 0);
+          const [liveRes, historicalRes] = await Promise.all([
+            supabase
+              .from('home_charging_sessions')
+              .select('total_session_kwh, start_time')
+              .eq('user_id', userId)
+              .eq('status', 'completed'),
+            supabase
+              .from('charging_sessions')
+              .select('energy_kwh, session_date')
+              .eq('user_id', userId)
+              .eq('charging_type', 'home'),
+          ]);
+          if (liveRes.error) console.error('Home charging fetch error:', liveRes.error);
+          if (historicalRes.error) console.error('Historical charging fetch error:', historicalRes.error);
+          const sessions = liveRes.data || [];
+          const liveLifetime = sessions.reduce((sum, s) => sum + Number(s.total_session_kwh || 0), 0);
+          const historicalLifetime = (historicalRes.data || []).reduce((sum, s: any) => sum + Number(s.energy_kwh || 0), 0);
+          // Max, not sum — the two tables can overlap for the live-monitor era.
+          const lifetime = Math.max(liveLifetime, historicalLifetime);
           return { lifetime, sessions };
         } catch { return { lifetime: 0, sessions: [] }; }
       };
+
 
       // When viewing as another user, skip external API calls (they authenticate as admin, not target user).
       // Instead rely entirely on DB-stored data (devices, rewards, etc.) which uses getEffectiveUserId().
