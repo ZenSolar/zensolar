@@ -1,0 +1,1 @@
+UPDATE public.profiles SET display_name = 'Mike Pessah' WHERE user_id = 'cf23d8c2-a944-43ef-a327-91dc49f1dc0f' AND display_name IS NULL;
