@@ -16,7 +16,7 @@ import type { TemplateEntry } from './registry.ts'
 
 const SITE_NAME = 'ZenSolar'
 const LOGO_URL = 'https://fcptrpgqkjffgeddajwl.supabase.co/storage/v1/object/public/email-assets/zen-logo-horizontal-v3.png'
-const RECONNECT_URL = 'https://beta.zen.solar/settings/connections'
+const RECONNECT_URL = 'https://beta.zen.solar/profile?reconnect=tesla'
 
 interface Props {
   firstName?: string
