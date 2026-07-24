@@ -22,6 +22,8 @@ import { template as toddAndroidInvite } from './todd-android-invite.tsx'
 import { template as joFounderVipWelcome } from './jo-founder-vip-welcome.tsx'
 import { template as weeklyEnergyDigest } from './weekly-energy-digest.tsx'
 import { template as weeklyNarrativeTeaser } from './weekly-narrative-teaser.tsx'
+import { template as teslaReconnectNudge } from './tesla-reconnect-nudge.tsx'
+
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'nda-signed-copy': ndaSignedCopy,
@@ -37,5 +39,7 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'jo-founder-vip-welcome': joFounderVipWelcome,
   'weekly-energy-digest': weeklyEnergyDigest,
   'weekly-narrative-teaser': weeklyNarrativeTeaser,
+  'tesla-reconnect-nudge': teslaReconnectNudge,
 }
+
 

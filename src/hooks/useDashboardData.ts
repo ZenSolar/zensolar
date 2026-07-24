@@ -646,7 +646,7 @@ export function useDashboardData() {
       const userId = getEffectiveUserId();
       if (!userId) return null;
 
-      const [devicesSnapshot, homeChargingAllSessions, lifetimeMinted, referralTokens, deviceLabelsResult] = await Promise.all([
+      const [devicesSnapshot, homeChargingAllSessions, historicalHomeSessions, lifetimeMinted, referralTokens, deviceLabelsResult] = await Promise.all([
         supabase.from('connected_devices')
           .select('device_id, device_name, device_type, provider, baseline_data, lifetime_totals, last_minted_at')
           .eq('user_id', userId).then(r => r.data || []),
@@ -655,13 +655,26 @@ export function useDashboardData() {
           .eq('user_id', userId)
           .eq('status', 'completed')
           .then(r => r.data || []),
+        supabase.from('charging_sessions')
+          .select('energy_kwh, session_date')
+          .eq('user_id', userId)
+          .eq('charging_type', 'home')
+          .then(r => r.data || []),
         fetchMintedTokens(),
         fetchReferralTokens(),
         fetchDeviceLabels(),
       ]);
 
-      // Calculate home charging: lifetime total and pending (since last mint)
-      const homeChargingMonitorKwh = homeChargingAllSessions.reduce((sum: number, s: any) => sum + Number(s.total_session_kwh || 0), 0);
+      // Calculate home charging: lifetime total and pending (since last mint).
+      // Two sources track home/AC kWh: `home_charging_sessions` (live tracker) and
+      // `charging_sessions` (historical/backfilled from Tesla billing). For users
+      // whose live tracker never ran (stale token, pre-monitor accounts), the
+      // historical table is the only source. Take the max so we surface the most
+      // complete picture without double-counting overlapping periods.
+      const liveHomeKwh = homeChargingAllSessions.reduce((sum: number, s: any) => sum + Number(s.total_session_kwh || 0), 0);
+      const historicalHomeKwh = historicalHomeSessions.reduce((sum: number, s: any) => sum + Number(s.energy_kwh || 0), 0);
+      const homeChargingMonitorKwh = Math.max(liveHomeKwh, historicalHomeKwh);
+
       // Find the most recent mint timestamp across all devices
       const lastMintTimestamps = devicesSnapshot.map((d: any) => d.last_minted_at).filter(Boolean);
       const latestMintAt = lastMintTimestamps.length > 0
@@ -873,17 +886,29 @@ export function useDashboardData() {
         try {
           const userId = getEffectiveUserId();
           if (!userId) return { lifetime: 0, sessions: [] };
-          const { data, error } = await supabase
-            .from('home_charging_sessions')
-            .select('total_session_kwh, start_time')
-            .eq('user_id', userId)
-            .eq('status', 'completed');
-          if (error) { console.error('Home charging fetch error:', error); return { lifetime: 0, sessions: [] }; }
-          const sessions = data || [];
-          const lifetime = sessions.reduce((sum, s) => sum + Number(s.total_session_kwh || 0), 0);
+          const [liveRes, historicalRes] = await Promise.all([
+            supabase
+              .from('home_charging_sessions')
+              .select('total_session_kwh, start_time')
+              .eq('user_id', userId)
+              .eq('status', 'completed'),
+            supabase
+              .from('charging_sessions')
+              .select('energy_kwh, session_date')
+              .eq('user_id', userId)
+              .eq('charging_type', 'home'),
+          ]);
+          if (liveRes.error) console.error('Home charging fetch error:', liveRes.error);
+          if (historicalRes.error) console.error('Historical charging fetch error:', historicalRes.error);
+          const sessions = liveRes.data || [];
+          const liveLifetime = sessions.reduce((sum, s) => sum + Number(s.total_session_kwh || 0), 0);
+          const historicalLifetime = (historicalRes.data || []).reduce((sum, s: any) => sum + Number(s.energy_kwh || 0), 0);
+          // Max, not sum — the two tables can overlap for the live-monitor era.
+          const lifetime = Math.max(liveLifetime, historicalLifetime);
           return { lifetime, sessions };
         } catch { return { lifetime: 0, sessions: [] }; }
       };
+
 
       // When viewing as another user, skip external API calls (they authenticate as admin, not target user).
       // Instead rely entirely on DB-stored data (devices, rewards, etc.) which uses getEffectiveUserId().
