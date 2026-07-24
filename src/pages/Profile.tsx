@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { PageSkeleton } from "@/components/ui/empty-state";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "@/hooks/useProfile";
