@@ -117,11 +117,12 @@ const TeslaReconnectEmail = ({ firstName, vehicleName, lastSyncedLabel, newVehic
 export const template = {
   component: TeslaReconnectEmail,
   subject: (data: Record<string, any>) => {
+    if (data?.newVehicleName) return `Add ${data.newVehicleName} to your ZenSolar dashboard`
     const veh = data?.vehicleName || 'your Tesla'
     return `Reconnect ${veh} to resume your ZenSolar sync`
   },
   displayName: 'Tesla reconnect nudge',
-  previewData: { firstName: 'Neil', vehicleName: 'Black Beauty', lastSyncedLabel: 'May 28, 2026' },
+  previewData: { firstName: 'Juliana', vehicleName: 'Tesy', lastSyncedLabel: 'Jan 26, 2026', newVehicleName: 'TesYto' },
 } satisfies TemplateEntry
 
 const COLORS = {
