@@ -1123,9 +1123,15 @@ export function useDashboardData() {
         batteryDischarge = (teslaData.totals.battery_discharge_wh || 0) / 1000;
         evMiles = teslaData.totals.ev_miles || 0;
         superchargerKwh = teslaData.totals.supercharger_kwh || 0;
-        // Home AC charging: use the new split field from billing API, plus Wall Connector telemetry + Wallbox + monitor
+        // Home AC charging: Tesla billing API, Wallbox lifetime, and the
+        // charge-monitor `home_charging_sessions` table all track the SAME
+        // physical kWh (a Tesla plugged into a home AC charger reports the
+        // charge to Tesla billing, to Wallbox if using one, AND is written
+        // into home_charging_sessions by tesla-charge-monitor). Summing them
+        // triple-counts and makes the KPI oscillate as each source refreshes
+        // async. Pick the max — the highest source is the most complete.
         const teslaHomeAcKwh = teslaData.totals.home_ac_charging_kwh || teslaData.totals.wall_connector_kwh || 0;
-        homeChargerKwh = teslaHomeAcKwh + wallboxChargerKwh + homeChargingMonitorKwh;
+        homeChargerKwh = Math.max(teslaHomeAcKwh, wallboxChargerKwh, homeChargingMonitorKwh);
 
         // Pending values (since last mint baseline)
         const teslaPendingSolar = teslaData.totals.pending_solar_wh !== undefined
@@ -1153,7 +1159,8 @@ export function useDashboardData() {
         pendingBattery = teslaPendingBattery;
         pendingEvMiles = teslaPendingEvMiles;
         pendingSupercharger = teslaPendingSupercharger;
-        pendingHomeCharger = teslaPendingHomeAc + wallboxPendingKwh + pendingHomeChargingMonitorKwh;
+        // Mirror the lifetime max-not-sum rule for pending kWh.
+        pendingHomeCharger = Math.max(teslaPendingHomeAc, wallboxPendingKwh, pendingHomeChargingMonitorKwh);
         pendingCharging = pendingSupercharger + pendingHomeCharger;
         // FSD miles — subset of EV miles, never summed into evMiles
         fsdSupervisedMiles = Number(teslaData.totals.fsd_supervised_miles || 0);
@@ -1164,10 +1171,12 @@ export function useDashboardData() {
         console.log('Tesla data:', { batteryDischarge, evMiles, superchargerKwh, homeChargerKwh, hasDedicatedSolarProvider, fsdSupervisedMiles });
       }
 
-      // If only Wallbox connected (no Tesla), set home charger from Wallbox data
+      // If only Wallbox connected (no Tesla), set home charger from Wallbox data.
+      // Wallbox lifetime and the charge-monitor sessions track the same physical
+      // kWh — take the max, don't sum.
       if (!teslaData?.totals && wallboxData?.totals) {
-        homeChargerKwh = wallboxChargerKwh + homeChargingMonitorKwh;
-        pendingHomeCharger = wallboxPendingKwh + pendingHomeChargingMonitorKwh;
+        homeChargerKwh = Math.max(wallboxChargerKwh, homeChargingMonitorKwh);
+        pendingHomeCharger = Math.max(wallboxPendingKwh, pendingHomeChargingMonitorKwh);
         pendingCharging = pendingHomeCharger;
       }
 
