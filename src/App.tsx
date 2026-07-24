@@ -416,6 +416,8 @@ const App = () => {
                     <Route path="/blog/v2l-vehicle-to-load" element={<BlogV2L />} />
                     <Route path="/blog/virtual-power-plant-vpp" element={<BlogVPP />} />
                     <Route path="/onboarding" element={<Onboarding />} />
+                    <Route path="/settings/connections" element={<Navigate to="/profile" replace />} />
+                    <Route path="/reconnect/tesla" element={<Navigate to="/profile?reconnect=tesla" replace />} />
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/privacy" element={<Privacy />} />
                     <Route path="/yc-application" element={<Navigate to="/admin/archive/yc-application" replace />} />
