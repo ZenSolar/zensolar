@@ -186,9 +186,19 @@ export default function OAuthCallback() {
       }
 
       if (tokensFound) {
+        const isBetaFlow = localStorage.getItem('beta_energy_flow') === 'true';
         const isOnboardingFlow = localStorage.getItem('onboarding_energy_flow') === 'true';
         localStorage.removeItem('onboarding_energy_flow');
-        
+        if (isBetaFlow) {
+          localStorage.removeItem('beta_energy_flow');
+          if (window.opener && !window.opener.closed) {
+            window.opener.postMessage({ type: 'oauth_success', provider: 'tesla' }, window.location.origin);
+            window.close();
+            return;
+          }
+          window.location.href = '/beta/tesla';
+          return;
+        }
         if (isOnboardingFlow) {
           if (window.opener && !window.opener.closed) {
             console.log('[OAuthCallback] Signaling opener window for Tesla onboarding success');
