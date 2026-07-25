@@ -28,7 +28,7 @@ export default function BetaSignIn() {
     <BetaShell eyebrow="Sign in" onBack={() => navigate(-1)}>
       <h1 className="text-3xl font-semibold tracking-tight mb-3">What's your email?</h1>
       <p className="text-[15px] text-muted-foreground mb-6">
-        We'll send you a 6-digit code. No password required.
+        We'll email you a one-time code. No password required.
       </p>
       <Input
         type="email"
