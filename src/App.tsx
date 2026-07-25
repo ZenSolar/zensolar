@@ -52,6 +52,7 @@ const InstallNudge = lazy(() =>
 );
 // Home only renders on `/` for unauthed visitors — keep it out of entry bundle
 const Home = lazy(() => import("./pages/Home"));
+const BetaLanding = lazy(() => import("./pages/BetaLanding"));
 const NftGenesisFounder = lazy(() => import("./pages/NftGenesisFounder"));
 
 // Lazy load layout and auth components to reduce main bundle size
@@ -414,6 +415,8 @@ const App = () => {
 
 
                     <Route path="/home" element={<Home />} />
+                    <Route path="/beta-welcome" element={<Suspense fallback={<PageLoader />}><BetaLanding /></Suspense>} />
+
                     {/* Subscribe wrapped in AppLayout so it inherits the
                         global top nav (back button + safe-area-top) and bottom nav. */}
                     <Route path="/subscribe" element={<Suspense fallback={<PageLoader />}><AppLayout><Subscribe /></AppLayout></Suspense>} />

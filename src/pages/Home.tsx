@@ -15,6 +15,13 @@ const GATED_HOSTS = new Set([
   'www.zen.solar',
 ]);
 
+// Beta hosts get their own minimal Quiet Current front door that routes
+// into the passwordless /onboarding flow.
+const BETA_HOSTS = new Set([
+  'beta.zen.solar',
+  'www.beta.zen.solar',
+]);
+
 
 // Defer the floating section nav — it pulls in framer-motion, Vaul drawer,
 // and @capacitor/haptics, none of which are needed for first paint.
@@ -38,8 +45,13 @@ const HomeCTA = lazy(() => import('@/components/home/HomeCTA').then(m => ({ defa
 const HomeFooter = lazy(() => import('@/components/home/HomeFooter').then(m => ({ default: m.HomeFooter })));
 
 export default function Home() {
-  if (typeof window !== 'undefined' && GATED_HOSTS.has(window.location.hostname)) {
-    return <Navigate to="/demo" replace />;
+  if (typeof window !== 'undefined') {
+    if (BETA_HOSTS.has(window.location.hostname)) {
+      return <Navigate to="/beta-welcome" replace />;
+    }
+    if (GATED_HOSTS.has(window.location.hostname)) {
+      return <Navigate to="/demo" replace />;
+    }
   }
   return (
     <>
