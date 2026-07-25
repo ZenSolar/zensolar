@@ -327,6 +327,8 @@ const App = () => {
                   <AppHistoryTracker />
                   <ScrollManager />
                   <SwipeBackHandler />
+                  <DashboardEnterEffect />
+
                   <DeferredMount>
                     <Suspense fallback={null}>
                       <PageCleanupFlagger />
