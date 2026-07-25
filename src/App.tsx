@@ -138,7 +138,6 @@ const Deason = lazy(() => import("./pages/Deason"));
 const DeasonFloatingBubble = lazy(() =>
   import("./components/deason/DeasonFloatingBubble").then((m) => ({ default: m.DeasonFloatingBubble })),
 );
-const Onboarding = lazy(() => import("./pages/Onboarding"));
 const BetaInvite = lazy(() => import("./pages/beta/BetaInvite"));
 const BetaResume = lazy(() => import("./pages/beta/BetaResume"));
 const BetaSignIn = lazy(() => import("./pages/beta/BetaSignIn"));
@@ -432,7 +431,6 @@ const App = () => {
                     <Route path="/blog/v2x-vehicle-to-everything" element={<BlogV2X />} />
                     <Route path="/blog/v2l-vehicle-to-load" element={<BlogV2L />} />
                     <Route path="/blog/virtual-power-plant-vpp" element={<BlogVPP />} />
-                    <Route path="/onboarding" element={<Onboarding />} />
                     <Route path="/settings/connections" element={<Navigate to="/profile" replace />} />
                     <Route path="/reconnect/tesla" element={<Navigate to="/profile?reconnect=tesla" replace />} />
                     <Route path="/terms" element={<Terms />} />
