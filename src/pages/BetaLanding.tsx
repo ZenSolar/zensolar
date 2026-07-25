@@ -40,7 +40,7 @@ export default function BetaLanding() {
             A new way to be rewarded for using solar and driving a Tesla —$ZSOLAR.
           </h1>
           <p className="text-[15px] leading-relaxed qc-muted mb-8">
-            Your Tesla and solar system already generate real value. ZenSolar
+            Your Tesla and/or solar system already generates real value. ZenSolar
             links to the systems you already own and provides a&nbsp;precise way to
             see — and be rewarded for — your clean energy contributions.
           </p>
