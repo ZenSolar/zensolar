@@ -1,42 +1,34 @@
 import { ReactNode } from 'react';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+import { QCScreen, QCHeader, QCMain, QCProgress, type QCStage } from '@/components/onboarding/quiet/QuietCurrent';
 
 interface Props {
   children: ReactNode;
   onBack?: () => void;
   eyebrow?: string;
+  stage?: QCStage;
+  ambient?: boolean;
 }
 
 /**
- * Shared chrome for every /beta/* screen — logo header, optional back,
- * and a centered content column. Kept intentionally minimal so each screen
- * can focus on its single decision.
+ * Shared chrome for every unified-onboarding screen.
+ * Wraps content in the Quiet Current premium layer: graphite canvas,
+ * cross-fade + upward drift entrance, thin progress rail.
  */
-export function BetaShell({ children, onBack, eyebrow }: Props) {
+export function BetaShell({ children, onBack, eyebrow, stage, ambient = true }: Props) {
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
-      <header className="flex items-center justify-between px-5 pt-6">
-        {onBack ? (
-          <Button variant="ghost" size="sm" onClick={onBack} className="gap-1 -ml-2 h-9">
-            <ArrowLeft className="w-4 h-4" />
-            Back
-          </Button>
-        ) : (
-          <div className="w-16" />
-        )}
-        <img src={zenLogo} alt="ZenSolar" className="h-6 w-auto opacity-90" />
-        <div className="w-16" />
-      </header>
-      <main className="flex-1 flex flex-col px-6 pt-6 pb-10 max-w-md w-full mx-auto">
-        {eyebrow && (
-          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-amber-300/80 mb-2">
-            {eyebrow}
-          </p>
-        )}
-        {children}
-      </main>
-    </div>
+    <QCScreen ambient={ambient}>
+      <div className="flex flex-col min-h-screen">
+        <QCHeader onBack={onBack} />
+        {stage && <QCProgress stage={stage} />}
+        <QCMain>
+          {eyebrow && (
+            <p className="text-[10px] font-medium uppercase tracking-[0.32em] qc-muted mb-3">
+              {eyebrow}
+            </p>
+          )}
+          {children}
+        </QCMain>
+      </div>
+    </QCScreen>
   );
 }

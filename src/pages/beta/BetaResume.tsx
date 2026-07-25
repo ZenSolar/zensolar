@@ -6,9 +6,8 @@ import { BetaShell } from './BetaShell';
 import { supabase } from '@/integrations/supabase/client';
 
 /**
- * `/beta` entry — resumes the user at their last incomplete step.
- * Unauthed → signin. Authed → last saved step, or the next incomplete
- * module derived from their selections + status.
+ * `/onboarding` entry — resumes at last incomplete step.
+ * Unauthed → signin. Authed with saved step → that step. Otherwise compute next.
  */
 export default function BetaResume() {
   const navigate = useNavigate();
@@ -18,18 +17,21 @@ export default function BetaResume() {
     if (flow.loading) return;
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { navigate('/beta/signin', { replace: true }); return; }
+      if (!user) { navigate('/onboarding/signin', { replace: true }); return; }
       const saved = flow.step;
-      if (saved && saved !== 'done') { navigate(`/beta/${saved}`, { replace: true }); return; }
+      if (saved && saved !== 'done' && saved !== 'summary') {
+        navigate(`/onboarding/${saved}`, { replace: true });
+        return;
+      }
       if (saved === 'done') { navigate('/', { replace: true }); return; }
       const next = computeNextStep(flow.selections, flow.status);
-      navigate(`/beta/${next}`, { replace: true });
+      navigate(`/onboarding/${next}`, { replace: true });
     })();
   }, [flow.loading, flow.step, flow.selections, flow.status, navigate]);
 
   return (
     <BetaShell>
-      <p className="text-sm text-muted-foreground">Picking up where you left off…</p>
+      <p className="text-sm qc-muted">Picking up where you left off…</p>
     </BetaShell>
   );
 }

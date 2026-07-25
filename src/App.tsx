@@ -41,6 +41,8 @@ import { AppHistoryTracker } from "./components/AppHistoryTracker";
 import { ScrollManager } from "./components/ScrollManager";
 import { SwipeBackHandler } from "./components/SwipeBackHandler";
 import { DeferredMount } from "./components/util/DeferredMount";
+import { DashboardEnterEffect } from "./components/onboarding/quiet/DashboardEnterEffect";
+
 // Non-critical chrome — lazy + deferred-mount past first paint
 const PageCleanupFlagger = lazy(() =>
   import("./components/admin/PageCleanupFlagger").then((m) => ({ default: m.PageCleanupFlagger })),
@@ -147,6 +149,9 @@ const BetaSolar = lazy(() => import("./pages/beta/BetaSolar"));
 const BetaCharger = lazy(() => import("./pages/beta/BetaCharger"));
 const BetaExtras = lazy(() => import("./pages/beta/BetaExtras"));
 const BetaSummary = lazy(() => import("./pages/beta/BetaSummary"));
+const BetaProof = lazy(() => import("./pages/beta/BetaProof"));
+const BetaAccount = lazy(() => import("./pages/beta/BetaAccount"));
+
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const About = lazy(() => import("./pages/About"));
@@ -324,6 +329,8 @@ const App = () => {
                   <AppHistoryTracker />
                   <ScrollManager />
                   <SwipeBackHandler />
+                  <DashboardEnterEffect />
+
                   <DeferredMount>
                     <Suspense fallback={null}>
                       <PageCleanupFlagger />
@@ -443,6 +450,22 @@ const App = () => {
                     <Route path="/beta/charger" element={<Suspense fallback={<PageLoader />}><BetaCharger /></Suspense>} />
                     <Route path="/beta/extras" element={<Suspense fallback={<PageLoader />}><BetaExtras /></Suspense>} />
                     <Route path="/beta/summary" element={<Suspense fallback={<PageLoader />}><BetaSummary /></Suspense>} />
+                    <Route path="/beta/proof" element={<Suspense fallback={<PageLoader />}><BetaProof /></Suspense>} />
+                    <Route path="/beta/account" element={<Suspense fallback={<PageLoader />}><BetaAccount /></Suspense>} />
+                    {/* Unified onboarding — same components, canonical URL. */}
+                    <Route path="/onboarding" element={<Suspense fallback={<PageLoader />}><BetaResume /></Suspense>} />
+                    <Route path="/onboarding/signin" element={<Suspense fallback={<PageLoader />}><BetaSignIn /></Suspense>} />
+                    <Route path="/onboarding/verify" element={<Suspense fallback={<PageLoader />}><BetaVerify /></Suspense>} />
+                    <Route path="/onboarding/home" element={<Suspense fallback={<PageLoader />}><BetaHome /></Suspense>} />
+                    <Route path="/onboarding/tesla" element={<Suspense fallback={<PageLoader />}><BetaTesla /></Suspense>} />
+                    <Route path="/onboarding/solar" element={<Suspense fallback={<PageLoader />}><BetaSolar /></Suspense>} />
+                    <Route path="/onboarding/charger" element={<Suspense fallback={<PageLoader />}><BetaCharger /></Suspense>} />
+                    <Route path="/onboarding/extras" element={<Suspense fallback={<PageLoader />}><BetaExtras /></Suspense>} />
+                    <Route path="/onboarding/proof" element={<Suspense fallback={<PageLoader />}><BetaProof /></Suspense>} />
+                    <Route path="/onboarding/account" element={<Suspense fallback={<PageLoader />}><BetaAccount /></Suspense>} />
+                    <Route path="/onboarding/summary" element={<Suspense fallback={<PageLoader />}><BetaSummary /></Suspense>} />
+                    <Route path="/onboarding/done" element={<Suspense fallback={<PageLoader />}><BetaSummary /></Suspense>} />
+
                     <Route 
                       path="/admin" 
                       element={

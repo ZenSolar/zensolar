@@ -1,105 +1,106 @@
-# Deck v3.2 — Simpler, Personal, Demo-Proven (revised)
+# Unified Onboarding + "Quiet Current" Premium UI
 
-Key correction from you: **the Catalyst = the repealed 30% ITC + $7,500 EV credit** (the market problem). Your personal story (laid off, daughter born, Grok on Rogan, 15 yrs in solar → built it with AI) is the **Founder Story**, which lives on its own slide, not on the Catalyst slide.
+Approved flow structure is unchanged. This plan layers the Quiet Current premium visual/motion/copy system across every screen and adds the three signature moments (Live Proof, Secure Account, Dashboard Handoff).
 
-That means we need a new slide slot for the founder story. Recommend inserting it as **Slide 03 "Why Me"**, right after Catalyst, so the flow goes: problem → who's fixing it → market → product → moat → tech → revenue → scale → competition → ask. Deck grows from 11 → 12 slides.
+## Final flow (unchanged from prior plan)
 
-## Locked slide copy
+```text
+/onboarding          → resume router
+  ├─ signin          → passwordless email OTP
+  ├─ verify          → OTP code
+  ├─ home            → device inventory (multi-select)
+  ├─ tesla|solar|charger → device connect modules
+  ├─ proof   (NEW)   → convergence live-proof moment
+  ├─ account (NEW)   → biometric-style account activation
+  └─ done    (NEW)   → device + account status, glow handoff to dashboard
+```
 
-### Slide 01 — Hero (trimmed)
-- Eyebrow: `Seed Round · Confidential`
-- Logo, headline `Creating Currency From Energy.`
-- One-line sub: *The first consumer app that turns verified clean energy into a hard-capped digital currency — live today across Tesla, Enphase, SolarEdge, and Wallbox.*
-- Ask strip: `$1M Target` · `$2M Hard Cap` · `Convertible Note`
-- Footer: `Joseph Maushart & Michael Tschida`
-- **Cut** the second "lean seed / self-sustainability" paragraph.
+`/beta/*` legacy routes redirect to `/onboarding/*`. Legacy monolithic `Onboarding.tsx` removed from routing.
 
-### Slide 02 — The Catalyst (real problem — repealed incentives)
-- Kicker: `The Catalyst`
-- Headline: `The 30% Solar ITC and $7,500 EV Credit are gone.`
-- Sub: *For the first time in a generation, Americans have zero federal financial incentive to go clean. The industry needs a new incentive — one the market provides, not Washington.*
-- Two columns:
-  - **What just disappeared** (red): `30% Solar & Storage ITC` · `$7,500 Federal EV Credit` · `Net metering rollbacks state-by-state`
-  - **What has to replace it** (green): *A permanent, market-driven incentive that pays homeowners every time their panels or EV do their job. That's $ZSOLAR.*
-- One-liner close: *Bitcoin proved a market can create its own incentive. We're doing it for energy.*
+## Implementation steps
 
-### Slide 03 — Why Me (NEW — your founder story, your words)
-- Kicker: `Why Me`
-- Headline: `I lived this problem. Then AI let me build the answer.`
-- Body (one paragraph, your voice, ~85 words):
-  > *I spent 15 years in renewable energy — sales, marketing, partnerships, including SolarCity. I watched every incentive cycle. Then last year I got laid off the same week my daughter was born. I'd already gone deep on Web3 and seen the same pattern in both industries I love — real technology, dragged down by bad actors. When I heard Elon tell Rogan that AI could write code for you, I finally had the missing piece. So I built the consumer app I'd been sketching for a decade.*
-- Three small proof cards: `15 yrs renewable energy` · `Ex-SolarCity` · `Shipped with AI + relentless iteration`
-- Bottom strip: *And I didn't build it alone. Michael Tschida — lifelong best friend, co-founder, CFO/CRO — runs the numbers so I can run the product.*
+### A. Foundation — Quiet Current design system
 
-### Slide 04 — The Opportunity
-- Keep TAM/SAM/SOM (1.5B / 33M / 4.2M).
-- Headline: `$1.7T/yr flows into clean energy. Nobody has tokenized the kWh itself.`
-- Two-line close: *Bitcoin burns energy to create scarcity. We reward energy to create currency.*
-- **Cut** the "One patent · multiple markets" three-column block.
+1. **Tokens** (`src/index.css`, `tailwind.config.ts`)
+   - Canvas `#0A0C0E`, card `#121417`, elevated `#1B1E22`, text `#E8EAED`, muted `#8B9198`, border `#2A2D31` — as HSL semantic tokens (`--qc-canvas`, `--qc-surface`, `--qc-elevated`, etc.), mapped through Tailwind extensions.
+   - Signature gradient token `--qc-current: linear-gradient(135deg, #00E19B, #00C2FF)` — used only for CTA rest glow, live pulse, success fill, activation fill.
+   - Ban check: no purple/violet/gold usage in any new onboarding component; audit via grep during build.
+2. **Typography** (`index.html` + tokens)
+   - Load Inter (UI) and JetBrains Mono (numeric readouts) from Google Fonts.
+   - Tailwind extension `font-numeric` for kWh/%/range readouts.
+3. **Motion primitives** (`src/components/onboarding/quiet/`)
+   - `<QCScreen>` — page wrapper providing 250ms cross-fade + 10px upward drift on mount/exit (framer-motion `AnimatePresence`).
+   - `<QCPulse>` — 2.4s opacity+glow-radius loop for live states (ease-in-out, no scale).
+   - `<QCCountUp value={n} unit="kWh"/>` — 500ms ease-out count-up, monospace numeric face.
+   - `<QCGlyph name="vehicle|solar|battery|charger|signal">` — custom monoline SVGs (2px stroke, 24 grid, rounded caps) with `state="idle|active|live"`; active swaps stroke for signature-gradient fill.
+   - `<QCButton variant="primary|ghost">` — primary uses gradient-outline + soft resting glow, hover intensifies glow only (no color swap).
+   - `<QCLoader>` — pulse-based, never a spinner.
+   - `<QCInput>` — dark surface, gradient focus ring.
+   - `<QCSelectCard>` — border + fill-tint on select, no checkbox glyph.
 
-### Slide 05 — Traction (screenshot hero)
-- Headline: `Real users. Real kWh. On-chain.`
-- Left: real Clean Energy Center screenshot (product-shot skill).
-- Right: `21 Milestone NFTs` · `12 beta users` · `644k kWh/miles verified`
-- Caption: *Not a mockup. Running on my phone right now.*
+### B. Shell + progress
 
-### Slide 06 — The Solution (screenshot hero)
-- Kicker: `Tap-to-Mint™`
-- Headline: `Every kWh becomes currency.`
-- Center: Tap-to-Mint screenshot (charging tile with live $ZSOLAR sublabel).
-- Caption strip: `Produce → Verify → Mint`
+4. Replace `BetaShell` with `<QCScreen>` using Quiet Current chrome: graphite canvas, minimal logo mark, top progress dots (Home · Devices · Proof · Account · Done) rendered as thin lines that fill with the signature gradient as steps complete.
 
-### Slide 07 — Foundational Moat (screenshot hero)
-- Headline: `The first app to unify every major OEM.`
-- Screenshot: multi-OEM dashboard (Tesla + Enphase + SolarEdge + Wallbox).
-- One line: *Mixed-system homeowners had four apps. Now they have one. This is the prerequisite for tokenization — and nobody else has it.*
+### C. Screens (structure preserved, UI rebuilt)
 
-### Slide 08 — Tech & IP
-- Three cards, no prose:
-  - `Patent-pending` — U.S. App. 19/634,402 · Proof-of-Genesis™
-  - `Base L2` — Coinbase's chain · embedded wallets · low fees
-  - `Multi-OEM verified` — direct API integrations, not scraped
+5. **signin/verify** — single centered `<QCInput>`, faint drifting gradient background (very low opacity, slow), signature glow only on input focus ring. Copy: "Enter your email." / "We sent you a code."
+6. **home** — `<QCSelectCard>` grid: 1-col mobile, 2-col ≥640px. Each card = custom `<QCGlyph>` + label. Selection = gradient border + subtle fill tint. No emoji. Categories: Vehicle, Solar, Battery, Charger, Not sure yet.
+7. **tesla/solar/charger pre-consent** — center the category `<QCGlyph state="active">` with idle pulse and one line of copy ("Connecting Tesla…"). Cross-fade into external OAuth, no abrupt jump. On return, snapshot number arrives via `<QCCountUp>`.
+8. **proof (NEW `OnboardingProof.tsx`)** — convergence choreography (~2.5s):
+   - Connected-category glyphs positioned at screen edges (SVG absolute layout).
+   - Animated thin gradient polylines travel from each glyph to a central node using framer-motion `pathLength` 0→1, staggered 150ms apart.
+   - Central node fills with signature gradient and enters `<QCPulse>` on arrival.
+   - Underneath, per-category `<QCCountUp>` readouts fire in sync with each line arriving (Solar kWh today, Battery %, EV miles, Home charging kWh — only for connected categories, sourced from existing `useDashboardData`/telemetry hooks).
+   - Closing line: "Your home is one system now." Primary CTA: "Secure your account".
+9. **account (NEW `OnboardingAccount.tsx`)** — biometric activation, not wallet setup:
+   - Centered custom "signal seal" glyph (unique mark, not a wallet icon), idle state.
+   - Primary CTA `Activate account` triggers passkey ceremony via existing `useCoinbaseSmartWallet`. During ceremony: glyph enters slow pulse.
+   - On success: glyph fills with signature gradient and holds (activated). Copy: "Account activated."
+   - Secondary link "I already have a wallet" opens a visually distinct, more technical panel that reuses existing Reown/AppKit connect (address, network) — permitted to look technical per brief.
+   - Tertiary text link "Skip for now" sets `beta_status.account = { state: 'skipped' }`.
+   - Copy avoids wallet/mint/chain/gas/sign/seed.
+10. **done (rebuild `OnboardingDone.tsx`)** — 5 rows (Vehicle, Solar, Battery, Charger, Account). Status expressed via glyph state (outline / gradient-filled / soft pulse). No checkmark badges. Primary CTA `Enter dashboard` triggers the handoff (step D).
 
-### Slide 09 — Three Revenue Engines
-Three cards (≤25 words each):
-1. **Subscription + Deason AI** — $9.99–$49.99/mo tiers, $4.99 Deason add-on. *Includes Deason screenshot.*
-2. **Token Economics** — 1T cap, 50/25/20/5 split, 3% transfer tax recycles LP forever.
-3. **Aggregated Energy Data** — anonymized multi-OEM telemetry to utilities, ISOs, REC registries.
+### D. Dashboard glow handoff
 
-### Slide 10 — Scale (Data + VPP)
-- Headline: `The same rails scale to commercial, fleets, and VPP.`
-- Bullets: `Commercial solar & fleet EV` · `Grid demand-response / VPP` · `Installer mint network`
-- Anchor: `Leap Energy → CAISO → OEM partner-tier APIs`
+11. On `Enter dashboard` press:
+    - Overlay a full-bleed 500ms signature-gradient sweep (linear-gradient translate X 0→100%, then fade), then navigate to `/`.
+    - Wrap dashboard tile grid in a staggered enter (`framer-motion` stagger 80ms, fastest first, ease-out fade + 8px drift).
+    - Tiles whose telemetry is live carry `<QCPulse>` on their status indicator, continuing the Proof screen's motif.
+    - Implemented as a small `DashboardEnterEffect` component mounted once and keyed by a `?fromOnboarding=1` query param so it only fires on the handoff, not on regular visits.
 
-### Slide 11 — Competition
-- Keep the comparison table. Cut prose above it.
+### E. State + routing
 
-### Slide 12 — The Ask
-- `$1M Target · $2M Cap · Convertible Note`
-- Use-of-funds table + milestones (unchanged).
-- Founder strip: Joseph + Michael one-liners.
-- Closing: *Bitcoin tokenized scarcity. We're tokenizing abundance.*
+12. Extend `useBetaFlow` step union with `'proof' | 'account' | 'done'`; extend `beta_status` with `account: { state: 'pending'|'secured'|'skipped' }`. Update `computeNextStep` to route through proof → account (unless secured/skipped) → done.
+13. `src/App.tsx` — add `/onboarding/*` routes pointing at the new screens; convert `/beta/*` to `<Navigate replace>` to `/onboarding/*` (preserve `/beta/i/:token`). Old `/onboarding` monolithic component removed from routing.
+14. Non-blocking dashboard reminder — small dismissible pill "Secure your ZenSolar account" appears when `profiles.wallet_address` is null AND onboarding complete. Uses the same monoline glyph + subtle border, no exclamation copy. Mint/claim UI stays gated on wallet address; nothing else is blocked.
 
-## Screenshots
-Four screenshots to capture from the running preview via Playwright (session already injected) and polish through the product-shot skill (macOS chrome + gradient):
-1. Clean Energy Center dashboard → Slide 05
-2. Tap-to-Mint charging tile with live $ZSOLAR sublabel → Slide 06
-3. Multi-OEM unified view → Slide 07
-4. Deason chat interface → Slide 09
+### F. Copy pass (Quiet Current tone)
 
-I'll show you each polished screenshot before embedding.
+15. Rewrite every string in the flow to the microcopy table: short declarative, no exclamations, no "Awesome/Woohoo/Let's go", no crypto vocabulary. Explicit rewrites: "Connected." / "Secure your account." / "Account activated." / "That didn't go through. Try again." / "3 devices connected." / "One step left."
 
-## Files
-- `src/components/investor/pitch/slides/v3/S01Hero.tsx` … `S12Ask.tsx` (rewrite existing 11 + add new S03WhyMe.tsx).
-- Update the deck's slide list + labels array to include the new slide.
-- New `src/assets/deck/v3-2/` for the 4 polished screenshots.
-- No route/config/SSOT changes.
+## Guardrails (enforced during implementation)
+
+- No emoji, cartoon mascot, confetti, coin/rocket/moon, purple/gold, stock photo, Material shadow, or spinner in any new or edited onboarding file.
+- No `wallet`, `mint`, `chain`, `gas`, `sign`, `seed phrase` in primary-path copy (secondary "I already have a wallet" path exempted per brief).
+- No scale-bounce or elastic easing. All motion physics-based ease-out.
+- Reuse existing Coinbase Smart Wallet, Reown/AppKit, Tesla/Enphase/SolarEdge OAuth, Base config — no new SDK work.
+
+## Verification (before shipping message)
+
+1. Fresh user: signin → home → device modules → proof → account (passkey) → done → dashboard handoff.
+2. Same flow, Skip account → done shows Account = Pending → dashboard shows dismissible reminder.
+3. Secondary "I already have a wallet" path connects via Reown and marks Account = secured.
+4. Resume mid-flow after sign-out at each step, including proof/account.
+5. `/beta/*` legacy URLs redirect to `/onboarding/*`.
+6. Grep audit: no emoji, no banned color hexes, no banned copy tokens in `src/pages/onboarding/**` and `src/components/onboarding/quiet/**`.
+7. Motion audit: no `animate-spin`, no `bounce`/`elastic` easing in new files.
 
 ## Out of scope
-- `/investor` and `/investor/pitch` narrative pages, `/seed/one-pager` (deck-only pass).
-- Ask amounts, mint split, VPP scope, competition table structure.
 
-## Next
-1. Capture + polish 4 screenshots.
-2. Rewrite 11 slides + add Slide 03.
-3. Playwright through `/deck` end-to-end and show you every slide before you present it.
+Tokenomics, mint amounts, subscription billing, Proof-of-Genesis, dashboard redesign beyond the handoff sweep + tile stagger + live-pulse indicator reuse.
+
+## Deliverable message after ship
+
+`Unified onboarding implemented with Quiet Current premium UI — device-first flow, deferred account setup, no generic emoji treatment.`
