@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
+
 import { BetaShell } from './BetaShell';
 import { useBetaFlow } from '@/hooks/useBetaFlow';
 import { useEnergyOAuth } from '@/hooks/useEnergyOAuth';
