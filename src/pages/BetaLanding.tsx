@@ -46,7 +46,7 @@ export default function BetaLanding() {
           </p>
 
           <div className="text-[12px] tracking-[0.14em] uppercase qc-muted mb-8">
-            Tesla · Enphase · SolarEdge · Wallbox
+            &nbsp; &nbsp; &nbsp; &nbsp;TESLA · ENPHASE · SOLAREDGE · WALLBOX
           </div>
 
           <QCButton onClick={() => navigate('/onboarding')}>
@@ -61,7 +61,7 @@ export default function BetaLanding() {
             {[
               'Connect your devices',
               'See your kWh and EV data, live',
-              'Mint your $ZSOLAR rewards',
+              'Mint your rewards',
             ].map((step, i) => (
               <li key={step} className="flex items-baseline gap-3">
                 <span className="qc-numeric text-[13px] qc-muted w-5">
