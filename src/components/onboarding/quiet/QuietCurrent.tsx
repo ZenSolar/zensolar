@@ -58,7 +58,11 @@ export function QCHeader({ onBack, right }: { onBack?: () => void; right?: React
           ← Back
         </button>
       ) : <span className="w-10" />}
-      <span className="text-[11px] tracking-[0.32em] qc-muted uppercase">ZenSolar</span>
+      <img
+        src={zenLogo}
+        alt="ZenSolar"
+        className="h-5 w-auto object-contain opacity-90"
+      />
       <span className="w-10 text-right">{right}</span>
     </header>
   );
