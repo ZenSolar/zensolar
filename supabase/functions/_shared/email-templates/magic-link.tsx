@@ -35,7 +35,7 @@ export const MagicLinkEmail = ({
         <Hr style={divider} />
         <Heading style={h1}>Your sign-in code</Heading>
         <Text style={text}>
-          Enter this 6-digit code in the <span style={solarBlue}><strong>ZenSolar</strong></span> app to continue. It expires in 10 minutes.
+          Enter this code in the <span style={solarBlue}><strong>ZenSolar</strong></span> app to continue. It expires in 10 minutes.
         </Text>
         <Section style={codeSection}>
           <Text style={codeStyle}>{token ?? '——————'}</Text>
