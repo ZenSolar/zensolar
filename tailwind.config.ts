@@ -117,6 +117,22 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      fontFamily: {
+        numeric: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+      },
+      colors: {
+        qc: {
+          canvas: '#0A0C0E',
+          surface: '#121417',
+          elevated: '#1B1E22',
+          text: '#E8EAED',
+          muted: '#8B9198',
+          border: '#2A2D31',
+          emerald: '#00E19B',
+          cyan: '#00C2FF',
+        },
+      },
+
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
