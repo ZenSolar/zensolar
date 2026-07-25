@@ -101,14 +101,14 @@ export function useBetaFlow(): BetaFlow {
   const setSelections = useCallback(async (sel: BetaHomeSelections) => {
     setSelectionsState(sel);
     if (!userId) return;
-    await supabase.from('profiles').update({ beta_home_selections: sel as unknown as Record<string, unknown> }).eq('id', userId);
+    await supabase.from('profiles').update({ beta_home_selections: JSON.parse(JSON.stringify(sel)) }).eq('id', userId);
   }, [userId]);
 
   const setStatus = useCallback(async (patch: BetaStatus) => {
     const merged = { ...status, ...patch };
     setStatusState(merged);
     if (!userId) return;
-    await supabase.from('profiles').update({ beta_status: merged as unknown as Record<string, unknown> }).eq('id', userId);
+    await supabase.from('profiles').update({ beta_status: JSON.parse(JSON.stringify(merged)) }).eq('id', userId);
   }, [status, userId]);
 
   const setInviteToken = useCallback(async (token: string | null) => {
