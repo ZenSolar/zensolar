@@ -17,11 +17,12 @@ export default function BetaVerify() {
   }, []);
 
   const verify = async () => {
-    if (code.replace(/\D/g, '').length < 6) { toast.error('Enter the 6-digit code'); return; }
+    const digits = code.replace(/\D/g, '');
+    if (digits.length < 6) { toast.error('Enter the code from your email'); return; }
     setBusy(true);
     const { error } = await supabase.auth.verifyOtp({
       email: email.trim(),
-      token: code.replace(/\D/g, ''),
+      token: digits,
       type: 'email',
     });
     setBusy(false);
