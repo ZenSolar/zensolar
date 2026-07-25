@@ -1,6 +1,7 @@
 import { ReactNode, useEffect, useRef, useState, ButtonHTMLAttributes, InputHTMLAttributes } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 
 /**
  * Quiet Current — premium onboarding primitives.
