@@ -47,9 +47,9 @@ const OEMS: Record<EnergyProvider, OEMConfig> = {
     available: ['ev', 'solar', 'battery', 'charger'],
     defaults: ['ev', 'battery'],
     productNames: {
-      solar: 'Solar Roof / Solar Panels',
-      battery: 'Powerwall',
-      ev: 'Electric Vehicle',
+      solar: 'Solar Panels or Solar Roof',
+      battery: 'Powerwall Battery Storage',
+      ev: 'EV - Model S, 3, X, Y or Cybertruck',
       charger: 'Wall Connector',
     },
   },
