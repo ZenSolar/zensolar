@@ -47,9 +47,9 @@ const OEMS: Record<EnergyProvider, OEMConfig> = {
     available: ['ev', 'solar', 'battery', 'charger'],
     defaults: ['ev', 'battery'],
     productNames: {
-      solar: 'Solar Roof / Solar Panels',
-      battery: 'Powerwall',
-      ev: 'Electric Vehicle',
+      solar: 'Solar Panels or Solar Roof',
+      battery: 'Powerwall Battery Storage',
+      ev: 'EV - Model S, 3, X, Y or Cybertruck',
       charger: 'Wall Connector',
     },
   },
@@ -464,11 +464,6 @@ export function DevicePairingScreen({
                       </span>
                       <span className="flex-1 text-[14px] font-medium text-foreground">
                         {oem.productNames[cap] ?? meta.label}
-                        {cap === 'ev' && oemId === 'tesla' && (
-                          <span className="ml-2 text-[10px] font-semibold text-emerald-300 uppercase tracking-wider">
-                            Tesla EVs only
-                          </span>
-                        )}
                       </span>
                       <div
                         className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 border-2 transition-all ${
