@@ -150,6 +150,7 @@ const BetaExtras = lazy(() => import("./pages/beta/BetaExtras"));
 const BetaSummary = lazy(() => import("./pages/beta/BetaSummary"));
 const BetaProof = lazy(() => import("./pages/beta/BetaProof"));
 const BetaAccount = lazy(() => import("./pages/beta/BetaAccount"));
+import { RequireBetaAuth } from "./pages/beta/RequireBetaAuth";
 
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
