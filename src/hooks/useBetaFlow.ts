@@ -35,8 +35,13 @@ export type BetaStep =
   | 'solar'
   | 'charger'
   | 'extras'
+  | 'proof'
+  | 'account'
   | 'summary'
   | 'done';
+
+export type BetaAccountState = 'pending' | 'secured' | 'skipped';
+
 
 export interface BetaFlow {
   loading: boolean;
