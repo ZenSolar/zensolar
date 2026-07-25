@@ -46,7 +46,7 @@ export default function BetaLanding() {
           </p>
 
           <div className="text-[12px] tracking-[0.14em] uppercase qc-muted mb-8">
-            &nbsp; &nbsp; &nbsp; &nbsp;TESLA · ENPHASE · SOLAREDGE · WALLBOX
+            &nbsp; &nbsp;TESLA · ENPHASE · SOLAREDGE · WALLBOX
           </div>
 
           <QCButton onClick={() => navigate('/onboarding')}>
