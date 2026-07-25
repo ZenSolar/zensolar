@@ -18,6 +18,9 @@ const GATED_HOSTS = new Set([
 // Beta hosts get their own minimal Quiet Current front door that routes
 // into the passwordless /onboarding flow.
 const BETA_HOSTS = new Set([
+  'beta.zensolar.com',
+  'www.beta.zensolar.com',
+  // Legacy hosts kept during DNS transition
   'beta.zen.solar',
   'www.beta.zen.solar',
 ]);
