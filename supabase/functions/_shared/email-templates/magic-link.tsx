@@ -4,7 +4,6 @@ import * as React from 'npm:react@18.3.1'
 
 import {
   Body,
-  Button,
   Container,
   Head,
   Heading,
@@ -18,33 +17,31 @@ import {
 
 interface MagicLinkEmailProps {
   siteName: string
-  confirmationUrl: string
+  confirmationUrl?: string
+  token?: string
 }
 
 export const MagicLinkEmail = ({
-  siteName,
-  confirmationUrl,
+  token,
 }: MagicLinkEmailProps) => (
   <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Your login link for ZenSolar</Preview>
+    <Preview>Your ZenSolar sign-in code</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={logoSection}>
           <Img src="https://fcptrpgqkjffgeddajwl.supabase.co/storage/v1/object/public/email-assets/zen-logo-horizontal.png" alt="ZenSolar" width="160" height="auto" style={logoImg} />
         </Section>
         <Hr style={divider} />
-        <Heading style={h1}>Your login link</Heading>
+        <Heading style={h1}>Your sign-in code</Heading>
         <Text style={text}>
-          Click the button below to log in to <span style={solarBlue}><strong>ZenSolar</strong></span>. This link will expire shortly.
+          Enter this 6-digit code in the <span style={solarBlue}><strong>ZenSolar</strong></span> app to continue. It expires in 10 minutes.
         </Text>
-        <Section style={buttonSection}>
-          <Button style={button} href={confirmationUrl}>
-            Log In
-          </Button>
+        <Section style={codeSection}>
+          <Text style={codeStyle}>{token ?? '——————'}</Text>
         </Section>
         <Text style={footer}>
-          If you didn't request this link, you can safely ignore this email.
+          If you didn't request this code, you can safely ignore this email — no action will be taken.
         </Text>
         <Text style={footerBrand}>
           © {new Date().getFullYear()} ZenSolar, LLC · Creating Currency From Energy
@@ -63,8 +60,19 @@ const logoImg = { margin: '0 auto', display: 'block' as const }
 const divider = { borderColor: '#e2e8f0', margin: '16px 0 24px' }
 const h1 = { fontSize: '22px', fontWeight: 'bold' as const, color: 'hsl(220, 20%, 14%)', margin: '0 0 16px' }
 const text = { fontSize: '14px', color: 'hsl(215, 16%, 42%)', lineHeight: '1.6', margin: '0 0 20px' }
-const buttonSection = { textAlign: 'center' as const, margin: '24px 0 32px' }
-const button = { backgroundColor: 'hsl(142, 76%, 36%)', color: '#ffffff', fontSize: '14px', fontWeight: 'bold' as const, borderRadius: '12px', padding: '14px 28px', textDecoration: 'none' }
+const codeSection = { textAlign: 'center' as const, margin: '28px 0 32px' }
+const codeStyle = {
+  display: 'inline-block',
+  fontFamily: "'Menlo', 'Consolas', 'Courier New', monospace",
+  fontSize: '36px',
+  fontWeight: 'bold' as const,
+  letterSpacing: '0.35em',
+  color: 'hsl(142, 76%, 30%)',
+  backgroundColor: '#f1f5f9',
+  padding: '18px 24px',
+  borderRadius: '12px',
+  margin: 0,
+}
 const footer = { fontSize: '12px', color: '#999999', margin: '0 0 8px' }
 const footerBrand = { fontSize: '11px', color: '#bbbbbb', margin: '16px 0 0', textAlign: 'center' as const }
 const solarBlue = { color: '#2563EB' }
