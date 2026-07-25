@@ -12,16 +12,18 @@ export default function BetaSignIn() {
   const [busy, setBusy] = useState(false);
 
   const send = async () => {
-    if (!email.includes('@')) { toast.error('Enter a valid email'); return; }
+    const trimmed = email.trim();
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+    if (!valid) { toast.error('Enter a valid email', { id: 'signin-email' }); return; }
     setBusy(true);
     const { error } = await supabase.auth.signInWithOtp({
-      email: email.trim(),
-      options: { emailRedirectTo: `${window.location.origin}/beta/home`, shouldCreateUser: true },
+      email: trimmed,
+      options: { emailRedirectTo: `${window.location.origin}/onboarding/home`, shouldCreateUser: true },
     });
     setBusy(false);
-    if (error) { toast.error(error.message); return; }
-    localStorage.setItem('beta_signin_email', email.trim());
-    navigate('/beta/verify');
+    if (error) { toast.error(error.message, { id: 'signin-email' }); return; }
+    localStorage.setItem('beta_signin_email', trimmed);
+    navigate('/onboarding/verify');
   };
 
   return (

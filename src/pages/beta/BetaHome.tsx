@@ -6,7 +6,7 @@ import { computeNextStep } from './betaRouting';
 import { QCButton, QCSelectCard, type QCGlyphName } from '@/components/onboarding/quiet/QuietCurrent';
 
 const OPTIONS: { key: keyof BetaHomeSelections; label: string; sub: string; glyph?: QCGlyphName }[] = [
-  { key: 'vehicle', label: 'Tesla\u00a0', sub: 'S / 3 / X / Y / Cybertruck', glyph: 'vehicle' },
+  { key: 'vehicle', label: 'Tesla', sub: 'S / 3 / X / Y / Cybertruck', glyph: 'vehicle' },
   { key: 'solar', label: 'Solar system', sub: 'Panels, inverter, or microinverters', glyph: 'solar' },
   { key: 'battery', label: 'Home battery', sub: 'Powerwall, IQ Battery, and more', glyph: 'battery' },
   { key: 'charger', label: 'Home EV charger', sub: 'Wall Connector, IQ, Home EV Charger, Pulsar', glyph: 'charger' },

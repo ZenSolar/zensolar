@@ -150,6 +150,7 @@ const BetaExtras = lazy(() => import("./pages/beta/BetaExtras"));
 const BetaSummary = lazy(() => import("./pages/beta/BetaSummary"));
 const BetaProof = lazy(() => import("./pages/beta/BetaProof"));
 const BetaAccount = lazy(() => import("./pages/beta/BetaAccount"));
+import { RequireBetaAuth } from "./pages/beta/RequireBetaAuth";
 
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
@@ -442,27 +443,28 @@ const App = () => {
                     <Route path="/beta/i/:token" element={<Suspense fallback={<PageLoader />}><BetaInvite /></Suspense>} />
                     <Route path="/beta/signin" element={<Suspense fallback={<PageLoader />}><BetaSignIn /></Suspense>} />
                     <Route path="/beta/verify" element={<Suspense fallback={<PageLoader />}><BetaVerify /></Suspense>} />
-                    <Route path="/beta/home" element={<Suspense fallback={<PageLoader />}><BetaHome /></Suspense>} />
-                    <Route path="/beta/tesla" element={<Suspense fallback={<PageLoader />}><BetaTesla /></Suspense>} />
-                    <Route path="/beta/solar" element={<Suspense fallback={<PageLoader />}><BetaSolar /></Suspense>} />
-                    <Route path="/beta/charger" element={<Suspense fallback={<PageLoader />}><BetaCharger /></Suspense>} />
-                    <Route path="/beta/extras" element={<Suspense fallback={<PageLoader />}><BetaExtras /></Suspense>} />
-                    <Route path="/beta/summary" element={<Suspense fallback={<PageLoader />}><BetaSummary /></Suspense>} />
-                    <Route path="/beta/proof" element={<Suspense fallback={<PageLoader />}><BetaProof /></Suspense>} />
-                    <Route path="/beta/account" element={<Suspense fallback={<PageLoader />}><BetaAccount /></Suspense>} />
+                    <Route path="/beta/home" element={<Suspense fallback={<PageLoader />}><RequireBetaAuth><BetaHome /></RequireBetaAuth></Suspense>} />
+                    <Route path="/beta/tesla" element={<Suspense fallback={<PageLoader />}><RequireBetaAuth><BetaTesla /></RequireBetaAuth></Suspense>} />
+                    <Route path="/beta/solar" element={<Suspense fallback={<PageLoader />}><RequireBetaAuth><BetaSolar /></RequireBetaAuth></Suspense>} />
+                    <Route path="/beta/charger" element={<Suspense fallback={<PageLoader />}><RequireBetaAuth><BetaCharger /></RequireBetaAuth></Suspense>} />
+                    <Route path="/beta/extras" element={<Suspense fallback={<PageLoader />}><RequireBetaAuth><BetaExtras /></RequireBetaAuth></Suspense>} />
+                    <Route path="/beta/summary" element={<Suspense fallback={<PageLoader />}><RequireBetaAuth><BetaSummary /></RequireBetaAuth></Suspense>} />
+                    <Route path="/beta/proof" element={<Suspense fallback={<PageLoader />}><RequireBetaAuth><BetaProof /></RequireBetaAuth></Suspense>} />
+                    <Route path="/beta/account" element={<Suspense fallback={<PageLoader />}><RequireBetaAuth><BetaAccount /></RequireBetaAuth></Suspense>} />
                     {/* Unified onboarding — same components, canonical URL. */}
                     <Route path="/onboarding" element={<Suspense fallback={<PageLoader />}><BetaResume /></Suspense>} />
                     <Route path="/onboarding/signin" element={<Suspense fallback={<PageLoader />}><BetaSignIn /></Suspense>} />
                     <Route path="/onboarding/verify" element={<Suspense fallback={<PageLoader />}><BetaVerify /></Suspense>} />
-                    <Route path="/onboarding/home" element={<Suspense fallback={<PageLoader />}><BetaHome /></Suspense>} />
-                    <Route path="/onboarding/tesla" element={<Suspense fallback={<PageLoader />}><BetaTesla /></Suspense>} />
-                    <Route path="/onboarding/solar" element={<Suspense fallback={<PageLoader />}><BetaSolar /></Suspense>} />
-                    <Route path="/onboarding/charger" element={<Suspense fallback={<PageLoader />}><BetaCharger /></Suspense>} />
-                    <Route path="/onboarding/extras" element={<Suspense fallback={<PageLoader />}><BetaExtras /></Suspense>} />
-                    <Route path="/onboarding/proof" element={<Suspense fallback={<PageLoader />}><BetaProof /></Suspense>} />
-                    <Route path="/onboarding/account" element={<Suspense fallback={<PageLoader />}><BetaAccount /></Suspense>} />
-                    <Route path="/onboarding/summary" element={<Suspense fallback={<PageLoader />}><BetaSummary /></Suspense>} />
-                    <Route path="/onboarding/done" element={<Suspense fallback={<PageLoader />}><BetaSummary /></Suspense>} />
+                    <Route path="/onboarding/home" element={<Suspense fallback={<PageLoader />}><RequireBetaAuth><BetaHome /></RequireBetaAuth></Suspense>} />
+                    <Route path="/onboarding/tesla" element={<Suspense fallback={<PageLoader />}><RequireBetaAuth><BetaTesla /></RequireBetaAuth></Suspense>} />
+                    <Route path="/onboarding/solar" element={<Suspense fallback={<PageLoader />}><RequireBetaAuth><BetaSolar /></RequireBetaAuth></Suspense>} />
+                    <Route path="/onboarding/charger" element={<Suspense fallback={<PageLoader />}><RequireBetaAuth><BetaCharger /></RequireBetaAuth></Suspense>} />
+                    <Route path="/onboarding/extras" element={<Suspense fallback={<PageLoader />}><RequireBetaAuth><BetaExtras /></RequireBetaAuth></Suspense>} />
+                    <Route path="/onboarding/proof" element={<Suspense fallback={<PageLoader />}><RequireBetaAuth><BetaProof /></RequireBetaAuth></Suspense>} />
+                    <Route path="/onboarding/account" element={<Suspense fallback={<PageLoader />}><RequireBetaAuth><BetaAccount /></RequireBetaAuth></Suspense>} />
+                    <Route path="/onboarding/summary" element={<Suspense fallback={<PageLoader />}><RequireBetaAuth><BetaSummary /></RequireBetaAuth></Suspense>} />
+                    <Route path="/onboarding/done" element={<Suspense fallback={<PageLoader />}><RequireBetaAuth><BetaSummary /></RequireBetaAuth></Suspense>} />
+
 
                     <Route 
                       path="/admin" 
