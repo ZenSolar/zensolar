@@ -41,6 +41,8 @@ import { AppHistoryTracker } from "./components/AppHistoryTracker";
 import { ScrollManager } from "./components/ScrollManager";
 import { SwipeBackHandler } from "./components/SwipeBackHandler";
 import { DeferredMount } from "./components/util/DeferredMount";
+import { DashboardEnterEffect } from "./components/onboarding/quiet/DashboardEnterEffect";
+
 // Non-critical chrome — lazy + deferred-mount past first paint
 const PageCleanupFlagger = lazy(() =>
   import("./components/admin/PageCleanupFlagger").then((m) => ({ default: m.PageCleanupFlagger })),
