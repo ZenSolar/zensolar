@@ -13,8 +13,10 @@ export default function BetaVerify() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    setEmail(localStorage.getItem('beta_signin_email') ?? '');
-  }, []);
+    const saved = localStorage.getItem('beta_signin_email') ?? '';
+    if (!saved) { navigate('/onboarding/signin', { replace: true }); return; }
+    setEmail(saved);
+  }, [navigate]);
 
   const verify = async () => {
     const digits = code.replace(/\D/g, '');
