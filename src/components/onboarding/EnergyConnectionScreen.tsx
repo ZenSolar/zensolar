@@ -58,28 +58,28 @@ const providers: Array<{
     id: 'tesla',
     name: 'Tesla',
     logo: teslaLogo,
-    description: '\u00A0Vehicles, Solar, Powerwall, Supercharging',
+    description: '\u00A0Vehicles, Solar, Powerwall, Supercharging, and Wall Connector',
     capabilities: ['Solar', 'Battery', 'EV'],
   },
   {
     id: 'enphase',
     name: 'Enphase',
     logo: enphaseLogo,
-    description: 'Microinverters, IQ Battery & EV Charger',
+    description: 'IQ Microinverters, Batteries & EV Charging',
     capabilities: ['Solar', 'Battery', 'EV'],
   },
   {
     id: 'solaredge',
     name: 'SolarEdge',
     logo: solaredgeLogo,
-    description: 'PV Inverters, Battery & EV Charger',
+    description: 'Home Inverters, Batteries, and EV Charging',
     capabilities: ['Solar', 'Battery', 'EV'],
   },
   {
     id: 'wallbox',
     name: 'Wallbox',
     logo: wallboxLogo,
-    description: 'Home EV Charging\u00A0',
+    description: 'Pulsar Plus, Pulsar Max, Quasar 2',
     capabilities: ['EV'],
   },
 ];
@@ -270,17 +270,13 @@ export function EnergyConnectionScreen({
           className="mt-8 text-center"
         >
           <h1 className="text-3xl font-semibold tracking-tight bg-gradient-to-b from-foreground to-foreground/55 bg-clip-text text-transparent">
-            {titleOverride ?? (hasConnected ? 'Connect another' : 'Connect what earns')}
+            {titleOverride ?? (hasConnected ? 'Connect another' : 'Select the clean tech you use')}
           </h1>
           <p className="mt-2 text-[14px] text-muted-foreground max-w-[300px] mx-auto">
             {subtitleOverride ? (
               subtitleOverride
             ) : selectionMode ? (
-              <>
-                Select the renewable technology you have.
-                <br />
-                &nbsp;We&apos;ll map devices next.
-              </>
+              <>We&apos;ll map devices next.</>
             ) : hasConnected ? (
               <>More gear = more <span className="text-primary font-semibold">$ZSOLAR</span>.</>
             ) : (
@@ -469,7 +465,7 @@ export function EnergyConnectionScreen({
                 className="w-full h-12 text-base font-semibold rounded-2xl bg-gradient-to-br from-primary to-primary/80 hover:from-primary hover:to-primary text-primary-foreground shadow-[0_0_28px_hsl(var(--primary)/0.35)] disabled:opacity-40 disabled:shadow-none"
               >
                 {selected.length === 0
-                  ? 'Pick at least one brand'
+                  ? 'Connect Devices'
                   : `Continue with ${selected.length} selected`}
                 <ArrowRight className="w-4 h-4 ml-1" />
               </Button>
