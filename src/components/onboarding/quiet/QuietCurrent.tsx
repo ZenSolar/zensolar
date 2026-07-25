@@ -61,7 +61,7 @@ export function QCHeader({ onBack, right }: { onBack?: () => void; right?: React
       <img
         src={zenLogo}
         alt="ZenSolar"
-        className="h-7 w-auto object-contain opacity-90"
+        className="h-9 w-auto object-contain opacity-90"
       />
       <span className="w-10 text-right">{right}</span>
     </header>
