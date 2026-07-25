@@ -20,7 +20,7 @@ export default function BetaLanding() {
     <>
       <SEO
         title="ZenSolar Beta — Join the Beta"
-        description="ZenSolar connects to your Tesla, solar, and battery to track the clean energy you're already producing — and rewards you for it. Read-only, disconnect anytime."
+        description="Your Tesla and solar system already generate real value. ZenSolar links to the systems you already own and provides a precise way to see — and be rewarded for — your clean energy contributions."
         url="https://beta.zen.solar"
       />
       <QCScreen>
@@ -37,12 +37,12 @@ export default function BetaLanding() {
         />
         <QCMain className="pt-10">
           <h1 className="text-[30px] leading-[1.1] font-semibold qc-text tracking-tight mb-4">
-            Your solar and your Tesla, finally working for you.
+            A new way to be rewarded for using solar and driving a Tesla —$ZSOLAR.
           </h1>
           <p className="text-[15px] leading-relaxed qc-muted mb-8">
-            ZenSolar connects to your Tesla, solar, and battery to track the
-            clean energy you're already producing — and rewards you for it.
-            Takes about 3 minutes, read-only, disconnect anytime.
+            Your Tesla and solar system already generate real value. ZenSolar
+            links to the systems you already own and provides a&nbsp;precise way to
+            see — and be rewarded for — your clean energy contributions.
           </p>
 
           <div className="text-[12px] tracking-[0.14em] uppercase qc-muted mb-8">
@@ -53,15 +53,15 @@ export default function BetaLanding() {
             Join the beta
           </QCButton>
           <p className="text-[12px] qc-muted mt-3 text-center">
-            We only read your data — never control your devices. You can
-            disconnect anytime.
+            Read-only access.&nbsp;We observe, never control your
+            devices&nbsp;and you can disconnect anytime.
           </p>
 
           <ol className="mt-12 space-y-3 border-t qc-border pt-8">
             {[
               'Connect your devices',
-              'See live energy data',
-              'Start the beta',
+              'See your kWh and EV data, live',
+              'Mint your $ZSOLAR rewards',
             ].map((step, i) => (
               <li key={step} className="flex items-baseline gap-3">
                 <span className="qc-numeric text-[13px] qc-muted w-5">
