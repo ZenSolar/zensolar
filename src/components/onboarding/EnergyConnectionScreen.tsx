@@ -465,7 +465,7 @@ export function EnergyConnectionScreen({
                 className="w-full h-12 text-base font-semibold rounded-2xl bg-gradient-to-br from-primary to-primary/80 hover:from-primary hover:to-primary text-primary-foreground shadow-[0_0_28px_hsl(var(--primary)/0.35)] disabled:opacity-40 disabled:shadow-none"
               >
                 {selected.length === 0
-                  ? 'Pick at least one brand'
+                  ? 'Connect Devices'
                   : `Continue with ${selected.length} selected`}
                 <ArrowRight className="w-4 h-4 ml-1" />
               </Button>
