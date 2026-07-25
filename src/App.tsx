@@ -137,6 +137,15 @@ const DeasonFloatingBubble = lazy(() =>
   import("./components/deason/DeasonFloatingBubble").then((m) => ({ default: m.DeasonFloatingBubble })),
 );
 const Onboarding = lazy(() => import("./pages/Onboarding"));
+const BetaInvite = lazy(() => import("./pages/beta/BetaInvite"));
+const BetaSignIn = lazy(() => import("./pages/beta/BetaSignIn"));
+const BetaVerify = lazy(() => import("./pages/beta/BetaVerify"));
+const BetaHome = lazy(() => import("./pages/beta/BetaHome"));
+const BetaTesla = lazy(() => import("./pages/beta/BetaTesla"));
+const BetaSolar = lazy(() => import("./pages/beta/BetaSolar"));
+const BetaCharger = lazy(() => import("./pages/beta/BetaCharger"));
+const BetaExtras = lazy(() => import("./pages/beta/BetaExtras"));
+const BetaSummary = lazy(() => import("./pages/beta/BetaSummary"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const About = lazy(() => import("./pages/About"));
@@ -423,6 +432,16 @@ const App = () => {
                     <Route path="/yc-application" element={<Navigate to="/admin/archive/yc-application" replace />} />
                     <Route path="/a16z-speedrun" element={<Navigate to="/admin/archive/a16z-speedrun" replace />} />
                     <Route path="/oauth/callback" element={<OAuthCallback />} />
+                    <Route path="/beta" element={<Navigate to="/beta/home" replace />} />
+                    <Route path="/beta/i/:token" element={<Suspense fallback={<PageLoader />}><BetaInvite /></Suspense>} />
+                    <Route path="/beta/signin" element={<Suspense fallback={<PageLoader />}><BetaSignIn /></Suspense>} />
+                    <Route path="/beta/verify" element={<Suspense fallback={<PageLoader />}><BetaVerify /></Suspense>} />
+                    <Route path="/beta/home" element={<Suspense fallback={<PageLoader />}><BetaHome /></Suspense>} />
+                    <Route path="/beta/tesla" element={<Suspense fallback={<PageLoader />}><BetaTesla /></Suspense>} />
+                    <Route path="/beta/solar" element={<Suspense fallback={<PageLoader />}><BetaSolar /></Suspense>} />
+                    <Route path="/beta/charger" element={<Suspense fallback={<PageLoader />}><BetaCharger /></Suspense>} />
+                    <Route path="/beta/extras" element={<Suspense fallback={<PageLoader />}><BetaExtras /></Suspense>} />
+                    <Route path="/beta/summary" element={<Suspense fallback={<PageLoader />}><BetaSummary /></Suspense>} />
                     <Route 
                       path="/admin" 
                       element={
