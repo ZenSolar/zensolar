@@ -58,7 +58,7 @@ const providers: Array<{
     id: 'tesla',
     name: 'Tesla',
     logo: teslaLogo,
-    description: 'Powerwall, Solar & Vehicles',
+    description: '\u00A0Vehicles, Solar, Powerwall, Supercharging',
     capabilities: ['Solar', 'Battery', 'EV'],
   },
   {
@@ -79,7 +79,7 @@ const providers: Array<{
     id: 'wallbox',
     name: 'Wallbox',
     logo: wallboxLogo,
-    description: 'Home EV charging — pairs with Tesla, Ford, GM',
+    description: 'Home EV Charging\u00A0',
     capabilities: ['EV'],
   },
 ];
@@ -276,7 +276,11 @@ export function EnergyConnectionScreen({
             {subtitleOverride ? (
               subtitleOverride
             ) : selectionMode ? (
-              <>Tap every brand you own. We&apos;ll map devices next.</>
+              <>
+                Select the renewable technology you have.
+                <br />
+                &nbsp;We&apos;ll map devices next.
+              </>
             ) : hasConnected ? (
               <>More gear = more <span className="text-primary font-semibold">$ZSOLAR</span>.</>
             ) : (
