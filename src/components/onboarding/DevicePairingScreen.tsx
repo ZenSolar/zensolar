@@ -464,11 +464,6 @@ export function DevicePairingScreen({
                       </span>
                       <span className="flex-1 text-[14px] font-medium text-foreground">
                         {oem.productNames[cap] ?? meta.label}
-                        {cap === 'ev' && oemId === 'tesla' && (
-                          <span className="ml-2 text-[10px] font-semibold text-emerald-300 uppercase tracking-wider">
-                            Tesla EVs only
-                          </span>
-                        )}
                       </span>
                       <div
                         className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 border-2 transition-all ${
