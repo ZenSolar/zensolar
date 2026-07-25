@@ -112,6 +112,33 @@ export type Database = {
         }
         Relationships: []
       }
+      beta_invites: {
+        Row: {
+          consumed_at: string | null
+          consumed_by: string | null
+          created_at: string
+          created_by: string | null
+          label: string | null
+          token: string
+        }
+        Insert: {
+          consumed_at?: string | null
+          consumed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          label?: string | null
+          token: string
+        }
+        Update: {
+          consumed_at?: string | null
+          consumed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          label?: string | null
+          token?: string
+        }
+        Relationships: []
+      }
       beta_signups: {
         Row: {
           created_at: string
@@ -2218,6 +2245,10 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          beta_flow_step: string | null
+          beta_home_selections: Json | null
+          beta_invite_token: string | null
+          beta_status: Json | null
           created_at: string
           display_name: string | null
           enphase_connected: boolean | null
@@ -2262,6 +2293,10 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          beta_flow_step?: string | null
+          beta_home_selections?: Json | null
+          beta_invite_token?: string | null
+          beta_status?: Json | null
           created_at?: string
           display_name?: string | null
           enphase_connected?: boolean | null
@@ -2306,6 +2341,10 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          beta_flow_step?: string | null
+          beta_home_selections?: Json | null
+          beta_invite_token?: string | null
+          beta_status?: Json | null
           created_at?: string
           display_name?: string | null
           enphase_connected?: boolean | null
