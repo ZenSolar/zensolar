@@ -270,7 +270,7 @@ export function EnergyConnectionScreen({
           className="mt-8 text-center"
         >
           <h1 className="text-3xl font-semibold tracking-tight bg-gradient-to-b from-foreground to-foreground/55 bg-clip-text text-transparent">
-            {titleOverride ?? (hasConnected ? 'Connect another' : 'Select the clean tech you use')}
+            {titleOverride ?? (hasConnected ? 'Connect another' : 'Select your clean tech accounts')}
           </h1>
           <p className="mt-2 text-[14px] text-muted-foreground max-w-[300px] mx-auto">
             {subtitleOverride ? (
