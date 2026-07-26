@@ -549,10 +549,9 @@ function EnergyFlowGlowCard({ batteryKwhExportedToday }: { batteryKwhExportedTod
         <>
           {/* ZenEnergy · Live — solar / Powerwall / grid / home only */}
           <LiveEnergyMonitoringCard hideVehicle batteryKwhExportedToday={batteryKwhExportedToday} />
-          {/* ZenDrive · Live — vehicle hero, only when a Tesla / EV is linked */}
-          <div className="mt-4">
-            <ZenDriveLiveCard />
-          </div>
+          {/* ZenDrive · Live — one card per connected vehicle (multi-car households) */}
+          <ZenDriveMultiCard />
+
         </>
       ) : (
         // Default placeholder/mock card everyone sees until they pay $4.99/mo.
