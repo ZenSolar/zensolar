@@ -770,6 +770,12 @@ Deno.serve(async (req) => {
     let baselineHomeChargingKwh = 0;
     let totalSessions = 0;
     let chargingSessionDetails: any[] | null = null;
+    // Per-VIN charging totals so each vehicle's tile reflects its own sessions
+    const perVinTotals: Record<string, { home: number; supercharger: number }> = {};
+    const knownVins = new Set<string>(
+      vehicleDevices.map((d: any) => String(d.device_id || d.id || "").toUpperCase()).filter(Boolean)
+    );
+    
     
     if (vehicleDevices.length > 0) {
       try {
