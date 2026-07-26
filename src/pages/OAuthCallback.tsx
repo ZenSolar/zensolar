@@ -124,13 +124,19 @@ export default function OAuthCallback() {
       localStorage.removeItem('tesla_oauth_state');
       localStorage.removeItem('tesla_oauth_pending');
       
-      // Fire the exchange request but DON'T wait for the response.
-      // Mobile Safari often drops fetch responses after redirects.
-      // Instead, we fire-and-forget, then poll the DB for success.
-      console.log('[OAuthCallback] Firing Tesla code exchange (fire-and-forget)...');
-      exchangeTeslaCode(code).then(
-        (result) => console.log('[OAuthCallback] Tesla exchange resolved:', result),
-        (err) => console.warn('[OAuthCallback] Tesla exchange rejected (expected on mobile):', err)
+      // Fire the exchange request immediately. On mobile Safari the response can
+      // occasionally be dropped after an external OAuth redirect, so we use the
+      // direct exchange result when available and keep DB polling as fallback.
+      console.log('[OAuthCallback] Firing Tesla code exchange...');
+      const exchangePromise = exchangeTeslaCode(code).then(
+        (result) => {
+          console.log('[OAuthCallback] Tesla exchange resolved:', result);
+          return result;
+        },
+        (err) => {
+          console.warn('[OAuthCallback] Tesla exchange rejected (expected on some mobile redirects):', err);
+          return false;
+        }
       );
 
       // Give exchange-code time to complete on the server before polling
@@ -140,9 +146,13 @@ export default function OAuthCallback() {
       // Poll for tokens using multiple strategies (edge function + direct DB fallback)
       const maxPollAttempts = 30; // 30 seconds total (1s per attempt)
       let pollAttempt = 0;
-      let tokensFound = false;
+      let tokensFound = await withTimeout(exchangePromise, 12000, 'Tesla code exchange').catch(() => false);
 
-      while (pollAttempt < maxPollAttempts) {
+      if (tokensFound) {
+        console.log('[OAuthCallback] ✅ Tesla tokens confirmed via exchange response');
+      }
+
+      while (!tokensFound && pollAttempt < maxPollAttempts) {
         pollAttempt++;
         console.log('[OAuthCallback] Poll attempt', pollAttempt);
         
