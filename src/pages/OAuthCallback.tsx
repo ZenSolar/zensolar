@@ -29,6 +29,20 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
   });
 }
 
+async function autoClaimTeslaDevices(accessToken: string): Promise<number> {
+  const { data, error } = await supabase.functions.invoke('tesla-auth', {
+    body: { action: 'auto-claim-devices' },
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+
+  if (error) {
+    console.warn('[OAuthCallback] Tesla auto-claim failed:', error);
+    return 0;
+  }
+
+  return Number(data?.autoClaim?.claimed?.length || 0);
+}
+
 export default function OAuthCallback() {
   const [searchParams] = useSearchParams();
   const { exchangeTeslaCode, exchangeEnphaseCode } = useEnergyOAuth();
@@ -201,11 +215,16 @@ export default function OAuthCallback() {
       }
 
       if (tokensFound) {
-        // Note: previously we short-circuited to a saved returnTo path on
-        // reconnect, but that skipped device discovery/claim and left the
-        // dashboard empty. Always fall through to device-selection so
-        // vehicles / Powerwall / solar get (re)claimed after a token refresh.
-        consumeSafeReturnPath();
+        const claimedCount = session.access_token
+          ? await autoClaimTeslaDevices(session.access_token)
+          : 0;
+        const safeReturnPath = consumeSafeReturnPath();
+        if (claimedCount > 0) {
+          setStatus('success');
+          window.location.href = safeReturnPath || '/';
+          return;
+        }
+
         const isBetaFlow = localStorage.getItem('beta_energy_flow') === 'true';
         const isOnboardingFlow = localStorage.getItem('onboarding_energy_flow') === 'true';
         localStorage.removeItem('onboarding_energy_flow');
