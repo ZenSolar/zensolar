@@ -344,8 +344,9 @@ export const useEVChargerTelemetry = (opts?: { pollMs?: number }) => useTelemetr
 export const useSolarTelemetry = (opts?: { pollMs?: number }) => useTelemetry('solar', opts);
 
 
-/** Last-N-days totals for EV charging (home + supercharger), from session tables. */
-export function useEVTotals(days = 7) {
+/** Last-N-days totals for EV charging (home + supercharger), from session tables.
+ * Pass `deviceId` to scope totals to a single vehicle (VIN). */
+export function useEVTotals(days = 7, deviceId?: string) {
   const { user } = useAuth();
   const viewAsUserId = useViewAsUserId();
   const effectiveUserId = viewAsUserId ?? user?.id ?? null;
@@ -372,24 +373,28 @@ export function useEVTotals(days = 7) {
     }
     const since = new Date(sinceMs).toISOString();
     const sinceDate = since.slice(0, 10);
-    const [{ data: home }, { data: sc }] = await Promise.all([
-      supabase
-        .from('home_charging_sessions')
-        .select('total_session_kwh')
-        .eq('user_id', effectiveUserId)
-        .gte('start_time', since),
-      supabase
-        .from('charging_sessions')
-        .select('energy_kwh')
-        .eq('user_id', effectiveUserId)
-        .eq('charging_type', 'supercharger')
-        .gte('session_date', sinceDate),
-    ]);
+    let homeQ = supabase
+      .from('home_charging_sessions')
+      .select('total_session_kwh')
+      .eq('user_id', effectiveUserId)
+      .gte('start_time', since);
+    let scQ = supabase
+      .from('charging_sessions')
+      .select('energy_kwh')
+      .eq('user_id', effectiveUserId)
+      .eq('charging_type', 'supercharger')
+      .gte('session_date', sinceDate);
+    if (deviceId) {
+      homeQ = homeQ.eq('device_id', deviceId);
+      scQ = scQ.eq('device_id', deviceId);
+    }
+    const [{ data: home }, { data: sc }] = await Promise.all([homeQ, scQ]);
     const home_kwh = (home ?? []).reduce((s: number, r: any) => s + Number(r.total_session_kwh || 0), 0);
     const supercharger_kwh = (sc ?? []).reduce((s: number, r: any) => s + Number(r.energy_kwh || 0), 0);
     setTotals({ home_kwh, supercharger_kwh });
     setLoading(false);
-  }, [effectiveUserId, days]);
+  }, [effectiveUserId, days, deviceId]);
+
 
   useEffect(() => {
     setLoading(true);
