@@ -216,6 +216,128 @@ async function refreshTeslaToken(
   }
 }
 
+type TeslaDiscoveredDevice = {
+  device_id: string;
+  device_type: "vehicle" | "powerwall" | "solar";
+  device_name: string;
+  metadata: Record<string, unknown>;
+};
+
+function initialTeslaBaseline(deviceType: TeslaDiscoveredDevice["device_type"]) {
+  const captured_at = new Date().toISOString();
+  if (deviceType === "vehicle") {
+    return {
+      captured_at,
+      odometer: 0,
+      last_known_odometer: 0,
+      total_charge_energy_added_kwh: 0,
+    };
+  }
+
+  return {
+    captured_at,
+    total_energy_discharged_wh: 0,
+    total_solar_produced_wh: 0,
+  };
+}
+
+async function discoverTeslaDevices(accessToken: string): Promise<TeslaDiscoveredDevice[]> {
+  const devices: TeslaDiscoveredDevice[] = [];
+
+  const vehiclesResponse = await fetch(`${TESLA_API_BASE}/api/1/vehicles`, {
+    headers: { "Authorization": `Bearer ${accessToken}` },
+  });
+  if (vehiclesResponse.ok) {
+    const vehiclesData = await vehiclesResponse.json();
+    for (const v of vehiclesData.response || []) {
+      if (!v.vin) continue;
+      devices.push({
+        device_id: String(v.vin),
+        device_type: "vehicle",
+        device_name: v.display_name || v.vehicle_type || "Tesla Vehicle",
+        metadata: { vin: v.vin, model: v.vehicle_type, state: v.state },
+      });
+    }
+  } else {
+    console.warn("Tesla self-heal vehicle discovery failed:", await vehiclesResponse.text());
+  }
+
+  const productsResponse = await fetch(`${TESLA_API_BASE}/api/1/products`, {
+    headers: { "Authorization": `Bearer ${accessToken}` },
+  });
+  if (productsResponse.ok) {
+    const productsData = await productsResponse.json();
+    for (const p of productsData.response || []) {
+      if (!p.energy_site_id) continue;
+      devices.push({
+        device_id: String(p.energy_site_id),
+        device_type: p.resource_type === "battery" ? "powerwall" : "solar",
+        device_name: p.site_name || `Tesla ${p.resource_type || "Energy"}`,
+        metadata: { site_id: p.energy_site_id, resource_type: p.resource_type },
+      });
+    }
+  } else {
+    console.warn("Tesla self-heal product discovery failed:", await productsResponse.text());
+  }
+
+  const unique = new Map<string, TeslaDiscoveredDevice>();
+  for (const device of devices) unique.set(`${device.device_type}:${device.device_id}`, device);
+  return Array.from(unique.values());
+}
+
+async function ensureTeslaDevicesClaimed(supabaseClient: any, userId: string, accessToken: string) {
+  const { count } = await supabaseClient
+    .from("connected_devices")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .eq("provider", "tesla");
+
+  if (count && count > 0) return { discovered: 0, claimed: 0 };
+
+  const devices = await discoverTeslaDevices(accessToken);
+  let claimed = 0;
+
+  for (const device of devices) {
+    const { data: existing } = await supabaseClient
+      .from("connected_devices")
+      .select("user_id")
+      .eq("provider", "tesla")
+      .eq("device_id", device.device_id)
+      .maybeSingle();
+
+    if (existing) {
+      if (existing.user_id === userId) claimed += 1;
+      continue;
+    }
+
+    const { error } = await supabaseClient.from("connected_devices").insert({
+      user_id: userId,
+      provider: "tesla",
+      device_id: device.device_id,
+      device_type: device.device_type,
+      device_name: device.device_name,
+      device_metadata: device.metadata,
+      baseline_data: initialTeslaBaseline(device.device_type),
+    });
+
+    if (error) {
+      console.error("Tesla sync self-heal claim failed:", error);
+    } else {
+      claimed += 1;
+    }
+  }
+
+  if (claimed > 0) {
+    await supabaseClient
+      .from("profiles")
+      .update({ tesla_connected: true, updated_at: new Date().toISOString() })
+      .eq("user_id", userId);
+  }
+
+  console.log(`Tesla sync self-heal discovered=${devices.length} claimed=${claimed}`);
+  return { discovered: devices.length, claimed };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -309,6 +431,10 @@ Deno.serve(async (req) => {
         }
       }
     }
+
+    await ensureTeslaDevicesClaimed(supabaseClient, targetUserId, accessToken).catch((error) => {
+      console.error("Tesla device self-heal failed:", error);
+    });
 
     // ── Lightweight telemetry mode (Premium Energy Insights live card) ──────
     // Body: { mode: 'telemetry', capability: 'battery'|'ev'|'solar', siteId }
