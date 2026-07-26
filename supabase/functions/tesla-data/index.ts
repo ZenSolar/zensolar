@@ -159,6 +159,34 @@ function classifyChargingType(
   return "home";
 }
 
+function normalizeTeslaVin(value: unknown): string | null {
+  const vin = String(value || "").trim().toUpperCase();
+  return /^[A-HJ-NPR-Z0-9]{17}$/.test(vin) ? vin : null;
+}
+
+function extractChargingSessionVin(session: any, knownVins: Set<string>): string | null {
+  const candidates = [
+    session?.vin,
+    session?.VIN,
+    session?.vehicleVin,
+    session?.vehicle_vin,
+    session?.vehicleVIN,
+    session?.vehicle?.vin,
+    session?.vehicle?.VIN,
+    session?.vehicleDetails?.vin,
+    session?.vehicle_details?.vin,
+    session?.product?.vin,
+    session?.car?.vin,
+  ];
+
+  for (const candidate of candidates) {
+    const vin = normalizeTeslaVin(candidate);
+    if (vin && knownVins.has(vin)) return vin;
+  }
+
+  return null;
+}
+
 
 // Helper to refresh Tesla token
 async function refreshTeslaToken(
@@ -882,20 +910,20 @@ Deno.serve(async (req) => {
                   billingSuperchargerKwh += sessionKwh;
                 }
 
-                // Attribute this session to a specific VIN so per-vehicle
-                // tiles (ZenX vs TesYto) reflect their own charging.
-                const rawVin = String(session.vin || "").toUpperCase();
-                const sessionVin = knownVins.has(rawVin)
-                  ? rawVin
-                  : (vehicleDevices[0]?.device_id || vehicleDevices[0]?.id || "unknown");
-                if (!perVinTotals[sessionVin]) perVinTotals[sessionVin] = { home: 0, supercharger: 0 };
-                if (chargingType === 'home') perVinTotals[sessionVin].home += sessionKwh;
-                else perVinTotals[sessionVin].supercharger += sessionKwh;
+                // Attribute this session only when Tesla gives us a VIN that
+                // belongs to this account. Never fall back to the first car —
+                // that is what made ZenX/TesYto inherit each other's kWh.
+                const sessionVin = extractChargingSessionVin(session, knownVins);
+                if (sessionVin) {
+                  if (!perVinTotals[sessionVin]) perVinTotals[sessionVin] = { home: 0, supercharger: 0 };
+                  if (chargingType === 'home') perVinTotals[sessionVin].home += sessionKwh;
+                  else perVinTotals[sessionVin].supercharger += sessionKwh;
+                }
 
                 chargingSessionDetails.push({
                   user_id: targetUserId,
                   provider: "tesla",
-                  device_id: sessionVin,
+                  device_id: sessionVin || "unknown",
                   session_date: dateStr,
                   energy_kwh: sessionKwh,
                   location: location,
@@ -903,7 +931,8 @@ Deno.serve(async (req) => {
                   fee_currency: totalFee > 0 ? feeCurrency : null,
                   charging_type: chargingType,
                   session_metadata: {
-                    vin: session.vin || null,
+                    vin: sessionVin || session.vin || session.VIN || session.vehicleVin || session.vehicle_vin || null,
+                    attribution_status: sessionVin ? "matched_vin" : "unmatched_vin",
                     charger_type: session.sessionType || session.chargerType || null,
                     chargeStartDateTime: session.chargeStartDateTime || session.charge_start_date_time || session.startDateTime || null,
                     chargeStopDateTime: session.chargeStopDateTime || session.charge_stop_date_time || session.endDateTime || null,
@@ -1408,17 +1437,31 @@ Deno.serve(async (req) => {
         earliestFsdSince = firstSampleAt;
       }
 
-      // Per-VIN charging totals from this sync (billing sessions attributed by VIN).
-      // Falls back to preserving the previous value if this VIN had no sessions
-      // in the current page (avoids zeroing a vehicle mid-pagination).
+      // Per-VIN charging totals from durable charging_sessions plus any newly
+      // matched sessions above. If Tesla omits a VIN, keep it out of per-car
+      // tiles instead of copying it onto the first/second vehicle.
       const vinKey = String(vehicle.vin || "").toUpperCase();
       const vinTotals = perVinTotals[vinKey];
-      const vinHomeKwh = vinTotals
-        ? vinTotals.home + (wallConnectorKwh || 0) / Math.max(1, vehiclesData.length) // WC telemetry is site-wide; split evenly across vehicles as a proxy
-        : Number(prevLifetime.charging_kwh || 0);
-      const vinSuperchargerKwh = vinTotals
-        ? vinTotals.supercharger
-        : Number(prevLifetime.supercharger_kwh || 0);
+      const { data: storedSessionTotals, error: storedSessionTotalsError } = await supabaseClient
+        .from("charging_sessions")
+        .select("charging_type, energy_kwh")
+        .eq("user_id", targetUserId)
+        .eq("provider", "tesla")
+        .eq("device_id", vehicle.vin);
+
+      if (storedSessionTotalsError) {
+        console.error(`Failed to read per-VIN charging_sessions totals for ${vehicle.vin}:`, storedSessionTotalsError);
+      }
+
+      const storedHomeKwh = (storedSessionTotals || [])
+        .filter((row: any) => row.charging_type === "home")
+        .reduce((sum: number, row: any) => sum + Number(row.energy_kwh || 0), 0);
+      const storedSuperchargerKwh = (storedSessionTotals || [])
+        .filter((row: any) => row.charging_type !== "home")
+        .reduce((sum: number, row: any) => sum + Number(row.energy_kwh || 0), 0);
+
+      const vinHomeKwh = Math.max(storedHomeKwh, Number(vinTotals?.home || 0));
+      const vinSuperchargerKwh = Math.max(storedSuperchargerKwh, Number(vinTotals?.supercharger || 0));
 
       const updateData: any = {
         lifetime_totals: {

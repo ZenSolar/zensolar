@@ -76,6 +76,34 @@ function classifyChargingType(
   return "home";
 }
 
+function normalizeTeslaVin(value: unknown): string | null {
+  const vin = String(value || "").trim().toUpperCase();
+  return /^[A-HJ-NPR-Z0-9]{17}$/.test(vin) ? vin : null;
+}
+
+function extractChargingSessionVin(session: any, knownVins: Set<string>): string | null {
+  const candidates = [
+    session?.vin,
+    session?.VIN,
+    session?.vehicleVin,
+    session?.vehicle_vin,
+    session?.vehicleVIN,
+    session?.vehicle?.vin,
+    session?.vehicle?.VIN,
+    session?.vehicleDetails?.vin,
+    session?.vehicle_details?.vin,
+    session?.product?.vin,
+    session?.car?.vin,
+  ];
+
+  for (const candidate of candidates) {
+    const vin = normalizeTeslaVin(candidate);
+    if (vin && knownVins.has(vin)) return vin;
+  }
+
+  return null;
+}
+
 async function refreshTeslaToken(
   supabaseClient: any,
   userId: string,
@@ -476,12 +504,15 @@ Deno.serve(async (req) => {
 
     // ── PART 2: EV Charging — session-level history → daily aggregates ──
     const vehicles = devices.filter((d: any) => d.device_type === "vehicle");
+    const knownVins = new Set<string>(
+      vehicles.map((d: any) => normalizeTeslaVin(d.device_id)).filter((vin: string | null): vin is string => Boolean(vin))
+    );
 
     if (vehicles.length > 0) {
       console.log(`[Tesla Historical] Fetching charging history for ${vehicles.length} vehicle(s)...`);
 
       // Paginate through all charging sessions
-      const dailyChargingMap = new Map<string, number>();
+      const dailyChargingByVin = new Map<string, Map<string, number>>();
       const sessionDetailRecords: any[] = [];
       let offset = 0;
       const pageSize = 50;
@@ -550,11 +581,6 @@ Deno.serve(async (req) => {
             const dateStr = String(sessionDate).split("T")[0];
             if (!dateStr || dateStr.length !== 10) continue;
 
-            dailyChargingMap.set(
-              dateStr,
-              (dailyChargingMap.get(dateStr) || 0) + sessionKwh * 1000
-            );
-
             // Classify charging type via sessionType/address/physics
             const location = session.siteLocationName || session.chargeLocationName || session.superchargerName || null;
             const startIso = session.chargeStartDateTime || session.charge_start_date_time || session.startDateTime || null;
@@ -563,12 +589,18 @@ Deno.serve(async (req) => {
               ? Math.max(0, (new Date(stopIso).getTime() - new Date(startIso).getTime()) / 60000)
               : 0;
             const chargingType = classifyChargingType(location, homeAddress, totalFee, session.sessionType || "", sessionKwh, durMin);
+            const sessionVin = extractChargingSessionVin(session, knownVins);
 
+            if (sessionVin) {
+              if (!dailyChargingByVin.has(sessionVin)) dailyChargingByVin.set(sessionVin, new Map<string, number>());
+              const dailyMap = dailyChargingByVin.get(sessionVin);
+              if (dailyMap) dailyMap.set(dateStr, (dailyMap.get(dateStr) || 0) + sessionKwh * 1000);
+            }
 
             sessionDetailRecords.push({
               user_id: targetUserId,
               provider: "tesla",
-              device_id: vehicles[0].device_id,
+              device_id: sessionVin || "unknown",
               session_date: dateStr,
               energy_kwh: sessionKwh,
               location,
@@ -576,7 +608,8 @@ Deno.serve(async (req) => {
               fee_currency: totalFee > 0 ? feeCurrency : null,
               charging_type: chargingType,
               session_metadata: {
-                vin: session.vin || null,
+                vin: sessionVin || session.vin || session.VIN || session.vehicleVin || session.vehicle_vin || null,
+                attribution_status: sessionVin ? "matched_vin" : "unmatched_vin",
                 charger_type: session.sessionType || null,
                 chargeStartDateTime: session.chargeStartDateTime || session.charge_start_date_time || session.startDateTime || null,
                 chargeStopDateTime: session.chargeStopDateTime || session.charge_stop_date_time || session.endDateTime || null,
@@ -603,16 +636,18 @@ Deno.serve(async (req) => {
       const primaryVin = vehicles[0].device_id;
       const chargingRecords: any[] = [];
 
-      for (const [dateStr, totalWh] of dailyChargingMap) {
-        if (totalWh <= 0) continue;
-        chargingRecords.push({
-          user_id: targetUserId,
-          device_id: primaryVin,
-          provider: "tesla_historical",
-          production_wh: totalWh,
-          data_type: "ev_charging",
-          recorded_at: dateStr + "T12:00:00Z",
-        });
+      for (const [vin, dailyMap] of dailyChargingByVin) {
+        for (const [dateStr, totalWh] of dailyMap) {
+          if (totalWh <= 0) continue;
+          chargingRecords.push({
+            user_id: targetUserId,
+            device_id: vin,
+            provider: "tesla_historical",
+            production_wh: totalWh,
+            data_type: "ev_charging",
+            recorded_at: dateStr + "T12:00:00Z",
+          });
+        }
       }
 
       // Batch upsert
