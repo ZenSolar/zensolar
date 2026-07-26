@@ -9,6 +9,14 @@ import { Button } from '@/components/ui/button';
 // Module-level flag to survive component remounts during the same page session
 // Track which code was processed to allow retries with new codes
 let moduleProcessedCode: string | null = null;
+const TESLA_OAUTH_RETURN_TO_KEY = 'tesla_oauth_return_to';
+
+function consumeSafeReturnPath(): string | null {
+  const saved = localStorage.getItem(TESLA_OAUTH_RETURN_TO_KEY);
+  localStorage.removeItem(TESLA_OAUTH_RETURN_TO_KEY);
+  if (!saved || !saved.startsWith('/') || saved.startsWith('//')) return null;
+  return saved;
+}
 
 // Timeout wrapper to prevent hanging promises
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
@@ -116,13 +124,19 @@ export default function OAuthCallback() {
       localStorage.removeItem('tesla_oauth_state');
       localStorage.removeItem('tesla_oauth_pending');
       
-      // Fire the exchange request but DON'T wait for the response.
-      // Mobile Safari often drops fetch responses after redirects.
-      // Instead, we fire-and-forget, then poll the DB for success.
-      console.log('[OAuthCallback] Firing Tesla code exchange (fire-and-forget)...');
-      exchangeTeslaCode(code).then(
-        (result) => console.log('[OAuthCallback] Tesla exchange resolved:', result),
-        (err) => console.warn('[OAuthCallback] Tesla exchange rejected (expected on mobile):', err)
+      // Fire the exchange request immediately. On mobile Safari the response can
+      // occasionally be dropped after an external OAuth redirect, so we use the
+      // direct exchange result when available and keep DB polling as fallback.
+      console.log('[OAuthCallback] Firing Tesla code exchange...');
+      const exchangePromise = exchangeTeslaCode(code).then(
+        (result) => {
+          console.log('[OAuthCallback] Tesla exchange resolved:', result);
+          return result;
+        },
+        (err) => {
+          console.warn('[OAuthCallback] Tesla exchange rejected (expected on some mobile redirects):', err);
+          return false;
+        }
       );
 
       // Give exchange-code time to complete on the server before polling
@@ -132,9 +146,13 @@ export default function OAuthCallback() {
       // Poll for tokens using multiple strategies (edge function + direct DB fallback)
       const maxPollAttempts = 30; // 30 seconds total (1s per attempt)
       let pollAttempt = 0;
-      let tokensFound = false;
+      let tokensFound = await withTimeout(exchangePromise, 12000, 'Tesla code exchange').catch(() => false);
 
-      while (pollAttempt < maxPollAttempts) {
+      if (tokensFound) {
+        console.log('[OAuthCallback] ✅ Tesla tokens confirmed via exchange response');
+      }
+
+      while (!tokensFound && pollAttempt < maxPollAttempts) {
         pollAttempt++;
         console.log('[OAuthCallback] Poll attempt', pollAttempt);
         
@@ -186,9 +204,15 @@ export default function OAuthCallback() {
       }
 
       if (tokensFound) {
+        const returnTo = consumeSafeReturnPath();
         const isBetaFlow = localStorage.getItem('beta_energy_flow') === 'true';
         const isOnboardingFlow = localStorage.getItem('onboarding_energy_flow') === 'true';
         localStorage.removeItem('onboarding_energy_flow');
+        if (returnTo && !isBetaFlow && !isOnboardingFlow) {
+          console.log('[OAuthCallback] Tesla reconnect complete; returning to saved path');
+          window.location.href = returnTo;
+          return;
+        }
         if (isBetaFlow) {
           localStorage.removeItem('beta_energy_flow');
           if (window.opener && !window.opener.closed) {

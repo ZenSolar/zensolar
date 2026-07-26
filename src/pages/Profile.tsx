@@ -167,7 +167,7 @@ export default function Profile() {
     try {
       switch (service) {
         case 'tesla':
-          await startTeslaOAuth();
+          await startTeslaOAuth({ returnTo: '/profile?tesla_connected=1' });
           break;
         case 'enphase':
           const result = await startEnphaseOAuth();
