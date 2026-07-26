@@ -9,6 +9,14 @@ import { Button } from '@/components/ui/button';
 // Module-level flag to survive component remounts during the same page session
 // Track which code was processed to allow retries with new codes
 let moduleProcessedCode: string | null = null;
+const TESLA_OAUTH_RETURN_TO_KEY = 'tesla_oauth_return_to';
+
+function consumeSafeReturnPath(): string | null {
+  const saved = localStorage.getItem(TESLA_OAUTH_RETURN_TO_KEY);
+  localStorage.removeItem(TESLA_OAUTH_RETURN_TO_KEY);
+  if (!saved || !saved.startsWith('/') || saved.startsWith('//')) return null;
+  return saved;
+}
 
 // Timeout wrapper to prevent hanging promises
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
@@ -186,9 +194,15 @@ export default function OAuthCallback() {
       }
 
       if (tokensFound) {
+        const returnTo = consumeSafeReturnPath();
         const isBetaFlow = localStorage.getItem('beta_energy_flow') === 'true';
         const isOnboardingFlow = localStorage.getItem('onboarding_energy_flow') === 'true';
         localStorage.removeItem('onboarding_energy_flow');
+        if (returnTo && !isBetaFlow && !isOnboardingFlow) {
+          console.log('[OAuthCallback] Tesla reconnect complete; returning to saved path');
+          window.location.href = returnTo;
+          return;
+        }
         if (isBetaFlow) {
           localStorage.removeItem('beta_energy_flow');
           if (window.opener && !window.opener.closed) {
