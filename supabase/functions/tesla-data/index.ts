@@ -159,6 +159,34 @@ function classifyChargingType(
   return "home";
 }
 
+function normalizeTeslaVin(value: unknown): string | null {
+  const vin = String(value || "").trim().toUpperCase();
+  return /^[A-HJ-NPR-Z0-9]{17}$/.test(vin) ? vin : null;
+}
+
+function extractChargingSessionVin(session: any, knownVins: Set<string>): string | null {
+  const candidates = [
+    session?.vin,
+    session?.VIN,
+    session?.vehicleVin,
+    session?.vehicle_vin,
+    session?.vehicleVIN,
+    session?.vehicle?.vin,
+    session?.vehicle?.VIN,
+    session?.vehicleDetails?.vin,
+    session?.vehicle_details?.vin,
+    session?.product?.vin,
+    session?.car?.vin,
+  ];
+
+  for (const candidate of candidates) {
+    const vin = normalizeTeslaVin(candidate);
+    if (vin && knownVins.has(vin)) return vin;
+  }
+
+  return null;
+}
+
 
 // Helper to refresh Tesla token
 async function refreshTeslaToken(
