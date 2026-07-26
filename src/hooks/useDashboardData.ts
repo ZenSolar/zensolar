@@ -1017,6 +1017,8 @@ export function useDashboardData() {
 
         const teslaChargingKwhTotal = sum(teslaDevices.filter((d) => isVehicleDevice(d.device_type)), (d) => Number(d.lifetime_totals?.charging_kwh || 0));
         const teslaChargingKwhPending = sum(teslaDevices.filter((d) => isVehicleDevice(d.device_type)), (d) => Math.max(0, Number(d.lifetime_totals?.charging_kwh || 0) - Number(d.baseline_data?.charging_kwh || 0)));
+        const teslaSuperchargerKwhTotal = sum(teslaDevices.filter((d) => isVehicleDevice(d.device_type)), (d) => Number(d.lifetime_totals?.supercharger_kwh || 0));
+        const teslaSuperchargerKwhPending = sum(teslaDevices.filter((d) => isVehicleDevice(d.device_type)), (d) => Math.max(0, Number(d.lifetime_totals?.supercharger_kwh || 0) - Number(d.baseline_data?.supercharger_kwh || 0)));
 
         // Solar provider priority matches the dashboard: Enphase > SolarEdge > Tesla
         const solarLifetimeWh = profileConnections?.enphase_connected && enphaseLifetimeWh > 0
@@ -1061,6 +1063,8 @@ export function useDashboardData() {
           evMilesPending: teslaVehicleMilesPending,
           chargingKwhLifetime: teslaChargingKwhTotal,
           chargingKwhPending: teslaChargingKwhPending,
+          superchargerKwhLifetime: teslaSuperchargerKwhTotal,
+          superchargerKwhPending: teslaSuperchargerKwhPending,
         };
       })();
       // Solar source priority: Enphase > SolarEdge > Tesla
@@ -1218,11 +1222,11 @@ export function useDashboardData() {
         batteryDischarge = fallback.batteryLifetimeKwh;
         pendingEvMiles = fallback.evMilesPending;
         pendingBattery = fallback.batteryPendingKwh;
-        superchargerKwh = fallback.chargingKwhLifetime;
-        pendingSupercharger = fallback.chargingKwhPending;
+        superchargerKwh = fallback.superchargerKwhLifetime;
+        pendingSupercharger = fallback.superchargerKwhPending;
         homeChargerKwh = homeChargingMonitorKwh;
         pendingHomeCharger = pendingHomeChargingMonitorKwh;
-        pendingCharging = fallback.chargingKwhPending + pendingHomeChargingMonitorKwh;
+        pendingCharging = fallback.superchargerKwhPending + pendingHomeChargingMonitorKwh;
 
         // Also apply Tesla solar fallback when no dedicated solar provider
         if (!hasDedicatedSolarProvider && solarEnergy <= 0 && fallback.solarLifetimeKwh > 0) {
