@@ -714,43 +714,9 @@ Deno.serve(async (req) => {
               }));
             }
             
-            // Fetch Wall Connector charging history (home EV charging)
-            // Use start and end from installation to now
-            const wcStartDateTime = `${startDate}T00:00:00-06:00`;
-            const wcEndDateTime = `${endDate}T23:59:59-06:00`;
-            try {
-              const wallConnectorResponse = await fetch(
-                `${TESLA_API_BASE}/api/1/energy_sites/${site.id}/telemetry_history?kind=charge&start_date=${encodeURIComponent(wcStartDateTime)}&end_date=${encodeURIComponent(wcEndDateTime)}&time_zone=${encodeURIComponent(timezone)}`,
-                { headers: { "Authorization": `Bearer ${accessToken}` } }
-              );
-              
-              if (wallConnectorResponse.ok) {
-                const wallConnectorData = await wallConnectorResponse.json();
-                console.log(`Site ${site.id} wall connector RAW response keys:`, JSON.stringify(Object.keys(wallConnectorData)));
-                console.log(`Site ${site.id} wall connector response.keys:`, wallConnectorData.response ? JSON.stringify(Object.keys(wallConnectorData.response)) : 'no response key');
-                const chargeSeries = wallConnectorData.response?.time_series || wallConnectorData.response?.data || [];
-                
-                if (chargeSeries.length > 0) {
-                  console.log(`Sample wall connector charge for site ${site.id}:`, JSON.stringify(chargeSeries[0]));
-                  console.log(`Wall connector charge record keys:`, JSON.stringify(Object.keys(chargeSeries[0])));
-                } else {
-                  // Log the full response to understand structure
-                  const respStr = JSON.stringify(wallConnectorData).substring(0, 1000);
-                  console.log(`Site ${site.id} wall connector empty series, full response:`, respStr);
-                }
-                
-                // Sum up all wall connector charging (values are in Wh)
-                for (const charge of chargeSeries) {
-                  wallConnectorChargingWh += (charge.energy_charged || charge.charge_energy_added || charge.energy || 0);
-                }
-                console.log(`Site ${site.id} wall connector charging: ${wallConnectorChargingWh} Wh (${chargeSeries.length} records)`);
-              } else {
-                const errorBody = await wallConnectorResponse.text();
-                console.log(`Wall connector history not available for site ${site.id}: status=${wallConnectorResponse.status}, body=${errorBody.substring(0, 500)}`);
-              }
-            } catch (wcError) {
-              console.log(`Wall connector history error for site ${site.id}:`, wcError);
-            }
+            // Wall Connector telemetry intentionally skipped — Home & AC charging
+            // is sourced from vehicle-side charge_state to avoid double-counting.
+            // Wall connectors are also filtered out of energySiteIds upstream.
           } catch (histError) {
             console.error(`Error fetching history for site ${site.id}:`, histError);
           }
