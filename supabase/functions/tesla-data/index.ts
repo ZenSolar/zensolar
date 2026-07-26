@@ -770,6 +770,12 @@ Deno.serve(async (req) => {
     let baselineHomeChargingKwh = 0;
     let totalSessions = 0;
     let chargingSessionDetails: any[] | null = null;
+    // Per-VIN charging totals so each vehicle's tile reflects its own sessions
+    const perVinTotals: Record<string, { home: number; supercharger: number }> = {};
+    const knownVins = new Set<string>(
+      vehicleDevices.map((d: any) => String(d.device_id || d.id || "").toUpperCase()).filter(Boolean)
+    );
+    
     
     if (vehicleDevices.length > 0) {
       try {
@@ -876,10 +882,20 @@ Deno.serve(async (req) => {
                   billingSuperchargerKwh += sessionKwh;
                 }
 
+                // Attribute this session to a specific VIN so per-vehicle
+                // tiles (ZenX vs TesYto) reflect their own charging.
+                const rawVin = String(session.vin || "").toUpperCase();
+                const sessionVin = knownVins.has(rawVin)
+                  ? rawVin
+                  : (vehicleDevices[0]?.device_id || vehicleDevices[0]?.id || "unknown");
+                if (!perVinTotals[sessionVin]) perVinTotals[sessionVin] = { home: 0, supercharger: 0 };
+                if (chargingType === 'home') perVinTotals[sessionVin].home += sessionKwh;
+                else perVinTotals[sessionVin].supercharger += sessionKwh;
+
                 chargingSessionDetails.push({
                   user_id: targetUserId,
                   provider: "tesla",
-                  device_id: vehicleDevices[0]?.id || "unknown",
+                  device_id: sessionVin,
                   session_date: dateStr,
                   energy_kwh: sessionKwh,
                   location: location,
@@ -1392,11 +1408,24 @@ Deno.serve(async (req) => {
         earliestFsdSince = firstSampleAt;
       }
 
+      // Per-VIN charging totals from this sync (billing sessions attributed by VIN).
+      // Falls back to preserving the previous value if this VIN had no sessions
+      // in the current page (avoids zeroing a vehicle mid-pagination).
+      const vinKey = String(vehicle.vin || "").toUpperCase();
+      const vinTotals = perVinTotals[vinKey];
+      const vinHomeKwh = vinTotals
+        ? vinTotals.home + (wallConnectorKwh || 0) / Math.max(1, vehiclesData.length) // WC telemetry is site-wide; split evenly across vehicles as a proxy
+        : Number(prevLifetime.charging_kwh || 0);
+      const vinSuperchargerKwh = vinTotals
+        ? vinTotals.supercharger
+        : Number(prevLifetime.supercharger_kwh || 0);
+
       const updateData: any = {
         lifetime_totals: {
           ...prevLifetime,
           odometer: vehicle.odometer,
-          charging_kwh: totalEvChargingKwh, // Total charging across all vehicles
+          charging_kwh: vinHomeKwh,           // Per-VIN Home & AC
+          supercharger_kwh: vinSuperchargerKwh, // Per-VIN Supercharging
           // Preserve telemetry-written FSD watermark when not overridden by official.
           lifetime_fsd_miles: lifetimeFsdMiles,
           updated_at: new Date().toISOString(),

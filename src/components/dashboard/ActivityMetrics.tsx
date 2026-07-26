@@ -782,17 +782,13 @@ export function ActivityMetrics({
                     const pendingKwh = Math.floor(device.pendingChargingKwh || 0);
                     const label = `${device.deviceName} Home & AC Charging`;
                     const field = (
-                      <ActivityField
+                      <PerVehicleHomeChargingTile
                         key={`hc-${device.deviceId}`}
-                        icon={Zap}
+                        deviceId={device.deviceId}
                         label={label}
-                        value={pendingKwh}
-                        unit="kWh"
-                        color="greenGold"
-                        active={pendingKwh > 0}
+                        pendingKwh={pendingKwh}
                         isLoading={isLoading}
-                        liveIndicator={isCharging}
-                        onTap={pendingKwh > 0 ? () => openSheet({
+                        onOpen={() => openSheet({
                           category: 'home_charger',
                           deviceId: device.deviceId,
                           deviceName: device.deviceName,
@@ -800,7 +796,7 @@ export function ActivityMetrics({
                           unit: 'kWh',
                           pending: pendingKwh,
                           accent: 'solar',
-                        }) : undefined}
+                        })}
                       />
                     );
                     return index === 0 && onHideField ? (
@@ -2332,5 +2328,40 @@ function TotalTokensCard({ tokensToReceive, tokensEligible, activityUnits, token
         </div>
       )}
     </motion.div>
+  );
+}
+
+/**
+ * Per-vehicle Home & AC Charging tile.
+ * Scopes the "Charging in progress…" live indicator to the specific VIN by
+ * querying `home_charging_sessions` filtered by device_id — so if TesYto is
+ * plugged in and ZenX isn't, only TesYto's tile shows the pulse.
+ */
+function PerVehicleHomeChargingTile({
+  deviceId,
+  label,
+  pendingKwh,
+  isLoading,
+  onOpen,
+}: {
+  deviceId: string;
+  label: string;
+  pendingKwh: number;
+  isLoading: boolean;
+  onOpen: () => void;
+}) {
+  const { data: isChargingThisVin = false } = useActiveChargingSession(deviceId);
+  return (
+    <ActivityField
+      icon={Zap}
+      label={label}
+      value={pendingKwh}
+      unit="kWh"
+      color="greenGold"
+      active={pendingKwh > 0}
+      isLoading={isLoading}
+      liveIndicator={isChargingThisVin}
+      onTap={pendingKwh > 0 ? onOpen : undefined}
+    />
   );
 }
