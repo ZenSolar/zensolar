@@ -14,6 +14,7 @@ const analyticsCategoryByColor: Record<string, string> = {
 
 import { MintEffectButton } from './MintEffectButton';
 import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
+import { usePerVehicleHomeChargingKwh } from '@/hooks/usePerVehicleHomeChargingKwh';
 import { useMintSound } from '@/hooks/useMintSound';
 
 import { useSoundPreference } from '@/hooks/useSoundPreference';
