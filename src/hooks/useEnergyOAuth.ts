@@ -260,7 +260,7 @@ export function useEnergyOAuth() {
             provider: 'tesla',
             stage: 'start',
             rawMessage: 'Popup blocked',
-            retry: () => void startTeslaOAuth(),
+            retry: () => void startTeslaOAuth(options),
           });
           return;
         }
@@ -272,7 +272,7 @@ export function useEnergyOAuth() {
         provider: 'tesla',
         stage: 'start',
         rawMessage: error instanceof Error ? error.message : undefined,
-        retry: () => void startTeslaOAuth(),
+        retry: () => void startTeslaOAuth(options),
       });
     }
   }, []);
