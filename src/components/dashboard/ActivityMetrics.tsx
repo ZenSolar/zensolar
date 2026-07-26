@@ -14,7 +14,7 @@ const analyticsCategoryByColor: Record<string, string> = {
 
 import { MintEffectButton } from './MintEffectButton';
 import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
-import { usePerVehicleHomeChargingKwh } from '@/hooks/usePerVehicleHomeChargingKwh';
+import { usePerVehicleHomeChargingKwh, usePerVehicleSuperchargerKwh } from '@/hooks/usePerVehicleHomeChargingKwh';
 import { useMintSound } from '@/hooks/useMintSound';
 
 import { useSoundPreference } from '@/hooks/useSoundPreference';
@@ -722,27 +722,23 @@ export function ActivityMetrics({
               {!isHidden('supercharger') && (
                 hasMultipleEvDevices ? (
                   evDevices.map((device, index) => {
-                    const pendingKwh = Math.floor(device.pendingSuperchargerKwh || 0);
                     const label = `${device.deviceName} Supercharging`;
                     const field = (
-                      <ActivityField
+                      <PerVehicleSuperchargerTile
                         key={`sc-${device.deviceId}`}
-                        icon={Zap}
+                        deviceId={device.deviceId}
                         label={label}
-                        value={pendingKwh}
-                        unit="kWh"
-                        color="cyan"
-                        active={pendingKwh > 0}
+                        pendingKwh={Math.floor(device.pendingSuperchargerKwh || 0)}
                         isLoading={isLoading}
-                        onTap={pendingKwh > 0 ? () => openSheet({
+                        onOpen={(displayKwh) => openSheet({
                           category: 'supercharger',
                           deviceId: device.deviceId,
                           deviceName: device.deviceName,
                           label,
                           unit: 'kWh',
-                          pending: pendingKwh,
+                          pending: displayKwh,
                           accent: 'energy',
-                        }) : undefined}
+                        })}
                       />
                     );
                     return index === 0 && onHideField ? (
@@ -2367,6 +2363,41 @@ function PerVehicleHomeChargingTile({
       isLoading={isLoading}
       liveIndicator={isChargingThisVin}
       onTap={displayKwh > 0 ? onOpen : undefined}
+    />
+  );
+}
+
+/**
+ * Per-vehicle Supercharging tile.
+ * Reads VIN-scoped supercharger sessions directly so a repaired or newly
+ * imported Tesla billing session appears even if the PWA's dashboard cache is
+ * still holding an older per-device snapshot.
+ */
+function PerVehicleSuperchargerTile({
+  deviceId,
+  label,
+  pendingKwh,
+  isLoading,
+  onOpen,
+}: {
+  deviceId: string;
+  label: string;
+  pendingKwh: number;
+  isLoading: boolean;
+  onOpen: (displayKwh: number) => void;
+}) {
+  const { data: liveKwh = 0 } = usePerVehicleSuperchargerKwh(deviceId);
+  const displayKwh = Math.max(Math.floor(liveKwh), Math.floor(pendingKwh));
+  return (
+    <ActivityField
+      icon={Zap}
+      label={label}
+      value={displayKwh}
+      unit="kWh"
+      color="cyan"
+      active={displayKwh > 0}
+      isLoading={isLoading}
+      onTap={displayKwh > 0 ? () => onOpen(displayKwh) : undefined}
     />
   );
 }
