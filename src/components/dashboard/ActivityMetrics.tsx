@@ -709,38 +709,83 @@ export function ActivityMetrics({
             );
           })()}
           
-          {/* 4. Tesla Supercharger + 5. Home Charger - show separate fields */}
+          {/* 4. Tesla Supercharger + 5. Home & AC Charging — PER VEHICLE.
+              Charging is sourced from the vehicle's charge_state stream, so
+              each connected Tesla gets its own Supercharger and Home & AC
+              tile. Wall-connector devices (e.g. ZenAiredale) are NOT rendered
+              here — vehicle telemetry is the single source of truth and a
+              per-charger tile would double-list the same electrons. */}
           {hasSeparateCharging ? (
             <>
-              {/* 4. Tesla Supercharger */}
+              {/* 4. Tesla Supercharger — per vehicle when multiple EVs */}
               {!isHidden('supercharger') && (
-                <SwipeableActivityField 
-                  onHide={() => onHideField?.('supercharger')} 
-                  disabled={!onHideField}
-                  locked={hasSuperchargerConnected}
-                >
-                  <ActivityField
-                    icon={Zap}
-                    label={superchargerLabel}
-                    value={superchargerKwh}
-                    unit="kWh"
-                    color="cyan"
-                    active={superchargerKwh > 0}
-                    isLoading={isLoading}
-                    onTap={superchargerKwh > 0 ? () => openSheet({ category: 'supercharger', label: superchargerLabel, unit: 'kWh', pending: superchargerKwh, accent: 'energy' }) : undefined}
-                  />
-                </SwipeableActivityField>
-              )}
-              {/* 5. Home Charger - Show individual home chargers if multiple */}
-              {!isHidden('home_charger') && (
-                hasMultipleChargerDevices ? (
-                  chargerDevices.map((device, index) => {
-                    const pendingKwh = Math.floor(device.pendingKwh);
+                hasMultipleEvDevices ? (
+                  evDevices.map((device, index) => {
+                    const pendingKwh = Math.floor(device.pendingSuperchargerKwh || 0);
+                    const label = `${device.deviceName} Supercharging`;
                     const field = (
                       <ActivityField
-                        key={device.deviceId}
+                        key={`sc-${device.deviceId}`}
                         icon={Zap}
-                        label={`${device.deviceName} Home Charger`}
+                        label={label}
+                        value={pendingKwh}
+                        unit="kWh"
+                        color="cyan"
+                        active={pendingKwh > 0}
+                        isLoading={isLoading}
+                        onTap={pendingKwh > 0 ? () => openSheet({
+                          category: 'supercharger',
+                          deviceId: device.deviceId,
+                          deviceName: device.deviceName,
+                          label,
+                          unit: 'kWh',
+                          pending: pendingKwh,
+                          accent: 'energy',
+                        }) : undefined}
+                      />
+                    );
+                    return index === 0 && onHideField ? (
+                      <SwipeableActivityField
+                        key={`sc-wrap-${device.deviceId}`}
+                        onHide={() => onHideField('supercharger')}
+                        locked={hasSuperchargerConnected}
+                      >
+                        {field}
+                      </SwipeableActivityField>
+                    ) : field;
+                  })
+                ) : (
+                  <SwipeableActivityField 
+                    onHide={() => onHideField?.('supercharger')} 
+                    disabled={!onHideField}
+                    locked={hasSuperchargerConnected}
+                  >
+                    <ActivityField
+                      icon={Zap}
+                      label={superchargerLabel}
+                      value={superchargerKwh}
+                      unit="kWh"
+                      color="cyan"
+                      active={superchargerKwh > 0}
+                      isLoading={isLoading}
+                      onTap={superchargerKwh > 0 ? () => openSheet({ category: 'supercharger', label: superchargerLabel, unit: 'kWh', pending: superchargerKwh, accent: 'energy' }) : undefined}
+                    />
+                  </SwipeableActivityField>
+                )
+              )}
+              {/* 5. Home & AC Charging — per vehicle when multiple EVs.
+                  Sourced from each vehicle's charge_state (not from a
+                  standalone Wall Connector device). */}
+              {!isHidden('home_charger') && (
+                hasMultipleEvDevices ? (
+                  evDevices.map((device, index) => {
+                    const pendingKwh = Math.floor(device.pendingChargingKwh || 0);
+                    const label = `${device.deviceName} Home & AC Charging`;
+                    const field = (
+                      <ActivityField
+                        key={`hc-${device.deviceId}`}
+                        icon={Zap}
+                        label={label}
                         value={pendingKwh}
                         unit="kWh"
                         color="greenGold"
@@ -751,7 +796,7 @@ export function ActivityMetrics({
                           category: 'home_charger',
                           deviceId: device.deviceId,
                           deviceName: device.deviceName,
-                          label: `${device.deviceName} Home Charger`,
+                          label,
                           unit: 'kWh',
                           pending: pendingKwh,
                           accent: 'solar',
@@ -759,8 +804,8 @@ export function ActivityMetrics({
                       />
                     );
                     return index === 0 && onHideField ? (
-                      <SwipeableActivityField 
-                        key={device.deviceId} 
+                      <SwipeableActivityField
+                        key={`hc-wrap-${device.deviceId}`}
                         onHide={() => onHideField('home_charger')}
                         locked={hasHomeChargerConnected}
                       >
@@ -807,6 +852,7 @@ export function ActivityMetrics({
               />
             </SwipeableActivityField>
           ) : null}
+
         </div>
         
         {/* Hidden Fields Restore Link */}
