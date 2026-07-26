@@ -10,6 +10,7 @@ const corsHeaders = {
 const TESLA_API_BASE = "https://fleet-api.prd.na.vn.cloud.tesla.com";
 const TESLA_TOKEN_URL =
   "https://fleet-auth.prd.vn.cloud.tesla.com/oauth2/v3/token";
+const OVERLAP_CONTINUATION_WINDOW_MS = 90 * 60 * 1000;
 
 // ── Cryptographic Helpers ────────────────────────────────────────────────────
 
