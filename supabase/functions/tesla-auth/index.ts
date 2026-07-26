@@ -303,14 +303,52 @@ Deno.serve(async (req) => {
     if (action === "check-tokens") {
       const { data: tokenCheck } = await supabaseClient
         .from("energy_tokens")
-        .select("id, provider")
+        .select("id, provider, access_token")
         .eq("user_id", user.id)
         .eq("provider", "tesla")
         .maybeSingle();
 
+      let autoClaim = null;
+      if (tokenCheck?.access_token) {
+        const { count } = await supabaseClient
+          .from("connected_devices")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", user.id)
+          .eq("provider", "tesla");
+
+        if (!count || count === 0) {
+          autoClaim = await autoClaimTeslaDevices(supabaseClient, user.id, tokenCheck.access_token).catch((error) => {
+            console.error("Tesla check-tokens auto-claim failed:", error);
+            return { discovered: 0, claimed: [], alreadyClaimed: [], errors: ["auto_claim_failed"] };
+          });
+        }
+      }
+
       return new Response(JSON.stringify({ 
         exists: !!tokenCheck,
+        autoClaim,
       }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (action === "auto-claim-devices") {
+      const { data: tokenData, error: tokenError } = await supabaseClient
+        .from("energy_tokens")
+        .select("access_token")
+        .eq("user_id", user.id)
+        .eq("provider", "tesla")
+        .maybeSingle();
+
+      if (tokenError || !tokenData?.access_token) {
+        return new Response(JSON.stringify({ error: "Tesla not connected" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const autoClaim = await autoClaimTeslaDevices(supabaseClient, user.id, tokenData.access_token);
+      return new Response(JSON.stringify({ success: true, autoClaim }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
