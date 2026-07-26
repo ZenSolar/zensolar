@@ -50,9 +50,11 @@ function freshnessClass(iso: string | null, fresh: boolean) {
 export interface ZenDriveLiveCardProps {
   /** Render even when no Tesla is connected (shows an empty/connect state). */
   alwaysRender?: boolean;
+  /** Which vehicle in the EV list to render (0 = primary). */
+  deviceIndex?: number;
 }
 
-export function ZenDriveLiveCard({ alwaysRender = false }: ZenDriveLiveCardProps = {}) {
+export function ZenDriveLiveCard({ alwaysRender = false, deviceIndex = 0 }: ZenDriveLiveCardProps = {}) {
   const { data: isActivelyCharging } = useActiveChargingSession();
   // While a charging session is live and the app is foregrounded, poll Tesla
   // telemetry every 20s so `charge_energy_added` advances in near-real-time.
@@ -60,16 +62,20 @@ export function ZenDriveLiveCard({ alwaysRender = false }: ZenDriveLiveCardProps
   const ev = useEVChargerTelemetry({ pollMs: isActivelyCharging ? 20_000 : 0 });
   const battery = useBatteryTelemetry();
   const solar = useSolarTelemetry();
-  const evTotals = useEVTotals(1);
+  const primaryEv = ev.data[deviceIndex];
+  // Scope charging totals to THIS vehicle (site_id holds the VIN) so multi-car
+  // households see per-car Home & AC / Supercharging kWh instead of a shared total.
+  const evTotals = useEVTotals(1, primaryEv?.site_id);
+
   const [refreshing, setRefreshing] = useState(false);
   const tileRef = useRef<HTMLDivElement | null>(null);
   const [ping, setPing] = useState(false);
 
-  const primaryEv = ev.data[0];
   const teslaFlow = useMemo(
     () => deriveTeslaFlow(primaryEv, !!isActivelyCharging),
     [primaryEv, isActivelyCharging]
   );
+
 
   // Pull exact model + color from Tesla vehicle_config so the image mirrors
   // the user's actual car (matches the Tesla app trim/color).
