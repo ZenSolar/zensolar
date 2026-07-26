@@ -204,15 +204,14 @@ export default function OAuthCallback() {
       }
 
       if (tokensFound) {
-        const returnTo = consumeSafeReturnPath();
+        // Note: previously we short-circuited to a saved returnTo path on
+        // reconnect, but that skipped device discovery/claim and left the
+        // dashboard empty. Always fall through to device-selection so
+        // vehicles / Powerwall / solar get (re)claimed after a token refresh.
+        consumeSafeReturnPath();
         const isBetaFlow = localStorage.getItem('beta_energy_flow') === 'true';
         const isOnboardingFlow = localStorage.getItem('onboarding_energy_flow') === 'true';
         localStorage.removeItem('onboarding_energy_flow');
-        if (returnTo && !isBetaFlow && !isOnboardingFlow) {
-          console.log('[OAuthCallback] Tesla reconnect complete; returning to saved path');
-          window.location.href = returnTo;
-          return;
-        }
         if (isBetaFlow) {
           localStorage.removeItem('beta_energy_flow');
           if (window.opener && !window.opener.closed) {
