@@ -50,3 +50,62 @@ export function usePerVehicleHomeChargingKwh(deviceId?: string) {
     refetchInterval: 20_000,
   });
 }
+
+/**
+ * Pending Tesla Supercharging kWh for a specific vehicle (VIN), sourced from
+ * `charging_sessions` instead of the dashboard's local activity cache. This is
+ * intentionally VIN-scoped so multi-car households do not inherit another
+ * vehicle's public fast-charging history.
+ */
+export function usePerVehicleSuperchargerKwh(deviceId?: string) {
+  const viewAsUserId = useViewAsUserId();
+  const { user } = useAuth();
+  const effectiveUserId = viewAsUserId ?? user?.id ?? null;
+  const queryClient = useQueryClient();
+  const queryKey = ['per-vehicle-supercharger-kwh', effectiveUserId, deviceId ?? null];
+
+  useEffect(() => {
+    if (!effectiveUserId || !deviceId) return;
+    const channel = supabase
+      .channel(`per-vehicle-supercharger-kwh-${effectiveUserId}-${deviceId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'charging_sessions' },
+        () => queryClient.invalidateQueries({ queryKey })
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'connected_devices' },
+        () => queryClient.invalidateQueries({ queryKey })
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [effectiveUserId, deviceId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return useQuery({
+    queryKey,
+    enabled: !!effectiveUserId && !!deviceId,
+    queryFn: async () => {
+      if (!effectiveUserId || !deviceId) return 0;
+      const [{ data: sessions, error: sessionError }, { data: device, error: deviceError }] = await Promise.all([
+        supabase
+          .from('charging_sessions')
+          .select('energy_kwh')
+          .eq('user_id', effectiveUserId)
+          .eq('device_id', deviceId)
+          .eq('charging_type', 'supercharger'),
+        supabase
+          .from('connected_devices')
+          .select('baseline_data')
+          .eq('user_id', effectiveUserId)
+          .eq('device_id', deviceId)
+          .maybeSingle(),
+      ]);
+      if (sessionError || deviceError) return 0;
+      const lifetimeKwh = (sessions ?? []).reduce((sum, s: any) => sum + Number(s.energy_kwh || 0), 0);
+      const baselineKwh = Number((device?.baseline_data as any)?.supercharger_kwh || 0);
+      return Math.max(0, lifetimeKwh - baselineKwh);
+    },
+    refetchInterval: 60_000,
+  });
+}
