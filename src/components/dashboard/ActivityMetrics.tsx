@@ -2351,17 +2351,21 @@ function PerVehicleHomeChargingTile({
   onOpen: () => void;
 }) {
   const { data: isChargingThisVin = false } = useActiveChargingSession(deviceId);
+  // Authoritative per-VIN Home & AC total from home_charging_sessions —
+  // includes the in-progress session so an actively plugged-in car keeps ticking.
+  const { data: liveKwh = 0 } = usePerVehicleHomeChargingKwh(deviceId);
+  const displayKwh = Math.max(Math.floor(liveKwh), Math.floor(pendingKwh));
   return (
     <ActivityField
       icon={Zap}
       label={label}
-      value={pendingKwh}
+      value={displayKwh}
       unit="kWh"
       color="greenGold"
-      active={pendingKwh > 0}
+      active={displayKwh > 0}
       isLoading={isLoading}
       liveIndicator={isChargingThisVin}
-      onTap={pendingKwh > 0 ? onOpen : undefined}
+      onTap={displayKwh > 0 ? onOpen : undefined}
     />
   );
 }
