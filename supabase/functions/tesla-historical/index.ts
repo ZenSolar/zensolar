@@ -591,16 +591,25 @@ Deno.serve(async (req) => {
             const chargingType = classifyChargingType(location, homeAddress, totalFee, session.sessionType || "", sessionKwh, durMin);
             const sessionVin = extractChargingSessionVin(session, knownVins);
 
-            if (sessionVin) {
-              if (!dailyChargingByVin.has(sessionVin)) dailyChargingByVin.set(sessionVin, new Map<string, number>());
-              const dailyMap = dailyChargingByVin.get(sessionVin);
-              if (dailyMap) dailyMap.set(dateStr, (dailyMap.get(dateStr) || 0) + sessionKwh * 1000);
+            if (!sessionVin) {
+              const rawVin = session.vin || session.VIN || session.vehicleVin || session.vehicle_vin || null;
+              console.warn("[Tesla Historical] Skipping charging session with unmatched VIN", {
+                rawVin,
+                knownVins: Array.from(knownVins),
+                energyKwh: sessionKwh,
+                start: session.chargeStartDateTime || session.charge_start_date_time || session.startDateTime || null,
+              });
+              continue;
             }
+
+            if (!dailyChargingByVin.has(sessionVin)) dailyChargingByVin.set(sessionVin, new Map<string, number>());
+            const dailyMap = dailyChargingByVin.get(sessionVin);
+            if (dailyMap) dailyMap.set(dateStr, (dailyMap.get(dateStr) || 0) + sessionKwh * 1000);
 
             sessionDetailRecords.push({
               user_id: targetUserId,
               provider: "tesla",
-              device_id: sessionVin || "unknown",
+              device_id: sessionVin,
               session_date: dateStr,
               energy_kwh: sessionKwh,
               location,
@@ -608,8 +617,8 @@ Deno.serve(async (req) => {
               fee_currency: totalFee > 0 ? feeCurrency : null,
               charging_type: chargingType,
               session_metadata: {
-                vin: sessionVin || session.vin || session.VIN || session.vehicleVin || session.vehicle_vin || null,
-                attribution_status: sessionVin ? "matched_vin" : "unmatched_vin",
+                vin: sessionVin,
+                attribution_status: "matched_vin",
                 charger_type: session.sessionType || null,
                 chargeStartDateTime: session.chargeStartDateTime || session.charge_start_date_time || session.startDateTime || null,
                 chargeStopDateTime: session.chargeStopDateTime || session.charge_stop_date_time || session.endDateTime || null,

@@ -877,11 +877,24 @@ Deno.serve(async (req) => {
             }
 
              const sessionKwh = Number(directKwh || kwhFromFees || 0);
-            totalChargingKwh += sessionKwh;
-            totalSessions++;
 
             // Collect per-session detail for charging_sessions table
             if (sessionKwh > 0) {
+              // Attribute this session only when Tesla gives us a VIN that
+              // belongs to this account. Never fall back to the first car —
+              // that is what made ZenX/TesYto inherit each other's kWh.
+              const sessionVin = extractChargingSessionVin(session, knownVins);
+              if (!sessionVin) {
+                const rawVin = session.vin || session.VIN || session.vehicleVin || session.vehicle_vin || null;
+                console.warn("Skipping Tesla charging session with unmatched VIN", {
+                  rawVin,
+                  knownVins: Array.from(knownVins),
+                  energyKwh: sessionKwh,
+                  start: session.chargeStartDateTime || session.charge_start_date_time || session.startDateTime || null,
+                });
+                continue;
+              }
+
               const sessionDate = session.chargeStartDateTime || session.charge_start_date_time || session.startDateTime || session.sessionStartTime;
               const dateStr = sessionDate ? String(sessionDate).split("T")[0] : null;
               if (dateStr && dateStr.length === 10) {
@@ -903,6 +916,9 @@ Deno.serve(async (req) => {
                   : 0;
                 const chargingType = classifyChargingType(location, homeAddress, totalFee, session.sessionType || session.chargerType || "", sessionKwh, durMin);
                 
+                totalChargingKwh += sessionKwh;
+                totalSessions++;
+
                 // Track home vs supercharger kWh from billing API
                 if (chargingType === 'home') {
                   billingHomeChargingKwh += sessionKwh;
@@ -910,20 +926,14 @@ Deno.serve(async (req) => {
                   billingSuperchargerKwh += sessionKwh;
                 }
 
-                // Attribute this session only when Tesla gives us a VIN that
-                // belongs to this account. Never fall back to the first car —
-                // that is what made ZenX/TesYto inherit each other's kWh.
-                const sessionVin = extractChargingSessionVin(session, knownVins);
-                if (sessionVin) {
-                  if (!perVinTotals[sessionVin]) perVinTotals[sessionVin] = { home: 0, supercharger: 0 };
-                  if (chargingType === 'home') perVinTotals[sessionVin].home += sessionKwh;
-                  else perVinTotals[sessionVin].supercharger += sessionKwh;
-                }
+                if (!perVinTotals[sessionVin]) perVinTotals[sessionVin] = { home: 0, supercharger: 0 };
+                if (chargingType === 'home') perVinTotals[sessionVin].home += sessionKwh;
+                else perVinTotals[sessionVin].supercharger += sessionKwh;
 
                 chargingSessionDetails.push({
                   user_id: targetUserId,
                   provider: "tesla",
-                  device_id: sessionVin || "unknown",
+                  device_id: sessionVin,
                   session_date: dateStr,
                   energy_kwh: sessionKwh,
                   location: location,
@@ -931,8 +941,8 @@ Deno.serve(async (req) => {
                   fee_currency: totalFee > 0 ? feeCurrency : null,
                   charging_type: chargingType,
                   session_metadata: {
-                    vin: sessionVin || session.vin || session.VIN || session.vehicleVin || session.vehicle_vin || null,
-                    attribution_status: sessionVin ? "matched_vin" : "unmatched_vin",
+                    vin: sessionVin,
+                    attribution_status: "matched_vin",
                     charger_type: session.sessionType || session.chargerType || null,
                     chargeStartDateTime: session.chargeStartDateTime || session.charge_start_date_time || session.startDateTime || null,
                     chargeStopDateTime: session.chargeStopDateTime || session.charge_stop_date_time || session.endDateTime || null,
