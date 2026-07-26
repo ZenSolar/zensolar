@@ -63,9 +63,10 @@ export function ZenDriveLiveCard({ alwaysRender = false, deviceIndex = 0 }: ZenD
   const battery = useBatteryTelemetry();
   const solar = useSolarTelemetry();
   const primaryEv = ev.data[deviceIndex];
-  // Scope charging totals to THIS vehicle so multi-car households see per-car
-  // Home & AC / Supercharging kWh instead of a shared household total.
-  const evTotals = useEVTotals(1, primaryEv?.device_id);
+  // Scope charging totals to THIS vehicle (site_id holds the VIN) so multi-car
+  // households see per-car Home & AC / Supercharging kWh instead of a shared total.
+  const evTotals = useEVTotals(1, primaryEv?.site_id);
+
   const [refreshing, setRefreshing] = useState(false);
   const tileRef = useRef<HTMLDivElement | null>(null);
   const [ping, setPing] = useState(false);
