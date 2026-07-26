@@ -12,7 +12,7 @@ const TESLA_API_BASE = "https://fleet-api.prd.na.vn.cloud.tesla.com";
 
 type TeslaDevice = {
   device_id: string;
-  device_type: "vehicle" | "powerwall" | "solar";
+  device_type: "vehicle" | "powerwall" | "solar" | "wall_connector";
   device_name: string;
   metadata: Record<string, unknown>;
 };
@@ -53,9 +53,12 @@ async function fetchTeslaDevices(accessToken: string): Promise<TeslaDevice[]> {
       if (!p.energy_site_id && !p.resource_type) continue;
       const siteId = p.energy_site_id;
       if (!siteId) continue;
+      const rt = String(p.resource_type || "").toLowerCase();
+      const mappedType: "powerwall" | "solar" | "wall_connector" =
+        rt === "battery" ? "powerwall" : rt === "wall_connector" ? "wall_connector" : "solar";
       devices.push({
         device_id: String(siteId),
-        device_type: p.resource_type === "battery" ? "powerwall" : "solar",
+        device_type: mappedType,
         device_name: p.site_name || `Tesla ${p.resource_type || "Energy"}`,
         metadata: {
           site_id: siteId,

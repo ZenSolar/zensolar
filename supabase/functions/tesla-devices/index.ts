@@ -170,15 +170,20 @@ Deno.serve(async (req) => {
           odometer: v.odometer || null, // Will be populated if vehicle was online
         },
       })),
-      ...energySites.map((s: any) => ({
-        device_id: String(s.energy_site_id),
-        device_type: s.resource_type === "battery" ? "powerwall" : "solar",
-        device_name: s.site_name || `Tesla ${s.resource_type}`,
-        metadata: {
-          site_id: s.energy_site_id,
-          resource_type: s.resource_type,
-        },
-      })),
+      ...energySites.map((s: any) => {
+        const rt = String(s.resource_type || "").toLowerCase();
+        const mappedType =
+          rt === "battery" ? "powerwall" : rt === "wall_connector" ? "wall_connector" : "solar";
+        return {
+          device_id: String(s.energy_site_id),
+          device_type: mappedType,
+          device_name: s.site_name || `Tesla ${s.resource_type}`,
+          metadata: {
+            site_id: s.energy_site_id,
+            resource_type: s.resource_type,
+          },
+        };
+      }),
     ];
 
     // Check which devices are already claimed
