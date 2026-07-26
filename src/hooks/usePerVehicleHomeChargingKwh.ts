@@ -4,6 +4,51 @@ import { supabase } from '@/integrations/supabase/client';
 import { useViewAsUserId } from '@/hooks/useViewAsUserId';
 import { useAuth } from '@/hooks/useAuth';
 
+type HomeChargingKwhRow = {
+  id: string;
+  start_time: string;
+  end_time: string | null;
+  status: string | null;
+  total_session_kwh: number | null;
+  session_metadata: Record<string, unknown> | null;
+};
+
+const OVERLAP_CONTINUATION_WINDOW_MS = 90 * 60 * 1000;
+
+function toMs(value: string | null | undefined): number | null {
+  if (!value) return null;
+  const ms = new Date(value).getTime();
+  return Number.isFinite(ms) ? ms : null;
+}
+
+function sessionKwh(row: HomeChargingKwhRow): number {
+  return Number(row.total_session_kwh || 0);
+}
+
+function isContinuationOverlap(row: HomeChargingKwhRow, active: HomeChargingKwhRow): boolean {
+  if (row.id === active.id || row.status === 'charging') return false;
+  const rowEnd = toMs(row.end_time) ?? toMs(row.start_time);
+  const activeStart = toMs(active.start_time);
+  if (rowEnd === null || activeStart === null) return false;
+
+  const gapMs = activeStart - rowEnd;
+  if (gapMs < -5 * 60 * 1000 || gapMs > OVERLAP_CONTINUATION_WINDOW_MS) return false;
+
+  const rowTotal = sessionKwh(row);
+  const activeTotal = sessionKwh(active);
+  if (rowTotal <= 0 || activeTotal + 0.5 < rowTotal) return false;
+
+  const source = String(row.session_metadata?.source || '');
+  const firstObserved = Number(active.session_metadata?.first_observed_kwh || 0);
+  return source.includes('recovered') || firstObserved <= 2 || activeTotal > rowTotal;
+}
+
+function dedupeContinuationSessions(rows: HomeChargingKwhRow[]): HomeChargingKwhRow[] {
+  const activeRows = rows.filter((row) => row.status === 'charging');
+  if (activeRows.length === 0) return rows;
+  return rows.filter((row) => !activeRows.some((active) => isContinuationOverlap(row, active)));
+}
+
 /**
  * Sum of lifetime Home & AC charging kWh for a specific vehicle (device_id / VIN),
  * pulled directly from `home_charging_sessions` — the authoritative live tracker.
@@ -41,11 +86,12 @@ export function usePerVehicleHomeChargingKwh(deviceId?: string) {
       if (!effectiveUserId || !deviceId) return 0;
       const { data, error } = await supabase
         .from('home_charging_sessions')
-        .select('total_session_kwh')
+        .select('id, start_time, end_time, status, total_session_kwh, session_metadata')
         .eq('user_id', effectiveUserId)
         .eq('device_id', deviceId);
       if (error) return 0;
-      return (data ?? []).reduce((sum, s: any) => sum + Number(s.total_session_kwh || 0), 0);
+      return dedupeContinuationSessions((data ?? []) as HomeChargingKwhRow[])
+        .reduce((sum, row) => sum + sessionKwh(row), 0);
     },
     refetchInterval: 20_000,
   });
