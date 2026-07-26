@@ -782,17 +782,13 @@ export function ActivityMetrics({
                     const pendingKwh = Math.floor(device.pendingChargingKwh || 0);
                     const label = `${device.deviceName} Home & AC Charging`;
                     const field = (
-                      <ActivityField
+                      <PerVehicleHomeChargingTile
                         key={`hc-${device.deviceId}`}
-                        icon={Zap}
+                        deviceId={device.deviceId}
                         label={label}
-                        value={pendingKwh}
-                        unit="kWh"
-                        color="greenGold"
-                        active={pendingKwh > 0}
+                        pendingKwh={pendingKwh}
                         isLoading={isLoading}
-                        liveIndicator={isCharging}
-                        onTap={pendingKwh > 0 ? () => openSheet({
+                        onOpen={() => openSheet({
                           category: 'home_charger',
                           deviceId: device.deviceId,
                           deviceName: device.deviceName,
@@ -800,7 +796,7 @@ export function ActivityMetrics({
                           unit: 'kWh',
                           pending: pendingKwh,
                           accent: 'solar',
-                        }) : undefined}
+                        })}
                       />
                     );
                     return index === 0 && onHideField ? (
