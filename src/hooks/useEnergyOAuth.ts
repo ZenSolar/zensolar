@@ -35,6 +35,17 @@ function resolveOAuthOrigin(): string {
   return window.location.origin;
 }
 const REDIRECT_URI = `${resolveOAuthOrigin()}/oauth/callback`;
+const TESLA_OAUTH_RETURN_TO_KEY = 'tesla_oauth_return_to';
+
+type TeslaOAuthOptions = {
+  returnTo?: string;
+};
+
+function sanitizeReturnPath(path?: string): string | null {
+  if (!path) return null;
+  if (!path.startsWith('/') || path.startsWith('//')) return null;
+  return path;
+}
 
 const PROVIDER_LABEL: Record<string, string> = {
   tesla: 'Tesla',
@@ -206,10 +217,16 @@ function extractError(response: { error?: { message?: string }; data?: { error?:
 }
 
 export function useEnergyOAuth() {
-  const startTeslaOAuth = useCallback(async (): Promise<void> => {
+  const startTeslaOAuth = useCallback(async (options?: TeslaOAuthOptions): Promise<void> => {
     try {
       // Clear any stale OAuth state first
       localStorage.removeItem('tesla_oauth_state');
+      const returnTo = sanitizeReturnPath(options?.returnTo);
+      if (returnTo) {
+        localStorage.setItem(TESLA_OAUTH_RETURN_TO_KEY, returnTo);
+      } else {
+        localStorage.removeItem(TESLA_OAUTH_RETURN_TO_KEY);
+      }
 
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
