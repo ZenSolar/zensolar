@@ -1408,11 +1408,24 @@ Deno.serve(async (req) => {
         earliestFsdSince = firstSampleAt;
       }
 
+      // Per-VIN charging totals from this sync (billing sessions attributed by VIN).
+      // Falls back to preserving the previous value if this VIN had no sessions
+      // in the current page (avoids zeroing a vehicle mid-pagination).
+      const vinKey = String(vehicle.vin || "").toUpperCase();
+      const vinTotals = perVinTotals[vinKey];
+      const vinHomeKwh = vinTotals
+        ? vinTotals.home + (wallConnectorKwh || 0) / Math.max(1, vehiclesData.length) // WC telemetry is site-wide; split evenly across vehicles as a proxy
+        : Number(prevLifetime.charging_kwh || 0);
+      const vinSuperchargerKwh = vinTotals
+        ? vinTotals.supercharger
+        : Number(prevLifetime.supercharger_kwh || 0);
+
       const updateData: any = {
         lifetime_totals: {
           ...prevLifetime,
           odometer: vehicle.odometer,
-          charging_kwh: totalEvChargingKwh, // Total charging across all vehicles
+          charging_kwh: vinHomeKwh,           // Per-VIN Home & AC
+          supercharger_kwh: vinSuperchargerKwh, // Per-VIN Supercharging
           // Preserve telemetry-written FSD watermark when not overridden by official.
           lifetime_fsd_miles: lifetimeFsdMiles,
           updated_at: new Date().toISOString(),
