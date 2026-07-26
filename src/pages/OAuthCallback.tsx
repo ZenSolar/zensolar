@@ -6,9 +6,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { BrandSplash } from '@/components/ui/BrandSplash';
 import { Button } from '@/components/ui/button';
 
-// Module-level flag to survive component remounts during the same page session
-// Track which code was processed to allow retries with new codes
-let moduleProcessedCode: string | null = null;
 const TESLA_OAUTH_RETURN_TO_KEY = 'tesla_oauth_return_to';
 
 function consumeSafeReturnPath(): string | null {
@@ -30,6 +27,20 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
       (err) => { clearTimeout(timer); reject(err); }
     );
   });
+}
+
+async function autoClaimTeslaDevices(accessToken: string): Promise<number> {
+  const { data, error } = await supabase.functions.invoke('tesla-auth', {
+    body: { action: 'auto-claim-devices' },
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+
+  if (error) {
+    console.warn('[OAuthCallback] Tesla auto-claim failed:', error);
+    return 0;
+  }
+
+  return Number(data?.autoClaim?.claimed?.length || 0);
 }
 
 export default function OAuthCallback() {
@@ -204,11 +215,16 @@ export default function OAuthCallback() {
       }
 
       if (tokensFound) {
-        // Note: previously we short-circuited to a saved returnTo path on
-        // reconnect, but that skipped device discovery/claim and left the
-        // dashboard empty. Always fall through to device-selection so
-        // vehicles / Powerwall / solar get (re)claimed after a token refresh.
-        consumeSafeReturnPath();
+        const claimedCount = session.access_token
+          ? await autoClaimTeslaDevices(session.access_token)
+          : 0;
+        const safeReturnPath = consumeSafeReturnPath();
+        if (claimedCount > 0) {
+          setStatus('success');
+          window.location.href = safeReturnPath || '/';
+          return;
+        }
+
         const isBetaFlow = localStorage.getItem('beta_energy_flow') === 'true';
         const isOnboardingFlow = localStorage.getItem('onboarding_energy_flow') === 'true';
         localStorage.removeItem('onboarding_energy_flow');
@@ -308,27 +324,21 @@ export default function OAuthCallback() {
   };
 
   useEffect(() => {
-    const currentCode = searchParams.get('code');
-    
     const handleCallback = async () => {
-      // Prevent double-processing across both re-renders AND remounts
-      // But allow processing if a NEW code arrives (e.g. retry with fresh OAuth)
-      if (hasProcessed.current || (moduleProcessedCode && moduleProcessedCode === currentCode)) {
+      // Prevent duplicate processing inside this mounted instance only.
+      // Do not use a module-level processed-code guard here: iOS/PWA + React
+      // remounts can leave the second mounted instance on the splash forever
+      // while the first unmounted instance owns the async state updates.
+      if (hasProcessed.current) {
         console.log('[OAuthCallback] Already processed this code, skipping');
         return;
       }
       hasProcessed.current = true;
-      moduleProcessedCode = currentCode;
 
       await processCallback();
     };
 
     handleCallback();
-
-    // Reset module flag when component fully unmounts (navigated away)
-    return () => {
-      setTimeout(() => { moduleProcessedCode = null; }, 2000);
-    };
   }, [searchParams, exchangeTeslaCode, exchangeEnphaseCode]);
 
   const handleDeviceSelectionComplete = () => {
@@ -344,7 +354,6 @@ export default function OAuthCallback() {
   const handleRetry = () => {
     // Reset flags and hard-redirect to trigger a fresh attempt
     hasProcessed.current = false;
-    moduleProcessedCode = null;
     window.location.href = '/onboarding';
   };
 

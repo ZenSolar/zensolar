@@ -8,6 +8,144 @@ const corsHeaders = {
 const TESLA_AUTH_URL = "https://auth.tesla.com/oauth2/v3/authorize";
 const TESLA_TOKEN_URL = "https://fleet-auth.prd.vn.cloud.tesla.com/oauth2/v3/token";
 const TESLA_AUDIENCE = "https://fleet-api.prd.na.vn.cloud.tesla.com";
+const TESLA_API_BASE = "https://fleet-api.prd.na.vn.cloud.tesla.com";
+
+type TeslaDevice = {
+  device_id: string;
+  device_type: "vehicle" | "powerwall" | "solar";
+  device_name: string;
+  metadata: Record<string, unknown>;
+};
+
+async function fetchTeslaDevices(accessToken: string): Promise<TeslaDevice[]> {
+  const devices: TeslaDevice[] = [];
+
+  const vehiclesResponse = await fetch(`${TESLA_API_BASE}/api/1/vehicles`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+
+  if (vehiclesResponse.ok) {
+    const vehiclesData = await vehiclesResponse.json();
+    for (const v of vehiclesData.response || []) {
+      if (!v.vin) continue;
+      devices.push({
+        device_id: String(v.vin),
+        device_type: "vehicle",
+        device_name: v.display_name || v.vehicle_type || "Tesla Vehicle",
+        metadata: {
+          vin: v.vin,
+          model: v.vehicle_type,
+          state: v.state,
+        },
+      });
+    }
+  } else {
+    console.warn("Tesla vehicle discovery failed:", await vehiclesResponse.text());
+  }
+
+  const productsResponse = await fetch(`${TESLA_API_BASE}/api/1/products`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+
+  if (productsResponse.ok) {
+    const productsData = await productsResponse.json();
+    for (const p of productsData.response || []) {
+      if (!p.energy_site_id && !p.resource_type) continue;
+      const siteId = p.energy_site_id;
+      if (!siteId) continue;
+      devices.push({
+        device_id: String(siteId),
+        device_type: p.resource_type === "battery" ? "powerwall" : "solar",
+        device_name: p.site_name || `Tesla ${p.resource_type || "Energy"}`,
+        metadata: {
+          site_id: siteId,
+          resource_type: p.resource_type,
+        },
+      });
+    }
+  } else {
+    console.warn("Tesla product discovery failed:", await productsResponse.text());
+  }
+
+  const unique = new Map<string, TeslaDevice>();
+  for (const device of devices) unique.set(`${device.device_type}:${device.device_id}`, device);
+  return Array.from(unique.values());
+}
+
+function baselineForDevice(device: TeslaDevice) {
+  const captured_at = new Date().toISOString();
+  if (device.device_type === "vehicle") {
+    return {
+      captured_at,
+      odometer: 0,
+      last_known_odometer: 0,
+      total_charge_energy_added_kwh: 0,
+    };
+  }
+
+  return {
+    captured_at,
+    total_energy_discharged_wh: 0,
+    total_solar_produced_wh: 0,
+  };
+}
+
+async function autoClaimTeslaDevices(supabaseClient: any, userId: string, accessToken: string) {
+  const devices = await fetchTeslaDevices(accessToken);
+  const claimed: string[] = [];
+  const alreadyClaimed: string[] = [];
+  const errors: string[] = [];
+
+  for (const device of devices) {
+    const { data: existing, error: existingError } = await supabaseClient
+      .from("connected_devices")
+      .select("user_id")
+      .eq("provider", "tesla")
+      .eq("device_id", device.device_id)
+      .maybeSingle();
+
+    if (existingError) {
+      console.warn("Tesla auto-claim lookup failed:", existingError);
+    }
+
+    if (existing) {
+      if (existing.user_id === userId) {
+        claimed.push(device.device_id);
+      } else {
+        alreadyClaimed.push(device.device_id);
+      }
+      continue;
+    }
+
+    const { error: insertError } = await supabaseClient.from("connected_devices").insert({
+      user_id: userId,
+      provider: "tesla",
+      device_id: device.device_id,
+      device_type: device.device_type,
+      device_name: device.device_name,
+      device_metadata: device.metadata,
+      baseline_data: baselineForDevice(device),
+    });
+
+    if (insertError) {
+      console.error("Tesla auto-claim insert failed:", insertError);
+      errors.push(device.device_id);
+    } else {
+      claimed.push(device.device_id);
+    }
+  }
+
+  if (claimed.length > 0) {
+    const { error: profileError } = await supabaseClient
+      .from("profiles")
+      .update({ tesla_connected: true, updated_at: new Date().toISOString() })
+      .eq("user_id", userId);
+
+    if (profileError) console.error("Tesla auto-claim profile update failed:", profileError);
+  }
+
+  return { discovered: devices.length, claimed, alreadyClaimed, errors };
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -144,11 +282,18 @@ Deno.serve(async (req) => {
         console.error("Failed to store Tesla tokens:", tokenStoreError);
       }
 
-      // Note: Don't mark tesla_connected here - that happens when devices are claimed
+      const autoClaimResult = await autoClaimTeslaDevices(supabaseClient, user.id, tokens.access_token).catch((error) => {
+        console.error("Tesla auto-claim failed:", error);
+        return { discovered: 0, claimed: [], alreadyClaimed: [], errors: ["auto_claim_failed"] };
+      });
+
       return new Response(JSON.stringify({ 
         success: true, 
-        message: "Tesla authorization successful - please select your devices",
-        needsDeviceSelection: true,
+        message: autoClaimResult.claimed.length > 0
+          ? "Tesla authorization successful - devices connected"
+          : "Tesla authorization successful - please select your devices",
+        needsDeviceSelection: autoClaimResult.claimed.length === 0,
+        autoClaim: autoClaimResult,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -158,14 +303,52 @@ Deno.serve(async (req) => {
     if (action === "check-tokens") {
       const { data: tokenCheck } = await supabaseClient
         .from("energy_tokens")
-        .select("id, provider")
+        .select("id, provider, access_token")
         .eq("user_id", user.id)
         .eq("provider", "tesla")
         .maybeSingle();
 
+      let autoClaim = null;
+      if (tokenCheck?.access_token) {
+        const { count } = await supabaseClient
+          .from("connected_devices")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", user.id)
+          .eq("provider", "tesla");
+
+        if (!count || count === 0) {
+          autoClaim = await autoClaimTeslaDevices(supabaseClient, user.id, tokenCheck.access_token).catch((error) => {
+            console.error("Tesla check-tokens auto-claim failed:", error);
+            return { discovered: 0, claimed: [], alreadyClaimed: [], errors: ["auto_claim_failed"] };
+          });
+        }
+      }
+
       return new Response(JSON.stringify({ 
         exists: !!tokenCheck,
+        autoClaim,
       }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (action === "auto-claim-devices") {
+      const { data: tokenData, error: tokenError } = await supabaseClient
+        .from("energy_tokens")
+        .select("access_token")
+        .eq("user_id", user.id)
+        .eq("provider", "tesla")
+        .maybeSingle();
+
+      if (tokenError || !tokenData?.access_token) {
+        return new Response(JSON.stringify({ error: "Tesla not connected" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const autoClaim = await autoClaimTeslaDevices(supabaseClient, user.id, tokenData.access_token);
+      return new Response(JSON.stringify({ success: true, autoClaim }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
