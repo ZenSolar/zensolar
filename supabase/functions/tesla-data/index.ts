@@ -882,10 +882,20 @@ Deno.serve(async (req) => {
                   billingSuperchargerKwh += sessionKwh;
                 }
 
+                // Attribute this session to a specific VIN so per-vehicle
+                // tiles (ZenX vs TesYto) reflect their own charging.
+                const rawVin = String(session.vin || "").toUpperCase();
+                const sessionVin = knownVins.has(rawVin)
+                  ? rawVin
+                  : (vehicleDevices[0]?.device_id || vehicleDevices[0]?.id || "unknown");
+                if (!perVinTotals[sessionVin]) perVinTotals[sessionVin] = { home: 0, supercharger: 0 };
+                if (chargingType === 'home') perVinTotals[sessionVin].home += sessionKwh;
+                else perVinTotals[sessionVin].supercharger += sessionKwh;
+
                 chargingSessionDetails.push({
                   user_id: targetUserId,
                   provider: "tesla",
-                  device_id: vehicleDevices[0]?.id || "unknown",
+                  device_id: sessionVin,
                   session_date: dateStr,
                   energy_kwh: sessionKwh,
                   location: location,
