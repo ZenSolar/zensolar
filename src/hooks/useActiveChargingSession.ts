@@ -13,18 +13,18 @@ import { useAuth } from '@/hooks/useAuth';
  * `useWeb3Ready` guard caused "Rendered fewer hooks than expected" crashes
  * when Web3 finished loading mid-mount.
  */
-export function useActiveChargingSession() {
+export function useActiveChargingSession(deviceId?: string) {
   const viewAsUserId = useViewAsUserId();
   const { user } = useAuth();
   const effectiveUserId = viewAsUserId ?? user?.id ?? null;
   const queryClient = useQueryClient();
-  const queryKey = ['active-charging-session', effectiveUserId];
+  const queryKey = ['active-charging-session', effectiveUserId, deviceId ?? null];
 
   // Realtime: invalidate instantly whenever any home_charging_session row changes
   useEffect(() => {
     if (!effectiveUserId) return;
     const channel = supabase
-      .channel(`active-charging-session-realtime-${effectiveUserId}`)
+      .channel(`active-charging-session-realtime-${effectiveUserId}-${deviceId ?? 'all'}`)
       .on(
         'postgres_changes',
         {
@@ -41,7 +41,7 @@ export function useActiveChargingSession() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [effectiveUserId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [effectiveUserId, deviceId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return useQuery({
     queryKey,
@@ -49,12 +49,15 @@ export function useActiveChargingSession() {
     queryFn: async () => {
       if (!effectiveUserId) return false;
 
-      const { data, error } = await supabase
+      let q = supabase
         .from('home_charging_sessions')
         .select('id')
         .eq('user_id', effectiveUserId)
         .eq('status', 'charging')
         .limit(1);
+      if (deviceId) q = q.eq('device_id', deviceId);
+
+      const { data, error } = await q;
 
       if (error) return false;
       return (data?.length ?? 0) > 0;
