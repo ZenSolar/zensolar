@@ -22,7 +22,22 @@ function trackConnectSuccess(provider: Provider) {
 }
 
 
-const REDIRECT_URI = `${window.location.origin}/oauth/callback`;
+// Tesla (and other providers) only whitelist specific redirect URIs. The
+// Lovable sandbox preview host (*.lovableproject.com) is NOT registered and
+// also blocks being embedded/redirected back into (ERR_BLOCKED_BY_RESPONSE),
+// so we pin the redirect origin to a registered production host whenever we
+// detect a sandbox/preview origin.
+function resolveOAuthOrigin(): string {
+  const origin = window.location.origin;
+  const host = window.location.hostname;
+  const isSandbox =
+    host.endsWith('.lovableproject.com') ||
+    host.endsWith('.lovable.app') ||
+    host === 'localhost' ||
+    host === '127.0.0.1';
+  return isSandbox ? 'https://zensolar.com' : origin;
+}
+const REDIRECT_URI = `${resolveOAuthOrigin()}/oauth/callback`;
 
 const PROVIDER_LABEL: Record<string, string> = {
   tesla: 'Tesla',
