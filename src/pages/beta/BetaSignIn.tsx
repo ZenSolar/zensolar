@@ -171,7 +171,7 @@ export default function BetaSignIn() {
       </h1>
       <p className="text-[14px] qc-muted mb-8">
         {mode === 'forgot' ? "We'll email you a link to set a new password."
-          : mode === 'verify' ? `We sent a code to ${email || 'your email'}. Enter it below to confirm your account.`
+          : mode === 'verify' ? `We sent a 6-character code to ${email || 'your email'}. Enter it below to confirm your account.`
           : mode === 'signup' ? 'Use your email and a password to get started.'
           : 'Sign in with your email and password.'}
       </p>
