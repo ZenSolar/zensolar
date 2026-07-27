@@ -417,13 +417,50 @@ Deno.serve(async (req) => {
           access_token: tokens.access_token,
           refresh_token: tokens.refresh_token || null,
           expires_at: expiresAt,
-          extra_data: { granted_scope: grantedScope },
+      const hasRefreshToken = !!tokens.refresh_token;
+      const grantedScope: string = typeof tokens.scope === "string" ? tokens.scope : "";
+      const scopeCheck = classifyMissingScopes(grantedScope, hasRefreshToken);
+      console.log("[tesla-auth] exchange-code:scope-check", scopeCheck);
+
+      // Read prior counter so we can increment or reset it atomically in one upsert.
+      const { data: priorRow } = await supabaseClient
+        .from("energy_tokens")
+        .select("extra_data")
+        .eq("user_id", exchangeUserId)
+        .eq("provider", "tesla")
+        .maybeSingle();
+      const priorAttempts = Number(
+        (priorRow?.extra_data as { no_refresh_token_attempts?: unknown } | null)?.no_refresh_token_attempts ?? 0,
+      ) || 0;
+      const noRefreshAttempts = hasRefreshToken ? 0 : priorAttempts + 1;
+
+      // Shape documented in docs/tokenomics/granted-scope-shape.md — do not drop
+      // fields without updating that doc and any downstream cohort queries.
+      const extraData = {
+        granted_scope: grantedScope,
+        granted_at: new Date().toISOString(),
+        has_refresh_token: hasRefreshToken,
+        no_refresh_token_attempts: noRefreshAttempts,
+      };
+
+      const { error: tokenStoreError } = await supabaseClient
+        .from("energy_tokens")
+        .upsert({
+          user_id: exchangeUserId,
+          provider: "tesla",
+          access_token: tokens.access_token,
+          refresh_token: tokens.refresh_token || null,
+          expires_at: expiresAt,
+          extra_data: extraData,
         }, { onConflict: "user_id,provider" });
 
       if (tokenStoreError) {
         console.error("[tesla-auth] exchange-code:token-store-failed", tokenStoreError);
       } else {
-        console.log("[tesla-auth] exchange-code:token-store-ok", { userId: exchangeUserId });
+        console.log("[tesla-auth] exchange-code:token-store-ok", {
+          userId: exchangeUserId,
+          noRefreshAttempts,
+        });
       }
 
       if (typeof state === "string") {
@@ -453,6 +490,9 @@ Deno.serve(async (req) => {
         blocking_scopes: scopeCheck.blocking,
         degraded_scopes: scopeCheck.degraded,
         scope_severity: scopeCheck.severity,
+        has_refresh_token: hasRefreshToken,
+        no_refresh_token: scopeCheck.no_refresh_token,
+        no_refresh_token_attempts: noRefreshAttempts,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
