@@ -23,7 +23,7 @@ export default function BetaResume() {
       // Existing-user short circuit: if they have any real footprint, go
       // straight to the dashboard instead of forcing onboarding.
       const [{ data: profile }, { count: deviceCount }] = await Promise.all([
-        supabase.from('profiles').select('wallet_address, beta_flow_step').eq('id', user.id).maybeSingle(),
+        supabase.from('profiles').select('wallet_address, beta_flow_step').eq('user_id', user.id).maybeSingle(),
         supabase.from('connected_devices').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
       ]);
       const savedStep = (profile?.beta_flow_step ?? flow.step) as string | null;

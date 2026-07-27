@@ -2787,6 +2787,36 @@ export type Database = {
         }
         Relationships: []
       }
+      tesla_oauth_states: {
+        Row: {
+          consumed_at: string | null
+          created_at: string
+          expires_at: string
+          redirect_uri: string
+          return_to: string | null
+          state: string
+          user_id: string
+        }
+        Insert: {
+          consumed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          redirect_uri: string
+          return_to?: string | null
+          state: string
+          user_id: string
+        }
+        Update: {
+          consumed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          redirect_uri?: string
+          return_to?: string | null
+          state?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       tokenomics_archive: {
         Row: {
           allocations: Json

@@ -101,7 +101,7 @@ export default function BetaTesla() {
     // Show a neutral sync state while OAuth opens and device discovery completes.
     // Tesla key pairing is not part of onboarding and should not be requested here.
     setPhase('connecting');
-    await startTeslaOAuth();
+    await startTeslaOAuth({ returnTo: '/onboarding/tesla' });
   };
 
 
@@ -113,14 +113,14 @@ export default function BetaTesla() {
     await flow.setStatus(patch);
     const next = computeNextStep(flow.selections, { ...flow.status, ...patch });
     await flow.setStep(next);
-    navigate(`/beta/${next}`);
+    navigate(`/onboarding/${next}`);
   };
 
   const cont = async () => {
     const effectiveStatus = { ...flow.status, ...detectedStatus };
     const next = computeNextStep(flow.selections, effectiveStatus);
     await flow.setStep(next);
-    navigate(`/beta/${next}`);
+    navigate(`/onboarding/${next}`);
   };
 
   if (phase === 'consent') {

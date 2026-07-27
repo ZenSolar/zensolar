@@ -82,8 +82,15 @@ export function useBetaFlow(): BetaFlow {
     const { data } = await supabase
       .from('profiles')
       .select('beta_flow_step, beta_home_selections, beta_status, beta_invite_token')
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .maybeSingle();
+    if (!data) {
+      await supabase
+        .from('profiles')
+        .insert({ user_id: user.id, display_name: user.user_metadata?.display_name ?? null })
+        .select('beta_flow_step')
+        .maybeSingle();
+    }
     setStepState((data?.beta_flow_step as BetaStep) ?? 'home');
     setSelectionsState((data?.beta_home_selections as BetaHomeSelections) ?? {});
     setStatusState((data?.beta_status as BetaStatus) ?? {});
@@ -100,26 +107,26 @@ export function useBetaFlow(): BetaFlow {
   const setStep = useCallback(async (next: BetaStep) => {
     setStepState(next);
     if (!userId) return;
-    await supabase.from('profiles').update({ beta_flow_step: next }).eq('id', userId);
+    await supabase.from('profiles').update({ beta_flow_step: next }).eq('user_id', userId);
   }, [userId]);
 
   const setSelections = useCallback(async (sel: BetaHomeSelections) => {
     setSelectionsState(sel);
     if (!userId) return;
-    await supabase.from('profiles').update({ beta_home_selections: JSON.parse(JSON.stringify(sel)) }).eq('id', userId);
+    await supabase.from('profiles').update({ beta_home_selections: JSON.parse(JSON.stringify(sel)) }).eq('user_id', userId);
   }, [userId]);
 
   const setStatus = useCallback(async (patch: BetaStatus) => {
     const merged = { ...status, ...patch };
     setStatusState(merged);
     if (!userId) return;
-    await supabase.from('profiles').update({ beta_status: JSON.parse(JSON.stringify(merged)) }).eq('id', userId);
+    await supabase.from('profiles').update({ beta_status: JSON.parse(JSON.stringify(merged)) }).eq('user_id', userId);
   }, [status, userId]);
 
   const setInviteToken = useCallback(async (token: string | null) => {
     setInviteTokenState(token);
     if (!userId) return;
-    await supabase.from('profiles').update({ beta_invite_token: token }).eq('id', userId);
+    await supabase.from('profiles').update({ beta_invite_token: token }).eq('user_id', userId);
   }, [userId]);
 
   return { loading, step, selections, status, inviteToken, refresh: load, setStep, setSelections, setStatus, setInviteToken };

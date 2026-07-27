@@ -39,7 +39,7 @@ export default function BetaVerify() {
     if (user) {
       const update: Record<string, unknown> = { beta_flow_step: 'home' };
       if (invite) update.beta_invite_token = invite;
-      await supabase.from('profiles').update(update).eq('id', user.id);
+      await supabase.from('profiles').update(update).eq('user_id', user.id);
       if (invite) {
         await supabase.from('beta_invites').update({ consumed_by: user.id, consumed_at: new Date().toISOString() }).eq('token', invite).is('consumed_by', null);
       }

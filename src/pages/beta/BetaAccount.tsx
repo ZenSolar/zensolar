@@ -29,7 +29,7 @@ export default function BetaAccount() {
     if (address) {
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        if (user) await supabase.from('profiles').update({ wallet_address: address }).eq('id', user.id);
+        if (user) await supabase.from('profiles').update({ wallet_address: address }).eq('user_id', user.id);
       } catch { /* self-heal handles it later */ }
     }
   };
