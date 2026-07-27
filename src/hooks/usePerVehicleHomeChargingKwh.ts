@@ -25,28 +25,27 @@ function sessionKwh(row: HomeChargingKwhRow): number {
   return Number(row.total_session_kwh || 0);
 }
 
-function isContinuationOverlap(row: HomeChargingKwhRow, active: HomeChargingKwhRow): boolean {
-  if (row.id === active.id || row.status === 'charging') return false;
-  const rowEnd = toMs(row.end_time) ?? toMs(row.start_time);
-  const activeStart = toMs(active.start_time);
-  if (rowEnd === null || activeStart === null) return false;
+function isContinuationOverlap(earlier: HomeChargingKwhRow, later: HomeChargingKwhRow): boolean {
+  if (earlier.id === later.id || earlier.status === 'charging') return false;
+  const earlierEnd = toMs(earlier.end_time) ?? toMs(earlier.start_time);
+  const laterStart = toMs(later.start_time);
+  if (earlierEnd === null || laterStart === null) return false;
 
-  const gapMs = activeStart - rowEnd;
+  const gapMs = laterStart - earlierEnd;
   if (gapMs < -5 * 60 * 1000 || gapMs > OVERLAP_CONTINUATION_WINDOW_MS) return false;
 
-  const rowTotal = sessionKwh(row);
-  const activeTotal = sessionKwh(active);
-  if (rowTotal <= 0 || activeTotal + 0.5 < rowTotal) return false;
+  const earlierTotal = sessionKwh(earlier);
+  const laterTotal = sessionKwh(later);
+  if (earlierTotal <= 0 || laterTotal + 0.5 < earlierTotal) return false;
 
-  const source = String(row.session_metadata?.source || '');
-  const firstObserved = Number(active.session_metadata?.first_observed_kwh || 0);
-  return source.includes('recovered') || firstObserved <= 2 || activeTotal > rowTotal;
+  const earlierSource = String(earlier.session_metadata?.source || '');
+  const laterContinued = later.session_metadata?.continued_after_recovery === true;
+  const firstObserved = Number(later.session_metadata?.first_observed_kwh || 0);
+  return earlierSource.includes('recovered') || laterContinued || firstObserved <= 2 || laterTotal > earlierTotal;
 }
 
 function dedupeContinuationSessions(rows: HomeChargingKwhRow[]): HomeChargingKwhRow[] {
-  const activeRows = rows.filter((row) => row.status === 'charging');
-  if (activeRows.length === 0) return rows;
-  return rows.filter((row) => !activeRows.some((active) => isContinuationOverlap(row, active)));
+  return rows.filter((row) => !rows.some((candidate) => isContinuationOverlap(row, candidate)));
 }
 
 /**
