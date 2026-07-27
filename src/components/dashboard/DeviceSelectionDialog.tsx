@@ -306,7 +306,7 @@ export function DeviceSelectionDialog({
         </DialogHeader>
 
         
-        <div className="py-4 space-y-4">
+        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4 min-h-0">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-12 gap-3">
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
