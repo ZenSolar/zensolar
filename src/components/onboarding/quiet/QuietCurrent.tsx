@@ -48,24 +48,26 @@ export function QCProgress({ stage }: { stage: QCStage }) {
 // ─── Header ──────────────────────────────────────────────────────────────────
 export function QCHeader({ onBack, right }: { onBack?: () => void; right?: ReactNode }) {
   return (
-    <header className="flex items-center justify-between px-6 pt-6 h-14">
-      {onBack ? (
-        <button
-          onClick={onBack}
-          className="text-sm qc-muted hover:qc-text transition-colors -ml-1"
-          aria-label="Back"
-        >
-          ← Back
-        </button>
-      ) : (
-        <span className="flex-1" />
-      )}
-      <img
-        src={zenLogo}
-        alt="ZenSolar"
-        className="h-9 w-auto object-contain opacity-90"
-      />
-      <span className="flex-1 text-right">{right}</span>
+    <header className="grid grid-cols-3 items-center px-6 pt-6 h-14">
+      <div className="flex justify-start">
+        {onBack ? (
+          <button
+            onClick={onBack}
+            className="text-sm qc-muted hover:qc-text transition-colors -ml-1"
+            aria-label="Back"
+          >
+            ← Back
+          </button>
+        ) : null}
+      </div>
+      <div className="flex justify-center">
+        <img
+          src={zenLogo}
+          alt="ZenSolar"
+          className="h-9 w-auto object-contain opacity-90"
+        />
+      </div>
+      <div className="flex justify-end">{right}</div>
     </header>
   );
 }
