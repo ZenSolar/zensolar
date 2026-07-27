@@ -143,6 +143,7 @@ const BetaInvite = lazy(() => import("./pages/beta/BetaInvite"));
 const BetaResume = lazy(() => import("./pages/beta/BetaResume"));
 const BetaSignIn = lazy(() => import("./pages/beta/BetaSignIn"));
 const BetaVerify = lazy(() => import("./pages/beta/BetaVerify"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const BetaHome = lazy(() => import("./pages/beta/BetaHome"));
 const BetaTesla = lazy(() => import("./pages/beta/BetaTesla"));
 const BetaSolar = lazy(() => import("./pages/beta/BetaSolar"));
@@ -445,6 +446,7 @@ const App = () => {
                     <Route path="/yc-application" element={<Navigate to="/admin/archive/yc-application" replace />} />
                     <Route path="/a16z-speedrun" element={<Navigate to="/admin/archive/a16z-speedrun" replace />} />
                     <Route path="/oauth/callback" element={<OAuthCallback />} />
+                    <Route path="/reset-password" element={<Suspense fallback={<PageLoader />}><ResetPassword /></Suspense>} />
                     <Route path="/beta" element={<Suspense fallback={<PageLoader />}><BetaResume /></Suspense>} />
                     <Route path="/beta/i/:token" element={<Suspense fallback={<PageLoader />}><BetaInvite /></Suspense>} />
                     <Route path="/beta/signin" element={<Suspense fallback={<PageLoader />}><BetaSignIn /></Suspense>} />
