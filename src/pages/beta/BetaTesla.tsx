@@ -293,7 +293,9 @@ export default function BetaTesla() {
           missingScopes={missingScopes}
           blockingScopes={blockingScopes}
           hasEnergy={Boolean(flow.selections.solar || flow.selections.battery)}
+          noRefreshTokenAttempts={noRefreshAttempts}
           onReauthorize={start}
+          onSkip={skip}
           onContinueDegraded={blockingScopes.length === 0 ? () => setPhase('device-selection') : undefined}
         />
       </BetaShell>
