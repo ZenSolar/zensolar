@@ -34,7 +34,24 @@ function resolveOAuthOrigin(): string {
 }
 const REDIRECT_URI = `${resolveOAuthOrigin()}/oauth/callback`;
 
-const TESLA_OAUTH_RETURN_TO_KEY = 'tesla_oauth_return_to';
+export type TeslaExchangeResult =
+  | {
+      ok: true;
+      returnTo: string | null;
+      needsDeviceSelection: boolean;
+      granted_scope: string;
+      scope_severity: 'ok' | 'degraded' | 'blocking';
+      missing_scopes: string[];
+      blocking_scopes: string[];
+      degraded_scopes: string[];
+      has_refresh_token: boolean;
+      no_refresh_token_attempts: number;
+    }
+  | {
+      ok: false;
+      errorCode: 'state_expired' | 'state_consumed' | 'state_missing' | 'unknown';
+      message: string;
+    };
 
 type TeslaOAuthOptions = {
   returnTo?: string;
