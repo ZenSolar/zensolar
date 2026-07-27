@@ -10,6 +10,7 @@ import {
   type OAuthStage,
 } from '@/lib/deasonHandoff';
 import { trackEvent } from '@/hooks/useGoogleAnalytics';
+import { oauthDiag } from '@/lib/oauthDiagnostics';
 
 /** Fire a success event, attributing the connect to Deason if the user
  *  saw a seeded playbook (auto-open or nudge) in the last 5 min. */
