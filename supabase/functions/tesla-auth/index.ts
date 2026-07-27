@@ -333,11 +333,23 @@ Deno.serve(async (req) => {
           error: stateError?.message ?? null,
         });
 
-        if (stateError || !stateRow || stateRow.consumed_at || new Date(stateRow.expires_at).getTime() < Date.now()) {
-          return new Response(JSON.stringify({ error: "Authorization session expired. Please try again." }), {
-            status: 401,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
+        if (stateError || !stateRow) {
+          return new Response(JSON.stringify({
+            error: "state_missing",
+            message: "Authorization session not found. Please try again.",
+          }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        }
+        if (stateRow.consumed_at) {
+          return new Response(JSON.stringify({
+            error: "state_consumed",
+            message: "This authorization link has already been used.",
+          }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        }
+        if (new Date(stateRow.expires_at).getTime() < Date.now()) {
+          return new Response(JSON.stringify({
+            error: "state_expired",
+            message: "Authorization link expired. Please try again.",
+          }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
         }
 
         exchangeUserId = stateRow.user_id;
