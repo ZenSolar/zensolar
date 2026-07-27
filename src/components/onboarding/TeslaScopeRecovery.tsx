@@ -23,6 +23,8 @@ interface Props {
   blockingScopes: string[];
   onReauthorize: () => void;
   onContinueDegraded?: () => void;
+  /** When false, suppresses the energy_device_data consequence for users with no solar/battery. */
+  hasEnergy?: boolean;
 }
 
 export function TeslaScopeRecovery({
@@ -30,7 +32,11 @@ export function TeslaScopeRecovery({
   blockingScopes,
   onReauthorize,
   onContinueDegraded,
+  hasEnergy = true,
 }: Props) {
+  const visibleScopes = hasEnergy
+    ? missingScopes
+    : missingScopes.filter((s) => s !== 'energy_device_data');
   const isBlocking = blockingScopes.length > 0;
 
   return (
