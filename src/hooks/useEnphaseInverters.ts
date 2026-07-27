@@ -54,7 +54,13 @@ export function useEnphaseInverters(enabled: boolean, viewAsUserId?: string | nu
       return data as InverterResponse;
     },
     enabled,
-    staleTime: 5 * 60 * 1000,
+    // Enphase system layout barely changes; refresh at most once per day per session
+    // to protect the beta API quota. The daily server cron is the source of truth.
+    staleTime: 24 * 60 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
     retry: 1,
   });
 }
