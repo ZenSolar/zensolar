@@ -287,19 +287,24 @@ export function DeviceSelectionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg lg:max-w-3xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-3">
+      <DialogContent
+        className="p-0 gap-0 border-border/40 bg-background/95 backdrop-blur-xl shadow-2xl
+          w-screen h-[100dvh] max-w-none rounded-none translate-x-0 translate-y-0 left-0 top-0
+          sm:w-full sm:h-auto sm:max-h-[90vh] sm:max-w-lg sm:rounded-2xl sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2
+          lg:max-w-2xl flex flex-col"
+      >
+        <DialogHeader className="px-5 pt-6 pb-4 border-b border-border/30 shrink-0">
+          <DialogTitle className="flex items-center gap-3 text-left">
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 shadow-sm">
               {provider === 'tesla' ? <Car className="h-5 w-5 text-primary" /> : <Sun className="h-5 w-5 text-primary" />}
             </span>
-            <span>Select Your {provider === 'tesla' ? 'Tesla' : 'Enphase'} Devices</span>
+            <span className="text-lg font-semibold tracking-tight">Select your {provider === 'tesla' ? 'Tesla' : 'Enphase'} devices</span>
           </DialogTitle>
-          <DialogDescription className="pt-1">
-            Choose which devices to connect to your ZenSolar account. 
-            Each device can only be connected to one account.
+          <DialogDescription className="pt-2 text-sm text-muted-foreground text-left">
+            Choose which devices to connect. Each device can only belong to one ZenSolar account.
           </DialogDescription>
         </DialogHeader>
+
         
         <div className="py-4 space-y-4">
           {isLoading ? (
