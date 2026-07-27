@@ -11,7 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { computeNextStep } from './betaRouting';
 import { oauthDiag } from '@/lib/oauthDiagnostics';
 
-type Phase = 'consent' | 'connecting' | 'scope-recovery' | 'device-selection' | 'snapshot';
+type Phase = 'consent' | 'connecting' | 'scope-recovery' | 'device-selection' | 'no-devices' | 'snapshot';
 type TeslaDeviceRow = {
   device_type: string;
   device_name: string | null;
