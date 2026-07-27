@@ -314,9 +314,42 @@ export default function BetaTesla() {
     );
   }
 
+  if (phase === 'no-devices') {
+    return (
+      <BetaShell eyebrow="Tesla · connected" onBack={() => setPhase('consent')}>
+        <h1 className="text-3xl font-semibold tracking-tight mb-3">
+          We didn't find any vehicles on this Tesla account
+        </h1>
+        <p className="text-[15px] text-muted-foreground mb-6 leading-relaxed">
+          Your Tesla account is linked, but no vehicles or energy products came back. If you have a
+          Tesla on a different account, sign in with that one. Otherwise you can continue and add
+          devices later.
+        </p>
+        <Button size="lg" className="w-full mb-3" onClick={start}>Try a different Tesla account</Button>
+        <button type="button" className="text-sm text-muted-foreground underline" onClick={skip}>
+          Continue without a vehicle
+        </button>
+      </BetaShell>
+    );
+  }
+
+  // snapshot — devices claimed. Distinguish "asleep, no telemetry yet" from ready.
+  const anyTelemetry = devices.length > 0 && Object.values(detectedStatus).some(
+    (s) => s?.last_telemetry_at,
+  );
+  const sleeping = devices.length > 0 && !anyTelemetry;
+
   return (
     <BetaShell eyebrow="Tesla · connected">
-      <h1 className="text-3xl font-semibold tracking-tight mb-3">You're connected</h1>
+      <h1 className="text-3xl font-semibold tracking-tight mb-3">
+        {sleeping ? 'Your Tesla is asleep' : "You're connected"}
+      </h1>
+      {sleeping && (
+        <p className="text-[15px] text-muted-foreground mb-4 leading-relaxed">
+          Data will update automatically when your car wakes up — usually within a few minutes of
+          driving or charging. You can continue setup now.
+        </p>
+      )}
       {devices.length === 0 ? (
         <p className="text-[15px] text-muted-foreground mb-6">
           Connected — first data may take a few minutes.
