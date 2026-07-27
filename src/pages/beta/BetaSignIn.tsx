@@ -10,6 +10,8 @@ import { cn } from '@/lib/utils';
 
 type Mode = 'login' | 'signup' | 'forgot' | 'verify';
 
+const normalizeEmailCode = (value: string) => value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 10);
+
 /**
  * Primary auth surface for /onboarding/signin (and legacy /beta/signin).
  * Email + password is the default. Optional Google / Apple via the Lovable
@@ -73,8 +75,8 @@ export default function BetaSignIn() {
   };
 
   const handleVerify = async () => {
-    const token = otpCode.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-    if (token.length !== 6) return toast.error('Enter the 6-character code from your email');
+    const token = normalizeEmailCode(otpCode);
+    if (token.length < 6) return toast.error('Enter the full code from your email');
     setBusy(true);
     const { data, error } = await supabase.auth.verifyOtp({
       email: email.trim(),
@@ -171,7 +173,7 @@ export default function BetaSignIn() {
       </h1>
       <p className="text-[14px] qc-muted mb-8">
         {mode === 'forgot' ? "We'll email you a link to set a new password."
-          : mode === 'verify' ? `We sent a 6-character code to ${email || 'your email'}. Enter it below to confirm your account.`
+          : mode === 'verify' ? `We sent a verification code to ${email || 'your email'}. Enter it below to confirm your account.`
           : mode === 'signup' ? 'Use your email and a password to get started.'
           : 'Sign in with your email and password.'}
       </p>
@@ -184,10 +186,10 @@ export default function BetaSignIn() {
               inputMode="text"
               autoComplete="one-time-code"
               autoCapitalize="characters"
-              placeholder="ABC123"
-              maxLength={6}
+              placeholder="Paste code"
+              maxLength={10}
               value={otpCode}
-              onChange={(e) => setOtpCode(e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 6))}
+              onChange={(e) => setOtpCode(normalizeEmailCode(e.target.value))}
               onKeyDown={(e) => e.key === 'Enter' && submit()}
             />
           </div>

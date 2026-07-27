@@ -39,7 +39,7 @@ export const SignupEmail = ({
           <Img src="https://fcptrpgqkjffgeddajwl.supabase.co/storage/v1/object/public/email-assets/zen-logo-horizontal.png" alt="ZenSolar" width="160" height="auto" style={logoImg} />
         </Section>
         <Hr style={divider} />
-        <Heading style={h1}>Your onboarding code</Heading>
+        <Heading style={h1}>Your verification code</Heading>
         <Text style={text}>
           Thanks for joining{' '}
           <Link href={siteUrl} style={siteNameLink}>
@@ -48,7 +48,7 @@ export const SignupEmail = ({
           — where clean energy creates real value.
         </Text>
         <Text style={text}>
-          Enter this code in the <span style={solarBlue}><strong>ZenSolar</strong></span> app for{' '}
+          Copy the full code below into the <span style={solarBlue}><strong>ZenSolar</strong></span> app for{' '}
           <Link href={`mailto:${recipient}`} style={link}>
             {recipient}
           </Link>

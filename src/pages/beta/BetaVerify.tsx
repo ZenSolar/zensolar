@@ -19,12 +19,12 @@ export default function BetaVerify() {
   }, [navigate]);
 
   const verify = async () => {
-    const digits = code.replace(/\D/g, '');
-    if (digits.length < 6) { toast.error('Enter the code from your email'); return; }
+    const token = code.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 10);
+    if (token.length < 6) { toast.error('Enter the full code from your email'); return; }
     setBusy(true);
     const { error } = await supabase.auth.verifyOtp({
       email: email.trim(),
-      token: digits,
+      token,
       type: 'email',
     });
     setBusy(false);
@@ -65,7 +65,7 @@ export default function BetaVerify() {
         autoComplete="one-time-code"
         placeholder="Paste code"
         value={code}
-        onChange={(e) => setCode(e.target.value)}
+        onChange={(e) => setCode(e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 10))}
         className="mb-4 h-14 text-center text-2xl tracking-[0.3em]"
         maxLength={10}
         onKeyDown={(e) => e.key === 'Enter' && verify()}
