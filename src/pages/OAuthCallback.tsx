@@ -112,29 +112,28 @@ export default function OAuthCallback() {
     while (retries < maxRetries) {
       const { data } = await supabase.auth.getSession();
       session = data.session;
-      
+
       if (session) {
-        console.log('[OAuthCallback] Session restored after', retries, 'retries');
+        oauthDiag('OAuthCallback', 'session:restored', { retries, userId: session.user.id });
         break;
       }
-      
+
       if (retries > 0 && retries % 5 === 0) {
-        console.log('[OAuthCallback] Attempting explicit session refresh');
+        oauthDiag('OAuthCallback', 'session:refresh:attempt', { retries });
         const { data: refreshData } = await supabase.auth.refreshSession();
         if (refreshData.session) {
           session = refreshData.session;
-          console.log('[OAuthCallback] Session restored via explicit refresh');
+          oauthDiag('OAuthCallback', 'session:refresh:success', { retries, userId: session.user.id });
           break;
         }
       }
-      
-      console.log('[OAuthCallback] Waiting for session restoration, attempt', retries + 1);
+
       await new Promise(resolve => setTimeout(resolve, 500));
       retries++;
     }
 
     if (!session && !isTesla) {
-      console.error('[OAuthCallback] Failed to restore session after', maxRetries, 'attempts');
+      oauthDiag('OAuthCallback', 'session:restore:failed', { maxRetries });
       setErrorMessage('Session expired. Please log in and try again.');
       setStatus('error');
       setCanRetry(true);
@@ -143,52 +142,51 @@ export default function OAuthCallback() {
     }
 
     if (isTesla) {
-      console.log('[OAuthCallback] Processing Tesla callback');
-      
-      // Clear OAuth state
+      oauthDiag('OAuthCallback', 'tesla:start', {
+        hasSession: !!session,
+        userId: session?.user.id ?? null,
+      });
+
       localStorage.removeItem('tesla_oauth_state');
       localStorage.removeItem('tesla_oauth_pending');
-      
-      // Fire the exchange request immediately. On mobile Safari the response can
-      // occasionally be dropped after an external OAuth redirect, so we use the
-      // direct exchange result when available and keep DB polling as fallback.
-      console.log('[OAuthCallback] Firing Tesla code exchange...');
+
+      oauthDiag('OAuthCallback', 'tesla:exchange:fire');
       const exchangePromise = exchangeTeslaCode(code, state).then(
         (result) => {
-          console.log('[OAuthCallback] Tesla exchange resolved:', result);
+          oauthDiag('OAuthCallback', 'tesla:exchange:resolved', { result });
           return result;
         },
         (err) => {
-          console.warn('[OAuthCallback] Tesla exchange rejected (expected on some mobile redirects):', err);
+          oauthDiag('OAuthCallback', 'tesla:exchange:rejected', {
+            message: err instanceof Error ? err.message : String(err),
+          });
           return false;
         }
       );
 
-      // Give exchange-code time to complete on the server before polling
-      console.log('[OAuthCallback] Waiting 3s for exchange to complete before polling...');
+      oauthDiag('OAuthCallback', 'tesla:poll:pre-wait', { waitMs: 3000 });
       await new Promise(resolve => setTimeout(resolve, 3000));
 
-      // Poll for tokens using multiple strategies (edge function + direct DB fallback)
-      const maxPollAttempts = 30; // 30 seconds total (1s per attempt)
+      const maxPollAttempts = 30;
       let pollAttempt = 0;
       let tokensFound = await withTimeout(exchangePromise, 12000, 'Tesla code exchange').catch(() => false);
+      let tokensSource: 'exchange' | 'edge-fn' | 'rpc' | null = tokensFound ? 'exchange' : null;
 
       if (tokensFound) {
-        console.log('[OAuthCallback] ✅ Tesla tokens confirmed via exchange response');
+        oauthDiag('OAuthCallback', 'tesla:tokens:found', { source: 'exchange' });
       }
 
       while (!tokensFound && pollAttempt < maxPollAttempts) {
         pollAttempt++;
-        console.log('[OAuthCallback] Poll attempt', pollAttempt);
-        
-        // Strategy 1: Edge function (bypasses RLS, uses service role key)
+        oauthDiag('OAuthCallback', 'tesla:poll:attempt', { pollAttempt });
+
         try {
           const checkResult = await withTimeout(
             supabase.functions.invoke('tesla-auth', {
               body: { action: 'check-tokens' },
             }).then(({ data, error }) => {
               if (error) {
-                console.warn('[OAuthCallback] Edge fn check error:', error);
+                oauthDiag('OAuthCallback', 'tesla:poll:edge-fn:error', { message: error.message });
                 return null;
               }
               return data;
@@ -196,17 +194,19 @@ export default function OAuthCallback() {
             3000,
             'check-tokens edge fn'
           ).catch(() => null);
-          
+
           if (checkResult?.exists) {
-            console.log('[OAuthCallback] ✅ Tesla tokens confirmed via edge function on attempt', pollAttempt);
+            oauthDiag('OAuthCallback', 'tesla:tokens:found', { source: 'edge-fn', pollAttempt });
             tokensFound = true;
+            tokensSource = 'edge-fn';
             break;
           }
         } catch (e) {
-          console.warn('[OAuthCallback] Edge fn poll failed:', e);
+          oauthDiag('OAuthCallback', 'tesla:poll:edge-fn:throw', {
+            message: e instanceof Error ? e.message : String(e),
+          });
         }
 
-        // Strategy 2: RPC fallback (works when session is strong)
         try {
           const directResult = await withTimeout(
             Promise.resolve(
@@ -215,14 +215,17 @@ export default function OAuthCallback() {
             2000,
             'check-tokens RPC'
           ).catch(() => null);
-          
+
           if (directResult) {
-            console.log('[OAuthCallback] ✅ Tesla tokens confirmed via direct DB on attempt', pollAttempt);
+            oauthDiag('OAuthCallback', 'tesla:tokens:found', { source: 'rpc', pollAttempt });
             tokensFound = true;
+            tokensSource = 'rpc';
             break;
           }
         } catch (e) {
-          console.warn('[OAuthCallback] Direct DB poll failed:', e);
+          oauthDiag('OAuthCallback', 'tesla:poll:rpc:throw', {
+            message: e instanceof Error ? e.message : String(e),
+          });
         }
 
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -230,41 +233,57 @@ export default function OAuthCallback() {
 
       if (tokensFound) {
         const safeReturnPath = consumeSafeReturnPath();
+        const isBetaFlow = localStorage.getItem('beta_energy_flow') === 'true';
+        const isOnboardingFlow = localStorage.getItem('onboarding_energy_flow') === 'true';
+
+        oauthDiag('OAuthCallback', 'tesla:route:decide', {
+          tokensSource,
+          hasSafeReturnPath: !!safeReturnPath,
+          safeReturnPath,
+          isBetaFlow,
+          isOnboardingFlow,
+          hasOpener: !!(window.opener && !window.opener.closed),
+        });
+
         if (safeReturnPath) {
           const sep = safeReturnPath.includes('?') ? '&' : '?';
-          window.location.replace(`${safeReturnPath}${sep}oauth_success=true&provider=tesla&device_selection=true`);
+          const url = `${safeReturnPath}${sep}oauth_success=true&provider=tesla&device_selection=true`;
+          oauthDiag('OAuthCallback', 'tesla:route:return-path', { url });
+          window.location.replace(url);
           return;
         }
 
-        const isBetaFlow = localStorage.getItem('beta_energy_flow') === 'true';
-        const isOnboardingFlow = localStorage.getItem('onboarding_energy_flow') === 'true';
         localStorage.removeItem('onboarding_energy_flow');
         if (isBetaFlow) {
           localStorage.removeItem('beta_energy_flow');
           if (window.opener && !window.opener.closed) {
+            oauthDiag('OAuthCallback', 'tesla:route:beta:postmessage');
             window.opener.postMessage({ type: 'oauth_success', provider: 'tesla' }, window.location.origin);
             window.close();
             return;
           }
+          oauthDiag('OAuthCallback', 'tesla:route:beta:redirect', { url: '/beta/tesla' });
           window.location.href = '/beta/tesla';
           return;
         }
         if (isOnboardingFlow) {
           if (window.opener && !window.opener.closed) {
-            console.log('[OAuthCallback] Signaling opener window for Tesla onboarding success');
+            oauthDiag('OAuthCallback', 'tesla:route:onboarding:postmessage');
             window.opener.postMessage({ type: 'oauth_success', provider: 'tesla' }, window.location.origin);
             window.close();
             return;
           }
-          // CRITICAL: Use hard redirect, not react-router navigate — SPA routing breaks on PWA after OAuth redirects
-          console.log('[OAuthCallback] Hard redirect to onboarding with Tesla success');
+          oauthDiag('OAuthCallback', 'tesla:route:onboarding:redirect', {
+            url: '/onboarding?oauth_success=true&provider=tesla',
+          });
           window.location.href = '/onboarding?oauth_success=true&provider=tesla';
         } else {
+          oauthDiag('OAuthCallback', 'tesla:route:inline-device-selection');
           setDeviceProvider('tesla');
           setStatus('device-selection');
         }
       } else {
-        console.error('[OAuthCallback] Tesla tokens not found after polling');
+        oauthDiag('OAuthCallback', 'tesla:tokens:not-found', { pollAttempts: pollAttempt });
         setErrorMessage('Connection timed out. Please try again.');
         setStatus('error');
         setCanRetry(true);
