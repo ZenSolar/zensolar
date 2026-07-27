@@ -73,8 +73,8 @@ export default function BetaSignIn() {
   };
 
   const handleVerify = async () => {
-    const token = otpCode.replace(/\D/g, '');
-    if (token.length < 6) return toast.error('Enter the code from your email');
+    const token = otpCode.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+    if (token.length !== 6) return toast.error('Enter the 6-character code from your email');
     setBusy(true);
     const { data, error } = await supabase.auth.verifyOtp({
       email: email.trim(),
@@ -171,7 +171,7 @@ export default function BetaSignIn() {
       </h1>
       <p className="text-[14px] qc-muted mb-8">
         {mode === 'forgot' ? "We'll email you a link to set a new password."
-          : mode === 'verify' ? `We sent a code to ${email || 'your email'}. Enter it below to confirm your account.`
+          : mode === 'verify' ? `We sent a 6-character code to ${email || 'your email'}. Enter it below to confirm your account.`
           : mode === 'signup' ? 'Use your email and a password to get started.'
           : 'Sign in with your email and password.'}
       </p>
@@ -181,12 +181,13 @@ export default function BetaSignIn() {
           <div className="space-y-3 mb-4">
             <QCInput
               type="text"
-              inputMode="numeric"
+              inputMode="text"
               autoComplete="one-time-code"
-              placeholder="12345678"
-              maxLength={10}
+              autoCapitalize="characters"
+              placeholder="ABC123"
+              maxLength={6}
               value={otpCode}
-              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 10))}
+              onChange={(e) => setOtpCode(e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 6))}
               onKeyDown={(e) => e.key === 'Enter' && submit()}
             />
           </div>
