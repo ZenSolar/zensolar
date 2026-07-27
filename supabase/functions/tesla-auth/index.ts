@@ -20,6 +20,30 @@ const RETURN_ORIGIN_HOSTS = new Set([
   "beta.zen.solar",
 ]);
 
+// Tesla scopes ZenSolar requests. Read-only. Keep in sync with the auth URL below.
+const REQUIRED_TESLA_SCOPES = [
+  "openid",
+  "offline_access",
+  "vehicle_device_data",
+  "vehicle_location",
+  "vehicle_charging_cmds",
+  "energy_device_data",
+] as const;
+
+const BLOCKING_TESLA_SCOPES = new Set<string>([
+  "openid",
+  "offline_access",
+  "vehicle_device_data",
+]);
+
+function classifyMissingScopes(grantedScope: string | null | undefined) {
+  const granted = new Set((grantedScope ?? "").split(/\s+/).filter(Boolean));
+  const missing = REQUIRED_TESLA_SCOPES.filter((s) => !granted.has(s));
+  const blocking = missing.filter((s) => BLOCKING_TESLA_SCOPES.has(s));
+  const degraded = missing.filter((s) => !BLOCKING_TESLA_SCOPES.has(s));
+  return { missing, blocking, degraded, severity: blocking.length ? "blocking" : (degraded.length ? "degraded" : "ok") };
+}
+
 type TeslaDevice = {
   device_id: string;
   device_type: "vehicle" | "powerwall" | "solar" | "wall_connector";
