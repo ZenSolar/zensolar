@@ -6,6 +6,9 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { BetaShell } from './BetaShell';
 
+const EMAIL_CODE_LENGTH = 8;
+const normalizeEmailCode = (value: string) => value.replace(/\D/g, '').slice(0, EMAIL_CODE_LENGTH);
+
 export default function BetaVerify() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -19,8 +22,8 @@ export default function BetaVerify() {
   }, [navigate]);
 
   const verify = async () => {
-    const token = code.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 10);
-    if (token.length < 6) { toast.error('Enter the full code from your email'); return; }
+    const token = normalizeEmailCode(code);
+    if (token.length !== EMAIL_CODE_LENGTH) { toast.error('Enter the 8-digit code from your email'); return; }
     setBusy(true);
     const { error } = await supabase.auth.verifyOtp({
       email: email.trim(),
@@ -58,16 +61,16 @@ export default function BetaVerify() {
     <BetaShell eyebrow="Verify" onBack={() => navigate('/beta/signin')}>
       <h1 className="text-3xl font-semibold tracking-tight mb-3">Enter your code</h1>
       <p className="text-[15px] text-muted-foreground mb-6">
-        We sent a code to <span className="text-foreground">{email || 'your inbox'}</span>.
+        We sent an 8-digit code to <span className="text-foreground">{email || 'your inbox'}</span>.
       </p>
       <Input
         inputMode="numeric"
         autoComplete="one-time-code"
-        placeholder="Paste code"
+        placeholder="Paste 8-digit code"
         value={code}
-        onChange={(e) => setCode(e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 10))}
+        onChange={(e) => setCode(normalizeEmailCode(e.target.value))}
         className="mb-4 h-14 text-center text-2xl tracking-[0.3em]"
-        maxLength={10}
+        maxLength={EMAIL_CODE_LENGTH}
         onKeyDown={(e) => e.key === 'Enter' && verify()}
       />
       <Button size="lg" className="w-full mb-3" onClick={verify} disabled={busy}>

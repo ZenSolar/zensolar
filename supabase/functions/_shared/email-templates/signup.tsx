@@ -39,7 +39,7 @@ export const SignupEmail = ({
           <Img src="https://fcptrpgqkjffgeddajwl.supabase.co/storage/v1/object/public/email-assets/zen-logo-horizontal.png" alt="ZenSolar" width="160" height="auto" style={logoImg} />
         </Section>
         <Hr style={divider} />
-        <Heading style={h1}>Your verification code</Heading>
+        <Heading style={h1}>Your 8-digit verification code</Heading>
         <Text style={text}>
           Thanks for joining{' '}
           <Link href={siteUrl} style={siteNameLink}>
@@ -48,14 +48,14 @@ export const SignupEmail = ({
           — where clean energy creates real value.
         </Text>
         <Text style={text}>
-          Copy the full code below into the <span style={solarBlue}><strong>ZenSolar</strong></span> app for{' '}
+          Copy all 8 digits below into the <span style={solarBlue}><strong>ZenSolar</strong></span> app for{' '}
           <Link href={`mailto:${recipient}`} style={link}>
             {recipient}
           </Link>
           . It expires shortly.
         </Text>
         <Section style={codeSection}>
-          <Text style={codeStyle}>{token ?? '——————'}</Text>
+          <Text style={codeStyle}>{token ?? '00000000'}</Text>
         </Section>
         <Text style={footer}>
           If you didn't create an account, you can safely ignore this email.
@@ -85,7 +85,7 @@ const codeStyle = {
   fontFamily: "'Menlo', 'Consolas', 'Courier New', monospace",
   fontSize: '36px',
   fontWeight: 'bold' as const,
-  letterSpacing: '0.35em',
+  letterSpacing: '0.25em',
   color: 'hsl(142, 76%, 30%)',
   backgroundColor: '#f1f5f9',
   padding: '18px 24px',
