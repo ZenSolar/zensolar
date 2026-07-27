@@ -460,18 +460,31 @@ Deno.serve(async (req) => {
     if (action === "check-tokens") {
       const { data: tokenCheck } = await supabaseClient
         .from("energy_tokens")
-        .select("id, provider, access_token")
+        .select("id, provider, access_token, extra_data")
         .eq("user_id", user.id)
         .eq("provider", "tesla")
         .maybeSingle();
 
+      const grantedScope: string =
+        (tokenCheck?.extra_data && typeof (tokenCheck.extra_data as { granted_scope?: unknown }).granted_scope === "string")
+          ? String((tokenCheck.extra_data as { granted_scope: string }).granted_scope)
+          : "";
+      const scopeCheck = classifyMissingScopes(grantedScope);
+
       console.log("[tesla-auth] check-tokens", {
         userId: user.id,
         exists: !!tokenCheck,
+        severity: scopeCheck.severity,
       });
 
       return new Response(JSON.stringify({
         exists: !!tokenCheck,
+        granted_scope: grantedScope,
+        required_scopes: REQUIRED_TESLA_SCOPES,
+        missing_scopes: scopeCheck.missing,
+        blocking_scopes: scopeCheck.blocking,
+        degraded_scopes: scopeCheck.degraded,
+        scope_severity: scopeCheck.severity,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
