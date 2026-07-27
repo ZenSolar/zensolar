@@ -44,7 +44,7 @@ export default function BetaSignIn() {
         setOtpCode('');
         setMode('verify');
         toast.message('Almost there — confirm your email', {
-          description: 'We just sent a fresh 6-digit code. Enter it below.',
+          description: 'We just sent a fresh code. Enter it below.',
         });
         supabase.auth.resend({ type: 'signup', email: email.trim() }).catch(() => {});
         return;
