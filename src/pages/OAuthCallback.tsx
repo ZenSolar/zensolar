@@ -231,19 +231,18 @@ export default function OAuthCallback() {
       }
 
       if (tokensFound) {
+        // Auto-claim devices BEFORE redirecting so the return page has data to
+        // show (otherwise BetaTesla re-shows the "approve access" screen because
+        // no devices exist yet).
+        if (session?.access_token) {
+          try { await autoClaimTeslaDevices(session.access_token); } catch (e) { console.warn('[OAuthCallback] auto-claim error:', e); }
+        }
+
         const safeReturnPath = consumeSafeReturnPath();
         if (safeReturnPath) {
           setStatus('success');
-          window.location.href = safeReturnPath;
-          return;
-        }
-
-        const claimedCount = session?.access_token
-          ? await autoClaimTeslaDevices(session.access_token)
-          : 0;
-        if (claimedCount > 0) {
-          setStatus('success');
-          window.location.href = safeReturnPath || '/';
+          const sep = safeReturnPath.includes('?') ? '&' : '?';
+          window.location.href = `${safeReturnPath}${sep}oauth_success=true&provider=tesla`;
           return;
         }
 
@@ -379,12 +378,15 @@ export default function OAuthCallback() {
     window.location.href = '/onboarding';
   };
 
+  // While processing, render the brand splash as a true full-screen layout so
+  // the logo lands optically centered (no wrapping flex-with-text-below shifting it down).
+  if (status === 'processing') {
+    return <BrandSplash label="Connecting your account..." />;
+  }
+
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="min-h-screen min-h-[100dvh] bg-background flex items-center justify-center">
       <div className="text-center space-y-4 max-w-md px-4">
-        {status === 'processing' && (
-          <BrandSplash inline label="Connecting your account..." />
-        )}
         {status === 'success' && (
           <p className="text-primary font-medium">Account connected! Redirecting...</p>
         )}
