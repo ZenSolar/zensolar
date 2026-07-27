@@ -381,6 +381,10 @@ Deno.serve(async (req) => {
         ? new Date(Date.now() + tokens.expires_in * 1000).toISOString()
         : null;
 
+      const grantedScope: string = typeof tokens.scope === "string" ? tokens.scope : "";
+      const scopeCheck = classifyMissingScopes(grantedScope);
+      console.log("[tesla-auth] exchange-code:scope-check", scopeCheck);
+
       const { error: tokenStoreError } = await supabaseClient
         .from("energy_tokens")
         .upsert({
@@ -389,7 +393,7 @@ Deno.serve(async (req) => {
           access_token: tokens.access_token,
           refresh_token: tokens.refresh_token || null,
           expires_at: expiresAt,
-          extra_data: null
+          extra_data: { granted_scope: grantedScope },
         }, { onConflict: "user_id,provider" });
 
       if (tokenStoreError) {
@@ -411,6 +415,7 @@ Deno.serve(async (req) => {
         userId: exchangeUserId,
         needsDeviceSelection: true,
         hasReturnTo: !!returnTo,
+        severity: scopeCheck.severity,
       });
 
       return new Response(JSON.stringify({
@@ -418,7 +423,35 @@ Deno.serve(async (req) => {
         message: "Tesla authorization successful - please select your devices",
         needsDeviceSelection: true,
         returnTo,
+        granted_scope: grantedScope,
+        required_scopes: REQUIRED_TESLA_SCOPES,
+        missing_scopes: scopeCheck.missing,
+        blocking_scopes: scopeCheck.blocking,
+        degraded_scopes: scopeCheck.degraded,
+        scope_severity: scopeCheck.severity,
       }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Unauthenticated helper: returns just the `return_to` URL for a state so
+    // the callback page can bounce back to the beta subdomain BEFORE the token
+    // exchange (session cookies live on the beta origin).
+    if (action === "lookup-return-to") {
+      const { state: lookupState } = body;
+      if (typeof lookupState !== "string" || !lookupState) {
+        return new Response(JSON.stringify({ error: "state required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const { data: row } = await supabaseClient
+        .from("tesla_oauth_states")
+        .select("return_to, expires_at, consumed_at")
+        .eq("state", lookupState)
+        .maybeSingle();
+      const fresh = row && !row.consumed_at && new Date(row.expires_at).getTime() >= Date.now();
+      return new Response(JSON.stringify({ returnTo: fresh ? row?.return_to ?? null : null }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
