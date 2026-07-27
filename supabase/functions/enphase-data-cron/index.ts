@@ -45,7 +45,28 @@ Deno.serve(async (req) => {
     const { data: tokens, error: tErr } = await tq;
     if (tErr) throw tErr;
 
-    const userIds = Array.from(new Set((tokens || []).map((t: any) => t.user_id)));
+    let userIds = Array.from(new Set((tokens || []).map((t: any) => t.user_id)));
+
+    // Skip users whose Enphase device is paused for beta testing (all their enphase devices paused).
+    if (userIds.length > 0) {
+      const { data: pausedDevs } = await supabase
+        .from("connected_devices")
+        .select("user_id, paused_for_testing")
+        .eq("provider", "enphase")
+        .in("user_id", userIds);
+      const byUser = new Map<string, boolean>();
+      for (const d of pausedDevs || []) {
+        const cur = byUser.get(d.user_id);
+        // user is "active" if any device is NOT paused
+        byUser.set(d.user_id, cur === true ? true : !d.paused_for_testing);
+      }
+      // Only skip users that have devices AND all are paused
+      userIds = userIds.filter((uid) => {
+        const hasActive = byUser.get(uid);
+        // No connected_devices row (token-only) → keep; any active → keep; all paused → skip
+        return hasActive !== false;
+      });
+    }
 
     // Smart-skip: only active users unless force / onlyUser.
     let activeSet: Set<string> | null = null;

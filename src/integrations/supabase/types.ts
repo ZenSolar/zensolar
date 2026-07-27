@@ -44,6 +44,69 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_device_snapshots: {
+        Row: {
+          admin_user_id: string
+          baseline_data: Json | null
+          created_at: string
+          device_id: string
+          device_metadata: Json | null
+          device_name: string | null
+          device_type: string | null
+          home_charger_brand: string | null
+          home_charging_source: string | null
+          home_location: Json | null
+          home_setup_type: string | null
+          id: string
+          last_known_state: Json | null
+          lifetime_totals: Json | null
+          notes: string | null
+          provider: string
+          released_at: string
+          restored_at: string | null
+        }
+        Insert: {
+          admin_user_id: string
+          baseline_data?: Json | null
+          created_at?: string
+          device_id: string
+          device_metadata?: Json | null
+          device_name?: string | null
+          device_type?: string | null
+          home_charger_brand?: string | null
+          home_charging_source?: string | null
+          home_location?: Json | null
+          home_setup_type?: string | null
+          id?: string
+          last_known_state?: Json | null
+          lifetime_totals?: Json | null
+          notes?: string | null
+          provider: string
+          released_at?: string
+          restored_at?: string | null
+        }
+        Update: {
+          admin_user_id?: string
+          baseline_data?: Json | null
+          created_at?: string
+          device_id?: string
+          device_metadata?: Json | null
+          device_name?: string | null
+          device_type?: string | null
+          home_charger_brand?: string | null
+          home_charging_source?: string | null
+          home_location?: Json | null
+          home_setup_type?: string | null
+          id?: string
+          last_known_state?: Json | null
+          lifetime_totals?: Json | null
+          notes?: string | null
+          provider?: string
+          released_at?: string
+          restored_at?: string | null
+        }
+        Relationships: []
+      }
       announcement_dismissals: {
         Row: {
           announcement_id: string
@@ -368,6 +431,7 @@ export type Database = {
           last_known_state: Json
           last_minted_at: string | null
           lifetime_totals: Json | null
+          paused_for_testing: boolean
           provider: string
           updated_at: string
           user_id: string
@@ -388,6 +452,7 @@ export type Database = {
           last_known_state?: Json
           last_minted_at?: string | null
           lifetime_totals?: Json | null
+          paused_for_testing?: boolean
           provider: string
           updated_at?: string
           user_id: string
@@ -408,6 +473,7 @@ export type Database = {
           last_known_state?: Json
           last_minted_at?: string | null
           lifetime_totals?: Json | null
+          paused_for_testing?: boolean
           provider?: string
           updated_at?: string
           user_id?: string

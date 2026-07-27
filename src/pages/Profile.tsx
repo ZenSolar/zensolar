@@ -14,6 +14,7 @@ import { SolarEdgeConnectDialog } from "@/components/dashboard/SolarEdgeConnectD
 import { WallboxConnectDialog } from "@/components/dashboard/WallboxConnectDialog";
 import { EnphaseCodeDialog } from "@/components/dashboard/EnphaseCodeDialog";
 import { EnergySourcesCard } from "@/components/profile/EnergySourcesCard";
+import { AdminReleaseForTestingPanel } from "@/components/profile/AdminReleaseForTestingPanel";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -558,6 +559,15 @@ export default function Profile() {
         >
           <EnergySourcesCard />
         </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.23 }}
+        >
+          <AdminReleaseForTestingPanel />
+        </motion.div>
+
 
         {/* Home Address — for charging classification */}
         <motion.div
