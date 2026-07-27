@@ -1,55 +1,56 @@
-# Restore email + password auth
 
-Locked decision: primary login = email + password. OTP/magic-link is no longer the required default. Passkey / Coinbase Smart Wallet activation stays where it is (`/onboarding/account`) — that's a wallet step, not a login method.
+## Scope
+Harden OAuth → list → claim → first-proof → persistence for beta invites across Tesla, Enphase, SolarEdge, Wallbox. No dashboard redesign, no tokenomics changes, no genesis-mint work. Lifetime-baseline logic stays.
 
-`useAuth` already exposes `signIn`, `signUp`, `resetPassword`, `updatePassword` via `supabase.auth.signInWithPassword` / `signUp` / `resetPasswordForEmail`, so no backend or hook changes are needed.
+## Phase 1 — Audit (read-only)
+Trace each OEM through `useEnergyOAuth`, provider `-auth` / `-devices` / `-data` edge functions, `claim-devices`, `OAuthCallback.tsx`, and beta screens (`BetaTesla`, `BetaSolar`, `BetaCharger`, `EnergyConnectionScreen`, `DevicePairingScreen`). For each: Connect CTA → callback → tokens under correct `user_id` → device list → claim rows → first-proof data → persistence after refresh/logout → reconnect → disconnect → honest failure states. Deliverable: PASS/FAIL table with exact failure line per OEM.
 
-## Changes
+## Phase 2 — Fixes (only where audit shows a real defect)
 
-### 1. Rebuild `src/pages/beta/BetaSignIn.tsx` (Quiet Current styling)
-Replace the OTP form with a tabbed Log In / Sign Up surface:
-- **Log In**: email + password → `signIn()`; on success → `/onboarding` (BetaResume decides where returning users land vs. resume onboarding).
-- **Sign Up**: email + password (+ optional display name) → `signUp()` with `emailRedirectTo: ${origin}/onboarding`; on success either auto-signed-in → `/onboarding`, or show "check your email to confirm".
-- **Forgot password** link → inline flow calling `resetPassword(email)` with redirect to `/reset-password`.
-- **Optional Google / Apple buttons**: render only if the `lovable` OAuth helper is available (already wired via `src/integrations/lovable/index.ts`). Use `lovable.auth.signInWithOAuth("google" | "apple", { redirect_uri: window.location.origin + "/onboarding" })`. No workspace-level provider tool call in this task — only surface what's already enabled.
-- Strip all passwordless copy ("No password required", "We'll email you a one-time code", "Send code", etc.).
+### Tesla (priority 1)
+- Verify multi-vehicle discovery/claim renders every VIN + energy product from `tesla-devices`, pre-checked, uncheck allowed; single `claim-devices` call handles the array with per-item error capture (no first-failure abort).
+- Sleeping vehicle: baseline claim still writes the row; show "vehicle asleep — data will appear once it wakes" on the summary.
+- Virtual-key pairing must not block other device claims — move pairing to a per-vehicle chip on the post-claim summary, not a full-screen blocker.
+- `OAuthCallback` returns user to the in-progress claim step, not `/`. Tesla redirect stays pinned to `https://zensolar.com/oauth/callback`.
+- Post-claim: fire a single `tesla-data` invocation so the KPI tile isn't empty for the cron interval.
 
-### 2. Retire OTP verify step
-- Delete the `/onboarding/verify` route registration in `src/App.tsx` (and the `/beta/signin` legacy alias can keep pointing at the new component).
-- Leave `src/pages/beta/BetaVerify.tsx` on disk but unused, or remove it — decision at build time. Existing password accounts are unaffected because they never touched this route.
+### Enphase (priority 2)
+- Verify systems list renders and multi-system claim works; per-item errors surfaced.
+- Preserve shipped Enphase cadence (daily rewards + on-demand live production; no aggressive polling).
+- Post-claim: one on-demand `enphase-data` call for first proof.
 
-### 3. `/beta-welcome` "Log in" entry point (`src/pages/BetaLanding.tsx`)
-- Keep the "Log in" link in the header pointing to `/onboarding/signin` (the new email+password screen). No copy change needed there beyond what's already shipped.
+### SolarEdge (priority 3) — honesty pass
+- Confirm actual auth mechanism in `solaredge-auth`. If installer API key rather than user OAuth, relabel the Connect CTA to "Connect with API key," show exact steps + where to paste, validate the key against at least one site before flipping `solaredge_connected=true`. Do not present as clean OAuth if it isn't.
 
-### 4. Post-login routing — don't force onboarding on existing users
-`BetaResume.tsx` currently sends any authed user whose `beta_flow_step` is `done` to `/`, and anyone with a saved mid-flow step back into that step. Tighten the "already set up" check:
-- If the user has ANY of: `beta_flow_step === 'done'`, a connected device in `connected_devices`, or a non-null `wallet_address` on `profiles` → navigate to `/` (dashboard) instead of resuming onboarding.
-- Otherwise behave as today (resume saved step, else `computeNextStep`).
+### Wallbox (priority 4) — explicit consent + validated connect + disconnect
+- New pre-form consent screen in `WallboxConnectDialog.tsx` (or a prior step), copy:
+  - "To keep your Wallbox connected, ZenSolar stores your Wallbox email and password on our servers so we can refresh your access token when it expires."
+  - "Credentials are stored server-side only, encrypted at rest, and never exposed to the app or shared with third parties."
+  - "You can disconnect Wallbox at any time from Settings, which permanently deletes the stored credentials."
+- Explicit "I understand and consent" checkbox required before password field is enabled.
+- Rewrite `src/pages/beta/BetaCharger.tsx` Wallbox path: replace "coming soon" stub with the real consent → connect flow, keep skip.
+- `wallbox-auth` already validates against Wallbox and only sets the profile flag after token verification — keep. Ensure any failure path leaves `wallbox_connected=false`. Replace the "we never store your password" copy in the dialog with the accurate server-side-only credentials copy above.
+- Post-connect: invoke `wallbox-data` (or list-chargers) once to populate at least one charger's status/reading so Clean Energy Center / monitoring shows charging activity for the non-Tesla EV household. If no chargers found, show honest "connected, no chargers detected — check your Wallbox account" state and do NOT flip `wallbox_connected=true`.
+- Disconnect path: extend the shared disconnect flow (below) to Wallbox — deletes `energy_tokens` row (which wipes stored credentials), removes `connected_devices` rows for `provider='wallbox'`, flips `wallbox_connected=false`. Surface in Settings/Profile.
 
-This means Joe / Harrison / other existing users hitting Log In land straight on the Clean Energy Center; brand-new signups still get the full onboarding.
+### Cross-OEM
+- `already_claimed` rows surface with "Claimed by another account — contact support" copy.
+- Add a `disconnect-device` edge function (or extend admin path) usable for any provider: delete matching `connected_devices`, flip `<provider>_connected=false` when no rows remain, purge `energy_tokens` for that provider on full disconnect. Wire into Profile/Settings for Tesla, Enphase, SolarEdge, Wallbox.
+- Post-claim first-proof kick for every provider.
 
-### 5. Password reset page
-Add `src/pages/ResetPassword.tsx` (Quiet Current styled) mounted at `/reset-password` as a public route in `src/App.tsx`. It:
-- Reads the recovery session Supabase sets on redirect.
-- Shows a "new password" + confirm form and calls `updatePassword()`.
-- On success → `/onboarding` (BetaResume will send them to `/` per step 4).
+## Phase 3 — Multi-device claim UX
+Only if audit shows current screens don't meet spec: pre-checked list with uncheck, single confirm, single `claim-devices` call, per-row result screen (claimed / skipped / already-claimed / errored) with honest copy.
 
-### 6. Wallet step untouched
-`src/pages/beta/BetaAccount.tsx` ("Secure your account" — Face ID / Coinbase Smart Wallet passkey) stays exactly as-is. It's a wallet activation, not a login method, and the flow still ends there before `/onboarding/done`.
+## Phase 4 — Verification (Playwright + read_query)
+- `joe@zen.solar`: walk Tesla connect on preview, confirm VINs list, claim all, verify `connected_devices` rows + KPI populates within ~60s of first `tesla-data` invocation.
+- Enphase claim sanity check on existing connected account.
+- SolarEdge: render-only verification of honest connect states.
+- Wallbox: sandbox-safe render-only verification of consent gate + disconnect UX. Live end-to-end validated connect + first-charger-reading confirmed against a real Wallbox account (`joe@zen.solar`'s or documented as pending if none available), with screenshot of Clean Energy Center showing the charger's status/reading for the non-Tesla EV scenario.
+- Refresh + logout/login: assert claims persist and dashboard shows real data.
+- Report per-OEM PASS/FAIL, what was fixed, what remains blocked (including support-risk gaps and whether multi-vehicle claim + claimed-only eligibility both hold).
 
-### 7. Copy sweep
-Grep for and remove passwordless framing on the primary login/signup surface only:
-- "No password required"
-- "We'll email you a one-time code"
-- "Send code" / "Enter your code" on the main auth screens
-Legacy `/beta/*` v1 routes and any AI-Concierge screens keep their own copy.
+## Explicitly out of scope
+Dashboard visual redesign, tokenomics changes, founding-cohort genesis mint, changing lifetime-baseline logic.
 
-## Ship message
-After the edits land, reply exactly:
-
-> Primary auth restored to email + password — login and wallet activation remain separate.
-
-## Technical notes
-- No Supabase migrations, no `configure_auth` / `configure_social_auth` calls in this task — Google/Apple buttons render only if the workspace already has them enabled; otherwise they're hidden.
-- Existing password users are unaffected (`signInWithPassword` is already how they authenticate elsewhere via `Auth.tsx`).
-- The OTP path stops being reachable from the primary flow but doesn't break any historical sessions — sessions are cookie/localStorage based and independent of the sign-in method used to create them.
+## Final reply on completion
+"Device connect reliability pass complete — Tesla/Enphase/SolarEdge/Wallbox connection paths verified and hardened for beta invites."
