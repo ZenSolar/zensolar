@@ -77,8 +77,15 @@ export function TeslaScopeRecovery({
         ))}
       </ul>
 
+      {showEscape && (
+        <div className="rounded-2xl border border-amber-400/30 bg-amber-500/10 px-4 py-3 mb-4 text-[13px] text-amber-100/85 leading-relaxed">
+          Tesla keeps sending us back without a persistent connection. You can skip Tesla for now
+          and add it later from your account settings.
+        </div>
+      )}
+
       <Button size="lg" className="w-full mb-3" onClick={onReauthorize}>
-        Add this permission on Tesla
+        {showEscape ? 'Try Tesla one more time' : 'Add this permission on Tesla'}
       </Button>
       {!isBlocking && onContinueDegraded && (
         <button
@@ -87,6 +94,15 @@ export function TeslaScopeRecovery({
           onClick={onContinueDegraded}
         >
           Continue without it
+        </button>
+      )}
+      {showEscape && onSkip && (
+        <button
+          type="button"
+          className="text-sm text-muted-foreground underline w-full text-center mt-2"
+          onClick={onSkip}
+        >
+          Skip Tesla for now
         </button>
       )}
     </div>
