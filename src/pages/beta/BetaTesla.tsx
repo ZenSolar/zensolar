@@ -26,10 +26,24 @@ export default function BetaTesla() {
   // looping back to the approval screen.
   const returningFromOAuth = searchParams.get('oauth_success') === 'true';
   const needsDeviceSelection = searchParams.get('device_selection') === 'true';
-  const [phase, setPhase] = useState<Phase>(returningFromOAuth || needsDeviceSelection ? 'device-selection' : 'consent');
+  const initialPhase: Phase = returningFromOAuth || needsDeviceSelection ? 'device-selection' : 'consent';
+  const [phase, setPhase] = useState<Phase>(initialPhase);
   const [devices, setDevices] = useState<Array<{ type: string; name: string; extra?: string }>>([]);
   const [syncElapsed, setSyncElapsed] = useState(0);
   const [detectedStatus, setDetectedStatus] = useState<BetaStatus>({});
+
+  useEffect(() => {
+    oauthDiag('BetaTesla', 'mount', {
+      initialPhase,
+      returningFromOAuth,
+      needsDeviceSelection,
+      search: window.location.search,
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    oauthDiag('BetaTesla', 'phase:change', { phase });
+  }, [phase]);
 
   // Clear the query flag once consumed so a back-forward navigation doesn't re-trigger.
   useEffect(() => {
