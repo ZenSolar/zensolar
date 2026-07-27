@@ -61,7 +61,7 @@ export default function BetaLanding() {
             {[
               'Connect your devices',
               'See your kWh and EV data, live',
-              'Earn your rewards',
+              'Claim your rewards',
             ].map((step, i) => (
               <li key={step} className="flex items-baseline gap-3">
                 <span className="qc-numeric text-[13px] qc-muted w-5">
