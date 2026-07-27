@@ -8,6 +8,7 @@ import { useBetaFlow, type BetaStatus } from '@/hooks/useBetaFlow';
 import { useEnergyOAuth } from '@/hooks/useEnergyOAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { computeNextStep } from './betaRouting';
+import { oauthDiag } from '@/lib/oauthDiagnostics';
 
 type Phase = 'consent' | 'connecting' | 'device-selection' | 'snapshot';
 type TeslaDeviceRow = {
