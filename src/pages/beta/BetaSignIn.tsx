@@ -245,23 +245,17 @@ export default function BetaSignIn() {
           </QCButton>
 
           {mode === 'login' && (
-            <div className="mt-4 text-center space-y-2">
+            <div className="mt-4 text-center">
               <button
                 type="button"
                 onClick={() => setMode('forgot')}
-                className="block w-full text-[13px] qc-muted hover:qc-text transition-colors"
+                className="text-[13px] qc-muted hover:qc-text transition-colors"
               >
                 Forgot password?
               </button>
-              <button
-                type="button"
-                onClick={() => setMode('verify')}
-                className="block w-full text-[13px] qc-muted hover:qc-text transition-colors"
-              >
-                Have a code from your email? Enter it
-              </button>
             </div>
           )}
+
 
           {mode !== 'forgot' && (
             <>
