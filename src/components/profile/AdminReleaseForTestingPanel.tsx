@@ -62,6 +62,12 @@ export function AdminReleaseForTestingPanel() {
       const { data, error } = await supabase.functions.invoke("admin-release-device", {
         body: { mode, provider, device_id },
       });
+      const errCode = (data as any)?.error ?? (error as any)?.context?.error;
+      if (errCode === "already_released") {
+        toast.info("Device is already released — refreshing.");
+        await load();
+        return;
+      }
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
       toast.success(
@@ -71,7 +77,14 @@ export function AdminReleaseForTestingPanel() {
       );
       await load();
     } catch (e: any) {
-      toast.error(`Failed: ${e?.message ?? "unknown error"}`);
+      const msg = e?.message ?? "unknown error";
+      if (String(msg).includes("already_released")) {
+        toast.info("Device is already released — refreshing.");
+        await load();
+      } else {
+        toast.error(`Failed: ${msg}`);
+      }
+
     } finally {
       setBusyKey(null);
     }
