@@ -11,7 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { computeNextStep } from './betaRouting';
 import { oauthDiag } from '@/lib/oauthDiagnostics';
 
-type Phase = 'consent' | 'connecting' | 'scope-recovery' | 'device-selection' | 'snapshot';
+type Phase = 'consent' | 'connecting' | 'scope-recovery' | 'device-selection' | 'no-devices' | 'snapshot';
 type TeslaDeviceRow = {
   device_type: string;
   device_name: string | null;
@@ -161,6 +161,27 @@ export default function BetaTesla() {
     return () => clearInterval(iv);
   }, [phase]);
 
+  // After 15s in connecting with tokens but 0 devices → no-devices phase.
+  useEffect(() => {
+    if (phase !== 'connecting' || syncElapsed < 15) return;
+    let cancelled = false;
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || cancelled) return;
+      const { data: devs } = await supabase
+        .from('connected_devices')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('provider', 'tesla');
+      if (cancelled) return;
+      if ((devs?.length ?? 0) === 0) {
+        oauthDiag('BetaTesla', 'auto-advance:no-devices', { syncElapsed });
+        setPhase('no-devices');
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [phase, syncElapsed]);
+
   const start = async () => {
     oauthDiag('BetaTesla', 'start:tesla-oauth', { returnTo: '/onboarding/tesla' });
     localStorage.setItem('beta_energy_flow', 'true');
@@ -215,9 +236,7 @@ export default function BetaTesla() {
             <li>Vehicle Information <span className="text-emerald-100/60">→ your miles &amp; FSD miles</span></li>
             <li>Vehicle Location <span className="text-emerald-100/60">→ tells home charging apart from Supercharging</span></li>
             <li>Vehicle Charging Management <span className="text-emerald-100/60">→ kWh added, live sessions (read-only)</span></li>
-            {(flow.selections.battery || flow.selections.solar) && (
-              <li>Energy Product Information <span className="text-emerald-100/60">→ Powerwall &amp; solar production</span></li>
-            )}
+            <li>Energy Product Information <span className="text-emerald-100/60">→ your solar production and Powerwall, if you have them</span></li>
           </ul>
           <p className="text-[12px] text-emerald-100/60 leading-relaxed mt-2">
             Unchecking any box means we can't verify that activity — and can't reward you for it.
@@ -271,6 +290,7 @@ export default function BetaTesla() {
         <TeslaScopeRecovery
           missingScopes={missingScopes}
           blockingScopes={blockingScopes}
+          hasEnergy={Boolean(flow.selections.solar || flow.selections.battery)}
           onReauthorize={start}
           onContinueDegraded={blockingScopes.length === 0 ? () => setPhase('device-selection') : undefined}
         />
@@ -295,9 +315,42 @@ export default function BetaTesla() {
     );
   }
 
+  if (phase === 'no-devices') {
+    return (
+      <BetaShell eyebrow="Tesla · connected" onBack={() => setPhase('consent')}>
+        <h1 className="text-3xl font-semibold tracking-tight mb-3">
+          We didn't find any vehicles on this Tesla account
+        </h1>
+        <p className="text-[15px] text-muted-foreground mb-6 leading-relaxed">
+          Your Tesla account is linked, but no vehicles or energy products came back. If you have a
+          Tesla on a different account, sign in with that one. Otherwise you can continue and add
+          devices later.
+        </p>
+        <Button size="lg" className="w-full mb-3" onClick={start}>Try a different Tesla account</Button>
+        <button type="button" className="text-sm text-muted-foreground underline" onClick={skip}>
+          Continue without a vehicle
+        </button>
+      </BetaShell>
+    );
+  }
+
+  // snapshot — devices claimed. Distinguish "asleep, no telemetry yet" from ready.
+  const anyTelemetry = devices.length > 0 && Object.values(detectedStatus).some(
+    (s) => s?.last_telemetry_at,
+  );
+  const sleeping = devices.length > 0 && !anyTelemetry;
+
   return (
     <BetaShell eyebrow="Tesla · connected">
-      <h1 className="text-3xl font-semibold tracking-tight mb-3">You're connected</h1>
+      <h1 className="text-3xl font-semibold tracking-tight mb-3">
+        {sleeping ? 'Your Tesla is asleep' : "You're connected"}
+      </h1>
+      {sleeping && (
+        <p className="text-[15px] text-muted-foreground mb-4 leading-relaxed">
+          Data will update automatically when your car wakes up — usually within a few minutes of
+          driving or charging. You can continue setup now.
+        </p>
+      )}
       {devices.length === 0 ? (
         <p className="text-[15px] text-muted-foreground mb-6">
           Connected — first data may take a few minutes.
