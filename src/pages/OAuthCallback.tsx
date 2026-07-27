@@ -444,7 +444,7 @@ export default function OAuthCallback() {
   // While processing, render the brand splash as a true full-screen layout so
   // the logo lands optically centered (no wrapping flex-with-text-below shifting it down).
   if (status === 'processing') {
-    return <BrandSplash label="Connecting your account..." />;
+    return <BrandSplash label={splashLabel} />;
   }
 
   return (
@@ -452,6 +452,25 @@ export default function OAuthCallback() {
       <div className="text-center space-y-4 max-w-md px-4">
         {status === 'success' && (
           <p className="text-primary font-medium">Account connected! Redirecting...</p>
+        )}
+        {status === 'link-expired' && (
+          <div className="space-y-4">
+            <h1 className="text-xl font-semibold text-foreground">This link expired</h1>
+            <p className="text-sm text-muted-foreground">
+              {errorMessage || "Let's reconnect your Tesla — it only takes a moment."}
+            </p>
+            <Button
+              onClick={() => {
+                hasProcessed.current = false;
+                // Bounce back to the beta Tesla step so startTeslaOAuth mints
+                // a fresh state row on the correct origin.
+                window.location.href = '/beta/tesla';
+              }}
+              className="mt-2"
+            >
+              Reconnect Tesla
+            </Button>
+          </div>
         )}
         {status === 'error' && (
           <div className="space-y-3">
