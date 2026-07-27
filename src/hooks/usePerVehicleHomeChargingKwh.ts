@@ -83,14 +83,24 @@ export function usePerVehicleHomeChargingKwh(deviceId?: string) {
     enabled: !!effectiveUserId && !!deviceId,
     queryFn: async () => {
       if (!effectiveUserId || !deviceId) return 0;
-      const { data, error } = await supabase
-        .from('home_charging_sessions')
-        .select('id, start_time, end_time, status, total_session_kwh, session_metadata')
-        .eq('user_id', effectiveUserId)
-        .eq('device_id', deviceId);
+      const [{ data, error }, { data: device }] = await Promise.all([
+        supabase
+          .from('home_charging_sessions')
+          .select('id, start_time, end_time, status, total_session_kwh, session_metadata')
+          .eq('user_id', effectiveUserId)
+          .eq('device_id', deviceId),
+        supabase
+          .from('connected_devices')
+          .select('baseline_data')
+          .eq('user_id', effectiveUserId)
+          .eq('device_id', deviceId)
+          .maybeSingle(),
+      ]);
       if (error) return 0;
-      return dedupeContinuationSessions((data ?? []) as HomeChargingKwhRow[])
+      const liveKwh = dedupeContinuationSessions((data ?? []) as HomeChargingKwhRow[])
         .reduce((sum, row) => sum + sessionKwh(row), 0);
+      const baselineKwh = Number((device?.baseline_data as any)?.home_charging_kwh || 0);
+      return liveKwh + baselineKwh;
     },
     refetchInterval: 20_000,
   });
