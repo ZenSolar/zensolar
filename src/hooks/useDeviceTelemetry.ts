@@ -267,7 +267,9 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
         const withinTtl = cached
           ? (Date.now() - new Date(cached.cached_at).getTime()) < ttlFor(oem, capability)
           : false;
-        const fresh = !opts?.force && cached && withinTtl && new Date(cached.expires_at) > new Date() && hasCanonicalTelemetryShape(cached.payload, capability);
+        // Enphase is quota-locked: never bypass its 24h TTL, even under force refresh.
+        const enphaseLocked = oem === 'enphase' && withinTtl;
+        const fresh = (!opts?.force || enphaseLocked) && cached && withinTtl && new Date(cached.expires_at) > new Date() && hasCanonicalTelemetryShape(cached.payload, capability);
         if (fresh) {
           out.push({
             oem, capability, site_id: d.device_id, device_name: d.device_name,
