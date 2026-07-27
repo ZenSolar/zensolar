@@ -19,10 +19,26 @@ export default function BetaTesla() {
   const navigate = useNavigate();
   const flow = useBetaFlow();
   const { startTeslaOAuth } = useEnergyOAuth();
-  const [phase, setPhase] = useState<Phase>('consent');
+  const [searchParams, setSearchParams] = useSearchParams();
+  // If we returned from Tesla OAuth (?oauth_success=true), skip the consent
+  // screen and land directly on the "Finishing your Tesla connection…" phase
+  // so the device-discovery poller can advance us to the snapshot screen.
+  const returningFromOAuth = searchParams.get('oauth_success') === 'true';
+  const [phase, setPhase] = useState<Phase>(returningFromOAuth ? 'connecting' : 'consent');
   const [devices, setDevices] = useState<Array<{ type: string; name: string; extra?: string }>>([]);
   const [syncElapsed, setSyncElapsed] = useState(0);
   const [detectedStatus, setDetectedStatus] = useState<BetaStatus>({});
+
+  // Clear the query flag once consumed so a back-forward navigation doesn't re-trigger.
+  useEffect(() => {
+    if (returningFromOAuth) {
+      const next = new URLSearchParams(searchParams);
+      next.delete('oauth_success');
+      next.delete('provider');
+      setSearchParams(next, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const applyDetectedDevices = async (data: TeslaDeviceRow[]) => {
     if (data.length === 0) return false;
