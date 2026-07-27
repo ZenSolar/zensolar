@@ -51,9 +51,38 @@ export default function BetaSignIn() {
     if (data?.session) {
       navigate('/onboarding');
     } else {
-      toast.success('Check your email to confirm your account.');
+      toast.success("We emailed you a 6-digit code. Enter it below to confirm.");
+      setOtpCode('');
+      setMode('verify');
+    }
+  };
+
+  const handleVerify = async () => {
+    const token = otpCode.replace(/\D/g, '');
+    if (token.length < 6) return toast.error('Enter the 6-digit code from your email');
+    setBusy(true);
+    const { data, error } = await supabase.auth.verifyOtp({
+      email: email.trim(),
+      token,
+      type: 'signup',
+    });
+    setBusy(false);
+    if (error) return toast.error(error.message ?? 'Invalid or expired code');
+    if (data?.session) {
+      navigate('/onboarding');
+    } else {
+      toast.success('Email confirmed. Please log in.');
       setMode('login');
     }
+  };
+
+  const handleResendCode = async () => {
+    if (!emailValid) return toast.error('Enter your email first');
+    setBusy(true);
+    const { error } = await supabase.auth.resend({ type: 'signup', email: email.trim() });
+    setBusy(false);
+    if (error) return toast.error(error.message ?? 'Could not resend code');
+    toast.success('New code sent.');
   };
 
   const handleForgot = async () => {
