@@ -405,18 +405,6 @@ Deno.serve(async (req) => {
         ? new Date(Date.now() + tokens.expires_in * 1000).toISOString()
         : null;
 
-      const grantedScope: string = typeof tokens.scope === "string" ? tokens.scope : "";
-      const scopeCheck = classifyMissingScopes(grantedScope);
-      console.log("[tesla-auth] exchange-code:scope-check", scopeCheck);
-
-      const { error: tokenStoreError } = await supabaseClient
-        .from("energy_tokens")
-        .upsert({
-          user_id: exchangeUserId,
-          provider: "tesla",
-          access_token: tokens.access_token,
-          refresh_token: tokens.refresh_token || null,
-          expires_at: expiresAt,
       const hasRefreshToken = !!tokens.refresh_token;
       const grantedScope: string = typeof tokens.scope === "string" ? tokens.scope : "";
       const scopeCheck = classifyMissingScopes(grantedScope, hasRefreshToken);
