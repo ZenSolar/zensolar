@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Tesla OAuth states are backend only" ON public.tesla_oauth_states;
