@@ -163,7 +163,7 @@ async function writeCache(userId: string, oem: OEM, cap: Capability, siteId: str
       site_id: siteId,
       payload,
       cached_at: new Date(now).toISOString(),
-      expires_at: new Date(now + TTL_MS[cap]).toISOString(),
+      expires_at: new Date(now + ttlFor(oem, cap)).toISOString(),
     },
     { onConflict: 'user_id,oem_type,device_type,site_id' }
   );
