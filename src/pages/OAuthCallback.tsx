@@ -172,6 +172,7 @@ export default function OAuthCallback() {
     }
 
     if (isTesla) {
+      setSplashLabel('Connecting your Tesla...');
       oauthDiag('OAuthCallback', 'tesla:start', {
         hasSession: !!session,
         userId: session?.user.id ?? null,
@@ -181,30 +182,43 @@ export default function OAuthCallback() {
       localStorage.removeItem('tesla_oauth_pending');
 
       oauthDiag('OAuthCallback', 'tesla:exchange:fire');
-      const exchangePromise = exchangeTeslaCode(code, state).then(
-        (result) => {
-          oauthDiag('OAuthCallback', 'tesla:exchange:resolved', { result });
-          return result;
-        },
-        (err) => {
-          oauthDiag('OAuthCallback', 'tesla:exchange:rejected', {
-            message: err instanceof Error ? err.message : String(err),
-          });
-          return false;
-        }
-      );
-
-      oauthDiag('OAuthCallback', 'tesla:poll:pre-wait', { waitMs: 3000 });
-      await new Promise(resolve => setTimeout(resolve, 3000));
-
-      const maxPollAttempts = 30;
-      let pollAttempt = 0;
-      let tokensFound = await withTimeout(exchangePromise, 12000, 'Tesla code exchange').catch(() => false);
-      let tokensSource: 'exchange' | 'edge-fn' | 'rpc' | null = tokensFound ? 'exchange' : null;
-
-      if (tokensFound) {
-        oauthDiag('OAuthCallback', 'tesla:tokens:found', { source: 'exchange' });
+      let exchangeResult: Awaited<ReturnType<typeof exchangeTeslaCode>> | null = null;
+      try {
+        exchangeResult = await withTimeout(
+          exchangeTeslaCode(code, state),
+          15000,
+          'Tesla code exchange',
+        );
+        oauthDiag('OAuthCallback', 'tesla:exchange:resolved', {
+          ok: exchangeResult?.ok,
+          errorCode: exchangeResult && !exchangeResult.ok ? exchangeResult.errorCode : null,
+        });
+      } catch (err) {
+        oauthDiag('OAuthCallback', 'tesla:exchange:rejected', {
+          message: err instanceof Error ? err.message : String(err),
+        });
       }
+
+      // Standardized link-lifecycle failures → explicit "reconnect" screen.
+      if (exchangeResult && !exchangeResult.ok &&
+          (exchangeResult.errorCode === 'state_expired' ||
+           exchangeResult.errorCode === 'state_consumed' ||
+           exchangeResult.errorCode === 'state_missing')) {
+        oauthDiag('OAuthCallback', 'tesla:link-expired', { errorCode: exchangeResult.errorCode });
+        setErrorMessage(exchangeResult.message);
+        setStatus('link-expired');
+        return;
+      }
+
+      const serverReturnTo = exchangeResult?.ok ? exchangeResult.returnTo : null;
+      let tokensFound = !!exchangeResult?.ok;
+
+      // If the exchange call itself failed (network / timeout), fall back to
+      // polling check-tokens — the server-side upsert may have completed even
+      // though our HTTP response never came back cleanly (mobile Safari).
+      const maxPollAttempts = tokensFound ? 0 : 30;
+      let pollAttempt = 0;
+      let tokensSource: 'exchange' | 'edge-fn' | 'rpc' | null = tokensFound ? 'exchange' : null;
 
       while (!tokensFound && pollAttempt < maxPollAttempts) {
         pollAttempt++;
@@ -222,7 +236,7 @@ export default function OAuthCallback() {
               return data;
             }),
             3000,
-            'check-tokens edge fn'
+            'check-tokens edge fn',
           ).catch(() => null);
 
           if (checkResult?.exists) {
@@ -237,32 +251,34 @@ export default function OAuthCallback() {
           });
         }
 
-        try {
-          const directResult = await withTimeout(
-            Promise.resolve(
-              supabase.rpc('get_connected_providers', { _user_id: session.user.id })
-            ).then(({ data }) => data?.find((r: { provider: string }) => r.provider === 'tesla') ?? null),
-            2000,
-            'check-tokens RPC'
-          ).catch(() => null);
+        if (session) {
+          try {
+            const directResult = await withTimeout(
+              Promise.resolve(
+                supabase.rpc('get_connected_providers', { _user_id: session.user.id }),
+              ).then(({ data }) => data?.find((r: { provider: string }) => r.provider === 'tesla') ?? null),
+              2000,
+              'check-tokens RPC',
+            ).catch(() => null);
 
-          if (directResult) {
-            oauthDiag('OAuthCallback', 'tesla:tokens:found', { source: 'rpc', pollAttempt });
-            tokensFound = true;
-            tokensSource = 'rpc';
-            break;
+            if (directResult) {
+              oauthDiag('OAuthCallback', 'tesla:tokens:found', { source: 'rpc', pollAttempt });
+              tokensFound = true;
+              tokensSource = 'rpc';
+              break;
+            }
+          } catch (e) {
+            oauthDiag('OAuthCallback', 'tesla:poll:rpc:throw', {
+              message: e instanceof Error ? e.message : String(e),
+            });
           }
-        } catch (e) {
-          oauthDiag('OAuthCallback', 'tesla:poll:rpc:throw', {
-            message: e instanceof Error ? e.message : String(e),
-          });
         }
 
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
 
       if (tokensFound) {
-        const safeReturnPath = consumeSafeReturnPath();
+        const safeReturnPath = serverReturnTo ? isAllowedReturnTo(serverReturnTo) : null;
         const isBetaFlow = localStorage.getItem('beta_energy_flow') === 'true';
         const isOnboardingFlow = localStorage.getItem('onboarding_energy_flow') === 'true';
 
@@ -293,7 +309,7 @@ export default function OAuthCallback() {
             return;
           }
           oauthDiag('OAuthCallback', 'tesla:route:beta:redirect', { url: '/beta/tesla' });
-          window.location.href = '/beta/tesla';
+          window.location.href = '/beta/tesla?oauth_success=true&device_selection=true';
           return;
         }
         if (isOnboardingFlow) {
