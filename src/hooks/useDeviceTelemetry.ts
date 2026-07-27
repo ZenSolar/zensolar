@@ -24,12 +24,16 @@ const TTL_MS: Record<Capability, number> = {
   solar: 60 * 1000,
 };
 
-// Per-OEM override. Enphase is beta-quota-sensitive — we refresh at most once
-// per day per capability regardless of the capability's default TTL. The
-// server-side enphase-data-cron performs the authoritative daily sync.
-const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+// Per-OEM override. Enphase middle ground:
+//  - Rewards / history / minting lane (useDashboardData `fetchEnphaseData`)
+//    stays at 24h to protect the daily API quota.
+//  - Live Energy Diagram lane (this hook) fetches on-demand when the user
+//    opens the dashboard / Zen Monitoring and caches the reading for 12 min.
+//    Force refresh is still rate-limited to that 12 min window so we never
+//    stream Enphase second-by-second.
+const LIVE_ENPHASE_TTL_MS = 12 * 60 * 1000;
 const OEM_TTL_OVERRIDE_MS: Partial<Record<OEM, number>> = {
-  enphase: ONE_DAY_MS,
+  enphase: LIVE_ENPHASE_TTL_MS,
 };
 
 function ttlFor(oem: OEM, cap: Capability): number {
@@ -267,7 +271,9 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
         const withinTtl = cached
           ? (Date.now() - new Date(cached.cached_at).getTime()) < ttlFor(oem, capability)
           : false;
-        // Enphase is quota-locked: never bypass its 24h TTL, even under force refresh.
+        // Enphase live lane is rate-limited: within the 12-min window we
+        // never re-hit the OEM, even under a manual force refresh. Falls back
+        // to the last cached reading below when a fresh fetch fails.
         const enphaseLocked = oem === 'enphase' && withinTtl;
         const fresh = (!opts?.force || enphaseLocked) && cached && withinTtl && new Date(cached.expires_at) > new Date() && hasCanonicalTelemetryShape(cached.payload, capability);
         if (fresh) {
