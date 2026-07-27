@@ -450,6 +450,16 @@ export function useEnergyOAuth() {
     }
   }, []);
 
+  const rollbackWallboxConnection = useCallback(async (userId: string) => {
+    try {
+      await supabase.from('energy_tokens').delete().eq('user_id', userId).eq('provider', 'wallbox');
+      await supabase.from('connected_devices').delete().eq('user_id', userId).eq('provider', 'wallbox');
+      await supabase.from('profiles').update({ wallbox_connected: false }).eq('user_id', userId);
+    } catch (e) {
+      console.error('Wallbox rollback failed:', e);
+    }
+  }, []);
+
   const connectWallbox = useCallback(async (email: string, password: string): Promise<boolean> => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -457,7 +467,9 @@ export function useEnergyOAuth() {
         toast.error('Please log in first');
         return false;
       }
+      const userId = session.user.id;
 
+      // Step 1: authenticate with Wallbox and persist token
       const response = await supabase.functions.invoke('wallbox-auth', {
         body: { action: 'authenticate', email, password },
         headers: { Authorization: `Bearer ${session.access_token}` },
@@ -474,8 +486,32 @@ export function useEnergyOAuth() {
         return false;
       }
 
+      // Step 2: first-proof — verify at least one charger reports a status/reading
+      let chargerCount = 0;
+      try {
+        const probe = await supabase.functions.invoke('wallbox-data', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        const chargers = (probe?.data as any)?.chargers ?? (probe?.data as any)?.data ?? [];
+        chargerCount = Array.isArray(chargers) ? chargers.length : 0;
+      } catch (probeErr) {
+        console.error('Wallbox first-reading probe failed:', probeErr);
+      }
+
+      if (chargerCount === 0) {
+        // Roll back: don't leave the profile marked connected with no chargers
+        await rollbackWallboxConnection(userId);
+        showOAuthError({
+          provider: 'wallbox',
+          stage: 'login',
+          rawMessage: "Connected to Wallbox, but no chargers were found on this account. Check that your charger is registered in the Wallbox app, then try again.",
+          retry: () => void connectWallbox(email, password),
+        });
+        return false;
+      }
+
       trackConnectSuccess('wallbox');
-      toast.success('Wallbox account connected successfully!');
+      toast.success(`Wallbox connected — ${chargerCount} charger${chargerCount === 1 ? '' : 's'} detected.`);
       return true;
     } catch (error) {
       console.error('Wallbox connection error:', error);
@@ -487,7 +523,7 @@ export function useEnergyOAuth() {
       });
       return false;
     }
-  }, []);
+  }, [rollbackWallboxConnection]);
 
   return {
     startTeslaOAuth,
