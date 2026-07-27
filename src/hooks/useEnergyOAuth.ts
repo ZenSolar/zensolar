@@ -297,6 +297,10 @@ export function useEnergyOAuth() {
 
       const state = crypto.randomUUID();
       localStorage.setItem('tesla_oauth_state', state);
+      // Remember the beta origin the user started from so the "Reconnect Tesla"
+      // recovery CTA can bounce back to the correct beta host even after the
+      // apex domain hop.
+      rememberBetaOriginIfBeta();
       oauthDiag('useEnergyOAuth', 'tesla:start:state-generated', { state });
 
       const response = await supabase.functions.invoke('tesla-auth', {
@@ -315,6 +319,7 @@ export function useEnergyOAuth() {
         authHost: (() => { try { return new URL(authUrl).host; } catch { return null; } })(),
         isMobile: isMobile(),
       });
+
 
       if (isMobile()) {
         localStorage.setItem('tesla_oauth_pending', 'true');
