@@ -356,13 +356,12 @@ export default function OAuthCallback() {
         }
       } else {
         oauthDiag('OAuthCallback', 'tesla:tokens:not-found', { pollAttempts: pollAttempt });
-        setErrorMessage('Connection timed out. Please try again.');
-        setStatus('error');
-        setCanRetry(true);
-        setTimeout(() => { window.location.href = '/'; }, 5000);
+        setErrorMessage('Connection timed out. Please try again — your Tesla link may have expired.');
+        setStatus('link-expired');
       }
       return;
     }
+
 
     if (enphaseOAuthPending) {
       oauthDiag('OAuthCallback', 'enphase:start');
