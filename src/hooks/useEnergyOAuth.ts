@@ -73,6 +73,7 @@ function safeCurrentOrigin(): string {
     'zen.solar',
     'www.zen.solar',
     'beta.zen.solar',
+    'www.beta.zen.solar',
   ]);
   if (
     allowedHosts.has(hostname) ||
@@ -82,8 +83,27 @@ function safeCurrentOrigin(): string {
   ) {
     return origin;
   }
-  return 'https://beta.zen.solar';
+  // Canonical beta host — reconnect CTAs and product links prefer beta.zensolar.com.
+  return 'https://beta.zensolar.com';
 }
+
+const BETA_HOSTS = new Set([
+  'beta.zensolar.com',
+  'www.beta.zensolar.com',
+  'beta.zen.solar',
+  'www.beta.zen.solar',
+]);
+
+function rememberBetaOriginIfBeta() {
+  try {
+    if (typeof window === 'undefined') return;
+    const { hostname, origin } = window.location;
+    if (BETA_HOSTS.has(hostname)) {
+      sessionStorage.setItem('oauth_beta_host', origin);
+    }
+  } catch { /* ignore */ }
+}
+
 
 const PROVIDER_LABEL: Record<string, string> = {
   tesla: 'Tesla',
@@ -277,6 +297,10 @@ export function useEnergyOAuth() {
 
       const state = crypto.randomUUID();
       localStorage.setItem('tesla_oauth_state', state);
+      // Remember the beta origin the user started from so the "Reconnect Tesla"
+      // recovery CTA can bounce back to the correct beta host even after the
+      // apex domain hop.
+      rememberBetaOriginIfBeta();
       oauthDiag('useEnergyOAuth', 'tesla:start:state-generated', { state });
 
       const response = await supabase.functions.invoke('tesla-auth', {
@@ -295,6 +319,7 @@ export function useEnergyOAuth() {
         authHost: (() => { try { return new URL(authUrl).host; } catch { return null; } })(),
         isMobile: isMobile(),
       });
+
 
       if (isMobile()) {
         localStorage.setItem('tesla_oauth_pending', 'true');
@@ -380,16 +405,31 @@ export function useEnergyOAuth() {
         headers,
       });
 
-      // Standardized state-lifecycle errors surface in response.data.error even
-      // when the HTTP status is 401 — check those before generic error extraction
-      // so the callback can render the "link expired" recovery screen.
-      const dataErr = response.data?.error;
+      // Standardized state-lifecycle errors — tesla-auth returns HTTP 401 for
+      // state_expired / state_consumed / state_missing. supabase-js sets
+      // response.error (FunctionsHttpError) and leaves response.data null on
+      // non-2xx, so we must also peek at the FunctionsHttpError body.
+      let dataErr: string | undefined = response.data?.error;
+      let dataMsg: string | undefined = response.data?.message;
+      if (!dataErr && response.error) {
+        const ctxResponse = (response.error as unknown as { context?: { json?: () => Promise<unknown> } })
+          .context?.json;
+        if (typeof ctxResponse === 'function') {
+          try {
+            const body = (await ctxResponse.call((response.error as unknown as { context: unknown }).context)) as
+              | { error?: string; message?: string }
+              | undefined;
+            dataErr = body?.error;
+            dataMsg = body?.message;
+          } catch { /* ignore */ }
+        }
+      }
       if (dataErr === 'state_expired' || dataErr === 'state_consumed' || dataErr === 'state_missing') {
         oauthDiag('useEnergyOAuth', 'tesla:exchange:state-error', { errorCode: dataErr });
         return {
           ok: false,
           errorCode: dataErr,
-          message: response.data?.message || 'This authorization link is no longer valid.',
+          message: dataMsg || 'This authorization link is no longer valid.',
         };
       }
 
@@ -398,6 +438,7 @@ export function useEnergyOAuth() {
         oauthDiag('useEnergyOAuth', 'tesla:exchange:error', { errMsg });
         throw new Error(errMsg);
       }
+
 
       const d = response.data ?? {};
       oauthDiag('useEnergyOAuth', 'tesla:exchange:success', {

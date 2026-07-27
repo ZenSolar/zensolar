@@ -18,7 +18,9 @@ const RETURN_ORIGIN_HOSTS = new Set([
   "zen.solar",
   "www.zen.solar",
   "beta.zen.solar",
+  "www.beta.zen.solar",
 ]);
+
 
 // Tesla scopes ZenSolar requests. Read-only. Keep in sync with the auth URL below.
 const REQUIRED_TESLA_SCOPES = [

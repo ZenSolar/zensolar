@@ -20,6 +20,7 @@ function isAllowedReturnTo(url: string): string | null {
       'zen.solar',
       'www.zen.solar',
       'beta.zen.solar',
+      'www.beta.zen.solar',
     ]);
     if (allowedHosts.has(u.hostname) || u.hostname.endsWith('.lovable.app')) return u.toString();
   } catch {
@@ -27,6 +28,27 @@ function isAllowedReturnTo(url: string): string | null {
   }
   return null;
 }
+
+// Canonical beta host for the reconnect CTA. Prefer the origin the user
+// started OAuth from (stored in sessionStorage by startTeslaOAuth); fall back
+// to beta.zensolar.com.
+function resolveReconnectUrl(): string {
+  try {
+    const stored = sessionStorage.getItem('oauth_beta_host');
+    if (stored) {
+      const u = new URL(stored);
+      const allowed = new Set([
+        'beta.zensolar.com',
+        'www.beta.zensolar.com',
+        'beta.zen.solar',
+        'www.beta.zen.solar',
+      ]);
+      if (allowed.has(u.hostname)) return `${u.origin}/beta/tesla`;
+    }
+  } catch { /* ignore */ }
+  return 'https://beta.zensolar.com/beta/tesla';
+}
+
 
 // Timeout wrapper to prevent hanging promises
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
@@ -75,18 +97,20 @@ export default function OAuthCallback() {
     if (error) {
       oauthDiag('OAuthCallback', 'provider:error', { error, errorDescription });
       setErrorMessage(errorDescription || error);
-      setStatus('error');
-      setTimeout(() => { window.location.href = '/'; }, 3000);
+      // Never bounce Tesla failures to the apex root — the apex "/" route is
+      // /demo-gated and swallows the reconnect UI. Show the expired-link
+      // screen with a Reconnect CTA instead.
+      setStatus('link-expired');
       return;
     }
 
     if (!code) {
       oauthDiag('OAuthCallback', 'callback:no-code');
       setErrorMessage('No authorization code received');
-      setStatus('error');
-      setTimeout(() => { window.location.href = '/'; }, 2000);
+      setStatus('link-expired');
       return;
     }
+
 
     const savedState = localStorage.getItem('tesla_oauth_state');
     const teslaMobilePending = localStorage.getItem('tesla_oauth_pending');
@@ -332,13 +356,12 @@ export default function OAuthCallback() {
         }
       } else {
         oauthDiag('OAuthCallback', 'tesla:tokens:not-found', { pollAttempts: pollAttempt });
-        setErrorMessage('Connection timed out. Please try again.');
-        setStatus('error');
-        setCanRetry(true);
-        setTimeout(() => { window.location.href = '/'; }, 5000);
+        setErrorMessage('Connection timed out. Please try again — your Tesla link may have expired.');
+        setStatus('link-expired');
       }
       return;
     }
+
 
     if (enphaseOAuthPending) {
       oauthDiag('OAuthCallback', 'enphase:start');
@@ -402,10 +425,9 @@ export default function OAuthCallback() {
 
     oauthDiag('OAuthCallback', 'callback:unknown', { savedState, state });
     setErrorMessage('Authorization session expired. Please try again.');
-    setStatus('error');
-    setCanRetry(true);
-    setTimeout(() => { window.location.href = '/'; }, 3000);
+    setStatus('link-expired');
   };
+
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -462,9 +484,10 @@ export default function OAuthCallback() {
             <Button
               onClick={() => {
                 hasProcessed.current = false;
-                // Bounce back to the beta Tesla step so startTeslaOAuth mints
-                // a fresh state row on the correct origin.
-                window.location.href = '/beta/tesla';
+                // Always land on the canonical beta host so startTeslaOAuth
+                // mints a fresh state row (and the /demo gate on apex never
+                // swallows the reconnect flow).
+                window.location.href = resolveReconnectUrl();
               }}
               className="mt-2"
             >
@@ -472,6 +495,7 @@ export default function OAuthCallback() {
             </Button>
           </div>
         )}
+
         {status === 'error' && (
           <div className="space-y-3">
             <p className="text-destructive font-medium">Connection failed</p>

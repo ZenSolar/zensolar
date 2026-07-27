@@ -1,73 +1,67 @@
-# Tesla P0/P1 — Ship-ready plan
+# Tesla callback failure path — stop the /demo redirect, add poll backoff
 
-Consolidated plan folding in every amendment. Land these in order, then verify and ship.
+## Root cause
 
-## Core changes (from earlier rounds, unchanged)
+`tesla-auth` returns HTTP **401** for `state_expired | state_consumed | state_missing`. On non-2xx, `supabase-js` populates `response.error` (FunctionsHttpError) and leaves `response.data = null`. In `useEnergyOAuth.exchangeTeslaCode`:
 
-1. **Auth URL flags**: `require_requested_scopes=false`, `prompt_missing_scopes=true` so partial grants come back to us instead of being blocked at Tesla.
-2. **Scope classification**: `missing_scopes` is a diff over data scopes only — `vehicle_device_data`, `vehicle_location`, `vehicle_charging_cmds`, `energy_device_data`. Offline access is inferred from `!!tokens.refresh_token`; if false, severity is `blocking` via a synthetic `no_refresh_token` reason, but it never appears in `missing_scopes`.
-3. **Server-owned domain hop**: apex `/oauth/callback` looks up `tesla_oauth_states.return_to` by `state` and bounces to `https://<beta host>/oauth/callback?...&hopped=1` before token exchange. The `tesla_oauth_return_to` localStorage key is removed from `OAuthCallback.tsx` and `useEnergyOAuth.ts`.
-4. **Expired / consumed link screen**: `exchange-code` returns standardized `state_expired | state_consumed | state_missing`; callback renders **"This link expired. Let's reconnect your Tesla."** with a button that restarts `startTeslaOAuth({ returnTo: '/onboarding/tesla' })` on beta.
-5. **Consent copy**: always show Energy Product Information row, wording `"your solar production and Powerwall, if you have them"`. Recovery UI accepts `hasEnergyIntent` and suppresses the energy consequence when the user declared no solar/battery.
-6. **Persist `granted_scope`** on `energy_tokens.extra_data` with `granted_at` and `has_refresh_token` alongside it.
+```
+const dataErr = response.data?.error;         // undefined — data is null on 401
+if (dataErr === 'state_expired' | ...) { ... } // never runs
+const errMsg = extractError(response);        // picks up FunctionsHttpError message
+throw new Error(errMsg);                       // falls into catch → showOAuthError → returns { ok:false, errorCode:'unknown' }
+```
 
-## Post-connect state machine
+Because the classified `link-expired` branch never fires, `OAuthCallback` lands on the generic error branch and executes `window.location.href = '/'`. On `zensolar.com` / `zen.solar` the root route is wrapped by the `/demo` gate, so the browser lands on `/demo`. This exactly matches Claude's repro.
 
-After the 15 s connecting window, group Tesla `connected_devices` for the user into vehicles and energy sites, then check whether telemetry has landed (`last_known_state` non-empty on the respective rows).
+Secondary issues confirmed by reading the code:
 
-| Vehicles | Energy sites | Vehicle telemetry | Energy telemetry | Screen |
-| --- | --- | --- | --- | --- |
-| ≥ 1 | 0 | none | — | **"Your Tesla is asleep. Data will update when it wakes."** Continue → background sync. |
-| ≥ 1 | ≥ 1 | none | present | **"Your solar is producing right now. Your car is asleep and will sync when it wakes."** Continue. |
-| ≥ 1 | ≥ 1 | none | none | Same asleep copy as row 1 (nothing to celebrate yet). |
-| 0 | ≥ 1 | — | any | **"Your Powerwall and solar are connected. No vehicles found on this account."** Continue. Secondary: "Try a different Tesla account". |
-| 0 | 0 | — | — | **"We didn't find any vehicles or energy products on this Tesla account."** Primary: "Try a different Tesla account". Secondary: "Skip for now". |
-| ≥ 1 | any | present | any | Existing `snapshot` phase (unchanged). |
+- Same `window.location.href = '/'` fallback exists in the `provider:error`, `no-code`, session-restore-failed, tokens-not-found, and `callback:unknown` branches — every one of them dumps the user onto `/demo` on apex.
+- `RETURN_ORIGIN_HOSTS` (edge fn) and `isAllowedReturnTo` (client) both omit `www.beta.zen.solar`.
+- `useDeviceTelemetry` polls tesla-data on a fixed `pollMs` interval with zero backoff or failure cap — that is the 84-consecutive-failures loop.
 
-Implementation: new `post-connect-summary` phase in `src/pages/beta/BetaTesla.tsx` chosen from a single query result; `snapshot` becomes reachable only when vehicle telemetry actually arrives.
+## Fix — Client callback failure path
 
-## `no_refresh_token` escape (with reset on recovery)
+1. `**src/hooks/useEnergyOAuth.ts` — parse Tesla error body from FunctionsHttpError.**
+  Before the current `dataErr` check, read the response body when `response.error` is a `FunctionsHttpError`:
+   Then keep the existing `state_expired | state_consumed | state_missing` branch, returning `{ ok:false, errorCode: dataErr, message: dataMsg ?? … }`. Do NOT call `showOAuthError` for these classified failures — they are handled by the callback UI.
+2. `**src/pages/OAuthCallback.tsx` — never redirect to `/` on Tesla failure.**
+  - Replace every `window.location.href = '/'` inside a Tesla-classified path (`provider:error` when `isTesla`, `no-code`, session-restore-failed, tokens-not-found, `callback:unknown`) with `setStatus('link-expired')`. The existing `link-expired` UI already exposes a `Reconnect Tesla` CTA that hits `/beta/tesla`.
+  - For the truly-unknown case (state present but doesn't match any provider) still surface the same expired-link screen — safer than routing to apex root.
+  - Keep Enphase fallbacks as-is.
+  - Remove the `setTimeout(() => window.location.href = '/', …)` calls tied to Tesla; rely on the CTA.
+3. `**isAllowedReturnTo` + edge-fn `RETURN_ORIGIN_HOSTS` — complete the beta allowlist.**
+  Add `www.beta.zen.solar` to both sets so a beta.zen.solar user's `returnTo` and the server-side origin check both accept it.
+4. `**link-expired` reconnect CTA — restart on correct beta host.**
+  Today it does `window.location.href = '/beta/tesla'`. If the callback fired on apex (state expired before hop), the CTA lands on apex `/beta/tesla`, which under the apex gate would bounce to `/demo` too. Compute the target host: prefer the last stored beta host from `sessionStorage` (`oauth_beta_host` written by `startTeslaOAuth`), then fall back to `beta.zensolar.com`. Reconstruct as `https://<host>/beta/tesla`.
+5. `**startTeslaOAuth` (`useEnergyOAuth.ts`) — remember the beta origin.**
+  Write `sessionStorage.setItem('oauth_beta_host', safeCurrentOrigin())` when the current host is a beta host, so the recovery CTA has an authoritative target after the domain hop.
 
-- Track `energy_tokens.extra_data.no_refresh_token_attempts` (integer).
-- Increment on any `exchange-code` that lands without `refresh_token`.
-- **Reset to 0 on any exchange that DOES return a `refresh_token`.** Prevents an old transient failure from immediately unlocking the escape hatch months later.
-- Recovery UI:
-  - `attempts <= 1` → single primary "Reauthorize with Tesla".
-  - `attempts >= 2` → also reveal:
-    - **Continue anyway** (you may need to reconnect later) → sets `degraded_no_refresh=true` on the profile for a future gentle nudge; advances to device-selection.
-    - **Skip Tesla for now** → uses existing `skip()` handler.
-- `TeslaScopeRecovery` props: `noRefreshTokenAttempts: number`, `onContinueAnyway?`, `onSkip?`.
+## Fix — Tesla poll backoff + hard stop
 
-## Branded apex splash — paint immediately
+6. `**src/hooks/useDeviceTelemetry.ts` — exponential backoff + circuit breaker.**
+  - Track a per-hook `failureCount` ref updated in `refresh` (increment on `catch`, reset to 0 on success).
+  - In the polling `setInterval`, compute effective delay = `pollMs * Math.min(2 ** failureCount, 16)` and reset the interval when the multiplier changes.
+  - Hard stop after **10** consecutive failures: `clearInterval`, set `error = 'Live data paused after repeated failures'`, expose a manual `retry()` (already returned as `refresh`).
+  - Emit `oauthDiag('useDeviceTelemetry', 'poll:paused', { capability, failureCount })` on stop so the diagnostic buffer captures it.
 
-Two layers, so the "Connecting your Tesla…" moment is never blank:
+## Verification
 
-- **Static pre-React fallback** in `index.html`: if the page loads with `pathname === '/oauth/callback'` and the URL has `?state=` but no `?hopped=1`, render an inline branded splash (logo + copy) inside `#root` via a tiny inline script. React unmounts it on hydrate. Keep it dependency-free and inline so it paints before the SPA bundle loads.
-- **React layer** in `src/pages/OAuthCallback.tsx`: render `<BrandSplash message="Connecting your Tesla…" />` on the very first render, before any effect fires. `lookup-return-to`, the hop, and the token exchange all happen underneath the splash. Diagnostics still write to the ring buffer.
-
-## Callback route reachable on every apex host
-
-Confirm `/oauth/callback` resolves and returns the SPA on both `zensolar.com` and `zen.solar`. `App.tsx` mounts the route unconditionally; both hosts are in the custom-domain list. Verified in build mode.
-
-## Cohort-analysis reference
-
-Add `docs/tokenomics/granted-scope-shape.md` describing the `energy_tokens.extra_data` JSON contract (`granted_scope`, `granted_at`, `has_refresh_token`, optional `no_refresh_token_attempts`, optional `degraded_no_refresh`). Comment above the upsert in `tesla-auth/index.ts` points to that doc.
+- Force `state_expired`: manually expire the `tesla_oauth_states` row (or wait > 10 min), reload `/oauth/callback?...` on `zensolar.com`. Expect the "This link expired" screen; DevTools shows no navigation to `/demo`; oauth diag buffer contains `tesla:link-expired`.
+- Force `state_missing`: strip `state` from the callback URL. Same expected result.
+- Force `state_consumed`: replay the same `?state=…&code=…` twice. Second load renders the expired screen (not `/demo`).
+- Click **Reconnect Tesla** → lands on `https://beta.zensolar.com/beta/tesla` and `startTeslaOAuth` mints a fresh state row.
+- Simulate 12 consecutive `tesla-data` failures (block the function in DevTools). Confirm the interval delay grows (2×, 4×, 8×, 16× cap) and stops after 10 failures with the paused message. Manual refresh resumes normally on next success.
+- `curl -s -o /dev/null -w "%{http_code}\n" https://zensolar.com/oauth/callback` → `200`; same for `zen.solar` and `beta.zen.solar`.
 
 ## Out of scope
 
-Dashboard redesign, tokenomics changes, virtual key pairing, CDN-level 302 for `/oauth/callback`.
+Dashboard redesign, tokenomics, virtual key pairing, edge-fn refactor of status codes (still 401 by design; client now reads the body).  
+  
+  
+Canonical beta host decision:
 
-## Verification checklist (after build mode)
+- Primary invite URL is [https://beta.zensolar.com](https://beta.zensolar.com)
 
-- `get-auth-url` URL contains `require_requested_scopes=false&prompt_missing_scopes=true`.
-- Fresh incognito → uncheck Vehicle Location on Tesla → recovery lists only Vehicle Location; "Continue without it" advances to device-selection.
-- Fresh incognito, all boxes checked, vehicles present → device-selection appears; `snapshot` renders once telemetry lands.
-- Simulate two consecutive no-refresh exchanges → escape buttons appear on second recovery view. Then simulate a successful refresh-token exchange → counter is back at 0 (verified via psql).
-- Energy-only Tesla account → energy-only success screen; empty account → empty screen; asleep + energy live → split copy.
-- Let state row expire (> 10 min) → "This link expired" screen restarts OAuth on beta.
-- **Callback route reachability** — use GET, not HEAD, because SPAs are picky:
-  `curl -s -o /dev/null -w "%{http_code}\n" https://zensolar.com/oauth/callback`
-  `curl -s -o /dev/null -w "%{http_code}\n" https://zen.solar/oauth/callback`
-  Both must return `200`.
-- **Hop happens exactly once, on beta**: run through the flow with devtools open on both apex and beta tabs; `window.__oauthDiag('dump')` on the beta tab must show one `callback:hop` entry with `hopped=1` set on the destination URL, and the `exchange-code` call must appear only in the beta-tab log (never in the apex-tab log).
-- Branded splash paints on apex before React hydrates (throttle CPU in devtools and confirm no blank frame between paint and hop).
+- Prefer keeping users on [beta.zensolar.com](http://beta.zensolar.com) end-to-end
+
+- Allowlist may include [beta.zen.solar](http://beta.zen.solar) for safety, but all product links and reconnect CTAs should target [beta.zensolar.com](http://beta.zensolar.com)
