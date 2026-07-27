@@ -1,62 +1,55 @@
+# Restore email + password auth
 
-## Problem
+Locked decision: primary login = email + password. OTP/magic-link is no longer the required default. Passkey / Coinbase Smart Wallet activation stays where it is (`/onboarding/account`) — that's a wallet step, not a login method.
 
-`beta.zen.solar` currently renders the full marketing `Home.tsx` (`src/pages/Home.tsx`), which pulls in `HomeHero`, `PricingSection`, `NFTMilestoneSection`, `StoreRedemptionSection`, `HomeCTA`, etc. Those CTAs point at legacy `/auth` email/password signup and the `/demo` mint simulator — the wrong entry for trusted beta testers.
+`useAuth` already exposes `signIn`, `signUp`, `resetPassword`, `updatePassword` via `supabase.auth.signInWithPassword` / `signUp` / `resetPasswordForEmail`, so no backend or hook changes are needed.
 
-`zensolar.com` already redirects to `/demo` via a `GATED_HOSTS` check inside `Home.tsx`. `beta.zen.solar` is not in that set, so it falls through to the marketing page.
+## Changes
 
-Goal: give `beta.zen.solar` its own minimal Quiet-Current front door whose only primary action is “Join the beta” → `/onboarding`.
+### 1. Rebuild `src/pages/beta/BetaSignIn.tsx` (Quiet Current styling)
+Replace the OTP form with a tabbed Log In / Sign Up surface:
+- **Log In**: email + password → `signIn()`; on success → `/onboarding` (BetaResume decides where returning users land vs. resume onboarding).
+- **Sign Up**: email + password (+ optional display name) → `signUp()` with `emailRedirectTo: ${origin}/onboarding`; on success either auto-signed-in → `/onboarding`, or show "check your email to confirm".
+- **Forgot password** link → inline flow calling `resetPassword(email)` with redirect to `/reset-password`.
+- **Optional Google / Apple buttons**: render only if the `lovable` OAuth helper is available (already wired via `src/integrations/lovable/index.ts`). Use `lovable.auth.signInWithOAuth("google" | "apple", { redirect_uri: window.location.origin + "/onboarding" })`. No workspace-level provider tool call in this task — only surface what's already enabled.
+- Strip all passwordless copy ("No password required", "We'll email you a one-time code", "Send code", etc.).
 
-## Approach
+### 2. Retire OTP verify step
+- Delete the `/onboarding/verify` route registration in `src/App.tsx` (and the `/beta/signin` legacy alias can keep pointing at the new component).
+- Leave `src/pages/beta/BetaVerify.tsx` on disk but unused, or remove it — decision at build time. Existing password accounts are unaffected because they never touched this route.
 
-1. Add a new page `src/pages/BetaLanding.tsx` built with the existing Quiet Current primitives (`QCScreen`, `QCHeader`, `QCMain`, `QCButton`) so it inherits the exact dark premium look used by `/onboarding`.
-2. Register it at `/beta-welcome` in `src/App.tsx` (public, no auth guard).
-3. In `src/pages/Home.tsx`, add `beta.zen.solar` and `www.beta.zen.solar` to a beta-host set that redirects to `/beta-welcome` (same pattern already used for `zensolar.com` → `/demo`). Marketing hosts keep their current behavior.
+### 3. `/beta-welcome` "Log in" entry point (`src/pages/BetaLanding.tsx`)
+- Keep the "Log in" link in the header pointing to `/onboarding/signin` (the new email+password screen). No copy change needed there beyond what's already shipped.
 
-No other routes or components change. No copy on `/onboarding` changes.
+### 4. Post-login routing — don't force onboarding on existing users
+`BetaResume.tsx` currently sends any authed user whose `beta_flow_step` is `done` to `/`, and anyone with a saved mid-flow step back into that step. Tighten the "already set up" check:
+- If the user has ANY of: `beta_flow_step === 'done'`, a connected device in `connected_devices`, or a non-null `wallet_address` on `profiles` → navigate to `/` (dashboard) instead of resuming onboarding.
+- Otherwise behave as today (resume saved step, else `computeNextStep`).
 
-## New page contents (`/beta-welcome`)
+This means Joe / Harrison / other existing users hitting Log In land straight on the Clean Energy Center; brand-new signups still get the full onboarding.
 
-Single mobile-first column, Quiet Current styling:
+### 5. Password reset page
+Add `src/pages/ResetPassword.tsx` (Quiet Current styled) mounted at `/reset-password` as a public route in `src/App.tsx`. It:
+- Reads the recovery session Supabase sets on redirect.
+- Shows a "new password" + confirm form and calls `updatePassword()`.
+- On success → `/onboarding` (BetaResume will send them to `/` per step 4).
 
-- **Header** — ZenSolar horizontal logo (already imported by `QuietCurrent.tsx`). Right side: subtle `Log in` link → `/onboarding/signin` for returning testers.
-- **Hero**
-  - H1: “Your solar and your Tesla, finally working for you.”
-  - Subhead: “ZenSolar connects to your Tesla, solar, and battery to track the clean energy you’re already producing — and rewards you for it. Takes about 3 minutes, read-only, disconnect anytime.”
-  - Partner row (plain text, no logos required): `Tesla · Enphase · SolarEdge · Wallbox`
-  - Primary CTA (`QCButton`): **Join the beta** → navigates to `/onboarding`
-  - Trust line under CTA: “We only read your data — never control your devices. You can disconnect anytime.”
-- **3-step strip** (three short lines, no icons/emoji):
-  1. Connect your devices
-  2. See live energy data
-  3. Start the beta
-- **Footer** — two quiet links only: `Support` (`mailto:support@zen.solar`) and `Privacy` (`/privacy`). No nav, no socials, no store.
+### 6. Wallet step untouched
+`src/pages/beta/BetaAccount.tsx` ("Secure your account" — Face ID / Coinbase Smart Wallet passkey) stays exactly as-is. It's a wallet activation, not a login method, and the flow still ends there before `/onboarding/done`.
 
-Removed vs. current beta host: pricing tiers, mint caps, staking multipliers, earnings projections, “7 waves to 1M users”, NFT trophy case, $ZSOLAR store, tokenomics sections, Bitcoin closing pitch, demo-mint CTA.
+### 7. Copy sweep
+Grep for and remove passwordless framing on the primary login/signup surface only:
+- "No password required"
+- "We'll email you a one-time code"
+- "Send code" / "Enter your code" on the main auth screens
+Legacy `/beta/*` v1 routes and any AI-Concierge screens keep their own copy.
 
-## Technical detail
+## Ship message
+After the edits land, reply exactly:
 
-- `src/pages/Home.tsx`
-  - Add `BETA_HOSTS = new Set(['beta.zen.solar', 'www.beta.zen.solar'])`.
-  - Before the existing `GATED_HOSTS` check, if the current hostname is in `BETA_HOSTS`, `return <Navigate to="/beta-welcome" replace />`.
-- `src/App.tsx`
-  - Lazy import `BetaLanding` and add `<Route path="/beta-welcome" element={<Suspense fallback={<PageLoader />}><BetaLanding /></Suspense>} />` alongside other public routes.
-- `src/pages/BetaLanding.tsx`
-  - Uses `QCScreen`, `QCHeader`, `QCMain`, `QCButton` from `@/components/onboarding/quiet/QuietCurrent`.
-  - `SEO` component: title “ZenSolar Beta — Join the Beta”, description matches subhead, `url` `https://beta.zen.solar`.
-  - Primary CTA uses `useNavigate()` → `navigate('/onboarding')`.
-  - Log in link → `/onboarding/signin`.
-- No changes to `previewHost.ts`, `/onboarding/*`, or auth flows.
+> Primary auth restored to email + password — login and wallet activation remain separate.
 
-## Verification
-
-1. Load `beta.zen.solar` → redirects to `/beta-welcome`, renders the minimal Quiet Current page.
-2. Click **Join the beta** → lands on `/onboarding` (passwordless flow, no legacy `/auth` modal).
-3. `Log in` link → `/onboarding/signin`.
-4. No pricing, tokenomics, NFT, store, or demo-mint sections visible on `beta.zen.solar`.
-5. `zensolar.com` still redirects to `/demo` (unchanged); localhost/preview hosts still render marketing `Home.tsx` (unchanged).
-6. Mobile 390 px: single column, hero readable without scroll to find the CTA.
-
-After shipping, reply exactly:
-
-“beta.zen.solar rewired as a minimal beta front door — primary CTA routes into passwordless /onboarding.”
+## Technical notes
+- No Supabase migrations, no `configure_auth` / `configure_social_auth` calls in this task — Google/Apple buttons render only if the workspace already has them enabled; otherwise they're hidden.
+- Existing password users are unaffected (`signInWithPassword` is already how they authenticate elsewhere via `Auth.tsx`).
+- The OTP path stops being reachable from the primary flow but doesn't break any historical sessions — sessions are cookie/localStorage based and independent of the sign-in method used to create them.
