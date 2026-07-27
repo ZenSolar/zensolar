@@ -44,7 +44,7 @@ export default function BetaSignIn() {
         setOtpCode('');
         setMode('verify');
         toast.message('Almost there — confirm your email', {
-          description: 'We just sent a fresh 6-digit code. Enter it below.',
+          description: 'We just sent a fresh code. Enter it below.',
         });
         supabase.auth.resend({ type: 'signup', email: email.trim() }).catch(() => {});
         return;
@@ -66,7 +66,7 @@ export default function BetaSignIn() {
     if (data?.session) {
       navigate('/onboarding');
     } else {
-      toast.success("We emailed you a 6-digit code. Enter it below to confirm.");
+      toast.success("We emailed you a code. Enter it below to confirm.");
       setOtpCode('');
       setMode('verify');
     }
@@ -74,7 +74,7 @@ export default function BetaSignIn() {
 
   const handleVerify = async () => {
     const token = otpCode.replace(/\D/g, '');
-    if (token.length < 6) return toast.error('Enter the 6-digit code from your email');
+    if (token.length < 6) return toast.error('Enter the code from your email');
     setBusy(true);
     const { data, error } = await supabase.auth.verifyOtp({
       email: email.trim(),
@@ -171,7 +171,7 @@ export default function BetaSignIn() {
       </h1>
       <p className="text-[14px] qc-muted mb-8">
         {mode === 'forgot' ? "We'll email you a link to set a new password."
-          : mode === 'verify' ? `We sent a 6-digit code to ${email || 'your email'}. Enter it below to confirm your account.`
+          : mode === 'verify' ? `We sent a code to ${email || 'your email'}. Enter it below to confirm your account.`
           : mode === 'signup' ? 'Use your email and a password to get started.'
           : 'Sign in with your email and password.'}
       </p>
@@ -183,10 +183,10 @@ export default function BetaSignIn() {
               type="text"
               inputMode="numeric"
               autoComplete="one-time-code"
-              placeholder="123456"
-              maxLength={6}
+              placeholder="12345678"
+              maxLength={10}
               value={otpCode}
-              onChange={(e) => setOtpCode(e.target.value)}
+              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 10))}
               onKeyDown={(e) => e.key === 'Enter' && submit()}
             />
           </div>
