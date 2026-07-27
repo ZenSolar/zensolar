@@ -30,18 +30,29 @@ const REQUIRED_TESLA_SCOPES = [
   "energy_device_data",
 ] as const;
 
-const BLOCKING_TESLA_SCOPES = new Set<string>([
-  "openid",
-  "offline_access",
+// Only DATA scopes participate in the missing_scopes diff. openid + offline_access
+// are inferred from tokens.id_token / tokens.refresh_token, not from the granted
+// scope string (Tesla frequently omits them from `scope` even when granted).
+const DATA_SCOPES = [
+  "vehicle_device_data",
+  "vehicle_location",
+  "vehicle_charging_cmds",
+  "energy_device_data",
+] as const;
+
+const BLOCKING_DATA_SCOPES = new Set<string>([
   "vehicle_device_data",
 ]);
 
-function classifyMissingScopes(grantedScope: string | null | undefined) {
+function classifyMissingScopes(grantedScope: string | null | undefined, hasRefreshToken: boolean) {
   const granted = new Set((grantedScope ?? "").split(/\s+/).filter(Boolean));
-  const missing = REQUIRED_TESLA_SCOPES.filter((s) => !granted.has(s));
-  const blocking = missing.filter((s) => BLOCKING_TESLA_SCOPES.has(s));
-  const degraded = missing.filter((s) => !BLOCKING_TESLA_SCOPES.has(s));
-  return { missing, blocking, degraded, severity: blocking.length ? "blocking" : (degraded.length ? "degraded" : "ok") };
+  const missing = DATA_SCOPES.filter((s) => !granted.has(s));
+  const blocking = missing.filter((s) => BLOCKING_DATA_SCOPES.has(s));
+  const degraded = missing.filter((s) => !BLOCKING_DATA_SCOPES.has(s));
+  const noRefresh = !hasRefreshToken;
+  const severity: "blocking" | "degraded" | "ok" =
+    (blocking.length || noRefresh) ? "blocking" : (degraded.length ? "degraded" : "ok");
+  return { missing, blocking, degraded, severity, no_refresh_token: noRefresh };
 }
 
 type TeslaDevice = {
@@ -285,9 +296,10 @@ Deno.serve(async (req) => {
 
       // Force Tesla to show the login screen (do not auto-use an existing Tesla session)
       authUrl.searchParams.set("prompt", "login");
-      // Ensure Tesla prompts for any missing scopes and requires the full set we request
+      // Ensure Tesla prompts for any missing scopes, but DO NOT require the full set —
+      // otherwise Tesla blocks partial grants and our scope-recovery UI never runs.
       authUrl.searchParams.set("prompt_missing_scopes", "true");
-      authUrl.searchParams.set("require_requested_scopes", "true");
+      authUrl.searchParams.set("require_requested_scopes", "false");
 
       return new Response(JSON.stringify({ authUrl: authUrl.toString() }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -321,11 +333,23 @@ Deno.serve(async (req) => {
           error: stateError?.message ?? null,
         });
 
-        if (stateError || !stateRow || stateRow.consumed_at || new Date(stateRow.expires_at).getTime() < Date.now()) {
-          return new Response(JSON.stringify({ error: "Authorization session expired. Please try again." }), {
-            status: 401,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
+        if (stateError || !stateRow) {
+          return new Response(JSON.stringify({
+            error: "state_missing",
+            message: "Authorization session not found. Please try again.",
+          }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        }
+        if (stateRow.consumed_at) {
+          return new Response(JSON.stringify({
+            error: "state_consumed",
+            message: "This authorization link has already been used.",
+          }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        }
+        if (new Date(stateRow.expires_at).getTime() < Date.now()) {
+          return new Response(JSON.stringify({
+            error: "state_expired",
+            message: "Authorization link expired. Please try again.",
+          }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
         }
 
         exchangeUserId = stateRow.user_id;
@@ -381,9 +405,31 @@ Deno.serve(async (req) => {
         ? new Date(Date.now() + tokens.expires_in * 1000).toISOString()
         : null;
 
+      const hasRefreshToken = !!tokens.refresh_token;
       const grantedScope: string = typeof tokens.scope === "string" ? tokens.scope : "";
-      const scopeCheck = classifyMissingScopes(grantedScope);
+      const scopeCheck = classifyMissingScopes(grantedScope, hasRefreshToken);
       console.log("[tesla-auth] exchange-code:scope-check", scopeCheck);
+
+      // Read prior counter so we can increment or reset it atomically in one upsert.
+      const { data: priorRow } = await supabaseClient
+        .from("energy_tokens")
+        .select("extra_data")
+        .eq("user_id", exchangeUserId)
+        .eq("provider", "tesla")
+        .maybeSingle();
+      const priorAttempts = Number(
+        (priorRow?.extra_data as { no_refresh_token_attempts?: unknown } | null)?.no_refresh_token_attempts ?? 0,
+      ) || 0;
+      const noRefreshAttempts = hasRefreshToken ? 0 : priorAttempts + 1;
+
+      // Shape documented in docs/tokenomics/granted-scope-shape.md — do not drop
+      // fields without updating that doc and any downstream cohort queries.
+      const extraData = {
+        granted_scope: grantedScope,
+        granted_at: new Date().toISOString(),
+        has_refresh_token: hasRefreshToken,
+        no_refresh_token_attempts: noRefreshAttempts,
+      };
 
       const { error: tokenStoreError } = await supabaseClient
         .from("energy_tokens")
@@ -393,13 +439,16 @@ Deno.serve(async (req) => {
           access_token: tokens.access_token,
           refresh_token: tokens.refresh_token || null,
           expires_at: expiresAt,
-          extra_data: { granted_scope: grantedScope },
+          extra_data: extraData,
         }, { onConflict: "user_id,provider" });
 
       if (tokenStoreError) {
         console.error("[tesla-auth] exchange-code:token-store-failed", tokenStoreError);
       } else {
-        console.log("[tesla-auth] exchange-code:token-store-ok", { userId: exchangeUserId });
+        console.log("[tesla-auth] exchange-code:token-store-ok", {
+          userId: exchangeUserId,
+          noRefreshAttempts,
+        });
       }
 
       if (typeof state === "string") {
@@ -429,6 +478,9 @@ Deno.serve(async (req) => {
         blocking_scopes: scopeCheck.blocking,
         degraded_scopes: scopeCheck.degraded,
         scope_severity: scopeCheck.severity,
+        has_refresh_token: hasRefreshToken,
+        no_refresh_token: scopeCheck.no_refresh_token,
+        no_refresh_token_attempts: noRefreshAttempts,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -460,21 +512,27 @@ Deno.serve(async (req) => {
     if (action === "check-tokens") {
       const { data: tokenCheck } = await supabaseClient
         .from("energy_tokens")
-        .select("id, provider, access_token, extra_data")
+        .select("id, provider, access_token, refresh_token, extra_data")
         .eq("user_id", user.id)
         .eq("provider", "tesla")
         .maybeSingle();
 
-      const grantedScope: string =
-        (tokenCheck?.extra_data && typeof (tokenCheck.extra_data as { granted_scope?: unknown }).granted_scope === "string")
-          ? String((tokenCheck.extra_data as { granted_scope: string }).granted_scope)
-          : "";
-      const scopeCheck = classifyMissingScopes(grantedScope);
+      const extra = (tokenCheck?.extra_data ?? null) as {
+        granted_scope?: unknown;
+        has_refresh_token?: unknown;
+        no_refresh_token_attempts?: unknown;
+      } | null;
+      const grantedScope: string = typeof extra?.granted_scope === "string" ? extra.granted_scope : "";
+      const hasRefreshToken =
+        typeof extra?.has_refresh_token === "boolean" ? extra.has_refresh_token : !!tokenCheck?.refresh_token;
+      const noRefreshAttempts = Number(extra?.no_refresh_token_attempts ?? 0) || 0;
+      const scopeCheck = classifyMissingScopes(grantedScope, hasRefreshToken);
 
       console.log("[tesla-auth] check-tokens", {
         userId: user.id,
         exists: !!tokenCheck,
         severity: scopeCheck.severity,
+        noRefreshAttempts,
       });
 
       return new Response(JSON.stringify({
@@ -485,6 +543,9 @@ Deno.serve(async (req) => {
         blocking_scopes: scopeCheck.blocking,
         degraded_scopes: scopeCheck.degraded,
         scope_severity: scopeCheck.severity,
+        has_refresh_token: hasRefreshToken,
+        no_refresh_token: scopeCheck.no_refresh_token,
+        no_refresh_token_attempts: noRefreshAttempts,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
