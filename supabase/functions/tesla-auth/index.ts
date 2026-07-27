@@ -243,19 +243,15 @@ Deno.serve(async (req) => {
         });
       }
       
-      // Scopes based on Tesla Developer Portal configuration
-      // Profile Information, Vehicle Information, Vehicle Charging Management, 
-      // Energy Product Information, Energy Product Commands, Vehicle Specs
-      const scopes = [
-        "openid",
-        "offline_access", 
-        "user_data",
-        "vehicle_device_data",
-        "vehicle_charging_cmds",
-        "energy_device_data",
-        "energy_cmds"
-      ].join(" ");
-      
+      // Read-only Tesla scopes. We observe, never control.
+      // - openid + offline_access → session + refresh token
+      // - vehicle_device_data     → miles + FSD miles
+      // - vehicle_location        → Home vs Supercharger classification
+      // - vehicle_charging_cmds   → READ charging sessions / kWh added (no commands sent)
+      // - energy_device_data      → solar production + Powerwall
+      // (energy_cmds and user_data intentionally dropped — write-scope / unused.)
+      const scopes = REQUIRED_TESLA_SCOPES.join(" ");
+
       const authUrl = new URL(TESLA_AUTH_URL);
       authUrl.searchParams.set("response_type", "code");
       authUrl.searchParams.set("client_id", clientId);
