@@ -358,11 +358,6 @@ Deno.serve(async (req) => {
         console.error("Failed to store Tesla tokens:", tokenStoreError);
       }
 
-      const autoClaimResult = await autoClaimTeslaDevices(supabaseClient, exchangeUserId, tokens.access_token).catch((error) => {
-        console.error("Tesla auto-claim failed:", error);
-        return { discovered: 0, claimed: [], alreadyClaimed: [], errors: ["auto_claim_failed"] };
-      });
-
       if (typeof state === "string") {
         await supabaseClient
           .from("tesla_oauth_states")
@@ -373,11 +368,8 @@ Deno.serve(async (req) => {
 
       return new Response(JSON.stringify({ 
         success: true, 
-        message: autoClaimResult.claimed.length > 0
-          ? "Tesla authorization successful - devices connected"
-          : "Tesla authorization successful - please select your devices",
-        needsDeviceSelection: autoClaimResult.claimed.length === 0,
-        autoClaim: autoClaimResult,
+        message: "Tesla authorization successful - please select your devices",
+        needsDeviceSelection: true,
         returnTo,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -393,25 +385,8 @@ Deno.serve(async (req) => {
         .eq("provider", "tesla")
         .maybeSingle();
 
-      let autoClaim = null;
-      if (tokenCheck?.access_token) {
-        const { count } = await supabaseClient
-          .from("connected_devices")
-          .select("id", { count: "exact", head: true })
-          .eq("user_id", user.id)
-          .eq("provider", "tesla");
-
-        if (!count || count === 0) {
-          autoClaim = await autoClaimTeslaDevices(supabaseClient, user.id, tokenCheck.access_token).catch((error) => {
-            console.error("Tesla check-tokens auto-claim failed:", error);
-            return { discovered: 0, claimed: [], alreadyClaimed: [], errors: ["auto_claim_failed"] };
-          });
-        }
-      }
-
       return new Response(JSON.stringify({ 
         exists: !!tokenCheck,
-        autoClaim,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

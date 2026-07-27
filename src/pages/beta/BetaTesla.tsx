@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { DeviceSelectionDialog } from '@/components/dashboard/DeviceSelectionDialog';
 
 import { BetaShell } from './BetaShell';
 import { useBetaFlow, type BetaStatus } from '@/hooks/useBetaFlow';
@@ -8,7 +9,7 @@ import { useEnergyOAuth } from '@/hooks/useEnergyOAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { computeNextStep } from './betaRouting';
 
-type Phase = 'consent' | 'connecting' | 'snapshot';
+type Phase = 'consent' | 'connecting' | 'device-selection' | 'snapshot';
 type TeslaDeviceRow = {
   device_type: string;
   device_name: string | null;
@@ -20,11 +21,11 @@ export default function BetaTesla() {
   const flow = useBetaFlow();
   const { startTeslaOAuth } = useEnergyOAuth();
   const [searchParams, setSearchParams] = useSearchParams();
-  // If we returned from Tesla OAuth (?oauth_success=true), skip the consent
-  // screen and land directly on the "Finishing your Tesla connection…" phase
-  // so the device-discovery poller can advance us to the snapshot screen.
+  // If we returned from Tesla OAuth, show device selection first instead of
+  // looping back to the approval screen.
   const returningFromOAuth = searchParams.get('oauth_success') === 'true';
-  const [phase, setPhase] = useState<Phase>(returningFromOAuth ? 'connecting' : 'consent');
+  const needsDeviceSelection = searchParams.get('device_selection') === 'true';
+  const [phase, setPhase] = useState<Phase>(returningFromOAuth || needsDeviceSelection ? 'device-selection' : 'consent');
   const [devices, setDevices] = useState<Array<{ type: string; name: string; extra?: string }>>([]);
   const [syncElapsed, setSyncElapsed] = useState(0);
   const [detectedStatus, setDetectedStatus] = useState<BetaStatus>({});
@@ -35,6 +36,7 @@ export default function BetaTesla() {
       const next = new URLSearchParams(searchParams);
       next.delete('oauth_success');
       next.delete('provider');
+      next.delete('device_selection');
       setSearchParams(next, { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -82,12 +84,17 @@ export default function BetaTesla() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      // If OAuth already completed and tokens exist, let the backend auto-claim
-      // devices before we ask the user to reconnect or do anything manually.
-      await supabase.functions.invoke('tesla-auth', {
+      // If OAuth already completed and tokens exist, open device selection
+      // without making the user reconnect to Tesla.
+      const { data: tokenCheck } = await supabase.functions.invoke('tesla-auth', {
         body: { action: 'check-tokens' },
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
+
+      if (!cancelled && tokenCheck?.exists && phase === 'consent') {
+        setPhase('device-selection');
+        return;
+      }
 
       const { data: refreshed } = await supabase
         .from('connected_devices')
@@ -139,6 +146,14 @@ export default function BetaTesla() {
     navigate(`/onboarding/${next}`);
   };
 
+  const handleDeviceSelectionComplete = () => {
+    setPhase('connecting');
+  };
+
+  const handleDeviceSelectionOpenChange = (open: boolean) => {
+    if (!open) setPhase('connecting');
+  };
+
   if (phase === 'consent') {
     return (
       <BetaShell eyebrow="Tesla" onBack={() => navigate('/beta/home')}>
@@ -179,6 +194,23 @@ export default function BetaTesla() {
             Continue setup and sync later
           </button>
         )}
+      </BetaShell>
+    );
+  }
+
+  if (phase === 'device-selection') {
+    return (
+      <BetaShell eyebrow="Tesla · connected" onBack={() => setPhase('consent')}>
+        <h1 className="text-3xl font-semibold tracking-tight mb-3">Choose your Tesla devices</h1>
+        <p className="text-[15px] text-muted-foreground mb-6">
+          Tesla approved access. Select the vehicles and energy products you want ZenSolar to track.
+        </p>
+        <DeviceSelectionDialog
+          open={true}
+          onOpenChange={handleDeviceSelectionOpenChange}
+          provider="tesla"
+          onComplete={handleDeviceSelectionComplete}
+        />
       </BetaShell>
     );
   }

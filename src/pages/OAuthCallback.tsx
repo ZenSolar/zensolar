@@ -45,20 +45,6 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
   });
 }
 
-async function autoClaimTeslaDevices(accessToken: string): Promise<number> {
-  const { data, error } = await supabase.functions.invoke('tesla-auth', {
-    body: { action: 'auto-claim-devices' },
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
-
-  if (error) {
-    console.warn('[OAuthCallback] Tesla auto-claim failed:', error);
-    return 0;
-  }
-
-  return Number(data?.autoClaim?.claimed?.length || 0);
-}
-
 export default function OAuthCallback() {
   const [searchParams] = useSearchParams();
   const { exchangeTeslaCode, exchangeEnphaseCode } = useEnergyOAuth();
@@ -231,18 +217,10 @@ export default function OAuthCallback() {
       }
 
       if (tokensFound) {
-        // Auto-claim devices BEFORE redirecting so the return page has data to
-        // show (otherwise BetaTesla re-shows the "approve access" screen because
-        // no devices exist yet).
-        if (session?.access_token) {
-          try { await autoClaimTeslaDevices(session.access_token); } catch (e) { console.warn('[OAuthCallback] auto-claim error:', e); }
-        }
-
         const safeReturnPath = consumeSafeReturnPath();
         if (safeReturnPath) {
-          setStatus('success');
           const sep = safeReturnPath.includes('?') ? '&' : '?';
-          window.location.href = `${safeReturnPath}${sep}oauth_success=true&provider=tesla`;
+          window.location.replace(`${safeReturnPath}${sep}oauth_success=true&provider=tesla&device_selection=true`);
           return;
         }
 
