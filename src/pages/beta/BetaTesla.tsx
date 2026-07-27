@@ -187,6 +187,28 @@ export default function BetaTesla() {
           We'll open tesla.com so you can log in and approve ZenSolar. We never see your Tesla password,
           and you can revoke access anytime from your Tesla account.
         </p>
+
+        <div className="rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 mb-4">
+          <p className="text-[13px] font-semibold text-emerald-200 mb-2 uppercase tracking-wide">
+            Important: Select ALL permissions on Tesla
+          </p>
+          <p className="text-[13px] text-emerald-100/85 leading-relaxed mb-2">
+            On the next screen, Tesla will show a list of permission checkboxes. <strong>Tap "Select All"</strong> so ZenSolar can properly reward you with $ZSOLAR for:
+          </p>
+          <ul className="text-[13px] text-emerald-100/85 leading-relaxed space-y-1 pl-4 list-disc">
+            <li>Vehicle info &amp; odometer <span className="text-emerald-100/60">(EV miles)</span></li>
+            <li>Vehicle location <span className="text-emerald-100/60">(Home vs. Supercharger)</span></li>
+            <li>Charging data <span className="text-emerald-100/60">(kWh added, live sessions)</span></li>
+            <li>Autopilot / FSD data <span className="text-emerald-100/60">(FSD miles)</span></li>
+            {(flow.selections.battery || flow.selections.solar) && (
+              <li>Energy products <span className="text-emerald-100/60">(Powerwall &amp; solar)</span></li>
+            )}
+          </ul>
+          <p className="text-[12px] text-emerald-100/60 leading-relaxed mt-2">
+            Unchecking any box means we can't verify that activity — and can't mint tokens for it.
+          </p>
+        </div>
+
         {(flow.selections.battery || flow.selections.charger) && (
           <p className="text-[13px] text-amber-200/80 bg-amber-500/10 border border-amber-500/20 rounded-xl px-3 py-2 mb-6">
             If you have a Powerwall or Wall Connector, we'll find them automatically — no extra step needed.
