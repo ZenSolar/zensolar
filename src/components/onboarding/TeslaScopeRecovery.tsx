@@ -51,7 +51,7 @@ export function TeslaScopeRecovery({
       </p>
 
       <ul className="space-y-2 mb-6">
-        {missingScopes.map((scope) => (
+        {visibleScopes.map((scope) => (
           <li
             key={scope}
             className={`rounded-2xl border px-4 py-3 ${
