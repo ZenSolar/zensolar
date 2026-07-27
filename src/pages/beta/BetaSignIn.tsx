@@ -1,49 +1,202 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { useAuth } from '@/hooks/useAuth';
+import { lovable } from '@/integrations/lovable/index';
 import { BetaShell } from './BetaShell';
+import { QCButton, QCInput } from '@/components/onboarding/quiet/QuietCurrent';
+import { cn } from '@/lib/utils';
 
+type Mode = 'login' | 'signup' | 'forgot';
+
+/**
+ * Primary auth surface for /onboarding/signin (and legacy /beta/signin).
+ * Email + password is the default. Optional Google / Apple via the Lovable
+ * managed OAuth helper. OTP / magic-link is intentionally not offered here —
+ * the "Secure your account" passkey step later in onboarding is a separate
+ * wallet activation, not a login method.
+ */
 export default function BetaSignIn() {
   const navigate = useNavigate();
+  const { signIn, signUp, resetPassword } = useAuth();
+
+  const [mode, setMode] = useState<Mode>('login');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [busy, setBusy] = useState(false);
 
-  const send = async () => {
-    const trimmed = email.trim();
-    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
-    if (!valid) { toast.error('Enter a valid email', { id: 'signin-email' }); return; }
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+  const handleLogin = async () => {
+    if (!emailValid) return toast.error('Enter a valid email');
+    if (password.length < 6) return toast.error('Enter your password');
     setBusy(true);
-    const { error } = await supabase.auth.signInWithOtp({
-      email: trimmed,
-      options: { emailRedirectTo: `${window.location.origin}/onboarding/home`, shouldCreateUser: true },
-    });
+    const { error } = await signIn(email.trim(), password);
     setBusy(false);
-    if (error) { toast.error(error.message, { id: 'signin-email' }); return; }
-    localStorage.setItem('beta_signin_email', trimmed);
-    navigate('/onboarding/verify');
+    if (error) return toast.error(error.message ?? 'Sign in failed');
+    navigate('/onboarding');
+  };
+
+  const handleSignup = async () => {
+    if (!emailValid) return toast.error('Enter a valid email');
+    if (password.length < 8) return toast.error('Password must be at least 8 characters');
+    setBusy(true);
+    const { data, error } = await signUp(email.trim(), password, displayName.trim() || undefined);
+    setBusy(false);
+    if (error) return toast.error(error.message ?? 'Sign up failed');
+    // If email confirmation is required, session will be null.
+    if (data?.session) {
+      navigate('/onboarding');
+    } else {
+      toast.success('Check your email to confirm your account.');
+      setMode('login');
+    }
+  };
+
+  const handleForgot = async () => {
+    if (!emailValid) return toast.error('Enter your email');
+    setBusy(true);
+    const { error } = await resetPassword(email.trim());
+    setBusy(false);
+    if (error) return toast.error(error.message ?? 'Could not send reset email');
+    toast.success('Password reset email sent.');
+    setMode('login');
+  };
+
+  const handleOAuth = async (provider: 'google' | 'apple') => {
+    setBusy(true);
+    try {
+      const result = await lovable.auth.signInWithOAuth(provider, {
+        redirect_uri: window.location.origin + '/onboarding',
+      });
+      if (result?.error) {
+        toast.error(result.error.message ?? `${provider} sign in failed`);
+        setBusy(false);
+        return;
+      }
+      if (result?.redirected) return; // browser redirects away
+      navigate('/onboarding');
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Sign in failed');
+      setBusy(false);
+    }
+  };
+
+  const submit = () => {
+    if (mode === 'login') return handleLogin();
+    if (mode === 'signup') return handleSignup();
+    return handleForgot();
   };
 
   return (
-    <BetaShell eyebrow="Sign in" onBack={() => navigate(-1)}>
-      <h1 className="text-3xl font-semibold tracking-tight mb-3">What's your email?</h1>
-      <p className="text-[15px] text-muted-foreground mb-6">
-        We'll email you a one-time code. No password required.
+    <BetaShell
+      eyebrow={mode === 'forgot' ? 'Reset password' : mode === 'signup' ? 'Sign up' : 'Sign in'}
+      onBack={() => (mode === 'login' ? navigate(-1) : setMode('login'))}
+    >
+      {mode !== 'forgot' && (
+        <div className="flex items-center gap-1 p-1 rounded-xl qc-elevated border qc-border mb-6 w-fit">
+          {(['login', 'signup'] as const).map((m) => (
+            <button
+              key={m}
+              onClick={() => setMode(m)}
+              className={cn(
+                'px-4 py-1.5 rounded-lg text-[13px] font-medium transition-all',
+                mode === m ? 'qc-current-border qc-text' : 'qc-muted hover:qc-text'
+              )}
+            >
+              {m === 'login' ? 'Log in' : 'Sign up'}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <h1 className="text-[28px] leading-tight font-semibold qc-text tracking-tight mb-2">
+        {mode === 'forgot'
+          ? 'Reset your password'
+          : mode === 'signup'
+          ? 'Create your account'
+          : 'Welcome back'}
+      </h1>
+      <p className="text-[14px] qc-muted mb-8">
+        {mode === 'forgot'
+          ? "We'll email you a link to set a new password."
+          : mode === 'signup'
+          ? 'Use your email and a password to get started.'
+          : 'Sign in with your email and password.'}
       </p>
-      <Input
-        type="email"
-        autoComplete="email"
-        placeholder="you@example.com"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="mb-4 h-12 text-base"
-        onKeyDown={(e) => e.key === 'Enter' && send()}
-      />
-      <Button size="lg" className="w-full" onClick={send} disabled={busy}>
-        {busy ? 'Sending…' : 'Send code'}
-      </Button>
+
+      <div className="space-y-3 mb-4">
+        <QCInput
+          type="email"
+          autoComplete="email"
+          placeholder="you@example.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && submit()}
+        />
+        {mode === 'signup' && (
+          <QCInput
+            type="text"
+            autoComplete="name"
+            placeholder="Display name (optional)"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && submit()}
+          />
+        )}
+        {mode !== 'forgot' && (
+          <QCInput
+            type="password"
+            autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && submit()}
+          />
+        )}
+      </div>
+
+      <QCButton onClick={submit} disabled={busy}>
+        {busy
+          ? 'Please wait…'
+          : mode === 'forgot'
+          ? 'Send reset link'
+          : mode === 'signup'
+          ? 'Create account'
+          : 'Log in'}
+      </QCButton>
+
+      {mode === 'login' && (
+        <div className="mt-4 text-center">
+          <button
+            type="button"
+            onClick={() => setMode('forgot')}
+            className="text-[13px] qc-muted hover:qc-text transition-colors"
+          >
+            Forgot password?
+          </button>
+        </div>
+      )}
+
+      {mode !== 'forgot' && (
+        <>
+          <div className="flex items-center gap-3 my-6">
+            <div className="flex-1 h-px qc-border border-t" />
+            <span className="text-[11px] uppercase tracking-[0.2em] qc-muted">or</span>
+            <div className="flex-1 h-px qc-border border-t" />
+          </div>
+
+          <div className="space-y-3">
+            <QCButton variant="ghost" onClick={() => handleOAuth('google')} disabled={busy}>
+              Continue with Google
+            </QCButton>
+            <QCButton variant="ghost" onClick={() => handleOAuth('apple')} disabled={busy}>
+              Continue with Apple
+            </QCButton>
+          </div>
+        </>
+      )}
     </BetaShell>
   );
 }
