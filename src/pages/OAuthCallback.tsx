@@ -20,6 +20,7 @@ function isAllowedReturnTo(url: string): string | null {
       'zen.solar',
       'www.zen.solar',
       'beta.zen.solar',
+      'www.beta.zen.solar',
     ]);
     if (allowedHosts.has(u.hostname) || u.hostname.endsWith('.lovable.app')) return u.toString();
   } catch {
@@ -27,6 +28,27 @@ function isAllowedReturnTo(url: string): string | null {
   }
   return null;
 }
+
+// Canonical beta host for the reconnect CTA. Prefer the origin the user
+// started OAuth from (stored in sessionStorage by startTeslaOAuth); fall back
+// to beta.zensolar.com.
+function resolveReconnectUrl(): string {
+  try {
+    const stored = sessionStorage.getItem('oauth_beta_host');
+    if (stored) {
+      const u = new URL(stored);
+      const allowed = new Set([
+        'beta.zensolar.com',
+        'www.beta.zensolar.com',
+        'beta.zen.solar',
+        'www.beta.zen.solar',
+      ]);
+      if (allowed.has(u.hostname)) return `${u.origin}/beta/tesla`;
+    }
+  } catch { /* ignore */ }
+  return 'https://beta.zensolar.com/beta/tesla';
+}
+
 
 // Timeout wrapper to prevent hanging promises
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
