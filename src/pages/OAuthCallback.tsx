@@ -7,15 +7,11 @@ import { BrandSplash } from '@/components/ui/BrandSplash';
 import { Button } from '@/components/ui/button';
 import { oauthDiag } from '@/lib/oauthDiagnostics';
 
-const TESLA_OAUTH_RETURN_TO_KEY = 'tesla_oauth_return_to';
-
-function consumeSafeReturnPath(): string | null {
-  const saved = localStorage.getItem(TESLA_OAUTH_RETURN_TO_KEY);
-  localStorage.removeItem(TESLA_OAUTH_RETURN_TO_KEY);
-  if (!saved) return null;
-  if (saved.startsWith('/') && !saved.startsWith('//')) return saved;
+function isAllowedReturnTo(url: string): string | null {
+  if (!url) return null;
+  if (url.startsWith('/') && !url.startsWith('//')) return url;
   try {
-    const url = new URL(saved);
+    const u = new URL(url);
     const allowedHosts = new Set([
       'zensolar.com',
       'www.zensolar.com',
@@ -25,7 +21,7 @@ function consumeSafeReturnPath(): string | null {
       'www.zen.solar',
       'beta.zen.solar',
     ]);
-    if (allowedHosts.has(url.hostname) || url.hostname.endsWith('.lovable.app')) return url.toString();
+    if (allowedHosts.has(u.hostname) || u.hostname.endsWith('.lovable.app')) return u.toString();
   } catch {
     return null;
   }
@@ -49,10 +45,11 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
 export default function OAuthCallback() {
   const [searchParams] = useSearchParams();
   const { exchangeTeslaCode, exchangeEnphaseCode } = useEnergyOAuth();
-  const [status, setStatus] = useState<'processing' | 'success' | 'error' | 'device-selection'>('processing');
+  const [status, setStatus] = useState<'processing' | 'success' | 'error' | 'device-selection' | 'link-expired'>('processing');
   const [deviceProvider, setDeviceProvider] = useState<'tesla' | 'enphase'>('tesla');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [canRetry, setCanRetry] = useState(false);
+  const [splashLabel, setSplashLabel] = useState<string>('Connecting your account...');
   const hasProcessed = useRef(false);
 
   const processCallback = async () => {
