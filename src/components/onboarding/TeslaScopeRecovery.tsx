@@ -25,6 +25,10 @@ interface Props {
   onContinueDegraded?: () => void;
   /** When false, suppresses the energy_device_data consequence for users with no solar/battery. */
   hasEnergy?: boolean;
+  /** Number of times Tesla returned no refresh_token. After 2+, expose an escape route. */
+  noRefreshTokenAttempts?: number;
+  /** Fired when the user takes the escape route after repeated failures. */
+  onSkip?: () => void;
 }
 
 export function TeslaScopeRecovery({
@@ -33,11 +37,14 @@ export function TeslaScopeRecovery({
   onReauthorize,
   onContinueDegraded,
   hasEnergy = true,
+  noRefreshTokenAttempts = 0,
+  onSkip,
 }: Props) {
   const visibleScopes = hasEnergy
     ? missingScopes
     : missingScopes.filter((s) => s !== 'energy_device_data');
   const isBlocking = blockingScopes.length > 0;
+  const showEscape = noRefreshTokenAttempts >= 2 && !!onSkip;
 
   return (
     <div>
