@@ -359,7 +359,10 @@ export function useEnergyOAuth() {
     }
   }, []);
 
-  const exchangeTeslaCode = useCallback(async (code: string, state?: string | null): Promise<boolean> => {
+  const exchangeTeslaCode = useCallback(async (
+    code: string,
+    state?: string | null,
+  ): Promise<TeslaExchangeResult> => {
     try {
       oauthDiag('useEnergyOAuth', 'tesla:exchange:begin', {
         hasCode: !!code,
@@ -377,24 +380,46 @@ export function useEnergyOAuth() {
         headers,
       });
 
+      // Standardized state-lifecycle errors surface in response.data.error even
+      // when the HTTP status is 401 — check those before generic error extraction
+      // so the callback can render the "link expired" recovery screen.
+      const dataErr = response.data?.error;
+      if (dataErr === 'state_expired' || dataErr === 'state_consumed' || dataErr === 'state_missing') {
+        oauthDiag('useEnergyOAuth', 'tesla:exchange:state-error', { errorCode: dataErr });
+        return {
+          ok: false,
+          errorCode: dataErr,
+          message: response.data?.message || 'This authorization link is no longer valid.',
+        };
+      }
+
       const errMsg = extractError(response);
       if (errMsg) {
         oauthDiag('useEnergyOAuth', 'tesla:exchange:error', { errMsg });
         throw new Error(errMsg);
       }
 
-      const returnTo = response.data?.returnTo;
+      const d = response.data ?? {};
       oauthDiag('useEnergyOAuth', 'tesla:exchange:success', {
-        needsDeviceSelection: response.data?.needsDeviceSelection,
-        returnTo,
+        needsDeviceSelection: d.needsDeviceSelection,
+        returnTo: d.returnTo ?? null,
+        severity: d.scope_severity,
       });
-      if (typeof returnTo === 'string') {
-        localStorage.setItem(TESLA_OAUTH_RETURN_TO_KEY, returnTo);
-      }
 
       trackConnectSuccess('tesla');
       toast.success('Tesla account connected!');
-      return true;
+      return {
+        ok: true,
+        returnTo: typeof d.returnTo === 'string' ? d.returnTo : null,
+        needsDeviceSelection: !!d.needsDeviceSelection,
+        granted_scope: typeof d.granted_scope === 'string' ? d.granted_scope : '',
+        scope_severity: (d.scope_severity as 'ok' | 'degraded' | 'blocking') ?? 'ok',
+        missing_scopes: Array.isArray(d.missing_scopes) ? d.missing_scopes : [],
+        blocking_scopes: Array.isArray(d.blocking_scopes) ? d.blocking_scopes : [],
+        degraded_scopes: Array.isArray(d.degraded_scopes) ? d.degraded_scopes : [],
+        has_refresh_token: !!d.has_refresh_token,
+        no_refresh_token_attempts: Number(d.no_refresh_token_attempts ?? 0) || 0,
+      };
     } catch (error) {
       oauthDiag('useEnergyOAuth', 'tesla:exchange:throw', {
         message: error instanceof Error ? error.message : String(error),
@@ -405,7 +430,11 @@ export function useEnergyOAuth() {
         rawMessage: error instanceof Error ? error.message : undefined,
         retry: () => void exchangeTeslaCode(code, state),
       });
-      return false;
+      return {
+        ok: false,
+        errorCode: 'unknown',
+        message: error instanceof Error ? error.message : 'Tesla connection failed.',
+      };
     }
   }, []);
 
