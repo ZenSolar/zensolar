@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { DeviceSelectionDialog } from '@/components/dashboard/DeviceSelectionDialog';
+import { TeslaScopeRecovery } from '@/components/onboarding/TeslaScopeRecovery';
 
 import { BetaShell } from './BetaShell';
 import { useBetaFlow, type BetaStatus } from '@/hooks/useBetaFlow';
@@ -10,7 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { computeNextStep } from './betaRouting';
 import { oauthDiag } from '@/lib/oauthDiagnostics';
 
-type Phase = 'consent' | 'connecting' | 'device-selection' | 'snapshot';
+type Phase = 'consent' | 'connecting' | 'scope-recovery' | 'device-selection' | 'snapshot';
 type TeslaDeviceRow = {
   device_type: string;
   device_name: string | null;
@@ -31,6 +32,8 @@ export default function BetaTesla() {
   const [devices, setDevices] = useState<Array<{ type: string; name: string; extra?: string }>>([]);
   const [syncElapsed, setSyncElapsed] = useState(0);
   const [detectedStatus, setDetectedStatus] = useState<BetaStatus>({});
+  const [missingScopes, setMissingScopes] = useState<string[]>([]);
+  const [blockingScopes, setBlockingScopes] = useState<string[]>([]);
 
   useEffect(() => {
     oauthDiag('BetaTesla', 'mount', {
@@ -113,13 +116,26 @@ export default function BetaTesla() {
       oauthDiag('BetaTesla', 'check:tokens', {
         phase,
         exists: !!tokenCheck?.exists,
+        severity: tokenCheck?.scope_severity ?? null,
+        missing: tokenCheck?.missing_scopes ?? null,
         error: tokenErr?.message ?? null,
       });
 
-      if (!cancelled && tokenCheck?.exists && phase === 'consent') {
-        oauthDiag('BetaTesla', 'auto-advance:consent->device-selection');
-        setPhase('device-selection');
-        return;
+      if (!cancelled && tokenCheck?.exists) {
+        const missing: string[] = tokenCheck.missing_scopes ?? [];
+        const blocking: string[] = tokenCheck.blocking_scopes ?? [];
+        setMissingScopes(missing);
+        setBlockingScopes(blocking);
+        if (missing.length > 0 && phase !== 'scope-recovery') {
+          oauthDiag('BetaTesla', 'auto-advance:scope-recovery', { missing, blocking });
+          setPhase('scope-recovery');
+          return;
+        }
+        if (missing.length === 0 && phase === 'consent') {
+          oauthDiag('BetaTesla', 'auto-advance:consent->device-selection');
+          setPhase('device-selection');
+          return;
+        }
       }
 
       const { data: refreshed } = await supabase
@@ -190,22 +206,21 @@ export default function BetaTesla() {
 
         <div className="rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 mb-4">
           <p className="text-[13px] font-semibold text-emerald-200 mb-2 uppercase tracking-wide">
-            Important: Select ALL permissions on Tesla
+            Leave every box checked
           </p>
           <p className="text-[13px] text-emerald-100/85 leading-relaxed mb-2">
-            On the next screen, Tesla will show a list of permission checkboxes. <strong>Tap "Select All"</strong> so ZenSolar can properly reward you with $ZSOLAR for:
+            Tesla will show a list of permission checkboxes. <strong>Leave every box checked</strong> — ZenSolar only reads this data, never sends commands to your car or home.
           </p>
           <ul className="text-[13px] text-emerald-100/85 leading-relaxed space-y-1 pl-4 list-disc">
-            <li>Vehicle info &amp; odometer <span className="text-emerald-100/60">(EV miles)</span></li>
-            <li>Vehicle location <span className="text-emerald-100/60">(Home vs. Supercharger)</span></li>
-            <li>Charging data <span className="text-emerald-100/60">(kWh added, live sessions)</span></li>
-            <li>Autopilot / FSD data <span className="text-emerald-100/60">(FSD miles)</span></li>
+            <li>Vehicle Information <span className="text-emerald-100/60">→ your miles &amp; FSD miles</span></li>
+            <li>Vehicle Location <span className="text-emerald-100/60">→ tells home charging apart from Supercharging</span></li>
+            <li>Vehicle Charging Management <span className="text-emerald-100/60">→ kWh added, live sessions (read-only)</span></li>
             {(flow.selections.battery || flow.selections.solar) && (
-              <li>Energy products <span className="text-emerald-100/60">(Powerwall &amp; solar)</span></li>
+              <li>Energy Product Information <span className="text-emerald-100/60">→ Powerwall &amp; solar production</span></li>
             )}
           </ul>
           <p className="text-[12px] text-emerald-100/60 leading-relaxed mt-2">
-            Unchecking any box means we can't verify that activity — and can't mint tokens for it.
+            Unchecking any box means we can't verify that activity — and can't reward you for it.
           </p>
         </div>
 
@@ -223,24 +238,42 @@ export default function BetaTesla() {
   }
 
   if (phase === 'connecting') {
+    const past15 = syncElapsed >= 15;
     return (
       <BetaShell eyebrow="Tesla" onBack={() => setPhase('consent')}>
-        <h1 className="text-3xl font-semibold tracking-tight mb-3">Finishing your Tesla connection</h1>
-        <p className="text-[15px] text-muted-foreground mb-6">
-          Keep this page open while ZenSolar confirms your Tesla account and finds your devices.
+        <h1 className="text-3xl font-semibold tracking-tight mb-3">
+          {past15 ? 'Your Tesla might be asleep' : 'Finishing your Tesla connection'}
+        </h1>
+        <p className="text-[15px] text-muted-foreground mb-6 leading-relaxed">
+          {past15
+            ? "Teslas go to sleep to save battery, so first data can take a few minutes. Your account is connected — you can continue and we'll fill in numbers as your car wakes up."
+            : "Keep this page open while ZenSolar confirms your Tesla account and finds your devices."}
         </p>
         <div className="rounded-2xl border border-white/10 bg-card/40 p-4 mb-6">
           <p className="text-sm">
-            {syncElapsed < 90
-              ? `Checking Tesla connection… (${syncElapsed}s)`
-              : "Still checking. If Tesla already approved access, first data can take a few minutes to appear."}
+            {past15
+              ? `Still waiting on your car to wake up (${syncElapsed}s)…`
+              : `Checking Tesla connection… (${syncElapsed}s)`}
           </p>
         </div>
-        {syncElapsed >= 45 && (
-          <button type="button" className="text-sm text-muted-foreground underline" onClick={skip}>
-            Continue setup and sync later
-          </button>
+        {past15 && (
+          <Button size="lg" className="w-full mb-3" onClick={skip}>
+            Continue — sync in the background
+          </Button>
         )}
+      </BetaShell>
+    );
+  }
+
+  if (phase === 'scope-recovery') {
+    return (
+      <BetaShell eyebrow="Tesla" onBack={() => setPhase('consent')}>
+        <TeslaScopeRecovery
+          missingScopes={missingScopes}
+          blockingScopes={blockingScopes}
+          onReauthorize={start}
+          onContinueDegraded={blockingScopes.length === 0 ? () => setPhase('device-selection') : undefined}
+        />
       </BetaShell>
     );
   }

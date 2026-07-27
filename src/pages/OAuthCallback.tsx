@@ -103,6 +103,39 @@ export default function OAuthCallback() {
       enphaseOAuthPending: !!enphaseOAuthPending,
     });
 
+    // Domain hop: Tesla only accepts zensolar.com as redirect URI, but the
+    // Supabase session (and beta subdomain UI) live on beta.zensolar.com.
+    // If we landed on the apex and the state was minted with a beta return_to,
+    // bounce the callback params over BEFORE touching the token exchange.
+    if (isTesla && state && !searchParams.get('hopped')) {
+      try {
+        const host = window.location.hostname;
+        const isApex = host === 'zensolar.com' || host === 'www.zensolar.com' || host === 'zen.solar' || host === 'www.zen.solar';
+        if (isApex) {
+          const lookup = await supabase.functions.invoke('tesla-auth', {
+            body: { action: 'lookup-return-to', state },
+          });
+          const returnTo: string | null = lookup.data?.returnTo ?? null;
+          let targetHost: string | null = null;
+          if (returnTo) {
+            try { targetHost = new URL(returnTo).hostname; } catch { targetHost = null; }
+          }
+          if (targetHost && (targetHost.startsWith('beta.') || targetHost.startsWith('www.beta.'))) {
+            const params = new URLSearchParams(window.location.search);
+            params.set('hopped', '1');
+            const hopUrl = `https://${targetHost.replace(/^www\./, '')}/oauth/callback?${params.toString()}`;
+            oauthDiag('OAuthCallback', 'callback:hop', { from: host, to: targetHost, hopUrl });
+            window.location.replace(hopUrl);
+            return;
+          }
+        }
+      } catch (err) {
+        oauthDiag('OAuthCallback', 'callback:hop:error', {
+          message: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+
     // Wait for session to be restored (important after mobile redirect).
     oauthDiag('OAuthCallback', 'session:restore:start');
     let retries = 0;

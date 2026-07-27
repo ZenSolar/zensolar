@@ -20,6 +20,30 @@ const RETURN_ORIGIN_HOSTS = new Set([
   "beta.zen.solar",
 ]);
 
+// Tesla scopes ZenSolar requests. Read-only. Keep in sync with the auth URL below.
+const REQUIRED_TESLA_SCOPES = [
+  "openid",
+  "offline_access",
+  "vehicle_device_data",
+  "vehicle_location",
+  "vehicle_charging_cmds",
+  "energy_device_data",
+] as const;
+
+const BLOCKING_TESLA_SCOPES = new Set<string>([
+  "openid",
+  "offline_access",
+  "vehicle_device_data",
+]);
+
+function classifyMissingScopes(grantedScope: string | null | undefined) {
+  const granted = new Set((grantedScope ?? "").split(/\s+/).filter(Boolean));
+  const missing = REQUIRED_TESLA_SCOPES.filter((s) => !granted.has(s));
+  const blocking = missing.filter((s) => BLOCKING_TESLA_SCOPES.has(s));
+  const degraded = missing.filter((s) => !BLOCKING_TESLA_SCOPES.has(s));
+  return { missing, blocking, degraded, severity: blocking.length ? "blocking" : (degraded.length ? "degraded" : "ok") };
+}
+
 type TeslaDevice = {
   device_id: string;
   device_type: "vehicle" | "powerwall" | "solar" | "wall_connector";
@@ -238,24 +262,20 @@ Deno.serve(async (req) => {
           user_id: user.id,
           redirect_uri: TESLA_REDIRECT_URI,
           return_to: safeReturnTo,
-          expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+          expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
           consumed_at: null,
         });
       }
       
-      // Scopes based on Tesla Developer Portal configuration
-      // Profile Information, Vehicle Information, Vehicle Charging Management, 
-      // Energy Product Information, Energy Product Commands, Vehicle Specs
-      const scopes = [
-        "openid",
-        "offline_access", 
-        "user_data",
-        "vehicle_device_data",
-        "vehicle_charging_cmds",
-        "energy_device_data",
-        "energy_cmds"
-      ].join(" ");
-      
+      // Read-only Tesla scopes. We observe, never control.
+      // - openid + offline_access → session + refresh token
+      // - vehicle_device_data     → miles + FSD miles
+      // - vehicle_location        → Home vs Supercharger classification
+      // - vehicle_charging_cmds   → READ charging sessions / kWh added (no commands sent)
+      // - energy_device_data      → solar production + Powerwall
+      // (energy_cmds and user_data intentionally dropped — write-scope / unused.)
+      const scopes = REQUIRED_TESLA_SCOPES.join(" ");
+
       const authUrl = new URL(TESLA_AUTH_URL);
       authUrl.searchParams.set("response_type", "code");
       authUrl.searchParams.set("client_id", clientId);
@@ -361,6 +381,10 @@ Deno.serve(async (req) => {
         ? new Date(Date.now() + tokens.expires_in * 1000).toISOString()
         : null;
 
+      const grantedScope: string = typeof tokens.scope === "string" ? tokens.scope : "";
+      const scopeCheck = classifyMissingScopes(grantedScope);
+      console.log("[tesla-auth] exchange-code:scope-check", scopeCheck);
+
       const { error: tokenStoreError } = await supabaseClient
         .from("energy_tokens")
         .upsert({
@@ -369,7 +393,7 @@ Deno.serve(async (req) => {
           access_token: tokens.access_token,
           refresh_token: tokens.refresh_token || null,
           expires_at: expiresAt,
-          extra_data: null
+          extra_data: { granted_scope: grantedScope },
         }, { onConflict: "user_id,provider" });
 
       if (tokenStoreError) {
@@ -391,6 +415,7 @@ Deno.serve(async (req) => {
         userId: exchangeUserId,
         needsDeviceSelection: true,
         hasReturnTo: !!returnTo,
+        severity: scopeCheck.severity,
       });
 
       return new Response(JSON.stringify({
@@ -398,7 +423,35 @@ Deno.serve(async (req) => {
         message: "Tesla authorization successful - please select your devices",
         needsDeviceSelection: true,
         returnTo,
+        granted_scope: grantedScope,
+        required_scopes: REQUIRED_TESLA_SCOPES,
+        missing_scopes: scopeCheck.missing,
+        blocking_scopes: scopeCheck.blocking,
+        degraded_scopes: scopeCheck.degraded,
+        scope_severity: scopeCheck.severity,
       }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Unauthenticated helper: returns just the `return_to` URL for a state so
+    // the callback page can bounce back to the beta subdomain BEFORE the token
+    // exchange (session cookies live on the beta origin).
+    if (action === "lookup-return-to") {
+      const { state: lookupState } = body;
+      if (typeof lookupState !== "string" || !lookupState) {
+        return new Response(JSON.stringify({ error: "state required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const { data: row } = await supabaseClient
+        .from("tesla_oauth_states")
+        .select("return_to, expires_at, consumed_at")
+        .eq("state", lookupState)
+        .maybeSingle();
+      const fresh = row && !row.consumed_at && new Date(row.expires_at).getTime() >= Date.now();
+      return new Response(JSON.stringify({ returnTo: fresh ? row?.return_to ?? null : null }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -407,18 +460,31 @@ Deno.serve(async (req) => {
     if (action === "check-tokens") {
       const { data: tokenCheck } = await supabaseClient
         .from("energy_tokens")
-        .select("id, provider, access_token")
+        .select("id, provider, access_token, extra_data")
         .eq("user_id", user.id)
         .eq("provider", "tesla")
         .maybeSingle();
 
+      const grantedScope: string =
+        (tokenCheck?.extra_data && typeof (tokenCheck.extra_data as { granted_scope?: unknown }).granted_scope === "string")
+          ? String((tokenCheck.extra_data as { granted_scope: string }).granted_scope)
+          : "";
+      const scopeCheck = classifyMissingScopes(grantedScope);
+
       console.log("[tesla-auth] check-tokens", {
         userId: user.id,
         exists: !!tokenCheck,
+        severity: scopeCheck.severity,
       });
 
       return new Response(JSON.stringify({
         exists: !!tokenCheck,
+        granted_scope: grantedScope,
+        required_scopes: REQUIRED_TESLA_SCOPES,
+        missing_scopes: scopeCheck.missing,
+        blocking_scopes: scopeCheck.blocking,
+        degraded_scopes: scopeCheck.degraded,
+        scope_severity: scopeCheck.severity,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
