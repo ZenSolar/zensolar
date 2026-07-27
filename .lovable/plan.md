@@ -1,85 +1,73 @@
-## Scope
-Ship Tesla onboarding P0/P1 reliability fixes. Read-only scopes only. No dashboard/tokenomics changes, no virtual key pairing.
+# Tesla P0/P1 — Ship-ready plan
 
-## Current state (verified in `supabase/functions/tesla-auth/index.ts` 249–270)
-Currently requesting: `openid offline_access user_data vehicle_device_data vehicle_charging_cmds energy_device_data energy_cmds`.
-- Missing `vehicle_location` (needed for Home vs Supercharger).
-- `energy_cmds` is a write scope — contradicts "we observe, never control".
-- `user_data` has no concrete consumer.
-- Token-response `scope` field is not captured or validated — silent partial grants possible.
-- Callback runs token exchange on whichever origin Tesla lands on; no bounce back to `beta.*` before exchange.
-- `BetaTesla.tsx` `connecting` phase polls to 90s before honest sleeping copy.
+Consolidated plan folding in every amendment. Land these in order, then verify and ship.
 
-## Changes
+## Core changes (from earlier rounds, unchanged)
 
-### 1. Requested scopes (P0)
-`supabase/functions/tesla-auth/index.ts` — replace scope list with exactly:
-```
-openid offline_access vehicle_device_data vehicle_location vehicle_charging_cmds energy_device_data
-```
-Drop `user_data` and `energy_cmds`. Keep `prompt_missing_scopes=true` and `require_requested_scopes=true`.
+1. **Auth URL flags**: `require_requested_scopes=false`, `prompt_missing_scopes=true` so partial grants come back to us instead of being blocked at Tesla.
+2. **Scope classification**: `missing_scopes` is a diff over data scopes only — `vehicle_device_data`, `vehicle_location`, `vehicle_charging_cmds`, `energy_device_data`. Offline access is inferred from `!!tokens.refresh_token`; if false, severity is `blocking` via a synthetic `no_refresh_token` reason, but it never appears in `missing_scopes`.
+3. **Server-owned domain hop**: apex `/oauth/callback` looks up `tesla_oauth_states.return_to` by `state` and bounces to `https://<beta host>/oauth/callback?...&hopped=1` before token exchange. The `tesla_oauth_return_to` localStorage key is removed from `OAuthCallback.tsx` and `useEnergyOAuth.ts`.
+4. **Expired / consumed link screen**: `exchange-code` returns standardized `state_expired | state_consumed | state_missing`; callback renders **"This link expired. Let's reconnect your Tesla."** with a button that restarts `startTeslaOAuth({ returnTo: '/onboarding/tesla' })` on beta.
+5. **Consent copy**: always show Energy Product Information row, wording `"your solar production and Powerwall, if you have them"`. Recovery UI accepts `hasEnergyIntent` and suppresses the energy consequence when the user declared no solar/battery.
+6. **Persist `granted_scope`** on `energy_tokens.extra_data` with `granted_at` and `has_refresh_token` alongside it.
 
-### 2. Capture and validate granted scopes (P0)
-- In `exchange-code`, read `tokens.scope` from Tesla's token response.
-- Add `granted_scope text` column to `energy_tokens` (migration; verify column absence first via read_query).
-- Persist `granted_scope` on token upsert.
-- Extend `check-tokens` and `exchange-code` responses with `{ granted_scope, missing_scopes: string[] }` diffed against the required set.
-- Classify `missing_scopes` server-side:
-  - `blocking`: `vehicle_device_data`
-  - `degraded`: `vehicle_location`, `vehicle_charging_cmds`, `energy_device_data`
-  - `openid`/`offline_access`: treated as blocking (no refresh token = disconnect).
+## Post-connect state machine
 
-### 3. Scope recovery UI (P0)
-New `src/components/onboarding/TeslaScopeRecovery.tsx`, rendered by `BetaTesla.tsx` when `missing_scopes` non-empty.
-- Header adapts to severity:
-  - Blocking: "We can't continue without this permission."
-  - Degraded: "You'll be missing some data."
-- Per-missing-scope row with plain-language consequence:
-  - `vehicle_device_data` → "Without this we can't read your miles or FSD miles."
-  - `vehicle_location` → "Without this we can't tell home charging apart from Supercharging."
-  - `vehicle_charging_cmds` → "Without this we can't count your charging sessions or kWh added."
-  - `energy_device_data` → "Without this we can't read your solar production or Powerwall."
-  - `offline_access` → "Without this you'll be disconnected in a few hours."
-- Two buttons per case:
-  - **Add this permission** — triggers a fresh `startTeslaOAuth` run (Tesla re-prompts thanks to existing flags).
-  - **Continue without it** — allowed for degraded; hidden for blocking. Stores the accepted-degraded set on the profile so we don't nag on every load (banner surfacing is out of scope for this pass).
-- No automatic OAuth retry.
+After the 15 s connecting window, group Tesla `connected_devices` for the user into vehicles and energy sites, then check whether telemetry has landed (`last_known_state` non-empty on the respective rows).
 
-### 4. Pre-Tesla consent screen (P1)
-Rewrite the emerald callout in `src/pages/beta/BetaTesla.tsx`:
-- Headline: **"Leave every box checked."**
-- Sub: "Tesla will show a list of permissions. Each one unlocks a specific reward:"
-- Rows (Tesla label → user benefit):
-  - Vehicle Information → miles and FSD miles
-  - Vehicle Location → tells home charging apart from Supercharging
-  - Vehicle Charging Management → charging sessions and kWh added
-  - Energy Product Information → solar production and Powerwall (only shown when battery/solar selected)
-- Footer line: **"ZenSolar only reads this data. We never send commands to your car or change any settings."**
+| Vehicles | Energy sites | Vehicle telemetry | Energy telemetry | Screen |
+| --- | --- | --- | --- | --- |
+| ≥ 1 | 0 | none | — | **"Your Tesla is asleep. Data will update when it wakes."** Continue → background sync. |
+| ≥ 1 | ≥ 1 | none | present | **"Your solar is producing right now. Your car is asleep and will sync when it wakes."** Continue. |
+| ≥ 1 | ≥ 1 | none | none | Same asleep copy as row 1 (nothing to celebrate yet). |
+| 0 | ≥ 1 | — | any | **"Your Powerwall and solar are connected. No vehicles found on this account."** Continue. Secondary: "Try a different Tesla account". |
+| 0 | 0 | — | — | **"We didn't find any vehicles or energy products on this Tesla account."** Primary: "Try a different Tesla account". Secondary: "Skip for now". |
+| ≥ 1 | any | present | any | Existing `snapshot` phase (unchanged). |
 
-### 5. Callback domain hop (P1)
-`src/pages/OAuthCallback.tsx`:
-- Before calling `exchangeTeslaCode`, if `window.location.hostname` is a non-beta apex (`zensolar.com`/`zen.solar` and their `www.` variants) AND the persisted `return_to` targets a `beta.*` host, instantly `window.location.replace` to `https://beta.zensolar.com/oauth/callback?<same query>&hopped=1`.
-- `hopped=1` prevents loops; if already present, proceed with exchange on current origin.
-- Splash keeps Quiet Current copy: "Connecting your Tesla…".
+Implementation: new `post-connect-summary` phase in `src/pages/beta/BetaTesla.tsx` chosen from a single query result; `snapshot` becomes reachable only when vehicle telemetry actually arrives.
 
-### 6. State token hardening (P1)
-- Confirm `tesla_oauth_states` row is marked `consumed_at` on successful exchange and reused rows are rejected.
-- Reduce TTL from 15 min → 10 min in the auth-url writer.
+## `no_refresh_token` escape (with reset on recovery)
 
-### 7. Sleeping vehicle handling (P1)
-`BetaTesla.tsx` `connecting` phase:
-- If tokens present but no `connected_devices` rows after **15s**, render honest copy: "Your Tesla is asleep. Data will update the next time it wakes up (usually within a few hours)."
-- Primary button: **Continue to dashboard** (calls existing `cont()`).
-- Baseline claim path already writes rows on wake; no dashboard change needed.
+- Track `energy_tokens.extra_data.no_refresh_token_attempts` (integer).
+- Increment on any `exchange-code` that lands without `refresh_token`.
+- **Reset to 0 on any exchange that DOES return a `refresh_token`.** Prevents an old transient failure from immediately unlocking the escape hatch months later.
+- Recovery UI:
+  - `attempts <= 1` → single primary "Reauthorize with Tesla".
+  - `attempts >= 2` → also reveal:
+    - **Continue anyway** (you may need to reconnect later) → sets `degraded_no_refresh=true` on the profile for a future gentle nudge; advances to device-selection.
+    - **Skip Tesla for now** → uses existing `skip()` handler.
+- `TeslaScopeRecovery` props: `noRefreshTokenAttempts: number`, `onContinueAnyway?`, `onSkip?`.
+
+## Branded apex splash — paint immediately
+
+Two layers, so the "Connecting your Tesla…" moment is never blank:
+
+- **Static pre-React fallback** in `index.html`: if the page loads with `pathname === '/oauth/callback'` and the URL has `?state=` but no `?hopped=1`, render an inline branded splash (logo + copy) inside `#root` via a tiny inline script. React unmounts it on hydrate. Keep it dependency-free and inline so it paints before the SPA bundle loads.
+- **React layer** in `src/pages/OAuthCallback.tsx`: render `<BrandSplash message="Connecting your Tesla…" />` on the very first render, before any effect fires. `lookup-return-to`, the hop, and the token exchange all happen underneath the splash. Diagnostics still write to the ring buffer.
+
+## Callback route reachable on every apex host
+
+Confirm `/oauth/callback` resolves and returns the SPA on both `zensolar.com` and `zen.solar`. `App.tsx` mounts the route unconditionally; both hosts are in the custom-domain list. Verified in build mode.
+
+## Cohort-analysis reference
+
+Add `docs/tokenomics/granted-scope-shape.md` describing the `energy_tokens.extra_data` JSON contract (`granted_scope`, `granted_at`, `has_refresh_token`, optional `no_refresh_token_attempts`, optional `degraded_no_refresh`). Comment above the upsert in `tesla-auth/index.ts` points to that doc.
 
 ## Out of scope
-Dashboard redesign, tokenomics, virtual key pairing, dashboard-side degraded-data banner.
 
-## Verification
-- `read_query` `energy_tokens` schema before migration.
-- Playwright incognito onboarding from `beta.zensolar.com`: consent copy correct → Tesla approval → callback bounces to beta before exchange (visible in `__oauthDiag('dump')`) → happy path lands on device selection.
-- Simulate degraded grant by hand-editing Tesla scopes (or stubbing token response in a dev override): confirm recovery UI names the exact missing capability, blocking hides Continue, degraded shows both.
-- Simulate sleep by pointing device fetch at an empty result: 15s cutoff renders honest copy + Continue works.
+Dashboard redesign, tokenomics changes, virtual key pairing, CDN-level 302 for `/oauth/callback`.
 
-## Final reply
-"Tesla onboarding P0/P1 fixes complete — offline_access verified, scope recovery added, callback hardened, consent + sleep handling improved."
+## Verification checklist (after build mode)
+
+- `get-auth-url` URL contains `require_requested_scopes=false&prompt_missing_scopes=true`.
+- Fresh incognito → uncheck Vehicle Location on Tesla → recovery lists only Vehicle Location; "Continue without it" advances to device-selection.
+- Fresh incognito, all boxes checked, vehicles present → device-selection appears; `snapshot` renders once telemetry lands.
+- Simulate two consecutive no-refresh exchanges → escape buttons appear on second recovery view. Then simulate a successful refresh-token exchange → counter is back at 0 (verified via psql).
+- Energy-only Tesla account → energy-only success screen; empty account → empty screen; asleep + energy live → split copy.
+- Let state row expire (> 10 min) → "This link expired" screen restarts OAuth on beta.
+- **Callback route reachability** — use GET, not HEAD, because SPAs are picky:
+  `curl -s -o /dev/null -w "%{http_code}\n" https://zensolar.com/oauth/callback`
+  `curl -s -o /dev/null -w "%{http_code}\n" https://zen.solar/oauth/callback`
+  Both must return `200`.
+- **Hop happens exactly once, on beta**: run through the flow with devtools open on both apex and beta tabs; `window.__oauthDiag('dump')` on the beta tab must show one `callback:hop` entry with `hopped=1` set on the destination URL, and the `exchange-code` call must appear only in the beta-tab log (never in the apex-tab log).
+- Branded splash paints on apex before React hydrates (throttle CPU in devtools and confirm no blank frame between paint and hop).
