@@ -20,7 +20,7 @@ export default function BetaLanding() {
     <>
       <SEO
         title="ZenSolar Beta — Join the Beta"
-        description="Your Tesla and solar system already generate real value. ZenSolar links to the systems you already own and provides a precise way to see — and be rewarded for — your clean energy contributions."
+        description="Your Tesla and solar panels already generate real value. ZenSolar links to the systems you already own and provides a precise way to see — and be rewarded for — your clean energy contributions."
         url="https://beta.zen.solar"
       />
       <QCScreen>
@@ -40,7 +40,7 @@ export default function BetaLanding() {
             A new way to be rewarded for using solar and driving a Tesla —$ZSOLAR.
           </h1>
           <p className="text-[15px] leading-relaxed qc-muted mb-8">
-            Your Tesla and/or solar system already generates real value. ZenSolar
+            Your Tesla and solar panels already generate real value. ZenSolar
             links to the systems you already own and provides a&nbsp;precise way to
             see — and be rewarded for — your clean energy contributions.
           </p>
@@ -61,7 +61,7 @@ export default function BetaLanding() {
             {[
               'Connect your devices',
               'See your kWh and EV data, live',
-              'Mint your rewards',
+              'Earn your rewards',
             ].map((step, i) => (
               <li key={step} className="flex items-baseline gap-3">
                 <span className="qc-numeric text-[13px] qc-muted w-5">
