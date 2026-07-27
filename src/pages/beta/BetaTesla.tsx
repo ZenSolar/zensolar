@@ -34,6 +34,7 @@ export default function BetaTesla() {
   const [detectedStatus, setDetectedStatus] = useState<BetaStatus>({});
   const [missingScopes, setMissingScopes] = useState<string[]>([]);
   const [blockingScopes, setBlockingScopes] = useState<string[]>([]);
+  const [noRefreshAttempts, setNoRefreshAttempts] = useState(0);
 
   useEffect(() => {
     oauthDiag('BetaTesla', 'mount', {
