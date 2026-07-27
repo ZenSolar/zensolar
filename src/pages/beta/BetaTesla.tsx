@@ -236,9 +236,7 @@ export default function BetaTesla() {
             <li>Vehicle Information <span className="text-emerald-100/60">→ your miles &amp; FSD miles</span></li>
             <li>Vehicle Location <span className="text-emerald-100/60">→ tells home charging apart from Supercharging</span></li>
             <li>Vehicle Charging Management <span className="text-emerald-100/60">→ kWh added, live sessions (read-only)</span></li>
-            {(flow.selections.battery || flow.selections.solar) && (
-              <li>Energy Product Information <span className="text-emerald-100/60">→ Powerwall &amp; solar production</span></li>
-            )}
+            <li>Energy Product Information <span className="text-emerald-100/60">→ your solar production and Powerwall, if you have them</span></li>
           </ul>
           <p className="text-[12px] text-emerald-100/60 leading-relaxed mt-2">
             Unchecking any box means we can't verify that activity — and can't reward you for it.
