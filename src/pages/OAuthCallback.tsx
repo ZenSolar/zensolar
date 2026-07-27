@@ -5,6 +5,7 @@ import { DeviceSelectionDialog } from '@/components/dashboard/DeviceSelectionDia
 import { supabase } from '@/integrations/supabase/client';
 import { BrandSplash } from '@/components/ui/BrandSplash';
 import { Button } from '@/components/ui/button';
+import { oauthDiag } from '@/lib/oauthDiagnostics';
 
 const TESLA_OAUTH_RETURN_TO_KEY = 'tesla_oauth_return_to';
 
