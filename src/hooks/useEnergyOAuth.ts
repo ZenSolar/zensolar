@@ -405,16 +405,31 @@ export function useEnergyOAuth() {
         headers,
       });
 
-      // Standardized state-lifecycle errors surface in response.data.error even
-      // when the HTTP status is 401 — check those before generic error extraction
-      // so the callback can render the "link expired" recovery screen.
-      const dataErr = response.data?.error;
+      // Standardized state-lifecycle errors — tesla-auth returns HTTP 401 for
+      // state_expired / state_consumed / state_missing. supabase-js sets
+      // response.error (FunctionsHttpError) and leaves response.data null on
+      // non-2xx, so we must also peek at the FunctionsHttpError body.
+      let dataErr: string | undefined = response.data?.error;
+      let dataMsg: string | undefined = response.data?.message;
+      if (!dataErr && response.error) {
+        const ctxResponse = (response.error as unknown as { context?: { json?: () => Promise<unknown> } })
+          .context?.json;
+        if (typeof ctxResponse === 'function') {
+          try {
+            const body = (await ctxResponse.call((response.error as unknown as { context: unknown }).context)) as
+              | { error?: string; message?: string }
+              | undefined;
+            dataErr = body?.error;
+            dataMsg = body?.message;
+          } catch { /* ignore */ }
+        }
+      }
       if (dataErr === 'state_expired' || dataErr === 'state_consumed' || dataErr === 'state_missing') {
         oauthDiag('useEnergyOAuth', 'tesla:exchange:state-error', { errorCode: dataErr });
         return {
           ok: false,
           errorCode: dataErr,
-          message: response.data?.message || 'This authorization link is no longer valid.',
+          message: dataMsg || 'This authorization link is no longer valid.',
         };
       }
 
@@ -423,6 +438,7 @@ export function useEnergyOAuth() {
         oauthDiag('useEnergyOAuth', 'tesla:exchange:error', { errMsg });
         throw new Error(errMsg);
       }
+
 
       const d = response.data ?? {};
       oauthDiag('useEnergyOAuth', 'tesla:exchange:success', {
