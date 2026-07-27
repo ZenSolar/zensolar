@@ -512,21 +512,27 @@ Deno.serve(async (req) => {
     if (action === "check-tokens") {
       const { data: tokenCheck } = await supabaseClient
         .from("energy_tokens")
-        .select("id, provider, access_token, extra_data")
+        .select("id, provider, access_token, refresh_token, extra_data")
         .eq("user_id", user.id)
         .eq("provider", "tesla")
         .maybeSingle();
 
-      const grantedScope: string =
-        (tokenCheck?.extra_data && typeof (tokenCheck.extra_data as { granted_scope?: unknown }).granted_scope === "string")
-          ? String((tokenCheck.extra_data as { granted_scope: string }).granted_scope)
-          : "";
-      const scopeCheck = classifyMissingScopes(grantedScope);
+      const extra = (tokenCheck?.extra_data ?? null) as {
+        granted_scope?: unknown;
+        has_refresh_token?: unknown;
+        no_refresh_token_attempts?: unknown;
+      } | null;
+      const grantedScope: string = typeof extra?.granted_scope === "string" ? extra.granted_scope : "";
+      const hasRefreshToken =
+        typeof extra?.has_refresh_token === "boolean" ? extra.has_refresh_token : !!tokenCheck?.refresh_token;
+      const noRefreshAttempts = Number(extra?.no_refresh_token_attempts ?? 0) || 0;
+      const scopeCheck = classifyMissingScopes(grantedScope, hasRefreshToken);
 
       console.log("[tesla-auth] check-tokens", {
         userId: user.id,
         exists: !!tokenCheck,
         severity: scopeCheck.severity,
+        noRefreshAttempts,
       });
 
       return new Response(JSON.stringify({
@@ -537,6 +543,9 @@ Deno.serve(async (req) => {
         blocking_scopes: scopeCheck.blocking,
         degraded_scopes: scopeCheck.degraded,
         scope_severity: scopeCheck.severity,
+        has_refresh_token: hasRefreshToken,
+        no_refresh_token: scopeCheck.no_refresh_token,
+        no_refresh_token_attempts: noRefreshAttempts,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
