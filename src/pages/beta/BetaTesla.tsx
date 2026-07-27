@@ -8,6 +8,7 @@ import { useBetaFlow, type BetaStatus } from '@/hooks/useBetaFlow';
 import { useEnergyOAuth } from '@/hooks/useEnergyOAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { computeNextStep } from './betaRouting';
+import { oauthDiag } from '@/lib/oauthDiagnostics';
 
 type Phase = 'consent' | 'connecting' | 'device-selection' | 'snapshot';
 type TeslaDeviceRow = {
@@ -25,10 +26,24 @@ export default function BetaTesla() {
   // looping back to the approval screen.
   const returningFromOAuth = searchParams.get('oauth_success') === 'true';
   const needsDeviceSelection = searchParams.get('device_selection') === 'true';
-  const [phase, setPhase] = useState<Phase>(returningFromOAuth || needsDeviceSelection ? 'device-selection' : 'consent');
+  const initialPhase: Phase = returningFromOAuth || needsDeviceSelection ? 'device-selection' : 'consent';
+  const [phase, setPhase] = useState<Phase>(initialPhase);
   const [devices, setDevices] = useState<Array<{ type: string; name: string; extra?: string }>>([]);
   const [syncElapsed, setSyncElapsed] = useState(0);
   const [detectedStatus, setDetectedStatus] = useState<BetaStatus>({});
+
+  useEffect(() => {
+    oauthDiag('BetaTesla', 'mount', {
+      initialPhase,
+      returningFromOAuth,
+      needsDeviceSelection,
+      search: window.location.search,
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    oauthDiag('BetaTesla', 'phase:change', { phase });
+  }, [phase]);
 
   // Clear the query flag once consumed so a back-forward navigation doesn't re-trigger.
   useEffect(() => {
@@ -66,32 +81,43 @@ export default function BetaTesla() {
     return true;
   };
 
-  // Detect existing Tesla devices immediately, then poll while OAuth/device discovery is finishing.
   useEffect(() => {
     let cancelled = false;
     const check = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        oauthDiag('BetaTesla', 'check:no-user', { phase });
+        return;
+      }
       const { data } = await supabase
         .from('connected_devices')
         .select('device_type, device_name, last_known_state')
         .eq('user_id', user.id)
         .eq('provider', 'tesla');
       if (cancelled || !data) return;
+      oauthDiag('BetaTesla', 'check:devices', {
+        phase,
+        count: data.length,
+        types: data.map((d) => d.device_type),
+      });
       const found = await applyDetectedDevices(data);
       if (found || phase === 'snapshot') return;
 
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      // If OAuth already completed and tokens exist, open device selection
-      // without making the user reconnect to Tesla.
-      const { data: tokenCheck } = await supabase.functions.invoke('tesla-auth', {
+      const { data: tokenCheck, error: tokenErr } = await supabase.functions.invoke('tesla-auth', {
         body: { action: 'check-tokens' },
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
+      oauthDiag('BetaTesla', 'check:tokens', {
+        phase,
+        exists: !!tokenCheck?.exists,
+        error: tokenErr?.message ?? null,
+      });
 
       if (!cancelled && tokenCheck?.exists && phase === 'consent') {
+        oauthDiag('BetaTesla', 'auto-advance:consent->device-selection');
         setPhase('device-selection');
         return;
       }
@@ -120,9 +146,8 @@ export default function BetaTesla() {
   }, [phase]);
 
   const start = async () => {
+    oauthDiag('BetaTesla', 'start:tesla-oauth', { returnTo: '/onboarding/tesla' });
     localStorage.setItem('beta_energy_flow', 'true');
-    // Show a neutral sync state while OAuth opens and device discovery completes.
-    // Tesla key pairing is not part of onboarding and should not be requested here.
     setPhase('connecting');
     await startTeslaOAuth({ returnTo: '/onboarding/tesla' });
   };

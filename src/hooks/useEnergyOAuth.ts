@@ -10,6 +10,7 @@ import {
   type OAuthStage,
 } from '@/lib/deasonHandoff';
 import { trackEvent } from '@/hooks/useGoogleAnalytics';
+import { oauthDiag } from '@/lib/oauthDiagnostics';
 
 /** Fire a success event, attributing the connect to Deason if the user
  *  saw a seeded playbook (auto-open or nudge) in the last 5 min. */
@@ -239,7 +240,12 @@ function extractError(response: { error?: { message?: string }; data?: { error?:
 export function useEnergyOAuth() {
   const startTeslaOAuth = useCallback(async (options?: TeslaOAuthOptions): Promise<void> => {
     try {
-      // Clear any stale OAuth state first
+      oauthDiag('useEnergyOAuth', 'tesla:start:begin', {
+        returnTo: options?.returnTo,
+        origin: window.location.origin,
+        redirectUri: REDIRECT_URI,
+        isMobile: isMobile(),
+      });
       localStorage.removeItem('tesla_oauth_state');
       const returnTo = sanitizeReturnPath(options?.returnTo);
       if (returnTo) {
@@ -250,12 +256,14 @@ export function useEnergyOAuth() {
 
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
+        oauthDiag('useEnergyOAuth', 'tesla:start:no-session');
         toast.error('Please log in first');
         return;
       }
 
       const state = crypto.randomUUID();
       localStorage.setItem('tesla_oauth_state', state);
+      oauthDiag('useEnergyOAuth', 'tesla:start:state-generated', { state });
 
       const response = await supabase.functions.invoke('tesla-auth', {
         body: { redirectUri: REDIRECT_URI, state, action: 'get-auth-url', returnTo, returnOrigin: safeCurrentOrigin() },
@@ -264,10 +272,15 @@ export function useEnergyOAuth() {
 
       const errMsg = extractError(response);
       if (errMsg || !response.data?.authUrl) {
+        oauthDiag('useEnergyOAuth', 'tesla:start:get-auth-url:failed', { errMsg });
         throw new Error(errMsg || 'Failed to get auth URL');
       }
 
       const { authUrl } = response.data;
+      oauthDiag('useEnergyOAuth', 'tesla:start:redirect', {
+        authHost: (() => { try { return new URL(authUrl).host; } catch { return null; } })(),
+        isMobile: isMobile(),
+      });
 
       if (isMobile()) {
         localStorage.setItem('tesla_oauth_pending', 'true');
@@ -275,7 +288,7 @@ export function useEnergyOAuth() {
       } else {
         const popup = window.open(authUrl, 'tesla_auth', 'width=600,height=700,noopener');
         if (!popup) {
-          // Popup blocked — surface a clear, retry-able message
+          oauthDiag('useEnergyOAuth', 'tesla:start:popup-blocked');
           showOAuthError({
             provider: 'tesla',
             stage: 'start',
@@ -287,7 +300,9 @@ export function useEnergyOAuth() {
         toast.info('Complete Tesla login in the popup window');
       }
     } catch (error) {
-      console.error('Tesla OAuth error:', error);
+      oauthDiag('useEnergyOAuth', 'tesla:start:throw', {
+        message: error instanceof Error ? error.message : String(error),
+      });
       showOAuthError({
         provider: 'tesla',
         stage: 'start',
@@ -332,18 +347,33 @@ export function useEnergyOAuth() {
 
   const exchangeTeslaCode = useCallback(async (code: string, state?: string | null): Promise<boolean> => {
     try {
+      oauthDiag('useEnergyOAuth', 'tesla:exchange:begin', {
+        hasCode: !!code,
+        hasState: !!state,
+      });
       const { data: { session } } = await supabase.auth.getSession();
 
       const headers = session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined;
+      oauthDiag('useEnergyOAuth', 'tesla:exchange:invoke', {
+        hasSessionHeader: !!headers,
+        userId: session?.user.id ?? null,
+      });
       const response = await supabase.functions.invoke('tesla-auth', {
         body: { code, redirectUri: REDIRECT_URI, state, action: 'exchange-code' },
         headers,
       });
 
       const errMsg = extractError(response);
-      if (errMsg) throw new Error(errMsg);
+      if (errMsg) {
+        oauthDiag('useEnergyOAuth', 'tesla:exchange:error', { errMsg });
+        throw new Error(errMsg);
+      }
 
       const returnTo = response.data?.returnTo;
+      oauthDiag('useEnergyOAuth', 'tesla:exchange:success', {
+        needsDeviceSelection: response.data?.needsDeviceSelection,
+        returnTo,
+      });
       if (typeof returnTo === 'string') {
         localStorage.setItem(TESLA_OAUTH_RETURN_TO_KEY, returnTo);
       }
@@ -352,7 +382,9 @@ export function useEnergyOAuth() {
       toast.success('Tesla account connected!');
       return true;
     } catch (error) {
-      console.error('Tesla token exchange error:', error);
+      oauthDiag('useEnergyOAuth', 'tesla:exchange:throw', {
+        message: error instanceof Error ? error.message : String(error),
+      });
       showOAuthError({
         provider: 'tesla',
         stage: 'exchange',

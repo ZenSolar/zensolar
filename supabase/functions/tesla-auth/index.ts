@@ -277,6 +277,11 @@ Deno.serve(async (req) => {
     // Exchange authorization code for tokens
     if (action === "exchange-code") {
       const { code, state } = body;
+      console.log("[tesla-auth] exchange-code:begin", {
+        hasCode: !!code,
+        hasState: !!state,
+        hasAuthUser: !!user,
+      });
       let exchangeUserId = user?.id ?? null;
       let exchangeRedirectUri = TESLA_REDIRECT_URI;
       let returnTo: string | null = null;
@@ -287,6 +292,14 @@ Deno.serve(async (req) => {
           .select("user_id, redirect_uri, return_to, expires_at, consumed_at")
           .eq("state", state)
           .maybeSingle();
+
+        console.log("[tesla-auth] exchange-code:state-lookup", {
+          found: !!stateRow,
+          consumed: !!stateRow?.consumed_at,
+          expired: stateRow ? new Date(stateRow.expires_at).getTime() < Date.now() : null,
+          hasReturnTo: !!stateRow?.return_to,
+          error: stateError?.message ?? null,
+        });
 
         if (stateError || !stateRow || stateRow.consumed_at || new Date(stateRow.expires_at).getTime() < Date.now()) {
           return new Response(JSON.stringify({ error: "Authorization session expired. Please try again." }), {
@@ -301,6 +314,7 @@ Deno.serve(async (req) => {
       }
 
       if (!exchangeUserId) {
+        console.warn("[tesla-auth] exchange-code:no-user");
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
           status: 401,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -324,7 +338,11 @@ Deno.serve(async (req) => {
 
       if (!tokenResponse.ok) {
         const errorText = await tokenResponse.text();
-        console.error("Tesla token exchange failed:", errorText);
+        console.error("[tesla-auth] exchange-code:token-http-failed", {
+          status: tokenResponse.status,
+          body: errorText.slice(0, 300),
+          redirect_uri: exchangeRedirectUri,
+        });
         return new Response(JSON.stringify({ error: "Token exchange failed. Please try again." }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -332,14 +350,14 @@ Deno.serve(async (req) => {
       }
 
       const tokens = await tokenResponse.json();
-      console.log("Tesla tokens received:", { 
+      console.log("[tesla-auth] exchange-code:tokens-received", {
         hasAccessToken: !!tokens.access_token,
         hasRefreshToken: !!tokens.refresh_token,
-        expiresIn: tokens.expires_in
+        expiresIn: tokens.expires_in,
+        userId: exchangeUserId,
       });
 
-      // Store tokens in database
-      const expiresAt = tokens.expires_in 
+      const expiresAt = tokens.expires_in
         ? new Date(Date.now() + tokens.expires_in * 1000).toISOString()
         : null;
 
@@ -355,7 +373,9 @@ Deno.serve(async (req) => {
         }, { onConflict: "user_id,provider" });
 
       if (tokenStoreError) {
-        console.error("Failed to store Tesla tokens:", tokenStoreError);
+        console.error("[tesla-auth] exchange-code:token-store-failed", tokenStoreError);
+      } else {
+        console.log("[tesla-auth] exchange-code:token-store-ok", { userId: exchangeUserId });
       }
 
       if (typeof state === "string") {
@@ -364,10 +384,17 @@ Deno.serve(async (req) => {
           .update({ consumed_at: new Date().toISOString() })
           .eq("state", state)
           .is("consumed_at", null);
+        console.log("[tesla-auth] exchange-code:state-consumed", { state });
       }
 
-      return new Response(JSON.stringify({ 
-        success: true, 
+      console.log("[tesla-auth] exchange-code:done", {
+        userId: exchangeUserId,
+        needsDeviceSelection: true,
+        hasReturnTo: !!returnTo,
+      });
+
+      return new Response(JSON.stringify({
+        success: true,
         message: "Tesla authorization successful - please select your devices",
         needsDeviceSelection: true,
         returnTo,
@@ -385,7 +412,12 @@ Deno.serve(async (req) => {
         .eq("provider", "tesla")
         .maybeSingle();
 
-      return new Response(JSON.stringify({ 
+      console.log("[tesla-auth] check-tokens", {
+        userId: user.id,
+        exists: !!tokenCheck,
+      });
+
+      return new Response(JSON.stringify({
         exists: !!tokenCheck,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
