@@ -61,13 +61,13 @@ export default function BetaTesla() {
         .eq('provider', 'tesla');
       if (cancelled || !data) return;
       const found = await applyDetectedDevices(data);
-      if (found || phase !== 'connecting') return;
+      if (found || phase === 'snapshot') return;
 
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
       // If OAuth already completed and tokens exist, let the backend auto-claim
-      // devices once more before we ask the user to do anything manually.
+      // devices before we ask the user to reconnect or do anything manually.
       await supabase.functions.invoke('tesla-auth', {
         body: { action: 'check-tokens' },
         headers: { Authorization: `Bearer ${session.access_token}` },
