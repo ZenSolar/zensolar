@@ -484,9 +484,10 @@ export default function OAuthCallback() {
             <Button
               onClick={() => {
                 hasProcessed.current = false;
-                // Bounce back to the beta Tesla step so startTeslaOAuth mints
-                // a fresh state row on the correct origin.
-                window.location.href = '/beta/tesla';
+                // Always land on the canonical beta host so startTeslaOAuth
+                // mints a fresh state row (and the /demo gate on apex never
+                // swallows the reconnect flow).
+                window.location.href = resolveReconnectUrl();
               }}
               className="mt-2"
             >
@@ -494,6 +495,7 @@ export default function OAuthCallback() {
             </Button>
           </div>
         )}
+
         {status === 'error' && (
           <div className="space-y-3">
             <p className="text-destructive font-medium">Connection failed</p>
