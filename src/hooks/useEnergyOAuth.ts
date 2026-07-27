@@ -264,12 +264,9 @@ export function useEnergyOAuth() {
         isMobile: isMobile(),
       });
       localStorage.removeItem('tesla_oauth_state');
+      // returnTo is stored server-side on the tesla_oauth_states row keyed by
+      // state — no client-side localStorage relay needed.
       const returnTo = sanitizeReturnPath(options?.returnTo);
-      if (returnTo) {
-        localStorage.setItem(TESLA_OAUTH_RETURN_TO_KEY, returnTo);
-      } else {
-        localStorage.removeItem(TESLA_OAUTH_RETURN_TO_KEY);
-      }
 
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
