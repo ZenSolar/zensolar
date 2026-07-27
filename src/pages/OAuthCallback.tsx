@@ -231,19 +231,18 @@ export default function OAuthCallback() {
       }
 
       if (tokensFound) {
+        // Auto-claim devices BEFORE redirecting so the return page has data to
+        // show (otherwise BetaTesla re-shows the "approve access" screen because
+        // no devices exist yet).
+        if (session?.access_token) {
+          try { await autoClaimTeslaDevices(session.access_token); } catch (e) { console.warn('[OAuthCallback] auto-claim error:', e); }
+        }
+
         const safeReturnPath = consumeSafeReturnPath();
         if (safeReturnPath) {
           setStatus('success');
-          window.location.href = safeReturnPath;
-          return;
-        }
-
-        const claimedCount = session?.access_token
-          ? await autoClaimTeslaDevices(session.access_token)
-          : 0;
-        if (claimedCount > 0) {
-          setStatus('success');
-          window.location.href = safeReturnPath || '/';
+          const sep = safeReturnPath.includes('?') ? '&' : '?';
+          window.location.href = `${safeReturnPath}${sep}oauth_success=true&provider=tesla`;
           return;
         }
 
