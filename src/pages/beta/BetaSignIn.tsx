@@ -36,9 +36,24 @@ export default function BetaSignIn() {
     setBusy(true);
     const { error } = await signIn(email.trim(), password);
     setBusy(false);
-    if (error) return toast.error(error.message ?? 'Sign in failed');
+    if (error) {
+      const msg = (error.message ?? '').toLowerCase();
+      const code = (error as any)?.code ?? '';
+      if (code === 'email_not_confirmed' || msg.includes('not confirmed') || msg.includes('confirm')) {
+        // Auto-route: unconfirmed account → jump to code screen and resend
+        setOtpCode('');
+        setMode('verify');
+        toast.message('Almost there — confirm your email', {
+          description: 'We just sent a fresh 6-digit code. Enter it below.',
+        });
+        supabase.auth.resend({ type: 'signup', email: email.trim() }).catch(() => {});
+        return;
+      }
+      return toast.error(error.message ?? 'Sign in failed');
+    }
     navigate('/onboarding');
   };
+
 
   const handleSignup = async () => {
     if (!emailValid) return toast.error('Enter a valid email');
