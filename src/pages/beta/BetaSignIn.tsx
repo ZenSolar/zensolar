@@ -183,10 +183,10 @@ export default function BetaSignIn() {
               type="text"
               inputMode="numeric"
               autoComplete="one-time-code"
-              placeholder="123456"
-              maxLength={6}
+              placeholder="12345678"
+              maxLength={10}
               value={otpCode}
-              onChange={(e) => setOtpCode(e.target.value)}
+              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 10))}
               onKeyDown={(e) => e.key === 'Enter' && submit()}
             />
           </div>
