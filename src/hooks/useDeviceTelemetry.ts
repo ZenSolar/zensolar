@@ -271,7 +271,9 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
         const withinTtl = cached
           ? (Date.now() - new Date(cached.cached_at).getTime()) < ttlFor(oem, capability)
           : false;
-        // Enphase is quota-locked: never bypass its 24h TTL, even under force refresh.
+        // Enphase live lane is rate-limited: within the 12-min window we
+        // never re-hit the OEM, even under a manual force refresh. Falls back
+        // to the last cached reading below when a fresh fetch fails.
         const enphaseLocked = oem === 'enphase' && withinTtl;
         const fresh = (!opts?.force || enphaseLocked) && cached && withinTtl && new Date(cached.expires_at) > new Date() && hasCanonicalTelemetryShape(cached.payload, capability);
         if (fresh) {
