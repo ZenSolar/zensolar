@@ -180,10 +180,16 @@ export function DeviceSelectionDialog({
     }
 
     setIsSubmitting(true);
-    
+    oauthDiag('DeviceSelectionDialog', 'claim:begin', {
+      provider,
+      selected: Array.from(selectedDevices),
+      toClaim: devicesToClaim.map((d) => ({ id: d.device_id, type: d.device_type })),
+    });
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
+        oauthDiag('DeviceSelectionDialog', 'claim:no-session', { provider });
         toast.error('Please log in first');
         return;
       }
@@ -202,15 +208,25 @@ export function DeviceSelectionDialog({
       });
 
       if (response.error) {
+        oauthDiag('DeviceSelectionDialog', 'claim:error', {
+          provider,
+          message: response.error.message,
+        });
         throw new Error(response.error.message || 'Failed to claim devices');
       }
 
       const { results } = response.data;
-      
+      oauthDiag('DeviceSelectionDialog', 'claim:results', {
+        provider,
+        claimed: results.claimed,
+        alreadyClaimed: results.already_claimed,
+        errors: results.errors,
+      });
+
       if (results.claimed.length > 0) {
         toast.success(`${results.claimed.length} device(s) connected successfully`);
       }
-      
+
       if (results.already_claimed.length > 0) {
         toast.warning(`${results.already_claimed.length} device(s) already claimed by other users`);
       }
