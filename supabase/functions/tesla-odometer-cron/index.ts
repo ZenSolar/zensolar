@@ -99,8 +99,9 @@ Deno.serve(async (req) => {
   try {
     let q = supabase
       .from("connected_devices")
-      .select("user_id, device_id, device_type, lifetime_totals, baseline_data, last_known_state")
-      .eq("provider", "tesla");
+      .select("user_id, device_id, device_type, lifetime_totals, baseline_data, last_known_state, paused_for_testing")
+      .eq("provider", "tesla")
+      .eq("paused_for_testing", false);
     if (onlyVin) q = q.eq("device_id", onlyVin);
     if (onlyUser) q = q.eq("user_id", onlyUser);
     const { data: devices, error } = await q;
