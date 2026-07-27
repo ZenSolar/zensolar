@@ -262,7 +262,7 @@ Deno.serve(async (req) => {
           user_id: user.id,
           redirect_uri: TESLA_REDIRECT_URI,
           return_to: safeReturnTo,
-          expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+          expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
           consumed_at: null,
         });
       }
