@@ -73,8 +73,8 @@ export default function BetaSignIn() {
   };
 
   const handleVerify = async () => {
-    const token = otpCode.replace(/\D/g, '');
-    if (token.length < 6) return toast.error('Enter the code from your email');
+    const token = otpCode.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+    if (token.length !== 6) return toast.error('Enter the 6-character code from your email');
     setBusy(true);
     const { data, error } = await supabase.auth.verifyOtp({
       email: email.trim(),
