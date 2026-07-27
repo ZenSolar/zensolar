@@ -116,13 +116,26 @@ export default function BetaTesla() {
       oauthDiag('BetaTesla', 'check:tokens', {
         phase,
         exists: !!tokenCheck?.exists,
+        severity: tokenCheck?.scope_severity ?? null,
+        missing: tokenCheck?.missing_scopes ?? null,
         error: tokenErr?.message ?? null,
       });
 
-      if (!cancelled && tokenCheck?.exists && phase === 'consent') {
-        oauthDiag('BetaTesla', 'auto-advance:consent->device-selection');
-        setPhase('device-selection');
-        return;
+      if (!cancelled && tokenCheck?.exists) {
+        const missing: string[] = tokenCheck.missing_scopes ?? [];
+        const blocking: string[] = tokenCheck.blocking_scopes ?? [];
+        setMissingScopes(missing);
+        setBlockingScopes(blocking);
+        if (missing.length > 0 && phase !== 'scope-recovery') {
+          oauthDiag('BetaTesla', 'auto-advance:scope-recovery', { missing, blocking });
+          setPhase('scope-recovery');
+          return;
+        }
+        if (missing.length === 0 && phase === 'consent') {
+          oauthDiag('BetaTesla', 'auto-advance:consent->device-selection');
+          setPhase('device-selection');
+          return;
+        }
       }
 
       const { data: refreshed } = await supabase
