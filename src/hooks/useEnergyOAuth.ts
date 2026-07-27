@@ -73,6 +73,7 @@ function safeCurrentOrigin(): string {
     'zen.solar',
     'www.zen.solar',
     'beta.zen.solar',
+    'www.beta.zen.solar',
   ]);
   if (
     allowedHosts.has(hostname) ||
@@ -82,8 +83,27 @@ function safeCurrentOrigin(): string {
   ) {
     return origin;
   }
-  return 'https://beta.zen.solar';
+  // Canonical beta host — reconnect CTAs and product links prefer beta.zensolar.com.
+  return 'https://beta.zensolar.com';
 }
+
+const BETA_HOSTS = new Set([
+  'beta.zensolar.com',
+  'www.beta.zensolar.com',
+  'beta.zen.solar',
+  'www.beta.zen.solar',
+]);
+
+function rememberBetaOriginIfBeta() {
+  try {
+    if (typeof window === 'undefined') return;
+    const { hostname, origin } = window.location;
+    if (BETA_HOSTS.has(hostname)) {
+      sessionStorage.setItem('oauth_beta_host', origin);
+    }
+  } catch { /* ignore */ }
+}
+
 
 const PROVIDER_LABEL: Record<string, string> = {
   tesla: 'Tesla',
