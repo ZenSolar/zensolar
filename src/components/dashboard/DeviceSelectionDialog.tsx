@@ -61,10 +61,12 @@ export function DeviceSelectionDialog({
   const fetchDevices = async () => {
     setIsLoading(true);
     setError(null);
-    
+    oauthDiag('DeviceSelectionDialog', 'fetch:begin', { provider });
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
+        oauthDiag('DeviceSelectionDialog', 'fetch:no-session', { provider });
         setError('Please log in first');
         return;
       }
@@ -75,20 +77,32 @@ export function DeviceSelectionDialog({
       });
 
       if (response.error) {
+        oauthDiag('DeviceSelectionDialog', 'fetch:error', {
+          provider,
+          message: response.error.message,
+        });
         throw new Error(response.error.message || 'Failed to fetch devices');
       }
 
       const { devices: fetchedDevices } = response.data;
+      oauthDiag('DeviceSelectionDialog', 'fetch:success', {
+        provider,
+        count: fetchedDevices?.length ?? 0,
+        types: (fetchedDevices ?? []).map((d: Device) => d.device_type),
+        claimedByCurrent: (fetchedDevices ?? []).filter((d: Device) => d.claimed_by_current_user).length,
+      });
       setDevices(fetchedDevices || []);
-      
-      // Pre-select devices already claimed by current user
+
       const alreadyClaimed = (fetchedDevices || [])
         .filter((d: Device) => d.claimed_by_current_user)
         .map((d: Device) => d.device_id);
       setSelectedDevices(new Set(alreadyClaimed));
-      
+
     } catch (err) {
-      console.error('Failed to fetch devices:', err);
+      oauthDiag('DeviceSelectionDialog', 'fetch:throw', {
+        provider,
+        message: err instanceof Error ? err.message : String(err),
+      });
       setError(err instanceof Error ? err.message : 'Failed to fetch devices');
     } finally {
       setIsLoading(false);
