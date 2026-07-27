@@ -470,20 +470,20 @@ export function DeviceSelectionDialog({
           )}
         </div>
         
-        <DialogFooter className="pt-2">
+        <DialogFooter className="px-5 py-4 border-t border-border/30 bg-background/80 backdrop-blur-sm shrink-0 flex-row gap-2 sm:gap-3">
           <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isSubmitting}
-            className="flex-1 sm:flex-none"
+            className="flex-1"
           >
             Cancel
           </Button>
-          <Button 
-            onClick={handleSubmit} 
+          <Button
+            onClick={handleSubmit}
             disabled={isLoading || isSubmitting || selectedDevices.size === 0}
-            className="flex-1 sm:flex-none gap-2 bg-gradient-to-r from-primary to-primary/90 shadow-lg shadow-primary/20"
+            className="flex-1 gap-2 bg-gradient-to-r from-primary to-primary/90 shadow-lg shadow-primary/20"
           >
             {isSubmitting ? (
               <>
@@ -497,5 +497,6 @@ export function DeviceSelectionDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+
   );
 }
