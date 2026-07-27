@@ -24,6 +24,18 @@ const TTL_MS: Record<Capability, number> = {
   solar: 60 * 1000,
 };
 
+// Per-OEM override. Enphase is beta-quota-sensitive — we refresh at most once
+// per day per capability regardless of the capability's default TTL. The
+// server-side enphase-data-cron performs the authoritative daily sync.
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+const OEM_TTL_OVERRIDE_MS: Partial<Record<OEM, number>> = {
+  enphase: ONE_DAY_MS,
+};
+
+function ttlFor(oem: OEM, cap: Capability): number {
+  return OEM_TTL_OVERRIDE_MS[oem] ?? TTL_MS[cap];
+}
+
 const FN_BY_OEM: Record<OEM, string> = {
   tesla: 'tesla-data',
   enphase: 'enphase-data',
