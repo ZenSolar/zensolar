@@ -265,7 +265,7 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
         const oem = d.provider as OEM;
         const cached = await readCache(effectiveUserId, oem, capability, d.device_id);
         const withinTtl = cached
-          ? (Date.now() - new Date(cached.cached_at).getTime()) < TTL_MS[capability]
+          ? (Date.now() - new Date(cached.cached_at).getTime()) < ttlFor(oem, capability)
           : false;
         const fresh = !opts?.force && cached && withinTtl && new Date(cached.expires_at) > new Date() && hasCanonicalTelemetryShape(cached.payload, capability);
         if (fresh) {
