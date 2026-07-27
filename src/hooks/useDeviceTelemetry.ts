@@ -24,6 +24,18 @@ const TTL_MS: Record<Capability, number> = {
   solar: 60 * 1000,
 };
 
+// Per-OEM override. Enphase is beta-quota-sensitive — we refresh at most once
+// per day per capability regardless of the capability's default TTL. The
+// server-side enphase-data-cron performs the authoritative daily sync.
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+const OEM_TTL_OVERRIDE_MS: Partial<Record<OEM, number>> = {
+  enphase: ONE_DAY_MS,
+};
+
+function ttlFor(oem: OEM, cap: Capability): number {
+  return OEM_TTL_OVERRIDE_MS[oem] ?? TTL_MS[cap];
+}
+
 const FN_BY_OEM: Record<OEM, string> = {
   tesla: 'tesla-data',
   enphase: 'enphase-data',
@@ -151,7 +163,7 @@ async function writeCache(userId: string, oem: OEM, cap: Capability, siteId: str
       site_id: siteId,
       payload,
       cached_at: new Date(now).toISOString(),
-      expires_at: new Date(now + TTL_MS[cap]).toISOString(),
+      expires_at: new Date(now + ttlFor(oem, cap)).toISOString(),
     },
     { onConflict: 'user_id,oem_type,device_type,site_id' }
   );
@@ -253,9 +265,11 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
         const oem = d.provider as OEM;
         const cached = await readCache(effectiveUserId, oem, capability, d.device_id);
         const withinTtl = cached
-          ? (Date.now() - new Date(cached.cached_at).getTime()) < TTL_MS[capability]
+          ? (Date.now() - new Date(cached.cached_at).getTime()) < ttlFor(oem, capability)
           : false;
-        const fresh = !opts?.force && cached && withinTtl && new Date(cached.expires_at) > new Date() && hasCanonicalTelemetryShape(cached.payload, capability);
+        // Enphase is quota-locked: never bypass its 24h TTL, even under force refresh.
+        const enphaseLocked = oem === 'enphase' && withinTtl;
+        const fresh = (!opts?.force || enphaseLocked) && cached && withinTtl && new Date(cached.expires_at) > new Date() && hasCanonicalTelemetryShape(cached.payload, capability);
         if (fresh) {
           out.push({
             oem, capability, site_id: d.device_id, device_name: d.device_name,
