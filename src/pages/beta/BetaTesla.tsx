@@ -64,9 +64,13 @@ export default function BetaTesla() {
 
   const start = async () => {
     localStorage.setItem('beta_energy_flow', 'true');
-    setPhase(flow.selections.vehicle ? 'pairing' : 'snapshot');
+    // Always show the "pairing / waiting" phase until we actually detect
+    // devices on the account. Jumping straight to 'snapshot' shows a
+    // misleading "You're connected" before Tesla OAuth has even resolved.
+    setPhase('pairing');
     await startTeslaOAuth();
   };
+
 
   const skip = async () => {
     const patch: import('@/hooks/useBetaFlow').BetaStatus = {};

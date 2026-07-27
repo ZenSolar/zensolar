@@ -22,19 +22,17 @@ function trackConnectSuccess(provider: Provider) {
 }
 
 
-// Tesla only whitelists specific redirect URIs and the Lovable sandbox
-// preview host (*.lovableproject.com) is not one of them (and also blocks
-// being embedded/redirected back into — ERR_BLOCKED_BY_RESPONSE). Only in
-// that case do we redirect to a registered production host. On every real
-// domain (including the installed PWA on zen.solar / zensolar.com / beta.*)
-// we MUST stay on window.location.origin so the Supabase session survives
-// the round-trip.
+// Tesla only whitelists specific redirect URIs registered on the client_id.
+// Only `https://zensolar.com/oauth/callback` is registered. Every other host
+// (beta.zensolar.com, beta.zen.solar, *.lovableproject.com, PWAs) MUST route
+// through zensolar.com or Tesla rejects with "redirect_uri not registered".
+// The callback route on zensolar.com hands the session back via the stored
+// return-to path.
 function resolveOAuthOrigin(): string {
-  const host = window.location.hostname;
-  if (host.endsWith('.lovableproject.com')) return 'https://zensolar.com';
-  return window.location.origin;
+  return 'https://zensolar.com';
 }
 const REDIRECT_URI = `${resolveOAuthOrigin()}/oauth/callback`;
+
 const TESLA_OAUTH_RETURN_TO_KEY = 'tesla_oauth_return_to';
 
 type TeslaOAuthOptions = {
