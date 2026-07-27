@@ -45,6 +45,28 @@ function sanitizeReturnPath(path?: string): string | null {
   return path;
 }
 
+function safeCurrentOrigin(): string {
+  const { origin, hostname } = window.location;
+  const allowedHosts = new Set([
+    'zensolar.com',
+    'www.zensolar.com',
+    'beta.zensolar.com',
+    'www.beta.zensolar.com',
+    'zen.solar',
+    'www.zen.solar',
+    'beta.zen.solar',
+  ]);
+  if (
+    allowedHosts.has(hostname) ||
+    hostname.endsWith('.lovable.app') ||
+    hostname.endsWith('.lovableproject.com') ||
+    hostname === 'localhost'
+  ) {
+    return origin;
+  }
+  return 'https://beta.zen.solar';
+}
+
 const PROVIDER_LABEL: Record<string, string> = {
   tesla: 'Tesla',
   enphase: 'Enphase',
@@ -236,7 +258,7 @@ export function useEnergyOAuth() {
       localStorage.setItem('tesla_oauth_state', state);
 
       const response = await supabase.functions.invoke('tesla-auth', {
-        body: { redirectUri: REDIRECT_URI, state, action: 'get-auth-url' },
+        body: { redirectUri: REDIRECT_URI, state, action: 'get-auth-url', returnTo, returnOrigin: safeCurrentOrigin() },
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
 
@@ -308,21 +330,23 @@ export function useEnergyOAuth() {
     }
   }, []);
 
-  const exchangeTeslaCode = useCallback(async (code: string): Promise<boolean> => {
+  const exchangeTeslaCode = useCallback(async (code: string, state?: string | null): Promise<boolean> => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.error('Please log in first');
-        return false;
-      }
 
+      const headers = session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined;
       const response = await supabase.functions.invoke('tesla-auth', {
-        body: { code, redirectUri: REDIRECT_URI, action: 'exchange-code' },
-        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: { code, redirectUri: REDIRECT_URI, state, action: 'exchange-code' },
+        headers,
       });
 
       const errMsg = extractError(response);
       if (errMsg) throw new Error(errMsg);
+
+      const returnTo = response.data?.returnTo;
+      if (typeof returnTo === 'string') {
+        localStorage.setItem(TESLA_OAUTH_RETURN_TO_KEY, returnTo);
+      }
 
       trackConnectSuccess('tesla');
       toast.success('Tesla account connected!');
@@ -333,7 +357,7 @@ export function useEnergyOAuth() {
         provider: 'tesla',
         stage: 'exchange',
         rawMessage: error instanceof Error ? error.message : undefined,
-        retry: () => void exchangeTeslaCode(code),
+        retry: () => void exchangeTeslaCode(code, state),
       });
       return false;
     }

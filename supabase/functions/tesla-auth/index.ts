@@ -9,6 +9,16 @@ const TESLA_AUTH_URL = "https://auth.tesla.com/oauth2/v3/authorize";
 const TESLA_TOKEN_URL = "https://fleet-auth.prd.vn.cloud.tesla.com/oauth2/v3/token";
 const TESLA_AUDIENCE = "https://fleet-api.prd.na.vn.cloud.tesla.com";
 const TESLA_API_BASE = "https://fleet-api.prd.na.vn.cloud.tesla.com";
+const TESLA_REDIRECT_URI = "https://zensolar.com/oauth/callback";
+const RETURN_ORIGIN_HOSTS = new Set([
+  "zensolar.com",
+  "www.zensolar.com",
+  "beta.zensolar.com",
+  "www.beta.zensolar.com",
+  "zen.solar",
+  "www.zen.solar",
+  "beta.zen.solar",
+]);
 
 type TeslaDevice = {
   device_id: string;
@@ -150,6 +160,20 @@ async function autoClaimTeslaDevices(supabaseClient: any, userId: string, access
   return { discovered: devices.length, claimed, alreadyClaimed, errors };
 }
 
+function sanitizeReturnTo(returnOrigin: unknown, returnTo: unknown): string | null {
+  if (typeof returnOrigin !== "string" || typeof returnTo !== "string") return null;
+  if (!returnTo.startsWith("/") || returnTo.startsWith("//")) return null;
+
+  try {
+    const origin = new URL(returnOrigin);
+    const hostAllowed = RETURN_ORIGIN_HOSTS.has(origin.hostname) || origin.hostname.endsWith(".lovable.app");
+    if (!hostAllowed || origin.protocol !== "https:") return null;
+    return new URL(returnTo, origin.origin).toString();
+  } catch {
+    return null;
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -161,19 +185,25 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
+    const body = await req.json();
+    const action = body.action;
+    console.log("Tesla auth action:", action);
+
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
+    let user: { id: string } | null = null;
+    if (authHeader) {
+      const authResult = await supabaseClient.auth.getUser(authHeader.replace("Bearer ", ""));
+      if (!authResult.error && authResult.data.user) user = authResult.data.user;
+    }
+
+    if (!user && action !== "exchange-code") {
       return new Response(JSON.stringify({ error: "No authorization header" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(
-      authHeader.replace("Bearer ", "")
-    );
-
-    if (authError || !user) {
+    if (!user && action !== "exchange-code") {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -191,13 +221,27 @@ Deno.serve(async (req) => {
       });
     }
 
-    const body = await req.json();
-    const action = body.action;
-    console.log("Tesla auth action:", action);
-
     // Generate OAuth URL for user to authorize
     if (action === "get-auth-url") {
-      const { redirectUri, state } = body;
+      const { state, returnOrigin, returnTo } = body;
+      if (!user) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const safeReturnTo = sanitizeReturnTo(returnOrigin, returnTo);
+      if (typeof state === "string" && state.length > 0) {
+        await supabaseClient.from("tesla_oauth_states").upsert({
+          state,
+          user_id: user.id,
+          redirect_uri: TESLA_REDIRECT_URI,
+          return_to: safeReturnTo,
+          expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+          consumed_at: null,
+        });
+      }
       
       // Scopes based on Tesla Developer Portal configuration
       // Profile Information, Vehicle Information, Vehicle Charging Management, 
@@ -215,7 +259,7 @@ Deno.serve(async (req) => {
       const authUrl = new URL(TESLA_AUTH_URL);
       authUrl.searchParams.set("response_type", "code");
       authUrl.searchParams.set("client_id", clientId);
-      authUrl.searchParams.set("redirect_uri", redirectUri);
+      authUrl.searchParams.set("redirect_uri", TESLA_REDIRECT_URI);
       authUrl.searchParams.set("scope", scopes);
       authUrl.searchParams.set("state", state);
 
@@ -232,7 +276,36 @@ Deno.serve(async (req) => {
 
     // Exchange authorization code for tokens
     if (action === "exchange-code") {
-      const { code, redirectUri } = body;
+      const { code, state } = body;
+      let exchangeUserId = user?.id ?? null;
+      let exchangeRedirectUri = TESLA_REDIRECT_URI;
+      let returnTo: string | null = null;
+
+      if (!exchangeUserId && typeof state === "string") {
+        const { data: stateRow, error: stateError } = await supabaseClient
+          .from("tesla_oauth_states")
+          .select("user_id, redirect_uri, return_to, expires_at, consumed_at")
+          .eq("state", state)
+          .maybeSingle();
+
+        if (stateError || !stateRow || stateRow.consumed_at || new Date(stateRow.expires_at).getTime() < Date.now()) {
+          return new Response(JSON.stringify({ error: "Authorization session expired. Please try again." }), {
+            status: 401,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        exchangeUserId = stateRow.user_id;
+        exchangeRedirectUri = stateRow.redirect_uri || TESLA_REDIRECT_URI;
+        returnTo = stateRow.return_to ?? null;
+      }
+
+      if (!exchangeUserId) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
 
       const tokenResponse = await fetch(TESLA_TOKEN_URL, {
         method: "POST",
@@ -245,7 +318,7 @@ Deno.serve(async (req) => {
           client_secret: clientSecret,
           code,
           audience: TESLA_AUDIENCE,
-          redirect_uri: redirectUri,
+          redirect_uri: exchangeRedirectUri,
         }),
       });
 
@@ -273,7 +346,7 @@ Deno.serve(async (req) => {
       const { error: tokenStoreError } = await supabaseClient
         .from("energy_tokens")
         .upsert({
-          user_id: user.id,
+          user_id: exchangeUserId,
           provider: "tesla",
           access_token: tokens.access_token,
           refresh_token: tokens.refresh_token || null,
@@ -285,10 +358,18 @@ Deno.serve(async (req) => {
         console.error("Failed to store Tesla tokens:", tokenStoreError);
       }
 
-      const autoClaimResult = await autoClaimTeslaDevices(supabaseClient, user.id, tokens.access_token).catch((error) => {
+      const autoClaimResult = await autoClaimTeslaDevices(supabaseClient, exchangeUserId, tokens.access_token).catch((error) => {
         console.error("Tesla auto-claim failed:", error);
         return { discovered: 0, claimed: [], alreadyClaimed: [], errors: ["auto_claim_failed"] };
       });
+
+      if (typeof state === "string") {
+        await supabaseClient
+          .from("tesla_oauth_states")
+          .update({ consumed_at: new Date().toISOString() })
+          .eq("state", state)
+          .is("consumed_at", null);
+      }
 
       return new Response(JSON.stringify({ 
         success: true, 
@@ -297,6 +378,7 @@ Deno.serve(async (req) => {
           : "Tesla authorization successful - please select your devices",
         needsDeviceSelection: autoClaimResult.claimed.length === 0,
         autoClaim: autoClaimResult,
+        returnTo,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

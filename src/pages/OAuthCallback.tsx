@@ -11,8 +11,24 @@ const TESLA_OAUTH_RETURN_TO_KEY = 'tesla_oauth_return_to';
 function consumeSafeReturnPath(): string | null {
   const saved = localStorage.getItem(TESLA_OAUTH_RETURN_TO_KEY);
   localStorage.removeItem(TESLA_OAUTH_RETURN_TO_KEY);
-  if (!saved || !saved.startsWith('/') || saved.startsWith('//')) return null;
-  return saved;
+  if (!saved) return null;
+  if (saved.startsWith('/') && !saved.startsWith('//')) return saved;
+  try {
+    const url = new URL(saved);
+    const allowedHosts = new Set([
+      'zensolar.com',
+      'www.zensolar.com',
+      'beta.zensolar.com',
+      'www.beta.zensolar.com',
+      'zen.solar',
+      'www.zen.solar',
+      'beta.zen.solar',
+    ]);
+    if (allowedHosts.has(url.hostname) || url.hostname.endsWith('.lovable.app')) return url.toString();
+  } catch {
+    return null;
+  }
+  return null;
 }
 
 // Timeout wrapper to prevent hanging promises
@@ -82,7 +98,14 @@ export default function OAuthCallback() {
       return;
     }
 
-    // Wait for session to be restored (important after mobile redirect)
+    const savedState = localStorage.getItem('tesla_oauth_state');
+    const teslaMobilePending = localStorage.getItem('tesla_oauth_pending');
+    const enphaseOAuthPending = sessionStorage.getItem('enphase_oauth_pending');
+    const isTesla = (state && savedState === state) || teslaMobilePending || (state && !enphaseOAuthPending);
+
+    // Wait for session to be restored (important after mobile redirect). Tesla
+    // callbacks can also finish through the server-side state handoff because
+    // Tesla must return to zensolar.com even when auth started on beta.zen.solar.
     console.log('[OAuthCallback] Starting session restoration...');
     let retries = 0;
     const maxRetries = 30; // 15 seconds total
@@ -112,7 +135,7 @@ export default function OAuthCallback() {
       retries++;
     }
 
-    if (!session) {
+    if (!session && !isTesla) {
       console.error('[OAuthCallback] Failed to restore session after', maxRetries, 'attempts');
       setErrorMessage('Session expired. Please log in and try again.');
       setStatus('error');
@@ -120,13 +143,6 @@ export default function OAuthCallback() {
       setTimeout(() => { window.location.href = '/auth'; }, 5000);
       return;
     }
-
-    // --- Determine which provider this callback is for ---
-    const savedState = localStorage.getItem('tesla_oauth_state');
-    const teslaMobilePending = localStorage.getItem('tesla_oauth_pending');
-    const isTesla = (state && savedState === state) || teslaMobilePending || (state && !sessionStorage.getItem('enphase_oauth_pending'));
-    
-    const enphaseOAuthPending = sessionStorage.getItem('enphase_oauth_pending');
 
     if (isTesla) {
       console.log('[OAuthCallback] Processing Tesla callback');
@@ -139,7 +155,7 @@ export default function OAuthCallback() {
       // occasionally be dropped after an external OAuth redirect, so we use the
       // direct exchange result when available and keep DB polling as fallback.
       console.log('[OAuthCallback] Firing Tesla code exchange...');
-      const exchangePromise = exchangeTeslaCode(code).then(
+      const exchangePromise = exchangeTeslaCode(code, state).then(
         (result) => {
           console.log('[OAuthCallback] Tesla exchange resolved:', result);
           return result;
@@ -215,10 +231,16 @@ export default function OAuthCallback() {
       }
 
       if (tokensFound) {
-        const claimedCount = session.access_token
+        const safeReturnPath = consumeSafeReturnPath();
+        if (safeReturnPath) {
+          setStatus('success');
+          window.location.href = safeReturnPath;
+          return;
+        }
+
+        const claimedCount = session?.access_token
           ? await autoClaimTeslaDevices(session.access_token)
           : 0;
-        const safeReturnPath = consumeSafeReturnPath();
         if (claimedCount > 0) {
           setStatus('success');
           window.location.href = safeReturnPath || '/';
