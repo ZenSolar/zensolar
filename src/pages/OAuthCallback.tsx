@@ -61,16 +61,22 @@ export default function OAuthCallback() {
     const error = searchParams.get('error');
     const errorDescription = searchParams.get('error_description');
 
-    console.log('[OAuthCallback] Processing callback:', { 
-      hasCode: !!code, 
-      hasState: !!state, 
+    oauthDiag('OAuthCallback', 'callback:received', {
+      hasCode: !!code,
+      hasState: !!state,
       error,
-      errorDescription 
+      errorDescription,
+      href: window.location.href,
+      origin: window.location.origin,
+      userAgent: navigator.userAgent.slice(0, 120),
+      isStandalonePWA:
+        window.matchMedia?.('(display-mode: standalone)').matches ||
+        (navigator as unknown as { standalone?: boolean }).standalone === true,
     });
 
     // Handle OAuth provider errors
     if (error) {
-      console.error('[OAuthCallback] OAuth error from provider:', error, errorDescription);
+      oauthDiag('OAuthCallback', 'provider:error', { error, errorDescription });
       setErrorMessage(errorDescription || error);
       setStatus('error');
       setTimeout(() => { window.location.href = '/'; }, 3000);
@@ -78,7 +84,7 @@ export default function OAuthCallback() {
     }
 
     if (!code) {
-      console.error('[OAuthCallback] No authorization code received');
+      oauthDiag('OAuthCallback', 'callback:no-code');
       setErrorMessage('No authorization code received');
       setStatus('error');
       setTimeout(() => { window.location.href = '/'; }, 2000);
@@ -90,10 +96,15 @@ export default function OAuthCallback() {
     const enphaseOAuthPending = sessionStorage.getItem('enphase_oauth_pending');
     const isTesla = (state && savedState === state) || teslaMobilePending || (state && !enphaseOAuthPending);
 
-    // Wait for session to be restored (important after mobile redirect). Tesla
-    // callbacks can also finish through the server-side state handoff because
-    // Tesla must return to zensolar.com even when auth started on beta.zen.solar.
-    console.log('[OAuthCallback] Starting session restoration...');
+    oauthDiag('OAuthCallback', 'callback:classified', {
+      isTesla: !!isTesla,
+      stateMatchesLocal: !!(state && savedState === state),
+      teslaMobilePending: !!teslaMobilePending,
+      enphaseOAuthPending: !!enphaseOAuthPending,
+    });
+
+    // Wait for session to be restored (important after mobile redirect).
+    oauthDiag('OAuthCallback', 'session:restore:start');
     let retries = 0;
     const maxRetries = 30; // 15 seconds total
     let session = null;
