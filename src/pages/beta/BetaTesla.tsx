@@ -34,6 +34,7 @@ export default function BetaTesla() {
   const [detectedStatus, setDetectedStatus] = useState<BetaStatus>({});
   const [missingScopes, setMissingScopes] = useState<string[]>([]);
   const [blockingScopes, setBlockingScopes] = useState<string[]>([]);
+  const [noRefreshAttempts, setNoRefreshAttempts] = useState(0);
 
   useEffect(() => {
     oauthDiag('BetaTesla', 'mount', {
@@ -126,6 +127,7 @@ export default function BetaTesla() {
         const blocking: string[] = tokenCheck.blocking_scopes ?? [];
         setMissingScopes(missing);
         setBlockingScopes(blocking);
+        setNoRefreshAttempts(Number(tokenCheck.no_refresh_token_attempts ?? 0) || 0);
         if (missing.length > 0 && phase !== 'scope-recovery') {
           oauthDiag('BetaTesla', 'auto-advance:scope-recovery', { missing, blocking });
           setPhase('scope-recovery');
@@ -291,7 +293,9 @@ export default function BetaTesla() {
           missingScopes={missingScopes}
           blockingScopes={blockingScopes}
           hasEnergy={Boolean(flow.selections.solar || flow.selections.battery)}
+          noRefreshTokenAttempts={noRefreshAttempts}
           onReauthorize={start}
+          onSkip={skip}
           onContinueDegraded={blockingScopes.length === 0 ? () => setPhase('device-selection') : undefined}
         />
       </BetaShell>

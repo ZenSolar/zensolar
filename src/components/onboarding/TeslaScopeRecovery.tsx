@@ -25,6 +25,10 @@ interface Props {
   onContinueDegraded?: () => void;
   /** When false, suppresses the energy_device_data consequence for users with no solar/battery. */
   hasEnergy?: boolean;
+  /** Number of times Tesla returned no refresh_token. After 2+, expose an escape route. */
+  noRefreshTokenAttempts?: number;
+  /** Fired when the user takes the escape route after repeated failures. */
+  onSkip?: () => void;
 }
 
 export function TeslaScopeRecovery({
@@ -33,11 +37,14 @@ export function TeslaScopeRecovery({
   onReauthorize,
   onContinueDegraded,
   hasEnergy = true,
+  noRefreshTokenAttempts = 0,
+  onSkip,
 }: Props) {
   const visibleScopes = hasEnergy
     ? missingScopes
     : missingScopes.filter((s) => s !== 'energy_device_data');
   const isBlocking = blockingScopes.length > 0;
+  const showEscape = noRefreshTokenAttempts >= 2 && !!onSkip;
 
   return (
     <div>
@@ -70,8 +77,15 @@ export function TeslaScopeRecovery({
         ))}
       </ul>
 
+      {showEscape && (
+        <div className="rounded-2xl border border-amber-400/30 bg-amber-500/10 px-4 py-3 mb-4 text-[13px] text-amber-100/85 leading-relaxed">
+          Tesla keeps sending us back without a persistent connection. You can skip Tesla for now
+          and add it later from your account settings.
+        </div>
+      )}
+
       <Button size="lg" className="w-full mb-3" onClick={onReauthorize}>
-        Add this permission on Tesla
+        {showEscape ? 'Try Tesla one more time' : 'Add this permission on Tesla'}
       </Button>
       {!isBlocking && onContinueDegraded && (
         <button
@@ -80,6 +94,15 @@ export function TeslaScopeRecovery({
           onClick={onContinueDegraded}
         >
           Continue without it
+        </button>
+      )}
+      {showEscape && onSkip && (
+        <button
+          type="button"
+          className="text-sm text-muted-foreground underline w-full text-center mt-2"
+          onClick={onSkip}
+        >
+          Skip Tesla for now
         </button>
       )}
     </div>
