@@ -240,7 +240,12 @@ function extractError(response: { error?: { message?: string }; data?: { error?:
 export function useEnergyOAuth() {
   const startTeslaOAuth = useCallback(async (options?: TeslaOAuthOptions): Promise<void> => {
     try {
-      // Clear any stale OAuth state first
+      oauthDiag('useEnergyOAuth', 'tesla:start:begin', {
+        returnTo: options?.returnTo,
+        origin: window.location.origin,
+        redirectUri: REDIRECT_URI,
+        isMobile: isMobile(),
+      });
       localStorage.removeItem('tesla_oauth_state');
       const returnTo = sanitizeReturnPath(options?.returnTo);
       if (returnTo) {
@@ -251,12 +256,14 @@ export function useEnergyOAuth() {
 
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
+        oauthDiag('useEnergyOAuth', 'tesla:start:no-session');
         toast.error('Please log in first');
         return;
       }
 
       const state = crypto.randomUUID();
       localStorage.setItem('tesla_oauth_state', state);
+      oauthDiag('useEnergyOAuth', 'tesla:start:state-generated', { state });
 
       const response = await supabase.functions.invoke('tesla-auth', {
         body: { redirectUri: REDIRECT_URI, state, action: 'get-auth-url', returnTo, returnOrigin: safeCurrentOrigin() },
@@ -265,10 +272,15 @@ export function useEnergyOAuth() {
 
       const errMsg = extractError(response);
       if (errMsg || !response.data?.authUrl) {
+        oauthDiag('useEnergyOAuth', 'tesla:start:get-auth-url:failed', { errMsg });
         throw new Error(errMsg || 'Failed to get auth URL');
       }
 
       const { authUrl } = response.data;
+      oauthDiag('useEnergyOAuth', 'tesla:start:redirect', {
+        authHost: (() => { try { return new URL(authUrl).host; } catch { return null; } })(),
+        isMobile: isMobile(),
+      });
 
       if (isMobile()) {
         localStorage.setItem('tesla_oauth_pending', 'true');
@@ -276,7 +288,7 @@ export function useEnergyOAuth() {
       } else {
         const popup = window.open(authUrl, 'tesla_auth', 'width=600,height=700,noopener');
         if (!popup) {
-          // Popup blocked — surface a clear, retry-able message
+          oauthDiag('useEnergyOAuth', 'tesla:start:popup-blocked');
           showOAuthError({
             provider: 'tesla',
             stage: 'start',
@@ -288,7 +300,9 @@ export function useEnergyOAuth() {
         toast.info('Complete Tesla login in the popup window');
       }
     } catch (error) {
-      console.error('Tesla OAuth error:', error);
+      oauthDiag('useEnergyOAuth', 'tesla:start:throw', {
+        message: error instanceof Error ? error.message : String(error),
+      });
       showOAuthError({
         provider: 'tesla',
         stage: 'start',
