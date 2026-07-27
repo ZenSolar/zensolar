@@ -25,6 +25,7 @@ export default function BetaSignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [otpCode, setOtpCode] = useState('');
   const [busy, setBusy] = useState(false);
 
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
