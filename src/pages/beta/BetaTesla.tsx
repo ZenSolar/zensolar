@@ -84,8 +84,8 @@ export default function BetaTesla() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      // If OAuth already completed and tokens exist, let the backend auto-claim
-      // devices before we ask the user to reconnect or do anything manually.
+      // If OAuth already completed and tokens exist, open device selection
+      // without making the user reconnect to Tesla.
       const { data: tokenCheck } = await supabase.functions.invoke('tesla-auth', {
         body: { action: 'check-tokens' },
         headers: { Authorization: `Bearer ${session.access_token}` },
