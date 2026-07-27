@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable/index';
 import { BetaShell } from './BetaShell';
 import { QCButton, QCInput } from '@/components/onboarding/quiet/QuietCurrent';
 import { cn } from '@/lib/utils';
 
-type Mode = 'login' | 'signup' | 'forgot';
+type Mode = 'login' | 'signup' | 'forgot' | 'verify';
 
 /**
  * Primary auth surface for /onboarding/signin (and legacy /beta/signin).
