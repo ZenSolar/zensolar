@@ -415,7 +415,10 @@ const App = () => {
 
 
                     <Route path="/home" element={<Home />} />
+                    <Route path="/app" element={<Navigate to="/" replace />} />
+                    <Route path="/dashboard" element={<Navigate to="/" replace />} />
                     <Route path="/beta-welcome" element={<Suspense fallback={<PageLoader />}><BetaLanding /></Suspense>} />
+
 
                     {/* Subscribe wrapped in AppLayout so it inherits the
                         global top nav (back button + safe-area-top) and bottom nav. */}
