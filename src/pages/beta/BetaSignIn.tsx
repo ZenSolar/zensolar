@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable/index';
 import { BetaShell } from './BetaShell';
 import { QCButton, QCInput } from '@/components/onboarding/quiet/QuietCurrent';
 import { cn } from '@/lib/utils';
 
-type Mode = 'login' | 'signup' | 'forgot';
+type Mode = 'login' | 'signup' | 'forgot' | 'verify';
 
 /**
  * Primary auth surface for /onboarding/signin (and legacy /beta/signin).
@@ -24,6 +25,7 @@ export default function BetaSignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [otpCode, setOtpCode] = useState('');
   const [busy, setBusy] = useState(false);
 
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
@@ -49,9 +51,38 @@ export default function BetaSignIn() {
     if (data?.session) {
       navigate('/onboarding');
     } else {
-      toast.success('Check your email to confirm your account.');
+      toast.success("We emailed you a 6-digit code. Enter it below to confirm.");
+      setOtpCode('');
+      setMode('verify');
+    }
+  };
+
+  const handleVerify = async () => {
+    const token = otpCode.replace(/\D/g, '');
+    if (token.length < 6) return toast.error('Enter the 6-digit code from your email');
+    setBusy(true);
+    const { data, error } = await supabase.auth.verifyOtp({
+      email: email.trim(),
+      token,
+      type: 'signup',
+    });
+    setBusy(false);
+    if (error) return toast.error(error.message ?? 'Invalid or expired code');
+    if (data?.session) {
+      navigate('/onboarding');
+    } else {
+      toast.success('Email confirmed. Please log in.');
       setMode('login');
     }
+  };
+
+  const handleResendCode = async () => {
+    if (!emailValid) return toast.error('Enter your email first');
+    setBusy(true);
+    const { error } = await supabase.auth.resend({ type: 'signup', email: email.trim() });
+    setBusy(false);
+    if (error) return toast.error(error.message ?? 'Could not resend code');
+    toast.success('New code sent.');
   };
 
   const handleForgot = async () => {
@@ -86,15 +117,21 @@ export default function BetaSignIn() {
   const submit = () => {
     if (mode === 'login') return handleLogin();
     if (mode === 'signup') return handleSignup();
+    if (mode === 'verify') return handleVerify();
     return handleForgot();
   };
 
+  const eyebrow =
+    mode === 'forgot' ? 'Reset password'
+      : mode === 'verify' ? 'Confirm email'
+      : mode === 'signup' ? 'Sign up' : 'Sign in';
+
   return (
     <BetaShell
-      eyebrow={mode === 'forgot' ? 'Reset password' : mode === 'signup' ? 'Sign up' : 'Sign in'}
-      onBack={() => (mode === 'login' ? navigate(-1) : setMode('login'))}
+      eyebrow={eyebrow}
+      onBack={() => (mode === 'login' ? navigate(-1) : setMode(mode === 'verify' ? 'signup' : 'login'))}
     >
-      {mode !== 'forgot' && (
+      {(mode === 'login' || mode === 'signup') && (
         <div className="flex items-center gap-1 p-1 rounded-xl qc-elevated border qc-border mb-6 w-fit">
           {(['login', 'signup'] as const).map((m) => (
             <button
@@ -112,89 +149,123 @@ export default function BetaSignIn() {
       )}
 
       <h1 className="text-[28px] leading-tight font-semibold qc-text tracking-tight mb-2">
-        {mode === 'forgot'
-          ? 'Reset your password'
-          : mode === 'signup'
-          ? 'Create your account'
+        {mode === 'forgot' ? 'Reset your password'
+          : mode === 'verify' ? 'Enter your code'
+          : mode === 'signup' ? 'Create your account'
           : 'Welcome back'}
       </h1>
       <p className="text-[14px] qc-muted mb-8">
-        {mode === 'forgot'
-          ? "We'll email you a link to set a new password."
-          : mode === 'signup'
-          ? 'Use your email and a password to get started.'
+        {mode === 'forgot' ? "We'll email you a link to set a new password."
+          : mode === 'verify' ? `We sent a 6-digit code to ${email || 'your email'}. Enter it below to confirm your account.`
+          : mode === 'signup' ? 'Use your email and a password to get started.'
           : 'Sign in with your email and password.'}
       </p>
 
-      <div className="space-y-3 mb-4">
-        <QCInput
-          type="email"
-          autoComplete="email"
-          placeholder="you@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && submit()}
-        />
-        {mode === 'signup' && (
-          <QCInput
-            type="text"
-            autoComplete="name"
-            placeholder="Display name (optional)"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && submit()}
-          />
-        )}
-        {mode !== 'forgot' && (
-          <QCInput
-            type="password"
-            autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && submit()}
-          />
-        )}
-      </div>
-
-      <QCButton onClick={submit} disabled={busy}>
-        {busy
-          ? 'Please wait…'
-          : mode === 'forgot'
-          ? 'Send reset link'
-          : mode === 'signup'
-          ? 'Create account'
-          : 'Log in'}
-      </QCButton>
-
-      {mode === 'login' && (
-        <div className="mt-4 text-center">
-          <button
-            type="button"
-            onClick={() => setMode('forgot')}
-            className="text-[13px] qc-muted hover:qc-text transition-colors"
-          >
-            Forgot password?
-          </button>
-        </div>
-      )}
-
-      {mode !== 'forgot' && (
+      {mode === 'verify' ? (
         <>
-          <div className="flex items-center gap-3 my-6">
-            <div className="flex-1 h-px qc-border border-t" />
-            <span className="text-[11px] uppercase tracking-[0.2em] qc-muted">or</span>
-            <div className="flex-1 h-px qc-border border-t" />
+          <div className="space-y-3 mb-4">
+            <QCInput
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              placeholder="123456"
+              maxLength={6}
+              value={otpCode}
+              onChange={(e) => setOtpCode(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && submit()}
+            />
+          </div>
+          <QCButton onClick={submit} disabled={busy}>
+            {busy ? 'Please wait…' : 'Confirm email'}
+          </QCButton>
+          <div className="mt-4 text-center">
+            <button
+              type="button"
+              onClick={handleResendCode}
+              disabled={busy}
+              className="text-[13px] qc-muted hover:qc-text transition-colors"
+            >
+              Resend code
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="space-y-3 mb-4">
+            <QCInput
+              type="email"
+              autoComplete="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && submit()}
+            />
+            {mode === 'signup' && (
+              <QCInput
+                type="text"
+                autoComplete="name"
+                placeholder="Display name (optional)"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && submit()}
+              />
+            )}
+            {mode !== 'forgot' && (
+              <QCInput
+                type="password"
+                autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && submit()}
+              />
+            )}
           </div>
 
-          <div className="space-y-3">
-            <QCButton variant="ghost" onClick={() => handleOAuth('google')} disabled={busy}>
-              {mode === 'signup' ? 'Sign up with Google' : 'Continue with Google'}
-            </QCButton>
-            <QCButton variant="ghost" onClick={() => handleOAuth('apple')} disabled={busy}>
-              {mode === 'signup' ? 'Sign up with Apple' : 'Continue with Apple'}
-            </QCButton>
-          </div>
+          <QCButton onClick={submit} disabled={busy}>
+            {busy ? 'Please wait…'
+              : mode === 'forgot' ? 'Send reset link'
+              : mode === 'signup' ? 'Create account'
+              : 'Log in'}
+          </QCButton>
+
+          {mode === 'login' && (
+            <div className="mt-4 text-center space-y-2">
+              <button
+                type="button"
+                onClick={() => setMode('forgot')}
+                className="block w-full text-[13px] qc-muted hover:qc-text transition-colors"
+              >
+                Forgot password?
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode('verify')}
+                className="block w-full text-[13px] qc-muted hover:qc-text transition-colors"
+              >
+                Have a code from your email? Enter it
+              </button>
+            </div>
+          )}
+
+          {mode !== 'forgot' && (
+            <>
+              <div className="flex items-center gap-3 my-6">
+                <div className="flex-1 h-px qc-border border-t" />
+                <span className="text-[11px] uppercase tracking-[0.2em] qc-muted">or</span>
+                <div className="flex-1 h-px qc-border border-t" />
+              </div>
+
+              <div className="space-y-3">
+                <QCButton variant="ghost" onClick={() => handleOAuth('google')} disabled={busy}>
+                  {mode === 'signup' ? 'Sign up with Google' : 'Continue with Google'}
+                </QCButton>
+                <QCButton variant="ghost" onClick={() => handleOAuth('apple')} disabled={busy}>
+                  {mode === 'signup' ? 'Sign up with Apple' : 'Continue with Apple'}
+                </QCButton>
+              </div>
+            </>
+          )}
         </>
       )}
     </BetaShell>
