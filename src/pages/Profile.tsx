@@ -560,6 +560,15 @@ export default function Profile() {
           <EnergySourcesCard />
         </motion.div>
 
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.23 }}
+        >
+          <AdminReleaseForTestingPanel />
+        </motion.div>
+
+
         {/* Home Address — for charging classification */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
