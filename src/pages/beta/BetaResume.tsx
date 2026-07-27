@@ -7,7 +7,8 @@ import { supabase } from '@/integrations/supabase/client';
 
 /**
  * `/onboarding` entry — resumes at last incomplete step.
- * Unauthed → signin. Authed with saved step → that step. Otherwise compute next.
+ * Unauthed → signin. Existing users (already set up) → dashboard.
+ * Otherwise resume saved step or compute next.
  */
 export default function BetaResume() {
   const navigate = useNavigate();
@@ -18,12 +19,25 @@ export default function BetaResume() {
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate('/onboarding/signin', { replace: true }); return; }
+
+      // Existing-user short circuit: if they have any real footprint, go
+      // straight to the dashboard instead of forcing onboarding.
+      const [{ data: profile }, { count: deviceCount }] = await Promise.all([
+        supabase.from('profiles').select('wallet_address, beta_flow_step').eq('id', user.id).maybeSingle(),
+        supabase.from('connected_devices').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+      ]);
+      const savedStep = (profile?.beta_flow_step ?? flow.step) as string | null;
+      const alreadySetUp =
+        savedStep === 'done' ||
+        !!profile?.wallet_address ||
+        (typeof deviceCount === 'number' && deviceCount > 0);
+      if (alreadySetUp) { navigate('/', { replace: true }); return; }
+
       const saved = flow.step;
       if (saved && saved !== 'done' && saved !== 'summary') {
         navigate(`/onboarding/${saved}`, { replace: true });
         return;
       }
-      if (saved === 'done') { navigate('/', { replace: true }); return; }
       const next = computeNextStep(flow.selections, flow.status);
       navigate(`/onboarding/${next}`, { replace: true });
     })();
