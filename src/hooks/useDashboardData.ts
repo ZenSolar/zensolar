@@ -361,14 +361,16 @@ export function useDashboardData() {
       if (!authSession) return null;
       const session = authSession;
 
-      // Throttle Enphase calls to once every 6 hours to stay within API limits
+      // Throttle Enphase calls to once per day per user (beta quota protection).
+      // Server-side enphase-data-cron performs the authoritative daily sync;
+      // this client-side throttle just prevents extra calls during the same day.
       const cacheKey = `enphase_last_fetch_${session.user.id}`;
       const cachedDataKey = `enphase_cached_data_${session.user.id}`;
       const lastFetch = localStorage.getItem(cacheKey);
-      const SIX_HOURS_MS = 6 * 60 * 60 * 1000;
+      const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
-      if (lastFetch && Date.now() - Number(lastFetch) < SIX_HOURS_MS) {
-        console.log('[Enphase] Skipping API call — last fetch was', Math.round((Date.now() - Number(lastFetch)) / 60000), 'min ago (6h throttle)');
+      if (lastFetch && Date.now() - Number(lastFetch) < ONE_DAY_MS) {
+        console.log('[Enphase] Skipping API call — last fetch was', Math.round((Date.now() - Number(lastFetch)) / 60000), 'min ago (24h throttle)');
         const cached = localStorage.getItem(cachedDataKey);
         return cached ? JSON.parse(cached) : null;
       }
