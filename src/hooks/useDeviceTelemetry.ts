@@ -239,6 +239,7 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
   const [data, setData] = useState<CachedTelemetry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [failureCount, setFailureCount] = useState(0);
   const pollMs = opts?.pollMs ?? 0;
 
   const refresh = useCallback(async (opts?: { force?: boolean }) => {
@@ -249,6 +250,8 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
     }
     setLoading(true);
     setError(null);
+    let liveAttempts = 0;
+    let liveSuccesses = 0;
     try {
       const { data: devices, error: devErr } = await supabase
         .from('connected_devices')
@@ -285,8 +288,10 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
           });
           continue;
         }
+        liveAttempts++;
         const live = await fetchFromOem(oem, d.device_id, capability, targetHeaderId);
         if (live && !(live as any).error && !(live as any).__reauth) {
+          liveSuccesses++;
           if (!targetHeaderId) {
             await writeCache(effectiveUserId, oem, capability, d.device_id, live);
           }
@@ -306,8 +311,17 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
         }
       }
       setData(out);
+      // Backoff bookkeeping: any live-fetch success clears the streak; a
+      // refresh that attempted live fetches and got zero successes counts as
+      // a failure. Refreshes that only served cached rows are neutral.
+      if (liveAttempts > 0 && liveSuccesses === 0) {
+        setFailureCount((n) => n + 1);
+      } else if (liveSuccesses > 0) {
+        setFailureCount(0);
+      }
     } catch (e: any) {
       setError(e?.message ?? 'Failed to load telemetry');
+      setFailureCount((n) => n + 1);
     } finally {
       setLoading(false);
     }
@@ -322,15 +336,28 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
   // Foreground polling — only when a caller opts in via pollMs. Paused when
   // the tab/PWA is hidden so we don't burn OEM quota in the background, and
   // resumed with an immediate refresh when the app returns to foreground.
+  // Backoff: on consecutive live-fetch failures, delay grows 2^n (cap 16×);
+  // after 10 consecutive failures we hard-stop the loop so a broken OEM
+  // never spirals into 80+ edge-fn calls.
   useEffect(() => {
     if (!pollMs || pollMs <= 0 || !effectiveUserId) return;
+    const MAX_FAILURES = 10;
+    if (failureCount >= MAX_FAILURES) {
+      setError('Live data paused after repeated failures — pull to refresh to retry.');
+      try {
+        oauthDiag('useDeviceTelemetry', 'poll:paused', { capability, failureCount });
+      } catch { /* ignore */ }
+      return;
+    }
+    const multiplier = Math.min(2 ** failureCount, 16);
+    const effectiveMs = pollMs * multiplier;
     let timer: ReturnType<typeof setInterval> | null = null;
     const start = () => {
       if (timer) return;
       timer = setInterval(() => {
         if (typeof document !== 'undefined' && document.hidden) return;
         void refresh({ force: true });
-      }, pollMs);
+      }, effectiveMs);
     };
     const stop = () => {
       if (timer) { clearInterval(timer); timer = null; }
@@ -354,7 +381,8 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
         document.removeEventListener('visibilitychange', onVis);
       }
     };
-  }, [pollMs, effectiveUserId, refresh]);
+  }, [pollMs, effectiveUserId, refresh, failureCount, capability]);
+
 
   return { data, loading, error, refresh };
 }
