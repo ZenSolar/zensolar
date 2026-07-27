@@ -127,6 +127,7 @@ export default function BetaTesla() {
         const blocking: string[] = tokenCheck.blocking_scopes ?? [];
         setMissingScopes(missing);
         setBlockingScopes(blocking);
+        setNoRefreshAttempts(Number(tokenCheck.no_refresh_token_attempts ?? 0) || 0);
         if (missing.length > 0 && phase !== 'scope-recovery') {
           oauthDiag('BetaTesla', 'auto-advance:scope-recovery', { missing, blocking });
           setPhase('scope-recovery');
