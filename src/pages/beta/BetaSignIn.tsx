@@ -181,12 +181,13 @@ export default function BetaSignIn() {
           <div className="space-y-3 mb-4">
             <QCInput
               type="text"
-              inputMode="numeric"
+              inputMode="text"
               autoComplete="one-time-code"
-              placeholder="12345678"
-              maxLength={10}
+              autoCapitalize="characters"
+              placeholder="ABC123"
+              maxLength={6}
               value={otpCode}
-              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 10))}
+              onChange={(e) => setOtpCode(e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 6))}
               onKeyDown={(e) => e.key === 'Enter' && submit()}
             />
           </div>
