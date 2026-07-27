@@ -238,24 +238,42 @@ export default function BetaTesla() {
   }
 
   if (phase === 'connecting') {
+    const past15 = syncElapsed >= 15;
     return (
       <BetaShell eyebrow="Tesla" onBack={() => setPhase('consent')}>
-        <h1 className="text-3xl font-semibold tracking-tight mb-3">Finishing your Tesla connection</h1>
-        <p className="text-[15px] text-muted-foreground mb-6">
-          Keep this page open while ZenSolar confirms your Tesla account and finds your devices.
+        <h1 className="text-3xl font-semibold tracking-tight mb-3">
+          {past15 ? 'Your Tesla might be asleep' : 'Finishing your Tesla connection'}
+        </h1>
+        <p className="text-[15px] text-muted-foreground mb-6 leading-relaxed">
+          {past15
+            ? "Teslas go to sleep to save battery, so first data can take a few minutes. Your account is connected — you can continue and we'll fill in numbers as your car wakes up."
+            : "Keep this page open while ZenSolar confirms your Tesla account and finds your devices."}
         </p>
         <div className="rounded-2xl border border-white/10 bg-card/40 p-4 mb-6">
           <p className="text-sm">
-            {syncElapsed < 90
-              ? `Checking Tesla connection… (${syncElapsed}s)`
-              : "Still checking. If Tesla already approved access, first data can take a few minutes to appear."}
+            {past15
+              ? `Still waiting on your car to wake up (${syncElapsed}s)…`
+              : `Checking Tesla connection… (${syncElapsed}s)`}
           </p>
         </div>
-        {syncElapsed >= 45 && (
-          <button type="button" className="text-sm text-muted-foreground underline" onClick={skip}>
-            Continue setup and sync later
-          </button>
+        {past15 && (
+          <Button size="lg" className="w-full mb-3" onClick={skip}>
+            Continue — sync in the background
+          </Button>
         )}
+      </BetaShell>
+    );
+  }
+
+  if (phase === 'scope-recovery') {
+    return (
+      <BetaShell eyebrow="Tesla" onBack={() => setPhase('consent')}>
+        <TeslaScopeRecovery
+          missingScopes={missingScopes}
+          blockingScopes={blockingScopes}
+          onReauthorize={start}
+          onContinueDegraded={blockingScopes.length === 0 ? () => setPhase('device-selection') : undefined}
+        />
       </BetaShell>
     );
   }
