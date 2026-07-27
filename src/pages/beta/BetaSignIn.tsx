@@ -66,7 +66,7 @@ export default function BetaSignIn() {
     if (data?.session) {
       navigate('/onboarding');
     } else {
-      toast.success("We emailed you a 6-digit code. Enter it below to confirm.");
+      toast.success("We emailed you a code. Enter it below to confirm.");
       setOtpCode('');
       setMode('verify');
     }
