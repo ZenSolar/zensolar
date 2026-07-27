@@ -32,6 +32,8 @@ export default function BetaTesla() {
   const [devices, setDevices] = useState<Array<{ type: string; name: string; extra?: string }>>([]);
   const [syncElapsed, setSyncElapsed] = useState(0);
   const [detectedStatus, setDetectedStatus] = useState<BetaStatus>({});
+  const [missingScopes, setMissingScopes] = useState<string[]>([]);
+  const [blockingScopes, setBlockingScopes] = useState<string[]>([]);
 
   useEffect(() => {
     oauthDiag('BetaTesla', 'mount', {
