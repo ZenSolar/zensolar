@@ -10,7 +10,8 @@ import { cn } from '@/lib/utils';
 
 type Mode = 'login' | 'signup' | 'forgot' | 'verify';
 
-const normalizeEmailCode = (value: string) => value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 10);
+const EMAIL_CODE_LENGTH = 8;
+const normalizeEmailCode = (value: string) => value.replace(/\D/g, '').slice(0, EMAIL_CODE_LENGTH);
 
 /**
  * Primary auth surface for /onboarding/signin (and legacy /beta/signin).
@@ -76,7 +77,7 @@ export default function BetaSignIn() {
 
   const handleVerify = async () => {
     const token = normalizeEmailCode(otpCode);
-    if (token.length < 6) return toast.error('Enter the full code from your email');
+    if (token.length !== EMAIL_CODE_LENGTH) return toast.error('Enter the 8-digit code from your email');
     setBusy(true);
     const { data, error } = await supabase.auth.verifyOtp({
       email: email.trim(),
@@ -173,7 +174,7 @@ export default function BetaSignIn() {
       </h1>
       <p className="text-[14px] qc-muted mb-8">
         {mode === 'forgot' ? "We'll email you a link to set a new password."
-          : mode === 'verify' ? `We sent a verification code to ${email || 'your email'}. Enter it below to confirm your account.`
+          : mode === 'verify' ? `We sent an 8-digit verification code to ${email || 'your email'}. Enter it below to confirm your account.`
           : mode === 'signup' ? 'Use your email and a password to get started.'
           : 'Sign in with your email and password.'}
       </p>
@@ -183,11 +184,10 @@ export default function BetaSignIn() {
           <div className="space-y-3 mb-4">
             <QCInput
               type="text"
-              inputMode="text"
+              inputMode="numeric"
               autoComplete="one-time-code"
-              autoCapitalize="characters"
-              placeholder="Paste code"
-              maxLength={10}
+              placeholder="Paste 8-digit code"
+              maxLength={EMAIL_CODE_LENGTH}
               value={otpCode}
               onChange={(e) => setOtpCode(normalizeEmailCode(e.target.value))}
               onKeyDown={(e) => e.key === 'Enter' && submit()}
