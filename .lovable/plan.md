@@ -1,56 +1,85 @@
-
 ## Scope
-Harden OAuth → list → claim → first-proof → persistence for beta invites across Tesla, Enphase, SolarEdge, Wallbox. No dashboard redesign, no tokenomics changes, no genesis-mint work. Lifetime-baseline logic stays.
+Ship Tesla onboarding P0/P1 reliability fixes. Read-only scopes only. No dashboard/tokenomics changes, no virtual key pairing.
 
-## Phase 1 — Audit (read-only)
-Trace each OEM through `useEnergyOAuth`, provider `-auth` / `-devices` / `-data` edge functions, `claim-devices`, `OAuthCallback.tsx`, and beta screens (`BetaTesla`, `BetaSolar`, `BetaCharger`, `EnergyConnectionScreen`, `DevicePairingScreen`). For each: Connect CTA → callback → tokens under correct `user_id` → device list → claim rows → first-proof data → persistence after refresh/logout → reconnect → disconnect → honest failure states. Deliverable: PASS/FAIL table with exact failure line per OEM.
+## Current state (verified in `supabase/functions/tesla-auth/index.ts` 249–270)
+Currently requesting: `openid offline_access user_data vehicle_device_data vehicle_charging_cmds energy_device_data energy_cmds`.
+- Missing `vehicle_location` (needed for Home vs Supercharger).
+- `energy_cmds` is a write scope — contradicts "we observe, never control".
+- `user_data` has no concrete consumer.
+- Token-response `scope` field is not captured or validated — silent partial grants possible.
+- Callback runs token exchange on whichever origin Tesla lands on; no bounce back to `beta.*` before exchange.
+- `BetaTesla.tsx` `connecting` phase polls to 90s before honest sleeping copy.
 
-## Phase 2 — Fixes (only where audit shows a real defect)
+## Changes
 
-### Tesla (priority 1)
-- Verify multi-vehicle discovery/claim renders every VIN + energy product from `tesla-devices`, pre-checked, uncheck allowed; single `claim-devices` call handles the array with per-item error capture (no first-failure abort).
-- Sleeping vehicle: baseline claim still writes the row; show "vehicle asleep — data will appear once it wakes" on the summary.
-- Virtual-key pairing must not block other device claims — move pairing to a per-vehicle chip on the post-claim summary, not a full-screen blocker.
-- `OAuthCallback` returns user to the in-progress claim step, not `/`. Tesla redirect stays pinned to `https://zensolar.com/oauth/callback`.
-- Post-claim: fire a single `tesla-data` invocation so the KPI tile isn't empty for the cron interval.
+### 1. Requested scopes (P0)
+`supabase/functions/tesla-auth/index.ts` — replace scope list with exactly:
+```
+openid offline_access vehicle_device_data vehicle_location vehicle_charging_cmds energy_device_data
+```
+Drop `user_data` and `energy_cmds`. Keep `prompt_missing_scopes=true` and `require_requested_scopes=true`.
 
-### Enphase (priority 2)
-- Verify systems list renders and multi-system claim works; per-item errors surfaced.
-- Preserve shipped Enphase cadence (daily rewards + on-demand live production; no aggressive polling).
-- Post-claim: one on-demand `enphase-data` call for first proof.
+### 2. Capture and validate granted scopes (P0)
+- In `exchange-code`, read `tokens.scope` from Tesla's token response.
+- Add `granted_scope text` column to `energy_tokens` (migration; verify column absence first via read_query).
+- Persist `granted_scope` on token upsert.
+- Extend `check-tokens` and `exchange-code` responses with `{ granted_scope, missing_scopes: string[] }` diffed against the required set.
+- Classify `missing_scopes` server-side:
+  - `blocking`: `vehicle_device_data`
+  - `degraded`: `vehicle_location`, `vehicle_charging_cmds`, `energy_device_data`
+  - `openid`/`offline_access`: treated as blocking (no refresh token = disconnect).
 
-### SolarEdge (priority 3) — honesty pass
-- Confirm actual auth mechanism in `solaredge-auth`. If installer API key rather than user OAuth, relabel the Connect CTA to "Connect with API key," show exact steps + where to paste, validate the key against at least one site before flipping `solaredge_connected=true`. Do not present as clean OAuth if it isn't.
+### 3. Scope recovery UI (P0)
+New `src/components/onboarding/TeslaScopeRecovery.tsx`, rendered by `BetaTesla.tsx` when `missing_scopes` non-empty.
+- Header adapts to severity:
+  - Blocking: "We can't continue without this permission."
+  - Degraded: "You'll be missing some data."
+- Per-missing-scope row with plain-language consequence:
+  - `vehicle_device_data` → "Without this we can't read your miles or FSD miles."
+  - `vehicle_location` → "Without this we can't tell home charging apart from Supercharging."
+  - `vehicle_charging_cmds` → "Without this we can't count your charging sessions or kWh added."
+  - `energy_device_data` → "Without this we can't read your solar production or Powerwall."
+  - `offline_access` → "Without this you'll be disconnected in a few hours."
+- Two buttons per case:
+  - **Add this permission** — triggers a fresh `startTeslaOAuth` run (Tesla re-prompts thanks to existing flags).
+  - **Continue without it** — allowed for degraded; hidden for blocking. Stores the accepted-degraded set on the profile so we don't nag on every load (banner surfacing is out of scope for this pass).
+- No automatic OAuth retry.
 
-### Wallbox (priority 4) — explicit consent + validated connect + disconnect
-- New pre-form consent screen in `WallboxConnectDialog.tsx` (or a prior step), copy:
-  - "To keep your Wallbox connected, ZenSolar stores your Wallbox email and password on our servers so we can refresh your access token when it expires."
-  - "Credentials are stored server-side only, encrypted at rest, and never exposed to the app or shared with third parties."
-  - "You can disconnect Wallbox at any time from Settings, which permanently deletes the stored credentials."
-- Explicit "I understand and consent" checkbox required before password field is enabled.
-- Rewrite `src/pages/beta/BetaCharger.tsx` Wallbox path: replace "coming soon" stub with the real consent → connect flow, keep skip.
-- `wallbox-auth` already validates against Wallbox and only sets the profile flag after token verification — keep. Ensure any failure path leaves `wallbox_connected=false`. Replace the "we never store your password" copy in the dialog with the accurate server-side-only credentials copy above.
-- Post-connect: invoke `wallbox-data` (or list-chargers) once to populate at least one charger's status/reading so Clean Energy Center / monitoring shows charging activity for the non-Tesla EV household. If no chargers found, show honest "connected, no chargers detected — check your Wallbox account" state and do NOT flip `wallbox_connected=true`.
-- Disconnect path: extend the shared disconnect flow (below) to Wallbox — deletes `energy_tokens` row (which wipes stored credentials), removes `connected_devices` rows for `provider='wallbox'`, flips `wallbox_connected=false`. Surface in Settings/Profile.
+### 4. Pre-Tesla consent screen (P1)
+Rewrite the emerald callout in `src/pages/beta/BetaTesla.tsx`:
+- Headline: **"Leave every box checked."**
+- Sub: "Tesla will show a list of permissions. Each one unlocks a specific reward:"
+- Rows (Tesla label → user benefit):
+  - Vehicle Information → miles and FSD miles
+  - Vehicle Location → tells home charging apart from Supercharging
+  - Vehicle Charging Management → charging sessions and kWh added
+  - Energy Product Information → solar production and Powerwall (only shown when battery/solar selected)
+- Footer line: **"ZenSolar only reads this data. We never send commands to your car or change any settings."**
 
-### Cross-OEM
-- `already_claimed` rows surface with "Claimed by another account — contact support" copy.
-- Add a `disconnect-device` edge function (or extend admin path) usable for any provider: delete matching `connected_devices`, flip `<provider>_connected=false` when no rows remain, purge `energy_tokens` for that provider on full disconnect. Wire into Profile/Settings for Tesla, Enphase, SolarEdge, Wallbox.
-- Post-claim first-proof kick for every provider.
+### 5. Callback domain hop (P1)
+`src/pages/OAuthCallback.tsx`:
+- Before calling `exchangeTeslaCode`, if `window.location.hostname` is a non-beta apex (`zensolar.com`/`zen.solar` and their `www.` variants) AND the persisted `return_to` targets a `beta.*` host, instantly `window.location.replace` to `https://beta.zensolar.com/oauth/callback?<same query>&hopped=1`.
+- `hopped=1` prevents loops; if already present, proceed with exchange on current origin.
+- Splash keeps Quiet Current copy: "Connecting your Tesla…".
 
-## Phase 3 — Multi-device claim UX
-Only if audit shows current screens don't meet spec: pre-checked list with uncheck, single confirm, single `claim-devices` call, per-row result screen (claimed / skipped / already-claimed / errored) with honest copy.
+### 6. State token hardening (P1)
+- Confirm `tesla_oauth_states` row is marked `consumed_at` on successful exchange and reused rows are rejected.
+- Reduce TTL from 15 min → 10 min in the auth-url writer.
 
-## Phase 4 — Verification (Playwright + read_query)
-- `joe@zen.solar`: walk Tesla connect on preview, confirm VINs list, claim all, verify `connected_devices` rows + KPI populates within ~60s of first `tesla-data` invocation.
-- Enphase claim sanity check on existing connected account.
-- SolarEdge: render-only verification of honest connect states.
-- Wallbox: sandbox-safe render-only verification of consent gate + disconnect UX. Live end-to-end validated connect + first-charger-reading confirmed against a real Wallbox account (`joe@zen.solar`'s or documented as pending if none available), with screenshot of Clean Energy Center showing the charger's status/reading for the non-Tesla EV scenario.
-- Refresh + logout/login: assert claims persist and dashboard shows real data.
-- Report per-OEM PASS/FAIL, what was fixed, what remains blocked (including support-risk gaps and whether multi-vehicle claim + claimed-only eligibility both hold).
+### 7. Sleeping vehicle handling (P1)
+`BetaTesla.tsx` `connecting` phase:
+- If tokens present but no `connected_devices` rows after **15s**, render honest copy: "Your Tesla is asleep. Data will update the next time it wakes up (usually within a few hours)."
+- Primary button: **Continue to dashboard** (calls existing `cont()`).
+- Baseline claim path already writes rows on wake; no dashboard change needed.
 
-## Explicitly out of scope
-Dashboard visual redesign, tokenomics changes, founding-cohort genesis mint, changing lifetime-baseline logic.
+## Out of scope
+Dashboard redesign, tokenomics, virtual key pairing, dashboard-side degraded-data banner.
 
-## Final reply on completion
-"Device connect reliability pass complete — Tesla/Enphase/SolarEdge/Wallbox connection paths verified and hardened for beta invites."
+## Verification
+- `read_query` `energy_tokens` schema before migration.
+- Playwright incognito onboarding from `beta.zensolar.com`: consent copy correct → Tesla approval → callback bounces to beta before exchange (visible in `__oauthDiag('dump')`) → happy path lands on device selection.
+- Simulate degraded grant by hand-editing Tesla scopes (or stubbing token response in a dev override): confirm recovery UI names the exact missing capability, blocking hides Continue, degraded shows both.
+- Simulate sleep by pointing device fetch at an empty result: 15s cutoff renders honest copy + Continue works.
+
+## Final reply
+"Tesla onboarding P0/P1 fixes complete — offline_access verified, scope recovery added, callback hardened, consent + sleep handling improved."
