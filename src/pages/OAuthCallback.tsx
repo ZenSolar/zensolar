@@ -293,20 +293,25 @@ export default function OAuthCallback() {
     }
 
     if (enphaseOAuthPending) {
-      console.log('[OAuthCallback] Processing Enphase callback');
+      oauthDiag('OAuthCallback', 'enphase:start');
       sessionStorage.removeItem('enphase_oauth_pending');
-      
+
       try {
         const success = await withTimeout(
           exchangeEnphaseCode(code),
           20000,
           'Enphase code exchange'
         );
-        console.log('[OAuthCallback] Enphase exchange result:', success);
-        
+        oauthDiag('OAuthCallback', 'enphase:exchange:result', { success });
+
         if (success) {
           const isBetaFlow = localStorage.getItem('beta_energy_flow') === 'true';
           const isOnboardingFlow = localStorage.getItem('onboarding_energy_flow') === 'true';
+          oauthDiag('OAuthCallback', 'enphase:route:decide', {
+            isBetaFlow,
+            isOnboardingFlow,
+            hasOpener: !!(window.opener && !window.opener.closed),
+          });
           localStorage.removeItem('onboarding_energy_flow');
           if (isBetaFlow) {
             localStorage.removeItem('beta_energy_flow');
@@ -336,7 +341,9 @@ export default function OAuthCallback() {
           setTimeout(() => { window.location.href = '/'; }, 5000);
         }
       } catch (err) {
-        console.error('[OAuthCallback] Enphase exchange error:', err);
+        oauthDiag('OAuthCallback', 'enphase:exchange:throw', {
+          message: err instanceof Error ? err.message : String(err),
+        });
         setErrorMessage('Connection timed out. Please try again.');
         setStatus('error');
         setCanRetry(true);
@@ -345,8 +352,7 @@ export default function OAuthCallback() {
       return;
     }
 
-    // Unknown callback
-    console.error('[OAuthCallback] Unknown callback - no matching OAuth state found');
+    oauthDiag('OAuthCallback', 'callback:unknown', { savedState, state });
     setErrorMessage('Authorization session expired. Please try again.');
     setStatus('error');
     setCanRetry(true);
