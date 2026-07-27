@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { DeviceSelectionDialog } from '@/components/dashboard/DeviceSelectionDialog';
+import { TeslaScopeRecovery } from '@/components/onboarding/TeslaScopeRecovery';
 
 import { BetaShell } from './BetaShell';
 import { useBetaFlow, type BetaStatus } from '@/hooks/useBetaFlow';
@@ -10,7 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { computeNextStep } from './betaRouting';
 import { oauthDiag } from '@/lib/oauthDiagnostics';
 
-type Phase = 'consent' | 'connecting' | 'device-selection' | 'snapshot';
+type Phase = 'consent' | 'connecting' | 'scope-recovery' | 'device-selection' | 'snapshot';
 type TeslaDeviceRow = {
   device_type: string;
   device_name: string | null;
