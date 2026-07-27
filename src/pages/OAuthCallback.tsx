@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useEnergyOAuth } from '@/hooks/useEnergyOAuth';
+import { useEnergyOAuth, type TeslaExchangeResult } from '@/hooks/useEnergyOAuth';
 import { DeviceSelectionDialog } from '@/components/dashboard/DeviceSelectionDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { BrandSplash } from '@/components/ui/BrandSplash';
