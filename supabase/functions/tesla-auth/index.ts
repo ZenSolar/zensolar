@@ -30,18 +30,29 @@ const REQUIRED_TESLA_SCOPES = [
   "energy_device_data",
 ] as const;
 
-const BLOCKING_TESLA_SCOPES = new Set<string>([
-  "openid",
-  "offline_access",
+// Only DATA scopes participate in the missing_scopes diff. openid + offline_access
+// are inferred from tokens.id_token / tokens.refresh_token, not from the granted
+// scope string (Tesla frequently omits them from `scope` even when granted).
+const DATA_SCOPES = [
+  "vehicle_device_data",
+  "vehicle_location",
+  "vehicle_charging_cmds",
+  "energy_device_data",
+] as const;
+
+const BLOCKING_DATA_SCOPES = new Set<string>([
   "vehicle_device_data",
 ]);
 
-function classifyMissingScopes(grantedScope: string | null | undefined) {
+function classifyMissingScopes(grantedScope: string | null | undefined, hasRefreshToken: boolean) {
   const granted = new Set((grantedScope ?? "").split(/\s+/).filter(Boolean));
-  const missing = REQUIRED_TESLA_SCOPES.filter((s) => !granted.has(s));
-  const blocking = missing.filter((s) => BLOCKING_TESLA_SCOPES.has(s));
-  const degraded = missing.filter((s) => !BLOCKING_TESLA_SCOPES.has(s));
-  return { missing, blocking, degraded, severity: blocking.length ? "blocking" : (degraded.length ? "degraded" : "ok") };
+  const missing = DATA_SCOPES.filter((s) => !granted.has(s));
+  const blocking = missing.filter((s) => BLOCKING_DATA_SCOPES.has(s));
+  const degraded = missing.filter((s) => !BLOCKING_DATA_SCOPES.has(s));
+  const noRefresh = !hasRefreshToken;
+  const severity: "blocking" | "degraded" | "ok" =
+    (blocking.length || noRefresh) ? "blocking" : (degraded.length ? "degraded" : "ok");
+  return { missing, blocking, degraded, severity, no_refresh_token: noRefresh };
 }
 
 type TeslaDevice = {
