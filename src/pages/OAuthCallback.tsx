@@ -425,10 +425,9 @@ export default function OAuthCallback() {
 
     oauthDiag('OAuthCallback', 'callback:unknown', { savedState, state });
     setErrorMessage('Authorization session expired. Please try again.');
-    setStatus('error');
-    setCanRetry(true);
-    setTimeout(() => { window.location.href = '/'; }, 3000);
+    setStatus('link-expired');
   };
+
 
   useEffect(() => {
     const handleCallback = async () => {
