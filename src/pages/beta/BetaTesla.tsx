@@ -3,12 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
 import { BetaShell } from './BetaShell';
-import { useBetaFlow } from '@/hooks/useBetaFlow';
+import { useBetaFlow, type BetaStatus } from '@/hooks/useBetaFlow';
 import { useEnergyOAuth } from '@/hooks/useEnergyOAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { computeNextStep } from './betaRouting';
 
-type Phase = 'consent' | 'pairing' | 'snapshot';
+type Phase = 'consent' | 'connecting' | 'snapshot';
+type TeslaDeviceRow = {
+  device_type: string;
+  device_name: string | null;
+  last_known_state: unknown;
+};
 
 export default function BetaTesla() {
   const navigate = useNavigate();
@@ -16,11 +21,35 @@ export default function BetaTesla() {
   const { startTeslaOAuth } = useEnergyOAuth();
   const [phase, setPhase] = useState<Phase>('consent');
   const [devices, setDevices] = useState<Array<{ type: string; name: string; extra?: string }>>([]);
-  const [pairingElapsed, setPairingElapsed] = useState(0);
+  const [syncElapsed, setSyncElapsed] = useState(0);
+  const [detectedStatus, setDetectedStatus] = useState<BetaStatus>({});
 
-  // Poll for connected Tesla devices while on pairing/snapshot phase
+  const applyDetectedDevices = async (data: TeslaDeviceRow[]) => {
+    if (data.length === 0) return false;
+
+    const mapped = data.map((d) => ({
+      type: d.device_type,
+      name: d.device_name ?? d.device_type,
+    }));
+    setDevices(mapped);
+
+    // Update statuses per category
+    const patch: BetaStatus = {};
+    const now = new Date().toISOString();
+    for (const d of data) {
+      const t = (d.device_type ?? '').toLowerCase();
+      if (t.includes('vehicle') || t === 'car' || t === 'ev') patch.vehicle = { state: 'connected', last_telemetry_at: now };
+      else if (t.includes('powerwall') || t.includes('battery')) patch.battery = { state: 'connected_auto', last_telemetry_at: now };
+      else if (t.includes('wall_connector') || t.includes('charger')) patch.charger = { state: 'connected_tesla_wc', last_telemetry_at: now };
+    }
+    setDetectedStatus(patch);
+    if (Object.keys(patch).length) await flow.setStatus(patch);
+    setPhase('snapshot');
+    return true;
+  };
+
+  // Detect existing Tesla devices immediately, then poll while OAuth/device discovery is finishing.
   useEffect(() => {
-    if (phase === 'consent') return;
     let cancelled = false;
     const check = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -31,43 +60,47 @@ export default function BetaTesla() {
         .eq('user_id', user.id)
         .eq('provider', 'tesla');
       if (cancelled || !data) return;
-      if (data.length > 0) {
-        const mapped = data.map((d) => ({
-          type: d.device_type,
-          name: d.device_name ?? d.device_type,
-        }));
-        setDevices(mapped);
+      const found = await applyDetectedDevices(data);
+      if (found || phase === 'snapshot') return;
 
-        // Update statuses per category
-        const patch: Record<string, { state: 'connected' | 'connected_auto' | 'connected_tesla_wc'; last_telemetry_at: string }> = {};
-        const now = new Date().toISOString();
-        for (const d of data) {
-          const t = (d.device_type ?? '').toLowerCase();
-          if (t.includes('vehicle') || t === 'car' || t === 'ev') patch.vehicle = { state: 'connected', last_telemetry_at: now };
-          else if (t.includes('powerwall') || t.includes('battery')) patch.battery = { state: 'connected_auto', last_telemetry_at: now };
-          else if (t.includes('wall_connector') || t.includes('charger')) patch.charger = { state: 'connected_tesla_wc', last_telemetry_at: now };
-        }
-        if (Object.keys(patch).length) await flow.setStatus(patch);
-        setPhase('snapshot');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      // If OAuth already completed and tokens exist, let the backend auto-claim
+      // devices before we ask the user to reconnect or do anything manually.
+      await supabase.functions.invoke('tesla-auth', {
+        body: { action: 'check-tokens' },
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      const { data: refreshed } = await supabase
+        .from('connected_devices')
+        .select('device_type, device_name, last_known_state')
+        .eq('user_id', user.id)
+        .eq('provider', 'tesla');
+
+      if (!cancelled && refreshed) {
+        await applyDetectedDevices(refreshed);
       }
     };
     check();
+    if (phase !== 'connecting') return () => { cancelled = true; };
     const iv = setInterval(check, 4000);
     return () => { cancelled = true; clearInterval(iv); };
   }, [phase, flow]);
 
   useEffect(() => {
-    if (phase !== 'pairing') return;
-    const iv = setInterval(() => setPairingElapsed((v) => v + 1), 1000);
+    if (phase !== 'connecting') return;
+    setSyncElapsed(0);
+    const iv = setInterval(() => setSyncElapsed((v) => v + 1), 1000);
     return () => clearInterval(iv);
   }, [phase]);
 
   const start = async () => {
     localStorage.setItem('beta_energy_flow', 'true');
-    // Always show the "pairing / waiting" phase until we actually detect
-    // devices on the account. Jumping straight to 'snapshot' shows a
-    // misleading "You're connected" before Tesla OAuth has even resolved.
-    setPhase('pairing');
+    // Show a neutral sync state while OAuth opens and device discovery completes.
+    // Tesla key pairing is not part of onboarding and should not be requested here.
+    setPhase('connecting');
     await startTeslaOAuth();
   };
 
@@ -84,7 +117,8 @@ export default function BetaTesla() {
   };
 
   const cont = async () => {
-    const next = computeNextStep(flow.selections, flow.status);
+    const effectiveStatus = { ...flow.status, ...detectedStatus };
+    const next = computeNextStep(flow.selections, effectiveStatus);
     await flow.setStep(next);
     navigate(`/beta/${next}`);
   };
@@ -110,27 +144,23 @@ export default function BetaTesla() {
     );
   }
 
-  if (phase === 'pairing') {
+  if (phase === 'connecting') {
     return (
       <BetaShell eyebrow="Tesla" onBack={() => setPhase('consent')}>
-        <h1 className="text-3xl font-semibold tracking-tight mb-3">One more step — pair ZenSolar in the Tesla app</h1>
+        <h1 className="text-3xl font-semibold tracking-tight mb-3">Finishing your Tesla connection</h1>
         <p className="text-[15px] text-muted-foreground mb-6">
-          Open the Tesla app, go to your vehicle → Locks, and add ZenSolar as a key.
-          We'll pick it up automatically.
+          Keep this page open while ZenSolar confirms your Tesla account and finds your devices.
         </p>
         <div className="rounded-2xl border border-white/10 bg-card/40 p-4 mb-6">
           <p className="text-sm">
-            {pairingElapsed < 90
-              ? `Waiting for pairing… (${pairingElapsed}s)`
-              : "Still stuck? Make sure you're on the same Tesla account, and try re-opening the Tesla app."}
+            {syncElapsed < 90
+              ? `Checking Tesla connection… (${syncElapsed}s)`
+              : "Still checking. If Tesla already approved access, first data can take a few minutes to appear."}
           </p>
         </div>
-        <Button variant="secondary" size="lg" className="w-full mb-3" onClick={() => setPhase('snapshot')}>
-          I paired it
-        </Button>
-        {pairingElapsed >= 60 && (
+        {syncElapsed >= 45 && (
           <button type="button" className="text-sm text-muted-foreground underline" onClick={skip}>
-            Skip pairing for now
+            Continue setup and sync later
           </button>
         )}
       </BetaShell>
