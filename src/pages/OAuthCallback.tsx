@@ -97,18 +97,20 @@ export default function OAuthCallback() {
     if (error) {
       oauthDiag('OAuthCallback', 'provider:error', { error, errorDescription });
       setErrorMessage(errorDescription || error);
-      setStatus('error');
-      setTimeout(() => { window.location.href = '/'; }, 3000);
+      // Never bounce Tesla failures to the apex root — the apex "/" route is
+      // /demo-gated and swallows the reconnect UI. Show the expired-link
+      // screen with a Reconnect CTA instead.
+      setStatus('link-expired');
       return;
     }
 
     if (!code) {
       oauthDiag('OAuthCallback', 'callback:no-code');
       setErrorMessage('No authorization code received');
-      setStatus('error');
-      setTimeout(() => { window.location.href = '/'; }, 2000);
+      setStatus('link-expired');
       return;
     }
+
 
     const savedState = localStorage.getItem('tesla_oauth_state');
     const teslaMobilePending = localStorage.getItem('tesla_oauth_pending');
