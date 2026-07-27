@@ -161,6 +161,27 @@ export default function BetaTesla() {
     return () => clearInterval(iv);
   }, [phase]);
 
+  // After 15s in connecting with tokens but 0 devices → no-devices phase.
+  useEffect(() => {
+    if (phase !== 'connecting' || syncElapsed < 15) return;
+    let cancelled = false;
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || cancelled) return;
+      const { data: devs } = await supabase
+        .from('connected_devices')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('provider', 'tesla');
+      if (cancelled) return;
+      if ((devs?.length ?? 0) === 0) {
+        oauthDiag('BetaTesla', 'auto-advance:no-devices', { syncElapsed });
+        setPhase('no-devices');
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [phase, syncElapsed]);
+
   const start = async () => {
     oauthDiag('BetaTesla', 'start:tesla-oauth', { returnTo: '/onboarding/tesla' });
     localStorage.setItem('beta_energy_flow', 'true');
