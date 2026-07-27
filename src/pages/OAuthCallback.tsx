@@ -182,36 +182,38 @@ export default function OAuthCallback() {
       localStorage.removeItem('tesla_oauth_pending');
 
       oauthDiag('OAuthCallback', 'tesla:exchange:fire');
-      let exchangeResult: Awaited<ReturnType<typeof exchangeTeslaCode>> | null = null;
+      let exchangeResult: TeslaExchangeResult | null = null;
       try {
         exchangeResult = await withTimeout(
-          exchangeTeslaCode(code, state),
+          exchangeTeslaCode(code, state) as Promise<TeslaExchangeResult>,
           15000,
           'Tesla code exchange',
         );
-        oauthDiag('OAuthCallback', 'tesla:exchange:resolved', {
-          ok: exchangeResult?.ok,
-          errorCode: exchangeResult && !exchangeResult.ok ? exchangeResult.errorCode : null,
-        });
       } catch (err) {
         oauthDiag('OAuthCallback', 'tesla:exchange:rejected', {
           message: err instanceof Error ? err.message : String(err),
         });
       }
+      oauthDiag('OAuthCallback', 'tesla:exchange:resolved', {
+        ok: exchangeResult?.ok ?? null,
+        errorCode:
+          exchangeResult && exchangeResult.ok === false ? exchangeResult.errorCode : null,
+      });
 
       // Standardized link-lifecycle failures → explicit "reconnect" screen.
-      if (exchangeResult && !exchangeResult.ok &&
-          (exchangeResult.errorCode === 'state_expired' ||
-           exchangeResult.errorCode === 'state_consumed' ||
-           exchangeResult.errorCode === 'state_missing')) {
-        oauthDiag('OAuthCallback', 'tesla:link-expired', { errorCode: exchangeResult.errorCode });
-        setErrorMessage(exchangeResult.message);
-        setStatus('link-expired');
-        return;
+      if (exchangeResult && exchangeResult.ok === false) {
+        const ec = exchangeResult.errorCode;
+        if (ec === 'state_expired' || ec === 'state_consumed' || ec === 'state_missing') {
+          oauthDiag('OAuthCallback', 'tesla:link-expired', { errorCode: ec });
+          setErrorMessage(exchangeResult.message);
+          setStatus('link-expired');
+          return;
+        }
       }
 
-      const serverReturnTo = exchangeResult?.ok ? exchangeResult.returnTo : null;
-      let tokensFound = !!exchangeResult?.ok;
+      const serverReturnTo =
+        exchangeResult && exchangeResult.ok === true ? exchangeResult.returnTo : null;
+      let tokensFound = !!(exchangeResult && exchangeResult.ok === true);
 
       // If the exchange call itself failed (network / timeout), fall back to
       // polling check-tokens — the server-side upsert may have completed even
