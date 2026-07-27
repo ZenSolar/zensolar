@@ -290,6 +290,7 @@ export default function BetaTesla() {
         <TeslaScopeRecovery
           missingScopes={missingScopes}
           blockingScopes={blockingScopes}
+          hasEnergy={Boolean(flow.selections.solar || flow.selections.battery)}
           onReauthorize={start}
           onContinueDegraded={blockingScopes.length === 0 ? () => setPhase('device-selection') : undefined}
         />
