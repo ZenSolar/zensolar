@@ -347,18 +347,33 @@ export function useEnergyOAuth() {
 
   const exchangeTeslaCode = useCallback(async (code: string, state?: string | null): Promise<boolean> => {
     try {
+      oauthDiag('useEnergyOAuth', 'tesla:exchange:begin', {
+        hasCode: !!code,
+        hasState: !!state,
+      });
       const { data: { session } } = await supabase.auth.getSession();
 
       const headers = session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined;
+      oauthDiag('useEnergyOAuth', 'tesla:exchange:invoke', {
+        hasSessionHeader: !!headers,
+        userId: session?.user.id ?? null,
+      });
       const response = await supabase.functions.invoke('tesla-auth', {
         body: { code, redirectUri: REDIRECT_URI, state, action: 'exchange-code' },
         headers,
       });
 
       const errMsg = extractError(response);
-      if (errMsg) throw new Error(errMsg);
+      if (errMsg) {
+        oauthDiag('useEnergyOAuth', 'tesla:exchange:error', { errMsg });
+        throw new Error(errMsg);
+      }
 
       const returnTo = response.data?.returnTo;
+      oauthDiag('useEnergyOAuth', 'tesla:exchange:success', {
+        needsDeviceSelection: response.data?.needsDeviceSelection,
+        returnTo,
+      });
       if (typeof returnTo === 'string') {
         localStorage.setItem(TESLA_OAUTH_RETURN_TO_KEY, returnTo);
       }
@@ -367,7 +382,9 @@ export function useEnergyOAuth() {
       toast.success('Tesla account connected!');
       return true;
     } catch (error) {
-      console.error('Tesla token exchange error:', error);
+      oauthDiag('useEnergyOAuth', 'tesla:exchange:throw', {
+        message: error instanceof Error ? error.message : String(error),
+      });
       showOAuthError({
         provider: 'tesla',
         stage: 'exchange',
