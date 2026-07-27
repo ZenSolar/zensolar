@@ -4,6 +4,50 @@ import { supabase } from '@/integrations/supabase/client';
 import { useViewAsUserId } from '@/hooks/useViewAsUserId';
 import { useAuth } from '@/hooks/useAuth';
 
+type HomeChargingKwhRow = {
+  id: string;
+  start_time: string;
+  end_time: string | null;
+  status: string | null;
+  total_session_kwh: number | null;
+  session_metadata: Record<string, unknown> | null;
+};
+
+const OVERLAP_CONTINUATION_WINDOW_MS = 90 * 60 * 1000;
+
+function toMs(value: string | null | undefined): number | null {
+  if (!value) return null;
+  const ms = new Date(value).getTime();
+  return Number.isFinite(ms) ? ms : null;
+}
+
+function sessionKwh(row: HomeChargingKwhRow): number {
+  return Number(row.total_session_kwh || 0);
+}
+
+function isContinuationOverlap(earlier: HomeChargingKwhRow, later: HomeChargingKwhRow): boolean {
+  if (earlier.id === later.id || earlier.status === 'charging') return false;
+  const earlierEnd = toMs(earlier.end_time) ?? toMs(earlier.start_time);
+  const laterStart = toMs(later.start_time);
+  if (earlierEnd === null || laterStart === null) return false;
+
+  const gapMs = laterStart - earlierEnd;
+  if (gapMs < -5 * 60 * 1000 || gapMs > OVERLAP_CONTINUATION_WINDOW_MS) return false;
+
+  const earlierTotal = sessionKwh(earlier);
+  const laterTotal = sessionKwh(later);
+  if (earlierTotal <= 0 || laterTotal + 0.5 < earlierTotal) return false;
+
+  const earlierSource = String(earlier.session_metadata?.source || '');
+  const laterContinued = later.session_metadata?.continued_after_recovery === true;
+  const firstObserved = Number(later.session_metadata?.first_observed_kwh || 0);
+  return earlierSource.includes('recovered') || laterContinued || firstObserved <= 2 || laterTotal > earlierTotal;
+}
+
+function dedupeContinuationSessions(rows: HomeChargingKwhRow[]): HomeChargingKwhRow[] {
+  return rows.filter((row) => !rows.some((candidate) => isContinuationOverlap(row, candidate)));
+}
+
 /**
  * Sum of lifetime Home & AC charging kWh for a specific vehicle (device_id / VIN),
  * pulled directly from `home_charging_sessions` — the authoritative live tracker.
@@ -41,11 +85,12 @@ export function usePerVehicleHomeChargingKwh(deviceId?: string) {
       if (!effectiveUserId || !deviceId) return 0;
       const { data, error } = await supabase
         .from('home_charging_sessions')
-        .select('total_session_kwh')
+        .select('id, start_time, end_time, status, total_session_kwh, session_metadata')
         .eq('user_id', effectiveUserId)
         .eq('device_id', deviceId);
       if (error) return 0;
-      return (data ?? []).reduce((sum, s: any) => sum + Number(s.total_session_kwh || 0), 0);
+      return dedupeContinuationSessions((data ?? []) as HomeChargingKwhRow[])
+        .reduce((sum, row) => sum + sessionKwh(row), 0);
     },
     refetchInterval: 20_000,
   });

@@ -10,6 +10,7 @@ const corsHeaders = {
 const TESLA_API_BASE = "https://fleet-api.prd.na.vn.cloud.tesla.com";
 const TESLA_TOKEN_URL =
   "https://fleet-auth.prd.vn.cloud.tesla.com/oauth2/v3/token";
+const OVERLAP_CONTINUATION_WINDOW_MS = 90 * 60 * 1000;
 
 // ── Cryptographic Helpers ────────────────────────────────────────────────────
 
@@ -454,6 +455,55 @@ async function processVehicle(
     }
 
     if (!activeSession) {
+      const since = new Date(Date.now() - OVERLAP_CONTINUATION_WINDOW_MS).toISOString();
+      const { data: recentCompleted } = await supabase
+        .from("home_charging_sessions")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("device_id", vin)
+        .eq("status", "completed")
+        .gte("end_time", since)
+        .order("end_time", { ascending: false })
+        .limit(1);
+
+      const previousSession = recentCompleted?.[0] || null;
+      const previousKwh = Number(previousSession?.total_session_kwh || 0);
+      if (previousSession && previousKwh > 0 && chargeEnergyAdded + 0.5 >= previousKwh) {
+        const now = new Date().toISOString();
+        const existingChain = previousSession.proof_chain || [];
+        const prevHash = existingChain.length > 0 ? existingChain[existingChain.length - 1].hash : "genesis";
+        const resumedHash = await buildSnapshotHash(vin, now, chargeEnergyAdded, batteryLevel, prevHash);
+        const resumedChain = [...existingChain, { ts: now, kwh: chargeEnergyAdded, bat: batteryLevel, hash: resumedHash, resumed_after_gap: true }];
+
+        const { error } = await supabase
+          .from("home_charging_sessions")
+          .update({
+            end_time: null,
+            end_kwh_added: chargeEnergyAdded,
+            total_session_kwh: chargeEnergyAdded,
+            status: "charging",
+            charger_power_kw: chargerPower,
+            proof_chain: resumedChain,
+            verified: false,
+            session_metadata: {
+              ...previousSession.session_metadata,
+              battery_level_latest: batteryLevel,
+              continued_after_recovery: true,
+              previous_end_time: previousSession.end_time,
+              last_poll: now,
+            },
+          })
+          .eq("id", previousSession.id);
+
+        if (error) {
+          console.error(`[ChargeMonitor] Resume previous session error:`, error);
+        } else {
+          console.log(`[ChargeMonitor] ↻ RESUMED session ${previousSession.id.slice(0, 8)} for ${vin}: ${chargeEnergyAdded} kWh (previous ${previousKwh} kWh)`);
+          results.push({ vin, action: "resumed_existing", energy: chargeEnergyAdded, previous_kwh: previousKwh });
+          return;
+        }
+      }
+
       // ── START new session ──
       const now = new Date().toISOString();
       const genesisHash = await buildSnapshotHash(vin, now, 0, batteryLevel, "genesis");
