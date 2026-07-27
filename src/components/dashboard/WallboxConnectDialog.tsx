@@ -10,7 +10,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Eye, EyeOff, CheckCircle2, AlertCircle, Zap } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Loader2, Eye, EyeOff, AlertCircle, Zap, ShieldCheck } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { DialogSwipeHandle } from '@/components/onboarding/DialogSwipeHandle';
 
@@ -26,11 +27,16 @@ export function WallboxConnectDialog({ open, onOpenChange, onSubmit }: WallboxCo
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [consented, setConsented] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    
+
+    if (!consented) {
+      setError('Please review and accept the credential storage notice to continue.');
+      return;
+    }
     if (!email.trim() || !password) {
       setError('Please enter both email and password');
       return;
@@ -43,6 +49,7 @@ export function WallboxConnectDialog({ open, onOpenChange, onSubmit }: WallboxCo
     if (success) {
       setEmail('');
       setPassword('');
+      setConsented(false);
       onOpenChange(false);
     } else {
       setError('Failed to connect. Please check your credentials and try again.');
@@ -53,10 +60,13 @@ export function WallboxConnectDialog({ open, onOpenChange, onSubmit }: WallboxCo
     if (!isSubmitting) {
       setEmail('');
       setPassword('');
+      setConsented(false);
       setError(null);
       onOpenChange(open);
     }
   };
+
+  const canSubmit = consented && !!email.trim() && !!password && !isSubmitting;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -70,7 +80,7 @@ export function WallboxConnectDialog({ open, onOpenChange, onSubmit }: WallboxCo
             <span>Connect Wallbox</span>
           </DialogTitle>
           <DialogDescription className="pt-1">
-            Enter your Wallbox account credentials to connect your home EV charger.
+            Wallbox doesn't offer a one-click login for third-party apps, so we need your Wallbox account credentials to keep the connection alive.
           </DialogDescription>
         </DialogHeader>
 
@@ -82,29 +92,55 @@ export function WallboxConnectDialog({ open, onOpenChange, onSubmit }: WallboxCo
             </Alert>
           )}
 
+          {/* Explicit consent — must be checked before password field is usable */}
+          <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
+            <div className="flex items-start gap-3">
+              <ShieldCheck className="h-5 w-5 mt-0.5 text-amber-400 shrink-0" />
+              <div className="space-y-2 text-sm">
+                <p className="font-medium text-amber-100">How ZenSolar stores your Wallbox credentials</p>
+                <ul className="text-muted-foreground space-y-1 list-disc pl-4">
+                  <li>To keep your Wallbox connected, ZenSolar stores your Wallbox email and password on our servers so we can refresh your access token when it expires.</li>
+                  <li>Credentials are stored server-side only, encrypted at rest, and never exposed to the app or shared with third parties.</li>
+                  <li>You can disconnect Wallbox at any time from Settings, which permanently deletes the stored credentials.</li>
+                </ul>
+                <label className="flex items-start gap-2 pt-2 cursor-pointer">
+                  <Checkbox
+                    checked={consented}
+                    onCheckedChange={(v) => setConsented(v === true)}
+                    disabled={isSubmitting}
+                    className="mt-0.5"
+                  />
+                  <span className="text-[13px] text-foreground">
+                    I understand and consent to ZenSolar storing my Wallbox credentials server-side to maintain the connection.
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-2">
-            <Label htmlFor="wallbox-email">Email Address</Label>
+            <Label htmlFor="wallbox-email">Wallbox account email</Label>
             <Input
               id="wallbox-email"
               type="email"
               placeholder="your@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              disabled={isSubmitting}
+              disabled={isSubmitting || !consented}
               autoComplete="email"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="wallbox-password">Password</Label>
+            <Label htmlFor="wallbox-password">Wallbox account password</Label>
             <div className="relative">
               <Input
                 id="wallbox-password"
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Enter your password"
+                placeholder={consented ? 'Enter your password' : 'Accept the notice above first'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                disabled={isSubmitting}
+                disabled={isSubmitting || !consented}
                 autoComplete="current-password"
                 className="pr-10"
               />
@@ -114,7 +150,7 @@ export function WallboxConnectDialog({ open, onOpenChange, onSubmit }: WallboxCo
                 size="sm"
                 className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
                 onClick={() => setShowPassword(!showPassword)}
-                disabled={isSubmitting}
+                disabled={isSubmitting || !consented}
               >
                 {showPassword ? (
                   <EyeOff className="h-4 w-4 text-muted-foreground" />
@@ -122,16 +158,6 @@ export function WallboxConnectDialog({ open, onOpenChange, onSubmit }: WallboxCo
                   <Eye className="h-4 w-4 text-muted-foreground" />
                 )}
               </Button>
-            </div>
-          </div>
-
-          <div className="bg-primary/5 rounded-xl p-4 text-sm text-muted-foreground border border-primary/10">
-            <div className="flex items-start gap-3">
-              <CheckCircle2 className="h-5 w-5 mt-0.5 text-primary shrink-0" />
-              <p>
-                Your credentials are securely transmitted and only used to connect to your Wallbox account.
-                We never store your password.
-              </p>
             </div>
           </div>
 
@@ -147,13 +173,13 @@ export function WallboxConnectDialog({ open, onOpenChange, onSubmit }: WallboxCo
             </Button>
             <Button
               type="submit"
-              disabled={!email.trim() || !password || isSubmitting}
+              disabled={!canSubmit}
               className="flex-1 sm:flex-none gap-2 bg-gradient-to-r from-primary to-primary/90 shadow-lg shadow-primary/20"
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Connecting...
+                  Verifying with Wallbox…
                 </>
               ) : (
                 'Connect Account'
