@@ -20,7 +20,7 @@ export default function BetaSignIn() {
   const navigate = useNavigate();
   const { signIn, signUp, resetPassword } = useAuth();
 
-  const [mode, setMode] = useState<Mode>('login');
+  const [mode, setMode] = useState<Mode>('signup');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -189,10 +189,10 @@ export default function BetaSignIn() {
 
           <div className="space-y-3">
             <QCButton variant="ghost" onClick={() => handleOAuth('google')} disabled={busy}>
-              Continue with Google
+              {mode === 'signup' ? 'Sign up with Google' : 'Continue with Google'}
             </QCButton>
             <QCButton variant="ghost" onClick={() => handleOAuth('apple')} disabled={busy}>
-              Continue with Apple
+              {mode === 'signup' ? 'Sign up with Apple' : 'Continue with Apple'}
             </QCButton>
           </div>
         </>
