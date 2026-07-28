@@ -501,10 +501,10 @@ export function EnergyConnectionScreen({
                     </div>
                     <div className="text-left">
                       <p className="text-[12px] font-semibold text-foreground tracking-wide">
-                        Ask Deason AI
+                        Get help
                       </p>
                       <p className="text-[10px] text-muted-foreground">
-                        Your AI energy assistant
+                        Chat with our energy assistant
                       </p>
                     </div>
                   </div>
