@@ -1,19 +1,10 @@
-import { SEO } from '@/components/SEO';
-import { HomeHero } from '@/components/home/HomeHero';
-import { LiveStatsBar } from '@/components/home/LiveStatsBar';
-import { HomeNav } from '@/components/home/HomeNav';
-import { LazySection } from '@/components/home/LazySection';
 import { lazy, Suspense } from 'react';
 import { Navigate } from 'react-router-dom';
 
-// Hosts that should always land on the gated /demo experience instead of
-// the marketing home page.
-const GATED_HOSTS = new Set([
-  'zensolar.com',
-  'www.zensolar.com',
-  'zen.solar',
-  'www.zen.solar',
-]);
+// PublicHome is the new marketing surface for the production hosts
+// (zensolar.com / www.zensolar.com) and every preview host. The legacy
+// marketing sections in this file are no longer reachable at `/`.
+const PublicHome = lazy(() => import('./PublicHome'));
 
 // Beta hosts get their own minimal Quiet Current front door that routes
 // into the passwordless /onboarding flow.
@@ -25,40 +16,17 @@ const BETA_HOSTS = new Set([
   'www.beta.zen.solar',
 ]);
 
-
-// Defer the floating section nav — it pulls in framer-motion, Vaul drawer,
-// and @capacitor/haptics, none of which are needed for first paint.
-const FloatingSectionNav = lazy(() =>
-  import('@/components/home/FloatingSectionNav').then((m) => ({ default: m.FloatingSectionNav }))
-);
-
-// Lazy-load below-the-fold sections for faster initial paint
-const HowItWorksSection = lazy(() => import('@/components/home/HowItWorksSection').then(m => ({ default: m.HowItWorksSection })));
-
-const CleanEnergyCenterShowcase = lazy(() => import('@/components/home/CleanEnergyCenterShowcase').then(m => ({ default: m.CleanEnergyCenterShowcase })));
-const NFTMilestoneSection = lazy(() => import('@/components/home/NFTMilestoneSection').then(m => ({ default: m.NFTMilestoneSection })));
-const StoreRedemptionSection = lazy(() => import('@/components/home/StoreRedemptionSection').then(m => ({ default: m.StoreRedemptionSection })));
-const WhyZenSolarSection = lazy(() => import('@/components/home/WhyZenSolarSection').then(m => ({ default: m.WhyZenSolarSection })));
-
-const PricingSection = lazy(() => import('@/components/home/PricingSection').then(m => ({ default: m.PricingSection })));
-const SubscriptionTransparencyPanel = lazy(() => import('@/components/home/SubscriptionTransparencyPanel').then(m => ({ default: m.SubscriptionTransparencyPanel })));
-const TestimonialsSection = lazy(() => import('@/components/home/TestimonialsSection').then(m => ({ default: m.TestimonialsSection })));
-const FAQSection = lazy(() => import('@/components/home/FAQSection').then(m => ({ default: m.FAQSection })));
-const HomeCTA = lazy(() => import('@/components/home/HomeCTA').then(m => ({ default: m.HomeCTA })));
-const HomeFooter = lazy(() => import('@/components/home/HomeFooter').then(m => ({ default: m.HomeFooter })));
-
 export default function Home() {
-  if (typeof window !== 'undefined') {
-    if (BETA_HOSTS.has(window.location.hostname)) {
-      return <Navigate to="/beta-welcome" replace />;
-    }
-    if (GATED_HOSTS.has(window.location.hostname)) {
-      return <Navigate to="/demo" replace />;
-    }
+  if (typeof window !== 'undefined' && BETA_HOSTS.has(window.location.hostname)) {
+    return <Navigate to="/beta-welcome" replace />;
   }
   return (
-    <>
-      <SEO
+    <Suspense fallback={null}>
+      <PublicHome />
+    </Suspense>
+  );
+}
+
         title="ZenSolar — Tokenize Your Clean Energy Into Digital Income"
         description="Turn your solar production, battery storage, and EV driving into verified rewards. The world's first physics-backed clean energy token."
         url="https://zensolar.com/home"
