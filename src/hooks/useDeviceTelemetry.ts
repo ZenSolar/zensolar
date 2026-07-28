@@ -297,14 +297,9 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
     let liveAttempts = 0;
     let liveSuccesses = 0;
     try {
-      const { data: devices, error: devErr } = await supabase
-        .from('connected_devices')
-        .select('provider, device_type, device_id, device_name')
-        .eq('user_id', effectiveUserId)
-        .order('claimed_at', { ascending: true });
-      if (devErr) throw devErr;
+      const devices = await loadDevicesDeduped(effectiveUserId);
 
-      const selected = pickOnePerCapability((devices as ConnectedDeviceRow[]) ?? [], capability);
+      const selected = pickOnePerCapability(devices, capability);
       const out: CachedTelemetry[] = [];
 
       // When admin is viewing another user, route OEM calls through the
@@ -333,7 +328,15 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
           continue;
         }
         liveAttempts++;
-        const live = await fetchFromOem(oem, d.device_id, capability, targetHeaderId);
+        // Dedupe concurrent live invokes for the same key across mounted hooks.
+        const oemKey = `${effectiveUserId}::${oem}::${capability}::${d.device_id}::${targetHeaderId ?? ''}`;
+        let livePromise = oemInflight.get(oemKey);
+        if (!livePromise) {
+          livePromise = fetchFromOem(oem, d.device_id, capability, targetHeaderId)
+            .finally(() => { oemInflight.delete(oemKey); });
+          oemInflight.set(oemKey, livePromise);
+        }
+        const live = await livePromise;
         if (live && !(live as any).error && !(live as any).__reauth) {
           liveSuccesses++;
           if (!targetHeaderId) {
