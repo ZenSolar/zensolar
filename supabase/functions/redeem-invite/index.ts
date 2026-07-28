@@ -31,29 +31,25 @@ function constantTimeEqual(a: string, b: string): boolean {
   return r === 0;
 }
 
+function jsonResponse(status: number, body: Record<string, unknown>) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
-  if (req.method !== "POST") {
-    return new Response(JSON.stringify({ ok: false, reason: "method_not_allowed" }), {
-      status: 405,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
+  if (req.method !== "POST") return jsonResponse(405, { ok: false, reason: "method_not_allowed" });
 
   let body: { code?: string } = {};
   try { body = await req.json(); } catch { /* ignore */ }
   const rawCode = (body.code ?? "").trim();
-  if (!rawCode || rawCode.length > 64) {
-    return new Response(JSON.stringify({ ok: false, reason: "invalid" }), {
-      status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
+  if (!rawCode || rawCode.length > 64) return jsonResponse(200, { ok: false, reason: "invalid" });
 
   const ipHash = await sha256(PEPPER + "|" + clientIp(req));
   const codeHash = await sha256(rawCode.toLowerCase());
 
-  // Throttle: 5 failures / 15 min OR 20 attempts / hour.
   const now = Date.now();
   const since15 = new Date(now - 15 * 60_000).toISOString();
   const since60 = new Date(now - 60 * 60_000).toISOString();
@@ -67,17 +63,11 @@ Deno.serve(async (req) => {
 
   const rows = recent ?? [];
   const fails15 = rows.filter((r) => !r.success && r.attempted_at >= since15).length;
-  if (fails15 >= 5 || rows.length >= 20) {
-    return new Response(JSON.stringify({ ok: false, reason: "rate_limited" }), {
-      status: 429,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
+  if (fails15 >= 5 || rows.length >= 20) return jsonResponse(429, { ok: false, reason: "rate_limited" });
 
-  // Look up code (citext = case-insensitive).
   const { data: codeRow } = await supabase
     .from("invite_codes")
-    .select("id, code, active, expires_at")
+    .select("id, code, active, expires_at, redeem_count")
     .eq("code", rawCode)
     .maybeSingle();
 
@@ -94,30 +84,15 @@ Deno.serve(async (req) => {
     success: valid,
   });
 
-  if (!valid) {
-    return new Response(JSON.stringify({ ok: false, reason: "invalid" }), {
-      status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
+  if (!valid) return jsonResponse(200, { ok: false, reason: "invalid" });
 
   await supabase
     .from("invite_codes")
     .update({
-      redeem_count: 0,
+      redeem_count: (codeRow!.redeem_count ?? 0) + 1,
       last_redeemed_at: new Date().toISOString(),
     })
     .eq("id", codeRow!.id);
-  // Increment atomically via RPC-less pattern (best-effort):
-  await supabase.rpc("noop_that_does_not_exist").catch(() => {});
-  await supabase
-    .from("invite_codes")
-    .update({ redeem_count: (rows.length ?? 0) + 1 })
-    .eq("id", codeRow!.id)
-    .then(() => {}, () => {});
 
-  return new Response(JSON.stringify({ ok: true }), {
-    status: 200,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
+  return jsonResponse(200, { ok: true });
 });
