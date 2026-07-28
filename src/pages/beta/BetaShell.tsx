@@ -15,6 +15,14 @@ interface Props {
  * cross-fade + upward drift entrance, thin progress rail.
  */
 export function BetaShell({ children, onBack, eyebrow, stage, ambient = true }: Props) {
+  // Ensure every onboarding screen mounts at the top — prevents the eyebrow /
+  // heading from being clipped when a step transition inherits the previous
+  // page's scroll position (e.g. signup → 8-digit code screen on mobile).
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    }
+  }, [eyebrow, stage]);
   return (
     <QCScreen ambient={ambient}>
       <div className="flex flex-col min-h-screen">
