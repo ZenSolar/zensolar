@@ -40,6 +40,22 @@
   background-repeat: repeat;
 }
 
+/* Layer 3: static low-frequency vignette.
+   Centers on the viewport; transparent in the middle third, then tapers
+   to a slightly darker graphite at the edges/corners. Sits behind content. */
+.qc-vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 50% 50%,
+    transparent 0%,
+    transparent 33%,
+    rgba(8, 10, 12, 0.85) 100%
+  );
+}
+
 /* Ensure page content sits above the fixed ambient layers. */
 .qc-ambient > * {
   position: relative;
