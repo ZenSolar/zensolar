@@ -98,20 +98,32 @@ export default function PublicHome() {
               className="grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-12 items-center justify-items-center"
               style={{ color: "#8B9198" }}
             >
-              {[
-                { src: teslaLogo, alt: "Tesla", h: "h-4 sm:h-5" },
-                { src: enphaseLogo, alt: "Enphase", h: "h-4 sm:h-5" },
-                { src: wallboxLogo, alt: "Wallbox", h: "h-7 sm:h-8" },
-                { src: solaredgeLogo, alt: "SolarEdge", h: "h-7 sm:h-8" },
-              ].map((p) => (
-                <img
-                  key={p.alt}
-                  src={p.src}
-                  alt={p.alt}
-                  className={`${p.h} w-auto`}
-                  style={{ filter: "brightness(0) invert(1)", opacity: 0.55 }}
-                />
-              ))}
+              {/* Per-logo tuning — each asset has its own source conventions.
+                  Do NOT collapse this back into a shared filter/height recipe. */}
+              <img
+                src={teslaLogo}
+                alt="Tesla"
+                className="h-4 sm:h-5 w-auto"
+                style={{ color: "#E8EAED", opacity: 0.6 }}
+              />
+              <img
+                src={enphaseLogo}
+                alt="Enphase"
+                className="h-4 sm:h-5 w-auto"
+                style={{ filter: "brightness(0) invert(1)", opacity: 0.55 }}
+              />
+              <img
+                src={wallboxLogo}
+                alt="Wallbox"
+                className="h-10 sm:h-12 w-auto"
+                style={{ filter: "brightness(0) invert(1)", opacity: 0.6 }}
+              />
+              <img
+                src={solaredgeLogo}
+                alt="SolarEdge"
+                className="h-7 sm:h-8 w-auto"
+                style={{ filter: "brightness(0) invert(1)", opacity: 0.55 }}
+              />
             </div>
           </div>
         </section>
