@@ -49,10 +49,12 @@ export function ProofChain({ compact = false }: { compact?: boolean }) {
   // 1:1 viewBox so label type never shrinks below legibility.
   const small = compact || narrow;
   const w = small ? 360 : 620;
-  const h = small ? 210 : 330;
-  const cy = small ? 82 : 138;
+  const h = small ? 200 : 300;
+  const cy = small ? 78 : 128;
 
-  const positions = [0.075, 0.275, 0.515, 0.745, 0.895].map((p) => p * w);
+  const positions = (small ? [0.07, 0.26, 0.48, 0.745, 0.9] : [0.075, 0.275, 0.515, 0.745, 0.895]).map(
+    (p) => p * w,
+  );
   const nodeSize = small ? 26 : 46;
 
   const labels = ["device", "Δ", "SHA-256(device ‖ ts ‖ Δ ‖ prev)", "proofₙ", "proofₙ₊₁"];
@@ -164,7 +166,7 @@ export function ProofChain({ compact = false }: { compact?: boolean }) {
               x={x + dx}
               y={baseY + row * rowStep}
               fill={!reduced && i === tick ? "#E8EAED" : "#8B9198"}
-              fontSize={isLong ? labelFont - 1 : labelFont}
+              fontSize={isLong ? labelFont - (small ? 1.5 : 1) : labelFont}
               letterSpacing={isLong ? 0.2 : 0.6}
               fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace"
               textAnchor={anchor}
