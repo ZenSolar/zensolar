@@ -1,18 +1,21 @@
-import { useEffect, useId, useState } from "react";
+import { useEffect, useState, useId } from "react";
 
 /**
  * ProofChain — structural visualization of the Proof-of-Delta hash chain.
  *
- * HARD RULE: structural labels only. No currency, balances, totals, counters.
+ * HARD RULE: this component renders structural labels ONLY. No currency, no
+ * balances, no minted totals, no counters. Do not add props for any of those.
  *
- * Motion contract: a single directional pulse travels left→right along the
- * connecting line every ~4s in the signature emerald→cyan gradient. As the
- * pulse crosses each node, that node scales 1 → 1.04 → 1 over 600ms with
- * physics easing. Nothing else moves.
+ * device → Δ → SHA-256(device_id ‖ ts ‖ Δ ‖ prev_hash) → proofₙ → proofₙ₊₁
+ *
+ * Rendering contract: at every animation frame (including first paint), ALL
+ * five nodes and their labels render at full legibility. Motion is limited to
+ * a single traveling pulse along the connecting lines and a soft glow on the
+ * currently-active node.
  */
 export function ProofChain({ compact = false }: { compact?: boolean }) {
   const gradId = useId();
-  const pulseGradId = `${gradId}-pulse`;
+  const [tick, setTick] = useState(0);
   const [reduced, setReduced] = useState(false);
 
   useEffect(() => {
@@ -20,67 +23,33 @@ export function ProofChain({ compact = false }: { compact?: boolean }) {
     setReduced(mq.matches);
     const listener = () => setReduced(mq.matches);
     mq.addEventListener?.("change", listener);
-    return () => mq.removeEventListener?.("change", listener);
+    if (mq.matches) return () => mq.removeEventListener?.("change", listener);
+    const id = window.setInterval(() => setTick((t) => (t + 1) % 5), 1400);
+    return () => {
+      window.clearInterval(id);
+      mq.removeEventListener?.("change", listener);
+    };
   }, []);
 
   const w = compact ? 320 : 560;
   const h = compact ? 140 : 240;
   const cy = compact ? 58 : 96;
 
-  const anchors = [0.09, 0.30, 0.53, 0.76, 0.93];
-  const positions = anchors.map((p) => p * w);
+  const positions = [0.09, 0.30, 0.53, 0.76, 0.93].map((p) => p * w);
   const nodeSize = compact ? 22 : 30;
+
   const labels = ["device", "Δ", "SHA-256(device ‖ ts ‖ Δ ‖ prev)", "proofₙ", "proofₙ₊₁"];
   const labelFont = compact ? 10 : 12;
   const strokeW = 1.5;
 
-  const CYCLE = 4; // seconds
-  const NODE_BUMP = 0.6; // seconds
-
-  // Delay each node so its bump peaks as the pulse arrives.
-  // Pulse travels from anchor[0] → anchor[last] linearly across CYCLE.
-  const span = anchors[anchors.length - 1] - anchors[0];
-  const nodeDelays = anchors.map((a) => ((a - anchors[0]) / span) * CYCLE);
-
   return (
     <div
-      className="rounded-2xl border overflow-hidden qc-proofchain"
-      style={{ background: "#121417", borderColor: "#1B1E22" }}
+      className="rounded-2xl border overflow-hidden"
+      style={{
+        background: "#121417",
+        borderColor: "#1B1E22",
+      }}
     >
-      <style>{`
-        @keyframes qc-node-bump {
-          0%   { transform: scale(1); }
-          ${((NODE_BUMP / 2) / CYCLE) * 100}% { transform: scale(1.04); }
-          ${(NODE_BUMP / CYCLE) * 100}% { transform: scale(1); }
-          100% { transform: scale(1); }
-        }
-        @keyframes qc-pulse-travel {
-          0%   { offset-distance: 0%;   opacity: 0; }
-          6%   { opacity: 1; }
-          94%  { opacity: 1; }
-          100% { offset-distance: 100%; opacity: 0; }
-        }
-        .qc-node {
-          transform-box: fill-box;
-          transform-origin: center;
-          animation: qc-node-bump ${CYCLE}s cubic-bezier(0.22, 1, 0.36, 1) infinite;
-          will-change: transform;
-        }
-        .qc-pulse {
-          offset-path: path('M __PULSE_PATH__');
-          offset-rotate: 0deg;
-          animation: qc-pulse-travel ${CYCLE}s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-          will-change: offset-distance, opacity;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .qc-node, .qc-pulse { animation: none !important; }
-          .qc-pulse { opacity: 0 !important; }
-        }
-      `.replace(
-        "__PULSE_PATH__",
-        `${positions[0]} ${cy} L ${positions[positions.length - 1]} ${cy}`,
-      )}</style>
-
       <svg
         viewBox={`0 0 ${w} ${h}`}
         width="100%"
@@ -94,48 +63,49 @@ export function ProofChain({ compact = false }: { compact?: boolean }) {
             <stop offset="0%" stopColor="#00E19B" />
             <stop offset="100%" stopColor="#00C2FF" />
           </linearGradient>
-          <radialGradient id={pulseGradId}>
-            <stop offset="0%" stopColor="#7FF5D2" stopOpacity="1" />
-            <stop offset="40%" stopColor="#00E19B" stopOpacity="0.9" />
-            <stop offset="100%" stopColor="#00C2FF" stopOpacity="0" />
-          </radialGradient>
         </defs>
 
-        {/* static connecting line */}
-        <line
-          x1={positions[0] + nodeSize / 2}
-          y1={cy}
-          x2={positions[positions.length - 1] - nodeSize / 2}
-          y2={cy}
-          stroke="#2A2E33"
-          strokeWidth={1}
-        />
-
-        {/* nodes — all five always fully rendered, each bumping as pulse passes */}
-        {positions.map((x, i) => (
-          <g
-            key={i}
-            className={reduced ? undefined : "qc-node"}
-            style={
-              reduced
-                ? undefined
-                : { animationDelay: `${nodeDelays[i] - NODE_BUMP / 2}s` }
-            }
-            transform={`translate(${x} ${cy})`}
-          >
-            <NodeShape
-              kind={nodeKind(i)}
-              size={nodeSize}
-              strokeUrl={`url(#${gradId})`}
-              strokeW={strokeW}
+        {/* connecting lines — all visible at rest, active segment lights up */}
+        {positions.slice(0, -1).map((x, i) => {
+          const x2 = positions[i + 1];
+          const isActive = !reduced && i === tick % 4;
+          return (
+            <line
+              key={i}
+              x1={x + nodeSize / 2}
+              y1={cy}
+              x2={x2 - nodeSize / 2}
+              y2={cy}
+              stroke={isActive ? `url(#${gradId})` : "#2F3338"}
+              strokeWidth={isActive ? 2 : 1}
+              style={{
+                transition: "stroke 300ms ease-out, stroke-width 300ms ease-out",
+              }}
             />
-          </g>
-        ))}
+          );
+        })}
 
-        {/* labels */}
+        {/* nodes — all five always fully rendered; active gets a soft glow */}
+        {positions.map((x, i) => {
+          const isActive = !reduced && i === tick;
+          return (
+            <g key={i} transform={`translate(${x} ${cy})`}>
+              <NodeShape
+                kind={nodeKind(i)}
+                size={nodeSize}
+                pulse={isActive}
+                strokeUrl={`url(#${gradId})`}
+                strokeW={strokeW}
+              />
+            </g>
+          );
+        })}
+
+        {/* labels — one per node, always rendered */}
         {positions.map((x, i) => {
           const label = labels[i];
           const isLong = label.length > 14;
+          // Nudge long middle label up slightly? Keep flat baseline for now.
           const anchor: "start" | "middle" | "end" =
             i === 0 ? "start" : i === positions.length - 1 ? "end" : "middle";
           const dx = i === 0 ? -nodeSize / 2 : i === positions.length - 1 ? nodeSize / 2 : 0;
@@ -144,27 +114,16 @@ export function ProofChain({ compact = false }: { compact?: boolean }) {
               key={i}
               x={x + dx}
               y={cy + nodeSize + (compact ? 20 : 28)}
-              fill="#8B9198"
+              fill={!reduced && i === tick ? "#E8EAED" : "#8B9198"}
               fontSize={isLong ? labelFont - 1 : labelFont}
               fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace"
               textAnchor={anchor}
+              style={{ transition: "fill 300ms ease-out" }}
             >
               {label}
             </text>
           );
         })}
-
-        {/* the single traveling pulse — the one moving thing on this page */}
-        {!reduced && (
-          <g className="qc-pulse">
-            <circle
-              r={compact ? 9 : 12}
-              fill={`url(#${pulseGradId})`}
-              opacity={0.55}
-            />
-            <circle r={compact ? 3 : 4} fill="#B9FBE4" />
-          </g>
-        )}
       </svg>
     </div>
   );
@@ -180,11 +139,13 @@ function nodeKind(i: number): "hex" | "diamond" | "rect" | "circle" {
 function NodeShape({
   kind,
   size,
+  pulse,
   strokeUrl,
   strokeW,
 }: {
   kind: "hex" | "diamond" | "rect" | "circle";
   size: number;
+  pulse: boolean;
   strokeUrl: string;
   strokeW: number;
 }) {
@@ -192,13 +153,21 @@ function NodeShape({
   const common = {
     fill: "#121417",
     stroke: strokeUrl,
-    strokeWidth: strokeW,
+    strokeWidth: pulse ? strokeW + 0.5 : strokeW,
+    style: {
+      filter: pulse ? "drop-shadow(0 0 6px rgba(0, 225, 155, 0.55))" : "none",
+      transition: "filter 300ms ease-out, stroke-width 300ms ease-out",
+    },
   } as const;
-  if (kind === "hex") return <polygon points={hexPoints(s / 2)} {...common} />;
-  if (kind === "diamond")
+  if (kind === "hex") {
+    return <polygon points={hexPoints(s / 2)} {...common} />;
+  }
+  if (kind === "diamond") {
     return <polygon points={`0,${-s / 2} ${s / 2},0 0,${s / 2} ${-s / 2},0`} {...common} />;
-  if (kind === "rect")
+  }
+  if (kind === "rect") {
     return <rect x={-s / 1.4} y={-s / 2} width={s * 1.4} height={s} rx={4} {...common} />;
+  }
   return <circle r={s / 2} {...common} />;
 }
 
