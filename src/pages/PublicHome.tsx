@@ -103,8 +103,8 @@ export default function PublicHome() {
               <img
                 src={teslaLogo}
                 alt="Tesla"
-                className="h-4 sm:h-5 w-auto"
-                style={{ color: "#E8EAED", opacity: 0.6 }}
+                className="h-5 sm:h-6 w-auto"
+                style={{ color: "#E8EAED", opacity: 0.85 }}
               />
               <img
                 src={enphaseLogo}
@@ -115,8 +115,8 @@ export default function PublicHome() {
               <img
                 src={wallboxLogo}
                 alt="Wallbox"
-                className="h-10 sm:h-12 w-auto"
-                style={{ filter: "brightness(0) invert(1)", opacity: 0.6 }}
+                className="h-14 sm:h-16 w-auto"
+                style={{ filter: "brightness(0) invert(1)", opacity: 0.65 }}
               />
               <img
                 src={solaredgeLogo}
