@@ -72,7 +72,7 @@ export default function PublicHome() {
               </div>
 
               <p className="text-[13px]" style={{ color: "#8B9198" }}>
-                Currently onboarding by personal invitation.
+                {"\n"}
               </p>
             </div>
 
@@ -256,7 +256,7 @@ export default function PublicHome() {
                 Request access
               </h2>
               <p className="text-[15px]" style={{ color: "#8B9198" }}>
-                Tell us who you are. We review each request personally.
+                Join the cohort
               </p>
             </div>
             <RequestAccessForm />
