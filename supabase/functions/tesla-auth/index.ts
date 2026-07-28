@@ -47,11 +47,30 @@ const BLOCKING_DATA_SCOPES = new Set<string>([
 ]);
 
 function classifyMissingScopes(grantedScope: string | null | undefined, hasRefreshToken: boolean) {
-  const granted = new Set((grantedScope ?? "").split(/\s+/).filter(Boolean));
+  const raw = (grantedScope ?? "").trim();
+  const noRefresh = !hasRefreshToken;
+
+  // Tesla's /oauth2/v3/token response frequently OMITS the `scope` field
+  // entirely (or returns "") even when the user checked "Select All" on the
+  // consent screen — especially with require_requested_scopes=false. In that
+  // case we have no reliable signal that anything is missing, so we must NOT
+  // block the user. Downstream API calls will surface real permission errors
+  // (403) if a scope was actually denied. Only the missing-refresh-token
+  // signal remains blocking here (that one we can trust).
+  if (!raw) {
+    return {
+      missing: [] as string[],
+      blocking: [] as string[],
+      degraded: [] as string[],
+      severity: (noRefresh ? "blocking" : "ok") as "blocking" | "degraded" | "ok",
+      no_refresh_token: noRefresh,
+    };
+  }
+
+  const granted = new Set(raw.split(/\s+/).filter(Boolean));
   const missing = DATA_SCOPES.filter((s) => !granted.has(s));
   const blocking = missing.filter((s) => BLOCKING_DATA_SCOPES.has(s));
   const degraded = missing.filter((s) => !BLOCKING_DATA_SCOPES.has(s));
-  const noRefresh = !hasRefreshToken;
   const severity: "blocking" | "degraded" | "ok" =
     (blocking.length || noRefresh) ? "blocking" : (degraded.length ? "degraded" : "ok");
   return { missing, blocking, degraded, severity, no_refresh_token: noRefresh };
