@@ -1,5 +1,5 @@
 /* Quiet Current — ambient depth layers.
-   Two subliminal effects on top of the #0A0C0E canvas.
+   Subliminal effects on top of the #0A0C0E canvas.
    No emerald→cyan gradient anywhere. */
 
 .qc-ambient {
@@ -38,6 +38,22 @@
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncR type='linear' slope='1.55' intercept='-0.24'/><feFuncG type='linear' slope='1.55' intercept='-0.24'/><feFuncB type='linear' slope='1.55' intercept='-0.24'/><feFuncA type='table' tableValues='1 1'/></feComponentTransfer></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
   background-size: 200px 200px;
   background-repeat: repeat;
+}
+
+/* Layer 3: static low-frequency vignette.
+   Centers on the viewport; transparent in the middle third, then tapers
+   to a slightly darker graphite at the edges/corners. Sits behind content. */
+.qc-vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 50% 50%,
+    transparent 0%,
+    transparent 33%,
+    rgba(8, 10, 12, 0.85) 100%
+  );
 }
 
 /* Ensure page content sits above the fixed ambient layers. */
