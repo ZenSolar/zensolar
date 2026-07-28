@@ -161,27 +161,44 @@ export default function PublicHome() {
           className="border-y"
           style={{ borderColor: "#1B1E22", background: "#0A0C0E" }}
         >
-          <div className="mx-auto max-w-6xl px-5 sm:px-8 py-20 sm:py-28 space-y-10">
+          <div className="mx-auto max-w-6xl px-5 sm:px-8 py-20 sm:py-28 space-y-12">
             <h2
               className="text-[24px] sm:text-[28px] font-medium tracking-tight"
               style={{ letterSpacing: "-0.015em" }}
             >
               Technology
             </h2>
-            <div className="grid gap-4 md:grid-cols-3">
-              <TechCard
-                name="Mint-on-Proof"
-                body="Tokens exist only after verification. Nothing is pre-minted or issued speculatively."
+
+            {/* Static hairline connector on desktop implies "one pipeline"
+                without spending motion budget. Chain metaphor, not animation. */}
+            <div className="relative">
+              <div
+                aria-hidden
+                className="hidden md:block absolute left-0 right-0 top-[46px] h-px"
+                style={{ background: "#1B1E22" }}
               />
-              <TechCard
-                name="Proof-of-Delta"
-                body="Every device tracks its own cumulative history, so the same activity can never be counted twice."
-              />
-              <TechCard
-                name="Proof-of-Origin"
-                body="Verification is bound to the physical device, not the account — auditable independent of who's using the app."
-              />
+              <div className="grid gap-4 md:grid-cols-3 relative">
+                <TechCard
+                  index="01"
+                  name="Mint-on-Proof"
+                  body="Tokens exist only after verification. Nothing is pre-minted or issued speculatively."
+                  glyph={<MintOnProofGlyph />}
+                />
+                <TechCard
+                  index="02"
+                  name="Proof-of-Delta"
+                  body="Every device tracks its own cumulative history, so the same activity can never be counted twice."
+                  glyph={<ProofOfDeltaGlyph />}
+                />
+                <TechCard
+                  index="03"
+                  name="Proof-of-Origin"
+                  body="Verification is bound to the physical device, not the account — auditable independent of who's using the app."
+                  glyph={<ProofOfOriginGlyph />}
+                />
+              </div>
             </div>
+
             <p className="text-[13px] max-w-2xl" style={{ color: "#8B9198" }}>
               Patent-pending. Currently verifying end-to-end on Sepolia ahead of mainnet deployment.
             </p>
