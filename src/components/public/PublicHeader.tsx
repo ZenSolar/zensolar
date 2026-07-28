@@ -11,7 +11,7 @@ export function PublicHeader() {
       <div className="mx-auto max-w-6xl px-5 sm:px-8 h-16 flex items-center justify-between">
         <Link to="/" aria-label="ZenSolar — home" className="flex items-center">
           <img
-            src={zenLogo}
+            src={ZEN_LOGO}
             alt="ZenSolar"
             className="h-7 sm:h-8 w-auto"
             style={{ display: "block" }}
