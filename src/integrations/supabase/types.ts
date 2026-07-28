@@ -44,6 +44,42 @@ export type Database = {
         }
         Relationships: []
       }
+      access_requests: {
+        Row: {
+          created_at: string
+          email: string
+          hp: string | null
+          id: string
+          ip_hash: string | null
+          name: string
+          note: string | null
+          source: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          hp?: string | null
+          id?: string
+          ip_hash?: string | null
+          name: string
+          note?: string | null
+          source?: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          hp?: string | null
+          id?: string
+          ip_hash?: string | null
+          name?: string
+          note?: string | null
+          source?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       admin_device_snapshots: {
         Row: {
           admin_user_id: string
@@ -1711,6 +1747,66 @@ export type Database = {
           updated_at?: string
           user_id?: string
           verified?: boolean
+        }
+        Relationships: []
+      }
+      invite_codes: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          label: string | null
+          last_redeemed_at: string | null
+          redeem_count: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          label?: string | null
+          last_redeemed_at?: string | null
+          redeem_count?: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          label?: string | null
+          last_redeemed_at?: string | null
+          redeem_count?: number
+        }
+        Relationships: []
+      }
+      invite_redeem_attempts: {
+        Row: {
+          attempted_at: string
+          code_tried_hash: string | null
+          id: string
+          ip_hash: string | null
+          kind: string
+          success: boolean
+        }
+        Insert: {
+          attempted_at?: string
+          code_tried_hash?: string | null
+          id?: string
+          ip_hash?: string | null
+          kind?: string
+          success?: boolean
+        }
+        Update: {
+          attempted_at?: string
+          code_tried_hash?: string | null
+          id?: string
+          ip_hash?: string | null
+          kind?: string
+          success?: boolean
         }
         Relationships: []
       }
