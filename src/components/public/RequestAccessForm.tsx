@@ -100,7 +100,7 @@ export function RequestAccessForm() {
         />
       </Field>
 
-      <Field label="How did you hear about ZenSolar?">
+      <Field label="What best describes you?">
         <select
           value={source}
           onChange={(e) => setSource(e.target.value)}
@@ -108,8 +108,8 @@ export function RequestAccessForm() {
           style={{ color: "#E8EAED", borderColor: "#2A2D31" }}
         >
           <option value="unspecified" style={{ background: "#121417" }}>Select one</option>
+          <option value="hardware" style={{ background: "#121417" }}>I have solar, battery, or EV hardware to connect</option>
           <option value="investor" style={{ background: "#121417" }}>I'm an investor</option>
-          <option value="hardware" style={{ background: "#121417" }}>I have hardware to connect</option>
           <option value="other" style={{ background: "#121417" }}>Other</option>
         </select>
       </Field>
