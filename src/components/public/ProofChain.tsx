@@ -52,18 +52,20 @@ export function ProofChain({ compact = false }: { compact?: boolean }) {
   const h = small ? 200 : 300;
   const cy = small ? 78 : 128;
 
-  const positions = (small ? [0.07, 0.26, 0.48, 0.745, 0.9] : [0.075, 0.275, 0.515, 0.745, 0.895]).map(
+  const positions = (small ? [0.07, 0.245, 0.45, 0.665, 0.845] : [0.07, 0.245, 0.45, 0.665, 0.845]).map(
     (p) => p * w,
   );
   const nodeSize = small ? 26 : 46;
+  /** Half-width of each node shape — the hash-op rect is wider than the rest. */
+  const halfW = (i: number) => (i === 2 ? nodeSize * 0.72 : nodeSize / 2);
 
-  const labels = ["device", "Δ", "SHA-256(device ‖ ts ‖ Δ ‖ prev)", "proofₙ", "proofₙ₊₁"];
+  const labels = ["device", "Δ", "H(x, t, Δ, h₋₁)", "proofₙ", "proofₙ₊₁"];
   const labelFont = small ? 10 : 15;
   const strokeW = small ? 1.5 : 2;
 
   // Trailing continuation: dimmed partial node past proofₙ₊₁, unlabeled.
   const lastX = positions[positions.length - 1];
-  const ghostX = w - nodeSize * 0.35;
+  const ghostX = w - nodeSize * 0.9;
 
   return (
     <div
@@ -78,7 +80,7 @@ export function ProofChain({ compact = false }: { compact?: boolean }) {
         width="100%"
         height="auto"
         role="img"
-        aria-label="Proof-of-Delta hash chain: device to delta to SHA-256 to chained proof, continuing onward."
+        aria-label="Proof-of-Delta hash chain: device to delta to hash function to chained proof, continuing onward."
         style={{ display: "block" }}
       >
         <defs>
@@ -99,9 +101,9 @@ export function ProofChain({ compact = false }: { compact?: boolean }) {
           return (
             <line
               key={i}
-              x1={x + nodeSize / 2}
+              x1={x + halfW(i)}
               y1={cy}
-              x2={x2 - nodeSize / 2}
+              x2={x2 - halfW(i + 1)}
               y2={cy}
               stroke={isActive ? `url(#${gradId})` : "#2F3338"}
               strokeWidth={isActive ? strokeW + 0.5 : 1}
@@ -146,30 +148,22 @@ export function ProofChain({ compact = false }: { compact?: boolean }) {
           );
         })}
 
-        {/* labels — one per node, always rendered. The long SHA-256 label
-            drops to its own baseline so the row reads as deliberate rhythm
-            rather than compressed type. */}
+        {/* labels — one per node, always rendered, centered on a single
+            shared baseline directly beneath its node. */}
         {positions.map((x, i) => {
           const label = labels[i];
-          const isLong = label.length > 14;
-          const anchor: "start" | "middle" | "end" =
-            i === 0 ? "start" : i === positions.length - 1 ? "end" : "middle";
-          const dx = i === 0 ? -nodeSize / 2 : i === positions.length - 1 ? nodeSize / 2 : 0;
-          // Two typographic baselines: the long SHA-256 label and the final
-          // proof label drop to the second row so the label rhythm breathes.
-          const row = i === 2 || i === 4 ? 1 : 0;
+          const isLong = label.length > 12;
           const baseY = cy + nodeSize / 2 + (small ? 26 : 40);
-          const rowStep = small ? 20 : 28;
           return (
             <text
               key={i}
-              x={x + dx}
-              y={baseY + row * rowStep}
+              x={x}
+              y={baseY}
               fill={!reduced && i === tick ? "#E8EAED" : "#8B9198"}
               fontSize={isLong ? labelFont - (small ? 1.5 : 1) : labelFont}
               letterSpacing={isLong ? 0.2 : 0.6}
               fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace"
-              textAnchor={anchor}
+              textAnchor="middle"
               style={{ transition: "fill 300ms ease-out" }}
             >
               {label}
