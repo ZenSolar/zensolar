@@ -90,10 +90,11 @@ export default function PublicHome() {
               className="grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-12 items-center"
               style={{ color: "#8B9198" }}
             >
-              <img src={teslaLogo} alt="Tesla" className="h-5 sm:h-6 w-auto opacity-70" />
-              <img src={enphaseLogo} alt="Enphase" className="h-5 sm:h-6 w-auto opacity-70" />
-              <img src={wallboxLogo} alt="Wallbox" className="h-5 sm:h-6 w-auto opacity-70" />
-              <img src={solaredgeLogo} alt="SolarEdge" className="h-5 sm:h-6 w-auto opacity-70" />
+              <img src={teslaLogo} alt="Tesla" className="h-5 sm:h-6 w-auto" style={{ filter: "brightness(0) invert(1)", opacity: 0.55 }} />
+              <img src={enphaseLogo} alt="Enphase" className="h-5 sm:h-6 w-auto" style={{ filter: "brightness(0) invert(1)", opacity: 0.55 }} />
+              <img src={wallboxLogo} alt="Wallbox" className="h-5 sm:h-6 w-auto" style={{ filter: "brightness(0) invert(1)", opacity: 0.55 }} />
+              <img src={solaredgeLogo} alt="SolarEdge" className="h-5 sm:h-6 w-auto" style={{ filter: "brightness(0) invert(1)", opacity: 0.55 }} />
+
             </div>
           </div>
         </section>
