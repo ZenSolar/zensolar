@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import zenLogo from "/logos/zen-logo-horizontal-new.png";
+
+const ZEN_LOGO = "/logos/zen-logo-horizontal-new.png";
 
 export function PublicHeader() {
   return (
