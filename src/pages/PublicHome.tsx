@@ -5,8 +5,10 @@ import { ProofChain } from "@/components/public/ProofChain";
 import { RequestAccessForm } from "@/components/public/RequestAccessForm";
 import { SEO } from "@/components/SEO";
 
-// Partner wordmarks (existing SVGs, muted to currentColor).
-import teslaLogo from "@/assets/logos/tesla-wordmark.svg";
+// Partner wordmarks. Per-logo tuning — NOT a shared filter/height recipe.
+// Tesla: use clean text-only wordmark (the old tesla-wordmark.svg contained
+// both a glyph path AND a <text> element drawing "TESLA" — literal doubled render).
+import teslaLogo from "@/assets/logos/tesla-wordmark-clean.svg";
 import enphaseLogo from "@/assets/logos/enphase-wordmark.svg";
 import solaredgeLogo from "@/assets/logos/solaredge-cropped.svg";
 import wallboxLogo from "@/assets/logos/wallbox-logo.svg";
