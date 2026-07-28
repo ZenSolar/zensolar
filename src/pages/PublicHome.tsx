@@ -103,14 +103,17 @@ export default function PublicHome() {
                   regardless of how their SVGs declare intrinsic dimensions.
                   Per-logo opacity stays tuned so optical weight matches. */}
               {[
-                { src: teslaLogo, alt: "Tesla", opacity: 0.85 },
-                { src: enphaseLogo, alt: "Enphase", opacity: 0.6 },
-                { src: wallboxLogo, alt: "Wallbox", opacity: 0.7 },
-                { src: solaredgeLogo, alt: "SolarEdge", opacity: 0.6 },
+                { src: teslaLogo, alt: "Tesla", opacity: 0.85, scale: 1 },
+                { src: enphaseLogo, alt: "Enphase", opacity: 0.6, scale: 1 },
+                // Wallbox SVG has a tall viewBox with heavy internal padding,
+                // so object-fit: contain shrinks the wordmark below the others.
+                // Scale up in-slot to match optical weight.
+                { src: wallboxLogo, alt: "Wallbox", opacity: 0.7, scale: 1.9 },
+                { src: solaredgeLogo, alt: "SolarEdge", opacity: 0.6, scale: 1 },
               ].map((logo) => (
                 <div
                   key={logo.alt}
-                  className="flex items-center justify-center"
+                  className="flex items-center justify-center overflow-hidden"
                   style={{ width: 140, height: 40 }}
                 >
                   <img
@@ -122,6 +125,7 @@ export default function PublicHome() {
                       width: "100%",
                       height: "100%",
                       objectFit: "contain",
+                      transform: `scale(${logo.scale})`,
                       filter: "brightness(0) invert(1)",
                       opacity: logo.opacity,
                     }}
