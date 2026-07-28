@@ -103,9 +103,10 @@ export default function PublicHome() {
               <img
                 src={teslaLogo}
                 alt="Tesla"
-                className="h-5 sm:h-6 w-auto"
-                style={{ color: "#E8EAED", opacity: 0.85 }}
+                className="h-4 sm:h-5 w-auto"
+                style={{ filter: "brightness(0) invert(1)", opacity: 0.85 }}
               />
+
               <img
                 src={enphaseLogo}
                 alt="Enphase"
