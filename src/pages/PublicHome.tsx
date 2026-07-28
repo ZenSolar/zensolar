@@ -19,7 +19,7 @@ export default function PublicHome() {
     <>
       <SEO
         title="ZenSolar — Clean energy, cryptographically verified."
-        description="ZenSolar turns verified solar, battery, and EV activity into on-chain proof — and rewards the households and hardware that generate it."
+        description="ZenSolar turns your verified solar, battery, and EV activity into on-chain proof — and rewards you for it."
         url="https://zensolar.com/"
       />
       <div style={{ background: "#0A0C0E", color: "#E8EAED" }} className="qc-ambient min-h-screen">
@@ -40,8 +40,8 @@ export default function PublicHome() {
                 className="text-[16px] sm:text-[17px] leading-relaxed max-w-xl"
                 style={{ color: "#8B9198" }}
               >
-                ZenSolar turns verified solar, battery, and EV activity into on-chain
-                proof — and rewards the households and hardware that generate it.
+                ZenSolar turns your verified solar, battery, and EV activity into
+                on-chain proof — and rewards you for it.
               </p>
 
               <div className="flex flex-wrap items-center gap-6 pt-2">
