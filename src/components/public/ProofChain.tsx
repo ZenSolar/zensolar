@@ -101,9 +101,9 @@ export function ProofChain({ compact = false }: { compact?: boolean }) {
           return (
             <line
               key={i}
-              x1={x + nodeSize / 2}
+              x1={x + halfW(i)}
               y1={cy}
-              x2={x2 - nodeSize / 2}
+              x2={x2 - halfW(i + 1)}
               y2={cy}
               stroke={isActive ? `url(#${gradId})` : "#2F3338"}
               strokeWidth={isActive ? strokeW + 0.5 : 1}
