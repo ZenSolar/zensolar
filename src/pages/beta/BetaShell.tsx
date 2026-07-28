@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { QCScreen, QCHeader, QCMain, QCProgress, type QCStage } from '@/components/onboarding/quiet/QuietCurrent';
 
 interface Props {
