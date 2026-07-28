@@ -31,10 +31,11 @@ export function ProofChain({ compact = false }: { compact?: boolean }) {
   const cy = h / 2;
 
   // Four nodes: device, delta, hash-op, proof (and a trailing proof that fades in).
-  const positions = [0.08, 0.32, 0.58, 0.82, 1.02].map((p) => p * w);
+  const positions = [0.08, 0.30, 0.55, 0.78, 0.95].map((p) => p * w);
   const nodeSize = compact ? 22 : 30;
 
-  const labels = ["device", "Δ", "SHA-256(device_id ‖ ts ‖ Δ ‖ prev_hash)", "proofₙ", "proofₙ₊₁"];
+  const labels = ["device", "Δ", "SHA-256(device ‖ ts ‖ Δ ‖ prev)", "proofₙ", "proofₙ₊₁"];
+
   const strokeW = 1.5;
 
   return (
