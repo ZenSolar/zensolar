@@ -427,9 +427,28 @@ Deno.serve(async (req) => {
         : null;
 
       const hasRefreshToken = !!tokens.refresh_token;
-      const grantedScope: string = typeof tokens.scope === "string" ? tokens.scope : "";
+      let grantedScope: string = typeof tokens.scope === "string" ? tokens.scope.trim() : "";
+      // Fallback: Tesla often omits `scope` from the token response but
+      // includes an `scp` array in the id_token JWT payload. Decode it.
+      if (!grantedScope && typeof tokens.id_token === "string") {
+        try {
+          const parts = tokens.id_token.split(".");
+          if (parts.length >= 2) {
+            const pad = "=".repeat((4 - (parts[1].length % 4)) % 4);
+            const b64 = (parts[1] + pad).replace(/-/g, "+").replace(/_/g, "/");
+            const payload = JSON.parse(atob(b64));
+            const scp = payload?.scp;
+            if (Array.isArray(scp) && scp.length) {
+              grantedScope = scp.filter((s) => typeof s === "string").join(" ");
+              console.log("[tesla-auth] exchange-code:scope-from-id-token", { grantedScope });
+            }
+          }
+        } catch (e) {
+          console.warn("[tesla-auth] exchange-code:id-token-decode-failed", (e as Error).message);
+        }
+      }
       const scopeCheck = classifyMissingScopes(grantedScope, hasRefreshToken);
-      console.log("[tesla-auth] exchange-code:scope-check", scopeCheck);
+      console.log("[tesla-auth] exchange-code:scope-check", { ...scopeCheck, grantedScope });
 
       // Read prior counter so we can increment or reset it atomically in one upsert.
       const { data: priorRow } = await supabaseClient
