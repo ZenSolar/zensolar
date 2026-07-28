@@ -1,4 +1,4 @@
-import { AlertCircle, Info, MessageCircle, X } from 'lucide-react';
+import { AlertCircle, Info, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useOemDiagnostics } from '@/hooks/useOemDiagnostics';
 import { useDismissedDiagnostics } from '@/hooks/useDismissedDiagnostics';
