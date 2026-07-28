@@ -5,8 +5,10 @@ import { ProofChain } from "@/components/public/ProofChain";
 import { RequestAccessForm } from "@/components/public/RequestAccessForm";
 import { SEO } from "@/components/SEO";
 
-// Partner wordmarks (existing SVGs, muted to currentColor).
-import teslaLogo from "@/assets/logos/tesla-wordmark.svg";
+// Partner wordmarks. Per-logo tuning — NOT a shared filter/height recipe.
+// Tesla: use clean text-only wordmark (the old tesla-wordmark.svg contained
+// both a glyph path AND a <text> element drawing "TESLA" — literal doubled render).
+import teslaLogo from "@/assets/logos/tesla-wordmark-clean.svg";
 import enphaseLogo from "@/assets/logos/enphase-wordmark.svg";
 import solaredgeLogo from "@/assets/logos/solaredge-cropped.svg";
 import wallboxLogo from "@/assets/logos/wallbox-logo.svg";
@@ -96,20 +98,32 @@ export default function PublicHome() {
               className="grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-12 items-center justify-items-center"
               style={{ color: "#8B9198" }}
             >
-              {[
-                { src: teslaLogo, alt: "Tesla", h: "h-4 sm:h-5" },
-                { src: enphaseLogo, alt: "Enphase", h: "h-4 sm:h-5" },
-                { src: wallboxLogo, alt: "Wallbox", h: "h-7 sm:h-8" },
-                { src: solaredgeLogo, alt: "SolarEdge", h: "h-7 sm:h-8" },
-              ].map((p) => (
-                <img
-                  key={p.alt}
-                  src={p.src}
-                  alt={p.alt}
-                  className={`${p.h} w-auto`}
-                  style={{ filter: "brightness(0) invert(1)", opacity: 0.55 }}
-                />
-              ))}
+              {/* Per-logo tuning — each asset has its own source conventions.
+                  Do NOT collapse this back into a shared filter/height recipe. */}
+              <img
+                src={teslaLogo}
+                alt="Tesla"
+                className="h-5 sm:h-6 w-auto"
+                style={{ color: "#E8EAED", opacity: 0.85 }}
+              />
+              <img
+                src={enphaseLogo}
+                alt="Enphase"
+                className="h-4 sm:h-5 w-auto"
+                style={{ filter: "brightness(0) invert(1)", opacity: 0.55 }}
+              />
+              <img
+                src={wallboxLogo}
+                alt="Wallbox"
+                className="h-14 sm:h-16 w-auto"
+                style={{ filter: "brightness(0) invert(1)", opacity: 0.65 }}
+              />
+              <img
+                src={solaredgeLogo}
+                alt="SolarEdge"
+                className="h-7 sm:h-8 w-auto"
+                style={{ filter: "brightness(0) invert(1)", opacity: 0.55 }}
+              />
             </div>
           </div>
         </section>
@@ -147,27 +161,44 @@ export default function PublicHome() {
           className="border-y"
           style={{ borderColor: "#1B1E22", background: "#0A0C0E" }}
         >
-          <div className="mx-auto max-w-6xl px-5 sm:px-8 py-20 sm:py-28 space-y-10">
+          <div className="mx-auto max-w-6xl px-5 sm:px-8 py-20 sm:py-28 space-y-12">
             <h2
               className="text-[24px] sm:text-[28px] font-medium tracking-tight"
               style={{ letterSpacing: "-0.015em" }}
             >
               Technology
             </h2>
-            <div className="grid gap-4 md:grid-cols-3">
-              <TechCard
-                name="Mint-on-Proof"
-                body="Tokens exist only after verification. Nothing is pre-minted or issued speculatively."
+
+            {/* Static hairline connector on desktop implies "one pipeline"
+                without spending motion budget. Chain metaphor, not animation. */}
+            <div className="relative">
+              <div
+                aria-hidden
+                className="hidden md:block absolute left-0 right-0 top-[46px] h-px"
+                style={{ background: "#1B1E22" }}
               />
-              <TechCard
-                name="Proof-of-Delta"
-                body="Every device tracks its own cumulative history, so the same activity can never be counted twice."
-              />
-              <TechCard
-                name="Proof-of-Origin"
-                body="Verification is bound to the physical device, not the account — auditable independent of who's using the app."
-              />
+              <div className="grid gap-4 md:grid-cols-3 relative">
+                <TechCard
+                  index="01"
+                  name="Mint-on-Proof"
+                  body="Tokens exist only after verification. Nothing is pre-minted or issued speculatively."
+                  glyph={<MintOnProofGlyph />}
+                />
+                <TechCard
+                  index="02"
+                  name="Proof-of-Delta"
+                  body="Every device tracks its own cumulative history, so the same activity can never be counted twice."
+                  glyph={<ProofOfDeltaGlyph />}
+                />
+                <TechCard
+                  index="03"
+                  name="Proof-of-Origin"
+                  body="Verification is bound to the physical device, not the account — auditable independent of who's using the app."
+                  glyph={<ProofOfOriginGlyph />}
+                />
+              </div>
             </div>
+
             <p className="text-[13px] max-w-2xl" style={{ color: "#8B9198" }}>
               Patent-pending. Currently verifying end-to-end on Sepolia ahead of mainnet deployment.
             </p>
@@ -223,18 +254,95 @@ export default function PublicHome() {
   );
 }
 
-function TechCard({ name, body }: { name: string; body: string }) {
+function TechCard({
+  index,
+  name,
+  body,
+  glyph,
+}: {
+  index: string;
+  name: string;
+  body: string;
+  glyph: React.ReactNode;
+}) {
   return (
     <div
-      className="rounded-2xl border p-6 space-y-3"
+      className="relative rounded-2xl border p-6 space-y-4"
       style={{ background: "#121417", borderColor: "#1B1E22" }}
     >
-      <div className="text-[15px] font-semibold" style={{ color: "#E8EAED" }}>
+      <div className="flex items-center justify-between">
+        <div
+          className="flex items-center justify-center rounded-lg border"
+          style={{
+            width: 44,
+            height: 44,
+            background: "#0A0C0E",
+            borderColor: "#1B1E22",
+            color: "#E8EAED",
+          }}
+        >
+          {glyph}
+        </div>
+        <span
+          className="text-[11px] tabular-nums tracking-[0.14em]"
+          style={{
+            color: "#8B9198",
+            fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+          }}
+        >
+          {index}
+        </span>
+      </div>
+      <div
+        className="text-[14px] tracking-[0.02em]"
+        style={{
+          color: "#E8EAED",
+          fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+        }}
+      >
         {name}
       </div>
       <p className="text-[14px] leading-relaxed" style={{ color: "#8B9198" }}>
         {body}
       </p>
     </div>
+  );
+}
+
+/* Monoline glyphs — 24px grid, 2px stroke, rounded caps.
+   Restrained geometric hints at each mechanism. No decoration, no color. */
+
+function MintOnProofGlyph() {
+  // Verification checkmark inside a bounded frame — token minted only after proof.
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <rect x="4" y="4" width="16" height="16" rx="3" />
+      <path d="M8.5 12.5l2.5 2.5 4.5-5" />
+    </svg>
+  );
+}
+
+function ProofOfDeltaGlyph() {
+  // Two nodes linked by a delta (triangle) — cumulative history, no double-count.
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <circle cx="5" cy="12" r="2" />
+      <circle cx="19" cy="12" r="2" />
+      <path d="M7 12h3" />
+      <path d="M14 12h3" />
+      <path d="M12 8.5l2.2 3.5-2.2 3.5-2.2-3.5z" />
+    </svg>
+  );
+}
+
+function ProofOfOriginGlyph() {
+  // Fingerprint-style device signature — verification bound to hardware.
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <rect x="6" y="3" width="12" height="18" rx="2" />
+      <path d="M9 8.5c1-1 4-1 5 0" />
+      <path d="M9 12c1-1.2 4-1.2 5 0" />
+      <path d="M10 15.5c.8-.6 2.2-.6 3 0" />
+    </svg>
   );
 }
