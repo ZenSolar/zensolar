@@ -8,7 +8,7 @@ import { SEO } from "@/components/SEO";
 // Partner wordmarks (existing SVGs, muted to currentColor).
 import teslaLogo from "@/assets/logos/tesla-wordmark.svg";
 import enphaseLogo from "@/assets/logos/enphase-wordmark.svg";
-import solaredgeLogo from "@/assets/logos/solaredge-wordmark.svg";
+import solaredgeLogo from "@/assets/logos/solaredge-cropped.svg";
 import wallboxLogo from "@/assets/logos/wallbox-logo.svg";
 
 export default function PublicHome() {
@@ -68,8 +68,14 @@ export default function PublicHome() {
               </div>
             </div>
 
-            <div className="w-full">
+            <div className="w-full space-y-3">
               <ProofChain />
+              <p
+                className="text-[11px] uppercase tracking-[0.14em] text-center sm:text-left"
+                style={{ color: "#8B9198", fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}
+              >
+                Proof-of-Genesis — verified in real time
+              </p>
             </div>
           </div>
         </section>
@@ -87,14 +93,23 @@ export default function PublicHome() {
               Connects to the hardware you already own.
             </p>
             <div
-              className="grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-12 items-center"
+              className="grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-12 items-center justify-items-center"
               style={{ color: "#8B9198" }}
             >
-              <img src={teslaLogo} alt="Tesla" className="h-5 sm:h-6 w-auto" style={{ filter: "brightness(0) invert(1)", opacity: 0.55 }} />
-              <img src={enphaseLogo} alt="Enphase" className="h-5 sm:h-6 w-auto" style={{ filter: "brightness(0) invert(1)", opacity: 0.55 }} />
-              <img src={wallboxLogo} alt="Wallbox" className="h-5 sm:h-6 w-auto" style={{ filter: "brightness(0) invert(1)", opacity: 0.55 }} />
-              <img src={solaredgeLogo} alt="SolarEdge" className="h-5 sm:h-6 w-auto" style={{ filter: "brightness(0) invert(1)", opacity: 0.55 }} />
-
+              {[
+                { src: teslaLogo, alt: "Tesla", h: "h-4 sm:h-5" },
+                { src: enphaseLogo, alt: "Enphase", h: "h-4 sm:h-5" },
+                { src: wallboxLogo, alt: "Wallbox", h: "h-7 sm:h-8" },
+                { src: solaredgeLogo, alt: "SolarEdge", h: "h-7 sm:h-8" },
+              ].map((p) => (
+                <img
+                  key={p.alt}
+                  src={p.src}
+                  alt={p.alt}
+                  className={`${p.h} w-auto`}
+                  style={{ filter: "brightness(0) invert(1)", opacity: 0.55 }}
+                />
+              ))}
             </div>
           </div>
         </section>
