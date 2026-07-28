@@ -341,6 +341,7 @@ const App = () => {
                   <Suspense fallback={<PageLoader />}>
                     <Routes>
                     <Route path="/auth" element={<Auth />} />
+                    <Route path="/invite" element={<Suspense fallback={<PageLoader />}><PublicInvite /></Suspense>} />
                     <Route path="/unsubscribe" element={<Suspense fallback={<PageLoader />}><Unsubscribe /></Suspense>} />
                    <Route path="/install" element={<Install />} />
                    <Route path="/deck" element={<Suspense fallback={<PageLoader />}><DeckPinGated /></Suspense>} />
