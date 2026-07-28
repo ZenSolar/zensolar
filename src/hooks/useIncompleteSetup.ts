@@ -73,7 +73,7 @@ export function useIncompleteSetup() {
           },
         },
         cancel: {
-          label: 'Ask Deason',
+          label: 'Get help',
           onClick: () => {
             // status check spans all providers — surface the generic status playbook
             openDeasonWithError({ provider: 'tesla', stage: 'status', rawMessage });
