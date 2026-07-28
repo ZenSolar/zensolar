@@ -10,7 +10,7 @@ interface SEOProps {
 }
 
 const BASE_URL = 'https://zensolar.com';
-const DEFAULT_IMAGE = `${BASE_URL}/og-image.png?v=qc1`;
+const DEFAULT_IMAGE = `${BASE_URL}/og-image.png?v=qc2`;
 const DEFAULT_DESCRIPTION =
   'ZenSolar turns verified solar, battery, and EV activity into on-chain proof — and rewards the households and hardware that generate it.';
 
