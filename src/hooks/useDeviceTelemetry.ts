@@ -133,6 +133,48 @@ interface ConnectedDeviceRow {
   device_name: string | null;
 }
 
+// -----------------------------------------------------------------------------
+// Dedupe layer
+// -----------------------------------------------------------------------------
+// Multiple dashboard components (LiveEnergyMonitoringCard, ZenDriveLiveCard,
+// ZenDriveMultiCard, SolarPlusCard, useGridOutage, ...) each call
+// useBatteryTelemetry / useSolarTelemetry / useEVChargerTelemetry on mount.
+// Without dedupe that's ~3× `connected_devices` reads and ~3× `tesla-data`
+// invokes per capability per page load. These module-level caches collapse
+// concurrent + near-concurrent identical fetches into one round trip.
+
+const DEVICES_TTL_MS = 5_000;
+const devicesCache = new Map<string, { at: number; rows: ConnectedDeviceRow[] }>();
+const devicesInflight = new Map<string, Promise<ConnectedDeviceRow[]>>();
+
+async function loadDevicesDeduped(userId: string): Promise<ConnectedDeviceRow[]> {
+  const cached = devicesCache.get(userId);
+  if (cached && Date.now() - cached.at < DEVICES_TTL_MS) return cached.rows;
+  const inflight = devicesInflight.get(userId);
+  if (inflight) return inflight;
+  const p = (async () => {
+    const { data, error } = await supabase
+      .from('connected_devices')
+      .select('provider, device_type, device_id, device_name')
+      .eq('user_id', userId)
+      .order('claimed_at', { ascending: true });
+    if (error) throw error;
+    const rows = (data as ConnectedDeviceRow[]) ?? [];
+    devicesCache.set(userId, { at: Date.now(), rows });
+    return rows;
+  })();
+  devicesInflight.set(userId, p);
+  try {
+    return await p;
+  } finally {
+    devicesInflight.delete(userId);
+  }
+}
+
+// Dedupe concurrent OEM telemetry invokes (e.g. two mount effects racing
+// during a single dashboard load). Keyed by user + oem + capability + siteId.
+const oemInflight = new Map<string, Promise<any | null>>();
+
 function pickOnePerCapability(rows: ConnectedDeviceRow[], cap: Capability): ConnectedDeviceRow[] {
   const out: ConnectedDeviceRow[] = [];
   const seen = new Set<string>();
@@ -255,14 +297,9 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
     let liveAttempts = 0;
     let liveSuccesses = 0;
     try {
-      const { data: devices, error: devErr } = await supabase
-        .from('connected_devices')
-        .select('provider, device_type, device_id, device_name')
-        .eq('user_id', effectiveUserId)
-        .order('claimed_at', { ascending: true });
-      if (devErr) throw devErr;
+      const devices = await loadDevicesDeduped(effectiveUserId);
 
-      const selected = pickOnePerCapability((devices as ConnectedDeviceRow[]) ?? [], capability);
+      const selected = pickOnePerCapability(devices, capability);
       const out: CachedTelemetry[] = [];
 
       // When admin is viewing another user, route OEM calls through the
@@ -291,7 +328,15 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
           continue;
         }
         liveAttempts++;
-        const live = await fetchFromOem(oem, d.device_id, capability, targetHeaderId);
+        // Dedupe concurrent live invokes for the same key across mounted hooks.
+        const oemKey = `${effectiveUserId}::${oem}::${capability}::${d.device_id}::${targetHeaderId ?? ''}`;
+        let livePromise = oemInflight.get(oemKey);
+        if (!livePromise) {
+          livePromise = fetchFromOem(oem, d.device_id, capability, targetHeaderId)
+            .finally(() => { oemInflight.delete(oemKey); });
+          oemInflight.set(oemKey, livePromise);
+        }
+        const live = await livePromise;
         if (live && !(live as any).error && !(live as any).__reauth) {
           liveSuccesses++;
           if (!targetHeaderId) {
@@ -386,7 +431,19 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
   }, [pollMs, effectiveUserId, refresh, failureCount, capability]);
 
 
-  return { data, loading, error, refresh };
+  // syncState derived from consecutive live-fetch failures. `retrying` shows
+  // an amber warning; `paused` matches the hard-stop in the poll effect.
+  const MAX_FAILURES = 10;
+  const syncState: 'ok' | 'retrying' | 'paused' =
+    failureCount >= MAX_FAILURES ? 'paused' : failureCount >= 3 ? 'retrying' : 'ok';
+
+  const resetFailures = useCallback(() => {
+    setFailureCount(0);
+    setError(null);
+    void refresh({ force: true });
+  }, [refresh]);
+
+  return { data, loading, error, refresh, syncState, failureCount, resetFailures };
 }
 
 export const useBatteryTelemetry = (opts?: { pollMs?: number }) => useTelemetry('battery', opts);

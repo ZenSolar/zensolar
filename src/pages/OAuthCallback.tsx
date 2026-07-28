@@ -29,24 +29,12 @@ function isAllowedReturnTo(url: string): string | null {
   return null;
 }
 
-// Canonical beta host for the reconnect CTA. Prefer the origin the user
-// started OAuth from (stored in sessionStorage by startTeslaOAuth); fall back
-// to beta.zensolar.com.
+// Canonical beta host for the reconnect CTA. Always land on
+// beta.zensolar.com so startTeslaOAuth mints a fresh state row and the
+// apex /demo gate can never swallow the reconnect flow.
+const RECONNECT_URL = 'https://beta.zensolar.com/beta/tesla';
 function resolveReconnectUrl(): string {
-  try {
-    const stored = sessionStorage.getItem('oauth_beta_host');
-    if (stored) {
-      const u = new URL(stored);
-      const allowed = new Set([
-        'beta.zensolar.com',
-        'www.beta.zensolar.com',
-        'beta.zen.solar',
-        'www.beta.zen.solar',
-      ]);
-      if (allowed.has(u.hostname)) return `${u.origin}/beta/tesla`;
-    }
-  } catch { /* ignore */ }
-  return 'https://beta.zensolar.com/beta/tesla';
+  return RECONNECT_URL;
 }
 
 
@@ -157,10 +145,54 @@ export default function OAuthCallback() {
       }
     }
 
+    // For Tesla, fire the code exchange BEFORE waiting on session restore.
+    // The server uses a service role + the state row, so the exchange doesn't
+    // need a Supabase session. This lets us short-circuit dead links
+    // (state_expired / state_consumed / state_missing) to the reconnect
+    // screen in <2s instead of after a 15s "Connecting…" spinner.
+    let earlyExchangeResult: TeslaExchangeResult | null = null;
+    if (isTesla) {
+      setSplashLabel('Connecting your Tesla...');
+      localStorage.removeItem('tesla_oauth_state');
+      localStorage.removeItem('tesla_oauth_pending');
+
+      oauthDiag('OAuthCallback', 'tesla:exchange:fire:early');
+      try {
+        earlyExchangeResult = await withTimeout(
+          exchangeTeslaCode(code, state) as Promise<TeslaExchangeResult>,
+          15000,
+          'Tesla code exchange',
+        );
+      } catch (err) {
+        oauthDiag('OAuthCallback', 'tesla:exchange:rejected', {
+          message: err instanceof Error ? err.message : String(err),
+        });
+      }
+      oauthDiag('OAuthCallback', 'tesla:exchange:resolved', {
+        ok: earlyExchangeResult?.ok ?? null,
+        errorCode:
+          earlyExchangeResult && earlyExchangeResult.ok === false
+            ? earlyExchangeResult.errorCode
+            : null,
+      });
+
+      // Standardized link-lifecycle failures → explicit "reconnect" screen.
+      // NEVER redirect to / or /demo for these — the apex root is /demo-gated
+      // and would swallow the reconnect UI.
+      if (earlyExchangeResult && earlyExchangeResult.ok === false) {
+        const ec = earlyExchangeResult.errorCode;
+        if (ec === 'state_expired' || ec === 'state_consumed' || ec === 'state_missing') {
+          oauthDiag('OAuthCallback', 'tesla:link-expired', { errorCode: ec });
+          setErrorMessage(earlyExchangeResult.message);
+          setStatus('link-expired');
+          return;
+        }
+      }
+    }
+
     // Wait for session to be restored. For Tesla we short-cap this — the
-    // token exchange itself doesn't need a Supabase session (server uses the
-    // state row + service role), and expired/consumed state must surface
-    // immediately instead of after a 15s spinner.
+    // token exchange above already succeeded or failed with a non-lifecycle
+    // error, and we only need a session for the optional RPC fallback poll.
     oauthDiag('OAuthCallback', 'session:restore:start', { isTesla: !!isTesla });
     const maxRetries = isTesla ? 4 : 30; // Tesla: ~2s cap · Enphase: 15s
     let retries = 0;
@@ -199,44 +231,12 @@ export default function OAuthCallback() {
     }
 
     if (isTesla) {
-      setSplashLabel('Connecting your Tesla...');
       oauthDiag('OAuthCallback', 'tesla:start', {
         hasSession: !!session,
         userId: session?.user.id ?? null,
       });
 
-      localStorage.removeItem('tesla_oauth_state');
-      localStorage.removeItem('tesla_oauth_pending');
-
-      oauthDiag('OAuthCallback', 'tesla:exchange:fire');
-      let exchangeResult: TeslaExchangeResult | null = null;
-      try {
-        exchangeResult = await withTimeout(
-          exchangeTeslaCode(code, state) as Promise<TeslaExchangeResult>,
-          15000,
-          'Tesla code exchange',
-        );
-      } catch (err) {
-        oauthDiag('OAuthCallback', 'tesla:exchange:rejected', {
-          message: err instanceof Error ? err.message : String(err),
-        });
-      }
-      oauthDiag('OAuthCallback', 'tesla:exchange:resolved', {
-        ok: exchangeResult?.ok ?? null,
-        errorCode:
-          exchangeResult && exchangeResult.ok === false ? exchangeResult.errorCode : null,
-      });
-
-      // Standardized link-lifecycle failures → explicit "reconnect" screen.
-      if (exchangeResult && exchangeResult.ok === false) {
-        const ec = exchangeResult.errorCode;
-        if (ec === 'state_expired' || ec === 'state_consumed' || ec === 'state_missing') {
-          oauthDiag('OAuthCallback', 'tesla:link-expired', { errorCode: ec });
-          setErrorMessage(exchangeResult.message);
-          setStatus('link-expired');
-          return;
-        }
-      }
+      const exchangeResult = earlyExchangeResult;
 
       const serverReturnTo =
         exchangeResult && exchangeResult.ok === true ? exchangeResult.returnTo : null;

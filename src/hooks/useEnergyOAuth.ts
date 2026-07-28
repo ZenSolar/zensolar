@@ -257,7 +257,7 @@ function showOAuthError(opts: {
       : undefined,
     // Secondary button — opens Deason with a seeded diagnosis + fix script.
     cancel: {
-      label: 'Ask Deason',
+      label: 'Get help',
       onClick: () => {
         cancelNudge();
         openDeasonWithError({

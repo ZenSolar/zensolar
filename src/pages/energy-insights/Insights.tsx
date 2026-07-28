@@ -266,7 +266,7 @@ export default function EnergyInsightsPage() {
           <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" />
           <span>
             Have a <span className="text-foreground">utility bill, solar contract, PPA, or loan paperwork</span>?
-            Ask Deason for a one-time Concierge document analysis →
+            Run a one-time Concierge document analysis →
           </span>
         </button>
 

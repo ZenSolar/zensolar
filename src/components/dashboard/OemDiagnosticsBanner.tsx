@@ -1,4 +1,4 @@
-import { AlertCircle, Info, MessageCircle, X } from 'lucide-react';
+import { AlertCircle, Info, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useOemDiagnostics } from '@/hooks/useOemDiagnostics';
 import { useDismissedDiagnostics } from '@/hooks/useDismissedDiagnostics';
@@ -51,13 +51,6 @@ export function OemDiagnosticsBanner() {
                     {d.cta.label} →
                   </Link>
                 )}
-                <Link
-                  to={`/deason?topic=oem&provider=${encodeURIComponent(d.provider)}`}
-                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground"
-                >
-                  <MessageCircle className="h-3 w-3" />
-                  Ask Deason
-                </Link>
               </div>
             </div>
             {dismissable && (
