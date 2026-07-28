@@ -130,10 +130,34 @@
         });
 
         window.setTimeout(function () {
-          if (!window.__zensolarBooted && document.getElementById('pwa-splash')) {
+          // Only recover on TRUE cold-boot failure: React never mounted AND
+          // the #root has no rendered content AND the inline splash is still
+          // on screen. This avoids reloading during slow-but-successful boots,
+          // OAuth reconnect hops, or normal client-side navigations that
+          // happen to be slow.
+          try {
+            var rootEl = document.getElementById('root');
+            var rootHasContent = !!(rootEl && rootEl.children && rootEl.children.length > 0);
+            if (window.__zensolarBooted) return;
+            if (rootHasContent) return;
+            if (!document.getElementById('pwa-splash')) return;
             window.__zensolarRecoverBoot();
+          } catch (e) { /* noop */ }
+        }, 12000);
+      })();
+    </script>
+    <script>
+      (function () {
+        // If a previous session triggered ?boot-recover=<ts>, strip it from
+        // the URL after boot so it doesn't stick to later navigations or
+        // sharing links. Purely cosmetic — the recovery already happened.
+        try {
+          var u = new URL(window.location.href);
+          if (u.searchParams.has('boot-recover')) {
+            u.searchParams.delete('boot-recover');
+            window.history.replaceState({}, '', u.pathname + (u.search ? u.search : '') + u.hash);
           }
-        }, 8000);
+        } catch (e) { /* noop */ }
       })();
     </script>
     <!-- Preload LCP hero logo for faster Largest Contentful Paint -->
