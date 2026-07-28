@@ -70,6 +70,10 @@ export default function PublicHome() {
                   I have an invite code
                 </Link>
               </div>
+
+              <p className="text-[13px]" style={{ color: "#8B9198" }}>
+                Currently onboarding by personal invitation.
+              </p>
             </div>
 
             <div className="w-full space-y-3">
