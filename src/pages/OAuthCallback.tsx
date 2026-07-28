@@ -157,12 +157,15 @@ export default function OAuthCallback() {
       }
     }
 
-    // Wait for session to be restored (important after mobile redirect).
-    oauthDiag('OAuthCallback', 'session:restore:start');
+    // Wait for session to be restored. For Tesla we short-cap this — the
+    // token exchange itself doesn't need a Supabase session (server uses the
+    // state row + service role), and expired/consumed state must surface
+    // immediately instead of after a 15s spinner.
+    oauthDiag('OAuthCallback', 'session:restore:start', { isTesla: !!isTesla });
+    const maxRetries = isTesla ? 4 : 30; // Tesla: ~2s cap · Enphase: 15s
     let retries = 0;
-    const maxRetries = 30; // 15 seconds total
     let session = null;
-    
+
     while (retries < maxRetries) {
       const { data } = await supabase.auth.getSession();
       session = data.session;
@@ -172,7 +175,7 @@ export default function OAuthCallback() {
         break;
       }
 
-      if (retries > 0 && retries % 5 === 0) {
+      if (!isTesla && retries > 0 && retries % 5 === 0) {
         oauthDiag('OAuthCallback', 'session:refresh:attempt', { retries });
         const { data: refreshData } = await supabase.auth.refreshSession();
         if (refreshData.session) {
