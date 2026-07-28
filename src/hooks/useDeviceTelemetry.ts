@@ -133,6 +133,48 @@ interface ConnectedDeviceRow {
   device_name: string | null;
 }
 
+// -----------------------------------------------------------------------------
+// Dedupe layer
+// -----------------------------------------------------------------------------
+// Multiple dashboard components (LiveEnergyMonitoringCard, ZenDriveLiveCard,
+// ZenDriveMultiCard, SolarPlusCard, useGridOutage, ...) each call
+// useBatteryTelemetry / useSolarTelemetry / useEVChargerTelemetry on mount.
+// Without dedupe that's ~3× `connected_devices` reads and ~3× `tesla-data`
+// invokes per capability per page load. These module-level caches collapse
+// concurrent + near-concurrent identical fetches into one round trip.
+
+const DEVICES_TTL_MS = 5_000;
+const devicesCache = new Map<string, { at: number; rows: ConnectedDeviceRow[] }>();
+const devicesInflight = new Map<string, Promise<ConnectedDeviceRow[]>>();
+
+async function loadDevicesDeduped(userId: string): Promise<ConnectedDeviceRow[]> {
+  const cached = devicesCache.get(userId);
+  if (cached && Date.now() - cached.at < DEVICES_TTL_MS) return cached.rows;
+  const inflight = devicesInflight.get(userId);
+  if (inflight) return inflight;
+  const p = (async () => {
+    const { data, error } = await supabase
+      .from('connected_devices')
+      .select('provider, device_type, device_id, device_name')
+      .eq('user_id', userId)
+      .order('claimed_at', { ascending: true });
+    if (error) throw error;
+    const rows = (data as ConnectedDeviceRow[]) ?? [];
+    devicesCache.set(userId, { at: Date.now(), rows });
+    return rows;
+  })();
+  devicesInflight.set(userId, p);
+  try {
+    return await p;
+  } finally {
+    devicesInflight.delete(userId);
+  }
+}
+
+// Dedupe concurrent OEM telemetry invokes (e.g. two mount effects racing
+// during a single dashboard load). Keyed by user + oem + capability + siteId.
+const oemInflight = new Map<string, Promise<any | null>>();
+
 function pickOnePerCapability(rows: ConnectedDeviceRow[], cap: Capability): ConnectedDeviceRow[] {
   const out: ConnectedDeviceRow[] = [];
   const seen = new Set<string>();
