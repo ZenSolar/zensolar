@@ -29,24 +29,12 @@ function isAllowedReturnTo(url: string): string | null {
   return null;
 }
 
-// Canonical beta host for the reconnect CTA. Prefer the origin the user
-// started OAuth from (stored in sessionStorage by startTeslaOAuth); fall back
-// to beta.zensolar.com.
+// Canonical beta host for the reconnect CTA. Always land on
+// beta.zensolar.com so startTeslaOAuth mints a fresh state row and the
+// apex /demo gate can never swallow the reconnect flow.
+const RECONNECT_URL = 'https://beta.zensolar.com/beta/tesla';
 function resolveReconnectUrl(): string {
-  try {
-    const stored = sessionStorage.getItem('oauth_beta_host');
-    if (stored) {
-      const u = new URL(stored);
-      const allowed = new Set([
-        'beta.zensolar.com',
-        'www.beta.zensolar.com',
-        'beta.zen.solar',
-        'www.beta.zen.solar',
-      ]);
-      if (allowed.has(u.hostname)) return `${u.origin}/beta/tesla`;
-    }
-  } catch { /* ignore */ }
-  return 'https://beta.zensolar.com/beta/tesla';
+  return RECONNECT_URL;
 }
 
 
