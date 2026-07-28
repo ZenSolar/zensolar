@@ -1,0 +1,58 @@
+/* Quiet Current — ambient depth layers.
+   Two subliminal effects on top of the #0A0C0E canvas.
+   No emerald→cyan gradient anywhere. */
+
+.qc-ambient {
+  position: relative;
+  isolation: isolate;
+}
+
+/* Layer 1: slow tonal drift between #0A0C0E and #121417.
+   Two out-of-phase radial gradients, GPU-cheap (background-position only). */
+.qc-ambient::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: #0A0C0E;
+  background-image:
+    radial-gradient(60% 50% at 30% 30%, rgba(28, 32, 38, 0.55), transparent 70%),
+    radial-gradient(55% 45% at 70% 75%, rgba(24, 28, 34, 0.45), transparent 70%);
+  background-repeat: no-repeat;
+  background-size: 140% 140%, 140% 140%;
+  background-position: 0% 0%, 100% 100%;
+  animation: qc-drift-a 78s ease-in-out infinite alternate;
+  will-change: background-position;
+}
+
+/* Layer 2: static fine grain, ~3% opacity, monochrome fractal noise. */
+.qc-ambient::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.9  0 0 0 0 0.9  0 0 0 0 0.9  0 0 0 1 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 180px 180px;
+}
+
+/* Ensure page content sits above the fixed ambient layers. */
+.qc-ambient > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes qc-drift-a {
+  0%   { background-position: 0% 0%, 100% 100%; }
+  100% { background-position: 20% 15%, 80% 85%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .qc-ambient::before {
+    animation: none;
+    background-position: 10% 8%, 90% 92%;
+  }
+}

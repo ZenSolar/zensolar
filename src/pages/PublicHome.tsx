@@ -4,6 +4,7 @@ import { PublicFooter, CONTACT_EMAIL } from "@/components/public/PublicFooter";
 import { ProofChain } from "@/components/public/ProofChain";
 import { RequestAccessForm } from "@/components/public/RequestAccessForm";
 import { SEO } from "@/components/SEO";
+import "@/styles/ambient.css";
 
 // Partner wordmarks. Per-logo tuning — NOT a shared filter/height recipe.
 // Tesla: real Tesla wordmark (T E S L A in the Tesla display face).
@@ -21,7 +22,7 @@ export default function PublicHome() {
         description="ZenSolar turns verified solar, battery, and EV activity into on-chain proof — and rewards the households and hardware that generate it."
         url="https://zensolar.com/"
       />
-      <div style={{ background: "#0A0C0E", color: "#E8EAED" }} className="min-h-screen">
+      <div style={{ background: "#0A0C0E", color: "#E8EAED" }} className="qc-ambient min-h-screen">
         <PublicHeader />
 
         {/* HERO */}
