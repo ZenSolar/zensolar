@@ -97,10 +97,10 @@ export default function PublicHome() {
               style={{ color: "#8B9198" }}
             >
               {[
-                { src: teslaLogo, alt: "Tesla", h: "h-3 sm:h-3.5" },
+                { src: teslaLogo, alt: "Tesla", h: "h-4 sm:h-5" },
                 { src: enphaseLogo, alt: "Enphase", h: "h-4 sm:h-5" },
-                { src: wallboxLogo, alt: "Wallbox", h: "h-6 sm:h-7" },
-                { src: solaredgeLogo, alt: "SolarEdge", h: "h-6 sm:h-7" },
+                { src: wallboxLogo, alt: "Wallbox", h: "h-7 sm:h-8" },
+                { src: solaredgeLogo, alt: "SolarEdge", h: "h-7 sm:h-8" },
               ].map((p) => (
                 <img
                   key={p.alt}
