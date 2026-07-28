@@ -48,15 +48,15 @@ export function ProofChain({ compact = false }: { compact?: boolean }) {
   // Scaled up: the chain is the hero centerpiece. Narrow viewports use a
   // 1:1 viewBox so label type never shrinks below legibility.
   const small = compact || narrow;
-  const w = small ? 360 : 760;
-  const h = small ? 208 : 340;
-  const cy = small ? 84 : 150;
+  const w = small ? 360 : 620;
+  const h = small ? 210 : 330;
+  const cy = small ? 82 : 138;
 
-  const positions = [0.075, 0.275, 0.515, 0.735, 0.885].map((p) => p * w);
-  const nodeSize = small ? 26 : 44;
+  const positions = [0.075, 0.275, 0.515, 0.745, 0.895].map((p) => p * w);
+  const nodeSize = small ? 26 : 46;
 
   const labels = ["device", "Δ", "SHA-256(device ‖ ts ‖ Δ ‖ prev)", "proofₙ", "proofₙ₊₁"];
-  const labelFont = small ? 10 : 14;
+  const labelFont = small ? 10 : 15;
   const strokeW = small ? 1.5 : 2;
 
   // Trailing continuation: dimmed partial node past proofₙ₊₁, unlabeled.
@@ -153,12 +153,16 @@ export function ProofChain({ compact = false }: { compact?: boolean }) {
           const anchor: "start" | "middle" | "end" =
             i === 0 ? "start" : i === positions.length - 1 ? "end" : "middle";
           const dx = i === 0 ? -nodeSize / 2 : i === positions.length - 1 ? nodeSize / 2 : 0;
-          const baseY = cy + nodeSize / 2 + (small ? 26 : 42);
+          // Two typographic baselines: the long SHA-256 label and the final
+          // proof label drop to the second row so the label rhythm breathes.
+          const row = i === 2 || i === 4 ? 1 : 0;
+          const baseY = cy + nodeSize / 2 + (small ? 26 : 40);
+          const rowStep = small ? 20 : 28;
           return (
             <text
               key={i}
               x={x + dx}
-              y={isLong ? baseY + (small ? 18 : 26) : baseY}
+              y={baseY + row * rowStep}
               fill={!reduced && i === tick ? "#E8EAED" : "#8B9198"}
               fontSize={isLong ? labelFont - 1 : labelFont}
               letterSpacing={isLong ? 0.2 : 0.6}
