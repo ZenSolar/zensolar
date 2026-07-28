@@ -47,11 +47,30 @@ const BLOCKING_DATA_SCOPES = new Set<string>([
 ]);
 
 function classifyMissingScopes(grantedScope: string | null | undefined, hasRefreshToken: boolean) {
-  const granted = new Set((grantedScope ?? "").split(/\s+/).filter(Boolean));
+  const raw = (grantedScope ?? "").trim();
+  const noRefresh = !hasRefreshToken;
+
+  // Tesla's /oauth2/v3/token response frequently OMITS the `scope` field
+  // entirely (or returns "") even when the user checked "Select All" on the
+  // consent screen — especially with require_requested_scopes=false. In that
+  // case we have no reliable signal that anything is missing, so we must NOT
+  // block the user. Downstream API calls will surface real permission errors
+  // (403) if a scope was actually denied. Only the missing-refresh-token
+  // signal remains blocking here (that one we can trust).
+  if (!raw) {
+    return {
+      missing: [] as string[],
+      blocking: [] as string[],
+      degraded: [] as string[],
+      severity: (noRefresh ? "blocking" : "ok") as "blocking" | "degraded" | "ok",
+      no_refresh_token: noRefresh,
+    };
+  }
+
+  const granted = new Set(raw.split(/\s+/).filter(Boolean));
   const missing = DATA_SCOPES.filter((s) => !granted.has(s));
   const blocking = missing.filter((s) => BLOCKING_DATA_SCOPES.has(s));
   const degraded = missing.filter((s) => !BLOCKING_DATA_SCOPES.has(s));
-  const noRefresh = !hasRefreshToken;
   const severity: "blocking" | "degraded" | "ok" =
     (blocking.length || noRefresh) ? "blocking" : (degraded.length ? "degraded" : "ok");
   return { missing, blocking, degraded, severity, no_refresh_token: noRefresh };
@@ -408,9 +427,28 @@ Deno.serve(async (req) => {
         : null;
 
       const hasRefreshToken = !!tokens.refresh_token;
-      const grantedScope: string = typeof tokens.scope === "string" ? tokens.scope : "";
+      let grantedScope: string = typeof tokens.scope === "string" ? tokens.scope.trim() : "";
+      // Fallback: Tesla often omits `scope` from the token response but
+      // includes an `scp` array in the id_token JWT payload. Decode it.
+      if (!grantedScope && typeof tokens.id_token === "string") {
+        try {
+          const parts = tokens.id_token.split(".");
+          if (parts.length >= 2) {
+            const pad = "=".repeat((4 - (parts[1].length % 4)) % 4);
+            const b64 = (parts[1] + pad).replace(/-/g, "+").replace(/_/g, "/");
+            const payload = JSON.parse(atob(b64));
+            const scp = payload?.scp;
+            if (Array.isArray(scp) && scp.length) {
+              grantedScope = scp.filter((s) => typeof s === "string").join(" ");
+              console.log("[tesla-auth] exchange-code:scope-from-id-token", { grantedScope });
+            }
+          }
+        } catch (e) {
+          console.warn("[tesla-auth] exchange-code:id-token-decode-failed", (e as Error).message);
+        }
+      }
       const scopeCheck = classifyMissingScopes(grantedScope, hasRefreshToken);
-      console.log("[tesla-auth] exchange-code:scope-check", scopeCheck);
+      console.log("[tesla-auth] exchange-code:scope-check", { ...scopeCheck, grantedScope });
 
       // Read prior counter so we can increment or reset it atomically in one upsert.
       const { data: priorRow } = await supabaseClient
