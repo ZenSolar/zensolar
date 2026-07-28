@@ -6,41 +6,62 @@ import { useEffect, useState, useId } from "react";
  * HARD RULE: this component renders structural labels ONLY. No currency, no
  * balances, no minted totals, no counters. Do not add props for any of those.
  *
- * device → Δ → SHA-256(device_id ‖ ts ‖ Δ ‖ prev_hash) → proofₙ → proofₙ₊₁
+ * device → Δ → SHA-256(device_id ‖ ts ‖ Δ ‖ prev_hash) → proofₙ → proofₙ₊₁ → …
  *
  * Rendering contract: at every animation frame (including first paint), ALL
  * five nodes and their labels render at full legibility. Motion is limited to
  * a single traveling pulse along the connecting lines and a soft glow on the
- * currently-active node.
+ * currently-active node. A dimmed, unlabeled partial node at the right edge
+ * implies the chain continues — it makes no claim about cadence.
  */
 export function ProofChain({ compact = false }: { compact?: boolean }) {
   const gradId = useId();
+  const fadeId = useId();
   const [tick, setTick] = useState(0);
   const [reduced, setReduced] = useState(false);
+  const [narrow, setNarrow] = useState(false);
 
   useEffect(() => {
+    const nq = window.matchMedia("(max-width: 640px)");
+    const syncNarrow = () => setNarrow(nq.matches);
+    syncNarrow();
+    nq.addEventListener?.("change", syncNarrow);
+
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReduced(mq.matches);
     const listener = () => setReduced(mq.matches);
     mq.addEventListener?.("change", listener);
-    if (mq.matches) return () => mq.removeEventListener?.("change", listener);
+    if (mq.matches) {
+      return () => {
+        mq.removeEventListener?.("change", listener);
+        nq.removeEventListener?.("change", syncNarrow);
+      };
+    }
     const id = window.setInterval(() => setTick((t) => (t + 1) % 5), 1400);
     return () => {
       window.clearInterval(id);
       mq.removeEventListener?.("change", listener);
+      nq.removeEventListener?.("change", syncNarrow);
     };
   }, []);
 
-  const w = compact ? 320 : 560;
-  const h = compact ? 140 : 240;
-  const cy = compact ? 58 : 96;
+  // Scaled up: the chain is the hero centerpiece. Narrow viewports use a
+  // 1:1 viewBox so label type never shrinks below legibility.
+  const small = compact || narrow;
+  const w = small ? 360 : 760;
+  const h = small ? 208 : 340;
+  const cy = small ? 84 : 150;
 
-  const positions = [0.09, 0.30, 0.53, 0.76, 0.93].map((p) => p * w);
-  const nodeSize = compact ? 22 : 30;
+  const positions = [0.075, 0.275, 0.515, 0.735, 0.885].map((p) => p * w);
+  const nodeSize = small ? 26 : 44;
 
   const labels = ["device", "Δ", "SHA-256(device ‖ ts ‖ Δ ‖ prev)", "proofₙ", "proofₙ₊₁"];
-  const labelFont = compact ? 10 : 12;
-  const strokeW = 1.5;
+  const labelFont = small ? 10 : 14;
+  const strokeW = small ? 1.5 : 2;
+
+  // Trailing continuation: dimmed partial node past proofₙ₊₁, unlabeled.
+  const lastX = positions[positions.length - 1];
+  const ghostX = w - nodeSize * 0.35;
 
   return (
     <div
@@ -55,13 +76,17 @@ export function ProofChain({ compact = false }: { compact?: boolean }) {
         width="100%"
         height="auto"
         role="img"
-        aria-label="Proof-of-Delta hash chain: device to delta to SHA-256 to chained proof."
+        aria-label="Proof-of-Delta hash chain: device to delta to SHA-256 to chained proof, continuing onward."
         style={{ display: "block" }}
       >
         <defs>
           <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor="#00E19B" />
             <stop offset="100%" stopColor="#00C2FF" />
+          </linearGradient>
+          <linearGradient id={fadeId} x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#2F3338" stopOpacity="1" />
+            <stop offset="100%" stopColor="#2F3338" stopOpacity="0" />
           </linearGradient>
         </defs>
 
@@ -77,13 +102,31 @@ export function ProofChain({ compact = false }: { compact?: boolean }) {
               x2={x2 - nodeSize / 2}
               y2={cy}
               stroke={isActive ? `url(#${gradId})` : "#2F3338"}
-              strokeWidth={isActive ? 2 : 1}
+              strokeWidth={isActive ? strokeW + 0.5 : 1}
               style={{
                 transition: "stroke 300ms ease-out, stroke-width 300ms ease-out",
               }}
             />
           );
         })}
+
+        {/* continuation: trailing line fading out into a dimmed partial node */}
+        <line
+          x1={lastX + nodeSize / 2}
+          y1={cy}
+          x2={ghostX}
+          y2={cy}
+          stroke={`url(#${fadeId})`}
+          strokeWidth={1}
+        />
+        <g transform={`translate(${ghostX} ${cy})`} opacity={0.22}>
+          <circle
+            r={nodeSize / 2}
+            fill="#121417"
+            stroke="#2F3338"
+            strokeWidth={strokeW}
+          />
+        </g>
 
         {/* nodes — all five always fully rendered; active gets a soft glow */}
         {positions.map((x, i) => {
@@ -101,21 +144,24 @@ export function ProofChain({ compact = false }: { compact?: boolean }) {
           );
         })}
 
-        {/* labels — one per node, always rendered */}
+        {/* labels — one per node, always rendered. The long SHA-256 label
+            drops to its own baseline so the row reads as deliberate rhythm
+            rather than compressed type. */}
         {positions.map((x, i) => {
           const label = labels[i];
           const isLong = label.length > 14;
-          // Nudge long middle label up slightly? Keep flat baseline for now.
           const anchor: "start" | "middle" | "end" =
             i === 0 ? "start" : i === positions.length - 1 ? "end" : "middle";
           const dx = i === 0 ? -nodeSize / 2 : i === positions.length - 1 ? nodeSize / 2 : 0;
+          const baseY = cy + nodeSize / 2 + (small ? 26 : 42);
           return (
             <text
               key={i}
               x={x + dx}
-              y={cy + nodeSize + (compact ? 20 : 28)}
+              y={isLong ? baseY + (small ? 18 : 26) : baseY}
               fill={!reduced && i === tick ? "#E8EAED" : "#8B9198"}
               fontSize={isLong ? labelFont - 1 : labelFont}
+              letterSpacing={isLong ? 0.2 : 0.6}
               fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace"
               textAnchor={anchor}
               style={{ transition: "fill 300ms ease-out" }}
@@ -155,7 +201,7 @@ function NodeShape({
     stroke: strokeUrl,
     strokeWidth: pulse ? strokeW + 0.5 : strokeW,
     style: {
-      filter: pulse ? "drop-shadow(0 0 6px rgba(0, 225, 155, 0.55))" : "none",
+      filter: pulse ? "drop-shadow(0 0 8px rgba(0, 225, 155, 0.55))" : "none",
       transition: "filter 300ms ease-out, stroke-width 300ms ease-out",
     },
   } as const;
