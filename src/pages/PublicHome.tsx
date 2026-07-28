@@ -78,7 +78,7 @@ export default function PublicHome() {
                 className="text-[11px] uppercase tracking-[0.14em] text-center sm:text-left"
                 style={{ color: "#8B9198", fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace" }}
               >
-                Proof-of-Genesis — verified in real time
+                Proof-of-Genesis — every kWh traces to a verified device and a cryptographic proof
               </p>
             </div>
           </div>
