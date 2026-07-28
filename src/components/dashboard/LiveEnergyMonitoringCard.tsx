@@ -23,6 +23,7 @@ const AnimatedEnergyFlow = lazy(() =>
 );
 import { ZenXPill } from './ZenXPill';
 import { LiveCardHeader } from './LiveCardHeader';
+import { TelemetrySyncBadge } from './TelemetrySyncBadge';
 import { SolarSiteTabs } from './SolarSiteTabs';
 import { useWeather } from '@/hooks/useWeather';
 import { useLifetimeTotals } from '@/hooks/useLifetimeTotals';
@@ -928,6 +929,24 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
         onRefresh={handleManualRefresh}
         refreshing={manualRefreshing}
       />
+      {(() => {
+        // Surface whichever telemetry lane is unhealthiest so a broken OEM
+        // never leaves the tile silently frozen. Prefer paused > retrying.
+        const states = [solar.syncState, battery.syncState, ev.syncState];
+        const worst: 'ok' | 'retrying' | 'paused' =
+          states.includes('paused') ? 'paused' : states.includes('retrying') ? 'retrying' : 'ok';
+        if (worst === 'ok') return null;
+        const onRetry = () => {
+          solar.resetFailures();
+          battery.resetFailures();
+          ev.resetFailures();
+        };
+        return (
+          <div className="mb-3 -mt-1">
+            <TelemetrySyncBadge syncState={worst} onRetry={onRetry} />
+          </div>
+        );
+      })()}
 
       {/* v5 — multi-PV site selector (only renders when ≥2 PV systems) */}
       <SolarSiteTabs
