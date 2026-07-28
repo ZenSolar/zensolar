@@ -27,15 +27,15 @@ export function PublicHeader() {
           >
             I have an invite code
           </Link>
-          <Link
-            to="/auth"
+          <a
+            href="https://beta.zensolar.com/onboarding/signin"
             className="transition-colors"
             style={{ color: "#8B9198" }}
             onMouseEnter={(e) => (e.currentTarget.style.color = "#E8EAED")}
             onMouseLeave={(e) => (e.currentTarget.style.color = "#8B9198")}
           >
             Log in
-          </Link>
+          </a>
         </nav>
       </div>
     </header>
