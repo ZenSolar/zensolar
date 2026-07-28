@@ -28,7 +28,7 @@ export default function PublicHome() {
 
         {/* HERO */}
         <section className="mx-auto max-w-6xl px-5 sm:px-8 pt-16 sm:pt-24 pb-16 sm:pb-24">
-          <div className="grid gap-10 lg:grid-cols-[1.05fr_1fr] lg:items-center">
+          <div className="grid gap-10 lg:gap-14 lg:grid-cols-[0.92fr_1.18fr] lg:items-center">
             <div className="space-y-8 max-w-2xl">
               <h1
                 className="text-[34px] sm:text-[46px] lg:text-[54px] leading-[1.05] font-medium tracking-tight"
