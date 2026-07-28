@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import zenLogo from "/logos/zen-logo-horizontal-new.png";
 
 export function PublicHeader() {
   return (
@@ -7,12 +8,13 @@ export function PublicHeader() {
       style={{ borderColor: "#1B1E22", background: "#0A0C0E" }}
     >
       <div className="mx-auto max-w-6xl px-5 sm:px-8 h-16 flex items-center justify-between">
-        <Link
-          to="/"
-          className="text-[15px] font-medium tracking-tight"
-          style={{ color: "#E8EAED", letterSpacing: "-0.01em" }}
-        >
-          ZenSolar
+        <Link to="/" aria-label="ZenSolar — home" className="flex items-center">
+          <img
+            src={zenLogo}
+            alt="ZenSolar"
+            className="h-7 sm:h-8 w-auto"
+            style={{ display: "block" }}
+          />
         </Link>
         <nav className="flex items-center gap-6 text-[13px]">
           <Link
