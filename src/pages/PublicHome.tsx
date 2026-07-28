@@ -98,42 +98,36 @@ export default function PublicHome() {
               className="grid grid-cols-2 sm:grid-cols-4 gap-y-10 gap-x-8 sm:gap-x-12 items-center justify-items-center"
               style={{ color: "#8B9198" }}
             >
-              {/* Uniform slot: every logo lives in a fixed-height flex cell so
-                  the row rhythm stays even regardless of asset padding.
-                  Each logo's max-height inside the slot is tuned to its
-                  intrinsic whitespace so optical weight lands consistent. */}
-              <div className="h-8 flex items-center justify-center">
-                <img
-                  src={teslaLogo}
-                  alt="Tesla"
-                  className="max-h-5 w-auto"
-                  style={{ filter: "brightness(0) invert(1)", opacity: 0.85 }}
-                />
-              </div>
-              <div className="h-8 flex items-center justify-center">
-                <img
-                  src={enphaseLogo}
-                  alt="Enphase"
-                  className="max-h-5 w-auto"
-                  style={{ filter: "brightness(0) invert(1)", opacity: 0.6 }}
-                />
-              </div>
-              <div className="h-8 flex items-center justify-center">
-                <img
-                  src={wallboxLogo}
-                  alt="Wallbox"
-                  className="max-h-14 w-auto"
-                  style={{ filter: "brightness(0) invert(1)", opacity: 0.7 }}
-                />
-              </div>
-              <div className="h-8 flex items-center justify-center">
-                <img
-                  src={solaredgeLogo}
-                  alt="SolarEdge"
-                  className="max-h-7 w-auto"
-                  style={{ filter: "brightness(0) invert(1)", opacity: 0.6 }}
-                />
-              </div>
+              {/* Uniform wrapper: every logo lives in a fixed 140×40 slot with
+                  object-fit: contain, so all four render at consistent bounds
+                  regardless of how their SVGs declare intrinsic dimensions.
+                  Per-logo opacity stays tuned so optical weight matches. */}
+              {[
+                { src: teslaLogo, alt: "Tesla", opacity: 0.85 },
+                { src: enphaseLogo, alt: "Enphase", opacity: 0.6 },
+                { src: wallboxLogo, alt: "Wallbox", opacity: 0.7 },
+                { src: solaredgeLogo, alt: "SolarEdge", opacity: 0.6 },
+              ].map((logo) => (
+                <div
+                  key={logo.alt}
+                  className="flex items-center justify-center"
+                  style={{ width: 140, height: 40 }}
+                >
+                  <img
+                    src={logo.src}
+                    alt={logo.alt}
+                    width={140}
+                    height={40}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                      filter: "brightness(0) invert(1)",
+                      opacity: logo.opacity,
+                    }}
+                  />
+                </div>
+              ))}
             </div>
 
           </div>
