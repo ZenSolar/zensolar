@@ -52,10 +52,12 @@ export function ProofChain({ compact = false }: { compact?: boolean }) {
   const h = small ? 200 : 300;
   const cy = small ? 78 : 128;
 
-  const positions = (small ? [0.07, 0.26, 0.48, 0.745, 0.9] : [0.075, 0.275, 0.515, 0.745, 0.895]).map(
+  const positions = (small ? [0.07, 0.245, 0.45, 0.665, 0.845] : [0.07, 0.245, 0.45, 0.665, 0.845]).map(
     (p) => p * w,
   );
   const nodeSize = small ? 26 : 46;
+  /** Half-width of each node shape — the hash-op rect is wider than the rest. */
+  const halfW = (i: number) => (i === 2 ? nodeSize * 0.72 : nodeSize / 2);
 
   const labels = ["device", "Δ", "H(x, t, Δ, h₋₁)", "proofₙ", "proofₙ₊₁"];
   const labelFont = small ? 10 : 15;
@@ -63,7 +65,7 @@ export function ProofChain({ compact = false }: { compact?: boolean }) {
 
   // Trailing continuation: dimmed partial node past proofₙ₊₁, unlabeled.
   const lastX = positions[positions.length - 1];
-  const ghostX = w - nodeSize * 0.75;
+  const ghostX = w - nodeSize * 0.9;
 
   return (
     <div
