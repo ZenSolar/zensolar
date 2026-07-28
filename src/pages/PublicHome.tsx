@@ -6,12 +6,12 @@ import { RequestAccessForm } from "@/components/public/RequestAccessForm";
 import { SEO } from "@/components/SEO";
 
 // Partner wordmarks. Per-logo tuning — NOT a shared filter/height recipe.
-// Tesla: use clean text-only wordmark (the old tesla-wordmark.svg contained
-// both a glyph path AND a <text> element drawing "TESLA" — literal doubled render).
-import teslaLogo from "@/assets/logos/tesla-wordmark-clean.svg";
+// Tesla: real Tesla wordmark (T E S L A in the Tesla display face).
+import teslaLogo from "@/assets/logos/tesla-wordmark-real.png";
 import enphaseLogo from "@/assets/logos/enphase-wordmark.svg";
 import solaredgeLogo from "@/assets/logos/solaredge-cropped.svg";
 import wallboxLogo from "@/assets/logos/wallbox-logo.svg";
+
 
 export default function PublicHome() {
   return (
