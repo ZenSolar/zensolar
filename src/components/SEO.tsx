@@ -10,12 +10,12 @@ interface SEOProps {
 }
 
 const BASE_URL = 'https://zensolar.com';
-const DEFAULT_IMAGE = `${BASE_URL}/og-image.png`;
+const DEFAULT_IMAGE = `${BASE_URL}/og-image.png?v=qc1`;
 const DEFAULT_DESCRIPTION =
-  'Earn $ZSOLAR tokens and NFTs for every kWh your solar panels produce, every EV mile you drive, and every battery cycle. Patent-pending Mint-on-Proof™ technology on Base L2.';
+  'ZenSolar turns verified solar, battery, and EV activity into on-chain proof — and rewards the households and hardware that generate it.';
 
 export function SEO({
-  title = 'ZenSolar — Earn $ZSOLAR For Your Clean Energy Use',
+  title = 'ZenSolar — Clean energy, cryptographically verified.',
   description = DEFAULT_DESCRIPTION,
   image = DEFAULT_IMAGE,
   url = BASE_URL,
@@ -52,7 +52,7 @@ export function SEO({
       <meta property="og:url" content={url} />
       <meta property="og:image" content={image} />
       <meta property="og:image:width" content="1200" />
-      <meta property="og:image:height" content="640" />
+      <meta property="og:image:height" content="630" />
       <meta property="og:site_name" content="ZenSolar" />
 
       {/* Twitter */}
