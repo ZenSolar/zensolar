@@ -431,7 +431,19 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
   }, [pollMs, effectiveUserId, refresh, failureCount, capability]);
 
 
-  return { data, loading, error, refresh };
+  // syncState derived from consecutive live-fetch failures. `retrying` shows
+  // an amber warning; `paused` matches the hard-stop in the poll effect.
+  const MAX_FAILURES = 10;
+  const syncState: 'ok' | 'retrying' | 'paused' =
+    failureCount >= MAX_FAILURES ? 'paused' : failureCount >= 3 ? 'retrying' : 'ok';
+
+  const resetFailures = useCallback(() => {
+    setFailureCount(0);
+    setError(null);
+    void refresh({ force: true });
+  }, [refresh]);
+
+  return { data, loading, error, refresh, syncState, failureCount, resetFailures };
 }
 
 export const useBatteryTelemetry = (opts?: { pollMs?: number }) => useTelemetry('battery', opts);
