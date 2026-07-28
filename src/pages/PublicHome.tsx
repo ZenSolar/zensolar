@@ -6,12 +6,12 @@ import { RequestAccessForm } from "@/components/public/RequestAccessForm";
 import { SEO } from "@/components/SEO";
 
 // Partner wordmarks. Per-logo tuning — NOT a shared filter/height recipe.
-// Tesla: use clean text-only wordmark (the old tesla-wordmark.svg contained
-// both a glyph path AND a <text> element drawing "TESLA" — literal doubled render).
-import teslaLogo from "@/assets/logos/tesla-wordmark-clean.svg";
+// Tesla: real Tesla wordmark (T E S L A in the Tesla display face).
+import teslaLogo from "@/assets/logos/tesla-wordmark-real.png";
 import enphaseLogo from "@/assets/logos/enphase-wordmark.svg";
 import solaredgeLogo from "@/assets/logos/solaredge-cropped.svg";
 import wallboxLogo from "@/assets/logos/wallbox-logo.svg";
+
 
 export default function PublicHome() {
   return (
@@ -95,37 +95,47 @@ export default function PublicHome() {
               Connects to the hardware you already own.
             </p>
             <div
-              className="grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-12 items-center justify-items-center"
+              className="grid grid-cols-2 sm:grid-cols-4 gap-y-10 gap-x-8 sm:gap-x-12 items-center justify-items-center"
               style={{ color: "#8B9198" }}
             >
-              {/* Per-logo tuning — each asset has its own source conventions.
-                  Do NOT collapse this back into a shared filter/height recipe. */}
-              <img
-                src={teslaLogo}
-                alt="Tesla"
-                className="h-4 sm:h-5 w-auto"
-                style={{ filter: "brightness(0) invert(1)", opacity: 0.85 }}
-              />
-
-              <img
-                src={enphaseLogo}
-                alt="Enphase"
-                className="h-4 sm:h-5 w-auto"
-                style={{ filter: "brightness(0) invert(1)", opacity: 0.55 }}
-              />
-              <img
-                src={wallboxLogo}
-                alt="Wallbox"
-                className="h-14 sm:h-16 w-auto"
-                style={{ filter: "brightness(0) invert(1)", opacity: 0.65 }}
-              />
-              <img
-                src={solaredgeLogo}
-                alt="SolarEdge"
-                className="h-7 sm:h-8 w-auto"
-                style={{ filter: "brightness(0) invert(1)", opacity: 0.55 }}
-              />
+              {/* Uniform slot: every logo lives in a fixed-height flex cell so
+                  the row rhythm stays even regardless of asset padding.
+                  Each logo's max-height inside the slot is tuned to its
+                  intrinsic whitespace so optical weight lands consistent. */}
+              <div className="h-8 flex items-center justify-center">
+                <img
+                  src={teslaLogo}
+                  alt="Tesla"
+                  className="max-h-5 w-auto"
+                  style={{ filter: "brightness(0) invert(1)", opacity: 0.85 }}
+                />
+              </div>
+              <div className="h-8 flex items-center justify-center">
+                <img
+                  src={enphaseLogo}
+                  alt="Enphase"
+                  className="max-h-5 w-auto"
+                  style={{ filter: "brightness(0) invert(1)", opacity: 0.6 }}
+                />
+              </div>
+              <div className="h-8 flex items-center justify-center">
+                <img
+                  src={wallboxLogo}
+                  alt="Wallbox"
+                  className="max-h-14 w-auto"
+                  style={{ filter: "brightness(0) invert(1)", opacity: 0.7 }}
+                />
+              </div>
+              <div className="h-8 flex items-center justify-center">
+                <img
+                  src={solaredgeLogo}
+                  alt="SolarEdge"
+                  className="max-h-7 w-auto"
+                  style={{ filter: "brightness(0) invert(1)", opacity: 0.6 }}
+                />
+              </div>
             </div>
+
           </div>
         </section>
 
