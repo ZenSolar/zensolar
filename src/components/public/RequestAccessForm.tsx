@@ -108,8 +108,9 @@ export function RequestAccessForm() {
           style={{ color: "#E8EAED", borderColor: "#2A2D31" }}
         >
           <option value="unspecified" style={{ background: "#121417" }}>Select one</option>
-          <option value="hardware" style={{ background: "#121417" }}>I want to join the beta cohort</option>
           <option value="investor" style={{ background: "#121417" }}>I'm an investor</option>
+          <option value="hardware" style={{ background: "#121417" }}>I want to join the beta cohort</option>
+
           <option value="other" style={{ background: "#121417" }}>Other</option>
         </select>
       </Field>
