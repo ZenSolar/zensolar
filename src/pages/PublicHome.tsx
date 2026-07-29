@@ -16,7 +16,19 @@ import wallboxLogo from "@/assets/logos/wallbox-logo.svg";
 
 
 export default function PublicHome() {
+  useEffect(() => {
+    const prevBody = document.body.style.backgroundColor;
+    const prevHtml = document.documentElement.style.backgroundColor;
+    document.body.style.backgroundColor = "#0A0C0E";
+    document.documentElement.style.backgroundColor = "#0A0C0E";
+    return () => {
+      document.body.style.backgroundColor = prevBody;
+      document.documentElement.style.backgroundColor = prevHtml;
+    };
+  }, []);
+
   return (
+
     <>
       <SEO
         title="ZenSolar — Clean energy, cryptographically verified."
