@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { PublicHeader } from "@/components/public/PublicHeader";
 import { PublicFooter, CONTACT_EMAIL } from "@/components/public/PublicFooter";
