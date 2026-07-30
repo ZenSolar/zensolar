@@ -839,7 +839,8 @@ Deno.serve(async (req) => {
           if (mintCategory === 'all' || mintCategory === 'ev_miles') {
             try {
               const lifetimeOdometer = lifetime.odometer ?? 0;
-              const baselineOdometer = resolveBaseline(device, "ev_miles", ["odometer"]);
+              const baselineOdometer = resolveBaseline(device, "ev_miles", CANONICAL_BASELINE_KEYS.ev_miles);
+
               const delta = Math.max(0, Math.floor(lifetimeOdometer - baselineOdometer));
               if (delta > 0) {
                 evMilesDelta += delta;
