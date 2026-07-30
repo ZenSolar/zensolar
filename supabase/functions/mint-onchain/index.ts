@@ -854,10 +854,9 @@ Deno.serve(async (req) => {
           if (mintCategory === 'all' || mintCategory === 'charging') {
             try {
               const lifetimeChargingKwh = lifetime.charging_kwh ?? (lifetime.charging_wh != null ? lifetime.charging_wh / 1000 : 0);
-              const rawBaselineCharging = resolveBaseline(device, "charging", ["charging_kwh", "charging_wh"]);
-              const baselineChargingKwh = (baseline && Object.prototype.hasOwnProperty.call(baseline, "charging_kwh"))
-                ? rawBaselineCharging
-                : rawBaselineCharging / 1000;
+              // Canonical read key: charging_kwh (already kWh — no unit scaling).
+              const baselineChargingKwh = resolveBaseline(device, "charging", CANONICAL_BASELINE_KEYS.charging);
+
               const delta = Math.max(0, Math.floor(lifetimeChargingKwh - baselineChargingKwh));
               if (delta > 0) {
                 superchargerDeltaKwh += delta;
