@@ -181,10 +181,29 @@ Deno.serve(async (req) => {
       }), { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const previous_total_gb =
-      (Number(prev.reading_download_gb) || 0) + (Number(prev.reading_upload_gb) || 0);
+    // Baseline for Starlink is the prior cumulative reading, resolved through the
+    // same canonical resolver as every other mint path. A non-numeric / missing
+    // prior reading is baseline_absent => refuse. Never default to 0.
+    const priorBaseline = {
+      starlink_total_gb:
+        (Number(prev.reading_download_gb) || 0) + (Number(prev.reading_upload_gb) || 0),
+      // A prior attestation row exists, so a genuine 0 here is a real reading,
+      // not an unknown baseline — mark it explicitly.
+      first_claim: true,
+    };
+    const resolved = resolveBaseline(priorBaseline, ["starlink_total_gb"]);
+    if (resolved.kind === "baseline_absent") {
+      console.error(`[starlink-mint] BASELINE_UNREADABLE user=${userId} reason=${resolved.reason}`);
+      return new Response(JSON.stringify({
+        error: "BASELINE_UNREADABLE",
+        reason: resolved.reason,
+        message: "Mint refused: the prior Starlink reading could not be read. This requires manual review.",
+      }), { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    const previous_total_gb = resolved.value;
 
     const delta_gb = Math.max(0, total_gb - previous_total_gb);
+
 
 
     const tokens_credited = delta_gb; // 1 GB = 1 $ZSOLAR (UI 1:1 framing)
