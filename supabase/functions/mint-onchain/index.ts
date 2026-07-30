@@ -749,10 +749,64 @@ Deno.serve(async (req) => {
 
       // Calculate real deltas from device data, filtering by category
       // Uses normalized device type matching for consistency across providers
+      // ── Containment: fail-closed baseline resolution ─────────────────────
+      // A delta may only be computed from a baseline we can positively read.
+      // Absent key, empty object, or NULL baseline_data => refuse (never 0).
+      // A present, genuinely-0 baseline is accepted ONLY when the row carries
+      // an explicit first-claim marker. Ambiguous zero => refuse.
+      class BaselineUnreadableError extends Error {
+        constructor(public deviceRef: string, public activityType: string, public reason: string) {
+          super(`BASELINE_UNREADABLE: device=${deviceRef} activity=${activityType} reason=${reason}`);
+          this.name = "BaselineUnreadableError";
+        }
+      }
+
+      const hasFirstClaimMarker = (b: Record<string, unknown> | null): boolean =>
+        !!b && (b.first_claim === true || b.first_claim_at != null || b.is_first_claim === true);
+
+      // Resolve a baseline value for one (device, activity_type).
+      // `keys` are the canonical baseline keys for that activity, in precedence order.
+      // `scale` converts the stored unit into the unit the caller wants.
+      const resolveBaseline = (
+        device: { device_id: string; baseline_data: unknown },
+        activityType: string,
+        keys: string[],
+      ): number => {
+        const b = device.baseline_data as Record<string, unknown> | null;
+        if (b === null || b === undefined || typeof b !== "object" || Array.isArray(b)) {
+          throw new BaselineUnreadableError(device.device_id, activityType, "baseline_data_null_or_invalid");
+        }
+        if (Object.keys(b).length === 0) {
+          throw new BaselineUnreadableError(device.device_id, activityType, "baseline_data_empty");
+        }
+        const key = keys.find((k) => Object.prototype.hasOwnProperty.call(b, k) && b[k] !== null && b[k] !== undefined);
+        if (!key) {
+          throw new BaselineUnreadableError(device.device_id, activityType, "canonical_key_absent");
+        }
+        const raw = b[key];
+        if (typeof raw !== "number" || !Number.isFinite(raw)) {
+          throw new BaselineUnreadableError(device.device_id, activityType, `key_${key}_not_numeric`);
+        }
+        if (raw === 0 && !hasFirstClaimMarker(b)) {
+          throw new BaselineUnreadableError(device.device_id, activityType, `key_${key}_zero_without_first_claim_marker`);
+        }
+        return raw;
+      };
+
+      const baselineRefusals: { device_id: string; activity_type: string; reason: string }[] = [];
+      const refuse = (e: unknown) => {
+        if (e instanceof BaselineUnreadableError) {
+          baselineRefusals.push({ device_id: e.deviceRef, activity_type: e.activityType, reason: e.reason });
+          console.error(e.message);
+          return;
+        }
+        throw e;
+      };
+
       for (const device of (devices || [])) {
-        const baseline = device.baseline_data as Record<string, number> | null;
         const lifetime = device.lifetime_totals as Record<string, number> | null;
-        
+        const baseline = device.baseline_data as Record<string, number> | null;
+
         if (!lifetime) continue;
         
         // Per-device filtering: if deviceId is specified, only process that specific device
@@ -762,14 +816,18 @@ Deno.serve(async (req) => {
 
         // Solar devices (Tesla solar, Enphase solar_system, SolarEdge solar_system, etc.)
         if (isSolarDevice(device.device_type) && (mintCategory === 'all' || mintCategory === 'solar')) {
-          const lifetimeSolarWh = lifetime.solar_wh || lifetime.lifetime_solar_wh || 0;
-          const baselineSolarWh = baseline?.total_solar_produced_wh || baseline?.solar_wh || baseline?.solar_production_wh || baseline?.lifetime_solar_wh || 0;
-          const delta = Math.max(0, Math.floor((lifetimeSolarWh - baselineSolarWh) / 1000));
-          console.log(`Solar device ${device.id} (${device.device_type}): lifetime=${lifetimeSolarWh}Wh, baseline=${baselineSolarWh}Wh, delta=${delta}kWh`);
-          if (delta > 0) {
-            solarDeltaKwh += delta;
-            deviceIdsToUpdate.push(device.id);
-          }
+          try {
+            const lifetimeSolarWh = lifetime.solar_wh ?? lifetime.lifetime_solar_wh ?? 0;
+            const baselineSolarWh = resolveBaseline(device, "solar", [
+              "total_solar_produced_wh", "solar_wh", "solar_production_wh", "lifetime_solar_wh",
+            ]);
+            const delta = Math.max(0, Math.floor((lifetimeSolarWh - baselineSolarWh) / 1000));
+            console.log(`Solar device ${device.id} (${device.device_type}): lifetime=${lifetimeSolarWh}Wh, baseline=${baselineSolarWh}Wh, delta=${delta}kWh`);
+            if (delta > 0) {
+              solarDeltaKwh += delta;
+              deviceIdsToUpdate.push(device.id);
+            }
+          } catch (e) { refuse(e); }
         } 
         
         // Battery (Tesla Powerwall has its own device row; Enphase/SolarEdge merge
@@ -784,59 +842,91 @@ Deno.serve(async (req) => {
           (isSolarDevice(device.device_type) && hasBatteryField);
 
         if (isBatteryCandidate && (mintCategory === 'all' || mintCategory === 'battery')) {
-          const lifetimeBatteryWh = lifetime.battery_discharge_wh || lifetime.lifetime_battery_discharge_wh || 0;
-          const baselineBatteryWh = baseline?.total_energy_discharged_wh || baseline?.battery_discharge_wh || baseline?.lifetime_battery_discharge_wh || 0;
-          const delta = Math.max(0, Math.floor((lifetimeBatteryWh - baselineBatteryWh) / 1000));
-          console.log(`Battery candidate ${device.id} provider=${device.provider} type=${device.device_type}: lifetime=${lifetimeBatteryWh}Wh, baseline=${baselineBatteryWh}Wh, delta=${delta}kWh`);
-          if (delta > 0) {
-            batteryCandidates.push({
-              deviceId: device.id,
-              provider: String(device.provider || '').toLowerCase(),
-              delta,
-            });
-          }
+          try {
+            const lifetimeBatteryWh = lifetime.battery_discharge_wh ?? lifetime.lifetime_battery_discharge_wh ?? 0;
+            const baselineBatteryWh = resolveBaseline(device, "battery", [
+              "total_energy_discharged_wh", "battery_discharge_wh", "lifetime_battery_discharge_wh",
+            ]);
+            const delta = Math.max(0, Math.floor((lifetimeBatteryWh - baselineBatteryWh) / 1000));
+            console.log(`Battery candidate ${device.id} provider=${device.provider} type=${device.device_type}: lifetime=${lifetimeBatteryWh}Wh, baseline=${baselineBatteryWh}Wh, delta=${delta}kWh`);
+            if (delta > 0) {
+              batteryCandidates.push({
+                deviceId: device.id,
+                provider: String(device.provider || '').toLowerCase(),
+                delta,
+              });
+            }
+          } catch (e) { refuse(e); }
         }
         
         // Vehicle devices (EV miles + charging)
         if (isVehicleDevice(device.device_type)) {
           if (mintCategory === 'all' || mintCategory === 'ev_miles') {
-            const lifetimeOdometer = lifetime.odometer || 0;
-            const baselineOdometer = baseline?.odometer || 0;
-            const delta = Math.max(0, Math.floor(lifetimeOdometer - baselineOdometer));
-            if (delta > 0) {
-              evMilesDelta += delta;
-              if (!deviceIdsToUpdate.includes(device.id)) {
-                deviceIdsToUpdate.push(device.id);
+            try {
+              const lifetimeOdometer = lifetime.odometer ?? 0;
+              const baselineOdometer = resolveBaseline(device, "ev_miles", ["odometer"]);
+              const delta = Math.max(0, Math.floor(lifetimeOdometer - baselineOdometer));
+              if (delta > 0) {
+                evMilesDelta += delta;
+                if (!deviceIdsToUpdate.includes(device.id)) {
+                  deviceIdsToUpdate.push(device.id);
+                }
               }
-            }
+            } catch (e) { refuse(e); }
           }
           
           if (mintCategory === 'all' || mintCategory === 'charging') {
-            const lifetimeChargingKwh = lifetime.charging_kwh || (lifetime.charging_wh ? lifetime.charging_wh / 1000 : 0);
-            const baselineChargingKwh = baseline?.charging_kwh || (baseline?.charging_wh ? baseline.charging_wh / 1000 : 0);
-            const delta = Math.max(0, Math.floor(lifetimeChargingKwh - baselineChargingKwh));
-            if (delta > 0) {
-              superchargerDeltaKwh += delta;
-              if (!deviceIdsToUpdate.includes(device.id)) {
-                deviceIdsToUpdate.push(device.id);
+            try {
+              const lifetimeChargingKwh = lifetime.charging_kwh ?? (lifetime.charging_wh != null ? lifetime.charging_wh / 1000 : 0);
+              const rawBaselineCharging = resolveBaseline(device, "charging", ["charging_kwh", "charging_wh"]);
+              const baselineChargingKwh = (baseline && Object.prototype.hasOwnProperty.call(baseline, "charging_kwh"))
+                ? rawBaselineCharging
+                : rawBaselineCharging / 1000;
+              const delta = Math.max(0, Math.floor(lifetimeChargingKwh - baselineChargingKwh));
+              if (delta > 0) {
+                superchargerDeltaKwh += delta;
+                if (!deviceIdsToUpdate.includes(device.id)) {
+                  deviceIdsToUpdate.push(device.id);
+                }
               }
-            }
+            } catch (e) { refuse(e); }
           }
         } 
         
         // Charger devices (Wall connector, Wallbox charger, etc.)
         if (isChargerDevice(device.device_type) && (mintCategory === 'all' || mintCategory === 'charging')) {
-          const lifetimeChargingKwh = lifetime.charging_kwh || (lifetime.charging_wh ? lifetime.charging_wh / 1000 : 0) || (lifetime.lifetime_charging_wh ? lifetime.lifetime_charging_wh / 1000 : 0) || (lifetime.wall_connector_wh ? lifetime.wall_connector_wh / 1000 : 0);
-          const baselineChargingKwh = baseline?.charging_kwh || (baseline?.charging_wh ? baseline.charging_wh / 1000 : 0) || (baseline?.wall_connector_wh ? baseline.wall_connector_wh / 1000 : 0);
-          const delta = Math.max(0, Math.floor(lifetimeChargingKwh - baselineChargingKwh));
-          if (delta > 0) {
-            homeChargingDeltaKwh += delta;
-            if (!deviceIdsToUpdate.includes(device.id)) {
-              deviceIdsToUpdate.push(device.id);
+          try {
+            const lifetimeChargingKwh = lifetime.charging_kwh ?? (lifetime.charging_wh != null ? lifetime.charging_wh / 1000 : 0) ?? (lifetime.lifetime_charging_wh != null ? lifetime.lifetime_charging_wh / 1000 : 0) ?? (lifetime.wall_connector_wh != null ? lifetime.wall_connector_wh / 1000 : 0);
+            const rawBaselineCharging = resolveBaseline(device, "charging", ["charging_kwh", "charging_wh", "wall_connector_wh"]);
+            const baselineChargingKwh = (baseline && Object.prototype.hasOwnProperty.call(baseline, "charging_kwh"))
+              ? rawBaselineCharging
+              : rawBaselineCharging / 1000;
+            const delta = Math.max(0, Math.floor(lifetimeChargingKwh - baselineChargingKwh));
+            if (delta > 0) {
+              homeChargingDeltaKwh += delta;
+              if (!deviceIdsToUpdate.includes(device.id)) {
+                deviceIdsToUpdate.push(device.id);
+              }
             }
-          }
+          } catch (e) { refuse(e); }
         }
       }
+
+      // Fail closed: if ANY device/activity had an unreadable baseline, no mint proceeds.
+      if (baselineRefusals.length > 0) {
+        console.error("BASELINE_UNREADABLE — mint refused", JSON.stringify(baselineRefusals));
+        return new Response(JSON.stringify({
+          success: false,
+          error: "BASELINE_UNREADABLE",
+          message: "Mint refused: one or more devices have an unreadable baseline. Contact support — this requires manual review.",
+          refusals: baselineRefusals,
+        }), {
+          status: 409,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      
+
       
       // Log per-device minting info
       if (deviceId) {
