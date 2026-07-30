@@ -793,9 +793,9 @@ Deno.serve(async (req) => {
         if (isSolarDevice(device.device_type) && (mintCategory === 'all' || mintCategory === 'solar')) {
           try {
             const lifetimeSolarWh = lifetime.solar_wh ?? lifetime.lifetime_solar_wh ?? 0;
-            const baselineSolarWh = resolveBaseline(device, "solar", [
-              "total_solar_produced_wh", "solar_wh", "solar_production_wh", "lifetime_solar_wh",
-            ]);
+            // Canonical read key: solar_wh (legacy keys remain in storage, unread).
+            const baselineSolarWh = resolveBaseline(device, "solar", CANONICAL_BASELINE_KEYS.solar);
+
             const delta = Math.max(0, Math.floor((lifetimeSolarWh - baselineSolarWh) / 1000));
             console.log(`Solar device ${device.id} (${device.device_type}): lifetime=${lifetimeSolarWh}Wh, baseline=${baselineSolarWh}Wh, delta=${delta}kWh`);
             if (delta > 0) {
