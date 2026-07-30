@@ -92,7 +92,48 @@ serve(async (req) => {
       );
     }
 
+    // CONTAINMENT: refuse to touch any device carrying an unresolved critical
+    // baseline_unreadable violation. Fail closed — an infra error here refuses too.
+    const { data: openViolations, error: violationsError } = await serviceClient
+      .from('user_invariant_violations')
+      .select('id, details')
+      .eq('user_id', user.id)
+      .eq('check_name', 'baseline_unreadable')
+      .eq('severity', 'critical')
+      .is('resolved_at', null);
+
+    if (violationsError) {
+      console.error("[reset-baselines] Violation check failed:", violationsError);
+      return new Response(
+        JSON.stringify({ error: "baseline_containment_check_failed" }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const blockedDeviceIds = new Set(
+      (openViolations ?? [])
+        .map((v: any) => String(v?.details?.device_id ?? ""))
+        .filter((d: string) => d.length > 0)
+    );
+
+    const blockedTargets = devices
+      .filter((d: any) => blockedDeviceIds.has(String(d.device_id)))
+      .map((d: any) => ({ device_id: d.device_id, device_type: d.device_type, provider: d.provider }));
+
+    if (blockedTargets.length > 0) {
+      console.warn(`[reset-baselines] refused — ${blockedTargets.length} device(s) under baseline containment`);
+      return new Response(
+        JSON.stringify({
+          error: "baseline_containment_active",
+          message: "One or more devices carry an unresolved critical baseline_unreadable violation. Baselines cannot be reset until those violations are reviewed and resolved.",
+          blockedDevices: blockedTargets,
+        }),
+        { status: 423, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const shouldResetAll = categories.includes('all');
+
     const resetResults: { deviceId: string; deviceType: string; category: string; baselineSet: Record<string, number> }[] = [];
 
     // Process each device and reset its baseline to current lifetime

@@ -97,6 +97,35 @@ Deno.serve(async (req) => {
     }
     const userId = userData.user.id;
 
+    // Integrity gate — fail closed, same semantics as mint-onchain write actions.
+    try {
+      const { data: gate, error: gateErr } = await supabase.rpc("can_user_mint", { _user_id: userId });
+      if (gateErr) {
+        console.error("[starlink-mint] can_user_mint rpc error", gateErr);
+        return new Response(JSON.stringify({ error: "mint_gate_check_failed" }), {
+          status: 503,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (gate && (gate as any).allowed === false) {
+        console.warn(`[starlink-mint] mint_gate_blocked user=${userId} reason=${(gate as any).reason}`);
+        return new Response(JSON.stringify({
+          error: "mint_gate_blocked",
+          reason: (gate as any).reason,
+          violations: (gate as any).violations,
+          signals: (gate as any).signals,
+          message: "Your account has an open protocol-integrity issue. An admin must review before you can mint again.",
+        }), { status: 423, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+    } catch (e) {
+      console.error("[starlink-mint] mint gate threw", e);
+      return new Response(JSON.stringify({ error: "mint_gate_exception" }), {
+        status: 503,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+
     const body: Body = await req.json().catch(() => ({} as Body));
 
     // 1) Get reading — either OCR a screenshot or accept manual values
@@ -139,13 +168,22 @@ Deno.serve(async (req) => {
       .limit(1)
       .maybeSingle();
 
-    const previous_total_gb = prev
-      ? (Number(prev.reading_download_gb) || 0) + (Number(prev.reading_upload_gb) || 0)
-      : 0;
+    // First-attestation branch is refused entirely: crediting a cumulative
+    // reading with no prior reading is an unbounded issuance surface.
+    // Pending redesign — do not re-enable without a verified origin baseline.
+    if (!prev) {
+      console.warn(`[starlink-mint] first_attestation_refused user=${userId}`);
+      return new Response(JSON.stringify({
+        error: "first_attestation_crediting_disabled",
+        message: "A first Starlink attestation cannot be credited without a prior verified reading. This path is disabled pending redesign.",
+      }), { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
 
-    let delta_gb = Math.max(0, total_gb - previous_total_gb);
-    // First-ever reading: credit the full reading (cap at 200 GB to avoid surprise mega-credit)
-    if (!prev) delta_gb = Math.min(total_gb, 200);
+    const previous_total_gb =
+      (Number(prev.reading_download_gb) || 0) + (Number(prev.reading_upload_gb) || 0);
+
+    const delta_gb = Math.max(0, total_gb - previous_total_gb);
+
 
     const tokens_credited = delta_gb; // 1 GB = 1 $ZSOLAR (UI 1:1 framing)
 
