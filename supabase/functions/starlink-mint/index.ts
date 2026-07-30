@@ -97,6 +97,35 @@ Deno.serve(async (req) => {
     }
     const userId = userData.user.id;
 
+    // Integrity gate — fail closed, same semantics as mint-onchain write actions.
+    try {
+      const { data: gate, error: gateErr } = await supabase.rpc("can_user_mint", { _user_id: userId });
+      if (gateErr) {
+        console.error("[starlink-mint] can_user_mint rpc error", gateErr);
+        return new Response(JSON.stringify({ error: "mint_gate_check_failed" }), {
+          status: 503,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (gate && (gate as any).allowed === false) {
+        console.warn(`[starlink-mint] mint_gate_blocked user=${userId} reason=${(gate as any).reason}`);
+        return new Response(JSON.stringify({
+          error: "mint_gate_blocked",
+          reason: (gate as any).reason,
+          violations: (gate as any).violations,
+          signals: (gate as any).signals,
+          message: "Your account has an open protocol-integrity issue. An admin must review before you can mint again.",
+        }), { status: 423, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+    } catch (e) {
+      console.error("[starlink-mint] mint gate threw", e);
+      return new Response(JSON.stringify({ error: "mint_gate_exception" }), {
+        status: 503,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+
     const body: Body = await req.json().catch(() => ({} as Body));
 
     // 1) Get reading — either OCR a screenshot or accept manual values
