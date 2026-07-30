@@ -391,168 +391,20 @@ Deno.serve(async (req) => {
     }
 
     if (action === "claim") {
-      // Get all unclaimed rewards
-      const { data: unclaimedRewards, error: fetchError } = await supabaseClient
-        .from("user_rewards")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("claimed", false);
-
-      if (fetchError) {
-        return new Response(JSON.stringify({ error: "Failed to fetch rewards" }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      if (!unclaimedRewards || unclaimedRewards.length === 0) {
-        return new Response(JSON.stringify({ 
-          success: false, 
-          message: "No unclaimed rewards" 
-        }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      const totalToClaim = unclaimedRewards.reduce((sum, r) => sum + Number(r.tokens_earned), 0);
-
-      // Mark rewards as claimed
-      const rewardIds = unclaimedRewards.map(r => r.id);
-      const { error: updateError } = await supabaseClient
-        .from("user_rewards")
-        .update({ 
-          claimed: true, 
-          claimed_at: new Date().toISOString() 
-        })
-        .in("id", rewardIds);
-
-      if (updateError) {
-        return new Response(JSON.stringify({ error: "Failed to claim rewards" }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      // Reset baselines on all connected devices to current lifetime values
-      const { data: devices } = await supabaseClient
-        .from("connected_devices")
-        .select("id, device_id, device_type, provider, baseline_data, lifetime_totals")
-        .eq("user_id", user.id);
-
-      if (devices && devices.length > 0) {
-        const now = new Date().toISOString();
-        
-        // Get Tesla tokens if any Tesla devices exist
-        const teslaDevices = devices.filter(d => d.provider === "tesla");
-        if (teslaDevices.length > 0) {
-          const { data: tokenData } = await supabaseClient
-            .from("energy_tokens")
-            .select("access_token")
-            .eq("user_id", user.id)
-            .eq("provider", "tesla")
-            .single();
-          
-          const accessToken = tokenData?.access_token;
-          
-          if (accessToken) {
-            // Update baselines for each Tesla device with current lifetime values
-            for (const device of teslaDevices) {
-              try {
-                let newBaseline: Record<string, any> = { captured_at: now };
-                
-                if (device.device_type === "vehicle") {
-                  // Fetch current odometer
-                  const response = await fetch(
-                    `${TESLA_API_BASE}/api/1/vehicles/${device.device_id}/vehicle_data?endpoints=vehicle_state`,
-                    { headers: { "Authorization": `Bearer ${accessToken}` } }
-                  );
-                  
-                  if (response.ok) {
-                    const data = await response.json();
-                    newBaseline.odometer = data.response?.vehicle_state?.odometer || 0;
-                    console.log(`Updated vehicle ${device.device_id} baseline odometer: ${newBaseline.odometer}`);
-                  }
-                } else if (device.device_type === "powerwall" || device.device_type === "solar") {
-                  // Fetch current lifetime energy data
-                  const response = await fetch(
-                    `${TESLA_API_BASE}/api/1/energy_sites/${device.device_id}/calendar_history?kind=energy&period=lifetime`,
-                    { headers: { "Authorization": `Bearer ${accessToken}` } }
-                  );
-                  
-                  if (response.ok) {
-                    const data = await response.json();
-                    const histResponse = data.response || {};
-                    newBaseline.total_solar_produced_wh = (histResponse.total_solar_energy_exported || 0) + (histResponse.total_solar_energy_consumed || 0);
-                    newBaseline.total_energy_discharged_wh = histResponse.total_battery_energy_exported || 0;
-                    console.log(`Updated site ${device.device_id} baseline:`, JSON.stringify(newBaseline));
-                  }
-                }
-                
-                // Update the device with new baseline
-                await supabaseClient
-                  .from("connected_devices")
-                  .update({ 
-                    baseline_data: newBaseline, 
-                    last_minted_at: now 
-                  })
-                  .eq("id", device.id);
-                  
-              } catch (error) {
-                console.error(`Error updating baseline for device ${device.device_id}:`, error);
-              }
-            }
-          }
-        }
-        
-        // Update baselines for non-Tesla devices using their current lifetime_totals
-        const nonTeslaDevices = devices.filter(d => d.provider !== "tesla");
-        for (const device of nonTeslaDevices) {
-          try {
-            const lifetime = device.lifetime_totals as Record<string, any> || {};
-            let newBaseline: Record<string, any> = { captured_at: now };
-            
-            // Copy relevant lifetime values to baseline based on device type
-            if (device.provider === "wallbox" || isChargerDevice(device.device_type)) {
-              // Wallbox stores charging in kWh directly
-              newBaseline.charging_kwh = lifetime.charging_kwh || lifetime.lifetime_charging_kwh || 0;
-              console.log(`Updated Wallbox ${device.device_id} baseline charging_kwh: ${newBaseline.charging_kwh}`);
-            } else if (device.provider === "enphase" || isSolarDevice(device.device_type)) {
-              // Enphase stores solar in Wh
-              newBaseline.solar_wh = lifetime.solar_wh || lifetime.lifetime_solar_wh || 0;
-              console.log(`Updated Enphase ${device.device_id} baseline solar_wh: ${newBaseline.solar_wh}`);
-            } else if (device.provider === "solaredge") {
-              // SolarEdge stores solar in Wh
-              newBaseline.solar_wh = lifetime.solar_wh || lifetime.lifetime_solar_wh || 0;
-              console.log(`Updated SolarEdge ${device.device_id} baseline solar_wh: ${newBaseline.solar_wh}`);
-            }
-            
-            await supabaseClient
-              .from("connected_devices")
-              .update({ 
-                baseline_data: newBaseline, 
-                last_minted_at: now 
-              })
-              .eq("id", device.id);
-              
-          } catch (error) {
-            console.error(`Error updating baseline for ${device.provider} device ${device.device_id}:`, error);
-          }
-        }
-        
-        console.log(`Reset baselines for ${devices.length} devices after minting`);
-      }
-
-      // TODO: Trigger blockchain minting here
-
+      // CONTAINMENT (fail closed): the legacy claim path issued value from raw
+      // lifetime_totals with no baseline subtraction and then overwrote
+      // baseline_data on every connected device. It is disabled outright.
+      // Do not re-enable without baseline-aware accounting + can_user_mint() gating.
+      console.warn(`[calculate-rewards] claim refused (disabled) user=${user.id}`);
       return new Response(JSON.stringify({
-        success: true,
-        tokens_claimed: totalToClaim,
-        message: `Successfully claimed ${totalToClaim} $ZSOLAR tokens`,
-        baselines_reset: true,
+        error: "claim_disabled_pending_baseline_integrity_review",
+        message: "Claiming through this path is disabled pending a protocol-integrity review. No rewards were claimed and no baselines were changed.",
       }), {
+        status: 503,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
 
     return new Response(JSON.stringify({ error: "Invalid action" }), {
       status: 400,
