@@ -2,6 +2,12 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { createWalletClient, createPublicClient, http, parseAbi, formatEther, decodeErrorResult } from "npm:viem@2.43.5";
 import { privateKeyToAccount } from "npm:viem@2.43.5/accounts";
 import { baseSepolia } from "npm:viem@2.43.5/chains";
+import {
+  assertBaseline,
+  BaselineUnreadableError,
+  CANONICAL_BASELINE_KEYS,
+} from "../_shared/baselineResolver.ts";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
