@@ -2,6 +2,12 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { createWalletClient, createPublicClient, http, parseAbi, formatEther, decodeErrorResult } from "npm:viem@2.43.5";
 import { privateKeyToAccount } from "npm:viem@2.43.5/accounts";
 import { baseSepolia } from "npm:viem@2.43.5/chains";
+import {
+  assertBaseline,
+  BaselineUnreadableError,
+  CANONICAL_BASELINE_KEYS,
+} from "../_shared/baselineResolver.ts";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -750,48 +756,17 @@ Deno.serve(async (req) => {
       // Calculate real deltas from device data, filtering by category
       // Uses normalized device type matching for consistency across providers
       // ── Containment: fail-closed baseline resolution ─────────────────────
+      // Single canonical resolver lives in _shared/baselineResolver.ts.
       // A delta may only be computed from a baseline we can positively read.
       // Absent key, empty object, or NULL baseline_data => refuse (never 0).
       // A present, genuinely-0 baseline is accepted ONLY when the row carries
       // an explicit first-claim marker. Ambiguous zero => refuse.
-      class BaselineUnreadableError extends Error {
-        constructor(public deviceRef: string, public activityType: string, public reason: string) {
-          super(`BASELINE_UNREADABLE: device=${deviceRef} activity=${activityType} reason=${reason}`);
-          this.name = "BaselineUnreadableError";
-        }
-      }
-
-      const hasFirstClaimMarker = (b: Record<string, unknown> | null): boolean =>
-        !!b && (b.first_claim === true || b.first_claim_at != null || b.is_first_claim === true);
-
-      // Resolve a baseline value for one (device, activity_type).
-      // `keys` are the canonical baseline keys for that activity, in precedence order.
-      // `scale` converts the stored unit into the unit the caller wants.
       const resolveBaseline = (
         device: { device_id: string; baseline_data: unknown },
         activityType: string,
-        keys: string[],
-      ): number => {
-        const b = device.baseline_data as Record<string, unknown> | null;
-        if (b === null || b === undefined || typeof b !== "object" || Array.isArray(b)) {
-          throw new BaselineUnreadableError(device.device_id, activityType, "baseline_data_null_or_invalid");
-        }
-        if (Object.keys(b).length === 0) {
-          throw new BaselineUnreadableError(device.device_id, activityType, "baseline_data_empty");
-        }
-        const key = keys.find((k) => Object.prototype.hasOwnProperty.call(b, k) && b[k] !== null && b[k] !== undefined);
-        if (!key) {
-          throw new BaselineUnreadableError(device.device_id, activityType, "canonical_key_absent");
-        }
-        const raw = b[key];
-        if (typeof raw !== "number" || !Number.isFinite(raw)) {
-          throw new BaselineUnreadableError(device.device_id, activityType, `key_${key}_not_numeric`);
-        }
-        if (raw === 0 && !hasFirstClaimMarker(b)) {
-          throw new BaselineUnreadableError(device.device_id, activityType, `key_${key}_zero_without_first_claim_marker`);
-        }
-        return raw;
-      };
+        keys: readonly string[],
+      ): number => assertBaseline(device, activityType, keys);
+
 
       const baselineRefusals: { device_id: string; activity_type: string; reason: string }[] = [];
       const refuse = (e: unknown) => {
@@ -818,9 +793,9 @@ Deno.serve(async (req) => {
         if (isSolarDevice(device.device_type) && (mintCategory === 'all' || mintCategory === 'solar')) {
           try {
             const lifetimeSolarWh = lifetime.solar_wh ?? lifetime.lifetime_solar_wh ?? 0;
-            const baselineSolarWh = resolveBaseline(device, "solar", [
-              "total_solar_produced_wh", "solar_wh", "solar_production_wh", "lifetime_solar_wh",
-            ]);
+            // Canonical read key: solar_wh (legacy keys remain in storage, unread).
+            const baselineSolarWh = resolveBaseline(device, "solar", CANONICAL_BASELINE_KEYS.solar);
+
             const delta = Math.max(0, Math.floor((lifetimeSolarWh - baselineSolarWh) / 1000));
             console.log(`Solar device ${device.id} (${device.device_type}): lifetime=${lifetimeSolarWh}Wh, baseline=${baselineSolarWh}Wh, delta=${delta}kWh`);
             if (delta > 0) {
@@ -864,7 +839,8 @@ Deno.serve(async (req) => {
           if (mintCategory === 'all' || mintCategory === 'ev_miles') {
             try {
               const lifetimeOdometer = lifetime.odometer ?? 0;
-              const baselineOdometer = resolveBaseline(device, "ev_miles", ["odometer"]);
+              const baselineOdometer = resolveBaseline(device, "ev_miles", CANONICAL_BASELINE_KEYS.ev_miles);
+
               const delta = Math.max(0, Math.floor(lifetimeOdometer - baselineOdometer));
               if (delta > 0) {
                 evMilesDelta += delta;
@@ -878,10 +854,9 @@ Deno.serve(async (req) => {
           if (mintCategory === 'all' || mintCategory === 'charging') {
             try {
               const lifetimeChargingKwh = lifetime.charging_kwh ?? (lifetime.charging_wh != null ? lifetime.charging_wh / 1000 : 0);
-              const rawBaselineCharging = resolveBaseline(device, "charging", ["charging_kwh", "charging_wh"]);
-              const baselineChargingKwh = (baseline && Object.prototype.hasOwnProperty.call(baseline, "charging_kwh"))
-                ? rawBaselineCharging
-                : rawBaselineCharging / 1000;
+              // Canonical read key: charging_kwh (already kWh — no unit scaling).
+              const baselineChargingKwh = resolveBaseline(device, "charging", CANONICAL_BASELINE_KEYS.charging);
+
               const delta = Math.max(0, Math.floor(lifetimeChargingKwh - baselineChargingKwh));
               if (delta > 0) {
                 superchargerDeltaKwh += delta;
@@ -897,10 +872,9 @@ Deno.serve(async (req) => {
         if (isChargerDevice(device.device_type) && (mintCategory === 'all' || mintCategory === 'charging')) {
           try {
             const lifetimeChargingKwh = lifetime.charging_kwh ?? (lifetime.charging_wh != null ? lifetime.charging_wh / 1000 : 0) ?? (lifetime.lifetime_charging_wh != null ? lifetime.lifetime_charging_wh / 1000 : 0) ?? (lifetime.wall_connector_wh != null ? lifetime.wall_connector_wh / 1000 : 0);
-            const rawBaselineCharging = resolveBaseline(device, "charging", ["charging_kwh", "charging_wh", "wall_connector_wh"]);
-            const baselineChargingKwh = (baseline && Object.prototype.hasOwnProperty.call(baseline, "charging_kwh"))
-              ? rawBaselineCharging
-              : rawBaselineCharging / 1000;
+            // Canonical read key: charging_kwh (already kWh — no unit scaling).
+            const baselineChargingKwh = resolveBaseline(device, "charging", CANONICAL_BASELINE_KEYS.charging);
+
             const delta = Math.max(0, Math.floor(lifetimeChargingKwh - baselineChargingKwh));
             if (delta > 0) {
               homeChargingDeltaKwh += delta;
