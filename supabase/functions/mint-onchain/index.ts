@@ -750,48 +750,17 @@ Deno.serve(async (req) => {
       // Calculate real deltas from device data, filtering by category
       // Uses normalized device type matching for consistency across providers
       // ── Containment: fail-closed baseline resolution ─────────────────────
+      // Single canonical resolver lives in _shared/baselineResolver.ts.
       // A delta may only be computed from a baseline we can positively read.
       // Absent key, empty object, or NULL baseline_data => refuse (never 0).
       // A present, genuinely-0 baseline is accepted ONLY when the row carries
       // an explicit first-claim marker. Ambiguous zero => refuse.
-      class BaselineUnreadableError extends Error {
-        constructor(public deviceRef: string, public activityType: string, public reason: string) {
-          super(`BASELINE_UNREADABLE: device=${deviceRef} activity=${activityType} reason=${reason}`);
-          this.name = "BaselineUnreadableError";
-        }
-      }
-
-      const hasFirstClaimMarker = (b: Record<string, unknown> | null): boolean =>
-        !!b && (b.first_claim === true || b.first_claim_at != null || b.is_first_claim === true);
-
-      // Resolve a baseline value for one (device, activity_type).
-      // `keys` are the canonical baseline keys for that activity, in precedence order.
-      // `scale` converts the stored unit into the unit the caller wants.
       const resolveBaseline = (
         device: { device_id: string; baseline_data: unknown },
         activityType: string,
-        keys: string[],
-      ): number => {
-        const b = device.baseline_data as Record<string, unknown> | null;
-        if (b === null || b === undefined || typeof b !== "object" || Array.isArray(b)) {
-          throw new BaselineUnreadableError(device.device_id, activityType, "baseline_data_null_or_invalid");
-        }
-        if (Object.keys(b).length === 0) {
-          throw new BaselineUnreadableError(device.device_id, activityType, "baseline_data_empty");
-        }
-        const key = keys.find((k) => Object.prototype.hasOwnProperty.call(b, k) && b[k] !== null && b[k] !== undefined);
-        if (!key) {
-          throw new BaselineUnreadableError(device.device_id, activityType, "canonical_key_absent");
-        }
-        const raw = b[key];
-        if (typeof raw !== "number" || !Number.isFinite(raw)) {
-          throw new BaselineUnreadableError(device.device_id, activityType, `key_${key}_not_numeric`);
-        }
-        if (raw === 0 && !hasFirstClaimMarker(b)) {
-          throw new BaselineUnreadableError(device.device_id, activityType, `key_${key}_zero_without_first_claim_marker`);
-        }
-        return raw;
-      };
+        keys: readonly string[],
+      ): number => assertBaseline(device, activityType, keys);
+
 
       const baselineRefusals: { device_id: string; activity_type: string; reason: string }[] = [];
       const refuse = (e: unknown) => {
