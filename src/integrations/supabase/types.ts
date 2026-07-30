@@ -211,6 +211,48 @@ export type Database = {
         }
         Relationships: []
       }
+      baseline_write_refusals: {
+        Row: {
+          application_name: string | null
+          attempted_baseline: Json | null
+          attempted_by: string | null
+          created_at: string
+          db_role: string | null
+          device_id: string
+          device_user_id: string | null
+          existing_baseline: Json | null
+          id: string
+          provider: string | null
+          violation_ids: string[] | null
+        }
+        Insert: {
+          application_name?: string | null
+          attempted_baseline?: Json | null
+          attempted_by?: string | null
+          created_at?: string
+          db_role?: string | null
+          device_id: string
+          device_user_id?: string | null
+          existing_baseline?: Json | null
+          id?: string
+          provider?: string | null
+          violation_ids?: string[] | null
+        }
+        Update: {
+          application_name?: string | null
+          attempted_baseline?: Json | null
+          attempted_by?: string | null
+          created_at?: string
+          db_role?: string | null
+          device_id?: string
+          device_user_id?: string | null
+          existing_baseline?: Json | null
+          id?: string
+          provider?: string | null
+          violation_ids?: string[] | null
+        }
+        Relationships: []
+      }
       beta_invites: {
         Row: {
           consumed_at: string | null
