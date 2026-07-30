@@ -3637,6 +3637,7 @@ export type Database = {
       }
     }
     Functions: {
+      _baseline_canonical_keys: { Args: never; Returns: string[] }
       can_user_mint: { Args: { _user_id: string }; Returns: Json }
       check_anchor_freshness: { Args: never; Returns: number }
       check_nda_signed: { Args: { _email: string }; Returns: boolean }
