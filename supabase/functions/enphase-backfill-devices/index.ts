@@ -152,6 +152,33 @@ async function backfillUser(
       continue;
     }
 
+    // FAIL CLOSED: never insert an empty/placeholder baseline. A row whose
+    // baseline_data lacks the canonical `solar_wh` key stages the system's
+    // entire lifetime production as a mintable delta (the handoff incident).
+    // Resolve the real lifetime reading first; if we can't, claim nothing.
+    let lifetimeWh: number | null = null;
+    try {
+      const summaryRes = await fetch(
+        `${ENPHASE_API_BASE}/systems/${deviceId}/summary?key=${apiKey}`,
+        { headers: { Authorization: `Bearer ${accessToken}` } },
+      );
+      if (summaryRes.ok) {
+        const summary = await summaryRes.json();
+        const v = Number(summary?.energy_lifetime);
+        if (Number.isFinite(v) && v >= 0) lifetimeWh = v;
+      } else {
+        await summaryRes.text().catch(() => "");
+      }
+    } catch (e) {
+      console.error(`enphase summary fetch failed for ${deviceId}:`, e);
+    }
+
+    if (lifetimeWh === null) {
+      result.errors.push(`baseline_unresolved_${deviceId}`);
+      continue;
+    }
+
+    const nowIso = new Date().toISOString();
     const { error: insertErr } = await supabase
       .from("connected_devices")
       .insert({
@@ -168,10 +195,21 @@ async function backfillUser(
           address: sys.address,
           size_w: sys.system_size,
           backfilled: true,
-          backfilled_at: new Date().toISOString(),
+          backfilled_at: nowIso,
         },
-        baseline_data: { captured_at: new Date().toISOString() },
+        lifetime_totals: {
+          solar_wh: lifetimeWh,
+          lifetime_solar_wh: lifetimeWh,
+          updated_at: nowIso,
+        },
+        baseline_data: {
+          solar_wh: lifetimeWh,
+          lifetime_solar_wh: lifetimeWh,
+          captured_at: nowIso,
+          source: "enphase_backfill_summary",
+        },
       });
+
 
     if (insertErr) {
       if (insertErr.code === "23505") {
