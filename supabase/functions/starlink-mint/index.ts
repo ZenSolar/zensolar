@@ -1,6 +1,8 @@
 // Starlink Mint — OCR a Starlink app screenshot and credit $ZSOLAR at 1 GB = 1 $ZSOLAR.
 // Manual attestation flow (Starlink has no public consumer API).
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { resolveBaseline } from "../_shared/baselineResolver.ts";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
