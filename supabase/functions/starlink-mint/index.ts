@@ -168,13 +168,22 @@ Deno.serve(async (req) => {
       .limit(1)
       .maybeSingle();
 
-    const previous_total_gb = prev
-      ? (Number(prev.reading_download_gb) || 0) + (Number(prev.reading_upload_gb) || 0)
-      : 0;
+    // First-attestation branch is refused entirely: crediting a cumulative
+    // reading with no prior reading is an unbounded issuance surface.
+    // Pending redesign — do not re-enable without a verified origin baseline.
+    if (!prev) {
+      console.warn(`[starlink-mint] first_attestation_refused user=${userId}`);
+      return new Response(JSON.stringify({
+        error: "first_attestation_crediting_disabled",
+        message: "A first Starlink attestation cannot be credited without a prior verified reading. This path is disabled pending redesign.",
+      }), { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
 
-    let delta_gb = Math.max(0, total_gb - previous_total_gb);
-    // First-ever reading: credit the full reading (cap at 200 GB to avoid surprise mega-credit)
-    if (!prev) delta_gb = Math.min(total_gb, 200);
+    const previous_total_gb =
+      (Number(prev.reading_download_gb) || 0) + (Number(prev.reading_upload_gb) || 0);
+
+    const delta_gb = Math.max(0, total_gb - previous_total_gb);
+
 
     const tokens_credited = delta_gb; // 1 GB = 1 $ZSOLAR (UI 1:1 framing)
 
