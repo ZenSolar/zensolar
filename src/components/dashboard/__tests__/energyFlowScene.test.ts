@@ -50,7 +50,7 @@ describe('pickScene', () => {
           batteryPower: -2,
           tesla: { kW: 11, soc: 50, rangeMi: 200, isCharging: true, source: 'home' },
         },
-        noon,
+        night,
       ),
     ).toBe('night-pw-discharge');
   });
