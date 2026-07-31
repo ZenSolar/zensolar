@@ -474,7 +474,7 @@ export function TokenPriceCard({
                     </span>
                   </div>
                   <span className="text-[11px] text-muted-foreground leading-tight">
-                    {tokensHeld.toLocaleString()} tokens · ${tokenPrice.toFixed(2)}
+                    {tokensHeld.toLocaleString()} $ZSOLAR
                   </span>
                 </div>
               </div>
@@ -488,7 +488,7 @@ export function TokenPriceCard({
                     className="text-lg font-bold text-foreground tabular-nums"
                     style={isBursting ? { textShadow: `0 0 8px rgba(${WALLET_RGBA}, 0.5), 0 0 16px rgba(${WALLET_RGBA}, 0.25)`, transition: 'text-shadow 200ms ease-out' } : { transition: 'text-shadow 200ms ease-out' }}
                   >
-                    ${formattedValue}
+                    {tokensHeld.toLocaleString()}
                   </span>
                 </motion.div>
                 {/* Chevron with stamp animation during burst */}
@@ -585,42 +585,6 @@ export function TokenPriceCard({
               <span className="text-2xl font-bold text-foreground tabular-nums tracking-tight">{tokensHeld.toLocaleString()}</span>
               <span className="text-sm font-medium text-muted-foreground">$ZSOLAR</span>
             </motion.div>
-            <div className="flex items-center gap-2 mt-1.5">
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <DollarSign className="h-3 w-3" />
-                <span className="tabular-nums font-medium">${formattedValue} USD</span>
-              </div>
-              <span className="text-muted-foreground/40">·</span>
-              {/* Editable price */}
-              {isEditing ? (
-                <div className="flex items-center gap-1">
-                  <span className="text-xs font-medium text-muted-foreground">@$</span>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    onBlur={handlePriceSubmit}
-                    className="h-6 w-16 text-xs font-medium p-1"
-                    autoFocus
-                  />
-                  <button onClick={handlePriceSubmit} className="p-0.5 rounded hover:bg-muted/50">
-                    <Check className="h-3 w-3 text-muted-foreground" />
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors group"
-                >
-                  <span className="tabular-nums">@${tokenPrice.toFixed(2)}/token</span>
-                  <Edit2 className="h-2.5 w-2.5 opacity-50 group-hover:opacity-100 transition-opacity" />
-                  <span className="text-[10px] opacity-50 group-hover:opacity-100 transition-opacity italic">tap to edit</span>
-                </button>
-              )}
-            </div>
           </div>
 
           {/* ★ $ZSOLAR — Hero holding */}
@@ -636,7 +600,6 @@ export function TokenPriceCard({
                 </div>
                 <div className="text-right">
                   <p className="text-lg font-bold text-primary tabular-nums">{tokensHeld.toLocaleString()}</p>
-                  <p className="text-[11px] font-medium text-eco tabular-nums">≈ ${formattedValue}</p>
                 </div>
               </div>
             </div>
