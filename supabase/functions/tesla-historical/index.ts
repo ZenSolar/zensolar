@@ -149,6 +149,34 @@ async function refreshTeslaToken(
   }
 }
 
+
+// ── Period-total proof tagging (post 2026-07-31 issuance cutover) ───────────
+// These rows are DAILY PERIOD TOTALS, so production_wh is already the issuable
+// delta for that day bucket — never a cumulative snapshot. Tag them explicitly
+// so readers (and _shared/unmintedDeltas.ts) cannot misinterpret them.
+async function sha256Hex(input: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+async function periodTotalProof(
+  deviceId: string, recordedAt: string, value: number, dataType: string, unit: string,
+): Promise<Record<string, unknown>> {
+  return {
+    hash: await sha256Hex(`${deviceId}|${recordedAt}|${value}|period_total`),
+    device_id: deviceId,
+    value,
+    delta: value,
+    value_semantics: "period_total",
+    production_wh_semantics: "issuable_delta",
+    data_type: dataType,
+    unit,
+    timestamp: recordedAt,
+    algorithm: "SHA-256",
+    preimage_format: "device_id|recorded_at|value|period_total",
+    period: "day",
+  };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -337,6 +365,7 @@ Deno.serve(async (req) => {
                   production_wh: solarWh,
                   data_type: "solar",
                   recorded_at: recordedAt,
+                  proof_metadata: await periodTotalProof(siteId, recordedAt, solarWh, "solar", "wh"),
                 });
               }
               if (batteryWh > 0 && batteryWh < 500000) {
@@ -347,6 +376,7 @@ Deno.serve(async (req) => {
                   production_wh: batteryWh,
                   data_type: "battery_discharge",
                   recorded_at: recordedAt,
+                  proof_metadata: await periodTotalProof(siteId, recordedAt, batteryWh, "battery_discharge", "wh"),
                 });
               }
             } else if (dayResp.status !== 429) {
@@ -419,6 +449,7 @@ Deno.serve(async (req) => {
                   production_wh: solarWh,
                   data_type: "solar",
                   recorded_at: recordedAt,
+                  proof_metadata: await periodTotalProof(siteId, recordedAt, solarWh, "solar", "wh"),
                 });
               }
 
@@ -436,6 +467,7 @@ Deno.serve(async (req) => {
                   production_wh: batteryWh,
                   data_type: "battery_discharge",
                   recorded_at: recordedAt,
+                  proof_metadata: await periodTotalProof(siteId, recordedAt, batteryWh, "battery_discharge", "wh"),
                 });
               }
             }
@@ -655,6 +687,7 @@ Deno.serve(async (req) => {
             production_wh: totalWh,
             data_type: "ev_charging",
             recorded_at: dateStr + "T12:00:00Z",
+            proof_metadata: await periodTotalProof(vin, dateStr + "T12:00:00Z", totalWh, "ev_charging", "wh"),
           });
         }
       }
