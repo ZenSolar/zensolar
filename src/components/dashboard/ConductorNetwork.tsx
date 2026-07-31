@@ -6,8 +6,9 @@
  * roof→grid) that both terminated near the utility post. Real topology is a
  * trunk that divides:
  *
- *     roofPlane ─▶ roofEave ─▶ gateway ─▶ mainPanel ─┬─▶ homeInterior
- *                      (trunk = total production)    └─▶ utilityPost
+ *     roofPlane ─▶ roofEave ─▶ wallJunction ─┬─▶ homeInterior
+ *                 (trunk = total production) └─▶ utilityPost
+
  *
  * The trunk carries total production; the two branches carry the home load
  * and the grid share, and stroke weight scales with kW so a viewer can see
