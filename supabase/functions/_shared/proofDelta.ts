@@ -116,6 +116,8 @@ export async function resolveBucketAnchor(
     prev: PrevProof;
     /** true for day-to-date meters that reset at local midnight. */
     resetsDaily: boolean;
+    /** Current reading. A reading BELOW the anchor proves a meter reset. */
+    currentValue?: number;
   },
 ): Promise<number> {
   // Same bucket already written? Reuse its pinned anchor.
@@ -129,9 +131,14 @@ export async function resolveBucketAnchor(
     .eq('recorded_at', args.recordedAt)
     .maybeSingle();
 
+  const cur = Number(args.currentValue);
+  const belowAnchor = (a: number) => Number.isFinite(cur) && cur < a;
+
   const pinned = (sameBucket?.proof_metadata as any)?.bucket_start_value;
   if (pinned !== undefined && pinned !== null && Number.isFinite(Number(pinned))) {
-    return Number(pinned);
+    // A reading below the pinned anchor means the meter rolled over mid-bucket
+    // (local midnight vs. the UTC date used for bucketing). Re-anchor at 0.
+    return args.resetsDaily && belowAnchor(Number(pinned)) ? 0 : Number(pinned);
   }
 
   // New bucket: anchor on the previous row's reading. For day-to-date meters
@@ -140,13 +147,15 @@ export async function resolveBucketAnchor(
   if (!args.prev.prevRecordedAt) return args.resetsDaily ? 0 : args.prev.prevValue;
   if (!args.resetsDaily) return args.prev.prevValue;
   const sameDay = args.prev.prevRecordedAt.slice(0, 10) === args.recordedAt.slice(0, 10);
-  return sameDay ? args.prev.prevValue : 0;
+  if (!sameDay) return 0;
+  // Same UTC date but a smaller reading ⇒ the local day already rolled over.
+  return belowAnchor(args.prev.prevValue) ? 0 : args.prev.prevValue;
 }
 
 /** Day-to-date convenience wrapper (Enphase energy_today, SolarEdge lastDayData). */
 export async function resolveDayToDateAnchor(
   client: { from: (t: string) => any },
-  args: { userId: string; deviceId: string; provider: string; dataType: string; recordedAt: string; prev: PrevProof },
+  args: { userId: string; deviceId: string; provider: string; dataType: string; recordedAt: string; prev: PrevProof; currentValue: number },
 ): Promise<number> {
   return await resolveBucketAnchor(client, { ...args, resetsDaily: true });
 }

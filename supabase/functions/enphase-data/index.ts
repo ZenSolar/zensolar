@@ -525,6 +525,7 @@ Deno.serve(async (req) => {
           dataType: "solar",
           recordedAt,
           prev,
+          currentValue: energyTodayWh,
         });
         const delta = snapshotDelta(energyTodayWh, bucketStart);
         const hash = await buildEnergyHash(devId, tsNow, energyTodayWh, prev.prevHash);

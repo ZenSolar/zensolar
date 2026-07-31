@@ -232,7 +232,7 @@ Deno.serve(async (req) => {
       const prev = await getPreviousProof(supabaseClient, siteId, "solar", targetUserId);
       const bucketStart = await resolveDayToDateAnchor(supabaseClient, {
         userId: targetUserId, deviceId: siteId, provider: "solaredge",
-        dataType: "solar", recordedAt, prev,
+        dataType: "solar", recordedAt, prev, currentValue: todayEnergyWh,
       });
       const delta = snapshotDelta(todayEnergyWh, bucketStart);
       const hash = await buildEnergyHash(siteId, tsNow, todayEnergyWh, prev.prevHash);
