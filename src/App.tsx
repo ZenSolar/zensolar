@@ -348,13 +348,15 @@ const App = () => {
                     <Route path="/unsubscribe" element={<Suspense fallback={<PageLoader />}><Unsubscribe /></Suspense>} />
                    <Route path="/install" element={<Install />} />
                    <Route path="/deck" element={<Suspense fallback={<PageLoader />}><DeckPinGated /></Suspense>} />
-                   <Route path="/investor" element={<Suspense fallback={<PageLoader />}><Investor /></Suspense>} />
-                   <Route path="/investor/why-this-round" element={<Suspense fallback={<PageLoader />}><InvestorWhyThisRound /></Suspense>} />
-                   <Route path="/investor/solarcoin-comparison" element={<Suspense fallback={<PageLoader />}><InvestorSolarCoinComparison /></Suspense>} />
-                   <Route path="/investor/pitch" element={<Suspense fallback={<PageLoader />}><InvestorPitch /></Suspense>} />
-                   <Route path="/investor/one-pager" element={<Suspense fallback={<PageLoader />}><InvestorOnePager /></Suspense>} />
-                   <Route path="/investor/data-room" element={<Suspense fallback={<PageLoader />}><InvestorDataRoom /></Suspense>} />
-                   <Route path="/investor/data-room/pog" element={<Suspense fallback={<PageLoader />}><InvestorDataRoomPoG /></Suspense>} />
+                   {/* Investor web surfaces are admin-only — the .pptx deck is canonical. */}
+                   <Route path="/investor" element={<FounderRoute><Suspense fallback={<PageLoader />}><Investor /></Suspense></FounderRoute>} />
+                   <Route path="/investor/why-this-round" element={<FounderRoute><Suspense fallback={<PageLoader />}><InvestorWhyThisRound /></Suspense></FounderRoute>} />
+                   <Route path="/investor/solarcoin-comparison" element={<FounderRoute><Suspense fallback={<PageLoader />}><InvestorSolarCoinComparison /></Suspense></FounderRoute>} />
+                   <Route path="/investor/pitch" element={<FounderRoute><Suspense fallback={<PageLoader />}><InvestorPitch /></Suspense></FounderRoute>} />
+                   <Route path="/investor/one-pager" element={<FounderRoute><Suspense fallback={<PageLoader />}><InvestorOnePager /></Suspense></FounderRoute>} />
+                   <Route path="/investor/data-room" element={<FounderRoute><Suspense fallback={<PageLoader />}><InvestorDataRoom /></Suspense></FounderRoute>} />
+                   <Route path="/investor/data-room/pog" element={<FounderRoute><Suspense fallback={<PageLoader />}><InvestorDataRoomPoG /></Suspense></FounderRoute>} />
+
                    <Route path="/seed" element={<SeedPinGate><Suspense fallback={<PageLoader />}><Seed /></Suspense></SeedPinGate>} />
                    <Route path="/seed/one-pager" element={<SeedPinGate><Suspense fallback={<PageLoader />}><SeedOnePager /></Suspense></SeedPinGate>} />
                    <Route path="/seed/deck" element={<SeedPinGate><Suspense fallback={<PageLoader />}><SeedDeck /></Suspense></SeedPinGate>} />
