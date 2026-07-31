@@ -1,4 +1,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  getPreviousProof as sharedGetPreviousProof,
+  buildProofMetadata,
+} from "../_shared/proofDelta.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -22,21 +26,9 @@ async function buildEnergyHash(deviceId: string, timestamp: string, value: numbe
   return sha256Hex(`${deviceId}|${timestamp}|${value}|${prevHash}`);
 }
 
+// Prev-value resolution reads proof_metadata.value with a legacy fallback.
 async function getPreviousProof(supabaseClient: any, deviceId: string, dataType: string, userId: string) {
-  const { data: prevRecord } = await supabaseClient
-    .from("energy_production")
-    .select("proof_metadata, production_wh")
-    .eq("device_id", deviceId)
-    .eq("provider", "wallbox")
-    .eq("data_type", dataType)
-    .eq("user_id", userId)
-    .order("recorded_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  return {
-    prevHash: (prevRecord?.proof_metadata as any)?.hash || "genesis",
-    prevValue: Number(prevRecord?.production_wh || 0),
-  };
+  return await sharedGetPreviousProof(supabaseClient, deviceId, "wallbox", dataType, userId);
 }
 
 Deno.serve(async (req) => {
@@ -579,6 +571,9 @@ Deno.serve(async (req) => {
       for (const [dateStr, totalWh] of dailyChargingMap) {
         if (totalWh <= 0) continue;
         const tsNow = new Date().toISOString();
+        // Wallbox daily rows are PERIOD TOTALS (sum of that day's sessions), so
+        // production_wh is already the issuable delta for the day bucket. The
+        // previous row is a different day and must not be subtracted.
         const { prevHash, prevValue } = await getPreviousProof(supabaseClient, primaryId, "ev_charging", targetUserId);
         const hash = await buildEnergyHash(primaryId, tsNow, totalWh, prevHash);
         console.log(`[Proof-of-Delta] Wallbox charging for ${primaryId} on ${dateStr}: ${hash.slice(0, 16)}... (val: ${totalWh} Wh)`);
@@ -592,19 +587,13 @@ Deno.serve(async (req) => {
             production_wh: totalWh,
             data_type: "ev_charging",
             recorded_at: dateStr + "T12:00:00Z",
-            proof_metadata: {
-              hash,
-              prev_hash: prevHash,
-              device_id: primaryId,
-              value: totalWh,
-              prev_value: prevValue,
-              delta: Math.max(0, totalWh - prevValue),
-              data_type: "ev_charging",
-              unit: "wh",
-              timestamp: tsNow,
-              algorithm: "SHA-256",
-              preimage_format: "device_id|timestamp|value|prevHash",
-            },
+            proof_metadata: buildProofMetadata({
+              hash, prevHash, deviceId: primaryId,
+              value: totalWh, prevValue, delta: totalWh,
+              dataType: "ev_charging", timestamp: tsNow, unit: "wh",
+              valueSemantics: "period_total",
+              extra: { period: "day", period_key: dateStr },
+            }),
           }, { onConflict: "device_id,provider,recorded_at,data_type" });
         if (dayError) console.error(`Wallbox daily upsert error for ${dateStr}:`, dayError);
       }
