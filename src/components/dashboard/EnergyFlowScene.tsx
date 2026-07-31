@@ -1000,7 +1000,14 @@ export function EnergyFlowScene({
 
 
         {flows.has('charger-ev') && (
-          <DottedFlow id="flow-charger-ev" d={BLUEPRINT_PATHS.chargerToEv} color={EMERALD_LED} dur={flowDur(data.evPower ?? 7)} />
+          <DottedFlow
+            id="flow-charger-ev"
+            /* A charging car is parked at `garageFront`, not `carPark` — route the
+               current to the port it is actually plugged into. */
+            d={chargingAtHome ? BLUEPRINT_PATHS.chargerToEvCharging : BLUEPRINT_PATHS.chargerToEv}
+            color={EMERALD_LED}
+            dur={flowDur(data.evPower ?? 7)}
+          />
         )}
         {flows.has('home-grid') && (
           solar > home + 0.1 ? (
