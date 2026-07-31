@@ -670,6 +670,26 @@ export function EnergyFlowScene({
   // stay parked in the driveway.
   const prefersReducedMotion = useReducedMotion();
 
+  // Trunk-and-branch conductor topology (see ConductorNetwork.tsx).
+  const conductorSegments = useMemo(
+    () =>
+      buildConductorSegments({
+        solar,
+        home,
+        grid,
+        colors: {
+          solar: EMERALD_LED,
+          home: EMERALD_LED,
+          export: CYAN_LED,
+          import: SKY_LED,
+        },
+        dimSolar: isOutage,
+        hideGrid: isOutage,
+      }),
+    [solar, home, grid, isOutage],
+  );
+
+
   // v5 Phase B — Supercharger detection. Tesla telemetry exposes
   // `fast_charger_present` / `fast_charger_brand` when plugged into a
   // DC fast charger. When supercharging we hide the home cable arc +
