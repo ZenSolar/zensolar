@@ -110,7 +110,7 @@ export function NotificationBell() {
       >
         <Bell className="h-5 w-5 text-foreground" />
         {totalCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] flex items-center justify-center font-bold">
+          <span data-capture-hide className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-destructive text-destructive-foreground text-[10px] flex items-center justify-center font-bold">
             {totalCount > 9 ? "9+" : totalCount}
           </span>
         )}
