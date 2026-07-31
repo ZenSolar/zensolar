@@ -1022,15 +1022,33 @@ Deno.serve(async (req) => {
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const authHeader = req.headers.get('Authorization') ?? '';
 
+    // AUTHZ (2026-07-31): identity is derived ONLY from the verified JWT.
+    // Any `userId` supplied in the request body is ignored — previously
+    // `body.userId ?? user?.id` combined with service-role reads allowed an
+    // authenticated (or unauthenticated) caller to read another user's data.
+    if (!authHeader.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ error: 'not_authenticated' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const userClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
     const admin = createClient(supabaseUrl, serviceKey);
 
-    const { data: { user } } = await userClient.auth.getUser();
+    const { data: claimsData, error: claimsErr } = await userClient.auth.getClaims(
+      authHeader.replace('Bearer ', ''),
+    );
+    const userId: string | null = claimsData?.claims?.sub ?? null;
+    if (claimsErr || !userId) {
+      return new Response(JSON.stringify({ error: 'not_authenticated' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     let body: any = {};
     try { body = await req.json(); } catch { /* empty */ }
-    const userId: string | null = body.userId ?? user?.id ?? null;
     const mode: 'recommend' | 'schedule' | 'both' | 'document_insights' | 'monthly_report' | 'concierge' =
       body.mode ?? 'both';
     const horizon: number = body.horizon_hours === 48 ? 48 : 24;
@@ -1039,12 +1057,6 @@ Deno.serve(async (req) => {
       ? body.period_month
       : (() => { const d = new Date(); return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1)).toISOString().slice(0, 10); })();
 
-
-    if (!userId) {
-      return new Response(JSON.stringify({ error: 'not_authenticated' }), {
-        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
 
     const [profileRes, devicesRes, analysisRes, cacheRes, docsRes, docAnalysesRes] = await Promise.all([
       admin.from('profiles').select('state_code, utility_name, esid').eq('user_id', userId).maybeSingle(),
