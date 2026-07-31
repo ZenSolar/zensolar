@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
             "X-Target-User-Id": uid,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ source: "enphase-data-cron" }),
+          body: JSON.stringify({ source: "enphase-data-cron", force }),
         });
         if (r.ok) {
           synced += 1;
