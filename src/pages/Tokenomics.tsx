@@ -83,10 +83,6 @@ export default function Tokenomics() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="p-4 rounded-xl bg-orange-500/5 border border-orange-500/20">
-                <h4 className="font-semibold text-orange-600 mb-2">20% Mint Burn</h4>
-                <p className="text-sm text-muted-foreground">Of every token minted: 75% to user, 20% burned forever, 3% LP, 2% treasury</p>
-              </div>
               <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20">
                 <h4 className="font-semibold text-blue-600 mb-2">7% Transfer Tax</h4>
                 <p className="text-sm text-muted-foreground">Every transfer: 3% burned, 2% to LP, 2% to treasury—continuous deflation</p>
