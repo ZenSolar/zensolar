@@ -449,7 +449,7 @@ export default function Engineering() {
                 <div className="pt-1 flex items-start gap-2 text-[11px] text-muted-foreground italic">
                   <Scale className="h-3 w-3 shrink-0 mt-0.5 text-violet-500/70" />
                   <span>
-                    The  symbol indicates an unregistered trademark in active use. Federal registration (®) is in progress with the USPTO.
+                    Unregistered trademarks are in active use. Federal registration (®) is in progress with the USPTO.
                   </span>
                 </div>
               </CardContent>
