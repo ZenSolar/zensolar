@@ -40,7 +40,7 @@ export function MonthlyReportCard({ report, pastReports = [] }: Props) {
           </div>
         </div>
         {optimizer?.schedule && (
-          <OptimizerScheduleStrip schedule={optimizer.schedule} />
+          <OptimizerScheduleStrip schedule={optimizer.schedule} forecast={optimizer.forecast} />
         )}
         {optimizer?.recommendations && optimizer.recommendations.length > 0 && (
           <OptimizerRecommendations recommendations={optimizer.recommendations} max={5} />
@@ -105,7 +105,7 @@ export function MonthlyReportCard({ report, pastReports = [] }: Props) {
       <TrendSparkline data={trend} />
 
       {optimizer?.schedule && (
-        <OptimizerScheduleStrip schedule={optimizer.schedule} />
+        <OptimizerScheduleStrip schedule={optimizer.schedule} forecast={optimizer.forecast} />
       )}
       {optimizer?.recommendations && optimizer.recommendations.length > 0 && (
         <OptimizerRecommendations recommendations={optimizer.recommendations} max={5} />

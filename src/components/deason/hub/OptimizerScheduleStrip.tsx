@@ -1,11 +1,22 @@
 import { useMemo } from "react";
-import { Battery, Car, Sun, Zap } from "lucide-react";
+import { Battery, Car, Sun, Zap, Info } from "lucide-react";
 import type { OptimizerSchedule } from "@/hooks/useDeasonOptimizer";
 import { cn } from "@/lib/utils";
 
 interface Props {
   schedule: OptimizerSchedule | null;
+  /** Raw optimizer forecast payload — used to disclose modelled vs measured inputs. */
+  forecast?: { sources?: Record<string, unknown> } | null;
   compact?: boolean;
+}
+
+/** True when the solar/weather inputs came from built-in curves rather than PVWatts/OpenWeather. */
+function isModelled(forecast?: { sources?: Record<string, unknown> } | null) {
+  const src = forecast?.sources as Record<string, any> | undefined;
+  if (!src) return true;
+  const solar = String(src.solar ?? "heuristic");
+  const weatherUnavailable = String(src.weather ?? "unavailable") === "unavailable";
+  return solar.startsWith("heuristic") || weatherUnavailable;
 }
 
 /**
@@ -13,7 +24,8 @@ interface Props {
  * Shows a 24h strip with color-coded actions (solar, battery charge/discharge,
  * EV charge, grid import) and a totals row (savings, tokens, self-consumption).
  */
-export function OptimizerScheduleStrip({ schedule, compact = false }: Props) {
+export function OptimizerScheduleStrip({ schedule, forecast = null, compact = false }: Props) {
+  const modelled = isModelled(forecast);
   const slots = schedule?.schedule ?? [];
   const totals = schedule?.totals ?? null;
 
@@ -53,8 +65,20 @@ export function OptimizerScheduleStrip({ schedule, compact = false }: Props) {
     <div className="space-y-2 rounded-xl border border-border/60 bg-card/60 p-3">
       <div className="flex items-center justify-between">
         <div className="text-xs font-semibold">Today's Optimized Schedule</div>
-        <div className="text-[10px] text-muted-foreground">24h · forecast-driven</div>
+        <div className="text-[10px] text-muted-foreground">
+          {modelled ? "24h · modelled estimate" : "24h · forecast-driven"}
+        </div>
       </div>
+
+      {modelled && (
+        <div className="flex items-start gap-1.5 rounded-lg border border-border/60 bg-muted/30 px-2 py-1.5 text-[10px] leading-snug text-muted-foreground">
+          <Info className="mt-[1px] h-3 w-3 flex-shrink-0" />
+          <span>
+            Estimate only. Solar and weather forecasts are unavailable, so this schedule uses
+            modelled typical-day curves rather than readings from your system.
+          </span>
+        </div>
+      )}
 
       {/* Hour strip */}
       <div className="grid grid-cols-24 gap-[2px]" style={{ gridTemplateColumns: "repeat(24, minmax(0, 1fr))" }}>
@@ -83,7 +107,7 @@ export function OptimizerScheduleStrip({ schedule, compact = false }: Props) {
 
       {/* Totals */}
       <div className="grid grid-cols-3 gap-2 pt-1">
-        <Stat label="Savings" value={savings != null ? `$${savings.toFixed(2)}` : "—"} accent="text-emerald-500" />
+        <Stat label={modelled ? "Est. savings" : "Savings"} value={savings != null ? `$${savings.toFixed(2)}` : "—"} accent="text-emerald-500" />
         <Stat label="$ZSOLAR" value={tokens != null ? tokens.toFixed(0) : "—"} accent="text-amber-500" />
         <Stat label="Self-use" value={selfConsumption != null ? `${selfConsumption}%` : "—"} accent="text-sky-400" />
       </div>
