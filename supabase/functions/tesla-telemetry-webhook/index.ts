@@ -1,4 +1,9 @@
 // tesla-telemetry-webhook — receives Tesla Fleet Telemetry stream events.
+import {
+  getPreviousProof,
+  buildProofMetadata,
+  snapshotDelta,
+} from "../_shared/proofDelta.ts";
 //
 // IMPORTANT: this function runs with verify_jwt = false because Tesla cannot
 // present a Supabase JWT. Authenticity is established by validating Tesla's
@@ -237,19 +242,12 @@ Deno.serve(async (req) => {
       if (cumulativeChanged) {
         const tsNow = acc.last_event_at || new Date().toISOString();
 
-        const { data: prevRow } = await supabase
-          .from("energy_production")
-          .select("proof_metadata, production_wh")
-          .eq("device_id", vin)
-          .eq("provider", "tesla")
-          .eq("data_type", "fsd_miles")
-          .eq("user_id", userId)
-          .order("recorded_at", { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        const prevHash = (prevRow?.proof_metadata as any)?.hash || "genesis";
-        const prevValue = Number(prevRow?.production_wh || 0);
+        // Cumulative FSD miles. production_wh carries only the delta; the
+        // cumulative snapshot lives in proof_metadata.value.
+        const { prevHash, prevValue } = await getPreviousProof(
+          supabase, vin, "tesla", "fsd_miles", userId,
+        );
+        const fsdDelta = snapshotDelta(cumulative, prevValue);
         const snapshotHash = await buildEnergyHash(vin, tsNow, cumulative, prevHash);
 
         await supabase
@@ -258,23 +256,16 @@ Deno.serve(async (req) => {
             user_id: userId,
             device_id: vin,
             provider: "tesla",
-            production_wh: cumulative,           // reuses numeric col, units = miles
+            production_wh: fsdDelta,             // issuable delta, units = miles
             data_type: "fsd_miles",
             recorded_at: tsNow,
-            proof_metadata: {
-              hash: snapshotHash,
-              prev_hash: prevHash,
-              device_id: vin,
-              value: cumulative,
-              prev_value: prevValue,
-              delta: Math.max(0, cumulative - prevValue),
-              data_type: "fsd_miles",
-              unit: "miles",
-              timestamp: tsNow,
-              algorithm: "SHA-256",
-              preimage_format: "device_id|timestamp|value|prevHash",
-              source: fsdSource,
-            },
+            proof_metadata: buildProofMetadata({
+              hash: snapshotHash, prevHash, deviceId: vin,
+              value: cumulative, prevValue, delta: fsdDelta,
+              dataType: "fsd_miles", timestamp: tsNow, unit: "miles",
+              valueSemantics: "cumulative_snapshot",
+              extra: { source: fsdSource },
+            }),
           }, { onConflict: "device_id,provider,recorded_at,data_type" });
       }
 
