@@ -1,5 +1,16 @@
 # Bootstrap Tokenomics Model
 
+> **CANONICAL SPLIT NOTICE (2026-07-31).** Any mint split, burn-at-mint, or
+> per-unit ratio appearing below is **superseded**. The single source of truth
+> is `src/lib/mintFactors.ts` (mirror: `supabase/functions/_shared/mintFactors.ts`):
+> **1.25 $ZSOLAR per verified unit — 1.0 to the member, 0.25 to treasury.
+> No LP mint. No burn at mint.** Conversion factors: solar 1:1, supercharging 1:1,
+> FSD miles 1:1, battery export 1:1, general EV miles 0.1:1, home charging
+> netted to 0.25:1 on solar-connected homes. Figures below are retained as a
+> historical record of earlier modelling and must not be used as current design.
+
+
+
 ## Executive Summary
 
 This document outlines a self-funded tokenomics strategy for ZenSolar that enables organic growth without external capital. The model starts with 10 paying users and doubles periodically, using subscription revenue to build liquidity depth and maintain price stability.
@@ -15,7 +26,7 @@ This document outlines a self-funded tokenomics strategy for ZenSolar that enabl
 | **Subscription Fee** | $9.99/month | Required for minting |
 | **LP Revenue Share** | 50% of subscriptions | ~$5/user/month |
 | **Mint Rate** | 800 tokens/user/month (gross) | Based on average energy production |
-| **Mint Burn Rate** | 20% | 160 tokens burned per user/month |
+| **Mint Burn Rate** | ~~20%~~ **0%** | No burn at mint — removed 2026-07-31 |
 | **Net Distribution** | 75% to user | 600 tokens/user/month |
 | **Transfer Tax** | 7% total | 3% burn, 2% LP, 2% treasury |
 
