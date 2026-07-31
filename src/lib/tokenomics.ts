@@ -151,15 +151,18 @@ export const TRANSFER_TAX = {
 // 1 / MINT_RATIO_KWH_PER_TOKEN = 1.0 token per kWh / mile of verified activity.
 // Live Beta multiplier (10×) is retained for now but is effectively redundant
 // at 1:1 — flagged for review in next levers pass.
-const PER_UNIT = 1 / MINT_RATIO_KWH_PER_TOKEN; // 1.0
+// Every rate below is derived from CONVERSION_FACTORS in src/lib/mintFactors.ts.
+// Do not hardcode a per-category rate here or anywhere else.
 export const BASE_REWARD_RATES = {
-  solarProduction: PER_UNIT,
-  batteryDischarge: PER_UNIT,
-  evMiles: PER_UNIT,
-  evCharging: PER_UNIT,
-  fsdSupervisedMiles: PER_UNIT,
-  fsdUnsupervisedMiles: PER_UNIT,
+  solarProduction: CONVERSION_FACTORS.solar_kwh,
+  batteryDischarge: CONVERSION_FACTORS.battery_export_kwh,
+  evMiles: CONVERSION_FACTORS.ev_miles,
+  evCharging: CONVERSION_FACTORS.home_charging_kwh,
+  superchargingKwh: CONVERSION_FACTORS.supercharging_kwh,
+  fsdSupervisedMiles: CONVERSION_FACTORS.fsd_miles,
+  fsdUnsupervisedMiles: CONVERSION_FACTORS.fsd_miles,
 } as const;
+
 
 export const REWARD_RATES = {
   solarProduction: BASE_REWARD_RATES.solarProduction * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
