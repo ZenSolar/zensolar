@@ -83,18 +83,23 @@ export function pickScene(d: EnergyFlowData, now: Date = new Date()): SceneKey {
   const evCharging = (d.tesla?.isCharging ?? false) || (d.evPower ?? 0) > 0.1;
   const pwDischarging = battery < -0.1;
   const exporting = grid < -0.1;
+  const hour = now.getHours();
+  // Scene time-of-day comes from the clock, not from a solar reading. A lagging
+  // or zero inverter sample in the middle of the afternoon must never paint the
+  // night sky — that misreads a display gap as "the sun is down".
+  const isDaylight = hour >= 6 && hour < 20;
   const sunUp = solar > 0.1;
 
-  if (!sunUp && pwDischarging && evCharging) return 'night-pw-discharge-ev';
-  if (!sunUp && pwDischarging) return 'night-pw-discharge';
-  if (!sunUp && evCharging) return 'night-ev';
-  if (sunUp && exporting) return 'day-export';
-  if (sunUp) {
-    const hour = now.getHours();
-    return hour >= 17 || hour < 6 ? 'dusk' : 'day';
+  if (!isDaylight) {
+    if (pwDischarging && evCharging) return 'night-pw-discharge-ev';
+    if (pwDischarging) return 'night-pw-discharge';
+    if (evCharging) return 'night-ev';
+    return 'night';
   }
-  return 'night';
+  if (sunUp && exporting) return 'day-export';
+  return hour >= 17 ? 'dusk' : 'day';
 }
+
 
 /**
  * v5 — Adaptive Scene Composer.

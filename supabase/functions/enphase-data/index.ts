@@ -288,13 +288,18 @@ Deno.serve(async (req) => {
         }
         const s = await sumResp.json();
 
-        // 2) Fresher current_power via 5-min production_micro (last 30 min window).
-        let currentPowerW = Number(s?.current_power || 0);
+        // 2) Fresher current_power via 5-min production_micro (90 min window —
+        //    the endpoint lags 15-30 min, so a 30 min window is routinely empty).
+        const summaryPowerW = Number(s?.current_power || 0);
+        const energyTodayWh = Number(s?.energy_today || 0);
+        let currentPowerW = summaryPowerW;
+        let powerSource = "summary_current_power";
         let sampleAtIso: string | null = s?.last_report_at
           ? new Date(Number(s.last_report_at) * 1000).toISOString()
           : null;
+        let microWindowEmpty = false;
         try {
-          const startAt = Math.floor(Date.now() / 1000) - 30 * 60;
+          const startAt = Math.floor(Date.now() / 1000) - 90 * 60;
           const microResp = await fetch(
             `${ENPHASE_API_BASE}/systems/${systemId}/telemetry/production_micro?key=${apiKey}&granularity=5mins&start_at=${startAt}`,
             { headers: { "Authorization": `Bearer ${accessToken}` } }
@@ -308,18 +313,18 @@ Deno.serve(async (req) => {
               const enwh = Number(iv?.enwh ?? 0);
               if (enwh > 0) {
                 currentPowerW = Math.round(enwh * 12);
+                powerSource = "production_micro";
                 const endAt = Number(iv?.end_at);
                 if (Number.isFinite(endAt)) sampleAtIso = new Date(endAt * 1000).toISOString();
                 break;
               }
             }
-            // If every recent interval is exactly 0, trust that (night / no production).
-            if (intervals.length > 0 && intervals.every((iv) => Number(iv?.enwh ?? 0) === 0)) {
-              currentPowerW = 0;
-              const lastIv = intervals[intervals.length - 1];
-              const endAt = Number(lastIv?.end_at);
-              if (Number.isFinite(endAt)) sampleAtIso = new Date(endAt * 1000).toISOString();
-            }
+            // An all-zero window is NOT proof of "no production" — this endpoint
+            // lags and returns empty/zero windows on some plan tiers. Record it
+            // and let the counter-delta below arbitrate.
+            microWindowEmpty =
+              intervals.length === 0 ||
+              intervals.every((iv) => Number(iv?.enwh ?? 0) === 0);
           } else {
             console.warn(`enphase production_micro failed (${microResp.status}) for system ${systemId} — falling back to summary current_power`);
           }
@@ -327,13 +332,52 @@ Deno.serve(async (req) => {
           console.warn("enphase production_micro error, falling back to summary:", microErr);
         }
 
+        // 3) Counter-delta fallback. `energy_today` is a monotonic within-day
+        //    counter; its movement since the last cached read is the most honest
+        //    "producing now" signal when both instantaneous sources read zero.
+        if (currentPowerW <= 0) {
+          try {
+            const { data: prevCache } = await supabaseClient
+              .from("device_telemetry_cache")
+              .select("payload, cached_at")
+              .eq("user_id", targetUserId)
+              .eq("provider", "enphase")
+              .eq("capability", "solar")
+              .eq("device_id", systemId)
+              .maybeSingle();
+
+            const prevWh = Number(prevCache?.payload?.energy_today_wh ?? NaN);
+            const prevAt = prevCache?.cached_at ? new Date(prevCache.cached_at).getTime() : NaN;
+            const elapsedH = (Date.now() - prevAt) / 3_600_000;
+            if (
+              Number.isFinite(prevWh) &&
+              Number.isFinite(prevAt) &&
+              elapsedH >= 5 / 60 && elapsedH <= 2 &&
+              energyTodayWh > prevWh
+            ) {
+              currentPowerW = Math.round((energyTodayWh - prevWh) / elapsedH);
+              powerSource = "energy_today_delta";
+              sampleAtIso = new Date().toISOString();
+            } else if (microWindowEmpty && summaryPowerW <= 0) {
+              powerSource = "unknown_lagging_feed";
+            }
+          } catch (deltaErr) {
+            console.warn("enphase counter-delta fallback failed:", deltaErr);
+          }
+        }
+
         return new Response(JSON.stringify({
           current_power_w: currentPowerW,
-          energy_today_wh: Number(s?.energy_today || 0),
+          power_source: powerSource,
+          // True when every instantaneous source was silent — the UI should say
+          // "waiting on inverter report", not render a confident 0 kW.
+          power_unknown: powerSource === "unknown_lagging_feed",
+          energy_today_wh: energyTodayWh,
           energy_lifetime_wh: Number(s?.energy_lifetime || 0),
           last_report_at: sampleAtIso ?? s?.last_report_at,
           status: s?.status,
         }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
       } catch (e) {
         console.error("enphase telemetry error", e);
         return new Response(JSON.stringify({ error: "telemetry_exception" }), {
