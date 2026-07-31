@@ -65,7 +65,6 @@ export function CleanEnergyCenterShowcase() {
 
   const pendingKwh = 1284;
   const expectedTokens = 1284;
-  const usdValue = '$128.40';
   const co2Lbs = 1812;
 
   const handleTapToMint = () => {
@@ -128,10 +127,10 @@ export function CleanEnergyCenterShowcase() {
                   </div>
                   <div>
                     <span className="text-sm font-medium text-foreground block">My Wallet</span>
-                    <span className="text-xs text-muted-foreground">314,838 tokens · $0.10</span>
+                    <span className="text-xs text-muted-foreground">314,838 $ZSOLAR</span>
                   </div>
                 </div>
-                <span className="text-xl md:text-2xl font-bold text-foreground">$31,483</span>
+                <span className="text-xl md:text-2xl font-bold text-foreground">314,838</span>
               </div>
 
               {/* Clean Energy Center header */}
@@ -200,7 +199,7 @@ export function CleanEnergyCenterShowcase() {
                       {expectedTokens.toLocaleString()}
                     </div>
                     <div className="mt-1 text-[11px] text-muted-foreground tabular-nums">
-                      $ZSOLAR · {usdValue}
+                      $ZSOLAR
                     </div>
                   </div>
                   <div className="rounded-lg border border-border/60 bg-muted/30 p-3">
