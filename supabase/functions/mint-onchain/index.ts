@@ -208,10 +208,14 @@ async function recordTransaction(
       if (reconciliation.sourceBreakdown) row.source_breakdown = reconciliation.sourceBreakdown;
     }
 
-    await supabaseClient.from("mint_transactions").insert(row);
+    const { data: inserted, error: insErr } = await supabaseClient
+      .from("mint_transactions").insert(row).select("id").single();
+    if (insErr) throw insErr;
     console.log("Transaction recorded:", txHash, status, isBetaMint ? "(beta)" : "");
+    return (inserted?.id as string) ?? null;
   } catch (error) {
     console.error("Failed to record transaction:", error);
+    return null;
   }
 }
 
@@ -1010,7 +1014,7 @@ Deno.serve(async (req) => {
         }
 
         // Record the mint with reconciliation_diff + drift status
-        await recordTransaction(
+        const mintTxId = await recordTransaction(
           supabaseClient,
           user.id,
           hash,
@@ -1028,6 +1032,29 @@ Deno.serve(async (req) => {
             sourceBreakdown,
           },
         );
+
+        // ── ITEM 6 — consume the proof rows that backed this issuance ──────
+        // Atomic: public.consume_energy_rows only claims rows where
+        // minted_at IS NULL, so a row can never be consumed twice even under
+        // concurrent mints. Runs against the SAME mint_transactions row that
+        // was just written, so every consumed row traces to its mint.
+        if (mintTxId && deltas.allRowIds.length > 0) {
+          const { data: consumed, error: consumeErr } = await supabaseClient.rpc(
+            "consume_energy_rows",
+            { _user_id: user.id, _row_ids: deltas.allRowIds, _mint_tx_id: mintTxId },
+          );
+          if (consumeErr) {
+            console.error("CONSUME_FAILED — rows remain unminted, mint already on-chain:", consumeErr);
+          } else {
+            const c = Array.isArray(consumed) ? consumed[0] : consumed;
+            console.log(`Consumed ${c?.consumed_count ?? 0}/${deltas.allRowIds.length} proof rows for mint ${mintTxId}`);
+            if ((c?.consumed_count ?? 0) !== deltas.allRowIds.length) {
+              console.warn("Partial consumption — some rows were claimed by a concurrent mint.");
+            }
+          }
+        } else if (!mintTxId) {
+          console.error("CONSUME_SKIPPED — no mint_transactions id; rows remain unminted.");
+        }
 
         // Update idempotency row with actual tx hash for forensic linking
         try {
