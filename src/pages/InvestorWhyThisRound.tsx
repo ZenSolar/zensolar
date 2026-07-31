@@ -98,7 +98,7 @@ export default function InvestorWhyThisRound() {
             <div className="grid gap-3 md:grid-cols-2">
               {[
                 'OAuth2 integrations with Tesla, Enphase, SolarEdge, and Wallbox pulling live telemetry.',
-                'Core MVP operational with working Proof-of-Genesis™ minting.',
+                'Core MVP operational with working Proof-of-Genesis minting.',
                 'Multi-OEM Clean Energy Center and live monitoring cockpit shipped.',
                 'Deason AI — monthly energy analysis + outage intelligence — built.',
               ].map((line) => (
@@ -130,7 +130,7 @@ export default function InvestorWhyThisRound() {
               />
               <CapabilityCard
                 icon={Coins}
-                title="Proof-of-Genesis™ Minting"
+                title="Proof-of-Genesis Minting"
                 body="One-tap, in-app minting through Coinbase Smart Wallet. No seed phrases required."
               />
             </div>
@@ -148,7 +148,7 @@ export default function InvestorWhyThisRound() {
             <div className="grid gap-3">
               {[
                 'Direct OAuth2 integrations pull real hardware telemetry in real time — not self-reported data.',
-                'Proof-of-Delta™ cryptographically verifies energy production and sustainable behavior before any mint.',
+                'Proof-of-Delta cryptographically verifies energy production and sustainable behavior before any mint.',
                 'Verified events are anchored on-chain as a tamper-proof record.',
                 'One-tap in-app minting via Coinbase Smart Wallet — no seed phrases, no external wallet, no gas.',
                 'Architecture protected by U.S. Patent Application No. 19/634,402 and designed to scale globally.',
@@ -347,7 +347,7 @@ export default function InvestorWhyThisRound() {
           <Section kicker="11 · The Opportunity" title="A durable, multi-decade business">
             <div className="grid gap-3">
               {[
-                'Proof-of-Genesis™ can become a foundational primitive for tokenizing verified clean energy behavior at global scale.',
+                'Proof-of-Genesis can become a foundational primitive for tokenizing verified clean energy behavior at global scale.',
                 'TAM is enormous: every Tesla driver, every solar + battery owner, every EV household is a potential user.',
                 'Real utility + self-reinforcing flywheel + growing data moat = the conditions for durable, long-term scale.',
               ].map((line) => (
@@ -659,7 +659,7 @@ const POG_FLOW_STEPS = [
   },
   {
     title: 'Cryptographic Verification',
-    body: 'Proof-of-Delta™ Validation',
+    body: 'Proof-of-Delta Validation',
   },
   {
     title: 'On-Chain Anchoring',

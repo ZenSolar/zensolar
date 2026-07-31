@@ -241,7 +241,7 @@ export function ZenDriveLiveCard({ alwaysRender = false, deviceIndex = 0 }: ZenD
                 liveHomeAdd > 0 ? (
                   <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-400 ring-1 ring-emerald-500/25">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    +{liveHomeAdd.toFixed(1)} $ZSOLAR this session
+                    +{liveHomeAdd.toFixed(1)} kWh this session
                   </span>
                 ) : undefined
               }
@@ -256,7 +256,7 @@ export function ZenDriveLiveCard({ alwaysRender = false, deviceIndex = 0 }: ZenD
                 liveScAdd > 0 ? (
                   <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-400 ring-1 ring-emerald-500/25">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    +{liveScAdd.toFixed(1)} $ZSOLAR this session
+                    +{liveScAdd.toFixed(1)} kWh this session
                   </span>
                 ) : undefined
               }

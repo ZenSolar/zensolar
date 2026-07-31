@@ -18,7 +18,7 @@ import wallboxLogo from '@/assets/logos/wallbox-icon.svg';
  *
  * The badge is the visual proof that ZenSolar mints are NOT speculative —
  * every $ZSOLAR is backed by signed OEM telemetry from a verified clean
- * energy delivery (Proof-of-Origin™).
+ * energy delivery (Proof-of-Origin).
  */
 
 export type VerifiedSourceProvider =
@@ -242,7 +242,7 @@ export function VerifiedSourceBadge({
           <div className="flex items-center gap-1.5 flex-wrap">
             <ShieldCheck className="h-3 w-3 text-primary" aria-hidden />
             <span className="text-[10px] uppercase tracking-[0.16em] font-bold text-primary">
-              Proof-of-Origin™ — Verified Source
+              Proof-of-Origin — Verified Source
             </span>
             {isLive && (
               <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-primary">

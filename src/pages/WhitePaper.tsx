@@ -145,8 +145,8 @@ const investorBenefits = [
   },
   {
     icon: Cpu,
-    title: "Patent-Pending Mint-on-Proof™",
-    description: "First-mover advantage with patent-pending 'Mint-on-Proof™' verification system. Hardware-neutral approach creates defensible moat.",
+    title: "Patent-Pending Mint-on-Proof",
+    description: "First-mover advantage with patent-pending 'Mint-on-Proof' verification system. Hardware-neutral approach creates defensible moat.",
   },
 ];
 
@@ -358,7 +358,7 @@ export default function WhitePaper() {
     <>
       <SEO
         title="ZenSolar White Paper — Mint Split v3.1, Proof-of-Genesis, Energy Oracle"
-        description="The full ZenSolar protocol white paper — v3.1 mint distribution, Proof-of-Genesis™ verification, kWh floor narrative, and the path from Base Sepolia to mainnet."
+        description="The full ZenSolar protocol white paper — v3.1 mint distribution, Proof-of-Genesis verification, kWh floor narrative, and the path from Base Sepolia to mainnet."
         url="https://zensolar.com/white-paper"
         image="https://zensolar.com/og-whitepaper.png"
       />
@@ -591,7 +591,7 @@ export default function WhitePaper() {
             <p className="text-muted-foreground text-lg leading-relaxed">
               <strong className="text-foreground">ZenSolar</strong> is a blockchain-powered rewards platform that
               transforms clean energy production into verifiable digital assets. Using our patent-pending 
-              <strong className="text-primary"> Mint-on-Proof™</strong> architecture powered by Proof-of-Genesis™ (Proof-of-Genesis™ protocol), 
+              <strong className="text-primary"> Mint-on-Proof</strong> architecture powered by Proof-of-Genesis (Proof-of-Genesis protocol), 
               users earn <strong className="text-foreground">$ZSOLAR tokens</strong> and collectible NFTs proportional 
               to their verified environmental impact—with just one tap.
             </p>
@@ -641,11 +641,11 @@ export default function WhitePaper() {
                   <Cpu className="h-6 w-6 text-primary-foreground" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">Patent-Pending Mint-on-Proof™ Technology</h3>
+                  <h3 className="font-semibold text-lg mb-2">Patent-Pending Mint-on-Proof Technology</h3>
                   <p className="text-muted-foreground">
-                    Our <strong className="text-foreground">Proof-of-Genesis™ protocol</strong> powers the world's first 
-                    <strong className="text-primary"> Mint-on-Proof™</strong> architecture—a proprietary system for tokenizing sustainable 
-                    behaviors using blockchain. Unlike hardware-dependent solutions, Proof-of-Genesis™ works entirely through secure API 
+                    Our <strong className="text-foreground">Proof-of-Genesis protocol</strong> powers the world's first 
+                    <strong className="text-primary"> Mint-on-Proof</strong> architecture—a proprietary system for tokenizing sustainable 
+                    behaviors using blockchain. Unlike hardware-dependent solutions, Proof-of-Genesis works entirely through secure API 
                     connections—making onboarding instant and one-tap minting possible.
                   </p>
                 </div>
@@ -654,7 +654,7 @@ export default function WhitePaper() {
           </CardContent>
         </Card>
         
-        {/* Proof-of-Genesis™ Flow Diagram */}
+        {/* Proof-of-Genesis Flow Diagram */}
         <MintOnProofFlowDiagram />
 
         {/* Mint-on-Proof Comparison */}
@@ -1096,7 +1096,7 @@ export default function WhitePaper() {
                   <ul className="space-y-2 text-sm text-muted-foreground">
                     {[
                       { asset: '1 kWh solar produced', proof: 'Cryptographically retired at mint' },
-                      { asset: '1 kWh battery discharged', proof: 'Proof-of-Delta™ hash chain' },
+                      { asset: '1 kWh battery discharged', proof: 'Proof-of-Delta hash chain' },
                       { asset: '1 mile EV driven', proof: 'Device Watermark Registry' },
                       { asset: '1 kWh EV charged', proof: 'Immutable on-chain record' },
                     ].map(({ asset, proof }) => (
@@ -1122,7 +1122,7 @@ export default function WhitePaper() {
                   {
                     icon: Shield,
                     title: 'No Re-Tokenization',
-                    desc: 'A kWh of solar that minted $ZSOLAR is permanently consumed. It cannot be tokenized again on any chain — your Proof-of-Delta™ baseline burns that unit of eligibility at mint time.',
+                    desc: 'A kWh of solar that minted $ZSOLAR is permanently consumed. It cannot be tokenized again on any chain — your Proof-of-Delta baseline burns that unit of eligibility at mint time.',
                     color: 'text-primary',
                     bg: 'bg-primary/5 border-primary/20',
                   },
@@ -1190,11 +1190,11 @@ export default function WhitePaper() {
             <Separator />
 
             <div>
-              <h3 className="font-semibold text-lg mb-3">The Proof-of-Genesis™ Innovation: Patent-Pending Technology</h3>
+              <h3 className="font-semibold text-lg mb-3">The Proof-of-Genesis Innovation: Patent-Pending Technology</h3>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                At the core of ZenSolar's competitive moat lies the <strong className="text-foreground">Proof-of-Genesis™ protocol (PoG)</strong>—a patent-pending architecture that fundamentally reimagines how energy data translates 
+                At the core of ZenSolar's competitive moat lies the <strong className="text-foreground">Proof-of-Genesis protocol (PoG)</strong>—a patent-pending architecture that fundamentally reimagines how energy data translates 
                 to blockchain value. Unlike legacy approaches that rely on hardware installations, periodic manual reporting, or 
-                distribution from pre-minted token pools, Proof-of-Genesis™ operates as a pure software layer that:
+                distribution from pre-minted token pools, Proof-of-Genesis operates as a pure software layer that:
               </p>
               <ol className="list-decimal pl-6 space-y-2 text-muted-foreground">
                 <li><strong className="text-foreground">Aggregates</strong> data from existing consumer devices (Tesla, Enphase, SolarEdge, Wallbox, and expandable to dozens of additional vehicle brands) without requiring proprietary hardware</li>
@@ -1204,10 +1204,10 @@ export default function WhitePaper() {
               </ol>
               <p className="text-muted-foreground leading-relaxed mt-4">
                 This architecture represents a <strong className="text-foreground">paradigm shift</strong> from the "earn-from-pool" 
-                models prevalent in the market to a <strong className="text-primary">Mint-on-Proof™</strong> model where every token 
+                models prevalent in the market to a <strong className="text-primary">Mint-on-Proof</strong> model where every token 
                 in circulation is backed by verified clean energy impact. Each reading is cryptographically secured via 
-                <strong className="text-primary"> Proof-of-Delta™</strong> hash chains, and every physical device is permanently 
-                tracked on-chain through <strong className="text-primary"> Proof-of-Origin™</strong> (the Device Watermark Registry), 
+                <strong className="text-primary"> Proof-of-Delta</strong> hash chains, and every physical device is permanently 
+                tracked on-chain through <strong className="text-primary"> Proof-of-Origin</strong> (the Device Watermark Registry), 
                 making cross-platform double-minting provably impossible.
               </p>
             </div>
@@ -1268,7 +1268,7 @@ export default function WhitePaper() {
               <ol className="list-decimal pl-6 space-y-2 text-muted-foreground">
                 <li><strong className="text-foreground">Zero Barrier to Entry:</strong> Users with existing compatible devices can begin earning within 60 seconds of account creation</li>
                 <li><strong className="text-foreground">Scalable Economics:</strong> Without hardware costs, the platform can operate at software-company margins while alternative approaches bear manufacturing, distribution, and support costs</li>
-                <li><strong className="text-foreground">Future-Proof Extensibility:</strong> As new energy devices enter the market (next-generation batteries, bidirectional chargers, vehicle-to-grid systems), Proof-of-Genesis™ can integrate new APIs without hardware retrofits</li>
+                <li><strong className="text-foreground">Future-Proof Extensibility:</strong> As new energy devices enter the market (next-generation batteries, bidirectional chargers, vehicle-to-grid systems), Proof-of-Genesis can integrate new APIs without hardware retrofits</li>
               </ol>
             </div>
 
@@ -1284,7 +1284,7 @@ export default function WhitePaper() {
               <div className="space-y-4 mb-4">
                 <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
                   <div className="flex items-center gap-2 mb-2">
-                    <Badge className="bg-primary/10 text-primary border-primary/30 text-xs">Mint-on-Proof™</Badge>
+                    <Badge className="bg-primary/10 text-primary border-primary/30 text-xs">Mint-on-Proof</Badge>
                     <span className="text-xs text-muted-foreground">Absolute Reward Engine</span>
                   </div>
                   <p className="text-sm text-muted-foreground">
@@ -1296,11 +1296,11 @@ export default function WhitePaper() {
 
                 <div className="p-4 rounded-xl bg-violet-500/5 border border-violet-500/20">
                   <div className="flex items-center gap-2 mb-2">
-                    <Badge className="bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/30 text-xs">Proof-of-Delta™</Badge>
+                    <Badge className="bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/30 text-xs">Proof-of-Delta</Badge>
                     <span className="text-xs text-muted-foreground">Incremental Verification Logic</span>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    The cryptographic verification standard powering Proof-of-Genesis™ Layer 3. Each data reading generates a linked hash chain: 
+                    The cryptographic verification standard powering Proof-of-Genesis Layer 3. Each data reading generates a linked hash chain: 
                     <code className="text-xs bg-muted px-1.5 py-0.5 rounded mx-1">SHA-256(device_id | timestamp | value | prevHash)</code>. 
                     This ensures tokens are issued only for verified <em>incremental</em> energy activity, creating an immutable, 
                     tamper-evident audit trail that prevents gaming and double-counting.
@@ -1309,7 +1309,7 @@ export default function WhitePaper() {
 
                 <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
                   <div className="flex items-center gap-2 mb-2">
-                    <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 text-xs">Proof-of-Origin™</Badge>
+                    <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 text-xs">Proof-of-Origin</Badge>
                     <span className="text-xs text-muted-foreground">Device-Bound Anti-Double-Mint Standard</span>
                   </div>
                   <p className="text-sm text-muted-foreground">
@@ -1323,8 +1323,8 @@ export default function WhitePaper() {
 
               <p className="text-muted-foreground leading-relaxed">
                 <strong className="text-foreground">Patent Status:</strong> Non-provisional utility patent application filed 
-                ("Gamifying and Tokenizing Sustainable Behaviors By Using Blockchain Technology") covering the Proof-of-Genesis™ architecture 
-                with Mint-on-Proof™, Proof-of-Delta™, and Proof-of-Origin™ as dependent claims. Comprehensive patent landscape 
+                ("Gamifying and Tokenizing Sustainable Behaviors By Using Blockchain Technology") covering the Proof-of-Genesis architecture 
+                with Mint-on-Proof, Proof-of-Delta, and Proof-of-Origin as dependent claims. Comprehensive patent landscape 
                 research has identified no existing claims covering this methodology.
               </p>
             </div>
@@ -1667,7 +1667,7 @@ export default function WhitePaper() {
           <CardContent className="pt-6">
             <div className="space-y-4">
               {[
-                { title: "Trademark Trilogy IP", description: "Mint-on-Proof™, Proof-of-Delta™, and Proof-of-Origin™ protected by pending patents and trademarks", icon: Shield },
+                { title: "Trademark Trilogy IP", description: "Mint-on-Proof, Proof-of-Delta, and Proof-of-Origin protected by pending patents and trademarks", icon: Shield },
                 { title: "Device Watermark Registry", description: "On-chain, device-bound anti-double-mint standard makes cross-platform fraud publicly provable", icon: Cpu },
                 { title: "First-Mover Advantage", description: "No competitors in verified, on-demand energy-backed token minting", icon: Rocket },
                 { title: "Hardware Neutrality", description: "Works with Tesla, Enphase, SolarEdge, Wallbox—not locked to one provider", icon: Globe },
@@ -1751,7 +1751,7 @@ export default function WhitePaper() {
                   color: 'bg-primary',
                   items: [
                     '$ZSOLAR Debit Card and utility bill integration',
-                    'White-label Proof-of-Genesis™ licensing to energy providers',
+                    'White-label Proof-of-Genesis licensing to energy providers',
                     'International expansion beyond US market',
                     'Carbon credit marketplace integration',
                     'Target: 100K+ households in the global clean energy economy',

@@ -1,4 +1,4 @@
-// Publishes the most recent Proof-of-Permanence™ Merkle root to Base Sepolia
+// Publishes the most recent Proof-of-Permanence Merkle root to Base Sepolia
 // as a zero-value self-send carrying the root in calldata. This produces a
 // public, immutable, timestamped anchor that any third party can verify by
 // reading the transaction's input data on BaseScan.

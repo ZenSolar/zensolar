@@ -202,7 +202,7 @@ const roadmapPhases = [
     status: "future",
     icon: Building2,
     milestones: [
-      { title: "White-Label Platform", description: "License Mint-on-Proof™ engine to utilities and energy companies", completed: false },
+      { title: "White-Label Platform", description: "License Mint-on-Proof engine to utilities and energy companies", completed: false },
       { title: "Corporate Sustainability Programs", description: "Employee clean energy reward programs for Fortune 500 companies", completed: false },
       { title: "Real Estate Integration", description: "Property developers pre-install ZenSolar for new construction", completed: false },
       { title: "Insurance Partnerships", description: "Lower premiums for homes with verified solar/battery systems", completed: false },
@@ -500,7 +500,7 @@ export default function AdminFutureRoadmap() {
             <div>
               <p className="font-medium text-amber-700 dark:text-amber-400">Intellectual Property Protection</p>
               <p className="text-sm text-muted-foreground mt-1">
-                <strong>Mint-on-Proof™</strong> and <strong>Proof-of-Genesis™ (Proof-of-Genesis™ protocol)</strong> are 
+                <strong>Mint-on-Proof</strong> and <strong>Proof-of-Genesis (Proof-of-Genesis protocol)</strong> are 
                 trademark pending. The underlying verification architecture is documented for provisional patent filing. 
                 All roadmap features leverage this protected core IP.
               </p>

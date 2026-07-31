@@ -49,7 +49,7 @@ const kpiItems = [
   },
   {
     icon: Navigation,
-    label: 'FSD Miles (Proof-of-Delta™)',
+    label: 'FSD Miles (Proof-of-Delta)',
     value: '14,206',
     unit: 'mi',
     name: '',
@@ -65,12 +65,11 @@ export function CleanEnergyCenterShowcase() {
 
   const pendingKwh = 1284;
   const expectedTokens = 1284;
-  const usdValue = '$128.40';
   const co2Lbs = 1812;
 
   const handleTapToMint = () => {
     mediumTap();
-    toast.success(`Proof of Genesis™ engaged · ${expectedTokens.toLocaleString()} $ZSOLAR queued`, {
+    toast.success(`Proof of Genesis engaged · ${expectedTokens.toLocaleString()} $ZSOLAR queued`, {
       description: 'Continue in the live demo to write your proof on-chain.',
     });
     navigate('/demo');
@@ -110,7 +109,7 @@ export function CleanEnergyCenterShowcase() {
           transition={{ delay: 0.15 }}
         >
           <Card className="relative rounded-2xl border border-border/60 bg-card/40 overflow-hidden">
-            {/* Proof of Genesis™ glow */}
+            {/* Proof of Genesis glow */}
             <div
               aria-hidden
               className="pointer-events-none absolute inset-0 opacity-70"
@@ -128,10 +127,10 @@ export function CleanEnergyCenterShowcase() {
                   </div>
                   <div>
                     <span className="text-sm font-medium text-foreground block">My Wallet</span>
-                    <span className="text-xs text-muted-foreground">314,838 tokens · $0.10</span>
+                    <span className="text-xs text-muted-foreground">314,838 $ZSOLAR</span>
                   </div>
                 </div>
-                <span className="text-xl md:text-2xl font-bold text-foreground">$31,483</span>
+                <span className="text-xl md:text-2xl font-bold text-foreground">314,838</span>
               </div>
 
               {/* Clean Energy Center header */}
@@ -140,16 +139,16 @@ export function CleanEnergyCenterShowcase() {
                 <span className="text-xs text-muted-foreground mb-2">Last updated 11:19 PM</span>
                 <div className="inline-grid grid-cols-2 gap-x-1 gap-y-0 mx-auto" style={{ justifyItems: 'center' }}>
                   <span className="text-[10px] tracking-wider uppercase font-medium text-secondary/70 whitespace-nowrap" style={{ textShadow: '0 0 8px hsl(142 76% 36% / 0.5)' }}>
-                    Proof of Genesis™
+                    Proof of Genesis
                   </span>
                   <span className="text-[10px] tracking-wider uppercase font-medium whitespace-nowrap" style={{ color: 'hsl(142 76% 50% / 0.85)', textShadow: '0 0 10px hsl(142 76% 45% / 0.6), 0 0 20px hsl(142 76% 45% / 0.3)' }}>
-                    Proof-of-Mint™
+                    Proof-of-Mint
                   </span>
                   <span className="text-[10px] tracking-wider uppercase font-medium whitespace-nowrap" style={{ color: 'hsl(25 95% 60% / 0.85)', textShadow: '0 0 10px hsl(25 95% 55% / 0.6), 0 0 20px hsl(25 95% 55% / 0.3)' }}>
-                    Proof-of-Origin™
+                    Proof-of-Origin
                   </span>
                   <span className="text-[10px] tracking-wider uppercase font-medium whitespace-nowrap" style={{ color: 'hsl(270 80% 68% / 0.85)', textShadow: '0 0 10px hsl(270 80% 60% / 0.6), 0 0 20px hsl(270 80% 60% / 0.3)' }}>
-                    Proof-of-Delta™
+                    Proof-of-Delta
                   </span>
                 </div>
               </div>
@@ -162,7 +161,7 @@ export function CleanEnergyCenterShowcase() {
                     type="button"
                     onClick={() => {
                       mediumTap();
-                      toast.success(`Tap-to-Mint™ · ${item.label}`, {
+                      toast.success(`Tap-to-Mint · ${item.label}`, {
                         description: `${item.value} ${item.unit} ready to mint. Continue in the live demo.`,
                       });
                       navigate('/demo');
@@ -188,7 +187,7 @@ export function CleanEnergyCenterShowcase() {
                 ))}
               </div>
 
-              {/* Tap to Mint — Proof of Genesis™ CTA */}
+              {/* Tap to Mint — Proof of Genesis CTA */}
               <div className="mt-6 pt-6 border-t border-border/40 space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
@@ -200,7 +199,7 @@ export function CleanEnergyCenterShowcase() {
                       {expectedTokens.toLocaleString()}
                     </div>
                     <div className="mt-1 text-[11px] text-muted-foreground tabular-nums">
-                      $ZSOLAR · {usdValue}
+                      $ZSOLAR
                     </div>
                   </div>
                   <div className="rounded-lg border border-border/60 bg-muted/30 p-3">

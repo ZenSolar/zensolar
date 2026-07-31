@@ -1525,7 +1525,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
               }}
             />
 
-            {/* Orbiting Proof of Genesis™️ badge */}
+            {/* Orbiting Proof of Genesis️ badge */}
             {!isBursting && !isIOSKeyboardMode && (
               <div
                 className="absolute inset-0 pointer-events-none"
@@ -1542,7 +1542,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
                   }}
                 >
                   <span className="text-primary">Proof-of-Genesis</span>
-                  <span className="text-solar">™</span>
+                  <span className="text-solar"></span>
                 </span>
               </div>
             )}
@@ -2178,7 +2178,7 @@ export function DemoAccessGate({ children }: DemoAccessGateProps) {
             >
               <span>The World's First One-Tap,</span>
               <br />
-              <span>Mint-on-Proof™️ Clean Energy Platform</span>
+              <span>Mint-on-Proof️ Clean Energy Platform</span>
             </div>
           </div>
         )}

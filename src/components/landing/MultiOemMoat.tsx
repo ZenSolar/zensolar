@@ -34,7 +34,7 @@ export function MultiOemMoat() {
             <p className="text-muted-foreground leading-relaxed text-base md:text-lg">
               Tesla, Enphase, SolarEdge, and Wallbox unified in a single live dashboard.
               Every verified kWh — production, storage, EV miles, charging — feeds the same
-              Proof-of-Genesis™ receipt. No other platform does this.
+              Proof-of-Genesis receipt. No other platform does this.
             </p>
             <ul className="space-y-2.5 pt-2">
               {[
@@ -79,7 +79,7 @@ export function MultiOemMoat() {
               ))}
             </div>
             <div className="mt-4 text-center text-xs text-muted-foreground tracking-wide">
-              All four streams reconcile to one Proof-of-Genesis™ receipt
+              All four streams reconcile to one Proof-of-Genesis receipt
             </div>
           </motion.div>
         </div>

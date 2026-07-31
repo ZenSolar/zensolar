@@ -984,6 +984,7 @@ function ThreadRow({
                   else { setConfirmDelete(true); setTimeout(() => setConfirmDelete(false), 2500); }
                 }}
                 title={confirmDelete ? "Tap again to confirm" : "Delete"}
+                data-capture-hide
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>

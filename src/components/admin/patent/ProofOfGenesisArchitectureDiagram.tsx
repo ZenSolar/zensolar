@@ -66,8 +66,8 @@ export function ProofOfGenesisArchitectureDiagram() {
   </style>
   
   <!-- Title -->
-  <text x="400" y="40" text-anchor="middle" class="title">Proof-of-Genesis™ 4-Layer Architecture</text>
-  <text x="400" y="60" text-anchor="middle" class="layer-desc">(Proof-of-Genesis™ protocol)</text>
+  <text x="400" y="40" text-anchor="middle" class="title">Proof-of-Genesis 4-Layer Architecture</text>
+  <text x="400" y="60" text-anchor="middle" class="layer-desc">(Proof-of-Genesis protocol)</text>
   
   <!-- Layer 1: API Aggregation -->
   <rect x="100" y="90" width="600" height="100" rx="8" fill="#E3F2FD" stroke="#1976D2" stroke-width="2"/>
@@ -112,7 +112,7 @@ export function ProofOfGenesisArchitectureDiagram() {
   <rect x="100" y="440" width="600" height="100" rx="8" fill="#FFF3E0" stroke="#F57C00" stroke-width="2"/>
   <text x="120" y="465" class="label">Layer 4</text>
   <text x="120" y="485" class="layer-title">Smart Contract Bridge (Items 4, 7, 14)</text>
-  <text x="120" y="505" class="layer-desc">Mint-on-Proof™ Token Issuance • Proof-of-Delta™ Calculation • Milestone NFT Minting</text>
+  <text x="120" y="505" class="layer-desc">Mint-on-Proof Token Issuance • Proof-of-Delta Calculation • Milestone NFT Minting</text>
   
   <!-- Output boxes -->
   <rect x="200" y="510" width="100" height="25" rx="4" fill="#FFE0B2" stroke="#F57C00"/>
@@ -130,7 +130,7 @@ export function ProofOfGenesisArchitectureDiagram() {
   </defs>
   
   <!-- Patent notation -->
-  <text x="400" y="580" text-anchor="middle" class="item-num">FIG. 4 - Proof-of-Genesis™ Architecture (Patent Pending)</text>
+  <text x="400" y="580" text-anchor="middle" class="item-num">FIG. 4 - Proof-of-Genesis Architecture (Patent Pending)</text>
 </svg>`;
 
     const blob = new Blob([svgContent], { type: 'image/svg+xml' });
@@ -142,7 +142,7 @@ export function ProofOfGenesisArchitectureDiagram() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    toast.success('Proof-of-Genesis™ Architecture diagram downloaded');
+    toast.success('Proof-of-Genesis Architecture diagram downloaded');
   };
 
   const handleDownloadPNG = async () => {
@@ -165,9 +165,9 @@ export function ProofOfGenesisArchitectureDiagram() {
     ctx.fillStyle = '#000000';
     ctx.font = 'bold 48px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('Proof-of-Genesis™ 4-Layer Architecture', 800, 80);
+    ctx.fillText('Proof-of-Genesis 4-Layer Architecture', 800, 80);
     ctx.font = '24px Arial';
-    ctx.fillText('(Proof-of-Genesis™ protocol)', 800, 120);
+    ctx.fillText('(Proof-of-Genesis protocol)', 800, 120);
 
     // Layer drawing helper
     const drawLayer = (y: number, color: string, borderColor: string, label: string, title: string, desc: string) => {
@@ -193,7 +193,7 @@ export function ProofOfGenesisArchitectureDiagram() {
     drawLayer(180, '#E3F2FD', '#1976D2', 'Layer 1', 'API Aggregation Layer (Item 11)', 'OAuth 2.0 connections to manufacturer APIs (Tesla, Enphase, SolarEdge, Wallbox)');
     drawLayer(380, '#E8F5E9', '#388E3C', 'Layer 2', 'Data Normalization Layer (Item 5)', 'Converts heterogeneous metrics → Unified Impact Score (0.7 kg CO₂/kWh)');
     drawLayer(580, '#F3E5F5', '#7B1FA2', 'Layer 3', 'Verification Engine (Item 13)', 'Cryptographic proofs • Device Fingerprint (keccak256) • Tamper-evident timestamps');
-    drawLayer(780, '#FFF3E0', '#F57C00', 'Layer 4', 'Smart Contract Bridge (Items 4, 7, 14)', 'Mint-on-Proof™ Token Issuance • Proof-of-Delta™ Calculation • Milestone NFT Minting');
+    drawLayer(780, '#FFF3E0', '#F57C00', 'Layer 4', 'Smart Contract Bridge (Items 4, 7, 14)', 'Mint-on-Proof Token Issuance • Proof-of-Delta Calculation • Milestone NFT Minting');
 
     // Draw arrows
     ctx.strokeStyle = '#333333';
@@ -239,14 +239,14 @@ export function ProofOfGenesisArchitectureDiagram() {
 
     // Patent notation
     ctx.font = '20px Arial';
-    ctx.fillText('FIG. 4 - Proof-of-Genesis™ Architecture (Patent Pending)', 800, 1100);
+    ctx.fillText('FIG. 4 - Proof-of-Genesis Architecture (Patent Pending)', 800, 1100);
 
     // Download
     const link = document.createElement('a');
     link.download = 'ProofOfGenesis_Architecture_Patent_Drawing.png';
     link.href = canvas.toDataURL('image/png');
     link.click();
-    toast.success('Proof-of-Genesis™ Architecture PNG downloaded (1600x1200)');
+    toast.success('Proof-of-Genesis Architecture PNG downloaded (1600x1200)');
   };
 
   return (
@@ -254,10 +254,10 @@ export function ProofOfGenesisArchitectureDiagram() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileImage className="h-5 w-5 text-primary" />
-          Proof-of-Genesis™ 4-Layer Architecture Diagram
+          Proof-of-Genesis 4-Layer Architecture Diagram
         </CardTitle>
         <CardDescription>
-          Downloadable patent drawing showing the complete Proof-of-Genesis™ architecture
+          Downloadable patent drawing showing the complete Proof-of-Genesis architecture
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6 px-3 sm:px-6">

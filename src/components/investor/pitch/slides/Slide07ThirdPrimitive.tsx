@@ -21,7 +21,7 @@ const rows = [
   },
   {
     icon: Sun,
-    name: 'Proof-of-Genesis™',
+    name: 'Proof-of-Genesis',
     anchor: 'ZenSolar · 2026',
     does: 'Produces clean energy to mint the asset',
     critique: 'The work IS the value — energy isn\'t burned to secure, energy IS the asset',
@@ -44,7 +44,7 @@ export function Slide07ThirdPrimitive() {
           <span className="text-[hsl(45,93%,47%)]">PoG produces energy.</span>
         </motion.h2>
         <p className="text-[19px] text-white/55 mb-9 max-w-[1100px]">
-          Crypto has had two consensus primitives in 17 years. Proof-of-Genesis™ is the third — and the
+          Crypto has had two consensus primitives in 17 years. Proof-of-Genesis is the third — and the
           first where the work <span className="italic">is</span> the value, not a tax paid to secure the ledger.
         </p>
 

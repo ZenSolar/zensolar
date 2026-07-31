@@ -144,25 +144,25 @@ const paths: PathCard[] = [
 
 const pogStack = [
   {
-    layer: "Proof-of-Origin™",
+    layer: "Proof-of-Origin",
     icon: Fingerprint,
     description: "Dish hardware serial + agent signing key (Paths 1 & 2). Screenshot path uses self-attestation with OAuth session timestamp.",
     status: "cryptographic" as const
   },
   {
-    layer: "Proof-of-Delta™",
+    layer: "Proof-of-Delta",
     icon: Activity,
     description: "Lifetime bytes_downloaded counter with delta = current − previous. Watermark table prevents double-mint. 200 GB cap on first reading.",
     status: "cryptographic" as const
   },
   {
-    layer: "Proof-of-Genesis™",
+    layer: "Proof-of-Genesis",
     icon: Shield,
     description: "Each attestation row hashed into existing Merkle batch alongside Tesla/Enphase rows. Same receipt URL, same share link.",
     status: "cryptographic" as const
   },
   {
-    layer: "Proof-of-Permanence™",
+    layer: "Proof-of-Permanence",
     icon: Lock,
     description: "Merkle root anchored to Base L2 (Sepolia now, mainnet at launch). Same anchor as all other energy sources.",
     status: "cryptographic" as const
@@ -427,7 +427,7 @@ Screenshot-only for launch. Agent builds when 50+ Starlink users request it.
       <div className="space-y-4">
         <h2 className="text-xl font-semibold flex items-center gap-2">
           <Shield className="h-5 w-5 text-primary" />
-          Proof-of-Genesis™ Stack Compatibility
+          Proof-of-Genesis Stack Compatibility
         </h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {pogStack.map((layer) => {

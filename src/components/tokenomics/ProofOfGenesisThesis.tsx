@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 
 /**
- * Proof-of-Genesis™ Thesis
+ * Proof-of-Genesis Thesis
  *
  * The headline NDA-only narrative: why $ZSOLAR is built to eclipse Bitcoin's
  * market cap by 5x–10x. Lives at the bottom of the Tokenomics tab as the
@@ -37,7 +37,7 @@ const COMPARISON_ROWS: Array<{
   {
     axis: 'Consensus',
     btc: 'PoW (Proof-of-Work)',
-    zen: 'PoG™ (Proof-of-Genesis)',
+    zen: 'PoG (Proof-of-Genesis)',
   },
   {
     axis: 'Anchored to',
@@ -108,7 +108,7 @@ export function ProofOfGenesisThesis() {
                 id="pog-thesis-title"
                 className="text-[22px] sm:text-3xl font-bold leading-[1.15] tracking-tight"
               >
-                Proof-of-Genesis™ Thesis
+                Proof-of-Genesis Thesis
               </CardTitle>
               <p className="text-[13px] sm:text-sm text-muted-foreground leading-snug">
                 Why $ZSOLAR has a credible path to{' '}
@@ -125,7 +125,7 @@ export function ProofOfGenesisThesis() {
             <span className="font-semibold text-primary">
               infinitely productive — and good for civilization
             </span>{' '}
-            — because of <span className="font-semibold">PoG™</span> (Proof-of-Genesis),
+            — because of <span className="font-semibold">PoG</span> (Proof-of-Genesis),
             physics, and math.
           </p>
           <p className="text-[14.5px] sm:text-[15px] leading-relaxed text-foreground/80">

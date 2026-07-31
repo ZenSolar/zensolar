@@ -194,7 +194,7 @@ const TobyIphoneInviteEmail = ({ firstName, trackUrl }: TobyIphoneInviteProps) =
           <Section style={footerWrap}>
             <Text style={footer}>
               © {new Date().getFullYear()} ZenSolar, LLC<br />
-              ZenSolar™ · Proof of Genesis™ · Creating Currency From Energy™<br />
+              ZenSolar · Proof of Genesis · Creating Currency From Energy<br />
               U.S. Patent Pending — Application No. 19/634,402
             </Text>
           </Section>

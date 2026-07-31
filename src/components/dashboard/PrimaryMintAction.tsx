@@ -13,7 +13,7 @@ interface PrimaryMintActionProps {
 }
 
 /**
- * Primary Tap-to-Mint™ hero action.
+ * Primary Tap-to-Mint hero action.
  *
  * Now the emotional & visual anchor of the dashboard — sits directly under
  * the Clean Energy Center KPI grid and turns today's pending energy into
@@ -71,7 +71,7 @@ export function PrimaryMintAction({
           <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.22em] font-bold opacity-95">
             <Sparkles className="h-3 w-3" aria-hidden="true" />
             Proof-of-Genesis
-            <span className="text-[9px] opacity-70">™</span>
+            <span className="text-[9px] opacity-70"></span>
           </div>
           <div className="flex items-baseline gap-2 mt-0.5">
             <span className="text-5xl sm:text-6xl font-black tabular-nums leading-none tracking-tight drop-shadow-[0_2px_8px_hsl(var(--primary-foreground)/0.25)]">

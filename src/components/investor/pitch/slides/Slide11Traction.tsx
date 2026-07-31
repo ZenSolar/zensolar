@@ -40,7 +40,7 @@ export function Slide11Traction() {
           {[
             { title: 'OEMs Live', items: ['Tesla (solar + home charging)', 'Enphase (inverters)', 'SolarEdge (PV)', 'Wallbox (EV charging)'] },
             { title: 'Protocol Live', items: ['Smart contracts deployed', 'Proof-of-Delta verification', 'Device Watermark Registry', 'Base Sepolia anchored'] },
-            { title: 'IP & Defensibility', items: ['Non-provisional patent filed', 'Mint-on-Proof™ trademark', 'Proof-of-Genesis receipt live', '5 device providers ingested'] },
+            { title: 'IP & Defensibility', items: ['Non-provisional patent filed', 'Mint-on-Proof trademark', 'Proof-of-Genesis receipt live', '5 device providers ingested'] },
           ].map((col) => (
             <div key={col.title} className="p-5 rounded-xl border border-white/10 bg-white/5">
               <p className="text-[17px] font-bold mb-3 text-[hsl(207,90%,54%)]">{col.title}</p>

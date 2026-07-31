@@ -23,7 +23,7 @@ const cols = [
     title: 'Protocol live',
     items: [
       'Smart contracts deployed',
-      'Proof-of-Delta™ verification',
+      'Proof-of-Delta verification',
       'Device Watermark Registry',
       'Base Sepolia anchored',
     ],
@@ -32,7 +32,7 @@ const cols = [
     title: 'IP & defensibility',
     items: [
       'Non-provisional patent filed',
-      'Mint-on-Proof™ trademark',
+      'Mint-on-Proof trademark',
       'Proof-of-Genesis receipt live',
       '5 device providers ingested',
     ],

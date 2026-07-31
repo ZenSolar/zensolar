@@ -50,7 +50,7 @@ const layers = [
     icon: Binary,
     title: 'Smart Contract Bridge',
     subtitle: 'Mint + Record',
-    description: 'Proof-of-Delta™ + Proof-of-Origin™: On-chain verification, anti-double-mint standard',
+    description: 'Proof-of-Delta + Proof-of-Origin: On-chain verification, anti-double-mint standard',
     gradient: 'from-amber-500 to-orange-500',
     shadow: 'shadow-amber-500/30',
     bg: 'bg-amber-500/10',
@@ -61,7 +61,7 @@ const layers = [
 const proofOfDeltaSteps = [
   {
     icon: Database,
-    label: 'Proof-of-Origin™ Registry',
+    label: 'Proof-of-Origin Registry',
     description: 'Public on-chain record of cumulative tokenized value per physical device (VIN, Site ID)',
   },
   {
@@ -95,7 +95,7 @@ export function ProofOfGenesisDiagram() {
             >
               <Link2 className="h-5 w-5 text-white" />
             </motion.div>
-            Proof-of-Genesis™ Architecture
+            Proof-of-Genesis Architecture
           </CardTitle>
           <Badge variant="outline" className="border-amber-500/40 text-amber-600 dark:text-amber-400 text-xs">
             On-Chain Verified
@@ -206,11 +206,11 @@ export function ProofOfGenesisDiagram() {
             >
               <ShieldCheck className="h-5 w-5 text-amber-500" />
             </motion.div>
-            <h4 className="font-bold text-foreground">Proof-of-Delta™: On-Chain Verification</h4>
+            <h4 className="font-bold text-foreground">Proof-of-Delta: On-Chain Verification</h4>
           </div>
           
           <p className="text-sm text-muted-foreground mb-4">
-            Layer 4 implements <strong className="text-foreground">Proof-of-Delta™</strong> powered by <strong className="text-foreground">Proof-of-Origin™</strong> (Device Watermark Registry)—a standalone on-chain contract that maps each physical device (via <code className="text-xs bg-muted px-1 py-0.5 rounded">keccak256(manufacturer | deviceId)</code>) to its total tokenized energy. This creates the industry's first <strong className="text-foreground">cross-platform anti-double-mint standard</strong>, making conflicting claims by any platform provably fraudulent.
+            Layer 4 implements <strong className="text-foreground">Proof-of-Delta</strong> powered by <strong className="text-foreground">Proof-of-Origin</strong> (Device Watermark Registry)—a standalone on-chain contract that maps each physical device (via <code className="text-xs bg-muted px-1 py-0.5 rounded">keccak256(manufacturer | deviceId)</code>) to its total tokenized energy. This creates the industry's first <strong className="text-foreground">cross-platform anti-double-mint standard</strong>, making conflicting claims by any platform provably fraudulent.
           </p>
 
           <div className="grid sm:grid-cols-3 gap-3">

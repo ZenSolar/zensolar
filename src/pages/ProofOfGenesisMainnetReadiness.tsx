@@ -170,7 +170,7 @@ const MAINNET_GROUPS: Group[] = [
       },
       {
         label: 'Founder pact-lock contract live (Joseph 150B / Michael 50B)',
-        detail: 'Family Legacy Pact™ time-locked at $6.67 / $20 trillionaire crossovers, publicly viewable on basescan.',
+        detail: 'Family Legacy Pact time-locked at $6.67 / $20 trillionaire crossovers, publicly viewable on basescan.',
         state: 'todo',
       },
       {

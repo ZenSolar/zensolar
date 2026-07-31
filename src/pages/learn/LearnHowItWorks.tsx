@@ -23,7 +23,7 @@ export default function LearnHowItWorks() {
         <CardContent className="p-6 space-y-5">
           <p className="text-sm text-foreground/90 leading-relaxed">
             Connect your solar, battery, or EV. ZenSolar verifies every kWh on-chain through the
-            Proof-of-Genesis™ protocol and mints $ZSOLAR with one tap.
+            Proof-of-Genesis protocol and mints $ZSOLAR with one tap.
           </p>
           <ul className="space-y-3">
             {bullets.map((b) => (

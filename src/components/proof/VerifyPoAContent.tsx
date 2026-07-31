@@ -270,7 +270,7 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
         </div>
         <div className="min-w-0 flex-1">
           <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-bold">
-            Proof-of-Authenticity™
+            Proof-of-Authenticity
           </div>
           <div className="text-xs font-semibold text-foreground/90 truncate">
             Cryptographically signed · Anchored on Base
@@ -487,7 +487,7 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
           <div className="flex items-center gap-2">
             <Bitcoin className="h-3.5 w-3.5 text-accent-warm" />
             <span className="text-[10px] uppercase tracking-[0.18em] text-accent-warm font-bold">
-              Proof-of-Work vs. Proof-of-Genesis™
+              Proof-of-Work vs. Proof-of-Genesis
             </span>
           </div>
 
@@ -609,9 +609,9 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
             )}
 
             <p className="text-[10px] text-muted-foreground italic text-center pt-1">
-              Patent-pending. App. 19/634,402. Proof-of-Genesis™, Mint-on-Proof™, Proof-of-Delta™,
-              Proof-of-Origin™, Proof-of-Permanence™, Proof-of-Authenticity™,
-              Proof-of-Genesis™ are trademarks of ZenCorp Inc.
+              Patent-pending. App. 19/634,402. Proof-of-Genesis, Mint-on-Proof, Proof-of-Delta,
+              Proof-of-Origin, Proof-of-Permanence, Proof-of-Authenticity,
+              Proof-of-Genesis are trademarks of ZenCorp Inc.
             </p>
           </div>
         )}

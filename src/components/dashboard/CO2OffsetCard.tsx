@@ -664,7 +664,7 @@ function CategoryDetails({ category, breakdown }: { category: CategoryKey; break
 
               <p className="text-[10px] leading-relaxed text-muted-foreground">
                 Every mint = 1 on-chain tx on Base (~0 kg CO₂). Bitcoin PoW = ~707 kg CO₂/tx.
-                Proof-of-Genesis™ is the regenerative inverse of PoW.
+                Proof-of-Genesis is the regenerative inverse of PoW.
               </p>
             </div>
           </DialogContent>

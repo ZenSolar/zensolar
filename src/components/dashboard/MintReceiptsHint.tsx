@@ -62,7 +62,7 @@ export function MintReceiptsHint() {
           <div className="min-w-0">
             <p className="text-sm font-medium text-foreground">Proof Feed</p>
             <p className="text-[11px] text-muted-foreground truncate">
-              Your recent Proof-of-Genesis™ receipts, on-chain &amp; verifiable
+              Your recent Proof-of-Genesis receipts, on-chain &amp; verifiable
             </p>
           </div>
         </div>
@@ -90,7 +90,7 @@ export function MintReceiptsHint() {
                     Proof Feed
                   </DrawerTitle>
                   <DrawerDescription id={`${panelId}-desc`} className="text-left text-xs">
-                    Recent Proof-of-Genesis™ records · swipe down or press Esc to close
+                    Recent Proof-of-Genesis records · swipe down or press Esc to close
                   </DrawerDescription>
                 </div>
                 <DrawerClose

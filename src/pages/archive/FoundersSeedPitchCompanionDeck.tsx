@@ -255,13 +255,13 @@ const SlideProduct = () => (
             icon: ShieldCheck,
             step: "02",
             title: "Verify",
-            body: "Proof-of-Genesis™ signs every kWh and writes a cryptographic proof to Base L2.",
+            body: "Proof-of-Genesis signs every kWh and writes a cryptographic proof to Base L2.",
             tag: "Patent-pending",
           },
           {
             icon: Coins,
             step: "03",
-            title: "Tap-to-Mint™",
+            title: "Tap-to-Mint",
             body: "One tap mints 1 $ZSOLAR per verified kWh into the embedded Coinbase Wallet.",
             tag: "Live on Base",
           },
@@ -298,7 +298,7 @@ const SlideProduct = () => (
 const SlideFlywheel = () => {
   const nodes = [
     { icon: Zap, label: "Produce kWh" },
-    { icon: ShieldCheck, label: "Proof-of-Genesis™" },
+    { icon: ShieldCheck, label: "Proof-of-Genesis" },
     { icon: Coins, label: "Mint 1 $ZSOLAR" },
     { icon: Flame, label: "20% Burn" },
     { icon: Droplet, label: "3% LP" },
@@ -516,7 +516,7 @@ const SlideMoat = () => (
             icon: Fingerprint,
             wall: "IP Wall",
             items: [
-              "Proof-of-Genesis™ (patent-pending)",
+              "Proof-of-Genesis (patent-pending)",
               "TM Stack Tracks 1–3",
               "Device Watermark Registry",
             ],
@@ -628,7 +628,7 @@ const SlideWhyUs = () => (
         {[
           { n: "01", t: "Live product", b: "Shipping on Base L2 today" },
           { n: "02", t: "Real OEM data", b: "Tesla · SolarEdge · Enphase · Wallbox" },
-          { n: "03", t: "Patent-pending IP", b: "Proof-of-Genesis™ + TM Stack" },
+          { n: "03", t: "Patent-pending IP", b: "Proof-of-Genesis + TM Stack" },
           { n: "04", t: "Macro catalyst", b: "$40B incentives just repealed" },
           { n: "05", t: "Founder pact-lock", b: "200B tokens locked until $6.67–$20" },
         ].map((c) => (

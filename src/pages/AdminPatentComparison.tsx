@@ -55,7 +55,7 @@ const pogComparison: ComparisonRow[] = [
   },
   {
     feature: 'Verification Method',
-    provisional: '"Proof-of-Genesis™ calculates new activity" — no cryptographic specification',
+    provisional: '"Proof-of-Genesis calculates new activity" — no cryptographic specification',
     utility: 'SHA-256 hash chain with tamper-evident timestamps and cryptographic proofs',
     status: 'new',
     critical: true,
@@ -72,7 +72,7 @@ const mintOnProofComparison: ComparisonRow[] = [
   {
     feature: 'Token Issuance Trigger',
     provisional: '"Token Minting Step (Item 14)" — mints based on activity data at predetermined rate',
-    utility: 'Mint-on-Proof™ — tokens minted ONLY at the moment of cryptographic verification, never from pre-minted pools',
+    utility: 'Mint-on-Proof — tokens minted ONLY at the moment of cryptographic verification, never from pre-minted pools',
     status: 'evolved',
     critical: true,
   },
@@ -108,7 +108,7 @@ const proofOfDeltaComparison: ComparisonRow[] = [
   {
     feature: 'Incremental Tracking',
     provisional: '"If new kWh > last kWh stored, calculate difference as new kWh to mint"',
-    utility: 'Proof-of-Delta™ — SHA-256(device_id | timestamp | value | prevHash) creating linked hash chain for every reading',
+    utility: 'Proof-of-Delta — SHA-256(device_id | timestamp | value | prevHash) creating linked hash chain for every reading',
     status: 'evolved',
     critical: true,
   },
@@ -152,7 +152,7 @@ const proofOfOriginComparison: ComparisonRow[] = [
   {
     feature: 'Watermark Registry',
     provisional: 'Not present',
-    utility: 'Device Watermark Registry™ — standalone smart contract mapping device hashes to cumulative tokenized amounts',
+    utility: 'Device Watermark Registry — standalone smart contract mapping device hashes to cumulative tokenized amounts',
     status: 'new',
     critical: true,
   },
@@ -359,19 +359,19 @@ export default function AdminPatentComparison() {
                 <div className="grid md:grid-cols-4 gap-3 text-sm">
                   <div className="p-3 rounded-lg bg-background border">
                     <p className="font-medium text-primary">Master Independent</p>
-                    <p className="text-xs text-muted-foreground mt-1">Proof-of-Genesis™ 4-layer architecture for converting verified real-world activity into blockchain assets</p>
+                    <p className="text-xs text-muted-foreground mt-1">Proof-of-Genesis 4-layer architecture for converting verified real-world activity into blockchain assets</p>
                   </div>
                   <div className="p-3 rounded-lg bg-background border">
                     <p className="font-medium text-emerald-600 dark:text-emerald-400">Dependent Claim 1</p>
-                    <p className="text-xs text-muted-foreground mt-1">Mint-on-Proof™ — verification-gated token issuance</p>
+                    <p className="text-xs text-muted-foreground mt-1">Mint-on-Proof — verification-gated token issuance</p>
                   </div>
                   <div className="p-3 rounded-lg bg-background border">
                     <p className="font-medium text-amber-600 dark:text-amber-400">Dependent Claim 2</p>
-                    <p className="text-xs text-muted-foreground mt-1">Proof-of-Delta™ — incremental cryptographic verification</p>
+                    <p className="text-xs text-muted-foreground mt-1">Proof-of-Delta — incremental cryptographic verification</p>
                   </div>
                   <div className="p-3 rounded-lg bg-background border">
                     <p className="font-medium text-blue-600 dark:text-blue-400">Dependent Claim 3</p>
-                    <p className="text-xs text-muted-foreground mt-1">Proof-of-Origin™ — device-bound watermark registry</p>
+                    <p className="text-xs text-muted-foreground mt-1">Proof-of-Origin — device-bound watermark registry</p>
                   </div>
                 </div>
               </div>
@@ -380,10 +380,10 @@ export default function AdminPatentComparison() {
         </Card>
       </motion.div>
 
-      {/* Proof-of-Genesis™ Architecture */}
+      {/* Proof-of-Genesis Architecture */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
         <ComparisonSection
-          title="Proof-of-Genesis™ Architecture"
+          title="Proof-of-Genesis Architecture"
           icon={Layers}
           iconColor="text-primary"
           description="Master independent claim — the core system architecture"
@@ -394,11 +394,11 @@ export default function AdminPatentComparison() {
       {/* Mint-on-Proof */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
         <ComparisonSection
-          title="Mint-on-Proof™"
+          title="Mint-on-Proof"
           icon={Sparkles}
           iconColor="text-emerald-500"
           description="Dependent Claim 1 — verification-gated token issuance"
-          trademark="Mint-on-Proof™"
+          trademark="Mint-on-Proof"
           rows={mintOnProofComparison}
         />
       </motion.div>
@@ -406,11 +406,11 @@ export default function AdminPatentComparison() {
       {/* Proof-of-Delta */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
         <ComparisonSection
-          title="Proof-of-Delta™"
+          title="Proof-of-Delta"
           icon={Hash}
           iconColor="text-amber-500"
           description="Dependent Claim 2 — incremental cryptographic verification"
-          trademark="Proof-of-Delta™"
+          trademark="Proof-of-Delta"
           rows={proofOfDeltaComparison}
         />
       </motion.div>
@@ -418,11 +418,11 @@ export default function AdminPatentComparison() {
       {/* Proof-of-Origin */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
         <ComparisonSection
-          title="Proof-of-Origin™ / Device Watermark Registry"
+          title="Proof-of-Origin / Device Watermark Registry"
           icon={Fingerprint}
           iconColor="text-blue-500"
           description="Dependent Claim 3 — hardware-bound anti-double-mint standard"
-          trademark="Proof-of-Origin™"
+          trademark="Proof-of-Origin"
           rows={proofOfOriginComparison}
         />
       </motion.div>
@@ -444,10 +444,10 @@ export default function AdminPatentComparison() {
           <CardContent>
             <div className="space-y-3">
               {[
-                { text: 'Draft master independent claim covering the 4-layer Proof-of-Genesis™ architecture as a unified system', priority: 'critical' },
-                { text: 'Write Mint-on-Proof™ dependent claim — verification-gated, zero pre-mint, cryptographic proof required before issuance', priority: 'critical' },
-                { text: 'Write Proof-of-Delta™ dependent claim — SHA-256 hash chain for incremental-only tokenization', priority: 'critical' },
-                { text: 'Write Proof-of-Origin™ dependent claim — keccak256 device hashing, watermark registry, Merkle root snapshots', priority: 'critical' },
+                { text: 'Draft master independent claim covering the 4-layer Proof-of-Genesis architecture as a unified system', priority: 'critical' },
+                { text: 'Write Mint-on-Proof dependent claim — verification-gated, zero pre-mint, cryptographic proof required before issuance', priority: 'critical' },
+                { text: 'Write Proof-of-Delta dependent claim — SHA-256 hash chain for incremental-only tokenization', priority: 'critical' },
+                { text: 'Write Proof-of-Origin dependent claim — keccak256 device hashing, watermark registry, Merkle root snapshots', priority: 'critical' },
                 { text: 'Update system architecture drawings (FIG 1) to reflect 4-layer model with verification engine', priority: 'high' },
                 { text: 'Add new drawing: Proof-of-Delta hash chain flow diagram', priority: 'high' },
                 { text: 'Add new drawing: Device Watermark Registry architecture', priority: 'high' },

@@ -67,11 +67,11 @@ This is the **exact same information architecture** used by ZenSolar's public be
 
 | Technology | Status | Description |
 |---|---|---|
-| **Proof-of-Genesis™ Architecture** | Patent-pending (Q1 2025) | 4-layer Proof-of-Genesis™ protocol for hardware-agnostic energy data aggregation |
-| **Proof-of-Delta™** | Trademark filed | SHA-256 hash chain verification: `SHA-256(device_id \| timestamp \| value \| prevHash)` binding physical kWh to cryptographic proof |
-| **Proof-of-Origin™** | Trademark filed | Device Watermark Registry™ — on-chain anti-double-mint standard using manufacturer IDs (VIN, Site ID) |
-| **Mint-on-Proof™** | Trademark filed | Token issuance gated by cryptographic verification of energy data |
-| **Verified Dispatch Signaling** | Patent claim (VPP) | Proof-of-Delta™ applied to demand response events before payment |
+| **Proof-of-Genesis Architecture** | Patent-pending (Q1 2025) | 4-layer Proof-of-Genesis protocol for hardware-agnostic energy data aggregation |
+| **Proof-of-Delta** | Trademark filed | SHA-256 hash chain verification: `SHA-256(device_id \| timestamp \| value \| prevHash)` binding physical kWh to cryptographic proof |
+| **Proof-of-Origin** | Trademark filed | Device Watermark Registry — on-chain anti-double-mint standard using manufacturer IDs (VIN, Site ID) |
+| **Mint-on-Proof** | Trademark filed | Token issuance gated by cryptographic verification of energy data |
+| **Verified Dispatch Signaling** | Patent claim (VPP) | Proof-of-Delta applied to demand response events before payment |
 
 ### GridPay — No Known IP
 
@@ -117,9 +117,9 @@ This is the **exact same information architecture** used by ZenSolar's public be
 
 2. **GridPay's "How It Works" page follows the identical information architecture** (section order, narrative arc, 4-step flow) as ZenSolar's pre-existing public page, suggesting derivative design.
 
-3. **GridPay discloses no verification methodology.** ZenSolar's patent-pending Proof-of-Delta™ and Proof-of-Origin™ represent novel technical contributions not present in GridPay's implementation.
+3. **GridPay discloses no verification methodology.** ZenSolar's patent-pending Proof-of-Delta and Proof-of-Origin represent novel technical contributions not present in GridPay's implementation.
 
-4. **ZenSolar's IP is domain-agnostic.** The Mint-on-Proof™ methodology is intentionally claimed broadly to cover any activity-to-token platform, not limited to energy.
+4. **ZenSolar's IP is domain-agnostic.** The Mint-on-Proof methodology is intentionally claimed broadly to cover any activity-to-token platform, not limited to energy.
 
 5. **GridPay's ERCOT-only scope validates ZenSolar's market thesis** — that clean energy tokenization is a real and growing category — while demonstrating ZenSolar's broader technical moat through multi-provider, nationwide coverage.
 

@@ -268,6 +268,7 @@ export function DeasonFloatingBubble() {
       {!open && (
         <>
           <button
+            data-capture-hide
             onClick={handleBubbleTap}
             aria-label={
               isNudging

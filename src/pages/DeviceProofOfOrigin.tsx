@@ -10,12 +10,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { VaultPinGate } from '@/components/founders/VaultPinGate';
 
 /**
- * Per-device Proof-of-Origin™ page — `/devices/:deviceId/origin`
+ * Per-device Proof-of-Origin page — `/devices/:deviceId/origin`
  *
  * Founder + PIN gated (Phase 1). Phase 2: open to device owner.
  *
  * Surfaces the keccak256 device hash, cumulative tokenized watermark,
- * Proof-of-Permanence™ anchor history for this device, and a Genesis Anchor™
+ * Proof-of-Permanence anchor history for this device, and a Genesis Anchor
  * commemorative for the device's first-ever mint.
  */
 
@@ -80,7 +80,7 @@ function DeviceOriginContent({ device }: { device: DeviceOriginData }) {
         <header className="space-y-3 mb-8">
           <Badge variant="outline" className="border-secondary/40 text-secondary">
             <Fingerprint className="h-3 w-3 mr-1" />
-            Proof-of-Origin™
+            Proof-of-Origin
           </Badge>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{device.deviceLabel}</h1>
           <p className="text-sm text-muted-foreground">
@@ -120,7 +120,7 @@ function DeviceOriginContent({ device }: { device: DeviceOriginData }) {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
               <Anchor className="h-4 w-4 text-amber-400" />
-              Genesis Anchor™
+              Genesis Anchor
               <Badge variant="outline" className="text-[9px] border-amber-400/40 text-amber-400">
                 First Mint
               </Badge>
@@ -160,7 +160,7 @@ function DeviceOriginContent({ device }: { device: DeviceOriginData }) {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
               <Hash className="h-4 w-4 text-amber-400" />
-              Latest Proof-of-Permanence™ Anchor
+              Latest Proof-of-Permanence Anchor
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -240,7 +240,7 @@ export default function DeviceProofOfOrigin() {
   if (!device) {
     return (
       <>
-        <SEO title="Device not found — Proof-of-Origin™" description="Device not found." url="https://beta.zen.solar/devices" />
+        <SEO title="Device not found — Proof-of-Origin" description="Device not found." url="https://beta.zen.solar/devices" />
         <div className="min-h-[100svh] flex items-center justify-center bg-background p-6">
           <Card className="max-w-sm">
             <CardContent className="p-6 text-center space-y-3">
@@ -261,7 +261,7 @@ export default function DeviceProofOfOrigin() {
   return (
     <>
       <SEO
-        title={`${device.deviceLabel} — Proof-of-Origin™`}
+        title={`${device.deviceLabel} — Proof-of-Origin`}
         description={`Device-bound watermark registry for ${device.deviceLabel}. Cumulative tokenized energy verified on Base L2.`}
         url={`https://beta.zen.solar/devices/${device.deviceId}/origin`}
       />

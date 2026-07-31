@@ -221,7 +221,7 @@ export default function Engineering() {
                     },
                     {
                       n: "3",
-                      t: "Tap to Mint™",
+                      t: "Tap to Mint",
                       d: "When you're ready, one tap turns your verified clean energy into $ZSOLAR tokens in your embedded wallet.",
                     },
                     {
@@ -265,7 +265,7 @@ export default function Engineering() {
               />
               <PillarCard
                 icon={Zap}
-                title="Mint-on-Proof™"
+                title="Mint-on-Proof"
                 plain="Tokens are only issued when the system has cryptographic proof that the energy actually happened. No proof, no mint."
                 technical="Each mint carries a proof chain (device ID, timestamps, baseline + delta, signed metadata). Smart contract accepts deltas only — never lifetime totals — to prevent double-issuance."
               />
@@ -387,7 +387,7 @@ export default function Engineering() {
                     Trademark Glossary
                   </Badge>
                   <Badge variant="outline" className="text-violet-600 dark:text-violet-400 border-violet-500/40 text-[10px]">
-                    ™ filings in progress
+                     filings in progress
                   </Badge>
                 </div>
                 <CardTitle className="text-base sm:text-lg pt-2">
@@ -400,28 +400,28 @@ export default function Engineering() {
               <CardContent className="space-y-3">
                 {[
                   {
-                    mark: "Proof-of-Genesis™",
-                    expansion: "Proof-of-Genesis™ protocol",
+                    mark: "Proof-of-Genesis",
+                    expansion: "Proof-of-Genesis protocol",
                     etymology: "Coined to name the entire category of hardware-free energy bridges. Pronounced “SEH-jee.”",
                     means: "The single software layer that talks to every solar / battery / EV cloud and turns their data into mintable proofs. No box, no installer.",
                   },
                   {
-                    mark: "Mint-on-Proof™",
+                    mark: "Mint-on-Proof",
                     expansion: "Verification-before-issuance model",
                     etymology: "A direct rebuttal to “pre-mint and distribute.” The proof comes first; the mint follows.",
                     means: "A token is only created the instant a cryptographic proof of real energy is accepted on-chain. No proof → no mint. Ever.",
                   },
                   {
-                    mark: "Proof-of-Delta™",
+                    mark: "Proof-of-Delta",
                     expansion: "Device-watermarked incremental verification",
                     etymology: "“Delta” = the change since last time. Named to distinguish from Proof-of-Work / Proof-of-Stake.",
                     means: "We never mint your lifetime total — only the new kWh since your last mint. Yesterday's energy can't be re-claimed today.",
                   },
                   {
-                    mark: "Proof of Genesis™",
+                    mark: "Proof of Genesis",
                     expansion: "The user-facing gesture of Mint-on-Proof",
                     etymology: "One tap. One proof. One mint. The simplest possible expression of the entire stack.",
-                    means: "What the user sees: a single button that triggers the Proof-of-Genesis™ fetch, the Proof-of-Delta calculation, and the on-chain Mint-on-Proof — in about 60 seconds.",
+                    means: "What the user sees: a single button that triggers the Proof-of-Genesis fetch, the Proof-of-Delta calculation, and the on-chain Mint-on-Proof — in about 60 seconds.",
                   },
                 ].map((tm) => (
                   <div
@@ -449,7 +449,7 @@ export default function Engineering() {
                 <div className="pt-1 flex items-start gap-2 text-[11px] text-muted-foreground italic">
                   <Scale className="h-3 w-3 shrink-0 mt-0.5 text-violet-500/70" />
                   <span>
-                    The ™ symbol indicates an unregistered trademark in active use. Federal registration (®) is in progress with the USPTO.
+                    The  symbol indicates an unregistered trademark in active use. Federal registration (®) is in progress with the USPTO.
                   </span>
                 </div>
               </CardContent>
@@ -482,7 +482,7 @@ export default function Engineering() {
                 {
                   num: 1,
                   icon: Layers,
-                  title: "Proof-of-Genesis™ protocol",
+                  title: "Proof-of-Genesis protocol",
                   plain:
                     "One software layer that speaks fluent Tesla, Enphase, SolarEdge, and Wallbox — so we never have to ship hardware.",
                   technical:
@@ -493,7 +493,7 @@ export default function Engineering() {
                 {
                   num: 2,
                   icon: Zap,
-                  title: "Mint-on-Proof™ Architecture",
+                  title: "Mint-on-Proof Architecture",
                   plain:
                     "Tokens are created at the exact moment we can prove the energy happened — not before, not in bulk.",
                   technical:
@@ -515,7 +515,7 @@ export default function Engineering() {
                 {
                   num: 4,
                   icon: CheckCircle2,
-                  title: "Proof-of-Delta™ (Delta-Only Minting)",
+                  title: "Proof-of-Delta (Delta-Only Minting)",
                   plain:
                     "We only ever mint the difference since last time — never the lifetime total. Yesterday's energy can't be re-claimed today.",
                   technical:

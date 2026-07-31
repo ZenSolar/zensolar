@@ -21,7 +21,7 @@ import {
 import { useState } from 'react';
 
 /**
- * Proof-of-Genesis™ — cornerstone page
+ * Proof-of-Genesis — cornerstone page
  *
  * Structure (top → bottom):
  *  1. Hero: PoG = the cornerstone
@@ -48,7 +48,7 @@ type Pillar = {
 
 const PILLARS: Pillar[] = [
   {
-    mark: 'Proof-of-Delta™',
+    mark: 'Proof-of-Delta',
     tagline: 'The math that proves change actually happened.',
     icon: Layers,
     category: 'Pillar 1 · Math',
@@ -95,7 +95,7 @@ const PILLARS: Pillar[] = [
     ],
   },
   {
-    mark: 'Proof-of-Origin™',
+    mark: 'Proof-of-Origin',
     tagline: 'Verifies the source — clean, real, and yours.',
     icon: Cpu,
     category: 'Pillar 2 · Source',
@@ -142,7 +142,7 @@ const PILLARS: Pillar[] = [
     ],
   },
   {
-    mark: 'Mint-on-Proof™',
+    mark: 'Mint-on-Proof',
     tagline: 'No proof, no mint. Period.',
     icon: ShieldCheck,
     category: 'Pillar 3 · Rule',
@@ -246,7 +246,7 @@ const PILLARS: Pillar[] = [
     ],
   },
   {
-    mark: 'Proof-of-Permanence™',
+    mark: 'Proof-of-Permanence',
     tagline: 'Every mint is forensically auditable. Forever.',
     icon: GitBranch,
     category: 'Pillar 5 · Receipts',
@@ -266,7 +266,7 @@ const PILLARS: Pillar[] = [
           'The Proof-of-Genesis receipt displays "minted from X kWh → Y kWh at timestamp Z" so anyone can verify the delta is real.',
       },
       {
-        label: 'Proof-of-Permanence™ Merkle anchors',
+        label: 'Proof-of-Permanence Merkle anchors',
         detail:
           'Every 6 hours, anchor-permanence-snapshot computes a SHA-256 binary Merkle root (duplicate-last for odd nodes) over every chain_hash ordered by (user_id, chain_seq) and inserts it into proof_of_permanence_anchors. get_mint_receipt returns the covering anchor (oldest snapshot ≥ receipt.created_at) so any auditor can verify a receipt against a fixed, immutable root. Phase 2 publishes each root on Base L2 via DeviceWatermarkRegistry; the on-chain tx hash slots into the same row.',
       },
@@ -324,7 +324,7 @@ type Trademark = {
 
 const ADDITIONAL_MARKS: Trademark[] = [
   {
-    mark: 'Proof of Genesis™',
+    mark: 'Proof of Genesis',
     tagline: 'One tap turns real energy into on-chain currency.',
     icon: Zap,
     category: 'User Experience',
@@ -348,7 +348,7 @@ const ADDITIONAL_MARKS: Trademark[] = [
       'The umbrella brand. Calm, confident, civilizational. A brand that sounds like a religion and reads like a utility.',
   },
   {
-    mark: 'Family Legacy Pact™',
+    mark: 'Family Legacy Pact',
     tagline: 'Founder supply locked to civilization-scale outcomes.',
     icon: Lock,
     category: 'Governance',
@@ -437,7 +437,7 @@ export default function ProofOfGenesis() {
   return (
     <>
       <SEO
-        title="Proof-of-Genesis™ — The Cornerstone of ZenSolar"
+        title="Proof-of-Genesis — The Cornerstone of ZenSolar"
         url="https://beta.zen.solar/demo/proof-of-genesis"
       />
 
@@ -456,7 +456,7 @@ export default function ProofOfGenesis() {
             The Cornerstone
           </Badge>
           <h1 className="text-[26px] sm:text-4xl font-bold tracking-tight leading-[1.1]">
-            Proof-of-Genesis™
+            Proof-of-Genesis
           </h1>
           <p className="text-[14px] sm:text-base text-muted-foreground leading-snug max-w-2xl">
             ZenSolar is not a Web3 energy app. It is a verification system that happens to mint a
@@ -492,7 +492,7 @@ export default function ProofOfGenesis() {
             </CardHeader>
             <CardContent className="relative px-5 pb-5 sm:px-6 sm:pb-6 space-y-4 text-[14.5px] sm:text-[15px] leading-relaxed text-foreground/85">
               <p>
-                <span className="font-semibold text-foreground">Proof-of-Genesis (PoG™)</span>{' '}
+                <span className="font-semibold text-foreground">Proof-of-Genesis (PoG)</span>{' '}
                 is the consensus mechanism that powers $ZSOLAR. Where Bitcoin's Proof-of-Work
                 secures value by{' '}
                 <span className="text-foreground font-medium">burning</span> electricity,

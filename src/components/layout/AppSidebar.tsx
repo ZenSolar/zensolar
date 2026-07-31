@@ -94,10 +94,10 @@ const previewOnlyNavItems = [
 // Lower-frequency reference content.
 const resourcesNavItems = [
   { title: "NFT Collection", url: "/nft-collection", icon: Award, desc: "Browse the ZenSolar NFT collection" },
-  { title: "Proof-of-Genesis™", url: "/proof-of-genesis", icon: Sparkles, desc: "How we verify real clean energy" },
+  { title: "Proof-of-Genesis", url: "/proof-of-genesis", icon: Sparkles, desc: "How we verify real clean energy" },
   { title: "Glossary", url: "/glossary", icon: BookOpen, desc: "Every ZenSolar word, in plain English" },
   { title: "White Paper", url: "/white-paper", icon: FileText, desc: "The full ZenSolar thesis" },
-  { title: "Patent Technology", url: "/technology", icon: Cpu, desc: "Mint-on-Proof™ patent stack" },
+  { title: "Patent Technology", url: "/technology", icon: Cpu, desc: "Mint-on-Proof patent stack" },
 ];
 
 const secondaryNavItems = [
@@ -155,8 +155,8 @@ const adminMenuGroups = {
     { title: "Glossary", url: "/admin/glossary", icon: BookOpen },
   ],
   patent: [
-    { title: "Mint-on-Proof™", url: "/admin/patent/mint-on-proof", icon: FileText, highlight: true },
-    { title: "Proof-of-Delta™", url: "/admin/patent/proof-of-delta", icon: Shield, highlight: true },
+    { title: "Mint-on-Proof", url: "/admin/patent/mint-on-proof", icon: FileText, highlight: true },
+    { title: "Proof-of-Delta", url: "/admin/patent/proof-of-delta", icon: Shield, highlight: true },
     { title: "Patent Application", url: "/admin/patent/application", icon: FileText, highlight: true },
     { title: "Updated Language", url: "/admin/patent/updated-language", icon: FileText, highlight: true },
     { title: "Provisional → Utility", url: "/admin/patent/comparison", icon: FileText, highlight: true },
@@ -277,7 +277,7 @@ export function AppSidebar() {
           />
           {!collapsed && (
             <div className="flex flex-col min-w-0">
-              <span className="text-[10px] text-sidebar-foreground/60 leading-tight">Proof of Genesis™, Mint-on-Proof™ Clean Energy Platform</span>
+              <span className="text-[10px] text-sidebar-foreground/60 leading-tight">Proof of Genesis, Mint-on-Proof Clean Energy Platform</span>
             </div>
           )}
         </div>

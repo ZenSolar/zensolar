@@ -41,7 +41,7 @@ export function HowToPlayHero() {
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Connect your Tesla, Enphase, SolarEdge, or Wallbox. Every verified kWh becomes
-            $ZSOLAR through the Proof-of-Genesis™ protocol — 1 kWh = 1 $ZSOLAR.
+            $ZSOLAR through the Proof-of-Genesis protocol — 1 kWh = 1 $ZSOLAR.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-sm font-semibold text-foreground/80 pt-2">
             <span>Tesla</span><span className="text-border">•</span>

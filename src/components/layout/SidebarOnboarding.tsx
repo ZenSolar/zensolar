@@ -64,7 +64,7 @@ const STEPS: Step[] = [
     accent: "text-secondary",
     items: [
       { icon: Award, label: "NFT Collection" },
-      { icon: Sparkles, label: "Proof-of-Genesis™" },
+      { icon: Sparkles, label: "Proof-of-Genesis" },
       { icon: FileText, label: "White Paper" },
       { icon: Cpu, label: "Patent Technology" },
     ],

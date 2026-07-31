@@ -75,7 +75,7 @@ const phases = [
     status: "active",
     milestones: [
       { text: `Smart contract deployed (${SUPPLY_LABEL_SHORT} supply — 1 Trillion hard cap)`, done: true },
-      { text: "Proof-of-Delta™ validation with real devices", done: true },
+      { text: "Proof-of-Delta validation with real devices", done: true },
       { text: "127+ on-chain mints completed", done: true },
       { text: "50+ active beta users", done: false },
       { text: "Device Watermark Registry stress-tested", done: false },

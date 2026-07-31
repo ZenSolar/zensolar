@@ -26,10 +26,10 @@ export type VerifyFocusKey =
  * VerifyOnChainDrawer
  *
  * The first-class consumer surface for the full TM stack on a per-mint basis.
- * Surfaces Proof-of-Delta™, Proof-of-Origin™, Mint-on-Proof™, Proof of Genesis™
- * provenance, the Proof-of-Genesis™ source, and the Proof-of-Permanence™ Merkle anchor.
+ * Surfaces Proof-of-Delta, Proof-of-Origin, Mint-on-Proof, Proof of Genesis
+ * provenance, the Proof-of-Genesis source, and the Proof-of-Permanence Merkle anchor.
  *
- * Used as a slide-up drawer on the Proof-of-Genesis™ Receipt.
+ * Used as a slide-up drawer on the Proof-of-Genesis Receipt.
  */
 
 export interface VerifyOnChainData {
@@ -45,11 +45,11 @@ export interface VerifyOnChainData {
   mintTxHash: string;
   /** Block number */
   blockNumber: string;
-  /** Most recent Proof-of-Permanence™ Merkle root that includes this watermark */
+  /** Most recent Proof-of-Permanence Merkle root that includes this watermark */
   permanenceRoot: string;
   /** ISO timestamp the Permanence anchor was published on-chain */
   permanenceAnchoredAt: string;
-  /** Proof-of-Genesis™ source provider name */
+  /** Proof-of-Genesis source provider name */
   pogProvider: string;
   /** Whether the user actively tapped to mint */
   tapToMint: boolean;
@@ -227,7 +227,7 @@ export function VerifyOnChainDrawer({
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div>
               <div className="text-[10px] uppercase tracking-widest text-primary font-semibold">
-                Proof-of-Authenticity™
+                Proof-of-Authenticity
               </div>
               <div className="font-mono text-2xl font-bold text-primary tracking-tight mt-0.5">
                 {data.poaHashShort}
@@ -246,7 +246,7 @@ export function VerifyOnChainDrawer({
         <div className="space-y-2.5">
           <TmRow
             icon={Hand}
-            tm="Proof of Genesis™"
+            tm="Proof of Genesis"
             label="User intent"
             value={data.tapToMint ? 'Tap confirmed' : 'Auto-verified mint'}
             description="The signature interaction. One tap reads device data, runs the proofs, and mints $ZSOLAR."
@@ -257,7 +257,7 @@ export function VerifyOnChainDrawer({
           />
           <TmRow
             icon={Hash}
-            tm="Proof-of-Delta™"
+            tm="Proof-of-Delta"
             label="Incremental verification"
             value={data.deltaProof}
             description="SHA-256 hash chain proving this mint represents only new, never-before-tokenized activity."
@@ -268,7 +268,7 @@ export function VerifyOnChainDrawer({
           />
           <TmRow
             icon={Fingerprint}
-            tm="Proof-of-Origin™"
+            tm="Proof-of-Origin"
             label="Device-bound hash"
             value={data.originDeviceHash}
             description="keccak256(manufacturer_id + device_id) — bound to physical hardware, not your account."
@@ -279,7 +279,7 @@ export function VerifyOnChainDrawer({
           />
           <TmRow
             icon={Sparkles}
-            tm="Mint-on-Proof™"
+            tm="Mint-on-Proof"
             label="Mint transaction"
             value={data.mintTxHash}
             description={`Atomically minted on Base L2 only after cryptographic proof was validated. Block ${data.blockNumber}.`}
@@ -290,7 +290,7 @@ export function VerifyOnChainDrawer({
           />
           <TmRow
             icon={Anchor}
-            tm="Proof-of-Permanence™"
+            tm="Proof-of-Permanence"
             label="Eternal Ledger anchor"
             value={data.permanenceRoot}
             description={`Merkle root of all device watermarks anchored on-chain at ${new Date(
@@ -302,10 +302,10 @@ export function VerifyOnChainDrawer({
             registerRef={registerRef}
           />
 
-          {/* Proof-of-Genesis™ provenance */}
+          {/* Proof-of-Genesis provenance */}
           <div className="rounded-lg border border-border/60 bg-card/60 p-3 space-y-2">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] uppercase tracking-wider text-muted-foreground">Proof-of-Genesis™ Source</span>
+              <span className="text-[11px] uppercase tracking-wider text-muted-foreground">Proof-of-Genesis Source</span>
             </div>
             <div className="text-foreground/90 font-medium text-sm">{data.pogProvider}</div>
           </div>

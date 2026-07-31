@@ -6,7 +6,7 @@ const nodes = [
   { icon: Zap, label: 'Verified kWh', proof: 'OEM-signed telemetry', color: 'text-solar', ring: 'ring-solar/30 bg-solar/10' },
   { icon: Database, label: 'Data', proof: 'Anonymized energy feed', color: 'text-energy', ring: 'ring-energy/30 bg-energy/10' },
   { icon: Brain, label: 'AI', proof: 'Deason optimizer', color: 'text-secondary', ring: 'ring-secondary/30 bg-secondary/10' },
-  { icon: Coins, label: '$ZSOLAR', proof: 'Tap-to-Mint™', color: 'text-primary', ring: 'ring-primary/30 bg-primary/10' },
+  { icon: Coins, label: '$ZSOLAR', proof: 'Tap-to-Mint', color: 'text-primary', ring: 'ring-primary/30 bg-primary/10' },
 ];
 
 export function FlywheelStrip() {

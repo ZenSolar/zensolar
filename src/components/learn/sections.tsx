@@ -31,7 +31,7 @@ export function HowItWorksSection() {
   const steps = [
     { icon: Zap, title: 'Connect', desc: 'Link Tesla, Enphase, SolarEdge, or Wallbox in 30 seconds — no hardware.' },
     { icon: Sun, title: 'Generate', desc: 'Your panels, EV, and battery are already producing verified clean energy.' },
-    { icon: Sparkles, title: 'Proof of Genesis™', desc: 'One tap mints $ZSOLAR + milestone NFTs to your wallet.' },
+    { icon: Sparkles, title: 'Proof of Genesis', desc: 'One tap mints $ZSOLAR + milestone NFTs to your wallet.' },
     { icon: Award, title: 'Level up', desc: 'Hit milestones, earn rare NFTs, climb the leaderboard.' },
   ];
   return (
@@ -129,15 +129,15 @@ export function TokenomicsSection() {
 
 export function ProofOfGenesisSection() {
   const marks = [
-    { mark: 'Proof-of-Genesis™', desc: 'The consensus primitive: Proof-of-Delta + Proof-of-Origin. Mints from verified clean energy instead of burning energy to prove waste.', icon: Sparkles },
-    { mark: 'Proof of Genesis™', desc: 'One tap reads device data, runs the proof, mints $ZSOLAR.', icon: Zap },
-    { mark: 'Mint-on-Proof™', desc: 'No proof, no mint. Period. Every token traces back to a verified physical event.', icon: ShieldCheck },
+    { mark: 'Proof-of-Genesis', desc: 'The consensus primitive: Proof-of-Delta + Proof-of-Origin. Mints from verified clean energy instead of burning energy to prove waste.', icon: Sparkles },
+    { mark: 'Proof of Genesis', desc: 'One tap reads device data, runs the proof, mints $ZSOLAR.', icon: Zap },
+    { mark: 'Mint-on-Proof', desc: 'No proof, no mint. Period. Every token traces back to a verified physical event.', icon: ShieldCheck },
   ];
   return (
     <section className="space-y-6">
       <SectionHeader
         eyebrow="03 — The Thesis"
-        title="Proof-of-Genesis™"
+        title="Proof-of-Genesis"
         description="Bitcoin proves work. We prove genesis — the verified moment clean energy enters the world."
         icon={Sparkles}
       />
@@ -167,14 +167,14 @@ export function PatentTechSection() {
     { n: 1, title: 'API Aggregation', desc: 'OAuth into Tesla, Enphase, SolarEdge, Wallbox. Zero hardware.' },
     { n: 2, title: 'Data Normalization', desc: 'Every provider unified into one Impact Score (kg CO₂ / kWh).' },
     { n: 3, title: 'Verification Engine', desc: 'Cryptographically signed device data — tamper-evident.' },
-    { n: 4, title: 'Smart Contract Bridge', desc: 'Mint-on-Proof™ to Base L2. Anti-double-mint registry.' },
+    { n: 4, title: 'Smart Contract Bridge', desc: 'Mint-on-Proof to Base L2. Anti-double-mint registry.' },
   ];
   return (
     <section className="space-y-6">
       <SectionHeader
         eyebrow="04 — The Engine"
         title="Patent-pending tech"
-        description="Proof-of-Genesis™ — the four-layer engine that turns real-world clean energy into on-chain currency."
+        description="Proof-of-Genesis — the four-layer engine that turns real-world clean energy into on-chain currency."
         icon={Cpu}
       />
       <div className="space-y-2">

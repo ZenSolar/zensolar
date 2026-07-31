@@ -31,7 +31,7 @@ const comparison = {
     ],
   },
   right: {
-    sublabel: "Proof-of-Genesis™ (PoG)",
+    sublabel: "Proof-of-Genesis (PoG)",
     label: "$ZSOLAR",
     rows: [
       { stat: "1 kWh", desc: "of clean energy per $ZSOLAR" },
@@ -50,7 +50,7 @@ const steps = [
   {
     icon: ShieldCheck,
     title: "Cryptographic verification",
-    desc: "Validated by the Proof-of-Genesis™ protocol against physics + device watermarks.",
+    desc: "Validated by the Proof-of-Genesis protocol against physics + device watermarks.",
   },
   {
     icon: Zap,
@@ -66,15 +66,15 @@ const steps = [
 
 const stack = [
   {
-    name: "Mint-on-Proof™",
+    name: "Mint-on-Proof",
     desc: "Tokens are only minted when verified clean-energy proof is submitted on-chain — never against unverifiable claims.",
   },
   {
-    name: "Proof-of-Delta™",
+    name: "Proof-of-Delta",
     desc: "Compares interval-level device readings against expected physics to reject spoofed or replayed data.",
   },
   {
-    name: "Proof-of-Origin™",
+    name: "Proof-of-Origin",
     desc: "Cryptographically binds each kWh to a specific verified device and owner, preventing double-counting.",
   },
 ];
@@ -86,7 +86,7 @@ export default function InvestorDataRoomPoG() {
         <title>ZenSolar · Proof-of-Genesis Deep Dive</title>
         <meta
           name="description"
-          content="Proof-of-Genesis™ technology deep dive — the verification protocol that mints currency from verified clean energy."
+          content="Proof-of-Genesis technology deep dive — the verification protocol that mints currency from verified clean energy."
         />
         <meta name="robots" content="noindex,nofollow" />
         <link rel="canonical" href="https://www.zensolar.com/investor/data-room/pog" />
@@ -108,7 +108,7 @@ export default function InvestorDataRoomPoG() {
           Confidential — For verified investors only
         </p>
         <p className="mt-3 text-[14px] font-mono tracking-[0.28em] uppercase text-secondary/80 mb-4">
-          Proof-of-Genesis™
+          Proof-of-Genesis
         </p>
         <h1 className="text-[44px] md:text-[56px] font-semibold leading-[1.05] tracking-tight max-w-[1100px]">
           The Verification Protocol That Turns Clean Energy Into Currency
@@ -276,7 +276,7 @@ export default function InvestorDataRoomPoG() {
                 to="/proof-of-genesis/preview"
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-lg border border-secondary/50 bg-secondary/10 text-secondary hover:bg-secondary/20 transition text-[15px] font-medium"
               >
-                See a real Proof-of-Genesis™ receipt <ArrowRight className="w-4 h-4" />
+                See a real Proof-of-Genesis receipt <ArrowRight className="w-4 h-4" />
               </Link>
               <p className="text-[13px] text-white/50 italic">
                 Verified clean energy → minted $ZSOLAR in under 60 seconds.
@@ -303,7 +303,7 @@ export default function InvestorDataRoomPoG() {
               Protected Innovations
             </p>
             <div className="flex flex-wrap gap-2">
-              {["Mint-on-Proof™", "Proof-of-Delta™", "Proof-of-Origin™"].map((t) => (
+              {["Mint-on-Proof", "Proof-of-Delta", "Proof-of-Origin"].map((t) => (
                 <span
                   key={t}
                   className="px-3 py-1.5 rounded-md text-[13px] border border-secondary/30 bg-secondary/10 text-white/85"
@@ -320,7 +320,7 @@ export default function InvestorDataRoomPoG() {
           <DeckCard>
             <Kicker>07 · Why It Matters</Kicker>
             <p className="text-[18px] md:text-[20px] text-white/80 leading-relaxed max-w-[1000px]">
-              Proof-of-Genesis™ is the trust layer that makes every verified kWh, every tokenized
+              Proof-of-Genesis is the trust layer that makes every verified kWh, every tokenized
               action, and every data point credible. It is the foundation for Token Economics, the
               Aggregated Data business, and the ZenSolar VPP.
             </p>

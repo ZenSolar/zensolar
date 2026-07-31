@@ -1,10 +1,10 @@
 /**
  * TamperEvidentProofPanel
  * -----------------------
- * The unified "Proof-of-Authenticity™" verification block.
+ * The unified "Proof-of-Authenticity" verification block.
  *
  * Used in two places:
- *   1. Inside the Proof-of-Genesis™ receipt (owner view) — promotes
+ *   1. Inside the Proof-of-Genesis receipt (owner view) — promotes
  *      authenticity from a tiny corner stamp into a real, visible section.
  *   2. As the primary content of `/verify/:poa` (public view) — same UI,
  *      same data path, so anyone can independently verify a mint.
@@ -220,7 +220,7 @@ export function TamperEvidentProofPanel({
     const text = 'Verify this ZenSolar mint independently — SHA-256 hash-chained, Merkle-anchored on Base.';
     try {
       if (navigator.share) {
-        await navigator.share({ title: 'ZenSolar Proof-of-Authenticity™', text, url: verifyUrl });
+        await navigator.share({ title: 'ZenSolar Proof-of-Authenticity', text, url: verifyUrl });
         return;
       }
     } catch { /* user cancelled */ }
@@ -250,7 +250,7 @@ export function TamperEvidentProofPanel({
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex items-center gap-2 flex-wrap">
             <Badge variant="outline" className="border-primary/40 text-primary text-[10px] uppercase tracking-[0.14em]">
-              <ShieldCheck className="h-3 w-3 mr-1" /> Proof-of-Authenticity™
+              <ShieldCheck className="h-3 w-3 mr-1" /> Proof-of-Authenticity
             </Badge>
             <span className="text-sm font-bold text-foreground">{statusMeta.label}</span>
           </div>
@@ -289,7 +289,7 @@ export function TamperEvidentProofPanel({
             <>
               <HashRow
                 icon={Anchor}
-                tm="Proof-of-Permanence™"
+                tm="Proof-of-Permanence"
                 label={`Merkle root over ${receipt.covering_anchor.leaf_count} receipts · ${new Date(receipt.covering_anchor.snapshot_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}${receipt.covering_anchor.onchain_tx_hash ? ' · anchored on Base' : ' · DB-anchored (on-chain anchor pending)'}`}
                 value={receipt.covering_anchor.merkle_root}
                 accent="text-amber-400"

@@ -25,7 +25,7 @@ export const DEFAULT_TOUR_STEPS: TourStep[] = [
   },
   {
     id: 'mint',
-    title: 'Tap-to-Mint™',
+    title: 'Tap-to-Mint',
     body: 'One tap turns verified clean energy into hard-capped $ZSOLAR currency.',
   },
   {
@@ -35,7 +35,7 @@ export const DEFAULT_TOUR_STEPS: TourStep[] = [
   },
   {
     id: 'pog',
-    title: 'Proof-of-Genesis™ Receipt',
+    title: 'Proof-of-Genesis Receipt',
     body: 'Every mint produces a cryptographic receipt anchored on Base. This is the moat.',
   },
 ];

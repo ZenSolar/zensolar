@@ -78,27 +78,6 @@ export function WalletHoldingsCard({ walletAddress }: WalletHoldingsCardProps) {
             ) : (
               <>
                 <p className="text-lg font-bold text-foreground">{formattedBalance}</p>
-                <div className="flex items-center gap-1">
-                  <TrendingUp className="h-3 w-3 text-primary/70" />
-                  <span className="text-xs text-muted-foreground">
-                    ≈ {usdValue}
-                  </span>
-                  {isPlaceholder && (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <Info className="h-3 w-3 text-muted-foreground/50" />
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="max-w-[200px]">
-                          <p className="text-xs">
-                            Estimated at {priceFormatted}/token (beta pricing). 
-                            Live market price coming at mainnet launch.
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  )}
-                </div>
               </>
             )}
           </div>

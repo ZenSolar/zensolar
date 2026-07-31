@@ -3,7 +3,7 @@ import { ShieldCheck } from 'lucide-react';
 
 /**
  * ProofOfAuthenticityStamp — the visible "notarization" mark on every
- * Proof-of-Genesis™ Receipt. Acts like a passport stamp: short hash on the
+ * Proof-of-Genesis Receipt. Acts like a passport stamp: short hash on the
  * face, full hash links to the public verify page.
  *
  * Variants:
@@ -123,7 +123,7 @@ export function ProofOfAuthenticityStamp({
           opacity="0.85"
         >
           <textPath href="#poa-ring-text" startOffset="0%">
-            PROOF-OF-AUTHENTICITY™ · ZENSOLAR · CERTIFIED ·
+            PROOF-OF-AUTHENTICITY · ZENSOLAR · CERTIFIED ·
           </textPath>
         </text>
       </svg>

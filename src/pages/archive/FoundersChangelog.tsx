@@ -83,7 +83,7 @@ const ENTRIES: ChangelogEntry[] = [
     iso: "2026-05-02T18:00",
     title: "Master Outline v2.1 Sweep + Verified Source Proof Badge",
     summary:
-      "Reconciled the Master Outline with SSoT v2.1: added the 10:1 mint ratio (10 kWh = 1 $ZSOLAR), Subscription tiers (Base $9.99 / Regular $19.99 / Power $49.99) with 50/50 LP/Treasury split, and Genesis Halving (250k paying-sub trigger, 4-yr fallback). Logged the v2.1 lock as the newest entry in Strategic Decisions. Also shipped the Verified Source proof badge (Tesla / Enphase / SolarEdge / Wallbox + kWh + timestamp) on the Proof-of-Genesis Receipt, the cinematic mint celebration, and the Recent Mint Proofs feed — every mint now visually carries its Proof-of-Origin™.",
+      "Reconciled the Master Outline with SSoT v2.1: added the 10:1 mint ratio (10 kWh = 1 $ZSOLAR), Subscription tiers (Base $9.99 / Regular $19.99 / Power $49.99) with 50/50 LP/Treasury split, and Genesis Halving (250k paying-sub trigger, 4-yr fallback). Logged the v2.1 lock as the newest entry in Strategic Decisions. Also shipped the Verified Source proof badge (Tesla / Enphase / SolarEdge / Wallbox + kWh + timestamp) on the Proof-of-Genesis Receipt, the cinematic mint celebration, and the Recent Mint Proofs feed — every mint now visually carries its Proof-of-Origin.",
     sections: [
       {
         heading: "Shipped",
@@ -111,7 +111,7 @@ const ENTRIES: ChangelogEntry[] = [
           "Subscription tiers locked at Base $9.99 / Regular $19.99 / Power $49.99 — every dollar splits 50% LP / 50% Treasury. Names are Base/Regular/Power externally — never 'Tier-1/2/3'.",
           "Genesis Halving primary trigger = 250,000 paying subscribers; fallback = 4-year on-chain cadence. Always called 'Genesis Halving' in user-facing copy.",
           "ZenSolar does NOT issue carbon credits. Every $ZSOLAR mint = real-world utility + currency from renewable energy. Bitcoin PoW destroys energy as heat (~1.4M kWh per BTC); ZSOLAR PoG creates currency from already-productive kWh.",
-          "Every mint must visually carry its Proof-of-Origin™ (verified energy source + kWh + timestamp) on the receipt, the celebration, and the wallet feed.",
+          "Every mint must visually carry its Proof-of-Origin (verified energy source + kWh + timestamp) on the receipt, the celebration, and the wallet feed.",
         ],
       },
       {
@@ -187,7 +187,7 @@ const ENTRIES: ChangelogEntry[] = [
           "Proof-of-Genesis receipt EV mint fixed: 52 mi → 39.00 $ZSOLAR (1 token/mile × 0.5 user share), with 17.33 kWh equivalent shown.",
           "Hero stats are now context-aware: EV mints show 'Miles Driven', solar/battery mints show 'Verified Energy'.",
           "CO₂ panel reframed source-by-source: EV → gasoline gallons + kg CO₂ avoided vs ICE; solar/battery → grid CO₂ displaced.",
-          "New 'vs. Bitcoin Proof-of-Work' comparison chip on every receipt — anchors Proof-of-Genesis™ as the regenerative inverse of PoW (~707 kg CO₂/BTC tx avoided).",
+          "New 'vs. Bitcoin Proof-of-Work' comparison chip on every receipt — anchors Proof-of-Genesis as the regenerative inverse of PoW (~707 kg CO₂/BTC tx avoided).",
           "Wallbox sample receipt added (Apr 22 · 28 mi via Wallbox Pulsar Plus).",
         ],
         links: [
@@ -243,7 +243,7 @@ const ENTRIES: ChangelogEntry[] = [
         icon: "strategy",
         bullets: [
           "Per-dollar VPP split: 50% LP · 30% user cash · 15% operating · 5% user tokens. 50% → LP rule preserved.",
-          "Tokens mint REAL-TIME per dispatch (not batched daily) — maximizes dopamine, reuses Proof of Genesis™ engine.",
+          "Tokens mint REAL-TIME per dispatch (not batched daily) — maximizes dopamine, reuses Proof of Genesis engine.",
           "Cash settles MONTHLY on the 1st — matches utility cycle, lowers ACH fees, creates 'payday' feel.",
           "Launch shortcut: white-label as 'Powered by Leap' in CA first. Move infrastructure in-house once leverage exists.",
           "VPP dispatch metering is patentable as a distinct claim — separate from passive energy production.",
@@ -347,7 +347,7 @@ const ENTRIES: ChangelogEntry[] = [
   {
     date: "April 24, 2026 (PM)",
     iso: "2026-04-24T18:00",
-    title: "Proof-of-Permanence™ + Patent Strategy Locked",
+    title: "Proof-of-Permanence + Patent Strategy Locked",
     summary:
       "Continuity primitive renamed. Three-track patent strategy. Phase 1 TM stack surfaces shipped.",
     sections: [
@@ -355,10 +355,10 @@ const ENTRIES: ChangelogEntry[] = [
         heading: "Shipped",
         icon: "shipped",
         bullets: [
-          "VerifyOnChainDrawer — slide-up drawer on every PoG Receipt surfacing Proof-of-Delta™, Proof-of-Origin™, Mint-on-Proof™, Proof-of-Permanence™, Proof-of-Genesis™ source, and Proof of Genesis™ provenance.",
-          "PoA chip on receipt face — 7-char Proof-of-Authenticity™ hash linking to public verify page.",
+          "VerifyOnChainDrawer — slide-up drawer on every PoG Receipt surfacing Proof-of-Delta, Proof-of-Origin, Mint-on-Proof, Proof-of-Permanence, Proof-of-Genesis source, and Proof of Genesis provenance.",
+          "PoA chip on receipt face — 7-char Proof-of-Authenticity hash linking to public verify page.",
           "Public /verify/:poa route — no auth required, shareable, surfaces all primitives behind a mint.",
-          "Per-device Proof-of-Origin™ page at /devices/:deviceId/origin — keccak256 device hash, cumulative watermark, Genesis Anchor™ commemorative, latest Permanence root. Founder + PIN gated (Phase 1).",
+          "Per-device Proof-of-Origin page at /devices/:deviceId/origin — keccak256 device hash, cumulative watermark, Genesis Anchor commemorative, latest Permanence root. Founder + PIN gated (Phase 1).",
         ],
         links: [
           {
@@ -380,10 +380,10 @@ const ENTRIES: ChangelogEntry[] = [
         heading: "Strategic Decisions Locked",
         icon: "strategy",
         bullets: [
-          "Continuity primitive renamed: Proof-of-Permanence™ — tagline 'The Eternal Ledger'. Never use 'Proof-of-Continuity'.",
-          "Three-track patent strategy locked. Track 1 = Preliminary Amendment to App. 19/634,402 by July 2, 2026 (Robotaxi/Cybercab, FSD dual-mode formal drawings, Permanence™ naming, Proof of Genesis™ embodiment). Track 2 = NEW Provisional for Optimist humanoid robots + Starlink/SpaceX orbital telemetry (no existing disclosure hook). Track 3 = CIP candidates (ZPPA gating) for attorney call.",
+          "Continuity primitive renamed: Proof-of-Permanence — tagline 'The Eternal Ledger'. Never use 'Proof-of-Continuity'.",
+          "Three-track patent strategy locked. Track 1 = Preliminary Amendment to App. 19/634,402 by July 2, 2026 (Robotaxi/Cybercab, FSD dual-mode formal drawings, Permanence naming, Proof of Genesis embodiment). Track 2 = NEW Provisional for Optimist humanoid robots + Starlink/SpaceX orbital telemetry (no existing disclosure hook). Track 3 = CIP candidates (ZPPA gating) for attorney call.",
           "Confirmed filing facts: Provisional 63/782,397 (Apr 2 2025), Non-Provisional App. 19/634,402 (Confirmation #4783, Docket ZEN-001).",
-          "Tier 1 trademark filings queued: Proof-of-Permanence™, Genesis Anchor™, Proof-of-Custody™.",
+          "Tier 1 trademark filings queued: Proof-of-Permanence, Genesis Anchor, Proof-of-Custody.",
           "New rule: every Layer 2–5 trademark MUST ship with a first-class consumer surface. No primitive lives only in marketing copy.",
         ],
       },
@@ -392,11 +392,11 @@ const ENTRIES: ChangelogEntry[] = [
         icon: "memory",
         bullets: [
           "mem://legal/patent-update-checklist — Three-track strategy grounded in actual .docx claims (¶[0042], ¶[0048], Claims 5/9/10).",
-          "mem://features/tm-stack-visualization — Layer 0–5 architecture vs Bitcoin parallel. Permanence™ in infrastructure column.",
+          "mem://features/tm-stack-visualization — Layer 0–5 architecture vs Bitcoin parallel. Permanence in infrastructure column.",
           "mem://features/tm-stack-gaps — 9-item roadmap with Phase 1 / 1.5 / 2 / 3 horizons.",
           "mem://features/trademark-roadmap — Tier 1/2/3 USPTO filing priorities.",
           "mem://technical/data-integrity-hardening — 5-step roadmap (device sig → DB triggers → atomic delta → Merkle scheduler → public verify endpoint).",
-          "Core memory updated: Permanence™ rename, TM-surface rule, patent filing facts.",
+          "Core memory updated: Permanence rename, TM-surface rule, patent filing facts.",
         ],
       },
     ],

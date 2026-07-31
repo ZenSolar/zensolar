@@ -120,7 +120,7 @@ export function ProofOfMintModal({
             <div className="inline-flex items-center gap-1.5">
               <ShieldCheck className="h-3.5 w-3.5 text-primary" />
               <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
-                Proof-of-Mint™
+                Proof-of-Mint
               </span>
             </div>
             <DialogTitle className="text-lg">Verified energy mint</DialogTitle>

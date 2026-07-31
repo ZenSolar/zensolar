@@ -34,7 +34,7 @@ const threats = [
     meta: 'Arbitrum · Live Mar 2026 · Pre-seed ($5M @ $20M)',
     pitch: 'Autonomous mint every 15 min from ERCOT solar export.',
     wedge:
-      'Solo-founder hackathon project, ERCOT-only, no verification methodology, no IP. Our nationwide multi-vertical scope + Proof-of-Delta™ is the moat.',
+      'Solo-founder hackathon project, ERCOT-only, no verification methodology, no IP. Our nationwide multi-vertical scope + Proof-of-Delta is the moat.',
   },
 ];
 

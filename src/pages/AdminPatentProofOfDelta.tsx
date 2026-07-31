@@ -18,7 +18,7 @@ const proofOfDeltaProcess = [
   {
     step: 1,
     title: 'Device Registration',
-    description: 'When a user connects a device via OAuth, Proof-of-Genesis™ creates a unique device fingerprint (hash of provider + device_id).',
+    description: 'When a user connects a device via OAuth, Proof-of-Genesis creates a unique device fingerprint (hash of provider + device_id).',
     technical: 'deviceFingerprint = keccak256(provider, device_id)',
     icon: Fingerprint,
   },
@@ -32,7 +32,7 @@ const proofOfDeltaProcess = [
   {
     step: 3,
     title: 'Delta Calculation',
-    description: 'At mint time, Proof-of-Genesis™ calculates the difference between current readings and the stored watermark.',
+    description: 'At mint time, Proof-of-Genesis calculates the difference between current readings and the stored watermark.',
     technical: 'delta = currentValue - watermark[deviceFingerprint]',
     icon: TrendingUp,
   },
@@ -122,7 +122,7 @@ export default function AdminPatentProofOfDelta() {
             Core Innovation
           </Badge>
         </div>
-        <h1 className="text-3xl font-bold">Proof-of-Delta™ Specification</h1>
+        <h1 className="text-3xl font-bold">Proof-of-Delta Specification</h1>
         <p className="text-muted-foreground">
           Technical specification for the device watermark system that ensures token integrity and prevents double-minting.
         </p>
@@ -141,9 +141,9 @@ export default function AdminPatentProofOfDelta() {
                 <ShieldCheck className="h-8 w-8 text-white" />
               </div>
               <div className="space-y-2">
-                <h2 className="text-xl font-bold">What is Proof-of-Delta™?</h2>
+                <h2 className="text-xl font-bold">What is Proof-of-Delta?</h2>
                 <p className="text-muted-foreground">
-                  Proof-of-Delta™ is a verification mechanism that ensures tokens are only minted for <strong className="text-foreground">incremental, never-before-tokenized</strong> energy activity. 
+                  Proof-of-Delta is a verification mechanism that ensures tokens are only minted for <strong className="text-foreground">incremental, never-before-tokenized</strong> energy activity. 
                   It tracks a "high-water mark" per physical device—the cumulative amount of energy that has already been converted to tokens.
                 </p>
                 <div className="p-3 rounded-lg bg-muted/50 border border-border/60 font-mono text-sm">
@@ -170,7 +170,7 @@ export default function AdminPatentProofOfDelta() {
               Process Flow
             </CardTitle>
             <CardDescription>
-              Step-by-step breakdown of how Proof-of-Delta™ operates.
+              Step-by-step breakdown of how Proof-of-Delta operates.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -217,7 +217,7 @@ export default function AdminPatentProofOfDelta() {
               Attack Vectors Mitigated
             </CardTitle>
             <CardDescription>
-              Security threats addressed by the Proof-of-Delta™ system.
+              Security threats addressed by the Proof-of-Delta system.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -353,9 +353,9 @@ contract ProofOfDelta {
     function mintWithDelta(
         bytes32 deviceFingerprint,
         uint256 currentCumulativeValue,
-        bytes calldata pogSignature // Signed by Proof-of-Genesis™ verification engine
+        bytes calldata pogSignature // Signed by Proof-of-Genesis verification engine
     ) external {
-        // Verify Proof-of-Genesis™ signature
+        // Verify Proof-of-Genesis signature
         require(_verifyPoGSignature(deviceFingerprint, currentCumulativeValue, pogSignature), "Invalid signature");
         
         uint256 previousWatermark = deviceWatermarks[deviceFingerprint];

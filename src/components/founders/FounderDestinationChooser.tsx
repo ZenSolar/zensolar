@@ -84,7 +84,7 @@ export const FOUNDER_DESTINATIONS: FounderDestination[] = [
   },
   {
     to: "/proof-of-genesis",
-    label: "Proof of Genesis™",
+    label: "Proof of Genesis",
     blurb: "The cryptographic primitive.",
     Icon: Atom,
   },

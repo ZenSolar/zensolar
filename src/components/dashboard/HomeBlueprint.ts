@@ -42,8 +42,8 @@ export const HOME_BLUEPRINT = Object.freeze({
     x: number; y: number; w: number; h: number;
   }>,
   /** Dynamic-vehicle <image> overlay dimensions, % of viewBox. */
-  carWidth: 54,
-  carHeight: 30,
+  carWidth: 64,
+  carHeight: 36,
 
   /**
    * v5 multi-battery support — up to 5 Powerwall units stacked along
@@ -86,4 +86,13 @@ export const BLUEPRINT_PATHS = Object.freeze({
   solarToGrid:        `M ${B.solar.x} ${B.solar.y} C 72 32 86 50 ${B.gridMeter.x} ${B.gridMeter.y}`,
   /** Wall connector → parked EV charge port. Short, taut arc. */
   chargerToEv:        `M ${B.wallCharger.x} ${B.wallCharger.y} C ${B.wallCharger.x} 72 ${B.carPark.x + 4} 78 ${B.carPark.x + 8} ${B.carPark.y - 2}`,
+  /**
+   * Wall connector → charge port of a vehicle that has pulled up to the
+   * garage apron (`garageFront`). While charging the car sits at a
+   * different anchor than `carPark`, so reusing `chargerToEv` drew the
+   * current into empty driveway and read as a moving car. This path lands
+   * on the same port coordinate the charge-port pulse uses:
+   *   x = garageFront.x + carWidth * 0.30, y = garageFront.y - carHeight * 0.05
+   */
+  chargerToEvCharging: `M ${B.wallCharger.x} ${B.wallCharger.y} C ${B.wallCharger.x} ${B.garageFront.y - 6} ${B.garageFront.x + B.carWidth * 0.10} ${B.garageFront.y - 1} ${B.garageFront.x + B.carWidth * 0.30} ${B.garageFront.y - B.carHeight * 0.05}`,
 } as const);

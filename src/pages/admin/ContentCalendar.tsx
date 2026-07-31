@@ -34,7 +34,7 @@ const typeStyles: Record<string, string> = {
 const contentPipeline: ContentItem[] = [
   { title: "What Is Solar Energy Blockchain Rewards?", type: "blog", status: "published", date: "2025-01", channel: "Blog" },
   { title: "How to Earn Crypto From Solar Panels", type: "blog", status: "published", date: "2025-01", channel: "Blog" },
-  { title: "Proof-of-Delta™ Explained", type: "blog", status: "published", date: "2025-01", channel: "Blog" },
+  { title: "Proof-of-Delta Explained", type: "blog", status: "published", date: "2025-01", channel: "Blog" },
   { title: "Tesla Solar Panel Crypto Rewards", type: "blog", status: "published", date: "2025-01", channel: "Blog" },
   { title: "Enphase Solar Blockchain Integration", type: "blog", status: "published", date: "2025-01", channel: "Blog" },
   { title: "EV Charging Crypto Earnings", type: "blog", status: "published", date: "2025-01", channel: "Blog" },
@@ -47,7 +47,7 @@ const contentPipeline: ContentItem[] = [
   { title: "Tesla Owner Earns 150 $ZSOLAR in 30 Days", type: "case-study", status: "idea", notes: "Proof content — real user data" },
   { title: "Solar + EV: Double-Dip Rewards Guide", type: "blog", status: "idea", notes: "High-intent keyword target" },
   { title: "ZenSolar vs. Traditional RECs", type: "blog", status: "idea", notes: "Competitor differentiation" },
-  { title: "How Mint-on-Proof™ Works (Video Explainer)", type: "video", status: "idea", notes: "YouTube + social" },
+  { title: "How Mint-on-Proof Works (Video Explainer)", type: "video", status: "idea", notes: "YouTube + social" },
   { title: "Weekly $ZSOLAR Digest Email", type: "email", status: "idea", notes: "Retention play" },
   { title: "Beta Launch Announcement Thread", type: "social", status: "idea", channel: "Twitter/X" },
 ];

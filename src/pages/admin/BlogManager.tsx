@@ -18,7 +18,7 @@ interface BlogArticle {
 const articles: BlogArticle[] = [
   { title: "What Is Solar Energy Blockchain Rewards?", slug: "/blog/what-is-solar-energy-blockchain-rewards", cluster: "Core", hasSchema: false, internalLinks: 3, status: "live" },
   { title: "How to Earn Crypto From Solar Panels", slug: "/blog/how-to-earn-crypto-from-solar-panels", cluster: "Core", hasSchema: false, internalLinks: 4, status: "live" },
-  { title: "Proof-of-Delta™ Explained", slug: "/blog/proof-of-delta-explained", cluster: "Core", hasSchema: false, internalLinks: 3, status: "live" },
+  { title: "Proof-of-Delta Explained", slug: "/blog/proof-of-delta-explained", cluster: "Core", hasSchema: false, internalLinks: 3, status: "live" },
   { title: "Tesla Solar Panel Crypto Rewards", slug: "/blog/tesla-solar-panel-crypto-rewards", cluster: "Core", hasSchema: false, internalLinks: 3, status: "live" },
   { title: "Enphase Solar Blockchain", slug: "/blog/enphase-solar-blockchain", cluster: "Core", hasSchema: false, internalLinks: 3, status: "live" },
   { title: "EV Charging Crypto Earnings", slug: "/blog/ev-charging-crypto-earnings", cluster: "Core", hasSchema: false, internalLinks: 3, status: "live" },

@@ -48,7 +48,7 @@ Solo founder, live on testnet with 23 beta users and real device connections. Pr
       { label: "Company Website", value: "https://beta.zen.solar" },
       {
         label: "Anything else we should know?",
-        value: `Provisional patent filed March 2025 — "Gamifying and Tokenizing Sustainable Behaviors By Using Blockchain Technology." Trademark applications pending for Mint-on-Proof™, Proof-of-Delta™, and Proof-of-Origin™. Currently live on Base testnet with real energy data flowing from connected devices.`,
+        value: `Provisional patent filed March 2025 — "Gamifying and Tokenizing Sustainable Behaviors By Using Blockchain Technology." Trademark applications pending for Mint-on-Proof, Proof-of-Delta, and Proof-of-Origin. Currently live on Base testnet with real energy data flowing from connected devices.`,
       },
     ],
   },

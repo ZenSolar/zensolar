@@ -25,8 +25,8 @@ import { VaultPinGate } from "@/components/founders/VaultPinGate";
  * Founders VPP Roadmap — Phase 2 revenue stream.
  *
  * Frames the ZenSolar VPP program as a deliberate Phase 2 launch (post-mainnet,
- * post-seed). Phase 1 is what's already shipped: Proof of Genesis™, Daily Auto-Mint
- * (DCA), Proof-of-Genesis™, embedded wallet. Phase 2 layers VPP on top with the
+ * post-seed). Phase 1 is what's already shipped: Proof of Genesis, Daily Auto-Mint
+ * (DCA), Proof-of-Genesis, embedded wallet. Phase 2 layers VPP on top with the
  * 50% → LP injection rule preserved across every new revenue line.
  *
  * Built specifically so Joseph can speak intelligently to Lyndon (and other
@@ -161,7 +161,7 @@ function RoadmapContent() {
             <SubscriptionRow
               tier="Mint Basic"
               price="$9.99"
-              feature="Manual Proof of Genesis™ at any time"
+              feature="Manual Proof of Genesis at any time"
             />
             <SubscriptionRow
               tier="Mint Pro"
@@ -176,7 +176,7 @@ function RoadmapContent() {
                 <li>• EV miles driven → $ZSOLAR</li>
                 <li>• Battery kWh exported → $ZSOLAR</li>
                 <li>• Tesla Supercharger / home charging kWh → $ZSOLAR</li>
-                <li>• Proof-of-Genesis™ provenance under every mint</li>
+                <li>• Proof-of-Genesis provenance under every mint</li>
               </ul>
             </div>
           </div>
@@ -271,8 +271,8 @@ function RoadmapContent() {
           </div>
           <ol className="space-y-3 text-sm text-foreground/90 leading-relaxed list-decimal list-inside">
             <li>
-              <strong>Phase 1 is enough to win on its own.</strong> Proof of Genesis™ + Daily
-              Auto-Mint + Proof-of-Genesis™ has no competitive analog today.
+              <strong>Phase 1 is enough to win on its own.</strong> Proof of Genesis + Daily
+              Auto-Mint + Proof-of-Genesis has no competitive analog today.
             </li>
             <li>
               <strong>Phase 2 unlocks a second revenue stream</strong> using the same
@@ -351,7 +351,7 @@ function RoadmapContent() {
           <p className="text-sm text-foreground/90 leading-relaxed mb-4">
             Two distinct earning streams, two different cadences. This is the
             architecture that maximizes both dopamine and brand alignment with
-            Proof of Genesis™.
+            Proof of Genesis.
           </p>
 
           <div className="grid sm:grid-cols-2 gap-3">

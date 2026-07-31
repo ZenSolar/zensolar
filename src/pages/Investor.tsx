@@ -280,7 +280,7 @@ export default function Investor() {
         <section className="mx-auto max-w-4xl px-5 py-16 md:py-20">
           <div className="mb-8 text-center">
             <h2 className="text-xs uppercase tracking-[0.28em] text-secondary pl-[0.28em]">
-              Proof-of-Work vs Proof-of-Genesis™
+              Proof-of-Work vs Proof-of-Genesis
             </h2>
             <h3 className="mt-3 text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
               We tokenize energy abundance — not artificial scarcity.
@@ -288,7 +288,7 @@ export default function Investor() {
           </div>
           <div className="rounded-2xl border border-border/60 bg-card/40 p-6 md:p-8">
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              ZenSolar's Proof-of-Genesis™ rewards the actual creation of clean energy — one verified clean kilowatt-hour produced generates one $ZSOLAR token. We turn energy abundance into digital value instead of consuming massive energy to create artificial scarcity.
+              ZenSolar's Proof-of-Genesis rewards the actual creation of clean energy — one verified clean kilowatt-hour produced generates one $ZSOLAR token. We turn energy abundance into digital value instead of consuming massive energy to create artificial scarcity.
             </p>
             <p className="mt-4 text-sm md:text-base text-muted-foreground leading-relaxed">
               Bitcoin's Proof-of-Work consumes enormous amounts of energy to create digital scarcity with no direct environmental benefit.
@@ -325,7 +325,7 @@ export default function Investor() {
               },
               {
                 title: 'Patent-pending',
-                body: 'U.S. App. 19/634,402 — Proof-of-Genesis™ on Base.',
+                body: 'U.S. App. 19/634,402 — Proof-of-Genesis on Base.',
               },
               {
                 title: 'Live in beta',
@@ -522,7 +522,7 @@ function UnlockedPanel({
           <UnlockedCard
             icon={PlayCircle}
             title="Live Investor Demo"
-            body="Proof-of-Genesis™ on real data. Mobile-first."
+            body="Proof-of-Genesis on real data. Mobile-first."
             to={demoHref}
             internal
           />
