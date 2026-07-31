@@ -785,10 +785,6 @@ export function TokenPriceCard({
                   <span className="text-xs text-muted-foreground ml-1">$ZSOLAR</span>
                 </div>
               </div>
-              <div className="flex items-center justify-between mt-1">
-                <span className="text-xs text-muted-foreground">Estimated USD</span>
-                <span className="text-sm font-semibold text-success tabular-nums">${(tokensHeld * tokenPrice).toFixed(2)}</span>
-              </div>
             </div>
 
             {/* Banking form */}
