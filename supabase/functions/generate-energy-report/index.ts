@@ -358,8 +358,14 @@ Deno.serve(async (req) => {
     if (isMonthlyRitual) {
       const preview = parsed.preview as { headline_savings_usd_per_year?: number; executive_summary?: string; top_insight?: string; top_risk_flag?: string };
       const dollarsSaved = Number(preview.headline_savings_usd_per_year ?? 0) / 12;
-      // Canonical: 1 kWh = 1 $ZSOLAR. Tokens are never derived from dollars.
-      const bonusTokens = Math.max(0, Math.round(kwhSaved * CONVERSION_FACTORS.solar_kwh));
+      // Canonical: 1 kWh of VERIFIED activity = 1 $ZSOLAR. Tokens are never
+      // derived from dollars. The monthly report carries no verified kWh
+      // quantity, so it cannot legitimately produce a token figure — it is
+      // reported as 0 rather than invented at `dollarsSaved * 10`.
+      // FLAGGED FOR DECISION: if reports should award tokens, they need a
+      // verified-quantity source. Historical rows are left untouched.
+      const bonusTokens = 0;
+
 
       await admin.from("deason_monthly_reports").upsert({
         user_id: userId,
