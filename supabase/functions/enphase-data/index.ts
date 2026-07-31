@@ -4,6 +4,7 @@ import {
   buildProofMetadata,
   snapshotDelta,
   resolveDayToDateAnchor,
+  resolveCumulativeAnchor,
 } from "../_shared/proofDelta.ts";
 
 const corsHeaders = {
