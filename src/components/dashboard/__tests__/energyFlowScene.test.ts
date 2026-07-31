@@ -12,11 +12,12 @@ const base: EnergyFlowData = {
 };
 
 const noon = new Date('2026-05-30T12:00:00Z');
+const night = new Date('2026-05-30T02:00:00Z');
 const evening = new Date('2026-05-30T19:00:00Z');
 
 describe('pickScene', () => {
   it('night when sun is down and nothing else happening', () => {
-    expect(pickScene(base, noon)).toBe('night');
+    expect(pickScene(base, night)).toBe('night');
   });
 
   it('day when solar is producing midday', () => {
@@ -32,12 +33,12 @@ describe('pickScene', () => {
   });
 
   it('night-pw-discharge when Powerwall powers home at night', () => {
-    expect(pickScene({ ...base, batteryPower: -1.5 }, noon)).toBe('night-pw-discharge');
+    expect(pickScene({ ...base, batteryPower: -1.5 }, night)).toBe('night-pw-discharge');
   });
 
   it('night-ev when EV charging at night (no PW discharge)', () => {
     expect(
-      pickScene({ ...base, tesla: { kW: 11, soc: 50, rangeMi: 200, isCharging: true, source: 'home' } }, noon),
+      pickScene({ ...base, tesla: { kW: 11, soc: 50, rangeMi: 200, isCharging: true, source: 'home' } }, night),
     ).toBe('night-ev');
   });
 
@@ -55,6 +56,6 @@ describe('pickScene', () => {
   });
 
   it('falls back to evPower > 0.1 when tesla object is absent', () => {
-    expect(pickScene({ ...base, evPower: 5 }, noon)).toBe('night-ev');
+    expect(pickScene({ ...base, evPower: 5 }, night)).toBe('night-ev');
   });
 });
