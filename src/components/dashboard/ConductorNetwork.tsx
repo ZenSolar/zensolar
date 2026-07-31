@@ -298,8 +298,7 @@ export function buildConductorSegments(args: {
       points: [
         A.roofPlane,
         ...isoRoute(A.roofPlane, A.roofEave).slice(1),
-        ...isoRoute(A.roofEave, A.gateway).slice(1),
-        ...isoRoute(A.gateway, A.mainPanel).slice(1),
+        ...isoRoute(A.roofEave, A.wallJunction).slice(1),
       ],
       color: colors.solar,
       kw: solar,
@@ -308,12 +307,13 @@ export function buildConductorSegments(args: {
     });
   }
 
-  // Home-load branch. Present whenever the house is drawing, sourced from the
-  // trunk when solar is up and from the grid branch when it isn't.
+  // Home-load branch. Leaves the junction heading up-right to the windows —
+  // no doubling back, because the split happens at the junction rather than
+  // out at the pedestal end of the run.
   if (home > 0.05) {
     segments.push({
       id: 'branch-home',
-      points: isoRoute(A.mainPanel, A.homeInterior, 'vert-first'),
+      points: isoRoute(A.wallJunction, A.homeInterior),
       color: producing ? colors.home : colors.import,
       kw: home,
       layer: 'front',
@@ -321,10 +321,12 @@ export function buildConductorSegments(args: {
     });
   }
 
+  // Grid branch. Also leaves the junction rightward, along the facade to the
+  // pedestal, so both branches fan out from one node in the same direction.
   if (!args.hideGrid && (importing || exporting)) {
     segments.push({
       id: exporting ? 'branch-grid-export' : 'branch-grid-import',
-      points: isoRoute(A.mainPanel, A.utilityPost),
+      points: isoRoute(A.wallJunction, A.utilityPost),
       color: exporting ? colors.export : colors.import,
       kw: grid,
       // Import reverses the branch: dash and chevron both travel inward.
@@ -332,6 +334,7 @@ export function buildConductorSegments(args: {
       layer: 'front',
     });
   }
+
 
   return segments;
 }
