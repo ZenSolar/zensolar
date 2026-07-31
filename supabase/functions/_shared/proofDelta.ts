@@ -105,7 +105,7 @@ export function buildProofMetadata(opts: {
  * one hour are idempotent (the row simply grows), a new hour starts from the
  * previous row's reading, and the first row of a new day anchors at 0.
  */
-export async function resolveDayToDateAnchor(
+export async function resolveBucketAnchor(
   client: { from: (t: string) => any },
   args: {
     userId: string;
@@ -114,6 +114,8 @@ export async function resolveDayToDateAnchor(
     dataType: string;
     recordedAt: string;
     prev: PrevProof;
+    /** true for day-to-date meters that reset at local midnight. */
+    resetsDaily: boolean;
   },
 ): Promise<number> {
   // Same bucket already written? Reuse its pinned anchor.
@@ -132,9 +134,27 @@ export async function resolveDayToDateAnchor(
     return Number(pinned);
   }
 
-  // New bucket: anchor on the previous row's reading, but only if it belongs
-  // to the same calendar day — otherwise the meter has reset to 0.
-  if (!args.prev.prevRecordedAt) return 0;
+  // New bucket: anchor on the previous row's reading. For day-to-date meters
+  // the anchor drops to 0 when the previous row is from an earlier calendar
+  // day, because the meter reset overnight.
+  if (!args.prev.prevRecordedAt) return args.resetsDaily ? 0 : args.prev.prevValue;
+  if (!args.resetsDaily) return args.prev.prevValue;
   const sameDay = args.prev.prevRecordedAt.slice(0, 10) === args.recordedAt.slice(0, 10);
   return sameDay ? args.prev.prevValue : 0;
+}
+
+/** Day-to-date convenience wrapper (Enphase energy_today, SolarEdge lastDayData). */
+export async function resolveDayToDateAnchor(
+  client: { from: (t: string) => any },
+  args: { userId: string; deviceId: string; provider: string; dataType: string; recordedAt: string; prev: PrevProof },
+): Promise<number> {
+  return await resolveBucketAnchor(client, { ...args, resetsDaily: true });
+}
+
+/** Cumulative-snapshot convenience wrapper (lifetime meters, odometers). */
+export async function resolveCumulativeAnchor(
+  client: { from: (t: string) => any },
+  args: { userId: string; deviceId: string; provider: string; dataType: string; recordedAt: string; prev: PrevProof },
+): Promise<number> {
+  return await resolveBucketAnchor(client, { ...args, resetsDaily: false });
 }
