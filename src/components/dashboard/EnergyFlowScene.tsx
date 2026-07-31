@@ -1029,17 +1029,9 @@ export function EnergyFlowScene({
             dur={flowDur(data.evPower ?? 7)}
           />
         )}
-        {flows.has('home-grid') && (
-          solar > home + 0.1 ? (
-            // Solar overproducing → show the export originating from the roof.
-            <DottedFlow id="flow-solar-grid" d={BLUEPRINT_PATHS.solarToGrid} color={CYAN_LED} dur={flowDur(Math.abs(grid))} />
-          ) : (
-            <DottedFlow id="flow-home-grid" d={BLUEPRINT_PATHS.homeToGrid} color={CYAN_LED} dur={flowDur(Math.abs(grid))} />
-          )
-        )}
-        {flows.has('grid-home') && (
-          <DottedFlow id="flow-grid-home" d={BLUEPRINT_PATHS.gridToHome} color={SKY_LED} dur={flowDur(grid)} />
-        )}
+        {/* Grid import/export is now the grid BRANCH of the conductor
+            network above — no standalone roof→post arc. */}
+
 
         {/* Outage: render a clearly broken/dashed grid line so the
             disconnection is obvious at a glance. No animation, low opacity. */}
