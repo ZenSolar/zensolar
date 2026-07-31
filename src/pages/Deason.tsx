@@ -457,6 +457,7 @@ function ThreadRow({
               onClick={(e) => { e.stopPropagation(); onDelete(); }}
               className="p-1 hover:text-destructive"
               title="Delete conversation"
+              data-capture-hide
             >
               <Trash2 className="h-3.5 w-3.5" />
             </button>
