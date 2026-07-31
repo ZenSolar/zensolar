@@ -791,6 +791,34 @@ export function EnergyFlowScene({
         </motion.div>
       </AnimatePresence>
 
+      {/* Behind-the-house conductor layer. Same viewBox + layout box as the
+          front overlay, but painted UNDER the hero art (house img is z:2) so
+          a run that physically passes behind the building never crosses the
+          silhouette. */}
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="xMidYMid meet"
+        className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-[88%] w-auto max-w-[98%] -translate-y-1/2"
+        style={{ aspectRatio: '1 / 1', zIndex: 1 }}
+      >
+        {conductorSegments
+          .filter((s) => s.layer === 'behind')
+          .map((s) => (
+            <Conductor
+              key={s.id}
+              id={s.id}
+              points={s.points}
+              color={s.color}
+              kw={s.kw}
+              forward={s.forward}
+              dimmed={s.dimmed}
+              reducedMotion={Boolean(prefersReducedMotion)}
+            />
+          ))}
+      </svg>
+
+
       {/* Single hero-aligned overlay: halos + dotted flows + dynamic car.
           Same layout classes as the hero <img>, so viewBox 0–100 maps 1:1
           to the painted house. This is the only coordinate system. */}
