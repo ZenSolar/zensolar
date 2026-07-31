@@ -34,7 +34,7 @@ import {
   type VehicleModel,
 } from './EnergyFlowScene.scenes';
 import { HOME_BLUEPRINT, BLUEPRINT_PATHS } from './HomeBlueprint';
-import { Conductor, buildConductorSegments } from './ConductorNetwork';
+import { Conductor, buildConductorSegments, SCENE_ANCHOR_LIST } from './ConductorNetwork';
 
 import { HouseSceneV5 } from './HouseSceneV5';
 import { EvChargingCable } from './EvChargingCable';
