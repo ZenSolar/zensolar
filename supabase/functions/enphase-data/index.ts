@@ -524,6 +524,7 @@ Deno.serve(async (req) => {
           dataType: "solar",
           recordedAt,
           prev,
+          currentValue: lifetimeEnergyWh,
         });
         const delta = snapshotDelta(lifetimeEnergyWh, bucketStart);
         const hash = await buildEnergyHash(devId, tsNow, lifetimeEnergyWh, prev.prevHash);
@@ -624,6 +625,7 @@ Deno.serve(async (req) => {
                 dataType: "battery",
                 recordedAt,
                 prev,
+                currentValue: newLifetime,
               });
               const battDelta = snapshotDelta(newLifetime, bucketStart);
               const battHash = await buildEnergyHash(devId, tsNow, newLifetime, prev.prevHash);
