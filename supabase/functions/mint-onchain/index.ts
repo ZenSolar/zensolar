@@ -792,9 +792,6 @@ Deno.serve(async (req) => {
       const charging = BigInt(chargingDeltaKwh);
 
       const totalUnits = solar + evMiles + battery + charging;
-
-
-      const totalUnits = solar + evMiles + battery + charging;
       
       if (totalUnits === BigInt(0)) {
         return new Response(JSON.stringify({ 
