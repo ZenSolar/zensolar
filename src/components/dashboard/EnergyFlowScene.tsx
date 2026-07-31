@@ -1097,12 +1097,13 @@ export function EnergyFlowScene({
         )}
 
 
-        {flows.has('charger-ev') && (
+        {/* EV conductor renders ONLY while a vehicle is actually charging at
+            this site. `isCharging` alone is true for Supercharging away from
+            home, which would draw a run down the facade to an empty driveway. */}
+        {flows.has('charger-ev') && chargingAtHome && (
           <DottedFlow
             id="flow-charger-ev"
-            /* A charging car is parked at `garageFront`, not `carPark` — route the
-               current to the port it is actually plugged into. */
-            d={chargingAtHome ? BLUEPRINT_PATHS.chargerToEvCharging : BLUEPRINT_PATHS.chargerToEv}
+            d={BLUEPRINT_PATHS.chargerToEvCharging}
             color={EMERALD_LED}
             dur={flowDur(data.evPower ?? 7)}
           />
