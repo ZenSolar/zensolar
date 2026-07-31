@@ -980,6 +980,28 @@ export function EnergyFlowScene({
             />
           ))}
 
+        {/* Temporary anchor debug overlay — `?anchors=1`. Renders every named
+            anchor at its overlay coordinate so it can be checked against the
+            baked house art. Not reachable without the query flag. */}
+        {showAnchorDebug &&
+          SCENE_ANCHOR_LIST.map(([name, p]) => (
+            <g key={name}>
+              <circle cx={p.x} cy={p.y} r={1.1} fill="none" stroke="#ff2d55" strokeWidth={0.45} />
+              <circle cx={p.x} cy={p.y} r={0.25} fill="#ff2d55" />
+              <text
+                x={p.x + 1.8}
+                y={p.y + 0.6}
+                fill="#ffe066"
+                fontSize={1.9}
+                fontFamily="ui-monospace, monospace"
+              >
+                {name} {p.x.toFixed(1)},{p.y.toFixed(1)}
+              </text>
+            </g>
+          ))}
+
+
+
         {flows.has('solar-pw') && (
           <g opacity={isOutage ? OUTAGE_VISUAL.solarDimOpacity : 1}>
             <DottedFlow id="flow-solar-pw" d={BLUEPRINT_PATHS.solarToPowerwall} color={EMERALD_LED} dur={flowDur(battery)} />
