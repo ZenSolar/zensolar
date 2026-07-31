@@ -1,38 +1,54 @@
 ---
-name: Mint Split v3.1 (LOCKED · LIVE)
-description: SSOT for the v3.1 mint distribution — 50% user / 25% LP direct / 20% burn / 5% treasury. Separate 3% transfer tax (LP recycle only). UI always shows 1 kWh = 1 $ZSOLAR; backend reconciles on raw 100% mint.
+name: Mint Split v4.0 (LOCKED · LIVE)
+description: SSOT for the mint distribution — 1.25 tokens per verified unit, 1.0 to the member and 0.25 to treasury. No LP mint, no burn at mint. Separate 3% transfer tax (LP recycle only). 1 kWh = 1 $ZSOLAR.
 type: feature
 ---
 
-# Mint Split v3.1 (LOCKED · LIVE)
+# Mint Split v4.0 (LOCKED · LIVE — 2026-07-31)
 
-## The split (LOCKED — mint-time, sums to 100%)
-- **50% user**
-- **25% LP direct** (added to pool at mint)
-- **20% burn** (continuous deflation)
-- **5% treasury** (runway, ops, future buyback)
+## The split (LOCKED — mint-time)
+Every verified unit mints **1.25 $ZSOLAR**:
+- **1.0 to the member**
+- **0.25 to treasury**
+- **0 LP** — there is no LP mint
+- **0 burn** — there is no burn at mint
 
-## Transfer tax (SEPARATE mechanism)
-- **3% on every transfer/swap → recycled to LP only.**
-- NOT part of `MINT_DISTRIBUTION`. Independent of mint-time math.
-- Previous 7% (3 burn / 2 LP / 2 treasury) is retired.
+A burn at mint has **zero net supply effect** (minting then immediately burning
+the same tokens changes nothing). It must not exist in code or in copy.
 
-## UI rule (1:1 display)
-- UI ALWAYS shows **1 kWh = 1 $ZSOLAR**.
-- `tokens_minted` written to the DB = the user's **50% share**.
-- Any "full mint" / pie visualization back-derives gross: `gross = tokens_minted / 0.5`.
-- Never multiply user balances by 2 or by `1 / USER_SHARE` outside the explicit pie/visualization path.
+Expressed as a share of tokens minted: 80% member / 20% treasury.
 
-## Code anchors
-- `src/lib/tokenomics.ts` — `MINT_DISTRIBUTION = { user: 50, lp: 25, burn: 20, treasury: 5 }`, `TRANSFER_TAX = { lp: 3, total: 3 }`, `MODEL_VERSION = 3.1`.
-- `src/hooks/useLatestMintReceipt.ts` — `USER_SHARE = 0.5`.
-- `supabase/functions/calculate-rewards/index.ts` — mirrors split.
+## Conversion factors (SSOT)
+`src/lib/mintFactors.ts` — mirrored at `supabase/functions/_shared/mintFactors.ts`.
+- solar 1:1 · supercharging 1:1 · FSD miles 1:1 · battery export 1:1
+- general EV miles **0.1:1** (not a direct energy measurement)
+- home charging enters at 1:1, then **netted to 0.25:1 on solar-connected homes**
+  so self-generated energy is not credited twice.
 
-## "Matching contribution" UX framing
-- The protocol's 50% share is framed as a **401(k)-style match** (25% LP + 20% burn + 5% treasury), never as a haircut.
-- ReceiptDrawer 4-bucket split: You 50 · LP 25 · Burn 20 · Treasury 5.
+## Issuance pipeline (order is fixed)
+`netting → stack_bonus → allowance_cap`, declared in
+`ISSUANCE_PIPELINE_ORDER` and executed by `_shared/issuancePipeline.ts`.
+Only **netting** is implemented. Stack Bonus is **not an adopted mechanism**.
+The allowance cap needs plan and billing data that does not exist. Both are
+typed no-op seams — do not implement either without an explicit decision.
 
-## Supersedes
-- **50/20/20/10** (v3.1 previous lock — replaced)
-- **50/25/20/3/2** (v3.0 proposed — never live)
-- **75/20/3/2** (legacy)
+## Issuance source (item 6, cutover 2026-07-31)
+Issuance is the **sum of unminted `energy_production` rows**, never
+`lifetime_totals − baseline_data`. Rows are consumed atomically by
+`public.consume_energy_rows` inside the mint, so a row can never be consumed
+twice. All rows predating the cutover are marked `consumed_reason = 'pre_cutover'`.
+Audit + reversal: `public.issuance_cutovers` / `public.revert_issuance_cutover`.
+
+## Transfer tax (SEPARATE mechanism — never conflate with the mint split)
+- 3% on transfer/swap, recycled to LP only.
+- `contracts/ZSOLAR.sol` as deployed still carries the retired 7% schedule
+  (3% burn / 2% LP / 2% treasury). Unreconciled — see the fee-on-transfer note
+  below before any LP deployment.
+
+## Uniswap v3 note
+Uniswap v3 has **no fee-on-transfer support**. Any transfer tax on ZSOLAR
+breaks v3 liquidity provision unless the position manager, router and pool are
+tax-exempt. Do not deploy a v3 range order without resolving this.
+
+## Supersedes (never reintroduce)
+- 50/25/20/5 · 50/20/20/10 · 50/25/20/3/2 · 75/20/3/2
