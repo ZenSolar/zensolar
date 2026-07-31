@@ -1340,6 +1340,36 @@ export type Database = {
         }
         Relationships: []
       }
+      energy_production_quarantine: {
+        Row: {
+          archived_by: string | null
+          created_at: string
+          id: string
+          note: string | null
+          reason: string
+          row_snapshot: Json
+          source_row_id: string
+        }
+        Insert: {
+          archived_by?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          reason: string
+          row_snapshot: Json
+          source_row_id: string
+        }
+        Update: {
+          archived_by?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          reason?: string
+          row_snapshot?: Json
+          source_row_id?: string
+        }
+        Relationships: []
+      }
       energy_reports: {
         Row: {
           created_at: string
