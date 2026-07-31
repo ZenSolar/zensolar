@@ -27,6 +27,19 @@
 export type Pt = Readonly<{ x: number; y: number }>;
 
 /**
+ * The house art is laid out at h-[92%] of the card while this overlay is
+ * h-[88%] — both centred and square. Anchors were measured directly off the
+ * baked PNG (percent of the image), so convert once here instead of eyeballing
+ * the offset per anchor.
+ *
+ *   overlay = (0.92 * img/100 - 0.02) * 100 / 0.88
+ */
+export function fromHouseImage(x: number, y: number): Pt {
+  const conv = (v: number) => Math.round(((0.92 * v) / 100 - 0.02) * (100 / 0.88) * 100) / 100;
+  return { x: conv(x), y: conv(y) };
+}
+
+/**
  * Named anchors in overlay viewBox (0–100) space, measured against the baked
  * `house-*.png` renders. Every one is tied to visible geometry.
  *
@@ -38,15 +51,16 @@ export type Pt = Readonly<{ x: number; y: number }>;
  *   utilityPost   utility meter / post at the right edge of the slab
  */
 export const SCENE_ANCHORS = Object.freeze({
-  roofPlane:    { x: 44, y: 33 } as Pt,
-  roofEave:     { x: 62, y: 45 } as Pt,
-  gateway:      { x: 72, y: 63 } as Pt,
-  mainPanel:    { x: 84, y: 66 } as Pt,
-  homeInterior: { x: 80, y: 58 } as Pt,
-  utilityPost:  { x: 91, y: 64 } as Pt,
+  roofPlane:    fromHouseImage(44, 33),
+  roofEave:     fromHouseImage(62, 45),
+  gateway:      fromHouseImage(72, 63),
+  mainPanel:    fromHouseImage(84, 66),
+  homeInterior: fromHouseImage(80, 58),
+  utilityPost:  fromHouseImage(91, 64),
   /** Charge port of a vehicle pulled up to the garage apron. */
-  evPort:       { x: 41, y: 74 } as Pt,
+  evPort:       fromHouseImage(41, 74),
 });
+
 
 // Isometric axis: 30° rise over run (2:1 iso projection).
 const ISO_SLOPE = 0.5;
