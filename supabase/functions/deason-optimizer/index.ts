@@ -24,6 +24,7 @@
 
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors';
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { CONVERSION_FACTORS } from '../_shared/mintFactors.ts';
 
 // ---------- types ----------
 type Severity = 'low' | 'medium' | 'high';
@@ -341,7 +342,9 @@ function defaultParams(snap: ReturnType<typeof extractTelemetrySnapshot>): Sched
     battery_present: snap.has_battery,
     solar_present: snap.has_solar,
     degradation_cost_per_kwh: 0.02,
-    token_value_usd_per_kwh: 0.01, // soft weight to bias toward more solar capture
+    // Canonical: 1 kWh of verified activity = 1 $ZSOLAR (CONVERSION_FACTORS.solar_kwh).
+    // Expressed here as tokens per kWh — this is NOT a dollar price.
+    token_value_usd_per_kwh: CONVERSION_FACTORS.solar_kwh,
   };
 }
 

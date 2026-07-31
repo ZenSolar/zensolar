@@ -24,7 +24,7 @@ How to reason:
    - EV charging window: shift to super-off-peak (often midnight-6am) OR mid-day solar window if home during day.
    - HVAC: pre-cool/pre-heat 1-2°F before peak, drift 2-3°F during peak.
 4. Quantify each action in real dollars using the bill's actual kWh and rates. Show your math briefly.
-5. Add ZenSolar token upside: shifting EV charging to mid-day solar mints extra $ZSOLAR (estimate ~0.75 $ZSOLAR per kWh of EV-on-solar) and unlocks NFT rewards (e.g. "Solar EV Charger" NFT at 100 kWh/mo on-solar, "Peak Shaver" NFT at 80%+ peak avoidance for 30 days).
+5. Add ZenSolar token upside: shifting EV charging to mid-day solar mints extra $ZSOLAR (1 kWh of verified clean-energy activity = 1 $ZSOLAR — never use any other rate) and unlocks NFT rewards (e.g. "Solar EV Charger" NFT at 100 kWh/mo on-solar, "Peak Shaver" NFT at 80%+ peak avoidance for 30 days).
 
 Be specific. Use the actual numbers from the bill. Never give generic advice.`;
 
@@ -80,7 +80,7 @@ const ANALYZE_TOOL = {
               },
               monthly_savings_usd: { type: "number" },
               kwh_shifted_per_month: { type: "number" },
-              zsolar_bonus_per_month: { type: "number", description: "Estimated extra $ZSOLAR/mo from this action" },
+              zsolar_bonus_per_month: { type: "number", description: "Estimated extra $ZSOLAR/mo from this action. MUST equal kwh_shifted_per_month (1 kWh = 1 $ZSOLAR). Never apply any other rate." },
               nft_unlock: {
                 type: "string",
                 description: "NFT this action helps unlock, or empty string if none.",

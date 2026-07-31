@@ -358,7 +358,8 @@ Deno.serve(async (req) => {
     if (isMonthlyRitual) {
       const preview = parsed.preview as { headline_savings_usd_per_year?: number; executive_summary?: string; top_insight?: string; top_risk_flag?: string };
       const dollarsSaved = Number(preview.headline_savings_usd_per_year ?? 0) / 12;
-      const bonusTokens = Math.max(0, Math.round(dollarsSaved * 10));
+      // Canonical: 1 kWh = 1 $ZSOLAR. Tokens are never derived from dollars.
+      const bonusTokens = Math.max(0, Math.round(kwhSaved * CONVERSION_FACTORS.solar_kwh));
 
       await admin.from("deason_monthly_reports").upsert({
         user_id: userId,
