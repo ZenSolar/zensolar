@@ -1,5 +1,16 @@
 # ZenSolar Phased Fundraising & Token Release Model
 
+> **CANONICAL SPLIT NOTICE (2026-07-31).** Any mint split, burn-at-mint, or
+> per-unit ratio appearing below is **superseded**. The single source of truth
+> is `src/lib/mintFactors.ts` (mirror: `supabase/functions/_shared/mintFactors.ts`):
+> **1.25 $ZSOLAR per verified unit — 1.0 to the member, 0.25 to treasury.
+> No LP mint. No burn at mint.** Conversion factors: solar 1:1, supercharging 1:1,
+> FSD miles 1:1, battery export 1:1, general EV miles 0.1:1, home charging
+> netted to 0.25:1 on solar-connected homes. Figures below are retained as a
+> historical record of earlier modelling and must not be used as current design.
+
+
+
 ## Executive Summary
 
 This document outlines ZenSolar's fundraising strategy from Pre-seed through Series C, mapping liquidity pool depth, circulating token supply, user milestones, revenue projections, and token price targets at each stage. The core thesis: ZenSolar is **permanent clean energy financial infrastructure** — the locked liquidity pool replaces the federal government's role in incentivizing clean energy adoption.
@@ -11,7 +22,7 @@ This document outlines ZenSolar's fundraising strategy from Pre-seed through Ser
 1. **Managed Supply Curve:** The 10B token supply is released strategically to match real user demand, not dumped at launch.
 2. **LP-First Fundraising:** A significant portion of each raise goes directly into locked liquidity, not just operations.
 3. **Revenue-Backed Floor:** 50% of all subscription revenue continuously deepens the LP beyond the locked base.
-4. **Deflationary Pressure:** 20% mint burn + 7% transfer tax ensures circulating supply grows slower than user adoption.
+4. **Deflationary Pressure:** there is NO burn at mint (removed 2026-07-31 — a mint-time burn has zero net supply effect). The only burn is the transfer tax, which is itself unreconciled between the docs (7%) and the deployed contract.
 
 ---
 

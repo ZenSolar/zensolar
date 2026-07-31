@@ -50,7 +50,7 @@
 - `EnergyFlowCard` (real one, not `InvestorEnergyFlowCard`)
 - `TapToMintButton` + sheet
 - `MintReceiptDrawer` (Quick View) + `ProofOfGenesisPage` (full receipt)
-- `tokenomics.ts` (SSOT — 50/25/20/5 split, locked)
+- `mintFactors.ts` (SSOT — v4.0 split 1.0 member / 0.25 treasury, locked); `tokenomics.ts` re-exports it
 
 **Device connectors (UI shells only)**
 - `TeslaConnectCard`, `EnphaseConnectCard`, `SolarEdgeConnectCard`, `WallboxConnectCard`

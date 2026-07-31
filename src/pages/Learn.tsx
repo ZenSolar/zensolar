@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { SEO } from '@/components/SEO';
 import { PageShell } from '@/components/layout/PageShell';
 import { useLearnTheme } from '@/hooks/useLearnTheme';
+import { MINT_SPLIT_LABEL } from '@/lib/mintFactors';
 
 /**
  * Learn Hub — intentionally minimal.
@@ -35,7 +36,7 @@ const TOPICS: Topic[] = [
   },
   {
     title: 'Tokenomics',
-    blurb: '1T hard cap, 50/25/20/5 mint split, deflationary by design.',
+    blurb: `1T hard cap, mint split ${MINT_SPLIT_LABEL}, no burn at mint.`,
     href: '/learn/tokenomics',
     icon: Coins,
     badge: 'The numbers',

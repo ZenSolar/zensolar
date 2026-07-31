@@ -1,5 +1,16 @@
 # $ZSOLAR Tokenomics Optimization Framework
 
+> **CANONICAL SPLIT NOTICE (2026-07-31).** Any mint split, burn-at-mint, or
+> per-unit ratio appearing below is **superseded**. The single source of truth
+> is `src/lib/mintFactors.ts` (mirror: `supabase/functions/_shared/mintFactors.ts`):
+> **1.25 $ZSOLAR per verified unit — 1.0 to the member, 0.25 to treasury.
+> No LP mint. No burn at mint.** Conversion factors: solar 1:1, supercharging 1:1,
+> FSD miles 1:1, battery export 1:1, general EV miles 0.1:1, home charging
+> netted to 0.25:1 on solar-connected homes. Figures below are retained as a
+> historical record of earlier modelling and must not be used as current design.
+
+
+
 ## Executive Summary: The Core Problem
 
 **Current Model Failure Point:**

@@ -2,11 +2,12 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { createWalletClient, createPublicClient, http, parseAbi, formatEther, decodeErrorResult } from "npm:viem@2.43.5";
 import { privateKeyToAccount } from "npm:viem@2.43.5/accounts";
 import { baseSepolia } from "npm:viem@2.43.5/chains";
-import {
-  assertBaseline,
-  BaselineUnreadableError,
-  CANONICAL_BASELINE_KEYS,
-} from "../_shared/baselineResolver.ts";
+// Issuance is delta-based (item 6, 2026-07-31): quantities come from unminted
+// energy_production rows, not from lifetime_totals minus baseline_data. The
+// baseline resolver is therefore no longer on the mint path.
+import { fetchUnmintedRows, aggregateUnmintedRows } from "../_shared/unmintedDeltas.ts";
+import { runIssuancePipeline } from "../_shared/issuancePipeline.ts";
+
 
 
 const corsHeaders = {
@@ -208,10 +209,14 @@ async function recordTransaction(
       if (reconciliation.sourceBreakdown) row.source_breakdown = reconciliation.sourceBreakdown;
     }
 
-    await supabaseClient.from("mint_transactions").insert(row);
+    const { data: inserted, error: insErr } = await supabaseClient
+      .from("mint_transactions").insert(row).select("id").single();
+    if (insErr) throw insErr;
     console.log("Transaction recorded:", txHash, status, isBetaMint ? "(beta)" : "");
+    return (inserted?.id as string) ?? null;
   } catch (error) {
     console.error("Failed to record transaction:", error);
+    return null;
   }
 }
 
@@ -736,201 +741,53 @@ Deno.serve(async (req) => {
       const mintCategory = category || 'all'; // 'solar', 'ev_miles', 'battery', 'charging', 'all'
       console.log(`Minting rewards for category: ${mintCategory}`);
 
-      // Get device breakdown from connected_devices to calculate real deltas
+      // ── ITEM 6 — ISSUANCE FROM UNMINTED DELTAS ──────────────────────────
+      // Issuance is the sum of unminted energy_production rows, never a
+      // lifetime counter minus a baseline. Every token traces to specific
+      // proof-chain rows, and each row is consumed exactly once (the DB
+      // function only claims rows where minted_at IS NULL).
+      // Rows predating the 2026-07-31 cutover are already marked consumed.
       const { data: devices } = await supabaseClient
         .from("connected_devices")
         .select("id, device_id, device_type, provider, baseline_data, lifetime_totals")
         .eq("user_id", user.id);
 
-      let solarDeltaKwh = 0;
-      let evMilesDelta = 0;
-      let batteryDeltaKwh = 0;
-      // Charging is tracked as TWO independent buckets and NEVER combined in UX/recon.
-      // On-chain contract has a single `charging` counter, so we sum them only at the
-      // contract call boundary — every dashboard/log/recon view keeps them split.
-      let superchargerDeltaKwh = 0; // vehicle device (Tesla Supercharger)
-      let homeChargingDeltaKwh = 0; // charger device (Wall Connector, Wallbox)
-      const deviceIdsToUpdate: string[] = [];
-      const batteryCandidates: { deviceId: string; provider: string; delta: number }[] = [];
+      const solarConnectedHome = (devices || []).some((d: any) => isSolarDevice(d.device_type));
 
-      // Calculate real deltas from device data, filtering by category
-      // Uses normalized device type matching for consistency across providers
-      // ── Containment: fail-closed baseline resolution ─────────────────────
-      // Single canonical resolver lives in _shared/baselineResolver.ts.
-      // A delta may only be computed from a baseline we can positively read.
-      // Absent key, empty object, or NULL baseline_data => refuse (never 0).
-      // A present, genuinely-0 baseline is accepted ONLY when the row carries
-      // an explicit first-claim marker. Ambiguous zero => refuse.
-      const resolveBaseline = (
-        device: { device_id: string; baseline_data: unknown },
-        activityType: string,
-        keys: readonly string[],
-      ): number => assertBaseline(device, activityType, keys);
-
-
-      const baselineRefusals: { device_id: string; activity_type: string; reason: string }[] = [];
-      const refuse = (e: unknown) => {
-        if (e instanceof BaselineUnreadableError) {
-          baselineRefusals.push({ device_id: e.deviceRef, activity_type: e.activityType, reason: e.reason });
-          console.error(e.message);
-          return;
-        }
-        throw e;
-      };
-
-      for (const device of (devices || [])) {
-        const lifetime = device.lifetime_totals as Record<string, number> | null;
-        const baseline = device.baseline_data as Record<string, number> | null;
-
-        if (!lifetime) continue;
-        
-        // Per-device filtering: if deviceId is specified, only process that specific device
-        if (deviceId && device.device_id !== deviceId) {
-          continue;
-        }
-
-        // Solar devices (Tesla solar, Enphase solar_system, SolarEdge solar_system, etc.)
-        if (isSolarDevice(device.device_type) && (mintCategory === 'all' || mintCategory === 'solar')) {
-          try {
-            const lifetimeSolarWh = lifetime.solar_wh ?? lifetime.lifetime_solar_wh ?? 0;
-            // Canonical read key: solar_wh (legacy keys remain in storage, unread).
-            const baselineSolarWh = resolveBaseline(device, "solar", CANONICAL_BASELINE_KEYS.solar);
-
-            const delta = Math.max(0, Math.floor((lifetimeSolarWh - baselineSolarWh) / 1000));
-            console.log(`Solar device ${device.id} (${device.device_type}): lifetime=${lifetimeSolarWh}Wh, baseline=${baselineSolarWh}Wh, delta=${delta}kWh`);
-            if (delta > 0) {
-              solarDeltaKwh += delta;
-              deviceIdsToUpdate.push(device.id);
-            }
-          } catch (e) { refuse(e); }
-        } 
-        
-        // Battery (Tesla Powerwall has its own device row; Enphase/SolarEdge merge
-        // battery_discharge_wh onto their SOLAR device row — no separate device).
-        // We accept battery deltas from EITHER a dedicated battery device OR a
-        // solar device that carries battery_discharge_wh. Provider-priority
-        // de-dup (tesla > enphase > solaredge) is enforced in a second pass below.
-        const hasBatteryField =
-          (lifetime.battery_discharge_wh || lifetime.lifetime_battery_discharge_wh || 0) > 0;
-        const isBatteryCandidate =
-          isBatteryDevice(device.device_type) ||
-          (isSolarDevice(device.device_type) && hasBatteryField);
-
-        if (isBatteryCandidate && (mintCategory === 'all' || mintCategory === 'battery')) {
-          try {
-            const lifetimeBatteryWh = lifetime.battery_discharge_wh ?? lifetime.lifetime_battery_discharge_wh ?? 0;
-            const baselineBatteryWh = resolveBaseline(device, "battery", [
-              "total_energy_discharged_wh", "battery_discharge_wh", "lifetime_battery_discharge_wh",
-            ]);
-            const delta = Math.max(0, Math.floor((lifetimeBatteryWh - baselineBatteryWh) / 1000));
-            console.log(`Battery candidate ${device.id} provider=${device.provider} type=${device.device_type}: lifetime=${lifetimeBatteryWh}Wh, baseline=${baselineBatteryWh}Wh, delta=${delta}kWh`);
-            if (delta > 0) {
-              batteryCandidates.push({
-                deviceId: device.id,
-                provider: String(device.provider || '').toLowerCase(),
-                delta,
-              });
-            }
-          } catch (e) { refuse(e); }
-        }
-        
-        // Vehicle devices (EV miles + charging)
-        if (isVehicleDevice(device.device_type)) {
-          if (mintCategory === 'all' || mintCategory === 'ev_miles') {
-            try {
-              const lifetimeOdometer = lifetime.odometer ?? 0;
-              const baselineOdometer = resolveBaseline(device, "ev_miles", CANONICAL_BASELINE_KEYS.ev_miles);
-
-              const delta = Math.max(0, Math.floor(lifetimeOdometer - baselineOdometer));
-              if (delta > 0) {
-                evMilesDelta += delta;
-                if (!deviceIdsToUpdate.includes(device.id)) {
-                  deviceIdsToUpdate.push(device.id);
-                }
-              }
-            } catch (e) { refuse(e); }
-          }
-          
-          if (mintCategory === 'all' || mintCategory === 'charging') {
-            try {
-              const lifetimeChargingKwh = lifetime.charging_kwh ?? (lifetime.charging_wh != null ? lifetime.charging_wh / 1000 : 0);
-              // Canonical read key: charging_kwh (already kWh — no unit scaling).
-              const baselineChargingKwh = resolveBaseline(device, "charging", CANONICAL_BASELINE_KEYS.charging);
-
-              const delta = Math.max(0, Math.floor(lifetimeChargingKwh - baselineChargingKwh));
-              if (delta > 0) {
-                superchargerDeltaKwh += delta;
-                if (!deviceIdsToUpdate.includes(device.id)) {
-                  deviceIdsToUpdate.push(device.id);
-                }
-              }
-            } catch (e) { refuse(e); }
-          }
-        } 
-        
-        // Charger devices (Wall connector, Wallbox charger, etc.)
-        if (isChargerDevice(device.device_type) && (mintCategory === 'all' || mintCategory === 'charging')) {
-          try {
-            const lifetimeChargingKwh = lifetime.charging_kwh ?? (lifetime.charging_wh != null ? lifetime.charging_wh / 1000 : 0) ?? (lifetime.lifetime_charging_wh != null ? lifetime.lifetime_charging_wh / 1000 : 0) ?? (lifetime.wall_connector_wh != null ? lifetime.wall_connector_wh / 1000 : 0);
-            // Canonical read key: charging_kwh (already kWh — no unit scaling).
-            const baselineChargingKwh = resolveBaseline(device, "charging", CANONICAL_BASELINE_KEYS.charging);
-
-            const delta = Math.max(0, Math.floor(lifetimeChargingKwh - baselineChargingKwh));
-            if (delta > 0) {
-              homeChargingDeltaKwh += delta;
-              if (!deviceIdsToUpdate.includes(device.id)) {
-                deviceIdsToUpdate.push(device.id);
-              }
-            }
-          } catch (e) { refuse(e); }
-        }
-      }
-
-      // Fail closed: if ANY device/activity had an unreadable baseline, no mint proceeds.
-      if (baselineRefusals.length > 0) {
-        console.error("BASELINE_UNREADABLE — mint refused", JSON.stringify(baselineRefusals));
+      let unmintedRows;
+      try {
+        unmintedRows = await fetchUnmintedRows(supabaseClient, user.id, mintCategory, deviceId);
+      } catch (e) {
+        console.error("Failed to read unminted deltas:", e);
         return new Response(JSON.stringify({
           success: false,
-          error: "BASELINE_UNREADABLE",
-          message: "Mint refused: one or more devices have an unreadable baseline. Contact support — this requires manual review.",
-          refusals: baselineRefusals,
-        }), {
-          status: 409,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      
-
-      
-      // Log per-device minting info
-      if (deviceId) {
-        console.log(`Per-device minting for deviceId=${deviceId}: category=${mintCategory}`);
+          error: "DELTA_READ_FAILED",
+          message: "Could not read verified activity. Mint refused.",
+        }), { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
 
-      // Battery provider-priority de-dup (mirrors useDashboardData KPI logic):
-      // tesla > enphase > solaredge. One OEM per battery — never summed.
-      if (batteryCandidates.length > 0) {
-        const priority = ['tesla', 'enphase', 'solaredge'];
-        let chosenProvider: string | null = null;
-        for (const p of priority) {
-          if (batteryCandidates.some((c) => c.provider === p)) {
-            chosenProvider = p;
-            break;
-          }
-        }
-        // Fallback: any non-priority provider (defensive)
-        if (!chosenProvider) chosenProvider = batteryCandidates[0].provider;
+      const deltas = aggregateUnmintedRows(unmintedRows);
 
-        const chosen = batteryCandidates.filter((c) => c.provider === chosenProvider);
-        batteryDeltaKwh = chosen.reduce((sum, c) => sum + c.delta, 0);
-        for (const c of chosen) {
-          if (!deviceIdsToUpdate.includes(c.deviceId)) deviceIdsToUpdate.push(c.deviceId);
-        }
-        const skipped = batteryCandidates.filter((c) => c.provider !== chosenProvider);
-        if (skipped.length > 0) {
-          console.log(`Battery provider priority: chose=${chosenProvider} (${batteryDeltaKwh}kWh), skipped=${JSON.stringify(skipped)}`);
-        }
-      }
+      // Canonical pipeline: netting -> stack_bonus (seam) -> allowance_cap (seam).
+      const pipeline = runIssuancePipeline(deltas.quantities, {
+        userId: user.id,
+        solarConnectedHome,
+      });
+      console.log("Issuance pipeline", JSON.stringify({
+        rows: deltas.rowCount,
+        raw: deltas.quantities,
+        final: pipeline.quantities,
+        stages: pipeline.stages.map((st) => ({ stage: st.stage, applied: st.applied, note: st.note })),
+      }));
+
+      const q = pipeline.quantities;
+      const solarDeltaKwh = Math.floor(q.solar_kwh ?? 0);
+      // EV miles and FSD miles both settle into the contract's evMiles counter.
+      const evMilesDelta = Math.floor((q.ev_miles ?? 0) + (q.fsd_miles ?? 0));
+      const batteryDeltaKwh = Math.floor(q.battery_export_kwh ?? 0);
+      const superchargerDeltaKwh = Math.floor(q.supercharging_kwh ?? 0);
+      const homeChargingDeltaKwh = Math.floor(q.home_charging_kwh ?? 0);
+      const deviceIdsToUpdate: string[] = [];
 
       const solar = BigInt(solarDeltaKwh);
       const evMiles = BigInt(evMilesDelta);
@@ -1067,8 +924,23 @@ Deno.serve(async (req) => {
           home_charging_kwh: homeChargingDeltaKwh,
           charging_kwh_combined_onchain: Number(charging), // contract-level sum only
           device_ids: deviceIdsToUpdate,
+          // Forensic anchor: exactly which proof rows backed this issuance and
+          // what each pipeline stage did to the raw quantities.
+          proof_row_ids: deltas.allRowIds,
+          proof_row_count: deltas.rowCount,
+          proof_window: { from: deltas.earliest, to: deltas.latest },
+          raw_quantities: deltas.quantities,
+          issuance_pipeline: {
+            order: pipeline.order,
+            stages: pipeline.stages.map((st) => ({ stage: st.stage, applied: st.applied, note: st.note })),
+            final_quantities: pipeline.quantities,
+            user_tokens: pipeline.userTokens,
+            treasury_tokens: pipeline.treasuryTokens,
+            total_tokens: pipeline.totalTokens,
+          },
           tolerance_pct: RECONCILIATION_TOLERANCE_PCT,
           hard_fail_pct: RECONCILIATION_HARD_FAIL_PCT,
+
         };
         const logRows: Array<Record<string, unknown>> = [];
 
@@ -1158,7 +1030,7 @@ Deno.serve(async (req) => {
         }
 
         // Record the mint with reconciliation_diff + drift status
-        await recordTransaction(
+        const mintTxId = await recordTransaction(
           supabaseClient,
           user.id,
           hash,
@@ -1176,6 +1048,29 @@ Deno.serve(async (req) => {
             sourceBreakdown,
           },
         );
+
+        // ── ITEM 6 — consume the proof rows that backed this issuance ──────
+        // Atomic: public.consume_energy_rows only claims rows where
+        // minted_at IS NULL, so a row can never be consumed twice even under
+        // concurrent mints. Runs against the SAME mint_transactions row that
+        // was just written, so every consumed row traces to its mint.
+        if (mintTxId && deltas.allRowIds.length > 0) {
+          const { data: consumed, error: consumeErr } = await supabaseClient.rpc(
+            "consume_energy_rows",
+            { _user_id: user.id, _row_ids: deltas.allRowIds, _mint_tx_id: mintTxId },
+          );
+          if (consumeErr) {
+            console.error("CONSUME_FAILED — rows remain unminted, mint already on-chain:", consumeErr);
+          } else {
+            const c = Array.isArray(consumed) ? consumed[0] : consumed;
+            console.log(`Consumed ${c?.consumed_count ?? 0}/${deltas.allRowIds.length} proof rows for mint ${mintTxId}`);
+            if ((c?.consumed_count ?? 0) !== deltas.allRowIds.length) {
+              console.warn("Partial consumption — some rows were claimed by a concurrent mint.");
+            }
+          }
+        } else if (!mintTxId) {
+          console.error("CONSUME_SKIPPED — no mint_transactions id; rows remain unminted.");
+        }
 
         // Update idempotency row with actual tx hash for forensic linking
         try {

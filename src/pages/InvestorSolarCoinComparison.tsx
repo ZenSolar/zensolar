@@ -169,7 +169,7 @@ const TABLES: Table[] = [
     title: 'Tokenomics & Flywheel',
     rows: [
       { label: 'Supply cap', zen: '1T hard cap — disciplined scarcity', solar: 'Inflationary, weak emission discipline' },
-      { label: 'Burn mechanism', zen: '20% burn per mint event', solar: 'None' },
+      { label: 'Burn mechanism', zen: 'Transfer-tax recycle only — no burn at mint', solar: 'None' },
       { label: 'LP funding', zen: '100% of subscription fees recycle into LP', solar: 'No subscription model, no LP funding loop' },
       { label: 'Launch model', zen: 'Tranche-seeded LP rounds at $0.10', solar: 'Fragile market depth; minimal daily volume' },
     ],
@@ -207,7 +207,7 @@ const CONCLUSION = [
   'Embedded wallet + dedicated app removes the friction that has capped SolarCoin\'s adoption for a decade.',
   'Multi-vertical rewards (solar, battery, EV kWh, miles, FSD) expand TAM by orders of magnitude.',
   'Patent-pending IP creates a real moat where SolarCoin has none.',
-  'A 100% subscription-to-LP flywheel, 1T cap, 20% burn, and planned VPP + data revenue position $ZSOLAR to credibly aim for the top tier of cryptocurrencies.',
+  'A 100% subscription-to-LP flywheel, 1T cap, transfer-tax LP recycle, and planned VPP + data revenue position $ZSOLAR to credibly aim for the top tier of cryptocurrencies.',
 ];
 
 export default function InvestorSolarCoinComparison() {
@@ -252,7 +252,7 @@ export default function InvestorSolarCoinComparison() {
                 <span className="text-foreground font-semibold">ZenSolar is a full consumer product built for the clean-energy era.</span> Embedded Coinbase Smart Wallet, Tap-to-Mint, live multi-OEM monitoring (Tesla + Enphase + SolarEdge + Wallbox in one UI), the Deason AI concierge, a $ZSOLAR redemption store, proactive grid-outage and battery-health alerts, and <span className="text-foreground font-medium">weekly hyper-personalized device reports + monthly progressive clean-energy insights</span> — all powered by our patent-pending Proof-of-Genesis architecture (U.S. Patent Application No. 19/634,402) and Proof-of-Delta cryptographic verification.
               </p>
               <p>
-                The rewardable surface expands far beyond solar alone — battery discharge, EV charging kWh, miles driven, and FSD miles — while a 100% subscription-to-LP flywheel, 1T hard cap, 20% burn, NFT milestones, and Palmetto installer integration create a moat SolarCoin has never built.
+                The rewardable surface expands far beyond solar alone — battery discharge, EV charging kWh, miles driven, and FSD miles — while a 100% subscription-to-LP flywheel, 1T hard cap, transfer-tax LP recycle, NFT milestones, and Palmetto installer integration create a moat SolarCoin has never built.
               </p>
               <p>
                 The opportunity is enormous. With strong execution, ZenSolar can acquire millions of users across the exploding EV and clean-energy markets, generate substantial recurring revenue through subscriptions, data aggregation, and a planned VPP program, and credibly position $ZSOLAR among the top tier of cryptocurrencies by delivering real, verifiable utility at planetary scale.
