@@ -34,7 +34,7 @@ import {
   type VehicleModel,
 } from './EnergyFlowScene.scenes';
 import { HOME_BLUEPRINT, BLUEPRINT_PATHS } from './HomeBlueprint';
-import { Conductor, buildConductorSegments } from './ConductorNetwork';
+import { Conductor, buildConductorSegments, SCENE_ANCHOR_LIST } from './ConductorNetwork';
 
 import { HouseSceneV5 } from './HouseSceneV5';
 import { EvChargingCable } from './EvChargingCable';
@@ -670,6 +670,12 @@ export function EnergyFlowScene({
   // stay parked in the driveway.
   const prefersReducedMotion = useReducedMotion();
 
+  // Temporary anchor-verification overlay: /home?anchors=1
+  const showAnchorDebug =
+    typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('anchors') === '1';
+
+
   // Trunk-and-branch conductor topology (see ConductorNetwork.tsx).
   const conductorSegments = useMemo(
     () =>
@@ -980,6 +986,28 @@ export function EnergyFlowScene({
             />
           ))}
 
+        {/* Temporary anchor debug overlay — `?anchors=1`. Renders every named
+            anchor at its overlay coordinate so it can be checked against the
+            baked house art. Not reachable without the query flag. */}
+        {showAnchorDebug &&
+          SCENE_ANCHOR_LIST.map(([name, p]) => (
+            <g key={name}>
+              <circle cx={p.x} cy={p.y} r={1.1} fill="none" stroke="#ff2d55" strokeWidth={0.45} />
+              <circle cx={p.x} cy={p.y} r={0.25} fill="#ff2d55" />
+              <text
+                x={p.x + 1.8}
+                y={p.y + 0.6}
+                fill="#ffe066"
+                fontSize={1.9}
+                fontFamily="ui-monospace, monospace"
+              >
+                {name} {p.x.toFixed(1)},{p.y.toFixed(1)}
+              </text>
+            </g>
+          ))}
+
+
+
         {flows.has('solar-pw') && (
           <g opacity={isOutage ? OUTAGE_VISUAL.solarDimOpacity : 1}>
             <DottedFlow id="flow-solar-pw" d={BLUEPRINT_PATHS.solarToPowerwall} color={EMERALD_LED} dur={flowDur(battery)} />
@@ -1069,12 +1097,13 @@ export function EnergyFlowScene({
         )}
 
 
-        {flows.has('charger-ev') && (
+        {/* EV conductor renders ONLY while a vehicle is actually charging at
+            this site. `isCharging` alone is true for Supercharging away from
+            home, which would draw a run down the facade to an empty driveway. */}
+        {flows.has('charger-ev') && chargingAtHome && (
           <DottedFlow
             id="flow-charger-ev"
-            /* A charging car is parked at `garageFront`, not `carPark` — route the
-               current to the port it is actually plugged into. */
-            d={chargingAtHome ? BLUEPRINT_PATHS.chargerToEvCharging : BLUEPRINT_PATHS.chargerToEv}
+            d={BLUEPRINT_PATHS.chargerToEvCharging}
             color={EMERALD_LED}
             dur={flowDur(data.evPower ?? 7)}
           />

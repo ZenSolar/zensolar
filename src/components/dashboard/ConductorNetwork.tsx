@@ -6,8 +6,9 @@
  * roof→grid) that both terminated near the utility post. Real topology is a
  * trunk that divides:
  *
- *     roofPlane ─▶ roofEave ─▶ gateway ─▶ mainPanel ─┬─▶ homeInterior
- *                      (trunk = total production)    └─▶ utilityPost
+ *     roofPlane ─▶ roofEave ─▶ wallJunction ─┬─▶ homeInterior
+ *                 (trunk = total production) └─▶ utilityPost
+
  *
  * The trunk carries total production; the two branches carry the home load
  * and the grid share, and stroke weight scales with kW so a viewer can see
@@ -40,26 +41,36 @@ export function fromHouseImage(x: number, y: number): Pt {
 }
 
 /**
- * Named anchors in overlay viewBox (0–100) space, measured against the baked
- * `house-*.png` renders. Every one is tied to visible geometry.
+ * Named anchors, given as percent of the baked house PNG and converted once
+ * into overlay space. Every one was re-measured against
+ * `house-day-export.png` (the variant that renders while exporting) and
+ * checked with the `?anchors=1` debug overlay — each lands on a visible object.
  *
- *   roofPlane     centroid of the PV array on the front roof slope
- *   roofEave      lower-right corner of the array where the conduit drops
- *   gateway       white wall cabinet on the front-right facade
- *   mainPanel     service junction on the wall right of the gateway
- *   homeInterior  centre of the lit-window cluster
- *   utilityPost   utility meter / post at the right edge of the slab
+ *   roofPlane      centroid of the PV array on the front roof slope
+ *   roofEave       lower-right corner of the array, where conduit leaves the roof
+ *   wallJunction   grey service-disconnect box on the front-right facade —
+ *                  brand-neutral on purpose: the white cabinet on the garage
+ *                  face is baked Powerwall art and this account has no battery
+ *                  connected, so nothing routes through it
+ *   homeInterior   centre of the lit-window cluster
+ *   utilityPost    utility pedestal at the right edge of the slab
+ *
+ * `mainPanel` was retired: there is no second visible panel between the wall
+ * box and the pedestal, so it was an anchor in empty wall.
  */
 export const SCENE_ANCHORS = Object.freeze({
   roofPlane:    fromHouseImage(44, 33),
   roofEave:     fromHouseImage(62, 45),
-  gateway:      fromHouseImage(72, 63),
-  mainPanel:    fromHouseImage(84, 66),
-  homeInterior: fromHouseImage(80, 58),
-  utilityPost:  fromHouseImage(91, 64),
+  wallJunction: fromHouseImage(69.8, 68.7),
+  homeInterior: fromHouseImage(75.7, 58),
+  utilityPost:  fromHouseImage(93, 60),
   /** Charge port of a vehicle pulled up to the garage apron. */
   evPort:       fromHouseImage(41, 74),
 });
+
+/** Debug label order for the `?anchors=1` overlay. */
+export const SCENE_ANCHOR_LIST = Object.entries(SCENE_ANCHORS) as ReadonlyArray<[string, Pt]>;
+
 
 
 // Isometric axis: 30° rise over run (2:1 iso projection).
@@ -261,10 +272,13 @@ export function Conductor({
 /**
  * Builds the trunk/branch segment list for the current power reading.
  *
- * trunk        roofPlane → roofEave → gateway → mainPanel   (total production)
- * home branch  mainPanel → homeInterior                     (home load share)
- * grid branch  mainPanel → utilityPost                      (export share) or
- *              utilityPost → mainPanel                      (import, reversed)
+ * trunk        roofPlane → roofEave → wallJunction    (total production)
+ * home branch  wallJunction → homeInterior            (home load share)
+ * grid branch  wallJunction → utilityPost             (export share) or
+ *              utilityPost → wallJunction             (import, reversed)
+ *
+ * The split sits at the junction, not at the far end of the facade, so both
+ * branches leave one node heading right with no hairpin reversal.
  */
 export function buildConductorSegments(args: {
   solar: number;
@@ -288,8 +302,7 @@ export function buildConductorSegments(args: {
       points: [
         A.roofPlane,
         ...isoRoute(A.roofPlane, A.roofEave).slice(1),
-        ...isoRoute(A.roofEave, A.gateway).slice(1),
-        ...isoRoute(A.gateway, A.mainPanel).slice(1),
+        ...isoRoute(A.roofEave, A.wallJunction).slice(1),
       ],
       color: colors.solar,
       kw: solar,
@@ -298,12 +311,13 @@ export function buildConductorSegments(args: {
     });
   }
 
-  // Home-load branch. Present whenever the house is drawing, sourced from the
-  // trunk when solar is up and from the grid branch when it isn't.
+  // Home-load branch. Leaves the junction heading up-right to the windows —
+  // no doubling back, because the split happens at the junction rather than
+  // out at the pedestal end of the run.
   if (home > 0.05) {
     segments.push({
       id: 'branch-home',
-      points: isoRoute(A.mainPanel, A.homeInterior, 'vert-first'),
+      points: isoRoute(A.wallJunction, A.homeInterior),
       color: producing ? colors.home : colors.import,
       kw: home,
       layer: 'front',
@@ -311,10 +325,12 @@ export function buildConductorSegments(args: {
     });
   }
 
+  // Grid branch. Also leaves the junction rightward, along the facade to the
+  // pedestal, so both branches fan out from one node in the same direction.
   if (!args.hideGrid && (importing || exporting)) {
     segments.push({
       id: exporting ? 'branch-grid-export' : 'branch-grid-import',
-      points: isoRoute(A.mainPanel, A.utilityPost),
+      points: isoRoute(A.wallJunction, A.utilityPost),
       color: exporting ? colors.export : colors.import,
       kw: grid,
       // Import reverses the branch: dash and chevron both travel inward.
@@ -322,6 +338,7 @@ export function buildConductorSegments(args: {
       layer: 'front',
     });
   }
+
 
   return segments;
 }
