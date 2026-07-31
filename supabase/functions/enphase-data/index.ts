@@ -606,37 +606,48 @@ Deno.serve(async (req) => {
             console.log(`[Enphase battery] system ${systemId}: +${windowDischargeWh} Wh this window → lifetime ${newLifetime} Wh`);
 
             if (windowDischargeWh > 0) {
-              // Proof-of-Delta row
+              // Proof-of-Delta row. `newLifetime` is a cumulative accumulator,
+              // so production_wh carries only the delta for this hourly bucket.
               const now = new Date();
               const recordedAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()).toISOString();
               const tsNow = now.toISOString();
               const devId = String(systemId);
-              const { prevHash, prevValue } = await getPreviousProof(supabaseClient, devId, "battery", targetUserId);
-              const battHash = await buildEnergyHash(devId, tsNow, newLifetime, prevHash);
+              const prev = await getPreviousProof(supabaseClient, devId, "battery", targetUserId);
+              const bucketStart = await resolveCumulativeAnchor(supabaseClient, {
+                userId: targetUserId,
+                deviceId: devId,
+                provider: "enphase",
+                dataType: "battery",
+                recordedAt,
+                prev,
+              });
+              const battDelta = snapshotDelta(newLifetime, bucketStart);
+              const battHash = await buildEnergyHash(devId, tsNow, newLifetime, prev.prevHash);
               await supabaseClient
                 .from("energy_production")
                 .upsert({
                   user_id: targetUserId,
                   device_id: devId,
                   provider: "enphase",
-                  production_wh: newLifetime,
+                  production_wh: battDelta,
                   data_type: "battery",
                   recorded_at: recordedAt,
-                  proof_metadata: {
+                  proof_metadata: buildProofMetadata({
                     hash: battHash,
-                    prev_hash: prevHash,
-                    device_id: devId,
+                    prevHash: prev.prevHash,
+                    deviceId: devId,
                     value: newLifetime,
-                    prev_value: prevValue,
-                    delta: windowDischargeWh,
-                    data_type: "battery",
-                    unit: "wh",
+                    prevValue: prev.prevValue,
+                    delta: battDelta,
+                    dataType: "battery",
                     timestamp: tsNow,
-                    algorithm: "SHA-256",
-                    preimage_format: "device_id|timestamp|value|prevHash",
-                  },
+                    unit: "wh",
+                    valueSemantics: "cumulative_snapshot",
+                    extra: { bucket_start_value: bucketStart, window_discharge_wh: windowDischargeWh },
+                  }),
                 }, { onConflict: "device_id,provider,recorded_at,data_type" });
             }
+
 
             // Merge battery total into lifetime_totals (preserve solar)
             await supabaseClient
