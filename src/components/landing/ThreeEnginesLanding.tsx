@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CreditCard, Coins, Database } from 'lucide-react';
+import { MINT_SPLIT_SENTENCE } from '@/lib/mintFactors';
 
 const engines = [
   {

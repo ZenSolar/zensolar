@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Sun, Coins, TrendingUp, Lock, Hourglass, Shield } from 'lucide-react';
+import { MINT_SPLIT_SENTENCE } from '@/lib/mintFactors';
 
 const blocks = [
   {

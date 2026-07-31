@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Hexagon, ShieldCheck, Hash, Clock } from 'lucide-react';
+import { MINT_SPLIT_PER_UNIT, MINT_SPLIT_TOTAL_PER_UNIT } from '@/lib/mintFactors';
 
 export function MintOneToOneStrip() {
   return (
