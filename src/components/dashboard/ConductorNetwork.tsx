@@ -71,24 +71,35 @@ const ISO_SLOPE = 0.5;
  */
 export function isoRoute(a: Pt, b: Pt, order: 'diag-first' | 'vert-first' = 'diag-first'): Pt[] {
   const dx = b.x - a.x;
-  const dy = b.y - a.y;
   if (Math.abs(dx) < 0.001) return [a, b];
 
   const run = Math.abs(dx);
-  // Pick the diagonal sense (down-slope or up-slope) that leaves the least
-  // vertical remainder — that keeps conductors hugging the surfaces.
-  const downRemainder = dy - ISO_SLOPE * run;
-  const upRemainder = dy + ISO_SLOPE * run;
-  const useDown = Math.abs(downRemainder) <= Math.abs(upRemainder);
-  const diagDy = useDown ? ISO_SLOPE * run : -ISO_SLOPE * run;
+  const candidates: Pt[] = [
+    { x: b.x, y: a.y + ISO_SLOPE * run }, // diag-first, down-slope
+    { x: b.x, y: a.y - ISO_SLOPE * run }, // diag-first, up-slope
+    { x: a.x, y: b.y - ISO_SLOPE * run }, // vert-first, down-slope
+    { x: a.x, y: b.y + ISO_SLOPE * run }, // vert-first, up-slope
+  ];
+  // Prefer the requested ordering, then the corner that stays inside the
+  // a→b bounding box — an overshooting corner reads as a kink in the run.
+  const preferred = order === 'diag-first' ? [0, 1, 2, 3] : [2, 3, 0, 1];
+  const lo = Math.min(a.y, b.y);
+  const hi = Math.max(a.y, b.y);
+  const excursion = (p: Pt) => Math.max(0, lo - p.y) + Math.max(0, p.y - hi);
 
-  const corner: Pt =
-    order === 'diag-first'
-      ? { x: b.x, y: a.y + diagDy }
-      : { x: a.x, y: b.y - diagDy };
+  let corner = candidates[preferred[0]];
+  let best = excursion(corner) * 10 + 0;
+  preferred.forEach((idx, rank) => {
+    const score = excursion(candidates[idx]) * 10 + rank;
+    if (score < best) {
+      best = score;
+      corner = candidates[idx];
+    }
+  });
 
   return [a, corner, b];
 }
+
 
 /** Polyline → path string with short rounded corners at direction changes. */
 export function roundedPath(pts: Pt[], r = 1.6): string {
