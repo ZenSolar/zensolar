@@ -211,9 +211,8 @@ export function PricingSection() {
               <p className="text-lg font-bold text-solar">~$8,000–$19,875<span className="text-xs font-normal text-muted-foreground">/year</span></p>
             </div>
           </div>
-          <p className="text-center text-sm text-muted-foreground max-w-2xl mx-auto mb-3">
-            💡 Even at Base ($9.99/mo = $120/year), projected earnings of $4,000+ represent a <span className="text-primary font-semibold">33x return</span> on your subscription.
-          </p>
+
+
           <p className="text-center text-xs text-muted-foreground/80 max-w-2xl mx-auto">
             🌱 <span className="text-foreground font-medium">50% of every subscription dollar</span> is injected back into the $ZSOLAR liquidity pool —
             raising the floor for every holder, automatically, every month.
