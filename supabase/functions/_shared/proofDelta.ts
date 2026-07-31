@@ -18,6 +18,8 @@ export interface PrevProof {
   prevHash: string;
   prevValue: number;
   prevRecordedAt: string | null;
+  /** Semantics of the previous row's stored `value` (null for legacy rows). */
+  prevSemantics: ValueSemantics | null;
 }
 
 /** Read the cumulative value off a row, with legacy fallback. */
@@ -52,6 +54,7 @@ export async function getPreviousProof(
     prevHash: (prevRecord?.proof_metadata as any)?.hash || 'genesis',
     prevValue: readSnapshotValue(prevRecord),
     prevRecordedAt: (prevRecord?.recorded_at as string) ?? null,
+    prevSemantics: ((prevRecord?.proof_metadata as any)?.value_semantics as ValueSemantics) ?? null,
   };
 }
 
