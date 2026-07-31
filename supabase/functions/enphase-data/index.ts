@@ -1,4 +1,10 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  getPreviousProof as sharedGetPreviousProof,
+  buildProofMetadata,
+  snapshotDelta,
+  resolveDayToDateAnchor,
+} from "../_shared/proofDelta.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -21,22 +27,12 @@ async function buildEnergyHash(deviceId: string, timestamp: string, value: numbe
   return sha256Hex(`${deviceId}|${timestamp}|${value}|${prevHash}`);
 }
 
+// Prev-value resolution now reads proof_metadata.value (cumulative snapshot)
+// with a legacy fallback to production_wh. See _shared/proofDelta.ts.
 async function getPreviousProof(supabaseClient: any, deviceId: string, dataType: string, userId: string, provider: string = "enphase") {
-  const { data: prevRecord } = await supabaseClient
-    .from("energy_production")
-    .select("proof_metadata, production_wh")
-    .eq("device_id", deviceId)
-    .eq("provider", provider)
-    .eq("data_type", dataType)
-    .eq("user_id", userId)
-    .order("recorded_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  return {
-    prevHash: (prevRecord?.proof_metadata as any)?.hash || "genesis",
-    prevValue: Number(prevRecord?.production_wh || 0),
-  };
+  return await sharedGetPreviousProof(supabaseClient, deviceId, provider, dataType, userId);
 }
+
 const ENPHASE_TOKEN_URL = "https://api.enphaseenergy.com/oauth/token";
 
 // Helper to refresh Enphase token
