@@ -271,10 +271,13 @@ export function Conductor({
 /**
  * Builds the trunk/branch segment list for the current power reading.
  *
- * trunk        roofPlane → roofEave → gateway → mainPanel   (total production)
- * home branch  mainPanel → homeInterior                     (home load share)
- * grid branch  mainPanel → utilityPost                      (export share) or
- *              utilityPost → mainPanel                      (import, reversed)
+ * trunk        roofPlane → roofEave → wallJunction    (total production)
+ * home branch  wallJunction → homeInterior            (home load share)
+ * grid branch  wallJunction → utilityPost             (export share) or
+ *              utilityPost → wallJunction             (import, reversed)
+ *
+ * The split sits at the junction, not at the far end of the facade, so both
+ * branches leave one node heading right with no hairpin reversal.
  */
 export function buildConductorSegments(args: {
   solar: number;
