@@ -1,4 +1,11 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  getPreviousProof as sharedGetPreviousProof,
+  buildProofMetadata,
+  snapshotDelta,
+  resolveDayToDateAnchor,
+  resolveCumulativeAnchor,
+} from "../_shared/proofDelta.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -21,21 +28,10 @@ async function buildEnergyHash(deviceId: string, timestamp: string, value: numbe
   return sha256Hex(`${deviceId}|${timestamp}|${value}|${prevHash}`);
 }
 
+// Prev-value resolution reads proof_metadata.value (cumulative snapshot) with
+// a legacy fallback to production_wh. See _shared/proofDelta.ts.
 async function getPreviousProof(supabaseClient: any, deviceId: string, dataType: string, userId: string) {
-  const { data: prevRecord } = await supabaseClient
-    .from("energy_production")
-    .select("proof_metadata, production_wh")
-    .eq("device_id", deviceId)
-    .eq("provider", "solaredge")
-    .eq("data_type", dataType)
-    .eq("user_id", userId)
-    .order("recorded_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  return {
-    prevHash: (prevRecord?.proof_metadata as any)?.hash || "genesis",
-    prevValue: Number(prevRecord?.production_wh || 0),
-  };
+  return await sharedGetPreviousProof(supabaseClient, deviceId, "solaredge", dataType, userId);
 }
 
 // Cache duration in minutes - SolarEdge has daily request limits
@@ -231,9 +227,16 @@ Deno.serve(async (req) => {
       const now = new Date();
       const recordedAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()).toISOString();
       const tsNow = now.toISOString();
-      const { prevHash, prevValue } = await getPreviousProof(supabaseClient, siteId, "solar", targetUserId);
-      const hash = await buildEnergyHash(siteId, tsNow, todayEnergyWh, prevHash);
-      console.log(`[Proof-of-Delta] SolarEdge solar for ${siteId}: ${hash.slice(0, 16)}... (val: ${todayEnergyWh} Wh)`);
+      // lastDayData is DAY-TO-DATE and resets at local midnight, so the issuable
+      // delta is measured against the reading pinned at this bucket's start.
+      const prev = await getPreviousProof(supabaseClient, siteId, "solar", targetUserId);
+      const bucketStart = await resolveDayToDateAnchor(supabaseClient, {
+        userId: targetUserId, deviceId: siteId, provider: "solaredge",
+        dataType: "solar", recordedAt, prev, currentValue: todayEnergyWh,
+      });
+      const delta = snapshotDelta(todayEnergyWh, bucketStart);
+      const hash = await buildEnergyHash(siteId, tsNow, todayEnergyWh, prev.prevHash);
+      console.log(`[Proof-of-Delta] SolarEdge solar ${siteId}: today=${todayEnergyWh} Wh, bucket_start=${bucketStart}, delta=${delta} Wh`);
 
       await supabaseClient
         .from("energy_production")
@@ -241,22 +244,16 @@ Deno.serve(async (req) => {
           user_id: targetUserId,
           device_id: siteId,
           provider: "solaredge",
-          production_wh: todayEnergyWh,
+          production_wh: delta,
           data_type: "solar",
           recorded_at: recordedAt,
-          proof_metadata: {
-            hash,
-            prev_hash: prevHash,
-            device_id: siteId,
-            value: todayEnergyWh,
-            prev_value: prevValue,
-            delta: Math.max(0, todayEnergyWh - prevValue),
-            data_type: "solar",
-            unit: "wh",
-            timestamp: tsNow,
-            algorithm: "SHA-256",
-            preimage_format: "device_id|timestamp|value|prevHash",
-          },
+          proof_metadata: buildProofMetadata({
+            hash, prevHash: prev.prevHash, deviceId: siteId,
+            value: todayEnergyWh, prevValue: prev.prevValue, delta,
+            dataType: "solar", timestamp: tsNow, unit: "wh",
+            valueSemantics: "day_to_date",
+            extra: { bucket_start_value: bucketStart, source: "solaredge_overview_lastDayData" },
+          }),
         }, { onConflict: "device_id,provider,recorded_at,data_type" });
     }
 
@@ -324,30 +321,29 @@ Deno.serve(async (req) => {
       const now = new Date();
       const recordedAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()).toISOString();
       const tsNow = now.toISOString();
-      const { prevHash, prevValue } = await getPreviousProof(supabaseClient, siteId, "battery", targetUserId);
-      const battHash = await buildEnergyHash(siteId, tsNow, lifetimeBatteryDischargeWh, prevHash);
+      const prevB = await getPreviousProof(supabaseClient, siteId, "battery", targetUserId);
+      const battBucketStart = await resolveCumulativeAnchor(supabaseClient, {
+        userId: targetUserId, deviceId: siteId, provider: "solaredge",
+        dataType: "battery", recordedAt, prev: prevB,
+      });
+      const battDelta = snapshotDelta(lifetimeBatteryDischargeWh, battBucketStart);
+      const battHash = await buildEnergyHash(siteId, tsNow, lifetimeBatteryDischargeWh, prevB.prevHash);
       await supabaseClient
         .from("energy_production")
         .upsert({
           user_id: targetUserId,
           device_id: siteId,
           provider: "solaredge",
-          production_wh: lifetimeBatteryDischargeWh,
+          production_wh: battDelta,
           data_type: "battery",
           recorded_at: recordedAt,
-          proof_metadata: {
-            hash: battHash,
-            prev_hash: prevHash,
-            device_id: siteId,
-            value: lifetimeBatteryDischargeWh,
-            prev_value: prevValue,
-            delta: Math.max(0, lifetimeBatteryDischargeWh - prevValue),
-            data_type: "battery",
-            unit: "wh",
-            timestamp: tsNow,
-            algorithm: "SHA-256",
-            preimage_format: "device_id|timestamp|value|prevHash",
-          },
+          proof_metadata: buildProofMetadata({
+            hash: battHash, prevHash: prevB.prevHash, deviceId: siteId,
+            value: lifetimeBatteryDischargeWh, prevValue: prevB.prevValue, delta: battDelta,
+            dataType: "battery", timestamp: tsNow, unit: "wh",
+            valueSemantics: "cumulative_snapshot",
+            extra: { bucket_start_value: battBucketStart, source: "solaredge_storage_lifeTimeEnergyDischarged" },
+          }),
         }, { onConflict: "device_id,provider,recorded_at,data_type" });
 
       // Merge battery into existing lifetime_totals

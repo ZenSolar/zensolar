@@ -23,6 +23,34 @@ const corsHeaders = {
  * All inputs are from verified Tesla API data — no fabrication.
  */
 
+
+// ── Period-total proof tagging (post 2026-07-31 issuance cutover) ───────────
+// These rows are DAILY PERIOD TOTALS, so production_wh is already the issuable
+// delta for that day bucket — never a cumulative snapshot. Tag them explicitly
+// so readers (and _shared/unmintedDeltas.ts) cannot misinterpret them.
+async function sha256Hex(input: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+async function periodTotalProof(
+  deviceId: string, recordedAt: string, value: number, dataType: string, unit: string,
+): Promise<Record<string, unknown>> {
+  return {
+    hash: await sha256Hex(`${deviceId}|${recordedAt}|${value}|period_total`),
+    device_id: deviceId,
+    value,
+    delta: value,
+    value_semantics: "period_total",
+    production_wh_semantics: "issuable_delta",
+    data_type: dataType,
+    unit,
+    timestamp: recordedAt,
+    algorithm: "SHA-256",
+    preimage_format: "device_id|recorded_at|value|period_total",
+    period: "day",
+  };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -218,8 +246,12 @@ Deno.serve(async (req) => {
         device_id: vehicle.device_id,
         provider: "tesla_historical",
         data_type: "ev_miles",
-        production_wh: roundedMiles, // Stores miles directly (not Wh) for ev_miles
+        // Daily period total in MILES — already the issuable delta for the day.
+        production_wh: roundedMiles,
         recorded_at: `${date}T12:00:00Z`,
+        proof_metadata: await periodTotalProof(
+          vehicle.device_id, `${date}T12:00:00Z`, roundedMiles, "ev_miles", "miles",
+        ),
       });
     }
 

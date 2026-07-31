@@ -1,4 +1,11 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  getPreviousProof as sharedGetPreviousProof,
+  buildProofMetadata,
+  snapshotDelta,
+  resolveDayToDateAnchor,
+  resolveCumulativeAnchor,
+} from "../_shared/proofDelta.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -21,22 +28,12 @@ async function buildEnergyHash(deviceId: string, timestamp: string, value: numbe
   return sha256Hex(`${deviceId}|${timestamp}|${value}|${prevHash}`);
 }
 
+// Prev-value resolution now reads proof_metadata.value (cumulative snapshot)
+// with a legacy fallback to production_wh. See _shared/proofDelta.ts.
 async function getPreviousProof(supabaseClient: any, deviceId: string, dataType: string, userId: string, provider: string = "enphase") {
-  const { data: prevRecord } = await supabaseClient
-    .from("energy_production")
-    .select("proof_metadata, production_wh")
-    .eq("device_id", deviceId)
-    .eq("provider", provider)
-    .eq("data_type", dataType)
-    .eq("user_id", userId)
-    .order("recorded_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  return {
-    prevHash: (prevRecord?.proof_metadata as any)?.hash || "genesis",
-    prevValue: Number(prevRecord?.production_wh || 0),
-  };
+  return await sharedGetPreviousProof(supabaseClient, deviceId, provider, dataType, userId);
 }
+
 const ENPHASE_TOKEN_URL = "https://api.enphaseenergy.com/oauth/token";
 
 // Helper to refresh Enphase token
@@ -510,15 +507,29 @@ Deno.serve(async (req) => {
         energy_today_wh: energyTodayWh,
       });
 
-      // Store production data with Proof-of-Delta cryptographic verification
+      // Store production data with Proof-of-Delta cryptographic verification.
+      // `energy_today` is DAY-TO-DATE (resets at local midnight), so the row's
+      // issuable delta is measured against the reading pinned at the start of
+      // this hourly bucket — never against the previous row's total, which
+      // would re-issue the whole day on every same-day run.
       if (energyTodayWh > 0) {
         const now = new Date();
         const recordedAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()).toISOString();
         const tsNow = now.toISOString();
         const devId = String(systemId);
-        const { prevHash, prevValue } = await getPreviousProof(supabaseClient, devId, "solar", targetUserId);
-        const hash = await buildEnergyHash(devId, tsNow, energyTodayWh, prevHash);
-        console.log(`[Proof-of-Delta] Enphase solar for ${devId}: ${hash.slice(0, 16)}... (val: ${energyTodayWh} Wh)`);
+        const prev = await getPreviousProof(supabaseClient, devId, "solar", targetUserId);
+        const bucketStart = await resolveDayToDateAnchor(supabaseClient, {
+          userId: targetUserId,
+          deviceId: devId,
+          provider: "enphase",
+          dataType: "solar",
+          recordedAt,
+          prev,
+          currentValue: energyTodayWh,
+        });
+        const delta = snapshotDelta(energyTodayWh, bucketStart);
+        const hash = await buildEnergyHash(devId, tsNow, energyTodayWh, prev.prevHash);
+        console.log(`[Proof-of-Delta] Enphase solar ${devId}: today=${energyTodayWh} Wh, bucket_start=${bucketStart}, delta=${delta} Wh`);
 
         await supabaseClient
           .from("energy_production")
@@ -526,24 +537,25 @@ Deno.serve(async (req) => {
             user_id: targetUserId,
             device_id: devId,
             provider: "enphase",
-            production_wh: energyTodayWh,
+            production_wh: delta,
             data_type: "solar",
             recorded_at: recordedAt,
-            proof_metadata: {
+            proof_metadata: buildProofMetadata({
               hash,
-              prev_hash: prevHash,
-              device_id: devId,
+              prevHash: prev.prevHash,
+              deviceId: devId,
               value: energyTodayWh,
-              prev_value: prevValue,
-              delta: Math.max(0, energyTodayWh - prevValue),
-              data_type: "solar",
-              unit: "wh",
+              prevValue: prev.prevValue,
+              delta,
+              dataType: "solar",
               timestamp: tsNow,
-              algorithm: "SHA-256",
-              preimage_format: "device_id|timestamp|value|prevHash",
-            },
+              unit: "wh",
+              valueSemantics: "day_to_date",
+              extra: { bucket_start_value: bucketStart, source: "enphase_summary_energy_today" },
+            }),
           }, { onConflict: "device_id,provider,recorded_at,data_type" });
       }
+
 
       // Persist lifetime totals so the dashboard can still show values when rate limited later.
       if (lifetimeEnergyWh > 0) {
@@ -596,37 +608,48 @@ Deno.serve(async (req) => {
             console.log(`[Enphase battery] system ${systemId}: +${windowDischargeWh} Wh this window → lifetime ${newLifetime} Wh`);
 
             if (windowDischargeWh > 0) {
-              // Proof-of-Delta row
+              // Proof-of-Delta row. `newLifetime` is a cumulative accumulator,
+              // so production_wh carries only the delta for this hourly bucket.
               const now = new Date();
               const recordedAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()).toISOString();
               const tsNow = now.toISOString();
               const devId = String(systemId);
-              const { prevHash, prevValue } = await getPreviousProof(supabaseClient, devId, "battery", targetUserId);
-              const battHash = await buildEnergyHash(devId, tsNow, newLifetime, prevHash);
+              const prev = await getPreviousProof(supabaseClient, devId, "battery", targetUserId);
+              const bucketStart = await resolveCumulativeAnchor(supabaseClient, {
+                userId: targetUserId,
+                deviceId: devId,
+                provider: "enphase",
+                dataType: "battery",
+                recordedAt,
+                prev,
+              });
+              const battDelta = snapshotDelta(newLifetime, bucketStart);
+              const battHash = await buildEnergyHash(devId, tsNow, newLifetime, prev.prevHash);
               await supabaseClient
                 .from("energy_production")
                 .upsert({
                   user_id: targetUserId,
                   device_id: devId,
                   provider: "enphase",
-                  production_wh: newLifetime,
+                  production_wh: battDelta,
                   data_type: "battery",
                   recorded_at: recordedAt,
-                  proof_metadata: {
+                  proof_metadata: buildProofMetadata({
                     hash: battHash,
-                    prev_hash: prevHash,
-                    device_id: devId,
+                    prevHash: prev.prevHash,
+                    deviceId: devId,
                     value: newLifetime,
-                    prev_value: prevValue,
-                    delta: windowDischargeWh,
-                    data_type: "battery",
-                    unit: "wh",
+                    prevValue: prev.prevValue,
+                    delta: battDelta,
+                    dataType: "battery",
                     timestamp: tsNow,
-                    algorithm: "SHA-256",
-                    preimage_format: "device_id|timestamp|value|prevHash",
-                  },
+                    unit: "wh",
+                    valueSemantics: "cumulative_snapshot",
+                    extra: { bucket_start_value: bucketStart, window_discharge_wh: windowDischargeWh },
+                  }),
                 }, { onConflict: "device_id,provider,recorded_at,data_type" });
             }
+
 
             // Merge battery total into lifetime_totals (preserve solar)
             await supabaseClient
