@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
 import { readInvestorUnlocked } from '@/components/investor/InvestorPinGate';
 import { isPreviewHost } from '@/lib/previewHost';
+import { MINT_SPLIT_SENTENCE } from '@/lib/mintFactors';
 
 const NDA_KEY = 'zs_investor_nda_signed';
 
@@ -171,7 +172,7 @@ export default function InvestorOnePager() {
               <Engine
                 n="02"
                 title="Token Economics"
-                body="$ZSOLAR — 1T hard cap, $0.10 LP-seeded launch on Base. Mint split 50/25/20/5. Separate 3% transfer tax recycles to LP on every sale."
+                body={`$ZSOLAR — 1T hard cap, $0.10 LP-seeded launch on Base. ${MINT_SPLIT_SENTENCE} Separate 3% transfer tax recycles to LP on every sale.`}
                 emphasized
               />
               <Engine

@@ -69,13 +69,16 @@ const REWARD_RATES = {
   ev_charging: 1,         // 1 $ZSOLAR per kWh charged
 };
 
-// Mint distribution v3.1 LOCKED — 50% user / 25% LP / 20% burn / 5% treasury
-// Separate 3% transfer tax (LP recycle only) lives off this struct.
+// Mint distribution v4.0 LOCKED (2026-07-31) — 1.25 tokens per verified unit:
+// 1.0 to the member, 0.25 to treasury. No LP mint. No burn at mint.
+// SSOT: src/lib/mintFactors.ts. Expressed here as percentages of tokens minted.
+// NOTE: the `claim` action on this function is disabled (503); these values are
+// used only by the read-only projection.
 const MINT_DISTRIBUTION = {
-  user: 50,
-  burn: 20,
-  lp: 25,
-  treasury: 5,
+  user: 80,
+  burn: 0,
+  lp: 0,
+  treasury: 20,
 };
 
 // ==============================================================================

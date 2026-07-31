@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
+import { MINT_SPLIT_LABEL } from '@/lib/mintFactors';
   ArrowLeft,
   CheckCircle2,
   Circle,
@@ -151,7 +152,7 @@ const MAINNET_GROUPS: Group[] = [
     title: '$ZSOLAR token + economics',
     icon: Coins,
     intro:
-      'The token + LP machinery lives behind the same env flip. Hard cap 1T, mint split 50/25/20/5 already wired in tokenomics.ts.',
+      `The token + LP machinery lives behind the same env flip. Hard cap 1T, mint split ${MINT_SPLIT_LABEL} already wired in mintFactors.ts.`,
     items: [
       {
         label: 'Deploy ZSOLAR.sol on Base mainnet (1T hard cap)',
@@ -174,8 +175,8 @@ const MAINNET_GROUPS: Group[] = [
         state: 'todo',
       },
       {
-        label: 'Burn wallet + LP wallet + Treasury wallet addresses recorded',
-        detail: 'Surfaced on /admin/contracts and on the public /tokenomics page so the 50/25/20/5 split is independently auditable.',
+        label: 'Treasury wallet address recorded (no burn or LP wallet — neither is minted to)',
+        detail: `Surfaced on /admin/contracts and on the public /tokenomics page so the ${MINT_SPLIT_LABEL} split is independently auditable.`,
         state: 'todo',
       },
     ],

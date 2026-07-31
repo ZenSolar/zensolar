@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, Printer, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import zenLogo from '@/assets/zen-logo-horizontal-new.png';
+import { MINT_SPLIT_SENTENCE } from '@/lib/mintFactors';
 
 const useOfFunds: Array<[string, string]> = [
   ['Joseph Salary (Year 1)', '$250K'],
@@ -159,7 +160,7 @@ export default function SeedOnePager() {
               <Engine
                 n="02"
                 title="Token Economics"
-                body="$ZSOLAR — 1T hard cap, $0.10 LP-seeded launch on Base. Mint split 50/25/20/5. Separate 3% transfer tax recycles to LP on every sale."
+                body={`$ZSOLAR — 1T hard cap, $0.10 LP-seeded launch on Base. ${MINT_SPLIT_SENTENCE} Separate 3% transfer tax recycles to LP on every sale.`}
                 emphasized
               />
               <Engine
