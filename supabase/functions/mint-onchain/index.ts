@@ -923,8 +923,23 @@ Deno.serve(async (req) => {
           home_charging_kwh: homeChargingDeltaKwh,
           charging_kwh_combined_onchain: Number(charging), // contract-level sum only
           device_ids: deviceIdsToUpdate,
+          // Forensic anchor: exactly which proof rows backed this issuance and
+          // what each pipeline stage did to the raw quantities.
+          proof_row_ids: deltas.allRowIds,
+          proof_row_count: deltas.rowCount,
+          proof_window: { from: deltas.earliest, to: deltas.latest },
+          raw_quantities: deltas.quantities,
+          issuance_pipeline: {
+            order: pipeline.order,
+            stages: pipeline.stages.map((st) => ({ stage: st.stage, applied: st.applied, note: st.note })),
+            final_quantities: pipeline.quantities,
+            user_tokens: pipeline.userTokens,
+            treasury_tokens: pipeline.treasuryTokens,
+            total_tokens: pipeline.totalTokens,
+          },
           tolerance_pct: RECONCILIATION_TOLERANCE_PCT,
           hard_fail_pct: RECONCILIATION_HARD_FAIL_PCT,
+
         };
         const logRows: Array<Record<string, unknown>> = [];
 
