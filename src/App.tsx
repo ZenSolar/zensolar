@@ -37,6 +37,7 @@ import { ViewAsUserProvider } from "@/contexts/ViewAsUserContext";
 import { useServiceWorkerMessages } from "@/hooks/useServiceWorkerMessages";
 import { RootRoute } from "./components/RootRoute";
 import { PathNormalizer } from "./components/PathNormalizer";
+import { CaptureModeManager } from "./components/CaptureModeManager";
 import { AppHistoryTracker } from "./components/AppHistoryTracker";
 import { ScrollManager } from "./components/ScrollManager";
 import { SwipeBackHandler } from "./components/SwipeBackHandler";
@@ -329,6 +330,7 @@ const App = () => {
                 <BrowserRouter>
                   <GoogleAnalytics />
                   <PathNormalizer />
+                  <CaptureModeManager />
                   <AppHistoryTracker />
                   <ScrollManager />
                   <SwipeBackHandler />

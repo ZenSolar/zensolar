@@ -1189,3 +1189,10 @@ html {
   100% { transform: translateX(100%); opacity: 0; }
 }
 .qc-sweep { animation: qc-sweep 900ms ease-out forwards; }
+
+/* ── Capture / presentation mode ─────────────────────────────────────────
+   Presentation-only. When `?capture=1` is active, development affordances
+   opt out of the frame via `data-capture-hide`. Nothing else changes. */
+body[data-capture-mode='on'] [data-capture-hide] {
+  display: none !important;
+}
