@@ -13,7 +13,7 @@ The remix ships exactly **three customer-facing products**, each with a dedicate
 **What it is:** The home screen. Live multi-OEM energy flow + Tap-to-Mint™ + today's $ZSOLAR + balance + Proof-of-Genesis receipt drawer.
 **Why it's #1:** It's the engine the entire token economy rests on. Investor framing = "Verified kWh → $ZSOLAR." This is where verified kWh becomes currency.
 **Remix routes:** `/app` (CEC home), `/app/mint` (history), `/app/proof-of-genesis/:mintId` (unified receipt — SSOT per `proof-of-genesis-unified-receipt` memory).
-**Core components:** `EnergyFlowCard`, `TapToMintButton`, `MintReceiptDrawer`, `ProofOfGenesisPage`. Tokenomics SSOT = `src/lib/tokenomics.ts` (50/25/20/5, locked).
+**Core components:** `EnergyFlowCard`, `TapToMintButton`, `MintReceiptDrawer`, `ProofOfGenesisPage`. Tokenomics SSOT = `src/lib/mintFactors.ts` (v4.0: 1.0 member / 0.25 treasury, locked). `tokenomics.ts` re-exports it.
 **Economics enforced:** UI shows **1 kWh = 1 $ZSOLAR** (user's 50% share). Backend mints raw 100% and splits per v3.1. Sepolia at launch (chain 84532) → flip to Base mainnet via `VITE_CHAIN_ENV`.
 
 ### Pillar 2 — Deason AI (Home Energy Optimizer + Chat)
@@ -47,13 +47,13 @@ Updates `bottomNavRoutes` in `routes.config.ts` — replaces the current Home/Mi
 ---
 
 ## Updated Economics (carry into remix at v3.1 lock)
-- Mint split: **50% user / 25% LP / 20% burn / 5% treasury** (sums to 100%).
+- Mint split v4.0: **1.0 to the member / 0.25 to treasury** — 1.25 tokens per verified unit. No LP mint. No burn at mint.
 - Separate **3% transfer tax** → LP only.
 - Subscription tiers: **$9.99 Base / $19.99 Regular / $49.99 Power**. Each $ → 50% LP / 50% treasury.
 - Deason add-on: **+$4.99/mo** on any tier.
-- Mint ratio: 10 kWh = 1 $ZSOLAR (raw); UI shows 1:1 via 50% user share.
+- Mint ratio: 1 kWh = 1 $ZSOLAR. Conversion factors live in `src/lib/mintFactors.ts` (EV miles 0.1:1; home charging netted 0.25:1 on solar homes).
 - Launch price: **$0.10 USDC LP-seeded** on Base. Sepolia until production gate.
-- 1T hard cap, continuous 20% burn (Genesis Halving deprecated narrative-wise; constant kept in code for optional re-activation).
+- 1T hard cap. No burn at mint (removed v4.0 — zero net supply effect). The only burn is the separate 3% transfer tax. Genesis Halving deprecated.
 
 ---
 

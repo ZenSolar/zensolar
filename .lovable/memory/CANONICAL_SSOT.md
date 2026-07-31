@@ -123,7 +123,7 @@ Michael: 50B locked until $20 crossover
 ## 7. Scarcity Stack (always cite all 5 + floor)
 
 1. 1T hard cap
-2. 20% burn-per-mint
+2. ~~20% burn-per-mint~~ REMOVED v4.0 — there is no burn at mint
 3. Halving schedule
 4. Founder pact-lock
 5. Protocol-Owned Liquidity (POL)
