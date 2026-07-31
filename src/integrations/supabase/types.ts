@@ -1282,6 +1282,7 @@ export type Database = {
       }
       energy_production: {
         Row: {
+          consumed_reason: string | null
           consumption_wh: number | null
           created_at: string
           data_type: string
@@ -1290,6 +1291,8 @@ export type Database = {
           genesis_reason: string | null
           genesis_status: Database["public"]["Enums"]["genesis_status"]
           id: string
+          mint_tx_id: string | null
+          minted_at: string | null
           origin_proof: Json | null
           production_wh: number
           proof_metadata: Json | null
@@ -1298,6 +1301,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          consumed_reason?: string | null
           consumption_wh?: number | null
           created_at?: string
           data_type?: string
@@ -1306,6 +1310,8 @@ export type Database = {
           genesis_reason?: string | null
           genesis_status?: Database["public"]["Enums"]["genesis_status"]
           id?: string
+          mint_tx_id?: string | null
+          minted_at?: string | null
           origin_proof?: Json | null
           production_wh?: number
           proof_metadata?: Json | null
@@ -1314,6 +1320,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          consumed_reason?: string | null
           consumption_wh?: number | null
           created_at?: string
           data_type?: string
@@ -1322,6 +1329,8 @@ export type Database = {
           genesis_reason?: string | null
           genesis_status?: Database["public"]["Enums"]["genesis_status"]
           id?: string
+          mint_tx_id?: string | null
+          minted_at?: string | null
           origin_proof?: Json | null
           production_wh?: number
           proof_metadata?: Json | null
@@ -1849,6 +1858,39 @@ export type Database = {
           ip_hash?: string | null
           kind?: string
           success?: boolean
+        }
+        Relationships: []
+      }
+      issuance_cutovers: {
+        Row: {
+          applied_at: string
+          created_at: string
+          cutover_at: string
+          id: string
+          note: string | null
+          reverted_at: string | null
+          rows_marked: number
+          updated_at: string
+        }
+        Insert: {
+          applied_at?: string
+          created_at?: string
+          cutover_at: string
+          id?: string
+          note?: string | null
+          reverted_at?: string | null
+          rows_marked?: number
+          updated_at?: string
+        }
+        Update: {
+          applied_at?: string
+          created_at?: string
+          cutover_at?: string
+          id?: string
+          note?: string | null
+          reverted_at?: string | null
+          rows_marked?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -3655,6 +3697,13 @@ export type Database = {
         Returns: string
       }
       compute_permanence_snapshot: { Args: never; Returns: string }
+      consume_energy_rows: {
+        Args: { _mint_tx_id: string; _row_ids: string[]; _user_id: string }
+        Returns: {
+          consumed_count: number
+          consumed_wh: number
+        }[]
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -3675,6 +3724,15 @@ export type Database = {
         }[]
       }
       get_covering_anchor: { Args: { _chain_hash: string }; Returns: Json }
+      get_issuable_deltas: {
+        Args: { _user_id: string }
+        Returns: {
+          data_type: string
+          provider: string
+          quantity: number
+          row_count: number
+        }[]
+      }
       get_live_earnings_stats: { Args: never; Returns: Json }
       get_merkle_inclusion_proof: {
         Args: { _chain_hash: string }
@@ -3753,6 +3811,10 @@ export type Database = {
       resolve_invariant_violation: {
         Args: { _id: string; _note: string }
         Returns: boolean
+      }
+      revert_issuance_cutover: {
+        Args: { _cutover_id: string }
+        Returns: number
       }
       set_founder_pin: { Args: { _pin: string }; Returns: boolean }
       verify_chain_integrity: { Args: never; Returns: number }
