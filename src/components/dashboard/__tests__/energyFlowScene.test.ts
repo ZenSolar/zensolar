@@ -52,7 +52,7 @@ describe('pickScene', () => {
         },
         night,
       ),
-    ).toBe('night-pw-discharge');
+    ).toBe('night-pw-discharge-ev');
   });
 
   it('falls back to evPower > 0.1 when tesla object is absent', () => {
