@@ -34,6 +34,8 @@ import {
   type VehicleModel,
 } from './EnergyFlowScene.scenes';
 import { HOME_BLUEPRINT, BLUEPRINT_PATHS } from './HomeBlueprint';
+import { Conductor, buildConductorSegments } from './ConductorNetwork';
+
 import { HouseSceneV5 } from './HouseSceneV5';
 import { EvChargingCable } from './EvChargingCable';
 
@@ -668,6 +670,26 @@ export function EnergyFlowScene({
   // stay parked in the driveway.
   const prefersReducedMotion = useReducedMotion();
 
+  // Trunk-and-branch conductor topology (see ConductorNetwork.tsx).
+  const conductorSegments = useMemo(
+    () =>
+      buildConductorSegments({
+        solar,
+        home,
+        grid,
+        colors: {
+          solar: EMERALD_LED,
+          home: EMERALD_LED,
+          export: CYAN_LED,
+          import: SKY_LED,
+        },
+        dimSolar: isOutage,
+        hideGrid: isOutage,
+      }),
+    [solar, home, grid, isOutage],
+  );
+
+
   // v5 Phase B — Supercharger detection. Tesla telemetry exposes
   // `fast_charger_present` / `fast_charger_brand` when plugged into a
   // DC fast charger. When supercharging we hide the home cable arc +
@@ -768,6 +790,34 @@ export function EnergyFlowScene({
 
         </motion.div>
       </AnimatePresence>
+
+      {/* Behind-the-house conductor layer. Same viewBox + layout box as the
+          front overlay, but painted UNDER the hero art (house img is z:2) so
+          a run that physically passes behind the building never crosses the
+          silhouette. */}
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="xMidYMid meet"
+        className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-[88%] w-auto max-w-[98%] -translate-y-1/2"
+        style={{ aspectRatio: '1 / 1', zIndex: 1 }}
+      >
+        {conductorSegments
+          .filter((s) => s.layer === 'behind')
+          .map((s) => (
+            <Conductor
+              key={s.id}
+              id={s.id}
+              points={s.points}
+              color={s.color}
+              kw={s.kw}
+              forward={s.forward}
+              dimmed={s.dimmed}
+              reducedMotion={Boolean(prefersReducedMotion)}
+            />
+          ))}
+      </svg>
+
 
       {/* Single hero-aligned overlay: halos + dotted flows + dynamic car.
           Same layout classes as the hero <img>, so viewBox 0–100 maps 1:1
@@ -910,11 +960,26 @@ export function EnergyFlowScene({
         {/* ── Max 2 ultra-minimal dotted flow lines ── */}
         {/* In Outage Mode, solar flows are dimmed so the eye lands on
             battery → home as the dominant route. */}
-        {flows.has('solar-home') && (
-          <g opacity={isOutage ? OUTAGE_VISUAL.solarDimOpacity : 1}>
-            <DottedFlow id="flow-solar-home" d={BLUEPRINT_PATHS.solarToHome} color={EMERALD_LED} dur={flowDur(solar)} />
-          </g>
-        )}
+        {/* ── Trunk-and-branch conductor network ──
+            One junction, not two arcs: the trunk carries total production
+            from the roof plane down to the main panel, then divides into the
+            home-load branch and the grid branch. Import reverses the grid
+            branch (dash, chevron and colour all flip). */}
+        {conductorSegments
+          .filter((s) => s.layer === 'front')
+          .map((s) => (
+            <Conductor
+              key={s.id}
+              id={s.id}
+              points={s.points}
+              color={s.color}
+              kw={s.kw}
+              forward={s.forward}
+              dimmed={s.dimmed}
+              reducedMotion={Boolean(prefersReducedMotion)}
+            />
+          ))}
+
         {flows.has('solar-pw') && (
           <g opacity={isOutage ? OUTAGE_VISUAL.solarDimOpacity : 1}>
             <DottedFlow id="flow-solar-pw" d={BLUEPRINT_PATHS.solarToPowerwall} color={EMERALD_LED} dur={flowDur(battery)} />
@@ -1014,17 +1079,9 @@ export function EnergyFlowScene({
             dur={flowDur(data.evPower ?? 7)}
           />
         )}
-        {flows.has('home-grid') && (
-          solar > home + 0.1 ? (
-            // Solar overproducing → show the export originating from the roof.
-            <DottedFlow id="flow-solar-grid" d={BLUEPRINT_PATHS.solarToGrid} color={CYAN_LED} dur={flowDur(Math.abs(grid))} />
-          ) : (
-            <DottedFlow id="flow-home-grid" d={BLUEPRINT_PATHS.homeToGrid} color={CYAN_LED} dur={flowDur(Math.abs(grid))} />
-          )
-        )}
-        {flows.has('grid-home') && (
-          <DottedFlow id="flow-grid-home" d={BLUEPRINT_PATHS.gridToHome} color={SKY_LED} dur={flowDur(grid)} />
-        )}
+        {/* Grid import/export is now the grid BRANCH of the conductor
+            network above — no standalone roof→post arc. */}
+
 
         {/* Outage: render a clearly broken/dashed grid line so the
             disconnection is obvious at a glance. No animation, low opacity. */}
