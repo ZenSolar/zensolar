@@ -32,6 +32,7 @@ import type { MintCategory, MintRequest } from '@/components/dashboard/ActivityM
 import { MINT_RATIO_KWH_PER_TOKEN } from '@/lib/tokenomics';
 import { useDemoContextSafe } from '@/contexts/DemoContext';
 import { generateDailyBreakdown, type DailyCategory } from '@/lib/dailyMintBreakdown';
+import { CONVERSION_FACTORS } from '@/lib/mintFactors';
 
 export type KpiAccent = 'solar' | 'secondary' | 'primary' | 'energy' | 'token';
 
@@ -287,11 +288,25 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
 
   const sumOfRows = rows.reduce((s, r) => s + r.amount, 0);
 
+  // The headline MUST equal the sum of the evidence rendered below it.
+  // Previously the header showed `pending` (rounded to 0dp) while the section
+  // total showed the row sum (1dp), producing e.g. 2,843 vs 2,844.2.
+  const headlineAmount = rows.length > 0 ? sumOfRows : pending;
+
   const isInterval = !!category && INTERVAL_CATEGORIES.includes(category);
   const dayGroups = useMemo(() => (isInterval ? groupByDay(rows) : []), [rows, isInterval]);
 
   // Tokens preview — same math as ActivityMetrics
-  const eligibleTokens = Math.floor(pending / MINT_RATIO_KWH_PER_TOKEN);
+  // Derived from the canonical conversion factor for this category and from
+  // the SAME quantity shown in the header, so headline, evidence and token
+  // preview can never disagree.
+  const conversionFactor =
+    category === 'ev_miles' ? CONVERSION_FACTORS.ev_miles
+    : category === 'supercharger' ? CONVERSION_FACTORS.supercharging_kwh
+    : category === 'battery' ? CONVERSION_FACTORS.battery_export_kwh
+    : category === 'solar' ? CONVERSION_FACTORS.solar_kwh
+    : CONVERSION_FACTORS.home_charging_kwh;
+  const eligibleTokens = Math.floor((rows.length > 0 ? sumOfRows : pending) * conversionFactor);
 
 
 
@@ -337,7 +352,7 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
             <div className="flex items-start gap-2 shrink-0">
               <div className="text-right">
                 <p className="text-2xl font-bold tabular-nums text-foreground leading-none">
-                  {pending.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                  {headlineAmount.toLocaleString(undefined, { maximumFractionDigits: 1 })}
                   <span className="text-xs font-normal text-muted-foreground ml-1">{unit}</span>
                 </p>
                 {eligibleTokens > 0 && (
@@ -409,11 +424,17 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
                   : category === 'home_charger' ? 'Home Charging Sessions'
                   : category === 'charging' ? 'Charging Sessions'
                   : 'Contributions';
+                // `dayGroups.length` counts days WITH activity, not the calendar
+                // span. Label it as such and show the real span alongside it.
+                const fmtDay = (iso: string) =>
+                  new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                const sortedDates = rows.map((r) => r.recordedAt).sort();
+                const span = sortedDates.length > 1
+                  ? ` · ${fmtDay(sortedDates[0])} – ${fmtDay(sortedDates[sortedDates.length - 1])}`
+                  : '';
                 const meta = isInterval
-                  ? category === 'solar'
-                    ? `${dayGroups.length} day${dayGroups.length !== 1 ? 's' : ''} · ${rows.length} daily total${rows.length !== 1 ? 's' : ''}`
-                    : `${dayGroups.length} day${dayGroups.length !== 1 ? 's' : ''} · ${rows.length} sample${rows.length !== 1 ? 's' : ''}`
-                  : `${rows.length} contribution${rows.length !== 1 ? 's' : ''}`;
+                  ? `${dayGroups.length} active day${dayGroups.length !== 1 ? 's' : ''} · ${rows.length} ${category === 'solar' ? 'daily total' : 'sample'}${rows.length !== 1 ? 's' : ''}${span}`
+                  : `${rows.length} contribution${rows.length !== 1 ? 's' : ''}${span}`;
                 return (
                   <div
                     className="pt-4 pb-2.5 border-b"
@@ -468,7 +489,7 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
               <p className="text-[10px] text-center text-muted-foreground mt-2">
-                1 kWh = 1 $ZSOLAR · verified on-chain
+                1 kWh = 1 $ZSOLAR · proofs anchored on Sepolia testnet ahead of mainnet
               </p>
             </>
           ) : (

@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Sun, Coins, TrendingUp, Lock, Hourglass, Shield } from 'lucide-react';
+import { MINT_SPLIT_SENTENCE } from '@/lib/mintFactors';
 
 const blocks = [
   {
@@ -26,7 +27,7 @@ const blocks = [
     icon: TrendingUp,
     title: 'What you see is what you mint',
     body:
-      'Every verified kWh mints a clean 1:1 to you. The protocol matches your mint in the background — 25% straight to liquidity, 20% burned forever, 5% to treasury. Think 401(k) match, not haircut.',
+      MINT_SPLIT_SENTENCE,
     color: 'text-secondary',
     bg: 'bg-secondary/10',
     border: 'border-secondary/20',
@@ -42,9 +43,9 @@ const blocks = [
   },
   {
     icon: Hourglass,
-    title: 'Continuous burn — every mint, forever',
+    title: 'One split, no hidden slices',
     body:
-      '20% of every $ZSOLAR minted is permanently burned, plus a separate 3% transfer tax recycles to liquidity on every swap. Scarcity grows smoothly with usage — no halving cliff to explain.',
+      'The mint split is the whole story: 1.0 to you, 0.25 to the treasury, nothing else. There is no burn at mint — burning tokens at the moment they are created has no net effect on supply, so it does not exist here.',
     color: 'text-energy',
     bg: 'bg-energy/10',
     border: 'border-energy/20',

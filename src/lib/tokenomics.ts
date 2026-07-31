@@ -38,7 +38,7 @@ export const LIVE_BETA_MULTIPLIER = 10;
 
 // === MODEL METADATA ===
 export const MODEL_NAME = '1T Trillionaire Strategy';
-export const MODEL_VERSION = 3.2; // v3.2 — 100% of subscription revenue → LP (0% treasury). 4 tiers (Spark/Flame/Inferno/Titan). Mint split unchanged at 50/25/20/5.
+export const MODEL_VERSION = 3.3; // v3.3 — mint split relocked at 1.0 user / 0 LP / 0 burn / 0.25 treasury (see src/lib/mintFactors.ts).
 
 // === MINT RATIO (v3.0 LOCKED — 2026-05-18) ===
 // 1 kWh (or 1 mile) of verified clean-energy activity = 1 $ZSOLAR minted.
@@ -115,21 +115,33 @@ export const LP_SEED = {
 
 export const getActiveLPSeed = () => getLiveBetaMode() ? LP_SEED.liveBeta : LP_SEED.mainnet;
 
-// === MINT DISTRIBUTION (v3.1 LOCKED — 50/25/20/5) ===
-// 50% user · 25% LP direct · 20% burn · 5% treasury (sums to 100% at mint).
-// UI ALWAYS shows 1 kWh = 1 $ZSOLAR to the user. The protocol matches the user's
-// mint 1-for-1 in the background ("401(k)-match" framing).
-// Supersedes 50/20/20/10, 50/25/20/3/2 (proposed, never live), and legacy 75/20/3/2.
+// === MINT DISTRIBUTION (LOCKED 2026-07-31 — 1.0 / 0 / 0 / 0.25) ===
+// Sourced from the single canonical constant in src/lib/mintFactors.ts.
+// 1.25 tokens minted per verified unit: 1.0 to the member, 0.25 to treasury.
+// No LP mint. No burn at mint (zero net supply effect — removed from code and copy).
+// Supersedes 50/25/20/5, 50/20/20/10 and legacy 75/20/3/2.
+export {
+  MINT_SPLIT_PER_UNIT,
+  MINT_SPLIT_TOTAL_PER_UNIT,
+  MINT_SPLIT_PERCENT,
+  MINT_SPLIT_LABEL,
+  MINT_SPLIT_SENTENCE,
+  CONVERSION_FACTORS,
+  CONVERSION_FACTOR_LABELS,
+  HOME_CHARGING_SOLAR_NETTING_FACTOR,
+  ISSUANCE_PIPELINE_ORDER,
+} from './mintFactors';
+
+import { MINT_SPLIT_PERCENT as _SPLIT, CONVERSION_FACTORS } from './mintFactors';
+
+/** Percentage view of the canonical split (sums to 100). */
 export const MINT_DISTRIBUTION = {
-  user: 50,
-  lp: 25,
-  burn: 20,
-  treasury: 5,
+  user: _SPLIT.user,        // 80
+  lp: _SPLIT.lp,            // 0
+  burn: _SPLIT.burn,        // 0
+  treasury: _SPLIT.treasury // 20
 } as const;
 
-// === TRANSFER TAX (separate mechanism — NOT part of the mint split) ===
-// Applied only on transfers/swaps, recycled to LP. Independent of MINT_DISTRIBUTION.
-// Previous 7% (3 burn / 2 LP / 2 treasury) is retired.
 export const TRANSFER_TAX = {
   lp: 3,
   total: 3,
@@ -139,23 +151,28 @@ export const TRANSFER_TAX = {
 // 1 / MINT_RATIO_KWH_PER_TOKEN = 1.0 token per kWh / mile of verified activity.
 // Live Beta multiplier (10×) is retained for now but is effectively redundant
 // at 1:1 — flagged for review in next levers pass.
-const PER_UNIT = 1 / MINT_RATIO_KWH_PER_TOKEN; // 1.0
+// Every rate below is derived from CONVERSION_FACTORS in src/lib/mintFactors.ts.
+// Do not hardcode a per-category rate here or anywhere else.
 export const BASE_REWARD_RATES = {
-  solarProduction: PER_UNIT,
-  batteryDischarge: PER_UNIT,
-  evMiles: PER_UNIT,
-  evCharging: PER_UNIT,
-  fsdSupervisedMiles: PER_UNIT,
-  fsdUnsupervisedMiles: PER_UNIT,
+  solarProduction: CONVERSION_FACTORS.solar_kwh,
+  batteryDischarge: CONVERSION_FACTORS.battery_export_kwh,
+  evMiles: CONVERSION_FACTORS.ev_miles,
+  evCharging: CONVERSION_FACTORS.home_charging_kwh,
+  superchargingKwh: CONVERSION_FACTORS.supercharging_kwh,
+  fsdSupervisedMiles: CONVERSION_FACTORS.fsd_miles,
+  fsdUnsupervisedMiles: CONVERSION_FACTORS.fsd_miles,
 } as const;
+
 
 export const REWARD_RATES = {
   solarProduction: BASE_REWARD_RATES.solarProduction * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
   batteryDischarge: BASE_REWARD_RATES.batteryDischarge * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
   evMiles: BASE_REWARD_RATES.evMiles * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
   evCharging: BASE_REWARD_RATES.evCharging * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
+  superchargingKwh: BASE_REWARD_RATES.superchargingKwh * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
   fsdSupervisedMiles: BASE_REWARD_RATES.fsdSupervisedMiles * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
   fsdUnsupervisedMiles: BASE_REWARD_RATES.fsdUnsupervisedMiles * (IS_LIVE_BETA ? LIVE_BETA_MULTIPLIER : 1),
+
 } as const;
 
 // === SUBSCRIPTION (v3.2 — 100% of every subscription dollar → LP) ===
