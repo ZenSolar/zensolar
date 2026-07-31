@@ -132,7 +132,7 @@ export {
   ISSUANCE_PIPELINE_ORDER,
 } from './mintFactors';
 
-import { MINT_SPLIT_PERCENT as _SPLIT } from './mintFactors';
+import { MINT_SPLIT_PERCENT as _SPLIT, CONVERSION_FACTORS } from './mintFactors';
 
 /** Percentage view of the canonical split (sums to 100). */
 export const MINT_DISTRIBUTION = {
