@@ -508,28 +508,27 @@ Deno.serve(async (req) => {
       });
 
       // Store production data with Proof-of-Delta cryptographic verification.
-      // `energy_today` is DAY-TO-DATE (resets at local midnight), so the row's
-      // issuable delta is measured against the reading pinned at the start of
-      // this hourly bucket — never against the previous row's total, which
-      // would re-issue the whole day on every same-day run.
-      if (energyTodayWh > 0) {
+      // MINT SOURCE = `energy_lifetime` ONLY. It is monotonically cumulative,
+      // so a delta between two readings is always genuine new production.
+      // `energy_today` resets at local midnight and is therefore DISPLAY-ONLY —
+      // never an issuance source.
+      if (lifetimeEnergyWh > 0) {
         const now = new Date();
         const recordedAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()).toISOString();
         const tsNow = now.toISOString();
         const devId = String(systemId);
         const prev = await getPreviousProof(supabaseClient, devId, "solar", targetUserId);
-        const bucketStart = await resolveDayToDateAnchor(supabaseClient, {
+        const bucketStart = await resolveCumulativeAnchor(supabaseClient, {
           userId: targetUserId,
           deviceId: devId,
           provider: "enphase",
           dataType: "solar",
           recordedAt,
           prev,
-          currentValue: energyTodayWh,
         });
-        const delta = snapshotDelta(energyTodayWh, bucketStart);
-        const hash = await buildEnergyHash(devId, tsNow, energyTodayWh, prev.prevHash);
-        console.log(`[Proof-of-Delta] Enphase solar ${devId}: today=${energyTodayWh} Wh, bucket_start=${bucketStart}, delta=${delta} Wh`);
+        const delta = snapshotDelta(lifetimeEnergyWh, bucketStart);
+        const hash = await buildEnergyHash(devId, tsNow, lifetimeEnergyWh, prev.prevHash);
+        console.log(`[Proof-of-Delta] Enphase solar ${devId}: lifetime=${lifetimeEnergyWh} Wh, bucket_start=${bucketStart}, delta=${delta} Wh (today=${energyTodayWh} Wh display-only)`);
 
         await supabaseClient
           .from("energy_production")
@@ -544,14 +543,18 @@ Deno.serve(async (req) => {
               hash,
               prevHash: prev.prevHash,
               deviceId: devId,
-              value: energyTodayWh,
+              value: lifetimeEnergyWh,
               prevValue: prev.prevValue,
               delta,
               dataType: "solar",
               timestamp: tsNow,
               unit: "wh",
-              valueSemantics: "day_to_date",
-              extra: { bucket_start_value: bucketStart, source: "enphase_summary_energy_today" },
+              valueSemantics: "cumulative_snapshot",
+              extra: {
+                bucket_start_value: bucketStart,
+                source: "enphase_summary_energy_lifetime",
+                energy_today_wh_display_only: energyTodayWh,
+              },
             }),
           }, { onConflict: "device_id,provider,recorded_at,data_type" });
       }
