@@ -3,7 +3,6 @@ import {
   getPreviousProof as sharedGetPreviousProof,
   buildProofMetadata,
   snapshotDelta,
-  resolveDayToDateAnchor,
   resolveCumulativeAnchor,
 } from "../_shared/proofDelta.ts";
 
