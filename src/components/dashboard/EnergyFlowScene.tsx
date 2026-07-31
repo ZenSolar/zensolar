@@ -910,11 +910,26 @@ export function EnergyFlowScene({
         {/* ── Max 2 ultra-minimal dotted flow lines ── */}
         {/* In Outage Mode, solar flows are dimmed so the eye lands on
             battery → home as the dominant route. */}
-        {flows.has('solar-home') && (
-          <g opacity={isOutage ? OUTAGE_VISUAL.solarDimOpacity : 1}>
-            <DottedFlow id="flow-solar-home" d={BLUEPRINT_PATHS.solarToHome} color={EMERALD_LED} dur={flowDur(solar)} />
-          </g>
-        )}
+        {/* ── Trunk-and-branch conductor network ──
+            One junction, not two arcs: the trunk carries total production
+            from the roof plane down to the main panel, then divides into the
+            home-load branch and the grid branch. Import reverses the grid
+            branch (dash, chevron and colour all flip). */}
+        {conductorSegments
+          .filter((s) => s.layer === 'front')
+          .map((s) => (
+            <Conductor
+              key={s.id}
+              id={s.id}
+              points={s.points}
+              color={s.color}
+              kw={s.kw}
+              forward={s.forward}
+              dimmed={s.dimmed}
+              reducedMotion={Boolean(prefersReducedMotion)}
+            />
+          ))}
+
         {flows.has('solar-pw') && (
           <g opacity={isOutage ? OUTAGE_VISUAL.solarDimOpacity : 1}>
             <DottedFlow id="flow-solar-pw" d={BLUEPRINT_PATHS.solarToPowerwall} color={EMERALD_LED} dur={flowDur(battery)} />
