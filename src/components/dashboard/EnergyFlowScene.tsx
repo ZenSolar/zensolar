@@ -670,6 +670,12 @@ export function EnergyFlowScene({
   // stay parked in the driveway.
   const prefersReducedMotion = useReducedMotion();
 
+  // Temporary anchor-verification overlay: /home?anchors=1
+  const showAnchorDebug =
+    typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('anchors') === '1';
+
+
   // Trunk-and-branch conductor topology (see ConductorNetwork.tsx).
   const conductorSegments = useMemo(
     () =>
