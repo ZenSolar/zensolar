@@ -97,6 +97,11 @@ export function isoRoute(a: Pt, b: Pt, order: 'diag-first' | 'vert-first' = 'dia
     }
   });
 
+  // On short runs the exact 30° corner can overshoot past the destination and
+  // read as a kink. Clamp it back inside the run's vertical span: the leg
+  // stays within a couple of degrees of the iso axis and looks like conduit.
+  corner = { x: corner.x, y: Math.min(hi, Math.max(lo, corner.y)) };
+
   return [a, corner, b];
 }
 
