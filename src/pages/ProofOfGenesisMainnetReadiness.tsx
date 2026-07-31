@@ -18,6 +18,8 @@ import {
   Eye,
   AlertTriangle,
 } from 'lucide-react';
+import { MINT_SPLIT_LABEL } from '@/lib/mintFactors';
+
 
 /**
  * Mainnet Readiness — sub-page of /proof-of-genesis.
