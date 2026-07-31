@@ -121,6 +121,12 @@ export async function resolveBucketAnchor(
     resetsDaily: boolean;
     /** Current reading. A reading BELOW the anchor proves a meter reset. */
     currentValue?: number;
+    /**
+     * Semantics of the reading being written. When set, anchors carried by
+     * rows of a DIFFERENT semantics are refused: mixing a day-to-date anchor
+     * with a lifetime reading would emit the entire lifetime as one delta.
+     */
+    expectSemantics?: ValueSemantics;
   },
 ): Promise<number> {
   // Same bucket already written? Reuse its pinned anchor.
@@ -137,6 +143,17 @@ export async function resolveBucketAnchor(
   const cur = Number(args.currentValue);
   const belowAnchor = (a: number) => Number.isFinite(cur) && cur < a;
 
+  // FAIL CLOSED on a semantics change in the series (e.g. day_to_date rows
+  // followed by cumulative lifetime rows). Anchor at the current reading so
+  // the transition row issues exactly 0 rather than a lifetime total.
+  const bucketSem = (sameBucket?.proof_metadata as any)?.value_semantics ?? null;
+  if (args.expectSemantics && Number.isFinite(cur)) {
+    const mismatched =
+      (sameBucket && bucketSem !== args.expectSemantics) ||
+      (!sameBucket && args.prev.prevRecordedAt && args.prev.prevSemantics !== args.expectSemantics);
+    if (mismatched) return cur;
+  }
+
   const pinned = (sameBucket?.proof_metadata as any)?.bucket_start_value;
   if (pinned !== undefined && pinned !== null && Number.isFinite(Number(pinned))) {
     // A reading below the pinned anchor means the meter rolled over mid-bucket
@@ -147,7 +164,7 @@ export async function resolveBucketAnchor(
   // New bucket: anchor on the previous row's reading. For day-to-date meters
   // the anchor drops to 0 when the previous row is from an earlier calendar
   // day, because the meter reset overnight.
-  if (!args.prev.prevRecordedAt) return args.resetsDaily ? 0 : args.prev.prevValue;
+  if (!args.prev.prevRecordedAt) return args.resetsDaily ? 0 : (Number.isFinite(cur) ? cur : args.prev.prevValue);
   if (!args.resetsDaily) return args.prev.prevValue;
   const sameDay = args.prev.prevRecordedAt.slice(0, 10) === args.recordedAt.slice(0, 10);
   if (!sameDay) return 0;
@@ -160,13 +177,13 @@ export async function resolveDayToDateAnchor(
   client: { from: (t: string) => any },
   args: { userId: string; deviceId: string; provider: string; dataType: string; recordedAt: string; prev: PrevProof; currentValue: number },
 ): Promise<number> {
-  return await resolveBucketAnchor(client, { ...args, resetsDaily: true });
+  return await resolveBucketAnchor(client, { ...args, resetsDaily: true, expectSemantics: 'day_to_date' });
 }
 
 /** Cumulative-snapshot convenience wrapper (lifetime meters, odometers). */
 export async function resolveCumulativeAnchor(
   client: { from: (t: string) => any },
-  args: { userId: string; deviceId: string; provider: string; dataType: string; recordedAt: string; prev: PrevProof },
+  args: { userId: string; deviceId: string; provider: string; dataType: string; recordedAt: string; prev: PrevProof; currentValue?: number },
 ): Promise<number> {
-  return await resolveBucketAnchor(client, { ...args, resetsDaily: false });
+  return await resolveBucketAnchor(client, { ...args, resetsDaily: false, expectSemantics: 'cumulative_snapshot' });
 }
