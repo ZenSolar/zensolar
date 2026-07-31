@@ -28,16 +28,13 @@ export function MintOneToOneStrip() {
               </div>
             </div>
             <p className="text-muted-foreground leading-relaxed text-base md:text-lg">
-              The protocol matches your mint 1-for-1 in the background — funding liquidity, burn,
-              and treasury. Think of it as a <span className="text-foreground font-medium">401(k) match</span> for clean energy: you always
-              see your full share, and the network gets stronger with every kWh.
+              Every verified unit mints 1.25 $ZSOLAR — 1.0 to you and 0.25 to the treasury.
+              There is no liquidity mint and no burn at mint. You always see your full share.
             </p>
             <div className="flex flex-wrap gap-2 pt-2">
-              <span className="px-3 py-1 rounded-full text-xs bg-muted/50 border border-border/60">50% you</span>
-              <span className="px-3 py-1 rounded-full text-xs bg-muted/50 border border-border/60">25% LP direct</span>
-              <span className="px-3 py-1 rounded-full text-xs bg-muted/50 border border-border/60">20% burn</span>
-              <span className="px-3 py-1 rounded-full text-xs bg-muted/50 border border-border/60">5% treasury</span>
-              <span className="px-3 py-1 rounded-full text-xs bg-primary/10 border border-primary/30 text-primary">+ 3% transfer tax → LP</span>
+              <span className="px-3 py-1 rounded-full text-xs bg-muted/50 border border-border/60">{MINT_SPLIT_PER_UNIT.user.toFixed(1)} to you</span>
+              <span className="px-3 py-1 rounded-full text-xs bg-muted/50 border border-border/60">{MINT_SPLIT_PER_UNIT.treasury.toFixed(2)} to treasury</span>
+              <span className="px-3 py-1 rounded-full text-xs bg-primary/10 border border-primary/30 text-primary">{MINT_SPLIT_TOTAL_PER_UNIT.toFixed(2)} minted per verified unit</span>
             </div>
           </motion.div>
 

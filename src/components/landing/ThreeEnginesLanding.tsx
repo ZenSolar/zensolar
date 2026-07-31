@@ -16,7 +16,7 @@ const engines = [
     icon: Coins,
     eyebrow: 'Engine 02',
     title: 'Token Economics',
-    body: '1T hard cap. Every mint splits 50% you · 25% LP · 20% burn · 5% treasury. A separate 3% transfer tax recycles to liquidity on every swap. Launch at $0.10 via LP-seeded rounds on Base.',
+    body: `1T hard cap. ${MINT_SPLIT_SENTENCE} Launch at $0.10 via LP-seeded rounds on Base.`,
     accent: 'from-energy/20 to-solar/10 border-energy/30',
     iconColor: 'text-energy',
   },
