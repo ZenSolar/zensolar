@@ -221,13 +221,6 @@ export default function Wallet() {
                   </span>
                   <span className="text-sm font-semibold text-primary">$ZSOLAR</span>
                 </div>
-                <div className="flex items-center gap-2 mt-1.5">
-                  <span className="text-sm text-muted-foreground tabular-nums font-medium">
-                    ≈ ${balanceHidden ? '••••' : formattedUsdValue} USD
-                  </span>
-                  <span className="text-muted-foreground/40">·</span>
-                  <span className="text-xs text-muted-foreground tabular-nums">@${LIVE_TOKEN_PRICE.toFixed(2)}/token</span>
-                </div>
               </div>
             )}
 

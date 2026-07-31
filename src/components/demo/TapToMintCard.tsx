@@ -134,7 +134,7 @@ export function TapToMintCard({
               {expectedTokens.toLocaleString()}
             </div>
             <div className="mt-1 text-[11px] text-muted-foreground tabular-nums">
-              $ZSOLAR · {usdValue}
+              $ZSOLAR
             </div>
           </div>
 
