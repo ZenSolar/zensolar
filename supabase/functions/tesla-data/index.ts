@@ -60,10 +60,24 @@ async function getPreviousProof(
     .limit(1)
     .maybeSingle();
 
+  const meta = (prevRecord?.proof_metadata as any) || null;
+  // IMPORTANT: the cumulative snapshot lives in proof_metadata.value.
+  // `production_wh` now carries the ISSUABLE DELTA, so it must never be read
+  // as a running total (that mismatch is what staged lifetime totals as
+  // mintable deltas after the 2026-07-31 cutover).
+  const prevValue = meta && meta.value !== undefined && meta.value !== null
+    ? Number(meta.value)
+    : Number(prevRecord?.production_wh || 0);
+
   return {
-    prevHash: (prevRecord?.proof_metadata as any)?.hash || "genesis",
-    prevValue: Number(prevRecord?.production_wh || 0),
+    prevHash: meta?.hash || "genesis",
+    prevValue: Number.isFinite(prevValue) ? prevValue : 0,
   };
+}
+
+/** Issuable delta between a cumulative snapshot and the previous snapshot. */
+function snapshotDelta(value: number, prevValue: number): number {
+  return Math.max(0, value - prevValue);
 }
 
 /** Build proof_metadata object for any energy data type */
@@ -83,7 +97,9 @@ function buildProofMetadata(
     device_id: deviceId,
     value,
     prev_value: prevValue,
-    delta: Math.max(0, value - prevValue),
+    delta: snapshotDelta(value, prevValue),
+    value_semantics: "cumulative_snapshot",
+    production_wh_semantics: "issuable_delta",
     data_type: dataType,
     unit,
     timestamp,
@@ -91,6 +107,7 @@ function buildProofMetadata(
     preimage_format: "device_id|timestamp|value|prevHash",
   };
 }
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -1295,7 +1312,7 @@ Deno.serve(async (req) => {
               user_id: targetUserId,
               device_id: site.site_id,
               provider: "tesla",
-              production_wh: solarVal,
+              production_wh: snapshotDelta(solarVal, solarPrevVal),
               data_type: "solar",
               recorded_at: recordedAt,
               proof_metadata: buildProofMetadata(solarHash, solarPrevHash, site.site_id, solarVal, solarPrevVal, "solar", tsNow),
@@ -1316,7 +1333,7 @@ Deno.serve(async (req) => {
               user_id: targetUserId,
               device_id: site.site_id,
               provider: "tesla",
-              production_wh: battVal,
+              production_wh: snapshotDelta(battVal, battPrevVal),
               data_type: "battery_discharge",
               recorded_at: recordedAt,
               proof_metadata: buildProofMetadata(battHash, battPrevHash, site.site_id, battVal, battPrevVal, "battery_discharge", tsNow),
@@ -1340,7 +1357,7 @@ Deno.serve(async (req) => {
             user_id: targetUserId,
             device_id: primaryVin,
             provider: "tesla",
-            production_wh: chargingWh,
+            production_wh: snapshotDelta(chargingWh, chgPrevVal),
             data_type: "ev_charging",
             recorded_at: recordedAt,
             proof_metadata: buildProofMetadata(chgHash, chgPrevHash, primaryVin, chargingWh, chgPrevVal, "ev_charging", tsNow, "wh"),
@@ -1362,7 +1379,7 @@ Deno.serve(async (req) => {
               user_id: targetUserId,
               device_id: vehicle.vin,
               provider: "tesla",
-              production_wh: vehicle.odometer,
+              production_wh: snapshotDelta(vehicle.odometer, prevOdometer),
               data_type: "ev_miles",
               recorded_at: recordedAt,
               proof_metadata: buildProofMetadata(snapshotHash, prevHash, vehicle.vin, vehicle.odometer, prevOdometer, "ev_miles", tsNow, "miles"),

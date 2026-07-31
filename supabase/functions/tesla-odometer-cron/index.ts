@@ -180,17 +180,22 @@ Deno.serve(async (req) => {
           .limit(1)
           .maybeSingle();
 
-        const prevHash = (prevRow?.proof_metadata as any)?.hash || "genesis";
-        const prevValue = Number(prevRow?.production_wh || 0);
+        const prevMeta = (prevRow?.proof_metadata as any) || null;
+        const prevHash = prevMeta?.hash || "genesis";
+        // Cumulative snapshot lives in proof_metadata.value; production_wh is
+        // the issuable delta and must never be read as a running total.
+        const prevValue = prevMeta && prevMeta.value !== undefined && prevMeta.value !== null
+          ? Number(prevMeta.value)
+          : Number(prevRow?.production_wh || 0);
         const hash = await sha256Hex(`${d.device_id}|${nowIso}|${odo}|${prevHash}`);
-        const delta = Math.max(0, odo - prevValue);
+        const delta = Math.max(0, odo - (Number.isFinite(prevValue) ? prevValue : 0));
         if (delta > 0) credited += delta;
 
         await supabase.from("energy_production").upsert({
           user_id: d.user_id,
           device_id: d.device_id,
           provider: "tesla",
-          production_wh: odo,
+          production_wh: delta,
           data_type: "ev_miles",
           recorded_at: recordedAt,
           proof_metadata: {
