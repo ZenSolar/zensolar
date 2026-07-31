@@ -1823,7 +1823,6 @@ function TotalTokensCard({ tokensToReceive, tokensEligible, activityUnits, token
   // Hero number = full cumulative mintable total (100%). The 50% user share is revealed
   // on the confirm-mint screen after double-tap, matching per-source KPI behavior.
   const heroTokens = eligible;
-  const usdValue = heroTokens * tokenPrice;
   const active = activityUnits > 0;
 
   // Mirror ActivityField's tap interaction so visual + audio feedback match.
@@ -2278,9 +2277,6 @@ function TotalTokensCard({ tokensToReceive, tokensEligible, activityUnits, token
             </span>
           </p>
         </div>
-        <p className="text-[10px] text-muted-foreground/70 tabular-nums">
-          ≈ ${usdValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-        </p>
       </div>
 
       {/* Mint pill — flips to "Tap again" between first and second tap */}
