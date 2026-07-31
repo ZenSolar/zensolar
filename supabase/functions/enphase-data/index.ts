@@ -506,15 +506,28 @@ Deno.serve(async (req) => {
         energy_today_wh: energyTodayWh,
       });
 
-      // Store production data with Proof-of-Delta cryptographic verification
+      // Store production data with Proof-of-Delta cryptographic verification.
+      // `energy_today` is DAY-TO-DATE (resets at local midnight), so the row's
+      // issuable delta is measured against the reading pinned at the start of
+      // this hourly bucket — never against the previous row's total, which
+      // would re-issue the whole day on every same-day run.
       if (energyTodayWh > 0) {
         const now = new Date();
         const recordedAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()).toISOString();
         const tsNow = now.toISOString();
         const devId = String(systemId);
-        const { prevHash, prevValue } = await getPreviousProof(supabaseClient, devId, "solar", targetUserId);
-        const hash = await buildEnergyHash(devId, tsNow, energyTodayWh, prevHash);
-        console.log(`[Proof-of-Delta] Enphase solar for ${devId}: ${hash.slice(0, 16)}... (val: ${energyTodayWh} Wh)`);
+        const prev = await getPreviousProof(supabaseClient, devId, "solar", targetUserId);
+        const bucketStart = await resolveDayToDateAnchor(supabaseClient, {
+          userId: targetUserId,
+          deviceId: devId,
+          provider: "enphase",
+          dataType: "solar",
+          recordedAt,
+          prev,
+        });
+        const delta = snapshotDelta(energyTodayWh, bucketStart);
+        const hash = await buildEnergyHash(devId, tsNow, energyTodayWh, prev.prevHash);
+        console.log(`[Proof-of-Delta] Enphase solar ${devId}: today=${energyTodayWh} Wh, bucket_start=${bucketStart}, delta=${delta} Wh`);
 
         await supabaseClient
           .from("energy_production")
@@ -522,24 +535,25 @@ Deno.serve(async (req) => {
             user_id: targetUserId,
             device_id: devId,
             provider: "enphase",
-            production_wh: energyTodayWh,
+            production_wh: delta,
             data_type: "solar",
             recorded_at: recordedAt,
-            proof_metadata: {
+            proof_metadata: buildProofMetadata({
               hash,
-              prev_hash: prevHash,
-              device_id: devId,
+              prevHash: prev.prevHash,
+              deviceId: devId,
               value: energyTodayWh,
-              prev_value: prevValue,
-              delta: Math.max(0, energyTodayWh - prevValue),
-              data_type: "solar",
-              unit: "wh",
+              prevValue: prev.prevValue,
+              delta,
+              dataType: "solar",
               timestamp: tsNow,
-              algorithm: "SHA-256",
-              preimage_format: "device_id|timestamp|value|prevHash",
-            },
+              unit: "wh",
+              valueSemantics: "day_to_date",
+              extra: { bucket_start_value: bucketStart, source: "enphase_summary_energy_today" },
+            }),
           }, { onConflict: "device_id,provider,recorded_at,data_type" });
       }
+
 
       // Persist lifetime totals so the dashboard can still show values when rate limited later.
       if (lifetimeEnergyWh > 0) {
