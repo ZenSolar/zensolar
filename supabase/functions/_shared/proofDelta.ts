@@ -132,7 +132,7 @@ export async function resolveBucketAnchor(
   // Same bucket already written? Reuse its pinned anchor.
   const { data: sameBucket } = await client
     .from('energy_production')
-    .select('proof_metadata')
+    .select('proof_metadata, minted_at')
     .eq('user_id', args.userId)
     .eq('device_id', args.deviceId)
     .eq('provider', args.provider)
@@ -146,6 +146,11 @@ export async function resolveBucketAnchor(
   // FAIL CLOSED on a semantics change in the series (e.g. day_to_date rows
   // followed by cumulative lifetime rows). Anchor at the current reading so
   // the transition row issues exactly 0 rather than a lifetime total.
+  // A bucket row that has already been consumed (minted or quarantined) is
+  // CLOSED: never re-open it with a fresh anchor. Anchor at the current
+  // reading so the rewrite issues 0.
+  if (sameBucket && (sameBucket as any).minted_at && Number.isFinite(cur)) return cur;
+
   const bucketSem = (sameBucket?.proof_metadata as any)?.value_semantics ?? null;
   if (args.expectSemantics && Number.isFinite(cur)) {
     const mismatched =
