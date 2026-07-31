@@ -209,7 +209,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    let telemetryReq: { mode?: string; capability?: string; siteId?: string } = {};
+    let telemetryReq: { mode?: string; capability?: string; siteId?: string; force?: boolean } = {};
     if (req.method === "POST") {
       try { telemetryReq = await req.clone().json(); } catch { /* no body */ }
     }
@@ -220,7 +220,8 @@ Deno.serve(async (req) => {
     const cachedData = extraData.cached_response as Record<string, unknown> | undefined;
     const cachedAt = extraData.cached_at as string | undefined;
     
-    if (telemetryReq.mode !== "telemetry" && cachedData && cachedAt) {
+    // `force: true` = deliberate manual run; skip the 15-minute sync cache.
+    if (telemetryReq.mode !== "telemetry" && telemetryReq.force !== true && cachedData && cachedAt) {
       const cacheAge = Date.now() - new Date(cachedAt).getTime();
       const cacheMaxAge = CACHE_DURATION_MINUTES * 60 * 1000;
       
