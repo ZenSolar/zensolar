@@ -8,7 +8,7 @@
  *   • Body is a scrollable log of the individual contributions that add
  *     up to that total — date, device/location, kWh|mi, verified badge
  *   • Footer is a sticky "MINT N tokens" CTA — the user has now SEEN
- *     the receipts (Proof-of-Delta™) before tapping mint (Proof-of-Mint™)
+ *     the receipts (Proof-of-Delta) before tapping mint (Proof-of-Mint)
  *
  * The sheet itself does not perform the mint — it calls back to the
  * parent's existing onMintRequest pipeline so the confirm/sign/broadcast
@@ -325,7 +325,7 @@ export function KpiActivityLogSheet({ state, onOpenChange, onMintRequest }: Prop
                 className="text-[10px] uppercase tracking-[0.18em] font-semibold"
                 style={{ color: `hsl(var(${accentVar}))` }}
               >
-                Proof-of-Delta™
+                Proof-of-Delta
               </p>
               <DrawerTitle className="text-base font-bold text-foreground leading-tight truncate">
                 {label}

@@ -371,9 +371,9 @@ const App = () => {
                     <Route path="/demo/proof-of-genesis-receipt" element={<Navigate to="/demo/proof-of-genesis-receipt-preview" replace />} />
                     <Route path="/demo/pog-receipt-preview" element={<Navigate to="/demo/proof-of-genesis-receipt-preview" replace />} />
                     <Route path="/demo/pog-receipt" element={<Navigate to="/demo/proof-of-genesis-receipt-preview" replace />} />
-                    {/* Public Proof-of-Authenticity™ verification — no auth required */}
+                    {/* Public Proof-of-Authenticity verification — no auth required */}
                     <Route path="/verify/:poa" element={<VerifyPoA />} />
-                    {/* Per-device Proof-of-Origin™ — founder + PIN gated (Phase 1) */}
+                    {/* Per-device Proof-of-Origin — founder + PIN gated (Phase 1) */}
                     <Route path="/devices/:deviceId/origin" element={<DeviceProofOfOrigin />} />
                     
                     {/* Demo routes with full sidebar — gated by access code + NDA */}

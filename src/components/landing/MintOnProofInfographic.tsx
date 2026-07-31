@@ -20,7 +20,7 @@ const steps = [
     number: '02',
     icon: ShieldCheck,
     title: 'Verify',
-    subtitle: 'Via Proof-of-Genesis™',
+    subtitle: 'Via Proof-of-Genesis',
     description: 'Our patent-pending system validates your energy production with cryptographic timestamps.',
     gradient: 'from-emerald-500 to-green-500',
     glow: 'shadow-emerald-500/30',
@@ -41,7 +41,7 @@ const steps = [
     icon: Lock,
     title: 'Record',
     subtitle: 'On-Chain',
-    description: 'Proof-of-Delta™ writes your device watermark to the blockchain—immutable verification.',
+    description: 'Proof-of-Delta writes your device watermark to the blockchain—immutable verification.',
     gradient: 'from-purple-500 to-indigo-500',
     glow: 'shadow-purple-500/30',
     bgGlow: 'bg-purple-500/10',
@@ -65,7 +65,7 @@ export function MintOnProofInfographic({ showCTA = true, compact = false }: Mint
         >
           <Badge variant="outline" className="px-4 py-1.5 border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400">
             <Sparkles className="h-3.5 w-3.5 mr-2" />
-            Patent-Pending Mint-on-Proof™
+            Patent-Pending Mint-on-Proof
           </Badge>
           <h2 className="text-2xl md:text-3xl font-bold">
             How In-App Minting Works
@@ -192,7 +192,7 @@ export function MintOnProofInfographic({ showCTA = true, compact = false }: Mint
             className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
           >
             <ShieldCheck className="h-4 w-4" />
-            Learn more about Proof-of-Genesis™ technology
+            Learn more about Proof-of-Genesis technology
             <ArrowRight className="h-4 w-4" />
           </Link>
         </motion.div>

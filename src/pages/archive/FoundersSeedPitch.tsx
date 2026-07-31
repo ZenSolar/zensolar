@@ -178,7 +178,7 @@ export default function FoundersSeedPitch() {
               Every kWh tightens the loop.
             </h3>
             <p className="text-sm md:text-base text-foreground/85 leading-relaxed">
-              Produce or consume clean energy → Proof-of-Genesis™ verifies →
+              Produce or consume clean energy → Proof-of-Genesis verifies →
               mint <span className="font-mono text-primary">1 kWh = 1 $ZSOLAR</span>.
               20% burned · 3% to LP · halving every 4 years.
             </p>
@@ -211,7 +211,7 @@ export default function FoundersSeedPitch() {
             <p className="text-sm md:text-base text-foreground/85 leading-relaxed">
               Connect Tesla, solar, battery, EV — done. Embedded Coinbase
               Wallet, mobile-first, Apple-grade simplicity. Live on Base L2.{" "}
-              <span className="font-semibold">Proof-of-Genesis™</span> is the
+              <span className="font-semibold">Proof-of-Genesis</span> is the
               cryptographic trust layer no competitor can replicate without
               years of utility data.
             </p>
@@ -290,13 +290,13 @@ export default function FoundersSeedPitch() {
                 icon: ShieldCheck,
                 step: "02",
                 title: "Verify each kWh on-chain",
-                body: "Proof-of-Genesis™ engine signs every kWh against the Device Watermark Registry and writes a cryptographic proof to Base L2. 10-layer verification stack — no oracle, no trust, no double-mint.",
+                body: "Proof-of-Genesis engine signs every kWh against the Device Watermark Registry and writes a cryptographic proof to Base L2. 10-layer verification stack — no oracle, no trust, no double-mint.",
                 tag: "Patent-pending",
               },
               {
                 icon: Coins,
                 step: "03",
-                title: "Proof of Genesis™ rewards",
+                title: "Proof of Genesis rewards",
                 body: "One tap mints 1 $ZSOLAR per verified kWh into the embedded Coinbase Wallet. 75% to user · 20% burned · 3% LP · 2% treasury. No gas, no seed phrase, no MetaMask.",
                 tag: "Live on Base",
               },
@@ -327,7 +327,7 @@ export default function FoundersSeedPitch() {
           <div className="rounded-md border border-primary/30 bg-primary/5 px-4 py-3 text-xs text-foreground/85">
             <span className="font-semibold text-primary">Try it live: </span>
             beta.zen.solar/demo — pre-seeded Tesla + Enphase data, real
-            Proof-of-Genesis™ verification, real Proof of Genesis™ into a
+            Proof-of-Genesis verification, real Proof of Genesis into a
             sandbox wallet. End-to-end in under 60 seconds.
           </div>
         </div>
@@ -384,7 +384,7 @@ export default function FoundersSeedPitch() {
           <span className="italic text-primary">PoG produces energy.</span>
         </h2>
         <p className="text-sm md:text-base text-muted-foreground leading-relaxed mb-4 max-w-3xl">
-          Crypto has had two consensus primitives in 17 years. Proof-of-Genesis™
+          Crypto has had two consensus primitives in 17 years. Proof-of-Genesis
           is the third — and the first one where the work <span className="italic">is</span> the value,
           not a tax paid to secure the ledger.
         </p>
@@ -398,7 +398,7 @@ export default function FoundersSeedPitch() {
           {[
             { p: "Proof-of-Work", a: "Bitcoin · 2009", d: "Burns electricity to secure a ledger", c: "Energy is wasted to prove trust" },
             { p: "Proof-of-Stake", a: "Ethereum · 2022", d: "Stakes capital to secure a ledger", c: "Rewards the already-wealthy; plutocratic" },
-            { p: "Proof-of-Genesis™", a: "ZenSolar · 2026", d: "Produces clean energy to mint the asset", c: "The work IS the value. Energy isn't burned to secure — energy IS the asset.", highlight: true },
+            { p: "Proof-of-Genesis", a: "ZenSolar · 2026", d: "Produces clean energy to mint the asset", c: "The work IS the value. Energy isn't burned to secure — energy IS the asset.", highlight: true },
           ].map((row) => (
             <div
               key={row.p}
@@ -434,12 +434,12 @@ export default function FoundersSeedPitch() {
             <div className="text-[10px] uppercase tracking-wider text-primary mb-2">Wall 1 · IP</div>
             <h3 className="font-serif text-lg mb-2">The TM Stack</h3>
             <ul className="text-xs text-foreground/85 leading-relaxed space-y-1.5">
-              <li>• <span className="font-semibold">Patent Track 1</span> — Mint-on-Proof™</li>
-              <li>• <span className="font-semibold">Patent Track 2</span> — Proof-of-Delta™ / Proof-of-Genesis™</li>
+              <li>• <span className="font-semibold">Patent Track 1</span> — Mint-on-Proof</li>
+              <li>• <span className="font-semibold">Patent Track 2</span> — Proof-of-Delta / Proof-of-Genesis</li>
               <li>• <span className="font-semibold">Patent Track 2.5</span> — Energy Price Oracle</li>
               <li>• <span className="font-semibold">Patent Track 3</span> — Device Watermark Registry</li>
               <li>• <span className="font-semibold">Patent Track 4</span> — ZK-Proof-of-Genesis</li>
-              <li className="pt-1.5 border-t border-border/40 mt-2">TMs: Proof-of-Genesis™, Proof of Genesis™, Proof-of-Permanence™ ("The Eternal Ledger"), Genesis Anchor™, Proof-of-Custody™, Proof-of-Genesis™, ZPPA</li>
+              <li className="pt-1.5 border-t border-border/40 mt-2">TMs: Proof-of-Genesis, Proof of Genesis, Proof-of-Permanence ("The Eternal Ledger"), Genesis Anchor, Proof-of-Custody, Proof-of-Genesis, ZPPA</li>
             </ul>
           </div>
 

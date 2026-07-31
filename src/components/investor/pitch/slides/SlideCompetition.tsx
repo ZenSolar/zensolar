@@ -36,7 +36,7 @@ const topThreats = [
     meta: 'Arbitrum · Live Mar 2026 · Pre-seed ($5M @ $20M)',
     pitch: 'Autonomous mint every 15 min from ERCOT solar export.',
     wedge:
-      'Solo-founder hackathon project, ERCOT-only, no verification methodology, no IP. Their launch validates the category — our nationwide multi-vertical scope + Proof-of-Delta™ is the moat.',
+      'Solo-founder hackathon project, ERCOT-only, no verification methodology, no IP. Their launch validates the category — our nationwide multi-vertical scope + Proof-of-Delta is the moat.',
     color: 'hsl(280,68%,65%)',
   },
 ];
@@ -65,7 +65,7 @@ export function SlideCompetition() {
         <p className="text-[18px] text-white/55 mb-7 max-w-[1100px]">
           Every direct competitor is either hardware-heavy, B2B-only, single-vertical, or honor-system.
           ZenSolar is the only consumer-first, software-only, multi-vertical play with cryptographic verification
-          (Proof-of-Delta™ + Proof-of-Origin™) and an embedded Coinbase Smart Wallet.
+          (Proof-of-Delta + Proof-of-Origin) and an embedded Coinbase Smart Wallet.
         </p>
 
         <div className="grid grid-cols-2 gap-5 mb-6">

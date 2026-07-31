@@ -13,7 +13,7 @@ const wallStreetAssets = [
 
 const zenSolarAssets = [
   { label: '1 kWh solar produced', icon: Sun, proof: 'Cryptographically retired' },
-  { label: '1 kWh battery discharged', icon: Zap, proof: 'Proof-of-Delta™ verified' },
+  { label: '1 kWh battery discharged', icon: Zap, proof: 'Proof-of-Delta verified' },
   { label: '1 EV mile driven', icon: Shield, proof: 'Device Watermark Registry' },
   { label: '1 kWh EV charged', icon: TrendingUp, proof: 'Immutable on-chain record' },
 ];

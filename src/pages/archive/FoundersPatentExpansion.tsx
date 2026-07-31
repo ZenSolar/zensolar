@@ -22,7 +22,7 @@ import { VaultPinGate } from "@/components/founders/VaultPinGate";
  * Founders Patent Expansion — bi-directional EV charging (V2G/V2H/V2L)
  * + FSD autonomous miles. Documents the patent claim additions Joseph wants
  * his attorney to file as dependent claims off the existing
- * Proof-of-Delta™ + Proof-of-Origin™ method.
+ * Proof-of-Delta + Proof-of-Origin method.
  *
  * Internal only. Gated identically to every other founders page.
  */
@@ -102,7 +102,7 @@ function PatentExpansionContent() {
             <span className="text-primary font-semibold">V2H</span>,{" "}
             <span className="text-primary font-semibold">V2L</span>, and{" "}
             <span className="text-primary font-semibold">FSD autonomous miles</span> —
-            extending Proof-of-Delta™ and Proof-of-Origin™.
+            extending Proof-of-Delta and Proof-of-Origin.
           </p>
           <p className="text-xs text-muted-foreground mt-3">
             Internal only · For patent counsel · Do not publish externally

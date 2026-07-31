@@ -27,7 +27,7 @@ const layers = [
     id: 3,
     icon: Shield,
     title: "Verification Engine",
-    description: "Proof-of-Delta™: SHA-256 hash chains bind each reading to a tamper-evident audit trail",
+    description: "Proof-of-Delta: SHA-256 hash chains bind each reading to a tamper-evident audit trail",
     color: "from-emerald-500 to-green-500",
     delay: 0.3,
   },
@@ -35,7 +35,7 @@ const layers = [
     id: 4,
     icon: Cpu,
     title: "Smart Contract Bridge",
-    description: "Proof-of-Origin™: On-chain Device Watermark Registry + one-tap minting of $ZSOLAR & NFTs",
+    description: "Proof-of-Origin: On-chain Device Watermark Registry + one-tap minting of $ZSOLAR & NFTs",
     color: "from-amber-500 to-orange-500",
     delay: 0.45,
   },
@@ -50,10 +50,10 @@ export function MintOnProofFlowDiagram() {
             <div className="p-2 rounded-xl bg-gradient-to-br from-primary to-cyan-500">
               <Zap className="h-5 w-5 text-white" />
             </div>
-            The Mint-on-Proof™ Architecture
+            The Mint-on-Proof Architecture
           </CardTitle>
           <Badge variant="outline" className="border-cyan-500/40 text-cyan-600 dark:text-cyan-400 text-xs">
-            Proof-of-Genesis™ protocol
+            Proof-of-Genesis protocol
           </Badge>
         </div>
         <p className="text-muted-foreground text-sm mt-2">
@@ -142,7 +142,7 @@ export function MintOnProofFlowDiagram() {
             </div>
             <div className="flex-1">
               <p className="font-semibold text-foreground">Mint $ZSOLAR + NFTs right from the app! 🚀</p>
-              <p className="text-sm text-muted-foreground">Tap a button, and Mint-on-Proof™ sends tokens & achievement NFTs directly to your connected wallet.</p>
+              <p className="text-sm text-muted-foreground">Tap a button, and Mint-on-Proof sends tokens & achievement NFTs directly to your connected wallet.</p>
             </div>
           </div>
         </motion.div>

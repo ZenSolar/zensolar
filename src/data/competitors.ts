@@ -33,7 +33,7 @@ export const competitors: Competitor[] = [
     threatLevel: "high",
     patentStatus: "No patents found",
     keyDifferentiator: "Convergent relaunch on Base L2 with a 1 kSLR / kWh ratio — mirrors our chain + ratio choice, validating the category.",
-    ourWedge: "No app, no embedded wallet, no paid subscription, no verification stack — just honor-system uploads sitting on top of a 98B legacy pool. Legacy SLR (the 2014 ERC-20 still trading on DigiFinex/Uniswap) sits in the fractions-of-a-cent range (~$0.0007–$0.002) on ~$1/day volume, and the new kSLR token on Base has no live trading pairs yet — SolarCoin's own Trading page just says 'pairs to be announced.' We have an embedded Coinbase Smart Wallet, Proof of Genesis™ UX, Proof-of-Delta™ verification, a paid subscription flywheel, 1T hard cap, and 20% burn-per-mint — that's how a token holds value.",
+    ourWedge: "No app, no embedded wallet, no paid subscription, no verification stack — just honor-system uploads sitting on top of a 98B legacy pool. Legacy SLR (the 2014 ERC-20 still trading on DigiFinex/Uniswap) sits in the fractions-of-a-cent range (~$0.0007–$0.002) on ~$1/day volume, and the new kSLR token on Base has no live trading pairs yet — SolarCoin's own Trading page just says 'pairs to be announced.' We have an embedded Coinbase Smart Wallet, Proof of Genesis UX, Proof-of-Delta verification, a paid subscription flywheel, 1T hard cap, and 20% burn-per-mint — that's how a token holds value.",
   },
   {
     name: "Daylight Energy",
@@ -72,7 +72,7 @@ export const competitors: Competitor[] = [
     threatLevel: "medium",
     patentStatus: "No patents or verification IP disclosed",
     keyDifferentiator: "First autonomous mint from real home solar export (Texas only)",
-    ourWedge: "Solo-founder hackathon project, ERCOT-only, no verification methodology, no patents. Their March 2026 launch validates the category — our nationwide multi-vertical scope + Proof-of-Delta™ stack is the moat.",
+    ourWedge: "Solo-founder hackathon project, ERCOT-only, no verification methodology, no patents. Their March 2026 launch validates the category — our nationwide multi-vertical scope + Proof-of-Delta stack is the moat.",
   },
   {
     name: "EVearn (VeBetterDAO)",
@@ -111,7 +111,7 @@ export const competitors: Competitor[] = [
     threatLevel: "low",
     patentStatus: "No patents found",
     keyDifferentiator: "Carbon credit rewards for EV charging",
-    ourWedge: "Carbon-credit narrative without verification stack. We have Proof-of-Delta™ + Proof-of-Origin™ patent-pending IP.",
+    ourWedge: "Carbon-credit narrative without verification stack. We have Proof-of-Delta + Proof-of-Origin patent-pending IP.",
   },
   {
     name: "DeCharge",

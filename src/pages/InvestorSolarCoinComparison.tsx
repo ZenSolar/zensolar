@@ -62,7 +62,7 @@ const UX_PILLARS = [
   },
   {
     icon: Zap,
-    title: 'Tap-to-Mint™ + embedded wallet',
+    title: 'Tap-to-Mint + embedded wallet',
     zen: 'Coinbase Smart Wallet built in. One tap, no seed phrases, no gas, no external wallet detours.',
   },
 ];
@@ -84,12 +84,12 @@ const TAM_VERTICALS = [
 const ADVANTAGES = [
   {
     icon: ShieldCheck,
-    title: 'Proof-of-Genesis™ Verification',
+    title: 'Proof-of-Genesis Verification',
     body: 'Patent-pending cryptographic verification of real hardware telemetry — a generational leap beyond SolarCoin\'s Proof-of-Stake-Time honor-system uploads.',
   },
   {
     icon: Smartphone,
-    title: 'Embedded Wallet + Tap-to-Mint™',
+    title: 'Embedded Wallet + Tap-to-Mint',
     body: 'Coinbase Smart Wallet baked into the app. No MetaMask, no seed phrases, no external wallet detours. One tap, mint in seconds.',
   },
   {
@@ -121,7 +121,7 @@ const TABLES: Table[] = [
     rows: [
       { label: 'Network', zen: 'Base L2 (Coinbase) — modern, low-fee', solar: 'Originally Bitcoin sidechain; 2026 relaunch on Base L2' },
       { label: 'Launched', zen: '2026 — purpose-built for the clean-energy era', solar: '2014 — 12 years of stagnation' },
-      { label: 'Architecture', zen: 'Proof-of-Genesis™ + Proof-of-Delta™', solar: 'Proof-of-Stake-Time (PoST)' },
+      { label: 'Architecture', zen: 'Proof-of-Genesis + Proof-of-Delta', solar: 'Proof-of-Stake-Time (PoST)' },
       { label: 'Verification', zen: 'Live OEM telemetry + cryptographic anchors', solar: 'Honor-system upload of solar production reports' },
     ],
   },
@@ -160,8 +160,8 @@ const TABLES: Table[] = [
   {
     title: 'IP & Patents',
     rows: [
-      { label: 'Core patent', zen: 'U.S. Patent Application No. 19/634,402 (Proof-of-Genesis™)', solar: 'None on record' },
-      { label: 'Verification IP', zen: 'Proof-of-Delta™ cryptographic stack — patent-pending', solar: 'None' },
+      { label: 'Core patent', zen: 'U.S. Patent Application No. 19/634,402 (Proof-of-Genesis)', solar: 'None on record' },
+      { label: 'Verification IP', zen: 'Proof-of-Delta cryptographic stack — patent-pending', solar: 'None' },
       { label: 'Defensibility', zen: 'Process + architecture protected', solar: 'No moat' },
     ],
   },
@@ -203,7 +203,7 @@ const TABLES: Table[] = [
 ];
 
 const CONCLUSION = [
-  'Verifiable energy events at planetary scale via Proof-of-Genesis™ — not honor-system uploads.',
+  'Verifiable energy events at planetary scale via Proof-of-Genesis — not honor-system uploads.',
   'Embedded wallet + dedicated app removes the friction that has capped SolarCoin\'s adoption for a decade.',
   'Multi-vertical rewards (solar, battery, EV kWh, miles, FSD) expand TAM by orders of magnitude.',
   'Patent-pending IP creates a real moat where SolarCoin has none.',
@@ -217,7 +217,7 @@ export default function InvestorSolarCoinComparison() {
         <title>ZenSolar vs SolarCoin — The Next Generation of Clean Energy Tokenization</title>
         <meta
           name="description"
-          content="Why ZenSolar is the fundamentally superior clean-energy tokenization platform: Proof-of-Genesis™ verification, embedded wallet, multi-vertical TAM, and a 100% subscription-to-LP flywheel."
+          content="Why ZenSolar is the fundamentally superior clean-energy tokenization platform: Proof-of-Genesis verification, embedded wallet, multi-vertical TAM, and a 100% subscription-to-LP flywheel."
         />
         <link rel="canonical" href="https://www.zensolar.com/investor/solarcoin-comparison" />
       </Helmet>
@@ -249,7 +249,7 @@ export default function InvestorSolarCoinComparison() {
                 SolarCoin launched in 2014 as a <span className="text-foreground font-medium">non-profit foundation</span> with an early vision to reward solar production. Twelve years later it remains a passive registry with <span className="text-foreground font-semibold">no native app, no embedded wallet, no live OEM telemetry, no AI, no redemption store, and no proactive device intelligence</span> — a third-party inspector approves a production claim and a token grant arrives by email.
               </p>
               <p>
-                <span className="text-foreground font-semibold">ZenSolar is a full consumer product built for the clean-energy era.</span> Embedded Coinbase Smart Wallet, Tap-to-Mint™, live multi-OEM monitoring (Tesla + Enphase + SolarEdge + Wallbox in one UI), the Deason AI concierge, a $ZSOLAR redemption store, proactive grid-outage and battery-health alerts, and <span className="text-foreground font-medium">weekly hyper-personalized device reports + monthly progressive clean-energy insights</span> — all powered by our patent-pending Proof-of-Genesis™ architecture (U.S. Patent Application No. 19/634,402) and Proof-of-Delta™ cryptographic verification.
+                <span className="text-foreground font-semibold">ZenSolar is a full consumer product built for the clean-energy era.</span> Embedded Coinbase Smart Wallet, Tap-to-Mint, live multi-OEM monitoring (Tesla + Enphase + SolarEdge + Wallbox in one UI), the Deason AI concierge, a $ZSOLAR redemption store, proactive grid-outage and battery-health alerts, and <span className="text-foreground font-medium">weekly hyper-personalized device reports + monthly progressive clean-energy insights</span> — all powered by our patent-pending Proof-of-Genesis architecture (U.S. Patent Application No. 19/634,402) and Proof-of-Delta cryptographic verification.
               </p>
               <p>
                 The rewardable surface expands far beyond solar alone — battery discharge, EV charging kWh, miles driven, and FSD miles — while a 100% subscription-to-LP flywheel, 1T hard cap, 20% burn, NFT milestones, and Palmetto installer integration create a moat SolarCoin has never built.
@@ -347,7 +347,7 @@ export default function InvestorSolarCoinComparison() {
                   <div className="text-xs uppercase tracking-[0.18em] text-secondary">2026</div>
                   <div className="mt-1 text-sm text-foreground font-medium">ZenSolar launches</div>
                   <div className="mt-1 text-xs text-muted-foreground leading-snug">
-                    Proof-of-Genesis™. Embedded wallet. Multi-vertical.
+                    Proof-of-Genesis. Embedded wallet. Multi-vertical.
                   </div>
                 </div>
               </div>

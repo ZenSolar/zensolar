@@ -21,11 +21,11 @@ import { useMintSound } from '@/hooks/useMintSound';
  */
 
 const PRIMITIVES = [
-  { key: 'tap',        label: 'Tap',        mark: 'Proof of Genesis™',          tagline: 'Intent received',          icon: Hand },
-  { key: 'origin',     label: 'Origin',     mark: 'Proof-of-Origin™',      tagline: 'Clean source verified',    icon: Cpu },
-  { key: 'delta',      label: 'Delta',      mark: 'Proof-of-Delta™',       tagline: 'Δ kWh signed & time-bound', icon: Layers },
-  { key: 'mint',       label: 'Mint',       mark: 'Mint-on-Proof™',        tagline: 'Token issued',             icon: ShieldCheck },
-  { key: 'permanence', label: 'Permanence', mark: 'Proof-of-Permanence™',  tagline: 'Anchored to the ledger',   icon: Anchor },
+  { key: 'tap',        label: 'Tap',        mark: 'Proof of Genesis',          tagline: 'Intent received',          icon: Hand },
+  { key: 'origin',     label: 'Origin',     mark: 'Proof-of-Origin',      tagline: 'Clean source verified',    icon: Cpu },
+  { key: 'delta',      label: 'Delta',      mark: 'Proof-of-Delta',       tagline: 'Δ kWh signed & time-bound', icon: Layers },
+  { key: 'mint',       label: 'Mint',       mark: 'Mint-on-Proof',        tagline: 'Token issued',             icon: ShieldCheck },
+  { key: 'permanence', label: 'Permanence', mark: 'Proof-of-Permanence',  tagline: 'Anchored to the ledger',   icon: Anchor },
 ] as const;
 
 const STEP_INTERVAL_MS = 1000;

@@ -42,7 +42,7 @@ const TOPICS: Topic[] = [
     read: '3 min',
   },
   {
-    title: 'Proof-of-Genesis™',
+    title: 'Proof-of-Genesis',
     blurb: 'Why we don\'t burn energy to make money — we prove it.',
     href: '/learn/proof-of-genesis',
     icon: Sparkles,
@@ -51,7 +51,7 @@ const TOPICS: Topic[] = [
   },
   {
     title: 'Patent Tech',
-    blurb: 'The four-layer Proof-of-Genesis™ engine that turns device data into currency.',
+    blurb: 'The four-layer Proof-of-Genesis engine that turns device data into currency.',
     href: '/learn/patent-tech',
     icon: Cpu,
     badge: 'The engine',

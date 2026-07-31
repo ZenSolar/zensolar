@@ -166,7 +166,7 @@ export function NFTMilestoneSection() {
           <div className="flex items-center gap-2">
             <Star className="h-3.5 w-3.5 text-token" />
             <span className="text-xs text-muted-foreground">
-              Powered by <span className="font-semibold text-foreground">Mint-on-Proof™</span>
+              Powered by <span className="font-semibold text-foreground">Mint-on-Proof</span>
             </span>
           </div>
           <span className="text-border">·</span>

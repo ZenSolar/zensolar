@@ -405,7 +405,7 @@ export default function ProofOfGenesisReceiptPreview() {
         : `${formatKwh(receipt.total_kwh)} kWh of verified clean energy`;
     return {
       co2Headline,
-      title: `Proof-of-Genesis™ — ${co2Headline} avoided`,
+      title: `Proof-of-Genesis — ${co2Headline} avoided`,
       text: `I just minted ${formatKwh(receipt.tokens_minted)} $ZSOLAR from ${energyLine}, offsetting ${co2Headline}. One Bitcoin tx emits ~${BTC_TX_CO2_KG} kg CO₂. Mine emitted essentially zero. → zen.solar`,
     };
   };
@@ -595,7 +595,7 @@ export default function ProofOfGenesisReceiptPreview() {
           >
             <div className="space-y-3 min-w-0 flex-1">
               <Badge className="bg-primary/15 text-primary border-primary/30 hover:bg-primary/15">
-                <Sparkle /> Proof-of-Genesis™ Receipt
+                <Sparkle /> Proof-of-Genesis Receipt
               </Badge>
               <h1 className="text-2xl sm:text-4xl font-bold tracking-tight leading-[1.1]">
                 The exact readings behind your mint.
@@ -607,7 +607,7 @@ export default function ProofOfGenesisReceiptPreview() {
               {receipt.chain_hash && <MintedForBadge chainHash={receipt.chain_hash} className="pt-1" />}
             </div>
 
-            {/* Proof-of-Authenticity™ embossed watermark stamp */}
+            {/* Proof-of-Authenticity embossed watermark stamp */}
             <div className="shrink-0 self-center sm:self-start">
               <ProofOfAuthenticityStamp
                 poaHashShort={receipt.tx_hash.slice(2, 9)}
@@ -737,7 +737,7 @@ export default function ProofOfGenesisReceiptPreview() {
               <div className="text-sm sm:text-base text-foreground/90 leading-snug">
                 One equivalent BTC transaction would have emitted{' '}
                 <span className="font-bold text-secondary">~{co2Story.pow_delta_kg} kg CO₂</span>{' '}
-                just to settle. Your Proof-of-Genesis™ mint emitted essentially{' '}
+                just to settle. Your Proof-of-Genesis mint emitted essentially{' '}
                 <span className="font-bold text-primary">zero</span> — and proved real clean energy in the same step.
               </div>
             </div>

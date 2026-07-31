@@ -518,7 +518,7 @@ More attractive to new users → loop restarts, stronger`}
           <h4 className="text-sm font-semibold text-foreground mb-2">3-track filing strategy</h4>
           <ul className="space-y-2">
             <li>
-              <strong>Track 1 — Preliminary Amendment by July 2 2026:</strong> Robotaxi/Cybercab fleet miles, FSD dual-mode separation, Proof-of-Permanence™ rename, Proof of Genesis™ embodiment, formal drawings FIG. 1–12
+              <strong>Track 1 — Preliminary Amendment by July 2 2026:</strong> Robotaxi/Cybercab fleet miles, FSD dual-mode separation, Proof-of-Permanence rename, Proof of Genesis embodiment, formal drawings FIG. 1–12
             </li>
             <li>
               <strong>Track 2 — New Provisionals (genuinely new matter):</strong> Tesla Optimist humanoid robot tokenization, Starlink/SpaceX orbital telemetry tokenization
@@ -531,14 +531,14 @@ More attractive to new users → loop restarts, stronger`}
         <div>
           <h4 className="text-sm font-semibold text-foreground mb-2">Trademark roadmap</h4>
           <ul className="space-y-1.5">
-            <li>• <strong>Tier 1 (file immediately):</strong> Proof-of-Permanence™, Genesis Anchor™, Proof-of-Custody™</li>
-            <li>• <strong>Tier 2 (Q3 2026):</strong> Proof-of-Genesis™, ZPPA, Proof of Genesis™, Proof-of-Genesis™</li>
-            <li>• <strong>Tier 3 (post-attorney clearance):</strong> Mint-on-Proof™, Proof-of-Delta™, Proof-of-Origin™</li>
+            <li>• <strong>Tier 1 (file immediately):</strong> Proof-of-Permanence, Genesis Anchor, Proof-of-Custody</li>
+            <li>• <strong>Tier 2 (Q3 2026):</strong> Proof-of-Genesis, ZPPA, Proof of Genesis, Proof-of-Genesis</li>
+            <li>• <strong>Tier 3 (post-attorney clearance):</strong> Mint-on-Proof, Proof-of-Delta, Proof-of-Origin</li>
           </ul>
         </div>
         <div className="rounded-lg border border-amber-400/30 bg-amber-400/[0.04] p-3">
           <p className="text-xs text-foreground/85">
-            <strong>Open attorney questions:</strong> Confirm non-provisional file date relative to Apr 2 2026 (affects safe-harbor); rule on Proof-of-Permanence™ rename (Track 1 vs Track 3); decide on combined vs split provisionals for Optimist + Starlink.
+            <strong>Open attorney questions:</strong> Confirm non-provisional file date relative to Apr 2 2026 (affects safe-harbor); rule on Proof-of-Permanence rename (Track 1 vs Track 3); decide on combined vs split provisionals for Optimist + Starlink.
           </p>
         </div>
       </div>
@@ -560,7 +560,7 @@ More attractive to new users → loop restarts, stronger`}
     body: (
       <div className="space-y-3 text-sm text-foreground/85 leading-relaxed">
         <ul className="space-y-2">
-          <li>• <strong>Proof of Genesis™</strong> — the headline action. User taps, verified energy delta becomes $ZSOLAR.</li>
+          <li>• <strong>Proof of Genesis</strong> — the headline action. User taps, verified energy delta becomes $ZSOLAR.</li>
           <li>• <strong>Clean Energy Center (Dashboard)</strong> — mobile-first home base. Lifetime totals, today's mint, device status, leaderboards.</li>
           <li>• <strong>Proof-of-Genesis Receipt</strong> — every mint generates a cryptographic birth certificate (context-aware: Miles for EV, Verified Energy for solar/battery, CO₂ avoided, vs Bitcoin PoW comparison).</li>
           <li>• <strong>VPP (Virtual Power Plant)</strong> — tokens auto-mint real-time per dispatch (30–60s), cash settles monthly on the 1st. 50/30/15/5 split.</li>
@@ -784,7 +784,7 @@ More attractive to new users → loop restarts, stronger`}
           <h4 className="text-sm font-semibold text-foreground mb-1">Near-term (next 30–60 days)</h4>
           <ul className="space-y-1">
             <li>• Lyndon meeting + pitch refinement</li>
-            <li>• Tier 1 trademark filings: Proof-of-Permanence™, Genesis Anchor™, Proof-of-Custody™</li>
+            <li>• Tier 1 trademark filings: Proof-of-Permanence, Genesis Anchor, Proof-of-Custody</li>
             <li>• Attorney session: confirm Track 1 vs Track 3 questions</li>
             <li>• SolarEdge first live user</li>
           </ul>
@@ -819,9 +819,9 @@ More attractive to new users → loop restarts, stronger`}
       <div className="space-y-3 text-sm text-foreground/85 leading-relaxed">
         <ul className="space-y-2">
           <li>• <strong>Lyndon intro path:</strong> If Jo passes after Tuesday's call, when do we activate the backup connector?</li>
-          <li>• <strong>Patent attorney session:</strong> Does Proof-of-Permanence™ rename qualify as Track 1 (clarifying) or Track 3 (CIP)?</li>
+          <li>• <strong>Patent attorney session:</strong> Does Proof-of-Permanence rename qualify as Track 1 (clarifying) or Track 3 (CIP)?</li>
           <li>• <strong>Optimist vs Starlink provisionals:</strong> One filing or two separate dockets (ZEN-002, ZEN-003)?</li>
-          <li>• <strong>Proof of Genesis™ patent embodiment:</strong> Track 1 amendment or its own provisional?</li>
+          <li>• <strong>Proof of Genesis patent embodiment:</strong> Track 1 amendment or its own provisional?</li>
           <li>• <strong>Trademark coordination:</strong> Do Tier 1 TMs file alongside the patent amendment or independently?</li>
           <li>• <strong>Securities posture for Strategic Introductions tokens:</strong> Confirm with counsel that vested pre-launch tokens to a non-broker introducer doesn't trip finders-fee securities rules.</li>
         </ul>
@@ -1001,7 +1001,7 @@ function OutlineContent() {
             This document is the mirror twin of project memory. Update both together, never one alone.
           </p>
           <p className="text-[10px] text-muted-foreground/60">
-            © 2026 ZenCorp Inc. · ZenSolar™ · Internal — Founders Only
+            © 2026 ZenCorp Inc. · ZenSolar · Internal — Founders Only
           </p>
         </footer>
       </div>

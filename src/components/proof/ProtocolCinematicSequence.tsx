@@ -10,11 +10,11 @@ import { VerifiedSourceBadge, type VerifiedSourceBadgeProps } from './VerifiedSo
  * narrates the 5 trademarked primitives during a $ZSOLAR mint.
  *
  * Order matches the actual runtime sequence:
- *   1. Proof of Genesis™         (intent)
- *   2. Proof-of-Origin™     (clean source verified — must precede Δ)
- *   3. Proof-of-Delta™      (Δ kWh verified)
- *   4. Mint-on-Proof™       (token issued only because both proofs cleared)
- *   5. Proof-of-Permanence™ (anchored eternally)
+ *   1. Proof of Genesis         (intent)
+ *   2. Proof-of-Origin     (clean source verified — must precede Δ)
+ *   3. Proof-of-Delta      (Δ kWh verified)
+ *   4. Mint-on-Proof       (token issued only because both proofs cleared)
+ *   5. Proof-of-Permanence (anchored eternally)
  *
  * Visual language MIRRORS the dashboard's MintEffectButton:
  *  - Emerald energy orb that pulses and flares per primitive (star particles)
@@ -53,35 +53,35 @@ type Scene = {
 const SCENES: Scene[] = [
   {
     key: 'tap',
-    mark: 'Proof of Genesis™',
+    mark: 'Proof of Genesis',
     tagline: 'Intent received',
     detail: 'You signaled the protocol.',
     icon: Hand,
   },
   {
     key: 'origin',
-    mark: 'Proof-of-Origin™',
+    mark: 'Proof-of-Origin',
     tagline: 'Clean source verified',
     detail: 'Your device. Your generation.',
     icon: Cpu,
   },
   {
     key: 'delta',
-    mark: 'Proof-of-Delta™',
+    mark: 'Proof-of-Delta',
     tagline: 'Energy change verified',
     detail: 'Δ kWh/miles is real, signed, time-bound.',
     icon: Layers,
   },
   {
     key: 'mint',
-    mark: 'Mint-on-Proof™',
+    mark: 'Mint-on-Proof',
     tagline: 'Token issued',
     detail: 'No proof, no mint. Both cleared.',
     icon: ShieldCheck,
   },
   {
     key: 'permanence',
-    mark: 'Proof-of-Permanence™',
+    mark: 'Proof-of-Permanence',
     tagline: 'Anchored to the Eternal Ledger',
     detail: 'On-chain. Forever auditable.',
     icon: Anchor,
@@ -452,7 +452,7 @@ export function ProtocolCinematicSequence({
                       reached ? 'text-primary/90' : 'text-muted-foreground/40'
                     }`}
                   >
-                    {s.mark.replace('™', '').split('-')[0]}
+                    {s.mark.replace('', '').split('-')[0]}
                   </div>
                   <div
                     className={`text-[8.5px] sm:text-[10px] font-mono tabular-nums leading-tight transition-colors ${
@@ -661,7 +661,7 @@ export function ProtocolCinematicSequence({
                   >
                     <div className="flex items-center justify-between mb-0.5">
                       <span className="font-bold uppercase tracking-wider text-foreground/90">
-                        {s.mark.replace('™', '')}
+                        {s.mark.replace('', '')}
                       </span>
                       <span className={`font-mono tabular-nums font-bold ${deltaColor}`}>
                         {deltaMs === null

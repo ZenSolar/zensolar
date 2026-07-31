@@ -43,7 +43,7 @@ export default function TeslaSolarCryptoRewards() {
       </p>
       <p>
         ZenSolar tracks your Powerwall's state of charge, charge cycles, and discharge patterns
-        to calculate precise rewards — all verified on-chain through our Mint-on-Proof™ technology.
+        to calculate precise rewards — all verified on-chain through our Mint-on-Proof technology.
         Powerwall owners can also participate in{' '}
         <Link to="/blog/virtual-power-plant-vpp" className="text-primary hover:underline">Virtual Power Plant (VPP) events</Link> for
         bonus reward multipliers.

@@ -19,11 +19,11 @@ import {
  * ProtocolJourney — visualizes the 5 trademarked primitives that produced
  * this $ZSOLAR mint, in the order they actually fired.
  *
- *   1. Proof of Genesis™         (user intent)
- *   2. Proof-of-Delta™      (kWh change verified)
- *   3. Proof-of-Origin™     (device + clean source verified)
- *   4. Mint-on-Proof™       (token minted only because proofs cleared)
- *   5. Proof-of-Permanence™ (anchored to the Eternal Ledger)
+ *   1. Proof of Genesis         (user intent)
+ *   2. Proof-of-Delta      (kWh change verified)
+ *   3. Proof-of-Origin     (device + clean source verified)
+ *   4. Mint-on-Proof       (token minted only because proofs cleared)
+ *   5. Proof-of-Permanence (anchored to the Eternal Ledger)
  *
  * Each step is a button that opens the on-chain Verify drawer pre-focused
  * on that primitive — so the receipt is both a teaching artifact AND a
@@ -118,7 +118,7 @@ export function ProtocolJourney({ data }: { data: ProtocolJourneyData }) {
 
   const steps: Step[] = [
     {
-      mark: 'Proof of Genesis™',
+      mark: 'Proof of Genesis',
       tagline: 'One tap. Real energy → on-chain currency.',
       icon: Hand,
       focusKey: 'tap-to-mint',
@@ -131,7 +131,7 @@ export function ProtocolJourney({ data }: { data: ProtocolJourneyData }) {
       ],
     },
     {
-      mark: 'Proof-of-Delta™',
+      mark: 'Proof-of-Delta',
       tagline: 'The math that proves change actually happened.',
       icon: Layers,
       focusKey: 'proof-of-delta',
@@ -148,7 +148,7 @@ export function ProtocolJourney({ data }: { data: ProtocolJourneyData }) {
       ],
     },
     {
-      mark: 'Proof-of-Origin™',
+      mark: 'Proof-of-Origin',
       tagline: 'Verifies the source — clean, real, and yours.',
       icon: Cpu,
       focusKey: 'proof-of-origin',
@@ -162,7 +162,7 @@ export function ProtocolJourney({ data }: { data: ProtocolJourneyData }) {
       ],
     },
     {
-      mark: 'Mint-on-Proof™',
+      mark: 'Mint-on-Proof',
       tagline: 'No proof, no mint. Period.',
       icon: ShieldCheck,
       focusKey: 'mint-on-proof',
@@ -176,7 +176,7 @@ export function ProtocolJourney({ data }: { data: ProtocolJourneyData }) {
       ],
     },
     {
-      mark: 'Proof-of-Permanence™',
+      mark: 'Proof-of-Permanence',
       tagline: 'The Eternal Ledger.',
       icon: Anchor,
       focusKey: 'proof-of-permanence',

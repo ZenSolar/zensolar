@@ -73,7 +73,7 @@ export function S09ScaleOpportunity() {
                 ZenSolar VPP is the{' '}
                 <span className="text-amber-400">
                   first Virtual Power Plant that issues crypto rewards directly
-                  to participants via Proof-of-Genesis™
+                  to participants via Proof-of-Genesis
                 </span>
                 . Homeowners earn $ZSOLAR in real time (30–60 seconds) for
                 verified grid-supporting behavior. This creates a powerful new

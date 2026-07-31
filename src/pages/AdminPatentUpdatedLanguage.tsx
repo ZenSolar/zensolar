@@ -19,22 +19,22 @@ import { PatentPageNavigation } from '@/components/admin/patent/PatentPageNaviga
 // Terms that have evolved since the original provisional filing
 const updatedTerminology = [
   {
-    original: 'Proof-of-Genesis™ protocol',
-    updated: 'Proof-of-Genesis™ (Proof-of-Genesis™ protocol)',
+    original: 'Proof-of-Genesis protocol',
+    updated: 'Proof-of-Genesis (Proof-of-Genesis protocol)',
     status: 'trademark-pending',
     notes: 'Trademark filing recommended. Core branding element.',
     inOriginal: true,
   },
   {
     original: 'Token Minting Step',
-    updated: 'Mint-on-Proof™',
+    updated: 'Mint-on-Proof',
     status: 'trademark-pending',
     notes: 'New term emphasizing verification-before-minting. Key differentiator.',
     inOriginal: false,
   },
   {
     original: 'Milestone Tracking Algorithm / "if kWh produced ≥ 1,000"',
-    updated: 'Proof-of-Delta™',
+    updated: 'Proof-of-Delta',
     status: 'trademark-pending',
     notes: 'New term for device watermark + delta calculation. Patent-eligible as process.',
     inOriginal: false,
@@ -88,8 +88,8 @@ const newConcepts = [
     reason: 'Supporting concept for Proof-of-Delta; not independently patentable.',
   },
   {
-    term: 'Proof-of-Genesis™ Verification Engine (Layer 3)',
-    definition: 'The third layer of Proof-of-Genesis™ architecture that generates cryptographic proofs and creates tamper-evident timestamps.',
+    term: 'Proof-of-Genesis Verification Engine (Layer 3)',
+    definition: 'The third layer of Proof-of-Genesis architecture that generates cryptographic proofs and creates tamper-evident timestamps.',
     patentable: true,
     reason: 'Novel verification layer bridging energy data to blockchain.',
   },
@@ -97,17 +97,17 @@ const newConcepts = [
 
 const trademarkVsPatent = [
   {
-    type: 'Trademark (™)',
+    type: 'Trademark ()',
     protects: 'Brand names, logos, slogans',
-    examples: ['Mint-on-Proof™', 'Proof-of-Delta™', 'Proof-of-Genesis™', 'ZenSolar™'],
-    process: 'USPTO trademark application; use ™ immediately, ® after registration.',
+    examples: ['Mint-on-Proof', 'Proof-of-Delta', 'Proof-of-Genesis', 'ZenSolar'],
+    process: 'USPTO trademark application; use  immediately, ® after registration.',
     cost: '$250-$350 per class',
     duration: '10 years, renewable indefinitely',
   },
   {
     type: 'Patent',
     protects: 'Processes, methods, systems, compositions',
-    examples: ['Proof-of-Genesis™ architecture', 'Mint-on-Proof token issuance process', 'Device watermark verification system'],
+    examples: ['Proof-of-Genesis architecture', 'Mint-on-Proof token issuance process', 'Device watermark verification system'],
     process: 'Provisional → Non-provisional → Examination → Grant',
     cost: '$10,000-$20,000 total',
     duration: '20 years from filing, non-renewable',
@@ -117,14 +117,14 @@ const trademarkVsPatent = [
 const ipRecommendations = [
   {
     action: 'File Trademark Applications',
-    items: ['Mint-on-Proof™', 'Proof-of-Delta™', 'Proof-of-Genesis™'],
+    items: ['Mint-on-Proof', 'Proof-of-Delta', 'Proof-of-Genesis'],
     priority: 'High',
     timeline: 'Immediately',
     notes: 'Can be filed independently of patent. Protects brand regardless of patent outcome.',
   },
   {
     action: 'Update Non-Provisional Claims',
-    items: ['Add Proof-of-Delta as independent claim', 'Add device fingerprint/watermark language', 'Strengthen Proof-of-Genesis™ verification engine claims'],
+    items: ['Add Proof-of-Delta as independent claim', 'Add device fingerprint/watermark language', 'Strengthen Proof-of-Genesis verification engine claims'],
     priority: 'High',
     timeline: 'Before Q1 2026 filing deadline',
     notes: 'Include all evolved terminology and new concepts not in provisional.',
@@ -166,7 +166,7 @@ export default function AdminPatentUpdatedLanguage() {
         </p>
       </motion.div>
 
-      {/* Proof-of-Genesis™ Architecture Diagram (Downloadable) */}
+      {/* Proof-of-Genesis Architecture Diagram (Downloadable) */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}

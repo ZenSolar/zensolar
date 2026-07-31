@@ -78,7 +78,7 @@ export default function FoundersCurrentStatus() {
           <Stat
             kpi="5"
             label="Trademarks filed"
-            sub="+ Proof-of-Genesis™ provisional patent"
+            sub="+ Proof-of-Genesis provisional patent"
           />
         </div>
       </section>
@@ -103,7 +103,7 @@ export default function FoundersCurrentStatus() {
           <ul className="space-y-2.5">
             <Check>Open the URL on any device — no app install, no extension.</Check>
             <Check>Embedded Coinbase Wallet auto-provisioned on signup. Zero crypto knowledge required.</Check>
-            <Check>Proof of Genesis™ working today — verified energy event → on-chain mint in seconds.</Check>
+            <Check>Proof of Genesis working today — verified energy event → on-chain mint in seconds.</Check>
             <Check>Mobile-first PWA. Works offline. Push notifications.</Check>
           </ul>
           <a
@@ -139,7 +139,7 @@ export default function FoundersCurrentStatus() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div className="rounded-2xl border border-border/60 bg-card p-5">
             <p className="text-[10px] uppercase tracking-widest text-primary mb-2">Patent</p>
-            <p className="font-semibold text-foreground mb-2">Proof-of-Genesis™ — Proof-of-Genesis™ protocol</p>
+            <p className="font-semibold text-foreground mb-2">Proof-of-Genesis — Proof-of-Genesis protocol</p>
             <p className="text-xs text-muted-foreground leading-relaxed">
               Provisional patent filed Q1 2025. Hardware-agnostic 4-layer architecture for verified energy data → on-chain token issuance.
             </p>
@@ -147,11 +147,11 @@ export default function FoundersCurrentStatus() {
           <div className="rounded-2xl border border-border/60 bg-card p-5">
             <p className="text-[10px] uppercase tracking-widest text-primary mb-2">Trademarks (5 filed)</p>
             <ul className="text-xs text-muted-foreground space-y-1">
-              <li>• Mint-on-Proof™</li>
-              <li>• Proof-of-Delta™</li>
-              <li>• Proof-of-Origin™</li>
-              <li>• Proof-of-Genesis™</li>
-              <li>• Proof of Genesis™</li>
+              <li>• Mint-on-Proof</li>
+              <li>• Proof-of-Delta</li>
+              <li>• Proof-of-Origin</li>
+              <li>• Proof-of-Genesis</li>
+              <li>• Proof of Genesis</li>
             </ul>
           </div>
           <div className="rounded-2xl border border-border/60 bg-card p-5 md:col-span-2">

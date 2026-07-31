@@ -3,7 +3,7 @@
  * the *pending* total shown on a Clean Energy Center KPI card.
  *
  * Powers the KPI Activity Log bottom sheet so users see the receipts
- * (Proof-of-Delta™) before they tap MINT (Proof-of-Mint™).
+ * (Proof-of-Delta) before they tap MINT (Proof-of-Mint).
  *
  * IMPORTANT — pending semantics:
  *   The KPI tile shows *pending* units (lifetime − mint baseline). The

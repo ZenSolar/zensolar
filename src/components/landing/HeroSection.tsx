@@ -100,7 +100,7 @@ export function HeroSection() {
               className="inline-flex items-center px-4 py-1.5 text-xs sm:text-sm border-primary/50 bg-primary/10 text-primary font-semibold tracking-wide uppercase ring-1 ring-primary/20 animate-breathing-glow"
             >
               <Sparkles className="h-3.5 w-3.5 mr-2 flex-shrink-0" />
-              Proof-of-Genesis™ · Live on Base
+              Proof-of-Genesis · Live on Base
             </Badge>
           </motion.div>
 
@@ -122,7 +122,7 @@ export function HeroSection() {
 
           <p className="text-[clamp(1.05rem,2.4vw,1.35rem)] text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Every verified kWh becomes <span className="text-primary font-semibold">$ZSOLAR</span> through the
-            Proof-of-Genesis™ protocol. No crypto experience required.
+            Proof-of-Genesis protocol. No crypto experience required.
           </p>
 
           <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-gradient-to-r from-primary/10 via-secondary/10 to-energy/10 border border-primary/30 ring-1 ring-primary/10">

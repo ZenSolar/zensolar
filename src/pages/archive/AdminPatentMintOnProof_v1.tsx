@@ -18,7 +18,7 @@ import { MintOnProofFlowDiagram } from '@/components/whitepaper/MintOnProofFlowD
 const patentClaims = [
   {
     id: 1,
-    title: 'Proof-of-Genesis™ protocol',
+    title: 'Proof-of-Genesis protocol',
     description: 'A hardware-agnostic software layer that connects to multiple energy device manufacturer APIs via OAuth 2.0, normalizes disparate data formats, and bridges verified activity to blockchain smart contracts.',
     novelty: 'Eliminates need for custom IoT hardware by leveraging existing manufacturer clouds.',
   },
@@ -83,9 +83,9 @@ export default function AdminPatentMintOnProof() {
             Provisional Filing: Pending
           </Badge>
         </div>
-        <h1 className="text-3xl font-bold">Mint-on-Proof™ Patent Documentation</h1>
+        <h1 className="text-3xl font-bold">Mint-on-Proof Patent Documentation</h1>
         <p className="text-muted-foreground">
-          Internal reference for the patent-pending Mint-on-Proof architecture and Proof-of-Genesis™ technology.
+          Internal reference for the patent-pending Mint-on-Proof architecture and Proof-of-Genesis technology.
         </p>
       </motion.div>
 

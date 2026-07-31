@@ -109,7 +109,7 @@ export const ProofOfGenesisShareCard = forwardRef<HTMLDivElement, { data: ShareC
             </div>
             <div>
               <div style={{ fontSize: 14, letterSpacing: 4, color: '#34d399', fontWeight: 700, textTransform: 'uppercase' }}>
-                Proof-of-Genesis™
+                Proof-of-Genesis
               </div>
               <div style={{ fontSize: 18, color: '#a1a1aa', marginTop: 2 }}>ZenSolar · Base L2</div>
             </div>
@@ -254,13 +254,13 @@ export const ProofOfGenesisShareCard = forwardRef<HTMLDivElement, { data: ShareC
             color: '#a1a1aa',
           }}
         >
-          <span>Proof-of-Origin™</span>
+          <span>Proof-of-Origin</span>
           <span style={{ color: 'rgba(255,255,255,0.15)' }}>·</span>
-          <span>Proof-of-Delta™</span>
+          <span>Proof-of-Delta</span>
           <span style={{ color: 'rgba(255,255,255,0.15)' }}>·</span>
-          <span>Proof-of-Permanence™</span>
+          <span>Proof-of-Permanence</span>
           <span style={{ color: 'rgba(255,255,255,0.15)' }}>·</span>
-          <span>Mint-on-Proof™</span>
+          <span>Mint-on-Proof</span>
         </div>
 
         {/* ===== Footer: tx hash + brand ===== */}

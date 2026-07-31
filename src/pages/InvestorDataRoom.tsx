@@ -52,7 +52,7 @@ function DataRoomContent() {
     <div className="min-h-screen bg-[hsl(220,20%,6%)] text-white">
       <Helmet>
         <title>ZenSolar · Investor Data Room</title>
-        <meta name="description" content="ZenSolar investor data room — Proof-of-Genesis™, VPP, aggregated data, traction, and IP. Lean seed strategy ($1M target / $2M hard cap)." />
+        <meta name="description" content="ZenSolar investor data room — Proof-of-Genesis, VPP, aggregated data, traction, and IP. Lean seed strategy ($1M target / $2M hard cap)." />
         <meta name="robots" content="noindex,nofollow" />
         <link rel="canonical" href="https://www.zensolar.com/investor/data-room" />
       </Helmet>
@@ -140,7 +140,7 @@ function DataRoomContent() {
           <DeckCard>
             <Kicker>01 · Technology</Kicker>
             <h2 className="text-[32px] font-semibold leading-tight">
-              Proof-of-Genesis<span className="text-secondary">™</span> Deep Dive
+              Proof-of-Genesis<span className="text-secondary"></span> Deep Dive
             </h2>
             <p className="mt-3 text-[16px] text-white/65 leading-relaxed max-w-[900px]">
               The first real-time, multi-OEM verification protocol that mints
@@ -192,7 +192,7 @@ function DataRoomContent() {
             </h2>
             <p className="mt-3 text-[16px] text-white/70 leading-relaxed max-w-[900px]">
               The first VPP that issues crypto rewards directly via
-              Proof-of-Genesis<span className="text-secondary">™</span>. When
+              Proof-of-Genesis<span className="text-secondary"></span>. When
               the grid calls, participating homes dispatch — and earn cash plus
               $ZSOLAR in the same settlement cycle.
             </p>
@@ -341,13 +341,13 @@ function DataRoomContent() {
               <p>
                 <span className="text-white/90 font-semibold">Patent status:</span>{" "}
                 One utility application filed (U.S. App. 19/634,402) covering
-                Mint-on-Proof™, Proof-of-Delta™, and Proof-of-Origin™. Two
+                Mint-on-Proof, Proof-of-Delta, and Proof-of-Origin. Two
                 continuation tracks planned.
               </p>
               <p>
                 <span className="text-white/90 font-semibold">Trademark portfolio:</span>{" "}
-                Proof-of-Genesis™, Tap-to-Mint™, Mint-on-Proof™, Proof-of-Delta™,
-                Proof-of-Origin™.
+                Proof-of-Genesis, Tap-to-Mint, Mint-on-Proof, Proof-of-Delta,
+                Proof-of-Origin.
               </p>
               <p>
                 <span className="text-white/90 font-semibold">Entity:</span> ZenSolar,

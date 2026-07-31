@@ -1,7 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { detectHwVersion } from "../_shared/fsdSampler.ts";
 
-// ── Cryptographic Helpers (Proof-of-Delta™ for EV Miles) ─────────────────────
+// ── Cryptographic Helpers (Proof-of-Delta for EV Miles) ─────────────────────
 
 async function sha256Hex(input: string): Promise<string> {
   const data = new TextEncoder().encode(input);
@@ -1277,7 +1277,7 @@ Deno.serve(async (req) => {
       const now = new Date();
       const recordedAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()).toISOString();
       
-      // ── Proof-of-Delta™ for ALL Tesla energy data types ──────────────────
+      // ── Proof-of-Delta for ALL Tesla energy data types ──────────────────
       for (const site of energySitesData) {
         const tsNow = new Date().toISOString();
 
@@ -1347,7 +1347,7 @@ Deno.serve(async (req) => {
           }, { onConflict: "device_id,provider,recorded_at,data_type" });
       }
 
-      // EV miles (odometer — Proof-of-Delta™ cryptographic verification)
+      // EV miles (odometer — Proof-of-Delta cryptographic verification)
       for (const vehicle of vehiclesData) {
         if (vehicle.odometer > 0) {
           const tsNow = new Date().toISOString();

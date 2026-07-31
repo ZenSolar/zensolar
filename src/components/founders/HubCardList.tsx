@@ -137,7 +137,7 @@ export const HUB_CARDS: HubCardDef[] = [
     id: "proof-of-genesis",
     to: "/proof-of-genesis",
     eyebrow: "Public · Canonical Receipt",
-    title: "Proof of Genesis™",
+    title: "Proof of Genesis",
     blurb: "The cryptographic primitive — Δ + Origin. Public-facing version.",
     icon: SparklesIcon,
     tone: "primary",

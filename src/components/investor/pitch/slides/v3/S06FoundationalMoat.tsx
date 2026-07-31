@@ -10,9 +10,9 @@ const walls = [
     title: 'The TM Stack',
     accent: 'amber-400',
     items: [
-      'Mint-on-Proof™ · Proof-of-Delta™ · Proof-of-Genesis™',
-      'Proof-of-Genesis™ · Genesis Anchor™',
-      'Device Watermark Registry™',
+      'Mint-on-Proof · Proof-of-Delta · Proof-of-Genesis',
+      'Proof-of-Genesis · Genesis Anchor',
+      'Device Watermark Registry',
       'Energy Price Oracle (Series A track)',
     ],
     footer: 'Non-provisional patent filed (U.S. App. 19/634,402).',
@@ -37,7 +37,7 @@ const walls = [
     title: 'Verification Stack',
     accent: 'sky-400',
     items: [
-      'Proof-of-Delta™ — SHA-256 hash chains',
+      'Proof-of-Delta — SHA-256 hash chains',
       'Device Watermark Registry — one device → one wallet',
       'Server-side mint reconciliation',
       'Weather + irradiance cross-reference',

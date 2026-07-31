@@ -36,7 +36,7 @@ export default function InvestorOnePager() {
     <>
       <Helmet>
         <title>ZenSolar — Investor One-Pager</title>
-        <meta name="description" content="ZenSolar one-page investor summary — Proof-of-Genesis™, three revenue engines, lean seed ($1M target / $2M hard cap)." />
+        <meta name="description" content="ZenSolar one-page investor summary — Proof-of-Genesis, three revenue engines, lean seed ($1M target / $2M hard cap)." />
         <meta name="robots" content="noindex,nofollow" />
         <link rel="canonical" href="https://www.zensolar.com/investor/one-pager" />
       </Helmet>
@@ -98,7 +98,7 @@ export default function InvestorOnePager() {
               <span className="text-secondary">ZenSolar tokenizes abundance.</span>
             </h1>
             <p className="mt-3 text-sm text-muted-foreground">
-              Proof-of-Genesis™ turns verified clean-energy production into a hard-capped digital currency — Bitcoin-grade integrity at ~0.001% of the energy cost.
+              Proof-of-Genesis turns verified clean-energy production into a hard-capped digital currency — Bitcoin-grade integrity at ~0.001% of the energy cost.
             </p>
             <p className="mt-2 text-sm text-foreground/90">
               We're raising a lean seed ($1M target / $2M hard cap) to ship mainnet, seed the LP, and prove the subscription flywheel — designed to reach self-sustainability without a traditional Series A.
@@ -150,9 +150,9 @@ export default function InvestorOnePager() {
 
           {/* Bitcoin vs ZenSolar */}
           <section className="op-card rounded-2xl border border-border/60 bg-card/40 p-4">
-            <SectionLabel className="mb-2">Proof-of-Work vs Proof-of-Genesis™</SectionLabel>
+            <SectionLabel className="mb-2">Proof-of-Work vs Proof-of-Genesis</SectionLabel>
             <p className="text-sm leading-relaxed text-foreground/90">
-              Bitcoin's Proof-of-Work consumes enormous amounts of energy to create digital scarcity with no direct environmental benefit. ZenSolar's Proof-of-Genesis™ rewards the actual creation of clean energy — one verified clean kilowatt-hour produced generates one $ZSOLAR token. We turn energy abundance into digital value instead of consuming massive energy to create artificial scarcity.
+              Bitcoin's Proof-of-Work consumes enormous amounts of energy to create digital scarcity with no direct environmental benefit. ZenSolar's Proof-of-Genesis rewards the actual creation of clean energy — one verified clean kilowatt-hour produced generates one $ZSOLAR token. We turn energy abundance into digital value instead of consuming massive energy to create artificial scarcity.
             </p>
           </section>
 
@@ -184,9 +184,9 @@ export default function InvestorOnePager() {
 
           {/* Moat + screenshots */}
           <section className="op-card">
-            <SectionLabel>The Moat — Proof-of-Genesis™ + multi-OEM monitoring</SectionLabel>
+            <SectionLabel>The Moat — Proof-of-Genesis + multi-OEM monitoring</SectionLabel>
             <p className="text-sm leading-relaxed text-foreground/90 mb-3">
-              Proof-of-Genesis™ is the first protocol to mint a digital asset from real-world clean-energy production with cryptographic proof — Bitcoin-grade integrity at near-zero energy overhead. It runs on the first unified multi-OEM cockpit covering Tesla, Enphase, SolarEdge, and Wallbox: the prerequisite for verified minting, the proprietary data set behind Engine 03, and an experience mixed-system homeowners cannot get anywhere else.
+              Proof-of-Genesis is the first protocol to mint a digital asset from real-world clean-energy production with cryptographic proof — Bitcoin-grade integrity at near-zero energy overhead. It runs on the first unified multi-OEM cockpit covering Tesla, Enphase, SolarEdge, and Wallbox: the prerequisite for verified minting, the proprietary data set behind Engine 03, and an experience mixed-system homeowners cannot get anywhere else.
             </p>
             <div className="flex flex-wrap gap-1.5 mb-4">
               {['Tesla', 'Enphase', 'SolarEdge', 'Wallbox'].map((oem) => (
@@ -205,7 +205,7 @@ export default function InvestorOnePager() {
               />
               <Shot
                 src="/investor/one-pager/tap-to-mint.png"
-                caption="Tap-to-Mint™ — verified kWh becomes $ZSOLAR"
+                caption="Tap-to-Mint — verified kWh becomes $ZSOLAR"
               />
             </div>
           </section>

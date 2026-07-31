@@ -16,7 +16,7 @@ const steps = [
     icon: ShieldCheck,
     step: '02',
     title: 'We Verify Every kWh On-Chain',
-    description: 'Our patent-pending Proof-of-Delta™ engine verifies every kWh produced, stored, or consumed and creates an immutable cryptographic proof on Base blockchain.',
+    description: 'Our patent-pending Proof-of-Delta engine verifies every kWh produced, stored, or consumed and creates an immutable cryptographic proof on Base blockchain.',
     color: 'text-secondary',
     bg: 'bg-secondary/10',
     border: 'border-secondary/20',

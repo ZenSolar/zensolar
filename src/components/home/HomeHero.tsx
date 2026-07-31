@@ -67,7 +67,7 @@ export function HomeHero() {
             transition={{ delay: 0.15, duration: 0.5 }}
             className="text-sm md:text-base text-muted-foreground max-w-xl leading-relaxed"
           >
-            The world&apos;s first Mint-on-Proof™ platform. Tokenizing clean energy at the
+            The world&apos;s first Mint-on-Proof platform. Tokenizing clean energy at the
             kilowatt-hour level — for solar owners, battery storage, and EV drivers.
           </motion.p>
 

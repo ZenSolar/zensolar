@@ -357,7 +357,7 @@ export default function Auth() {
               The World's First
             </p>
             <h1 className="text-2xl font-bold text-foreground mb-2 tracking-tight">
-              Proof of Genesis™, Mint-on-Proof™
+              Proof of Genesis, Mint-on-Proof
             </h1>
             <h2 className="text-xl font-semibold text-primary">
               Web3 Clean Energy Platform
@@ -411,7 +411,7 @@ export default function Auth() {
                 className="text-[9px] uppercase tracking-[0.15em] text-primary/80 font-semibold leading-relaxed"
               >
                 <span className="block">The World's First</span>
-                <span className="block">Proof of Genesis™, Mint-on-Proof™</span>
+                <span className="block">Proof of Genesis, Mint-on-Proof</span>
                 <span className="block">Web3 Clean Energy Platform</span>
               </p>
             </div>

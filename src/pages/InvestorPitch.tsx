@@ -104,7 +104,7 @@ export default function InvestorPitch() {
             />
             <CatalystCard
               title="Patent-pending"
-              body="U.S. App. 19/634,402 covers the Proof of Genesis™ protocol — a novel system for turning verified clean-energy production into a hard-capped, asset-backed digital currency on Base."
+              body="U.S. App. 19/634,402 covers the Proof of Genesis protocol — a novel system for turning verified clean-energy production into a hard-capped, asset-backed digital currency on Base."
             />
             <CatalystCard
               title="First of its kind"
@@ -116,7 +116,7 @@ export default function InvestorPitch() {
                   <span className="text-foreground">Tesla, Enphase, SolarEdge, and Wallbox</span>{' '}
                   into one premium dashboard. Homeowners with mixed systems (Enphase solar +
                   Tesla Powerwall + Tesla EV) finally get unified visibility — and
-                  Proof-of-Genesis™ minting on top.
+                  Proof-of-Genesis minting on top.
                 </>
               }
             />
@@ -197,7 +197,7 @@ export default function InvestorPitch() {
                 <span className="text-secondary font-semibold shrink-0">Milestones —</span>
                 <span>
                   Mainnet TGE on Base (chain 8453), LP seeded at $0.10 with the $200K tranche, first
-                  1,000 paying subscribers, Deason AI premium add-on live, Proof-of-Genesis™ IP
+                  1,000 paying subscribers, Deason AI premium add-on live, Proof-of-Genesis IP
                   filings completed.
                 </span>
               </li>

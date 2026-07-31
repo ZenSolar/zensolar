@@ -41,7 +41,7 @@ export function S03Opportunity() {
         </div>
 
         <DeckCard emphasized>
-          <CardKicker className="text-secondary">Proof-of-Work vs Proof-of-Genesis™</CardKicker>
+          <CardKicker className="text-secondary">Proof-of-Work vs Proof-of-Genesis</CardKicker>
           <p className="text-[22px] text-white/85 mt-4 leading-relaxed max-w-[1500px]">
             <span className="text-white font-semibold">Bitcoin burns energy to create scarcity.</span>{' '}
             <span className="text-secondary">We reward energy to create currency.</span>

@@ -275,7 +275,7 @@ export function ReceiptSourceLines({
       >
         <ListTree className="h-4 w-4 text-primary" />
         <Badge variant="outline" className="text-[10px] border-primary/40 text-primary uppercase tracking-[0.14em]">
-          Proof-of-Delta™ · Sources
+          Proof-of-Delta · Sources
         </Badge>
         <span className="text-xs text-muted-foreground ml-1">
           {lines.length} event{lines.length === 1 ? '' : 's'} · {totalKwh.toFixed(2)} kWh

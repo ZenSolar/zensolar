@@ -507,9 +507,9 @@ export default function FoundersSsotZen() {
               <CardContent className="p-5">
                 <ul className="space-y-2.5 text-sm">
                   {[
-                    "Proof of Genesis™ live (10:1 ratio)",
+                    "Proof of Genesis live (10:1 ratio)",
                     "Daily Auto-Mint engine",
-                    "Mint-on-Proof™ (PoG receipts)",
+                    "Mint-on-Proof (PoG receipts)",
                     "Embedded Coinbase Wallet + Reown AppKit",
                     "Clean Energy Center (mobile-first 390×844)",
                     "Subscription system (Base / Regular / Power)",

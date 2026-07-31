@@ -81,7 +81,7 @@ const TERMS: Term[] = [
 
   // What You Do
   {
-    term: "Proof of Genesis™",
+    term: "Proof of Genesis",
     category: "What You Do",
     short: "Tap a button to turn your clean energy into a reward.",
     detail:
@@ -220,7 +220,7 @@ const TERMS: Term[] = [
 
   // Trust & Safety
   {
-    term: "Proof-of-Genesis™",
+    term: "Proof-of-Genesis",
     category: "Trust & Safety",
     short: "The proof that your clean energy was real.",
     detail:
@@ -263,12 +263,12 @@ const TERMS: Term[] = [
 
   // Behind the Scenes
   {
-    term: "Proof of Genesis™ Engine",
+    term: "Proof of Genesis Engine",
     category: "Behind the Scenes",
     short: "The patented technology that makes one-tap rewards possible.",
   },
   {
-    term: "Mint-on-Proof™",
+    term: "Mint-on-Proof",
     category: "Behind the Scenes",
     short: "ZenSolar's rule: no proof, no reward.",
     detail:

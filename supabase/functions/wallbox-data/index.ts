@@ -8,7 +8,7 @@ const corsHeaders = {
 // Wallbox API endpoints
 const WALLBOX_API_BASE = "https://api.wall-box.com";
 
-// ── Cryptographic Helpers (Proof-of-Delta™) ──────────────────────────────────
+// ── Cryptographic Helpers (Proof-of-Delta) ──────────────────────────────────
 
 async function sha256Hex(input: string): Promise<string> {
   const data = new TextEncoder().encode(input);
@@ -575,7 +575,7 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Write daily granular rows with Proof-of-Delta™ cryptographic verification
+      // Write daily granular rows with Proof-of-Delta cryptographic verification
       for (const [dateStr, totalWh] of dailyChargingMap) {
         if (totalWh <= 0) continue;
         const tsNow = new Date().toISOString();
@@ -681,7 +681,7 @@ Deno.serve(async (req) => {
             const durationSecs = attrs.time || attrs.duration || null;
             const chargerPowerKw = attrs.power ? attrs.power / 1000 : null;
 
-            // Linked Proof-of-Delta™: SHA-256(device_id|timestamp|value|prevHash)
+            // Linked Proof-of-Delta: SHA-256(device_id|timestamp|value|prevHash)
             const sessionProofHash = await buildEnergyHash(
               primaryId, String(startTime), sessionKwh * 1000, prevSessionHash
             );

@@ -24,7 +24,7 @@ const FAQ: Array<{ q: string; a: string }> = [
   },
   {
     q: 'Who is the competition?',
-    a: 'Energy-data aggregators (Sense, Span) lack tokenization. Crypto-energy projects (Powerledger, Energy Web) lack multi-OEM monitoring and consumer reach. We are the only team running first-of-its-kind unified Tesla + Enphase + SolarEdge + Wallbox monitoring live today, with Proof-of-Genesis™ minting on top.',
+    a: 'Energy-data aggregators (Sense, Span) lack tokenization. Crypto-energy projects (Powerledger, Energy Web) lack multi-OEM monitoring and consumer reach. We are the only team running first-of-its-kind unified Tesla + Enphase + SolarEdge + Wallbox monitoring live today, with Proof-of-Genesis minting on top.',
   },
 ];
 

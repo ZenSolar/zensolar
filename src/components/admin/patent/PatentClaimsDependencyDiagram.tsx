@@ -36,7 +36,7 @@ const dependentClaims: ClaimNode[] = [
   {
     id: 'mint-on-proof',
     label: 'Token Issuance Method',
-    trademark: 'Mint-on-Proof™',
+    trademark: 'Mint-on-Proof',
     type: 'dependent',
     description: 'Tokens minted only upon cryptographic verification of real-world activity — no pre-minted pools.',
     claimNumbers: 'Dependent Claims 2–5',
@@ -46,7 +46,7 @@ const dependentClaims: ClaimNode[] = [
   {
     id: 'proof-of-delta',
     label: 'Incremental Verification Method',
-    trademark: 'Proof-of-Delta™',
+    trademark: 'Proof-of-Delta',
     type: 'dependent',
     description: 'Delta calculation using device-bound watermarks to ensure tokens represent only new, never-before-tokenized activity.',
     claimNumbers: 'Dependent Claims 6–9',
@@ -56,7 +56,7 @@ const dependentClaims: ClaimNode[] = [
   {
     id: 'proof-of-origin',
     label: 'Device-Bound Anti-Fraud System',
-    trademark: 'Proof-of-Origin™',
+    trademark: 'Proof-of-Origin',
     type: 'dependent',
     description: 'Cryptographic device fingerprinting with on-chain watermark registry preventing cross-platform double-minting.',
     claimNumbers: 'Dependent Claims 10–13',
@@ -145,7 +145,7 @@ export function PatentClaimsDependencyDiagram() {
             "{independentClaim.description}"
           </p>
           <p className="text-xs text-muted-foreground">
-            Covers the overall Proof-of-Genesis™ architecture + blockchain bridge as a unified invention
+            Covers the overall Proof-of-Genesis architecture + blockchain bridge as a unified invention
           </p>
         </motion.div>
 
@@ -213,7 +213,7 @@ export function PatentClaimsDependencyDiagram() {
               <p className="text-xs font-semibold text-purple-600 dark:text-purple-400">Trademarks (3 filings)</p>
             </div>
             <p className="text-xs text-muted-foreground">
-              Protects the <strong>names</strong> — Mint-on-Proof™, Proof-of-Delta™, Proof-of-Origin™. Each requires a separate USPTO trademark application.
+              Protects the <strong>names</strong> — Mint-on-Proof, Proof-of-Delta, Proof-of-Origin. Each requires a separate USPTO trademark application.
             </p>
           </div>
         </div>

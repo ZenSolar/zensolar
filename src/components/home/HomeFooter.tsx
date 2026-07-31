@@ -38,7 +38,7 @@ export function HomeFooter() {
         <div className="flex flex-col items-center text-center mb-10">
           <img src={zenLogo} alt="ZenSolar" width="108" height="32" className="h-8 w-auto dark:animate-logo-glow mb-4" />
           <p className="text-sm text-muted-foreground leading-relaxed max-w-md">
-            The world's first Mint-on-Proof™ clean energy rewards platform. Patent pending.
+            The world's first Mint-on-Proof clean energy rewards platform. Patent pending.
           </p>
           <div className="flex items-center gap-2 mt-3">
             <span className="text-xs text-muted-foreground">Built on</span>
@@ -77,7 +77,7 @@ export function HomeFooter() {
           <div className="flex items-center gap-4">
             <span className="text-xs text-muted-foreground">🛡️ Patent Pending</span>
             <span className="text-xs text-muted-foreground">🌐 Base L2</span>
-            <span className="text-xs text-muted-foreground">⬡ Mint-on-Proof™</span>
+            <span className="text-xs text-muted-foreground">⬡ Mint-on-Proof</span>
           </div>
         </div>
       </div>

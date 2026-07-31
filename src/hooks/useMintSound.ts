@@ -516,7 +516,7 @@ export function useMintSound() {
       echo2Gain.connect(ctx.destination);
 
       // ══════════════════════════════════════════════════════════
-      //  ZenSolar™ Proof of Genesis — Single Unified Gong Strike
+      //  ZenSolar Proof of Genesis — Single Unified Gong Strike
       //  All partials hit simultaneously as one cohesive metallic tone
       // ══════════════════════════════════════════════════════════
 
@@ -755,7 +755,7 @@ export function useMintSound() {
       // Silent fail
     }
   }, [preparePlayback, triggerHaptic]);
-  /** Confirm mint: ZenSolar™ — stamp → deep meditative bowl bloom → bass sustain */
+  /** Confirm mint: ZenSolar — stamp → deep meditative bowl bloom → bass sustain */
   const playConfirmSound = useCallback(() => {
     try {
       const ctx = primeAudio();
@@ -800,7 +800,7 @@ export function useMintSound() {
       echo2Gain.connect(ctx.destination);
 
       // ══════════════════════════════════════════════════════════
-      //  ZenSolar™ Confirm Sound — Gong strike → Meditative Bass
+      //  ZenSolar Confirm Sound — Gong strike → Meditative Bass
       // ══════════════════════════════════════════════════════════
 
       // ─── Layer 0: ZEN GONG STRIKE (confirm version — deeper, longer) ───
@@ -1084,7 +1084,7 @@ export function useMintSound() {
   }, [primeAudio, triggerHaptic]);
 
   /**
-   * ZenSolar™ Access Denied — locked vault clang
+   * ZenSolar Access Denied — locked vault clang
    * Short, dissonant metallic strike that descends into silence.
    * Inspired by the mint gong but twisted: detuned, harsh, abrupt.
    */

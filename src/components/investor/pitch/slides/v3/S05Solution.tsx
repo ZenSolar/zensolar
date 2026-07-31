@@ -5,7 +5,7 @@ import { Sun, Zap, Coins, Lock, ArrowRight } from 'lucide-react';
 
 const flow = [
   { icon: Sun, label: 'Produce', desc: 'Solar panels generate kWh' },
-  { icon: Zap, label: 'Verify', desc: 'Proof-of-Genesis™ confirms production' },
+  { icon: Zap, label: 'Verify', desc: 'Proof-of-Genesis confirms production' },
   { icon: Coins, label: 'Mint', desc: 'Tokens auto-minted 1:1' },
   { icon: Lock, label: 'Retire', desc: 'Energy cryptographically locked' },
 ];
@@ -59,7 +59,7 @@ export function S05Solution() {
             <p className="text-[18px] text-white/65 mt-4 leading-relaxed">
               Tesla, Enphase, SolarEdge, and Wallbox in one premium dashboard.
               The prerequisite for every revenue engine — homeowners with mixed
-              systems finally get unified visibility, and Proof-of-Genesis™
+              systems finally get unified visibility, and Proof-of-Genesis
               minting on top.
             </p>
           </DeckCard>

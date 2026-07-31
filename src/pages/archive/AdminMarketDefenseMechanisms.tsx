@@ -282,7 +282,7 @@ const tier3Mechanisms: DefenseMechanism[] = [
     id: 'energy-fundamental-floor',
     name: 'Energy Production Fundamental Floor',
     description: 'Use verified energy data to establish a "fundamental value" for $ZSOLAR based on real-world energy production metrics',
-    trigger: 'Continuous — updates with each Mint-on-Proof™ verification',
+    trigger: 'Continuous — updates with each Mint-on-Proof verification',
     effect: 'Creates a non-speculative floor: "Each $ZSOLAR represents X kWh of verified clean energy"',
     status: 'planned',
     icon: <Zap className="h-5 w-5 text-primary" />,

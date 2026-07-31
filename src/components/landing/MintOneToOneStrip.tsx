@@ -52,7 +52,7 @@ export function MintOneToOneStrip() {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <Hexagon className="h-5 w-5 text-primary" />
-                  <span className="text-xs uppercase tracking-widest text-muted-foreground">Proof-of-Genesis™ Receipt</span>
+                  <span className="text-xs uppercase tracking-widest text-muted-foreground">Proof-of-Genesis Receipt</span>
                 </div>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-energy/15 text-energy border border-energy/30">Verified</span>
               </div>

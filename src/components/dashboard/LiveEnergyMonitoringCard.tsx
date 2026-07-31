@@ -1344,7 +1344,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                     ? 'Verifying receipt impact'
                     : mintImpact.tokens > 0
                       ? 'Verified by Proof-of-Genesis'
-                      : 'Proof of Genesis™ once production posts'}
+                      : 'Proof of Genesis once production posts'}
                 </div>
               </div>
             </div>

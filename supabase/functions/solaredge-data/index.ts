@@ -7,7 +7,7 @@ const corsHeaders = {
 
 const SOLAREDGE_API_BASE = "https://monitoringapi.solaredge.com";
 
-// ── Cryptographic Helpers (Proof-of-Delta™) ──────────────────────────────────
+// ── Cryptographic Helpers (Proof-of-Delta) ──────────────────────────────────
 
 async function sha256Hex(input: string): Promise<string> {
   const data = new TextEncoder().encode(input);
@@ -226,7 +226,7 @@ Deno.serve(async (req) => {
       console.log(`SolarEdge pending calculation: lifetime=${lifetimeEnergyWh}, baseline=${baselineSolarWh}, pending=${pendingSolarWh}`);
     }
 
-    // Store production data with Proof-of-Delta™ cryptographic verification
+    // Store production data with Proof-of-Delta cryptographic verification
     if (todayEnergyWh > 0) {
       const now = new Date();
       const recordedAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()).toISOString();

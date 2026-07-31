@@ -382,7 +382,7 @@ export function ReceiptDrawer({ tx, open, onOpenChange }: ReceiptDrawerProps) {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
-                  <p className="text-[10px] uppercase tracking-[0.15em] text-primary font-semibold">Proof-of-Genesis™</p>
+                  <p className="text-[10px] uppercase tracking-[0.15em] text-primary font-semibold">Proof-of-Genesis</p>
                   <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/15 text-primary border border-primary/30 leading-none">IP</span>
                 </div>
                 <p className="text-sm font-bold text-foreground leading-tight mt-0.5">

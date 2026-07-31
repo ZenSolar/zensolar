@@ -9,14 +9,14 @@ const walls = [
     title: 'The TM Stack',
     color: 'hsl(280,68%,60%)',
     items: [
-      'Track 1 — Mint-on-Proof™',
-      'Track 2 — Proof-of-Delta™ / Proof-of-Genesis™',
+      'Track 1 — Mint-on-Proof',
+      'Track 2 — Proof-of-Delta / Proof-of-Genesis',
       'Track 2.5 — Energy Price Oracle',
       'Track 3 — Device Watermark Registry',
       'Track 4 — ZK-Proof-of-Genesis',
     ],
     footer:
-      'TMs: Proof-of-Genesis™, Proof of Genesis™, Proof-of-Permanence™, Genesis Anchor™, Proof-of-Custody™, Proof-of-Genesis™, ZPPA',
+      'TMs: Proof-of-Genesis, Proof of Genesis, Proof-of-Permanence, Genesis Anchor, Proof-of-Custody, Proof-of-Genesis, ZPPA',
   },
   {
     icon: Layers,

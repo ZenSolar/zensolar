@@ -13,7 +13,7 @@ export default function Seed() {
   const useOfFunds: Array<{ item: string; amount: string; note?: string }> = [
     { item: 'Joseph Salary (Year 1)', amount: '$250K', note: 'Sole full-time founder runway' },
     { item: 'Initial Liquidity Pool Tranche', amount: '$200K', note: 'Seeds $ZSOLAR LP at $0.10' },
-    { item: 'Patent, Trademark & Full Legal', amount: '$55K', note: 'Proof of Genesis™ + entity + token counsel' },
+    { item: 'Patent, Trademark & Full Legal', amount: '$55K', note: 'Proof of Genesis + entity + token counsel' },
     { item: 'Smart Contract Audits', amount: '$40K', note: 'Third-party audit before mainnet TGE' },
     { item: 'Minimal Ops & Tools', amount: '$15K', note: 'Infra, monitoring, dev tooling' },
     { item: 'Buffer + User Acquisition', amount: '$440K', note: 'Growth, reserves, opportunistic spend' },

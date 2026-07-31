@@ -16,7 +16,7 @@ const comparison = {
   },
   right: {
     label: '$ZSOLAR',
-    sublabel: 'Proof-of-Genesis™ (PoG)',
+    sublabel: 'Proof-of-Genesis (PoG)',
     rows: [
       { stat: '1 kWh', desc: 'of clean energy per $ZSOLAR' },
       { stat: 'Energy efficient', desc: 'distributed across real homes' },
@@ -39,7 +39,7 @@ const bottomCards = [
   {
     icon: ShieldCheck,
     title: 'Patent-pending stack',
-    chips: ['Mint-on-Proof™', 'Proof-of-Delta™', 'Proof-of-Origin™'],
+    chips: ['Mint-on-Proof', 'Proof-of-Delta', 'Proof-of-Origin'],
   },
 ];
 
@@ -66,7 +66,7 @@ export function S07Tech() {
           />
           <div className="-mt-4">
             <h1 className="text-[96px] font-semibold tracking-tight text-white leading-none">
-              Proof-of-Genesis<span className="text-secondary">™</span>
+              Proof-of-Genesis<span className="text-secondary"></span>
             </h1>
             <div className="mt-3 flex items-center gap-4">
               <span className="text-[14px] uppercase tracking-[0.18em] text-white/40 font-mono">

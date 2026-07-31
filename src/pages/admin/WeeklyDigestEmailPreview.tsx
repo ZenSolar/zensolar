@@ -206,7 +206,7 @@ function EmailRender({ data }: { data: DigestPayload }) {
         <hr style={footerDivider} />
         <p style={footer}>
           © {new Date().getFullYear()} ZenSolar, LLC<br />
-          ZenSolar™ · Proof of Genesis™ · Creating Currency From Energy™
+          ZenSolar · Proof of Genesis · Creating Currency From Energy
         </p>
       </div>
     </div>

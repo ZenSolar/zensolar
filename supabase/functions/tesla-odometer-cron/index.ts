@@ -6,7 +6,7 @@
 //   - Refresh access token if within 5 min of expiry.
 //   - Non-waking `vehicle_data?endpoints=vehicle_state` call.
 //   - On 408/503 (asleep) → skip, do NOT wake_up.
-//   - Otherwise write a Proof-of-Delta™ ev_miles row and update lifetime.
+//   - Otherwise write a Proof-of-Delta ev_miles row and update lifetime.
 //
 // verify_jwt = false — invoked by pg_cron with service-role header.
 

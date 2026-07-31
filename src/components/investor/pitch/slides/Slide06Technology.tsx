@@ -5,8 +5,8 @@ import { Layers, Shield, Fingerprint, FileCheck } from 'lucide-react';
 const layers = [
   { icon: Layers, label: 'API Aggregation', desc: 'Tesla, Enphase, SolarEdge, Wallbox — one unified pipeline', color: 'hsl(207,90%,54%)', num: 'L1' },
   { icon: FileCheck, label: 'Data Normalization', desc: 'Manufacturer-agnostic schema. kWh is kWh regardless of source', color: 'hsl(142,76%,50%)', num: 'L2' },
-  { icon: Shield, label: 'Verification Engine', desc: 'Proof-of-Delta™ — SHA-256 hash chains confirm energy deltas, prevent double-counting', color: 'hsl(45,93%,47%)', num: 'L3' },
-  { icon: Fingerprint, label: 'Smart Contract Bridge', desc: 'Proof-of-Origin™ — Device Watermark Registry™ binds VIN/Site ID to on-chain identity', color: 'hsl(280,68%,60%)', num: 'L4' },
+  { icon: Shield, label: 'Verification Engine', desc: 'Proof-of-Delta — SHA-256 hash chains confirm energy deltas, prevent double-counting', color: 'hsl(45,93%,47%)', num: 'L3' },
+  { icon: Fingerprint, label: 'Smart Contract Bridge', desc: 'Proof-of-Origin — Device Watermark Registry binds VIN/Site ID to on-chain identity', color: 'hsl(280,68%,60%)', num: 'L4' },
 ];
 
 export function Slide06Technology() {
@@ -16,18 +16,18 @@ export function Slide06Technology() {
 
       <div className="absolute inset-0 flex px-16 pt-24 pb-16">
         <div className="w-full flex gap-16">
-          {/* Left: Proof-of-Genesis™ overview */}
+          {/* Left: Proof-of-Genesis overview */}
           <div className="w-[500px] flex flex-col justify-center">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <p className="text-[13px] font-mono tracking-[0.3em] uppercase text-[hsl(207,90%,54%)]/60 mb-3">Patent-Pending</p>
               <h2 className="text-[56px] font-black leading-[1.05] mb-4">
-                Proof-of-Genesis™<span className="text-[hsl(207,90%,54%)]">™</span>
+                Proof-of-Genesis<span className="text-[hsl(207,90%,54%)]"></span>
               </h2>
               <p className="text-[20px] text-white/50 leading-relaxed mb-6">
-                Proof-of-Genesis™ protocol — a hardware-agnostic architecture converting verified energy activity into blockchain rewards.
+                Proof-of-Genesis protocol — a hardware-agnostic architecture converting verified energy activity into blockchain rewards.
               </p>
               <div className="flex gap-3">
-                {['Mint-on-Proof™', 'Proof-of-Delta™', 'Proof-of-Origin™'].map((tm) => (
+                {['Mint-on-Proof', 'Proof-of-Delta', 'Proof-of-Origin'].map((tm) => (
                   <span key={tm} className="px-3 py-1.5 rounded-lg text-[13px] font-medium border border-white/10 bg-white/5 text-white/60">
                     {tm}
                   </span>
