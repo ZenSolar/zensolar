@@ -1,6 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { detectHwVersion } from "../_shared/fsdSampler.ts";
 import { readSessionEnergy, sessionRef } from "../_shared/sessionEnergy.ts";
+import { recordGrantFailure, clearGrantFailure } from "../_shared/grantHealth.ts";
 
 
 // ── Cryptographic Helpers (Proof-of-Delta for EV Miles) ─────────────────────
