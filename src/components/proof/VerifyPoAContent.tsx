@@ -366,11 +366,17 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
           </div>
         )}
 
-        {data.chain_hash && (
+        {/*
+          "Minted for" lists the credited categories. When there is exactly one
+          source row, the pill above already says the same thing in the same
+          words — rendering both read as a duplicate bug, so it is suppressed.
+        */}
+        {data.chain_hash && sourceRows.length !== 1 && (
           <div className="relative mt-4">
             <MintedForBadge chainHash={data.chain_hash} className="justify-center" mockResponse={mockSourceLines} />
           </div>
         )}
+
       </div>
 
 
