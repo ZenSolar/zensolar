@@ -614,8 +614,12 @@ export function EnergyFlowScene({
   // Trunk-and-branch conductor topology (see ConductorNetwork.tsx).
   // Battery and EV are branches of the same junction; in outage mode the
   // battery→home hero below owns that story instead.
+  const teslaCharging = data.tesla?.isCharging === true && data.tesla?.source !== 'supercharger';
   const evBranchKw =
-    isCharging && !isOutage && scene !== 'night-ev' ? Math.abs(data.tesla?.kW ?? data.evPower ?? 0) : 0;
+    teslaCharging && !isOutage && scene !== 'night-ev'
+      ? Math.abs(data.tesla?.kW ?? data.evPower ?? 0)
+      : 0;
+
   const conductorSegments = useMemo(
     () =>
       buildConductorSegments({
