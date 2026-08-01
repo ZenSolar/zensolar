@@ -1021,17 +1021,8 @@ export function EnergyFlowScene({
           );
         })()}
 
-        {flows.has('pw-home') && !isOutage && (
-          <DottedFlow
-            id="flow-pw-home"
-            d={BLUEPRINT_PATHS.powerwallToHome}
-            color={AMBER_LED}
-            dur={flowDur(Math.max(0.5, Math.abs(battery)))}
-          />
-        )}
-        {flows.has('pw-home') && batteryCount >= 2 && (
-          <DottedFlow id="flow-pw-home-2" d={BLUEPRINT_PATHS.powerwall2ToHome} color={AMBER_LED} dur={flowDur(Math.max(0.5, Math.abs(battery)))} />
-        )}
+
+
 
 
         {/* EV + battery runs are branches of the conductor network above. */}
