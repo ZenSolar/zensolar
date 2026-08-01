@@ -114,66 +114,51 @@ function buildSourceRows(r: VerifyReceipt): SourceRow[] {
 }
 
 /**
- * Per-source Impact-Payoff copy.
+ * Impact module — category-aware, and silent when it has nothing true to say.
  *
  * Rules:
- *  - On a SINGLE-source mint, use that source's own kWh/miles in the subline
- *    (NOT the receipt total — they're the same number, but reading from the
- *    row keeps the math honest if a fallback path ever diverges).
- *  - On a MULTI-source mint, do NOT pin the subline to the dominant source
- *    (that's how "1,500 kWh of clean solar" gets shown when only 748 was
- *    solar). Instead, describe the combined output across all sources.
- *  - Tesla Supercharger kWh did NOT "stay off the grid" — they came FROM the
- *    Supercharger network (100% renewable-matched via Tesla's retired RECs).
+ *  - Supercharging states ENERGY DELIVERED, never CO₂ avoided. Those kWh came
+ *    off the Supercharger network, not off the member's own system, and we do
+ *    not restate Tesla's renewable-matching claim as ours.
+ *  - CO₂ avoided is stated only for categories where the member's own hardware
+ *    displaced something: solar, battery, home charging, EV miles driven.
+ *  - Returns null when there is no real, non-zero value — the module then does
+ *    not render at all.
  */
-type PayoffCopy = { headline: string; subline: string | null };
+type Impact = { label: string; value: string; unit?: string; sub: string | null };
 
-function payoffFor(
-  rows: SourceRow[],
-  stats: { tokens: number; kwh: number; miles: number; co2Kg: number },
-): PayoffCopy {
-  const co2 = `${fmt(stats.co2Kg, 2)} kg CO₂ Avoided`;
+const CO2_ELIGIBLE = new Set(['solar_kwh', 'battery_kwh', 'home_charging_kwh', 'ev_miles']);
+const DELIVERED_ONLY = new Set(['supercharging_kwh', 'ev_kwh']);
 
-  // ----- Multi-source mint: combined frame -----
-  if (rows.length > 1) {
-    const kwhRows = rows.filter((r) => !r.amount.endsWith('mi'));
-    const milesRow = rows.find((r) => r.amount.endsWith('mi'));
-    const parts: string[] = [];
-    if (kwhRows.length > 0 && stats.kwh > 0) {
-      parts.push(`${fmt(stats.kwh, 2)} kWh of clean energy across ${kwhRows.length} sources`);
-    }
-    if (milesRow && stats.miles > 0) {
-      parts.push(`${fmt(stats.miles, 0)} mi driven on sunshine`);
-    }
-    return { headline: co2, subline: parts.length > 0 ? `≈ ${parts.join(' + ')}` : null };
+function impactFor(stats: Co2Stats): Impact | null {
+  const eligible = stats.breakdown.filter((b) => CO2_ELIGIBLE.has(b.key) && b.kg > 0);
+  if (eligible.length > 0) {
+    const kg = eligible.reduce((s, b) => s + b.kg, 0);
+    const names = eligible.map((b) => SOURCE_DEFS[b.key]?.label ?? b.key);
+    return {
+      label: 'Impact',
+      value: `${fmt(kg, 2)} kg CO₂`,
+      unit: 'Avoided',
+      sub: `From ${names.join(' + ')}`,
+    };
   }
 
-  // ----- Single-source mint: use that row's own amount -----
-  const dom = rows[0];
-  if (!dom) {
-    if (stats.miles > 0) return { headline: co2, subline: `≈ ${fmt(stats.miles, 0)} mi driven on sunshine` };
-    if (stats.kwh > 0)   return { headline: co2, subline: `≈ ${fmt(stats.kwh, 2)} kWh of clean energy` };
-    return { headline: co2, subline: null };
+  const delivered = stats.breakdown
+    .filter((b) => DELIVERED_ONLY.has(b.key))
+    .reduce((s, b) => s + b.amount, 0);
+  if (delivered > 0) {
+    return {
+      label: 'Energy delivered',
+      value: `${fmt(delivered, 2)} kWh`,
+      sub: 'Measured against your vehicle’s signed charge counter',
+    };
   }
 
-  // Pull the row's own number out of its formatted `amount` string (e.g. "+748.00 kWh").
-  const own = Number(dom.amount.replace(/[^0-9.]/g, '')) || stats.kwh;
-
-  switch (dom.key) {
-    case 'solar_kwh':
-      return { headline: co2, subline: `≈ ${fmt(own, 2)} kWh of clean solar generated` };
-    case 'battery_kwh':
-      return { headline: co2, subline: `≈ ${fmt(own, 2)} kWh dispatched from your battery` };
-    case 'home_charging_kwh':
-      return { headline: co2, subline: `≈ ${fmt(own, 2)} kWh charged at home from your system` };
-    case 'supercharging_kwh':
-    case 'ev_kwh':
-      return { headline: co2, subline: `≈ ${fmt(own, 2)} kWh delivered via Supercharger · 100% renewable-matched` };
-    case 'ev_miles':
-      return { headline: co2, subline: `≈ ${fmt(stats.miles, 0)} mi driven on sunshine` };
-    default:
-      return { headline: co2, subline: null };
+  // Legacy rows with no stored breakdown: state the delivered energy only.
+  if (stats.breakdown.length === 0 && stats.kwh > 0) {
+    return { label: 'Energy delivered', value: `${fmt(stats.kwh, 2)} kWh`, sub: null };
   }
+  return null;
 }
 
 export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: string | undefined; mockReceipt?: VerifyReceipt; mockSourceLines?: SourceLinesResponse }) {
