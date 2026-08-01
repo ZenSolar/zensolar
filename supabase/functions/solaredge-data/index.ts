@@ -321,10 +321,10 @@ Deno.serve(async (req) => {
       const now = new Date();
       const recordedAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()).toISOString();
       const tsNow = now.toISOString();
-      const prevB = await getPreviousProof(supabaseClient, siteId, "battery", targetUserId);
+      const prevB = await getPreviousProof(supabaseClient, siteId, "battery_discharge", targetUserId);
       const battBucketStart = await resolveCumulativeAnchor(supabaseClient, {
         userId: targetUserId, deviceId: siteId, provider: "solaredge",
-        dataType: "battery", recordedAt, prev: prevB,
+        dataType: "battery_discharge", recordedAt, prev: prevB,
       });
       const battDelta = snapshotDelta(lifetimeBatteryDischargeWh, battBucketStart);
       const battHash = await buildEnergyHash(siteId, tsNow, lifetimeBatteryDischargeWh, prevB.prevHash);
@@ -335,12 +335,12 @@ Deno.serve(async (req) => {
           device_id: siteId,
           provider: "solaredge",
           production_wh: battDelta,
-          data_type: "battery",
+          data_type: "battery_discharge",
           recorded_at: recordedAt,
           proof_metadata: buildProofMetadata({
             hash: battHash, prevHash: prevB.prevHash, deviceId: siteId,
             value: lifetimeBatteryDischargeWh, prevValue: prevB.prevValue, delta: battDelta,
-            dataType: "battery", timestamp: tsNow, unit: "wh",
+            dataType: "battery_discharge", timestamp: tsNow, unit: "wh",
             valueSemantics: "cumulative_snapshot",
             extra: { bucket_start_value: battBucketStart, source: "solaredge_storage_lifeTimeEnergyDischarged" },
           }),

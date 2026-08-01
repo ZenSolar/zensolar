@@ -662,12 +662,12 @@ Deno.serve(async (req) => {
               const recordedAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()).toISOString();
               const tsNow = now.toISOString();
               const devId = String(systemId);
-              const prev = await getPreviousProof(supabaseClient, devId, "battery", targetUserId);
+              const prev = await getPreviousProof(supabaseClient, devId, "battery_discharge", targetUserId);
               const bucketStart = await resolveCumulativeAnchor(supabaseClient, {
                 userId: targetUserId,
                 deviceId: devId,
                 provider: "enphase",
-                dataType: "battery",
+                dataType: "battery_discharge",
                 recordedAt,
                 prev,
                 currentValue: newLifetime,
@@ -681,7 +681,7 @@ Deno.serve(async (req) => {
                   device_id: devId,
                   provider: "enphase",
                   production_wh: battDelta,
-                  data_type: "battery",
+                  data_type: "battery_discharge",
                   recorded_at: recordedAt,
                   proof_metadata: buildProofMetadata({
                     hash: battHash,
@@ -690,7 +690,7 @@ Deno.serve(async (req) => {
                     value: newLifetime,
                     prevValue: prev.prevValue,
                     delta: battDelta,
-                    dataType: "battery",
+                    dataType: "battery_discharge",
                     timestamp: tsNow,
                     unit: "wh",
                     valueSemantics: "cumulative_snapshot",

@@ -2,8 +2,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { bucketIsClosed, getPreviousProof, periodTotalProof } from "../_shared/proofDelta.ts";
 
 // KILL SWITCH — issuance-row writes for home charging day buckets.
-// Disabled 2026-08-01 pending founder sign-off.
-const ISSUANCE_WRITES_ENABLED = false;
+// Re-enabled 2026-08-01 after the period-total patch.
+const ISSUANCE_WRITES_ENABLED = true;
 import { encode as hexEncode } from "https://deno.land/std@0.208.0/encoding/hex.ts";
 
 const corsHeaders = {
