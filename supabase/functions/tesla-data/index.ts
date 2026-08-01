@@ -1026,13 +1026,26 @@ Deno.serve(async (req) => {
           }
         }
         
-        // Get baseline from first vehicle's baseline data
-        // Check all possible baseline keys used across the app
-        const vehicleBaseline = vehicleDevices[0]?.baseline || {};
-        baselineChargingKwh = vehicleBaseline.total_charge_energy_added_kwh || vehicleBaseline.charging_kwh || 0;
-        baselineSuperchargerKwh = vehicleBaseline.supercharger_kwh || vehicleBaseline.charging_kwh || 0;
-        baselineWallConnectorKwh = vehicleBaseline.wall_connector_kwh || 0;
-        baselineHomeChargingKwh = vehicleBaseline.home_charging_kwh || 0;
+        // Baseline reads use EXPLICIT key presence — never `||`.
+        // A legitimate zero must not fall through to a different activity
+        // type's key (supercharging credits 1:1, home charging nets to
+        // 0.25:1 on solar homes, so a fallthrough can credit at 4x).
+        const vehicleBaseline = (vehicleDevices[0]?.baseline ?? {}) as Record<string, unknown>;
+        const baselineNum = (obj: Record<string, unknown>, keys: string[]): number => {
+          for (const k of keys) {
+            if (!Object.prototype.hasOwnProperty.call(obj, k)) continue;
+            const v = obj[k];
+            if (v === null || v === undefined) continue;
+            const n = typeof v === "number" ? v : Number(v);
+            if (Number.isFinite(n)) return n; // an explicit 0 stops here
+          }
+          return 0;
+        };
+        baselineChargingKwh = baselineNum(vehicleBaseline, ["charging_kwh", "total_charge_energy_added_kwh"]);
+        baselineSuperchargerKwh = baselineNum(vehicleBaseline, ["supercharger_kwh"]);
+        baselineWallConnectorKwh = baselineNum(vehicleBaseline, ["wall_connector_kwh"]);
+        baselineHomeChargingKwh = baselineNum(vehicleBaseline, ["home_charging_kwh"]);
+
       } catch (error) {
         console.error("Error fetching charging history:", error);
       }
