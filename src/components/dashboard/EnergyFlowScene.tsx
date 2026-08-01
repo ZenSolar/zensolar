@@ -34,7 +34,7 @@ import {
   type VehicleModel,
 } from './EnergyFlowScene.scenes';
 import { HOME_BLUEPRINT, BLUEPRINT_PATHS } from './HomeBlueprint';
-import { Conductor, buildConductorSegments, SCENE_ANCHOR_LIST } from './ConductorNetwork';
+import { Conductor, buildConductorSegments, SCENE_ANCHOR_LIST, SCENE_ANCHORS } from './ConductorNetwork';
 
 import { HouseSceneV5 } from './HouseSceneV5';
 import { EvChargingCable } from './EvChargingCable';
@@ -612,12 +612,22 @@ export function EnergyFlowScene({
 
 
   // Trunk-and-branch conductor topology (see ConductorNetwork.tsx).
+  // Battery and EV are branches of the same junction; in outage mode the
+  // battery→home hero below owns that story instead.
+  const teslaCharging = data.tesla?.isCharging === true && data.tesla?.source !== 'supercharger';
+  const evBranchKw =
+    teslaCharging && !isOutage && scene !== 'night-ev'
+      ? Math.abs(data.tesla?.kW ?? data.evPower ?? 0)
+      : 0;
+
   const conductorSegments = useMemo(
     () =>
       buildConductorSegments({
         solar,
         home,
         grid,
+        battery: isOutage ? 0 : battery,
+        ev: evBranchKw,
         colors: {
           solar: EMERALD_LED,
           home: EMERALD_LED,
@@ -627,8 +637,9 @@ export function EnergyFlowScene({
         dimSolar: isOutage,
         hideGrid: isOutage,
       }),
-    [solar, home, grid, isOutage],
+    [solar, home, grid, battery, evBranchKw, isOutage],
   );
+
 
 
   // v5 Phase B — Supercharger detection. Tesla telemetry exposes
@@ -684,7 +695,15 @@ export function EnergyFlowScene({
       data-vehicle-wheel={wheelType ?? ''}
       data-vehicle-name={displayName ?? ''}
     >
+      {/* Atmosphere — a soft sky gradient behind the roofline that fades into
+          the UI. Does most of the depth work; the scene reads flat without it. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[62%] bg-[linear-gradient(to_bottom,hsl(205_45%_16%/0.85),hsl(210_45%_10%/0.45)_45%,transparent_100%)]"
+      />
+
       {/* Ambient gradient floor with subtle depth */}
+
       <div
         aria-hidden="true"
         className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_50%_40%,hsl(220_50%_12%/0.85),transparent_65%),radial-gradient(circle_at_50%_95%,hsl(var(--primary)/0.14),transparent_55%),linear-gradient(to_bottom,hsl(220_60%_6%/0.4),hsl(220_70%_3%/0.7))]"
@@ -780,8 +799,8 @@ export function EnergyFlowScene({
         {hasBattery && (
           <>
             <DeviceHalo
-              cx={HOME_BLUEPRINT.powerwall.x}
-              cy={HOME_BLUEPRINT.powerwall.y}
+              cx={SCENE_ANCHORS.powerwall.x}
+              cy={SCENE_ANCHORS.powerwall.y}
               color={EMERALD}
               active
               intensity={0.5}
@@ -789,8 +808,8 @@ export function EnergyFlowScene({
               pulseMs={5000}
             />
             <DeviceHalo
-              cx={HOME_BLUEPRINT.powerwall.x}
-              cy={HOME_BLUEPRINT.powerwall.y}
+              cx={SCENE_ANCHORS.powerwall.x}
+              cy={SCENE_ANCHORS.powerwall.y}
               color={isOutage ? AMBER : pwCharging ? EMERALD : AMBER}
               active={isOutage || pwCharging || pwDischarging}
               intensity={isOutage ? Math.max(0.95, intensity(battery)) : intensity(battery)}
@@ -806,7 +825,13 @@ export function EnergyFlowScene({
         {hasBattery && batteryCount >= 2 &&
           HOME_BLUEPRINT.powerwallSlots
             .slice(1, Math.min(5, batteryCount))
-            .map((slot, i) => (
+            .map((legacySlot, i) => {
+              // Slots are laid out relative to the VERIFIED powerwall anchor.
+              const slot = {
+                x: SCENE_ANCHORS.powerwall.x + (i % 2 === 0 ? -3.4 : 3.4),
+                y: SCENE_ANCHORS.powerwall.y + Math.floor(i / 2) * 4.2,
+              };
+              return (
               <g key={`pw-slot-${i + 1}`}>
                 <DeviceHalo
                   cx={slot.x}
@@ -827,15 +852,16 @@ export function EnergyFlowScene({
                   pulseMs={pwCharging ? 2800 : 2400}
                 />
               </g>
-            ))}
+              );
+            })}
 
 
 
 
         {/* Grid meter — sky on import, cyan on export, muted amber + X on outage */}
         <DeviceHalo
-          cx={HOME_BLUEPRINT.gridMeter.x}
-          cy={HOME_BLUEPRINT.gridMeter.y}
+          cx={SCENE_ANCHORS.meter.x}
+          cy={SCENE_ANCHORS.meter.y}
           color={isOutage ? AMBER : gridExporting ? CYAN : SKY}
           active={isOutage || gridImporting || gridExporting}
           intensity={isOutage ? 0.35 : intensity(grid) * 0.75}
@@ -863,30 +889,9 @@ export function EnergyFlowScene({
           </g>
         )}
 
-        {/* Wall connector (inside garage) — soft standby when a charger is
-            connected, emerald-pulse when an EV is actively charging. */}
-        {(hasCharger || hasTesla) && (
-          <>
-            <DeviceHalo
-              cx={HOME_BLUEPRINT.wallCharger.x}
-              cy={HOME_BLUEPRINT.wallCharger.y}
-              color={EMERALD}
-              active={hasCharger || hasTesla}
-              intensity={0.45}
-              radius={3.6}
-              pulseMs={5200}
-            />
-            <DeviceHalo
-              cx={HOME_BLUEPRINT.wallCharger.x}
-              cy={HOME_BLUEPRINT.wallCharger.y}
-              color={EMERALD}
-              active={isCharging}
-              intensity={intensity(data.evPower ?? 7)}
-              radius={4.2}
-              pulseMs={2400}
-            />
-          </>
-        )}
+        {/* Wall-connector halo retired: the baked art has no visible charger
+            at that anchor, so it read as a free-floating bloom. Charge state is
+            carried by the EV branch and the charge-port pulse. */}
 
 
         {/* Tiny green plug LED on the parked car when plugged & idle */}
@@ -945,16 +950,8 @@ export function EnergyFlowScene({
 
 
 
-        {flows.has('solar-pw') && (
-          <g opacity={isOutage ? OUTAGE_VISUAL.solarDimOpacity : 1}>
-            <DottedFlow id="flow-solar-pw" d={BLUEPRINT_PATHS.solarToPowerwall} color={EMERALD_LED} dur={flowDur(battery)} />
-          </g>
-        )}
-        {flows.has('solar-pw') && batteryCount >= 2 && (
-          <g opacity={isOutage ? OUTAGE_VISUAL.solarDimOpacity : 1}>
-            <DottedFlow id="flow-solar-pw-2" d={BLUEPRINT_PATHS.solarToPowerwall2} color={EMERALD_LED} dur={flowDur(battery)} />
-          </g>
-        )}
+
+
 
 
         {/* Outage-mode hero: Battery → Home rendered in the SAME visual
@@ -1021,30 +1018,12 @@ export function EnergyFlowScene({
           );
         })()}
 
-        {flows.has('pw-home') && !isOutage && (
-          <DottedFlow
-            id="flow-pw-home"
-            d={BLUEPRINT_PATHS.powerwallToHome}
-            color={AMBER_LED}
-            dur={flowDur(Math.max(0.5, Math.abs(battery)))}
-          />
-        )}
-        {flows.has('pw-home') && batteryCount >= 2 && (
-          <DottedFlow id="flow-pw-home-2" d={BLUEPRINT_PATHS.powerwall2ToHome} color={AMBER_LED} dur={flowDur(Math.max(0.5, Math.abs(battery)))} />
-        )}
 
 
-        {/* EV conductor renders ONLY while a vehicle is actually charging at
-            this site. `isCharging` alone is true for Supercharging away from
-            home, which would draw a run down the facade to an empty driveway. */}
-        {flows.has('charger-ev') && chargingAtHome && (
-          <DottedFlow
-            id="flow-charger-ev"
-            d={BLUEPRINT_PATHS.chargerToEvCharging}
-            color={EMERALD_LED}
-            dur={flowDur(data.evPower ?? 7)}
-          />
-        )}
+
+
+        {/* EV + battery runs are branches of the conductor network above. */}
+
         {/* Grid import/export is now the grid BRANCH of the conductor
             network above — no standalone roof→post arc. */}
 
@@ -1103,9 +1082,9 @@ export function EnergyFlowScene({
 
         {/* v5 Structural — dedicated EV charging cable layer.
             Hidden when supercharging away from home (gated by showDynamicCar). */}
-        {(isPluggedIdle || chargingAtHome) && showDynamicCar && (
+        {isPluggedIdle && !chargingAtHome && showDynamicCar && (
           <EvChargingCable
-            state={chargingAtHome ? 'charging' : 'idle'}
+            state={'idle'}
             carAnchor={carAnchor}
             carWidth={carW}
             carHeight={carH}
@@ -1141,8 +1120,8 @@ export function EnergyFlowScene({
             {chargingAtHome && (
               <g style={{ pointerEvents: 'none' }}>
                 <circle
-                  cx={carAnchor.x + carW * 0.30}
-                  cy={carAnchor.y - carH * 0.05}
+                  cx={SCENE_ANCHORS.evPort.x}
+                  cy={SCENE_ANCHORS.evPort.y}
                   r={1.6}
                   fill={EMERALD}
                   opacity={0.35}
@@ -1158,8 +1137,8 @@ export function EnergyFlowScene({
                   )}
                 </circle>
                 <circle
-                  cx={carAnchor.x + carW * 0.30}
-                  cy={carAnchor.y - carH * 0.05}
+                  cx={SCENE_ANCHORS.evPort.x}
+                  cy={SCENE_ANCHORS.evPort.y}
                   r={0.7}
                   fill={EMERALD_LED}
                   opacity={0.95}

@@ -2,36 +2,35 @@
  * ConductorNetwork — trunk-and-branch energy routing for the ZenEnergy
  * Monitoring live card.
  *
- * Replaces the two independent point-to-point bezier arcs (roof→home and
- * roof→grid) that both terminated near the utility post. Real topology is a
- * trunk that divides:
+ * TOPOLOGY (mirrors the Tesla app; one trunk, one junction, four branches)
  *
- *     roofPlane ─▶ roofEave ─▶ wallJunction ─┬─▶ homeInterior
- *                 (trunk = total production) └─▶ utilityPost
-
+ *     roofArrayEdge ──▶ wallJunction ─┬─▶ meter ─▶ gridEdge   (grid)
+ *          (trunk)                    ├─▶ homeWall            (house load)
+ *                                     ├─▶ powerwall           (battery)
+ *                                     └─▶ evPort              (vehicle)
  *
- * The trunk carries total production; the two branches carry the home load
- * and the grid share, and stroke weight scales with kW so a viewer can see
- * that the branches are shares of the trunk.
+ * A branch renders only when its flow is non-zero. Nothing draws to a device
+ * that is idle or absent.
  *
- * Routing rules
- *   · Every segment runs anchor-to-anchor. Nothing terminates in empty space.
- *   · Segments follow the 30°/150° isometric axes of the house geometry (plus
- *     vertical drops), with short rounded corners at direction changes.
- *   · Each segment declares a z-layer: `front` draws over the house, `behind`
- *     draws under it, so no conductor crosses the silhouette.
- *   · Direction reads in a still frame: dash offset travels with the flow and
- *     a single chevron sits at each segment midpoint. On grid import the grid
- *     branch reverses — dash, chevron and colour all flip.
+ * ANCHORS — verified visually with the `?anchors=1` debug overlay against the
+ * baked `house-day*.png` art (see /prototype/cockpit-anchors). Each entry
+ * below names the physical object it sits on.
+ *
+ * WIDTH CARRIES MAGNITUDE — stroke width is strictly proportional to kW
+ * (`conductorWidth`), so the trunk is visibly as wide as the sum of its
+ * active branches. See the function for the constant.
+ *
+ * COLOUR IS BINARY — one accent for everything solar-sourced, grey for idle,
+ * and a single distinct hue for grid import (a genuinely different flow, and
+ * the only case where direction reverses). Never a hue change mid-run.
  */
 
 export type Pt = Readonly<{ x: number; y: number }>;
 
 /**
  * The house art is laid out at h-[92%] of the card while this overlay is
- * h-[88%] — both centred and square. Anchors were measured directly off the
- * baked PNG (percent of the image), so convert once here instead of eyeballing
- * the offset per anchor.
+ * h-[88%] — both centred and square. Anchors are measured as percent of the
+ * baked PNG, so convert once here.
  *
  *   overlay = (0.92 * img/100 - 0.02) * 100 / 0.88
  */
@@ -41,37 +40,33 @@ export function fromHouseImage(x: number, y: number): Pt {
 }
 
 /**
- * Named anchors, given as percent of the baked house PNG and converted once
- * into overlay space. Every one was re-measured against
- * `house-day-export.png` (the variant that renders while exporting) and
- * checked with the `?anchors=1` debug overlay — each lands on a visible object.
+ * Named anchors in overlay space (0–100, square). Values below were read off
+ * the `?anchors=1` capture, so they are given directly rather than through
+ * `fromHouseImage`.
  *
- *   roofPlane      centroid of the PV array on the front roof slope
- *   roofEave       lower-right corner of the array, where conduit leaves the roof
- *   wallJunction   grey service-disconnect box on the front-right facade —
- *                  brand-neutral on purpose: the white cabinet on the garage
- *                  face is baked Powerwall art and this account has no battery
- *                  connected, so nothing routes through it
- *   homeInterior   centre of the lit-window cluster
- *   utilityPost    utility pedestal at the right edge of the slab
- *
- * `mainPanel` was retired: there is no second visible panel between the wall
- * box and the pedestal, so it was an anchor in empty wall.
+ *   roofArrayEdge  lower-RIGHT corner of the PV array, where it meets the eave
+ *   wallJunction   right facade directly beneath the eave — where the roof run
+ *                  terminates and every branch begins. Brand-neutral: it is a
+ *                  routing node, not a device
+ *   homeWall       centre of the lit window cluster (interior load)
+ *   powerwall      white Tesla battery cabinet on the front-right facade
+ *   meter          grey utility pedestal / service entrance at the right edge
+ *                  of the slab
+ *   gridEdge       off the property, past the right frame edge
+ *   evPort         charge port on the rear quarter of the parked vehicle
  */
 export const SCENE_ANCHORS = Object.freeze({
-  roofPlane:    fromHouseImage(44, 33),
-  roofEave:     fromHouseImage(62, 45),
-  wallJunction: fromHouseImage(69.8, 68.7),
-  homeInterior: fromHouseImage(75.7, 58),
-  utilityPost:  fromHouseImage(93, 60),
-  /** Charge port of a vehicle pulled up to the garage apron. */
-  evPort:       fromHouseImage(41, 74),
+  roofArrayEdge: { x: 59.5, y: 43.5 } as Pt,
+  wallJunction:  { x: 70.5, y: 51.5 } as Pt,
+  homeWall:      { x: 77.5, y: 55.5 } as Pt,
+  powerwall:     { x: 73.0, y: 68.0 } as Pt,
+  meter:         { x: 94.0, y: 65.0 } as Pt,
+  gridEdge:      { x: 108.0, y: 72.0 } as Pt,
+  evPort:        { x: 34.0, y: 75.0 } as Pt,
 });
 
 /** Debug label order for the `?anchors=1` overlay. */
 export const SCENE_ANCHOR_LIST = Object.entries(SCENE_ANCHORS) as ReadonlyArray<[string, Pt]>;
-
-
 
 // Isometric axis: 30° rise over run (2:1 iso projection).
 const ISO_SLOPE = 0.5;
@@ -91,8 +86,6 @@ export function isoRoute(a: Pt, b: Pt, order: 'diag-first' | 'vert-first' = 'dia
     { x: a.x, y: b.y - ISO_SLOPE * run }, // vert-first, down-slope
     { x: a.x, y: b.y + ISO_SLOPE * run }, // vert-first, up-slope
   ];
-  // Prefer the requested ordering, then the corner that stays inside the
-  // a→b bounding box — an overshooting corner reads as a kink in the run.
   const preferred = order === 'diag-first' ? [0, 1, 2, 3] : [2, 3, 0, 1];
   const lo = Math.min(a.y, b.y);
   const hi = Math.max(a.y, b.y);
@@ -108,14 +101,9 @@ export function isoRoute(a: Pt, b: Pt, order: 'diag-first' | 'vert-first' = 'dia
     }
   });
 
-  // On short runs the exact 30° corner can overshoot past the destination and
-  // read as a kink. Clamp it back inside the run's vertical span: the leg
-  // stays within a couple of degrees of the iso axis and looks like conduit.
   corner = { x: corner.x, y: Math.min(hi, Math.max(lo, corner.y)) };
-
   return [a, corner, b];
 }
-
 
 /** Polyline → path string with short rounded corners at direction changes. */
 export function roundedPath(pts: Pt[], r = 1.6): string {
@@ -164,17 +152,23 @@ export function polylineMidpoint(pts: Pt[]): { p: Pt; angle: number } {
   return { p: pts[0], angle: 0 };
 }
 
-/** Line weight scales with power so branches read as shares of the trunk. */
+/**
+ * kW → stroke width, in overlay units (1 unit ≈ 1% of the card width).
+ *
+ *   width(kW) = 0.30 × kW,  clamped to [0.30, 3.0]
+ *
+ * Strictly proportional and through the origin, so widths ADD: a 0.9 kW trunk
+ * (0.27) is exactly as wide as a 0.5 kW home branch (0.15) plus a 0.4 kW grid
+ * branch (0.12). The floor only protects sub-0.6 kW runs from vanishing; the
+ * ceiling keeps a 12 kW export from swamping the house.
+ */
+export const WIDTH_PER_KW = 0.30;
 export function conductorWidth(kw: number): number {
-  return 0.5 + Math.min(Math.abs(kw), 9) * 0.115;
+  return Math.min(3.0, Math.max(0.30, Math.abs(kw) * WIDTH_PER_KW));
 }
 
-/** Physics-y crawl: higher power travels faster, but never frantic. */
-const dashDur = (kw: number) => Math.max(1.6, 3.6 - Math.min(Math.abs(kw), 8) * 0.22);
-
-const DASH = 2.2;
-const GAP = 2.8;
-const PERIOD = DASH + GAP;
+/** Travelling-pulse period: higher power travels faster, never frantic. */
+const pulseDur = (kw: number) => Math.max(1.5, 3.4 - Math.min(Math.abs(kw), 8) * 0.2);
 
 export type ConductorLayer = 'behind' | 'front';
 
@@ -184,13 +178,24 @@ export type ConductorSegment = {
   points: Pt[];
   color: string;
   kw: number;
-  /** false → dash + chevron travel from the last point to the first. */
+  /** false → the pulse and chevron travel from the last point to the first. */
   forward?: boolean;
   layer: ConductorLayer;
   dimmed?: boolean;
+  /** Renders grey, no pulse — the conduit exists but carries nothing. */
+  idle?: boolean;
 };
 
-/** One anchor-to-anchor conductor: glow, dashed core, and a midpoint chevron. */
+/**
+ * One anchor-to-anchor conductor. Reads as a physical run on the surface:
+ *   1. soft dark shadow, offset down — attaches the run to the wall/roof
+ *   2. solid conductor body in the flow colour
+ *   3. thin lighter stroke along the upper edge — a rounded conductor
+ *      catching light
+ *   4. a single bright pulse travelling with the flow (not marching dashes)
+ *   5. one chevron at the midpoint, ON the path, so direction survives a
+ *      still screenshot
+ */
 export function Conductor({
   id,
   points,
@@ -198,71 +203,91 @@ export function Conductor({
   kw,
   forward = true,
   dimmed,
+  idle,
   reducedMotion,
 }: Omit<ConductorSegment, 'layer'> & { reducedMotion?: boolean }) {
   const d = roundedPath(points);
   const w = conductorWidth(kw);
-  const dur = dashDur(kw);
+  const dur = pulseDur(kw);
   const { p, angle } = polylineMidpoint(points);
   const chevronAngle = forward ? angle : angle + 180;
-  const from = forward ? 0 : -PERIOD;
-  const to = forward ? -PERIOD : 0;
+
+  // Pulse: one short lit run inside a very long gap, so exactly one bright
+  // packet travels the conduit at a time.
+  const pulseLen = Math.max(3, w * 4);
+  const gap = 120;
+  const from = forward ? gap : -pulseLen;
+  const to = forward ? -pulseLen : gap;
 
   return (
     <g style={{ pointerEvents: 'none' }} opacity={dimmed ? 0.35 : 1} data-conductor={id}>
-      {/* Soft halo — sells the conductor without a drop shadow */}
+      {/* 1 — contact shadow, sits the run on the surface */}
       <path
         d={d}
-        stroke={color}
-        strokeOpacity={0.2}
-        strokeWidth={w * 2.6}
+        transform="translate(0 0.35)"
+        stroke="hsl(220 60% 3%)"
+        strokeOpacity={0.55}
+        strokeWidth={w * 1.7}
         strokeLinecap="round"
         strokeLinejoin="round"
         fill="none"
-        style={{ filter: 'blur(1.3px)' }}
+        style={{ filter: 'blur(0.7px)' }}
       />
-      {/* Static conductor body */}
+      {/* 2 — conductor body */}
       <path
         d={d}
-        stroke={color}
-        strokeOpacity={0.28}
+        stroke={idle ? 'hsl(215 12% 42%)' : color}
+        strokeOpacity={idle ? 0.5 : 0.72}
         strokeWidth={w}
         strokeLinecap="round"
         strokeLinejoin="round"
         fill="none"
       />
-      {/* Travelling dash — direction of flow */}
+      {/* 3 — upper-edge highlight */}
       <path
         d={d}
-        stroke={color}
-        strokeOpacity={0.95}
-        strokeWidth={w}
+        transform={`translate(0 ${(-w * 0.22).toFixed(2)})`}
+        stroke={idle ? 'hsl(215 15% 68%)' : '#ffffff'}
+        strokeOpacity={idle ? 0.18 : 0.3}
+        strokeWidth={Math.max(0.16, w * 0.26)}
         strokeLinecap="round"
         strokeLinejoin="round"
         fill="none"
-        strokeDasharray={`${DASH} ${GAP}`}
-        strokeDashoffset={from}
-      >
-        {!reducedMotion && (
-          <animate
-            attributeName="stroke-dashoffset"
-            from={from}
-            to={to}
-            dur={`${dur}s`}
-            repeatCount="indefinite"
-          />
-        )}
-      </path>
-      {/* Still-frame direction cue */}
+      />
+      {/* 4 — travelling pulse */}
+      {!idle && (
+        <path
+          d={d}
+          stroke={color}
+          strokeOpacity={0.98}
+          strokeWidth={w}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+          strokeDasharray={`${pulseLen} ${gap}`}
+          strokeDashoffset={reducedMotion ? 0 : from}
+        >
+          {!reducedMotion && (
+            <animate
+              attributeName="stroke-dashoffset"
+              from={from}
+              to={to}
+              dur={`${dur}s`}
+              repeatCount="indefinite"
+            />
+          )}
+        </path>
+      )}
+      {/* 5 — still-frame direction cue */}
       <g transform={`translate(${p.x.toFixed(2)} ${p.y.toFixed(2)}) rotate(${chevronAngle.toFixed(1)})`}>
         <path
           d="M -0.9 -1.15 L 0.9 0 L -0.9 1.15"
           fill="none"
-          stroke={color}
-          strokeWidth={Math.max(0.42, w * 0.75)}
+          stroke={idle ? 'hsl(215 12% 55%)' : color}
+          strokeWidth={Math.max(0.42, w * 0.7)}
           strokeLinecap="round"
           strokeLinejoin="round"
-          opacity={0.95}
+          opacity={idle ? 0.5 : 0.95}
         />
       </g>
     </g>
@@ -272,38 +297,44 @@ export function Conductor({
 /**
  * Builds the trunk/branch segment list for the current power reading.
  *
- * trunk        roofPlane → roofEave → wallJunction    (total production)
- * home branch  wallJunction → homeInterior            (home load share)
- * grid branch  wallJunction → utilityPost             (export share) or
- *              utilityPost → wallJunction             (import, reversed)
+ *   trunk         roofArrayEdge → wallJunction         (total production)
+ *   branch-home   wallJunction  → homeWall             (house load)
+ *   branch-grid   wallJunction  → meter → gridEdge     (export, or reversed
+ *                                                       and re-hued on import)
+ *   branch-pw     wallJunction  → powerwall            (charge / discharge)
+ *   branch-ev     wallJunction  → evPort               (charging at this site)
  *
- * The split sits at the junction, not at the far end of the facade, so both
- * branches leave one node heading right with no hairpin reversal.
+ * Sign conventions match EnergyFlowData: grid > 0 imports, battery > 0
+ * charges the pack, ev > 0 charges the vehicle.
  */
 export function buildConductorSegments(args: {
   solar: number;
   home: number;
   grid: number;
+  /** + charging the pack, − discharging. Omit/0 when no battery. */
+  battery?: number;
+  /** + charging the vehicle at this site. Omit/0 when not charging here. */
+  ev?: number;
   colors: { solar: string; home: string; export: string; import: string };
   dimSolar?: boolean;
   hideGrid?: boolean;
 }): ConductorSegment[] {
   const A = SCENE_ANCHORS;
   const { solar, home, grid, colors } = args;
+  const battery = args.battery ?? 0;
+  const ev = args.ev ?? 0;
   const segments: ConductorSegment[] = [];
 
   const producing = solar > 0.1;
   const importing = grid > 0.05;
   const exporting = grid < -0.05;
 
+  // TRUNK — roof array down the visible roof face to the wall junction.
+  // Draws in FRONT: this run is on the near roof plane and near facade.
   if (producing) {
     segments.push({
       id: 'trunk',
-      points: [
-        A.roofPlane,
-        ...isoRoute(A.roofPlane, A.roofEave).slice(1),
-        ...isoRoute(A.roofEave, A.wallJunction).slice(1),
-      ],
+      points: isoRoute(A.roofArrayEdge, A.wallJunction, 'vert-first'),
       color: colors.solar,
       kw: solar,
       layer: 'front',
@@ -311,13 +342,11 @@ export function buildConductorSegments(args: {
     });
   }
 
-  // Home-load branch. Leaves the junction heading up-right to the windows —
-  // no doubling back, because the split happens at the junction rather than
-  // out at the pedestal end of the run.
+  // HOME BRANCH — junction up-right to the window cluster.
   if (home > 0.05) {
     segments.push({
       id: 'branch-home',
-      points: isoRoute(A.wallJunction, A.homeInterior),
+      points: isoRoute(A.wallJunction, A.homeWall),
       color: producing ? colors.home : colors.import,
       kw: home,
       layer: 'front',
@@ -325,20 +354,54 @@ export function buildConductorSegments(args: {
     });
   }
 
-  // Grid branch. Also leaves the junction rightward, along the facade to the
-  // pedestal, so both branches fan out from one node in the same direction.
+  // BATTERY BRANCH — only while charging or discharging.
+  if (Math.abs(battery) > 0.05) {
+    segments.push({
+      id: battery > 0 ? 'branch-pw-charge' : 'branch-pw-discharge',
+      points: isoRoute(A.wallJunction, A.powerwall, 'vert-first'),
+      color: colors.solar,
+      kw: battery,
+      // Discharge flows out of the pack, back toward the junction.
+      forward: battery > 0,
+      layer: 'front',
+      dimmed: args.dimSolar && battery > 0,
+    });
+  }
+
+  // EV BRANCH — only when a vehicle is charging at this site. Runs along the
+  // slab in front of the porch, so it stays in FRONT of the silhouette.
+  if (ev > 0.05) {
+    segments.push({
+      id: 'branch-ev',
+      points: [
+        A.wallJunction,
+        { x: A.wallJunction.x - 4, y: 79.5 },
+        { x: A.evPort.x + 6, y: 79.5 },
+        A.evPort,
+      ],
+      color: colors.solar,
+      kw: ev,
+      layer: 'front',
+      dimmed: args.dimSolar,
+    });
+  }
+
+  // GRID BRANCH — junction → meter → off-property. Terminates ON the meter
+  // and continues past the frame edge, never stopping short of the post.
   if (!args.hideGrid && (importing || exporting)) {
     segments.push({
       id: exporting ? 'branch-grid-export' : 'branch-grid-import',
-      points: isoRoute(A.wallJunction, A.utilityPost),
+      points: [
+        ...isoRoute(A.wallJunction, A.meter),
+        ...isoRoute(A.meter, A.gridEdge).slice(1),
+      ],
       color: exporting ? colors.export : colors.import,
       kw: grid,
-      // Import reverses the branch: dash and chevron both travel inward.
+      // Import reverses: pulse and chevron travel inward from the grid.
       forward: exporting,
       layer: 'front',
     });
   }
-
 
   return segments;
 }
