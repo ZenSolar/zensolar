@@ -1,4 +1,9 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { bucketIsClosed, getPreviousProof, periodTotalProof } from "../_shared/proofDelta.ts";
+
+// KILL SWITCH — issuance-row writes for home charging day buckets.
+// Disabled 2026-08-01 pending founder sign-off.
+const ISSUANCE_WRITES_ENABLED = false;
 import { encode as hexEncode } from "https://deno.land/std@0.208.0/encoding/hex.ts";
 
 const corsHeaders = {
@@ -813,7 +818,26 @@ async function writeToEnergyProduction(
   }
   const recordedAt = `${dateStr}T12:00:00Z`;
 
-  // Get existing daily total
+  // CONTAINMENT 2026-08-01: issuance writes DISABLED.
+  // This writer previously wrote a RUNNING DAY ACCUMULATOR into
+  // `production_wh` with no `proof_metadata` at all — no hash, no
+  // `value_semantics` (Pillar 1 gap) — and re-staged the running total on
+  // every session close. Patched to the period-total convention below.
+  if (!ISSUANCE_WRITES_ENABLED) {
+    console.warn(`[ChargeMonitor] issuance write suppressed (kill switch) for ${vin} ${recordedAt}`);
+    return;
+  }
+
+  // A bucket already minted or quarantined is CLOSED — never rewrite it.
+  if (await bucketIsClosed(supabase, {
+    userId, deviceId: vin, provider: "tesla_home_charging",
+    dataType: "ev_charging", recordedAt,
+  })) {
+    console.warn(`[ChargeMonitor] bucket closed, skipping rewrite for ${vin} ${recordedAt}`);
+    return;
+  }
+
+  // Get existing daily total (this row IS the day; its total IS its delta)
   const { data: existing } = await supabase
     .from("energy_production")
     .select("production_wh")
@@ -823,17 +847,31 @@ async function writeToEnergyProduction(
     .eq("data_type", "ev_charging")
     .eq("recorded_at", recordedAt);
 
-  const existingWh = existing?.[0]?.production_wh || 0;
+  const existingWh = Number(existing?.[0]?.production_wh || 0);
   const newTotal = existingWh + totalKwh * 1000;
+
+  const prev = await getPreviousProof(supabase, vin, "tesla_home_charging", "ev_charging", userId);
+  const proof = await periodTotalProof({
+    deviceId: vin,
+    provider: "tesla_home_charging",
+    dataType: "ev_charging",
+    recordedAt,
+    periodTotal: newTotal,
+    prev,
+    unit: "wh",
+    sha256Hex,
+    extra: { source: "tesla_charge_monitor", period: "local_day", local_date: dateStr },
+  });
 
   await supabase.from("energy_production").upsert(
     {
       user_id: userId,
       device_id: vin,
       provider: "tesla_home_charging",
-      production_wh: newTotal,
+      production_wh: proof.production_wh,
       data_type: "ev_charging",
       recorded_at: recordedAt,
+      proof_metadata: proof.proof_metadata,
     },
     { onConflict: "device_id,provider,recorded_at,data_type" },
   );
