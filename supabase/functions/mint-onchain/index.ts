@@ -1424,8 +1424,22 @@ Deno.serve(async (req) => {
       // Also get lifetime totals from database to show pending eligibility
       const { data: devices } = await supabaseClient
         .from("connected_devices")
-        .select("device_type, provider, lifetime_totals")
+        .select("device_id, device_type, provider, lifetime_totals")
         .eq("user_id", user.id);
+
+      // Observer sources are excluded from milestone eligibility for the same
+      // reason they are excluded from issuance: they measure something another
+      // meter already measured.
+      const eligExclusions = resolveExclusions(
+        (devices || []).map((d: any) => ({
+          device_id: d.device_id,
+          device_type: d.device_type,
+          provider: d.provider,
+        })),
+      );
+      const excludedSolarDevices = new Set(
+        eligExclusions.filter((e) => e.data_type === "solar").map((e) => e.device_id),
+      );
 
       let dbSolarKwh = 0;
       let dbBatteryKwh = 0;
@@ -1435,38 +1449,46 @@ Deno.serve(async (req) => {
       for (const device of (devices || [])) {
         const lifetime = device.lifetime_totals as Record<string, number> | null;
         if (!lifetime) continue;
+        const solarIsObserver = excludedSolarDevices.has((device as any).device_id);
 
         if (device.device_type === "solar" || device.device_type === "solar_system") {
           const solarWh = lifetime.solar_wh || lifetime.lifetime_solar_wh || 0;
-          dbSolarKwh += Math.floor(solarWh / 1000);
+          if (!solarIsObserver) dbSolarKwh += Math.floor(solarWh / 1000);
         } else if (device.device_type === "powerwall" || device.device_type === "battery") {
-          // Powerwalls may have both solar and battery
+          // Powerwalls may report both solar and battery. Battery export is
+          // always the pack's own measurement; its solar is the site CTs and
+          // is dropped whenever a dedicated inverter is connected.
           const solarWh = lifetime.solar_wh || 0;
           const batteryWh = lifetime.battery_discharge_wh || lifetime.lifetime_battery_discharge_wh || 0;
-          dbSolarKwh += Math.floor(solarWh / 1000);
+          if (!solarIsObserver) dbSolarKwh += Math.floor(solarWh / 1000);
           dbBatteryKwh += Math.floor(batteryWh / 1000);
         } else if (device.device_type === "vehicle") {
           const odometer = lifetime.odometer || 0;
           const chargingKwh = lifetime.charging_kwh || Math.floor((lifetime.charging_wh || 0) / 1000);
           dbEvMiles += Math.floor(odometer);
           dbChargingKwh += Math.floor(chargingKwh);
-        } else if (device.device_type === "wall_connector") {
-          const chargingWh = lifetime.charging_wh || lifetime.lifetime_charging_wh || 0;
-          dbChargingKwh += Math.floor(chargingWh / 1000);
         }
+        // wall_connector / EVSE: observer only. Its energy is already counted
+        // by the vehicle's onboard meter, so it must not raise a charging
+        // milestone. Deliberately no branch here.
       }
 
-      // Use the MAX of on-chain and database values for eligibility
-      // This shows all NFTs the user WILL earn when they mint
-      const totalSolarKwh = Math.max(Number(onChainSolar), dbSolarKwh);
-      const totalBatteryKwh = Math.max(Number(onChainBattery), dbBatteryKwh);
-      const totalChargingKwh = Math.max(Number(onChainCharging), dbChargingKwh);
-      const totalEvMiles = Math.max(Number(onChainEvMiles), dbEvMiles);
+      // MILESTONE GATE (2026-08-01).
+      // Eligibility is decided by the ON-CHAIN counters only — i.e. by what
+      // has actually been issued and proven, never by lifetime_totals. Device
+      // ownership can move between accounts; a migration must never make an
+      // account newly eligible for a milestone it did not earn. The database
+      // figures are still returned, clearly labelled as projected.
+      const totalSolarKwh = Number(onChainSolar);
+      const totalBatteryKwh = Number(onChainBattery);
+      const totalChargingKwh = Number(onChainCharging);
+      const totalEvMiles = Number(onChainEvMiles);
 
       console.log("Eligibility check stats:", {
+        gate: "on_chain_only",
         onChain: { solar: Number(onChainSolar), battery: Number(onChainBattery), charging: Number(onChainCharging), evMiles: Number(onChainEvMiles) },
-        database: { solar: dbSolarKwh, battery: dbBatteryKwh, charging: dbChargingKwh, evMiles: dbEvMiles },
-        combined: { solar: totalSolarKwh, battery: totalBatteryKwh, charging: totalChargingKwh, evMiles: totalEvMiles },
+        projected: { solar: dbSolarKwh, battery: dbBatteryKwh, charging: dbChargingKwh, evMiles: dbEvMiles },
+        observerExclusions: eligExclusions,
       });
 
       const ownedNFTs = await safeGetOwnedTokens(publicClient, walletAddress);
