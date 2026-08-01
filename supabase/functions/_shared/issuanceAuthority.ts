@@ -81,6 +81,17 @@ export function resolveExclusions(devices: AuthorityDevice[]): AuthorityExclusio
   }
 
   // ── CHARGING ─────────────────────────────────────────────────────────────
+  // TEMPORARY OVER-BLOCK — deliberate, fail-closed, NOT the intended design.
+  //
+  // Today every EVSE row is demoted whenever ANY vehicle is connected. That
+  // forecloses the legitimate case: a household with a Tesla and a non-Tesla
+  // EV on a Wallbox has the Wallbox excluded entirely, so the non-Tesla car
+  // can never earn even though nothing else meters it.
+  //
+  // The intended rule (E2, residual method): a charger is authoritative only
+  // for energy that no connected vehicle accounts for — per EVSE session,
+  // subtract overlapping vehicle-reported charging and issue the remainder.
+  // Do not treat the blanket exclusion below as the finished design.
   const hasVehicle = devices.some((d) => VEHICLE_TYPES.has(d.device_type));
   if (hasVehicle) {
     for (const d of devices) {
@@ -89,8 +100,9 @@ export function resolveExclusions(devices: AuthorityDevice[]): AuthorityExclusio
         device_id: d.device_id,
         data_type: 'ev_charging',
         reason:
-          'Observer: a connected vehicle reports its own charging energy from its onboard meter, ' +
-          'which is authoritative. EVSE energy would double-count the same electrons.',
+          'Observer (temporary over-block): a connected vehicle reports its own charging energy ' +
+          'from its onboard meter, which is authoritative. EVSE energy would double-count the ' +
+          'same electrons. Pending the residual method for vehicles we cannot read directly.',
       });
     }
   }

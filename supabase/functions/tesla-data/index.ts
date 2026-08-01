@@ -265,7 +265,7 @@ async function refreshTeslaToken(
 
 type TeslaDiscoveredDevice = {
   device_id: string;
-  device_type: "vehicle" | "powerwall" | "solar";
+  device_type: "vehicle" | "powerwall" | "solar" | "wall_connector";
   device_name: string;
   metadata: Record<string, unknown>;
 };
@@ -278,6 +278,13 @@ function initialTeslaBaseline(deviceType: TeslaDiscoveredDevice["device_type"]) 
       odometer: 0,
       last_known_odometer: 0,
       total_charge_energy_added_kwh: 0,
+    };
+  }
+
+  if (deviceType === "wall_connector") {
+    return {
+      captured_at,
+      charging_kwh: 0,
     };
   }
 
@@ -309,19 +316,73 @@ async function discoverTeslaDevices(accessToken: string): Promise<TeslaDiscovere
     console.warn("Tesla self-heal vehicle discovery failed:", await vehiclesResponse.text());
   }
 
+  // Every product on the account, not just the first: vehicles that the
+  // /vehicles endpoint missed, every energy site (solar and/or Powerwall),
+  // and every Wall Connector attached to those sites. A household with more
+  // than one Tesla product previously only ever got its first one claimed.
   const productsResponse = await fetch(`${TESLA_API_BASE}/api/1/products`, {
     headers: { "Authorization": `Bearer ${accessToken}` },
   });
   if (productsResponse.ok) {
     const productsData = await productsResponse.json();
+    const energySiteIds: string[] = [];
     for (const p of productsData.response || []) {
+      if (p.vin && !p.energy_site_id) {
+        devices.push({
+          device_id: String(p.vin),
+          device_type: "vehicle",
+          device_name: p.display_name || p.vehicle_type || "Tesla Vehicle",
+          metadata: { vin: p.vin, model: p.vehicle_type, state: p.state, source: "products" },
+        });
+        continue;
+      }
       if (!p.energy_site_id) continue;
+      const siteId = String(p.energy_site_id);
+      // Wall Connectors are returned as top-level products with
+      // resource_type "charger" (and are also listed inside an energy site's
+      // components). They are NOT solar sites and must not be typed as such.
+      if (p.resource_type === "charger" || p.resource_type === "wall_connector") {
+        devices.push({
+          device_id: siteId,
+          device_type: "wall_connector",
+          device_name: p.site_name || p.din || "Tesla Wall Connector",
+          metadata: { site_id: p.energy_site_id, resource_type: p.resource_type, din: p.din ?? null },
+        });
+        continue;
+      }
+      energySiteIds.push(siteId);
       devices.push({
-        device_id: String(p.energy_site_id),
+        device_id: siteId,
         device_type: p.resource_type === "battery" ? "powerwall" : "solar",
         device_name: p.site_name || `Tesla ${p.resource_type || "Energy"}`,
         metadata: { site_id: p.energy_site_id, resource_type: p.resource_type },
       });
+    }
+
+    // Wall Connectors are not top-level products — they hang off each energy
+    // site's component list.
+    for (const siteId of energySiteIds) {
+      try {
+        const infoRes = await fetch(
+          `${TESLA_API_BASE}/api/1/energy_sites/${siteId}/site_info`,
+          { headers: { "Authorization": `Bearer ${accessToken}` } },
+        );
+        if (!infoRes.ok) continue;
+        const info = await infoRes.json();
+        const wcs = info?.response?.components?.wall_connectors || [];
+        for (const wc of wcs) {
+          const din = wc?.din ?? wc?.device_id;
+          if (!din) continue;
+          devices.push({
+            device_id: String(din),
+            device_type: "wall_connector",
+            device_name: wc?.part_name || "Tesla Wall Connector",
+            metadata: { din, site_id: siteId, part_number: wc?.part_number ?? null },
+          });
+        }
+      } catch (e) {
+        console.warn(`Wall Connector discovery failed for site ${siteId}:`, e);
+      }
     }
   } else {
     console.warn("Tesla self-heal product discovery failed:", await productsResponse.text());
@@ -333,14 +394,10 @@ async function discoverTeslaDevices(accessToken: string): Promise<TeslaDiscovere
 }
 
 async function ensureTeslaDevicesClaimed(supabaseClient: any, userId: string, accessToken: string) {
-  const { count } = await supabaseClient
-    .from("connected_devices")
-    .select("id", { count: "exact", head: true })
-    .eq("user_id", userId)
-    .eq("provider", "tesla");
-
-  if (count && count > 0) return { discovered: 0, claimed: 0 };
-
+  // Discovery runs on EVERY sync, not only for accounts with zero devices.
+  // The old `count > 0` early return meant a household that connected with
+  // one product never picked up the second car, the Powerwall, or a Wall
+  // Connector added later.
   const devices = await discoverTeslaDevices(accessToken);
   let claimed = 0;
 
@@ -611,6 +668,119 @@ Deno.serve(async (req) => {
         });
       }
     }
+
+    // ── Sweep mode: refresh EVERY claimed Tesla product ────────────────────
+    // Body: { mode: 'telemetry_all' }
+    // The per-device telemetry mode above only refreshes the one siteId the
+    // caller names, so a UI that renders a single "primary" product leaves the
+    // rest of the household stale. This sweep iterates every claimed device,
+    // writes device_telemetry_cache for each, and reports the outcome per
+    // device so a stale product is visible rather than silent.
+    if (telemetryReq.mode === "telemetry_all") {
+      const { data: allDevices } = await supabaseClient
+        .from("connected_devices")
+        .select("device_id, device_type, device_name")
+        .eq("user_id", targetUserId)
+        .eq("provider", "tesla");
+
+      const report: Array<Record<string, unknown>> = [];
+      for (const d of allDevices || []) {
+        const id = String(d.device_id);
+        const isEnergy = d.device_type === "solar" || d.device_type === "powerwall";
+        const cap = isEnergy ? (d.device_type === "powerwall" ? "battery" : "solar") : d.device_type === "vehicle" ? "ev" : null;
+        if (!cap) {
+          report.push({ device_id: id, device_name: d.device_name, device_type: d.device_type, wrote: false, reason: "no_telemetry_endpoint" });
+          continue;
+        }
+        try {
+          let payload: Record<string, unknown> | null = null;
+          if (isEnergy) {
+            const r = await fetch(`${TESLA_API_BASE}/api/1/energy_sites/${id}/live_status`, {
+              headers: { "Authorization": `Bearer ${accessToken}` },
+            });
+            if (r.ok) {
+              const resp = (await r.json()).response || {};
+              payload = { ...resp, energy_sites: [{ site_id: id, ...resp }] };
+            } else {
+              report.push({ device_id: id, device_name: d.device_name, device_type: d.device_type, wrote: false, reason: `live_status_${r.status}` });
+              continue;
+            }
+          } else {
+            const ENDPOINTS = "charge_state;drive_state;vehicle_state;vehicle_config";
+            let vd = await fetch(
+              `${TESLA_API_BASE}/api/1/vehicles/${id}/vehicle_data?endpoints=${encodeURIComponent(ENDPOINTS)}`,
+              { headers: { "Authorization": `Bearer ${accessToken}` } },
+            );
+            if (vd.status === 408 || vd.status === 503) {
+              await fetch(`${TESLA_API_BASE}/api/1/vehicles/${id}/wake_up`, {
+                method: "POST", headers: { "Authorization": `Bearer ${accessToken}` },
+              });
+              await new Promise((res) => setTimeout(res, 4000));
+              vd = await fetch(
+                `${TESLA_API_BASE}/api/1/vehicles/${id}/vehicle_data?endpoints=${encodeURIComponent(ENDPOINTS)}`,
+                { headers: { "Authorization": `Bearer ${accessToken}` } },
+              );
+            }
+            if (!vd.ok) {
+              report.push({ device_id: id, device_name: d.device_name, device_type: d.device_type, wrote: false, reason: `vehicle_data_${vd.status}` });
+              continue;
+            }
+            const j = await vd.json();
+            const cs = j?.response?.charge_state || {};
+            const vs = j?.response?.vehicle_state || {};
+            const ds = j?.response?.drive_state || {};
+            const vc = j?.response?.vehicle_config || {};
+            payload = {
+              vin: id,
+              display_name: j?.response?.display_name ?? d.device_name,
+              vehicle_config: vc,
+              charging_state: cs.charging_state,
+              battery_level: cs.battery_level,
+              battery_range: cs.battery_range,
+              charge_rate_kw: typeof cs.charger_power === "number" ? cs.charger_power : null,
+              charger_power: cs.charger_power,
+              charge_energy_added: cs.charge_energy_added,
+              fast_charger_type: cs.fast_charger_type,
+              fast_charger_present: cs.fast_charger_present,
+              odometer: vs.odometer ?? ds.odometer,
+              shift_state: ds.shift_state,
+              vehicles: [{ vin: id, display_name: j?.response?.display_name ?? d.device_name, vehicle_config: vc, odometer: vs.odometer ?? ds.odometer, charging_state: cs.charging_state, battery_level: cs.battery_level, battery_range: cs.battery_range, charger_power: cs.charger_power, charge_energy_added: cs.charge_energy_added }],
+            };
+          }
+
+          const now = Date.now();
+          const { error: cacheError } = await supabaseClient.from("device_telemetry_cache").upsert({
+            user_id: targetUserId,
+            oem_type: "tesla",
+            device_type: cap,
+            site_id: id,
+            payload,
+            cached_at: new Date(now).toISOString(),
+            expires_at: new Date(now + 90_000).toISOString(),
+          }, { onConflict: "user_id,oem_type,device_type,site_id" });
+
+          report.push({
+            device_id: id,
+            device_name: d.device_name,
+            device_type: d.device_type,
+            capability: cap,
+            wrote: !cacheError,
+            reason: cacheError ? `cache_write_failed: ${cacheError.message}` : "ok",
+          });
+        } catch (e) {
+          report.push({ device_id: id, device_name: d.device_name, device_type: d.device_type, wrote: false, reason: `exception: ${e}` });
+        }
+      }
+
+      return new Response(JSON.stringify({
+        mode: "telemetry_all",
+        devices: (allDevices || []).length,
+        wrote: report.filter((r) => r.wrote).length,
+        report,
+      }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+
 
 
 
