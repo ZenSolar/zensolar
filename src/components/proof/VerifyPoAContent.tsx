@@ -48,8 +48,7 @@ export type VerifyReceipt = {
 };
 
 // ---- CO₂ math (per-source; see src/lib/co2Math.ts) ----
-import { computeCo2, CO2_KG_PER_EV_MILE } from '@/lib/co2Math';
-const BTC_TX_CO2_KG = 707;                // Cambridge CCAF / Digiconomist anchor
+import { computeCo2, type Co2Stats } from '@/lib/co2Math';
 
 function fmt(n: number, digits = 1): string {
   return n.toLocaleString(undefined, { maximumFractionDigits: digits });
