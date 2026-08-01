@@ -1378,7 +1378,14 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                 <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 text-[11px]">
                   {lifetime.solarKwh > 0 && (
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Solar</span>
+                      <span className="text-muted-foreground">
+                        Solar
+                        {lifetime.observerSolarKwh > 0 && (
+                          <span className="ml-1 text-[10px] uppercase tracking-wider text-muted-foreground/60">
+                            metered source only
+                          </span>
+                        )}
+                      </span>
                       <span className="font-semibold text-foreground">{(lifetime.solarKwh / 1000).toFixed(2)} MWh</span>
                     </div>
                   )}
