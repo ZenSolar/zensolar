@@ -23,6 +23,8 @@ const AnimatedEnergyFlow = lazy(() =>
 );
 import { ZenXPill } from './ZenXPill';
 import { VehicleStatusStrip } from './VehicleStatusStrip';
+import { FreshnessNote } from './FreshnessNote';
+
 
 import { LiveCardHeader } from './LiveCardHeader';
 import { TelemetrySyncBadge } from './TelemetrySyncBadge';
