@@ -395,11 +395,9 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
             onClick={() => scrollToRef(verifyRef, true)}
             title="Open cryptographic verification details"
           />
-          <TmBadge
-            Icon={Bitcoin} label="vs-BTC" tint="accent-warm" active
-            onClick={() => scrollToRef(vsBtcRef)}
-            title="Jump to vs-Bitcoin comparison"
-          />
+        </div>
+      </div>
+
         </div>
       </div>
 
