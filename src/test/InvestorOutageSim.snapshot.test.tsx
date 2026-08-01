@@ -19,7 +19,7 @@ import { render as rtlRender, screen, cleanup, act } from '@testing-library/reac
 import { MemoryRouter } from 'react-router-dom';
 
 /** Components under test use react-router hooks; every render needs a router. */
-const render = (ui: React.ReactElement) => rtlRender(<MemoryRouter>{ui}</MemoryRouter>);
+const render = (ui: import('react').ReactElement) => rtlRender(<MemoryRouter>{ui}</MemoryRouter>);
 import '@testing-library/jest-dom/vitest';
 
 // Capture props passed into the lazy EnergyFlowScene.
