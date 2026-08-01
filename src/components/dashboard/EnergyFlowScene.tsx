@@ -515,6 +515,32 @@ export function EnergyFlowScene({
           ),
     [forceScene, forceComposition, data, hasBattery, hasTesla, hasCharger, isOutage, weatherCode],
   );
+
+  // SCENE DIAGNOSTIC — `?scenedebug=1`.
+  // Records what the clock actually evaluated to for this render, so a
+  // night-at-midday report is attributed to the clock, the weather override,
+  // a forced scene, or the asset — never guessed at after the fact.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!new URLSearchParams(window.location.search).has('scenedebug')) return;
+    const now = new Date();
+    // eslint-disable-next-line no-console
+    console.info('[scenedebug]', {
+      rendered_scene: scene,
+      composition,
+      forceScene: forceScene ?? null,
+      pickScene_raw: forceScene ? null : pickScene(data, now),
+      getHours: now.getHours(),
+      iso: now.toISOString(),
+      tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      tzOffsetMin: now.getTimezoneOffset(),
+      weatherCode: weatherCode ?? null,
+      solarPower: data.solarPower ?? null,
+      gridPower: data.gridPower ?? null,
+      batteryPower: data.batteryPower ?? null,
+    });
+  }, [scene, composition, forceScene, data, weatherCode]);
+
   const hasTeslaConnection =
     Boolean(teslaPayload) || Boolean(data.tesla) || (data.evPower ?? 0) > 0.1;
 
