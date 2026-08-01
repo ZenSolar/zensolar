@@ -286,9 +286,10 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
           <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-bold">
             Proof-of-Authenticity
           </div>
-          <div className="text-xs font-semibold text-foreground/90 truncate">
+          <div className="text-xs font-semibold text-foreground/90 leading-snug">
             Cryptographically signed · Anchored on Base
           </div>
+
         </div>
         <ShieldCheck className="h-5 w-5 text-eco shrink-0" />
       </div>
