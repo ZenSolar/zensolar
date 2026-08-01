@@ -23,7 +23,13 @@ const AnimatedEnergyFlow = lazy(() =>
 );
 import { ZenXPill } from './ZenXPill';
 import { VehicleStatusStrip } from './VehicleStatusStrip';
-import { FreshnessNote } from './FreshnessNote';
+import { FreshnessException } from './FreshnessNote';
+
+/**
+ * The card polls every source together, so it states its age ONCE in the
+ * header. Rows read this shared timestamp and only speak up when they diverge.
+ */
+export const CardFreshnessContext = createContext<string | null>(null);
 
 
 import { LiveCardHeader } from './LiveCardHeader';
