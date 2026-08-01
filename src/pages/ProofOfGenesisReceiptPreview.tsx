@@ -406,7 +406,7 @@ export default function ProofOfGenesisReceiptPreview() {
     return {
       co2Headline,
       title: `Proof-of-Genesis — ${co2Headline} avoided`,
-      text: `I just minted ${formatKwh(receipt.tokens_minted)} $ZSOLAR from ${energyLine}, offsetting ${co2Headline}. One Bitcoin tx emits ~${BTC_TX_CO2_KG} kg CO₂. Mine emitted essentially zero. → zen.solar`,
+      text: `I just minted ${formatKwh(receipt.tokens_minted)} $ZSOLAR from ${energyLine}, offsetting ${co2Headline}. → zen.solar`,
     };
   };
 
