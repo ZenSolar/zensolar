@@ -431,7 +431,7 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
           )}
         </div>
 
-        <ImportedHistoryNote userId={data.user_id ?? null} />
+        <ImportedHistoryNote />
 
         {sourceRows.length > 0 && sourceRows.map((row) => {
           const Icon = row.Icon;
