@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useViewAsUserId } from '@/hooks/useViewAsUserId';
 import { useHaptics } from '@/hooks/useHaptics';
 import { computeCo2 } from '@/lib/co2Math';
+import { computeSiteBalance, balanceNotice } from '@/lib/siteBalance';
 import { supabase } from '@/integrations/supabase/client';
 
 const EnergyFlowScene = lazy(() =>
