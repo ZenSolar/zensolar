@@ -612,12 +612,18 @@ export function EnergyFlowScene({
 
 
   // Trunk-and-branch conductor topology (see ConductorNetwork.tsx).
+  // Battery and EV are branches of the same junction; in outage mode the
+  // battery→home hero below owns that story instead.
+  const evBranchKw =
+    isCharging && !isOutage && scene !== 'night-ev' ? Math.abs(data.tesla?.kW ?? data.evPower ?? 0) : 0;
   const conductorSegments = useMemo(
     () =>
       buildConductorSegments({
         solar,
         home,
         grid,
+        battery: isOutage ? 0 : battery,
+        ev: evBranchKw,
         colors: {
           solar: EMERALD_LED,
           home: EMERALD_LED,
@@ -627,8 +633,9 @@ export function EnergyFlowScene({
         dimSolar: isOutage,
         hideGrid: isOutage,
       }),
-    [solar, home, grid, isOutage],
+    [solar, home, grid, battery, evBranchKw, isOutage],
   );
+
 
 
   // v5 Phase B — Supercharger detection. Tesla telemetry exposes
