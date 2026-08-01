@@ -337,11 +337,14 @@ export function EVTile({ t, totals7d, liveDot, sourceLabel: sourceLabelOverride 
           )}
 
         </div>
-        <FreshChip fresh={t.fresh} />
+        <FreshnessException
+          iso={t.sample_at ?? t.cached_at ?? null}
+          fresh={t.fresh}
+          cardIso={useContext(CardFreshnessContext)}
+          className="mt-0"
+        />
       </div>
-      <div className="mt-1">
-        <FreshnessNote iso={t.sample_at ?? t.cached_at ?? null} fresh={t.fresh} />
-      </div>
+
 
       {/* Row A: live charge session */}
       {isCharging && (
