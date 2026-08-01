@@ -882,30 +882,9 @@ export function EnergyFlowScene({
           </g>
         )}
 
-        {/* Wall connector (inside garage) — soft standby when a charger is
-            connected, emerald-pulse when an EV is actively charging. */}
-        {(hasCharger || hasTesla) && (
-          <>
-            <DeviceHalo
-              cx={HOME_BLUEPRINT.wallCharger.x}
-              cy={HOME_BLUEPRINT.wallCharger.y}
-              color={EMERALD}
-              active={hasCharger || hasTesla}
-              intensity={0.45}
-              radius={3.6}
-              pulseMs={5200}
-            />
-            <DeviceHalo
-              cx={HOME_BLUEPRINT.wallCharger.x}
-              cy={HOME_BLUEPRINT.wallCharger.y}
-              color={EMERALD}
-              active={isCharging}
-              intensity={intensity(data.evPower ?? 7)}
-              radius={4.2}
-              pulseMs={2400}
-            />
-          </>
-        )}
+        {/* Wall-connector halo retired: the baked art has no visible charger
+            at that anchor, so it read as a free-floating bloom. Charge state is
+            carried by the EV branch and the charge-port pulse. */}
 
 
         {/* Tiny green plug LED on the parked car when plugged & idle */}
@@ -1096,9 +1075,9 @@ export function EnergyFlowScene({
 
         {/* v5 Structural — dedicated EV charging cable layer.
             Hidden when supercharging away from home (gated by showDynamicCar). */}
-        {(isPluggedIdle || chargingAtHome) && showDynamicCar && (
+        {isPluggedIdle && !chargingAtHome && showDynamicCar && (
           <EvChargingCable
-            state={chargingAtHome ? 'charging' : 'idle'}
+            state={'idle'}
             carAnchor={carAnchor}
             carWidth={carW}
             carHeight={carH}

@@ -56,7 +56,7 @@ export function fromHouseImage(x: number, y: number): Pt {
  *   evPort         charge port on the rear quarter of the parked vehicle
  */
 export const SCENE_ANCHORS = Object.freeze({
-  roofArrayEdge: { x: 63.5, y: 46.5 } as Pt,
+  roofArrayEdge: { x: 61.5, y: 45.0 } as Pt,
   wallJunction:  { x: 70.5, y: 51.5 } as Pt,
   homeWall:      { x: 77.5, y: 55.5 } as Pt,
   powerwall:     { x: 73.0, y: 68.0 } as Pt,
