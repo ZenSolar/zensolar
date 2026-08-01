@@ -26,6 +26,7 @@ const AnimatedEnergyFlow = lazy(() =>
 import { ZenXPill } from './ZenXPill';
 import { VehicleStatusStrip } from './VehicleStatusStrip';
 import { FreshnessException } from './FreshnessNote';
+import { isDarkReading } from '@/lib/telemetryFreshness';
 
 /**
  * The card polls every source together, so it states its age ONCE in the
