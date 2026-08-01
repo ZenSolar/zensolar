@@ -153,19 +153,19 @@ export function polylineMidpoint(pts: Pt[]): { p: Pt; angle: number } {
 }
 
 /**
- * kW → stroke width, in overlay units (1 unit ≈ 1% of the card width).
+ * kW → stroke width. Defined once in `@/lib/siteBalance` alongside the
+ * balance assertion that keeps the claim honest:
  *
  *   width(kW) = 0.30 × kW,  clamped to [0.30, 3.0]
  *
- * Strictly proportional and through the origin, so widths ADD: a 0.9 kW trunk
- * (0.27) is exactly as wide as a 0.5 kW home branch (0.15) plus a 0.4 kW grid
- * branch (0.12). The floor only protects sub-0.6 kW runs from vanishing; the
- * ceiling keeps a 12 kW export from swamping the house.
+ * Strictly proportional and through the origin, so widths ADD. The floor only
+ * protects sub-1 kW runs from vanishing; the ceiling keeps a 12 kW import from
+ * swamping the house. When either clamp engages, `computeSiteBalance().clamped`
+ * is true and widths are no longer comparable — the assertion says so rather
+ * than pretending.
  */
-export const WIDTH_PER_KW = 0.30;
-export function conductorWidth(kw: number): number {
-  return Math.min(3.0, Math.max(0.30, Math.abs(kw) * WIDTH_PER_KW));
-}
+export { WIDTH_PER_KW, conductorWidth } from '@/lib/siteBalance';
+import { conductorWidth } from '@/lib/siteBalance';
 
 /** Travelling-pulse period: higher power travels faster, never frantic. */
 const pulseDur = (kw: number) => Math.max(1.5, 3.4 - Math.min(Math.abs(kw), 8) * 0.2);
