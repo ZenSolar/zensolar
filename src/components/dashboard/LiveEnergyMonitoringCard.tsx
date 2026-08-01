@@ -848,6 +848,20 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
     return rows.sort((a, b) => new Date(b.cached_at).getTime() - new Date(a.cached_at).getTime())[0];
   }, [solar.data, battery.data, ev.data]);
 
+  /** Provenance for each readout — every number on this card states its age. */
+  const asOfFor = (rows: CachedTelemetry[]) => {
+    const r = rows[0];
+    return { iso: r?.sample_at ?? r?.cached_at ?? null, fresh: !!r?.fresh };
+  };
+  const solarAsOf = asOfFor(solar.data);
+  const batteryAsOf = asOfFor(battery.data);
+  const evAsOf = asOfFor(ev.data);
+  const chargerAsOf = {
+    iso: chargers.data[0]?.last_synced_at ?? null,
+    fresh: !chargers.loading && !!chargers.data[0]?.last_synced_at,
+  };
+
+
   const homeKwRaw = normalizeWattsToKw(pickNumber(primaryBattery?.payload, ['load_power', 'energy_sites.0.load_power']));
   const evKwRaw = pickNumber(primaryEv?.payload, ['charge_rate_kw', 'charger_power', 'vehicles.0.charger_power']) ?? 0;
   const gridKwRaw = normalizeWattsToKw(pickNumber(primaryBattery?.payload, ['grid_power', 'energy_sites.0.grid_power']));
