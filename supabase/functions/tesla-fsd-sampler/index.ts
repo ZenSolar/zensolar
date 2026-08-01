@@ -70,7 +70,9 @@ async function refreshTeslaToken(supabase: any, userId: string, refreshToken: st
       }),
     });
     if (!r.ok) {
-      console.error("[fsd-sampler] token refresh failed:", await r.text());
+      const body = await r.text();
+      const cls = await recordGrantFailure(supabase, userId, "tesla", r.status, body);
+      console.error(`[fsd-sampler] token refresh failed [${cls}]:`, body);
       return null;
     }
     const j = await r.json();
@@ -84,6 +86,7 @@ async function refreshTeslaToken(supabase: any, userId: string, refreshToken: st
       })
       .eq("user_id", userId)
       .eq("provider", "tesla");
+    await clearGrantFailure(supabase, userId, "tesla");
     return j.access_token;
   } catch (e) {
     console.error("[fsd-sampler] refresh error", e);
