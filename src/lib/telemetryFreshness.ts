@@ -37,3 +37,30 @@ export function isStaleReading(iso: string | null | undefined, staleAfterMs = 15
   if (!Number.isFinite(t)) return true;
   return Date.now() - t > staleAfterMs;
 }
+
+/**
+ * Exception-only freshness.
+ *
+ * A card whose readouts all come from one poll states its age ONCE, in the
+ * card header. A per-row note is only meaningful when that row DIVERGES from
+ * the card: no reading yet, a cached row served after a failed live fetch, or
+ * a reading materially older than the card's own timestamp.
+ * Returns null when the row agrees with the card — label exceptions, not everything.
+ */
+export function freshnessException(
+  iso: string | null | undefined,
+  fresh: boolean,
+  cardIso: string | null | undefined,
+  divergeAfterMs = 5 * 60 * 1000,
+): { label: string; tone: 'pending' | 'cached' | 'stale' } | null {
+  if (!iso) return { label: 'no reading yet', tone: 'pending' };
+  if (!fresh) return { label: `cached · ${formatRelativeAge(iso)} · live fetch failed`, tone: 'cached' };
+  if (isStaleReading(iso)) return { label: `stale · ${formatRelativeAge(iso)}`, tone: 'stale' };
+
+  const t = new Date(iso).getTime();
+  const c = cardIso ? new Date(cardIso).getTime() : NaN;
+  if (Number.isFinite(t) && Number.isFinite(c) && c - t > divergeAfterMs) {
+    return { label: `as of ${formatRelativeAge(iso)}`, tone: 'stale' };
+  }
+  return null;
+}
