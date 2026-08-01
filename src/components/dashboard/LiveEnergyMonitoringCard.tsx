@@ -980,6 +980,39 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
         );
       })()}
 
+      {(() => {
+        // SITE BALANCE ASSERTION — runs on RAW telemetry, before any
+        // reconciliation. The diagram claims branch widths sum to the trunk;
+        // that only holds when the meters themselves sum. When they do not,
+        // say so here rather than quietly redistributing the difference.
+        const measuredHome = homeKwRaw ?? 0;
+        const balance = computeSiteBalance({
+          solarKw: solarStats.currentKw ?? 0,
+          gridKw: gridKwRaw ?? 0,
+          batteryKw: batteryStats.powerKw ?? 0,
+          // HOME is the measured consumer sink minus the vehicle's own meter.
+          homeKw: Math.max(0, measuredHome - evHomeKw),
+          evKw: evHomeKw,
+        });
+        const notice = balanceNotice(balance);
+        if (!notice && !reconciledFlow.gridCorrected) return null;
+        return (
+          <div
+            className="mb-3 -mt-1 rounded-lg border border-amber-400/25 bg-amber-400/5 px-3 py-2"
+            data-testid="site-balance-notice"
+          >
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-amber-300/90">
+              {notice ?? 'Grid reading replaced by site balance'}
+            </p>
+            <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">
+              {notice
+                ? `${balance.reason} Sources ${balance.sourcesKw.toFixed(1)} kW · loads ${balance.loadsKw.toFixed(1)} kW · tolerance ±${balance.toleranceKw.toFixed(1)} kW. Flow widths below are drawn from these readings and will not sum until the meters agree.`
+                : 'The grid meter disagreed with the rest of the site by more than tolerance, so the value shown is derived from the other meters.'}
+            </p>
+          </div>
+        );
+      })()}
+
       {/* v5 — multi-PV site selector (only renders when ≥2 PV systems) */}
       <SolarSiteTabs
         sites={solar.data}
