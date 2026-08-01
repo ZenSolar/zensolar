@@ -22,6 +22,8 @@ const AnimatedEnergyFlow = lazy(() =>
   import('./AnimatedEnergyFlow').then((m) => ({ default: m.AnimatedEnergyFlow }))
 );
 import { ZenXPill } from './ZenXPill';
+import { VehicleStatusStrip } from './VehicleStatusStrip';
+
 import { LiveCardHeader } from './LiveCardHeader';
 import { TelemetrySyncBadge } from './TelemetrySyncBadge';
 import { SolarSiteTabs } from './SolarSiteTabs';
