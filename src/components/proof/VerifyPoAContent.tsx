@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
+import { ImportedHistoryNote } from './ImportedHistoryNote';
 import { TamperEvidentProofPanel } from '@/components/proof/TamperEvidentProofPanel';
 import { MintedForBadge, ReceiptSourceLines, type ApiResponse as SourceLinesResponse } from '@/components/proof/ReceiptSourceLines';
 import { ProofOfAuthenticityStamp } from '@/components/proof/ProofOfAuthenticityStamp';
@@ -429,6 +430,8 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
             </span>
           )}
         </div>
+
+        <ImportedHistoryNote />
 
         {sourceRows.length > 0 && sourceRows.map((row) => {
           const Icon = row.Icon;

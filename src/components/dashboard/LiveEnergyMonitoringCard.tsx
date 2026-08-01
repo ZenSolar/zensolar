@@ -26,6 +26,7 @@ const AnimatedEnergyFlow = lazy(() =>
 import { ZenXPill } from './ZenXPill';
 import { VehicleStatusStrip } from './VehicleStatusStrip';
 import { FreshnessException } from './FreshnessNote';
+import { isDarkReading } from '@/lib/telemetryFreshness';
 
 /**
  * The card polls every source together, so it states its age ONCE in the
@@ -985,10 +986,13 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
       {(() => {
         // Surface whichever telemetry lane is unhealthiest so a broken OEM
         // never leaves the tile silently frozen. Prefer paused > retrying.
+        // A reading older than 24h renders the "gone dark" state even when
+        // every lane reports healthy — a latched pause freezes the counter.
         const states = [solar.syncState, battery.syncState, ev.syncState];
         const worst: 'ok' | 'retrying' | 'paused' =
           states.includes('paused') ? 'paused' : states.includes('retrying') ? 'retrying' : 'ok';
-        if (worst === 'ok') return null;
+        const latestIso = latestTelemetry?.sample_at ?? latestTelemetry?.cached_at ?? null;
+        if (worst === 'ok' && !isDarkReading(latestIso)) return null;
         const onRetry = () => {
           solar.resetFailures();
           battery.resetFailures();
@@ -996,10 +1000,11 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
         };
         return (
           <div className="mb-3 -mt-1">
-            <TelemetrySyncBadge syncState={worst} onRetry={onRetry} />
+            <TelemetrySyncBadge syncState={worst} onRetry={onRetry} latestIso={latestIso} />
           </div>
         );
       })()}
+
 
       {(() => {
         // SITE BALANCE ASSERTION — runs on RAW telemetry, before any

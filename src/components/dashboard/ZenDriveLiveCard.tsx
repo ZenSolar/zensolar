@@ -13,6 +13,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Car, Home, Zap } from 'lucide-react';
 import { LiveCardHeader } from './LiveCardHeader';
 import { TelemetrySyncBadge } from './TelemetrySyncBadge';
+import { isDarkReading } from '@/lib/telemetryFreshness';
 
 import {
   MetricTile,
@@ -183,11 +184,15 @@ export function ZenDriveLiveCard({ alwaysRender = false, deviceIndex = 0 }: ZenD
         onRefresh={handleRefresh}
         refreshing={refreshing}
       />
-      {ev.syncState !== 'ok' && (
-        <div className="mb-3 -mt-1">
-          <TelemetrySyncBadge syncState={ev.syncState} onRetry={ev.resetFailures} />
-        </div>
-      )}
+      {(() => {
+        const latestIso = primaryEv?.sample_at ?? primaryEv?.cached_at ?? null;
+        if (ev.syncState === 'ok' && !isDarkReading(latestIso)) return null;
+        return (
+          <div className="mb-3 -mt-1">
+            <TelemetrySyncBadge syncState={ev.syncState} onRetry={ev.resetFailures} latestIso={latestIso} />
+          </div>
+        );
+      })()}
 
       {/* Tesla-app–grade charging hero: name, SOC%, ETA, animated cable,
           car image, dense data row, and slim SOC→limit progress bar. */}

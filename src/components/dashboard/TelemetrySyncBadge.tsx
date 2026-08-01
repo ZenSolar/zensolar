@@ -1,9 +1,18 @@
-import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { AlertTriangle, MoonStar, RefreshCw } from 'lucide-react';
+import { darkLabel, isDarkReading } from '@/lib/telemetryFreshness';
 
 interface TelemetrySyncBadgeProps {
-  /** 'ok' → renders nothing. 'retrying' → soft amber. 'paused' → tap-to-retry. */
+  /** 'ok' → renders nothing (unless the reading has gone dark). 'retrying' → soft amber. 'paused' → tap-to-retry. */
   syncState: 'ok' | 'retrying' | 'paused';
   onRetry?: () => void;
+  /**
+   * Timestamp of the newest reading behind this card. When it is older than
+   * 24h the badge renders a "gone dark" state with a retry affordance even if
+   * `syncState` is 'ok' — a latched pause stops polling, so the failure
+   * counter freezes and the card would otherwise look healthy while showing a
+   * five-day-old number.
+   */
+  latestIso?: string | null;
 }
 
 /**
@@ -13,33 +22,37 @@ interface TelemetrySyncBadgeProps {
  *
  * - `retrying`: telemetry has failed 3+ times in a row, backoff still active
  * - `paused`: circuit breaker tripped (10+ failures); tap to reset & retry
+ * - dark: newest reading older than 24h; tap to reset & retry
  */
-export function TelemetrySyncBadge({ syncState, onRetry }: TelemetrySyncBadgeProps) {
-  if (syncState === 'ok') return null;
+export function TelemetrySyncBadge({ syncState, onRetry, latestIso }: TelemetrySyncBadgeProps) {
+  const dark = isDarkReading(latestIso);
 
-  if (syncState === 'retrying') {
+  if (syncState === 'ok' && !dark) return null;
+
+  if (syncState === 'paused' || dark) {
+    const paused = syncState === 'paused';
     return (
-      <span
-        role="status"
-        className="inline-flex w-fit items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-amber-400 ring-1 ring-amber-500/25"
+      <button
+        type="button"
+        onClick={onRetry}
+        className="inline-flex w-fit items-center gap-1 rounded-full bg-destructive/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-destructive ring-1 ring-destructive/30 transition-colors hover:bg-destructive/20"
       >
-        <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
-        Having trouble syncing — retrying
-      </span>
+        {paused ? <AlertTriangle className="h-3 w-3" /> : <MoonStar className="h-3 w-3" />}
+        {paused ? 'Live data paused' : darkLabel(latestIso)}
+        <span className="ml-0.5 inline-flex items-center gap-0.5 text-destructive/80">
+          <RefreshCw className="h-3 w-3" /> Retry now
+        </span>
+      </button>
     );
   }
 
   return (
-    <button
-      type="button"
-      onClick={onRetry}
-      className="inline-flex w-fit items-center gap-1 rounded-full bg-destructive/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-destructive ring-1 ring-destructive/30 transition-colors hover:bg-destructive/20"
+    <span
+      role="status"
+      className="inline-flex w-fit items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-amber-400 ring-1 ring-amber-500/25"
     >
-      <AlertTriangle className="h-3 w-3" />
-      Live data paused
-      <span className="ml-0.5 inline-flex items-center gap-0.5 text-destructive/80">
-        <RefreshCw className="h-3 w-3" /> Tap to retry
-      </span>
-    </button>
+      <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+      Having trouble syncing — retrying
+    </span>
   );
 }

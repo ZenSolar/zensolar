@@ -52,7 +52,19 @@ interface Props {
 }
 
 function HouseSceneV5Inner({ scene, weatherCode }: Props) {
-  const src = SCENE_SRC[scene] ?? SCENE_SRC.day;
+  const resolved = SCENE_SRC[scene];
+  const src = resolved ?? SCENE_SRC.day;
+  // Asset-resolution half of the `?scenedebug=1` diagnostic. The map never
+  // falls back to a night image (an unknown key falls back to `day`), so a
+  // night render at midday cannot come from asset resolution — this records
+  // that fact rather than assuming it.
+  if (
+    typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).has('scenedebug')
+  ) {
+    // eslint-disable-next-line no-console
+    console.info('[scenedebug:asset]', { scene, resolved: resolved ?? null, usedFallbackToDay: !resolved, src });
+  }
   const isNight =
     scene === 'night' ||
     scene === 'night-ev' ||
@@ -214,6 +226,10 @@ function HouseSceneV5Inner({ scene, weatherCode }: Props) {
       {/* Hero PNG — the premium baked house. */}
       <img
         src={src}
+        onError={() => {
+          // eslint-disable-next-line no-console
+          console.error('[scene:asset-error]', { scene, src });
+        }}
         alt=""
         className="absolute inset-0 h-full w-full select-none object-contain drop-shadow-[0_28px_44px_hsl(220_70%_3%/0.6)]"
         style={{ zIndex: 2 }}
