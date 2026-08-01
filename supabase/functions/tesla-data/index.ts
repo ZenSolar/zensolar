@@ -309,19 +309,61 @@ async function discoverTeslaDevices(accessToken: string): Promise<TeslaDiscovere
     console.warn("Tesla self-heal vehicle discovery failed:", await vehiclesResponse.text());
   }
 
+  // Every product on the account, not just the first: vehicles that the
+  // /vehicles endpoint missed, every energy site (solar and/or Powerwall),
+  // and every Wall Connector attached to those sites. A household with more
+  // than one Tesla product previously only ever got its first one claimed.
   const productsResponse = await fetch(`${TESLA_API_BASE}/api/1/products`, {
     headers: { "Authorization": `Bearer ${accessToken}` },
   });
   if (productsResponse.ok) {
     const productsData = await productsResponse.json();
+    const energySiteIds: string[] = [];
     for (const p of productsData.response || []) {
+      if (p.vin && !p.energy_site_id) {
+        devices.push({
+          device_id: String(p.vin),
+          device_type: "vehicle",
+          device_name: p.display_name || p.vehicle_type || "Tesla Vehicle",
+          metadata: { vin: p.vin, model: p.vehicle_type, state: p.state, source: "products" },
+        });
+        continue;
+      }
       if (!p.energy_site_id) continue;
+      const siteId = String(p.energy_site_id);
+      energySiteIds.push(siteId);
       devices.push({
-        device_id: String(p.energy_site_id),
+        device_id: siteId,
         device_type: p.resource_type === "battery" ? "powerwall" : "solar",
         device_name: p.site_name || `Tesla ${p.resource_type || "Energy"}`,
         metadata: { site_id: p.energy_site_id, resource_type: p.resource_type },
       });
+    }
+
+    // Wall Connectors are not top-level products — they hang off each energy
+    // site's component list.
+    for (const siteId of energySiteIds) {
+      try {
+        const infoRes = await fetch(
+          `${TESLA_API_BASE}/api/1/energy_sites/${siteId}/site_info`,
+          { headers: { "Authorization": `Bearer ${accessToken}` } },
+        );
+        if (!infoRes.ok) continue;
+        const info = await infoRes.json();
+        const wcs = info?.response?.components?.wall_connectors || [];
+        for (const wc of wcs) {
+          const din = wc?.din ?? wc?.device_id;
+          if (!din) continue;
+          devices.push({
+            device_id: String(din),
+            device_type: "wall_connector",
+            device_name: wc?.part_name || "Tesla Wall Connector",
+            metadata: { din, site_id: siteId, part_number: wc?.part_number ?? null },
+          });
+        }
+      } catch (e) {
+        console.warn(`Wall Connector discovery failed for site ${siteId}:`, e);
+      }
     }
   } else {
     console.warn("Tesla self-heal product discovery failed:", await productsResponse.text());
