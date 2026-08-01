@@ -34,6 +34,8 @@ export interface AuthorityExclusion {
 const DEDICATED_SOLAR_PROVIDERS = new Set(['enphase', 'solaredge']);
 const SOLAR_DEVICE_TYPES = new Set(['solar', 'solar_system', 'pv']);
 const VEHICLE_TYPES = new Set(['vehicle', 'ev', 'tesla_vehicle']);
+// Kept for reference by callers labelling charger rows; no longer used to demote.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const EVSE_TYPES = new Set(['wall_connector', 'home_charger', 'ev_charger', 'wallbox']);
 
 export function resolveExclusions(devices: AuthorityDevice[]): AuthorityExclusion[] {
