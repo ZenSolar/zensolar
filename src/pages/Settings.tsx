@@ -30,6 +30,8 @@ import { useDeasonOptimizer } from "@/hooks/useDeasonOptimizer";
 import { toast } from "sonner";
 
 import { useDensity } from "@/hooks/useDensity";
+import { MeteringRolesCard } from "@/components/devices/MeteringRolesCard";
+
 
 export default function Settings() {
   const { 
@@ -101,6 +103,17 @@ export default function Settings() {
       >
         <WalletSetupCard />
       </motion.div>
+
+      {/* Metering roles — which devices are counted, and which are shown only */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.055 }}
+      >
+        <MeteringRolesCard />
+      </motion.div>
+
+
 
       {/* Security entry — full-width, above the two-column grid */}
       <motion.div

@@ -5,7 +5,7 @@ import { baseSepolia } from "npm:viem@2.43.5/chains";
 // Issuance is delta-based (item 6, 2026-07-31): quantities come from unminted
 // energy_production rows, not from lifetime_totals minus baseline_data. The
 // baseline resolver is therefore no longer on the mint path.
-import { fetchUnmintedRows, aggregateUnmintedRows } from "../_shared/unmintedDeltas.ts";
+import { fetchUnmintedRows, aggregateUnmintedRows, partitionByProvenance } from "../_shared/unmintedDeltas.ts";
 import { runIssuancePipeline } from "../_shared/issuancePipeline.ts";
 import { filterIssuableRows, resolveExclusions } from "../_shared/issuanceAuthority.ts";
 
@@ -766,6 +766,21 @@ Deno.serve(async (req) => {
           message: "Could not read verified activity. Mint refused.",
         }), { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
+
+      // ── PROVENANCE GATE — unstamped rows are refused, never consumed ─────
+      // A row without `production_wh_semantics: issuable_delta` and a
+      // contemporaneous hash cannot prove that its production_wh is a delta.
+      // Refused rows stay in place (still visible as imported history) and are
+      // logged; they are simply not issuance material.
+      const provenance = partitionByProvenance(unmintedRows);
+      if (provenance.refused.length > 0) {
+        console.log("Provenance refusal", JSON.stringify({
+          userId: user.id,
+          refusedRows: provenance.refused.length,
+          sample: provenance.refusedReasons.slice(0, 20),
+        }));
+      }
+      unmintedRows = provenance.stamped;
 
       // ── SOURCE AUTHORITY — observer rows never become tokens ─────────────
       // fetchUnmintedRows filters only on user_id / minted_at / data_type, so

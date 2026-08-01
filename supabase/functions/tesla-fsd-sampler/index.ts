@@ -21,8 +21,9 @@ import {
 } from "../_shared/proofDelta.ts";
 
 // KILL SWITCH — issuance-row writes for FSD miles.
-// Disabled 2026-08-01 pending founder sign-off on the cumulative-semantics fix.
-const ISSUANCE_WRITES_ENABLED = false;
+// Re-enabled 2026-08-01: rows now store snapshotDelta() as production_wh with
+// the lifetime reading kept in proof_metadata.value.
+const ISSUANCE_WRITES_ENABLED = true;
 import {
   applyOdometerSample,
   defaultSamplerState,

@@ -2,10 +2,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getPreviousProof, periodTotalProof } from "../_shared/proofDelta.ts";
 
 // KILL SWITCH — issuance-row writes for the Enphase lifetime backfill.
-// Disabled 2026-08-01: this writer produced UNSTAMPED day totals (no hash, no
-// value_semantics). Patched to the period-total convention; do not re-enable
-// or run the backfill without founder confirmation.
-const ISSUANCE_WRITES_ENABLED = false;
+// Re-enabled 2026-08-01 after the period-total patch: every row now carries a
+// contemporaneous hash and `production_wh_semantics: issuable_delta`, and a
+// bucket already minted or quarantined is never rewritten.
+const ISSUANCE_WRITES_ENABLED = true;
 
 async function sha256Hex(input: string): Promise<string> {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
