@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { createContext, lazy, Suspense, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BatteryCharging, Car, Clock3, Gauge, Home, Loader2, RefreshCw, Route, Sparkles, Sun, Zap, type LucideIcon } from 'lucide-react';
 import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
@@ -23,7 +23,13 @@ const AnimatedEnergyFlow = lazy(() =>
 );
 import { ZenXPill } from './ZenXPill';
 import { VehicleStatusStrip } from './VehicleStatusStrip';
-import { FreshnessNote } from './FreshnessNote';
+import { FreshnessException } from './FreshnessNote';
+
+/**
+ * The card polls every source together, so it states its age ONCE in the
+ * header. Rows read this shared timestamp and only speak up when they diverge.
+ */
+export const CardFreshnessContext = createContext<string | null>(null);
 
 
 import { LiveCardHeader } from './LiveCardHeader';
@@ -189,16 +195,6 @@ function useTodayMintImpact() {
   return impact;
 }
 
-function FreshChip({ fresh }: { fresh: boolean }) {
-  return (
-    <span className={`rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${
-      fresh ? 'bg-primary/20 text-primary' : 'bg-muted/40 text-muted-foreground'
-    }`}>
-      {fresh ? 'Live' : 'Cached'}
-    </span>
-  );
-}
-
 function oemLabel(oem: string) {
   return oem.charAt(0).toUpperCase() + oem.slice(1);
 }
@@ -313,6 +309,7 @@ export function EVTile({ t, totals7d, liveDot, sourceLabel: sourceLabelOverride 
   const kindLabel = sourceLabelOverride ?? kindLabelDefault;
   const label = t.oem === 'tesla' ? `Vehicle · Tesla${t.device_name ? ' · ' + t.device_name : ''}` : `EV · ${oemLabel(t.oem)}`;
   const showLive = liveDot ?? isCharging;
+  const cardIso = useContext(CardFreshnessContext);
 
   return (
     <div className="rounded-lg border border-primary/20 bg-background/45 p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.06)] transition-colors hover:border-primary/35">
@@ -331,11 +328,14 @@ export function EVTile({ t, totals7d, liveDot, sourceLabel: sourceLabelOverride 
           )}
 
         </div>
-        <FreshChip fresh={t.fresh} />
+        <FreshnessException
+          iso={t.sample_at ?? t.cached_at ?? null}
+          fresh={t.fresh}
+          cardIso={cardIso}
+          className="mt-0"
+        />
       </div>
-      <div className="mt-1">
-        <FreshnessNote iso={t.sample_at ?? t.cached_at ?? null} fresh={t.fresh} />
-      </div>
+
 
       {/* Row A: live charge session */}
       {isCharging && (
@@ -412,6 +412,7 @@ export function MetricTile({
   /** Reading provenance. Every telemetry-backed number states its own age. */
   asOf?: { iso: string | null; fresh: boolean };
 }) {
+  const cardIso = useContext(CardFreshnessContext);
 
   const toneMap = {
     orange: {
@@ -461,7 +462,8 @@ export function MetricTile({
       <div className={`mt-2.5 text-[22px] font-bold leading-none tabular-nums ${t ? t.value : 'text-foreground'}`}>{value}</div>
       <div className="mt-1.5 text-[11px] leading-snug text-muted-foreground/80">{detail}</div>
       {sublabel ? <div className="mt-1 text-[11px] leading-snug">{sublabel}</div> : null}
-      {asOf ? <FreshnessNote iso={asOf.iso} fresh={asOf.fresh} className="mt-1.5 block" /> : null}
+      {/* Exception-only: silent when this row shares the card's freshness. */}
+      {asOf ? <FreshnessException iso={asOf.iso} fresh={asOf.fresh} cardIso={cardIso} className="block" /> : null}
 
     </div>
   );
@@ -944,7 +946,10 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
     ? `ZenEnergy · ${subtitleParts.join(' + ') || 'Live'}`
     : `Home Energy Cockpit · ${subtitleParts.join(' + ') || 'Live'}`;
 
+  const cardIso = latestTelemetry?.sample_at ?? latestTelemetry?.cached_at ?? null;
+
   return (
+    <CardFreshnessContext.Provider value={cardIso}>
     <div className="w-full p-4">
       <LiveCardHeader
         subtitle={cockpitSubtitle}
@@ -1399,5 +1404,6 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
         </div>
       )}
     </div>
+    </CardFreshnessContext.Provider>
   );
 }
