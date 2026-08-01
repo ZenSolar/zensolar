@@ -175,6 +175,10 @@ async function loadDevicesDeduped(userId: string): Promise<ConnectedDeviceRow[]>
 // during a single dashboard load). Keyed by user + oem + capability + siteId.
 const oemInflight = new Map<string, Promise<any | null>>();
 
+// Returns EVERY device matching this capability, deduped by device_id.
+// (Formerly `pickOnePerCapability` — the name asserted a one-device-per-household
+// rule the body never implemented, and that assumption is exactly what broke the
+// Tesla poller. Do not reintroduce it.)
 function selectDevicesForCapability(rows: ConnectedDeviceRow[], cap: Capability): ConnectedDeviceRow[] {
   const out: ConnectedDeviceRow[] = [];
   const seen = new Set<string>();
