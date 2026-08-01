@@ -24,7 +24,7 @@ export type ShareCardData = {
   deviceLabel: string;          // "tesla-model-y-VIN9XJ"
   mintedAt: string;             // ISO
   txHashShort: string;          // "0xa3f5b2…d3f6a9c2"
-  vsBtcKg: number;              // 707
+  vsBtcKg?: number;             // deprecated — no longer rendered
   isLive: boolean;
 };
 
