@@ -15,7 +15,11 @@
  * of these break, the investor walkthrough will look wrong on the live URL.
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, cleanup, act } from '@testing-library/react';
+import { render as rtlRender, screen, cleanup, act } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+
+/** Components under test use react-router hooks; every render needs a router. */
+const render = (ui: React.ReactElement) => rtlRender(<MemoryRouter>{ui}</MemoryRouter>);
 import '@testing-library/jest-dom/vitest';
 
 // Capture props passed into the lazy EnergyFlowScene.

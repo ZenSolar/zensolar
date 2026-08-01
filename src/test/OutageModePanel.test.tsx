@@ -1,6 +1,10 @@
 // @vitest-environment jsdom
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render as rtlRender, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+
+/** OutageModePanel reaches react-router hooks; wrap every render. */
+const render = (ui: React.ReactElement) => rtlRender(<MemoryRouter>{ui}</MemoryRouter>);
 import { OutageModePanel } from '@/components/dashboard/OutageModePanel';
 import { _resetBackupSmoothing } from '@/lib/gridOutage';
 
