@@ -192,3 +192,65 @@ export async function resolveCumulativeAnchor(
 ): Promise<number> {
   return await resolveBucketAnchor(client, { ...args, resetsDaily: false, expectSemantics: 'cumulative_snapshot' });
 }
+
+/**
+ * PERIOD-TOTAL SOURCES (daily aggregates: Enphase energy_lifetime day buckets,
+ * Tesla home-charging day accumulators).
+ *
+ * The row IS the period. `production_wh` therefore carries the period's own
+ * total — which is already the issuable delta for that bucket — and the
+ * metadata records the semantics plus the hash chain so Pillar 1 holds.
+ *
+ * Callers MUST NOT rewrite a bucket that has already been consumed (minted or
+ * quarantined); use `bucketIsClosed()` before upserting.
+ */
+export async function periodTotalProof(args: {
+  deviceId: string;
+  provider: string;
+  dataType: string;
+  recordedAt: string;
+  /** The period's own total, in the row's unit. */
+  periodTotal: number;
+  prev: PrevProof;
+  unit?: string;
+  extra?: Record<string, unknown>;
+  sha256Hex: (s: string) => Promise<string>;
+}): Promise<{ production_wh: number; proof_metadata: Record<string, unknown> }> {
+  const total = Math.max(0, Number(args.periodTotal) || 0);
+  const hash = await args.sha256Hex(
+    `${args.deviceId}|${args.recordedAt}|${total}|${args.prev.prevHash}`,
+  );
+  return {
+    production_wh: total,
+    proof_metadata: buildProofMetadata({
+      hash,
+      prevHash: args.prev.prevHash,
+      deviceId: args.deviceId,
+      value: total,
+      prevValue: args.prev.prevValue,
+      delta: total,
+      dataType: args.dataType,
+      timestamp: args.recordedAt,
+      unit: args.unit,
+      valueSemantics: 'period_total',
+      extra: args.extra,
+    }),
+  };
+}
+
+/** True when a bucket row has already been minted or quarantined. */
+export async function bucketIsClosed(
+  client: { from: (t: string) => any },
+  args: { userId: string; deviceId: string; provider: string; dataType: string; recordedAt: string },
+): Promise<boolean> {
+  const { data } = await client
+    .from('energy_production')
+    .select('minted_at, consumed_reason')
+    .eq('user_id', args.userId)
+    .eq('device_id', args.deviceId)
+    .eq('provider', args.provider)
+    .eq('data_type', args.dataType)
+    .eq('recorded_at', args.recordedAt)
+    .maybeSingle();
+  return Boolean(data && (data.minted_at || data.consumed_reason));
+}
