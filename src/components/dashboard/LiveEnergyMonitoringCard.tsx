@@ -968,18 +968,23 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
     ? `ZenEnergy · ${subtitleParts.join(' + ') || 'Live'}`
     : `Home Energy Cockpit · ${subtitleParts.join(' + ') || 'Live'}`;
 
-  const cardIso = latestTelemetry?.sample_at ?? latestTelemetry?.cached_at ?? null;
+  // A card states ONE age, and it is the age of its OLDEST component. Taking
+  // the newest reading let a one-hour-old solar tile sit under an "updated 0s
+  // ago" header — two contradictory freshness claims on one surface.
+  const oldestTelemetry = (() => {
+    const isos = [solarAsOf.iso, batteryAsOf.iso, evAsOf.iso].filter(Boolean) as string[];
+    if (isos.length === 0) return null;
+    return isos.sort((a, b) => new Date(a).getTime() - new Date(b).getTime())[0];
+  })();
+  const cardIso = oldestTelemetry ?? latestTelemetry?.sample_at ?? latestTelemetry?.cached_at ?? null;
 
   return (
     <CardFreshnessContext.Provider value={cardIso}>
     <div className="w-full p-4">
       <LiveCardHeader
         subtitle={cockpitSubtitle}
-        ageLabel={formatAge(latestTelemetry?.sample_at ?? latestTelemetry?.cached_at ?? null)}
-        freshnessClassName={freshnessClass(
-          latestTelemetry?.sample_at ?? latestTelemetry?.cached_at ?? null,
-          !!latestTelemetry?.fresh,
-        )}
+        ageLabel={formatAge(cardIso)}
+        freshnessClassName={freshnessClass(cardIso, !!latestTelemetry?.fresh)}
         onRefresh={handleManualRefresh}
         refreshing={manualRefreshing}
       />
