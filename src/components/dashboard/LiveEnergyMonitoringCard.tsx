@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useViewAsUserId } from '@/hooks/useViewAsUserId';
 import { useHaptics } from '@/hooks/useHaptics';
 import { computeCo2 } from '@/lib/co2Math';
+import { computeSiteBalance, balanceNotice } from '@/lib/siteBalance';
 import { supabase } from '@/integrations/supabase/client';
 
 const EnergyFlowScene = lazy(() =>
@@ -976,6 +977,39 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
         return (
           <div className="mb-3 -mt-1">
             <TelemetrySyncBadge syncState={worst} onRetry={onRetry} />
+          </div>
+        );
+      })()}
+
+      {(() => {
+        // SITE BALANCE ASSERTION — runs on RAW telemetry, before any
+        // reconciliation. The diagram claims branch widths sum to the trunk;
+        // that only holds when the meters themselves sum. When they do not,
+        // say so here rather than quietly redistributing the difference.
+        const measuredHome = homeKwRaw ?? 0;
+        const balance = computeSiteBalance({
+          solarKw: solarStats.currentKw ?? 0,
+          gridKw: gridKwRaw ?? 0,
+          batteryKw: batteryStats.powerKw ?? 0,
+          // HOME is the measured consumer sink minus the vehicle's own meter.
+          homeKw: Math.max(0, measuredHome - evHomeKw),
+          evKw: evHomeKw,
+        });
+        const notice = balanceNotice(balance);
+        if (!notice && !reconciledFlow.gridCorrected) return null;
+        return (
+          <div
+            className="mb-3 -mt-1 rounded-lg border border-amber-400/25 bg-amber-400/5 px-3 py-2"
+            data-testid="site-balance-notice"
+          >
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-amber-300/90">
+              {notice ?? 'Grid reading replaced by site balance'}
+            </p>
+            <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">
+              {notice
+                ? `${balance.reason} Sources ${balance.sourcesKw.toFixed(1)} kW · loads ${balance.loadsKw.toFixed(1)} kW · tolerance ±${balance.toleranceKw.toFixed(1)} kW. Flow widths below are drawn from these readings and will not sum until the meters agree.`
+                : 'The grid meter disagreed with the rest of the site by more than tolerance, so the value shown is derived from the other meters.'}
+            </p>
           </div>
         );
       })()}
