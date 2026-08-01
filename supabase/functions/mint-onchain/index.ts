@@ -766,6 +766,30 @@ Deno.serve(async (req) => {
         }), { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
 
+      // ── SOURCE AUTHORITY — observer rows never become tokens ─────────────
+      // fetchUnmintedRows filters only on user_id / minted_at / data_type, so
+      // a UI-only exclusion would not stop a non-authoritative meter minting.
+      // This is the enforcement point: a Powerwall's site CTs reporting the
+      // same roof as a dedicated inverter, and any EVSE reporting energy a
+      // connected vehicle already metered, are dropped here. Dropped rows are
+      // NOT consumed — they stay in place, visible, simply not issuance
+      // material. Battery export is untouched.
+      const authority = filterIssuableRows(
+        unmintedRows,
+        (devices || []).map((d: any) => ({
+          device_id: d.device_id,
+          device_type: d.device_type,
+          provider: d.provider,
+        })),
+      );
+      if (authority.excluded.length > 0) {
+        console.log("Source authority exclusions", JSON.stringify({
+          excludedRows: authority.excluded.length,
+          rules: authority.exclusions,
+        }));
+      }
+      unmintedRows = authority.issuable;
+
       const deltas = aggregateUnmintedRows(unmintedRows);
 
       // Canonical pipeline: netting -> stack_bonus (seam) -> allowance_cap (seam).
