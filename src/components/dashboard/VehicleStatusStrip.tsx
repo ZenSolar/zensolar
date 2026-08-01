@@ -14,7 +14,10 @@
  */
 import { Car } from 'lucide-react';
 import type { CachedTelemetry } from '@/hooks/useDeviceTelemetry';
+import { FreshnessNote } from '@/components/dashboard/FreshnessNote';
+import { freshnessLabel } from '@/lib/telemetryFreshness';
 import { cn } from '@/lib/utils';
+
 
 function pick(payload: any, keys: string[]): unknown {
   for (const k of keys) {
@@ -82,33 +85,41 @@ export function VehicleStatusStrip({
         const presence = deriveVehiclePresence(p, atSite);
         const copy = PRESENCE_COPY[presence];
         const name = v.device_name ?? str(p, ['display_name', 'vehicles.0.display_name']) ?? 'Vehicle';
+        const readAt = v.sample_at ?? v.cached_at ?? null;
 
         return (
           <button
             key={`vss-${v.oem}-${v.site_id}`}
             type="button"
             onClick={onSelect}
-            aria-label={`${name}, ${soc !== null ? `${Math.round(soc)} percent` : 'charge unknown'}${range !== null ? `, ${Math.round(range)} miles range` : ''}, ${copy.label}`}
-            className="flex w-full items-center gap-2.5 rounded-lg border border-border/50 bg-background/40 px-3 py-2 text-left transition-colors hover:border-primary/30"
+            aria-label={`${name}, ${soc !== null ? `${Math.round(soc)} percent` : 'charge unknown'}${range !== null ? `, ${Math.round(range)} miles range` : ''}, ${copy.label}, ${freshnessLabel(readAt, !!v.fresh)}`}
+            className="w-full rounded-lg border border-border/50 bg-background/40 px-3 py-2 text-left transition-colors hover:border-primary/30"
           >
-            <Car className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden="true" />
-            <span className="truncate text-[12px] font-semibold text-foreground">{name}</span>
+            <span className="flex w-full items-center gap-2.5">
+              <Car className="h-3.5 w-3.5 shrink-0 text-primary" aria-hidden="true" />
+              <span className="truncate text-[12px] font-semibold text-foreground">{name}</span>
 
-            <span className="ml-auto flex items-center gap-2 tabular-nums">
-              <span className="text-[13px] font-bold text-foreground">
-                {soc !== null ? `${Math.round(soc)}%` : '—'}
+              <span className="ml-auto flex items-center gap-2 tabular-nums">
+                <span className="text-[13px] font-bold text-foreground">
+                  {soc !== null ? `${Math.round(soc)}%` : '—'}
+                </span>
+                {range !== null && (
+                  <span className="text-[11px] text-muted-foreground">{Math.round(range)} mi</span>
+                )}
               </span>
-              {range !== null && (
-                <span className="text-[11px] text-muted-foreground">{Math.round(range)} mi</span>
-              )}
+
+              <span className={cn('flex shrink-0 items-center gap-1.5 border-l border-border/50 pl-2.5 text-[10px] font-semibold uppercase tracking-wide', copy.tone)}>
+                <span aria-hidden="true" className={cn('inline-block h-1.5 w-1.5 rounded-full', copy.dot)} />
+                {copy.label}
+              </span>
             </span>
 
-            <span className={cn('flex shrink-0 items-center gap-1.5 border-l border-border/50 pl-2.5 text-[10px] font-semibold uppercase tracking-wide', copy.tone)}>
-              <span aria-hidden="true" className={cn('inline-block h-1.5 w-1.5 rounded-full', copy.dot)} />
-              {copy.label}
-            </span>
+            {/* Every readout states its own age. A cached row served after a
+                failed live fetch says so rather than posing as current. */}
+            <FreshnessNote iso={readAt} fresh={!!v.fresh} className="mt-1 block pl-6" />
           </button>
         );
+
       })}
     </div>
   );

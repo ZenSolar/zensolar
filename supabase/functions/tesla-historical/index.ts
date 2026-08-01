@@ -1,4 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { readSessionEnergy, sessionRef } from "../_shared/sessionEnergy.ts";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -574,33 +576,31 @@ Deno.serve(async (req) => {
           const totalResults = chData.totalResults || 0;
 
           for (const session of Array.isArray(sessions) ? sessions : []) {
-            const directKwh =
-              session.chargeEnergyAdded ||
-              session.charge_energy_added ||
-              session.energy_added ||
-              session.energyAdded;
+            // ONLY Tesla's reported energy becomes kWh. Fees are billing, not
+            // metering — idle fees are time-based — so kWh is never derived
+            // from a fee. A reported 0 stays 0.
+            const energy = readSessionEnergy(session);
 
-            let kwhFromFees = 0;
             let totalFee = 0;
             let feeCurrency = "USD";
             if (Array.isArray(session.fees)) {
               for (const fee of session.fees) {
-                const isChargingFee = String(fee.feeType || "").toUpperCase() === "CHARGING";
-                const isKwh = String(fee.uom || "").toLowerCase() === "kwh";
-                if (isChargingFee && isKwh) {
-                  kwhFromFees += Number(fee.usageBase || 0);
-                  kwhFromFees += Number(fee.usageTier1 || 0);
-                  kwhFromFees += Number(fee.usageTier2 || 0);
-                  kwhFromFees += Number(fee.usageTier3 || 0);
-                  kwhFromFees += Number(fee.usageTier4 || 0);
-                }
                 totalFee += Number(fee.totalDue || fee.amount || 0);
                 if (fee.currencyCode) feeCurrency = fee.currencyCode;
               }
             }
 
-            const sessionKwh = Number(directKwh || kwhFromFees || 0);
+            if (energy.feeOnly) {
+              console.warn("[Tesla Historical] Fee-only charging session — no reported energy, crediting 0", {
+                session: sessionRef(session),
+                totalFee,
+                location: session.siteLocationName || session.chargeLocationName || session.superchargerName || null,
+              });
+            }
+
+            const sessionKwh = energy.kwh;
             if (sessionKwh <= 0) continue;
+
 
             const sessionDate =
               session.chargeStartDateTime ||

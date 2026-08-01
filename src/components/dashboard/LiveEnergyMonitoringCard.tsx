@@ -23,6 +23,8 @@ const AnimatedEnergyFlow = lazy(() =>
 );
 import { ZenXPill } from './ZenXPill';
 import { VehicleStatusStrip } from './VehicleStatusStrip';
+import { FreshnessNote } from './FreshnessNote';
+
 
 import { LiveCardHeader } from './LiveCardHeader';
 import { TelemetrySyncBadge } from './TelemetrySyncBadge';
@@ -331,6 +333,9 @@ export function EVTile({ t, totals7d, liveDot, sourceLabel: sourceLabelOverride 
         </div>
         <FreshChip fresh={t.fresh} />
       </div>
+      <div className="mt-1">
+        <FreshnessNote iso={t.sample_at ?? t.cached_at ?? null} fresh={t.fresh} />
+      </div>
 
       {/* Row A: live charge session */}
       {isCharging && (
@@ -396,6 +401,7 @@ export function MetricTile({
   detail,
   sublabel,
   tone,
+  asOf,
 }: {
   icon: LucideIcon;
   label: string;
@@ -403,7 +409,10 @@ export function MetricTile({
   detail: string;
   sublabel?: React.ReactNode;
   tone?: 'orange' | 'green' | 'blue' | 'teal';
+  /** Reading provenance. Every telemetry-backed number states its own age. */
+  asOf?: { iso: string | null; fresh: boolean };
 }) {
+
   const toneMap = {
     orange: {
       border: 'border-amber-400/25 hover:border-amber-400/45',
@@ -452,6 +461,8 @@ export function MetricTile({
       <div className={`mt-2.5 text-[22px] font-bold leading-none tabular-nums ${t ? t.value : 'text-foreground'}`}>{value}</div>
       <div className="mt-1.5 text-[11px] leading-snug text-muted-foreground/80">{detail}</div>
       {sublabel ? <div className="mt-1 text-[11px] leading-snug">{sublabel}</div> : null}
+      {asOf ? <FreshnessNote iso={asOf.iso} fresh={asOf.fresh} className="mt-1.5 block" /> : null}
+
     </div>
   );
 }
@@ -840,6 +851,20 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
     return rows.sort((a, b) => new Date(b.cached_at).getTime() - new Date(a.cached_at).getTime())[0];
   }, [solar.data, battery.data, ev.data]);
 
+  /** Provenance for each readout — every number on this card states its age. */
+  const asOfFor = (rows: CachedTelemetry[]) => {
+    const r = rows[0];
+    return { iso: r?.sample_at ?? r?.cached_at ?? null, fresh: !!r?.fresh };
+  };
+  const solarAsOf = asOfFor(solar.data);
+  const batteryAsOf = asOfFor(battery.data);
+  const evAsOf = asOfFor(ev.data);
+  const chargerAsOf = {
+    iso: chargers.data[0]?.last_synced_at ?? null,
+    fresh: !chargers.loading && !!chargers.data[0]?.last_synced_at,
+  };
+
+
   const homeKwRaw = normalizeWattsToKw(pickNumber(primaryBattery?.payload, ['load_power', 'energy_sites.0.load_power']));
   const evKwRaw = pickNumber(primaryEv?.payload, ['charge_rate_kw', 'charger_power', 'vehicles.0.charger_power']) ?? 0;
   const gridKwRaw = normalizeWattsToKw(pickNumber(primaryBattery?.payload, ['grid_power', 'energy_sites.0.grid_power']));
@@ -1142,6 +1167,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                 label={solar.data.length > 1 ? `Solar · ${solar.data.length} systems` : 'Solar Produced'}
                 value={formatKwh(solarStatsAll.todayKwh)}
                 detail={`${formatKw(solarStatsAll.currentKw)} now · today`}
+                asOf={solarAsOf}
               />
 
               {/* Green — Battery kWh exported today */}
@@ -1165,6 +1191,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                     const isFull = batteryStatsAll.soc !== null && batteryStatsAll.soc >= 99;
                     return `${pct} · ${isFull ? 'Full' : 'Idle'}`;
                   })()}
+                  asOf={batteryAsOf}
                 />
               ) : (
                 <MetricTile
@@ -1177,6 +1204,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                       : '—'
                   }
                   detail={`Lifetime · ${chargers.data[0]?.total_sessions ?? 0} sessions`}
+                  asOf={chargerAsOf}
                 />
               )}
 
@@ -1231,6 +1259,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                         </span>
                       ) : null
                     }
+                    asOf={evAsOf}
                   />
                 );
               })()}
@@ -1253,6 +1282,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                         ? `+${liveScAdd.toFixed(1)} kWh live · ${teslaFlow?.kW ? teslaFlow.kW.toFixed(1) : '0'} kW`
                         : 'Today · DC Fast Charging'
                     }
+                    asOf={evAsOf}
                   />
                 );
               })()}
@@ -1267,6 +1297,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                   label="EV Mileage · Today"
                   value={`${Math.round((evTotals.totals.home_kwh + evTotals.totals.supercharger_kwh) * 3.3).toLocaleString()} mi`}
                   detail="Estimated from today's energy charged"
+                  asOf={evAsOf}
                 />
               )}
             </div>
