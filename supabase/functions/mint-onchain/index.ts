@@ -806,6 +806,27 @@ Deno.serve(async (req) => {
       }
       unmintedRows = authority.issuable;
 
+      // ── CHARGING RESIDUAL (E2) — per-row, not per-device ─────────────────
+      // A charger earns on the energy no connected vehicle accounts for. The
+      // vehicle's onboard meter is authoritative for what it reports; the EVSE
+      // keeps the remainder. Dropped rows are NOT consumed.
+      const residual = applyChargingResidual(
+        unmintedRows as any,
+        (devices || []).map((d: any) => ({
+          device_id: d.device_id,
+          device_type: d.device_type,
+          provider: d.provider,
+        })),
+      );
+      if (residual.excluded.length > 0) {
+        console.log("Charging residual exclusions", JSON.stringify({
+          excludedRows: residual.excluded.length,
+          notes: residual.notes,
+        }));
+      }
+      unmintedRows = residual.issuable as any;
+
+
       const deltas = aggregateUnmintedRows(unmintedRows);
 
       // Canonical pipeline: netting -> stack_bonus (seam) -> allowance_cap (seam).
