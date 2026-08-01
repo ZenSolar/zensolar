@@ -88,7 +88,7 @@ export const INVESTOR_DEMO_HEADLINE = {
   using: 9.3,           // 3.4 home + 2.1 PW charge + 7.2 EV charge (excl. solar)
   batteryDeltaKw: 2.1,
   evChargingKw: 7.2,
-  gridKw: 0.0,
+  gridKw: 7.3,
 };
 
 /**
