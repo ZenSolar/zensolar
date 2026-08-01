@@ -375,14 +375,10 @@ async function discoverTeslaDevices(accessToken: string): Promise<TeslaDiscovere
 }
 
 async function ensureTeslaDevicesClaimed(supabaseClient: any, userId: string, accessToken: string) {
-  const { count } = await supabaseClient
-    .from("connected_devices")
-    .select("id", { count: "exact", head: true })
-    .eq("user_id", userId)
-    .eq("provider", "tesla");
-
-  if (count && count > 0) return { discovered: 0, claimed: 0 };
-
+  // Discovery runs on EVERY sync, not only for accounts with zero devices.
+  // The old `count > 0` early return meant a household that connected with
+  // one product never picked up the second car, the Powerwall, or a Wall
+  // Connector added later.
   const devices = await discoverTeslaDevices(accessToken);
   let claimed = 0;
 
