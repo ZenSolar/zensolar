@@ -14,6 +14,16 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
+  buildProofMetadata,
+  getPreviousProof,
+  resolveCumulativeAnchor,
+  snapshotDelta,
+} from "../_shared/proofDelta.ts";
+
+// KILL SWITCH — issuance-row writes for FSD miles.
+// Disabled 2026-08-01 pending founder sign-off on the cumulative-semantics fix.
+const ISSUANCE_WRITES_ENABLED = false;
+import {
   applyOdometerSample,
   defaultSamplerState,
   extractAutopilotState,
@@ -223,46 +233,54 @@ Deno.serve(async (req) => {
         const fsdSource = resolved.source;
 
         // Write Proof-of-Delta row only when cumulative changed.
+        //
+        // CONTAINMENT 2026-08-01: issuance writes are DISABLED. This writer
+        // previously put the CUMULATIVE `resolved.miles` into `production_wh`,
+        // the field issuance sums, so every sample re-staged the lifetime
+        // total. Patched below to the snapshot-delta convention; do not flip
+        // the switch back on without founder confirmation.
         const prevLifetime = Number(lifetime.lifetime_fsd_miles ?? 0);
-        if (resolved.miles > prevLifetime) {
-          const { data: prevRow } = await supabase
-            .from("energy_production")
-            .select("proof_metadata, production_wh")
-            .eq("device_id", d.device_id)
-            .eq("provider", "tesla")
-            .eq("data_type", "fsd_miles")
-            .eq("user_id", d.user_id)
-            .order("recorded_at", { ascending: false })
-            .limit(1)
-            .maybeSingle();
-          const prevHash = (prevRow?.proof_metadata as any)?.hash || "genesis";
-          const prevValue = Number(prevRow?.production_wh || 0);
-          const hash = await sha256Hex(`${d.device_id}|${nowIso}|${resolved.miles}|${prevHash}`);
+        if (ISSUANCE_WRITES_ENABLED && resolved.miles > prevLifetime) {
+          const prev = await getPreviousProof(supabase, d.device_id, "tesla", "fsd_miles", d.user_id);
+          const anchor = await resolveCumulativeAnchor(supabase, {
+            userId: d.user_id,
+            deviceId: d.device_id,
+            provider: "tesla",
+            dataType: "fsd_miles",
+            recordedAt: nowIso,
+            prev,
+            currentValue: resolved.miles,
+          });
+          const delta = snapshotDelta(resolved.miles, anchor);
+          const hash = await sha256Hex(`${d.device_id}|${nowIso}|${resolved.miles}|${prev.prevHash}`);
           await supabase.from("energy_production").upsert({
             user_id: d.user_id,
             device_id: d.device_id,
             provider: "tesla",
-            production_wh: resolved.miles,
+            // ISSUABLE DELTA ONLY. Cumulative reading lives in proof_metadata.value.
+            production_wh: delta,
             data_type: "fsd_miles",
             recorded_at: nowIso,
-            proof_metadata: {
+            proof_metadata: buildProofMetadata({
               hash,
-              prev_hash: prevHash,
-              device_id: d.device_id,
+              prevHash: prev.prevHash,
+              deviceId: d.device_id,
               value: resolved.miles,
-              prev_value: prevValue,
-              delta: Math.max(0, resolved.miles - prevValue),
-              data_type: "fsd_miles",
-              unit: "miles",
+              prevValue: anchor,
+              delta,
+              dataType: "fsd_miles",
               timestamp: nowIso,
-              algorithm: "SHA-256",
-              preimage_format: "device_id|timestamp|value|prevHash",
-              source: fsdSource,
-              sampler_reason: result.reason,
-               autopilot_state: rawAp,
-               autopilot_inferred: rawAp === null && ap === "InferredDriveMoving",
-               inference_trusted: inferenceTrusted,
-            },
+              unit: "miles",
+              valueSemantics: "cumulative_snapshot",
+              extra: {
+                bucket_start_value: anchor,
+                source: fsdSource,
+                sampler_reason: result.reason,
+                autopilot_state: rawAp,
+                autopilot_inferred: rawAp === null && ap === "InferredDriveMoving",
+                inference_trusted: inferenceTrusted,
+              },
+            }),
           }, { onConflict: "device_id,provider,recorded_at,data_type" });
         }
 
