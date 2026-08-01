@@ -34,7 +34,7 @@ import {
   type VehicleModel,
 } from './EnergyFlowScene.scenes';
 import { HOME_BLUEPRINT, BLUEPRINT_PATHS } from './HomeBlueprint';
-import { Conductor, buildConductorSegments, SCENE_ANCHOR_LIST } from './ConductorNetwork';
+import { Conductor, buildConductorSegments, SCENE_ANCHOR_LIST, SCENE_ANCHORS } from './ConductorNetwork';
 
 import { HouseSceneV5 } from './HouseSceneV5';
 import { EvChargingCable } from './EvChargingCable';
@@ -799,8 +799,8 @@ export function EnergyFlowScene({
         {hasBattery && (
           <>
             <DeviceHalo
-              cx={HOME_BLUEPRINT.powerwall.x}
-              cy={HOME_BLUEPRINT.powerwall.y}
+              cx={SCENE_ANCHORS.powerwall.x}
+              cy={SCENE_ANCHORS.powerwall.y}
               color={EMERALD}
               active
               intensity={0.5}
@@ -808,8 +808,8 @@ export function EnergyFlowScene({
               pulseMs={5000}
             />
             <DeviceHalo
-              cx={HOME_BLUEPRINT.powerwall.x}
-              cy={HOME_BLUEPRINT.powerwall.y}
+              cx={SCENE_ANCHORS.powerwall.x}
+              cy={SCENE_ANCHORS.powerwall.y}
               color={isOutage ? AMBER : pwCharging ? EMERALD : AMBER}
               active={isOutage || pwCharging || pwDischarging}
               intensity={isOutage ? Math.max(0.95, intensity(battery)) : intensity(battery)}
@@ -825,7 +825,13 @@ export function EnergyFlowScene({
         {hasBattery && batteryCount >= 2 &&
           HOME_BLUEPRINT.powerwallSlots
             .slice(1, Math.min(5, batteryCount))
-            .map((slot, i) => (
+            .map((legacySlot, i) => {
+              // Slots are laid out relative to the VERIFIED powerwall anchor.
+              const slot = {
+                x: SCENE_ANCHORS.powerwall.x + (i % 2 === 0 ? -3.4 : 3.4),
+                y: SCENE_ANCHORS.powerwall.y + Math.floor(i / 2) * 4.2,
+              };
+              return (
               <g key={`pw-slot-${i + 1}`}>
                 <DeviceHalo
                   cx={slot.x}
@@ -846,15 +852,16 @@ export function EnergyFlowScene({
                   pulseMs={pwCharging ? 2800 : 2400}
                 />
               </g>
-            ))}
+              );
+            })}
 
 
 
 
         {/* Grid meter — sky on import, cyan on export, muted amber + X on outage */}
         <DeviceHalo
-          cx={HOME_BLUEPRINT.gridMeter.x}
-          cy={HOME_BLUEPRINT.gridMeter.y}
+          cx={SCENE_ANCHORS.meter.x}
+          cy={SCENE_ANCHORS.meter.y}
           color={isOutage ? AMBER : gridExporting ? CYAN : SKY}
           active={isOutage || gridImporting || gridExporting}
           intensity={isOutage ? 0.35 : intensity(grid) * 0.75}
