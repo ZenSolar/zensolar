@@ -1,4 +1,16 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getPreviousProof, periodTotalProof } from "../_shared/proofDelta.ts";
+
+// KILL SWITCH — issuance-row writes for the Enphase lifetime backfill.
+// Disabled 2026-08-01: this writer produced UNSTAMPED day totals (no hash, no
+// value_semantics). Patched to the period-total convention; do not re-enable
+// or run the backfill without founder confirmation.
+const ISSUANCE_WRITES_ENABLED = false;
+
+async function sha256Hex(input: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -256,6 +268,39 @@ Deno.serve(async (req) => {
           recorded_at: dayDate.toISOString(),
         });
       }
+
+      if (!ISSUANCE_WRITES_ENABLED) {
+        console.warn(`[enphase-historical] issuance writes suppressed (kill switch); ${records.length} rows for ${systemId} not written`);
+        continue;
+      }
+
+      // Stamp every day bucket with the period-total proof convention:
+      // production_wh IS the day's issuable delta, and proof_metadata carries
+      // the hash chain + value_semantics so Pillar 1 holds for these rows.
+      let prev = await getPreviousProof(supabaseClient, systemId, "enphase", "solar", targetUserId);
+      const stamped: any[] = [];
+      for (const r of records) {
+        const proof = await periodTotalProof({
+          deviceId: systemId,
+          provider: "enphase",
+          dataType: "solar",
+          recordedAt: r.recorded_at,
+          periodTotal: r.production_wh,
+          prev,
+          unit: "wh",
+          sha256Hex,
+          extra: { source: "enphase_energy_lifetime", period: "day" },
+        });
+        stamped.push({ ...r, production_wh: proof.production_wh, proof_metadata: proof.proof_metadata });
+        prev = {
+          prevHash: (proof.proof_metadata as any).hash,
+          prevValue: r.production_wh,
+          prevRecordedAt: r.recorded_at,
+          prevSemantics: 'period_total',
+        };
+      }
+      records.length = 0;
+      records.push(...stamped);
 
       // Upsert in batches
       for (let i = 0; i < records.length; i += batchSize) {
