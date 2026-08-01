@@ -873,7 +873,25 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
   const homeKwRaw = normalizeWattsToKw(pickNumber(primaryBattery?.payload, ['load_power', 'energy_sites.0.load_power']));
   const evKwRaw = pickNumber(primaryEv?.payload, ['charge_rate_kw', 'charger_power', 'vehicles.0.charger_power']) ?? 0;
   const gridKwRaw = normalizeWattsToKw(pickNumber(primaryBattery?.payload, ['grid_power', 'energy_sites.0.grid_power']));
-  const evHomeKw = teslaFlow?.isCharging && teslaFlow.source === 'home' ? teslaFlow.kW : 0;
+  // Presence rule (display only): a vehicle's onboard meter is subtracted from
+  // site load ONLY when an open `home_charging_sessions` row proves it is
+  // charging AT THIS SITE — never from the old "AC charge implies home"
+  // inference, which mislabels a friend's Level 2 charger as home load. Every
+  // qualifying vehicle is summed, so two cars on the driveway both subtract.
+  const evHomeKw = useMemo(() => {
+    if (hideVehicle || openHomeChargingVins.size === 0) return 0;
+    return ev.data.reduce((sum, t) => {
+      if (!openHomeChargingVins.has(t.site_id)) return sum;
+      const kw =
+        pickNumber(t.payload, [
+          'charge_rate_kw',
+          'charger_power',
+          'vehicles.0.charger_power',
+          'response.charge_state.charger_power',
+        ]) ?? 0;
+      return sum + Math.max(0, kw);
+    }, 0);
+  }, [hideVehicle, ev.data, openHomeChargingVins]);
   const effectiveHomeKwRaw = homeKwRaw !== null && homeKwRaw > 0.05 ? homeKwRaw : readLastKnownHomeKw();
   const reconciledFlow = reconcileEnergyFlow({
     solarKw: solarStats.currentKw ?? 0,
