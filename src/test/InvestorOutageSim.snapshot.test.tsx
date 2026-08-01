@@ -71,8 +71,11 @@ describe('Investor Demo · Grid Outage Simulation', () => {
 
     expect(screen.queryByTestId('outage-sim-active-chip')).not.toBeInTheDocument();
     expect(screen.getByText(/^Live$/)).toBeInTheDocument();
-    // Grid tile in normal mode
-    expect(screen.getByText(/0\.0 kW/)).toBeInTheDocument();
+    // Grid tile in normal mode reads a live kW figure (the fixture's import),
+    // not "Offline". "0.0 kW" is the OUTAGE-mode Producing tile, so asserting
+    // it here was asserting the wrong branch.
+    expect(screen.queryByText('Offline')).not.toBeInTheDocument();
+    expect(screen.getByText(/7\.3 kW/)).toBeInTheDocument();
 
     const last = sceneProps.at(-1)!;
     expect(last.isOutage).toBe(false);

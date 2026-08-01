@@ -49,7 +49,7 @@ describe("ApiPartnersCard — logo sizing snapshot", () => {
   });
 
   it("uses 2-column grid with the expected gap/padding", () => {
-    expect(partners).toContain("grid grid-cols-2 gap-x-6 gap-y-8");
+    expect(partners).toContain("grid grid-cols-2 gap-6 place-items-center py-4");
     expect(partners).toContain('pt-1 pb-6 px-6');
   });
 });
@@ -85,16 +85,22 @@ describe("Dashboard composition — live vs /demo", () => {
     expect(hint).toMatch(/Proof Feed/);
   });
 
-  it("live beta dashboard surfaces the Clean Energy Center + Tap-to-Mint hero above Live Energy Monitoring", () => {
+  it("live beta dashboard surfaces the Clean Energy Center above Live Energy Monitoring", () => {
     const metricsIdx = live.indexOf("<ActivityMetrics");
-    const mintIdx = live.indexOf("<PrimaryMintAction");
     const heroIdx = live.indexOf("<EnergyFlowGlowCard");
     expect(metricsIdx).toBeGreaterThan(-1);
-    expect(mintIdx).toBeGreaterThan(-1);
     expect(heroIdx).toBeGreaterThan(-1);
-    // Clean Energy Center → Tap-to-Mint → Live Energy Monitoring
-    expect(metricsIdx).toBeLessThan(mintIdx);
-    expect(mintIdx).toBeLessThan(heroIdx);
+    // Clean Energy Center → Live Energy Monitoring
+    expect(metricsIdx).toBeLessThan(heroIdx);
+  });
+
+  it("the mint affordance lives inside ActivityMetrics, not a standalone hero", () => {
+    // PrimaryMintAction is no longer mounted anywhere; the per-source
+    // double-tap mint inside ActivityMetrics is the affordance.
+    const metrics = read("src/components/dashboard/ActivityMetrics.tsx");
+    expect(metrics).toMatch(/MintEffectButton/);
+    expect(metrics).toMatch(/Double-tap any source to mint it/);
+    expect(live).not.toMatch(/<PrimaryMintAction\b/);
   });
 
   it("ActivityMetrics gates the multi-site solar carousel on hasMultipleSolarDevices", () => {
