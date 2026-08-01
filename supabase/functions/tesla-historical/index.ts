@@ -692,8 +692,14 @@ Deno.serve(async (req) => {
             production_wh: totalWh,
             data_type: "ev_charging",
             recorded_at: dateStr + "T12:00:00Z",
-            proof_metadata: await periodTotalProof(vin, dateStr + "T12:00:00Z", totalWh, "ev_charging", "wh"),
+            proof_metadata: {
+              ...(await periodTotalProof(vin, dateStr + "T12:00:00Z", totalWh, "ev_charging", "wh")),
+              attribution: "matched_vin",
+              attributed_vin: vin,
+            },
           });
+          daysByVin.set(vin, (daysByVin.get(vin) || 0) + 1);
+          whByVin.set(vin, (whByVin.get(vin) || 0) + totalWh);
         }
       }
 
