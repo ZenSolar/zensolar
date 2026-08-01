@@ -1,101 +1,65 @@
+# Proof-of-Genesis receipt — three-tier redesign
 
-# New Public Front Door — zensolar.com (rev 3, ready to build)
+The cryptographic layer (in-browser Merkle recomputation, recomputed root vs anchored root) stays exactly as it is. Everything around it gets restructured into three progressively disclosed tiers, and the dead evidence layer gets built.
 
-Rev 3 folds in the five hard rules. Everything else from rev 2 stands.
+## Root cause of the dead "View sessions"
 
-## Hard rules (locked)
+Confirmed, not guessed. The database function `get_mint_source_lines` throws at runtime:
 
-1. **Invite success redirect** on valid code: `window.location.assign('https://beta.zensolar.com')` — literal, absolute, no query params, no path.
-2. **Header "Log in"** links to `/auth` (existing working auth entry — verified as the shared sign-in route used by the rest of the app). Opens same-tab; no `target="_blank"`.
-3. **ProofChain** renders structural labels only: `device`, `Δ`, `SHA-256(device_id ‖ ts ‖ Δ ‖ prev_hash)`, `proofₙ`. Zero currency, zero balances, zero minted totals, zero counters. Hardcoded ban in component; verification step asserts no `$`, no digit-grouped numbers, no "ZSOLAR" inside the SVG.
-4. **`/privacy`**: current page audited this pass. If missing or a stub, ship a minimal honest privacy page at `src/pages/Privacy.tsx` covering only what is true: what we collect (name, email, optional source field from the access form; IP hash + user agent from the two edge functions for abuse prevention), how it is stored (Lovable Cloud, RLS, service-role read only), retention ("we keep access requests until we've responded and for a reasonable follow-up window"), who to contact, and a plain "we do not sell data" line. No fabricated GDPR/CCPA/SOC2 claims. No cookie banner theater.
-5. **Founder line**: literal string `Joseph Maushart, co-founder.` Nothing else. No prior-employer claim, no title inflation. One line, accurate, modest.
+```text
+ERROR: malformed array literal: "supercharger"
+QUERY: v_attributed := v_attributed || 'supercharger'
+```
 
-## Routing
+The concatenation is ambiguous, so Postgres tries to parse the bare string as an array. Every mint that has a non-empty source breakdown hits this and the function errors out. Both the "Minted for" pill and the session list swallow the error and render nothing — so the control is not just empty, the data call never returns. This is fixed first, in a migration.
 
-- New `src/pages/PublicHome.tsx` and `src/pages/PublicInvite.tsx`.
-- `src/pages/Home.tsx`: `zensolar.com` / `www.zensolar.com` and preview hosts render `PublicHome`. `beta.*` untouched.
-- `src/App.tsx`: add `/invite` (public, bare). Confirm `/auth` and `/privacy` remain reachable.
-- `.lovable/routes.config.ts`: register `/`, `/invite`, `/privacy`.
+A second, harder truth surfaced while checking the Jul 7 mint (2,843 kWh, 2,643.99 $ZSOLAR):
 
-## Backend
+- There are **zero** `charging_sessions` rows in that mint's window. There are no individual Supercharger sessions to list for it.
+- The Tesla EV-charging rows that do exist in that window are **lifetime counter snapshots** (the same 2,843,858 Wh value repeated, each with `delta: 0`), marked `pre_cutover`. The mint came from a lifetime-counter delta, not from sessions.
+- So 2,843 kWh × 1.0 does not equal 2,643.99. The receipt cannot honestly assert "1 kWh = 1 $ZSOLAR" for this mint.
 
-### Migrations
+Tier 2 therefore shows what is actually recorded and names the gap, rather than inventing session rows.
 
-- `public.access_requests` — name, email, source enum, note, `hp` honeypot, `ip_hash`, `user_agent`. RLS: `service_role` only (all writes go through edge function).
-- `public.invite_codes` — `code citext unique`, label, `active`, `expires_at`, `redeem_count`, `last_redeemed_at`. RLS: `service_role` only. Seed with existing `8712387` + a handful of new codes.
-- `public.invite_redeem_attempts` — `ip_hash`, `attempted_at`, `success`, `code_tried_hash`, `kind` (`invite`|`access`). RLS: `service_role` only.
-- Grants: `service_role` full on all three; no `anon` grants.
+## Tier 1 — The receipt
 
-### Edge functions (both public, no JWT)
+One screen, no scroll on a phone. Keeps: the PoA seal, the amount, the source, the date, and one plain sentence ("2,843 kWh of Supercharging, verified against your vehicle's signed counter"). Removes from this level: the badge strip, the impact panel, all hashes, the "Tap a badge to verify" row. A single control drops to Tier 2.
 
-- `redeem-invite`: IP-hash with `INVITE_IP_PEPPER`; reject 429 at ≥5 failures / 15 min or ≥20 attempts / hour; constant-time compare; log every attempt; success returns `{ ok: true }` → client redirects to **`https://beta.zensolar.com`** exactly.
-- `submit-access-request`: honeypot short-circuits with `{ ok: true }`; Zod validation; per-IP throttle (3 / hour); insert via service role.
+## Tier 2 — The evidence (new)
 
-### Secrets
+A five-step chain of custody, rendered top to bottom:
 
-- `INVITE_IP_PEPPER` — `generate_secret`, 64 chars.
+1. **Device** — the device this mint came from, with its watermark.
+2. **Readings** — one row per contributing record: date, quantity, and location/duration where recorded. Per-session rows when session records exist. When the mint came from a lifetime counter instead, the rows show the counter snapshots and are labelled as such — no fabricated sessions.
+3. **Delta** — prior counted value vs new value, and the difference.
+4. **Factor** — stated per category from the canonical factors file (`1 kWh = 1 $ZSOLAR` for supercharging), never as a global claim.
+5. **Result** — quantity × factor, then any named reduction (netting, allowance cap, partial consumption, or legacy pre-cutover rate) as its own line, ending at the minted amount. When the arithmetic does not close, the receipt says so explicitly instead of asserting a rate it cannot support.
 
-## Design tokens (unchanged)
+## Tier 3 — The proof
 
-Public-scoped in `tailwind.config.ts`: canvas `#0A0C0E`, surface `#121417`, elevated `#1B1E22`, accent gradient `#00E19B → #00C2FF`, keyframes `pulse-current` + `chain-flow`.
+Unchanged internals. Three edits:
 
-## Page structure
+- Lead with "Anyone with the link can re-verify this receipt — no ZenSolar account needed" as the headline claim, not body text.
+- Give the forward pointer a sentence: a later receipt commits to this one, so this receipt cannot be altered after the fact.
+- Reconcile the indices: `RECEIPT #39` is this member's own mint sequence; `Leaf 49 of 50` is the position in the global anchor batch. Both get relabelled ("Your mint #39" / "Position 49 of 50 in anchor batch") with one line explaining the relationship.
 
-1. **Header** — wordmark left; right: `<Link to="/invite">I have an invite code</Link>` and `<Link to="/auth">Log in</Link>`.
-2. **Hero** — headline, subhead, `<ProofChain />`, primary CTA `Request Access` (anchors `#request-access`), secondary text link to `/invite`.
-3. **CredibilityStrip** — Tesla, Enphase, Wallbox, SolarEdge SVGs, muted `currentColor`.
-4. **HowItWorks** — 3 plain steps, hairline rules.
-5. **Technology** — Mint-on-Proof / Proof-of-Delta / Proof-of-Origin cards + Sepolia line.
-6. **Trust** — `Joseph Maushart, co-founder.` + `mailto:` + `/privacy` link.
-7. **RequestAccess** (`#request-access`) — form (name, email, source select) + hidden `hp` honeypot. Success panel: compact `<ProofChain compact />` + "We review requests personally and reach out as we open new cohorts."
-8. **Footer** — contact `mailto:` + `/privacy`.
+## Fixes
 
-## Flagship: `<ProofChain />`
+| # | Fix |
+|---|-----|
+| 1 | Repair `get_mint_source_lines` array concatenation (migration) — unblocks Tier 2 |
+| 2 | Delete the trademark footer entirely, on the receipt and in `VerifyOnChainDrawer`. Keep "Patent-pending. App. 19/634,402." No trademark or pending-registration claim anywhere |
+| 3 | Impact module becomes category-aware, renders only when the value is real and non-zero. Supercharging states energy delivered, never CO₂ avoided |
+| 4 | Remove "put clean energy on the grid" — reserved for verified battery export only |
+| 5 | Remove "100% renewable-matched" (Tesla's claim, not ours) |
+| 6 | Delete the vs-BTC badge and the entire Proof-of-Work comparison panel |
+| 7 | Badges render only when true — VERIFIED DELTA only when per-reading delta rows back the mint |
+| 8 | Fix the sticky-header collision so the "Next receipt" pill clears the status bar (safe-area inset on the receipt sheet/page headers) |
+| 9 | Confirm `?capture=1` hides the Deason bubble and the cleanup/trash control on `/verify/:hash` and the receipt preview |
 
-Pure SVG, 4 labeled structural nodes (device → Δ → SHA-256(...) → proofₙ), animated stroke gradient + slow cross-fade emission every ~3s, contained not full-bleed, respects `prefers-reduced-motion`. **Component has no props for currency/balance/counter; verification asserts none render.**
+## Technical notes
 
-## Motion & copy discipline
-
-Two moving elements only (ProofChain + CTA glow). No waitlist / counter / exclamation / superlative copy. No emoji, no crypto tropes.
-
-## Privacy page (`src/pages/Privacy.tsx`)
-
-Minimal, in the same Quiet Current type/surfaces:
-
-- What we collect: name + email + optional source note from the access form; hashed IP + user agent from `submit-access-request` and `redeem-invite` for abuse prevention.
-- Where it lives: Lovable Cloud (Supabase), RLS-restricted, service-role read only.
-- Retention: kept until responded to and a reasonable follow-up window; access requests can be deleted on request.
-- Sharing: not sold, not shared with third parties beyond hosting infrastructure.
-- Contact: same `mailto:` as the footer.
-- Last updated date.
-
-No cookie banner, no invented regulatory attestations.
-
-## Files
-
-**New**
-- `src/pages/PublicHome.tsx`
-- `src/pages/PublicInvite.tsx`
-- `src/components/public/ProofChain.tsx`
-- `src/components/public/PublicHeader.tsx`
-- `src/components/public/PublicFooter.tsx`
-- `src/components/public/RequestAccessForm.tsx`
-- `supabase/functions/redeem-invite/index.ts`
-- `supabase/functions/submit-access-request/index.ts`
-
-**Edited**
-- `src/pages/Home.tsx`, `src/App.tsx`, `tailwind.config.ts`, `.lovable/routes.config.ts`
-- `src/pages/Privacy.tsx` — only if audit finds it missing/stub; otherwise left alone.
-
-## Verification (Playwright + curl)
-
-- `/` at 390×844 and 1440×900: hero copy, animated `<svg>` present, CTA glow, no `HomeNav`/counters/emoji/`$`. Assert ProofChain SVG contains none of `$`, `ZSOLAR`, `MINT`, digit-grouped numbers.
-- Header "Log in" href === `/auth`; "I have an invite code" href === `/invite`.
-- `/invite`: submit seeded code → `window.location` becomes exactly `https://beta.zensolar.com`; garbage code → inline error, no redirect; 6th wrong attempt in 15 min → 429 shown as calm inline error.
-- `submit-access-request` curl: good payload → row lands; honeypot filled → silent success, no row; 4th within an hour → 429.
-- `/privacy` renders and contains only true claims listed above; founder section renders exactly `Joseph Maushart, co-founder.`
-
-## Explicitly out of scope
-
-Beta product, OAuth, wallet, dashboard, admin UI for access requests, CAPTCHA, migrating legacy 7-digit codes.
+- Files: `src/components/proof/VerifyPoAContent.tsx` (restructured into three tiers), `src/components/proof/ReceiptSourceLines.tsx` (evidence rows + delta/factor/result block), `src/components/proof/TamperEvidentProofPanel.tsx` (lead claim, forward-pointer sentence, index labels), `src/components/proof/VerifyPoASheet.tsx` and `src/pages/ProofOfGenesisReceiptPreview.tsx` (sticky header), `src/components/proof/VerifyOnChainDrawer.tsx` (trademark line).
+- One migration: fix the array concatenation in `get_mint_source_lines`, and extend its return so each line carries the delta context and the per-category factor the receipt needs. No data is modified.
+- All factors and labels read from `src/lib/mintFactors.ts`. No rate is written into copy.
+- Verification: load `/verify/e5339249…` (Jul 7) and `/verify/4acbabda…` (Jul 15, EV miles) in the browser, expand Tier 2 on each, and confirm the arithmetic block renders and the Merkle panel still verifies.
