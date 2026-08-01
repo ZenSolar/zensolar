@@ -1120,8 +1120,8 @@ export function EnergyFlowScene({
             {chargingAtHome && (
               <g style={{ pointerEvents: 'none' }}>
                 <circle
-                  cx={carAnchor.x + carW * 0.30}
-                  cy={carAnchor.y - carH * 0.05}
+                  cx={SCENE_ANCHORS.evPort.x}
+                  cy={SCENE_ANCHORS.evPort.y}
                   r={1.6}
                   fill={EMERALD}
                   opacity={0.35}
@@ -1137,8 +1137,8 @@ export function EnergyFlowScene({
                   )}
                 </circle>
                 <circle
-                  cx={carAnchor.x + carW * 0.30}
-                  cy={carAnchor.y - carH * 0.05}
+                  cx={SCENE_ANCHORS.evPort.x}
+                  cy={SCENE_ANCHORS.evPort.y}
                   r={0.7}
                   fill={EMERALD_LED}
                   opacity={0.95}
