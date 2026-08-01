@@ -347,17 +347,22 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
           );
         })()}
 
-        <div className="relative mt-7">
-          <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/80 font-semibold">
-            Impact Payoff
+        {impact && (
+          <div className="relative mt-7">
+            <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/80 font-semibold">
+              {impact.label}
+            </div>
+            <div className="mt-1 text-2xl font-semibold text-foreground">
+              {impact.value}
+              {impact.unit && (
+                <span className="text-muted-foreground font-normal"> {impact.unit}</span>
+              )}
+            </div>
+            {impact.sub && (
+              <p className="mt-1 text-xs text-muted-foreground italic">{impact.sub}</p>
+            )}
           </div>
-          <div className="mt-1 text-2xl font-semibold text-foreground">
-            {fmt(stats.co2Kg, 2)} kg CO₂ <span className="text-muted-foreground font-normal">Avoided</span>
-          </div>
-          {payoff.subline && (
-            <p className="mt-1 text-xs text-muted-foreground italic">{payoff.subline}</p>
-          )}
-        </div>
+        )}
 
         {data.chain_hash && (
           <div className="relative mt-4">
