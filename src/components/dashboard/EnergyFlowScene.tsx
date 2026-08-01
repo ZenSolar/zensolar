@@ -695,7 +695,15 @@ export function EnergyFlowScene({
       data-vehicle-wheel={wheelType ?? ''}
       data-vehicle-name={displayName ?? ''}
     >
+      {/* Atmosphere — a soft sky gradient behind the roofline that fades into
+          the UI. Does most of the depth work; the scene reads flat without it. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[62%] bg-[linear-gradient(to_bottom,hsl(205_45%_16%/0.85),hsl(210_45%_10%/0.45)_45%,transparent_100%)]"
+      />
+
       {/* Ambient gradient floor with subtle depth */}
+
       <div
         aria-hidden="true"
         className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_50%_40%,hsl(220_50%_12%/0.85),transparent_65%),radial-gradient(circle_at_50%_95%,hsl(var(--primary)/0.14),transparent_55%),linear-gradient(to_bottom,hsl(220_60%_6%/0.4),hsl(220_70%_3%/0.7))]"
