@@ -128,7 +128,9 @@ function buildSourceRows(r: VerifyReceipt): SourceRow[] {
 type Impact = { label: string; value: string; unit?: string; sub: string | null };
 
 const CO2_ELIGIBLE = new Set(['solar_kwh', 'battery_kwh', 'home_charging_kwh', 'ev_miles']);
-const DELIVERED_ONLY = new Set(['supercharging_kwh', 'ev_kwh']);
+// Stored breakdowns use `supercharger_kwh`; `supercharging_kwh` is the canonical
+// factor key. Accept both so the delivered-energy line renders either way.
+const DELIVERED_ONLY = new Set(['supercharger_kwh', 'supercharging_kwh', 'ev_kwh']);
 
 function impactFor(stats: Co2Stats): Impact | null {
   const eligible = stats.breakdown.filter((b) => CO2_ELIGIBLE.has(b.key) && b.kg > 0);
