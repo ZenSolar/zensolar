@@ -81,7 +81,6 @@ export function resolveExclusions(devices: AuthorityDevice[]): AuthorityExclusio
   }
 
   // ── CHARGING ─────────────────────────────────────────────────────────────
-  // ── CHARGING ─────────────────────────────────────────────────────────────
   // TEMPORARY OVER-BLOCK — deliberate, fail-closed, NOT the intended design.
   //
   // Today every EVSE row is demoted whenever ANY vehicle is connected. That
