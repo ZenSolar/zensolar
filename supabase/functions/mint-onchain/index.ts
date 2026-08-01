@@ -7,6 +7,7 @@ import { baseSepolia } from "npm:viem@2.43.5/chains";
 // baseline resolver is therefore no longer on the mint path.
 import { fetchUnmintedRows, aggregateUnmintedRows } from "../_shared/unmintedDeltas.ts";
 import { runIssuancePipeline } from "../_shared/issuancePipeline.ts";
+import { filterIssuableRows } from "../_shared/issuanceAuthority.ts";
 
 
 
