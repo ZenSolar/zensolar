@@ -3722,6 +3722,24 @@ export type Database = {
       }
     }
     Views: {
+      connection_health: {
+        Row: {
+          access_token_expires_at: string | null
+          days_since_success: number | null
+          device_count: number | null
+          failure_class: string | null
+          failure_detail: string | null
+          failure_first_seen_at: string | null
+          last_issuable_at: string | null
+          last_row_at: string | null
+          last_success_at: string | null
+          last_token_refresh_at: string | null
+          provider: string | null
+          status: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
       origin_proof_keys_metadata: {
         Row: {
           algorithm: string | null
@@ -3797,6 +3815,30 @@ export type Database = {
         Returns: {
           provider: string
         }[]
+      }
+      get_connection_health: {
+        Args: never
+        Returns: {
+          access_token_expires_at: string | null
+          days_since_success: number | null
+          device_count: number | null
+          failure_class: string | null
+          failure_detail: string | null
+          failure_first_seen_at: string | null
+          last_issuable_at: string | null
+          last_row_at: string | null
+          last_success_at: string | null
+          last_token_refresh_at: string | null
+          provider: string | null
+          status: string | null
+          user_id: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "connection_health"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       get_covering_anchor: { Args: { _chain_hash: string }; Returns: Json }
       get_issuable_deltas: {
