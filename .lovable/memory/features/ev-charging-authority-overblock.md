@@ -1,24 +1,28 @@
 ---
-name: ev_charging authority filter is a temporary over-block
-description: The mint-path rule excluding all EVSE energy when any vehicle is connected is a deliberate fail-closed placeholder, not the intended final design
-type: constraint
+name: Charger authority uses the residual method (E2)
+description: EVSE energy is issuable for whatever no connected vehicle accounts for; the old blanket over-block is retired
+type: feature
 ---
 
-`supabase/functions/_shared/issuanceAuthority.ts` currently demotes EVERY
-`ev_charging` row to observer status whenever the account has any connected
-vehicle. That is deliberate and stays in place for now — it is fail-closed
-against double-counting the same electrons through both the car's onboard
-meter and the EVSE.
+The blanket rule — "any connected vehicle demotes EVERY EVSE row to observer" —
+was removed on 2026-08-01. It made a non-Tesla EV on a Wallbox permanently
+unearnable even though nothing else metered it.
 
-**It is an over-block, not the intended rule.** A household with a Tesla and a
-non-Tesla EV on a Wallbox has the entire Wallbox excluded, so the non-Tesla car
-can never earn — even though nothing else measures it.
+**Current rule (E2, residual method), in
+`supabase/functions/_shared/issuanceAuthority.ts`:**
 
-The eventual rule (section E2, the Residual Method): a charger is authoritative
-only for energy that no connected vehicle accounts for. Per session, subtract
-the sum of vehicle-reported charging that overlaps the EVSE session window; the
-remainder is the charger's own issuable energy.
+- `resolveExclusions()` no longer contains any charging rule. Chargers are
+  "Metered" in the cockpit even when a vehicle is present.
+- `applyChargingResidual(rows, devices)` resolves charging authority PER ROW,
+  per UTC day: `residual = max(0, evse_wh - vehicle_reported_wh)`.
+- Rows are consumed whole, so the residual is realised by dropping whole EVSE
+  rows smallest-first until the dropped total covers the vehicle-reported
+  total. This is fail-closed: it can exclude slightly more than the overlap,
+  never less.
+- `mint-onchain` calls it after `filterIssuableRows()`. Dropped rows are not
+  consumed and not credited.
 
-Whoever builds E2 must not inherit the blanket exclusion as the design intent.
-Non-Tesla EV support is intended-but-unbuilt, gated on the OEM having a clean
-open API — not out of scope.
+Non-Tesla EV support remains intended-but-unbuilt, gated on the OEM having a
+clean open API — the charger path is what lets those households earn today.
+
+`src/test/chargingResidual.test.ts` pins the behaviour.
