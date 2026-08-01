@@ -199,7 +199,35 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
   }), [data]);
 
   const sourceRows = useMemo(() => (data ? buildSourceRows(data) : []), [data]);
-  const payoff = useMemo(() => payoffFor(sourceRows, stats), [sourceRows, stats]);
+  const impact = useMemo(() => impactFor(stats), [stats]);
+
+  /**
+   * Badge truthfulness (fix 7): VERIFIED DELTA may only claim what per-reading
+   * rows actually back. We count the delta rows this receipt can produce, per
+   * source, and gate both the badge and the "View sessions" control on it.
+   */
+  useEffect(() => {
+    const cleanHash = data?.chain_hash?.replace(/^0x/, '').toLowerCase() ?? null;
+    if (mockSourceLines) {
+      const counts: Record<string, number> = {};
+      for (const l of mockSourceLines.lines ?? []) counts[l.source] = (counts[l.source] ?? 0) + 1;
+      setLineCounts(counts);
+      return;
+    }
+    if (!cleanHash || !/^[a-f0-9]{64}$/i.test(cleanHash)) { setLineCounts({}); return; }
+    let cancelled = false;
+    (async () => {
+      const { data: rpcData, error } = await supabase.rpc('get_mint_source_lines', { _chain_hash: cleanHash });
+      if (cancelled) return;
+      if (error || !rpcData) { setLineCounts({}); return; }
+      const counts: Record<string, number> = {};
+      for (const l of ((rpcData as SourceLinesResponse).lines ?? [])) {
+        counts[l.source] = (counts[l.source] ?? 0) + 1;
+      }
+      setLineCounts(counts);
+    })();
+    return () => { cancelled = true; };
+  }, [data?.chain_hash, mockSourceLines]);
 
   function scrollToRef(ref: React.RefObject<HTMLDivElement>, openProof = false, offset: ScrollLogicalPosition = 'start') {
     if (openProof) setProofOpen(true);
