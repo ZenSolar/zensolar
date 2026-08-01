@@ -386,7 +386,7 @@ export default function ProofOfGenesisReceiptPreview() {
   /**
    * Build a rich, share-sheet-friendly preview payload:
    *   Title  → leads with the CO₂ tons avoided (the headline win)
-   *   Text   → tokens + verified energy + vs-Bitcoin chip in plain English
+   *   Text   → tokens + verified energy in plain English
    *   Image  → the compact ProofOfGenesisShareCard (1080×1350)
    */
   const buildShareText = () => {
