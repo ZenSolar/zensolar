@@ -22,6 +22,8 @@ const AnimatedEnergyFlow = lazy(() =>
   import('./AnimatedEnergyFlow').then((m) => ({ default: m.AnimatedEnergyFlow }))
 );
 import { ZenXPill } from './ZenXPill';
+import { VehicleStatusStrip } from './VehicleStatusStrip';
+
 import { LiveCardHeader } from './LiveCardHeader';
 import { TelemetrySyncBadge } from './TelemetrySyncBadge';
 import { SolarSiteTabs } from './SolarSiteTabs';
@@ -1076,6 +1078,19 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
               />
             )}
           </div>
+
+          {/* Vehicle status strip — a connected vehicle is always visible here,
+              even when it is nowhere near this site. Presence is taken only
+              from a recorded on-site charging session, never from charger type. */}
+          {hideVehicle && ev.data.length > 0 && (
+            <VehicleStatusStrip
+              vehicles={ev.data}
+              atSite={!!isActivelyCharging}
+              className="-mt-2"
+            />
+          )}
+
+
 
 
 

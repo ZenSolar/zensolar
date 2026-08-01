@@ -47,7 +47,9 @@ export type ApiResponse = {
 };
 
 const SOURCE_META: Record<string, { label: string; tone: string }> = {
-  supercharger:    { label: 'Tesla Supercharging', tone: 'text-red-400 border-red-400/40' },
+  // Tones are informational only. Red is reserved for error states elsewhere
+  // in the app, so no source category may use it.
+  supercharger:    { label: 'Tesla Supercharging', tone: 'text-primary border-primary/30' },
   home_charger:    { label: 'Home Charging',       tone: 'text-sky-400 border-sky-400/40' },
   solar:           { label: 'Solar Production',    tone: 'text-amber-400 border-amber-400/40' },
   battery:         { label: 'Battery Discharge',   tone: 'text-eco border-eco/40' },
@@ -55,6 +57,7 @@ const SOURCE_META: Record<string, { label: string; tone: string }> = {
   bidir_import:    { label: 'Grid Import',         tone: 'text-muted-foreground border-border' },
   ev_miles:        { label: 'EV Miles Driven',     tone: 'text-primary border-primary/40' },
 };
+
 
 function metaFor(source: string) {
   return SOURCE_META[source] ?? { label: source, tone: 'text-muted-foreground border-border' };

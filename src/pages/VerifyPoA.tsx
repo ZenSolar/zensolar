@@ -23,7 +23,7 @@ export default function VerifyPoA() {
       />
 
       <div className="min-h-[100svh] bg-background pb-16">
-        <div className="container max-w-3xl mx-auto px-4 pt-[calc(env(safe-area-inset-top)+1.5rem)]">
+        <div className="container max-w-3xl mx-auto px-4 pt-[max(3rem,calc(env(safe-area-inset-top)+1.5rem))]">
           <Link
             to="/"
             className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground mb-6"

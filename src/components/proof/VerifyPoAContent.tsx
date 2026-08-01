@@ -286,9 +286,10 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
           <div className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-bold">
             Proof-of-Authenticity
           </div>
-          <div className="text-xs font-semibold text-foreground/90 truncate">
+          <div className="text-xs font-semibold text-foreground/90 leading-snug">
             Cryptographically signed · Anchored on Base
           </div>
+
         </div>
         <ShieldCheck className="h-5 w-5 text-eco shrink-0" />
       </div>
@@ -366,11 +367,17 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
           </div>
         )}
 
-        {data.chain_hash && (
+        {/*
+          "Minted for" lists the credited categories. When there is exactly one
+          source row, the pill above already says the same thing in the same
+          words — rendering both read as a duplicate bug, so it is suppressed.
+        */}
+        {data.chain_hash && sourceRows.length !== 1 && (
           <div className="relative mt-4">
             <MintedForBadge chainHash={data.chain_hash} className="justify-center" mockResponse={mockSourceLines} />
           </div>
         )}
+
       </div>
 
 
@@ -387,11 +394,19 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
             onClick={openSourceEvidence}
             title="Open device watermark evidence for Proof-of-Origin"
           />
-          <TmBadge
-            Icon={Sparkles} label="Delta" tint="eco" active
-            onClick={openDeltaEvidence}
-            title="Open individual sessions for Proof-of-Delta"
-          />
+          {/*
+            Badge truthfulness (3a): the global DELTA badge must agree with the
+            per-session evidence below it. If no per-reading rows attribute to
+            this mint, the badge does not appear at all.
+          */}
+          {Object.values(lineCounts).reduce((a, b) => a + b, 0) > 0 && (
+            <TmBadge
+              Icon={Sparkles} label="Delta" tint="eco" active
+              onClick={openDeltaEvidence}
+              title="Open individual sessions for Proof-of-Delta"
+            />
+          )}
+
           <TmBadge
             Icon={Fingerprint} label="Authentic" tint="accent-cool" active
             onClick={() => scrollToRef(verifyRef, true)}
