@@ -1242,7 +1242,9 @@ export function EnergyFlowScene({
         <FlowLabel
           position="bl"
           label="Powerwall"
-          value={`${fmtKw(battery)} ${arrow(battery)}`.trim()}
+          // Caret follows the FLOW DIRECTION drawn in the diagram, not the raw
+          // sign: charging = energy INTO the pack (▼), discharging = OUT (▲).
+          value={`${fmtKw(battery)} ${pwCharging ? '▼' : pwDischarging ? '▲' : ''}`.trim()}
           sub={
             pwCharging
               ? `${soc}% · Charging`
