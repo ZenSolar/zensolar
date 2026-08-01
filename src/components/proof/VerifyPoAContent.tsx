@@ -22,7 +22,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ShieldCheck, Sparkles, Zap, Sun, Battery, Car, Plug, Bitcoin,
+  ShieldCheck, Sparkles, Zap, Sun, Battery, Car, Plug,
   ChevronDown, MapPin, Fingerprint, Award, Hash,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
