@@ -1012,10 +1012,20 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
 
 
       {(() => {
-        // SITE BALANCE ASSERTION — runs on RAW telemetry, before any
-        // reconciliation. The diagram claims branch widths sum to the trunk;
-        // that only holds when the meters themselves sum. When they do not,
-        // say so here rather than quietly redistributing the difference.
+        // SITE BALANCE ASSERTION — SUPPRESSED ON LIVE SURFACES (2026-08-01).
+        //
+        // The banner compared RAW telemetry while the diagram beside it drew
+        // the RECONCILED figures, so a raw grid reading of +1.1 kW import
+        // against a displayed 0.8 kW export produced a fabricated 1.9 kW
+        // "unaccounted" warning on a site whose meters actually agreed. A
+        // false discrepancy warning is worse than none: it discredits every
+        // other number on the card. It now renders only behind ?balance=1
+        // until the comparison is provably against the same inputs the
+        // diagram uses. The assertion itself (siteBalance.ts) is unchanged
+        // and still covered by tests.
+        const debugBalance =
+          typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('balance') === '1';
+        if (!debugBalance) return null;
         const measuredHome = homeKwRaw ?? 0;
         const balance = computeSiteBalance({
           solarKw: solarStats.currentKw ?? 0,
