@@ -70,7 +70,7 @@ export function VehicleStatusStrip({
   className?: string;
   onSelect?: () => void;
 }) {
-  const rows = vehicles.filter((v) => v.oem === 'tesla' || v.oem === 'ev' || !!v.device_name);
+  const rows = vehicles.filter((v) => v.oem === 'tesla' || !!v.device_name);
   if (rows.length === 0) return null;
 
   return (
