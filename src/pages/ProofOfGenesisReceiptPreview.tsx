@@ -720,30 +720,7 @@ export default function ProofOfGenesisReceiptPreview() {
             />
           </motion.section>
 
-          {/* PoW comparison chip — Proof-of-Genesis as the regenerative inverse of Proof-of-Work */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.15 }}
-            className="rounded-lg border border-secondary/30 bg-gradient-to-r from-secondary/5 via-primary/5 to-secondary/5 p-3 sm:p-4 flex items-start gap-3"
-          >
-            <div className="h-8 w-8 rounded-md bg-secondary/15 flex items-center justify-center shrink-0">
-              <Leaf className="h-4 w-4 text-secondary" />
-            </div>
-            <div className="min-w-0">
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                vs. Bitcoin Proof-of-Work
-              </div>
-              <div className="text-sm sm:text-base text-foreground/90 leading-snug">
-                One equivalent BTC transaction would have emitted{' '}
-                <span className="font-bold text-secondary">~{co2Story.pow_delta_kg} kg CO₂</span>{' '}
-                just to settle. Your Proof-of-Genesis mint emitted essentially{' '}
-                <span className="font-bold text-primary">zero</span> — and proved real clean energy in the same step.
-              </div>
-            </div>
-          </motion.div>
-
-          {/* ===== Protocol Journey — the 5 trademarked primitives behind this mint ===== */}
+          {/* ===== Protocol Journey — the primitives behind this mint ===== */}
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
@@ -751,7 +728,7 @@ export default function ProofOfGenesisReceiptPreview() {
                   Protocol Journey
                 </h2>
                 <p className="text-[11px] sm:text-xs text-muted-foreground">
-                  The five trademarked primitives that produced this mint.
+                  The five primitives that produced this mint.
                 </p>
               </div>
               <Button
