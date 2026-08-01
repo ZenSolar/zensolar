@@ -415,7 +415,15 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
 
         {sourceRows.length > 0 && sourceRows.map((row) => {
           const Icon = row.Icon;
-          const expandable = row.lineSources.length > 0 && !!data.chain_hash;
+          /**
+           * deltaRows = number of per-reading rows this receipt can actually
+           * produce for this source. Zero means the mint came from a counter
+           * delta with no listable readings — the VERIFIED DELTA badge and the
+           * "View sessions" control both stay hidden rather than claim rows
+           * that do not exist.
+           */
+          const deltaRows = row.lineSources.reduce((s, k) => s + (lineCounts?.[k] ?? 0), 0);
+          const expandable = deltaRows > 0 && !!data.chain_hash;
           const isOpen = expandedSourceKey === row.key;
           const toggle = () =>
             setExpandedSourceKey((cur) => (cur === row.key ? null : row.key));
