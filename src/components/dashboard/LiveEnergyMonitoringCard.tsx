@@ -470,7 +470,8 @@ export function MetricTile({
       <div className={`mt-2.5 text-[22px] font-bold leading-none tabular-nums ${t ? t.value : 'text-foreground'}`}>{value}</div>
       <div className="mt-1.5 text-[11px] leading-snug text-muted-foreground/80">{detail}</div>
       {sublabel ? <div className="mt-1 text-[11px] leading-snug">{sublabel}</div> : null}
-      {asOf ? <FreshnessNote iso={asOf.iso} fresh={asOf.fresh} className="mt-1.5 block" /> : null}
+      {/* Exception-only: silent when this row shares the card's freshness. */}
+      {asOf ? <FreshnessException iso={asOf.iso} fresh={asOf.fresh} cardIso={cardIso} className="block" /> : null}
 
     </div>
   );
