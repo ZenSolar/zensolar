@@ -39,6 +39,29 @@ export function isStaleReading(iso: string | null | undefined, staleAfterMs = 15
 }
 
 /**
+ * DARK READINGS — a device that has not reported for a day is not "stale",
+ * it has gone dark. A dark readout must be visibly demoted AND must always
+ * offer a recovery affordance, even when the client's failure counter reads
+ * healthy (a latched pause stops polling, so no further failures accrue and
+ * the tile would otherwise sit silent indefinitely).
+ */
+export const DARK_AFTER_MS = 24 * 60 * 60 * 1000;
+
+export function isDarkReading(iso: string | null | undefined, darkAfterMs = DARK_AFTER_MS): boolean {
+  if (!iso) return false; // "no reading yet" is a different state, handled separately
+  const t = new Date(iso).getTime();
+  if (!Number.isFinite(t)) return false;
+  return Date.now() - t > darkAfterMs;
+}
+
+/** "no reading for 5 days" — the plain statement shown on a dark readout. */
+export function darkLabel(iso: string | null | undefined): string {
+  const age = formatRelativeAge(iso);
+  return age ? `no reading for ${age.replace(/ ago$/, '')}` : 'no reading yet';
+}
+
+
+/**
  * Exception-only freshness.
  *
  * A card whose readouts all come from one poll states its age ONCE, in the
