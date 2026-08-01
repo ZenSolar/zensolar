@@ -673,9 +673,14 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Write daily charging aggregates
-      const primaryVin = vehicles[0].device_id;
+      // Write daily charging aggregates.
+      // Rows are keyed by the VIN the session actually matched
+      // (extractChargingSessionVin), never by a "primary" vehicle — a row
+      // attributed to the wrong car is a provenance defect, not a gap.
       const chargingRecords: any[] = [];
+      const daysByVin = new Map<string, number>();
+      const whByVin = new Map<string, number>();
+
 
       for (const [vin, dailyMap] of dailyChargingByVin) {
         for (const [dateStr, totalWh] of dailyMap) {
