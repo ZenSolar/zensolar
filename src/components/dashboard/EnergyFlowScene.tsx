@@ -505,7 +505,7 @@ function FlowLabel({
             ? `text-[34px] sm:text-[42px] font-semibold tabular-nums leading-none tracking-tight text-foreground ${active && accent ? valueGlow[accent] : ''}`
             : `text-xl sm:text-[22px] font-light tabular-nums leading-none text-foreground ${active && accent ? valueGlow[accent] : ''}`
         }
-        style={hero ? { textShadow: '0 1px 0 hsl(220 60% 4% / 0.6), 0 0 32px hsl(var(--primary) / 0.18)' } : undefined}
+        style={hero ? { textShadow: '0 1px 0 hsl(220 60% 4% / 0.6)' } : undefined}
       >
         {value}
       </div>
