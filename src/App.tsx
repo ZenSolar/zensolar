@@ -100,6 +100,7 @@ const Feedback = lazy(() => import("./pages/Feedback"));
 const OAuthCallback = lazy(() => import("./pages/OAuthCallback"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const PrototypeEnergyFlow = lazy(() => import("./pages/PrototypeEnergyFlow"));
+const PrototypeCockpitAnchors = lazy(() => import("./pages/PrototypeCockpitAnchors"));
 const Ecosystem = lazy(() => import("./pages/Ecosystem"));
 const StarlinkMint = lazy(() => import("./pages/StarlinkMint"));
 const FoundersVault = lazy(() => import("./pages/FoundersVault"));
