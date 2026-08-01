@@ -471,9 +471,11 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
                         {isOpen ? 'Hide sessions' : 'View sessions'}
                       </span>
                     )}
-                    {!expandable && row.key === 'ev_miles' && (
+                    {!expandable && (
                       <span className="text-[9px] font-semibold text-muted-foreground/80 italic">
-                        Odometer snapshot · no per-trip rows
+                        {row.key === 'ev_miles'
+                          ? 'Odometer snapshot · no per-trip rows'
+                          : 'Counter reading · no per-session rows attributed'}
                       </span>
                     )}
                   </div>
