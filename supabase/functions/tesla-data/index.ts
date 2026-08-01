@@ -657,6 +657,119 @@ Deno.serve(async (req) => {
       }
     }
 
+    // ── Sweep mode: refresh EVERY claimed Tesla product ────────────────────
+    // Body: { mode: 'telemetry_all' }
+    // The per-device telemetry mode above only refreshes the one siteId the
+    // caller names, so a UI that renders a single "primary" product leaves the
+    // rest of the household stale. This sweep iterates every claimed device,
+    // writes device_telemetry_cache for each, and reports the outcome per
+    // device so a stale product is visible rather than silent.
+    if (telemetryReq.mode === "telemetry_all") {
+      const { data: allDevices } = await supabaseClient
+        .from("connected_devices")
+        .select("device_id, device_type, device_name")
+        .eq("user_id", targetUserId)
+        .eq("provider", "tesla");
+
+      const report: Array<Record<string, unknown>> = [];
+      for (const d of allDevices || []) {
+        const id = String(d.device_id);
+        const isEnergy = d.device_type === "solar" || d.device_type === "powerwall";
+        const cap = isEnergy ? (d.device_type === "powerwall" ? "battery" : "solar") : d.device_type === "vehicle" ? "ev" : null;
+        if (!cap) {
+          report.push({ device_id: id, device_name: d.device_name, device_type: d.device_type, wrote: false, reason: "no_telemetry_endpoint" });
+          continue;
+        }
+        try {
+          let payload: Record<string, unknown> | null = null;
+          if (isEnergy) {
+            const r = await fetch(`${TESLA_API_BASE}/api/1/energy_sites/${id}/live_status`, {
+              headers: { "Authorization": `Bearer ${accessToken}` },
+            });
+            if (r.ok) {
+              const resp = (await r.json()).response || {};
+              payload = { ...resp, energy_sites: [{ site_id: id, ...resp }] };
+            } else {
+              report.push({ device_id: id, device_name: d.device_name, device_type: d.device_type, wrote: false, reason: `live_status_${r.status}` });
+              continue;
+            }
+          } else {
+            const ENDPOINTS = "charge_state;drive_state;vehicle_state;vehicle_config";
+            let vd = await fetch(
+              `${TESLA_API_BASE}/api/1/vehicles/${id}/vehicle_data?endpoints=${encodeURIComponent(ENDPOINTS)}`,
+              { headers: { "Authorization": `Bearer ${accessToken}` } },
+            );
+            if (vd.status === 408 || vd.status === 503) {
+              await fetch(`${TESLA_API_BASE}/api/1/vehicles/${id}/wake_up`, {
+                method: "POST", headers: { "Authorization": `Bearer ${accessToken}` },
+              });
+              await new Promise((res) => setTimeout(res, 4000));
+              vd = await fetch(
+                `${TESLA_API_BASE}/api/1/vehicles/${id}/vehicle_data?endpoints=${encodeURIComponent(ENDPOINTS)}`,
+                { headers: { "Authorization": `Bearer ${accessToken}` } },
+              );
+            }
+            if (!vd.ok) {
+              report.push({ device_id: id, device_name: d.device_name, device_type: d.device_type, wrote: false, reason: `vehicle_data_${vd.status}` });
+              continue;
+            }
+            const j = await vd.json();
+            const cs = j?.response?.charge_state || {};
+            const vs = j?.response?.vehicle_state || {};
+            const ds = j?.response?.drive_state || {};
+            const vc = j?.response?.vehicle_config || {};
+            payload = {
+              vin: id,
+              display_name: j?.response?.display_name ?? d.device_name,
+              vehicle_config: vc,
+              charging_state: cs.charging_state,
+              battery_level: cs.battery_level,
+              battery_range: cs.battery_range,
+              charge_rate_kw: typeof cs.charger_power === "number" ? cs.charger_power : null,
+              charger_power: cs.charger_power,
+              charge_energy_added: cs.charge_energy_added,
+              fast_charger_type: cs.fast_charger_type,
+              fast_charger_present: cs.fast_charger_present,
+              odometer: vs.odometer ?? ds.odometer,
+              shift_state: ds.shift_state,
+              vehicles: [{ vin: id, display_name: j?.response?.display_name ?? d.device_name, vehicle_config: vc, odometer: vs.odometer ?? ds.odometer, charging_state: cs.charging_state, battery_level: cs.battery_level, battery_range: cs.battery_range, charger_power: cs.charger_power, charge_energy_added: cs.charge_energy_added }],
+            };
+          }
+
+          const now = Date.now();
+          const { error: cacheError } = await supabaseClient.from("device_telemetry_cache").upsert({
+            user_id: targetUserId,
+            oem_type: "tesla",
+            device_type: cap,
+            site_id: id,
+            payload,
+            cached_at: new Date(now).toISOString(),
+            expires_at: new Date(now + 90_000).toISOString(),
+          }, { onConflict: "user_id,oem_type,device_type,site_id" });
+
+          report.push({
+            device_id: id,
+            device_name: d.device_name,
+            device_type: d.device_type,
+            capability: cap,
+            wrote: !cacheError,
+            reason: cacheError ? `cache_write_failed: ${cacheError.message}` : "ok",
+          });
+        } catch (e) {
+          report.push({ device_id: id, device_name: d.device_name, device_type: d.device_type, wrote: false, reason: `exception: ${e}` });
+        }
+      }
+
+      return new Response(JSON.stringify({
+        mode: "telemetry_all",
+        devices: (allDevices || []).length,
+        wrote: report.filter((r) => r.wrote).length,
+        report,
+      }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+
+
 
 
     // Get user's claimed devices with baseline data and home address for charging classification
