@@ -195,16 +195,6 @@ function useTodayMintImpact() {
   return impact;
 }
 
-function FreshChip({ fresh }: { fresh: boolean }) {
-  return (
-    <span className={`rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${
-      fresh ? 'bg-primary/20 text-primary' : 'bg-muted/40 text-muted-foreground'
-    }`}>
-      {fresh ? 'Live' : 'Cached'}
-    </span>
-  );
-}
-
 function oemLabel(oem: string) {
   return oem.charAt(0).toUpperCase() + oem.slice(1);
 }
@@ -956,7 +946,10 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
     ? `ZenEnergy · ${subtitleParts.join(' + ') || 'Live'}`
     : `Home Energy Cockpit · ${subtitleParts.join(' + ') || 'Live'}`;
 
+  const cardIso = latestTelemetry?.sample_at ?? latestTelemetry?.cached_at ?? null;
+
   return (
+    <CardFreshnessContext.Provider value={cardIso}>
     <div className="w-full p-4">
       <LiveCardHeader
         subtitle={cockpitSubtitle}
@@ -1411,5 +1404,6 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
         </div>
       )}
     </div>
+    </CardFreshnessContext.Provider>
   );
 }
