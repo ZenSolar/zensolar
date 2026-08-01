@@ -917,14 +917,11 @@ export default function ProofOfGenesisReceiptPreview() {
                 <span className="text-sm font-semibold">Why this matters</span>
               </div>
               <p className="text-sm text-foreground/85 leading-relaxed">
-                {co2Story.detail} On top of that, this single on-chain settlement avoided{' '}
-                <span className="font-semibold text-secondary">~{co2Story.pow_delta_kg} kg CO₂</span>{' '}
-                that an equivalent Bitcoin Proof-of-Work transaction would have emitted — and earned you{' '}
+                {co2Story.detail} This mint earned you{' '}
                 <span className="font-semibold text-primary">{formatKwh(receipt.tokens_minted)} $ZSOLAR</span>.
               </p>
               <p className="text-[11px] text-muted-foreground italic">
-                Sources: EPA (8.887 kg CO₂/gal gasoline · avg 24.4 mpg), U.S. EIA grid average (0.709 kg CO₂/kWh),
-                Cambridge CCAF / Digiconomist BTC tx footprint (~707 kg CO₂/tx).
+                Sources: EPA (8.887 kg CO₂/gal gasoline · avg 24.4 mpg), U.S. EIA grid average (0.709 kg CO₂/kWh).
               </p>
             </CardContent>
           </Card>
