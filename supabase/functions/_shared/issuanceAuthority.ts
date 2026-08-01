@@ -17,11 +17,14 @@
  *              rows. The Powerwall's BATTERY export stays fully eligible —
  *              the pack is its own meter and nothing else measures it.
  *
- *   CHARGING   The vehicle's onboard meter is authoritative. A Wall Connector
- *              or any other EVSE is an observer whenever a vehicle is
- *              connected, because the same electrons are already counted by
- *              the car. (Today no EVSE writes issuance rows at all; this
- *              encodes the rule so that stays true by construction.)
+ *   CHARGING   Resolved per row by the RESIDUAL METHOD, not per device. A
+ *              vehicle's onboard meter is authoritative for what it reports.
+ *              A charger is authoritative for the REMAINDER — the energy no
+ *              connected vehicle accounts for. See `applyChargingResidual()`.
+ *              The former blanket "any vehicle demotes every EVSE" rule was
+ *              removed: it made a non-Tesla EV on a Wallbox permanently
+ *              unearnable even though nothing else metered it.
+
  *
  * The mint path calls `filterIssuableRows()` AFTER reading unminted deltas and
  * BEFORE aggregating them. Excluded rows are NOT consumed and NOT credited —
@@ -81,31 +84,13 @@ export function resolveExclusions(devices: AuthorityDevice[]): AuthorityExclusio
   }
 
   // ── CHARGING ─────────────────────────────────────────────────────────────
-  // TEMPORARY OVER-BLOCK — deliberate, fail-closed, NOT the intended design.
+  // NO device-level rule. The blanket "any vehicle demotes every EVSE" block
+  // that lived here was removed on 2026-08-01: it foreclosed the legitimate
+  // case of a non-Tesla EV on a Wallbox, where nothing else meters the car.
   //
-  // Today every EVSE row is demoted whenever ANY vehicle is connected. That
-  // forecloses the legitimate case: a household with a Tesla and a non-Tesla
-  // EV on a Wallbox has the Wallbox excluded entirely, so the non-Tesla car
-  // can never earn even though nothing else meters it.
-  //
-  // The intended rule (E2, residual method): a charger is authoritative only
-  // for energy that no connected vehicle accounts for — per EVSE session,
-  // subtract overlapping vehicle-reported charging and issue the remainder.
-  // Do not treat the blanket exclusion below as the finished design.
-  const hasVehicle = devices.some((d) => VEHICLE_TYPES.has(d.device_type));
-  if (hasVehicle) {
-    for (const d of devices) {
-      if (!EVSE_TYPES.has(d.device_type)) continue;
-      out.push({
-        device_id: d.device_id,
-        data_type: 'ev_charging',
-        reason:
-          'Observer (temporary over-block): a connected vehicle reports its own charging energy ' +
-          'from its onboard meter, which is authoritative. EVSE energy would double-count the ' +
-          'same electrons. Pending the residual method for vehicles we cannot read directly.',
-      });
-    }
-  }
+  // Charging authority is now resolved PER ROW by `applyChargingResidual()`
+  // below — a charger is authoritative for exactly the energy no connected
+  // vehicle accounts for.
 
   return out;
 }
@@ -132,3 +117,112 @@ export function filterIssuableRows<T extends RowLike>(
   }
   return { issuable, excluded, exclusions };
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RESIDUAL METHOD (E2) — charger authority, resolved per row.
+//
+//   A charger is authoritative only for energy that no connected vehicle
+//   accounts for.
+//
+// Per calendar day (UTC), the vehicles' own onboard meters are authoritative
+// for what they report. The EVSE's issuable energy is the remainder:
+//
+//   residual = max(0, evse_kwh - vehicle_reported_kwh)
+//
+// Rows are consumed whole, so the residual cannot be credited fractionally.
+// We therefore drop whole EVSE rows, smallest first, until the dropped total
+// covers the vehicle-reported total for that day. That is fail-closed: it can
+// exclude slightly MORE than the overlap, never less, and it never
+// double-counts an electron the car already reported.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface ChargingRowLike extends RowLike {
+  production_wh: number;
+  recorded_at: string;
+}
+
+export interface ResidualNote {
+  day: string;
+  device_id: string;
+  vehicle_reported_wh: number;
+  evse_reported_wh: number;
+  evse_excluded_wh: number;
+  evse_issuable_wh: number;
+}
+
+export interface ResidualResult<T extends ChargingRowLike> {
+  issuable: T[];
+  excluded: T[];
+  notes: ResidualNote[];
+}
+
+const CHARGING_DATA_TYPE = 'ev_charging';
+
+export function applyChargingResidual<T extends ChargingRowLike>(
+  rows: T[],
+  devices: AuthorityDevice[],
+): ResidualResult<T> {
+  const evseIds = new Set(
+    devices.filter((d) => EVSE_TYPES.has(d.device_type)).map((d) => d.device_id),
+  );
+  const vehicleIds = new Set(
+    devices.filter((d) => VEHICLE_TYPES.has(d.device_type)).map((d) => d.device_id),
+  );
+  if (evseIds.size === 0 || vehicleIds.size === 0) {
+    return { issuable: rows, excluded: [], notes: [] };
+  }
+
+  const day = (iso: string) => String(iso || '').slice(0, 10);
+
+  // Vehicle-reported charging energy per day (all vehicles on the account).
+  const vehicleWhByDay = new Map<string, number>();
+  for (const r of rows) {
+    if (r.data_type !== CHARGING_DATA_TYPE) continue;
+    if (!vehicleIds.has(r.device_id)) continue;
+    const d = day(r.recorded_at);
+    vehicleWhByDay.set(d, (vehicleWhByDay.get(d) ?? 0) + (Number(r.production_wh) || 0));
+  }
+
+  // EVSE rows per day, per charger.
+  const evseByKey = new Map<string, T[]>();
+  for (const r of rows) {
+    if (r.data_type !== CHARGING_DATA_TYPE) continue;
+    if (!evseIds.has(r.device_id)) continue;
+    const key = `${day(r.recorded_at)}|${r.device_id}`;
+    (evseByKey.get(key) ?? evseByKey.set(key, []).get(key)!).push(r);
+  }
+
+  const excludedIds = new Set<string>();
+  const notes: ResidualNote[] = [];
+
+  for (const [key, group] of evseByKey) {
+    const [d, deviceId] = key.split('|');
+    const vehicleWh = vehicleWhByDay.get(d) ?? 0;
+    const evseWh = group.reduce((s, r) => s + (Number(r.production_wh) || 0), 0);
+    let droppedWh = 0;
+    if (vehicleWh > 0) {
+      const ordered = [...group].sort(
+        (a, b) => (Number(a.production_wh) || 0) - (Number(b.production_wh) || 0),
+      );
+      for (const r of ordered) {
+        if (droppedWh >= vehicleWh) break;
+        excludedIds.add(r.id);
+        droppedWh += Number(r.production_wh) || 0;
+      }
+    }
+    notes.push({
+      day: d,
+      device_id: deviceId,
+      vehicle_reported_wh: vehicleWh,
+      evse_reported_wh: evseWh,
+      evse_excluded_wh: droppedWh,
+      evse_issuable_wh: Math.max(0, evseWh - droppedWh),
+    });
+  }
+
+  const issuable: T[] = [];
+  const excluded: T[] = [];
+  for (const r of rows) (excludedIds.has(r.id) ? excluded : issuable).push(r);
+  return { issuable, excluded, notes };
+}
+

@@ -33,8 +33,9 @@ export interface AuthorityExclusion {
 
 const DEDICATED_SOLAR_PROVIDERS = new Set(['enphase', 'solaredge']);
 const SOLAR_DEVICE_TYPES = new Set(['solar', 'solar_system', 'pv']);
-const VEHICLE_TYPES = new Set(['vehicle', 'ev', 'tesla_vehicle']);
-const EVSE_TYPES = new Set(['wall_connector', 'home_charger', 'ev_charger', 'wallbox']);
+// Vehicle / EVSE type sets intentionally removed: charging authority is no
+// longer a device-level decision on the client.
+
 
 export function resolveExclusions(devices: AuthorityDevice[]): AuthorityExclusion[] {
   const out: AuthorityExclusion[] = [];
@@ -60,24 +61,14 @@ export function resolveExclusions(devices: AuthorityDevice[]): AuthorityExclusio
     }
   }
 
-  // Temporary over-block, mirrored from the edge module so the UI never claims
-  // a charger is metered while the mint path treats it as an observer.
-  const vehicle = devices.find((d) => VEHICLE_TYPES.has(d.device_type));
-  if (vehicle) {
-    for (const d of devices) {
-      if (!EVSE_TYPES.has(d.device_type)) continue;
-      out.push({
-        device_id: d.device_id,
-        data_type: 'ev_charging',
-        reason: "Your vehicle's onboard meter measures this charging more precisely.",
-        authoritative_device_id: vehicle.device_id,
-        authoritative_name: vehicle.device_name ?? null,
-      });
-    }
-  }
+  // CHARGING: no device-level rule. Charger authority is resolved per row by
+  // the residual method in `_shared/issuanceAuthority.ts` — a charger earns on
+  // the energy no connected vehicle accounts for. A charger is therefore
+  // "Metered" in the cockpit even when a vehicle is present.
 
   return out;
 }
+
 
 export type DeviceClass = 'metered' | 'observer';
 

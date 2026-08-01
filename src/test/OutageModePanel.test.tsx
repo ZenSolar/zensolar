@@ -1,10 +1,18 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, afterEach } from 'vitest';
+import { render as rtlRender, screen, cleanup } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+
+/** OutageModePanel reaches react-router hooks; wrap every render. */
+const render = (ui: import('react').ReactElement) => rtlRender(<MemoryRouter>{ui}</MemoryRouter>);
 import { OutageModePanel } from '@/components/dashboard/OutageModePanel';
 import { _resetBackupSmoothing } from '@/lib/gridOutage';
 
 describe('OutageModePanel', () => {
+  // No `globals: true`, so RTL auto-cleanup is not installed. Without this,
+  // each render stacks in the same document and queryBy* sees the prior tree.
+  afterEach(cleanup);
+
   const baseProps = {
     socPct: 87,
     usableCapacityKwh: 13.5,
@@ -22,15 +30,18 @@ describe('OutageModePanel', () => {
     expect(screen.getByText('0.4')).toBeTruthy();
   });
 
-  it('hides solar footer when no solar', () => {
+  it('shows the future-tense solar footer when no solar', () => {
     _resetBackupSmoothing();
     render(<OutageModePanel {...baseProps} smoothingKey="t2" solarProducingKw={0} />);
-    expect(screen.queryByText(/Solar will recharge/i)).toBeNull();
+    // No sun: the footer states the future-tense recharge line, not the
+    // present-tense "is recharging" one.
+    expect(screen.getByText(/Solar will recharge/i)).toBeTruthy();
+    expect(screen.queryByText(/Solar is recharging/i)).toBeNull();
   });
 
-  it('shows solar footer when solar is producing', () => {
+  it('shows the present-tense solar footer when solar is producing', () => {
     _resetBackupSmoothing();
     render(<OutageModePanel {...baseProps} smoothingKey="t3" solarProducingKw={1.2} />);
-    expect(screen.getByText(/Solar will recharge/i)).toBeTruthy();
+    expect(screen.getByText(/Solar is recharging/i)).toBeTruthy();
   });
 });
