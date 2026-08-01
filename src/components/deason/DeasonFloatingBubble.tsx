@@ -302,6 +302,7 @@ export function DeasonFloatingBubble() {
 
           {welcoming && !isNudging && (
             <div
+              data-capture-hide
               role="dialog"
               aria-label="Meet Deason"
               onClick={handleBubbleTap}

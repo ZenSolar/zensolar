@@ -259,73 +259,6 @@ function DeviceHalo({
   );
 }
 
-/** Wide elliptical halo sized to sit inside the solar roof panel array. */
-function RoofHalo({ active, intensity }: { active: boolean; intensity: number }) {
-  if (!active) return null;
-  const i = Math.max(0.5, Math.min(1, intensity));
-  return (
-    <g style={{ pointerEvents: 'none', filter: 'blur(1px)' }}>
-      <ellipse
-        cx={HOME_BLUEPRINT.solar.x}
-        cy={HOME_BLUEPRINT.solar.y}
-        rx={14}
-        ry={5}
-        fill={EMERALD}
-        opacity={0.10 * i}
-      >
-        <animate
-          attributeName="opacity"
-          values={`${0.06 * i};${0.15 * i};${0.06 * i}`}
-          dur="3200ms"
-          repeatCount="indefinite"
-        />
-      </ellipse>
-      <ellipse
-        cx={HOME_BLUEPRINT.solar.x}
-        cy={HOME_BLUEPRINT.solar.y}
-        rx={8}
-        ry={2.8}
-        fill={EMERALD}
-        opacity={0.18 * i}
-      >
-        <animate
-          attributeName="opacity"
-          values={`${0.12 * i};${0.24 * i};${0.12 * i}`}
-          dur="3200ms"
-          repeatCount="indefinite"
-        />
-      </ellipse>
-    </g>
-  );
-}
-
-/**
- * Warm bloom over the lit-window cluster — sells "house is drawing power"
- * without overpowering the scene.
- */
-function WindowsBloom({ active, intensity }: { active: boolean; intensity: number }) {
-  if (!active) return null;
-  const i = Math.max(0.5, Math.min(1, intensity));
-  return (
-    <g style={{ pointerEvents: 'none', filter: 'blur(1.4px)' }}>
-      <ellipse
-        cx={HOME_BLUEPRINT.windows.x}
-        cy={HOME_BLUEPRINT.windows.y}
-        rx={7.2}
-        ry={4.6}
-        fill={WARM}
-        opacity={0.22 * i}
-      >
-        <animate
-          attributeName="opacity"
-          values={`${0.18 * i};${0.32 * i};${0.18 * i}`}
-          dur="4000ms"
-          repeatCount="indefinite"
-        />
-      </ellipse>
-    </g>
-  );
-}
 
 /**
  * v5 Phase B — Premium gradient ribbon flow.
@@ -479,10 +412,12 @@ function FlowLabel({
     blue: 'bg-sky-400 shadow-[0_0_10px_hsla(205,90%,55%,0.85)]',
     muted: 'bg-muted-foreground/40',
   };
+  // Readouts sit over open sky/roof, so no bloom behind them — a glow may
+  // only render at a powered anchor, never behind a text label.
   const valueGlow: Record<NonNullable<typeof accent>, string> = {
-    green: 'drop-shadow-[0_0_14px_hsla(142,76%,55%,0.55)]',
-    amber: 'drop-shadow-[0_0_14px_hsla(38,92%,60%,0.55)]',
-    blue: 'drop-shadow-[0_0_14px_hsla(205,90%,60%,0.55)]',
+    green: '',
+    amber: '',
+    blue: '',
     muted: '',
   };
   return (
@@ -503,7 +438,7 @@ function FlowLabel({
             ? `text-[34px] sm:text-[42px] font-semibold tabular-nums leading-none tracking-tight text-foreground ${active && accent ? valueGlow[accent] : ''}`
             : `text-xl sm:text-[22px] font-light tabular-nums leading-none text-foreground ${active && accent ? valueGlow[accent] : ''}`
         }
-        style={hero ? { textShadow: '0 1px 0 hsl(220 60% 4% / 0.6), 0 0 32px hsl(var(--primary) / 0.18)' } : undefined}
+        style={hero ? { textShadow: '0 1px 0 hsl(220 60% 4% / 0.6)' } : undefined}
       >
         {value}
       </div>
@@ -835,9 +770,11 @@ export function EnergyFlowScene({
         className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-[88%] w-auto max-w-[98%] -translate-y-1/2"
         style={{ aspectRatio: '1 / 1', zIndex: 15 }}
       >
-        {/* ── Device halos (primary visual language) ── */}
-        <RoofHalo active={solarProducing} intensity={intensity(solar)} />
-        <WindowsBloom active={homeDrawing} intensity={intensity(home)} />
+        {/* ── Device halos (primary visual language) ──
+            RoofHalo / WindowsBloom retired: they were free-floating blooms
+            anchored to the legacy blueprint coordinates, so they drifted off
+            the roof plane and onto blank sky/wall. A glow may only render at
+            a named anchor that is actually passing power. */}
 
         {/* Powerwall — only rendered when a battery is actually connected. */}
         {hasBattery && (
