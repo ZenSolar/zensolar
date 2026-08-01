@@ -479,10 +479,12 @@ function FlowLabel({
     blue: 'bg-sky-400 shadow-[0_0_10px_hsla(205,90%,55%,0.85)]',
     muted: 'bg-muted-foreground/40',
   };
+  // Readouts sit over open sky/roof, so no bloom behind them — a glow may
+  // only render at a powered anchor, never behind a text label.
   const valueGlow: Record<NonNullable<typeof accent>, string> = {
-    green: 'drop-shadow-[0_0_14px_hsla(142,76%,55%,0.55)]',
-    amber: 'drop-shadow-[0_0_14px_hsla(38,92%,60%,0.55)]',
-    blue: 'drop-shadow-[0_0_14px_hsla(205,90%,60%,0.55)]',
+    green: '',
+    amber: '',
+    blue: '',
     muted: '',
   };
   return (
@@ -835,9 +837,11 @@ export function EnergyFlowScene({
         className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-[88%] w-auto max-w-[98%] -translate-y-1/2"
         style={{ aspectRatio: '1 / 1', zIndex: 15 }}
       >
-        {/* ── Device halos (primary visual language) ── */}
-        <RoofHalo active={solarProducing} intensity={intensity(solar)} />
-        <WindowsBloom active={homeDrawing} intensity={intensity(home)} />
+        {/* ── Device halos (primary visual language) ──
+            RoofHalo / WindowsBloom retired: they were free-floating blooms
+            anchored to the legacy blueprint coordinates, so they drifted off
+            the roof plane and onto blank sky/wall. A glow may only render at
+            a named anchor that is actually passing power. */}
 
         {/* Powerwall — only rendered when a battery is actually connected. */}
         {hasBattery && (
