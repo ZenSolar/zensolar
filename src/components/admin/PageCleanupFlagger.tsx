@@ -65,7 +65,7 @@ export function PageCleanupFlagger() {
   };
 
   return (
-    <div className="fixed bottom-24 left-3 z-[60] md:bottom-6 md:left-6">
+    <div data-capture-hide className="fixed bottom-24 left-3 z-[60] md:bottom-6 md:left-6">
       {!open ? (
         <button
           onClick={() => setOpen(true)}

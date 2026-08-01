@@ -1262,7 +1262,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                     Lifetime · Since Connected
                   </span>
                   <span className="text-[9px] uppercase tracking-wider text-muted-foreground/60">
-                    Pre-mint baseline
+                    Meter readings · not a balance
                   </span>
                 </div>
                 <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 text-[11px]">
@@ -1304,7 +1304,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                           <span className="ml-1 text-[10px] uppercase tracking-wider text-primary/80">Tesla verified</span>
                         )}
                         {lifetime.fsdSource === 'calculated_hw3' && (
-                          <span className="ml-1 text-[10px] uppercase tracking-wider text-muted-foreground/70">HW3 calc</span>
+                          <span className="ml-1 text-[10px] uppercase tracking-wider text-muted-foreground/70">Estimated</span>
                         )}
                       </span>
                       <span className="font-semibold text-foreground">
