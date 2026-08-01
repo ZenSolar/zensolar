@@ -2,6 +2,7 @@ import { createContext, lazy, Suspense, useContext, useEffect, useMemo, useRef, 
 import { Link } from 'react-router-dom';
 import { BatteryCharging, Car, Clock3, Gauge, Home, Loader2, RefreshCw, Route, Sparkles, Sun, Zap, type LucideIcon } from 'lucide-react';
 import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
+import { useOpenHomeChargingVins } from '@/hooks/useOpenHomeChargingVins';
 import {
   useBatteryTelemetry,
   useEVChargerTelemetry,
