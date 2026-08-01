@@ -396,6 +396,7 @@ export function MetricTile({
   detail,
   sublabel,
   tone,
+  asOf,
 }: {
   icon: LucideIcon;
   label: string;
@@ -403,7 +404,10 @@ export function MetricTile({
   detail: string;
   sublabel?: React.ReactNode;
   tone?: 'orange' | 'green' | 'blue' | 'teal';
+  /** Reading provenance. Every telemetry-backed number states its own age. */
+  asOf?: { iso: string | null; fresh: boolean };
 }) {
+
   const toneMap = {
     orange: {
       border: 'border-amber-400/25 hover:border-amber-400/45',
