@@ -1079,6 +1079,19 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
             )}
           </div>
 
+          {/* Vehicle status strip — a connected vehicle is always visible here,
+              even when it is nowhere near this site. Presence is taken only
+              from a recorded on-site charging session, never from charger type. */}
+          {hideVehicle && ev.data.length > 0 && (
+            <VehicleStatusStrip
+              vehicles={ev.data}
+              atSite={!!isActivelyCharging}
+              className="-mt-2"
+            />
+          )}
+
+
+
 
 
           {/* Live Devices group — ZenX pill + EV details, clearly grouped */}
