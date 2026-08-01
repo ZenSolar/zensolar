@@ -863,8 +863,8 @@ Deno.serve(async (req) => {
               const loc = s.siteLocationName || s.chargeLocationName || s.superchargerName || "unknown";
               const sType = s.sessionType || s.chargerType || s.chargingType || "N/A";
               const hasFees = Array.isArray(s.fees) && s.fees.length > 0;
-              const directKwh = s.chargeEnergyAdded || s.charge_energy_added || s.energy_added || s.energyAdded || 0;
-              if (!hasFees || Number(directKwh) === 0) {
+              const { kwh: directKwh } = readSessionEnergy(s);
+              if (!hasFees || directKwh === 0) {
                 console.log(`Potential home/AC session: location=${loc}, type=${sType}, directKwh=${directKwh}, hasFees=${hasFees}, keys=${Object.keys(s).join(",")}`);
               }
             }
@@ -872,28 +872,18 @@ Deno.serve(async (req) => {
           
           // Sum up all charging energy from this page (kWh)
           for (const session of (Array.isArray(sessions) ? sessions : [])) {
-            // Some sessions expose kWh directly; others only expose billing "fees" with kWh usage
-            const directKwh = session.chargeEnergyAdded 
-              || session.charge_energy_added 
-              || session.energy_added 
-              || session.energyAdded;
-
-            let kwhFromFees = 0;
-            if (Array.isArray(session.fees)) {
-              for (const fee of session.fees) {
-                const isChargingFee = String(fee.feeType || '').toUpperCase() === 'CHARGING';
-                const isKwh = String(fee.uom || '').toLowerCase() === 'kwh';
-                if (isChargingFee && isKwh) {
-                  kwhFromFees += Number(fee.usageBase || 0);
-                  kwhFromFees += Number(fee.usageTier1 || 0);
-                  kwhFromFees += Number(fee.usageTier2 || 0);
-                  kwhFromFees += Number(fee.usageTier3 || 0);
-                  kwhFromFees += Number(fee.usageTier4 || 0);
-                }
-              }
+            // ONLY Tesla's reported energy becomes kWh. Fees are never a
+            // source of energy: idle fees are time-based, so a fee-derived
+            // kWh would invent tokens from a parking penalty.
+            const energy = readSessionEnergy(session);
+            if (energy.feeOnly) {
+              console.warn("[Tesla] Fee-only charging session — no reported energy, crediting 0", {
+                session: sessionRef(session),
+                location: session.siteLocationName || session.chargeLocationName || session.superchargerName || null,
+              });
             }
+            const sessionKwh = energy.kwh;
 
-             const sessionKwh = Number(directKwh || kwhFromFees || 0);
 
             // Collect per-session detail for charging_sessions table
             if (sessionKwh > 0) {
