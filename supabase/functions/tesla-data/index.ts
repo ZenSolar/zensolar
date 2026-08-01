@@ -1,6 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { detectHwVersion } from "../_shared/fsdSampler.ts";
 import { readSessionEnergy, sessionRef } from "../_shared/sessionEnergy.ts";
+import { recordGrantFailure, clearGrantFailure } from "../_shared/grantHealth.ts";
 
 
 // ── Cryptographic Helpers (Proof-of-Delta for EV Miles) ─────────────────────
@@ -234,7 +235,15 @@ async function refreshTeslaToken(
     });
 
     if (!tokenResponse.ok) {
-      console.error("Tesla token refresh failed:", await tokenResponse.text());
+      const body = await tokenResponse.text();
+      const cls = await recordGrantFailure(
+        supabaseClient,
+        userId,
+        "tesla",
+        tokenResponse.status,
+        body,
+      );
+      console.error(`Tesla token refresh failed [${cls}]:`, body);
       return null;
     }
 
@@ -254,6 +263,7 @@ async function refreshTeslaToken(
       })
       .eq("user_id", userId)
       .eq("provider", "tesla");
+    await clearGrantFailure(supabaseClient, userId, "tesla");
 
     console.log("Tesla token refreshed successfully");
     return tokens.access_token;

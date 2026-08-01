@@ -19,6 +19,7 @@ import {
   resolveCumulativeAnchor,
   snapshotDelta,
 } from "../_shared/proofDelta.ts";
+import { recordGrantFailure, clearGrantFailure } from "../_shared/grantHealth.ts";
 
 // KILL SWITCH — issuance-row writes for FSD miles.
 // Re-enabled 2026-08-01: rows now store snapshotDelta() as production_wh with
@@ -69,7 +70,9 @@ async function refreshTeslaToken(supabase: any, userId: string, refreshToken: st
       }),
     });
     if (!r.ok) {
-      console.error("[fsd-sampler] token refresh failed:", await r.text());
+      const body = await r.text();
+      const cls = await recordGrantFailure(supabase, userId, "tesla", r.status, body);
+      console.error(`[fsd-sampler] token refresh failed [${cls}]:`, body);
       return null;
     }
     const j = await r.json();
@@ -83,6 +86,7 @@ async function refreshTeslaToken(supabase: any, userId: string, refreshToken: st
       })
       .eq("user_id", userId)
       .eq("provider", "tesla");
+    await clearGrantFailure(supabase, userId, "tesla");
     return j.access_token;
   } catch (e) {
     console.error("[fsd-sampler] refresh error", e);
