@@ -169,7 +169,7 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
   const [expandedSourceKey, setExpandedSourceKey] = useState<string | null>(null);
   const sessionsRef = useRef<HTMLDivElement | null>(null);
   const deltaProofRef = useRef<HTMLDivElement | null>(null);
-  const vsBtcRef = useRef<HTMLDivElement | null>(null);
+  const [lineCounts, setLineCounts] = useState<Record<string, number> | null>(null);
   const verifyRef = useRef<HTMLDivElement | null>(null);
 
   const isHexHash = !!poa && /^[a-f0-9]{64}$/i.test(poa);
