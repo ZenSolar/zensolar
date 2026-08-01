@@ -1687,6 +1687,51 @@ export type Database = {
         }
         Relationships: []
       }
+      function_invocations: {
+        Row: {
+          details: Json
+          duration_ms: number | null
+          error_message: string | null
+          expires_at: string
+          function_name: string
+          id: string
+          invoked_at: string
+          invoked_by: string | null
+          mode: string | null
+          outcome: string
+          rows_written: number
+          target_user_id: string | null
+        }
+        Insert: {
+          details?: Json
+          duration_ms?: number | null
+          error_message?: string | null
+          expires_at?: string
+          function_name: string
+          id?: string
+          invoked_at?: string
+          invoked_by?: string | null
+          mode?: string | null
+          outcome?: string
+          rows_written?: number
+          target_user_id?: string | null
+        }
+        Update: {
+          details?: Json
+          duration_ms?: number | null
+          error_message?: string | null
+          expires_at?: string
+          function_name?: string
+          id?: string
+          invoked_at?: string
+          invoked_by?: string | null
+          mode?: string | null
+          outcome?: string
+          rows_written?: number
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
       grid_outage_events: {
         Row: {
           created_at: string
@@ -3791,7 +3836,31 @@ export type Database = {
           wallbox_connected: boolean
         }[]
       }
+      get_provenance_coverage: {
+        Args: { _user_id?: string }
+        Returns: {
+          hash_chained_pct: number
+          hash_chained_rows: number
+          imported_history_rows: number
+          scope: string
+          total_rows: number
+          unclassified_unhashed_rows: number
+        }[]
+      }
       get_schema_snapshot: { Args: never; Returns: Json }
+      get_solar_duplicate_registration_signals: {
+        Args: { _days?: number }
+        Returns: {
+          device_a: string
+          device_b: string
+          mean_ratio: number
+          paired_days: number
+          provider: string
+          signal: string
+          stddev_ratio: number
+          user_id: string
+        }[]
+      }
       get_viewer_target_admin: { Args: never; Returns: string }
       has_dashboard_access: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
@@ -3826,6 +3895,7 @@ export type Database = {
         }
         Returns: number
       }
+      purge_expired_function_invocations: { Args: never; Returns: number }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {
