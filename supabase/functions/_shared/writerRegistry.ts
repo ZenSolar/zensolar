@@ -22,6 +22,13 @@ export interface RegisteredWriter {
   /** `energy_production.provider` this writer stamps. */
   provider: string;
   /**
+   * `connected_devices.device_type` of the device this writer attributes its
+   * rows to. REQUIRED for the reachability invariant: authority is resolved
+   * per device, so a writer's row can only be tested for demotion if we know
+   * which kind of device carries it.
+   */
+  deviceType: string;
+  /**
    * True when this writer's coverage depends on per-account configuration
    * (e.g. Tesla fleet telemetry). A conditional writer alone does NOT satisfy
    * the coverage invariant for its activity type.
@@ -42,29 +49,30 @@ export type LockedActivityType = (typeof LOCKED_ACTIVITY_TYPES)[number];
 
 export const WRITER_REGISTRY: Record<LockedActivityType, RegisteredWriter[]> = {
   solar: [
-    { fn: 'enphase-data', dataType: 'solar', provider: 'enphase' },
-    { fn: 'solaredge-data', dataType: 'solar', provider: 'solaredge' },
-    { fn: 'tesla-data', dataType: 'solar', provider: 'tesla' },
-    { fn: 'enphase-historical', dataType: 'solar', provider: 'enphase' },
+    { fn: 'enphase-data', dataType: 'solar', provider: 'enphase', deviceType: 'solar_system' },
+    { fn: 'solaredge-data', dataType: 'solar', provider: 'solaredge', deviceType: 'solar_system' },
+    { fn: 'tesla-data', dataType: 'solar', provider: 'tesla', deviceType: 'solar' },
+    { fn: 'enphase-historical', dataType: 'solar', provider: 'enphase', deviceType: 'solar_system' },
   ],
   battery_export: [
-    { fn: 'tesla-data', dataType: 'battery_discharge', provider: 'tesla' },
-    { fn: 'enphase-data', dataType: 'battery_discharge', provider: 'enphase' },
-    { fn: 'solaredge-data', dataType: 'battery_discharge', provider: 'solaredge' },
+    { fn: 'tesla-data', dataType: 'battery_discharge', provider: 'tesla', deviceType: 'powerwall' },
+    { fn: 'enphase-data', dataType: 'battery_discharge', provider: 'enphase', deviceType: 'battery' },
+    { fn: 'solaredge-data', dataType: 'battery_discharge', provider: 'solaredge', deviceType: 'battery' },
   ],
   ev_miles: [
-    { fn: 'tesla-data', dataType: 'ev_miles', provider: 'tesla' },
-    { fn: 'tesla-odometer-cron', dataType: 'ev_miles', provider: 'tesla' },
+    { fn: 'tesla-data', dataType: 'ev_miles', provider: 'tesla', deviceType: 'vehicle' },
+    { fn: 'tesla-odometer-cron', dataType: 'ev_miles', provider: 'tesla', deviceType: 'vehicle' },
   ],
   supercharging: [
-    { fn: 'tesla-data', dataType: 'ev_charging', provider: 'tesla' },
+    { fn: 'tesla-data', dataType: 'ev_charging', provider: 'tesla', deviceType: 'vehicle' },
   ],
   home_charging: [
-    { fn: 'tesla-charge-monitor', dataType: 'ev_charging', provider: 'tesla_home_charging' },
-    { fn: 'wallbox-data', dataType: 'ev_charging', provider: 'wallbox' },
+    { fn: 'tesla-charge-monitor', dataType: 'ev_charging', provider: 'tesla_home_charging', deviceType: 'vehicle' },
+    { fn: 'wallbox-data', dataType: 'ev_charging', provider: 'wallbox', deviceType: 'wallbox' },
   ],
   fsd_miles: [
-    { fn: 'tesla-fsd-sampler', dataType: 'fsd_miles', provider: 'tesla' },
-    { fn: 'tesla-telemetry-webhook', dataType: 'fsd_miles', provider: 'tesla', conditional: true },
+    { fn: 'tesla-fsd-sampler', dataType: 'fsd_miles', provider: 'tesla', deviceType: 'vehicle' },
+    { fn: 'tesla-telemetry-webhook', dataType: 'fsd_miles', provider: 'tesla', deviceType: 'vehicle', conditional: true },
   ],
 };
+
