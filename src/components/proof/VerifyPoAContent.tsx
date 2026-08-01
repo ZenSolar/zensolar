@@ -394,11 +394,19 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
             onClick={openSourceEvidence}
             title="Open device watermark evidence for Proof-of-Origin"
           />
-          <TmBadge
-            Icon={Sparkles} label="Delta" tint="eco" active
-            onClick={openDeltaEvidence}
-            title="Open individual sessions for Proof-of-Delta"
-          />
+          {/*
+            Badge truthfulness (3a): the global DELTA badge must agree with the
+            per-session evidence below it. If no per-reading rows attribute to
+            this mint, the badge does not appear at all.
+          */}
+          {Object.values(lineCounts).reduce((a, b) => a + b, 0) > 0 && (
+            <TmBadge
+              Icon={Sparkles} label="Delta" tint="eco" active
+              onClick={openDeltaEvidence}
+              title="Open individual sessions for Proof-of-Delta"
+            />
+          )}
+
           <TmBadge
             Icon={Fingerprint} label="Authentic" tint="accent-cool" active
             onClick={() => scrollToRef(verifyRef, true)}
