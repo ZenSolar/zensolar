@@ -398,8 +398,7 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
         </div>
       </div>
 
-        </div>
-      </div>
+
 
       {/* ============== CONTRIBUTING SESSIONS (Proof-of-Delta + Proof-of-Origin) ============== */}
       <div ref={sessionsRef} className="px-6 pb-6 space-y-3 scroll-mt-4">
