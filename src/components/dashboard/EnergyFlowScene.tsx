@@ -945,16 +945,8 @@ export function EnergyFlowScene({
 
 
 
-        {flows.has('solar-pw') && (
-          <g opacity={isOutage ? OUTAGE_VISUAL.solarDimOpacity : 1}>
-            <DottedFlow id="flow-solar-pw" d={BLUEPRINT_PATHS.solarToPowerwall} color={EMERALD_LED} dur={flowDur(battery)} />
-          </g>
-        )}
-        {flows.has('solar-pw') && batteryCount >= 2 && (
-          <g opacity={isOutage ? OUTAGE_VISUAL.solarDimOpacity : 1}>
-            <DottedFlow id="flow-solar-pw-2" d={BLUEPRINT_PATHS.solarToPowerwall2} color={EMERALD_LED} dur={flowDur(battery)} />
-          </g>
-        )}
+
+
 
 
         {/* Outage-mode hero: Battery → Home rendered in the SAME visual
