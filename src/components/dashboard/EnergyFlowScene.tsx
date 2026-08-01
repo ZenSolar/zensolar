@@ -1034,17 +1034,8 @@ export function EnergyFlowScene({
         )}
 
 
-        {/* EV conductor renders ONLY while a vehicle is actually charging at
-            this site. `isCharging` alone is true for Supercharging away from
-            home, which would draw a run down the facade to an empty driveway. */}
-        {flows.has('charger-ev') && chargingAtHome && (
-          <DottedFlow
-            id="flow-charger-ev"
-            d={BLUEPRINT_PATHS.chargerToEvCharging}
-            color={EMERALD_LED}
-            dur={flowDur(data.evPower ?? 7)}
-          />
-        )}
+        {/* EV + battery runs are branches of the conductor network above. */}
+
         {/* Grid import/export is now the grid BRANCH of the conductor
             network above — no standalone roof→post arc. */}
 
