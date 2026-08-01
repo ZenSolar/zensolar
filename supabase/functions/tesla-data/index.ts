@@ -1330,7 +1330,21 @@ Deno.serve(async (req) => {
         } else if (vehicleResponse.status === 429) {
           console.warn("Tesla API rate limited for vehicle:", vehicle.id);
         } else if (vehicleResponse.status === 408) {
-          // Vehicle is asleep - try to wake it up first
+          // Vehicle is asleep - try to wake it up first.
+          //
+          // WAKE BUDGET (explicit, per vehicle, per invocation):
+          //   1 wake POST + up to 3 polls x 5s = 15s of waiting, hard cap.
+          // A vehicle that needs longer than that is reported asleep for this
+          // pass rather than holding the invocation open; the next cron pass
+          // retries. The instrumentation below records the outcome so a
+          // vehicle that never wakes is attributable to a status code and a
+          // measured latency rather than to guesswork.
+          const WAKE_POLL_ATTEMPTS = 3;
+          const WAKE_POLL_INTERVAL_MS = 5000;
+          const wakeStartedAt = Date.now();
+          let wakePostStatus: number | null = null;
+          let wakePolls = 0;
+          let lastPollStatus: number | null = null;
           console.log(`Vehicle ${vehicle.id} is asleep, attempting to wake...`);
           
           let currentOdometer = lastKnownOdometer;
@@ -1346,19 +1360,22 @@ Deno.serve(async (req) => {
               }
             );
             
+            wakePostStatus = wakeResponse.status;
             if (wakeResponse.ok) {
               console.log(`Wake command sent to vehicle ${vehicle.id}, waiting for vehicle to come online...`);
               
               // Wait a bit for the vehicle to wake (Tesla recommends up to 30 seconds)
               // We'll try 3 times with 5 second delays
-              for (let attempt = 0; attempt < 3; attempt++) {
-                await new Promise(resolve => setTimeout(resolve, 5000));
+              for (let attempt = 0; attempt < WAKE_POLL_ATTEMPTS; attempt++) {
+                await new Promise(resolve => setTimeout(resolve, WAKE_POLL_INTERVAL_MS));
+                wakePolls = attempt + 1;
                 
                 const retryResponse = await fetch(
                   `${TESLA_API_BASE}/api/1/vehicles/${vehicle.id}/vehicle_data?endpoints=vehicle_state`,
                   { headers: { "Authorization": `Bearer ${accessToken}` } }
                 );
                 
+                lastPollStatus = retryResponse.status;
                 if (retryResponse.ok) {
                   const retryData = await retryResponse.json();
                   const vehicleState = retryData.response?.vehicle_state || {};
@@ -1380,6 +1397,18 @@ Deno.serve(async (req) => {
             console.log(`Wake attempt failed for ${vehicle.id}:`, wakeError);
           }
           
+          // WAKE OUTCOME — one structured line per vehicle per pass.
+          console.log("tesla_wake_outcome", JSON.stringify({
+            vin: vehicle.id,
+            initial_status: 408,
+            wake_post_status: wakePostStatus,
+            wake_polls: wakePolls,
+            last_poll_status: lastPollStatus,
+            budget_ms: WAKE_POLL_ATTEMPTS * WAKE_POLL_INTERVAL_MS,
+            elapsed_ms: Date.now() - wakeStartedAt,
+            woke: isAwake,
+          }));
+
           // If wake didn't work, try the /vehicles list for cached data
           if (!isAwake) {
             try {
