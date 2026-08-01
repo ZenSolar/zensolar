@@ -338,6 +338,18 @@ async function discoverTeslaDevices(accessToken: string): Promise<TeslaDiscovere
       }
       if (!p.energy_site_id) continue;
       const siteId = String(p.energy_site_id);
+      // Wall Connectors are returned as top-level products with
+      // resource_type "charger" (and are also listed inside an energy site's
+      // components). They are NOT solar sites and must not be typed as such.
+      if (p.resource_type === "charger" || p.resource_type === "wall_connector") {
+        devices.push({
+          device_id: siteId,
+          device_type: "wall_connector",
+          device_name: p.site_name || p.din || "Tesla Wall Connector",
+          metadata: { site_id: p.energy_site_id, resource_type: p.resource_type, din: p.din ?? null },
+        });
+        continue;
+      }
       energySiteIds.push(siteId);
       devices.push({
         device_id: siteId,
