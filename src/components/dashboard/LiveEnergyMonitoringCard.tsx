@@ -1388,12 +1388,15 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                       <span className="font-semibold text-foreground">{lifetime.batteryDischargeKwh.toFixed(0)} kWh</span>
                     </div>
                   )}
-                  {lifetime.evMiles > 0 && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">EV odometer</span>
-                      <span className="font-semibold text-foreground">{Math.round(lifetime.evMiles).toLocaleString()} mi</span>
+                  {/* Odometers are per-vehicle meter readings and are never
+                      summed — two cars' odometers do not add to a household
+                      distance. Each is listed against its own vehicle. */}
+                  {lifetime.vehicles.map((v) => (
+                    <div key={v.deviceId} className="flex items-center justify-between">
+                      <span className="text-muted-foreground">{v.name} odometer</span>
+                      <span className="font-semibold text-foreground">{Math.round(v.odometerMi).toLocaleString()} mi</span>
                     </div>
-                  )}
+                  ))}
                   {lifetime.superchargerKwh > 0 && (
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">Supercharged</span>
