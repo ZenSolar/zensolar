@@ -2,11 +2,23 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useViewAsUserId } from '@/hooks/useViewAsUserId';
+import { classifyDevices, type AuthorityDevice } from '@/lib/deviceAuthority';
+
+export interface VehicleLifetime {
+  deviceId: string;
+  name: string;
+  odometerMi: number;
+  fsdMiles: number;
+}
 
 export interface LifetimeTotals {
+  /** Authoritative solar only — observer (CT-clamp) sources are excluded. */
   solarKwh: number;
+  /** Solar reported by observer devices, shown for transparency, never summed in. */
+  observerSolarKwh: number;
   batteryDischargeKwh: number;
-  evMiles: number;
+  /** Per-vehicle odometers. Odometers are NOT summable across vehicles. */
+  vehicles: VehicleLifetime[];
   superchargerKwh: number;
   homeKwh: number;
   fsdMiles: number;
@@ -16,8 +28,9 @@ export interface LifetimeTotals {
 
 const EMPTY: LifetimeTotals = {
   solarKwh: 0,
+  observerSolarKwh: 0,
   batteryDischargeKwh: 0,
-  evMiles: 0,
+  vehicles: [],
   superchargerKwh: 0,
   homeKwh: 0,
   fsdMiles: 0,
@@ -31,8 +44,13 @@ const batteryWh = (o: any): number =>
   Number(o?.battery_discharge_wh || o?.total_energy_discharged_wh || o?.lifetime_battery_discharge_wh || 0);
 
 /**
- * Sums lifetime_totals across every connected device for the current (or viewed) user.
- * Also splits home vs supercharger from charging_sessions history.
+ * Lifetime meter readings for the current (or viewed) user.
+ *
+ * Solar is routed through the SAME authority filter the mint path uses
+ * (`classifyDevices` mirrors `filterIssuableRows`), so a Powerwall's site CT
+ * clamps no longer double-count a dedicated inverter's roof on the display
+ * side. Odometers are returned PER VEHICLE — two cars' odometers are two
+ * independent readings and summing them is meaningless.
  */
 export function useLifetimeTotals() {
   const { user } = useAuth();
@@ -53,7 +71,7 @@ export function useLifetimeTotals() {
       const [devicesRes, sessionsRes] = await Promise.all([
         supabase
           .from('connected_devices')
-          .select('device_type, lifetime_totals, last_known_state')
+          .select('device_id, device_name, device_type, provider, lifetime_totals, last_known_state')
           .eq('user_id', effectiveUserId),
         supabase
           .from('charging_sessions')
@@ -62,24 +80,48 @@ export function useLifetimeTotals() {
       ]);
       if (cancelled) return;
       const rows = devicesRes.data ?? [];
+
+      const classes = classifyDevices(
+        rows.map((d: any): AuthorityDevice => ({
+          device_id: String(d.device_id),
+          device_type: String(d.device_type ?? ''),
+          provider: String(d.provider ?? ''),
+          device_name: d.device_name ?? null,
+        })),
+      );
+
       let solar = 0;
+      let observerSolar = 0;
       let battery = 0;
-      let miles = 0;
       let chargingKwhLifetime = 0;
       let fsdMiles = 0;
       let fsdSource: 'official' | 'calculated_hw3' | null = null;
-      for (const d of rows) {
+      const vehicles: VehicleLifetime[] = [];
+
+      for (const d of rows as any[]) {
         const l: any = d.lifetime_totals ?? {};
-        solar += solarWh(l);
+        const isObserverSolar = classes[String(d.device_id)]?.deviceClass === 'observer';
+        if (isObserverSolar) observerSolar += solarWh(l);
+        else solar += solarWh(l);
         battery += batteryWh(l);
         if (d.device_type === 'vehicle') {
-          miles += Number(l.odometer || 0);
+          const odo = Number(l.odometer || l.last_known_odometer || 0);
+          const vFsd = Number(l.lifetime_fsd_miles || 0);
+          if (odo > 0 || vFsd > 0) {
+            vehicles.push({
+              deviceId: String(d.device_id),
+              name: d.device_name ?? 'Vehicle',
+              odometerMi: odo,
+              fsdMiles: vFsd,
+            });
+          }
           chargingKwhLifetime += Number(l.charging_kwh || 0);
-          fsdMiles += Number(l.lifetime_fsd_miles || 0);
-          const src = (d as any).last_known_state?.fsd_source;
+          fsdMiles += vFsd;
+          const src = d.last_known_state?.fsd_source;
           if (src === 'official' || fsdSource === null) fsdSource = src ?? fsdSource;
         }
       }
+
       // Split home vs supercharger using session history
       let sessionSuper = 0;
       let sessionHome = 0;
@@ -88,8 +130,6 @@ export function useLifetimeTotals() {
         if ((s as any).charging_type === 'home') sessionHome += kwh;
         else sessionSuper += kwh;
       }
-      // If session sum roughly matches lifetime, trust the split; otherwise
-      // fall back to putting everything under supercharger.
       const sessionSum = sessionSuper + sessionHome;
       const useSplit = sessionSum > 0 && Math.abs(sessionSum - chargingKwhLifetime) / Math.max(sessionSum, chargingKwhLifetime) < 0.15;
       const superKwh = useSplit ? sessionSuper : chargingKwhLifetime;
@@ -97,13 +137,15 @@ export function useLifetimeTotals() {
 
       const next: LifetimeTotals = {
         solarKwh: solar / 1000,
+        observerSolarKwh: observerSolar / 1000,
         batteryDischargeKwh: battery / 1000,
-        evMiles: miles,
+        vehicles,
         superchargerKwh: superKwh,
         homeKwh,
         fsdMiles,
         fsdSource,
-        hasAny: solar > 0 || battery > 0 || miles > 0 || superKwh > 0 || homeKwh > 0 || fsdMiles > 0 || fsdSource !== null,
+        hasAny:
+          solar > 0 || battery > 0 || vehicles.length > 0 || superKwh > 0 || homeKwh > 0 || fsdMiles > 0 || fsdSource !== null,
       };
       setTotals(next);
       setLoading(false);
