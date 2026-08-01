@@ -30,6 +30,8 @@ import { useDeasonOptimizer } from "@/hooks/useDeasonOptimizer";
 import { toast } from "sonner";
 
 import { useDensity } from "@/hooks/useDensity";
+import { MeteringRolesCard } from "@/components/devices/MeteringRolesCard";
+
 
 export default function Settings() {
   const { 
