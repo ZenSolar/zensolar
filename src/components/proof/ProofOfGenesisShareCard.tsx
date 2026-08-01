@@ -160,11 +160,11 @@ export const ProofOfGenesisShareCard = forwardRef<HTMLDivElement, { data: ShareC
           </div>
         </div>
 
-        {/* ===== Stats row: tokens + energy/miles + vs BTC ===== */}
+        {/* ===== Stats row: tokens + energy/miles ===== */}
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: '1fr 1fr 1fr',
+            gridTemplateColumns: '1fr 1fr',
             gap: 16,
             position: 'relative',
           }}
@@ -181,13 +181,8 @@ export const ProofOfGenesisShareCard = forwardRef<HTMLDivElement, { data: ShareC
             value={data.primaryStatValue}
             suffix={data.primaryStatSuffix}
           />
-          <StatBlock
-            icon={<Leaf size={22} color="#34d399" />}
-            label="vs. BTC tx"
-            value={`~${data.vsBtcKg}`}
-            suffix="kg avoided"
-          />
         </div>
+
 
         {/* ===== Verified source strip ===== */}
         <div
