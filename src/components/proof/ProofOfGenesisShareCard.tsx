@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import { Sparkles, Zap, Leaf, Shield, Car, Sun } from 'lucide-react';
+import { Sparkles, Zap, Shield, Car, Sun } from 'lucide-react';
 
 /**
  * ProofOfGenesisShareCard — a fixed-size, beautifully condensed card
