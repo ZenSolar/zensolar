@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from 'vitest';
-import { render as rtlRender, screen } from '@testing-library/react';
+import { describe, it, expect, afterEach } from 'vitest';
+import { render as rtlRender, screen, cleanup } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 /** OutageModePanel reaches react-router hooks; wrap every render. */
@@ -9,6 +9,10 @@ import { OutageModePanel } from '@/components/dashboard/OutageModePanel';
 import { _resetBackupSmoothing } from '@/lib/gridOutage';
 
 describe('OutageModePanel', () => {
+  // No `globals: true`, so RTL auto-cleanup is not installed. Without this,
+  // each render stacks in the same document and queryBy* sees the prior tree.
+  afterEach(cleanup);
+
   const baseProps = {
     socPct: 87,
     usableCapacityKwh: 13.5,
