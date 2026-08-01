@@ -265,7 +265,7 @@ async function refreshTeslaToken(
 
 type TeslaDiscoveredDevice = {
   device_id: string;
-  device_type: "vehicle" | "powerwall" | "solar";
+  device_type: "vehicle" | "powerwall" | "solar" | "wall_connector";
   device_name: string;
   metadata: Record<string, unknown>;
 };
