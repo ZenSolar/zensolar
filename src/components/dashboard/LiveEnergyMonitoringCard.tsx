@@ -968,18 +968,23 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
     ? `ZenEnergy · ${subtitleParts.join(' + ') || 'Live'}`
     : `Home Energy Cockpit · ${subtitleParts.join(' + ') || 'Live'}`;
 
-  const cardIso = latestTelemetry?.sample_at ?? latestTelemetry?.cached_at ?? null;
+  // A card states ONE age, and it is the age of its OLDEST component. Taking
+  // the newest reading let a one-hour-old solar tile sit under an "updated 0s
+  // ago" header — two contradictory freshness claims on one surface.
+  const oldestTelemetry = (() => {
+    const isos = [solarAsOf.iso, batteryAsOf.iso, evAsOf.iso].filter(Boolean) as string[];
+    if (isos.length === 0) return null;
+    return isos.sort((a, b) => new Date(a).getTime() - new Date(b).getTime())[0];
+  })();
+  const cardIso = oldestTelemetry ?? latestTelemetry?.sample_at ?? latestTelemetry?.cached_at ?? null;
 
   return (
     <CardFreshnessContext.Provider value={cardIso}>
     <div className="w-full p-4">
       <LiveCardHeader
         subtitle={cockpitSubtitle}
-        ageLabel={formatAge(latestTelemetry?.sample_at ?? latestTelemetry?.cached_at ?? null)}
-        freshnessClassName={freshnessClass(
-          latestTelemetry?.sample_at ?? latestTelemetry?.cached_at ?? null,
-          !!latestTelemetry?.fresh,
-        )}
+        ageLabel={formatAge(cardIso)}
+        freshnessClassName={freshnessClass(cardIso, !!latestTelemetry?.fresh)}
         onRefresh={handleManualRefresh}
         refreshing={manualRefreshing}
       />
@@ -1007,10 +1012,20 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
 
 
       {(() => {
-        // SITE BALANCE ASSERTION — runs on RAW telemetry, before any
-        // reconciliation. The diagram claims branch widths sum to the trunk;
-        // that only holds when the meters themselves sum. When they do not,
-        // say so here rather than quietly redistributing the difference.
+        // SITE BALANCE ASSERTION — SUPPRESSED ON LIVE SURFACES (2026-08-01).
+        //
+        // The banner compared RAW telemetry while the diagram beside it drew
+        // the RECONCILED figures, so a raw grid reading of +1.1 kW import
+        // against a displayed 0.8 kW export produced a fabricated 1.9 kW
+        // "unaccounted" warning on a site whose meters actually agreed. A
+        // false discrepancy warning is worse than none: it discredits every
+        // other number on the card. It now renders only behind ?balance=1
+        // until the comparison is provably against the same inputs the
+        // diagram uses. The assertion itself (siteBalance.ts) is unchanged
+        // and still covered by tests.
+        const debugBalance =
+          typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('balance') === '1';
+        if (!debugBalance) return null;
         const measuredHome = homeKwRaw ?? 0;
         const balance = computeSiteBalance({
           solarKw: solarStats.currentKw ?? 0,
@@ -1378,7 +1393,14 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                 <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 text-[11px]">
                   {lifetime.solarKwh > 0 && (
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Solar</span>
+                      <span className="text-muted-foreground">
+                        Solar
+                        {lifetime.observerSolarKwh > 0 && (
+                          <span className="ml-1 text-[10px] uppercase tracking-wider text-muted-foreground/60">
+                            metered source only
+                          </span>
+                        )}
+                      </span>
                       <span className="font-semibold text-foreground">{(lifetime.solarKwh / 1000).toFixed(2)} MWh</span>
                     </div>
                   )}
@@ -1388,12 +1410,15 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                       <span className="font-semibold text-foreground">{lifetime.batteryDischargeKwh.toFixed(0)} kWh</span>
                     </div>
                   )}
-                  {lifetime.evMiles > 0 && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">EV odometer</span>
-                      <span className="font-semibold text-foreground">{Math.round(lifetime.evMiles).toLocaleString()} mi</span>
+                  {/* Odometers are per-vehicle meter readings and are never
+                      summed — two cars' odometers do not add to a household
+                      distance. Each is listed against its own vehicle. */}
+                  {lifetime.vehicles.map((v) => (
+                    <div key={v.deviceId} className="flex items-center justify-between">
+                      <span className="text-muted-foreground">{v.name} odometer</span>
+                      <span className="font-semibold text-foreground">{Math.round(v.odometerMi).toLocaleString()} mi</span>
                     </div>
-                  )}
+                  ))}
                   {lifetime.superchargerKwh > 0 && (
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">Supercharged</span>
