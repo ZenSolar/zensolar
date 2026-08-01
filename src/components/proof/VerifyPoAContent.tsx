@@ -460,10 +460,12 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
                       <MapPin className="w-2.5 h-2.5 text-primary" />
                       <span className="text-[9px] font-bold text-primary uppercase tracking-wider">Verified Origin</span>
                     </div>
-                    <div className="flex items-center gap-1 px-1.5 py-0.5 bg-eco/10 rounded-md">
-                      <Award className="w-2.5 h-2.5 text-eco" />
-                      <span className="text-[9px] font-bold text-eco uppercase tracking-wider">Verified Delta</span>
-                    </div>
+                    {deltaRows > 0 && (
+                      <div className="flex items-center gap-1 px-1.5 py-0.5 bg-eco/10 rounded-md">
+                        <Award className="w-2.5 h-2.5 text-eco" />
+                        <span className="text-[9px] font-bold text-eco uppercase tracking-wider">Verified Delta</span>
+                      </div>
+                    )}
                     {expandable && (
                       <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider underline underline-offset-2 decoration-dotted">
                         {isOpen ? 'Hide sessions' : 'View sessions'}
