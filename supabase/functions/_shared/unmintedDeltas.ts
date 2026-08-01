@@ -43,6 +43,53 @@ export interface UnmintedRow {
   device_id: string;
   production_wh: number;
   recorded_at: string;
+  proof_metadata?: Record<string, unknown> | null;
+}
+
+/**
+ * PROVENANCE GATE — a row that cannot prove itself is not mintable.
+ *
+ * A mintable row must carry BOTH:
+ *   1. `production_wh_semantics: 'issuable_delta'` — the writer's explicit
+ *      claim that `production_wh` is a delta, not a cumulative reading, and
+ *   2. a contemporaneous `hash` written by that same writer.
+ *
+ * Everything else — the pre-Pillar-1 backfill, any row written before the
+ * stamp convention, anything hand-inserted — is REFUSED: never counted, never
+ * consumed, left in place and logged. 86% of today's table is discarded
+ * testnet history; this is what keeps it out of issuance permanently rather
+ * than by accident.
+ */
+export function rowIsStamped(row: UnmintedRow): boolean {
+  const meta = (row.proof_metadata ?? null) as any;
+  if (!meta || typeof meta !== 'object') return false;
+  if (meta.production_wh_semantics !== 'issuable_delta') return false;
+  return typeof meta.hash === 'string' && meta.hash.length > 0;
+}
+
+export interface ProvenancePartition {
+  stamped: UnmintedRow[];
+  refused: UnmintedRow[];
+  /** Why each refused row failed, for the audit log. */
+  refusedReasons: Array<{ id: string; data_type: string; provider: string; reason: string }>;
+}
+
+export function partitionByProvenance(rows: UnmintedRow[]): ProvenancePartition {
+  const stamped: UnmintedRow[] = [];
+  const refused: UnmintedRow[] = [];
+  const refusedReasons: ProvenancePartition['refusedReasons'] = [];
+  for (const r of rows) {
+    if (rowIsStamped(r)) { stamped.push(r); continue; }
+    const meta = (r.proof_metadata ?? null) as any;
+    const reason = !meta
+      ? 'no_proof_metadata'
+      : meta.production_wh_semantics !== 'issuable_delta'
+        ? 'missing_issuable_delta_stamp'
+        : 'missing_hash';
+    refused.push(r);
+    refusedReasons.push({ id: r.id, data_type: r.data_type, provider: r.provider, reason });
+  }
+  return { stamped, refused, refusedReasons };
 }
 
 export interface UnmintedDeltas {
@@ -110,7 +157,7 @@ export async function fetchUnmintedRows(
   for (let from = 0; ; from += PAGE) {
     let q = admin
       .from('energy_production')
-      .select('id, data_type, provider, device_id, production_wh, recorded_at')
+      .select('id, data_type, provider, device_id, production_wh, recorded_at, proof_metadata')
       .eq('user_id', userId)
       .is('minted_at', null)
       .in('data_type', dataTypes)
