@@ -673,9 +673,14 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Write daily charging aggregates
-      const primaryVin = vehicles[0].device_id;
+      // Write daily charging aggregates.
+      // Rows are keyed by the VIN the session actually matched
+      // (extractChargingSessionVin), never by a "primary" vehicle — a row
+      // attributed to the wrong car is a provenance defect, not a gap.
       const chargingRecords: any[] = [];
+      const daysByVin = new Map<string, number>();
+      const whByVin = new Map<string, number>();
+
 
       for (const [vin, dailyMap] of dailyChargingByVin) {
         for (const [dateStr, totalWh] of dailyMap) {
@@ -687,8 +692,14 @@ Deno.serve(async (req) => {
             production_wh: totalWh,
             data_type: "ev_charging",
             recorded_at: dateStr + "T12:00:00Z",
-            proof_metadata: await periodTotalProof(vin, dateStr + "T12:00:00Z", totalWh, "ev_charging", "wh"),
+            proof_metadata: {
+              ...(await periodTotalProof(vin, dateStr + "T12:00:00Z", totalWh, "ev_charging", "wh")),
+              attribution: "matched_vin",
+              attributed_vin: vin,
+            },
           });
+          daysByVin.set(vin, (daysByVin.get(vin) || 0) + 1);
+          whByVin.set(vin, (whByVin.get(vin) || 0) + totalWh);
         }
       }
 
@@ -736,16 +747,25 @@ Deno.serve(async (req) => {
 
       totalChargingSessionsImported = totalSessions;
 
-      results.push({
-        type: "ev_charging",
-        device_id: primaryVin,
-        name: vehicles[0].device_name || primaryVin,
-        total_sessions: totalSessions,
-        unique_days: chargingRecords.length,
-      });
+      // One result line PER VEHICLE. The summary used to report vehicles[0]
+      // for the whole account, which made a two-car household look like a
+      // one-car household in every log and response.
+      const vinToName = new Map<string, string>(
+        vehicles.map((v: any) => [normalizeTeslaVin(v.device_id) || v.device_id, v.device_name || v.device_id]),
+      );
+      for (const [vin, days] of daysByVin) {
+        results.push({
+          type: "ev_charging",
+          device_id: vin,
+          name: vinToName.get(vin) || vin,
+          unique_days: days,
+          total_wh: Math.round(whByVin.get(vin) || 0),
+        });
+      }
 
       console.log(
-        `[Tesla Historical] EV Charging: ${totalSessions} sessions → ${chargingRecords.length} unique days`
+        `[Tesla Historical] EV Charging: ${totalSessions} sessions → ${chargingRecords.length} unique days ` +
+        `across ${daysByVin.size} vehicle(s): ${[...daysByVin.keys()].join(", ")}`
       );
     }
 

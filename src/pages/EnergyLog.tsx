@@ -165,9 +165,14 @@ export default function EnergyLog() {
         }
 
         // Tesla backfill (solar + battery + EV charging)
+        // HELD — both Tesla backfills are disabled pending sign-off. They were
+        // auto-running on every first Energy Log visit per browser (localStorage
+        // gate only), which is not an acceptable trigger for a function that
+        // writes provenance rows. Flip TESLA_BACKFILL_ENABLED to re-enable.
+        const TESLA_BACKFILL_ENABLED = false;
         const teslaTokens = allProviders?.filter((r: { provider: string }) => r.provider === 'tesla');
 
-        if (teslaTokens && teslaTokens.length > 0) {
+        if (TESLA_BACKFILL_ENABLED && teslaTokens && teslaTokens.length > 0) {
           const backfillKey = `tesla_backfill_v2_${session.user.id}`;
           // One-time re-sync to populate charging session duration data (remove after Feb 2026)
           const resyncKey = `tesla_resync_duration_v1_${session.user.id}`;
