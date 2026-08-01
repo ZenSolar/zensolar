@@ -14,7 +14,10 @@
  */
 import { Car } from 'lucide-react';
 import type { CachedTelemetry } from '@/hooks/useDeviceTelemetry';
+import { FreshnessNote } from '@/components/dashboard/FreshnessNote';
+import { freshnessLabel } from '@/lib/telemetryFreshness';
 import { cn } from '@/lib/utils';
+
 
 function pick(payload: any, keys: string[]): unknown {
   for (const k of keys) {
