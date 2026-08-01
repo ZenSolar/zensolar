@@ -319,6 +319,7 @@ export function EVTile({ t, totals7d, liveDot, sourceLabel: sourceLabelOverride 
   const kindLabel = sourceLabelOverride ?? kindLabelDefault;
   const label = t.oem === 'tesla' ? `Vehicle · Tesla${t.device_name ? ' · ' + t.device_name : ''}` : `EV · ${oemLabel(t.oem)}`;
   const showLive = liveDot ?? isCharging;
+  const cardIso = useContext(CardFreshnessContext);
 
   return (
     <div className="rounded-lg border border-primary/20 bg-background/45 p-3 shadow-[inset_0_1px_0_hsl(var(--foreground)/0.06)] transition-colors hover:border-primary/35">
@@ -340,7 +341,7 @@ export function EVTile({ t, totals7d, liveDot, sourceLabel: sourceLabelOverride 
         <FreshnessException
           iso={t.sample_at ?? t.cached_at ?? null}
           fresh={t.fresh}
-          cardIso={useContext(CardFreshnessContext)}
+          cardIso={cardIso}
           className="mt-0"
         />
       </div>
@@ -421,6 +422,7 @@ export function MetricTile({
   /** Reading provenance. Every telemetry-backed number states its own age. */
   asOf?: { iso: string | null; fresh: boolean };
 }) {
+  const cardIso = useContext(CardFreshnessContext);
 
   const toneMap = {
     orange: {
