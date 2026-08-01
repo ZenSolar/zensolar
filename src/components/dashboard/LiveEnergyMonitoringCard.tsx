@@ -333,6 +333,9 @@ export function EVTile({ t, totals7d, liveDot, sourceLabel: sourceLabelOverride 
         </div>
         <FreshChip fresh={t.fresh} />
       </div>
+      <div className="mt-1">
+        <FreshnessNote iso={t.sample_at ?? t.cached_at ?? null} fresh={t.fresh} />
+      </div>
 
       {/* Row A: live charge session */}
       {isCharging && (
@@ -1164,6 +1167,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                 label={solar.data.length > 1 ? `Solar · ${solar.data.length} systems` : 'Solar Produced'}
                 value={formatKwh(solarStatsAll.todayKwh)}
                 detail={`${formatKw(solarStatsAll.currentKw)} now · today`}
+                asOf={solarAsOf}
               />
 
               {/* Green — Battery kWh exported today */}
@@ -1187,6 +1191,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                     const isFull = batteryStatsAll.soc !== null && batteryStatsAll.soc >= 99;
                     return `${pct} · ${isFull ? 'Full' : 'Idle'}`;
                   })()}
+                  asOf={batteryAsOf}
                 />
               ) : (
                 <MetricTile
@@ -1199,6 +1204,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                       : '—'
                   }
                   detail={`Lifetime · ${chargers.data[0]?.total_sessions ?? 0} sessions`}
+                  asOf={chargerAsOf}
                 />
               )}
 
@@ -1253,6 +1259,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                         </span>
                       ) : null
                     }
+                    asOf={evAsOf}
                   />
                 );
               })()}
@@ -1275,6 +1282,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                         ? `+${liveScAdd.toFixed(1)} kWh live · ${teslaFlow?.kW ? teslaFlow.kW.toFixed(1) : '0'} kW`
                         : 'Today · DC Fast Charging'
                     }
+                    asOf={evAsOf}
                   />
                 );
               })()}
@@ -1289,6 +1297,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                   label="EV Mileage · Today"
                   value={`${Math.round((evTotals.totals.home_kwh + evTotals.totals.supercharger_kwh) * 3.3).toLocaleString()} mi`}
                   detail="Estimated from today's energy charged"
+                  asOf={evAsOf}
                 />
               )}
             </div>
