@@ -19,6 +19,7 @@ import {
   resolveCumulativeAnchor,
   snapshotDelta,
 } from "../_shared/proofDelta.ts";
+import { recordGrantFailure, clearGrantFailure } from "../_shared/grantHealth.ts";
 
 // KILL SWITCH — issuance-row writes for FSD miles.
 // Re-enabled 2026-08-01: rows now store snapshotDelta() as production_wh with
