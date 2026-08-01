@@ -155,16 +155,16 @@ export function polylineMidpoint(pts: Pt[]): { p: Pt; angle: number } {
 /**
  * kW → stroke width, in overlay units (1 unit ≈ 1% of the card width).
  *
- *   width(kW) = 0.62 × kW,  clamped to [0.38, 5.6]
+ *   width(kW) = 0.30 × kW,  clamped to [0.30, 3.0]
  *
  * Strictly proportional and through the origin, so widths ADD: a 0.9 kW trunk
- * (0.56) is exactly as wide as a 0.5 kW home branch (0.31) plus a 0.4 kW grid
- * branch (0.25). The floor only protects sub-0.6 kW runs from vanishing; the
+ * (0.27) is exactly as wide as a 0.5 kW home branch (0.15) plus a 0.4 kW grid
+ * branch (0.12). The floor only protects sub-0.6 kW runs from vanishing; the
  * ceiling keeps a 12 kW export from swamping the house.
  */
-export const WIDTH_PER_KW = 0.62;
+export const WIDTH_PER_KW = 0.30;
 export function conductorWidth(kw: number): number {
-  return Math.min(5.6, Math.max(0.38, Math.abs(kw) * WIDTH_PER_KW));
+  return Math.min(3.0, Math.max(0.30, Math.abs(kw) * WIDTH_PER_KW));
 }
 
 /** Travelling-pulse period: higher power travels faster, never frantic. */
