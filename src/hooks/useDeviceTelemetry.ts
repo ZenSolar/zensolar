@@ -175,7 +175,7 @@ async function loadDevicesDeduped(userId: string): Promise<ConnectedDeviceRow[]>
 // during a single dashboard load). Keyed by user + oem + capability + siteId.
 const oemInflight = new Map<string, Promise<any | null>>();
 
-function pickOnePerCapability(rows: ConnectedDeviceRow[], cap: Capability): ConnectedDeviceRow[] {
+function selectDevicesForCapability(rows: ConnectedDeviceRow[], cap: Capability): ConnectedDeviceRow[] {
   const out: ConnectedDeviceRow[] = [];
   const seen = new Set<string>();
   for (const r of rows) {
@@ -299,7 +299,7 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
     try {
       const devices = await loadDevicesDeduped(effectiveUserId);
 
-      const selected = pickOnePerCapability(devices, capability);
+      const selected = selectDevicesForCapability(devices, capability);
       const out: CachedTelemetry[] = [];
 
       // When admin is viewing another user, route OEM calls through the
