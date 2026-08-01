@@ -281,6 +281,13 @@ function initialTeslaBaseline(deviceType: TeslaDiscoveredDevice["device_type"]) 
     };
   }
 
+  if (deviceType === "wall_connector") {
+    return {
+      captured_at,
+      charging_kwh: 0,
+    };
+  }
+
   return {
     captured_at,
     total_energy_discharged_wh: 0,
