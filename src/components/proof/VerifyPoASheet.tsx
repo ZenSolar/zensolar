@@ -34,7 +34,7 @@ export function VerifyPoASheet({
         className="max-h-[92dvh] lg:max-h-none"
       >
         {/* Sticky top bar — obvious back arrow even when the body scrolls */}
-        <div className="sticky top-0 z-10 flex items-center gap-3 px-4 pt-2 pb-3 bg-background/95 backdrop-blur border-b border-border/40">
+        <div className="sticky top-0 z-10 flex items-center gap-3 px-4 pt-[max(0.5rem,env(safe-area-inset-top))] pb-3 bg-background/95 backdrop-blur border-b border-border/40">
           <button
             type="button"
             onClick={() => onOpenChange(false)}
@@ -52,7 +52,7 @@ export function VerifyPoASheet({
           </DrawerDescription>
         </div>
 
-        <div className="overflow-y-auto overscroll-contain">
+        <div className="overflow-y-auto overscroll-contain [scroll-padding-top:5rem]">
           <div className="container max-w-3xl mx-auto px-4 pt-4 pb-[max(2rem,env(safe-area-inset-bottom))]">
             <VerifyPoAContent poa={chainHash} />
           </div>

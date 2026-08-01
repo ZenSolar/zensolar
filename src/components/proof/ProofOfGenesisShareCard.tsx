@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import { Sparkles, Zap, Leaf, Shield, Car, Sun } from 'lucide-react';
+import { Sparkles, Zap, Shield, Car, Sun } from 'lucide-react';
 
 /**
  * ProofOfGenesisShareCard — a fixed-size, beautifully condensed card
@@ -24,7 +24,7 @@ export type ShareCardData = {
   deviceLabel: string;          // "tesla-model-y-VIN9XJ"
   mintedAt: string;             // ISO
   txHashShort: string;          // "0xa3f5b2…d3f6a9c2"
-  vsBtcKg: number;              // 707
+  vsBtcKg?: number;             // deprecated — no longer rendered
   isLive: boolean;
 };
 
@@ -160,11 +160,11 @@ export const ProofOfGenesisShareCard = forwardRef<HTMLDivElement, { data: ShareC
           </div>
         </div>
 
-        {/* ===== Stats row: tokens + energy/miles + vs BTC ===== */}
+        {/* ===== Stats row: tokens + energy/miles ===== */}
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: '1fr 1fr 1fr',
+            gridTemplateColumns: '1fr 1fr',
             gap: 16,
             position: 'relative',
           }}
@@ -181,13 +181,8 @@ export const ProofOfGenesisShareCard = forwardRef<HTMLDivElement, { data: ShareC
             value={data.primaryStatValue}
             suffix={data.primaryStatSuffix}
           />
-          <StatBlock
-            icon={<Leaf size={22} color="#34d399" />}
-            label="vs. BTC tx"
-            value={`~${data.vsBtcKg}`}
-            suffix="kg avoided"
-          />
         </div>
+
 
         {/* ===== Verified source strip ===== */}
         <div

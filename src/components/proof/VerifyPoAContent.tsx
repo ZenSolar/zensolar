@@ -22,7 +22,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ShieldCheck, Sparkles, Zap, Sun, Battery, Car, Plug, Bitcoin,
+  ShieldCheck, Sparkles, Zap, Sun, Battery, Car, Plug,
   ChevronDown, MapPin, Fingerprint, Award, Hash,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -48,8 +48,7 @@ export type VerifyReceipt = {
 };
 
 // ---- CO₂ math (per-source; see src/lib/co2Math.ts) ----
-import { computeCo2, CO2_KG_PER_EV_MILE } from '@/lib/co2Math';
-const BTC_TX_CO2_KG = 707;                // Cambridge CCAF / Digiconomist anchor
+import { computeCo2, type Co2Stats } from '@/lib/co2Math';
 
 function fmt(n: number, digits = 1): string {
   return n.toLocaleString(undefined, { maximumFractionDigits: digits });
@@ -115,66 +114,53 @@ function buildSourceRows(r: VerifyReceipt): SourceRow[] {
 }
 
 /**
- * Per-source Impact-Payoff copy.
+ * Impact module — category-aware, and silent when it has nothing true to say.
  *
  * Rules:
- *  - On a SINGLE-source mint, use that source's own kWh/miles in the subline
- *    (NOT the receipt total — they're the same number, but reading from the
- *    row keeps the math honest if a fallback path ever diverges).
- *  - On a MULTI-source mint, do NOT pin the subline to the dominant source
- *    (that's how "1,500 kWh of clean solar" gets shown when only 748 was
- *    solar). Instead, describe the combined output across all sources.
- *  - Tesla Supercharger kWh did NOT "stay off the grid" — they came FROM the
- *    Supercharger network (100% renewable-matched via Tesla's retired RECs).
+ *  - Supercharging states ENERGY DELIVERED, never CO₂ avoided. Those kWh came
+ *    off the Supercharger network, not off the member's own system, and we do
+ *    not restate Tesla's renewable-matching claim as ours.
+ *  - CO₂ avoided is stated only for categories where the member's own hardware
+ *    displaced something: solar, battery, home charging, EV miles driven.
+ *  - Returns null when there is no real, non-zero value — the module then does
+ *    not render at all.
  */
-type PayoffCopy = { headline: string; subline: string | null };
+type Impact = { label: string; value: string; unit?: string; sub: string | null };
 
-function payoffFor(
-  rows: SourceRow[],
-  stats: { tokens: number; kwh: number; miles: number; co2Kg: number },
-): PayoffCopy {
-  const co2 = `${fmt(stats.co2Kg, 2)} kg CO₂ Avoided`;
+const CO2_ELIGIBLE = new Set(['solar_kwh', 'battery_kwh', 'home_charging_kwh', 'ev_miles']);
+// Stored breakdowns use `supercharger_kwh`; `supercharging_kwh` is the canonical
+// factor key. Accept both so the delivered-energy line renders either way.
+const DELIVERED_ONLY = new Set(['supercharger_kwh', 'supercharging_kwh', 'ev_kwh']);
 
-  // ----- Multi-source mint: combined frame -----
-  if (rows.length > 1) {
-    const kwhRows = rows.filter((r) => !r.amount.endsWith('mi'));
-    const milesRow = rows.find((r) => r.amount.endsWith('mi'));
-    const parts: string[] = [];
-    if (kwhRows.length > 0 && stats.kwh > 0) {
-      parts.push(`${fmt(stats.kwh, 2)} kWh of clean energy across ${kwhRows.length} sources`);
-    }
-    if (milesRow && stats.miles > 0) {
-      parts.push(`${fmt(stats.miles, 0)} mi driven on sunshine`);
-    }
-    return { headline: co2, subline: parts.length > 0 ? `≈ ${parts.join(' + ')}` : null };
+function impactFor(stats: Co2Stats): Impact | null {
+  const eligible = stats.breakdown.filter((b) => CO2_ELIGIBLE.has(b.key) && b.kg > 0);
+  if (eligible.length > 0) {
+    const kg = eligible.reduce((s, b) => s + b.kg, 0);
+    const names = eligible.map((b) => SOURCE_DEFS[b.key]?.label ?? b.key);
+    return {
+      label: 'Impact',
+      value: `${fmt(kg, 2)} kg CO₂`,
+      unit: 'Avoided',
+      sub: `From ${names.join(' + ')}`,
+    };
   }
 
-  // ----- Single-source mint: use that row's own amount -----
-  const dom = rows[0];
-  if (!dom) {
-    if (stats.miles > 0) return { headline: co2, subline: `≈ ${fmt(stats.miles, 0)} mi driven on sunshine` };
-    if (stats.kwh > 0)   return { headline: co2, subline: `≈ ${fmt(stats.kwh, 2)} kWh of clean energy` };
-    return { headline: co2, subline: null };
+  const delivered = stats.breakdown
+    .filter((b) => DELIVERED_ONLY.has(b.key))
+    .reduce((s, b) => s + b.amount, 0);
+  if (delivered > 0) {
+    return {
+      label: 'Energy delivered',
+      value: `${fmt(delivered, 2)} kWh`,
+      sub: 'Measured against your vehicle’s signed charge counter',
+    };
   }
 
-  // Pull the row's own number out of its formatted `amount` string (e.g. "+748.00 kWh").
-  const own = Number(dom.amount.replace(/[^0-9.]/g, '')) || stats.kwh;
-
-  switch (dom.key) {
-    case 'solar_kwh':
-      return { headline: co2, subline: `≈ ${fmt(own, 2)} kWh of clean solar generated` };
-    case 'battery_kwh':
-      return { headline: co2, subline: `≈ ${fmt(own, 2)} kWh dispatched from your battery` };
-    case 'home_charging_kwh':
-      return { headline: co2, subline: `≈ ${fmt(own, 2)} kWh charged at home from your system` };
-    case 'supercharging_kwh':
-    case 'ev_kwh':
-      return { headline: co2, subline: `≈ ${fmt(own, 2)} kWh delivered via Supercharger · 100% renewable-matched` };
-    case 'ev_miles':
-      return { headline: co2, subline: `≈ ${fmt(stats.miles, 0)} mi driven on sunshine` };
-    default:
-      return { headline: co2, subline: null };
+  // Legacy rows with no stored breakdown: state the delivered energy only.
+  if (stats.breakdown.length === 0 && stats.kwh > 0) {
+    return { label: 'Energy delivered', value: `${fmt(stats.kwh, 2)} kWh`, sub: null };
   }
+  return null;
 }
 
 export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: string | undefined; mockReceipt?: VerifyReceipt; mockSourceLines?: SourceLinesResponse }) {
@@ -185,7 +171,7 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
   const [expandedSourceKey, setExpandedSourceKey] = useState<string | null>(null);
   const sessionsRef = useRef<HTMLDivElement | null>(null);
   const deltaProofRef = useRef<HTMLDivElement | null>(null);
-  const vsBtcRef = useRef<HTMLDivElement | null>(null);
+  const [lineCounts, setLineCounts] = useState<Record<string, number> | null>(null);
   const verifyRef = useRef<HTMLDivElement | null>(null);
 
   const isHexHash = !!poa && /^[a-f0-9]{64}$/i.test(poa);
@@ -215,7 +201,35 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
   }), [data]);
 
   const sourceRows = useMemo(() => (data ? buildSourceRows(data) : []), [data]);
-  const payoff = useMemo(() => payoffFor(sourceRows, stats), [sourceRows, stats]);
+  const impact = useMemo(() => impactFor(stats), [stats]);
+
+  /**
+   * Badge truthfulness (fix 7): VERIFIED DELTA may only claim what per-reading
+   * rows actually back. We count the delta rows this receipt can produce, per
+   * source, and gate both the badge and the "View sessions" control on it.
+   */
+  useEffect(() => {
+    const cleanHash = data?.chain_hash?.replace(/^0x/, '').toLowerCase() ?? null;
+    if (mockSourceLines) {
+      const counts: Record<string, number> = {};
+      for (const l of mockSourceLines.lines ?? []) counts[l.source] = (counts[l.source] ?? 0) + 1;
+      setLineCounts(counts);
+      return;
+    }
+    if (!cleanHash || !/^[a-f0-9]{64}$/i.test(cleanHash)) { setLineCounts({}); return; }
+    let cancelled = false;
+    (async () => {
+      const { data: rpcData, error } = await supabase.rpc('get_mint_source_lines', { _chain_hash: cleanHash });
+      if (cancelled) return;
+      if (error || !rpcData) { setLineCounts({}); return; }
+      const counts: Record<string, number> = {};
+      for (const l of ((rpcData as SourceLinesResponse).lines ?? [])) {
+        counts[l.source] = (counts[l.source] ?? 0) + 1;
+      }
+      setLineCounts(counts);
+    })();
+    return () => { cancelled = true; };
+  }, [data?.chain_hash, mockSourceLines]);
 
   function scrollToRef(ref: React.RefObject<HTMLDivElement>, openProof = false, offset: ScrollLogicalPosition = 'start') {
     if (openProof) setProofOpen(true);
@@ -335,17 +349,22 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
           );
         })()}
 
-        <div className="relative mt-7">
-          <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/80 font-semibold">
-            Impact Payoff
+        {impact && (
+          <div className="relative mt-7">
+            <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/80 font-semibold">
+              {impact.label}
+            </div>
+            <div className="mt-1 text-2xl font-semibold text-foreground">
+              {impact.value}
+              {impact.unit && (
+                <span className="text-muted-foreground font-normal"> {impact.unit}</span>
+              )}
+            </div>
+            {impact.sub && (
+              <p className="mt-1 text-xs text-muted-foreground italic">{impact.sub}</p>
+            )}
           </div>
-          <div className="mt-1 text-2xl font-semibold text-foreground">
-            {fmt(stats.co2Kg, 2)} kg CO₂ <span className="text-muted-foreground font-normal">Avoided</span>
-          </div>
-          {payoff.subline && (
-            <p className="mt-1 text-xs text-muted-foreground italic">{payoff.subline}</p>
-          )}
-        </div>
+        )}
 
         {data.chain_hash && (
           <div className="relative mt-4">
@@ -378,13 +397,10 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
             onClick={() => scrollToRef(verifyRef, true)}
             title="Open cryptographic verification details"
           />
-          <TmBadge
-            Icon={Bitcoin} label="vs-BTC" tint="accent-warm" active
-            onClick={() => scrollToRef(vsBtcRef)}
-            title="Jump to vs-Bitcoin comparison"
-          />
         </div>
       </div>
+
+
 
       {/* ============== CONTRIBUTING SESSIONS (Proof-of-Delta + Proof-of-Origin) ============== */}
       <div ref={sessionsRef} className="px-6 pb-6 space-y-3 scroll-mt-4">
@@ -401,7 +417,15 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
 
         {sourceRows.length > 0 && sourceRows.map((row) => {
           const Icon = row.Icon;
-          const expandable = row.lineSources.length > 0 && !!data.chain_hash;
+          /**
+           * deltaRows = number of per-reading rows this receipt can actually
+           * produce for this source. Zero means the mint came from a counter
+           * delta with no listable readings — the VERIFIED DELTA badge and the
+           * "View sessions" control both stay hidden rather than claim rows
+           * that do not exist.
+           */
+          const deltaRows = row.lineSources.reduce((s, k) => s + (lineCounts?.[k] ?? 0), 0);
+          const expandable = deltaRows > 0 && !!data.chain_hash;
           const isOpen = expandedSourceKey === row.key;
           const toggle = () =>
             setExpandedSourceKey((cur) => (cur === row.key ? null : row.key));
@@ -438,18 +462,22 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
                       <MapPin className="w-2.5 h-2.5 text-primary" />
                       <span className="text-[9px] font-bold text-primary uppercase tracking-wider">Verified Origin</span>
                     </div>
-                    <div className="flex items-center gap-1 px-1.5 py-0.5 bg-eco/10 rounded-md">
-                      <Award className="w-2.5 h-2.5 text-eco" />
-                      <span className="text-[9px] font-bold text-eco uppercase tracking-wider">Verified Delta</span>
-                    </div>
+                    {deltaRows > 0 && (
+                      <div className="flex items-center gap-1 px-1.5 py-0.5 bg-eco/10 rounded-md">
+                        <Award className="w-2.5 h-2.5 text-eco" />
+                        <span className="text-[9px] font-bold text-eco uppercase tracking-wider">Verified Delta</span>
+                      </div>
+                    )}
                     {expandable && (
                       <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider underline underline-offset-2 decoration-dotted">
                         {isOpen ? 'Hide sessions' : 'View sessions'}
                       </span>
                     )}
-                    {!expandable && row.key === 'ev_miles' && (
+                    {!expandable && (
                       <span className="text-[9px] font-semibold text-muted-foreground/80 italic">
-                        Odometer snapshot · no per-trip rows
+                        {row.key === 'ev_miles'
+                          ? 'Odometer snapshot · no per-trip rows'
+                          : 'Counter reading · no per-session rows attributed'}
                       </span>
                     )}
                   </div>
@@ -481,65 +509,7 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
       </div>
 
 
-      {/* ============== vs-BITCOIN: Proof-of-Work vs Proof-of-Genesis ============== */}
-      <div ref={vsBtcRef} className="px-6 pb-6 scroll-mt-4">
-        <div className="rounded-2xl border border-accent-warm/25 bg-gradient-to-br from-accent-warm/[0.08] via-card/40 to-eco/[0.06] p-4 space-y-3">
-          <div className="flex items-center gap-2">
-            <Bitcoin className="h-3.5 w-3.5 text-accent-warm" />
-            <span className="text-[10px] uppercase tracking-[0.18em] text-accent-warm font-bold">
-              Proof-of-Work vs. Proof-of-Genesis
-            </span>
-          </div>
 
-          {/* Side-by-side comparison */}
-          <div className="grid grid-cols-2 gap-2">
-            <div className="rounded-xl border border-accent-warm/20 bg-background/40 p-3">
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <Bitcoin className="h-3 w-3 text-accent-warm" />
-                <span className="text-[9px] uppercase tracking-wider text-accent-warm/90 font-bold">
-                  Bitcoin · PoW
-                </span>
-              </div>
-              <div className="text-sm font-bold text-foreground leading-tight">
-                Burns energy
-              </div>
-              <div className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
-                ~{BTC_TX_CO2_KG} kg CO₂ per tx · solves nothing physical
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-eco/25 bg-background/40 p-3">
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <Sparkles className="h-3 w-3 text-eco" />
-                <span className="text-[9px] uppercase tracking-wider text-eco/90 font-bold">
-                  ZenSolar · PoG
-                </span>
-              </div>
-              <div className="text-sm font-bold text-foreground leading-tight">
-                Rewards energy
-              </div>
-              <div className="text-[10px] text-muted-foreground mt-0.5 leading-snug">
-                {stats.kwh > 0 ? `${fmt(stats.kwh, 0)} kWh` : `${fmt(stats.miles, 0)} mi`} of clean energy verified on chain
-              </div>
-            </div>
-          </div>
-
-          {/* Punchline */}
-          <p className="text-xs text-muted-foreground leading-relaxed pt-1">
-            This mint didn't burn energy to exist — it{' '}
-            <span className="text-eco font-semibold">put clean energy on the grid</span>
-            {stats.co2Kg >= BTC_TX_CO2_KG && (
-              <>
-                {' '}and offset roughly{' '}
-                <span className="text-accent-warm font-semibold">
-                  {fmt(stats.co2Kg / BTC_TX_CO2_KG, 1)}× a BTC transaction
-                </span>
-              </>
-            )}
-            .
-          </p>
-        </div>
-      </div>
 
 
       {/* ============== VERIFICATION DETAILS (collapsed) ============== */}
@@ -609,9 +579,7 @@ export function VerifyPoAContent({ poa, mockReceipt, mockSourceLines }: { poa: s
             )}
 
             <p className="text-[10px] text-muted-foreground italic text-center pt-1">
-              Patent-pending. App. 19/634,402. Proof-of-Genesis, Mint-on-Proof, Proof-of-Delta,
-              Proof-of-Origin, Proof-of-Permanence, Proof-of-Authenticity,
-              Proof-of-Genesis are trademarks of ZenCorp Inc.
+              Patent-pending. App. 19/634,402.
             </p>
           </div>
         )}

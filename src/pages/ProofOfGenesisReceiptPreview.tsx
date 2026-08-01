@@ -386,7 +386,7 @@ export default function ProofOfGenesisReceiptPreview() {
   /**
    * Build a rich, share-sheet-friendly preview payload:
    *   Title  → leads with the CO₂ tons avoided (the headline win)
-   *   Text   → tokens + verified energy + vs-Bitcoin chip in plain English
+   *   Text   → tokens + verified energy in plain English
    *   Image  → the compact ProofOfGenesisShareCard (1080×1350)
    */
   const buildShareText = () => {
@@ -406,7 +406,7 @@ export default function ProofOfGenesisReceiptPreview() {
     return {
       co2Headline,
       title: `Proof-of-Genesis — ${co2Headline} avoided`,
-      text: `I just minted ${formatKwh(receipt.tokens_minted)} $ZSOLAR from ${energyLine}, offsetting ${co2Headline}. One Bitcoin tx emits ~${BTC_TX_CO2_KG} kg CO₂. Mine emitted essentially zero. → zen.solar`,
+      text: `I just minted ${formatKwh(receipt.tokens_minted)} $ZSOLAR from ${energyLine}, offsetting ${co2Headline}. → zen.solar`,
     };
   };
 
@@ -720,30 +720,7 @@ export default function ProofOfGenesisReceiptPreview() {
             />
           </motion.section>
 
-          {/* PoW comparison chip — Proof-of-Genesis as the regenerative inverse of Proof-of-Work */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.15 }}
-            className="rounded-lg border border-secondary/30 bg-gradient-to-r from-secondary/5 via-primary/5 to-secondary/5 p-3 sm:p-4 flex items-start gap-3"
-          >
-            <div className="h-8 w-8 rounded-md bg-secondary/15 flex items-center justify-center shrink-0">
-              <Leaf className="h-4 w-4 text-secondary" />
-            </div>
-            <div className="min-w-0">
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                vs. Bitcoin Proof-of-Work
-              </div>
-              <div className="text-sm sm:text-base text-foreground/90 leading-snug">
-                One equivalent BTC transaction would have emitted{' '}
-                <span className="font-bold text-secondary">~{co2Story.pow_delta_kg} kg CO₂</span>{' '}
-                just to settle. Your Proof-of-Genesis mint emitted essentially{' '}
-                <span className="font-bold text-primary">zero</span> — and proved real clean energy in the same step.
-              </div>
-            </div>
-          </motion.div>
-
-          {/* ===== Protocol Journey — the 5 trademarked primitives behind this mint ===== */}
+          {/* ===== Protocol Journey — the primitives behind this mint ===== */}
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
@@ -751,7 +728,7 @@ export default function ProofOfGenesisReceiptPreview() {
                   Protocol Journey
                 </h2>
                 <p className="text-[11px] sm:text-xs text-muted-foreground">
-                  The five trademarked primitives that produced this mint.
+                  The five primitives that produced this mint.
                 </p>
               </div>
               <Button
@@ -940,14 +917,11 @@ export default function ProofOfGenesisReceiptPreview() {
                 <span className="text-sm font-semibold">Why this matters</span>
               </div>
               <p className="text-sm text-foreground/85 leading-relaxed">
-                {co2Story.detail} On top of that, this single on-chain settlement avoided{' '}
-                <span className="font-semibold text-secondary">~{co2Story.pow_delta_kg} kg CO₂</span>{' '}
-                that an equivalent Bitcoin Proof-of-Work transaction would have emitted — and earned you{' '}
+                {co2Story.detail} This mint earned you{' '}
                 <span className="font-semibold text-primary">{formatKwh(receipt.tokens_minted)} $ZSOLAR</span>.
               </p>
               <p className="text-[11px] text-muted-foreground italic">
-                Sources: EPA (8.887 kg CO₂/gal gasoline · avg 24.4 mpg), U.S. EIA grid average (0.709 kg CO₂/kWh),
-                Cambridge CCAF / Digiconomist BTC tx footprint (~707 kg CO₂/tx).
+                Sources: EPA (8.887 kg CO₂/gal gasoline · avg 24.4 mpg), U.S. EIA grid average (0.709 kg CO₂/kWh).
               </p>
             </CardContent>
           </Card>

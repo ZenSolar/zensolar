@@ -323,7 +323,7 @@ export function VerifyOnChainDrawer({
         </div>
 
           <p className="text-[10px] text-muted-foreground italic text-center mt-6">
-            Patent-pending. App. 19/634,402. All marks are trademarks of ZenCorp Inc.
+            Patent-pending. App. 19/634,402.
           </p>
         </div>
       </DrawerContent>
