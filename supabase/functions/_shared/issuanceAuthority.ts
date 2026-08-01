@@ -17,11 +17,14 @@
  *              rows. The Powerwall's BATTERY export stays fully eligible —
  *              the pack is its own meter and nothing else measures it.
  *
- *   CHARGING   The vehicle's onboard meter is authoritative. A Wall Connector
- *              or any other EVSE is an observer whenever a vehicle is
- *              connected, because the same electrons are already counted by
- *              the car. (Today no EVSE writes issuance rows at all; this
- *              encodes the rule so that stays true by construction.)
+ *   CHARGING   Resolved per row by the RESIDUAL METHOD, not per device. A
+ *              vehicle's onboard meter is authoritative for what it reports.
+ *              A charger is authoritative for the REMAINDER — the energy no
+ *              connected vehicle accounts for. See `applyChargingResidual()`.
+ *              The former blanket "any vehicle demotes every EVSE" rule was
+ *              removed: it made a non-Tesla EV on a Wallbox permanently
+ *              unearnable even though nothing else metered it.
+
  *
  * The mint path calls `filterIssuableRows()` AFTER reading unminted deltas and
  * BEFORE aggregating them. Excluded rows are NOT consumed and NOT credited —
