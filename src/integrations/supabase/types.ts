@@ -3725,14 +3725,16 @@ export type Database = {
       connection_health: {
         Row: {
           access_token_expires_at: string | null
-          days_since_success: number | null
+          days_since_grant_ok: number | null
+          days_since_ingest: number | null
           device_count: number | null
           failure_class: string | null
           failure_detail: string | null
           failure_first_seen_at: string | null
+          grant_status: string | null
+          ingest_status: string | null
           last_issuable_at: string | null
           last_row_at: string | null
-          last_success_at: string | null
           last_token_refresh_at: string | null
           provider: string | null
           status: string | null
@@ -3820,14 +3822,16 @@ export type Database = {
         Args: never
         Returns: {
           access_token_expires_at: string | null
-          days_since_success: number | null
+          days_since_grant_ok: number | null
+          days_since_ingest: number | null
           device_count: number | null
           failure_class: string | null
           failure_detail: string | null
           failure_first_seen_at: string | null
+          grant_status: string | null
+          ingest_status: string | null
           last_issuable_at: string | null
           last_row_at: string | null
-          last_success_at: string | null
           last_token_refresh_at: string | null
           provider: string | null
           status: string | null
