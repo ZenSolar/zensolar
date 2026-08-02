@@ -140,9 +140,6 @@ const FoundersTschida = lazy(() => import("./pages/archive/FoundersTschida"));
 const Transparency = lazy(() => import("./pages/Transparency"));
 const Pulse = lazy(() => import("./pages/Pulse"));
 const Deason = lazy(() => import("./pages/Deason"));
-const DeasonFloatingBubble = lazy(() =>
-  import("./components/deason/DeasonFloatingBubble").then((m) => ({ default: m.DeasonFloatingBubble })),
-);
 const BetaInvite = lazy(() => import("./pages/beta/BetaInvite"));
 const BetaResume = lazy(() => import("./pages/beta/BetaResume"));
 const BetaSignIn = lazy(() => import("./pages/beta/BetaSignIn"));
@@ -1442,11 +1439,6 @@ const App = () => {
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                     </Routes>
-                    <DeferredMount timeout={2000}>
-                      <Suspense fallback={null}>
-                        <DeasonFloatingBubble />
-                      </Suspense>
-                    </DeferredMount>
                   </Suspense>
                 </BrowserRouter>
               </BotProtection>
