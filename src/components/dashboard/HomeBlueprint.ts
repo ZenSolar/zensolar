@@ -42,7 +42,7 @@ export const HOME_BLUEPRINT = Object.freeze({
   /** "Charging at home" anchor — pulls the car up to the garage apron.
    *  v5.2: nudged left/down so the sprite reads as sitting inside the
    *  garage bay instead of floating across the driveway. */
-  garageFront:  { x: 23, y: 75 } as BlueprintAnchor,
+  garageFront:  { x: 26, y: 76 } as BlueprintAnchor,
   /** Rectangle over the garage opening — used to paint a warm "door open" bloom. */
   garageOpening: { x: 4, y: 50, w: 26, h: 22 } as Readonly<{
     x: number; y: number; w: number; h: number;
