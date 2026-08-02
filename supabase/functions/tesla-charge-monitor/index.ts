@@ -480,17 +480,24 @@ async function processVehicle(
   homeCoords: { lat: number; lng: number } | null,
   results: any[],
   userTimezone: string | null,
+  wallConnectorVins: Set<string> = new Set<string>(),
 ) {
-  // Fetch vehicle data
+  // NEVER WAKE. This reads `vehicle_data` only. There is no `/wake_up` call in
+  // this function and there must never be one: a charging car is awake by
+  // definition, so a 408 is itself the answer ("not charging") and costs the
+  // member nothing. Waking cars on a schedule to ask whether they are charging
+  // would drain packs to learn what the silence already tells us.
   const vResp = await fetch(
     `${TESLA_API_BASE}/api/1/vehicles/${vin}/vehicle_data?endpoints=charge_state;drive_state`,
     { headers: { Authorization: `Bearer ${accessToken}` } },
   );
 
   if (vResp.status === 408) {
-    // Vehicle asleep — check if we have an active session to finalize
+    // Asleep == not charging. Log it, close any dangling session, do NOT retry
+    // and do NOT wake.
+    console.log(`[ChargeMonitor] ${vin}: 408 asleep — treated as NOT CHARGING, no wake attempted`);
     await finalizeStaleSession(supabase, userId, vin, "vehicle_asleep");
-    results.push({ vin, status: "asleep", action: "checked_stale" });
+    results.push({ vin, status: "asleep", action: "checked_stale", woke: false });
     return;
   }
   if (vResp.status === 429) {
@@ -520,18 +527,37 @@ async function processVehicle(
 
   const isAcCharging = fastChargerPresent === false;
 
-  // Check if at home
+  // ── PRESENCE — FAIL CLOSED ────────────────────────────────────────────────
+  // Ordered by evidential strength. Absence of evidence is NOT evidence of
+  // presence: the old `no GPS + address on file → assume home` branch has been
+  // removed. It was the only fail-open rule in the system, and it failed in
+  // the direction that over-credits.
   let isNearHome = false;
   let distFromHome: number | null = null;
-  if (homeCoords && vehicleLat && vehicleLng) {
+  let presenceEvidence: "wall_connector" | "gps_geofence" | "none" = "none";
+
+  if (wallConnectorVins.has(vin)) {
+    // PRIMARY — a connector bolted to this member's wall names this VIN.
+    // Location proof only; the vehicle's own meter still supplies quantity.
+    isNearHome = true;
+    presenceEvidence = "wall_connector";
+    if (homeCoords && vehicleLat && vehicleLng) {
+      distFromHome = haversineDistanceMiles(homeCoords.lat, homeCoords.lng, vehicleLat, vehicleLng);
+    }
+    console.log(`[ChargeMonitor] ${vin}: presence=wall_connector (no geocode needed)`);
+  } else if (homeCoords && vehicleLat && vehicleLng) {
+    // FALLBACK — free-text geocode with a 0.5 mi radius. See geocodeAddress()
+    // for its failure modes; it is corroboration of last resort.
     distFromHome = haversineDistanceMiles(homeCoords.lat, homeCoords.lng, vehicleLat, vehicleLng);
     isNearHome = distFromHome < 0.5;
-  } else if (homeCoords && (!vehicleLat || !vehicleLng) && isAcCharging) {
-    // Vehicle coordinates unavailable (partial sleep) but AC charging with home address set
-    // Assume home — AC charging is overwhelmingly at home
-    isNearHome = true;
-    console.log(`[ChargeMonitor] ${vin}: No GPS coords during AC charge — assuming home (address on file)`);
+    if (isNearHome) presenceEvidence = "gps_geofence";
+    console.log(`[ChargeMonitor] ${vin}: presence=gps_geofence dist=${distFromHome.toFixed(3)}mi near=${isNearHome}`);
+  } else if (isAcCharging) {
+    console.log(
+      `[ChargeMonitor] ${vin}: AC charging but NO location evidence (no wall-connector VIN match, no GPS or no geocode) — NOT opening a home session`,
+    );
   }
+
 
   // Get any active (status='charging') session for this vehicle
   const { data: activeSessions } = await supabase
