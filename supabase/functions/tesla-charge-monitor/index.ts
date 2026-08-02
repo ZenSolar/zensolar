@@ -573,8 +573,9 @@ async function processVehicle(
   homeCoords: { lat: number; lng: number } | null,
   results: any[],
   userTimezone: string | null,
-  wallConnectorVins: Set<string> = new Set<string>(),
+  wallConnectorVins: Map<string, number> = new Map<string, number>(),
 ) {
+  const connectorKw = wallConnectorVins.get(vin) ?? 0;
   // NEVER WAKE. This reads `vehicle_data` only. There is no `/wake_up` call in
   // this function and there must never be one: a charging car is awake by
   // definition, so a 408 is itself the answer ("not charging") and costs the
@@ -586,13 +587,20 @@ async function processVehicle(
   );
 
   if (vResp.status === 408) {
-    // Asleep == not charging. Log it, close any dangling session, do NOT retry
-    // and do NOT wake.
+    // Asleep. Silence from the car is NOT silence from the wall: if a connector
+    // at this account names this VIN under load, the member is charging right
+    // now and the cockpit must say so. Observer-measured, never issuance.
+    if (connectorKw > 0) {
+      const action = await upsertObserverSession(supabase, userId, vin, connectorKw, homeAddress);
+      results.push({ vin, status: "asleep", action: `observer_${action}`, kw: connectorKw, woke: false });
+      return;
+    }
     console.log(`[ChargeMonitor] ${vin}: 408 asleep — treated as NOT CHARGING, no wake attempted`);
     await finalizeStaleSession(supabase, userId, vin, "vehicle_asleep");
     results.push({ vin, status: "asleep", action: "checked_stale", woke: false });
     return;
   }
+
   if (vResp.status === 429) {
     console.warn(`[ChargeMonitor] Rate limited for ${vin}`);
     return;
