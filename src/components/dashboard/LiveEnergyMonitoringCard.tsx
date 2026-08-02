@@ -898,6 +898,9 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
   // reconcileEnergyFlow(), which derives it from the site balance and flags it
   // as derived — an honest computation, not a replayed browser value.
   const effectiveHomeKwRaw = homeKwRaw !== null && homeKwRaw > 0.05 ? homeKwRaw : null;
+  /** True when home load is computed from the site balance, not read from a meter. */
+  const homeDerivedFlag = effectiveHomeKwRaw === null;
+
   const reconciledFlow = reconcileEnergyFlow({
     solarKw: solarStats.currentKw ?? 0,
     rawHomeKw: effectiveHomeKwRaw,
