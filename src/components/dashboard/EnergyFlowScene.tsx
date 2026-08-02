@@ -1353,8 +1353,8 @@ export function EnergyFlowScene({
                 sits ~0.22·carH below the anchor — not at 0.42·carH, where the
                 old single ellipse fell clear of the car entirely. */}
             <ellipse
-              cx={carAnchor.x + carW * 0.02}
-              cy={carAnchor.y + carH * 0.375}
+              cx={carFit.cx + carFit.width * 0.02}
+              cy={carFit.groundY + carFit.height * 0.017}
               rx={carW * 0.52}
               ry={carH * 0.075}
               fill="hsl(220 60% 3%)"
@@ -1362,8 +1362,8 @@ export function EnergyFlowScene({
               style={{ filter: 'blur(2.6px)' }}
             />
             <ellipse
-              cx={carAnchor.x}
-              cy={carAnchor.y + carH * 0.365}
+              cx={carFit.cx}
+              cy={carFit.groundY + carFit.height * 0.007}
               rx={carW * 0.38}
               ry={carH * 0.052}
               fill="hsl(220 70% 2%)"
@@ -1371,8 +1371,8 @@ export function EnergyFlowScene({
               style={{ filter: 'blur(1.2px)' }}
             />
             <ellipse
-              cx={carAnchor.x}
-              cy={carAnchor.y + carH * 0.358}
+              cx={carFit.cx}
+              cy={carFit.groundY}
               rx={carW * 0.30}
               ry={carH * 0.022}
               fill="hsl(220 75% 1%)"
@@ -1442,9 +1442,9 @@ export function EnergyFlowScene({
         {showSecondCar && secondVehicle?.src && (
           <g>
             <ellipse
-              cx={HOME_BLUEPRINT.carPark2.x}
-              cy={HOME_BLUEPRINT.carPark2.y + carH * 0.42}
-              rx={carW * 0.42}
+              cx={secondFit.cx}
+              cy={secondFit.groundY}
+              rx={secondFit.width * 0.42}
               ry={1.6}
               fill="hsl(220 70% 2%)"
               opacity={0.5}
@@ -1452,10 +1452,10 @@ export function EnergyFlowScene({
             />
             <image
               href={secondVehicle.src}
-              x={HOME_BLUEPRINT.carPark2.x - carW / 2}
-              y={HOME_BLUEPRINT.carPark2.y - carH / 2}
-              width={carW}
-              height={carH}
+              x={secondFit.x}
+              y={secondFit.y}
+              width={secondFit.width}
+              height={secondFit.height}
               preserveAspectRatio="xMidYMid meet"
               style={{
                 filter: [spriteFilter, 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))']
@@ -1465,10 +1465,10 @@ export function EnergyFlowScene({
             />
             {spriteIsNight && (
               <rect
-                x={HOME_BLUEPRINT.carPark2.x - carW / 2}
-                y={HOME_BLUEPRINT.carPark2.y - carH / 2}
-                width={carW}
-                height={carH}
+                x={secondFit.x}
+                y={secondFit.y}
+                width={secondFit.width}
+                height={secondFit.height}
                 fill="hsl(220 70% 30%)"
                 opacity={0.18}
                 style={{ mixBlendMode: 'soft-light', pointerEvents: 'none' }}
@@ -1492,8 +1492,8 @@ export function EnergyFlowScene({
         >
           {showDynamicCar && (
             <VehicleChip
-              x={carAnchor.x}
-              y={carAnchor.y - carH / 2 - 1}
+              x={carFit.cx}
+              y={carFit.y - 1}
               name={displayName}
               kw={chargingAtHome ? evKw : null}
               soc={typeof evSoc === 'number' ? evSoc : null}
@@ -1503,8 +1503,8 @@ export function EnergyFlowScene({
           )}
           {showSecondCar && secondVehicle && (
             <VehicleChip
-              x={HOME_BLUEPRINT.carPark2.x}
-              y={HOME_BLUEPRINT.carPark2.y - carH / 2 - 1}
+              x={secondFit.cx}
+              y={secondFit.y - 1}
               name={secondVehicle.name ?? null}
               kw={secondVehicle.charging ? (secondVehicle.kw ?? null) : null}
               soc={typeof secondVehicle.soc === 'number' ? secondVehicle.soc : null}
