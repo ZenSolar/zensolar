@@ -129,6 +129,7 @@ const baseFlow: TeslaFlow = {
   soc: 50,
   rangeMi: 200,
   isCharging: false,
+  kwSource: 'none',
   source: 'none',
   state: 'unplugged',
   sourceLabel: 'Wall Connector',
