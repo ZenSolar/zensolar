@@ -1312,16 +1312,16 @@ export function EnergyFlowScene({
                 old single ellipse fell clear of the car entirely. */}
             <ellipse
               cx={carAnchor.x + carW * 0.02}
-              cy={carAnchor.y + carH * 0.315}
-              rx={carW * 0.50}
-              ry={carH * 0.085}
+              cy={carAnchor.y + carH * 0.375}
+              rx={carW * 0.52}
+              ry={carH * 0.075}
               fill="hsl(220 60% 3%)"
               opacity={0.32}
               style={{ filter: 'blur(2.6px)' }}
             />
             <ellipse
               cx={carAnchor.x}
-              cy={carAnchor.y + carH * 0.305}
+              cy={carAnchor.y + carH * 0.365}
               rx={carW * 0.38}
               ry={carH * 0.052}
               fill="hsl(220 70% 2%)"
@@ -1330,7 +1330,7 @@ export function EnergyFlowScene({
             />
             <ellipse
               cx={carAnchor.x}
-              cy={carAnchor.y + carH * 0.302}
+              cy={carAnchor.y + carH * 0.358}
               rx={carW * 0.30}
               ry={carH * 0.022}
               fill="hsl(220 75% 1%)"
