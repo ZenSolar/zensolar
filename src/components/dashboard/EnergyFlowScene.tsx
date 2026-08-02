@@ -503,14 +503,14 @@ function VehicleChip({
           <span>
             {charging && kw !== null ? `Charging · ${kw.toFixed(1)} kW` : 'At home'}
           </span>
+          {(soc !== null || rangeMi !== null) && (
+            <span className="font-medium text-foreground/70">
+              ·{soc !== null ? ` ${soc}%` : ''}
+              {rangeMi !== null ? ` · ${Math.round(rangeMi)} mi` : ''}
+            </span>
+          )}
         </div>
-        {(soc !== null || rangeMi !== null) && (
-          <div className="rounded-full bg-background/70 px-1.5 py-[1px] text-[9px] font-medium tabular-nums text-foreground/80 backdrop-blur">
-            {soc !== null ? `${soc}%` : ''}
-            {soc !== null && rangeMi !== null ? ' · ' : ''}
-            {rangeMi !== null ? `${rangeMi} mi` : ''}
-          </div>
-        )}
+
       </div>
     </div>
   );
