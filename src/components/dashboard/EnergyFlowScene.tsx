@@ -483,7 +483,49 @@ export interface EnergyFlowSceneProps {
   weatherCode?: number | null;
   /** v5 — Tesla composition override for parents that already know it. */
   forceComposition?: CompositionKey;
+  /**
+   * §5 — CO-LOCATION PROOF for the primary vehicle. `true` only when an open
+   * home_charging_session carries `presence_evidence: 'wall_connector'` — a
+   * wall connector reporting this VIN under load. Fail-closed: when this prop
+   * is supplied and false, no car is drawn, even if the vehicle's own
+   * telemetry claims it is charging. That claim is not co-location proof.
+   * Leave undefined for legacy callers (falls back to connection heuristics).
+   */
+  presenceProven?: boolean;
+  /** §6 — a second vehicle proven at this address. Rendered at carPark2. */
+  secondVehicle?: {
+    src: string;
+    name?: string | null;
+    kw?: number | null;
+    soc?: number | null;
+    charging?: boolean;
+  } | null;
+  /** §3 — grid provenance for this frame, from the single reconciledFlow. */
+  gridSource?: 'raw' | 'reconciled';
+  gridOverrideReason?: string | null;
+  /** §4 — home load is derived (no meter). */
+  homeDerived?: boolean;
 }
+
+/**
+ * §8b — SPRITE LIGHTING. All 26 vehicle sprites are lit for daylight. Dropped
+ * unmodified onto a dusk or night plate they read as cut-outs, because they
+ * are. A per-scene filter on the sprite layer puts them in the same light as
+ * the house.
+ */
+export const SPRITE_FILTER: Record<SceneKey, string | undefined> = {
+  day: undefined,
+  'day-export': undefined,
+  dusk: 'brightness(0.85) saturate(0.9)',
+  night: 'brightness(0.6) contrast(1.05)',
+  'night-ev': 'brightness(0.6) contrast(1.05)',
+  'night-pw-discharge': 'brightness(0.6) contrast(1.05)',
+  'night-pw-discharge-ev': 'brightness(0.6) contrast(1.05)',
+  rain: 'brightness(0.75) saturate(0.8)',
+};
+
+/** Blue ambient wash applied over sprites on night plates, matching the house. */
+const NIGHT_SCENES: SceneKey[] = ['night', 'night-ev', 'night-pw-discharge', 'night-pw-discharge-ev'];
 
 export function EnergyFlowScene({
   data,
@@ -501,6 +543,11 @@ export function EnergyFlowScene({
   outageStartedAt,
   weatherCode = null,
   forceComposition,
+  presenceProven,
+  secondVehicle = null,
+  gridSource = 'raw',
+  gridOverrideReason = null,
+  homeDerived = false,
 }: EnergyFlowSceneProps) {
 
 
@@ -620,10 +667,26 @@ export function EnergyFlowScene({
   // returned by resolveVehicleAsset when telemetry hasn't yet revealed
   // the exact model. Previously `!vehicleGeneric` hid the EV node for
   // freshly-linked accounts, which was the "EV doesn't populate" bug.
+  // §5 — presence is now provable, so it gates the scene. When the caller
+  // supplies `presenceProven`, that boolean IS the gate: no wall-connector
+  // VIN match, no car. The away-and-charging-elsewhere case renders an empty
+  // driveway on purpose — that is the design working, not a missing sprite.
+  // §8c — night-ev no longer suppresses the sprite; the baked car is swapped
+  // out for the member's actual vehicle under a night filter instead.
   const showDynamicCar =
-    scene !== 'night-ev' &&
-    carConnected &&
-    Boolean(vehicleSrc);
+    (presenceProven === undefined ? carConnected : presenceProven) && Boolean(vehicleSrc);
+
+  // §8c — when we are drawing a real sprite, never use a plate with a car
+  // baked into it, or the household sees two cars.
+  const bakedScene: SceneKey =
+    showDynamicCar && scene === 'night-ev'
+      ? 'night'
+      : showDynamicCar && scene === 'night-pw-discharge-ev'
+        ? 'night-pw-discharge'
+        : scene;
+  const spriteFilter = SPRITE_FILTER[scene];
+  const spriteIsNight = NIGHT_SCENES.includes(scene);
+  const showSecondCar = Boolean(secondVehicle?.src);
 
 
   // Car geometry in viewBox (0–100) space. When actively charging at home,
@@ -642,7 +705,7 @@ export function EnergyFlowScene({
   // battery→home hero below owns that story instead.
   const teslaCharging = data.tesla?.isCharging === true && data.tesla?.source !== 'supercharger';
   const evBranchKw =
-    teslaCharging && !isOutage && scene !== 'night-ev'
+    teslaCharging && !isOutage
       ? Math.abs(data.tesla?.kW ?? data.evPower ?? 0)
       : 0;
 
@@ -681,10 +744,11 @@ export function EnergyFlowScene({
     (tp?.fast_charger_present === true ||
       (typeof tp?.fast_charger_brand === 'string' && tp.fast_charger_brand.length > 0));
 
-  const chargingAtHome = isCharging && !isSupercharging && scene !== 'night-ev' && !isOutage;
+  const chargingAtHome = isCharging && !isSupercharging && !isOutage;
   const carAnchor = chargingAtHome ? HOME_BLUEPRINT.garageFront : HOME_BLUEPRINT.carPark;
-  const carW = HOME_BLUEPRINT.carWidth;
-  const carH = HOME_BLUEPRINT.carHeight;
+  // §6 — two proven vehicles share the driveway, so both shrink to fit.
+  const carW = showSecondCar ? HOME_BLUEPRINT.carWidthDual : HOME_BLUEPRINT.carWidth;
+  const carH = showSecondCar ? HOME_BLUEPRINT.carHeightDual : HOME_BLUEPRINT.carHeight;
   const carX = carAnchor.x - carW / 2;
   const carY = carAnchor.y - carH / 2;
   const evKw = data.tesla?.kW ?? data.evPower ?? 0;
@@ -759,7 +823,7 @@ export function EnergyFlowScene({
           Geometry & anchors live in HouseSceneV5.tsx + HomeBlueprint.ts. */}
       <AnimatePresence mode="sync">
         <motion.div
-          key={scene}
+          key={bakedScene}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -767,7 +831,7 @@ export function EnergyFlowScene({
           className="absolute inset-0"
         >
           <HouseSceneV5
-            scene={scene}
+            scene={bakedScene}
             homeActive={homeDrawing}
             solarActive={solarProducing}
             garageOpen={chargingAtHome || carConnected}
