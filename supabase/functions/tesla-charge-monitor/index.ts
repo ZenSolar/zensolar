@@ -71,6 +71,24 @@ function haversineDistanceMiles(
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+/**
+ * FALLBACK ONLY — a Nominatim geocode of a free-text address.
+ *
+ * Known failure modes, all of which argue against it being primary evidence:
+ *   · Rural driveways — the house sits hundreds of yards off a road whose
+ *     centroid is the only thing Nominatim knows; the 0.5 mi radius may miss
+ *     the car or swallow a whole hamlet.
+ *   · Apartment blocks / condos — one centroid for dozens of units and a
+ *     shared garage. Presence is proven for the building, not the meter.
+ *   · A neighbour inside the radius — 0.5 mi covers roughly 500 acres in a
+ *     dense suburb. Charging at a friend's house two streets over reads as
+ *     home, and their kWh would be credited to this member's site.
+ *   · Address typos, unit numbers and PO boxes geocode to city centroids
+ *     with no error signal — the call succeeds and returns a confident,
+ *     wrong point.
+ *   · Nominatim is a third-party best-effort service with a 1 req/s courtesy
+ *     limit; a failure returns null and is indistinguishable from "unknown".
+ */
 async function geocodeAddress(
   address: string,
 ): Promise<{ lat: number; lng: number } | null> {
@@ -92,6 +110,54 @@ async function geocodeAddress(
     return null;
   }
 }
+
+/**
+ * WALL CONNECTOR PRESENCE — the strongest location evidence we have, and it
+ * needs no geocoding.
+ *
+ * `/api/1/energy_sites/{id}/live_status` returns a `wall_connectors[]` array,
+ * each entry carrying `din`, `wall_connector_state`, `wall_connector_power`
+ * and — critically — `vin`. A wall connector is physically bolted to the
+ * member's wall, so a connector at THIS site reporting THIS vin at non-zero
+ * power is direct proof of co-location.
+ *
+ * This respects the authority rule exactly: the charger says WHERE, it never
+ * says HOW MUCH. Quantity still comes from the vehicle's own meter. The
+ * connector stays an observer for issuance.
+ *
+ * Returns the set of VINs a connector at this account currently reports.
+ */
+async function fetchWallConnectorVins(
+  accessToken: string,
+  energySiteIds: string[],
+): Promise<Set<string>> {
+  const vins = new Set<string>();
+  for (const id of energySiteIds) {
+    try {
+      const r = await fetch(
+        `${TESLA_API_BASE}/api/1/energy_sites/${id}/live_status`,
+        { headers: { Authorization: `Bearer ${accessToken}` } },
+      );
+      if (!r.ok) continue;
+      const body = await r.json();
+      const wcs = body?.response?.wall_connectors || [];
+      for (const wc of wcs) {
+        const vin = typeof wc?.vin === "string" ? wc.vin.trim() : "";
+        if (!vin) continue;
+        const power = Number(wc?.wall_connector_power ?? 0);
+        const state = Number(wc?.wall_connector_state ?? 0);
+        // State 4 == connected/charging in Tesla's enum; power > 0 is the
+        // unambiguous signal. Either one, with a VIN attached, proves the car
+        // is on this wall.
+        if (power > 0 || state === 4) vins.add(vin);
+      }
+    } catch {
+      // A live_status failure is silence, not evidence. Fail closed.
+    }
+  }
+  return vins;
+}
+
 
 async function refreshTeslaToken(
   supabase: any,
