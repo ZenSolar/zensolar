@@ -844,7 +844,9 @@ async function recoverCompletedHomeSession(
   vehicleLng: number | null,
   distFromHome: number | null,
   userTimezone: string | null,
+  presenceEvidence: "wall_connector" | "gps_geofence" | "none" = "none",
 ) {
+
   const now = new Date();
   // Pillar 4 (same-provider replay guard): widened from 36h → 7d. Tesla's
   // chargeEnergyAdded counter resets on unplug, so the *same physical session*
