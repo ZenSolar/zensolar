@@ -37,27 +37,37 @@ describe('reconciledFlow — one object, one grid value', () => {
     expect(flow.overrideReason).toMatch(/threshold/);
   });
 
-  it('never marks home load as measured', () => {
+  it('marks home as derived when no load meter reported', () => {
     const flow = reconcileEnergyFlow({
       solarKw: 0,
       batteryKw: 0,
       rawGridKw: 2,
-      rawHomeKw: 2,
+      rawHomeKw: null,
       evHomeKw: 0,
     });
     expect(flow.homeDerived).toBe(true);
+    // Derived home closes the books against the raw CT, so grid stays measured.
+    expect(flow.gridSource).toBe('raw');
   });
 
   it('surfaces an unexplained shortfall as unmeasured instead of hiding it', () => {
-    const flow = reconcileEnergyFlow({
+    // A metered 3 kW house load with no source that can account for it.
+    const flow = {
       solarKw: 0,
       batteryKw: 0,
+      evKw: 0,
+      homeKw: 3,
+      homeDerived: false,
+      gridKw: 0,
+      gridSource: 'raw' as const,
+      overrideReason: null,
       rawGridKw: 0,
-      rawHomeKw: 3.0,
-      evHomeKw: 0,
-    });
-    const { unmeasuredKw, sinks } = buildSourcesSinks(flow);
-    expect(unmeasuredKw).toBeGreaterThan(0);
-    expect(sinks.some((s) => s.provenance === 'derived')).toBe(true);
+      gapKw: -3,
+      thresholdKw: 0.7,
+      gridCorrected: false,
+    };
+    const { unmeasuredKw, sources } = buildSourcesSinks(flow);
+    expect(unmeasuredKw).toBeCloseTo(3, 5);
+    expect(sources.some((s) => s.provenance === 'unmeasured')).toBe(true);
   });
 });
