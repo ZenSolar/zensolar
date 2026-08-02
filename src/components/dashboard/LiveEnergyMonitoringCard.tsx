@@ -893,7 +893,10 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
       return sum + Math.max(0, kw);
     }, 0);
   }, [hideVehicle, ev.data, openHomeChargingVins]);
-  const effectiveHomeKwRaw = homeKwRaw !== null && homeKwRaw > 0.05 ? homeKwRaw : readLastKnownHomeKw();
+  // Home load is the meter reading or nothing. `null` hands the decision to
+  // reconcileEnergyFlow(), which derives it from the site balance and flags it
+  // as derived — an honest computation, not a replayed browser value.
+  const effectiveHomeKwRaw = homeKwRaw !== null && homeKwRaw > 0.05 ? homeKwRaw : null;
   const reconciledFlow = reconcileEnergyFlow({
     solarKw: solarStats.currentKw ?? 0,
     rawHomeKw: effectiveHomeKwRaw,
@@ -901,9 +904,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
     rawGridKw: gridKwRaw,
     evHomeKw,
   });
-  useEffect(() => {
-    rememberLastKnownHomeKw(reconciledFlow.homeKw);
-  }, [reconciledFlow.homeKw]);
+
 
   const flowData = {
     solarPower: solarStats.currentKw ?? 0,
