@@ -127,11 +127,19 @@ async function geocodeAddress(
  *
  * Returns the set of VINs a connector at this account currently reports.
  */
+export interface WallConnectorPresence {
+  /** VINs a connector at this account currently reports under load. */
+  vins: Set<string>;
+  /** Connector-measured power per VIN, kW. Location + DISPLAY only. */
+  powerKwByVin: Map<string, number>;
+}
+
 async function fetchWallConnectorVins(
   accessToken: string,
   energySiteIds: string[],
-): Promise<Set<string>> {
+): Promise<WallConnectorPresence> {
   const vins = new Set<string>();
+  const powerKwByVin = new Map<string, number>();
   for (const id of energySiteIds) {
     try {
       const r = await fetch(
@@ -158,13 +166,18 @@ async function fetchWallConnectorVins(
         // unambiguous signal. Either one, with a VIN attached, proves the car
         // is on this wall.
         if (power > 0 || state === 4) vins.add(vin);
+        if (power > 0) {
+          const kw = power > 1000 ? power / 1000 : power; // payload is watts
+          powerKwByVin.set(vin, Math.max(powerKwByVin.get(vin) ?? 0, kw));
+        }
       }
     } catch {
       // A live_status failure is silence, not evidence. Fail closed.
     }
   }
-  return vins;
+  return { vins, powerKwByVin };
 }
+
 
 
 async function refreshTeslaToken(
@@ -453,9 +466,10 @@ async function processUser(supabase: any, userId: string, results: any[]) {
   const siteIds = Array.from(
     new Set((sites ?? []).map((s: { device_id: string }) => String(s.device_id))),
   );
-  const wallConnectorVins = siteIds.length
+  const wcPresence: WallConnectorPresence = siteIds.length
     ? await fetchWallConnectorVins(accessToken, siteIds)
-    : new Set<string>();
+    : { vins: new Set<string>(), powerKwByVin: new Map<string, number>() };
+  const wallConnectorVins = wcPresence.vins;
   if (wallConnectorVins.size > 0) {
     console.log(
       `[ChargeMonitor] Wall connector reports VIN(s) on-site for ${userId.slice(0, 8)}: ${[...wallConnectorVins].join(", ")}`,
@@ -474,6 +488,7 @@ async function processUser(supabase: any, userId: string, results: any[]) {
       results,
       userTimezone,
       wallConnectorVins,
+      wcPresence.powerKwByVin,
     );
   }
 }
@@ -489,6 +504,7 @@ async function processVehicle(
   results: any[],
   userTimezone: string | null,
   wallConnectorVins: Set<string> = new Set<string>(),
+  wallConnectorPowerKw: Map<string, number> = new Map<string, number>(),
 ) {
   // NEVER WAKE. This reads `vehicle_data` only. There is no `/wake_up` call in
   // this function and there must never be one: a charging car is awake by
@@ -704,7 +720,18 @@ async function processVehicle(
             ...activeSession.session_metadata,
             battery_level_latest: batteryLevel,
             last_poll: now,
+            // The vehicle woke and is now metering this session itself, so it
+            // graduates out of the observer class and becomes issuable from
+            // this point forward (start_kwh_added pins the watermark).
+            evidence_class: "vehicle_metered",
+            issuance_eligible: true,
+            quantity_source: "vehicle_onboard",
+            upgraded_from_observer:
+              (activeSession.session_metadata as Record<string, unknown> | null)?.[
+                "evidence_class"
+              ] === "wall_connector_measured" || undefined,
           },
+
         })
         .eq("id", activeSession.id);
 
@@ -714,6 +741,78 @@ async function processVehicle(
       console.log(`[ChargeMonitor] ⟳ UPDATED session ${activeSession.id.slice(0, 8)}: ${totalSoFar.toFixed(1)} kWh so far`);
       results.push({ vin, action: "updated", energy: totalSoFar });
     }
+  } else if ((wallConnectorPowerKw.get(vin) ?? 0) > 0) {
+    // ── CONNECTOR-OBSERVED SESSION (separate evidence class) ────────────────
+    // The vehicle's own API is the ONLY source of EV charging QUANTITY. But a
+    // parked car reports `Complete` / 0 kW while the wall connector — mains
+    // powered, always awake — still measures real power flowing into it. That
+    // disagreement is why an actively charging ZenX rendered nowhere on the
+    // cockpit: no session row existed for the card to read.
+    //
+    // So we open a session for VISIBILITY only, tagged
+    // `evidence_class: 'wall_connector_measured'` and `issuance_eligible:
+    // false`. It carries no kWh of its own and is skipped by the
+    // energy_production / charging_sessions writers on close. Quantity remains
+    // vehicle-onboard-only, exactly as the authority rule requires.
+    const wcKw = wallConnectorPowerKw.get(vin) ?? 0;
+    const now = new Date().toISOString();
+
+    if (activeSession) {
+      const meta = (activeSession.session_metadata ?? {}) as Record<string, unknown>;
+      await supabase
+        .from("home_charging_sessions")
+        .update({
+          charger_power_kw: wcKw,
+          session_metadata: {
+            ...meta,
+            battery_level_latest: batteryLevel,
+            last_poll: now,
+            wall_connector_kw: wcKw,
+            vehicle_reported_state: chargingState,
+          },
+        })
+        .eq("id", activeSession.id);
+      console.log(
+        `[ChargeMonitor] ⟳ WC-OBSERVED ${vin}: connector ${wcKw.toFixed(2)} kW, vehicle says ${chargingState} (session ${activeSession.id.slice(0, 8)})`,
+      );
+      results.push({ vin, action: "wall_connector_observed_update", charger_kw: wcKw });
+      return;
+    }
+
+    const genesisHash = await buildSnapshotHash(vin, now, 0, batteryLevel, "genesis");
+    const { error } = await supabase.from("home_charging_sessions").insert({
+      user_id: userId,
+      device_id: vin,
+      start_time: now,
+      start_kwh_added: chargeEnergyAdded,
+      end_kwh_added: chargeEnergyAdded,
+      total_session_kwh: 0,
+      status: "charging",
+      location: homeAddress || "Home",
+      latitude: vehicleLat,
+      longitude: vehicleLng,
+      charger_power_kw: wcKw,
+      proof_chain: [{ ts: now, kwh: 0, bat: batteryLevel, hash: genesisHash, observer_only: true }],
+      verified: false,
+      session_metadata: {
+        presence_evidence: "wall_connector",
+        evidence_class: "wall_connector_measured",
+        issuance_eligible: false,
+        quantity_source: "none",
+        wall_connector_kw: wcKw,
+        vehicle_reported_state: chargingState,
+        battery_level_start: batteryLevel,
+        distance_from_home_mi: distFromHome,
+      },
+    });
+    if (error) {
+      console.error(`[ChargeMonitor] WC-observed insert error:`, error);
+    } else {
+      console.log(
+        `[ChargeMonitor] ▶ WC-OBSERVED session opened for ${vin}: connector ${wcKw.toFixed(2)} kW while vehicle reports ${chargingState} — display only, not issuable`,
+      );
+    }
+    results.push({ vin, action: "wall_connector_observed_start", charger_kw: wcKw });
   } else if (
     chargingState === "Complete" ||
     chargingState === "Stopped" ||
@@ -758,13 +857,22 @@ async function processVehicle(
 
       console.log(`[ChargeMonitor] ✓ COMPLETED session ${activeSession.id.slice(0, 8)}: ${totalKwh.toFixed(1)} kWh | proof: ${deltaProof.slice(0, 12)}… | chain: ${finalChain.length} links`);
 
-      // Also write to energy_production for Energy Log daily view
-      if (totalKwh > 0) {
+      // Also write to energy_production for Energy Log daily view.
+      // A connector-observed session is display-only: it never carries
+      // vehicle-metered quantity, so it must never reach the issuance path.
+      const observerOnly =
+        (activeSession.session_metadata as Record<string, unknown> | null)?.["evidence_class"] ===
+        "wall_connector_measured";
+      if (totalKwh > 0 && !observerOnly) {
         await writeToEnergyProduction(supabase, userId, vin, activeSession.start_time, totalKwh, userTimezone);
         // Also write to charging_sessions for unified session list
         await writeToChargingSessions(supabase, userId, vin, activeSession, totalKwh, homeAddress, userTimezone);
         // Send push notification to user's devices
         await sendChargingCompleteNotification(userId, totalKwh, homeAddress || "Home");
+      } else if (observerOnly) {
+        console.log(
+          `[ChargeMonitor] ⊘ Observer session ${activeSession.id.slice(0, 8)} closed — no energy_production row (wall_connector_measured)`,
+        );
       }
 
       results.push({ vin, action: "completed", total_kwh: totalKwh, verified: totalKwh > 0, delta_proof: deltaProof.slice(0, 16) });
