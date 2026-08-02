@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 /**
  * Regression: an actively charging car rendered with NO conductor.
  *
