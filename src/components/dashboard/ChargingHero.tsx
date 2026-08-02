@@ -181,18 +181,40 @@ export function ChargingHero({
         </div>
       )}
 
-      {/* Row 3: source pill inside hero */}
+      {/* Row 3: source pill inside hero. Only a proven on-site session earns
+          the "Charging from <household source>" sentence. */}
       {isCharging && sourceLabel && (
-        <div className="mt-2 flex items-center justify-center gap-2 text-[12px] text-emerald-100/90">
-          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_hsla(142,76%,50%,0.7)]">
-            <span className="absolute inset-0 inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
+        <div
+          className={`mt-2 flex items-center justify-center gap-2 text-[12px] ${
+            sourceLabel.located ? 'text-emerald-100/90' : 'text-muted-foreground'
+          }`}
+        >
+          <span
+            className={`relative inline-flex h-1.5 w-1.5 rounded-full ${
+              sourceLabel.located
+                ? 'bg-emerald-400 shadow-[0_0_8px_hsla(142,76%,50%,0.7)]'
+                : 'bg-muted-foreground/60'
+            }`}
+          >
+            {sourceLabel.located && (
+              <span className="absolute inset-0 inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
+            )}
           </span>
-          <sourceLabel.icon className="h-3.5 w-3.5 text-emerald-300" />
+          <sourceLabel.icon
+            className={`h-3.5 w-3.5 ${sourceLabel.located ? 'text-emerald-300' : 'text-muted-foreground'}`}
+          />
           <span>
-            Charging from <span className="font-semibold">{sourceLabel.text}</span>
+            {sourceLabel.located ? (
+              <>
+                Charging from <span className="font-semibold">{sourceLabel.text}</span>
+              </>
+            ) : (
+              sourceLabel.text
+            )}
           </span>
         </div>
       )}
+
 
       {/* Row 4: dense data row */}
       {dataChips.length > 0 && (
