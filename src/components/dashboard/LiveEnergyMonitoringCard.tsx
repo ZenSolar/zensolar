@@ -123,19 +123,19 @@ function reconcileEnergyFlow(input: {
   };
 }
 
-const LIVE_HOME_LAST_KNOWN_KEY = 'zen:live:lastKnownHomeKw';
+/**
+ * REMOVED 2026-08-02 — `readLastKnownHomeKw()` / `rememberLastKnownHomeKw()`.
+ *
+ * These persisted the last non-zero home load to `localStorage` and replayed it
+ * as the CURRENT home draw whenever the Powerwall `load_power` field was
+ * missing or zero, capped at 20 kW. A number from the browser's previous page
+ * view is not stale telemetry — it is not telemetry at all, and it was
+ * indistinguishable on the card from a live CT reading.
+ *
+ * When `load_power` is absent, home load is now either the balance-derived
+ * value (labelled as derived) or nothing. Never a cached browser number.
+ */
 
-function readLastKnownHomeKw(): number | null {
-  if (typeof window === 'undefined') return null;
-  const raw = window.localStorage.getItem(LIVE_HOME_LAST_KNOWN_KEY);
-  const n = raw === null ? NaN : Number(raw);
-  return Number.isFinite(n) && n > 0.05 ? n : null;
-}
-
-function rememberLastKnownHomeKw(v: number | null) {
-  if (typeof window === 'undefined' || v === null || v <= 0.05) return;
-  window.localStorage.setItem(LIVE_HOME_LAST_KNOWN_KEY, String(Math.min(20, v)));
-}
 
 function formatAge(iso: string | null) {
   if (!iso) return 'Sync pending';
@@ -893,7 +893,10 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
       return sum + Math.max(0, kw);
     }, 0);
   }, [hideVehicle, ev.data, openHomeChargingVins]);
-  const effectiveHomeKwRaw = homeKwRaw !== null && homeKwRaw > 0.05 ? homeKwRaw : readLastKnownHomeKw();
+  // Home load is the meter reading or nothing. `null` hands the decision to
+  // reconcileEnergyFlow(), which derives it from the site balance and flags it
+  // as derived — an honest computation, not a replayed browser value.
+  const effectiveHomeKwRaw = homeKwRaw !== null && homeKwRaw > 0.05 ? homeKwRaw : null;
   const reconciledFlow = reconcileEnergyFlow({
     solarKw: solarStats.currentKw ?? 0,
     rawHomeKw: effectiveHomeKwRaw,
@@ -901,9 +904,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
     rawGridKw: gridKwRaw,
     evHomeKw,
   });
-  useEffect(() => {
-    rememberLastKnownHomeKw(reconciledFlow.homeKw);
-  }, [reconciledFlow.homeKw]);
+
 
   const flowData = {
     solarPower: solarStats.currentKw ?? 0,

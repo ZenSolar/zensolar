@@ -71,6 +71,24 @@ function haversineDistanceMiles(
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+/**
+ * FALLBACK ONLY — a Nominatim geocode of a free-text address.
+ *
+ * Known failure modes, all of which argue against it being primary evidence:
+ *   · Rural driveways — the house sits hundreds of yards off a road whose
+ *     centroid is the only thing Nominatim knows; the 0.5 mi radius may miss
+ *     the car or swallow a whole hamlet.
+ *   · Apartment blocks / condos — one centroid for dozens of units and a
+ *     shared garage. Presence is proven for the building, not the meter.
+ *   · A neighbour inside the radius — 0.5 mi covers roughly 500 acres in a
+ *     dense suburb. Charging at a friend's house two streets over reads as
+ *     home, and their kWh would be credited to this member's site.
+ *   · Address typos, unit numbers and PO boxes geocode to city centroids
+ *     with no error signal — the call succeeds and returns a confident,
+ *     wrong point.
+ *   · Nominatim is a third-party best-effort service with a 1 req/s courtesy
+ *     limit; a failure returns null and is indistinguishable from "unknown".
+ */
 async function geocodeAddress(
   address: string,
 ): Promise<{ lat: number; lng: number } | null> {
@@ -92,6 +110,54 @@ async function geocodeAddress(
     return null;
   }
 }
+
+/**
+ * WALL CONNECTOR PRESENCE — the strongest location evidence we have, and it
+ * needs no geocoding.
+ *
+ * `/api/1/energy_sites/{id}/live_status` returns a `wall_connectors[]` array,
+ * each entry carrying `din`, `wall_connector_state`, `wall_connector_power`
+ * and — critically — `vin`. A wall connector is physically bolted to the
+ * member's wall, so a connector at THIS site reporting THIS vin at non-zero
+ * power is direct proof of co-location.
+ *
+ * This respects the authority rule exactly: the charger says WHERE, it never
+ * says HOW MUCH. Quantity still comes from the vehicle's own meter. The
+ * connector stays an observer for issuance.
+ *
+ * Returns the set of VINs a connector at this account currently reports.
+ */
+async function fetchWallConnectorVins(
+  accessToken: string,
+  energySiteIds: string[],
+): Promise<Set<string>> {
+  const vins = new Set<string>();
+  for (const id of energySiteIds) {
+    try {
+      const r = await fetch(
+        `${TESLA_API_BASE}/api/1/energy_sites/${id}/live_status`,
+        { headers: { Authorization: `Bearer ${accessToken}` } },
+      );
+      if (!r.ok) continue;
+      const body = await r.json();
+      const wcs = body?.response?.wall_connectors || [];
+      for (const wc of wcs) {
+        const vin = typeof wc?.vin === "string" ? wc.vin.trim() : "";
+        if (!vin) continue;
+        const power = Number(wc?.wall_connector_power ?? 0);
+        const state = Number(wc?.wall_connector_state ?? 0);
+        // State 4 == connected/charging in Tesla's enum; power > 0 is the
+        // unambiguous signal. Either one, with a VIN attached, proves the car
+        // is on this wall.
+        if (power > 0 || state === 4) vins.add(vin);
+      }
+    } catch {
+      // A live_status failure is silence, not evidence. Fail closed.
+    }
+  }
+  return vins;
+}
+
 
 async function refreshTeslaToken(
   supabase: any,
@@ -340,14 +406,20 @@ async function processUser(supabase: any, userId: string, results: any[]) {
     }
   }
 
-  // Get vehicles + home address
-  const [{ data: vehicles }, { data: profile }] = await Promise.all([
+  // Get vehicles + energy sites (for wall-connector presence) + home address
+  const [{ data: vehicles }, { data: sites }, { data: profile }] = await Promise.all([
     supabase
       .from("connected_devices")
       .select("device_id")
       .eq("user_id", userId)
       .eq("provider", "tesla")
       .eq("device_type", "vehicle"),
+    supabase
+      .from("connected_devices")
+      .select("device_id, device_type")
+      .eq("user_id", userId)
+      .eq("provider", "tesla")
+      .in("device_type", ["powerwall", "solar", "wall_connector"]),
     supabase
       .from("profiles")
       .select("home_address, timezone")
@@ -367,11 +439,37 @@ async function processUser(supabase: any, userId: string, results: any[]) {
     }
   }
 
+  // Wall-connector presence, fetched once per user per run. Costs one
+  // live_status call per energy site and never touches a vehicle, so it
+  // cannot wake anything.
+  const siteIds = Array.from(
+    new Set((sites ?? []).map((s: { device_id: string }) => String(s.device_id))),
+  );
+  const wallConnectorVins = siteIds.length
+    ? await fetchWallConnectorVins(accessToken, siteIds)
+    : new Set<string>();
+  if (wallConnectorVins.size > 0) {
+    console.log(
+      `[ChargeMonitor] Wall connector reports VIN(s) on-site for ${userId.slice(0, 8)}: ${[...wallConnectorVins].join(", ")}`,
+    );
+  }
+
   for (const vehicle of vehicles) {
     const vin = vehicle.device_id;
-    await processVehicle(supabase, userId, vin, accessToken, homeAddress, homeCoords, results, userTimezone);
+    await processVehicle(
+      supabase,
+      userId,
+      vin,
+      accessToken,
+      homeAddress,
+      homeCoords,
+      results,
+      userTimezone,
+      wallConnectorVins,
+    );
   }
 }
+
 
 async function processVehicle(
   supabase: any,
@@ -382,17 +480,24 @@ async function processVehicle(
   homeCoords: { lat: number; lng: number } | null,
   results: any[],
   userTimezone: string | null,
+  wallConnectorVins: Set<string> = new Set<string>(),
 ) {
-  // Fetch vehicle data
+  // NEVER WAKE. This reads `vehicle_data` only. There is no `/wake_up` call in
+  // this function and there must never be one: a charging car is awake by
+  // definition, so a 408 is itself the answer ("not charging") and costs the
+  // member nothing. Waking cars on a schedule to ask whether they are charging
+  // would drain packs to learn what the silence already tells us.
   const vResp = await fetch(
     `${TESLA_API_BASE}/api/1/vehicles/${vin}/vehicle_data?endpoints=charge_state;drive_state`,
     { headers: { Authorization: `Bearer ${accessToken}` } },
   );
 
   if (vResp.status === 408) {
-    // Vehicle asleep — check if we have an active session to finalize
+    // Asleep == not charging. Log it, close any dangling session, do NOT retry
+    // and do NOT wake.
+    console.log(`[ChargeMonitor] ${vin}: 408 asleep — treated as NOT CHARGING, no wake attempted`);
     await finalizeStaleSession(supabase, userId, vin, "vehicle_asleep");
-    results.push({ vin, status: "asleep", action: "checked_stale" });
+    results.push({ vin, status: "asleep", action: "checked_stale", woke: false });
     return;
   }
   if (vResp.status === 429) {
@@ -422,18 +527,37 @@ async function processVehicle(
 
   const isAcCharging = fastChargerPresent === false;
 
-  // Check if at home
+  // ── PRESENCE — FAIL CLOSED ────────────────────────────────────────────────
+  // Ordered by evidential strength. Absence of evidence is NOT evidence of
+  // presence: the old `no GPS + address on file → assume home` branch has been
+  // removed. It was the only fail-open rule in the system, and it failed in
+  // the direction that over-credits.
   let isNearHome = false;
   let distFromHome: number | null = null;
-  if (homeCoords && vehicleLat && vehicleLng) {
+  let presenceEvidence: "wall_connector" | "gps_geofence" | "none" = "none";
+
+  if (wallConnectorVins.has(vin)) {
+    // PRIMARY — a connector bolted to this member's wall names this VIN.
+    // Location proof only; the vehicle's own meter still supplies quantity.
+    isNearHome = true;
+    presenceEvidence = "wall_connector";
+    if (homeCoords && vehicleLat && vehicleLng) {
+      distFromHome = haversineDistanceMiles(homeCoords.lat, homeCoords.lng, vehicleLat, vehicleLng);
+    }
+    console.log(`[ChargeMonitor] ${vin}: presence=wall_connector (no geocode needed)`);
+  } else if (homeCoords && vehicleLat && vehicleLng) {
+    // FALLBACK — free-text geocode with a 0.5 mi radius. See geocodeAddress()
+    // for its failure modes; it is corroboration of last resort.
     distFromHome = haversineDistanceMiles(homeCoords.lat, homeCoords.lng, vehicleLat, vehicleLng);
     isNearHome = distFromHome < 0.5;
-  } else if (homeCoords && (!vehicleLat || !vehicleLng) && isAcCharging) {
-    // Vehicle coordinates unavailable (partial sleep) but AC charging with home address set
-    // Assume home — AC charging is overwhelmingly at home
-    isNearHome = true;
-    console.log(`[ChargeMonitor] ${vin}: No GPS coords during AC charge — assuming home (address on file)`);
+    if (isNearHome) presenceEvidence = "gps_geofence";
+    console.log(`[ChargeMonitor] ${vin}: presence=gps_geofence dist=${distFromHome.toFixed(3)}mi near=${isNearHome}`);
+  } else if (isAcCharging) {
+    console.log(
+      `[ChargeMonitor] ${vin}: AC charging but NO location evidence (no wall-connector VIN match, no GPS or no geocode) — NOT opening a home session`,
+    );
   }
+
 
   // Get any active (status='charging') session for this vehicle
   const { data: activeSessions } = await supabase
@@ -450,14 +574,19 @@ async function processVehicle(
   // ── STATE MACHINE ──────────────────────────────────────────────────────
 
   if (chargingState === "Charging" && isAcCharging) {
-    // Vehicle is AC charging
-    const isHome = isNearHome || (!homeCoords && isAcCharging);
-
-    if (!isHome) {
-      // AC charging but NOT at home — skip (destination charger)
-      results.push({ vin, action: "ac_not_home", dist: distFromHome });
+    // THIRD FAIL-OPEN, REMOVED: `|| (!homeCoords && isAcCharging)` meant a
+    // member with no address on file had every AC charge counted as home.
+    // Presence must now be positively proven.
+    if (!isNearHome) {
+      results.push({
+        vin,
+        action: presenceEvidence === "none" ? "ac_presence_unproven" : "ac_not_home",
+        dist: distFromHome,
+        presence_evidence: presenceEvidence,
+      });
       return;
     }
+
 
     if (!activeSession) {
       const since = new Date(Date.now() - OVERLAP_CONTINUATION_WINDOW_MS).toISOString();
@@ -536,6 +665,7 @@ async function processVehicle(
           battery_level_start: batteryLevel,
           first_observed_kwh: chargeEnergyAdded,
           distance_from_home_mi: distFromHome,
+          presence_evidence: presenceEvidence,
         },
       });
 
@@ -631,8 +761,12 @@ async function processVehicle(
 
       results.push({ vin, action: "completed", total_kwh: totalKwh, verified: totalKwh > 0, delta_proof: deltaProof.slice(0, 16) });
     } else {
-      const isHome = isNearHome || (!homeCoords && isAcCharging) || (homeCoords && !vehicleLat && !vehicleLng && isAcCharging);
-      if (isAcCharging && isHome && chargeEnergyAdded >= 1) {
+      // SECOND FAIL-OPEN, ALSO REMOVED. This branch recovers a session that
+      // completed between polls, and it used to treat "no geocode" or "no GPS"
+      // as home. It now requires the same positive presence evidence as the
+      // live path: a wall connector naming this VIN, or a GPS fix inside the
+      // geofence. No evidence, no recovered session.
+      if (isAcCharging && isNearHome && chargeEnergyAdded >= 1) {
         const recovered = await recoverCompletedHomeSession(
           supabase,
           userId,
@@ -645,12 +779,19 @@ async function processVehicle(
           vehicleLng,
           distFromHome,
           userTimezone,
+          presenceEvidence,
         );
         results.push({ vin, ...recovered });
         return;
       }
-      results.push({ vin, action: "no_active_session", state: chargingState });
+      results.push({
+        vin,
+        action: "no_active_session",
+        state: chargingState,
+        presence_evidence: presenceEvidence,
+      });
     }
+
   } else {
     results.push({ vin, action: "idle", state: chargingState });
   }
@@ -719,7 +860,9 @@ async function recoverCompletedHomeSession(
   vehicleLng: number | null,
   distFromHome: number | null,
   userTimezone: string | null,
+  presenceEvidence: "wall_connector" | "gps_geofence" | "none" = "none",
 ) {
+
   const now = new Date();
   // Pillar 4 (same-provider replay guard): widened from 36h → 7d. Tesla's
   // chargeEnergyAdded counter resets on unplug, so the *same physical session*
@@ -777,6 +920,7 @@ async function recoverCompletedHomeSession(
         source: "charge_monitor_recovered",
         battery_level_end: batteryLevel,
         distance_from_home_mi: distFromHome,
+        presence_evidence: presenceEvidence,
         end_reason: "recovered_after_disconnect",
       },
     })
