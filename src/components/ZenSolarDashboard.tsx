@@ -550,7 +550,10 @@ function EnergyFlowGlowCard({ batteryKwhExportedToday }: { batteryKwhExportedTod
               Powerwall, grid, and every connected vehicle, under a single
               header and a single freshness badge. The lifetime/cumulative
               panel stays a separate card below. */}
-          <LiveEnergyMonitoringCard hideVehicle batteryKwhExportedToday={batteryKwhExportedToday} />
+          {/* hideVehicle must stay OFF here: it zeroes evHomeKw, so the site
+              balance loses an entire measured load (an 11 kW charge read as
+              0.3 kW home) and no vehicle can ever be drawn. */}
+          <LiveEnergyMonitoringCard batteryKwhExportedToday={batteryKwhExportedToday} />
         </>
 
       ) : (
