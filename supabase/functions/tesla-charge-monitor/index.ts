@@ -720,7 +720,18 @@ async function processVehicle(
             ...activeSession.session_metadata,
             battery_level_latest: batteryLevel,
             last_poll: now,
+            // The vehicle woke and is now metering this session itself, so it
+            // graduates out of the observer class and becomes issuable from
+            // this point forward (start_kwh_added pins the watermark).
+            evidence_class: "vehicle_metered",
+            issuance_eligible: true,
+            quantity_source: "vehicle_onboard",
+            upgraded_from_observer:
+              (activeSession.session_metadata as Record<string, unknown> | null)?.[
+                "evidence_class"
+              ] === "wall_connector_measured" || undefined,
           },
+
         })
         .eq("id", activeSession.id);
 
