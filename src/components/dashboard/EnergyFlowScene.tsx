@@ -401,11 +401,12 @@ function FlowLabel({
   hero?: boolean;
 }) {
   const pos: Record<typeof position, string> = {
-    tl: 'top-2.5 left-2.5 items-start text-left',
-    tr: 'top-2.5 right-2.5 items-end text-right',
-    bl: 'bottom-2.5 left-2.5 items-start text-left',
-    br: 'bottom-2.5 right-2.5 items-end text-right',
+    tl: 'top-2 left-2.5 items-start text-left',
+    tr: 'top-2 right-2.5 items-end text-right',
+    bl: 'bottom-2 left-2.5 items-start text-left',
+    br: 'bottom-2 right-2.5 items-end text-right',
   };
+
   const dot: Record<NonNullable<typeof accent>, string> = {
     green: 'bg-emerald-400 shadow-[0_0_10px_hsla(142,76%,50%,0.85)]',
     amber: 'bg-amber-400 shadow-[0_0_10px_hsla(38,92%,55%,0.85)]',
