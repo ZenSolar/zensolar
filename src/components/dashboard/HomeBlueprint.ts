@@ -39,18 +39,23 @@ export const HOME_BLUEPRINT = Object.freeze({
    *  Sits alongside `carPark`, still under the house outline. Both cars use
    *  `carHeightDual` so the pair does not overlap. */
   carPark2:     { x: 46, y: 84 } as BlueprintAnchor,
-  /** "Charging at home" anchor — pulls the car up to the garage apron. */
-  garageFront:  { x: 26, y: 73 } as BlueprintAnchor,
+  /** "Charging at home" anchor — pulls the car up to the garage apron.
+   *  v5.2: nudged left/down so the sprite reads as sitting inside the
+   *  garage bay instead of floating across the driveway. */
+  garageFront:  { x: 23, y: 75 } as BlueprintAnchor,
   /** Rectangle over the garage opening — used to paint a warm "door open" bloom. */
   garageOpening: { x: 4, y: 50, w: 26, h: 22 } as Readonly<{
     x: number; y: number; w: number; h: number;
   }>,
-  /** Dynamic-vehicle <image> overlay dimensions, % of viewBox. */
-  carWidth: 64,
-  carHeight: 36,
+  /** Dynamic-vehicle <image> overlay dimensions, % of viewBox.
+   *  v5.2: scaled down so the car matches the house's isometric scale
+   *  and tucks into the bay rather than overhanging it. */
+  carWidth: 50,
+  carHeight: 28,
   /** Car dimensions when two vehicles share the driveway. */
-  carWidthDual: 52,
-  carHeightDual: 30,
+  carWidthDual: 42,
+  carHeightDual: 24,
+
 
   /**
    * v5 multi-battery support — up to 5 Powerwall units stacked along
