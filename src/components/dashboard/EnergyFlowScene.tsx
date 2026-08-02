@@ -1270,20 +1270,20 @@ export function EnergyFlowScene({
         {chargingAtHome && showDynamicCar && (
           <g style={{ pointerEvents: 'none' }} data-testid="charge-point">
             <rect
-              x={SCENE_ANCHORS.chargePoint.x - 0.9}
-              y={SCENE_ANCHORS.chargePoint.y - 1.6}
-              width={1.8}
-              height={3.2}
-              rx={0.6}
-              fill="hsl(220 25% 92%)"
-              opacity={0.9}
-              stroke="hsl(220 30% 25%)"
-              strokeWidth={0.18}
+              x={SCENE_ANCHORS.chargePoint.x - 0.7}
+              y={SCENE_ANCHORS.chargePoint.y - 2.6}
+              width={1.4}
+              height={2.6}
+              rx={0.5}
+              fill="hsl(220 14% 20%)"
+              opacity={0.95}
+              stroke="hsl(220 15% 62%)"
+              strokeWidth={0.16}
             />
             <circle
               cx={SCENE_ANCHORS.chargePoint.x}
-              cy={SCENE_ANCHORS.chargePoint.y - 0.5}
-              r={0.42}
+              cy={SCENE_ANCHORS.chargePoint.y - 1.5}
+              r={0.36}
               fill="hsl(265 90% 78%)"
             >
               {!prefersReducedMotion && (
@@ -1312,7 +1312,7 @@ export function EnergyFlowScene({
                 old single ellipse fell clear of the car entirely. */}
             <ellipse
               cx={carAnchor.x + carW * 0.02}
-              cy={carAnchor.y + carH * 0.235}
+              cy={carAnchor.y + carH * 0.315}
               rx={carW * 0.50}
               ry={carH * 0.085}
               fill="hsl(220 60% 3%)"
@@ -1321,7 +1321,7 @@ export function EnergyFlowScene({
             />
             <ellipse
               cx={carAnchor.x}
-              cy={carAnchor.y + carH * 0.225}
+              cy={carAnchor.y + carH * 0.305}
               rx={carW * 0.38}
               ry={carH * 0.052}
               fill="hsl(220 70% 2%)"
@@ -1330,7 +1330,7 @@ export function EnergyFlowScene({
             />
             <ellipse
               cx={carAnchor.x}
-              cy={carAnchor.y + carH * 0.222}
+              cy={carAnchor.y + carH * 0.302}
               rx={carW * 0.30}
               ry={carH * 0.022}
               fill="hsl(220 75% 1%)"
