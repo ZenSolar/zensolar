@@ -63,30 +63,30 @@ export type LockedActivityType = (typeof LOCKED_ACTIVITY_TYPES)[number];
 
 export const WRITER_REGISTRY: Record<LockedActivityType, RegisteredWriter[]> = {
   solar: [
-    { fn: 'enphase-data', dataType: 'solar', provider: 'enphase', deviceType: 'solar_system' , invokedBy: 'client_session' },
-    { fn: 'solaredge-data', dataType: 'solar', provider: 'solaredge', deviceType: 'solar_system' , invokedBy: 'client_session' },
-    { fn: 'tesla-data', dataType: 'solar', provider: 'tesla', deviceType: 'solar' , invokedBy: 'client_session' },
-    { fn: 'enphase-historical', dataType: 'solar', provider: 'enphase', deviceType: 'solar_system' , invokedBy: 'client_session' },
+    { fn: 'enphase-data', dataType: 'solar', provider: 'enphase', deviceType: 'solar_system', invokedBy: 'client_session' },
+    { fn: 'solaredge-data', dataType: 'solar', provider: 'solaredge', deviceType: 'solar_system', invokedBy: 'client_session' },
+    { fn: 'tesla-data', dataType: 'solar', provider: 'tesla', deviceType: 'solar', invokedBy: 'client_session' },
+    { fn: 'enphase-historical', dataType: 'solar', provider: 'enphase', deviceType: 'solar_system', invokedBy: 'client_session' },
   ],
   battery_export: [
-    { fn: 'tesla-data', dataType: 'battery_discharge', provider: 'tesla', deviceType: 'powerwall' , invokedBy: 'client_session' },
-    { fn: 'enphase-data', dataType: 'battery_discharge', provider: 'enphase', deviceType: 'battery' , invokedBy: 'client_session' },
-    { fn: 'solaredge-data', dataType: 'battery_discharge', provider: 'solaredge', deviceType: 'battery' , invokedBy: 'client_session' },
+    { fn: 'tesla-data', dataType: 'battery_discharge', provider: 'tesla', deviceType: 'powerwall', invokedBy: 'client_session' },
+    { fn: 'enphase-data', dataType: 'battery_discharge', provider: 'enphase', deviceType: 'battery', invokedBy: 'client_session' },
+    { fn: 'solaredge-data', dataType: 'battery_discharge', provider: 'solaredge', deviceType: 'battery', invokedBy: 'client_session' },
   ],
   ev_miles: [
-    { fn: 'tesla-data', dataType: 'ev_miles', provider: 'tesla', deviceType: 'vehicle' , invokedBy: 'client_session' },
-    { fn: 'tesla-odometer-cron', dataType: 'ev_miles', provider: 'tesla', deviceType: 'vehicle' , invokedBy: 'cron' },
+    { fn: 'tesla-data', dataType: 'ev_miles', provider: 'tesla', deviceType: 'vehicle', invokedBy: 'client_session' },
+    { fn: 'tesla-odometer-cron', dataType: 'ev_miles', provider: 'tesla', deviceType: 'vehicle', invokedBy: 'cron' },
   ],
   supercharging: [
-    { fn: 'tesla-data', dataType: 'ev_charging', provider: 'tesla', deviceType: 'vehicle' , invokedBy: 'client_session' },
+    { fn: 'tesla-data', dataType: 'ev_charging', provider: 'tesla', deviceType: 'vehicle', invokedBy: 'client_session' },
   ],
   home_charging: [
-    { fn: 'tesla-charge-monitor', dataType: 'ev_charging', provider: 'tesla_home_charging', deviceType: 'vehicle' , invokedBy: 'client_session', precondition: 'an open home_charging_sessions row, which requires GPS within 0.5mi of the geocoded profile.home_address while charging_state === Charging and fast_charger_present === false' },
-    { fn: 'wallbox-data', dataType: 'ev_charging', provider: 'wallbox', deviceType: 'wallbox' , invokedBy: 'client_session' },
+    { fn: 'tesla-charge-monitor', dataType: 'ev_charging', provider: 'tesla_home_charging', deviceType: 'vehicle', invokedBy: 'client_session', precondition: 'an open home_charging_sessions row, which requires GPS within 0.5mi of the geocoded profile.home_address while charging_state === Charging and fast_charger_present === false' },
+    { fn: 'wallbox-data', dataType: 'ev_charging', provider: 'wallbox', deviceType: 'wallbox', invokedBy: 'client_session', conditional: true },
   ],
   fsd_miles: [
-    { fn: 'tesla-fsd-sampler', dataType: 'fsd_miles', provider: 'tesla', deviceType: 'vehicle' , invokedBy: 'cron' },
-    { fn: 'tesla-telemetry-webhook', dataType: 'fsd_miles', provider: 'tesla', deviceType: 'vehicle', conditional: true , invokedBy: 'webhook' },
+    { fn: 'tesla-fsd-sampler', dataType: 'fsd_miles', provider: 'tesla', deviceType: 'vehicle', invokedBy: 'cron' },
+    { fn: 'tesla-telemetry-webhook', dataType: 'fsd_miles', provider: 'tesla', deviceType: 'vehicle', conditional: true, invokedBy: 'webhook' },
   ],
 };
 
