@@ -1240,6 +1240,23 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                 Vehicle observed, not proven at this site
               </span>
             )}
+            {/* §5 — non-Tesla households. A charger that cannot report the
+                connected vehicle's VIN can never satisfy the presence gate, so
+                the driveway stays empty by design. Say that out loud, or an
+                empty driveway reads as the old presence bug. */}
+            {ev.data.length === 0 && hasCharger && (
+              <span
+                className="inline-flex items-center gap-1 text-muted-foreground/60"
+                title="This charger does not report the connected vehicle's identity, so co-location at this address cannot be proven. Charging energy is still metered; the car is simply not drawn."
+              >
+                <span
+                  aria-hidden="true"
+                  className="inline-block h-1.5 w-1.5 rounded-full border border-dashed border-muted-foreground/60"
+                />
+                Presence proof not available for this charger — vehicle not drawn
+              </span>
+            )}
+
           </div>
 
           {/* Live Devices group — ZenX pill + EV details, clearly grouped */}
