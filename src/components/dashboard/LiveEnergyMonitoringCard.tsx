@@ -26,7 +26,6 @@ const AnimatedEnergyFlow = lazy(() =>
   import('./AnimatedEnergyFlow').then((m) => ({ default: m.AnimatedEnergyFlow }))
 );
 import { ZenXPill } from './ZenXPill';
-import { VehicleStatusStrip } from './VehicleStatusStrip';
 import { FreshnessException } from './FreshnessNote';
 import { isDarkReading } from '@/lib/telemetryFreshness';
 import { computeCardFreshness } from '@/lib/cardFreshness';
@@ -879,6 +878,43 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
   });
 
 
+  // §6 — a SECOND vehicle earns a place in the scene on its own proof, not
+  // by association with the first. Each car's presence_evidence is checked
+  // independently, and each carries its own chip.
+  const secondSceneVehicle = useMemo(() => {
+    if (hideVehicle) return null;
+    const primarySiteId = (primaryEv as { site_id?: string } | null)?.site_id ?? null;
+    const row = ev.data.find(
+      (t) => t.site_id !== primarySiteId && provenAtHomeVins.has(t.site_id),
+    );
+    if (!row) return null;
+    const asset = resolveVehicleAsset(row.payload ?? row, undefined, {
+      fallbackWhenConnected: true,
+    });
+    if (!asset.src) return null;
+    const kw =
+      pickNumber(row.payload, [
+        'charge_rate_kw',
+        'charger_power',
+        'vehicles.0.charger_power',
+        'response.charge_state.charger_power',
+      ]) ?? 0;
+    const soc = pickNumber(row.payload, [
+      'battery_level',
+      'response.charge_state.battery_level',
+      'vehicles.0.battery_level',
+    ]);
+    return {
+      src: asset.src,
+      name:
+        (row as { device_name?: string | null }).device_name ??
+        pickString(row.payload, ['display_name', 'response.display_name']),
+      kw,
+      soc,
+      charging: kw > 0.1,
+    };
+  }, [hideVehicle, ev.data, primaryEv, provenAtHomeVins]);
+
   const flowData = {
     solarPower: solarStats.currentKw ?? 0,
     homePower: reconciledFlow.homeKw,
@@ -1164,31 +1200,6 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
               />
             )}
           </div>
-
-          {/* Vehicle chips — merged into this card (§1). A connected vehicle is
-              always visible here, even when it is nowhere near this site.
-              Presence is taken only from a recorded on-site charging session,
-              never from charger type. No separate header, no second badge:
-              rows defer to the card's single freshness claim. */}
-          {ev.data.length > 0 && (
-            <VehicleStatusStrip
-              vehicles={ev.data}
-              atSite={!!isActivelyCharging}
-              cardIso={cardIso}
-              chargingKwBySite={Object.fromEntries(
-                ev.data.map((t) => [
-                  t.site_id,
-                  pickNumber(t.payload, [
-                    'charge_rate_kw',
-                    'charger_power',
-                    'vehicles.0.charger_power',
-                    'response.charge_state.charger_power',
-                  ]) ?? 0,
-                ]),
-              )}
-              className="-mt-2"
-            />
-          )}
 
           {/* §7 — sources over sinks, built from the same reconciledFlow the
               scene and the tiles read. Measured segments render solid,
