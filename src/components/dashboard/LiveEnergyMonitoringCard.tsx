@@ -15,6 +15,8 @@ import { useViewAsUserId } from '@/hooks/useViewAsUserId';
 import { useHaptics } from '@/hooks/useHaptics';
 import { computeCo2 } from '@/lib/co2Math';
 import { computeSiteBalance, balanceNotice } from '@/lib/siteBalance';
+import { reconcileEnergyFlow, buildSourcesSinks } from '@/lib/energyFlowReconcile';
+import { SourcesSinksStrip } from './SourcesSinksStrip';
 import { supabase } from '@/integrations/supabase/client';
 
 const EnergyFlowScene = lazy(() =>
@@ -89,39 +91,6 @@ function formatKwh(v: number | null, decimals = 1) {
 function normalizeWattsToKw(v: number | null) {
   if (v === null) return null;
   return Math.abs(v) > 100 ? v / 1000 : v;
-}
-
-function reconcileEnergyFlow(input: {
-  solarKw: number;
-  rawHomeKw: number | null;
-  batteryKw: number;
-  rawGridKw: number | null;
-  evHomeKw: number;
-}) {
-  const solar = Math.max(0, input.solarKw);
-  const battery = input.batteryKw;
-  const evHome = Math.max(0, input.evHomeKw);
-  const batteryLoad = Math.max(0, battery);
-  const batterySource = Math.max(0, -battery);
-
-  const derivedGrid = evHome + batteryLoad + Math.max(0, input.rawHomeKw ?? 0) - solar - batterySource;
-  const hasUsableHome = input.rawHomeKw !== null && input.rawHomeKw > 0.05;
-  const homeFromBalance = input.rawGridKw !== null
-    ? solar + batterySource + Math.max(0, input.rawGridKw) - batteryLoad - Math.max(0, -input.rawGridKw) - evHome
-    : null;
-  const homeKw = hasUsableHome
-    ? input.rawHomeKw!
-    : Math.max(0, homeFromBalance ?? input.rawHomeKw ?? 0);
-  const balancedGrid = evHome + batteryLoad + homeKw - solar - batterySource;
-  const rawMismatch = input.rawGridKw !== null && Math.abs(input.rawGridKw - balancedGrid) > Math.max(0.7, solar * 0.35);
-  const gridKw = input.rawGridKw === null || rawMismatch ? balancedGrid : input.rawGridKw;
-
-  return {
-    homeKw,
-    gridKw,
-    gridCorrected: rawMismatch,
-    derivedGrid,
-  };
 }
 
 /**
@@ -668,7 +637,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
   const { totals: lifetime } = useLifetimeTotals();
   const mintImpact = useTodayMintImpact();
   const { data: isActivelyCharging } = useActiveChargingSession();
-  const { vins: openHomeChargingVins } = useOpenHomeChargingVins();
+  const { vins: openHomeChargingVins, provenAtHomeVins } = useOpenHomeChargingVins();
   const [manualRefreshing, setManualRefreshing] = useState(false);
   const lastChargingRef = useRef<boolean | undefined>(undefined);
   const evTileRef = useRef<HTMLDivElement | null>(null);
@@ -1049,48 +1018,11 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
       })()}
 
 
-      {(() => {
-        // SITE BALANCE ASSERTION — SUPPRESSED ON LIVE SURFACES (2026-08-01).
-        //
-        // The banner compared RAW telemetry while the diagram beside it drew
-        // the RECONCILED figures, so a raw grid reading of +1.1 kW import
-        // against a displayed 0.8 kW export produced a fabricated 1.9 kW
-        // "unaccounted" warning on a site whose meters actually agreed. A
-        // false discrepancy warning is worse than none: it discredits every
-        // other number on the card. It now renders only behind ?balance=1
-        // until the comparison is provably against the same inputs the
-        // diagram uses. The assertion itself (siteBalance.ts) is unchanged
-        // and still covered by tests.
-        const debugBalance =
-          typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('balance') === '1';
-        if (!debugBalance) return null;
-        const measuredHome = homeKwRaw ?? 0;
-        const balance = computeSiteBalance({
-          solarKw: solarStats.currentKw ?? 0,
-          gridKw: gridKwRaw ?? 0,
-          batteryKw: batteryStats.powerKw ?? 0,
-          // HOME is the measured consumer sink minus the vehicle's own meter.
-          homeKw: Math.max(0, measuredHome - evHomeKw),
-          evKw: evHomeKw,
-        });
-        const notice = balanceNotice(balance);
-        if (!notice && !reconciledFlow.gridCorrected) return null;
-        return (
-          <div
-            className="mb-3 -mt-1 rounded-lg border border-amber-400/25 bg-amber-400/5 px-3 py-2"
-            data-testid="site-balance-notice"
-          >
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-amber-300/90">
-              {notice ?? 'Grid reading replaced by site balance'}
-            </p>
-            <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">
-              {notice
-                ? `${balance.reason} Sources ${balance.sourcesKw.toFixed(1)} kW · loads ${balance.loadsKw.toFixed(1)} kW · tolerance ±${balance.toleranceKw.toFixed(1)} kW. Flow widths below are drawn from these readings and will not sum until the meters agree.`
-                : 'The grid meter disagreed with the rest of the site by more than tolerance, so the value shown is derived from the other meters.'}
-            </p>
-          </div>
-        );
-      })()}
+      {/* §3 — the standalone "SITE BALANCE UNRESOLVED" banner is gone. It
+          compared the RAW grid CT against a diagram drawn from the RECONCILED
+          value, so it manufactured a discrepancy on a site whose meters
+          agreed. Provenance is now stated per-tile from the one
+          `reconciledFlow` object, and only on the frames it applies to. */}
 
       {/* v5 — multi-PV site selector (only renders when ≥2 PV systems) */}
       <SolarSiteTabs
@@ -1206,6 +1138,18 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                 batteryCount={battery.data?.length ?? 1}
                 weatherCode={weatherCodeForScene}
                 vehicleModel={null}
+                /* §5 — a car is drawn only when a wall connector reported its
+                   VIN under load. Fail-closed: the vehicle's own "charging"
+                   claim is not co-location proof. */
+                presenceProven={
+                  !hideVehicle &&
+                  !!primaryEv &&
+                  provenAtHomeVins.has((primaryEv as { site_id?: string }).site_id ?? '')
+                }
+                secondVehicle={secondSceneVehicle}
+                gridSource={reconciledFlow.gridSource}
+                gridOverrideReason={reconciledFlow.overrideReason}
+                homeDerived={reconciledFlow.homeDerived}
               />
             </Suspense>
             {/* Slim outage footer — load vs capacity progress + history link.
@@ -1246,36 +1190,46 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
             />
           )}
 
-          {/* Provenance legend (§3/§4) — the card names how each reading was
-              obtained instead of raising a separate "unresolved" banner. The
-              grid figure the diagram draws is the reconciled one; when it was
-              derived from the other meters, that is said here, once. */}
-          <div className="-mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 px-0.5 text-[9px] uppercase tracking-[0.14em] text-muted-foreground/70">
+          {/* §7 — sources over sinks, built from the same reconciledFlow the
+              scene and the tiles read. Measured segments render solid,
+              derived segments hatched, and a genuine shortfall renders grey
+              rather than being absorbed into whichever channel tidies up. */}
+          <SourcesSinksStrip flow={reconciledFlow} />
+
+          {/* §11 — provenance legend. Grid states its LIVE state (measured
+              most frames, reconciled on the frames the CT disagreed); home is
+              derived with no exceptions. */}
+          <div className="-mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 px-0.5 text-[9px] uppercase tracking-[0.14em] text-muted-foreground/70">
             <span className="inline-flex items-center gap-1">
               <span aria-hidden="true" className="inline-block h-1.5 w-1.5 rounded-full bg-primary/70" />
-              Measured
+              Measured: solar · battery{reconciledFlow.gridSource === 'raw' ? ' · grid' : ''}
             </span>
-            {(reconciledFlow.gridCorrected || homeDerivedFlag) && (
-              <span className="inline-flex items-center gap-1">
-                <span aria-hidden="true" className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400/70" />
-                Derived:{' '}
-                {[reconciledFlow.gridCorrected ? 'grid' : null, homeDerivedFlag ? 'home' : null]
-                  .filter(Boolean)
-                  .join(' · ')}
+            <span
+              className="inline-flex items-center gap-1"
+              title="Home load has no meter behind it. It is computed from the site balance every frame."
+            >
+              <span aria-hidden="true" className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400/70" />
+              Derived: home *
+            </span>
+            {reconciledFlow.gridSource === 'reconciled' && (
+              <span
+                className="inline-flex items-center gap-1 text-amber-300/80"
+                title={reconciledFlow.overrideReason ?? undefined}
+              >
+                <span aria-hidden="true" className="inline-block h-1.5 w-1.5 rotate-45 bg-amber-400/80" />
+                Grid reconciled this frame
               </span>
             )}
-            {ev.data.length > 0 && openHomeChargingVins.size === 0 && (
-              <span className="inline-flex items-center gap-1">
+            {ev.data.length > 0 && provenAtHomeVins.size === 0 && (
+              <span
+                className="inline-flex items-center gap-1"
+                title="The vehicle's own meter, no location claim."
+              >
                 <span aria-hidden="true" className="inline-block h-1.5 w-1.5 rounded-full bg-muted-foreground/50" />
-                Vehicle observed, not metered at site
+                Vehicle observed, not proven at this site
               </span>
             )}
           </div>
-
-
-
-
-
 
           {/* Live Devices group — ZenX pill + EV details, clearly grouped */}
           {!hideVehicle && (teslaFlow || ev.data.length > 0) && (
