@@ -375,23 +375,22 @@ export function buildConductorSegments(args: {
     });
   }
 
-  // EV BRANCH — only when a vehicle is charging at this site. Runs along the
-  // slab in front of the porch, so it stays in FRONT of the silhouette.
+  // EV BRANCH — only when a vehicle is charging at this site. Runs from the
+  // driveway charge point down to the car's port: a short, taut, ground-level
+  // run. It deliberately does NOT start at wallJunction — that route climbed
+  // the facade and crossed the whole house, reading as power coming over the
+  // roof to a car parked on the ground.
   if (ev > 0.05) {
     segments.push({
       id: 'branch-ev',
-      points: [
-        A.wallJunction,
-        { x: A.wallJunction.x - 4, y: 79.5 },
-        { x: A.evPort.x + 6, y: 79.5 },
-        A.evPort,
-      ],
-      color: colors.solar,
+      points: isoRoute(A.chargePoint, A.evPort, 'vert-first'),
+      color: args.colors.ev ?? colors.import,
       kw: ev,
       layer: 'front',
       dimmed: args.dimSolar,
     });
   }
+
 
   // GRID BRANCH — junction → meter → off-property. Terminates ON the meter
   // and continues past the frame edge, never stopping short of the post.
