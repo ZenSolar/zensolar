@@ -1252,11 +1252,11 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
               <span aria-hidden="true" className="inline-block h-1.5 w-1.5 rounded-full bg-primary/70" />
               Measured
             </span>
-            {(reconciledFlow.gridCorrected || reconciledFlow.homeDerived) && (
+            {(reconciledFlow.gridCorrected || homeDerivedFlag) && (
               <span className="inline-flex items-center gap-1">
                 <span aria-hidden="true" className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400/70" />
                 Derived:{' '}
-                {[reconciledFlow.gridCorrected ? 'grid' : null, reconciledFlow.homeDerived ? 'home' : null]
+                {[reconciledFlow.gridCorrected ? 'grid' : null, homeDerivedFlag ? 'home' : null]
                   .filter(Boolean)
                   .join(' · ')}
               </span>
