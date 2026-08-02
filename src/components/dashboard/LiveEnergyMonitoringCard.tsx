@@ -969,26 +969,59 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
     ? `ZenEnergy · ${subtitleParts.join(' + ') || 'Live'}`
     : `Home Energy Cockpit · ${subtitleParts.join(' + ') || 'Live'}`;
 
-  // A card states ONE age, and it is the age of its OLDEST component. Taking
-  // the newest reading let a one-hour-old solar tile sit under an "updated 0s
-  // ago" header — two contradictory freshness claims on one surface.
-  const oldestTelemetry = (() => {
-    const isos = [solarAsOf.iso, batteryAsOf.iso, evAsOf.iso].filter(Boolean) as string[];
-    if (isos.length === 0) return null;
-    return isos.sort((a, b) => new Date(a).getTime() - new Date(b).getTime())[0];
-  })();
-  const cardIso = oldestTelemetry ?? latestTelemetry?.sample_at ?? latestTelemetry?.cached_at ?? null;
+  // §2 — ONE badge per card, and it speaks for the OLDEST in-scope signal.
+  // Solar / battery / grid CT are always in scope. A vehicle is in scope only
+  // when it is claimed into Connected Devices and therefore expected to
+  // report; an unclaimed car must not drag the household badge down.
+  const cardFreshness = computeCardFreshness([
+    ...solar.data.map((r) => ({ iso: r.sample_at ?? r.cached_at })),
+    ...battery.data.map((r) => ({ iso: r.sample_at ?? r.cached_at })),
+    ...ev.data.map((r) => ({ iso: r.sample_at ?? r.cached_at, inScope: true })),
+  ]);
+  const cardIso = cardFreshness.iso;
+
+  // Dead: the badge is the only content the card shows. No partial numbers
+  // survive underneath a household that has gone dark.
+  if (cardFreshness.state === 'dead') {
+    return (
+      <CardFreshnessContext.Provider value={cardIso}>
+        <div className="w-full p-4">
+          <LiveCardHeader
+            subtitle={cockpitSubtitle}
+            ageLabel={cardFreshness.label}
+            freshnessClassName={cardFreshness.className}
+            onRefresh={handleManualRefresh}
+            refreshing={manualRefreshing}
+          />
+          <div className="rounded-xl border border-red-500/25 bg-red-500/5 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-red-300/90">
+              No reading in over 24 hours
+            </p>
+            <p className="mt-1 text-[12px] leading-snug text-muted-foreground">
+              Live values are withheld rather than replayed. Retry the connection, or reconnect
+              the account in{' '}
+              <Link to="/clean-energy-center" className="font-semibold text-primary hover:underline">
+                Connected Devices
+              </Link>
+              .
+            </p>
+          </div>
+        </div>
+      </CardFreshnessContext.Provider>
+    );
+  }
 
   return (
     <CardFreshnessContext.Provider value={cardIso}>
     <div className="w-full p-4">
       <LiveCardHeader
         subtitle={cockpitSubtitle}
-        ageLabel={formatAge(cardIso)}
-        freshnessClassName={freshnessClass(cardIso, !!latestTelemetry?.fresh)}
+        ageLabel={cardFreshness.label}
+        freshnessClassName={cardFreshness.className}
         onRefresh={handleManualRefresh}
         refreshing={manualRefreshing}
       />
+
       {(() => {
         // Surface whichever telemetry lane is unhealthiest so a broken OEM
         // never leaves the tile silently frozen. Prefer paused > retrying.
