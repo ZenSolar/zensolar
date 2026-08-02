@@ -810,20 +810,35 @@ export function EnergyFlowScene({
 
 
 
-  // v5 Phase B — Supercharger detection. Tesla telemetry exposes
-  // `fast_charger_present` / `fast_charger_brand` when plugged into a
-  // DC fast charger. When supercharging we hide the home cable arc +
-  // dynamic car (the car is not at home) and surface a "Supercharging"
-  // badge so the user can still see live charge state at a glance.
+  // Supercharger detection reads the VEHICLE's own charge-port telemetry,
+  // never the site. `fast_charger_brand` alone is unreliable — it lingers
+  // from a previous DC session — so DC is only asserted when the port
+  // reports a DC connector AND the vehicle is not proven at this site.
   const tp = teslaPayload as
-    | { fast_charger_present?: boolean; fast_charger_brand?: string | null }
+    | {
+        fast_charger_present?: boolean;
+        fast_charger_brand?: string | null;
+        conn_charge_cable?: string | null;
+        charger_phases?: number | null;
+        fast_charger_type?: string | null;
+      }
     | undefined;
+  // AC evidence from the onboard charger: phases reported (1 or 3) or a
+  // non-DC cable type. Either one rules out supercharging outright.
+  const acEvidence =
+    (typeof tp?.charger_phases === 'number' && tp.charger_phases > 0) ||
+    (typeof tp?.conn_charge_cable === 'string' &&
+      tp.conn_charge_cable.length > 0 &&
+      !/combo|ccs|gb|dc/i.test(tp.conn_charge_cable));
+  const dcEvidence =
+    tp?.fast_charger_present === true ||
+    (typeof tp?.fast_charger_type === 'string' && /combo|ccs|supercharger/i.test(tp.fast_charger_type));
+
   const isSupercharging =
-    isCharging &&
-    (tp?.fast_charger_present === true ||
-      (typeof tp?.fast_charger_brand === 'string' && tp.fast_charger_brand.length > 0));
+    isCharging && dcEvidence && !acEvidence && presenceProven !== true;
 
   const chargingAtHome = isCharging && !isSupercharging && !isOutage;
+
   const carAnchor = chargingAtHome ? HOME_BLUEPRINT.garageFront : HOME_BLUEPRINT.carPark;
   // §6 — two proven vehicles share the driveway, so both shrink to fit.
   const carW = showSecondCar ? HOME_BLUEPRINT.carWidthDual : HOME_BLUEPRINT.carWidth;
@@ -1489,6 +1504,27 @@ export function EnergyFlowScene({
             <span className="text-amber-100/90">· {evKw.toFixed(0)} kW</span>
             {typeof evSoc === 'number' && (
               <span className="text-amber-100/70">· {evSoc}%</span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* AC charging badge — vehicle proven at this site on its onboard
+          charger. Uses the reconciled EV branch so wall-connector-measured
+          power still reads correctly while the car's own API is asleep. */}
+      {chargingAtHome && (evBranchKw > 0.1 || evKw > 0.1) && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-2 z-30 flex justify-center px-3"
+        >
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-violet-400/50 bg-violet-500/15 px-2.5 py-1 text-[11px] font-semibold tabular-nums text-violet-100 shadow-[0_0_18px_hsla(265,90%,70%,0.35)] backdrop-blur">
+            <span className="text-[12px] leading-none">⚡</span>
+            <span className="uppercase tracking-[0.14em]">AC Charging</span>
+            <span className="text-violet-100/90">
+              · {(evBranchKw > 0.1 ? evBranchKw : evKw).toFixed(1)} kW
+            </span>
+            {typeof evSoc === 'number' && (
+              <span className="text-violet-100/70">· {evSoc}%</span>
             )}
           </div>
         </div>

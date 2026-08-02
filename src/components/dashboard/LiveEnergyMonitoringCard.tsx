@@ -527,7 +527,12 @@ export function deriveTeslaFlow(
     fc.includes('supercharger');
   // DC-fast detection must read the VEHICLE's number: a wall-connector
   // fallback is by definition AC and must never be classed as supercharging.
-  const isDcFast = fastChargerPresent === true || isDcConnector || vehicleKw > 25;
+  // The onboard charger reporting phases (1 or 3) is definitive AC evidence
+  // and overrides any stale fast_charger_* field left over from a DC session.
+  const acEvidence = (phases ?? 0) > 0;
+  const isDcFast =
+    !acEvidence && (fastChargerPresent === true || isDcConnector || vehicleKw > 25);
+
   let source: TeslaFlow['source'];
   let sourceLabel: string;
   if (isDcFast) {
