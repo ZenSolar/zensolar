@@ -1264,6 +1264,39 @@ export function EnergyFlowScene({
           />
         )}
 
+        {/* Charge point on the garage-side facade — the physical origin of the
+            EV conductor. Without it the run began in mid-air, which is why the
+            eye read it as a continuation of the solar-to-home line. */}
+        {chargingAtHome && showDynamicCar && (
+          <g style={{ pointerEvents: 'none' }} data-testid="charge-point">
+            <rect
+              x={SCENE_ANCHORS.chargePoint.x - 0.9}
+              y={SCENE_ANCHORS.chargePoint.y - 1.6}
+              width={1.8}
+              height={3.2}
+              rx={0.6}
+              fill="hsl(220 25% 92%)"
+              opacity={0.9}
+              stroke="hsl(220 30% 25%)"
+              strokeWidth={0.18}
+            />
+            <circle
+              cx={SCENE_ANCHORS.chargePoint.x}
+              cy={SCENE_ANCHORS.chargePoint.y - 0.5}
+              r={0.42}
+              fill="hsl(265 90% 78%)"
+            >
+              {!prefersReducedMotion && (
+                <animate
+                  attributeName="opacity"
+                  values="0.45;1;0.45"
+                  dur="1800ms"
+                  repeatCount="indefinite"
+                />
+              )}
+            </circle>
+          </g>
+        )}
 
 
         {/* ── Dynamic Tesla, locked to the same coordinate system ── */}
