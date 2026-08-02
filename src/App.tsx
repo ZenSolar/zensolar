@@ -1437,7 +1437,8 @@ const App = () => {
                       }
                     />
                     <Route path="/prototype/energy-flow" element={<Suspense fallback={<PageLoader />}><PrototypeEnergyFlow /></Suspense>} />
-                    <Route path="/prototype/cockpit-anchors" element={<Suspense fallback={<PageLoader />}><PrototypeCockpitAnchors /></Suspense>} />
+                   <Route path="/prototype/cockpit-anchors" element={<Suspense fallback={<PageLoader />}><PrototypeCockpitAnchors /></Suspense>} />
+                   <Route path="/prototype/scene-check" element={<Suspense fallback={<PageLoader />}><PrototypeSceneCheck /></Suspense>} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                     </Routes>
