@@ -681,7 +681,7 @@ async function processVehicle(
   // it is plugged into reports its VIN at kilowatts. The wall is mains-powered
   // and always awake, so under disagreement it wins on WHETHER (never on HOW
   // MUCH). Row is tagged wall_connector_measured / issuance_eligible:false.
-  if (chargingState !== "Charging" && connectorKw > 0 && wallConnectorVins.has(vin)) {
+  if (chargingState !== "Charging" && wallConnectorVins.has(vin)) {
     const action = await upsertObserverSession(supabase, userId, vin, connectorKw, homeAddress);
     console.log(
       `[ChargeMonitor] ${vin}: vehicle says ${chargingState}/0kW but connector says ${connectorKw}kW — observer session ${action}`,
