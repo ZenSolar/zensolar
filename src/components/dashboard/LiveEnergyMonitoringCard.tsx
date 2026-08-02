@@ -27,6 +27,7 @@ import { ZenXPill } from './ZenXPill';
 import { VehicleStatusStrip } from './VehicleStatusStrip';
 import { FreshnessException } from './FreshnessNote';
 import { isDarkReading } from '@/lib/telemetryFreshness';
+import { computeCardFreshness } from '@/lib/cardFreshness';
 
 /**
  * The card polls every source together, so it states its age ONCE in the
@@ -897,6 +898,9 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
   // reconcileEnergyFlow(), which derives it from the site balance and flags it
   // as derived — an honest computation, not a replayed browser value.
   const effectiveHomeKwRaw = homeKwRaw !== null && homeKwRaw > 0.05 ? homeKwRaw : null;
+  /** True when home load is computed from the site balance, not read from a meter. */
+  const homeDerivedFlag = effectiveHomeKwRaw === null;
+
   const reconciledFlow = reconcileEnergyFlow({
     solarKw: solarStats.currentKw ?? 0,
     rawHomeKw: effectiveHomeKwRaw,
@@ -969,26 +973,59 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
     ? `ZenEnergy · ${subtitleParts.join(' + ') || 'Live'}`
     : `Home Energy Cockpit · ${subtitleParts.join(' + ') || 'Live'}`;
 
-  // A card states ONE age, and it is the age of its OLDEST component. Taking
-  // the newest reading let a one-hour-old solar tile sit under an "updated 0s
-  // ago" header — two contradictory freshness claims on one surface.
-  const oldestTelemetry = (() => {
-    const isos = [solarAsOf.iso, batteryAsOf.iso, evAsOf.iso].filter(Boolean) as string[];
-    if (isos.length === 0) return null;
-    return isos.sort((a, b) => new Date(a).getTime() - new Date(b).getTime())[0];
-  })();
-  const cardIso = oldestTelemetry ?? latestTelemetry?.sample_at ?? latestTelemetry?.cached_at ?? null;
+  // §2 — ONE badge per card, and it speaks for the OLDEST in-scope signal.
+  // Solar / battery / grid CT are always in scope. A vehicle is in scope only
+  // when it is claimed into Connected Devices and therefore expected to
+  // report; an unclaimed car must not drag the household badge down.
+  const cardFreshness = computeCardFreshness([
+    ...solar.data.map((r) => ({ iso: r.sample_at ?? r.cached_at })),
+    ...battery.data.map((r) => ({ iso: r.sample_at ?? r.cached_at })),
+    ...ev.data.map((r) => ({ iso: r.sample_at ?? r.cached_at, inScope: true })),
+  ]);
+  const cardIso = cardFreshness.iso;
+
+  // Dead: the badge is the only content the card shows. No partial numbers
+  // survive underneath a household that has gone dark.
+  if (cardFreshness.state === 'dead') {
+    return (
+      <CardFreshnessContext.Provider value={cardIso}>
+        <div className="w-full p-4">
+          <LiveCardHeader
+            subtitle={cockpitSubtitle}
+            ageLabel={cardFreshness.label}
+            freshnessClassName={cardFreshness.className}
+            onRefresh={handleManualRefresh}
+            refreshing={manualRefreshing}
+          />
+          <div className="rounded-xl border border-red-500/25 bg-red-500/5 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-red-300/90">
+              No reading in over 24 hours
+            </p>
+            <p className="mt-1 text-[12px] leading-snug text-muted-foreground">
+              Live values are withheld rather than replayed. Retry the connection, or reconnect
+              the account in{' '}
+              <Link to="/clean-energy-center" className="font-semibold text-primary hover:underline">
+                Connected Devices
+              </Link>
+              .
+            </p>
+          </div>
+        </div>
+      </CardFreshnessContext.Provider>
+    );
+  }
 
   return (
     <CardFreshnessContext.Provider value={cardIso}>
     <div className="w-full p-4">
       <LiveCardHeader
         subtitle={cockpitSubtitle}
-        ageLabel={formatAge(cardIso)}
-        freshnessClassName={freshnessClass(cardIso, !!latestTelemetry?.fresh)}
+        ageLabel={cardFreshness.label}
+        freshnessClassName={cardFreshness.className}
         onRefresh={handleManualRefresh}
         refreshing={manualRefreshing}
       />
+
       {(() => {
         // Surface whichever telemetry lane is unhealthiest so a broken OEM
         // never leaves the tile silently frozen. Prefer paused > retrying.
@@ -1184,16 +1221,57 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
             )}
           </div>
 
-          {/* Vehicle status strip — a connected vehicle is always visible here,
-              even when it is nowhere near this site. Presence is taken only
-              from a recorded on-site charging session, never from charger type. */}
-          {hideVehicle && ev.data.length > 0 && (
+          {/* Vehicle chips — merged into this card (§1). A connected vehicle is
+              always visible here, even when it is nowhere near this site.
+              Presence is taken only from a recorded on-site charging session,
+              never from charger type. No separate header, no second badge:
+              rows defer to the card's single freshness claim. */}
+          {ev.data.length > 0 && (
             <VehicleStatusStrip
               vehicles={ev.data}
               atSite={!!isActivelyCharging}
+              cardIso={cardIso}
+              chargingKwBySite={Object.fromEntries(
+                ev.data.map((t) => [
+                  t.site_id,
+                  pickNumber(t.payload, [
+                    'charge_rate_kw',
+                    'charger_power',
+                    'vehicles.0.charger_power',
+                    'response.charge_state.charger_power',
+                  ]) ?? 0,
+                ]),
+              )}
               className="-mt-2"
             />
           )}
+
+          {/* Provenance legend (§3/§4) — the card names how each reading was
+              obtained instead of raising a separate "unresolved" banner. The
+              grid figure the diagram draws is the reconciled one; when it was
+              derived from the other meters, that is said here, once. */}
+          <div className="-mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 px-0.5 text-[9px] uppercase tracking-[0.14em] text-muted-foreground/70">
+            <span className="inline-flex items-center gap-1">
+              <span aria-hidden="true" className="inline-block h-1.5 w-1.5 rounded-full bg-primary/70" />
+              Measured
+            </span>
+            {(reconciledFlow.gridCorrected || homeDerivedFlag) && (
+              <span className="inline-flex items-center gap-1">
+                <span aria-hidden="true" className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400/70" />
+                Derived:{' '}
+                {[reconciledFlow.gridCorrected ? 'grid' : null, homeDerivedFlag ? 'home' : null]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </span>
+            )}
+            {ev.data.length > 0 && openHomeChargingVins.size === 0 && (
+              <span className="inline-flex items-center gap-1">
+                <span aria-hidden="true" className="inline-block h-1.5 w-1.5 rounded-full bg-muted-foreground/50" />
+                Vehicle observed, not metered at site
+              </span>
+            )}
+          </div>
+
 
 
 

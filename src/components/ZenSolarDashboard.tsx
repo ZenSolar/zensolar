@@ -24,8 +24,6 @@ const CO2OffsetCard = lazy(() =>
 );
 import { PremiumInsightsTeaserCard } from './dashboard/PremiumInsightsTeaserCard';
 import { LiveEnergyMonitoringCard } from './dashboard/LiveEnergyMonitoringCard';
-import { ZenDriveLiveCard } from './dashboard/ZenDriveLiveCard';
-import { ZenDriveMultiCard } from './dashboard/ZenDriveMultiCard';
 import { OutageRecapCard } from './dashboard/OutageRecapCard';
 import { OemDiagnosticsBanner } from './dashboard/OemDiagnosticsBanner';
 import { EnergyFlowErrorBoundary } from './dashboard/EnergyFlowErrorBoundary';
@@ -548,12 +546,13 @@ function EnergyFlowGlowCard({ batteryKwhExportedToday }: { batteryKwhExportedTod
         </Suspense>
       ) : subscribed ? (
         <>
-          {/* ZenEnergy · Live — solar / Powerwall / grid / home only */}
+          {/* ZenEnergy · Live — ONE consolidated card: house scene, solar,
+              Powerwall, grid, and every connected vehicle, under a single
+              header and a single freshness badge. The lifetime/cumulative
+              panel stays a separate card below. */}
           <LiveEnergyMonitoringCard hideVehicle batteryKwhExportedToday={batteryKwhExportedToday} />
-          {/* ZenDrive · Live — one card per connected vehicle (multi-car households) */}
-          <ZenDriveMultiCard />
-
         </>
+
       ) : (
         // Default placeholder/mock card everyone sees until they pay $4.99/mo.
         <Suspense fallback={<div className="w-full h-64 bg-card/10 animate-pulse" aria-hidden="true" />}>

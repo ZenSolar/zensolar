@@ -14,7 +14,7 @@
  */
 import { Car } from 'lucide-react';
 import type { CachedTelemetry } from '@/hooks/useDeviceTelemetry';
-import { FreshnessNote } from '@/components/dashboard/FreshnessNote';
+import { FreshnessNote, FreshnessException } from '@/components/dashboard/FreshnessNote';
 import { freshnessLabel } from '@/lib/telemetryFreshness';
 import { cn } from '@/lib/utils';
 
@@ -74,12 +74,21 @@ export function VehicleStatusStrip({
   atSite,
   className,
   onSelect,
+  cardIso,
+  chargingKwBySite,
 }: {
   vehicles: CachedTelemetry[];
   /** True only when an on-site charging session is actually recorded. */
   atSite: boolean;
   className?: string;
   onSelect?: () => void;
+  /**
+   * When provided, the strip is inside a card that already states one age.
+   * Rows then speak up only when they diverge from it (§2: one badge per card).
+   */
+  cardIso?: string | null;
+  /** Live charge rate per vehicle (keyed by site_id / VIN). */
+  chargingKwBySite?: Record<string, number>;
 }) {
   const rows = vehicles.filter((v) => v.oem === 'tesla' || !!v.device_name);
   if (rows.length === 0) return null;
@@ -94,6 +103,7 @@ export function VehicleStatusStrip({
         const copy = PRESENCE_COPY[presence];
         const name = v.device_name ?? str(p, ['display_name', 'vehicles.0.display_name']) ?? 'Vehicle';
         const readAt = v.sample_at ?? v.cached_at ?? null;
+        const kw = chargingKwBySite?.[v.site_id] ?? null;
 
         return (
           <button
@@ -108,6 +118,9 @@ export function VehicleStatusStrip({
               <span className="truncate text-[12px] font-semibold text-foreground">{name}</span>
 
               <span className="ml-auto flex items-center gap-2 tabular-nums">
+                {kw !== null && kw > 0.1 && (
+                  <span className="text-[11px] font-semibold text-emerald-300">{kw.toFixed(1)} kW</span>
+                )}
                 <span className="text-[13px] font-bold text-foreground">
                   {soc !== null ? `${Math.round(soc)}%` : '—'}
                 </span>
@@ -122,9 +135,13 @@ export function VehicleStatusStrip({
               </span>
             </span>
 
-            {/* Every readout states its own age. A cached row served after a
-                failed live fetch says so rather than posing as current. */}
-            <FreshnessNote iso={readAt} fresh={!!v.fresh} className="mt-1 block pl-6" />
+            {/* Inside the consolidated card the age is stated once, in the card
+                badge. A row only speaks when it diverges from that claim. */}
+            {cardIso === undefined ? (
+              <FreshnessNote iso={readAt} fresh={!!v.fresh} className="mt-1 block pl-6" />
+            ) : (
+              <FreshnessException iso={readAt} fresh={!!v.fresh} cardIso={cardIso} className="ml-6" />
+            )}
           </button>
         );
 
@@ -132,3 +149,4 @@ export function VehicleStatusStrip({
     </div>
   );
 }
+
