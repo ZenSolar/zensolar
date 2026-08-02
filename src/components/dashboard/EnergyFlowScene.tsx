@@ -614,6 +614,17 @@ export function EnergyFlowScene({
 }: EnergyFlowSceneProps) {
 
 
+  // Minute-granularity clock tick: pickScene() reads the wall clock, so without a
+  // time-based dependency the scene key freezes whenever telemetry stops changing.
+  const [minuteBucket, setMinuteBucket] = useState(() => Math.floor(Date.now() / 60000));
+  useEffect(() => {
+    const id = window.setInterval(
+      () => setMinuteBucket(Math.floor(Date.now() / 60000)),
+      15000,
+    );
+    return () => window.clearInterval(id);
+  }, []);
+
   const { scene, composition } = useMemo(
     () =>
       forceScene
@@ -623,8 +634,10 @@ export function EnergyFlowScene({
             { hasSolar: true, hasBattery, hasTesla, hasCharger, isOutage },
             { weatherCode },
           ),
-    [forceScene, forceComposition, data, hasBattery, hasTesla, hasCharger, isOutage, weatherCode],
+    // minuteBucket is intentionally a dependency: it re-evaluates the time-of-day scene.
+    [forceScene, forceComposition, data, hasBattery, hasTesla, hasCharger, isOutage, weatherCode, minuteBucket],
   );
+
 
   // SCENE DIAGNOSTIC — `?scenedebug=1`.
   // Records what the clock actually evaluated to for this render, so a
