@@ -949,7 +949,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
     if (hideVehicle) return null;
     const primarySiteId = (primaryEv as { site_id?: string } | null)?.site_id ?? null;
     const row = ev.data.find(
-      (t) => t.site_id !== primarySiteId && provenAtHomeVins.has(t.site_id),
+      (t) => t.site_id !== primarySiteId && displayAtSiteVins.has(t.site_id),
     );
     if (!row) return null;
     const asset = resolveVehicleAsset(row.payload ?? row, undefined, {
@@ -977,7 +977,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
       soc,
       charging: kw > 0.1,
     };
-  }, [hideVehicle, ev.data, primaryEv, provenAtHomeVins]);
+  }, [hideVehicle, ev.data, primaryEv, displayAtSiteVins]);
 
   const flowData = {
     solarPower: solarStats.currentKw ?? 0,
@@ -1244,7 +1244,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                 presenceProven={
                   !hideVehicle &&
                   !!primaryEv &&
-                  provenAtHomeVins.has((primaryEv as { site_id?: string }).site_id ?? '')
+                  displayAtSiteVins.has((primaryEv as { site_id?: string }).site_id ?? '')
                 }
                 secondVehicle={secondSceneVehicle}
                 gridSource={reconciledFlow.gridSource}
@@ -1295,7 +1295,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                 Grid reconciled this frame
               </span>
             )}
-            {ev.data.length > 0 && provenAtHomeVins.size === 0 && (
+            {ev.data.length > 0 && provenAtHomeVins.size === 0 && acAtSiteVins.size === 0 && (
               <span
                 className="inline-flex items-center gap-1"
                 title="The vehicle's own meter, no location claim."
