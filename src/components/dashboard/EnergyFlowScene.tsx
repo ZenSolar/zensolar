@@ -1494,14 +1494,15 @@ export function EnergyFlowScene({
       {/* v5 Phase B — Supercharging badge. Shown when Tesla telemetry
           reports a fast charger present (Supercharger, EA, etc). The car
           is away from home so the dynamic car + cable arc are suppressed;
-          this pill keeps live charge state visible. */}
+          this pill keeps live charge state visible. It sits in the mid band
+          of the scene so it never collides with the corner readouts. */}
       {isSupercharging && (
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-2 z-30 flex justify-center px-3"
+          className="pointer-events-none absolute inset-x-0 top-[42%] z-30 flex justify-center px-3"
         >
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/50 bg-amber-500/15 px-2.5 py-1 text-[11px] font-semibold tabular-nums text-amber-200 shadow-[0_0_18px_hsla(38,95%,55%,0.4)] backdrop-blur">
-            <span className="text-[12px] leading-none">⚡</span>
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/50 bg-amber-500/15 px-2.5 py-1 text-[10px] font-semibold tabular-nums text-amber-200 shadow-[0_0_18px_hsla(38,95%,55%,0.4)] backdrop-blur">
+            <span className="text-[11px] leading-none">⚡</span>
             <span className="uppercase tracking-[0.14em]">Supercharging</span>
             <span className="text-amber-100/90">· {evKw.toFixed(0)} kW</span>
             {typeof evSoc === 'number' && (
@@ -1511,16 +1512,16 @@ export function EnergyFlowScene({
         </div>
       )}
 
-      {/* AC charging badge — vehicle proven at this site on its onboard
-          charger. Uses the reconciled EV branch so wall-connector-measured
-          power still reads correctly while the car's own API is asleep. */}
-      {chargingAtHome && (evBranchKw > 0.1 || evKw > 0.1) && (
+      {/* AC charging badge — only when no car sprite is drawn. When the car
+          IS drawn, its own attached VehicleChip already states the same
+          fact, so showing both stacked two pills on top of each other. */}
+      {chargingAtHome && !showDynamicCar && (evBranchKw > 0.1 || evKw > 0.1) && (
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-2 z-30 flex justify-center px-3"
+          className="pointer-events-none absolute inset-x-0 top-[42%] z-30 flex justify-center px-3"
         >
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-violet-400/50 bg-violet-500/15 px-2.5 py-1 text-[11px] font-semibold tabular-nums text-violet-100 shadow-[0_0_18px_hsla(265,90%,70%,0.35)] backdrop-blur">
-            <span className="text-[12px] leading-none">⚡</span>
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-violet-400/50 bg-violet-500/15 px-2.5 py-1 text-[10px] font-semibold tabular-nums text-violet-100 shadow-[0_0_18px_hsla(265,90%,70%,0.35)] backdrop-blur">
+            <span className="text-[11px] leading-none">⚡</span>
             <span className="uppercase tracking-[0.14em]">AC Charging</span>
             <span className="text-violet-100/90">
               · {(evBranchKw > 0.1 ? evBranchKw : evKw).toFixed(1)} kW
@@ -1531,6 +1532,7 @@ export function EnergyFlowScene({
           </div>
         </div>
       )}
+
 
 
       {/* Floating labels — during outage, top-right and bottom-right are
