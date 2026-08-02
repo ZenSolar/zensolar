@@ -1204,8 +1204,25 @@ export function EnergyFlowScene({
               width={carW}
               height={carH}
               preserveAspectRatio="xMidYMid meet"
-              style={{ filter: 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))' }}
+              style={{
+                filter: [spriteFilter, 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))']
+                  .filter(Boolean)
+                  .join(' '),
+              }}
             />
+            {/* §8b — blue ambient wash so the sprite sits in the same night
+                light as the house instead of reading as a daylight cut-out. */}
+            {spriteIsNight && (
+              <rect
+                x={carX}
+                y={carY}
+                width={carW}
+                height={carH}
+                fill="hsl(220 70% 30%)"
+                opacity={0.18}
+                style={{ mixBlendMode: 'soft-light', pointerEvents: 'none' }}
+              />
+            )}
             {/* Emerald charge-port pulse while actively charging */}
             {chargingAtHome && (
               <g style={{ pointerEvents: 'none' }}>
@@ -1234,6 +1251,45 @@ export function EnergyFlowScene({
                   opacity={0.95}
                 />
               </g>
+            )}
+          </g>
+        )}
+
+        {/* §6 — second proven vehicle, its own anchor and its own proof. */}
+        {showSecondCar && secondVehicle?.src && (
+          <g>
+            <ellipse
+              cx={HOME_BLUEPRINT.carPark2.x}
+              cy={HOME_BLUEPRINT.carPark2.y + carH * 0.42}
+              rx={carW * 0.42}
+              ry={1.6}
+              fill="hsl(220 70% 2%)"
+              opacity={0.5}
+              style={{ filter: 'blur(1.4px)' }}
+            />
+            <image
+              href={secondVehicle.src}
+              x={HOME_BLUEPRINT.carPark2.x - carW / 2}
+              y={HOME_BLUEPRINT.carPark2.y - carH / 2}
+              width={carW}
+              height={carH}
+              preserveAspectRatio="xMidYMid meet"
+              style={{
+                filter: [spriteFilter, 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))']
+                  .filter(Boolean)
+                  .join(' '),
+              }}
+            />
+            {spriteIsNight && (
+              <rect
+                x={HOME_BLUEPRINT.carPark2.x - carW / 2}
+                y={HOME_BLUEPRINT.carPark2.y - carH / 2}
+                width={carW}
+                height={carH}
+                fill="hsl(220 70% 30%)"
+                opacity={0.18}
+                style={{ mixBlendMode: 'soft-light', pointerEvents: 'none' }}
+              />
             )}
           </g>
         )}
