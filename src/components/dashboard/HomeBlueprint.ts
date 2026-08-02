@@ -83,8 +83,6 @@ export const BLUEPRINT_PATHS = Object.freeze({
   solarToPowerwall2:  `M ${B.solar.x} ${B.solar.y} C 52 46 44 62 ${B.powerwall2.x} ${B.powerwall2.y}`,
   /** Powerwall → windows. Rightward arc along the front wall. */
   powerwallToHome:    `M ${B.powerwall.x} ${B.powerwall.y} C 50 68 62 62 ${B.windows.x} ${B.windows.y}`,
-  /** Garage apron anchor for the second vehicle. */
-  garageFront2: { x: 46, y: 78 } as BlueprintAnchor,
   /** Second Powerwall → windows. */
   powerwall2ToHome:   `M ${B.powerwall2.x} ${B.powerwall2.y} C 50 72 62 64 ${B.windows.x} ${B.windows.y}`,
   /** Grid meter → windows. Leftward arc in from the right wall. */
