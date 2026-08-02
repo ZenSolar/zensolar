@@ -35,6 +35,10 @@ export const HOME_BLUEPRINT = Object.freeze({
   wallCharger:  { x: 18, y: 60 } as BlueprintAnchor,
   /** Driveway parking spot in front of the garage (car center). */
   carPark:      { x: 22, y: 82 } as BlueprintAnchor,
+  /** Second driveway spot — used when two vehicles are proven at home (§6).
+   *  Sits alongside `carPark`, still under the house outline. Both cars use
+   *  `carHeightDual` so the pair does not overlap. */
+  carPark2:     { x: 46, y: 84 } as BlueprintAnchor,
   /** "Charging at home" anchor — pulls the car up to the garage apron. */
   garageFront:  { x: 22, y: 76 } as BlueprintAnchor,
   /** Rectangle over the garage opening — used to paint a warm "door open" bloom. */
@@ -44,6 +48,9 @@ export const HOME_BLUEPRINT = Object.freeze({
   /** Dynamic-vehicle <image> overlay dimensions, % of viewBox. */
   carWidth: 64,
   carHeight: 36,
+  /** Car dimensions when two vehicles share the driveway. */
+  carWidthDual: 52,
+  carHeightDual: 30,
 
   /**
    * v5 multi-battery support — up to 5 Powerwall units stacked along
@@ -76,6 +83,8 @@ export const BLUEPRINT_PATHS = Object.freeze({
   solarToPowerwall2:  `M ${B.solar.x} ${B.solar.y} C 52 46 44 62 ${B.powerwall2.x} ${B.powerwall2.y}`,
   /** Powerwall → windows. Rightward arc along the front wall. */
   powerwallToHome:    `M ${B.powerwall.x} ${B.powerwall.y} C 50 68 62 62 ${B.windows.x} ${B.windows.y}`,
+  /** Garage apron anchor for the second vehicle. */
+  garageFront2: { x: 46, y: 78 } as BlueprintAnchor,
   /** Second Powerwall → windows. */
   powerwall2ToHome:   `M ${B.powerwall2.x} ${B.powerwall2.y} C 50 72 62 64 ${B.windows.x} ${B.windows.y}`,
   /** Grid meter → windows. Leftward arc in from the right wall. */
