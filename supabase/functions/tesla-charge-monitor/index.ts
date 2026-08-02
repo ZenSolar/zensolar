@@ -466,9 +466,10 @@ async function processUser(supabase: any, userId: string, results: any[]) {
   const siteIds = Array.from(
     new Set((sites ?? []).map((s: { device_id: string }) => String(s.device_id))),
   );
-  const wallConnectorVins = siteIds.length
+  const wcPresence: WallConnectorPresence = siteIds.length
     ? await fetchWallConnectorVins(accessToken, siteIds)
-    : new Set<string>();
+    : { vins: new Set<string>(), powerKwByVin: new Map<string, number>() };
+  const wallConnectorVins = wcPresence.vins;
   if (wallConnectorVins.size > 0) {
     console.log(
       `[ChargeMonitor] Wall connector reports VIN(s) on-site for ${userId.slice(0, 8)}: ${[...wallConnectorVins].join(", ")}`,
@@ -487,6 +488,7 @@ async function processUser(supabase: any, userId: string, results: any[]) {
       results,
       userTimezone,
       wallConnectorVins,
+      wcPresence.powerKwByVin,
     );
   }
 }
