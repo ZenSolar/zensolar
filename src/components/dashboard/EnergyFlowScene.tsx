@@ -23,7 +23,7 @@
  *
  * v3 archived to ./archive/EnergyFlowScene.v3.tsx.
  */
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import type { EnergyFlowData } from './AnimatedEnergyFlow';
 import {
