@@ -53,13 +53,21 @@ export function deriveVehiclePresence(payload: any, atSite: boolean): VehiclePre
   return 'unknown';
 }
 
+/**
+ * COPY RULE — a location claim requires a source.
+ * "At this site" is only spoken when an open `home_charging_sessions` row
+ * proves it. Every other charging state reports the car's own meter and
+ * makes NO claim about where the car is, because nothing on this screen
+ * knows. "Charging elsewhere" was itself an unsourced location claim.
+ */
 const PRESENCE_COPY: Record<VehiclePresence, { label: string; dot: string; tone: string }> = {
   charging_here:      { label: 'Charging at this site', dot: 'bg-emerald-400', tone: 'text-emerald-300' },
-  charging_elsewhere: { label: 'Charging elsewhere',    dot: 'bg-sky-400',     tone: 'text-sky-300' },
+  charging_elsewhere: { label: 'Charging · site unconfirmed', dot: 'bg-sky-400', tone: 'text-sky-300' },
   driving:            { label: 'Driving',               dot: 'bg-primary',     tone: 'text-primary' },
   parked:             { label: 'Parked',                dot: 'bg-muted-foreground/60', tone: 'text-muted-foreground' },
   unknown:            { label: 'State pending',         dot: 'bg-muted-foreground/40', tone: 'text-muted-foreground' },
 };
+
 
 export function VehicleStatusStrip({
   vehicles,
