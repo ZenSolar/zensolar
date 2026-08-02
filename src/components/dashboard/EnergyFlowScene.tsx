@@ -451,6 +451,69 @@ function FlowLabel({
   );
 }
 
+/**
+ * §5/§6 — VEHICLE CHIP. Attached to a rendered car, never a standalone list
+ * row. Carries name, live kW, SOC and a presence indicator. It states
+ * presence-at-home, which is a co-location proof, and deliberately never
+ * states a location: the vehicle's meter is the source, not a map.
+ */
+function VehicleChip({
+  x,
+  y,
+  name,
+  kw,
+  soc,
+  rangeMi,
+  charging,
+}: {
+  x: number;
+  y: number;
+  name: string | null;
+  kw: number | null;
+  soc: number | null;
+  rangeMi: number | null;
+  charging: boolean;
+}) {
+  return (
+    <div
+      className="absolute -translate-x-1/2 -translate-y-full"
+      style={{ left: `${x}%`, top: `${y}%` }}
+    >
+      <div className="flex flex-col items-center gap-1">
+        <div
+          className={`flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold tabular-nums backdrop-blur ${
+            charging
+              ? 'border-emerald-400/40 bg-background/85 text-emerald-300 shadow-[0_0_14px_hsla(142,76%,50%,0.35)]'
+              : 'border-foreground/15 bg-background/80 text-foreground/85'
+          }`}
+        >
+          <span className="relative inline-flex h-1.5 w-1.5">
+            {charging && (
+              <span className="absolute inset-0 inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70 motion-reduce:animate-none" />
+            )}
+            <span
+              className={`relative inline-flex h-1.5 w-1.5 rounded-full ${
+                charging ? 'bg-emerald-400' : 'bg-foreground/50'
+              }`}
+            />
+          </span>
+          {name ? <span className="max-w-[90px] truncate">{name}</span> : null}
+          <span>
+            {charging && kw !== null ? `Charging · ${kw.toFixed(1)} kW` : 'At home'}
+          </span>
+        </div>
+        {(soc !== null || rangeMi !== null) && (
+          <div className="rounded-full bg-background/70 px-1.5 py-[1px] text-[9px] font-medium tabular-nums text-foreground/80 backdrop-blur">
+            {soc !== null ? `${soc}%` : ''}
+            {soc !== null && rangeMi !== null ? ' · ' : ''}
+            {rangeMi !== null ? `${rangeMi} mi` : ''}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Main component
 // ─────────────────────────────────────────────────────────────────────────────
@@ -483,7 +546,49 @@ export interface EnergyFlowSceneProps {
   weatherCode?: number | null;
   /** v5 — Tesla composition override for parents that already know it. */
   forceComposition?: CompositionKey;
+  /**
+   * §5 — CO-LOCATION PROOF for the primary vehicle. `true` only when an open
+   * home_charging_session carries `presence_evidence: 'wall_connector'` — a
+   * wall connector reporting this VIN under load. Fail-closed: when this prop
+   * is supplied and false, no car is drawn, even if the vehicle's own
+   * telemetry claims it is charging. That claim is not co-location proof.
+   * Leave undefined for legacy callers (falls back to connection heuristics).
+   */
+  presenceProven?: boolean;
+  /** §6 — a second vehicle proven at this address. Rendered at carPark2. */
+  secondVehicle?: {
+    src: string;
+    name?: string | null;
+    kw?: number | null;
+    soc?: number | null;
+    charging?: boolean;
+  } | null;
+  /** §3 — grid provenance for this frame, from the single reconciledFlow. */
+  gridSource?: 'raw' | 'reconciled';
+  gridOverrideReason?: string | null;
+  /** §4 — home load is derived (no meter). */
+  homeDerived?: boolean;
 }
+
+/**
+ * §8b — SPRITE LIGHTING. All 26 vehicle sprites are lit for daylight. Dropped
+ * unmodified onto a dusk or night plate they read as cut-outs, because they
+ * are. A per-scene filter on the sprite layer puts them in the same light as
+ * the house.
+ */
+export const SPRITE_FILTER: Record<SceneKey, string | undefined> = {
+  day: undefined,
+  'day-export': undefined,
+  dusk: 'brightness(0.85) saturate(0.9)',
+  night: 'brightness(0.6) contrast(1.05)',
+  'night-ev': 'brightness(0.6) contrast(1.05)',
+  'night-pw-discharge': 'brightness(0.6) contrast(1.05)',
+  'night-pw-discharge-ev': 'brightness(0.6) contrast(1.05)',
+  rain: 'brightness(0.75) saturate(0.8)',
+};
+
+/** Blue ambient wash applied over sprites on night plates, matching the house. */
+const NIGHT_SCENES: SceneKey[] = ['night', 'night-ev', 'night-pw-discharge', 'night-pw-discharge-ev'];
 
 export function EnergyFlowScene({
   data,
@@ -501,6 +606,11 @@ export function EnergyFlowScene({
   outageStartedAt,
   weatherCode = null,
   forceComposition,
+  presenceProven,
+  secondVehicle = null,
+  gridSource = 'raw',
+  gridOverrideReason = null,
+  homeDerived = false,
 }: EnergyFlowSceneProps) {
 
 
@@ -620,10 +730,26 @@ export function EnergyFlowScene({
   // returned by resolveVehicleAsset when telemetry hasn't yet revealed
   // the exact model. Previously `!vehicleGeneric` hid the EV node for
   // freshly-linked accounts, which was the "EV doesn't populate" bug.
+  // §5 — presence is now provable, so it gates the scene. When the caller
+  // supplies `presenceProven`, that boolean IS the gate: no wall-connector
+  // VIN match, no car. The away-and-charging-elsewhere case renders an empty
+  // driveway on purpose — that is the design working, not a missing sprite.
+  // §8c — night-ev no longer suppresses the sprite; the baked car is swapped
+  // out for the member's actual vehicle under a night filter instead.
   const showDynamicCar =
-    scene !== 'night-ev' &&
-    carConnected &&
-    Boolean(vehicleSrc);
+    (presenceProven === undefined ? carConnected : presenceProven) && Boolean(vehicleSrc);
+
+  // §8c — when we are drawing a real sprite, never use a plate with a car
+  // baked into it, or the household sees two cars.
+  const bakedScene: SceneKey =
+    showDynamicCar && scene === 'night-ev'
+      ? 'night'
+      : showDynamicCar && scene === 'night-pw-discharge-ev'
+        ? 'night-pw-discharge'
+        : scene;
+  const spriteFilter = SPRITE_FILTER[scene];
+  const spriteIsNight = NIGHT_SCENES.includes(scene);
+  const showSecondCar = Boolean(secondVehicle?.src);
 
 
   // Car geometry in viewBox (0–100) space. When actively charging at home,
@@ -642,7 +768,7 @@ export function EnergyFlowScene({
   // battery→home hero below owns that story instead.
   const teslaCharging = data.tesla?.isCharging === true && data.tesla?.source !== 'supercharger';
   const evBranchKw =
-    teslaCharging && !isOutage && scene !== 'night-ev'
+    teslaCharging && !isOutage
       ? Math.abs(data.tesla?.kW ?? data.evPower ?? 0)
       : 0;
 
@@ -681,10 +807,11 @@ export function EnergyFlowScene({
     (tp?.fast_charger_present === true ||
       (typeof tp?.fast_charger_brand === 'string' && tp.fast_charger_brand.length > 0));
 
-  const chargingAtHome = isCharging && !isSupercharging && scene !== 'night-ev' && !isOutage;
+  const chargingAtHome = isCharging && !isSupercharging && !isOutage;
   const carAnchor = chargingAtHome ? HOME_BLUEPRINT.garageFront : HOME_BLUEPRINT.carPark;
-  const carW = HOME_BLUEPRINT.carWidth;
-  const carH = HOME_BLUEPRINT.carHeight;
+  // §6 — two proven vehicles share the driveway, so both shrink to fit.
+  const carW = showSecondCar ? HOME_BLUEPRINT.carWidthDual : HOME_BLUEPRINT.carWidth;
+  const carH = showSecondCar ? HOME_BLUEPRINT.carHeightDual : HOME_BLUEPRINT.carHeight;
   const carX = carAnchor.x - carW / 2;
   const carY = carAnchor.y - carH / 2;
   const evKw = data.tesla?.kW ?? data.evPower ?? 0;
@@ -720,6 +847,9 @@ export function EnergyFlowScene({
       data-vehicle-color={resolvedColor ?? 'none'}
       data-vehicle-wheel={wheelType ?? ''}
       data-vehicle-name={displayName ?? ''}
+      data-grid-source={gridSource}
+      data-grid-override={gridOverrideReason ?? ''}
+      data-home-derived={homeDerived ? '1' : '0'}
     >
       {/* Atmosphere — a soft sky gradient behind the roofline that fades into
           the UI. Does most of the depth work; the scene reads flat without it. */}
@@ -759,7 +889,7 @@ export function EnergyFlowScene({
           Geometry & anchors live in HouseSceneV5.tsx + HomeBlueprint.ts. */}
       <AnimatePresence mode="sync">
         <motion.div
-          key={scene}
+          key={bakedScene}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -767,7 +897,7 @@ export function EnergyFlowScene({
           className="absolute inset-0"
         >
           <HouseSceneV5
-            scene={scene}
+            scene={bakedScene}
             homeActive={homeDrawing}
             solarActive={solarProducing}
             garageOpen={chargingAtHome || carConnected}
@@ -1140,8 +1270,25 @@ export function EnergyFlowScene({
               width={carW}
               height={carH}
               preserveAspectRatio="xMidYMid meet"
-              style={{ filter: 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))' }}
+              style={{
+                filter: [spriteFilter, 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))']
+                  .filter(Boolean)
+                  .join(' '),
+              }}
             />
+            {/* §8b — blue ambient wash so the sprite sits in the same night
+                light as the house instead of reading as a daylight cut-out. */}
+            {spriteIsNight && (
+              <rect
+                x={carX}
+                y={carY}
+                width={carW}
+                height={carH}
+                fill="hsl(220 70% 30%)"
+                opacity={0.18}
+                style={{ mixBlendMode: 'soft-light', pointerEvents: 'none' }}
+              />
+            )}
             {/* Emerald charge-port pulse while actively charging */}
             {chargingAtHome && (
               <g style={{ pointerEvents: 'none' }}>
@@ -1173,43 +1320,84 @@ export function EnergyFlowScene({
             )}
           </g>
         )}
+
+        {/* §6 — second proven vehicle, its own anchor and its own proof. */}
+        {showSecondCar && secondVehicle?.src && (
+          <g>
+            <ellipse
+              cx={HOME_BLUEPRINT.carPark2.x}
+              cy={HOME_BLUEPRINT.carPark2.y + carH * 0.42}
+              rx={carW * 0.42}
+              ry={1.6}
+              fill="hsl(220 70% 2%)"
+              opacity={0.5}
+              style={{ filter: 'blur(1.4px)' }}
+            />
+            <image
+              href={secondVehicle.src}
+              x={HOME_BLUEPRINT.carPark2.x - carW / 2}
+              y={HOME_BLUEPRINT.carPark2.y - carH / 2}
+              width={carW}
+              height={carH}
+              preserveAspectRatio="xMidYMid meet"
+              style={{
+                filter: [spriteFilter, 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))']
+                  .filter(Boolean)
+                  .join(' '),
+              }}
+            />
+            {spriteIsNight && (
+              <rect
+                x={HOME_BLUEPRINT.carPark2.x - carW / 2}
+                y={HOME_BLUEPRINT.carPark2.y - carH / 2}
+                width={carW}
+                height={carH}
+                fill="hsl(220 70% 30%)"
+                opacity={0.18}
+                style={{ mixBlendMode: 'soft-light', pointerEvents: 'none' }}
+              />
+            )}
+          </g>
+        )}
       </svg>
 
       {/* HTML overlay aligned to the same square as the hero PNG / SVG.
           Lets us drop a "Charging" pill that tracks the car anchor in
           the exact same 0–100 coordinate space. */}
-      {showDynamicCar && chargingAtHome && (
+      {/* §5/§6 — vehicle chips, attached to each rendered car. A chip exists
+          only where a car exists, and a car exists only where co-location is
+          proven, so the chip never has to claim a location. */}
+      {(showDynamicCar || showSecondCar) && (
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-[80%] -translate-y-1/2"
           style={{ aspectRatio: '1 / 1', maxWidth: '94%', zIndex: 18 }}
         >
-          <div
-            className="absolute -translate-x-1/2 -translate-y-full"
-            style={{
-              left: `${carAnchor.x}%`,
-              top: `${carAnchor.y - carH / 2 - 1}%`,
-            }}
-          >
-            <div className="flex flex-col items-center gap-1">
-              <div className="flex items-center gap-1.5 rounded-full border border-emerald-400/40 bg-background/85 px-2 py-0.5 text-[10px] font-semibold tabular-nums text-emerald-300 shadow-[0_0_14px_hsla(142,76%,50%,0.35)] backdrop-blur">
-                <span className="relative inline-flex h-1.5 w-1.5">
-                  <span className="absolute inset-0 inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                </span>
-                Charging · {evKw.toFixed(1)} kW
-              </div>
-              {(typeof evSoc === 'number' || typeof evRange === 'number') && (
-                <div className="rounded-full bg-background/70 px-1.5 py-[1px] text-[9px] font-medium tabular-nums text-foreground/80 backdrop-blur">
-                  {typeof evSoc === 'number' ? `${evSoc}%` : ''}
-                  {typeof evSoc === 'number' && typeof evRange === 'number' ? ' · ' : ''}
-                  {typeof evRange === 'number' ? `${evRange} mi` : ''}
-                </div>
-              )}
-            </div>
-          </div>
+          {showDynamicCar && (
+            <VehicleChip
+              x={carAnchor.x}
+              y={carAnchor.y - carH / 2 - 1}
+              name={displayName}
+              kw={chargingAtHome ? evKw : null}
+              soc={typeof evSoc === 'number' ? evSoc : null}
+              rangeMi={typeof evRange === 'number' ? evRange : null}
+              charging={chargingAtHome}
+            />
+          )}
+          {showSecondCar && secondVehicle && (
+            <VehicleChip
+              x={HOME_BLUEPRINT.carPark2.x}
+              y={HOME_BLUEPRINT.carPark2.y - carH / 2 - 1}
+              name={secondVehicle.name ?? null}
+              kw={secondVehicle.charging ? (secondVehicle.kw ?? null) : null}
+              soc={typeof secondVehicle.soc === 'number' ? secondVehicle.soc : null}
+              rangeMi={null}
+              charging={Boolean(secondVehicle.charging)}
+            />
+          )}
         </div>
       )}
+
 
       {/* v5 Phase B — Supercharging badge. Shown when Tesla telemetry
           reports a fast charger present (Supercharger, EA, etc). The car
@@ -1256,9 +1444,16 @@ export function EnergyFlowScene({
       ) : (
         <FlowLabel
           position="tr"
-          label="Home"
+          /* §4 — home load has no meter behind it. Permanent asterisk, always. */
+          label={homeDerived ? 'Home *' : 'Home'}
           value={fmtKw(home)}
-          sub={homeDrawing ? 'Drawing' : 'Idle'}
+          sub={
+            homeDerived
+              ? `${homeDrawing ? 'Drawing' : 'Idle'} · derived`
+              : homeDrawing
+                ? 'Drawing'
+                : 'Idle'
+          }
           accent={homeDrawing ? 'green' : 'muted'}
           active={homeDrawing}
           hero
@@ -1304,9 +1499,19 @@ export function EnergyFlowScene({
       ) : (
         <FlowLabel
           position="br"
-          label="Grid"
+          /* §3 — grid is usually measured. The marker appears only on the
+             frames where the raw CT disagreed with the rest of the site. */
+          label={gridSource === 'reconciled' ? 'Grid ◆' : 'Grid'}
           value={`${fmtKw(grid)} ${arrow(grid)}`.trim()}
-          sub={gridImporting ? 'Importing' : gridExporting ? 'Exporting' : 'Balanced'}
+          sub={
+            gridSource === 'reconciled'
+              ? 'Reconciled this frame'
+              : gridImporting
+                ? 'Importing'
+                : gridExporting
+                  ? 'Exporting'
+                  : 'Balanced'
+          }
           accent={gridExporting ? 'blue' : gridImporting ? 'amber' : 'muted'}
           active={Math.abs(grid) > 0.05}
         />

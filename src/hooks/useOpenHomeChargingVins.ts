@@ -16,6 +16,12 @@ import { useAuth } from '@/hooks/useAuth';
  *
  * Display only. Nothing derived from this reaches the issuance path.
  */
+export interface OpenHomeSession {
+  deviceId: string;
+  /** e.g. 'wall_connector' | 'geofence' | null */
+  presenceEvidence: string | null;
+}
+
 export function useOpenHomeChargingVins() {
   const viewAsUserId = useViewAsUserId();
   const { user } = useAuth();
@@ -39,21 +45,40 @@ export function useOpenHomeChargingVins() {
   const query = useQuery({
     queryKey,
     enabled: !!effectiveUserId,
-    queryFn: async (): Promise<string[]> => {
+    queryFn: async (): Promise<OpenHomeSession[]> => {
       if (!effectiveUserId) return [];
       const { data, error } = await supabase
         .from('home_charging_sessions')
-        .select('device_id')
+        .select('device_id, session_metadata')
         .eq('user_id', effectiveUserId)
         .eq('status', 'charging');
       if (error) return [];
-      return Array.from(new Set((data ?? []).map((r: { device_id: string }) => r.device_id)));
+      return (data ?? []).map((r) => {
+        const meta = (r.session_metadata ?? {}) as { presence_evidence?: string | null };
+        return {
+          deviceId: r.device_id,
+          presenceEvidence: typeof meta.presence_evidence === 'string' ? meta.presence_evidence : null,
+        };
+      });
     },
     refetchInterval: 30_000,
   });
 
+  const sessions = query.data ?? [];
+
   return {
-    vins: new Set(query.data ?? []),
+    /** Every vehicle with an open home session, whatever the evidence type. */
+    vins: new Set(sessions.map((s) => s.deviceId)),
+    /**
+     * §5 — vehicles whose co-location at this address is PROVEN by a wall
+     * connector reporting their VIN under load. This, and only this, gates
+     * whether a car is drawn in the scene. A vehicle's own telemetry saying
+     * "charging" is not co-location proof and must not render a car.
+     */
+    provenAtHomeVins: new Set(
+      sessions.filter((s) => s.presenceEvidence === 'wall_connector').map((s) => s.deviceId),
+    ),
+    sessions,
     loading: query.isLoading,
   };
 }
