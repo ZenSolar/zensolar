@@ -27,6 +27,7 @@ import { ZenXPill } from './ZenXPill';
 import { VehicleStatusStrip } from './VehicleStatusStrip';
 import { FreshnessException } from './FreshnessNote';
 import { isDarkReading } from '@/lib/telemetryFreshness';
+import { computeCardFreshness } from '@/lib/cardFreshness';
 
 /**
  * The card polls every source together, so it states its age ONCE in the
