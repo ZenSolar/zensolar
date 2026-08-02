@@ -161,6 +161,34 @@ describe('coverage invariant: end-to-end reachability under a real household', (
   });
 });
 
+/**
+ * UPSTREAM PRECONDITION — the fourth silent-zero mode.
+ *
+ * Home charging (2026-08-02): the writer was enabled, compliant, mapped and
+ * authorised, and the category still earned nothing, because no
+ * `home_charging_sessions` row ever opened. Enablement is not delivery. A
+ * locked activity type needs at least one unconditional writer that produces
+ * rows whenever it runs — no gate in front of it that can silently never fire.
+ */
+describe('coverage invariant: no locked type depends solely on a gated writer', () => {
+  it.each(LOCKED_ACTIVITY_TYPES)(
+    '%s has an unconditional writer with no upstream precondition',
+    (activity) => {
+      const writers = WRITER_REGISTRY[activity].filter((w) => !w.conditional);
+      const ungated = writers.filter((w) => !w.precondition && writerEnabled(w.fn));
+      expect(
+        ungated.length,
+        `${activity} can only earn when an UPSTREAM PRECONDITION fires, so it can sit at ` +
+          `zero with every writer healthy. Gated writers: ` +
+          writers
+            .filter((w) => w.precondition)
+            .map((w) => `${w.fn} requires ${w.precondition}`)
+            .join('; '),
+      ).toBeGreaterThan(0);
+    },
+  );
+});
+
 
 describe('coverage invariant: authority never demotes an entire activity type', () => {
   it('a lone dedicated inverter stays metered', () => {
