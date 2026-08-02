@@ -730,6 +730,78 @@ async function processVehicle(
       console.log(`[ChargeMonitor] ⟳ UPDATED session ${activeSession.id.slice(0, 8)}: ${totalSoFar.toFixed(1)} kWh so far`);
       results.push({ vin, action: "updated", energy: totalSoFar });
     }
+  } else if ((wallConnectorPowerKw.get(vin) ?? 0) > 0) {
+    // ── CONNECTOR-OBSERVED SESSION (separate evidence class) ────────────────
+    // The vehicle's own API is the ONLY source of EV charging QUANTITY. But a
+    // parked car reports `Complete` / 0 kW while the wall connector — mains
+    // powered, always awake — still measures real power flowing into it. That
+    // disagreement is why an actively charging ZenX rendered nowhere on the
+    // cockpit: no session row existed for the card to read.
+    //
+    // So we open a session for VISIBILITY only, tagged
+    // `evidence_class: 'wall_connector_measured'` and `issuance_eligible:
+    // false`. It carries no kWh of its own and is skipped by the
+    // energy_production / charging_sessions writers on close. Quantity remains
+    // vehicle-onboard-only, exactly as the authority rule requires.
+    const wcKw = wallConnectorPowerKw.get(vin) ?? 0;
+    const now = new Date().toISOString();
+
+    if (activeSession) {
+      const meta = (activeSession.session_metadata ?? {}) as Record<string, unknown>;
+      await supabase
+        .from("home_charging_sessions")
+        .update({
+          charger_power_kw: wcKw,
+          session_metadata: {
+            ...meta,
+            battery_level_latest: batteryLevel,
+            last_poll: now,
+            wall_connector_kw: wcKw,
+            vehicle_reported_state: chargingState,
+          },
+        })
+        .eq("id", activeSession.id);
+      console.log(
+        `[ChargeMonitor] ⟳ WC-OBSERVED ${vin}: connector ${wcKw.toFixed(2)} kW, vehicle says ${chargingState} (session ${activeSession.id.slice(0, 8)})`,
+      );
+      results.push({ vin, action: "wall_connector_observed_update", charger_kw: wcKw });
+      return;
+    }
+
+    const genesisHash = await buildSnapshotHash(vin, now, 0, batteryLevel, "genesis");
+    const { error } = await supabase.from("home_charging_sessions").insert({
+      user_id: userId,
+      device_id: vin,
+      start_time: now,
+      start_kwh_added: chargeEnergyAdded,
+      end_kwh_added: chargeEnergyAdded,
+      total_session_kwh: 0,
+      status: "charging",
+      location: homeAddress || "Home",
+      latitude: vehicleLat,
+      longitude: vehicleLng,
+      charger_power_kw: wcKw,
+      proof_chain: [{ ts: now, kwh: 0, bat: batteryLevel, hash: genesisHash, observer_only: true }],
+      verified: false,
+      session_metadata: {
+        presence_evidence: "wall_connector",
+        evidence_class: "wall_connector_measured",
+        issuance_eligible: false,
+        quantity_source: "none",
+        wall_connector_kw: wcKw,
+        vehicle_reported_state: chargingState,
+        battery_level_start: batteryLevel,
+        distance_from_home_mi: distFromHome,
+      },
+    });
+    if (error) {
+      console.error(`[ChargeMonitor] WC-observed insert error:`, error);
+    } else {
+      console.log(
+        `[ChargeMonitor] ▶ WC-OBSERVED session opened for ${vin}: connector ${wcKw.toFixed(2)} kW while vehicle reports ${chargingState} — display only, not issuable`,
+      );
+    }
+    results.push({ vin, action: "wall_connector_observed_start", charger_kw: wcKw });
   } else if (
     chargingState === "Complete" ||
     chargingState === "Stopped" ||
