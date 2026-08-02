@@ -322,7 +322,7 @@ export function buildConductorSegments(args: {
   battery?: number;
   /** + charging the vehicle at this site. Omit/0 when not charging here. */
   ev?: number;
-  colors: { solar: string; home: string; export: string; import: string };
+  colors: { solar: string; home: string; export: string; import: string; ev?: string };
   dimSolar?: boolean;
   hideGrid?: boolean;
 }): ConductorSegment[] {
