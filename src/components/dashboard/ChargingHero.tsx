@@ -70,17 +70,30 @@ export function ChargingHero({
   const isCharging = !!tesla?.isCharging;
   const kW = tesla?.kW ?? 0;
 
-  // Best-guess source narration for the pill (mirrors ChargingFromHomeLine)
+  // Source narration. `located: true` means the sentence names a household
+  // source and is therefore a location claim — permitted only when a home
+  // charging session proves the car is here. Otherwise we report the car's
+  // own meter and say nothing about where it is plugged in.
   const sourceLabel = (() => {
     if (!tesla) return null;
-    if (tesla.source === 'supercharger') return { text: 'Supercharging', icon: Zap };
-    if (tesla.source === 'public') return { text: 'Fast charging', icon: Zap };
+    if (tesla.source === 'supercharger') return { text: 'Supercharging', icon: Zap, located: false };
+    if (tesla.source === 'public') return { text: 'Fast charging', icon: Zap, located: false };
     if (tesla.source !== 'home') return null;
-    if (solarKw > kW * 0.75) return { text: 'your solar', icon: Sun };
-    if (batteryKw < -0.2 && Math.abs(batteryKw) >= kW * 0.5) return { text: 'your Powerwall', icon: BatteryCharging };
-    if (solarKw > 0.3) return { text: 'solar + grid', icon: Sun };
-    return { text: 'the grid', icon: Home };
+    if (!atSite) {
+      // AC charging with no open home session — the car's meter is the only
+      // sourced fact we have. No site, no household source.
+      return {
+        text: kW > 0 ? `Charging · ${kW.toFixed(1)} kW at the vehicle · site unconfirmed` : 'Charging · site unconfirmed',
+        icon: Zap,
+        located: false,
+      };
+    }
+    if (solarKw > kW * 0.75) return { text: 'your solar', icon: Sun, located: true };
+    if (batteryKw < -0.2 && Math.abs(batteryKw) >= kW * 0.5) return { text: 'your Powerwall', icon: BatteryCharging, located: true };
+    if (solarKw > 0.3) return { text: 'solar + grid', icon: Sun, located: true };
+    return { text: 'the grid', icon: Home, located: true };
   })();
+
 
   const limitTarget = chargeLimit !== null ? `${Math.round(chargeLimit)}% limit` : 'charge limit';
   const etaText = (() => {
