@@ -1218,16 +1218,57 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
             )}
           </div>
 
-          {/* Vehicle status strip — a connected vehicle is always visible here,
-              even when it is nowhere near this site. Presence is taken only
-              from a recorded on-site charging session, never from charger type. */}
-          {hideVehicle && ev.data.length > 0 && (
+          {/* Vehicle chips — merged into this card (§1). A connected vehicle is
+              always visible here, even when it is nowhere near this site.
+              Presence is taken only from a recorded on-site charging session,
+              never from charger type. No separate header, no second badge:
+              rows defer to the card's single freshness claim. */}
+          {ev.data.length > 0 && (
             <VehicleStatusStrip
               vehicles={ev.data}
               atSite={!!isActivelyCharging}
+              cardIso={cardIso}
+              chargingKwBySite={Object.fromEntries(
+                ev.data.map((t) => [
+                  t.site_id,
+                  pickNumber(t.payload, [
+                    'charge_rate_kw',
+                    'charger_power',
+                    'vehicles.0.charger_power',
+                    'response.charge_state.charger_power',
+                  ]) ?? 0,
+                ]),
+              )}
               className="-mt-2"
             />
           )}
+
+          {/* Provenance legend (§3/§4) — the card names how each reading was
+              obtained instead of raising a separate "unresolved" banner. The
+              grid figure the diagram draws is the reconciled one; when it was
+              derived from the other meters, that is said here, once. */}
+          <div className="-mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 px-0.5 text-[9px] uppercase tracking-[0.14em] text-muted-foreground/70">
+            <span className="inline-flex items-center gap-1">
+              <span aria-hidden="true" className="inline-block h-1.5 w-1.5 rounded-full bg-primary/70" />
+              Measured
+            </span>
+            {(reconciledFlow.gridCorrected || reconciledFlow.homeDerived) && (
+              <span className="inline-flex items-center gap-1">
+                <span aria-hidden="true" className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400/70" />
+                Derived:{' '}
+                {[reconciledFlow.gridCorrected ? 'grid' : null, reconciledFlow.homeDerived ? 'home' : null]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </span>
+            )}
+            {ev.data.length > 0 && openHomeChargingVins.size === 0 && (
+              <span className="inline-flex items-center gap-1">
+                <span aria-hidden="true" className="inline-block h-1.5 w-1.5 rounded-full bg-muted-foreground/50" />
+                Vehicle observed, not metered at site
+              </span>
+            )}
+          </div>
+
 
 
 
