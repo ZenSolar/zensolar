@@ -127,11 +127,19 @@ async function geocodeAddress(
  *
  * Returns the set of VINs a connector at this account currently reports.
  */
+export interface WallConnectorPresence {
+  /** VINs a connector at this account currently reports under load. */
+  vins: Set<string>;
+  /** Connector-measured power per VIN, kW. Location + DISPLAY only. */
+  powerKwByVin: Map<string, number>;
+}
+
 async function fetchWallConnectorVins(
   accessToken: string,
   energySiteIds: string[],
-): Promise<Set<string>> {
+): Promise<WallConnectorPresence> {
   const vins = new Set<string>();
+  const powerKwByVin = new Map<string, number>();
   for (const id of energySiteIds) {
     try {
       const r = await fetch(
@@ -158,13 +166,18 @@ async function fetchWallConnectorVins(
         // unambiguous signal. Either one, with a VIN attached, proves the car
         // is on this wall.
         if (power > 0 || state === 4) vins.add(vin);
+        if (power > 0) {
+          const kw = power > 1000 ? power / 1000 : power; // payload is watts
+          powerKwByVin.set(vin, Math.max(powerKwByVin.get(vin) ?? 0, kw));
+        }
       }
     } catch {
       // A live_status failure is silence, not evidence. Fail closed.
     }
   }
-  return vins;
+  return { vins, powerKwByVin };
 }
+
 
 
 async function refreshTeslaToken(
