@@ -153,19 +153,16 @@ async function fetchWallConnectorVins(
       for (const wc of wcs) {
         const vin = typeof wc?.vin === "string" ? wc.vin.trim() : "";
         if (!vin) continue;
+        // A connector bolted to this wall naming a VIN at all is co-location
+        // proof — power and state flicker between polls (state 1/4, 0 W then
+        // 378 W on the same plugged-in car), so gating presence on them
+        // produced a car that vanished from the cockpit every other minute.
+        // Power is recorded for DISPLAY only; the vehicle remains the meter.
         const powerW = Number(wc?.wall_connector_power ?? 0);
-        const state = Number(wc?.wall_connector_state ?? 0);
-        // State 4 == connected/charging in Tesla's enum; power > 0 is the
-        // unambiguous signal. Either one, with a VIN attached, proves the car
-        // is on this wall.
-        if (powerW > 0 || state === 4) {
-          // Tesla reports connector power in watts on live_status.
-          // live_status reports connector power in WATTS.
-          const kw = powerW / 1000;
-
-          vins.set(vin, Math.max(vins.get(vin) ?? 0, Number.isFinite(kw) ? kw : 0));
-        }
+        const kw = Number.isFinite(powerW) ? powerW / 1000 : 0;
+        vins.set(vin, Math.max(vins.get(vin) ?? 0, kw));
       }
+
     } catch {
       // A live_status failure is silence, not evidence. Fail closed.
     }
