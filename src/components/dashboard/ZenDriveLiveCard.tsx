@@ -213,7 +213,9 @@ export function ZenDriveLiveCard({ alwaysRender = false, deviceIndex = 0 }: ZenD
           sourceKw={teslaFlow?.kW ?? 0}
           solarKw={solarKw}
           batteryKw={batteryKw}
+          atSite={!!isActivelyCharging}
         />
+
       </div>
 
       {/* Charging split — Home & AC vs Tesla Supercharging (today + live session delta) */}

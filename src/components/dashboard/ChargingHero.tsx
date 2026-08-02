@@ -38,6 +38,7 @@ export function ChargingHero({
   sourceKw,
   solarKw,
   batteryKw,
+  atSite = false,
 }: {
   vehicleName: string;
   vehicleAsset: ResolvedVehicleAsset;
@@ -46,7 +47,14 @@ export function ChargingHero({
   sourceKw: number;
   solarKw: number;
   batteryKw: number; // + charging / − discharging
+  /**
+   * True ONLY when an open `home_charging_sessions` row proves the car is
+   * drawing power at this site. Naming a household source ("your solar",
+   * "solar + grid") is a location claim; it may not be spoken without this.
+   */
+  atSite?: boolean;
 }) {
+
   const cs = payload?.charge_state ?? payload?.response?.charge_state ?? payload;
   const soc = num(pick(payload, ['battery_level', 'usable_battery_level', 'response.charge_state.battery_level'])) ?? num(cs?.battery_level);
   const range = num(pick(payload, ['battery_range', 'ideal_battery_range', 'est_battery_range', 'response.charge_state.battery_range']));
@@ -62,17 +70,30 @@ export function ChargingHero({
   const isCharging = !!tesla?.isCharging;
   const kW = tesla?.kW ?? 0;
 
-  // Best-guess source narration for the pill (mirrors ChargingFromHomeLine)
+  // Source narration. `located: true` means the sentence names a household
+  // source and is therefore a location claim — permitted only when a home
+  // charging session proves the car is here. Otherwise we report the car's
+  // own meter and say nothing about where it is plugged in.
   const sourceLabel = (() => {
     if (!tesla) return null;
-    if (tesla.source === 'supercharger') return { text: 'Supercharging', icon: Zap };
-    if (tesla.source === 'public') return { text: 'Fast charging', icon: Zap };
+    if (tesla.source === 'supercharger') return { text: 'Supercharging', icon: Zap, located: false };
+    if (tesla.source === 'public') return { text: 'Fast charging', icon: Zap, located: false };
     if (tesla.source !== 'home') return null;
-    if (solarKw > kW * 0.75) return { text: 'your solar', icon: Sun };
-    if (batteryKw < -0.2 && Math.abs(batteryKw) >= kW * 0.5) return { text: 'your Powerwall', icon: BatteryCharging };
-    if (solarKw > 0.3) return { text: 'solar + grid', icon: Sun };
-    return { text: 'the grid', icon: Home };
+    if (!atSite) {
+      // AC charging with no open home session — the car's meter is the only
+      // sourced fact we have. No site, no household source.
+      return {
+        text: kW > 0 ? `Charging · ${kW.toFixed(1)} kW at the vehicle · site unconfirmed` : 'Charging · site unconfirmed',
+        icon: Zap,
+        located: false,
+      };
+    }
+    if (solarKw > kW * 0.75) return { text: 'your solar', icon: Sun, located: true };
+    if (batteryKw < -0.2 && Math.abs(batteryKw) >= kW * 0.5) return { text: 'your Powerwall', icon: BatteryCharging, located: true };
+    if (solarKw > 0.3) return { text: 'solar + grid', icon: Sun, located: true };
+    return { text: 'the grid', icon: Home, located: true };
   })();
+
 
   const limitTarget = chargeLimit !== null ? `${Math.round(chargeLimit)}% limit` : 'charge limit';
   const etaText = (() => {
@@ -160,18 +181,40 @@ export function ChargingHero({
         </div>
       )}
 
-      {/* Row 3: source pill inside hero */}
+      {/* Row 3: source pill inside hero. Only a proven on-site session earns
+          the "Charging from <household source>" sentence. */}
       {isCharging && sourceLabel && (
-        <div className="mt-2 flex items-center justify-center gap-2 text-[12px] text-emerald-100/90">
-          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_hsla(142,76%,50%,0.7)]">
-            <span className="absolute inset-0 inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
+        <div
+          className={`mt-2 flex items-center justify-center gap-2 text-[12px] ${
+            sourceLabel.located ? 'text-emerald-100/90' : 'text-muted-foreground'
+          }`}
+        >
+          <span
+            className={`relative inline-flex h-1.5 w-1.5 rounded-full ${
+              sourceLabel.located
+                ? 'bg-emerald-400 shadow-[0_0_8px_hsla(142,76%,50%,0.7)]'
+                : 'bg-muted-foreground/60'
+            }`}
+          >
+            {sourceLabel.located && (
+              <span className="absolute inset-0 inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
+            )}
           </span>
-          <sourceLabel.icon className="h-3.5 w-3.5 text-emerald-300" />
+          <sourceLabel.icon
+            className={`h-3.5 w-3.5 ${sourceLabel.located ? 'text-emerald-300' : 'text-muted-foreground'}`}
+          />
           <span>
-            Charging from <span className="font-semibold">{sourceLabel.text}</span>
+            {sourceLabel.located ? (
+              <>
+                Charging from <span className="font-semibold">{sourceLabel.text}</span>
+              </>
+            ) : (
+              sourceLabel.text
+            )}
           </span>
         </div>
       )}
+
 
       {/* Row 4: dense data row */}
       {dataChips.length > 0 && (
