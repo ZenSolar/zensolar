@@ -539,11 +539,12 @@ async function processUser(supabase: any, userId: string, results: any[]) {
   );
   const wallConnectorVins = siteIds.length
     ? await fetchWallConnectorVins(accessToken, siteIds)
-    : new Set<string>();
+    : new Map<string, number>();
   if (wallConnectorVins.size > 0) {
     console.log(
-      `[ChargeMonitor] Wall connector reports VIN(s) on-site for ${userId.slice(0, 8)}: ${[...wallConnectorVins].join(", ")}`,
+      `[ChargeMonitor] Wall connector reports VIN(s) on-site for ${userId.slice(0, 8)}: ${[...wallConnectorVins.entries()].map(([v, kw]) => `${v}@${kw}kW`).join(", ")}`,
     );
+
   }
 
   for (const vehicle of vehicles) {
