@@ -574,14 +574,19 @@ async function processVehicle(
   // ── STATE MACHINE ──────────────────────────────────────────────────────
 
   if (chargingState === "Charging" && isAcCharging) {
-    // Vehicle is AC charging
-    const isHome = isNearHome || (!homeCoords && isAcCharging);
-
-    if (!isHome) {
-      // AC charging but NOT at home — skip (destination charger)
-      results.push({ vin, action: "ac_not_home", dist: distFromHome });
+    // THIRD FAIL-OPEN, REMOVED: `|| (!homeCoords && isAcCharging)` meant a
+    // member with no address on file had every AC charge counted as home.
+    // Presence must now be positively proven.
+    if (!isNearHome) {
+      results.push({
+        vin,
+        action: presenceEvidence === "none" ? "ac_presence_unproven" : "ac_not_home",
+        dist: distFromHome,
+        presence_evidence: presenceEvidence,
+      });
       return;
     }
+
 
     if (!activeSession) {
       const since = new Date(Date.now() - OVERLAP_CONTINUATION_WINDOW_MS).toISOString();
