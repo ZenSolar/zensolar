@@ -12,9 +12,9 @@ describe('reconciledFlow — one object, one grid value', () => {
     const flow = reconcileEnergyFlow({
       solarKw: 4.2,
       batteryKw: -1.0, // discharging
-      gridKwRaw: 0.3,
-      homeKwEstimate: 5.5,
-      evKw: 0,
+      rawGridKw: 0.3,
+      rawHomeKw: 5.5,
+      evHomeKw: 0,
     });
     expect(flow.gridSource).toBe('raw');
     expect(flow.gridKw).toBe(0.3);
@@ -27,9 +27,9 @@ describe('reconciledFlow — one object, one grid value', () => {
     const flow = reconcileEnergyFlow({
       solarKw: 5.4,
       batteryKw: 0.6,
-      gridKwRaw: 1.1,
-      homeKwEstimate: 4.0,
-      evKw: 0,
+      rawGridKw: 1.1,
+      rawHomeKw: 4.0,
+      evHomeKw: 0,
     });
     expect(flow.gridSource).toBe('reconciled');
     expect(flow.gridKw).not.toBe(1.1);
@@ -41,9 +41,9 @@ describe('reconciledFlow — one object, one grid value', () => {
     const flow = reconcileEnergyFlow({
       solarKw: 0,
       batteryKw: 0,
-      gridKwRaw: 2,
-      homeKwEstimate: 2,
-      evKw: 0,
+      rawGridKw: 2,
+      rawHomeKw: 2,
+      evHomeKw: 0,
     });
     expect(flow.homeDerived).toBe(true);
   });
@@ -52,9 +52,9 @@ describe('reconciledFlow — one object, one grid value', () => {
     const flow = reconcileEnergyFlow({
       solarKw: 0,
       batteryKw: 0,
-      gridKwRaw: 0,
-      homeKwEstimate: 3.0,
-      evKw: 0,
+      rawGridKw: 0,
+      rawHomeKw: 3.0,
+      evHomeKw: 0,
     });
     const { unmeasuredKw, sinks } = buildSourcesSinks(flow);
     expect(unmeasuredKw).toBeGreaterThan(0);
