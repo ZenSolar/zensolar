@@ -810,20 +810,35 @@ export function EnergyFlowScene({
 
 
 
-  // v5 Phase B — Supercharger detection. Tesla telemetry exposes
-  // `fast_charger_present` / `fast_charger_brand` when plugged into a
-  // DC fast charger. When supercharging we hide the home cable arc +
-  // dynamic car (the car is not at home) and surface a "Supercharging"
-  // badge so the user can still see live charge state at a glance.
+  // Supercharger detection reads the VEHICLE's own charge-port telemetry,
+  // never the site. `fast_charger_brand` alone is unreliable — it lingers
+  // from a previous DC session — so DC is only asserted when the port
+  // reports a DC connector AND the vehicle is not proven at this site.
   const tp = teslaPayload as
-    | { fast_charger_present?: boolean; fast_charger_brand?: string | null }
+    | {
+        fast_charger_present?: boolean;
+        fast_charger_brand?: string | null;
+        conn_charge_cable?: string | null;
+        charger_phases?: number | null;
+        fast_charger_type?: string | null;
+      }
     | undefined;
+  // AC evidence from the onboard charger: phases reported (1 or 3) or a
+  // non-DC cable type. Either one rules out supercharging outright.
+  const acEvidence =
+    (typeof tp?.charger_phases === 'number' && tp.charger_phases > 0) ||
+    (typeof tp?.conn_charge_cable === 'string' &&
+      tp.conn_charge_cable.length > 0 &&
+      !/combo|ccs|gb|dc/i.test(tp.conn_charge_cable));
+  const dcEvidence =
+    tp?.fast_charger_present === true ||
+    (typeof tp?.fast_charger_type === 'string' && /combo|ccs|supercharger/i.test(tp.fast_charger_type));
+
   const isSupercharging =
-    isCharging &&
-    (tp?.fast_charger_present === true ||
-      (typeof tp?.fast_charger_brand === 'string' && tp.fast_charger_brand.length > 0));
+    isCharging && dcEvidence && !acEvidence && presenceProven !== true;
 
   const chargingAtHome = isCharging && !isSupercharging && !isOutage;
+
   const carAnchor = chargingAtHome ? HOME_BLUEPRINT.garageFront : HOME_BLUEPRINT.carPark;
   // §6 — two proven vehicles share the driveway, so both shrink to fit.
   const carW = showSecondCar ? HOME_BLUEPRINT.carWidthDual : HOME_BLUEPRINT.carWidth;
