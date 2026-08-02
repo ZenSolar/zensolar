@@ -735,14 +735,42 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
     [solar.data, activeSolarSiteId],
   );
   const primaryBattery = battery.data[0];
+  /**
+   * DISPLAY-ONLY presence fallback.
+   *
+   * A wall connector that has not yet named a VIN leaves an actively AC-charging
+   * car invisible. For RENDERING only, a vehicle whose own charge port reports
+   * an AC charge (phases present / SAE-style cable, no DC-fast brand) is drawn
+   * at this site. Issuance and `evHomeKw` still require an open
+   * `home_charging_sessions` row — nothing here reaches the mint path.
+   */
+  const acAtSiteVins = useMemo(() => {
+    const s = new Set<string>();
+    if (hideVehicle) return s;
+    for (const t of ev.data) {
+      const state = (pickString(t.payload, ['charging_state', 'vehicles.0.charging_state']) ?? '').toLowerCase();
+      if (state !== 'charging') continue;
+      const phases = pickNumber(t.payload, ['charger_phases', 'vehicles.0.charger_phases']);
+      const brand = (pickString(t.payload, ['fast_charger_brand']) ?? '').toLowerCase();
+      const dcFast = brand !== '' && brand !== '<invalid>' && brand !== 'invalid';
+      if (phases != null && phases > 0 && !dcFast) s.add(t.site_id);
+    }
+    return s;
+  }, [hideVehicle, ev.data]);
+
+  const displayAtSiteVins = useMemo(
+    () => new Set<string>([...provenAtHomeVins, ...acAtSiteVins]),
+    [provenAtHomeVins, acAtSiteVins],
+  );
+
   // The car the scene leads with is the one PROVEN to be at this site, not
   // whichever telemetry row happened to be cached most recently. In a
   // multi-car household the proven car was landing in the second slot while
   // the unproven one held the primary gate shut, so nothing was drawn at all.
   const primaryEv = useMemo(() => {
     if (!ev.data.length) return undefined;
-    return ev.data.find((t) => provenAtHomeVins.has(t.site_id)) ?? ev.data[0];
-  }, [ev.data, provenAtHomeVins]);
+    return ev.data.find((t) => displayAtSiteVins.has(t.site_id)) ?? ev.data[0];
+  }, [ev.data, displayAtSiteVins]);
 
   const solarStats = solarSnapshot(primarySolar);
   const batteryStats = batterySnapshot(primaryBattery);
