@@ -49,8 +49,14 @@ describe('sleeping car, open wall-connector session', () => {
 
   it('prefers the vehicle reading when the car is awake', () => {
     const awake = {
-      ...sleepingTesla,
-      payload: { ...(sleepingTesla as never as { payload: object }).payload, charger_power: 10.4 },
+      oem: 'tesla',
+      device_id: '5YJXCBE24MF323843',
+      payload: {
+        battery_level: 62,
+        battery_range: 210,
+        charging_state: 'Charging',
+        charger_power: 10.4,
+      },
     } as never;
     const flow = deriveTeslaFlow(awake, true, 11);
     expect(flow?.kW).toBe(10.4);
