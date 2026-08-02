@@ -898,7 +898,7 @@ function ThreadRow({
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(t.title || "Untitled");
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  
 
   const commit = async () => {
     const next = draft.trim();
