@@ -798,6 +798,9 @@ export function EnergyFlowScene({
           home: EMERALD_LED,
           export: CYAN_LED,
           import: SKY_LED,
+          // The EV run gets its own hue so it can never be mistaken for the
+          // solar-to-home line it used to share both colour and origin with.
+          ev: 'hsl(265 90% 78%)',
         },
         dimSolar: isOutage,
         hideGrid: isOutage,
