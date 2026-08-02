@@ -49,14 +49,17 @@ export function useOpenHomeChargingVins() {
       if (!effectiveUserId) return [];
       const { data, error } = await supabase
         .from('home_charging_sessions')
-        .select('device_id, presence_evidence')
+        .select('device_id, session_metadata')
         .eq('user_id', effectiveUserId)
         .eq('status', 'charging');
       if (error) return [];
-      return (data ?? []).map((r: { device_id: string; presence_evidence: string | null }) => ({
-        deviceId: r.device_id,
-        presenceEvidence: r.presence_evidence ?? null,
-      }));
+      return (data ?? []).map((r) => {
+        const meta = (r.session_metadata ?? {}) as { presence_evidence?: string | null };
+        return {
+          deviceId: r.device_id,
+          presenceEvidence: typeof meta.presence_evidence === 'string' ? meta.presence_evidence : null,
+        };
+      });
     },
     refetchInterval: 30_000,
   });
