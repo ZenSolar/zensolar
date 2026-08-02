@@ -160,7 +160,9 @@ async function fetchWallConnectorVins(
         // is on this wall.
         if (powerW > 0 || state === 4) {
           // Tesla reports connector power in watts on live_status.
-          const kw = powerW > 1000 ? powerW / 1000 : powerW;
+          // live_status reports connector power in WATTS.
+          const kw = powerW / 1000;
+
           vins.set(vin, Math.max(vins.get(vin) ?? 0, Number.isFinite(kw) ? kw : 0));
         }
       }
