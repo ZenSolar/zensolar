@@ -756,8 +756,12 @@ async function processVehicle(
 
       results.push({ vin, action: "completed", total_kwh: totalKwh, verified: totalKwh > 0, delta_proof: deltaProof.slice(0, 16) });
     } else {
-      const isHome = isNearHome || (!homeCoords && isAcCharging) || (homeCoords && !vehicleLat && !vehicleLng && isAcCharging);
-      if (isAcCharging && isHome && chargeEnergyAdded >= 1) {
+      // SECOND FAIL-OPEN, ALSO REMOVED. This branch recovers a session that
+      // completed between polls, and it used to treat "no geocode" or "no GPS"
+      // as home. It now requires the same positive presence evidence as the
+      // live path: a wall connector naming this VIN, or a GPS fix inside the
+      // geofence. No evidence, no recovered session.
+      if (isAcCharging && isNearHome && chargeEnergyAdded >= 1) {
         const recovered = await recoverCompletedHomeSession(
           supabase,
           userId,
@@ -770,12 +774,19 @@ async function processVehicle(
           vehicleLng,
           distFromHome,
           userTimezone,
+          presenceEvidence,
         );
         results.push({ vin, ...recovered });
         return;
       }
-      results.push({ vin, action: "no_active_session", state: chargingState });
+      results.push({
+        vin,
+        action: "no_active_session",
+        state: chargingState,
+        presence_evidence: presenceEvidence,
+      });
     }
+
   } else {
     results.push({ vin, action: "idle", state: chargingState });
   }
