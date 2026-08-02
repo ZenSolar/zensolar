@@ -29,7 +29,7 @@ export default function PrototypeSceneCheck() {
           data={data as never}
           forceScene="day"
           vehicleModel="modelx"
-          vehicleColor="white"
+          vehicleColor="pearl-white"
           presenceProven
           hasBattery={false}
           hasCharger
