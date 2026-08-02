@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Send, Sparkles, RotateCcw, X, Paperclip, Image as ImageIcon, ChevronUp, ChevronDown, Save, FileText, ArrowRight, MessageSquare, Pin, PinOff, Pencil, Trash2, Check, FileCheck2, Copy, RefreshCw, AlertTriangle, Mic } from "lucide-react";
+import { Send, Sparkles, RotateCcw, X, Paperclip, Image as ImageIcon, ChevronUp, ChevronDown, Save, FileText, ArrowRight, MessageSquare, Pin, PinOff, Pencil, Check, FileCheck2, Copy, RefreshCw, AlertTriangle, Mic } from "lucide-react";
 import { useVoiceDictation } from "@/hooks/useVoiceDictation";
 
 import { Button } from "@/components/ui/button";
@@ -898,7 +898,7 @@ function ThreadRow({
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(t.title || "Untitled");
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  
 
   const commit = async () => {
     const next = draft.trim();
@@ -971,22 +971,6 @@ function ThreadRow({
                 title="Rename"
               >
                 <Pencil className="h-3.5 w-3.5" />
-              </Button>
-            )}
-            {onDelete && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn("h-7 w-7", confirmDelete ? "text-destructive bg-destructive/10" : "text-muted-foreground hover:text-destructive")}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (confirmDelete) { void onDelete(); setConfirmDelete(false); }
-                  else { setConfirmDelete(true); setTimeout(() => setConfirmDelete(false), 2500); }
-                }}
-                title={confirmDelete ? "Tap again to confirm" : "Delete"}
-                data-capture-hide
-              >
-                <Trash2 className="h-3.5 w-3.5" />
               </Button>
             )}
           </>
