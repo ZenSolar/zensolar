@@ -49,12 +49,41 @@ export const HOME_BLUEPRINT = Object.freeze({
   }>,
   /** Dynamic-vehicle <image> overlay dimensions, % of viewBox.
    *  v5.2: scaled down so the car matches the house's isometric scale
-   *  and tucks into the bay rather than overhanging it. */
+   *  and tucks into the bay rather than overhanging it.
+   *  v5.3: these are now the BUDGET for the auto-fit (see `bays` below),
+   *  not the literal drawn box — the sprite is contained inside them at
+   *  its own aspect ratio. */
   carWidth: 50,
   carHeight: 28,
   /** Car dimensions when two vehicles share the driveway. */
   carWidthDual: 42,
   carHeightDual: 24,
+
+  /**
+   * v5.3 — parking BAYS. Each bay declares a centre line, the ground
+   * contact line the tyres must land on, and the largest box the spot can
+   * swallow. `fitVehicleToBay()` contains the sprite inside that budget at
+   * its true aspect ratio, so mixed-aspect sprites all seat identically and
+   * the layout is resolution-independent (viewBox 0–100 space).
+   *
+   * Contact lines are derived from the legacy anchors so today's render is
+   * preserved: groundY = anchor.y + boxHeight * 0.358.
+   */
+  bays: {
+    /** Charging at home — pulled up onto the garage apron. */
+    garage:    { cx: 26, groundY: 86.0, maxWidth: 50, maxHeight: 28 },
+    /** Parked, not charging — driveway spot in front of the garage. */
+    driveway:  { cx: 22, groundY: 92.0, maxWidth: 50, maxHeight: 28 },
+    /** Second proven vehicle — alongside, still under the house outline. */
+    driveway2: { cx: 46, groundY: 92.6, maxWidth: 42, maxHeight: 24 },
+  } as Readonly<
+    Record<'garage' | 'driveway' | 'driveway2', Readonly<{
+      cx: number; groundY: number; maxWidth: number; maxHeight: number;
+    }>>
+  >,
+  /** Shrink factor applied to both cars when two share the driveway. */
+  dualCarScale: 0.84,
+
 
 
   /**
