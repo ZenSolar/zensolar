@@ -38,6 +38,7 @@ export function ChargingHero({
   sourceKw,
   solarKw,
   batteryKw,
+  atSite = false,
 }: {
   vehicleName: string;
   vehicleAsset: ResolvedVehicleAsset;
@@ -46,7 +47,14 @@ export function ChargingHero({
   sourceKw: number;
   solarKw: number;
   batteryKw: number; // + charging / − discharging
+  /**
+   * True ONLY when an open `home_charging_sessions` row proves the car is
+   * drawing power at this site. Naming a household source ("your solar",
+   * "solar + grid") is a location claim; it may not be spoken without this.
+   */
+  atSite?: boolean;
 }) {
+
   const cs = payload?.charge_state ?? payload?.response?.charge_state ?? payload;
   const soc = num(pick(payload, ['battery_level', 'usable_battery_level', 'response.charge_state.battery_level'])) ?? num(cs?.battery_level);
   const range = num(pick(payload, ['battery_range', 'ideal_battery_range', 'est_battery_range', 'response.charge_state.battery_range']));
