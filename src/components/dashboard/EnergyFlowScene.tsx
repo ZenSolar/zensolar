@@ -38,6 +38,9 @@ import { Conductor, buildConductorSegments, SCENE_ANCHOR_LIST, SCENE_ANCHORS } f
 
 import { HouseSceneV5 } from './HouseSceneV5';
 import { EvChargingCable } from './EvChargingCable';
+import { fitVehicleToBay } from './carAutoFit';
+import { useSpriteAspect } from '@/hooks/useSpriteAspect';
+
 
 
 // v5 Phase 1: legacy baked house PNG imports removed — HouseSceneV5 owns the
