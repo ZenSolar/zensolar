@@ -401,11 +401,12 @@ function FlowLabel({
   hero?: boolean;
 }) {
   const pos: Record<typeof position, string> = {
-    tl: 'top-2.5 left-2.5 items-start text-left',
-    tr: 'top-2.5 right-2.5 items-end text-right',
-    bl: 'bottom-2.5 left-2.5 items-start text-left',
-    br: 'bottom-2.5 right-2.5 items-end text-right',
+    tl: 'top-2 left-2.5 items-start text-left',
+    tr: 'top-2 right-2.5 items-end text-right',
+    bl: 'bottom-2 left-2.5 items-start text-left',
+    br: 'bottom-2 right-2.5 items-end text-right',
   };
+
   const dot: Record<NonNullable<typeof accent>, string> = {
     green: 'bg-emerald-400 shadow-[0_0_10px_hsla(142,76%,50%,0.85)]',
     amber: 'bg-amber-400 shadow-[0_0_10px_hsla(38,92%,55%,0.85)]',
@@ -421,27 +422,28 @@ function FlowLabel({
     muted: '',
   };
   return (
-    <div className={`pointer-events-none absolute z-20 flex max-w-[55%] flex-col gap-0.5 ${pos[position]}`}>
+    <div className={`pointer-events-none absolute z-20 flex max-w-[40%] flex-col gap-0.5 ${pos[position]}`}>
       <div className="flex items-center gap-1.5">
         {active && accent && accent !== 'muted' && (
           <span aria-hidden="true" className={`relative inline-flex h-1.5 w-1.5 rounded-full ${dot[accent]}`}>
             <span className={`absolute inset-0 inline-flex h-full w-full animate-ping rounded-full ${dot[accent]} opacity-70`} />
           </span>
         )}
-        <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/90">
+        <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/90">
           {label}
         </span>
       </div>
       <div
         className={
           hero
-            ? `text-[34px] sm:text-[42px] font-semibold tabular-nums leading-none tracking-tight text-foreground ${active && accent ? valueGlow[accent] : ''}`
-            : `text-xl sm:text-[22px] font-light tabular-nums leading-none text-foreground ${active && accent ? valueGlow[accent] : ''}`
+            ? `text-[26px] sm:text-[32px] font-semibold tabular-nums leading-none tracking-tight text-foreground ${active && accent ? valueGlow[accent] : ''}`
+            : `text-lg sm:text-xl font-light tabular-nums leading-none text-foreground ${active && accent ? valueGlow[accent] : ''}`
         }
         style={hero ? { textShadow: '0 1px 0 hsl(220 60% 4% / 0.6)' } : undefined}
       >
         {value}
       </div>
+
       {sub && (
         <div className="text-[10px] font-medium tracking-wide text-muted-foreground/95">
           {sub}
@@ -501,14 +503,14 @@ function VehicleChip({
           <span>
             {charging && kw !== null ? `Charging · ${kw.toFixed(1)} kW` : 'At home'}
           </span>
+          {(soc !== null || rangeMi !== null) && (
+            <span className="font-medium text-foreground/70">
+              ·{soc !== null ? ` ${soc}%` : ''}
+              {rangeMi !== null ? ` · ${Math.round(rangeMi)} mi` : ''}
+            </span>
+          )}
         </div>
-        {(soc !== null || rangeMi !== null) && (
-          <div className="rounded-full bg-background/70 px-1.5 py-[1px] text-[9px] font-medium tabular-nums text-foreground/80 backdrop-blur">
-            {soc !== null ? `${soc}%` : ''}
-            {soc !== null && rangeMi !== null ? ' · ' : ''}
-            {rangeMi !== null ? `${rangeMi} mi` : ''}
-          </div>
-        )}
+
       </div>
     </div>
   );
@@ -1492,14 +1494,15 @@ export function EnergyFlowScene({
       {/* v5 Phase B — Supercharging badge. Shown when Tesla telemetry
           reports a fast charger present (Supercharger, EA, etc). The car
           is away from home so the dynamic car + cable arc are suppressed;
-          this pill keeps live charge state visible. */}
+          this pill keeps live charge state visible. It sits in the mid band
+          of the scene so it never collides with the corner readouts. */}
       {isSupercharging && (
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-2 z-30 flex justify-center px-3"
+          className="pointer-events-none absolute inset-x-0 top-[42%] z-30 flex justify-center px-3"
         >
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/50 bg-amber-500/15 px-2.5 py-1 text-[11px] font-semibold tabular-nums text-amber-200 shadow-[0_0_18px_hsla(38,95%,55%,0.4)] backdrop-blur">
-            <span className="text-[12px] leading-none">⚡</span>
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/50 bg-amber-500/15 px-2.5 py-1 text-[10px] font-semibold tabular-nums text-amber-200 shadow-[0_0_18px_hsla(38,95%,55%,0.4)] backdrop-blur">
+            <span className="text-[11px] leading-none">⚡</span>
             <span className="uppercase tracking-[0.14em]">Supercharging</span>
             <span className="text-amber-100/90">· {evKw.toFixed(0)} kW</span>
             {typeof evSoc === 'number' && (
@@ -1509,16 +1512,16 @@ export function EnergyFlowScene({
         </div>
       )}
 
-      {/* AC charging badge — vehicle proven at this site on its onboard
-          charger. Uses the reconciled EV branch so wall-connector-measured
-          power still reads correctly while the car's own API is asleep. */}
-      {chargingAtHome && (evBranchKw > 0.1 || evKw > 0.1) && (
+      {/* AC charging badge — only when no car sprite is drawn. When the car
+          IS drawn, its own attached VehicleChip already states the same
+          fact, so showing both stacked two pills on top of each other. */}
+      {chargingAtHome && !showDynamicCar && (evBranchKw > 0.1 || evKw > 0.1) && (
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-2 z-30 flex justify-center px-3"
+          className="pointer-events-none absolute inset-x-0 top-[42%] z-30 flex justify-center px-3"
         >
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-violet-400/50 bg-violet-500/15 px-2.5 py-1 text-[11px] font-semibold tabular-nums text-violet-100 shadow-[0_0_18px_hsla(265,90%,70%,0.35)] backdrop-blur">
-            <span className="text-[12px] leading-none">⚡</span>
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-violet-400/50 bg-violet-500/15 px-2.5 py-1 text-[10px] font-semibold tabular-nums text-violet-100 shadow-[0_0_18px_hsla(265,90%,70%,0.35)] backdrop-blur">
+            <span className="text-[11px] leading-none">⚡</span>
             <span className="uppercase tracking-[0.14em]">AC Charging</span>
             <span className="text-violet-100/90">
               · {(evBranchKw > 0.1 ? evBranchKw : evKw).toFixed(1)} kW
@@ -1529,6 +1532,7 @@ export function EnergyFlowScene({
           </div>
         </div>
       )}
+
 
 
       {/* Floating labels — during outage, top-right and bottom-right are

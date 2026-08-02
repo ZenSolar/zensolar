@@ -156,18 +156,20 @@ function HouseSceneV5Inner({ scene, weatherCode }: Props) {
                 />
               </circle>
             ))}
-            {/* Moon */}
-            <circle cx="78" cy="14" r="3.2" fill="hsl(48 60% 90%)" opacity="0.85" />
-            <circle cx="78" cy="14" r="5" fill="hsl(48 60% 90%)" opacity="0.18" style={{ filter: 'blur(1.2px)' }} />
+            {/* Moon — centered in the open sky band so it never sits behind
+                the corner readouts. */}
+            <circle cx="47" cy="11" r="2.8" fill="hsl(48 60% 90%)" opacity="0.85" />
+            <circle cx="47" cy="11" r="4.4" fill="hsl(48 60% 90%)" opacity="0.16" style={{ filter: 'blur(1.2px)' }} />
           </g>
         )}
         {/* Clear-day sun bloom */}
         {!isNight && isClear && (
           <g>
-            <circle cx="78" cy="16" r="3.6" fill="hsl(48 95% 70%)" opacity="0.85" />
-            <circle cx="78" cy="16" r="7" fill="hsl(45 95% 65%)" opacity="0.25" style={{ filter: 'blur(1.4px)' }} />
+            <circle cx="47" cy="12" r="3" fill="hsl(48 95% 70%)" opacity="0.8" />
+            <circle cx="47" cy="12" r="6" fill="hsl(45 95% 65%)" opacity="0.2" style={{ filter: 'blur(1.4px)' }} />
           </g>
         )}
+
         {/* Drifting clouds — radial gradient bodies + screen blend so the
             clouds pick up the sky color and feel volumetric instead of flat. */}
         {showClouds && (
