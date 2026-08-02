@@ -40,7 +40,7 @@ export const HOME_BLUEPRINT = Object.freeze({
    *  `carHeightDual` so the pair does not overlap. */
   carPark2:     { x: 46, y: 84 } as BlueprintAnchor,
   /** "Charging at home" anchor — pulls the car up to the garage apron. */
-  garageFront:  { x: 22, y: 76 } as BlueprintAnchor,
+  garageFront:  { x: 26, y: 73 } as BlueprintAnchor,
   /** Rectangle over the garage opening — used to paint a warm "door open" bloom. */
   garageOpening: { x: 4, y: 50, w: 26, h: 22 } as Readonly<{
     x: number; y: number; w: number; h: number;
