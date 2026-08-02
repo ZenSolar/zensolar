@@ -847,6 +847,9 @@ export function EnergyFlowScene({
       data-vehicle-color={resolvedColor ?? 'none'}
       data-vehicle-wheel={wheelType ?? ''}
       data-vehicle-name={displayName ?? ''}
+      data-grid-source={gridSource}
+      data-grid-override={gridOverrideReason ?? ''}
+      data-home-derived={homeDerived ? '1' : '0'}
     >
       {/* Atmosphere — a soft sky gradient behind the roofline that fades into
           the UI. Does most of the depth work; the scene reads flat without it. */}
