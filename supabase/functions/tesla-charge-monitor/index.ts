@@ -406,14 +406,20 @@ async function processUser(supabase: any, userId: string, results: any[]) {
     }
   }
 
-  // Get vehicles + home address
-  const [{ data: vehicles }, { data: profile }] = await Promise.all([
+  // Get vehicles + energy sites (for wall-connector presence) + home address
+  const [{ data: vehicles }, { data: sites }, { data: profile }] = await Promise.all([
     supabase
       .from("connected_devices")
       .select("device_id")
       .eq("user_id", userId)
       .eq("provider", "tesla")
       .eq("device_type", "vehicle"),
+    supabase
+      .from("connected_devices")
+      .select("device_id, device_type")
+      .eq("user_id", userId)
+      .eq("provider", "tesla")
+      .in("device_type", ["powerwall", "solar", "wall_connector"]),
     supabase
       .from("profiles")
       .select("home_address, timezone")
@@ -433,11 +439,37 @@ async function processUser(supabase: any, userId: string, results: any[]) {
     }
   }
 
+  // Wall-connector presence, fetched once per user per run. Costs one
+  // live_status call per energy site and never touches a vehicle, so it
+  // cannot wake anything.
+  const siteIds = Array.from(
+    new Set((sites ?? []).map((s: { device_id: string }) => String(s.device_id))),
+  );
+  const wallConnectorVins = siteIds.length
+    ? await fetchWallConnectorVins(accessToken, siteIds)
+    : new Set<string>();
+  if (wallConnectorVins.size > 0) {
+    console.log(
+      `[ChargeMonitor] Wall connector reports VIN(s) on-site for ${userId.slice(0, 8)}: ${[...wallConnectorVins].join(", ")}`,
+    );
+  }
+
   for (const vehicle of vehicles) {
     const vin = vehicle.device_id;
-    await processVehicle(supabase, userId, vin, accessToken, homeAddress, homeCoords, results, userTimezone);
+    await processVehicle(
+      supabase,
+      userId,
+      vin,
+      accessToken,
+      homeAddress,
+      homeCoords,
+      results,
+      userTimezone,
+      wallConnectorVins,
+    );
   }
 }
+
 
 async function processVehicle(
   supabase: any,
