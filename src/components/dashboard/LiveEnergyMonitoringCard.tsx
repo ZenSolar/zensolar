@@ -1,7 +1,7 @@
 import { createContext, lazy, Suspense, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BatteryCharging, Car, Clock3, Gauge, Home, Loader2, RefreshCw, Route, Sparkles, Sun, Zap, type LucideIcon } from 'lucide-react';
-import { useActiveChargingSession } from '@/hooks/useActiveChargingSession';
+import { useActiveChargingSessionDetail } from '@/hooks/useActiveChargingSession';
 import { useOpenHomeChargingVins } from '@/hooks/useOpenHomeChargingVins';
 import {
   useBatteryTelemetry,
@@ -457,6 +457,9 @@ export interface TeslaFlow {
   soc: number;
   rangeMi: number;
   isCharging: boolean;
+  /** Where the kW figure came from. 'wall_connector' means the car is asleep
+   *  and the site hardware is the witness. */
+  kwSource: 'vehicle_api' | 'wall_connector' | 'none';
   source: 'home' | 'supercharger' | 'public' | 'none';
   state: TeslaPillState;
   sourceLabel: string;
@@ -468,7 +471,13 @@ export interface TeslaFlow {
 }
 
 
-export function deriveTeslaFlow(t: CachedTelemetry | undefined, sessionActive: boolean): TeslaFlow | null {
+export function deriveTeslaFlow(
+  t: CachedTelemetry | undefined,
+  sessionActive: boolean,
+  /** Measured wall-connector power for the open session, kW. Used when the
+   *  vehicle's own payload reports 0 — a sleeping car is not a stopped car. */
+  sessionChargerKw?: number | null,
+): TeslaFlow | null {
   if (!t || t.oem !== 'tesla') return null;
   const p = t.payload;
   const soc = pickNumber(p, ['battery_level', 'vehicles.0.battery_level', 'usable_battery_level', 'response.charge_state.battery_level']) ?? 0;
@@ -479,7 +488,14 @@ export function deriveTeslaFlow(t: CachedTelemetry | undefined, sessionActive: b
     ((pickNumber(p, ['charger_actual_current', 'response.charge_state.charger_actual_current']) ?? 0) *
       (pickNumber(p, ['charger_voltage', 'response.charge_state.charger_voltage']) ?? 0)) /
     1000;
-  const kW = directKw ?? (ivKw > 0 ? ivKw : 0);
+  const vehicleKw = directKw ?? (ivKw > 0 ? ivKw : 0);
+  // Provenance-explicit: prefer the car's own reading, fall back to the wall
+  // connector while a session is open. Both are measured; neither is derived.
+  const kwSource: TeslaFlow['kwSource'] =
+    vehicleKw > 0 ? 'vehicle_api'
+      : sessionActive && (sessionChargerKw ?? 0) > 0 ? 'wall_connector'
+        : 'none';
+  const kW = kwSource === 'wall_connector' ? (sessionChargerKw as number) : vehicleKw;
   const energyAdded = pickNumber(p, ['charge_energy_added', 'vehicles.0.charge_energy_added', 'response.charge_state.charge_energy_added']);
   const timeToFullHrs = pickNumber(p, ['time_to_full_charge', 'response.charge_state.time_to_full_charge']);
   const fastChargerType = pickString(p, ['fast_charger_type', 'charger_type', 'response.charge_state.fast_charger_type']);
@@ -509,7 +525,9 @@ export function deriveTeslaFlow(t: CachedTelemetry | undefined, sessionActive: b
   const isDcConnector =
     fc.includes('combo') || fc.includes('ccs') || fc.includes('chademo') ||
     fc.includes('supercharger');
-  const isDcFast = fastChargerPresent === true || isDcConnector || kW > 25;
+  // DC-fast detection must read the VEHICLE's number: a wall-connector
+  // fallback is by definition AC and must never be classed as supercharging.
+  const isDcFast = fastChargerPresent === true || isDcConnector || vehicleKw > 25;
   let source: TeslaFlow['source'];
   let sourceLabel: string;
   if (isDcFast) {
@@ -539,6 +557,7 @@ export function deriveTeslaFlow(t: CachedTelemetry | undefined, sessionActive: b
     soc,
     rangeMi,
     isCharging,
+    kwSource,
     source,
     state: pillState,
     sourceLabel,
@@ -635,7 +654,11 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
   const evTotals = useEVTotals(1);
   const { totals: lifetime } = useLifetimeTotals();
   const mintImpact = useTodayMintImpact();
-  const { data: isActivelyCharging } = useActiveChargingSession();
+  const { data: activeSession } = useActiveChargingSessionDetail();
+  const isActivelyCharging = activeSession?.active ?? false;
+  /** Measured wall-connector power for the open session. Survives the vehicle
+   *  falling asleep, which is exactly when the vehicle payload reads 0 kW. */
+  const sessionChargerKw = activeSession?.chargerKw ?? null;
   const { vins: openHomeChargingVins, provenAtHomeVins } = useOpenHomeChargingVins();
   const [manualRefreshing, setManualRefreshing] = useState(false);
   const lastChargingRef = useRef<boolean | undefined>(undefined);
@@ -797,8 +820,8 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
     batteryCount: battery.data?.length ?? 1,
   });
   const teslaFlow = useMemo(
-    () => (hideVehicle ? null : deriveTeslaFlow(primaryEv, !!isActivelyCharging)),
-    [hideVehicle, primaryEv, isActivelyCharging]
+    () => (hideVehicle ? null : deriveTeslaFlow(primaryEv, !!isActivelyCharging, sessionChargerKw)),
+    [hideVehicle, primaryEv, isActivelyCharging, sessionChargerKw]
   );
 
   // Haptic ping on Tesla pill state change
