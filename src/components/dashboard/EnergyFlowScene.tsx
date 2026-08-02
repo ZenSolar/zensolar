@@ -769,6 +769,11 @@ export function EnergyFlowScene({
   const spriteIsNight = NIGHT_SCENES.includes(scene);
   const showSecondCar = Boolean(secondVehicle?.src);
 
+  // v5.3 — measured intrinsic aspect ratios drive the auto-fit below.
+  const primaryAspect = useSpriteAspect(vehicleSrc);
+  const secondAspect = useSpriteAspect(secondVehicle?.src ?? null);
+
+
 
   // Car geometry in viewBox (0–100) space. When actively charging at home,
   // pull up to the garage apron with the door visually "open"; otherwise
