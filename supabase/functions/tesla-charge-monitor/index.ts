@@ -660,6 +660,7 @@ async function processVehicle(
           battery_level_start: batteryLevel,
           first_observed_kwh: chargeEnergyAdded,
           distance_from_home_mi: distFromHome,
+          presence_evidence: presenceEvidence,
         },
       });
 
@@ -901,6 +902,7 @@ async function recoverCompletedHomeSession(
         source: "charge_monitor_recovered",
         battery_level_end: batteryLevel,
         distance_from_home_mi: distFromHome,
+        presence_evidence: presenceEvidence,
         end_reason: "recovered_after_disconnect",
       },
     })
