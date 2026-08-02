@@ -125,13 +125,14 @@ async function geocodeAddress(
  * says HOW MUCH. Quantity still comes from the vehicle's own meter. The
  * connector stays an observer for issuance.
  *
- * Returns the set of VINs a connector at this account currently reports.
+ * Returns a map of VIN → observed connector power in kW for every VIN a
+ * connector at this account currently reports.
  */
 async function fetchWallConnectorVins(
   accessToken: string,
   energySiteIds: string[],
-): Promise<Set<string>> {
-  const vins = new Set<string>();
+): Promise<Map<string, number>> {
+  const vins = new Map<string, number>();
   for (const id of energySiteIds) {
     try {
       const r = await fetch(
@@ -152,12 +153,16 @@ async function fetchWallConnectorVins(
       for (const wc of wcs) {
         const vin = typeof wc?.vin === "string" ? wc.vin.trim() : "";
         if (!vin) continue;
-        const power = Number(wc?.wall_connector_power ?? 0);
+        const powerW = Number(wc?.wall_connector_power ?? 0);
         const state = Number(wc?.wall_connector_state ?? 0);
         // State 4 == connected/charging in Tesla's enum; power > 0 is the
         // unambiguous signal. Either one, with a VIN attached, proves the car
         // is on this wall.
-        if (power > 0 || state === 4) vins.add(vin);
+        if (powerW > 0 || state === 4) {
+          // Tesla reports connector power in watts on live_status.
+          const kw = powerW > 1000 ? powerW / 1000 : powerW;
+          vins.set(vin, Math.max(vins.get(vin) ?? 0, Number.isFinite(kw) ? kw : 0));
+        }
       }
     } catch {
       // A live_status failure is silence, not evidence. Fail closed.
@@ -165,6 +170,85 @@ async function fetchWallConnectorVins(
   }
   return vins;
 }
+
+/**
+ * OBSERVER-MEASURED PRESENCE SESSION.
+ *
+ * The vehicle is the authority for HOW MUCH — always. But a parked Tesla stops
+ * answering (408) or serves a stale cached `charging_state: "Complete"` while
+ * the wall it is bolted to reports its VIN drawing kilowatts. In that window the
+ * member is charging and the cockpit showed nothing at all.
+ *
+ * This opens/holds a session marked as a DISTINCT evidence class —
+ * `wall_connector_measured`, `issuance_eligible: false` — so it renders live in
+ * the cockpit and stays trivially separable in the issuance audit. Quantity
+ * from this row must never be minted; when the vehicle wakes, the normal path
+ * takes over and overwrites power/energy with the vehicle's own meter.
+ */
+async function upsertObserverSession(
+  supabase: any,
+  userId: string,
+  vin: string,
+  connectorKw: number,
+  homeAddress: string,
+): Promise<"started" | "held"> {
+  const now = new Date().toISOString();
+  const { data: open } = await supabase
+    .from("home_charging_sessions")
+    .select("id, session_metadata")
+    .eq("user_id", userId)
+    .eq("device_id", vin)
+    .eq("status", "charging")
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  const existing = open?.[0];
+  if (existing) {
+    await supabase
+      .from("home_charging_sessions")
+      .update({
+        charger_power_kw: connectorKw,
+        session_metadata: {
+          ...(existing.session_metadata ?? {}),
+          presence_evidence: "wall_connector",
+          evidence_class: "wall_connector_measured",
+          quantity_source: "wall_connector_observer",
+          issuance_eligible: false,
+          connector_kw_latest: connectorKw,
+          last_poll: now,
+        },
+      })
+      .eq("id", existing.id);
+    console.log(`[ChargeMonitor] ◈ HELD observer session for ${vin} at ${connectorKw} kW`);
+    return "held";
+  }
+
+  await supabase.from("home_charging_sessions").insert({
+    user_id: userId,
+    device_id: vin,
+    start_time: now,
+    start_kwh_added: 0,
+    end_kwh_added: 0,
+    total_session_kwh: 0,
+    status: "charging",
+    location: homeAddress || "Home",
+    charger_power_kw: connectorKw,
+    proof_chain: [],
+    verified: false,
+    session_metadata: {
+      presence_evidence: "wall_connector",
+      evidence_class: "wall_connector_measured",
+      quantity_source: "wall_connector_observer",
+      issuance_eligible: false,
+      connector_kw_latest: connectorKw,
+      opened_by: "wall_connector_observer",
+      last_poll: now,
+    },
+  });
+  console.log(`[ChargeMonitor] ▶ STARTED observer session for ${vin} at ${connectorKw} kW (vehicle silent)`);
+  return "started";
+}
+
 
 
 async function refreshTeslaToken(
