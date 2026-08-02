@@ -841,12 +841,29 @@ export function EnergyFlowScene({
 
   const chargingAtHome = isCharging && !isSupercharging && !isOutage;
 
-  const carAnchor = chargingAtHome ? HOME_BLUEPRINT.garageFront : HOME_BLUEPRINT.carPark;
-  // §6 — two proven vehicles share the driveway, so both shrink to fit.
-  const carW = showSecondCar ? HOME_BLUEPRINT.carWidthDual : HOME_BLUEPRINT.carWidth;
-  const carH = showSecondCar ? HOME_BLUEPRINT.carHeightDual : HOME_BLUEPRINT.carHeight;
-  const carX = carAnchor.x - carW / 2;
-  const carY = carAnchor.y - carH / 2;
+  // v5.3 — AUTO-FIT. Instead of forcing every sprite into one fixed box
+  // (which letterboxed narrow assets and overhung the bay with squarer
+  // ones), fit each sprite into its parking bay at its own measured aspect
+  // ratio and seat the tyres on the bay's contact line. Pure viewBox math,
+  // so it holds at any device width.
+  const dualScale = showSecondCar ? HOME_BLUEPRINT.dualCarScale : 1;
+  const primaryBay = chargingAtHome
+    ? HOME_BLUEPRINT.bays.garage
+    : HOME_BLUEPRINT.bays.driveway;
+  const carFit = useMemo(
+    () => fitVehicleToBay(primaryBay, primaryAspect, dualScale),
+    [primaryBay, primaryAspect, dualScale],
+  );
+  const secondFit = useMemo(
+    () => fitVehicleToBay(HOME_BLUEPRINT.bays.driveway2, secondAspect, dualScale),
+    [secondAspect, dualScale],
+  );
+  const carAnchor = { x: carFit.cx, y: carFit.cy };
+  const carW = carFit.width;
+  const carH = carFit.height;
+  const carX = carFit.x;
+  const carY = carFit.y;
+
   const evKw = data.tesla?.kW ?? data.evPower ?? 0;
   const evSoc = data.tesla?.soc;
   const evRange = data.tesla?.rangeMi;
