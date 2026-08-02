@@ -63,7 +63,14 @@ export const SCENE_ANCHORS = Object.freeze({
   meter:         { x: 94.0, y: 65.0 } as Pt,
   gridEdge:      { x: 108.0, y: 72.0 } as Pt,
   evPort:        { x: 34.0, y: 75.0 } as Pt,
+  /** Charge point serving the driveway — mounted on the garage-side facade,
+   *  directly above and behind the parked vehicle. The EV conductor starts
+   *  HERE, not at wallJunction: power reaching a car on the driveway does not
+   *  travel over the roofline, and reusing the junction made the EV run read
+   *  as a branch of the solar-to-home line. */
+  chargePoint:   { x: 42.0, y: 66.0 } as Pt,
 });
+
 
 /** Debug label order for the `?anchors=1` overlay. */
 export const SCENE_ANCHOR_LIST = Object.entries(SCENE_ANCHORS) as ReadonlyArray<[string, Pt]>;
