@@ -125,13 +125,14 @@ async function geocodeAddress(
  * says HOW MUCH. Quantity still comes from the vehicle's own meter. The
  * connector stays an observer for issuance.
  *
- * Returns the set of VINs a connector at this account currently reports.
+ * Returns a map of VIN → observed connector power in kW for every VIN a
+ * connector at this account currently reports.
  */
 async function fetchWallConnectorVins(
   accessToken: string,
   energySiteIds: string[],
-): Promise<Set<string>> {
-  const vins = new Set<string>();
+): Promise<Map<string, number>> {
+  const vins = new Map<string, number>();
   for (const id of energySiteIds) {
     try {
       const r = await fetch(
@@ -152,19 +153,101 @@ async function fetchWallConnectorVins(
       for (const wc of wcs) {
         const vin = typeof wc?.vin === "string" ? wc.vin.trim() : "";
         if (!vin) continue;
-        const power = Number(wc?.wall_connector_power ?? 0);
-        const state = Number(wc?.wall_connector_state ?? 0);
-        // State 4 == connected/charging in Tesla's enum; power > 0 is the
-        // unambiguous signal. Either one, with a VIN attached, proves the car
-        // is on this wall.
-        if (power > 0 || state === 4) vins.add(vin);
+        // A connector bolted to this wall naming a VIN at all is co-location
+        // proof — power and state flicker between polls (state 1/4, 0 W then
+        // 378 W on the same plugged-in car), so gating presence on them
+        // produced a car that vanished from the cockpit every other minute.
+        // Power is recorded for DISPLAY only; the vehicle remains the meter.
+        const powerW = Number(wc?.wall_connector_power ?? 0);
+        const kw = Number.isFinite(powerW) ? powerW / 1000 : 0;
+        vins.set(vin, Math.max(vins.get(vin) ?? 0, kw));
       }
+
     } catch {
       // A live_status failure is silence, not evidence. Fail closed.
     }
   }
   return vins;
 }
+
+/**
+ * OBSERVER-MEASURED PRESENCE SESSION.
+ *
+ * The vehicle is the authority for HOW MUCH — always. But a parked Tesla stops
+ * answering (408) or serves a stale cached `charging_state: "Complete"` while
+ * the wall it is bolted to reports its VIN drawing kilowatts. In that window the
+ * member is charging and the cockpit showed nothing at all.
+ *
+ * This opens/holds a session marked as a DISTINCT evidence class —
+ * `wall_connector_measured`, `issuance_eligible: false` — so it renders live in
+ * the cockpit and stays trivially separable in the issuance audit. Quantity
+ * from this row must never be minted; when the vehicle wakes, the normal path
+ * takes over and overwrites power/energy with the vehicle's own meter.
+ */
+async function upsertObserverSession(
+  supabase: any,
+  userId: string,
+  vin: string,
+  connectorKw: number,
+  homeAddress: string,
+): Promise<"started" | "held"> {
+  const now = new Date().toISOString();
+  const { data: open } = await supabase
+    .from("home_charging_sessions")
+    .select("id, session_metadata")
+    .eq("user_id", userId)
+    .eq("device_id", vin)
+    .eq("status", "charging")
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  const existing = open?.[0];
+  if (existing) {
+    await supabase
+      .from("home_charging_sessions")
+      .update({
+        charger_power_kw: connectorKw,
+        session_metadata: {
+          ...(existing.session_metadata ?? {}),
+          presence_evidence: "wall_connector",
+          evidence_class: "wall_connector_measured",
+          quantity_source: "wall_connector_observer",
+          issuance_eligible: false,
+          connector_kw_latest: connectorKw,
+          last_poll: now,
+        },
+      })
+      .eq("id", existing.id);
+    console.log(`[ChargeMonitor] ◈ HELD observer session for ${vin} at ${connectorKw} kW`);
+    return "held";
+  }
+
+  await supabase.from("home_charging_sessions").insert({
+    user_id: userId,
+    device_id: vin,
+    start_time: now,
+    start_kwh_added: 0,
+    end_kwh_added: 0,
+    total_session_kwh: 0,
+    status: "charging",
+    location: homeAddress || "Home",
+    charger_power_kw: connectorKw,
+    proof_chain: [],
+    verified: false,
+    session_metadata: {
+      presence_evidence: "wall_connector",
+      evidence_class: "wall_connector_measured",
+      quantity_source: "wall_connector_observer",
+      issuance_eligible: false,
+      connector_kw_latest: connectorKw,
+      opened_by: "wall_connector_observer",
+      last_poll: now,
+    },
+  });
+  console.log(`[ChargeMonitor] ▶ STARTED observer session for ${vin} at ${connectorKw} kW (vehicle silent)`);
+  return "started";
+}
+
 
 
 async function refreshTeslaToken(
@@ -455,11 +538,12 @@ async function processUser(supabase: any, userId: string, results: any[]) {
   );
   const wallConnectorVins = siteIds.length
     ? await fetchWallConnectorVins(accessToken, siteIds)
-    : new Set<string>();
+    : new Map<string, number>();
   if (wallConnectorVins.size > 0) {
     console.log(
-      `[ChargeMonitor] Wall connector reports VIN(s) on-site for ${userId.slice(0, 8)}: ${[...wallConnectorVins].join(", ")}`,
+      `[ChargeMonitor] Wall connector reports VIN(s) on-site for ${userId.slice(0, 8)}: ${[...wallConnectorVins.entries()].map(([v, kw]) => `${v}@${kw}kW`).join(", ")}`,
     );
+
   }
 
   for (const vehicle of vehicles) {
@@ -488,8 +572,9 @@ async function processVehicle(
   homeCoords: { lat: number; lng: number } | null,
   results: any[],
   userTimezone: string | null,
-  wallConnectorVins: Set<string> = new Set<string>(),
+  wallConnectorVins: Map<string, number> = new Map<string, number>(),
 ) {
+  const connectorKw = wallConnectorVins.get(vin) ?? 0;
   // NEVER WAKE. This reads `vehicle_data` only. There is no `/wake_up` call in
   // this function and there must never be one: a charging car is awake by
   // definition, so a 408 is itself the answer ("not charging") and costs the
@@ -501,13 +586,20 @@ async function processVehicle(
   );
 
   if (vResp.status === 408) {
-    // Asleep == not charging. Log it, close any dangling session, do NOT retry
-    // and do NOT wake.
+    // Asleep. Silence from the car is NOT silence from the wall: if a connector
+    // at this account names this VIN under load, the member is charging right
+    // now and the cockpit must say so. Observer-measured, never issuance.
+    if (wallConnectorVins.has(vin)) {
+      const action = await upsertObserverSession(supabase, userId, vin, connectorKw, homeAddress);
+      results.push({ vin, status: "asleep", action: `observer_${action}`, kw: connectorKw, woke: false });
+      return;
+    }
     console.log(`[ChargeMonitor] ${vin}: 408 asleep — treated as NOT CHARGING, no wake attempted`);
     await finalizeStaleSession(supabase, userId, vin, "vehicle_asleep");
     results.push({ vin, status: "asleep", action: "checked_stale", woke: false });
     return;
   }
+
   if (vResp.status === 429) {
     console.warn(`[ChargeMonitor] Rate limited for ${vin}`);
     return;
@@ -581,7 +673,22 @@ async function processVehicle(
 
   // ── STATE MACHINE ──────────────────────────────────────────────────────
 
+  // OBSERVER OVERRIDE: the vehicle's payload can be a stale cache — a parked
+  // car serves `charging_state: "Complete"`, `charger_power: 0` while the wall
+  // it is plugged into reports its VIN at kilowatts. The wall is mains-powered
+  // and always awake, so under disagreement it wins on WHETHER (never on HOW
+  // MUCH). Row is tagged wall_connector_measured / issuance_eligible:false.
+  if (chargingState !== "Charging" && wallConnectorVins.has(vin)) {
+    const action = await upsertObserverSession(supabase, userId, vin, connectorKw, homeAddress);
+    console.log(
+      `[ChargeMonitor] ${vin}: vehicle says ${chargingState}/0kW but connector says ${connectorKw}kW — observer session ${action}`,
+    );
+    results.push({ vin, action: `observer_${action}`, kw: connectorKw, presence_evidence: "wall_connector" });
+    return;
+  }
+
   if (chargingState === "Charging" && isAcCharging) {
+
     // THIRD FAIL-OPEN, REMOVED: `|| (!homeCoords && isAcCharging)` meant a
     // member with no address on file had every AC charge counted as home.
     // Presence must now be positively proven.
