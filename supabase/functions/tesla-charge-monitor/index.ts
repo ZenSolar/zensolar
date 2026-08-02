@@ -504,6 +504,7 @@ async function processVehicle(
   results: any[],
   userTimezone: string | null,
   wallConnectorVins: Set<string> = new Set<string>(),
+  wallConnectorPowerKw: Map<string, number> = new Map<string, number>(),
 ) {
   // NEVER WAKE. This reads `vehicle_data` only. There is no `/wake_up` call in
   // this function and there must never be one: a charging car is awake by
