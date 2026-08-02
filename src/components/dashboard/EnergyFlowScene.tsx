@@ -1441,9 +1441,16 @@ export function EnergyFlowScene({
       ) : (
         <FlowLabel
           position="tr"
-          label="Home"
+          /* §4 — home load has no meter behind it. Permanent asterisk, always. */
+          label={homeDerived ? 'Home *' : 'Home'}
           value={fmtKw(home)}
-          sub={homeDrawing ? 'Drawing' : 'Idle'}
+          sub={
+            homeDerived
+              ? `${homeDrawing ? 'Drawing' : 'Idle'} · derived`
+              : homeDrawing
+                ? 'Drawing'
+                : 'Idle'
+          }
           accent={homeDrawing ? 'green' : 'muted'}
           active={homeDrawing}
           hero
@@ -1489,9 +1496,19 @@ export function EnergyFlowScene({
       ) : (
         <FlowLabel
           position="br"
-          label="Grid"
+          /* §3 — grid is usually measured. The marker appears only on the
+             frames where the raw CT disagreed with the rest of the site. */
+          label={gridSource === 'reconciled' ? 'Grid ◆' : 'Grid'}
           value={`${fmtKw(grid)} ${arrow(grid)}`.trim()}
-          sub={gridImporting ? 'Importing' : gridExporting ? 'Exporting' : 'Balanced'}
+          sub={
+            gridSource === 'reconciled'
+              ? 'Reconciled this frame'
+              : gridImporting
+                ? 'Importing'
+                : gridExporting
+                  ? 'Exporting'
+                  : 'Balanced'
+          }
           accent={gridExporting ? 'blue' : gridImporting ? 'amber' : 'muted'}
           active={Math.abs(grid) > 0.05}
         />
