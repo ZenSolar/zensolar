@@ -422,27 +422,28 @@ function FlowLabel({
     muted: '',
   };
   return (
-    <div className={`pointer-events-none absolute z-20 flex max-w-[55%] flex-col gap-0.5 ${pos[position]}`}>
+    <div className={`pointer-events-none absolute z-20 flex max-w-[40%] flex-col gap-0.5 ${pos[position]}`}>
       <div className="flex items-center gap-1.5">
         {active && accent && accent !== 'muted' && (
           <span aria-hidden="true" className={`relative inline-flex h-1.5 w-1.5 rounded-full ${dot[accent]}`}>
             <span className={`absolute inset-0 inline-flex h-full w-full animate-ping rounded-full ${dot[accent]} opacity-70`} />
           </span>
         )}
-        <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/90">
+        <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/90">
           {label}
         </span>
       </div>
       <div
         className={
           hero
-            ? `text-[34px] sm:text-[42px] font-semibold tabular-nums leading-none tracking-tight text-foreground ${active && accent ? valueGlow[accent] : ''}`
-            : `text-xl sm:text-[22px] font-light tabular-nums leading-none text-foreground ${active && accent ? valueGlow[accent] : ''}`
+            ? `text-[26px] sm:text-[32px] font-semibold tabular-nums leading-none tracking-tight text-foreground ${active && accent ? valueGlow[accent] : ''}`
+            : `text-lg sm:text-xl font-light tabular-nums leading-none text-foreground ${active && accent ? valueGlow[accent] : ''}`
         }
         style={hero ? { textShadow: '0 1px 0 hsl(220 60% 4% / 0.6)' } : undefined}
       >
         {value}
       </div>
+
       {sub && (
         <div className="text-[10px] font-medium tracking-wide text-muted-foreground/95">
           {sub}
