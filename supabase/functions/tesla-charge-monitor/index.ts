@@ -592,7 +592,7 @@ async function processVehicle(
     // Asleep. Silence from the car is NOT silence from the wall: if a connector
     // at this account names this VIN under load, the member is charging right
     // now and the cockpit must say so. Observer-measured, never issuance.
-    if (connectorKw > 0) {
+    if (wallConnectorVins.has(vin)) {
       const action = await upsertObserverSession(supabase, userId, vin, connectorKw, homeAddress);
       results.push({ vin, status: "asleep", action: `observer_${action}`, kw: connectorKw, woke: false });
       return;
