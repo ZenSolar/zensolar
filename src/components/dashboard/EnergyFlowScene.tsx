@@ -451,6 +451,69 @@ function FlowLabel({
   );
 }
 
+/**
+ * §5/§6 — VEHICLE CHIP. Attached to a rendered car, never a standalone list
+ * row. Carries name, live kW, SOC and a presence indicator. It states
+ * presence-at-home, which is a co-location proof, and deliberately never
+ * states a location: the vehicle's meter is the source, not a map.
+ */
+function VehicleChip({
+  x,
+  y,
+  name,
+  kw,
+  soc,
+  rangeMi,
+  charging,
+}: {
+  x: number;
+  y: number;
+  name: string | null;
+  kw: number | null;
+  soc: number | null;
+  rangeMi: number | null;
+  charging: boolean;
+}) {
+  return (
+    <div
+      className="absolute -translate-x-1/2 -translate-y-full"
+      style={{ left: `${x}%`, top: `${y}%` }}
+    >
+      <div className="flex flex-col items-center gap-1">
+        <div
+          className={`flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold tabular-nums backdrop-blur ${
+            charging
+              ? 'border-emerald-400/40 bg-background/85 text-emerald-300 shadow-[0_0_14px_hsla(142,76%,50%,0.35)]'
+              : 'border-foreground/15 bg-background/80 text-foreground/85'
+          }`}
+        >
+          <span className="relative inline-flex h-1.5 w-1.5">
+            {charging && (
+              <span className="absolute inset-0 inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70 motion-reduce:animate-none" />
+            )}
+            <span
+              className={`relative inline-flex h-1.5 w-1.5 rounded-full ${
+                charging ? 'bg-emerald-400' : 'bg-foreground/50'
+              }`}
+            />
+          </span>
+          {name ? <span className="max-w-[90px] truncate">{name}</span> : null}
+          <span>
+            {charging && kw !== null ? `Charging · ${kw.toFixed(1)} kW` : 'At home'}
+          </span>
+        </div>
+        {(soc !== null || rangeMi !== null) && (
+          <div className="rounded-full bg-background/70 px-1.5 py-[1px] text-[9px] font-medium tabular-nums text-foreground/80 backdrop-blur">
+            {soc !== null ? `${soc}%` : ''}
+            {soc !== null && rangeMi !== null ? ' · ' : ''}
+            {rangeMi !== null ? `${rangeMi} mi` : ''}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Main component
 // ─────────────────────────────────────────────────────────────────────────────
