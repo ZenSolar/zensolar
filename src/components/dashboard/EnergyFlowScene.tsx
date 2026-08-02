@@ -798,6 +798,9 @@ export function EnergyFlowScene({
           home: EMERALD_LED,
           export: CYAN_LED,
           import: SKY_LED,
+          // The EV run gets its own hue so it can never be mistaken for the
+          // solar-to-home line it used to share both colour and origin with.
+          ev: 'hsl(265 90% 78%)',
         },
         dimSolar: isOutage,
         hideGrid: isOutage,
@@ -1261,21 +1264,80 @@ export function EnergyFlowScene({
           />
         )}
 
+        {/* Charge point on the garage-side facade — the physical origin of the
+            EV conductor. Without it the run began in mid-air, which is why the
+            eye read it as a continuation of the solar-to-home line. */}
+        {chargingAtHome && showDynamicCar && (
+          <g style={{ pointerEvents: 'none' }} data-testid="charge-point">
+            <rect
+              x={SCENE_ANCHORS.chargePoint.x - 0.7}
+              y={SCENE_ANCHORS.chargePoint.y - 2.6}
+              width={1.4}
+              height={2.6}
+              rx={0.5}
+              fill="hsl(220 14% 20%)"
+              opacity={0.95}
+              stroke="hsl(220 15% 62%)"
+              strokeWidth={0.16}
+            />
+            <circle
+              cx={SCENE_ANCHORS.chargePoint.x}
+              cy={SCENE_ANCHORS.chargePoint.y - 1.5}
+              r={0.36}
+              fill="hsl(265 90% 78%)"
+            >
+              {!prefersReducedMotion && (
+                <animate
+                  attributeName="opacity"
+                  values="0.45;1;0.45"
+                  dur="1800ms"
+                  repeatCount="indefinite"
+                />
+              )}
+            </circle>
+          </g>
+        )}
 
 
         {/* ── Dynamic Tesla, locked to the same coordinate system ── */}
         {showDynamicCar && vehicleSrc && (
           <g>
-            {/* Soft ground shadow — tracks the active anchor */}
+            {/* GROUND SEATING — three layers, so a daylight side-profile sprite
+                reads as parked on the driveway instead of pasted over it:
+                  1. wide, very soft penumbra spreading onto the apron
+                  2. tighter core shadow under the body
+                  3. a hard, narrow contact shadow right at the tyre line
+                Offsets are relative to the sprite's visual footprint, which
+                sits ~0.22·carH below the anchor — not at 0.42·carH, where the
+                old single ellipse fell clear of the car entirely. */}
+            <ellipse
+              cx={carAnchor.x + carW * 0.02}
+              cy={carAnchor.y + carH * 0.375}
+              rx={carW * 0.52}
+              ry={carH * 0.075}
+              fill="hsl(220 60% 3%)"
+              opacity={0.32}
+              style={{ filter: 'blur(2.6px)' }}
+            />
             <ellipse
               cx={carAnchor.x}
-              cy={carAnchor.y + carH * 0.42}
-              rx={carW * 0.42}
-              ry={1.8}
+              cy={carAnchor.y + carH * 0.365}
+              rx={carW * 0.38}
+              ry={carH * 0.052}
               fill="hsl(220 70% 2%)"
-              opacity={0.55}
-              style={{ filter: 'blur(1.4px)' }}
+              opacity={0.5}
+              style={{ filter: 'blur(1.2px)' }}
             />
+            <ellipse
+              cx={carAnchor.x}
+              cy={carAnchor.y + carH * 0.358}
+              rx={carW * 0.30}
+              ry={carH * 0.022}
+              fill="hsl(220 75% 1%)"
+              opacity={0.62}
+              style={{ filter: 'blur(0.45px)' }}
+            />
+
             <image
               href={vehicleSrc}
               x={carX}

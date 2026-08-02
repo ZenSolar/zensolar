@@ -62,8 +62,15 @@ export const SCENE_ANCHORS = Object.freeze({
   powerwall:     { x: 73.0, y: 68.0 } as Pt,
   meter:         { x: 94.0, y: 65.0 } as Pt,
   gridEdge:      { x: 108.0, y: 72.0 } as Pt,
-  evPort:        { x: 34.0, y: 75.0 } as Pt,
+  evPort:        { x: 38.0, y: 72.0 } as Pt,
+  /** Charge point serving the driveway — mounted on the garage-side facade,
+   *  directly above and behind the parked vehicle. The EV conductor starts
+   *  HERE, not at wallJunction: power reaching a car on the driveway does not
+   *  travel over the roofline, and reusing the junction made the EV run read
+   *  as a branch of the solar-to-home line. */
+  chargePoint:   { x: 42.0, y: 66.0 } as Pt,
 });
+
 
 /** Debug label order for the `?anchors=1` overlay. */
 export const SCENE_ANCHOR_LIST = Object.entries(SCENE_ANCHORS) as ReadonlyArray<[string, Pt]>;
@@ -315,7 +322,7 @@ export function buildConductorSegments(args: {
   battery?: number;
   /** + charging the vehicle at this site. Omit/0 when not charging here. */
   ev?: number;
-  colors: { solar: string; home: string; export: string; import: string };
+  colors: { solar: string; home: string; export: string; import: string; ev?: string };
   dimSolar?: boolean;
   hideGrid?: boolean;
 }): ConductorSegment[] {
@@ -368,23 +375,22 @@ export function buildConductorSegments(args: {
     });
   }
 
-  // EV BRANCH — only when a vehicle is charging at this site. Runs along the
-  // slab in front of the porch, so it stays in FRONT of the silhouette.
+  // EV BRANCH — only when a vehicle is charging at this site. Runs from the
+  // driveway charge point down to the car's port: a short, taut, ground-level
+  // run. It deliberately does NOT start at wallJunction — that route climbed
+  // the facade and crossed the whole house, reading as power coming over the
+  // roof to a car parked on the ground.
   if (ev > 0.05) {
     segments.push({
       id: 'branch-ev',
-      points: [
-        A.wallJunction,
-        { x: A.wallJunction.x - 4, y: 79.5 },
-        { x: A.evPort.x + 6, y: 79.5 },
-        A.evPort,
-      ],
-      color: colors.solar,
+      points: isoRoute(A.chargePoint, A.evPort, 'vert-first'),
+      color: args.colors.ev ?? colors.import,
       kw: ev,
       layer: 'front',
       dimmed: args.dimSolar,
     });
   }
+
 
   // GRID BRANCH — junction → meter → off-property. Terminates ON the meter
   // and continues past the frame edge, never stopping short of the post.
