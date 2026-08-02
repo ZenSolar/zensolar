@@ -1348,98 +1348,15 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                 />
               )}
 
-              {/* Divider between home-generation (solar + battery) and vehicle tiles */}
-              {!hideVehicle && <div className="col-span-2 h-px bg-border/40 my-1" aria-hidden="true" />}
+              {/* RETIRED — the vehicle hero image and the Home & AC Charging /
+                  Tesla Supercharging / EV Mileage tiles used to live here. They
+                  duplicated the in-scene vehicle: a flat side-profile cut-out
+                  beside the isometric house, plus a second place to answer "is
+                  my car charging". Vehicle state now lives in exactly one
+                  place — the scene sprite, its charge chip, and the Live
+                  Devices pill/tile directly beneath it. Do not re-add tiles
+                  here; extend the in-scene chips instead. */}
 
-              {/* Vehicle hero image — pulled from Tesla vehicle_config (model + color) */}
-              {!hideVehicle && vehicleAsset.src && (
-                <div className="col-span-2 flex flex-col items-center gap-1 pt-1 pb-2">
-                  <img
-                    src={vehicleAsset.src}
-                    alt={
-                      vehicleAsset.model
-                        ? `${VEHICLE_LABEL[vehicleAsset.model]}${vehicleAsset.color ? ` · ${VEHICLE_COLOR_LABEL[vehicleAsset.color]}` : ''}`
-                        : 'Your Tesla'
-                    }
-                    loading="lazy"
-                    className="h-24 w-auto object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.55)]"
-                  />
-                  {vehicleAsset.model && !vehicleAsset.generic && (
-                    <div className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground/80">
-                      {VEHICLE_LABEL[vehicleAsset.model]}
-                      {vehicleAsset.color ? ` · ${VEHICLE_COLOR_LABEL[vehicleAsset.color]}` : ''}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Blue — Home & AC charging (today + live session delta) */}
-              {!hideVehicle && (() => {
-                const liveHomeAdd =
-                  teslaFlow?.isCharging && teslaFlow.source === 'home' && teslaFlow.energyAdded
-                    ? teslaFlow.energyAdded
-                    : 0;
-                const homeToday = evTotals.totals.home_kwh + liveHomeAdd;
-                return (
-                  <MetricTile
-                    tone="blue"
-                    icon={Home}
-                    label="Home & AC Charging"
-                    value={formatKwh(homeToday)}
-                    detail={
-                      liveHomeAdd > 0
-                        ? `+${liveHomeAdd.toFixed(1)} kWh live · ${teslaFlow?.kW ? teslaFlow.kW.toFixed(1) : '0'} kW`
-                        : 'Today · Level 1 / Level 2'
-                    }
-                    sublabel={
-                      liveHomeAdd > 0 ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-sky-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-sky-300 ring-1 ring-sky-400/30">
-                          <Sparkles className="h-3 w-3" />
-                          +{liveHomeAdd.toFixed(1)} kWh this session
-                        </span>
-                      ) : null
-                    }
-                    asOf={evAsOf}
-                  />
-                );
-              })()}
-
-              {/* Orange — Tesla Supercharging (today + live session delta) */}
-              {!hideVehicle && (() => {
-                const liveScAdd =
-                  teslaFlow?.isCharging && teslaFlow.source === 'supercharger' && teslaFlow.energyAdded
-                    ? teslaFlow.energyAdded
-                    : 0;
-                const scToday = evTotals.totals.supercharger_kwh + liveScAdd;
-                return (
-                  <MetricTile
-                    tone="orange"
-                    icon={Zap}
-                    label="Tesla Supercharging"
-                    value={formatKwh(scToday)}
-                    detail={
-                      liveScAdd > 0
-                        ? `+${liveScAdd.toFixed(1)} kWh live · ${teslaFlow?.kW ? teslaFlow.kW.toFixed(1) : '0'} kW`
-                        : 'Today · DC Fast Charging'
-                    }
-                    asOf={evAsOf}
-                  />
-                );
-              })()}
-
-              {/* Teal — EV mileage estimate from energy charged today
-                   (≈ 3.3 mi/kWh — derived; replaced by live Tesla odometer
-                   delta in Phase F when FSD streaming aggregation lands). */}
-              {!hideVehicle && (
-                <MetricTile
-                  tone="teal"
-                  icon={Route}
-                  label="EV Mileage · Today"
-                  value={`${Math.round((evTotals.totals.home_kwh + evTotals.totals.supercharger_kwh) * 3.3).toLocaleString()} mi`}
-                  detail="Estimated from today's energy charged"
-                  asOf={evAsOf}
-                />
-              )}
             </div>
             {lifetime.hasAny && (
               <div className="mt-1 rounded-lg border border-primary/15 bg-background/40 px-3 py-2.5">
