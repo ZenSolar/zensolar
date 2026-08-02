@@ -138,9 +138,17 @@ async function fetchWallConnectorVins(
         `${TESLA_API_BASE}/api/1/energy_sites/${id}/live_status`,
         { headers: { Authorization: `Bearer ${accessToken}` } },
       );
-      if (!r.ok) continue;
+      if (!r.ok) {
+        console.log(`[ChargeMonitor][WC-RAW] site ${id} live_status HTTP ${r.status}`);
+        continue;
+      }
       const body = await r.json();
       const wcs = body?.response?.wall_connectors || [];
+      // TEMPORARY DIAGNOSTIC: raw, unedited wall_connectors payload.
+      console.log(
+        `[ChargeMonitor][WC-RAW] site ${id} wall_connectors=${JSON.stringify(body?.response?.wall_connectors ?? null)}`,
+      );
+
       for (const wc of wcs) {
         const vin = typeof wc?.vin === "string" ? wc.vin.trim() : "";
         if (!vin) continue;
