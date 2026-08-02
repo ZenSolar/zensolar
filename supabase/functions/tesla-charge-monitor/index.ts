@@ -846,13 +846,22 @@ async function processVehicle(
 
       console.log(`[ChargeMonitor] ✓ COMPLETED session ${activeSession.id.slice(0, 8)}: ${totalKwh.toFixed(1)} kWh | proof: ${deltaProof.slice(0, 12)}… | chain: ${finalChain.length} links`);
 
-      // Also write to energy_production for Energy Log daily view
-      if (totalKwh > 0) {
+      // Also write to energy_production for Energy Log daily view.
+      // A connector-observed session is display-only: it never carries
+      // vehicle-metered quantity, so it must never reach the issuance path.
+      const observerOnly =
+        (activeSession.session_metadata as Record<string, unknown> | null)?.["evidence_class"] ===
+        "wall_connector_measured";
+      if (totalKwh > 0 && !observerOnly) {
         await writeToEnergyProduction(supabase, userId, vin, activeSession.start_time, totalKwh, userTimezone);
         // Also write to charging_sessions for unified session list
         await writeToChargingSessions(supabase, userId, vin, activeSession, totalKwh, homeAddress, userTimezone);
         // Send push notification to user's devices
         await sendChargingCompleteNotification(userId, totalKwh, homeAddress || "Home");
+      } else if (observerOnly) {
+        console.log(
+          `[ChargeMonitor] ⊘ Observer session ${activeSession.id.slice(0, 8)} closed — no energy_production row (wall_connector_measured)`,
+        );
       }
 
       results.push({ vin, action: "completed", total_kwh: totalKwh, verified: totalKwh > 0, delta_proof: deltaProof.slice(0, 16) });
