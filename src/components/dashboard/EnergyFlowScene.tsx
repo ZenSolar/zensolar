@@ -627,14 +627,7 @@ export interface EnergyFlowSceneProps {
    * Leave undefined for legacy callers (falls back to connection heuristics).
    */
   presenceProven?: boolean;
-  /** §6 — a second vehicle proven at this address. Rendered at carPark2. */
-  secondVehicle?: {
-    src: string;
-    name?: string | null;
-    kw?: number | null;
-    soc?: number | null;
-    charging?: boolean;
-  } | null;
+  /* EV2 removed: the scene renders exactly one vehicle until EV1 is solid. */
   /** §3 — grid provenance for this frame, from the single reconciledFlow. */
   gridSource?: 'raw' | 'reconciled';
   gridOverrideReason?: string | null;
