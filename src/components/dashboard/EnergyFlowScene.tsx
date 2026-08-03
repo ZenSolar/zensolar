@@ -1336,25 +1336,9 @@ export function EnergyFlowScene({
         )}
 
 
-        {/* ── Garage door rolls up, bay lights, light spills onto the apron ──
-            The baked PNGs only carry a closed door, so the open state is drawn
-            on the same isometric plane. See `GarageDoorOpen`. */}
-        {chargingAtHome && showDynamicCar && (
-          <GarageDoorOpen reducedMotion={Boolean(prefersReducedMotion)} />
-        )}
+        {/* EV1 stays on the driveway apron in every state. No garage-bay
+            animation, and no cable unless power is actually flowing. */}
 
-
-        {/* v5 Structural — dedicated EV charging cable layer.
-            Hidden when supercharging away from home (gated by showDynamicCar). */}
-        {isPluggedIdle && !chargingAtHome && showDynamicCar && (
-          <EvChargingCable
-            state={'idle'}
-            carAnchor={carAnchor}
-            carWidth={carW}
-            carHeight={carH}
-            reducedMotion={prefersReducedMotion ?? false}
-          />
-        )}
 
         {/* Charge point on the garage-side facade — the physical origin of the
             EV conductor. Without it the run began in mid-air, which is why the
