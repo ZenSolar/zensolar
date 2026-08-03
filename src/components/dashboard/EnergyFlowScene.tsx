@@ -503,7 +503,7 @@ function VehicleChip({
           </span>
           {name ? <span className="max-w-[90px] truncate">{name}</span> : null}
           <span>
-            {charging && kw !== null ? `Charging · ${kw.toFixed(1)} kW` : 'At home'}
+            {charging && kw !== null ? `Charging · ${kw.toFixed(1)} kW` : 'Parked'}
           </span>
           {(soc !== null || rangeMi !== null) && (
             <span className="font-medium text-foreground/70">
