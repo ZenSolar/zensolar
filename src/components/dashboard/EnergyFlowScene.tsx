@@ -1489,44 +1489,7 @@ export function EnergyFlowScene({
         )}
 
 
-        {/* §6 — second proven vehicle, its own anchor and its own proof. */}
-        {showSecondCar && secondVehicle?.src && (
-          <g>
-            <ellipse
-              cx={secondFit.cx}
-              cy={secondFit.groundY}
-              rx={secondFit.width * 0.42}
-              ry={1.6}
-              fill="hsl(220 70% 2%)"
-              opacity={0.5}
-              style={{ filter: 'blur(1.4px)' }}
-            />
-            <image
-              href={secondVehicle.src}
-              x={secondFit.x}
-              y={secondFit.y}
-              width={secondFit.width}
-              height={secondFit.height}
-              preserveAspectRatio="xMidYMid meet"
-              style={{
-                filter: [spriteFilter, 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))']
-                  .filter(Boolean)
-                  .join(' '),
-              }}
-            />
-            {spriteIsNight && (
-              <rect
-                x={secondFit.x}
-                y={secondFit.y}
-                width={secondFit.width}
-                height={secondFit.height}
-                fill="hsl(220 70% 30%)"
-                opacity={0.18}
-                style={{ mixBlendMode: 'soft-light', pointerEvents: 'none' }}
-              />
-            )}
-          </g>
-        )}
+
       </svg>
 
       {/* HTML overlay aligned to the same square as the hero PNG / SVG.
