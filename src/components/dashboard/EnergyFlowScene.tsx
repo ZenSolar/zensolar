@@ -1180,16 +1180,8 @@ export function EnergyFlowScene({
             carried by the EV branch and the charge-port pulse. */}
 
 
-        {/* Tiny green plug LED on the parked car when plugged & idle */}
-        {isPluggedIdle && showDynamicCar && (
-          <circle
-            cx={HOME_BLUEPRINT.carPark.x + 6}
-            cy={HOME_BLUEPRINT.carPark.y - 2}
-            r={0.7}
-            fill={EMERALD}
-            opacity={0.85}
-          />
-        )}
+
+
 
         {/* ── Max 2 ultra-minimal dotted flow lines ── */}
         {/* In Outage Mode, solar flows are dimmed so the eye lands on
