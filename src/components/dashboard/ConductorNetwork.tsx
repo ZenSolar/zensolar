@@ -300,7 +300,9 @@ export function Conductor({
   reducedMotion,
 }: Omit<ConductorSegment, 'layer'> & { reducedMotion?: boolean }) {
   const d = roundedPath(points);
-  const w = conductorWidth(kw);
+  // Uniform weight — magnitude lives in the numeric labels, not the stroke.
+  const w = CONDUCTOR_WIDTH;
+
   const dur = pulseDur(kw);
   const { p, angle } = polylineMidpoint(points);
   const chevronAngle = forward ? angle : angle + 180;
