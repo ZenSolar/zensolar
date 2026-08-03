@@ -679,7 +679,6 @@ export function EnergyFlowScene({
   weatherCode = null,
   forceComposition,
   presenceProven,
-  secondVehicle = null,
   gridSource = 'raw',
   gridOverrideReason = null,
   homeDerived = false,
