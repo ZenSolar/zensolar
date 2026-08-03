@@ -160,22 +160,108 @@ export function polylineMidpoint(pts: Pt[]): { p: Pt; angle: number } {
 }
 
 /**
- * kW → stroke width. Defined once in `@/lib/siteBalance` alongside the
- * balance assertion that keeps the claim honest:
- *
- *   width(kW) = 0.30 × kW,  clamped to [0.30, 3.0]
- *
- * Strictly proportional and through the origin, so widths ADD. The floor only
- * protects sub-1 kW runs from vanishing; the ceiling keeps a 12 kW import from
- * swamping the house. When either clamp engages, `computeSiteBalance().clamped`
- * is true and widths are no longer comparable — the assertion says so rather
- * than pretending.
+ * kW → stroke width is NO LONGER used for conductor rendering. The reference
+ * draws every run at the same thin weight; the helper stays exported because
+ * `siteBalance` still asserts on it elsewhere.
  */
 export { WIDTH_PER_KW, conductorWidth } from '@/lib/siteBalance';
-import { conductorWidth } from '@/lib/siteBalance';
+
+/** Uniform conductor weight, in viewBox units. Thin, like the reference. */
+export const CONDUCTOR_WIDTH = 0.52;
+
+/**
+ * The single neutral conductor colour. Grey-white, like the Tesla reference —
+ * no per-source hue. Grid import/export, solar, home and battery all use it.
+ */
+export const CONDUCTOR_NEUTRAL = 'hsl(210 18% 82%)';
 
 /** Travelling-pulse period: higher power travels faster, never frantic. */
 const pulseDur = (kw: number) => Math.max(1.5, 3.4 - Math.min(Math.abs(kw), 8) * 0.2);
+
+/**
+ * Service panel + meter can mounted on the facade at `wallJunction`.
+ *
+ * In the Tesla reference the roof run drops into a small grey panel box on the
+ * house wall and the grid run comes up out of the ground into the same box,
+ * with a round meter can at its base. That rendered object is what makes the
+ * diagram read as ONE electrical system rather than four unrelated lines, so
+ * the junction is drawn, not merely implied.
+ */
+export function ServicePanelGlyph({ at = SCENE_ANCHORS.wallJunction }: { at?: Pt }) {
+  const w = 3.4;
+  const h = 4.4;
+  const x = at.x - w / 2;
+  const y = at.y - h / 2 - 0.6;
+  return (
+    <g style={{ pointerEvents: 'none' }} data-glyph="service-panel">
+      {/* contact shadow */}
+      <rect
+        x={x + 0.25}
+        y={y + 0.5}
+        width={w}
+        height={h}
+        rx={0.5}
+        fill="hsl(220 60% 4%)"
+        opacity={0.5}
+        style={{ filter: 'blur(0.5px)' }}
+      />
+      {/* panel body */}
+      <rect
+        x={x}
+        y={y}
+        width={w}
+        height={h}
+        rx={0.5}
+        fill="hsl(215 10% 42%)"
+        stroke="hsl(210 16% 72%)"
+        strokeWidth={0.22}
+      />
+      {/* door seam */}
+      <line
+        x1={x + 0.55}
+        y1={y + 1.15}
+        x2={x + w - 0.55}
+        y2={y + 1.15}
+        stroke="hsl(210 16% 78%)"
+        strokeOpacity={0.5}
+        strokeWidth={0.16}
+      />
+      {/* latch */}
+      <circle cx={x + w - 0.75} cy={y + h / 2 + 0.4} r={0.22} fill="hsl(210 16% 80%)" opacity={0.7} />
+      {/* meter can at the base */}
+      <rect
+        x={at.x - 1.0}
+        y={y + h - 0.15}
+        width={2.0}
+        height={1.0}
+        rx={0.25}
+        fill="hsl(215 10% 38%)"
+        stroke="hsl(210 16% 70%)"
+        strokeWidth={0.18}
+      />
+      <circle
+        cx={at.x}
+        cy={y + h + 1.5}
+        r={1.15}
+        fill="hsl(215 12% 46%)"
+        stroke="hsl(210 16% 76%)"
+        strokeWidth={0.2}
+      />
+      <circle cx={at.x} cy={y + h + 1.5} r={0.62} fill="hsl(210 20% 88%)" opacity={0.55} />
+      {/* service conduit down to grade */}
+      <line
+        x1={at.x}
+        y1={y + h + 2.6}
+        x2={at.x}
+        y2={y + h + 4.2}
+        stroke="hsl(215 10% 44%)"
+        strokeWidth={0.42}
+        strokeLinecap="round"
+      />
+    </g>
+  );
+}
+
 
 export type ConductorLayer = 'behind' | 'front';
 
