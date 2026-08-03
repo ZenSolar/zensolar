@@ -35,10 +35,6 @@ export const HOME_BLUEPRINT = Object.freeze({
   wallCharger:  { x: 18, y: 60 } as BlueprintAnchor,
   /** Driveway parking spot in front of the garage (car center). */
   carPark:      { x: 22, y: 82 } as BlueprintAnchor,
-  /** Second driveway spot — used when two vehicles are proven at home (§6).
-   *  Sits alongside `carPark`, still under the house outline. Both cars use
-   *  `carHeightDual` so the pair does not overlap. */
-  carPark2:     { x: 46, y: 84 } as BlueprintAnchor,
   /** "Charging at home" anchor — pulls the car up to the garage apron.
    *  v5.2: nudged left/down so the sprite reads as sitting inside the
    *  garage bay instead of floating across the driveway. */
@@ -74,15 +70,11 @@ export const HOME_BLUEPRINT = Object.freeze({
     garage:    { cx: 23, groundY: 79.5, maxWidth: 44, maxHeight: 26 },
     /** Parked, not charging — driveway spot in front of the garage. */
     driveway:  { cx: 24, groundY: 88.0, maxWidth: 44, maxHeight: 26 },
-    /** Second proven vehicle — alongside, still under the house outline. */
-    driveway2: { cx: 48, groundY: 89.0, maxWidth: 38, maxHeight: 23 },
   } as Readonly<
-    Record<'garage' | 'driveway' | 'driveway2', Readonly<{
+    Record<'garage' | 'driveway', Readonly<{
       cx: number; groundY: number; maxWidth: number; maxHeight: number;
     }>>
   >,
-  /** Shrink factor applied to both cars when two share the driveway. */
-  dualCarScale: 0.84,
 
 
 

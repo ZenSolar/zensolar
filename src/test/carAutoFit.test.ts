@@ -25,14 +25,10 @@ describe('fitVehicleToBay', () => {
     expect(f.y + f.height * SPRITE_CONTACT_RATIO).toBeCloseTo(bay.groundY, 5);
   });
 
-  it('shrinks both cars when two share the driveway', () => {
+  it('scales the car down when a scale factor is supplied', () => {
     const solo = fitVehicleToBay(HOME_BLUEPRINT.bays.driveway, 1.8);
-    const dual = fitVehicleToBay(
-      HOME_BLUEPRINT.bays.driveway,
-      1.8,
-      HOME_BLUEPRINT.dualCarScale,
-    );
-    expect(dual.width).toBeLessThan(solo.width);
+    const scaled = fitVehicleToBay(HOME_BLUEPRINT.bays.driveway, 1.8, 0.84);
+    expect(scaled.width).toBeLessThan(solo.width);
   });
 
   it('clamps a very wide sprite inside the viewBox', () => {
