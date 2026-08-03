@@ -457,7 +457,14 @@ export function buildConductorSegments(args: {
   if (home > 0.05) {
     segments.push({
       id: 'branch-home',
-      points: [A.wallJunction, { x: A.wallJunction.x + 3.5, y: A.homeWall.y }, A.homeWall],
+      // v12c: orthogonal wall run — drop the wall beside the grid riser, then
+      // run level along the foundation to the load tap. No diagonals on wall.
+      points: [
+        { x: A.wallJunction.x + 2.6, y: A.wallJunction.y + 3.4 },
+        { x: A.wallJunction.x + 2.6, y: A.homeWall.y },
+        A.homeWall,
+      ],
+
       color: CONDUCTOR_NEUTRAL,
       kw: home,
       layer: 'front',
