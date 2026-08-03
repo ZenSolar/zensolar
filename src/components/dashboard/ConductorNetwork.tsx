@@ -44,34 +44,39 @@ export function fromHouseImage(x: number, y: number): Pt {
  * the `?anchors=1` capture, so they are given directly rather than through
  * `fromHouseImage`.
  *
- *   roofArrayEdge  lower-RIGHT corner of the PV array, where it meets the eave
- *   wallJunction   right facade directly beneath the eave — where the roof run
- *                  terminates and every branch begins. Brand-neutral: it is a
- *                  routing node, not a device
- *   homeWall       centre of the lit window cluster (interior load)
- *   powerwall      white Tesla battery cabinet on the front-right facade
- *   meter          grey utility pedestal / service entrance at the right edge
- *                  of the slab
- *   gridEdge       off the property, past the right frame edge
- *   evPort         charge port on the rear quarter of the parked vehicle
+ * v6 — UTILITY CLUSTER MOVED TO THE GARAGE SIDE. Previously the service
+ * panel sat at gutter height on the right facade, directly across the window
+ * bank, so every branch cut through glass and the home run terminated ON a
+ * window. The whole cluster (panel + meter can + Powerwall) now sits at
+ * wall-base height on the garage side, in the same zone as `chargePoint`,
+ * which is where a real service entrance and battery are mounted anyway.
+ *
+ *   roofArrayEdge  lower-LEFT corner of the PV array, where it meets the eave
+ *   wallJunction   service panel + meter can, garage-side facade at wall base
+ *   homeWall       foundation line beneath the window bank — the interior load
+ *                  tap. Deliberately BELOW the glass: nothing terminates on a
+ *                  window
+ *   powerwall      battery cabinet, garage-side wall beside the panel
+ *   gridEdge       off the property, past the right frame edge, along grade
+ *   evPort         charge port on the near quarter of the parked vehicle
  */
 export const SCENE_ANCHORS = Object.freeze({
   roofArrayEdge: { x: 59.5, y: 43.5 } as Pt,
-  /** Service panel on the right facade at wall height (verified via
-   *  `?anchors=1`) — a rendered object, see `ServicePanelGlyph`. */
-  wallJunction:  { x: 68.5, y: 58.5 } as Pt,
-  homeWall:      { x: 77.5, y: 55.5 } as Pt,
-  powerwall:     { x: 73.0, y: 68.0 } as Pt,
-  meter:         { x: 94.0, y: 65.0 } as Pt,
-  gridEdge:      { x: 108.0, y: 72.0 } as Pt,
-  evPort:        { x: 38.0, y: 72.0 } as Pt,
+  /** Service panel + meter can, garage-side facade at wall-base height
+   *  (verified via `?anchors=1`) — a rendered object, see `ServicePanelGlyph`.
+   *  This is the ONLY metering object in the scene. */
+  wallJunction:  { x: 51.5, y: 69.0 } as Pt,
+  /** Foundation-line tap under the window bank. Not on the glass. */
+  homeWall:      { x: 72.0, y: 76.0 } as Pt,
+  powerwall:     { x: 57.0, y: 66.5 } as Pt,
+  gridEdge:      { x: 108.0, y: 80.0 } as Pt,
+  evPort:        { x: 44.0, y: 70.0 } as Pt,
   /** Charge point serving the driveway — mounted on the garage-side facade,
-   *  directly above and behind the parked vehicle. The EV conductor starts
-   *  HERE, not at wallJunction: power reaching a car on the driveway does not
-   *  travel over the roofline, and reusing the junction made the EV run read
-   *  as a branch of the solar-to-home line. */
-  chargePoint:   { x: 42.0, y: 66.0 } as Pt,
+   *  directly above and behind the parked vehicle, beside the service panel.
+   *  The EV cable starts HERE, not at wallJunction. */
+  chargePoint:   { x: 49.5, y: 62.0 } as Pt,
 });
+
 
 
 /** Debug label order for the `?anchors=1` overlay. */
@@ -443,11 +448,12 @@ export function buildConductorSegments(args: {
     });
   }
 
-  // HOME BRANCH — junction up-right to the window cluster.
+  // HOME BRANCH — panel down to grade, then right along the foundation to a
+  // tap BELOW the window bank. Never across the glass, never terminating on it.
   if (home > 0.05) {
     segments.push({
       id: 'branch-home',
-      points: isoRoute(A.wallJunction, A.homeWall),
+      points: [A.wallJunction, { x: A.wallJunction.x + 3.5, y: A.homeWall.y }, A.homeWall],
       color: CONDUCTOR_NEUTRAL,
       kw: home,
       layer: 'front',
@@ -455,25 +461,23 @@ export function buildConductorSegments(args: {
     });
   }
 
-  // BATTERY BRANCH — only while charging or discharging.
+  // BATTERY BRANCH — only while charging or discharging. Short run along the
+  // garage-side wall to the cabinet beside the panel.
   if (Math.abs(battery) > 0.05) {
     segments.push({
       id: battery > 0 ? 'branch-pw-charge' : 'branch-pw-discharge',
-      points: isoRoute(A.wallJunction, A.powerwall, 'vert-first'),
+      points: [A.wallJunction, { x: A.wallJunction.x + 2.5, y: A.powerwall.y }, A.powerwall],
       color: CONDUCTOR_NEUTRAL,
       kw: battery,
       // Discharge flows out of the pack, back toward the junction.
       forward: battery > 0,
       layer: 'front',
-      dimmed: args.dimSolar && battery > 0,
     });
   }
 
   // EV BRANCH — only when a vehicle is charging at this site. Runs from the
-  // driveway charge point down to the car's port: a short, taut, ground-level
-  // run. It deliberately does NOT start at wallJunction — that route climbed
-  // the facade and crossed the whole house, reading as power coming over the
-  // roof to a car parked on the ground.
+  // driveway charge point down to the car's port. Rendered by `EvChargeCable`,
+  // not by `Conductor`: it is a cable, not a fixed conduit run.
   if (ev > 0.05) {
     segments.push({
       id: 'branch-ev',
@@ -486,15 +490,13 @@ export function buildConductorSegments(args: {
   }
 
 
-  // GRID BRANCH — junction → meter → off-property. Terminates ON the meter
-  // and continues past the frame edge, never stopping short of the post.
+  // GRID BRANCH — the meter can lives at the base of the service panel, so the
+  // run leaves the panel, drops to grade and heads off-property past the right
+  // frame edge. There is no second meter object.
   if (!args.hideGrid && (importing || exporting)) {
     segments.push({
       id: exporting ? 'branch-grid-export' : 'branch-grid-import',
-      points: [
-        ...isoRoute(A.wallJunction, A.meter),
-        ...isoRoute(A.meter, A.gridEdge).slice(1),
-      ],
+      points: [A.wallJunction, { x: A.wallJunction.x + 5, y: A.gridEdge.y }, A.gridEdge],
       color: CONDUCTOR_NEUTRAL,
       kw: grid,
       // Import reverses: pulse and chevron travel inward from the grid.
@@ -503,5 +505,65 @@ export function buildConductorSegments(args: {
     });
   }
 
+
   return segments;
+}
+
+/**
+ * EvChargeCable — the visible connection between the wall charge point and the
+ * car's charge port. Deliberately styled apart from the fixed conductor runs:
+ * a sagging catenary, violet, with a moving dash so it reads as live current
+ * rather than a permanent conduit.
+ */
+export function EvChargeCable({
+  from = SCENE_ANCHORS.chargePoint,
+  to,
+  color = 'hsl(265 90% 78%)',
+  reducedMotion,
+}: {
+  from?: Pt;
+  to: Pt;
+  color?: string;
+  reducedMotion?: boolean;
+}) {
+  const sag = Math.max(2.2, Math.abs(to.x - from.x) * 0.35);
+  const d =
+    `M ${from.x} ${from.y} ` +
+    `C ${from.x - 1.5} ${from.y + sag} ${to.x + 1.5} ${to.y + sag * 0.6} ${to.x} ${to.y}`;
+
+  return (
+    <g style={{ pointerEvents: 'none' }} data-testid="ev-charge-cable">
+      <path
+        d={d}
+        stroke={color}
+        strokeOpacity={0.35}
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        fill="none"
+        style={{ filter: 'blur(1px)' }}
+      />
+      <path
+        d={d}
+        stroke={color}
+        strokeOpacity={0.85}
+        strokeWidth={0.55}
+        strokeLinecap="round"
+        fill="none"
+      />
+      <path
+        d={d}
+        stroke="#ffffff"
+        strokeOpacity={0.9}
+        strokeWidth={0.4}
+        strokeLinecap="round"
+        fill="none"
+        strokeDasharray="1.6 4.4"
+        strokeDashoffset={reducedMotion ? 0 : 6}
+      >
+        {!reducedMotion && (
+          <animate attributeName="stroke-dashoffset" from="6" to="0" dur="0.9s" repeatCount="indefinite" />
+        )}
+      </path>
+    </g>
+  );
 }

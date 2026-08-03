@@ -34,7 +34,7 @@ import {
   type VehicleModel,
 } from './EnergyFlowScene.scenes';
 import { HOME_BLUEPRINT, BLUEPRINT_PATHS } from './HomeBlueprint';
-import { Conductor, ServicePanelGlyph, buildConductorSegments, SCENE_ANCHOR_LIST, SCENE_ANCHORS } from './ConductorNetwork';
+import { Conductor, ServicePanelGlyph, EvChargeCable, buildConductorSegments, SCENE_ANCHOR_LIST, SCENE_ANCHORS } from './ConductorNetwork';
 
 import { HouseSceneV5 } from './HouseSceneV5';
 import { EvChargingCable } from './EvChargingCable';
@@ -1140,29 +1140,23 @@ export function EnergyFlowScene({
 
 
 
-        {/* Grid meter — sky on import, cyan on export, muted amber + X on outage */}
+        {/* Service entrance state — drawn on the ONE meter object (the can at
+            the base of the service panel), not on a second pedestal. The old
+            free-floating meter halo on the right of the slab was a duplicate
+            of the panel glyph's job and has been removed. */}
         <DeviceHalo
-          cx={SCENE_ANCHORS.meter.x}
-          cy={SCENE_ANCHORS.meter.y}
+          cx={SCENE_ANCHORS.wallJunction.x}
+          cy={SCENE_ANCHORS.wallJunction.y + 3.6}
           color={isOutage ? AMBER : gridExporting ? CYAN : SKY}
           active={isOutage || gridImporting || gridExporting}
-          intensity={isOutage ? 0.35 : intensity(grid) * 0.75}
-          radius={isOutage ? 3.4 : 4.0}
+          intensity={isOutage ? 0.35 : intensity(grid) * 0.6}
+          radius={isOutage ? 3.0 : 3.2}
           pulseMs={isOutage ? 5200 : 2800}
         />
         {isOutage && (
           <g style={{ pointerEvents: 'none' }}>
-            <circle
-              cx={HOME_BLUEPRINT.gridMeter.x}
-              cy={HOME_BLUEPRINT.gridMeter.y}
-              r={2.2}
-              fill="hsl(220 60% 6%)"
-              opacity={0.85}
-              stroke="hsl(0 75% 55% / 0.7)"
-              strokeWidth={0.4}
-            />
             <path
-              d={`M ${HOME_BLUEPRINT.gridMeter.x - 1.2} ${HOME_BLUEPRINT.gridMeter.y - 1.2} L ${HOME_BLUEPRINT.gridMeter.x + 1.2} ${HOME_BLUEPRINT.gridMeter.y + 1.2} M ${HOME_BLUEPRINT.gridMeter.x + 1.2} ${HOME_BLUEPRINT.gridMeter.y - 1.2} L ${HOME_BLUEPRINT.gridMeter.x - 1.2} ${HOME_BLUEPRINT.gridMeter.y + 1.2}`}
+              d={`M ${SCENE_ANCHORS.wallJunction.x - 1.2} ${SCENE_ANCHORS.wallJunction.y + 2.4} L ${SCENE_ANCHORS.wallJunction.x + 1.2} ${SCENE_ANCHORS.wallJunction.y + 4.8} M ${SCENE_ANCHORS.wallJunction.x + 1.2} ${SCENE_ANCHORS.wallJunction.y + 2.4} L ${SCENE_ANCHORS.wallJunction.x - 1.2} ${SCENE_ANCHORS.wallJunction.y + 4.8}`}
               stroke="hsl(0 85% 65%)"
               strokeWidth={0.55}
               strokeLinecap="round"
@@ -1170,6 +1164,7 @@ export function EnergyFlowScene({
             />
           </g>
         )}
+
 
         {/* Wall-connector halo retired: the baked art has no visible charger
             at that anchor, so it read as a free-floating bloom. Charge state is
@@ -1200,7 +1195,9 @@ export function EnergyFlowScene({
         <ServicePanelGlyph />
 
         {conductorSegments
-          .filter((s) => s.layer === 'front')
+          // `branch-ev` is rendered by `EvChargeCable` further down — a cable,
+          // not a fixed conduit run, so it must not draw twice.
+          .filter((s) => s.layer === 'front' && s.id !== 'branch-ev')
           .map((s) => (
             <Conductor
               key={s.id}
@@ -1412,6 +1409,10 @@ export function EnergyFlowScene({
           </g>
         )}
 
+        {/* (charging cable renders AFTER the car sprite — see below) */}
+
+
+
 
         {/* ── Dynamic Tesla, locked to the same coordinate system ── */}
         {showDynamicCar && vehicleSrc && (
@@ -1509,6 +1510,19 @@ export function EnergyFlowScene({
             )}
           </g>
         )}
+
+        {/* Live charging cable — the visible link from the wall charge point to
+            the car's port. Drawn AFTER the sprite so it reads as plugged in
+            rather than hidden behind the bodywork. Distinct in style from the
+            fixed conductor runs: a short sagging catenary in violet with a
+            travelling dash. */}
+        {chargingAtHome && showDynamicCar && (
+          <EvChargeCable
+            to={SCENE_ANCHORS.evPort}
+            reducedMotion={Boolean(prefersReducedMotion)}
+          />
+        )}
+
 
         {/* §6 — second proven vehicle, its own anchor and its own proof. */}
         {showSecondCar && secondVehicle?.src && (
