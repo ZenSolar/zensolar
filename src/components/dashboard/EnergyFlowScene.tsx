@@ -34,7 +34,7 @@ import {
   type VehicleModel,
 } from './EnergyFlowScene.scenes';
 import { HOME_BLUEPRINT, BLUEPRINT_PATHS, SCENE_CAMERA, camPctX, camPctY } from './HomeBlueprint';
-import { Conductor, ServicePanelGlyph, EvChargeCable, buildConductorSegments, SCENE_ANCHOR_LIST, SCENE_ANCHORS } from './ConductorNetwork';
+import { Conductor, EvChargeCable, buildConductorSegments, SCENE_ANCHOR_LIST, SCENE_ANCHORS } from './ConductorNetwork';
 
 import { HouseSceneV5 } from './HouseSceneV5';
 import { fitVehicleToBay } from './carAutoFit';
@@ -1070,7 +1070,7 @@ export function EnergyFlowScene({
             of the panel glyph's job and has been removed. */}
         <DeviceHalo
           cx={SCENE_ANCHORS.wallJunction.x}
-          cy={SCENE_ANCHORS.wallJunction.y + 3.6}
+          cy={SCENE_ANCHORS.wallJunction.y + 5.2}
           color={isOutage ? AMBER : gridExporting ? CYAN : SKY}
           active={isOutage || gridImporting || gridExporting}
           intensity={isOutage ? 0.35 : intensity(grid) * 0.6}
