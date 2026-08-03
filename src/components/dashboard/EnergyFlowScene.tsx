@@ -1515,6 +1515,26 @@ export function EnergyFlowScene({
         </div>
       )}
 
+      {/* §6b — SHARED CIRCUIT. When two proven cars draw at the same time the
+          scene stops being "a car charging" and becomes a household splitting
+          one service. One bar = the home charging circuit; each car owns a
+          proportional slice of it, so you read the split before you read the
+          numbers. Only renders when both cars are actually pulling power. */}
+      {chargingAtHome &&
+        showDynamicCar &&
+        Boolean(secondVehicle?.charging) &&
+        (secondVehicle?.kw ?? 0) > 0.1 &&
+        evKw > 0.1 && (
+          <SharedCircuitBar
+            primaryName={displayName}
+            primaryKw={evKw}
+            secondName={secondVehicle?.name ?? null}
+            secondKw={secondVehicle?.kw ?? 0}
+            reducedMotion={Boolean(prefersReducedMotion)}
+          />
+        )}
+
+
 
       {/* v5 Phase B — Supercharging badge. Shown when Tesla telemetry
           reports a fast charger present (Supercharger, EA, etc). The car
