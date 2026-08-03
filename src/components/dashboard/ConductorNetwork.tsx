@@ -16,13 +16,13 @@
  * baked `house-day*.png` art (see /prototype/cockpit-anchors). Each entry
  * below names the physical object it sits on.
  *
- * WIDTH CARRIES MAGNITUDE — stroke width is strictly proportional to kW
- * (`conductorWidth`), so the trunk is visibly as wide as the sum of its
- * active branches. See the function for the constant.
- *
- * COLOUR IS BINARY — one accent for everything solar-sourced, grey for idle,
- * and a single distinct hue for grid import (a genuinely different flow, and
- * the only case where direction reverses). Never a hue change mid-run.
+ * STYLE — matches the Tesla app reference frame: every conductor is a THIN,
+ * UNIFORM-WEIGHT line in a single neutral grey/white. Magnitude is carried by
+ * the numeric label at each end, never by stroke width and never by hue.
+ * (This supersedes the earlier "width proportional to kW / one accent per
+ * source" rules.) EV is the sole exception — Tesla's app has no vehicle branch,
+ * so ZenSolar's addition stays violet, but at the same thin uniform weight.
+
  */
 
 export type Pt = Readonly<{ x: number; y: number }>;
