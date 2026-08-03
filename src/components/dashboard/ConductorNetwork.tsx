@@ -415,7 +415,11 @@ export function buildConductorSegments(args: {
   hideGrid?: boolean;
 }): ConductorSegment[] {
   const A = SCENE_ANCHORS;
+  // `colors` is accepted for call-site compatibility but only the EV hue is
+  // honoured — every other branch renders in the single neutral conductor
+  // colour, matching the reference.
   const { solar, home, grid, colors } = args;
+  void colors;
   const battery = args.battery ?? 0;
   const ev = args.ev ?? 0;
   const segments: ConductorSegment[] = [];
@@ -430,7 +434,7 @@ export function buildConductorSegments(args: {
     segments.push({
       id: 'trunk',
       points: isoRoute(A.roofArrayEdge, A.wallJunction, 'vert-first'),
-      color: colors.solar,
+      color: CONDUCTOR_NEUTRAL,
       kw: solar,
       layer: 'front',
       dimmed: args.dimSolar,
@@ -442,7 +446,7 @@ export function buildConductorSegments(args: {
     segments.push({
       id: 'branch-home',
       points: isoRoute(A.wallJunction, A.homeWall),
-      color: producing ? colors.home : colors.import,
+      color: CONDUCTOR_NEUTRAL,
       kw: home,
       layer: 'front',
       dimmed: args.dimSolar && producing,
@@ -454,7 +458,7 @@ export function buildConductorSegments(args: {
     segments.push({
       id: battery > 0 ? 'branch-pw-charge' : 'branch-pw-discharge',
       points: isoRoute(A.wallJunction, A.powerwall, 'vert-first'),
-      color: colors.solar,
+      color: CONDUCTOR_NEUTRAL,
       kw: battery,
       // Discharge flows out of the pack, back toward the junction.
       forward: battery > 0,
@@ -489,7 +493,7 @@ export function buildConductorSegments(args: {
         ...isoRoute(A.wallJunction, A.meter),
         ...isoRoute(A.meter, A.gridEdge).slice(1),
       ],
-      color: exporting ? colors.export : colors.import,
+      color: CONDUCTOR_NEUTRAL,
       kw: grid,
       // Import reverses: pulse and chevron travel inward from the grid.
       forward: exporting,
