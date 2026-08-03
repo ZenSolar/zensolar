@@ -856,6 +856,13 @@ export function EnergyFlowScene({
   const carX = carFit.x;
   const carY = carFit.y;
 
+  /** The car's charge port, derived from the sprite's fitted footprint so the
+   *  cable always lands on the bodywork, whatever sprite/aspect is in play. */
+  const evPortPt = {
+    x: carFit.cx + carFit.width * 0.30,
+    y: carFit.groundY - carFit.height * 0.34,
+  };
+
   const evKw = data.tesla?.kW ?? data.evPower ?? 0;
 
   const evSoc = data.tesla?.soc;
@@ -1348,8 +1355,8 @@ export function EnergyFlowScene({
             {chargingAtHome && (
               <g style={{ pointerEvents: 'none' }}>
                 <circle
-                  cx={SCENE_ANCHORS.evPort.x}
-                  cy={SCENE_ANCHORS.evPort.y}
+                  cx={evPortPt.x}
+                  cy={evPortPt.y}
                   r={1.6}
                   fill={EMERALD}
                   opacity={0.35}
@@ -1365,8 +1372,8 @@ export function EnergyFlowScene({
                   )}
                 </circle>
                 <circle
-                  cx={SCENE_ANCHORS.evPort.x}
-                  cy={SCENE_ANCHORS.evPort.y}
+                  cx={evPortPt.x}
+                  cy={evPortPt.y}
                   r={0.7}
                   fill={EMERALD_LED}
                   opacity={0.95}
@@ -1383,7 +1390,7 @@ export function EnergyFlowScene({
             travelling dash. */}
         {chargingAtHome && showDynamicCar && (
           <EvChargeCable
-            to={SCENE_ANCHORS.evPort}
+            to={evPortPt}
             reducedMotion={Boolean(prefersReducedMotion)}
           />
         )}
