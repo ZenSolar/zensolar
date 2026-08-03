@@ -1409,15 +1409,8 @@ export function EnergyFlowScene({
           </g>
         )}
 
-        {/* Live charging cable — the visible link from the charge point to the
-            car's port. Distinct in style from the fixed conductor runs: a short
-            sagging catenary in violet with a travelling dash. */}
-        {chargingAtHome && showDynamicCar && (
-          <EvChargeCable
-            to={SCENE_ANCHORS.evPort}
-            reducedMotion={Boolean(prefersReducedMotion)}
-          />
-        )}
+        {/* (charging cable renders AFTER the car sprite — see below) */}
+
 
 
 
