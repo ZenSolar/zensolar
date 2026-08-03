@@ -1135,9 +1135,9 @@ export function EnergyFlowScene({
             const labelOffsets: Record<string, { x: number; y: number }> = {
               roofArrayEdge: { x: 1.8, y: -1.2 },
               wallJunction: { x: 2.0, y: -2.1 },
-              homeWallStub: { x: 1.8, y: 2.3 },
+              homeWallStub: { x: 2.2, y: 4.8 },
               powerwall: { x: -16.8, y: -1.8 },
-              gridWallEnd: { x: 2.0, y: 2.5 },
+              gridWallEnd: { x: -22.0, y: 3.0 },
               evPort: { x: -13.5, y: 2.5 },
               chargePoint: { x: -16.0, y: 2.6 },
             };
