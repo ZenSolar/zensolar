@@ -1195,7 +1195,9 @@ export function EnergyFlowScene({
         <ServicePanelGlyph />
 
         {conductorSegments
-          .filter((s) => s.layer === 'front')
+          // `branch-ev` is rendered by `EvChargeCable` further down — a cable,
+          // not a fixed conduit run, so it must not draw twice.
+          .filter((s) => s.layer === 'front' && s.id !== 'branch-ev')
           .map((s) => (
             <Conductor
               key={s.id}
