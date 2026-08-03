@@ -7,7 +7,7 @@ Produce a single new `day` variant of the house art with the revised facade layo
 Layout brief for the concept render, matched to the existing asset so it drops in cleanly:
 - Same isometric camera angle, same square 1024x1024 framing, same transparent/white background, same matte-black cladding, warm interior glow, grey concrete plinth, full black solar roof.
 - Garage stays in the same left-side position and at the same scale, so `carPark`, `garageFront`, and the `bays` anchors stay valid.
-- Immediately right of the garage: a dedicated windowless, doorless wall segment. Clustered on it at wall-base height — grey service panel with meter-can below it, a white Powerwall cabinet, and a wall-mounted charge connector.
+- Immediately right of the garage: a dedicated windowless, doorless wall segment. Clustered on it at wall-base height — grey service panel with meter-can below it, and a white Powerwall cabinet. No charge connector on this wall: the EV charger is an interior garage fixture, drawn only inside the lit garage volume as part of the `GarageDoorOpen` art, so it never appears in this exterior concept image.
 - Front door moves to the center/right of the facade, with the porch reading naturally there.
 - Windows occupy only the far-right wall bay, with clear separation from the utility wall — no hardware over glass.
 - Roof solar array edge shifted toward the utility-wall side so the roof-to-panel conduit run is short.
