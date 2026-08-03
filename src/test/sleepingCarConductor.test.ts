@@ -91,7 +91,7 @@ describe('sleeping car, open wall-connector session', () => {
     expect(last).toEqual(SCENE_ANCHORS.evPort);
 
     // And it must be nowhere near the house-right grid run.
-    expect(SCENE_ANCHORS.evPort.x).toBeLessThan(SCENE_ANCHORS.homeWall.x);
+    expect(SCENE_ANCHORS.evPort.x).toBeLessThan(SCENE_ANCHORS.homeWallStub.x);
     expect(ev!.points.every((p) => p.x < SCENE_ANCHORS.wallJunction.x)).toBe(true);
   });
 
