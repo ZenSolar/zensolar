@@ -519,6 +519,74 @@ function VehicleChip({
   );
 }
 
+/**
+ * §6b — SHARED CIRCUIT BAR. Two cars charging at once is a *split*, not two
+ * separate facts, so it gets one bar: the home charging circuit, divided by
+ * each vehicle's live draw. Violet is the lead car, cyan the second — the
+ * same hues their conductors use. A slow shimmer travels the bar so it reads
+ * as current in motion rather than a static progress meter.
+ */
+function SharedCircuitBar({
+  primaryName,
+  primaryKw,
+  secondName,
+  secondKw,
+  reducedMotion,
+}: {
+  primaryName: string | null;
+  primaryKw: number;
+  secondName: string | null;
+  secondKw: number;
+  reducedMotion: boolean;
+}) {
+  const total = Math.max(0.1, primaryKw + secondKw);
+  const primaryPct = Math.min(95, Math.max(5, (primaryKw / total) * 100));
+
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-x-0 bottom-[3%] z-30 flex justify-center px-4"
+    >
+      <div className="w-full max-w-[300px] rounded-2xl border border-violet-400/25 bg-background/80 px-3 py-2 shadow-[0_0_22px_hsla(265,90%,60%,0.18)] backdrop-blur">
+        <div className="mb-1.5 flex items-center justify-between text-[9px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+          <span>Shared circuit</span>
+          <span className="tabular-nums text-foreground/90">
+            {total.toFixed(1)} kW
+          </span>
+        </div>
+
+        <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-foreground/10">
+          <div
+            className="absolute inset-y-0 left-0 rounded-full bg-[linear-gradient(90deg,hsl(265_90%_70%),hsl(265_90%_82%))] transition-[width] duration-700 ease-out"
+            style={{ width: `${primaryPct}%` }}
+          />
+          <div
+            className="absolute inset-y-0 right-0 rounded-full bg-[linear-gradient(90deg,hsl(190_90%_60%),hsl(190_90%_75%))] transition-[width] duration-700 ease-out"
+            style={{ width: `${100 - primaryPct}%` }}
+          />
+          {!reducedMotion && (
+            <div className="absolute inset-0 animate-[shimmer-sweep_2.6s_linear_infinite] bg-[linear-gradient(90deg,transparent_35%,hsl(0_0%_100%/0.45)_50%,transparent_65%)]" />
+          )}
+        </div>
+
+        <div className="mt-1.5 flex items-center justify-between gap-2 text-[10px] font-medium tabular-nums">
+          <span className="flex min-w-0 items-center gap-1 text-violet-200">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-violet-300" />
+            <span className="truncate">{primaryName ?? 'Vehicle 1'}</span>
+            <span className="shrink-0 text-foreground/70">{primaryKw.toFixed(1)}</span>
+          </span>
+          <span className="flex min-w-0 items-center gap-1 text-cyan-200">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
+            <span className="truncate">{secondName ?? 'Vehicle 2'}</span>
+            <span className="shrink-0 text-foreground/70">{secondKw.toFixed(1)}</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Main component
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1514,6 +1582,26 @@ export function EnergyFlowScene({
           )}
         </div>
       )}
+
+      {/* §6b — SHARED CIRCUIT. When two proven cars draw at the same time the
+          scene stops being "a car charging" and becomes a household splitting
+          one service. One bar = the home charging circuit; each car owns a
+          proportional slice of it, so you read the split before you read the
+          numbers. Only renders when both cars are actually pulling power. */}
+      {chargingAtHome &&
+        showDynamicCar &&
+        Boolean(secondVehicle?.charging) &&
+        (secondVehicle?.kw ?? 0) > 0.1 &&
+        evKw > 0.1 && (
+          <SharedCircuitBar
+            primaryName={displayName}
+            primaryKw={evKw}
+            secondName={secondVehicle?.name ?? null}
+            secondKw={secondVehicle?.kw ?? 0}
+            reducedMotion={Boolean(prefersReducedMotion)}
+          />
+        )}
+
 
 
       {/* v5 Phase B — Supercharging badge. Shown when Tesla telemetry
