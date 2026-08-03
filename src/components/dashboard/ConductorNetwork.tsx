@@ -57,7 +57,9 @@ export function fromHouseImage(x: number, y: number): Pt {
  */
 export const SCENE_ANCHORS = Object.freeze({
   roofArrayEdge: { x: 59.5, y: 43.5 } as Pt,
-  wallJunction:  { x: 70.5, y: 51.5 } as Pt,
+  /** Service panel on the right facade at wall height (verified via
+   *  `?anchors=1`) — a rendered object, see `ServicePanelGlyph`. */
+  wallJunction:  { x: 68.5, y: 58.5 } as Pt,
   homeWall:      { x: 77.5, y: 55.5 } as Pt,
   powerwall:     { x: 73.0, y: 68.0 } as Pt,
   meter:         { x: 94.0, y: 65.0 } as Pt,
