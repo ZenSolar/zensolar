@@ -19,28 +19,28 @@ export type BlueprintAnchor = Readonly<{ x: number; y: number }>;
 
 export const HOME_BLUEPRINT = Object.freeze({
   /** Solar panel array center on the front-facing roof slope. */
-  solar:        { x: 58, y: 30 } as BlueprintAnchor,
+  solar:        { x: 51.7, y: 26.7 } as BlueprintAnchor,
   /** Center of the lit-window cluster on the front-right wall. */
-  windows:      { x: 75, y: 58 } as BlueprintAnchor,
+  windows:      { x: 66.8, y: 51.7 } as BlueprintAnchor,
   /** Primary Powerwall — white cabinet tucked against the front-left
    *  porch wall in the baked PNG. */
-  powerwall:    { x: 40, y: 68 } as BlueprintAnchor,
+  powerwall:    { x: 35.6, y: 60.6 } as BlueprintAnchor,
   /** Optional second Powerwall stacked just below the first. */
-  powerwall2:   { x: 40, y: 74 } as BlueprintAnchor,
+  powerwall2:   { x: 35.6, y: 65.9 } as BlueprintAnchor,
   /** Front door (porch). */
-  frontDoor:    { x: 53, y: 70 } as BlueprintAnchor,
+  frontDoor:    { x: 47.2, y: 62.3 } as BlueprintAnchor,
   /** Utility grid meter — small box mounted on the far-right wall. */
-  gridMeter:    { x: 90, y: 62 } as BlueprintAnchor,
+  gridMeter:    { x: 80.1, y: 55.2 } as BlueprintAnchor,
   /** Tesla Wall Connector mounted inside the garage. */
-  wallCharger:  { x: 18, y: 60 } as BlueprintAnchor,
+  wallCharger:  { x: 16.0, y: 53.4 } as BlueprintAnchor,
   /** Driveway parking spot in front of the garage (car center). */
-  carPark:      { x: 22, y: 82 } as BlueprintAnchor,
+  carPark:      { x: 19.6, y: 73.0 } as BlueprintAnchor,
   /** "Charging at home" anchor — pulls the car up to the garage apron.
    *  v5.2: nudged left/down so the sprite reads as sitting inside the
    *  garage bay instead of floating across the driveway. */
-  garageFront:  { x: 26, y: 76 } as BlueprintAnchor,
+  garageFront:  { x: 23.2, y: 67.7 } as BlueprintAnchor,
   /** Rectangle over the garage opening — used to paint a warm "door open" bloom. */
-  garageOpening: { x: 4, y: 50, w: 26, h: 22 } as Readonly<{
+  garageOpening: { x: 3.6, y: 44.5, w: 23.2, h: 19.6 } as Readonly<{
     x: number; y: number; w: number; h: number;
   }>,
   /** Dynamic-vehicle <image> overlay dimensions, % of viewBox.
@@ -49,11 +49,11 @@ export const HOME_BLUEPRINT = Object.freeze({
    *  v5.3: these are now the BUDGET for the auto-fit (see `bays` below),
    *  not the literal drawn box — the sprite is contained inside them at
    *  its own aspect ratio. */
-  carWidth: 50,
-  carHeight: 28,
+  carWidth: 44.5,
+  carHeight: 24.9,
   /** Car dimensions when two vehicles share the driveway. */
-  carWidthDual: 42,
-  carHeightDual: 24,
+  carWidthDual: 37.4,
+  carHeightDual: 21.4,
 
   /**
    * v5.3 — parking BAYS. Each bay declares a centre line, the ground
@@ -67,10 +67,10 @@ export const HOME_BLUEPRINT = Object.freeze({
    */
   bays: {
     /** Retained for API compatibility; EV1 no longer parks in the bay. */
-    garage:    { cx: 22, groundY: 70.0, maxWidth: 26, maxHeight: 15 },
+    garage:    { cx: 19.6, groundY: 62.3, maxWidth: 23.2, maxHeight: 13.4 },
     /** v12c driveway apron in front of the garage (plate px cx 266,
      *  contact line y 784). Single fixed pose, parallel to the facade. */
-    driveway:  { cx: 26, groundY: 76.5, maxWidth: 32, maxHeight: 18 },
+    driveway:  { cx: 23.2, groundY: 68.1, maxWidth: 28.5, maxHeight: 16.0 },
   } as Readonly<
     Record<'garage' | 'driveway', Readonly<{
       cx: number; groundY: number; maxWidth: number; maxHeight: number;
@@ -85,11 +85,11 @@ export const HOME_BLUEPRINT = Object.freeze({
    * the front-left porch wall. Slot 0 == legacy `powerwall` anchor.
    */
   powerwallSlots: [
-    { x: 40, y: 68 },
-    { x: 40, y: 74 },
-    { x: 44, y: 68 },
-    { x: 44, y: 74 },
-    { x: 44, y: 80 },
+    { x: 35.6, y: 60.6 },
+    { x: 35.6, y: 65.9 },
+    { x: 39.2, y: 60.6 },
+    { x: 39.2, y: 65.9 },
+    { x: 39.2, y: 71.2 },
   ] as readonly BlueprintAnchor[],
 } as const);
 
@@ -152,17 +152,17 @@ export const BLUEPRINT_PATHS = Object.freeze({
  */
 export const SCENE_CAMERA = Object.freeze({
   x: 0,
-  y: 18,
+  y: 13,
   w: 100,
   h: 70,
-  viewBox: '0 18 100 70',
+  viewBox: '0 13 100 70',
   /** CSS aspect-ratio for every stage box, so img and SVG stay in register. */
   aspect: '100 / 70',
   /** <img> sizing that reproduces the viewBox crop exactly. */
   imgStyle: {
     width: '100%',
     height: `${(100 / 70) * 100}%`,
-    marginTop: `${-(18 / 70) * 100}%`,
+    marginTop: `${-(13 / 70) * 100}%`,
   } as const,
 });
 
