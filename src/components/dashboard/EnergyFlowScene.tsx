@@ -1131,13 +1131,24 @@ export function EnergyFlowScene({
             anchor at its overlay coordinate so it can be checked against the
             baked house art. Not reachable without the query flag. */}
         {showAnchorDebug &&
-          SCENE_ANCHOR_LIST.map(([name, p]) => (
+          SCENE_ANCHOR_LIST.map(([name, p], index) => {
+            const labelOffsets: Record<string, { x: number; y: number }> = {
+              roofArrayEdge: { x: 1.8, y: -1.2 },
+              wallJunction: { x: 2.0, y: -2.1 },
+              homeWallStub: { x: 1.8, y: 2.3 },
+              powerwall: { x: -16.8, y: -1.8 },
+              gridWallEnd: { x: 2.0, y: 2.5 },
+              evPort: { x: -13.5, y: 2.5 },
+              chargePoint: { x: -16.0, y: 2.6 },
+            };
+            const offset = labelOffsets[name] ?? { x: 1.8, y: index * 0.2 };
+            return (
             <g key={name}>
               <circle cx={p.x} cy={p.y} r={1.1} fill="none" stroke="#ff2d55" strokeWidth={0.45} />
               <circle cx={p.x} cy={p.y} r={0.25} fill="#ff2d55" />
               <text
-                x={p.x + 1.8}
-                y={p.y + 0.6}
+                x={p.x + offset.x}
+                y={p.y + offset.y}
                 fill="#ffe066"
                 fontSize={1.9}
                 fontFamily="ui-monospace, monospace"
@@ -1145,7 +1156,8 @@ export function EnergyFlowScene({
                 {name} {p.x.toFixed(1)},{p.y.toFixed(1)}
               </text>
             </g>
-          ))}
+            );
+          })}
 
 
 

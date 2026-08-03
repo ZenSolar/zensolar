@@ -4,8 +4,8 @@
  *
  * TOPOLOGY (mirrors the Tesla app; one trunk, one junction, four branches)
  *
- *     roofArrayEdge ──▶ wallJunction ─┬─▶ meter ─▶ gridEdge   (grid)
- *          (trunk)                    ├─▶ homeWall            (house load)
+ *     roofArrayEdge ──▶ wallJunction ─┬─▶ gridWallEnd         (grid)
+ *          (trunk)                    ├─▶ homeWallStub        (house load)
  *                                     ├─▶ powerwall           (battery)
  *                                     └─▶ evPort              (vehicle)
  *
@@ -53,11 +53,9 @@ export function fromHouseImage(x: number, y: number): Pt {
  *
  *   roofArrayEdge  lower-LEFT corner of the PV array, where it meets the eave
  *   wallJunction   service panel + meter can, garage-side facade at wall base
- *   homeWall       foundation line beneath the window bank — the interior load
- *                  tap. Deliberately BELOW the glass: nothing terminates on a
- *                  window
+ *   homeWallStub   short wall-mounted load tap beside the window bank
  *   powerwall      battery cabinet, garage-side wall beside the panel
- *   gridEdge       off the property, past the right frame edge, along grade
+ *   gridWallEnd    bottom of the meter conduit on the equipment-wall foundation
  *   evPort         charge port on the near quarter of the parked vehicle
  */
 export const SCENE_ANCHORS = Object.freeze({
@@ -66,14 +64,15 @@ export const SCENE_ANCHORS = Object.freeze({
   /** Service panel + meter can, baked into the v12c equipment wall
    *  (plate px 515,519). The ONLY metering object in the scene. */
   wallJunction:  { x: 50.3, y: 50.7 } as Pt,
-  /** Foundation line beneath the window bank (plate px 745,697). */
-  homeWall:      { x: 72.8, y: 68.1 } as Pt,
+  /** Short home-load stub on the wall immediately left of the window bank.
+   *  Kept above the slab: this endpoint is wall/foundation, never driveway. */
+  homeWallStub:  { x: 65.8, y: 61.0 } as Pt,
   /** Powerwall cabinet, level with the panel (plate px 383,525). */
   powerwall:     { x: 37.4, y: 51.3 } as Pt,
   /** v12c grid rule: the service run drops STRAIGHT DOWN the wall from the
    *  meter can to grade at the wall base and stops. It is wall-mounted, never
    *  a ground line, and never enters the driveway/EV-cable corridor. */
-  gridEdge:      { x: 50.3, y: 64.0 } as Pt,
+  gridWallEnd:   { x: 50.3, y: 61.0 } as Pt,
   evPort:        { x: 28.0, y: 72.0 } as Pt,
   /** Charge point on the garage-side facade, left of the Powerwall
    *  (plate px 333,552) — above and behind the parked vehicle. */
@@ -404,8 +403,8 @@ export function Conductor({
  * Builds the trunk/branch segment list for the current power reading.
  *
  *   trunk         roofArrayEdge → wallJunction         (total production)
- *   branch-home   wallJunction  → homeWall             (house load)
- *   branch-grid   wallJunction  → meter → gridEdge     (export, or reversed
+ *   branch-home   wallJunction  → homeWallStub         (house load)
+ *   branch-grid   wallJunction  → gridWallEnd           (export, or reversed
  *                                                       and re-hued on import)
  *   branch-pw     wallJunction  → powerwall            (charge / discharge)
  *   branch-ev     wallJunction  → evPort               (charging at this site)
@@ -452,17 +451,18 @@ export function buildConductorSegments(args: {
     });
   }
 
-  // HOME BRANCH — panel down to grade, then right along the foundation to a
-  // tap BELOW the window bank. Never across the glass, never terminating on it.
+  // HOME BRANCH — a short orthogonal wall run from the panel to the load tap
+  // beside the windows. It stays entirely on the facade and never reaches the
+  // slab/driveway plane.
   if (home > 0.05) {
     segments.push({
       id: 'branch-home',
-      // v12c: orthogonal wall run — drop the wall beside the grid riser, then
-      // run level along the foundation to the load tap. No diagonals on wall.
+      // v12c: horizontal panel run, then a short wall-mounted drop. No
+      // diagonal and no foundation/driveway run.
       points: [
-        { x: A.wallJunction.x + 2.6, y: A.wallJunction.y + 3.4 },
-        { x: A.wallJunction.x + 2.6, y: A.homeWall.y },
-        A.homeWall,
+        { x: A.wallJunction.x + 1.8, y: A.wallJunction.y },
+        { x: A.homeWallStub.x, y: A.wallJunction.y },
+        A.homeWallStub,
       ],
 
       color: CONDUCTOR_NEUTRAL,
@@ -501,14 +501,13 @@ export function buildConductorSegments(args: {
   }
 
 
-  // GRID BRANCH — v12c: a straight, wall-mounted vertical drop from the meter
-  // can at the base of the service panel down to grade, where it stops. It no
-  // longer runs off across the driveway apron, so it cannot cross the EV
-  // ground corridor.
+  // GRID BRANCH — one truly vertical, wall-mounted segment from the meter can
+  // to the equipment-wall foundation. It stops before the slab; there is no
+  // bend and no horizontal ground run.
   if (!args.hideGrid && (importing || exporting)) {
     segments.push({
       id: exporting ? 'branch-grid-export' : 'branch-grid-import',
-      points: [{ x: A.wallJunction.x, y: A.wallJunction.y + 3.4 }, { x: A.gridEdge.x, y: A.gridEdge.y }],
+      points: [{ x: A.wallJunction.x, y: A.wallJunction.y + 3.4 }, A.gridWallEnd],
       color: CONDUCTOR_NEUTRAL,
       kw: grid,
       // Import reverses: pulse and chevron travel inward from the grid.
