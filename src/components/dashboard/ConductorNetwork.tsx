@@ -66,7 +66,7 @@ export const SCENE_ANCHORS = Object.freeze({
   wallJunction:  { x: 50.5, y: 46.0 } as Pt,
   /** Short home-load stub on the wall immediately left of the window bank.
    *  Kept above the slab: this endpoint is wall/foundation, never driveway. */
-  homeWallStub:  { x: 68.5, y: 56.0 } as Pt,
+  homeWallStub:  { x: 64.8, y: 55.8 } as Pt,
   /** Powerwall cabinet, level with the panel. */
   powerwall:     { x: 33.3, y: 45.7 } as Pt,
   /** v12c grid rule: the service run drops STRAIGHT DOWN the wall from the
