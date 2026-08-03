@@ -5,44 +5,37 @@
  * charging (solar 0, home 0.347 kW measured, grid 11.347 kW import reconciled,
  * EV 11 kW at the wall connector).
  *
- * `?row=14` renders the worst case from the flow matrix — all six spokes
- * active at once (solar source, grid source, battery source, home sink,
- * EV1 sink, EV2 sink) — used for the framing/legibility check.
+ * `?state=parked` → vehicle present at the driveway anchor, not charging.
+ * `?state=away`   → no presence evidence; the driveway sits empty.
  *
  * Not linked from the app. Route: /prototype/scene-check
  */
 import { EnergyFlowScene } from '@/components/dashboard/EnergyFlowScene';
-import secondCar from '@/assets/zencasa/vehicles/model-3-deep-blue.png';
 
 export default function PrototypeSceneCheck() {
-  const row =
+  const params =
     typeof window !== 'undefined'
-      ? new URLSearchParams(window.location.search).get('row')
-      : null;
+      ? new URLSearchParams(window.location.search)
+      : new URLSearchParams();
 
-  const isRow14 = row === '14';
+  const state = params.get('state') ?? 'charging';
+  const charging = state === 'charging';
 
-  const data = isRow14
-    ? {
-        // Row 14 — every spoke live. Solar + grid + battery all sourcing,
-        // home + two EVs all sinking.
-        solarPower: 6.2,
-        homePower: 2.4,
-        gridPower: 7.8,
-        batteryPower: -4.1,
-        batteryPercent: 74,
-        evPower: 18.4,
-        tesla: { isCharging: true, kW: 11, soc: 62, rangeMi: 210, source: 'home' as const },
-      }
-    : {
-        solarPower: 0,
-        homePower: 0.347,
-        gridPower: 11.347,
-        batteryPower: 0,
-        batteryPercent: 0,
-        evPower: 11,
-        tesla: { isCharging: true, kW: 11, soc: 62, rangeMi: 210, source: 'home' as const },
-      };
+  const data = {
+    solarPower: 0,
+    homePower: 0.347,
+    gridPower: charging ? 11.347 : 0.347,
+    batteryPower: 0,
+    batteryPercent: 0,
+    evPower: charging ? 11 : 0,
+    tesla: {
+      isCharging: charging,
+      kW: charging ? 11 : 0,
+      soc: 62,
+      rangeMi: 210,
+      source: 'home' as const,
+    },
+  };
 
   return (
     <div className="min-h-screen bg-background p-4">
@@ -52,15 +45,10 @@ export default function PrototypeSceneCheck() {
           forceScene="day"
           vehicleModel="modelx"
           vehicleColor="pearl-white"
-          presenceProven
-          hasBattery={isRow14}
+          presenceProven={state !== 'away'}
+          hasBattery={false}
           hasCharger
           hasTesla
-          secondVehicle={
-            isRow14
-              ? { src: secondCar, name: 'TesYto', kw: 7.4, soc: 48, charging: true }
-              : null
-          }
           gridSource="reconciled"
           homeDerived
         />

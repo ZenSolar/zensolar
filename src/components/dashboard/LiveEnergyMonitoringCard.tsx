@@ -948,43 +948,6 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
   });
 
 
-  // §6 — a SECOND vehicle earns a place in the scene on its own proof, not
-  // by association with the first. Each car's presence_evidence is checked
-  // independently, and each carries its own chip.
-  const secondSceneVehicle = useMemo(() => {
-    if (hideVehicle) return null;
-    const primarySiteId = (primaryEv as { site_id?: string } | null)?.site_id ?? null;
-    const row = ev.data.find(
-      (t) => t.site_id !== primarySiteId && displayAtSiteVins.has(t.site_id),
-    );
-    if (!row) return null;
-    const asset = resolveVehicleAsset(row.payload ?? row, undefined, {
-      fallbackWhenConnected: true,
-    });
-    if (!asset.src) return null;
-    const kw =
-      pickNumber(row.payload, [
-        'charge_rate_kw',
-        'charger_power',
-        'vehicles.0.charger_power',
-        'response.charge_state.charger_power',
-      ]) ?? 0;
-    const soc = pickNumber(row.payload, [
-      'battery_level',
-      'response.charge_state.battery_level',
-      'vehicles.0.battery_level',
-    ]);
-    return {
-      src: asset.src,
-      name:
-        (row as { device_name?: string | null }).device_name ??
-        pickString(row.payload, ['display_name', 'response.display_name']),
-      kw,
-      soc,
-      charging: kw > 0.1,
-    };
-  }, [hideVehicle, ev.data, primaryEv, displayAtSiteVins]);
-
   const flowData = {
     solarPower: solarStats.currentKw ?? 0,
     homePower: reconciledFlow.homeKw,
@@ -1252,7 +1215,6 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                   !!primaryEv &&
                   displayAtSiteVins.has((primaryEv as { site_id?: string }).site_id ?? '')
                 }
-                secondVehicle={secondSceneVehicle}
                 gridSource={reconciledFlow.gridSource}
                 gridOverrideReason={reconciledFlow.overrideReason}
                 homeDerived={reconciledFlow.homeDerived}

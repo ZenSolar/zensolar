@@ -34,11 +34,9 @@ import {
   type VehicleModel,
 } from './EnergyFlowScene.scenes';
 import { HOME_BLUEPRINT, BLUEPRINT_PATHS, SCENE_CAMERA, camPctX, camPctY } from './HomeBlueprint';
-import { GarageDoorOpen } from './GarageDoorOpen';
 import { Conductor, ServicePanelGlyph, EvChargeCable, buildConductorSegments, SCENE_ANCHOR_LIST, SCENE_ANCHORS } from './ConductorNetwork';
 
 import { HouseSceneV5 } from './HouseSceneV5';
-import { EvChargingCable } from './EvChargingCable';
 import { fitVehicleToBay } from './carAutoFit';
 import { useSpriteContentBox } from '@/hooks/useSpriteAspect';
 
@@ -505,7 +503,7 @@ function VehicleChip({
           </span>
           {name ? <span className="max-w-[90px] truncate">{name}</span> : null}
           <span>
-            {charging && kw !== null ? `Charging · ${kw.toFixed(1)} kW` : 'At home'}
+            {charging && kw !== null ? `Charging · ${kw.toFixed(1)} kW` : 'Parked'}
           </span>
           {(soc !== null || rangeMi !== null) && (
             <span className="font-medium text-foreground/70">
@@ -519,74 +517,6 @@ function VehicleChip({
     </div>
   );
 }
-
-/**
- * §6b — SHARED CIRCUIT BAR. Two cars charging at once is a *split*, not two
- * separate facts, so it gets one bar: the home charging circuit, divided by
- * each vehicle's live draw. Violet is the lead car, cyan the second — the
- * same hues their conductors use. A slow shimmer travels the bar so it reads
- * as current in motion rather than a static progress meter.
- */
-function SharedCircuitBar({
-  primaryName,
-  primaryKw,
-  secondName,
-  secondKw,
-  reducedMotion,
-}: {
-  primaryName: string | null;
-  primaryKw: number;
-  secondName: string | null;
-  secondKw: number;
-  reducedMotion: boolean;
-}) {
-  const total = Math.max(0.1, primaryKw + secondKw);
-  const primaryPct = Math.min(95, Math.max(5, (primaryKw / total) * 100));
-
-  return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-x-0 bottom-[9%] z-30 flex justify-center px-4"
-    >
-      <div className="w-full max-w-[54%] rounded-xl border border-violet-400/25 bg-background/70 px-2.5 py-1 shadow-[0_0_22px_hsla(265,90%,60%,0.18)] backdrop-blur">
-        <div className="mb-1 flex items-center justify-between text-[8px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-          <span>Shared circuit</span>
-          <span className="tabular-nums text-foreground/90">
-            {total.toFixed(1)} kW
-          </span>
-        </div>
-
-        <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-foreground/10">
-          <div
-            className="absolute inset-y-0 left-0 rounded-full bg-[linear-gradient(90deg,hsl(265_90%_70%),hsl(265_90%_82%))] transition-[width] duration-700 ease-out"
-            style={{ width: `${primaryPct}%` }}
-          />
-          <div
-            className="absolute inset-y-0 right-0 rounded-full bg-[linear-gradient(90deg,hsl(190_90%_60%),hsl(190_90%_75%))] transition-[width] duration-700 ease-out"
-            style={{ width: `${100 - primaryPct}%` }}
-          />
-          {!reducedMotion && (
-            <div className="absolute inset-0 animate-[shimmer-sweep_2.6s_linear_infinite] bg-[linear-gradient(90deg,transparent_35%,hsl(0_0%_100%/0.45)_50%,transparent_65%)]" />
-          )}
-        </div>
-
-        <div className="mt-1 flex items-center justify-between gap-2 text-[9px] font-medium tabular-nums">
-          <span className="flex min-w-0 items-center gap-1 text-violet-200">
-            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-violet-300" />
-            <span className="truncate">{primaryName ?? 'Vehicle 1'}</span>
-            <span className="shrink-0 text-foreground/70">{primaryKw.toFixed(1)}</span>
-          </span>
-          <span className="flex min-w-0 items-center gap-1 text-cyan-200">
-            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
-            <span className="truncate">{secondName ?? 'Vehicle 2'}</span>
-            <span className="shrink-0 text-foreground/70">{secondKw.toFixed(1)}</span>
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main component
@@ -629,14 +559,7 @@ export interface EnergyFlowSceneProps {
    * Leave undefined for legacy callers (falls back to connection heuristics).
    */
   presenceProven?: boolean;
-  /** §6 — a second vehicle proven at this address. Rendered at carPark2. */
-  secondVehicle?: {
-    src: string;
-    name?: string | null;
-    kw?: number | null;
-    soc?: number | null;
-    charging?: boolean;
-  } | null;
+  /* EV2 removed: the scene renders exactly one vehicle until EV1 is solid. */
   /** §3 — grid provenance for this frame, from the single reconciledFlow. */
   gridSource?: 'raw' | 'reconciled';
   gridOverrideReason?: string | null;
@@ -681,7 +604,6 @@ export function EnergyFlowScene({
   weatherCode = null,
   forceComposition,
   presenceProven,
-  secondVehicle = null,
   gridSource = 'raw',
   gridOverrideReason = null,
   homeDerived = false,
@@ -836,12 +758,9 @@ export function EnergyFlowScene({
         : scene;
   const spriteFilter = SPRITE_FILTER[scene];
   const spriteIsNight = NIGHT_SCENES.includes(scene);
-  const showSecondCar = Boolean(secondVehicle?.src);
 
-
-  // v5.3 — measured intrinsic aspect ratios drive the auto-fit below.
+  // v5.3 — measured intrinsic aspect ratio drives the auto-fit below.
   const primaryAspect = useSpriteContentBox(vehicleSrc);
-  const secondAspect = useSpriteContentBox(secondVehicle?.src ?? null);
 
 
 
@@ -859,9 +778,11 @@ export function EnergyFlowScene({
   // Trunk-and-branch conductor topology (see ConductorNetwork.tsx).
   // Battery and EV are branches of the same junction; in outage mode the
   // battery→home hero below owns that story instead.
+  // The EV spoke exists ONLY while a proven vehicle is charging here. There
+  // is no dimmed "inactive" EV branch — away or parked means absent.
   const teslaCharging = data.tesla?.isCharging === true && data.tesla?.source !== 'supercharger';
   const evBranchKw =
-    teslaCharging && !isOutage
+    teslaCharging && !isOutage && showDynamicCar
       ? Math.abs(data.tesla?.kW ?? data.evPower ?? 0)
       : 0;
 
@@ -919,22 +840,15 @@ export function EnergyFlowScene({
 
   const chargingAtHome = isCharging && !isSupercharging && !isOutage;
 
-  // v5.3 — AUTO-FIT. Instead of forcing every sprite into one fixed box
-  // (which letterboxed narrow assets and overhung the bay with squarer
-  // ones), fit each sprite into its parking bay at its own measured aspect
-  // ratio and seat the tyres on the bay's contact line. Pure viewBox math,
-  // so it holds at any device width.
-  const dualScale = showSecondCar ? HOME_BLUEPRINT.dualCarScale : 1;
-  const primaryBay = chargingAtHome
-    ? HOME_BLUEPRINT.bays.garage
-    : HOME_BLUEPRINT.bays.driveway;
+  // v5.4 — ONE FIXED DRIVEWAY POSE. EV1 always sits on the driveway apron,
+  // parallel to the facade. Charging and "present, not charging" share the
+  // same anchor; the only difference is whether the cable and EV spoke are
+  // drawn. The sprite is contained inside the bay at its measured aspect
+  // ratio and seated on the bay's contact line, so it holds at any width.
+  const primaryBay = HOME_BLUEPRINT.bays.driveway;
   const carFit = useMemo(
-    () => fitVehicleToBay(primaryBay, primaryAspect, dualScale),
-    [primaryBay, primaryAspect, dualScale],
-  );
-  const secondFit = useMemo(
-    () => fitVehicleToBay(HOME_BLUEPRINT.bays.driveway2, secondAspect, dualScale),
-    [secondAspect, dualScale],
+    () => fitVehicleToBay(primaryBay, primaryAspect, 1),
+    [primaryBay, primaryAspect],
   );
   const carAnchor = { x: carFit.cx, y: carFit.cy };
   const carW = carFit.width;
@@ -942,16 +856,15 @@ export function EnergyFlowScene({
   const carX = carFit.x;
   const carY = carFit.y;
 
+  /** The car's charge port, derived from the sprite's fitted footprint so the
+   *  cable always lands on the bodywork, whatever sprite/aspect is in play. */
+  const evPortPt = {
+    x: carFit.cx + carFit.width * 0.30,
+    y: carFit.groundY - carFit.height * 0.34,
+  };
+
   const evKw = data.tesla?.kW ?? data.evPower ?? 0;
 
-  /** Two proven cars both drawing → the shared-circuit bar owns the readout,
-   *  and the per-vehicle chips are suppressed so nothing overlaps. */
-  const sharedCircuitActive =
-    chargingAtHome &&
-    showDynamicCar &&
-    Boolean(secondVehicle?.charging) &&
-    (secondVehicle?.kw ?? 0) > 0.1 &&
-    evKw > 0.1;
   const evSoc = data.tesla?.soc;
   const evRange = data.tesla?.rangeMi;
 
@@ -1182,16 +1095,8 @@ export function EnergyFlowScene({
             carried by the EV branch and the charge-port pulse. */}
 
 
-        {/* Tiny green plug LED on the parked car when plugged & idle */}
-        {isPluggedIdle && showDynamicCar && (
-          <circle
-            cx={HOME_BLUEPRINT.carPark.x + 6}
-            cy={HOME_BLUEPRINT.carPark.y - 2}
-            r={0.7}
-            fill={EMERALD}
-            opacity={0.85}
-          />
-        )}
+
+
 
         {/* ── Max 2 ultra-minimal dotted flow lines ── */}
         {/* In Outage Mode, solar flows are dimmed so the eye lands on
@@ -1338,25 +1243,9 @@ export function EnergyFlowScene({
         )}
 
 
-        {/* ── Garage door rolls up, bay lights, light spills onto the apron ──
-            The baked PNGs only carry a closed door, so the open state is drawn
-            on the same isometric plane. See `GarageDoorOpen`. */}
-        {chargingAtHome && showDynamicCar && (
-          <GarageDoorOpen reducedMotion={Boolean(prefersReducedMotion)} />
-        )}
+        {/* EV1 stays on the driveway apron in every state. No garage-bay
+            animation, and no cable unless power is actually flowing. */}
 
-
-        {/* v5 Structural — dedicated EV charging cable layer.
-            Hidden when supercharging away from home (gated by showDynamicCar). */}
-        {isPluggedIdle && !chargingAtHome && showDynamicCar && (
-          <EvChargingCable
-            state={'idle'}
-            carAnchor={carAnchor}
-            carWidth={carW}
-            carHeight={carH}
-            reducedMotion={prefersReducedMotion ?? false}
-          />
-        )}
 
         {/* Charge point on the garage-side facade — the physical origin of the
             EV conductor. Without it the run began in mid-air, which is why the
@@ -1466,8 +1355,8 @@ export function EnergyFlowScene({
             {chargingAtHome && (
               <g style={{ pointerEvents: 'none' }}>
                 <circle
-                  cx={SCENE_ANCHORS.evPort.x}
-                  cy={SCENE_ANCHORS.evPort.y}
+                  cx={evPortPt.x}
+                  cy={evPortPt.y}
                   r={1.6}
                   fill={EMERALD}
                   opacity={0.35}
@@ -1483,8 +1372,8 @@ export function EnergyFlowScene({
                   )}
                 </circle>
                 <circle
-                  cx={SCENE_ANCHORS.evPort.x}
-                  cy={SCENE_ANCHORS.evPort.y}
+                  cx={evPortPt.x}
+                  cy={evPortPt.y}
                   r={0.7}
                   fill={EMERALD_LED}
                   opacity={0.95}
@@ -1501,103 +1390,38 @@ export function EnergyFlowScene({
             travelling dash. */}
         {chargingAtHome && showDynamicCar && (
           <EvChargeCable
-            to={SCENE_ANCHORS.evPort}
+            to={evPortPt}
             reducedMotion={Boolean(prefersReducedMotion)}
           />
         )}
 
 
-        {/* §6 — second proven vehicle, its own anchor and its own proof. */}
-        {showSecondCar && secondVehicle?.src && (
-          <g>
-            <ellipse
-              cx={secondFit.cx}
-              cy={secondFit.groundY}
-              rx={secondFit.width * 0.42}
-              ry={1.6}
-              fill="hsl(220 70% 2%)"
-              opacity={0.5}
-              style={{ filter: 'blur(1.4px)' }}
-            />
-            <image
-              href={secondVehicle.src}
-              x={secondFit.x}
-              y={secondFit.y}
-              width={secondFit.width}
-              height={secondFit.height}
-              preserveAspectRatio="xMidYMid meet"
-              style={{
-                filter: [spriteFilter, 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))']
-                  .filter(Boolean)
-                  .join(' '),
-              }}
-            />
-            {spriteIsNight && (
-              <rect
-                x={secondFit.x}
-                y={secondFit.y}
-                width={secondFit.width}
-                height={secondFit.height}
-                fill="hsl(220 70% 30%)"
-                opacity={0.18}
-                style={{ mixBlendMode: 'soft-light', pointerEvents: 'none' }}
-              />
-            )}
-          </g>
-        )}
+
       </svg>
 
       {/* HTML overlay aligned to the same square as the hero PNG / SVG.
           Lets us drop a "Charging" pill that tracks the car anchor in
           the exact same 0–100 coordinate space. */}
-      {/* §5/§6 — vehicle chips, attached to each rendered car. A chip exists
-          only where a car exists, and a car exists only where co-location is
+      {/* §5 — vehicle chip, attached to the rendered car. A chip exists only
+          where a car exists, and a car exists only where co-location is
           proven, so the chip never has to claim a location. */}
-      {(showDynamicCar || showSecondCar) && !sharedCircuitActive && (
+      {showDynamicCar && (
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-full max-w-full -translate-y-1/2"
           style={{ aspectRatio: SCENE_CAMERA.aspect, zIndex: 18 }}
         >
-          {showDynamicCar && (
-            <VehicleChip
-              x={carFit.cx}
-              y={carFit.y - 1}
-              name={displayName}
-              kw={chargingAtHome ? evKw : null}
-              soc={typeof evSoc === 'number' ? evSoc : null}
-              rangeMi={typeof evRange === 'number' ? evRange : null}
-              charging={chargingAtHome}
-            />
-          )}
-          {showSecondCar && secondVehicle && (
-            <VehicleChip
-              x={secondFit.cx}
-              y={secondFit.y - 1}
-              name={secondVehicle.name ?? null}
-              kw={secondVehicle.charging ? (secondVehicle.kw ?? null) : null}
-              soc={typeof secondVehicle.soc === 'number' ? secondVehicle.soc : null}
-              rangeMi={null}
-              charging={Boolean(secondVehicle.charging)}
-            />
-          )}
+          <VehicleChip
+            x={carFit.cx}
+            y={carFit.y - 1}
+            name={displayName}
+            kw={chargingAtHome ? evKw : null}
+            soc={typeof evSoc === 'number' ? evSoc : null}
+            rangeMi={typeof evRange === 'number' ? evRange : null}
+            charging={chargingAtHome}
+          />
         </div>
       )}
-
-      {/* §6b — SHARED CIRCUIT. When two proven cars draw at the same time the
-          scene stops being "a car charging" and becomes a household splitting
-          one service. One bar = the home charging circuit; each car owns a
-          proportional slice of it, so you read the split before you read the
-          numbers. Only renders when both cars are actually pulling power. */}
-      {sharedCircuitActive && (
-          <SharedCircuitBar
-            primaryName={displayName}
-            primaryKw={evKw}
-            secondName={secondVehicle?.name ?? null}
-            secondKw={secondVehicle?.kw ?? 0}
-            reducedMotion={Boolean(prefersReducedMotion)}
-          />
-        )}
 
 
 
