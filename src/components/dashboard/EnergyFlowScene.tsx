@@ -34,7 +34,7 @@ import {
   type VehicleModel,
 } from './EnergyFlowScene.scenes';
 import { HOME_BLUEPRINT, BLUEPRINT_PATHS } from './HomeBlueprint';
-import { Conductor, buildConductorSegments, SCENE_ANCHOR_LIST, SCENE_ANCHORS } from './ConductorNetwork';
+import { Conductor, ServicePanelGlyph, buildConductorSegments, SCENE_ANCHOR_LIST, SCENE_ANCHORS } from './ConductorNetwork';
 
 import { HouseSceneV5 } from './HouseSceneV5';
 import { EvChargingCable } from './EvChargingCable';
@@ -1195,6 +1195,10 @@ export function EnergyFlowScene({
             from the roof plane down to the main panel, then divides into the
             home-load branch and the grid branch. Import reverses the grid
             branch (dash, chevron and colour all flip). */}
+        {/* Service panel + meter can at the junction: the rendered object that
+            makes solar, home, battery and grid read as one electrical system. */}
+        <ServicePanelGlyph />
+
         {conductorSegments
           .filter((s) => s.layer === 'front')
           .map((s) => (
