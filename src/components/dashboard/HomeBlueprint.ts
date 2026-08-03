@@ -66,15 +66,17 @@ export const HOME_BLUEPRINT = Object.freeze({
    * preserved: groundY = anchor.y + boxHeight * 0.358.
    */
   bays: {
-    /** Charging at home — pulled up onto the garage apron. */
-    garage:    { cx: 23, groundY: 79.5, maxWidth: 44, maxHeight: 26 },
-    /** Parked, not charging — driveway spot in front of the garage. */
-    driveway:  { cx: 24, groundY: 88.0, maxWidth: 44, maxHeight: 26 },
+    /** Retained for API compatibility; EV1 no longer parks in the bay. */
+    garage:    { cx: 22, groundY: 70.0, maxWidth: 26, maxHeight: 15 },
+    /** v12c driveway apron in front of the garage (plate px cx 266,
+     *  contact line y 784). Single fixed pose, parallel to the facade. */
+    driveway:  { cx: 26, groundY: 76.5, maxWidth: 32, maxHeight: 18 },
   } as Readonly<
     Record<'garage' | 'driveway', Readonly<{
       cx: number; groundY: number; maxWidth: number; maxHeight: number;
     }>>
   >,
+
 
 
 
