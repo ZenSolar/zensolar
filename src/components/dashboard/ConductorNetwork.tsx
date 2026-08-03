@@ -508,3 +508,62 @@ export function buildConductorSegments(args: {
 
   return segments;
 }
+
+/**
+ * EvChargeCable — the visible connection between the wall charge point and the
+ * car's charge port. Deliberately styled apart from the fixed conductor runs:
+ * a sagging catenary, violet, with a moving dash so it reads as live current
+ * rather than a permanent conduit.
+ */
+export function EvChargeCable({
+  from = SCENE_ANCHORS.chargePoint,
+  to,
+  color = 'hsl(265 90% 78%)',
+  reducedMotion,
+}: {
+  from?: Pt;
+  to: Pt;
+  color?: string;
+  reducedMotion?: boolean;
+}) {
+  const sag = Math.max(2.2, Math.abs(to.x - from.x) * 0.35);
+  const d =
+    `M ${from.x} ${from.y} ` +
+    `C ${from.x - 1.5} ${from.y + sag} ${to.x + 1.5} ${to.y + sag * 0.6} ${to.x} ${to.y}`;
+
+  return (
+    <g style={{ pointerEvents: 'none' }} data-testid="ev-charge-cable">
+      <path
+        d={d}
+        stroke={color}
+        strokeOpacity={0.35}
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        fill="none"
+        style={{ filter: 'blur(1px)' }}
+      />
+      <path
+        d={d}
+        stroke={color}
+        strokeOpacity={0.85}
+        strokeWidth={0.55}
+        strokeLinecap="round"
+        fill="none"
+      />
+      <path
+        d={d}
+        stroke="#ffffff"
+        strokeOpacity={0.9}
+        strokeWidth={0.4}
+        strokeLinecap="round"
+        fill="none"
+        strokeDasharray="1.6 4.4"
+        strokeDashoffset={reducedMotion ? 0 : 6}
+      >
+        {!reducedMotion && (
+          <animate attributeName="stroke-dashoffset" from="6" to="0" dur="0.9s" repeatCount="indefinite" />
+        )}
+      </path>
+    </g>
+  );
+}
