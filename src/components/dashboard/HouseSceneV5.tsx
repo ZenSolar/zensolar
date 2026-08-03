@@ -24,17 +24,17 @@ import { SCENE_CAMERA } from './HomeBlueprint';
 // service panel level on the open equipment wall). Time-of-day is carried by
 // the sky/tint/vignette overlays below, not by separate baked plates; the
 // night/dusk/rain re-lights of v12c are Step 2 of the redesign.
-import sceneV12c from '@/assets/zencasa/house-v12c-day.png';
+import sceneV13 from '@/assets/zencasa/house-v13-day.png';
 
 const SCENE_SRC: Record<SceneKey, string> = {
-  day: sceneV12c,
-  dusk: sceneV12c,
-  night: sceneV12c,
-  'night-ev': sceneV12c,
-  'night-pw-discharge': sceneV12c,
-  'night-pw-discharge-ev': sceneV12c,
-  'day-export': sceneV12c,
-  rain: sceneV12c,
+  day: sceneV13,
+  dusk: sceneV13,
+  night: sceneV13,
+  'night-ev': sceneV13,
+  'night-pw-discharge': sceneV13,
+  'night-pw-discharge-ev': sceneV13,
+  'day-export': sceneV13,
+  rain: sceneV13,
 };
 
 
