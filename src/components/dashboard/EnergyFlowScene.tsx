@@ -39,7 +39,7 @@ import { Conductor, buildConductorSegments, SCENE_ANCHOR_LIST, SCENE_ANCHORS } f
 import { HouseSceneV5 } from './HouseSceneV5';
 import { EvChargingCable } from './EvChargingCable';
 import { fitVehicleToBay } from './carAutoFit';
-import { useSpriteAspect } from '@/hooks/useSpriteAspect';
+import { useSpriteContentBox } from '@/hooks/useSpriteAspect';
 
 
 
@@ -838,8 +838,8 @@ export function EnergyFlowScene({
   const showSecondCar = Boolean(secondVehicle?.src);
 
   // v5.3 — measured intrinsic aspect ratios drive the auto-fit below.
-  const primaryAspect = useSpriteAspect(vehicleSrc);
-  const secondAspect = useSpriteAspect(secondVehicle?.src ?? null);
+  const primaryAspect = useSpriteContentBox(vehicleSrc);
+  const secondAspect = useSpriteContentBox(secondVehicle?.src ?? null);
 
 
 
