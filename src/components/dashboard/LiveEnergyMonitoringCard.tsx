@@ -763,14 +763,20 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
     [provenAtHomeVins, acAtSiteVins],
   );
 
-  // The car the scene leads with is the one PROVEN to be at this site, not
-  // whichever telemetry row happened to be cached most recently. In a
-  // multi-car household the proven car was landing in the second slot while
-  // the unproven one held the primary gate shut, so nothing was drawn at all.
+  // The car the scene leads with is the one with the STRONGEST proof of being
+  // at this site — a wall connector naming its VIN under load beats a
+  // vehicle's own "I'm AC charging" claim, which beats whatever telemetry row
+  // happened to be cached most recently. This is what puts ZenX (proven by
+  // the ZenAiredale wall connector) back in the lead slot.
   const primaryEv = useMemo(() => {
     if (!ev.data.length) return undefined;
-    return ev.data.find((t) => displayAtSiteVins.has(t.site_id)) ?? ev.data[0];
-  }, [ev.data, displayAtSiteVins]);
+    return (
+      ev.data.find((t) => provenAtHomeVins.has(t.site_id)) ??
+      ev.data.find((t) => acAtSiteVins.has(t.site_id)) ??
+      ev.data[0]
+    );
+  }, [ev.data, provenAtHomeVins, acAtSiteVins]);
+
 
   const solarStats = solarSnapshot(primarySolar);
   const batteryStats = batterySnapshot(primaryBattery);
