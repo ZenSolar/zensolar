@@ -60,23 +60,23 @@ export function fromHouseImage(x: number, y: number): Pt {
  */
 export const SCENE_ANCHORS = Object.freeze({
   /** v13: eave line directly above the service panel. */
-  roofArrayEdge: { x: 45.4, y: 34.4 } as Pt,
+  roofArrayEdge: { x: 44.8, y: 33.9 } as Pt,
   /** Service panel + meter can, baked into the v13 equipment wall.
    *  The ONLY metering object in the scene. */
-  wallJunction:  { x: 45.4, y: 45.8 } as Pt,
+  wallJunction:  { x: 44.8, y: 45.2 } as Pt,
   /** Short home-load stub on the wall immediately left of the window bank.
    *  Kept above the slab: this endpoint is wall/foundation, never driveway. */
-  homeWallStub:  { x: 69.3, y: 56.7 } as Pt,
+  homeWallStub:  { x: 58.6, y: 54.3 } as Pt,
   /** Powerwall cabinet, level with the panel. */
-  powerwall:     { x: 33.8, y: 46.3 } as Pt,
+  powerwall:     { x: 33.3, y: 45.7 } as Pt,
   /** v12c grid rule: the service run drops STRAIGHT DOWN the wall from the
    *  meter can to grade at the wall base and stops. It is wall-mounted, never
    *  a ground line, and never enters the driveway/EV-cable corridor. */
-  gridWallEnd:   { x: 45.4, y: 55.1 } as Pt,
-  evPort:        { x: 25.3, y: 65.0 } as Pt,
+  gridWallEnd:   { x: 44.8, y: 54.3 } as Pt,
+  evPort:        { x: 24.9, y: 64.1 } as Pt,
   /** Charge point on the garage-side facade, left of the Powerwall —
    *  above and behind the parked vehicle. */
-  chargePoint:   { x: 29.4, y: 48.7 } as Pt,
+  chargePoint:   { x: 28.9, y: 48.0 } as Pt,
 });
 
 
