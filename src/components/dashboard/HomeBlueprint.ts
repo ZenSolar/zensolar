@@ -71,11 +71,11 @@ export const HOME_BLUEPRINT = Object.freeze({
    */
   bays: {
     /** Charging at home — pulled up onto the garage apron. */
-    garage:    { cx: 26, groundY: 86.0, maxWidth: 50, maxHeight: 28 },
+    garage:    { cx: 28, groundY: 84.0, maxWidth: 44, maxHeight: 26 },
     /** Parked, not charging — driveway spot in front of the garage. */
-    driveway:  { cx: 22, groundY: 92.0, maxWidth: 50, maxHeight: 28 },
+    driveway:  { cx: 24, groundY: 88.0, maxWidth: 44, maxHeight: 26 },
     /** Second proven vehicle — alongside, still under the house outline. */
-    driveway2: { cx: 46, groundY: 92.6, maxWidth: 42, maxHeight: 24 },
+    driveway2: { cx: 48, groundY: 89.0, maxWidth: 38, maxHeight: 23 },
   } as Readonly<
     Record<'garage' | 'driveway' | 'driveway2', Readonly<{
       cx: number; groundY: number; maxWidth: number; maxHeight: number;
