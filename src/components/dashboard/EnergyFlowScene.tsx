@@ -1532,54 +1532,26 @@ export function EnergyFlowScene({
       {/* HTML overlay aligned to the same square as the hero PNG / SVG.
           Lets us drop a "Charging" pill that tracks the car anchor in
           the exact same 0–100 coordinate space. */}
-      {/* §5/§6 — vehicle chips, attached to each rendered car. A chip exists
-          only where a car exists, and a car exists only where co-location is
+      {/* §5 — vehicle chip, attached to the rendered car. A chip exists only
+          where a car exists, and a car exists only where co-location is
           proven, so the chip never has to claim a location. */}
-      {(showDynamicCar || showSecondCar) && !sharedCircuitActive && (
+      {showDynamicCar && (
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-full max-w-full -translate-y-1/2"
           style={{ aspectRatio: SCENE_CAMERA.aspect, zIndex: 18 }}
         >
-          {showDynamicCar && (
-            <VehicleChip
-              x={carFit.cx}
-              y={carFit.y - 1}
-              name={displayName}
-              kw={chargingAtHome ? evKw : null}
-              soc={typeof evSoc === 'number' ? evSoc : null}
-              rangeMi={typeof evRange === 'number' ? evRange : null}
-              charging={chargingAtHome}
-            />
-          )}
-          {showSecondCar && secondVehicle && (
-            <VehicleChip
-              x={secondFit.cx}
-              y={secondFit.y - 1}
-              name={secondVehicle.name ?? null}
-              kw={secondVehicle.charging ? (secondVehicle.kw ?? null) : null}
-              soc={typeof secondVehicle.soc === 'number' ? secondVehicle.soc : null}
-              rangeMi={null}
-              charging={Boolean(secondVehicle.charging)}
-            />
-          )}
+          <VehicleChip
+            x={carFit.cx}
+            y={carFit.y - 1}
+            name={displayName}
+            kw={chargingAtHome ? evKw : null}
+            soc={typeof evSoc === 'number' ? evSoc : null}
+            rangeMi={typeof evRange === 'number' ? evRange : null}
+            charging={chargingAtHome}
+          />
         </div>
       )}
-
-      {/* §6b — SHARED CIRCUIT. When two proven cars draw at the same time the
-          scene stops being "a car charging" and becomes a household splitting
-          one service. One bar = the home charging circuit; each car owns a
-          proportional slice of it, so you read the split before you read the
-          numbers. Only renders when both cars are actually pulling power. */}
-      {sharedCircuitActive && (
-          <SharedCircuitBar
-            primaryName={displayName}
-            primaryKw={evKw}
-            secondName={secondVehicle?.name ?? null}
-            secondKw={secondVehicle?.kw ?? 0}
-            reducedMotion={Boolean(prefersReducedMotion)}
-          />
-        )}
 
 
 
