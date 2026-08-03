@@ -19,18 +19,18 @@ export type BlueprintAnchor = Readonly<{ x: number; y: number }>;
 
 export const HOME_BLUEPRINT = Object.freeze({
   /** Solar panel array center on the front-facing roof slope. */
-  solar:        { x: 51.7, y: 26.7 } as BlueprintAnchor,
+  solar:        { x: 57.5, y: 27.3 } as BlueprintAnchor,
   /** Center of the lit-window cluster on the front-right wall. */
-  windows:      { x: 66.8, y: 51.7 } as BlueprintAnchor,
+  windows:      { x: 76.9, y: 53.3 } as BlueprintAnchor,
   /** Primary Powerwall — white cabinet tucked against the front-left
    *  porch wall in the baked PNG. */
   powerwall:    { x: 35.6, y: 60.6 } as BlueprintAnchor,
   /** Optional second Powerwall stacked just below the first. */
   powerwall2:   { x: 35.6, y: 65.9 } as BlueprintAnchor,
   /** Front door (porch). */
-  frontDoor:    { x: 47.2, y: 62.3 } as BlueprintAnchor,
+  frontDoor:    { x: 53.0, y: 63.4 } as BlueprintAnchor,
   /** Utility grid meter — small box mounted on the far-right wall. */
-  gridMeter:    { x: 80.1, y: 55.2 } as BlueprintAnchor,
+  gridMeter:    { x: 90.5, y: 56.9 } as BlueprintAnchor,
   /** Tesla Wall Connector mounted inside the garage. */
   wallCharger:  { x: 16.0, y: 53.4 } as BlueprintAnchor,
   /** Driveway parking spot in front of the garage (car center). */
