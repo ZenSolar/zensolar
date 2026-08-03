@@ -61,21 +61,25 @@ export function fromHouseImage(x: number, y: number): Pt {
  *   evPort         charge port on the near quarter of the parked vehicle
  */
 export const SCENE_ANCHORS = Object.freeze({
-  roofArrayEdge: { x: 59.5, y: 43.5 } as Pt,
-  /** Service panel + meter can, garage-side facade at wall-base height
-   *  (verified via `?anchors=1`) — a rendered object, see `ServicePanelGlyph`.
-   *  This is the ONLY metering object in the scene. */
-  wallJunction:  { x: 51.5, y: 69.0 } as Pt,
-  /** Foundation-line tap under the window bank. Not on the glass. */
-  homeWall:      { x: 72.0, y: 76.0 } as Pt,
-  powerwall:     { x: 57.0, y: 66.5 } as Pt,
-  gridEdge:      { x: 108.0, y: 80.0 } as Pt,
-  evPort:        { x: 44.0, y: 70.0 } as Pt,
-  /** Charge point serving the driveway — mounted on the garage-side facade,
-   *  directly above and behind the parked vehicle, beside the service panel.
-   *  The EV cable starts HERE, not at wallJunction. */
-  chargePoint:   { x: 49.5, y: 62.0 } as Pt,
+  /** v12c: eave line directly above the service panel (plate px 515,390). */
+  roofArrayEdge: { x: 50.3, y: 38.1 } as Pt,
+  /** Service panel + meter can, baked into the v12c equipment wall
+   *  (plate px 515,519). The ONLY metering object in the scene. */
+  wallJunction:  { x: 50.3, y: 50.7 } as Pt,
+  /** Foundation line beneath the window bank (plate px 745,697). */
+  homeWall:      { x: 72.8, y: 68.1 } as Pt,
+  /** Powerwall cabinet, level with the panel (plate px 383,525). */
+  powerwall:     { x: 37.4, y: 51.3 } as Pt,
+  /** v12c grid rule: the service run drops STRAIGHT DOWN the wall from the
+   *  meter can to grade at the wall base and stops. It is wall-mounted, never
+   *  a ground line, and never enters the driveway/EV-cable corridor. */
+  gridEdge:      { x: 50.3, y: 64.0 } as Pt,
+  evPort:        { x: 28.0, y: 72.0 } as Pt,
+  /** Charge point on the garage-side facade, left of the Powerwall
+   *  (plate px 333,552) — above and behind the parked vehicle. */
+  chargePoint:   { x: 32.5, y: 53.9 } as Pt,
 });
+
 
 
 
