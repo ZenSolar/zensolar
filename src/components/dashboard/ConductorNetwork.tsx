@@ -448,11 +448,12 @@ export function buildConductorSegments(args: {
     });
   }
 
-  // HOME BRANCH — junction up-right to the window cluster.
+  // HOME BRANCH — panel down to grade, then right along the foundation to a
+  // tap BELOW the window bank. Never across the glass, never terminating on it.
   if (home > 0.05) {
     segments.push({
       id: 'branch-home',
-      points: isoRoute(A.wallJunction, A.homeWall),
+      points: [A.wallJunction, { x: A.wallJunction.x + 3.5, y: A.homeWall.y }, A.homeWall],
       color: CONDUCTOR_NEUTRAL,
       kw: home,
       layer: 'front',
@@ -460,25 +461,23 @@ export function buildConductorSegments(args: {
     });
   }
 
-  // BATTERY BRANCH — only while charging or discharging.
+  // BATTERY BRANCH — only while charging or discharging. Short run along the
+  // garage-side wall to the cabinet beside the panel.
   if (Math.abs(battery) > 0.05) {
     segments.push({
       id: battery > 0 ? 'branch-pw-charge' : 'branch-pw-discharge',
-      points: isoRoute(A.wallJunction, A.powerwall, 'vert-first'),
+      points: [A.wallJunction, { x: A.wallJunction.x + 2.5, y: A.powerwall.y }, A.powerwall],
       color: CONDUCTOR_NEUTRAL,
       kw: battery,
       // Discharge flows out of the pack, back toward the junction.
       forward: battery > 0,
       layer: 'front',
-      dimmed: args.dimSolar && battery > 0,
     });
   }
 
   // EV BRANCH — only when a vehicle is charging at this site. Runs from the
-  // driveway charge point down to the car's port: a short, taut, ground-level
-  // run. It deliberately does NOT start at wallJunction — that route climbed
-  // the facade and crossed the whole house, reading as power coming over the
-  // roof to a car parked on the ground.
+  // driveway charge point down to the car's port. Rendered by `EvChargeCable`,
+  // not by `Conductor`: it is a cable, not a fixed conduit run.
   if (ev > 0.05) {
     segments.push({
       id: 'branch-ev',
@@ -491,15 +490,13 @@ export function buildConductorSegments(args: {
   }
 
 
-  // GRID BRANCH — junction → meter → off-property. Terminates ON the meter
-  // and continues past the frame edge, never stopping short of the post.
+  // GRID BRANCH — the meter can lives at the base of the service panel, so the
+  // run leaves the panel, drops to grade and heads off-property past the right
+  // frame edge. There is no second meter object.
   if (!args.hideGrid && (importing || exporting)) {
     segments.push({
       id: exporting ? 'branch-grid-export' : 'branch-grid-import',
-      points: [
-        ...isoRoute(A.wallJunction, A.meter),
-        ...isoRoute(A.meter, A.gridEdge).slice(1),
-      ],
+      points: [A.wallJunction, { x: A.wallJunction.x + 5, y: A.gridEdge.y }, A.gridEdge],
       color: CONDUCTOR_NEUTRAL,
       kw: grid,
       // Import reverses: pulse and chevron travel inward from the grid.
@@ -507,6 +504,7 @@ export function buildConductorSegments(args: {
       layer: 'front',
     });
   }
+
 
   return segments;
 }
