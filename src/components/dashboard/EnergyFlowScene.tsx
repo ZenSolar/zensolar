@@ -917,22 +917,15 @@ export function EnergyFlowScene({
 
   const chargingAtHome = isCharging && !isSupercharging && !isOutage;
 
-  // v5.3 — AUTO-FIT. Instead of forcing every sprite into one fixed box
-  // (which letterboxed narrow assets and overhung the bay with squarer
-  // ones), fit each sprite into its parking bay at its own measured aspect
-  // ratio and seat the tyres on the bay's contact line. Pure viewBox math,
-  // so it holds at any device width.
-  const dualScale = showSecondCar ? HOME_BLUEPRINT.dualCarScale : 1;
-  const primaryBay = chargingAtHome
-    ? HOME_BLUEPRINT.bays.garage
-    : HOME_BLUEPRINT.bays.driveway;
+  // v5.4 — ONE FIXED DRIVEWAY POSE. EV1 always sits on the driveway apron,
+  // parallel to the facade. Charging and "present, not charging" share the
+  // same anchor; the only difference is whether the cable and EV spoke are
+  // drawn. The sprite is contained inside the bay at its measured aspect
+  // ratio and seated on the bay's contact line, so it holds at any width.
+  const primaryBay = HOME_BLUEPRINT.bays.driveway;
   const carFit = useMemo(
-    () => fitVehicleToBay(primaryBay, primaryAspect, dualScale),
-    [primaryBay, primaryAspect, dualScale],
-  );
-  const secondFit = useMemo(
-    () => fitVehicleToBay(HOME_BLUEPRINT.bays.driveway2, secondAspect, dualScale),
-    [secondAspect, dualScale],
+    () => fitVehicleToBay(primaryBay, primaryAspect, 1),
+    [primaryBay, primaryAspect],
   );
   const carAnchor = { x: carFit.cx, y: carFit.cy };
   const carW = carFit.width;
@@ -942,14 +935,6 @@ export function EnergyFlowScene({
 
   const evKw = data.tesla?.kW ?? data.evPower ?? 0;
 
-  /** Two proven cars both drawing → the shared-circuit bar owns the readout,
-   *  and the per-vehicle chips are suppressed so nothing overlaps. */
-  const sharedCircuitActive =
-    chargingAtHome &&
-    showDynamicCar &&
-    Boolean(secondVehicle?.charging) &&
-    (secondVehicle?.kw ?? 0) > 0.1 &&
-    evKw > 0.1;
   const evSoc = data.tesla?.soc;
   const evRange = data.tesla?.rangeMi;
 
