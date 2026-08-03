@@ -65,16 +65,16 @@ export const SCENE_ANCHORS = Object.freeze({
   /** Service panel + meter can, garage-side facade at wall-base height
    *  (verified via `?anchors=1`) — a rendered object, see `ServicePanelGlyph`.
    *  This is the ONLY metering object in the scene. */
-  wallJunction:  { x: 47.0, y: 69.5 } as Pt,
+  wallJunction:  { x: 51.5, y: 69.0 } as Pt,
   /** Foundation-line tap under the window bank. Not on the glass. */
   homeWall:      { x: 72.0, y: 76.0 } as Pt,
-  powerwall:     { x: 53.5, y: 68.0 } as Pt,
+  powerwall:     { x: 57.0, y: 66.5 } as Pt,
   gridEdge:      { x: 108.0, y: 80.0 } as Pt,
-  evPort:        { x: 38.0, y: 72.0 } as Pt,
+  evPort:        { x: 44.0, y: 70.0 } as Pt,
   /** Charge point serving the driveway — mounted on the garage-side facade,
    *  directly above and behind the parked vehicle, beside the service panel.
    *  The EV cable starts HERE, not at wallJunction. */
-  chargePoint:   { x: 42.0, y: 64.0 } as Pt,
+  chargePoint:   { x: 49.5, y: 62.0 } as Pt,
 });
 
 
