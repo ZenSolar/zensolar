@@ -494,13 +494,14 @@ export function buildConductorSegments(args: {
   }
 
 
-  // GRID BRANCH — the meter can lives at the base of the service panel, so the
-  // run leaves the panel, drops to grade and heads off-property past the right
-  // frame edge. There is no second meter object.
+  // GRID BRANCH — v12c: a straight, wall-mounted vertical drop from the meter
+  // can at the base of the service panel down to grade, where it stops. It no
+  // longer runs off across the driveway apron, so it cannot cross the EV
+  // ground corridor.
   if (!args.hideGrid && (importing || exporting)) {
     segments.push({
       id: exporting ? 'branch-grid-export' : 'branch-grid-import',
-      points: [A.wallJunction, { x: A.wallJunction.x + 5, y: A.gridEdge.y }, A.gridEdge],
+      points: [{ x: A.wallJunction.x, y: A.wallJunction.y + 3.4 }, { x: A.gridEdge.x, y: A.gridEdge.y }],
       color: CONDUCTOR_NEUTRAL,
       kw: grid,
       // Import reverses: pulse and chevron travel inward from the grid.
@@ -508,6 +509,7 @@ export function buildConductorSegments(args: {
       layer: 'front',
     });
   }
+
 
 
   return segments;
