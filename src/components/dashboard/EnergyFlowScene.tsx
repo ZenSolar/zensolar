@@ -565,7 +565,7 @@ function SharedCircuitBar({
             style={{ width: `${100 - primaryPct}%` }}
           />
           {!reducedMotion && (
-            <div className="absolute inset-y-0 -left-1/3 w-1/3 animate-[shimmer_2.6s_linear_infinite] bg-[linear-gradient(90deg,transparent,hsl(0_0%_100%/0.45),transparent)]" />
+            <div className="absolute inset-0 animate-[shimmer-sweep_2.6s_linear_infinite] bg-[linear-gradient(90deg,transparent_35%,hsl(0_0%_100%/0.45)_50%,transparent_65%)]" />
           )}
         </div>
 
