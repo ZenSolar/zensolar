@@ -34,7 +34,7 @@ import {
   type VehicleModel,
 } from './EnergyFlowScene.scenes';
 import { HOME_BLUEPRINT, BLUEPRINT_PATHS, SCENE_CAMERA, camPctX, camPctY } from './HomeBlueprint';
-import { Conductor, ServicePanelGlyph, EvChargeCable, buildConductorSegments, SCENE_ANCHOR_LIST, SCENE_ANCHORS } from './ConductorNetwork';
+import { Conductor, EvChargeCable, buildConductorSegments, SCENE_ANCHOR_LIST, SCENE_ANCHORS } from './ConductorNetwork';
 
 import { HouseSceneV5 } from './HouseSceneV5';
 import { fitVehicleToBay } from './carAutoFit';
@@ -1070,7 +1070,7 @@ export function EnergyFlowScene({
             of the panel glyph's job and has been removed. */}
         <DeviceHalo
           cx={SCENE_ANCHORS.wallJunction.x}
-          cy={SCENE_ANCHORS.wallJunction.y + 3.6}
+          cy={SCENE_ANCHORS.wallJunction.y + 5.2}
           color={isOutage ? AMBER : gridExporting ? CYAN : SKY}
           active={isOutage || gridImporting || gridExporting}
           intensity={isOutage ? 0.35 : intensity(grid) * 0.6}
@@ -1106,9 +1106,9 @@ export function EnergyFlowScene({
             from the roof plane down to the main panel, then divides into the
             home-load branch and the grid branch. Import reverses the grid
             branch (dash, chevron and colour all flip). */}
-        {/* Service panel + meter can at the junction: the rendered object that
-            makes solar, home, battery and grid read as one electrical system. */}
-        <ServicePanelGlyph />
+        {/* v12c bakes the service panel + meter can into the equipment wall,
+            so the drawn glyph would be a second, duplicate panel. Retired. */}
+
 
         {conductorSegments
           // `branch-ev` is rendered by `EvChargeCable` further down — a cable,
