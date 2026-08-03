@@ -1106,9 +1106,9 @@ export function EnergyFlowScene({
             from the roof plane down to the main panel, then divides into the
             home-load branch and the grid branch. Import reverses the grid
             branch (dash, chevron and colour all flip). */}
-        {/* Service panel + meter can at the junction: the rendered object that
-            makes solar, home, battery and grid read as one electrical system. */}
-        <ServicePanelGlyph />
+        {/* v12c bakes the service panel + meter can into the equipment wall,
+            so the drawn glyph would be a second, duplicate panel. Retired. */}
+
 
         {conductorSegments
           // `branch-ev` is rendered by `EvChargeCable` further down — a cable,
