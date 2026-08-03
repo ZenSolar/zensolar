@@ -12,7 +12,6 @@
  * Not linked from the app. Route: /prototype/scene-check
  */
 import { EnergyFlowScene } from '@/components/dashboard/EnergyFlowScene';
-import secondCar from '@/assets/zencasa/vehicles/model-3-deep-blue.png';
 
 export default function PrototypeSceneCheck() {
   const row =
