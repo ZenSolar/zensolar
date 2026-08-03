@@ -152,19 +152,20 @@ export const BLUEPRINT_PATHS = Object.freeze({
  */
 export const SCENE_CAMERA = Object.freeze({
   x: 0,
-  y: 13,
+  y: 18,
   w: 100,
-  h: 78,
-  viewBox: '0 13 100 78',
+  h: 70,
+  viewBox: '0 18 100 70',
   /** CSS aspect-ratio for every stage box, so img and SVG stay in register. */
-  aspect: '100 / 78',
+  aspect: '100 / 70',
   /** <img> sizing that reproduces the viewBox crop exactly. */
   imgStyle: {
     width: '100%',
-    height: `${(100 / 78) * 100}%`,
-    marginTop: `${-(13 / 78) * 100}%`,
+    height: `${(100 / 70) * 100}%`,
+    marginTop: `${-(18 / 70) * 100}%`,
   } as const,
 });
+
 
 /** Map a blueprint x (0–100 source space) to a % offset inside the camera box. */
 export const camPctX = (x: number) => ((x - SCENE_CAMERA.x) / SCENE_CAMERA.w) * 100;
