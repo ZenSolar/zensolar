@@ -103,7 +103,7 @@ export function fitVehicleToBay(
   aspect: number | SpriteContentBox,
   scale = 1,
 ): FittedVehicle {
-  if (typeof aspect === 'object' && aspect !== null) {
+  if (typeof aspect !== 'number') {
     return fitVehicleContentToBay(bay, aspect, scale);
   }
   const safeAspect =
