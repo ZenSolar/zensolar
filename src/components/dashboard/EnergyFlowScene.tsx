@@ -834,12 +834,9 @@ export function EnergyFlowScene({
         : scene;
   const spriteFilter = SPRITE_FILTER[scene];
   const spriteIsNight = NIGHT_SCENES.includes(scene);
-  const showSecondCar = Boolean(secondVehicle?.src);
 
-
-  // v5.3 — measured intrinsic aspect ratios drive the auto-fit below.
+  // v5.3 — measured intrinsic aspect ratio drives the auto-fit below.
   const primaryAspect = useSpriteContentBox(vehicleSrc);
-  const secondAspect = useSpriteContentBox(secondVehicle?.src ?? null);
 
 
 
