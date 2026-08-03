@@ -45,7 +45,9 @@ No backed-in / rear-facing vehicle pose. Parked-not-charging stays nose-in; char
 
 ### Step 3 verification
 
-- Six-spoke worst case (solar, home, grid, powerwall, EV, and export all active) renders without collisions or overlapping labels.
+- Six-spoke worst case: solar, grid, powerwall, home, and **two EVs charging simultaneously** (via the existing `dualCarScale` path) — export is a direction of the grid spoke, not a sixth spoke.
+- Stage that test with one EV seated in the garage bay and the second in a driveway bay at the same time, so the interior `EvChargeCable` path and the ground-run path are both on screen in a single capture.
+- In that same capture, confirm the ground-run cable does not cross or overlap the grid conductor's ground-level run near the meter.
 - Both directions of grid (import and export) and battery (charge and discharge) verified on screen.
 
 ## Technical notes
