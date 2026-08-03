@@ -857,9 +857,11 @@ export function EnergyFlowScene({
   // Trunk-and-branch conductor topology (see ConductorNetwork.tsx).
   // Battery and EV are branches of the same junction; in outage mode the
   // battery→home hero below owns that story instead.
+  // The EV spoke exists ONLY while a proven vehicle is charging here. There
+  // is no dimmed "inactive" EV branch — away or parked means absent.
   const teslaCharging = data.tesla?.isCharging === true && data.tesla?.source !== 'supercharger';
   const evBranchKw =
-    teslaCharging && !isOutage
+    teslaCharging && !isOutage && showDynamicCar
       ? Math.abs(data.tesla?.kW ?? data.evPower ?? 0)
       : 0;
 
