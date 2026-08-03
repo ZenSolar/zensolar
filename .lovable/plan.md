@@ -23,11 +23,30 @@ Regenerate the remaining 7 scene keys — `day-export`, `dusk`, `night`, `rain`,
 ## Step 3 (after Step 2)
 
 Update `src/components/dashboard/HomeBlueprint.ts` against the new facade, measured from a `?anchors=1` overlay rather than estimated:
-- `wallJunction`, `powerwall`, and `chargePoint` cluster together on the new utility wall adjacent to the garage.
+- `wallJunction` and `powerwall` cluster together on the new utility wall adjacent to the garage.
+- `chargePoint` moves inside the garage volume (interior wall connector), not onto the exterior utility wall.
 - `homeWall` becomes a short stub at that same cluster instead of a distant anchor.
 - `roofArrayEdge` moves toward the utility-wall side of the roof.
 - `carPark`, `garageFront`, and `bays` stay untouched.
+- Add the interior wall-connector fixture to `GarageDoorOpen.tsx` so the charger is visible inside the lit bay.
 - Re-verify conductor routing in `ConductorNetwork.tsx` and the `GarageDoorOpen` overlay alignment, then confirm with a live screenshot and the anchor overlay.
+
+### EvChargeCable: two distinct path types
+
+`EvChargeCable` currently draws one fixed short catenary. Split it into two purpose-built paths selected by which bay the car occupies:
+1. **Interior run** — car in the garage bay: short cable from the interior connector to the charge port, contained entirely within the lit interior volume, drawn under the door header so it reads as inside.
+2. **Ground run** — car in the driveway bay with the door open: its own path that exits through the doorway, drops to the apron, and lies across the driveway to the car. Authored as a distinct ground-plane curve, not a stretched interior catenary.
+
+Explicitly check on screen, with both visible at once, that the ground run does not cross or overlap the grid conductor's ground-level run near the meter; reroute the ground cable if it does.
+
+### Out of scope, decided
+
+No backed-in / rear-facing vehicle pose. Parked-not-charging stays nose-in; charging is communicated by the cable and chip alone. No new sprite work.
+
+### Step 3 verification
+
+- Six-spoke worst case (solar, home, grid, powerwall, EV, and export all active) renders without collisions or overlapping labels.
+- Both directions of grid (import and export) and battery (charge and discharge) verified on screen.
 
 ## Technical notes
 
