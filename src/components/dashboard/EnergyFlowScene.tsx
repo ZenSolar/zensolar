@@ -1327,41 +1327,13 @@ export function EnergyFlowScene({
         )}
 
 
-        {/* ── Open-garage warm bloom when EV is charging at home ── */}
+        {/* ── Garage door rolls up, bay lights, light spills onto the apron ──
+            The baked PNGs only carry a closed door, so the open state is drawn
+            on the same isometric plane. See `GarageDoorOpen`. */}
         {chargingAtHome && showDynamicCar && (
-          <g style={{ pointerEvents: 'none' }}>
-            {/* Inner darker "open mouth" */}
-            <rect
-              x={HOME_BLUEPRINT.garageOpening.x + 2}
-              y={HOME_BLUEPRINT.garageOpening.y + 2}
-              width={HOME_BLUEPRINT.garageOpening.w - 4}
-              height={HOME_BLUEPRINT.garageOpening.h - 4}
-              rx={1.2}
-              fill="hsl(28 60% 8%)"
-              opacity={0.55}
-            />
-            {/* Warm interior bloom */}
-            <rect
-              x={HOME_BLUEPRINT.garageOpening.x}
-              y={HOME_BLUEPRINT.garageOpening.y}
-              width={HOME_BLUEPRINT.garageOpening.w}
-              height={HOME_BLUEPRINT.garageOpening.h}
-              rx={2}
-              fill={WARM}
-              opacity={0.22}
-              style={{ filter: 'blur(2.2px)' }}
-            >
-              {!prefersReducedMotion && (
-                <animate
-                  attributeName="opacity"
-                  values="0.18;0.30;0.18"
-                  dur="3600ms"
-                  repeatCount="indefinite"
-                />
-              )}
-            </rect>
-          </g>
+          <GarageDoorOpen reducedMotion={Boolean(prefersReducedMotion)} />
         )}
+
 
         {/* v5 Structural — dedicated EV charging cable layer.
             Hidden when supercharging away from home (gated by showDynamicCar). */}
