@@ -18,29 +18,25 @@ import { memo, useMemo } from 'react';
 import type { SceneKey } from './EnergyFlowScene';
 import { SCENE_CAMERA } from './HomeBlueprint';
 
-import sceneDay from '@/assets/zencasa/house-day.png';
-import sceneDusk from '@/assets/zencasa/house-dusk.png';
-import sceneNight from '@/assets/zencasa/house-night.png';
-import sceneNightEv from '@/assets/zencasa/house-night-ev.png';
-import sceneDayExport from '@/assets/zencasa/house-day-export.png';
-import sceneRain from '@/assets/zencasa/house-rain.png';
+// v12c — the approved plate. The pre-redesign PNGs (separate garage volume,
+// covered porch, recessed front door) are retired: every scene key now renders
+// `house-v12c-day.png` (continuous roofline, no porch, no door, Powerwall +
+// service panel level on the open equipment wall). Time-of-day is carried by
+// the sky/tint/vignette overlays below, not by separate baked plates; the
+// night/dusk/rain re-lights of v12c are Step 2 of the redesign.
+import sceneV12c from '@/assets/zencasa/house-v12c-day.png';
 
-// NOTE: The baked `house-night-pw-discharge*.png` artwork includes a
-// painted green "spine" line shooting from the Powerwall up through the
-// roof, which read as an incorrect flow path. Until those PNGs are
-// re-baked, the discharge scenes reuse the plain night artwork — the
-// actual flow is drawn by the animated SVG paths in EnergyFlowScene,
-// which already routes Powerwall → windows correctly.
 const SCENE_SRC: Record<SceneKey, string> = {
-  day: sceneDay,
-  dusk: sceneDusk,
-  night: sceneNight,
-  'night-ev': sceneNightEv,
-  'night-pw-discharge': sceneNight,
-  'night-pw-discharge-ev': sceneNightEv,
-  'day-export': sceneDayExport,
-  rain: sceneRain,
+  day: sceneV12c,
+  dusk: sceneV12c,
+  night: sceneV12c,
+  'night-ev': sceneV12c,
+  'night-pw-discharge': sceneV12c,
+  'night-pw-discharge-ev': sceneV12c,
+  'day-export': sceneV12c,
+  rain: sceneV12c,
 };
+
 
 interface Props {
   scene: SceneKey;
