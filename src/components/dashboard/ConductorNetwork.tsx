@@ -44,34 +44,39 @@ export function fromHouseImage(x: number, y: number): Pt {
  * the `?anchors=1` capture, so they are given directly rather than through
  * `fromHouseImage`.
  *
- *   roofArrayEdge  lower-RIGHT corner of the PV array, where it meets the eave
- *   wallJunction   right facade directly beneath the eave — where the roof run
- *                  terminates and every branch begins. Brand-neutral: it is a
- *                  routing node, not a device
- *   homeWall       centre of the lit window cluster (interior load)
- *   powerwall      white Tesla battery cabinet on the front-right facade
- *   meter          grey utility pedestal / service entrance at the right edge
- *                  of the slab
- *   gridEdge       off the property, past the right frame edge
- *   evPort         charge port on the rear quarter of the parked vehicle
+ * v6 — UTILITY CLUSTER MOVED TO THE GARAGE SIDE. Previously the service
+ * panel sat at gutter height on the right facade, directly across the window
+ * bank, so every branch cut through glass and the home run terminated ON a
+ * window. The whole cluster (panel + meter can + Powerwall) now sits at
+ * wall-base height on the garage side, in the same zone as `chargePoint`,
+ * which is where a real service entrance and battery are mounted anyway.
+ *
+ *   roofArrayEdge  lower-LEFT corner of the PV array, where it meets the eave
+ *   wallJunction   service panel + meter can, garage-side facade at wall base
+ *   homeWall       foundation line beneath the window bank — the interior load
+ *                  tap. Deliberately BELOW the glass: nothing terminates on a
+ *                  window
+ *   powerwall      battery cabinet, garage-side wall beside the panel
+ *   gridEdge       off the property, past the right frame edge, along grade
+ *   evPort         charge port on the near quarter of the parked vehicle
  */
 export const SCENE_ANCHORS = Object.freeze({
   roofArrayEdge: { x: 59.5, y: 43.5 } as Pt,
-  /** Service panel on the right facade at wall height (verified via
-   *  `?anchors=1`) — a rendered object, see `ServicePanelGlyph`. */
-  wallJunction:  { x: 68.5, y: 58.5 } as Pt,
-  homeWall:      { x: 77.5, y: 55.5 } as Pt,
-  powerwall:     { x: 73.0, y: 68.0 } as Pt,
-  meter:         { x: 94.0, y: 65.0 } as Pt,
-  gridEdge:      { x: 108.0, y: 72.0 } as Pt,
+  /** Service panel + meter can, garage-side facade at wall-base height
+   *  (verified via `?anchors=1`) — a rendered object, see `ServicePanelGlyph`.
+   *  This is the ONLY metering object in the scene. */
+  wallJunction:  { x: 47.0, y: 69.5 } as Pt,
+  /** Foundation-line tap under the window bank. Not on the glass. */
+  homeWall:      { x: 72.0, y: 76.0 } as Pt,
+  powerwall:     { x: 53.5, y: 68.0 } as Pt,
+  gridEdge:      { x: 108.0, y: 80.0 } as Pt,
   evPort:        { x: 38.0, y: 72.0 } as Pt,
   /** Charge point serving the driveway — mounted on the garage-side facade,
-   *  directly above and behind the parked vehicle. The EV conductor starts
-   *  HERE, not at wallJunction: power reaching a car on the driveway does not
-   *  travel over the roofline, and reusing the junction made the EV run read
-   *  as a branch of the solar-to-home line. */
-  chargePoint:   { x: 42.0, y: 66.0 } as Pt,
+   *  directly above and behind the parked vehicle, beside the service panel.
+   *  The EV cable starts HERE, not at wallJunction. */
+  chargePoint:   { x: 42.0, y: 64.0 } as Pt,
 });
+
 
 
 /** Debug label order for the `?anchors=1` overlay. */
