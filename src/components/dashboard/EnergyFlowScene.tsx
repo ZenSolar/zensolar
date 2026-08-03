@@ -1511,6 +1511,19 @@ export function EnergyFlowScene({
           </g>
         )}
 
+        {/* Live charging cable — the visible link from the wall charge point to
+            the car's port. Drawn AFTER the sprite so it reads as plugged in
+            rather than hidden behind the bodywork. Distinct in style from the
+            fixed conductor runs: a short sagging catenary in violet with a
+            travelling dash. */}
+        {chargingAtHome && showDynamicCar && (
+          <EvChargeCable
+            to={SCENE_ANCHORS.evPort}
+            reducedMotion={Boolean(prefersReducedMotion)}
+          />
+        )}
+
+
         {/* §6 — second proven vehicle, its own anchor and its own proof. */}
         {showSecondCar && secondVehicle?.src && (
           <g>
