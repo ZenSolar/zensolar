@@ -56,11 +56,6 @@ export default function PrototypeSceneCheck() {
           hasBattery={isRow14}
           hasCharger
           hasTesla
-          secondVehicle={
-            isRow14
-              ? { src: secondCar, name: 'TesYto', kw: 7.4, soc: 48, charging: true }
-              : null
-          }
           gridSource="reconciled"
           homeDerived
         />
