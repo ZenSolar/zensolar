@@ -137,3 +137,42 @@ export const BLUEPRINT_PATHS = Object.freeze({
    */
   chargerToEvCharging: `M ${B.wallCharger.x} ${B.wallCharger.y} C ${B.wallCharger.x} ${B.garageFront.y - 6} ${B.garageFront.x + B.carWidth * 0.10} ${B.garageFront.y - 1} ${B.garageFront.x + B.carWidth * 0.30} ${B.garageFront.y - B.carHeight * 0.05}`,
 } as const);
+
+/**
+ * SCENE CAMERA — framing only, never layout.
+ *
+ * The baked art is a 1024² square in which the house occupies only
+ * y≈18.5%–86%: a wide band of empty sky above the roofline and empty
+ * pavement below the driveway edge. At that framing a ~9-unit conductor
+ * run (grid's short local drop, the EV cable) reads as a faint mark.
+ *
+ * This is a crop of the SAME coordinate system — every anchor keeps its
+ * existing 0–100 value. Layers just view a sub-window of it:
+ *   · SVG layers  → viewBox = SCENE_CAMERA.viewBox
+ *   · <img> layer → scaled/offset to match that window exactly
+ *   · HTML chips  → mapped through camPctX / camPctY
+ *
+ * Margin above the roof (13 → 18.5) is kept for the corner readouts and
+ * the sun/moon band; margin below the apron (86 → 91) seats the ground
+ * shadows. All 7 scene variants inherit this framing.
+ */
+export const SCENE_CAMERA = Object.freeze({
+  x: 0,
+  y: 13,
+  w: 100,
+  h: 78,
+  viewBox: '0 13 100 78',
+  /** CSS aspect-ratio for every stage box, so img and SVG stay in register. */
+  aspect: '100 / 78',
+  /** <img> sizing that reproduces the viewBox crop exactly. */
+  imgStyle: {
+    width: '100%',
+    height: `${(100 / 78) * 100}%`,
+    marginTop: `${-(13 / 78) * 100}%`,
+  } as const,
+});
+
+/** Map a blueprint x (0–100 source space) to a % offset inside the camera box. */
+export const camPctX = (x: number) => ((x - SCENE_CAMERA.x) / SCENE_CAMERA.w) * 100;
+/** Map a blueprint y (0–100 source space) to a % offset inside the camera box. */
+export const camPctY = (y: number) => ((y - SCENE_CAMERA.y) / SCENE_CAMERA.h) * 100;

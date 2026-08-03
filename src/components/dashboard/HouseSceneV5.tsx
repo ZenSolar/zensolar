@@ -16,6 +16,7 @@
  */
 import { memo, useMemo } from 'react';
 import type { SceneKey } from './EnergyFlowScene';
+import { SCENE_CAMERA } from './HomeBlueprint';
 
 import sceneDay from '@/assets/zencasa/house-day.png';
 import sceneDusk from '@/assets/zencasa/house-dusk.png';
@@ -132,17 +133,18 @@ function HouseSceneV5Inner({ scene, weatherCode }: Props) {
   return (
     <div
       aria-hidden="true"
-      className="absolute inset-x-0 top-1/2 mx-auto h-[92%] w-auto max-w-[98%] -translate-y-1/2"
-      style={{ aspectRatio: '1 / 1' }}
+      className="absolute inset-x-0 top-1/2 mx-auto h-full w-auto max-w-full -translate-y-1/2 overflow-hidden"
+      style={{ aspectRatio: SCENE_CAMERA.aspect }}
     >
       {/* Sky-only overlay BEHIND the house — celestial + cloud bodies that
           should look like they sit in the air above the roofline. */}
       <svg
-        viewBox="0 0 100 100"
+        viewBox={SCENE_CAMERA.viewBox}
         preserveAspectRatio="xMidYMid meet"
         className="pointer-events-none absolute inset-0 h-full w-full"
         style={{ zIndex: 1 }}
       >
+
         {/* Clear-night star field */}
         {isNight && isClear && (
           <g fill="hsl(210 40% 92%)">
@@ -233,8 +235,8 @@ function HouseSceneV5Inner({ scene, weatherCode }: Props) {
           console.error('[scene:asset-error]', { scene, src });
         }}
         alt=""
-        className="absolute inset-0 h-full w-full select-none object-contain drop-shadow-[0_28px_44px_hsl(220_70%_3%/0.6)]"
-        style={{ zIndex: 2 }}
+        className="absolute inset-x-0 top-0 select-none object-contain drop-shadow-[0_28px_44px_hsl(220_70%_3%/0.6)]"
+        style={{ zIndex: 2, ...SCENE_CAMERA.imgStyle }}
         draggable={false}
       />
 
@@ -242,7 +244,7 @@ function HouseSceneV5Inner({ scene, weatherCode }: Props) {
           front of the roof and walls. */}
       {(showRain || isSnow || isStorm) && (
         <svg
-          viewBox="0 0 100 100"
+          viewBox={SCENE_CAMERA.viewBox}
           preserveAspectRatio="xMidYMid meet"
           className="pointer-events-none absolute inset-0 h-full w-full"
           style={{ zIndex: 3 }}

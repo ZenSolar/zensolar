@@ -33,7 +33,7 @@ import {
   type VehicleColor,
   type VehicleModel,
 } from './EnergyFlowScene.scenes';
-import { HOME_BLUEPRINT, BLUEPRINT_PATHS } from './HomeBlueprint';
+import { HOME_BLUEPRINT, BLUEPRINT_PATHS, SCENE_CAMERA, camPctX, camPctY } from './HomeBlueprint';
 import { GarageDoorOpen } from './GarageDoorOpen';
 import { Conductor, ServicePanelGlyph, EvChargeCable, buildConductorSegments, SCENE_ANCHOR_LIST, SCENE_ANCHORS } from './ConductorNetwork';
 
@@ -483,7 +483,7 @@ function VehicleChip({
   return (
     <div
       className="absolute -translate-x-1/2 -translate-y-full"
-      style={{ left: `${x}%`, top: `${y}%` }}
+      style={{ left: `${camPctX(x)}%`, top: `${camPctY(y)}%` }}
     >
       <div className="flex flex-col items-center gap-1">
         <div
@@ -546,10 +546,10 @@ function SharedCircuitBar({
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute inset-x-0 bottom-[3%] z-30 flex justify-center px-4"
+      className="pointer-events-none absolute inset-x-0 bottom-[9%] z-30 flex justify-center px-4"
     >
-      <div className="w-full max-w-[300px] rounded-2xl border border-violet-400/25 bg-background/80 px-3 py-2 shadow-[0_0_22px_hsla(265,90%,60%,0.18)] backdrop-blur">
-        <div className="mb-1.5 flex items-center justify-between text-[9px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+      <div className="w-full max-w-[54%] rounded-xl border border-violet-400/25 bg-background/70 px-2.5 py-1 shadow-[0_0_22px_hsla(265,90%,60%,0.18)] backdrop-blur">
+        <div className="mb-1 flex items-center justify-between text-[8px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
           <span>Shared circuit</span>
           <span className="tabular-nums text-foreground/90">
             {total.toFixed(1)} kW
@@ -570,7 +570,7 @@ function SharedCircuitBar({
           )}
         </div>
 
-        <div className="mt-1.5 flex items-center justify-between gap-2 text-[10px] font-medium tabular-nums">
+        <div className="mt-1 flex items-center justify-between gap-2 text-[9px] font-medium tabular-nums">
           <span className="flex min-w-0 items-center gap-1 text-violet-200">
             <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-violet-300" />
             <span className="truncate">{primaryName ?? 'Vehicle 1'}</span>
@@ -838,6 +838,7 @@ export function EnergyFlowScene({
   const spriteIsNight = NIGHT_SCENES.includes(scene);
   const showSecondCar = Boolean(secondVehicle?.src);
 
+
   // v5.3 — measured intrinsic aspect ratios drive the auto-fit below.
   const primaryAspect = useSpriteContentBox(vehicleSrc);
   const secondAspect = useSpriteContentBox(secondVehicle?.src ?? null);
@@ -942,6 +943,15 @@ export function EnergyFlowScene({
   const carY = carFit.y;
 
   const evKw = data.tesla?.kW ?? data.evPower ?? 0;
+
+  /** Two proven cars both drawing → the shared-circuit bar owns the readout,
+   *  and the per-vehicle chips are suppressed so nothing overlaps. */
+  const sharedCircuitActive =
+    chargingAtHome &&
+    showDynamicCar &&
+    Boolean(secondVehicle?.charging) &&
+    (secondVehicle?.kw ?? 0) > 0.1 &&
+    evKw > 0.1;
   const evSoc = data.tesla?.soc;
   const evRange = data.tesla?.rangeMi;
 
@@ -1040,10 +1050,10 @@ export function EnergyFlowScene({
           silhouette. */}
       <svg
         aria-hidden="true"
-        viewBox="0 0 100 100"
+        viewBox={SCENE_CAMERA.viewBox}
         preserveAspectRatio="xMidYMid meet"
-        className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-[88%] w-auto max-w-[98%] -translate-y-1/2"
-        style={{ aspectRatio: '1 / 1', zIndex: 1 }}
+        className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-full w-auto max-w-full -translate-y-1/2"
+        style={{ aspectRatio: SCENE_CAMERA.aspect, zIndex: 1 }}
       >
         {conductorSegments
           .filter((s) => s.layer === 'behind')
@@ -1067,10 +1077,10 @@ export function EnergyFlowScene({
           to the painted house. This is the only coordinate system. */}
       <svg
         aria-hidden="true"
-        viewBox="0 0 100 100"
+        viewBox={SCENE_CAMERA.viewBox}
         preserveAspectRatio="xMidYMid meet"
-        className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-[88%] w-auto max-w-[98%] -translate-y-1/2"
-        style={{ aspectRatio: '1 / 1', zIndex: 15 }}
+        className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-full w-auto max-w-full -translate-y-1/2"
+        style={{ aspectRatio: SCENE_CAMERA.aspect, zIndex: 15 }}
       >
         {/* ── Device halos (primary visual language) ──
             RoofHalo / WindowsBloom retired: they were free-floating blooms
@@ -1543,11 +1553,11 @@ export function EnergyFlowScene({
       {/* §5/§6 — vehicle chips, attached to each rendered car. A chip exists
           only where a car exists, and a car exists only where co-location is
           proven, so the chip never has to claim a location. */}
-      {(showDynamicCar || showSecondCar) && (
+      {(showDynamicCar || showSecondCar) && !sharedCircuitActive && (
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-[80%] -translate-y-1/2"
-          style={{ aspectRatio: '1 / 1', maxWidth: '94%', zIndex: 18 }}
+          className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-full max-w-full -translate-y-1/2"
+          style={{ aspectRatio: SCENE_CAMERA.aspect, zIndex: 18 }}
         >
           {showDynamicCar && (
             <VehicleChip
@@ -1579,11 +1589,7 @@ export function EnergyFlowScene({
           one service. One bar = the home charging circuit; each car owns a
           proportional slice of it, so you read the split before you read the
           numbers. Only renders when both cars are actually pulling power. */}
-      {chargingAtHome &&
-        showDynamicCar &&
-        Boolean(secondVehicle?.charging) &&
-        (secondVehicle?.kw ?? 0) > 0.1 &&
-        evKw > 0.1 && (
+      {sharedCircuitActive && (
           <SharedCircuitBar
             primaryName={displayName}
             primaryKw={evKw}
