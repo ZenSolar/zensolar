@@ -859,13 +859,18 @@ export function EnergyFlowScene({
 
   /** The car's charge port, derived from the sprite's fitted footprint so the
    *  cable always lands on the bodywork, whatever sprite/aspect is in play. */
+  const carContentW = carFit.width * (primaryAspect.width || 1);
+  const carContentH = carFit.height * (primaryAspect.height || 1);
   const evPortPt = {
-    // The unmirrored Model X art points nose down-left and rear up-right.
-    // Tesla's port is independently pinned to that visible rear driver's-side
-    // quarter; parking direction alone must never decide the port side.
-    x: carFit.cx + carFit.width * 0.30,
-    y: carFit.groundY - carFit.height * 0.58,
+    // The sprite is drawn MIRRORED (see the <image> transform below) so the
+    // car is backed into the bay: nose down-right on the apron, rear up-left
+    // at the garage opening, near flank = driver's side. Tesla's port lives
+    // on that rear driver's-side quarter, which after the mirror is the
+    // upper-LEFT quarter of the visible bodywork.
+    x: carFit.cx - carContentW * 0.30,
+    y: carFit.groundY - carContentH * 0.62,
   };
+
 
   const evKw = data.tesla?.kW ?? data.evPower ?? 0;
 
@@ -1343,9 +1348,11 @@ export function EnergyFlowScene({
               style={{ filter: 'blur(0.45px)' }}
             />
 
-            {/* v16 — reverse-parked in the garage-centred bay. The source art's
-                natural perspective already places the rear up-right toward the
-                opening, so no mirror/rotation transform is applied. */}
+            {/* v17 — REVERSE-PARKED. The source art points nose down-LEFT with
+                the rear up-right, i.e. nose-in. Mirroring about the fitted
+                centre line backs the car into the bay: rear up-left at the
+                garage opening, nose down-right on the apron, and the near
+                flank becomes the driver's side that carries the port. */}
             <image
               href={vehicleSrc}
               x={carX}
@@ -1353,12 +1360,14 @@ export function EnergyFlowScene({
               width={carW}
               height={carH}
               preserveAspectRatio="xMidYMid meet"
+              transform={`translate(${carFit.cx * 2} 0) scale(-1 1)`}
               style={{
                 filter: [spriteFilter, 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))']
                   .filter(Boolean)
                   .join(' '),
               }}
             />
+
 
             {/* §8b — blue ambient wash so the sprite sits in the same night
                 light as the house instead of reading as a daylight cut-out. */}
