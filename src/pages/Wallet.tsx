@@ -1,130 +1,108 @@
+import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Sparkles, Wallet as WalletIcon, QrCode, Check, Copy } from 'lucide-react';
+import { toast } from 'sonner';
+
 import { useProfile } from '@/hooks/useProfile';
 import { useOnChainHoldings } from '@/hooks/useOnChainHoldings';
+import { useWalletCapabilities } from '@/hooks/useWalletCapabilities';
+import { useProvenanceLedger } from '@/hooks/useProvenanceLedger';
+
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
 import { PageSkeleton } from '@/components/ui/empty-state';
-import { 
-  Wallet as WalletIcon, 
-  Coins, 
-  Images, 
-  RefreshCw, 
-  ExternalLink,
-  Copy,
-  CheckCircle2,
-  ArrowUpRight,
-  ShieldCheck,
-  TrendingUp,
-  Sparkles,
-  Check,
-  Eye,
-  EyeOff,
-} from 'lucide-react';
-import { ZSOLAR_TOKEN_ADDRESS, ZSOLAR_NFT_ADDRESS } from '@/lib/wagmi';
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { Link } from 'react-router-dom';
-import { getMilestoneForTokenId } from '@/lib/nftTokenMapping';
-import { getNftArtwork } from '@/lib/nftArtwork';
 import { SEO } from '@/components/SEO';
 import { PageTransition } from '@/components/layout/PageTransition';
-import { motion, AnimatePresence } from 'framer-motion';
-import zenLogo from '@/assets/zen-logo-horizontal-new.png';
-import { ZppaStatusWidget } from '@/components/wallet/ZppaStatusWidget';
-import { RecentMintProofs } from '@/components/wallet/RecentMintProofs';
-import { ProofOfGenesisTile } from '@/components/proof/ProofOfGenesisTile';
 import { JargonTip } from '@/components/ui/jargon-tip';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from '@/components/ui/sheet';
 
-// Live token price (testnet simulation)
-const LIVE_TOKEN_PRICE = 0.10;
+import { WalletValueHeader } from '@/components/wallet/WalletValueHeader';
+import { WalletActions } from '@/components/wallet/WalletActions';
+import { ProvenanceLedger } from '@/components/wallet/ProvenanceLedger';
+import { MedallionStrip } from '@/components/wallet/MedallionStrip';
+import { WalletSecurityFooter } from '@/components/wallet/WalletSecurityFooter';
+import { ZppaStatusWidget } from '@/components/wallet/ZppaStatusWidget';
+import { ProofOfGenesisTile } from '@/components/proof/ProofOfGenesisTile';
 
-function getImageForTokenId(tokenId: number): string {
-  const milestoneId = getMilestoneForTokenId(tokenId);
-  if (milestoneId) {
-    const artwork = getNftArtwork(milestoneId);
-    if (artwork) return artwork;
-  }
-  return `/nft-images/welcome.png`;
-}
+/**
+ * Indicative pre-liquidity reference price. There is no market yet, so every
+ * surface that uses it must carry the caveat rendered in WalletValueHeader.
+ */
+const INDICATIVE_TOKEN_PRICE = 0.1;
 
-function getNameForTokenId(tokenId: number): string {
-  const milestoneId = getMilestoneForTokenId(tokenId);
-  if (milestoneId) {
-    return milestoneId.replace('_', ' #').toUpperCase();
-  }
-  return `NFT #${tokenId}`;
-}
+const NETWORK_LABEL = 'Base Sepolia';
+const EXPLORER_BASE = 'https://sepolia.basescan.org';
 
+/**
+ * ZenSolar wallet — an energy receipt book that happens to hold a token.
+ *
+ * Five tiers, deliberately in this order:
+ *   1. Value header      — balance, indicative USD, lifetime kWh
+ *   2. Actions           — capability-gated, gasless badges when sponsored
+ *   3. Provenance ledger — device + delta + Merkle proof per credit
+ *   4. Medallions        — milestone badges
+ *   5. Security footer   — passkey status, network, contracts
+ *
+ * No price charts, no swap, nothing speculative.
+ */
 export default function Wallet() {
   const { profile, isLoading: profileLoading } = useProfile();
-  const { 
-    tokenBalance, 
-    nftCount, 
-    nftTokenIds, 
-    isLoading: holdingsLoading, 
-    refetch 
-  } = useOnChainHoldings(profile?.wallet_address ?? undefined);
-  
-  const [copied, setCopied] = useState(false);
-  const [balanceHidden, setBalanceHidden] = useState(false);
+  const walletAddress = profile?.wallet_address ?? undefined;
 
-  const walletAddress = profile?.wallet_address;
-  const shortenedAddress = walletAddress 
-    ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
-    : null;
+  const { tokenBalance, nftTokenIds, isLoading: holdingsLoading, refetch } =
+    useOnChainHoldings(walletAddress);
+  const capabilities = useWalletCapabilities();
+  const { entries, lifetimeKwh, isLoading: ledgerLoading, refetch: refetchLedger } =
+    useProvenanceLedger(25);
+
+  const [balanceHidden, setBalanceHidden] = useState(false);
+  const [receiveOpen, setReceiveOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const formattedBalance = useMemo(
+    () =>
+      parseFloat(tokenBalance || '0').toLocaleString(undefined, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      }),
+    [tokenBalance],
+  );
+
+  const usdValue = parseFloat(tokenBalance || '0') * INDICATIVE_TOKEN_PRICE;
 
   const copyAddress = () => {
-    if (walletAddress) {
-      navigator.clipboard.writeText(walletAddress);
-      setCopied(true);
-      toast.success('Address copied!');
-      setTimeout(() => setCopied(false), 2000);
-    }
+    if (!walletAddress) return;
+    navigator.clipboard.writeText(walletAddress);
+    setCopied(true);
+    toast.success('Address copied');
+    setTimeout(() => setCopied(false), 2000);
   };
 
-  const formattedBalance = parseFloat(tokenBalance).toLocaleString(undefined, {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  });
-
-  const usdValue = parseFloat(tokenBalance) * LIVE_TOKEN_PRICE;
-  const formattedUsdValue = usdValue.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-
-  const basescanUrl = `https://sepolia.basescan.org/address/${walletAddress}`;
-  const tokenContractUrl = `https://sepolia.basescan.org/token/${ZSOLAR_TOKEN_ADDRESS}`;
-  const nftContractUrl = `https://sepolia.basescan.org/token/${ZSOLAR_NFT_ADDRESS}`;
-
-  if (profileLoading) {
-    return <PageSkeleton variant="default" />;
-  }
+  if (profileLoading) return <PageSkeleton variant="default" />;
 
   if (!walletAddress) {
     return (
-      <div className="max-w-lg mx-auto px-4 py-12">
+      <div className="mx-auto max-w-lg px-4 py-12">
         <SEO title="Wallet | ZenSolar" />
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center"
-        >
-          <div className="relative mx-auto mb-8">
-            <div className="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 border border-primary/20 shadow-xl shadow-primary/10 flex items-center justify-center">
-              <Sparkles className="w-12 h-12 text-primary" />
-            </div>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center">
+          <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 shadow-xl shadow-primary/10">
+            <Sparkles className="h-12 w-12 text-primary" />
           </div>
-          <h2 className="text-2xl font-bold mb-3">Set Up Your Wallet</h2>
-          <p className="text-muted-foreground text-sm mb-8 max-w-xs mx-auto leading-relaxed">
-            Connect a <JargonTip term="wallet">wallet</JargonTip> to view your{" "}
-            <JargonTip term="zsolar">$ZSOLAR</JargonTip> tokens and{" "}
-            <JargonTip term="nft">NFT</JargonTip> collection.
+          <h1 className="mb-3 text-2xl font-bold">Set up your wallet</h1>
+          <p className="mx-auto mb-8 max-w-xs text-sm leading-relaxed text-muted-foreground">
+            Connect a <JargonTip term="wallet">wallet</JargonTip> to hold your{' '}
+            <JargonTip term="zsolar">$ZSOLAR</JargonTip> and the proof behind every credit.
           </p>
-          <Button size="lg" asChild className="h-12 px-8 gap-2">
+          <Button size="lg" asChild className="h-12 gap-2 px-8">
             <Link to="/onboarding?step=wallet">
               <WalletIcon className="h-4 w-4" />
-              Connect Wallet
+              Connect wallet
             </Link>
           </Button>
         </motion.div>
@@ -132,295 +110,92 @@ export default function Wallet() {
     );
   }
 
+  const handleRefresh = () => {
+    refetch();
+    refetchLedger();
+  };
+
   return (
     <PageTransition>
-    <div className="max-w-lg mx-auto px-4 py-5 space-y-3.5">
-      <SEO title="My Wallet | ZenSolar" />
-      {/* ── Hero Balance Card ── */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-      >
-        <div className="wallet-card-glass relative overflow-hidden rounded-2xl border border-primary/15 shadow-xl shadow-primary/5 p-5">
-          {/* Background effects */}
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.08] via-transparent to-eco/[0.04]" />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/[0.04] to-transparent animate-shimmer" style={{ backgroundSize: '200% 100%' }} />
-            <div className="absolute -top-16 -right-16 w-40 h-40 rounded-full bg-primary/[0.06] blur-3xl" />
-            <div className="absolute -bottom-12 -left-12 w-32 h-32 rounded-full bg-eco/[0.06] blur-3xl" />
-          </div>
+      <div className="mx-auto max-w-lg space-y-3 px-4 py-5">
+        <SEO title="My Wallet | ZenSolar" />
 
-          <div className="relative">
-            {/* Top row: logo + network + refresh */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2.5">
-                <img src={zenLogo} alt="ZenSolar" className="h-5 w-auto opacity-70 dark:drop-shadow-[0_0_10px_rgba(34,197,94,0.3)]" />
-                <div className="flex items-center gap-1.5 text-[11px] text-eco bg-eco/10 px-2 py-0.5 rounded-full border border-eco/20">
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-eco opacity-75" />
-                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-eco" />
-                  </span>
-                  <span className="font-medium">Live</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-1">
-                <button 
-                  onClick={() => setBalanceHidden(!balanceHidden)}
-                  className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors"
-                >
-                  {balanceHidden ? <EyeOff className="h-3.5 w-3.5 text-muted-foreground" /> : <Eye className="h-3.5 w-3.5 text-muted-foreground" />}
-                </button>
-                <button 
-                  onClick={refetch}
-                  disabled={holdingsLoading}
-                  className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors"
-                >
-                  <RefreshCw className={`h-3.5 w-3.5 text-muted-foreground ${holdingsLoading ? 'animate-spin' : ''}`} />
-                </button>
-              </div>
-            </div>
+        <h1 className="sr-only">ZenSolar wallet</h1>
 
-            {/* Wallet address pill */}
-            <div className="flex items-center gap-2 mb-5">
-              <div className="relative">
-                <div className="p-2 rounded-xl bg-gradient-to-br from-primary/25 to-primary/10 backdrop-blur-sm">
-                  <WalletIcon className="h-4 w-4 text-primary" />
-                </div>
-                <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-eco border-2 border-card" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Connected Wallet</p>
-                <p className="font-mono text-sm font-semibold text-foreground">{shortenedAddress}</p>
-              </div>
-              <div className="flex gap-0.5">
-                <button onClick={copyAddress} className="p-2 rounded-lg hover:bg-muted/50 transition-colors">
-                  {copied ? <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> : <Copy className="h-3.5 w-3.5 text-muted-foreground" />}
-                </button>
-                <a href={basescanUrl} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg hover:bg-muted/50 transition-colors">
-                  <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
-                </a>
-              </div>
-            </div>
-
-            {/* Divider */}
-            <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent mb-5" />
-
-            {/* Main balance */}
-            {holdingsLoading ? (
-              <div className="space-y-3 mb-5">
-                <Skeleton className="h-10 w-48" />
-                <Skeleton className="h-5 w-32" />
-              </div>
-            ) : (
-              <div className="mb-5">
-                <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-medium mb-1">Token Balance</p>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-bold text-foreground tabular-nums tracking-tight">
-                    {balanceHidden ? '••••••' : formattedBalance}
-                  </span>
-                  <span className="text-sm font-semibold text-primary">$ZSOLAR</span>
-                </div>
-              </div>
-            )}
-
-            {/* On-chain verified badge */}
-            {parseFloat(tokenBalance) > 0 && !holdingsLoading && (
-              <div className="mb-5 p-3 rounded-xl bg-eco/[0.07] border border-eco/15">
-                <div className="flex items-center gap-2.5">
-                  <div className="p-1.5 rounded-lg bg-eco/15">
-                    <ShieldCheck className="h-3.5 w-3.5 text-eco" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-foreground">On-Chain Verified</p>
-                    <p className="text-[11px] text-muted-foreground">{formattedBalance} $ZSOLAR minted to your wallet</p>
-                  </div>
-                  <Check className="h-3.5 w-3.5 text-eco flex-shrink-0" />
-                </div>
-              </div>
-            )}
-
-            {/* Token & NFT Stats Row */}
-            <div className="grid grid-cols-2 gap-3 mb-5">
-              <a 
-                href={tokenContractUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="p-3 rounded-xl bg-muted/30 border border-border/50 hover:border-primary/30 hover:bg-primary/[0.03] transition-all group"
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="p-1 rounded-lg bg-primary/10">
-                    <Coins className="h-3 w-3 text-primary" />
-                  </div>
-                  <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Tokens</span>
-                </div>
-                <div className="flex items-end justify-between">
-                  {holdingsLoading ? (
-                    <Skeleton className="h-7 w-16" />
-                  ) : (
-                    <span className="text-xl font-bold text-foreground tabular-nums">{balanceHidden ? '••••' : formattedBalance}</span>
-                  )}
-                  <ArrowUpRight className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <Badge variant="outline" className="mt-2 text-[9px] border-primary/30 text-primary px-1.5 py-0">ERC-20</Badge>
-              </a>
-
-              <a 
-                href={nftContractUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="p-3 rounded-xl bg-muted/30 border border-border/50 hover:border-secondary/30 hover:bg-secondary/[0.03] transition-all group"
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="p-1 rounded-lg bg-secondary/10">
-                    <Images className="h-3 w-3 text-secondary" />
-                  </div>
-                  <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">NFTs</span>
-                </div>
-                <div className="flex items-end justify-between">
-                  {holdingsLoading ? (
-                    <Skeleton className="h-7 w-10" />
-                  ) : (
-                    <span className="text-xl font-bold text-foreground tabular-nums">{nftCount}</span>
-                  )}
-                  <ArrowUpRight className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-                <Badge variant="outline" className="mt-2 text-[9px] border-secondary/30 text-secondary px-1.5 py-0">ERC-1155</Badge>
-              </a>
-            </div>
-
-            {/* Quick actions */}
-            <div className="flex gap-2">
-              <Button 
-                variant="default" 
-                size="sm" 
-                asChild 
-                className="flex-1 h-10 text-xs font-semibold gap-1.5"
-              >
-                <Link to="/">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  Mint More
-                </Link>
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                asChild 
-                className="flex-1 h-10 text-xs font-semibold gap-1.5 border-primary/20 hover:bg-primary/10 hover:border-primary/30"
-              >
-                <Link to="/nft-collection">
-                  <Images className="h-3.5 w-3.5" />
-                  NFT Collection
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* ── ZPPA Status ── */}
-      <ZppaStatusWidget />
-
-      {/* ── View Proof: recent mints ── */}
-      <RecentMintProofs />
-
-      {/* ── Proof-of-Genesis: the IP receipt ── */}
-      <ProofOfGenesisTile />
-
-      {/* ── NFT Gallery ── */}
-      {!holdingsLoading && nftTokenIds.length === 0 && (
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.15 }}
-          className="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-5 text-center"
+          transition={{ duration: 0.45, ease: 'easeOut' }}
+          className="space-y-3"
         >
-          <div className="mx-auto mb-3 h-12 w-12 rounded-xl bg-gradient-to-br from-secondary/20 to-secondary/5 border border-secondary/20 flex items-center justify-center">
-            <Images className="h-5 w-5 text-secondary" />
-          </div>
-          <p className="text-sm font-semibold text-foreground mb-1">No NFTs yet</p>
-          <p className="text-xs text-muted-foreground max-w-xs mx-auto leading-relaxed">
-            Hit your first milestone to unlock a collectible NFT — one for every major step of your clean-energy journey.
-          </p>
+          <WalletValueHeader
+            formattedBalance={formattedBalance}
+            usdValue={usdValue}
+            lifetimeKwh={lifetimeKwh}
+            isLoading={holdingsLoading || ledgerLoading}
+            hidden={balanceHidden}
+            onToggleHidden={() => setBalanceHidden((v) => !v)}
+            onRefresh={handleRefresh}
+            network={NETWORK_LABEL}
+          />
+
+          <WalletActions
+            capabilities={capabilities}
+            pendingMints={0}
+            onReceive={() => setReceiveOpen(true)}
+          />
         </motion.div>
-      )}
-      {nftTokenIds.length > 0 && (
+
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.15 }}
+          transition={{ duration: 0.45, delay: 0.08 }}
+          className="space-y-3"
         >
-          <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm overflow-hidden">
-            <div className="flex items-center justify-between p-4 pb-3">
-              <div>
-                <h3 className="font-semibold text-foreground text-sm">Your NFTs</h3>
-                <p className="text-[11px] text-muted-foreground mt-0.5">Milestone achievements minted on-chain</p>
-              </div>
-              <Button variant="ghost" size="sm" asChild className="text-xs h-8 gap-1 text-primary hover:text-primary hover:bg-primary/10">
-                <Link to="/nft-collection">
-                  View All
-                  <ArrowUpRight className="h-3 w-3" />
-                </Link>
-              </Button>
-            </div>
-            <div className="px-4 pb-4">
-              <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-                {nftTokenIds.slice(0, 12).map((tokenId, i) => (
-                  <motion.div 
-                    key={tokenId}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.2 + i * 0.04 }}
-                    className="aspect-square rounded-xl overflow-hidden bg-muted relative group ring-1 ring-border/50 hover:ring-primary/40 transition-all"
-                  >
-                    <img
-                      src={getImageForTokenId(tokenId)}
-                      alt={getNameForTokenId(tokenId)}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-1.5">
-                      <span className="text-[10px] text-white font-semibold">
-                        #{tokenId}
-                      </span>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-              {nftTokenIds.length > 12 && (
-                <p className="text-xs text-muted-foreground mt-3 text-center">
-                  +{nftTokenIds.length - 12} more NFTs
-                </p>
-              )}
-            </div>
-          </div>
+          <ProvenanceLedger entries={entries} isLoading={ledgerLoading} />
+          <MedallionStrip tokenIds={nftTokenIds} isLoading={holdingsLoading} />
         </motion.div>
-      )}
 
-      {/* ── Footer Info ── */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.25 }}
-        className="space-y-2"
-      >
-        {/* Privacy */}
-        <div className="flex items-center gap-3 p-3.5 rounded-xl bg-muted/20 border border-border/40">
-          <ShieldCheck className="h-4 w-4 text-primary flex-shrink-0" />
-          <p className="text-[11px] text-muted-foreground leading-relaxed">
-            Only your <span className="font-medium text-foreground">ZenSolar</span> tokens and NFTs are displayed. We cannot access other wallet assets.
-          </p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.14 }}
+          className="space-y-3"
+        >
+          <ZppaStatusWidget />
+          <ProofOfGenesisTile />
+          <WalletSecurityFooter
+            walletAddress={walletAddress}
+            capabilities={capabilities}
+            explorerBase={EXPLORER_BASE}
+            network={NETWORK_LABEL}
+          />
+        </motion.div>
+      </div>
 
-        {/* Network + auto-refresh */}
-        <div className="flex items-center justify-between px-2 py-1.5 text-[10px]">
-          <div className="flex items-center gap-1.5">
-            <div className="h-1.5 w-1.5 rounded-full bg-eco animate-pulse" />
-            <span className="text-muted-foreground">Base Sepolia</span>
+      <Sheet open={receiveOpen} onOpenChange={setReceiveOpen}>
+        <SheetContent side="bottom" className="rounded-t-2xl">
+          <SheetHeader className="text-left">
+            <SheetTitle className="flex items-center gap-2 text-base">
+              <QrCode className="h-4 w-4 text-primary" />
+              Receive
+            </SheetTitle>
+            <SheetDescription className="text-xs">
+              Send only {NETWORK_LABEL} assets to this address. Anything sent on another network is unrecoverable.
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="mt-4 space-y-3">
+            <div className="rounded-xl border border-border/60 bg-muted/25 p-3">
+              <p className="break-all font-mono text-xs leading-relaxed text-foreground">{walletAddress}</p>
+            </div>
+            <Button onClick={copyAddress} className="h-11 w-full gap-2">
+              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              {copied ? 'Copied' : 'Copy address'}
+            </Button>
           </div>
-          <span className="text-muted-foreground/50">Auto-refresh every 30s</span>
-        </div>
-      </motion.div>
-    </div>
+        </SheetContent>
+      </Sheet>
     </PageTransition>
   );
 }
