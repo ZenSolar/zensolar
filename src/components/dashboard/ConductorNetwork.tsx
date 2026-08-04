@@ -193,8 +193,9 @@ export function polylineMidpoint(pts: Pt[]): { p: Pt; angle: number } {
  */
 export { WIDTH_PER_KW, conductorWidth } from '@/lib/siteBalance';
 
-/** Uniform conductor weight, in viewBox units. Thin, like the reference. */
-export const CONDUCTOR_WIDTH = 0.52;
+/** Uniform conductor weight, in viewBox units. v20: thickened so the runs
+ *  read as substantial at rest now that the direction chevrons are gone. */
+export const CONDUCTOR_WIDTH = 0.78;
 
 /**
  * The single neutral conductor colour. Grey-white, like the Tesla reference —
