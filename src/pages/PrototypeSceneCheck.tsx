@@ -52,7 +52,7 @@ export default function PrototypeSceneCheck() {
           vehicleModel="modelx"
           vehicleColor="pearl-white"
           presenceProven={state !== 'away'}
-          hasBattery={solarState}
+          hasBattery={solarState || dischargeState}
           hasCharger
           hasTesla
           gridSource="reconciled"
