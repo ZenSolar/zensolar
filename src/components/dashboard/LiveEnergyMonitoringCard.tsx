@@ -818,13 +818,17 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
     const snaps = solar.data.map(solarSnapshot);
     const sum = (xs: Array<number | null>) =>
       xs.some((v) => v !== null) ? xs.reduce<number>((a, v) => a + (v ?? 0), 0) : null;
+    const summedKw = sum(snaps.map((s) => s.currentKw));
     return {
-      currentKw: sum(snaps.map((s) => s.currentKw)),
+      // Same site-meter fallback as the scene: an inverter reporting 0 W with a
+      // meter fault must not drag the whole-home figure to "Idle".
+      currentKw: siteSolarKw === null ? summedKw : Math.max(summedKw ?? 0, siteSolarKw),
       todayKwh: sum(snaps.map((s) => s.todayKwh)),
       lifetimeMwh: sum(snaps.map((s) => s.lifetimeMwh)),
       label: `${solar.data.length} systems`,
     };
-  }, [solar.data, solarStats]);
+  }, [solar.data, solarStats, siteSolarKw]);
+
 
   // TESTING ONLY — simulated battery charge line.
   // ON by default in the dev preview (4.2 kW charging @ 62% SOC). Override with
