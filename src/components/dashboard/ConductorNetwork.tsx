@@ -136,6 +136,15 @@ export const PANEL_PORTS = Object.freeze({
   grid: { x: SCENE_ANCHORS.wallJunction.x, y: PANEL_BOX.y + PANEL_H + 4.2 } as Pt,
 });
 
+/**
+ * v21 — the Powerwall side terminates INSIDE the cabinet graphic, like a
+ * cable plugged into the unit, not at its outer edge. Measured against the
+ * white cabinet baked into `house-v13-day.png` (scene-space bounds
+ * x 32.5–35.9, y 46.2–50.6): the core is its centre.
+ */
+export const POWERWALL_CORE = Object.freeze({ x: 34.2, y: 48.3 } as Pt);
+
+
 /** Debug label order for the `?anchors=1` overlay. */
 export const SCENE_ANCHOR_LIST = Object.entries(SCENE_ANCHORS) as ReadonlyArray<[string, Pt]>;
 
@@ -377,6 +386,24 @@ export const FLOW_COLORS = Object.freeze({
 /** Uniform travel speed, viewBox units per second. Never scales with kW. */
 const FLOW_SPEED = 9;
 
+/**
+ * v21 — PHASE-LOCKED FLOW.
+ *
+ * Every travelling segment shares one wavelength and one period, so all SMIL
+ * animations (which run on the shared SVG document timeline) stay in lockstep
+ * for the life of the card. A branch that continues a wave arriving from
+ * upstream declares how far that wave has already travelled (`phaseDist`);
+ * the gradient origin is pushed back by that distance so the crest crossing
+ * the junction leaves on the outgoing branches at the same instant it
+ * arrives — one wave splitting, not three independent loops.
+ */
+const FLOW_WAVELENGTH = 22;
+const FLOW_DUR = FLOW_WAVELENGTH / FLOW_SPEED;
+
+/** Length of a polyline in viewBox units. */
+export const polylineLength = (pts: Pt[]) =>
+  pts.slice(1).reduce((sum, p, i) => sum + Math.hypot(p.x - pts[i].x, p.y - pts[i].y), 0);
+
 export type ConductorSegment = {
   id: string;
   /** Ordered anchors — the route is built along the isometric axes. */
@@ -395,7 +422,10 @@ export type ConductorSegment = {
   shiftY?: number;
   /** Suppress the base pipe — for the second line of a doubled run. */
   sweepOnly?: boolean;
+  /** Arc distance the wave has already covered upstream, for phase locking. */
+  phaseDist?: number;
 };
+
 
 
 /**
@@ -420,29 +450,40 @@ export function Conductor({
   idle,
   shiftY = 0,
   sweepOnly,
+  phaseDist = 0,
   reducedMotion,
 }: Omit<ConductorSegment, 'layer'> & { reducedMotion?: boolean }) {
   const d = roundedPath(points);
   // Uniform weight — magnitude lives in the numeric labels, not the stroke.
-  const w = sweepOnly ? CONDUCTOR_WIDTH * 0.68 : CONDUCTOR_WIDTH;
+  const w = CONDUCTOR_WIDTH;
 
   void kw;
 
-  // Travelling gradient segment (Tesla-style soft sweep). A repeating masked
-  // gradient whose period equals the run's chord length; a soft-edged blob
-  // covering ~32% of that period slides along at a constant speed.
+  // Travelling gradient segment (Tesla-style soft sweep). v21: the gradient's
+  // period is the SHARED wavelength, not this run's chord, and the origin is
+  // pushed back by `phaseDist` so a wave continuing through the junction stays
+  // continuous across branches.
   const start = points[0];
   const end = points[points.length - 1];
   const vx = end.x - start.x;
   const vy = end.y - start.y;
   const chord = Math.hypot(vx, vy) || 1;
-  const dirX = forward ? vx : -vx;
-  const dirY = forward ? vy : -vy;
-  const sweepOrigin = forward ? start : end;
-  const dur = Math.min(4, Math.max(1.2, chord / FLOW_SPEED));
+  const ux = (forward ? vx : -vx) / chord;
+  const uy = (forward ? vy : -vy) / chord;
+  const dirX = ux * FLOW_WAVELENGTH;
+  const dirY = uy * FLOW_WAVELENGTH;
+  const anchorPt = forward ? start : end;
+  // Slide the repeating gradient back along the travel direction by the
+  // distance the wave already covered upstream.
+  const sweepOrigin = {
+    x: anchorPt.x - ux * phaseDist,
+    y: anchorPt.y - uy * phaseDist,
+  };
+  const dur = FLOW_DUR;
   const maskId = `flow-mask-${id}`;
   const gradId = `flow-grad-${id}`;
   const sweepColor = flowColor ?? color;
+
 
 
   return (
@@ -615,10 +656,20 @@ export function buildConductorSegments(args: {
   // TRUNK — v16: two segments. Diagonal across the panel field from
   // `roofArrayMiddle` to the eave at `roofGutter`, then a straight vertical
   // drop down the facade onto the TOP face of the service panel.
+  const trunkPoints = [
+    A.roofArrayMiddle,
+    A.roofGutter,
+    { x: A.roofGutter.x, y: PANEL_PORTS.solar.y },
+  ];
+  // v21: distance the solar wave has already travelled by the time it reaches
+  // the junction. Downstream branches inherit it so the crest arriving from
+  // the roof leaves toward home and grid in the same instant.
+  const trunkDist = producing ? polylineLength(trunkPoints) : 0;
+
   if (producing) {
     segments.push({
       id: 'trunk',
-      points: [A.roofArrayMiddle, A.roofGutter, { x: A.roofGutter.x, y: PANEL_PORTS.solar.y }],
+      points: trunkPoints,
       color: CONDUCTOR_NEUTRAL,
       flowColor: FLOW_COLORS.solar,
       kw: solar,
@@ -629,8 +680,9 @@ export function buildConductorSegments(args: {
 
   // HOME BRANCH — leaves the panel's RIGHT face and runs to the load tap
   // beside the windows, sloping gently with the wall's perspective line.
-  // When the battery is ALSO feeding the house, a second green segment runs
-  // in parallel on the same path — two lines, never a blended hue.
+  // When the battery is ALSO feeding the house, a SECOND REAL LINE (its own
+  // grey pipe, offset just below) appears carrying the green segment — and it
+  // disappears entirely, pipe included, when the battery is not contributing.
   if (home > 0.05) {
     segments.push({
       id: 'branch-home',
@@ -639,7 +691,8 @@ export function buildConductorSegments(args: {
       flowColor: FLOW_COLORS.home,
       kw: home,
       layer: 'front',
-      shiftY: batteryDischarging ? -0.42 : 0,
+      shiftY: batteryDischarging ? -0.62 : 0,
+      phaseDist: trunkDist,
       dimmed: args.dimSolar && producing,
     });
     if (batteryDischarging) {
@@ -650,19 +703,25 @@ export function buildConductorSegments(args: {
         flowColor: FLOW_COLORS.battery,
         kw: Math.abs(battery),
         layer: 'front',
-        shiftY: 0.62,
-        sweepOnly: true,
+        shiftY: 0.92,
+        // v21: a real pipe, not a bare sweep — same timing as the orange run.
+        phaseDist: trunkDist,
         dimmed: args.dimSolar && producing,
       });
     }
   }
 
   // BATTERY BRANCH — leaves the panel's LEFT face along the same sloped wall
-  // line, over to the Powerwall cabinet.
+  // line, then plugs INTO the middle of the Powerwall cabinet (`POWERWALL_CORE`)
+  // rather than stopping at its outer edge.
   if (Math.abs(battery) > 0.05) {
     segments.push({
       id: battery > 0 ? 'branch-pw-charge' : 'branch-pw-discharge',
-      points: [PANEL_PORTS.battery, A.powerwall],
+      points: [
+        PANEL_PORTS.battery,
+        { x: POWERWALL_CORE.x, y: A.powerwall.y },
+        POWERWALL_CORE,
+      ],
       color: CONDUCTOR_NEUTRAL,
       flowColor: FLOW_COLORS.battery,
       kw: battery,
@@ -672,6 +731,7 @@ export function buildConductorSegments(args: {
       layer: 'front',
     });
   }
+
 
 
   // EV BRANCH — only when a vehicle is charging at this site. Runs from the
@@ -702,9 +762,13 @@ export function buildConductorSegments(args: {
       kw: grid,
       // Import reverses: the travelling segment runs inward from the grid.
       forward: exporting,
+      // Export continues the same wave that came down from the roof; import is
+      // an incoming wave of its own, so it starts its phase at the yard.
+      phaseDist: exporting ? trunkDist : 0,
       layer: 'front',
     });
   }
+
 
 
 
