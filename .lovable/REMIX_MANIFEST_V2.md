@@ -51,7 +51,7 @@ Updates `bottomNavRoutes` in `routes.config.ts` — replaces the current Home/Mi
 - Separate **3% transfer tax** → LP only.
 - Subscription tiers: **$9.99 Base / $19.99 Regular / $49.99 Power**. Each $ → 50% LP / 50% treasury.
 - Deason add-on: **+$4.99/mo** on any tier.
-- Mint ratio: 1 kWh = 1 $ZSOLAR. Conversion factors live in `src/lib/mintFactors.ts` (EV miles 0.1:1; home charging netted 0.25:1 on solar homes).
+- Mint ratio: 1 kWh = 1 $ZSOLAR. Conversion factors live in `src/lib/mintFactors.ts` (EV miles 0.1:1; home charging 1:1 — netting retired 2026-08-04).
 - Launch price: **$0.10 USDC LP-seeded** on Base. Sepolia until production gate.
 - 1T hard cap. No burn at mint (removed v4.0 — zero net supply effect). The only burn is the separate 3% transfer tax. Genesis Halving deprecated.
 

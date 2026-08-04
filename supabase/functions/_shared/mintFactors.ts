@@ -30,7 +30,7 @@ export const CONVERSION_FACTORS: Record<MintCategory, number> = {
   /** General EV miles are credited at 0.1 — they are not a direct energy measurement. */
   ev_miles: 0.1,
   battery_export_kwh: 1,
-  /** Home charging enters at 1 and is then netted (see below) for solar homes. */
+  /** Home charging is credited 1:1. Netting retired 2026-08-04 (see below). */
   home_charging_kwh: 1,
 };
 
@@ -40,15 +40,25 @@ export const CONVERSION_FACTOR_LABELS: Record<MintCategory, string> = {
   fsd_miles: '1 FSD mile = 1 $ZSOLAR',
   ev_miles: '10 EV miles = 1 $ZSOLAR',
   battery_export_kwh: '1 kWh exported = 1 $ZSOLAR',
-  home_charging_kwh: '1 kWh = 1 $ZSOLAR (0.25 on solar-connected homes)',
+  home_charging_kwh: '1 kWh = 1 $ZSOLAR',
 };
 
 /**
- * NETTING — applied to home charging on solar-connected homes so that
- * self-generated energy is not credited twice (once as solar production,
- * once as charging). Applied BEFORE the Stack Bonus and BEFORE the cap.
+ * HOME CHARGING NETTING — RETIRED 2026-08-04. Factor is 1 (no reduction).
+ *
+ * FOR NOW. Revisit trigger: Tesla (or any OEM) exposing a Charge-on-Solar /
+ * per-session generation-attribution signal we can actually read.
+ *
+ * Rationale: charging a car is its own verified act, not a discount on
+ * generation — the same articulation already adopted for battery export on
+ * 2026-08-01. The old 0.25 factor stood in for an attribution we cannot
+ * measure, and it produced a member-facing inversion where solar households
+ * took the WORST rate for charging their own car.
+ *
+ * Kept as an exported constant (value 1) so existing importers keep compiling
+ * and so any future re-adoption has exactly one place to change.
  */
-export const HOME_CHARGING_SOLAR_NETTING_FACTOR = 0.25;
+export const HOME_CHARGING_SOLAR_NETTING_FACTOR = 1;
 
 /** Canonical pipeline order. Every issuance path must follow it. */
 export const ISSUANCE_PIPELINE_ORDER = ['netting', 'stack_bonus', 'allowance_cap'] as const;
@@ -95,6 +105,9 @@ export function tokensForCategory(
   opts?: { solarConnectedHome?: boolean },
 ): number {
   const base = quantity * CONVERSION_FACTORS[category];
+  // `solarConnectedHome` no longer changes the rate (netting retired
+  // 2026-08-04). The option is retained so callers need no edit if a
+  // measurable attribution signal ever arrives.
   if (category === 'home_charging_kwh' && opts?.solarConnectedHome) {
     return base * HOME_CHARGING_SOLAR_NETTING_FACTOR;
   }

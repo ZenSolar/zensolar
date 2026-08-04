@@ -6,7 +6,7 @@
 > **1.25 $ZSOLAR per verified unit — 1.0 to the member, 0.25 to treasury.
 > No LP mint. No burn at mint.** Conversion factors: solar 1:1, supercharging 1:1,
 > FSD miles 1:1, battery export 1:1, general EV miles 0.1:1, home charging
-> netted to 0.25:1 on solar-connected homes. Figures below are retained as a
+> credited 1:1 (netting retired 2026-08-04). Figures below are retained as a
 > historical record of earlier modelling and must not be used as current design.
 
 
