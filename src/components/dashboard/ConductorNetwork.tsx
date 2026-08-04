@@ -367,10 +367,10 @@ export type ConductorLayer = 'behind' | 'front';
  * The pipe itself stays neutral; only the travelling gradient segment is hued.
  */
 export const FLOW_COLORS = Object.freeze({
-  solar: 'hsl(42 96% 62%)',      // gold / amber
-  grid: 'hsl(207 94% 62%)',      // blue
-  battery: 'hsl(151 72% 52%)',   // green
-  home: 'hsl(210 20% 92%)',      // neutral white — derived, not a source
+  solar: 'hsl(38 98% 60%)',      // orange / gold
+  grid: 'hsl(38 98% 60%)',       // v20: orange too — direction, not hue
+  battery: 'hsl(151 76% 50%)',   // green
+  home: 'hsl(38 98% 60%)',       // routed solar/grid — orange
   ev: 'hsl(265 90% 78%)',        // violet
 });
 
