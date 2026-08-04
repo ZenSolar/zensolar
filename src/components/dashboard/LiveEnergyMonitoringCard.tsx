@@ -778,8 +778,29 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
   }, [ev.data, provenAtHomeVins, acAtSiteVins]);
 
 
-  const solarStats = solarSnapshot(primarySolar);
+  const solarStatsRaw = solarSnapshot(primarySolar);
   const batteryStats = batterySnapshot(primaryBattery);
+
+  /**
+   * SITE-METER SOLAR FALLBACK.
+   * The Enphase inverter can report `current_power_w: 0` with `status: meter_issue`
+   * while the Tesla site meter behind the same array reads real production. When
+   * that happens the card used to say "Idle" on a producing roof. Take the larger
+   * of the two readings for the SAME array — never a sum, so no double counting.
+   */
+  const siteSolarKw = useMemo(() => {
+    const w = pickNumber(primaryBattery?.payload, ['solar_power', 'energy_sites.0.solar_power']);
+    return w === null ? null : normalizeWattsToKw(w);
+  }, [primaryBattery]);
+
+  const solarStats = useMemo(() => {
+    if (siteSolarKw === null) return solarStatsRaw;
+    const best = Math.max(solarStatsRaw.currentKw ?? 0, siteSolarKw);
+    if (best === (solarStatsRaw.currentKw ?? 0)) return solarStatsRaw;
+    return { ...solarStatsRaw, currentKw: best };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [solarStatsRaw.currentKw, solarStatsRaw.todayKwh, solarStatsRaw.label, siteSolarKw]);
+
 
   // Pull exact model + color from Tesla vehicle_config so the EV area
   // mirrors the user's actual car (matches the Tesla app).
@@ -797,13 +818,17 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
     const snaps = solar.data.map(solarSnapshot);
     const sum = (xs: Array<number | null>) =>
       xs.some((v) => v !== null) ? xs.reduce<number>((a, v) => a + (v ?? 0), 0) : null;
+    const summedKw = sum(snaps.map((s) => s.currentKw));
     return {
-      currentKw: sum(snaps.map((s) => s.currentKw)),
+      // Same site-meter fallback as the scene: an inverter reporting 0 W with a
+      // meter fault must not drag the whole-home figure to "Idle".
+      currentKw: siteSolarKw === null ? summedKw : Math.max(summedKw ?? 0, siteSolarKw),
       todayKwh: sum(snaps.map((s) => s.todayKwh)),
       lifetimeMwh: sum(snaps.map((s) => s.lifetimeMwh)),
       label: `${solar.data.length} systems`,
     };
-  }, [solar.data, solarStats]);
+  }, [solar.data, solarStats, siteSolarKw]);
+
 
   // TESTING ONLY — simulated battery charge line.
   // ON by default in the dev preview (4.2 kW charging @ 62% SOC). Override with
