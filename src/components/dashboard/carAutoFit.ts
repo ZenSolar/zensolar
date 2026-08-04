@@ -57,6 +57,36 @@ export const SPRITE_CONTACT_RATIO = 0.9;
 /** Fallback aspect ratio (w/h) used until the real sprite has loaded. */
 export const DEFAULT_SPRITE_ASPECT = 50 / 28;
 
+/**
+ * Opaque content box of a sprite, expressed as fractions of the full PNG.
+ * The vehicle library is exported on square canvases with a lot of
+ * transparent padding, so the PNG's own aspect ratio says nothing about the
+ * car. Measuring the opaque pixels lets us fit the CAR to the bay instead of
+ * fitting the empty canvas to the bay (which letterboxed every sprite down
+ * to a fraction of the parking spot).
+ */
+export type SpriteContentBox = Readonly<{
+  /** Left edge of the opaque content, 0–1 of image width. */
+  left: number;
+  /** Top edge of the opaque content, 0–1 of image height. */
+  top: number;
+  /** Opaque content width, 0–1 of image width. */
+  width: number;
+  /** Opaque content height, 0–1 of image height. */
+  height: number;
+  /** Opaque content aspect ratio (w/h) in absolute pixels. */
+  aspect: number;
+}>;
+
+/** Content box used before the sprite has been measured. */
+export const DEFAULT_CONTENT_BOX: SpriteContentBox = Object.freeze({
+  left: 0,
+  top: 0,
+  width: 1,
+  height: 1,
+  aspect: DEFAULT_SPRITE_ASPECT,
+});
+
 /** Keeps the fitted sprite inside the visible viewBox. */
 const VIEWBOX_PAD = 1;
 
@@ -70,9 +100,12 @@ const VIEWBOX_PAD = 1;
  */
 export function fitVehicleToBay(
   bay: VehicleBay,
-  aspect: number,
+  aspect: number | SpriteContentBox,
   scale = 1,
 ): FittedVehicle {
+  if (typeof aspect !== 'number') {
+    return fitVehicleContentToBay(bay, aspect, scale);
+  }
   const safeAspect =
     Number.isFinite(aspect) && aspect > 0 ? aspect : DEFAULT_SPRITE_ASPECT;
   const k = Math.min(1, Math.max(0.2, Number.isFinite(scale) ? scale : 1));
@@ -105,4 +138,66 @@ export function fitVehicleToBay(
     cy: y + height / 2,
     groundY: bay.groundY,
   };
+}
+
+/**
+ * Content-aware fit: sizes and seats the CAR (the opaque pixels) inside the
+ * bay, then back-computes the <image> box that puts those pixels there. The
+ * transparent padding is allowed to overflow the bay — it draws nothing.
+ */
+export function fitVehicleContentToBay(
+  bay: VehicleBay,
+  content: SpriteContentBox,
+  scale = 1,
+): FittedVehicle {
+  const cw = clamp01(content.width) || 1;
+  const ch = clamp01(content.height) || 1;
+  const left = clamp01(content.left);
+  const top = clamp01(content.top);
+  const aspect =
+    Number.isFinite(content.aspect) && content.aspect > 0
+      ? content.aspect
+      : DEFAULT_SPRITE_ASPECT;
+
+  const k = Math.min(1, Math.max(0.2, Number.isFinite(scale) ? scale : 1));
+  const budgetW = bay.maxWidth * k;
+  const budgetH = bay.maxHeight * k;
+
+  // Size the visible car inside the bay budget, aspect preserved.
+  let carW = budgetW;
+  let carH = carW / aspect;
+  if (carH > budgetH) {
+    carH = budgetH;
+    carW = carH * aspect;
+  }
+
+  // Back out the full <image> box that places that content correctly.
+  const width = carW / cw;
+  const height = carH / ch;
+
+  // Seat the tyres (content bottom) exactly on the bay contact line and
+  // centre the CAR — not the canvas — on the bay centre line.
+  let x = bay.cx - carW / 2 - left * width;
+  const y = bay.groundY - carH - top * height;
+
+  // Clamp on the visible car so it never leaves the scene.
+  const carLeft = x + left * width;
+  if (carLeft < VIEWBOX_PAD) x += VIEWBOX_PAD - carLeft;
+  const carRight = x + left * width + carW;
+  if (carRight > 100 - VIEWBOX_PAD) x -= carRight - (100 - VIEWBOX_PAD);
+
+  return {
+    x,
+    y,
+    width,
+    height,
+    cx: x + left * width + carW / 2,
+    cy: y + top * height + carH / 2,
+    groundY: bay.groundY,
+  };
+}
+
+function clamp01(v: number): number {
+  if (!Number.isFinite(v)) return 0;
+  return Math.min(1, Math.max(0, v));
 }

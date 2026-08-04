@@ -33,13 +33,12 @@ import {
   type VehicleColor,
   type VehicleModel,
 } from './EnergyFlowScene.scenes';
-import { HOME_BLUEPRINT, BLUEPRINT_PATHS } from './HomeBlueprint';
-import { Conductor, buildConductorSegments, SCENE_ANCHOR_LIST, SCENE_ANCHORS } from './ConductorNetwork';
+import { HOME_BLUEPRINT, BLUEPRINT_PATHS, SCENE_CAMERA, camPctX, camPctY } from './HomeBlueprint';
+import { Conductor, EvChargeCable, GridFlowDefs, buildConductorSegments, SCENE_ANCHOR_LIST, SCENE_ANCHORS } from './ConductorNetwork';
 
 import { HouseSceneV5 } from './HouseSceneV5';
-import { EvChargingCable } from './EvChargingCable';
 import { fitVehicleToBay } from './carAutoFit';
-import { useSpriteAspect } from '@/hooks/useSpriteAspect';
+import { useSpriteContentBox } from '@/hooks/useSpriteAspect';
 
 
 
@@ -482,7 +481,7 @@ function VehicleChip({
   return (
     <div
       className="absolute -translate-x-1/2 -translate-y-full"
-      style={{ left: `${x}%`, top: `${y}%` }}
+      style={{ left: `${camPctX(x)}%`, top: `${camPctY(y)}%` }}
     >
       <div className="flex flex-col items-center gap-1">
         <div
@@ -504,7 +503,7 @@ function VehicleChip({
           </span>
           {name ? <span className="max-w-[90px] truncate">{name}</span> : null}
           <span>
-            {charging && kw !== null ? `Charging · ${kw.toFixed(1)} kW` : 'At home'}
+            {charging && kw !== null ? `Charging · ${kw.toFixed(1)} kW` : 'Parked'}
           </span>
           {(soc !== null || rangeMi !== null) && (
             <span className="font-medium text-foreground/70">
@@ -560,14 +559,7 @@ export interface EnergyFlowSceneProps {
    * Leave undefined for legacy callers (falls back to connection heuristics).
    */
   presenceProven?: boolean;
-  /** §6 — a second vehicle proven at this address. Rendered at carPark2. */
-  secondVehicle?: {
-    src: string;
-    name?: string | null;
-    kw?: number | null;
-    soc?: number | null;
-    charging?: boolean;
-  } | null;
+  /* EV2 removed: the scene renders exactly one vehicle until EV1 is solid. */
   /** §3 — grid provenance for this frame, from the single reconciledFlow. */
   gridSource?: 'raw' | 'reconciled';
   gridOverrideReason?: string | null;
@@ -612,7 +604,6 @@ export function EnergyFlowScene({
   weatherCode = null,
   forceComposition,
   presenceProven,
-  secondVehicle = null,
   gridSource = 'raw',
   gridOverrideReason = null,
   homeDerived = false,
@@ -767,11 +758,9 @@ export function EnergyFlowScene({
         : scene;
   const spriteFilter = SPRITE_FILTER[scene];
   const spriteIsNight = NIGHT_SCENES.includes(scene);
-  const showSecondCar = Boolean(secondVehicle?.src);
 
-  // v5.3 — measured intrinsic aspect ratios drive the auto-fit below.
-  const primaryAspect = useSpriteAspect(vehicleSrc);
-  const secondAspect = useSpriteAspect(secondVehicle?.src ?? null);
+  // v5.3 — measured intrinsic aspect ratio drives the auto-fit below.
+  const primaryAspect = useSpriteContentBox(vehicleSrc);
 
 
 
@@ -789,9 +778,11 @@ export function EnergyFlowScene({
   // Trunk-and-branch conductor topology (see ConductorNetwork.tsx).
   // Battery and EV are branches of the same junction; in outage mode the
   // battery→home hero below owns that story instead.
+  // The EV spoke exists ONLY while a proven vehicle is charging here. There
+  // is no dimmed "inactive" EV branch — away or parked means absent.
   const teslaCharging = data.tesla?.isCharging === true && data.tesla?.source !== 'supercharger';
   const evBranchKw =
-    teslaCharging && !isOutage
+    teslaCharging && !isOutage && showDynamicCar
       ? Math.abs(data.tesla?.kW ?? data.evPower ?? 0)
       : 0;
 
@@ -803,6 +794,8 @@ export function EnergyFlowScene({
         grid,
         battery: isOutage ? 0 : battery,
         ev: evBranchKw,
+        showSolar: true,
+        showBattery: hasBattery,
         colors: {
           solar: EMERALD_LED,
           home: EMERALD_LED,
@@ -815,7 +808,7 @@ export function EnergyFlowScene({
         dimSolar: isOutage,
         hideGrid: isOutage,
       }),
-    [solar, home, grid, battery, evBranchKw, isOutage],
+    [solar, home, grid, battery, evBranchKw, isOutage, hasBattery],
   );
 
 
@@ -849,22 +842,14 @@ export function EnergyFlowScene({
 
   const chargingAtHome = isCharging && !isSupercharging && !isOutage;
 
-  // v5.3 — AUTO-FIT. Instead of forcing every sprite into one fixed box
-  // (which letterboxed narrow assets and overhung the bay with squarer
-  // ones), fit each sprite into its parking bay at its own measured aspect
-  // ratio and seat the tyres on the bay's contact line. Pure viewBox math,
-  // so it holds at any device width.
-  const dualScale = showSecondCar ? HOME_BLUEPRINT.dualCarScale : 1;
-  const primaryBay = chargingAtHome
-    ? HOME_BLUEPRINT.bays.garage
-    : HOME_BLUEPRINT.bays.driveway;
+  // Garage-bay pose: keep the vehicle's long axis parallel to the horizontal
+  // threshold. Rotating this footprint makes the wheels climb the door pixels
+  // and visually float instead of resting on the apron.
+  const primaryBay = HOME_BLUEPRINT.bays.garage;
+  const reverseParkAngle = 0;
   const carFit = useMemo(
-    () => fitVehicleToBay(primaryBay, primaryAspect, dualScale),
-    [primaryBay, primaryAspect, dualScale],
-  );
-  const secondFit = useMemo(
-    () => fitVehicleToBay(HOME_BLUEPRINT.bays.driveway2, secondAspect, dualScale),
-    [secondAspect, dualScale],
+    () => fitVehicleToBay(primaryBay, primaryAspect, 1),
+    [primaryBay, primaryAspect],
   );
   const carAnchor = { x: carFit.cx, y: carFit.cy };
   const carW = carFit.width;
@@ -872,7 +857,39 @@ export function EnergyFlowScene({
   const carX = carFit.x;
   const carY = carFit.y;
 
+  /** The car's charge port, derived from the sprite's fitted footprint so the
+   *  cable always lands on the bodywork, whatever sprite/aspect is in play. */
+  const carContentW = carFit.width * (primaryAspect.width || 1);
+  const carContentH = carFit.height * (primaryAspect.height || 1);
+  const carContentLeft = carFit.cx - carContentW / 2;
+  const carContentTop = carFit.y + carFit.height * (primaryAspect.top || 0);
+  const unrotatedPort = {
+    x: carContentLeft + carContentW * 0.13,
+    y: carContentTop + carContentH * 0.58,
+  };
+  const reverseParkRadians = (reverseParkAngle * Math.PI) / 180;
+  const evPortPt = {
+    x:
+      carFit.cx +
+      (unrotatedPort.x - carFit.cx) * Math.cos(reverseParkRadians) -
+      (unrotatedPort.y - carFit.cy) * Math.sin(reverseParkRadians),
+    y:
+      carFit.cy +
+      (unrotatedPort.x - carFit.cx) * Math.sin(reverseParkRadians) +
+      (unrotatedPort.y - carFit.cy) * Math.cos(reverseParkRadians),
+  };
+  const rearDebugPt = {
+    x: carFit.cx - Math.cos(reverseParkRadians) * carContentW * 0.42,
+    y: carFit.cy - Math.sin(reverseParkRadians) * carContentW * 0.42,
+  };
+  const noseDebugPt = {
+    x: carFit.cx + Math.cos(reverseParkRadians) * carContentW * 0.42,
+    y: carFit.cy + Math.sin(reverseParkRadians) * carContentW * 0.42,
+  };
+
+
   const evKw = data.tesla?.kW ?? data.evPower ?? 0;
+
   const evSoc = data.tesla?.soc;
   const evRange = data.tesla?.rangeMi;
 
@@ -971,10 +988,10 @@ export function EnergyFlowScene({
           silhouette. */}
       <svg
         aria-hidden="true"
-        viewBox="0 0 100 100"
+        viewBox={SCENE_CAMERA.viewBox}
         preserveAspectRatio="xMidYMid meet"
-        className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-[88%] w-auto max-w-[98%] -translate-y-1/2"
-        style={{ aspectRatio: '1 / 1', zIndex: 1 }}
+        className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-full w-auto max-w-full -translate-y-1/2"
+        style={{ aspectRatio: SCENE_CAMERA.aspect, zIndex: 1 }}
       >
         {conductorSegments
           .filter((s) => s.layer === 'behind')
@@ -998,11 +1015,13 @@ export function EnergyFlowScene({
           to the painted house. This is the only coordinate system. */}
       <svg
         aria-hidden="true"
-        viewBox="0 0 100 100"
+        viewBox={SCENE_CAMERA.viewBox}
         preserveAspectRatio="xMidYMid meet"
-        className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-[88%] w-auto max-w-[98%] -translate-y-1/2"
-        style={{ aspectRatio: '1 / 1', zIndex: 15 }}
+        className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-full w-auto max-w-full -translate-y-1/2"
+        style={{ aspectRatio: SCENE_CAMERA.aspect, zIndex: 15 }}
       >
+        <GridFlowDefs />
+
         {/* ── Device halos (primary visual language) ──
             RoofHalo / WindowsBloom retired: they were free-floating blooms
             anchored to the legacy blueprint coordinates, so they drifted off
@@ -1072,29 +1091,60 @@ export function EnergyFlowScene({
 
 
 
-        {/* Grid meter — sky on import, cyan on export, muted amber + X on outage */}
+        {/* EV1 garage opening. The source plate has a closed door baked in, so
+            cover only that opening while EV1 occupies the bay. The lower strip
+            provides a visible floor and threshold behind the grounded wheels. */}
+        {showDynamicCar && (
+          <g data-testid="ev1-open-garage" aria-hidden="true">
+            <defs>
+              <linearGradient id="ev1-garage-interior" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="hsl(220 18% 5%)" />
+                <stop offset="72%" stopColor="hsl(220 14% 9%)" />
+                <stop offset="100%" stopColor="hsl(215 10% 17%)" />
+              </linearGradient>
+            </defs>
+            <rect
+              x={HOME_BLUEPRINT.garageOpening.x}
+              y={HOME_BLUEPRINT.garageOpening.y}
+              width={HOME_BLUEPRINT.garageOpening.w}
+              height={HOME_BLUEPRINT.garageOpening.h}
+              fill="url(#ev1-garage-interior)"
+            />
+            <rect
+              x={HOME_BLUEPRINT.garageOpening.x}
+              y={HOME_BLUEPRINT.garageOpening.y + HOME_BLUEPRINT.garageOpening.h - 1.8}
+              width={HOME_BLUEPRINT.garageOpening.w}
+              height={3.2}
+              fill="hsl(215 8% 28%)"
+            />
+            <line
+              x1={HOME_BLUEPRINT.garageOpening.x}
+              y1={HOME_BLUEPRINT.garageOpening.y + HOME_BLUEPRINT.garageOpening.h}
+              x2={HOME_BLUEPRINT.garageOpening.x + HOME_BLUEPRINT.garageOpening.w}
+              y2={HOME_BLUEPRINT.garageOpening.y + HOME_BLUEPRINT.garageOpening.h}
+              stroke="hsl(210 8% 42%)"
+              strokeWidth={0.35}
+            />
+          </g>
+        )}
+
+        {/* Service entrance state — drawn on the ONE meter object (the can at
+            the base of the service panel), not on a second pedestal. The old
+            free-floating meter halo on the right of the slab was a duplicate
+            of the panel glyph's job and has been removed. */}
         <DeviceHalo
-          cx={SCENE_ANCHORS.meter.x}
-          cy={SCENE_ANCHORS.meter.y}
+          cx={SCENE_ANCHORS.wallJunction.x}
+          cy={SCENE_ANCHORS.wallJunction.y + 5.2}
           color={isOutage ? AMBER : gridExporting ? CYAN : SKY}
           active={isOutage || gridImporting || gridExporting}
-          intensity={isOutage ? 0.35 : intensity(grid) * 0.75}
-          radius={isOutage ? 3.4 : 4.0}
+          intensity={isOutage ? 0.35 : intensity(grid) * 0.6}
+          radius={isOutage ? 3.0 : 3.2}
           pulseMs={isOutage ? 5200 : 2800}
         />
         {isOutage && (
           <g style={{ pointerEvents: 'none' }}>
-            <circle
-              cx={HOME_BLUEPRINT.gridMeter.x}
-              cy={HOME_BLUEPRINT.gridMeter.y}
-              r={2.2}
-              fill="hsl(220 60% 6%)"
-              opacity={0.85}
-              stroke="hsl(0 75% 55% / 0.7)"
-              strokeWidth={0.4}
-            />
             <path
-              d={`M ${HOME_BLUEPRINT.gridMeter.x - 1.2} ${HOME_BLUEPRINT.gridMeter.y - 1.2} L ${HOME_BLUEPRINT.gridMeter.x + 1.2} ${HOME_BLUEPRINT.gridMeter.y + 1.2} M ${HOME_BLUEPRINT.gridMeter.x + 1.2} ${HOME_BLUEPRINT.gridMeter.y - 1.2} L ${HOME_BLUEPRINT.gridMeter.x - 1.2} ${HOME_BLUEPRINT.gridMeter.y + 1.2}`}
+              d={`M ${SCENE_ANCHORS.wallJunction.x - 1.2} ${SCENE_ANCHORS.wallJunction.y + 2.4} L ${SCENE_ANCHORS.wallJunction.x + 1.2} ${SCENE_ANCHORS.wallJunction.y + 4.8} M ${SCENE_ANCHORS.wallJunction.x + 1.2} ${SCENE_ANCHORS.wallJunction.y + 2.4} L ${SCENE_ANCHORS.wallJunction.x - 1.2} ${SCENE_ANCHORS.wallJunction.y + 4.8}`}
               stroke="hsl(0 85% 65%)"
               strokeWidth={0.55}
               strokeLinecap="round"
@@ -1103,21 +1153,14 @@ export function EnergyFlowScene({
           </g>
         )}
 
+
         {/* Wall-connector halo retired: the baked art has no visible charger
             at that anchor, so it read as a free-floating bloom. Charge state is
             carried by the EV branch and the charge-port pulse. */}
 
 
-        {/* Tiny green plug LED on the parked car when plugged & idle */}
-        {isPluggedIdle && showDynamicCar && (
-          <circle
-            cx={HOME_BLUEPRINT.carPark.x + 6}
-            cy={HOME_BLUEPRINT.carPark.y - 2}
-            r={0.7}
-            fill={EMERALD}
-            opacity={0.85}
-          />
-        )}
+
+
 
         {/* ── Max 2 ultra-minimal dotted flow lines ── */}
         {/* In Outage Mode, solar flows are dimmed so the eye lands on
@@ -1127,8 +1170,14 @@ export function EnergyFlowScene({
             from the roof plane down to the main panel, then divides into the
             home-load branch and the grid branch. Import reverses the grid
             branch (dash, chevron and colour all flip). */}
+        {/* v12c bakes the service panel + meter can into the equipment wall,
+            so the drawn glyph would be a second, duplicate panel. Retired. */}
+
+
         {conductorSegments
-          .filter((s) => s.layer === 'front')
+          // `branch-ev` is rendered by `EvChargeCable` further down — a cable,
+          // not a fixed conduit run, so it must not draw twice.
+          .filter((s) => s.layer === 'front' && s.id !== 'branch-ev')
           .map((s) => (
             <Conductor
               key={s.id}
@@ -1145,14 +1194,53 @@ export function EnergyFlowScene({
         {/* Temporary anchor debug overlay — `?anchors=1`. Renders every named
             anchor at its overlay coordinate so it can be checked against the
             baked house art. Not reachable without the query flag. */}
+        {showAnchorDebug && (
+          <g data-testid="parking-pad-debug">
+            <rect
+              x={primaryBay.cx - primaryBay.maxWidth / 2}
+              y={primaryBay.groundY - primaryBay.maxHeight}
+              width={primaryBay.maxWidth}
+              height={primaryBay.maxHeight}
+              rx={1.2}
+              fill="none"
+              stroke="#39ffb6"
+              strokeWidth={0.35}
+              strokeDasharray="1.2 1"
+              transform={`rotate(${reverseParkAngle} ${primaryBay.cx} ${primaryBay.groundY - primaryBay.maxHeight / 2})`}
+            />
+            <text
+              x={primaryBay.cx}
+              y={primaryBay.groundY + 2.2}
+              fill="#39ffb6"
+              fontSize={1.8}
+              textAnchor="middle"
+              fontFamily="ui-monospace, monospace"
+            >
+              reverse-in pad · threshold clearance
+            </text>
+          </g>
+        )}
         {showAnchorDebug &&
-          SCENE_ANCHOR_LIST.map(([name, p]) => (
+          SCENE_ANCHOR_LIST.map(([name, p], index) => {
+            const labelOffsets: Record<string, { x: number; y: number }> = {
+              RoofArrayMiddle: { x: -3.0, y: -2.0 },
+              roofGutter: { x: 2.0, y: -1.2 },
+              wallJunction: { x: 2.0, y: -2.1 },
+              homeWallStub: { x: 2.2, y: 4.8 },
+              powerwall: { x: -13.0, y: 4.4 },
+              gridWallEnd: { x: 2.0, y: 2.5 },
+              gridYard: { x: 2.0, y: 1.0 },
+              evPort: { x: 2.0, y: 4.2 },
+              chargePoint: { x: 2.0, y: -1.4 },
+            };
+            const offset = labelOffsets[name] ?? { x: 1.8, y: index * 0.2 };
+            return (
             <g key={name}>
               <circle cx={p.x} cy={p.y} r={1.1} fill="none" stroke="#ff2d55" strokeWidth={0.45} />
               <circle cx={p.x} cy={p.y} r={0.25} fill="#ff2d55" />
               <text
-                x={p.x + 1.8}
-                y={p.y + 0.6}
+                x={p.x + offset.x}
+                y={p.y + offset.y}
                 fill="#ffe066"
                 fontSize={1.9}
                 fontFamily="ui-monospace, monospace"
@@ -1160,7 +1248,8 @@ export function EnergyFlowScene({
                 {name} {p.x.toFixed(1)},{p.y.toFixed(1)}
               </text>
             </g>
-          ))}
+            );
+          })}
 
 
 
@@ -1258,53 +1347,9 @@ export function EnergyFlowScene({
         )}
 
 
-        {/* ── Open-garage warm bloom when EV is charging at home ── */}
-        {chargingAtHome && showDynamicCar && (
-          <g style={{ pointerEvents: 'none' }}>
-            {/* Inner darker "open mouth" */}
-            <rect
-              x={HOME_BLUEPRINT.garageOpening.x + 2}
-              y={HOME_BLUEPRINT.garageOpening.y + 2}
-              width={HOME_BLUEPRINT.garageOpening.w - 4}
-              height={HOME_BLUEPRINT.garageOpening.h - 4}
-              rx={1.2}
-              fill="hsl(28 60% 8%)"
-              opacity={0.55}
-            />
-            {/* Warm interior bloom */}
-            <rect
-              x={HOME_BLUEPRINT.garageOpening.x}
-              y={HOME_BLUEPRINT.garageOpening.y}
-              width={HOME_BLUEPRINT.garageOpening.w}
-              height={HOME_BLUEPRINT.garageOpening.h}
-              rx={2}
-              fill={WARM}
-              opacity={0.22}
-              style={{ filter: 'blur(2.2px)' }}
-            >
-              {!prefersReducedMotion && (
-                <animate
-                  attributeName="opacity"
-                  values="0.18;0.30;0.18"
-                  dur="3600ms"
-                  repeatCount="indefinite"
-                />
-              )}
-            </rect>
-          </g>
-        )}
+        {/* EV1 stays on the driveway apron in every state. No garage-bay
+            animation, and no cable unless power is actually flowing. */}
 
-        {/* v5 Structural — dedicated EV charging cable layer.
-            Hidden when supercharging away from home (gated by showDynamicCar). */}
-        {isPluggedIdle && !chargingAtHome && showDynamicCar && (
-          <EvChargingCable
-            state={'idle'}
-            carAnchor={carAnchor}
-            carWidth={carW}
-            carHeight={carH}
-            reducedMotion={prefersReducedMotion ?? false}
-          />
-        )}
 
         {/* Charge point on the garage-side facade — the physical origin of the
             EV conductor. Without it the run began in mid-air, which is why the
@@ -1340,6 +1385,10 @@ export function EnergyFlowScene({
           </g>
         )}
 
+        {/* (charging cable renders AFTER the car sprite — see below) */}
+
+
+
 
         {/* ── Dynamic Tesla, locked to the same coordinate system ── */}
         {showDynamicCar && vehicleSrc && (
@@ -1359,6 +1408,7 @@ export function EnergyFlowScene({
               ry={carH * 0.075}
               fill="hsl(220 60% 3%)"
               opacity={0.32}
+              transform={`rotate(${reverseParkAngle} ${carFit.cx} ${carFit.cy})`}
               style={{ filter: 'blur(2.6px)' }}
             />
             <ellipse
@@ -1368,6 +1418,7 @@ export function EnergyFlowScene({
               ry={carH * 0.052}
               fill="hsl(220 70% 2%)"
               opacity={0.5}
+              transform={`rotate(${reverseParkAngle} ${carFit.cx} ${carFit.cy})`}
               style={{ filter: 'blur(1.2px)' }}
             />
             <ellipse
@@ -1377,22 +1428,29 @@ export function EnergyFlowScene({
               ry={carH * 0.022}
               fill="hsl(220 75% 1%)"
               opacity={0.62}
+              transform={`rotate(${reverseParkAngle} ${carFit.cx} ${carFit.cy})`}
               style={{ filter: 'blur(0.45px)' }}
             />
 
-            <image
-              href={vehicleSrc}
-              x={carX}
-              y={carY}
-              width={carW}
-              height={carH}
-              preserveAspectRatio="xMidYMid meet"
-              style={{
-                filter: [spriteFilter, 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))']
-                  .filter(Boolean)
-                  .join(' '),
-              }}
-            />
+            {/* EV1 remains horizontal so its body and wheel line are parallel
+                to the garage threshold. No horizontal flip is applied. */}
+            <g transform={`rotate(${reverseParkAngle} ${carFit.cx} ${carFit.cy})`}>
+              <image
+                href={vehicleSrc}
+                x={carX}
+                y={carY}
+                width={carW}
+                height={carH}
+                preserveAspectRatio="xMidYMid meet"
+                style={{
+                  filter: [spriteFilter, 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))']
+                    .filter(Boolean)
+                    .join(' '),
+                }}
+              />
+            </g>
+
+
             {/* §8b — blue ambient wash so the sprite sits in the same night
                 light as the house instead of reading as a daylight cut-out. */}
             {spriteIsNight && (
@@ -1410,8 +1468,8 @@ export function EnergyFlowScene({
             {chargingAtHome && (
               <g style={{ pointerEvents: 'none' }}>
                 <circle
-                  cx={SCENE_ANCHORS.evPort.x}
-                  cy={SCENE_ANCHORS.evPort.y}
+                  cx={evPortPt.x}
+                  cy={evPortPt.y}
                   r={1.6}
                   fill={EMERALD}
                   opacity={0.35}
@@ -1427,8 +1485,8 @@ export function EnergyFlowScene({
                   )}
                 </circle>
                 <circle
-                  cx={SCENE_ANCHORS.evPort.x}
-                  cy={SCENE_ANCHORS.evPort.y}
+                  cx={evPortPt.x}
+                  cy={evPortPt.y}
                   r={0.7}
                   fill={EMERALD_LED}
                   opacity={0.95}
@@ -1438,82 +1496,73 @@ export function EnergyFlowScene({
           </g>
         )}
 
-        {/* §6 — second proven vehicle, its own anchor and its own proof. */}
-        {showSecondCar && secondVehicle?.src && (
-          <g>
-            <ellipse
-              cx={secondFit.cx}
-              cy={secondFit.groundY}
-              rx={secondFit.width * 0.42}
-              ry={1.6}
-              fill="hsl(220 70% 2%)"
-              opacity={0.5}
-              style={{ filter: 'blur(1.4px)' }}
+        {/* Live charging cable — the visible link from the wall charge point to
+            the car's port. Drawn AFTER the sprite so it reads as plugged in
+            rather than hidden behind the bodywork. Distinct in style from the
+            fixed conductor runs: a short sagging catenary in violet with a
+            travelling dash. */}
+        {chargingAtHome && showDynamicCar && (
+          <EvChargeCable
+            to={evPortPt}
+            reducedMotion={Boolean(prefersReducedMotion)}
+          />
+        )}
+
+        {showAnchorDebug && showDynamicCar && (
+          <g data-testid="live-ev-port-debug">
+            <circle cx={rearDebugPt.x} cy={rearDebugPt.y} r={0.75} fill="#ff2d55" />
+            <text x={rearDebugPt.x - 1.2} y={rearDebugPt.y - 1.2} fill="#ff8fa3" fontSize={1.8} textAnchor="end" fontFamily="ui-monospace, monospace">REAR · toward garage</text>
+            <circle cx={noseDebugPt.x} cy={noseDebugPt.y} r={0.75} fill="#00c2ff" />
+            <text x={noseDebugPt.x + 1.2} y={noseDebugPt.y + 2.2} fill="#7fdbff" fontSize={1.8} fontFamily="ui-monospace, monospace">NOSE · driveway</text>
+            <circle cx={evPortPt.x} cy={evPortPt.y} r={1.15} fill="none" stroke="#39ffb6" strokeWidth={0.45} />
+            <line
+              x1={evPortPt.x}
+              y1={evPortPt.y}
+              x2={evPortPt.x + 8}
+              y2={evPortPt.y + 4}
+              stroke="#39ffb6"
+              strokeWidth={0.3}
             />
-            <image
-              href={secondVehicle.src}
-              x={secondFit.x}
-              y={secondFit.y}
-              width={secondFit.width}
-              height={secondFit.height}
-              preserveAspectRatio="xMidYMid meet"
-              style={{
-                filter: [spriteFilter, 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))']
-                  .filter(Boolean)
-                  .join(' '),
-              }}
-            />
-            {spriteIsNight && (
-              <rect
-                x={secondFit.x}
-                y={secondFit.y}
-                width={secondFit.width}
-                height={secondFit.height}
-                fill="hsl(220 70% 30%)"
-                opacity={0.18}
-                style={{ mixBlendMode: 'soft-light', pointerEvents: 'none' }}
-              />
-            )}
+            <text
+              x={evPortPt.x + 8.5}
+              y={evPortPt.y + 4.5}
+              fill="#39ffb6"
+              fontSize={1.8}
+              fontFamily="ui-monospace, monospace"
+            >
+              LIVE rear driver-side port
+            </text>
           </g>
         )}
+
+
+
       </svg>
 
       {/* HTML overlay aligned to the same square as the hero PNG / SVG.
           Lets us drop a "Charging" pill that tracks the car anchor in
           the exact same 0–100 coordinate space. */}
-      {/* §5/§6 — vehicle chips, attached to each rendered car. A chip exists
-          only where a car exists, and a car exists only where co-location is
+      {/* §5 — vehicle chip, attached to the rendered car. A chip exists only
+          where a car exists, and a car exists only where co-location is
           proven, so the chip never has to claim a location. */}
-      {(showDynamicCar || showSecondCar) && (
+      {showDynamicCar && (
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-[80%] -translate-y-1/2"
-          style={{ aspectRatio: '1 / 1', maxWidth: '94%', zIndex: 18 }}
+          className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-full max-w-full -translate-y-1/2"
+          style={{ aspectRatio: SCENE_CAMERA.aspect, zIndex: 18 }}
         >
-          {showDynamicCar && (
-            <VehicleChip
-              x={carFit.cx}
-              y={carFit.y - 1}
-              name={displayName}
-              kw={chargingAtHome ? evKw : null}
-              soc={typeof evSoc === 'number' ? evSoc : null}
-              rangeMi={typeof evRange === 'number' ? evRange : null}
-              charging={chargingAtHome}
-            />
-          )}
-          {showSecondCar && secondVehicle && (
-            <VehicleChip
-              x={secondFit.cx}
-              y={secondFit.y - 1}
-              name={secondVehicle.name ?? null}
-              kw={secondVehicle.charging ? (secondVehicle.kw ?? null) : null}
-              soc={typeof secondVehicle.soc === 'number' ? secondVehicle.soc : null}
-              rangeMi={null}
-              charging={Boolean(secondVehicle.charging)}
-            />
-          )}
+          <VehicleChip
+            x={carFit.cx}
+            y={carFit.y - 1}
+            name={displayName}
+            kw={chargingAtHome ? evKw : null}
+            soc={typeof evSoc === 'number' ? evSoc : null}
+            rangeMi={typeof evRange === 'number' ? evRange : null}
+            charging={chargingAtHome}
+          />
         </div>
       )}
+
 
 
       {/* v5 Phase B — Supercharging badge. Shown when Tesla telemetry

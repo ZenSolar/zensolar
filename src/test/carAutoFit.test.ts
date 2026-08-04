@@ -25,14 +25,16 @@ describe('fitVehicleToBay', () => {
     expect(f.y + f.height * SPRITE_CONTACT_RATIO).toBeCloseTo(bay.groundY, 5);
   });
 
-  it('shrinks both cars when two share the driveway', () => {
+  it('centres the reverse-in pad on the garage opening with threshold clearance', () => {
+    const openingCenter = HOME_BLUEPRINT.garageOpening.x + HOME_BLUEPRINT.garageOpening.w / 2;
+    expect(Math.abs(bay.cx - openingCenter)).toBeLessThan(1);
+    expect(bay.groundY - bay.maxHeight).toBeGreaterThan(HOME_BLUEPRINT.garageOpening.y + HOME_BLUEPRINT.garageOpening.h);
+  });
+
+  it('scales the car down when a scale factor is supplied', () => {
     const solo = fitVehicleToBay(HOME_BLUEPRINT.bays.driveway, 1.8);
-    const dual = fitVehicleToBay(
-      HOME_BLUEPRINT.bays.driveway,
-      1.8,
-      HOME_BLUEPRINT.dualCarScale,
-    );
-    expect(dual.width).toBeLessThan(solo.width);
+    const scaled = fitVehicleToBay(HOME_BLUEPRINT.bays.driveway, 1.8, 0.84);
+    expect(scaled.width).toBeLessThan(solo.width);
   });
 
   it('clamps a very wide sprite inside the viewBox', () => {

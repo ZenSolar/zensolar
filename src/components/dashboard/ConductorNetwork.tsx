@@ -4,8 +4,8 @@
  *
  * TOPOLOGY (mirrors the Tesla app; one trunk, one junction, four branches)
  *
- *     roofArrayEdge ──▶ wallJunction ─┬─▶ meter ─▶ gridEdge   (grid)
- *          (trunk)                    ├─▶ homeWall            (house load)
+ *     RoofArrayMiddle ─▶ roofGutter ─▶ wallJunction ─┬─▶ gridWallEnd ─▶ gridYard
+ *          (trunk)                    ├─▶ homeWallStub        (house load)
  *                                     ├─▶ powerwall           (battery)
  *                                     └─▶ evPort              (vehicle)
  *
@@ -16,13 +16,13 @@
  * baked `house-day*.png` art (see /prototype/cockpit-anchors). Each entry
  * below names the physical object it sits on.
  *
- * WIDTH CARRIES MAGNITUDE — stroke width is strictly proportional to kW
- * (`conductorWidth`), so the trunk is visibly as wide as the sum of its
- * active branches. See the function for the constant.
- *
- * COLOUR IS BINARY — one accent for everything solar-sourced, grey for idle,
- * and a single distinct hue for grid import (a genuinely different flow, and
- * the only case where direction reverses). Never a hue change mid-run.
+ * STYLE — matches the Tesla app reference frame: every conductor is a THIN,
+ * UNIFORM-WEIGHT line in a single neutral grey/white. Magnitude is carried by
+ * the numeric label at each end, never by stroke width and never by hue.
+ * (This supersedes the earlier "width proportional to kW / one accent per
+ * source" rules.) EV is the sole exception — Tesla's app has no vehicle branch,
+ * so ZenSolar's addition stays violet, but at the same thin uniform weight.
+
  */
 
 export type Pt = Readonly<{ x: number; y: number }>;
@@ -44,32 +44,49 @@ export function fromHouseImage(x: number, y: number): Pt {
  * the `?anchors=1` capture, so they are given directly rather than through
  * `fromHouseImage`.
  *
- *   roofArrayEdge  lower-RIGHT corner of the PV array, where it meets the eave
- *   wallJunction   right facade directly beneath the eave — where the roof run
- *                  terminates and every branch begins. Brand-neutral: it is a
- *                  routing node, not a device
- *   homeWall       centre of the lit window cluster (interior load)
- *   powerwall      white Tesla battery cabinet on the front-right facade
- *   meter          grey utility pedestal / service entrance at the right edge
- *                  of the slab
- *   gridEdge       off the property, past the right frame edge
- *   evPort         charge port on the rear quarter of the parked vehicle
+ * v6 — UTILITY CLUSTER MOVED TO THE GARAGE SIDE. Previously the service
+ * panel sat at gutter height on the right facade, directly across the window
+ * bank, so every branch cut through glass and the home run terminated ON a
+ * window. The whole cluster (panel + meter can + Powerwall) now sits at
+ * wall-base height on the garage side, in the same zone as `chargePoint`,
+ * which is where a real service entrance and battery are mounted anyway.
+ *
+ *   RoofArrayMiddle midpoint on the visible PV roof plane
+ *   roofGutter      gutter/eave bend directly above the service panel
+ *   wallJunction   service panel + meter can, garage-side facade at wall base
+ *   homeWallStub   short wall-mounted load tap beside the window bank
+ *   powerwall      battery cabinet, garage-side wall beside the panel
+ *   gridWallEnd    bottom of the meter conduit on the equipment-wall foundation
+ *   evPort         charge port on the near quarter of the parked vehicle
  */
 export const SCENE_ANCHORS = Object.freeze({
-  roofArrayEdge: { x: 59.5, y: 43.5 } as Pt,
-  wallJunction:  { x: 70.5, y: 51.5 } as Pt,
-  homeWall:      { x: 77.5, y: 55.5 } as Pt,
-  powerwall:     { x: 73.0, y: 68.0 } as Pt,
-  meter:         { x: 94.0, y: 65.0 } as Pt,
-  gridEdge:      { x: 108.0, y: 72.0 } as Pt,
-  evPort:        { x: 38.0, y: 72.0 } as Pt,
-  /** Charge point serving the driveway — mounted on the garage-side facade,
-   *  directly above and behind the parked vehicle. The EV conductor starts
-   *  HERE, not at wallJunction: power reaching a car on the driveway does not
-   *  travel over the roofline, and reusing the junction made the EV run read
-   *  as a branch of the solar-to-home line. */
-  chargePoint:   { x: 42.0, y: 66.0 } as Pt,
+  /** Collection point in the middle of the visible array, below the ridge. */
+  RoofArrayMiddle: { x: 57.0, y: 27.8 } as Pt,
+  /** Gutter/eave bend directly above the service panel. */
+  roofGutter: { x: 50.5, y: 34.6 } as Pt,
+  /** Service panel + meter can, baked into the v13 equipment wall.
+   *  The ONLY metering object in the scene. */
+  wallJunction:  { x: 50.5, y: 46.0 } as Pt,
+  /** v15: home load tap sits on the SAME wall line as the panel, so battery →
+   *  panel → home reads as one straight horizontal run. */
+  homeWallStub:  { x: 66.1, y: 46.0 } as Pt,
+  /** Powerwall cabinet, level with the panel. */
+  powerwall:     { x: 33.3, y: 45.7 } as Pt,
+  /** Bottom of the vertical meter conduit at the wall base. */
+  gridWallEnd:   { x: 50.5, y: 55.3 } as Pt,
+  /** v15: the grid run leaves the yard at the lower-LEFT of the visible ground,
+   *  well clear of the charge cable's corridor at the garage corner. */
+  gridYard:      { x: 30.2, y: 81.0 } as Pt,
+  evPort:        { x: 24.9, y: 64.1 } as Pt,
+
+  /** v15: wall box at the garage's far-LEFT corner. Cable drops straight to
+   *  the apron and bends right to the car's rear. */
+  chargePoint:   { x: 6.2, y: 41.8 } as Pt,
+
 });
+
+
+
 
 
 /** Debug label order for the `?anchors=1` overlay. */
@@ -160,22 +177,138 @@ export function polylineMidpoint(pts: Pt[]): { p: Pt; angle: number } {
 }
 
 /**
- * kW → stroke width. Defined once in `@/lib/siteBalance` alongside the
- * balance assertion that keeps the claim honest:
- *
- *   width(kW) = 0.30 × kW,  clamped to [0.30, 3.0]
- *
- * Strictly proportional and through the origin, so widths ADD. The floor only
- * protects sub-1 kW runs from vanishing; the ceiling keeps a 12 kW import from
- * swamping the house. When either clamp engages, `computeSiteBalance().clamped`
- * is true and widths are no longer comparable — the assertion says so rather
- * than pretending.
+ * kW → stroke width is NO LONGER used for conductor rendering. The reference
+ * draws every run at the same thin weight; the helper stays exported because
+ * `siteBalance` still asserts on it elsewhere.
  */
 export { WIDTH_PER_KW, conductorWidth } from '@/lib/siteBalance';
-import { conductorWidth } from '@/lib/siteBalance';
+
+/** Uniform conductor weight, in viewBox units. Thin, like the reference. */
+export const CONDUCTOR_WIDTH = 0.52;
+
+/**
+ * The single neutral conductor colour. Grey-white, like the Tesla reference —
+ * no per-source hue. Grid import/export, solar, home and battery all use it.
+ */
+export const CONDUCTOR_NEUTRAL = 'hsl(210 18% 82%)';
+
+/**
+ * GRID exception — the one run that leaves the building. Like the Tesla app it
+ * is amber/gold where it leaves the meter (active flow at the house) and fades
+ * to the plain muted conductor colour as it heads off toward the street.
+ */
+export const GRID_FLOW_STROKE = 'url(#grid-flow-fade)';
+
+/** Gradient definition for `GRID_FLOW_STROKE`. Render once inside the scene SVG. */
+export function GridFlowDefs() {
+  const a = SCENE_ANCHORS.wallJunction;
+  const b = SCENE_ANCHORS.gridYard;
+  return (
+    <defs>
+      <linearGradient
+        id="grid-flow-fade"
+        gradientUnits="userSpaceOnUse"
+        x1={a.x}
+        y1={a.y}
+        x2={b.x}
+        y2={b.y}
+      >
+        <stop offset="0%" stopColor="hsl(42 96% 62%)" />
+        <stop offset="38%" stopColor="hsl(42 80% 66%)" />
+        <stop offset="100%" stopColor="hsl(215 12% 58%)" />
+      </linearGradient>
+    </defs>
+  );
+}
+
 
 /** Travelling-pulse period: higher power travels faster, never frantic. */
 const pulseDur = (kw: number) => Math.max(1.5, 3.4 - Math.min(Math.abs(kw), 8) * 0.2);
+
+/**
+ * Service panel + meter can mounted on the facade at `wallJunction`.
+ *
+ * In the Tesla reference the roof run drops into a small grey panel box on the
+ * house wall and the grid run comes up out of the ground into the same box,
+ * with a round meter can at its base. That rendered object is what makes the
+ * diagram read as ONE electrical system rather than four unrelated lines, so
+ * the junction is drawn, not merely implied.
+ */
+export function ServicePanelGlyph({ at = SCENE_ANCHORS.wallJunction }: { at?: Pt }) {
+  const w = 3.4;
+  const h = 4.4;
+  const x = at.x - w / 2;
+  const y = at.y - h / 2 - 0.6;
+  return (
+    <g style={{ pointerEvents: 'none' }} data-glyph="service-panel">
+      {/* contact shadow */}
+      <rect
+        x={x + 0.25}
+        y={y + 0.5}
+        width={w}
+        height={h}
+        rx={0.5}
+        fill="hsl(220 60% 4%)"
+        opacity={0.5}
+        style={{ filter: 'blur(0.5px)' }}
+      />
+      {/* panel body */}
+      <rect
+        x={x}
+        y={y}
+        width={w}
+        height={h}
+        rx={0.5}
+        fill="hsl(215 10% 42%)"
+        stroke="hsl(210 16% 72%)"
+        strokeWidth={0.22}
+      />
+      {/* door seam */}
+      <line
+        x1={x + 0.55}
+        y1={y + 1.15}
+        x2={x + w - 0.55}
+        y2={y + 1.15}
+        stroke="hsl(210 16% 78%)"
+        strokeOpacity={0.5}
+        strokeWidth={0.16}
+      />
+      {/* latch */}
+      <circle cx={x + w - 0.75} cy={y + h / 2 + 0.4} r={0.22} fill="hsl(210 16% 80%)" opacity={0.7} />
+      {/* meter can at the base */}
+      <rect
+        x={at.x - 1.0}
+        y={y + h - 0.15}
+        width={2.0}
+        height={1.0}
+        rx={0.25}
+        fill="hsl(215 10% 38%)"
+        stroke="hsl(210 16% 70%)"
+        strokeWidth={0.18}
+      />
+      <circle
+        cx={at.x}
+        cy={y + h + 1.5}
+        r={1.15}
+        fill="hsl(215 12% 46%)"
+        stroke="hsl(210 16% 76%)"
+        strokeWidth={0.2}
+      />
+      <circle cx={at.x} cy={y + h + 1.5} r={0.62} fill="hsl(210 20% 88%)" opacity={0.55} />
+      {/* service conduit down to grade */}
+      <line
+        x1={at.x}
+        y1={y + h + 2.6}
+        x2={at.x}
+        y2={y + h + 4.2}
+        stroke="hsl(215 10% 44%)"
+        strokeWidth={0.42}
+        strokeLinecap="round"
+      />
+    </g>
+  );
+}
+
 
 export type ConductorLayer = 'behind' | 'front';
 
@@ -214,7 +347,9 @@ export function Conductor({
   reducedMotion,
 }: Omit<ConductorSegment, 'layer'> & { reducedMotion?: boolean }) {
   const d = roundedPath(points);
-  const w = conductorWidth(kw);
+  // Uniform weight — magnitude lives in the numeric labels, not the stroke.
+  const w = CONDUCTOR_WIDTH;
+
   const dur = pulseDur(kw);
   const { p, angle } = polylineMidpoint(points);
   const chevronAngle = forward ? angle : angle + 180;
@@ -304,9 +439,9 @@ export function Conductor({
 /**
  * Builds the trunk/branch segment list for the current power reading.
  *
- *   trunk         roofArrayEdge → wallJunction         (total production)
- *   branch-home   wallJunction  → homeWall             (house load)
- *   branch-grid   wallJunction  → meter → gridEdge     (export, or reversed
+ *   trunk         RoofArrayMiddle → roofGutter → wallJunction (production)
+ *   branch-home   wallJunction  → homeWallStub         (house load)
+ *   branch-grid   wallJunction  → gridWallEnd           (export, or reversed
  *                                                       and re-hued on import)
  *   branch-pw     wallJunction  → powerwall            (charge / discharge)
  *   branch-ev     wallJunction  → evPort               (charging at this site)
@@ -325,9 +460,15 @@ export function buildConductorSegments(args: {
   colors: { solar: string; home: string; export: string; import: string; ev?: string };
   dimSolar?: boolean;
   hideGrid?: boolean;
+  showSolar?: boolean;
+  showBattery?: boolean;
 }): ConductorSegment[] {
   const A = SCENE_ANCHORS;
+  // `colors` is accepted for call-site compatibility but only the EV hue is
+  // honoured — every other branch renders in the single neutral conductor
+  // colour, matching the reference.
   const { solar, home, grid, colors } = args;
+  void colors;
   const battery = args.battery ?? 0;
   const ev = args.ev ?? 0;
   const segments: ConductorSegment[] = [];
@@ -336,50 +477,53 @@ export function buildConductorSegments(args: {
   const importing = grid > 0.05;
   const exporting = grid < -0.05;
 
-  // TRUNK — roof array down the visible roof face to the wall junction.
-  // Draws in FRONT: this run is on the near roof plane and near facade.
-  if (producing) {
+  // TRUNK — one diagonal roof-plane leg to the gutter, then one exactly
+  // vertical facade leg into the shared service-panel junction.
+  if (args.showSolar !== false) {
     segments.push({
       id: 'trunk',
-      points: isoRoute(A.roofArrayEdge, A.wallJunction, 'vert-first'),
-      color: colors.solar,
+      points: [A.RoofArrayMiddle, A.roofGutter, A.wallJunction],
+      color: CONDUCTOR_NEUTRAL,
       kw: solar,
       layer: 'front',
       dimmed: args.dimSolar,
+      idle: !producing,
     });
   }
 
-  // HOME BRANCH — junction up-right to the window cluster.
+  // HOME BRANCH — v15: one straight horizontal wall run from the panel to the
+  // load tap beside the windows. Same y as the panel and the battery run, so
+  // battery → panel → home reads as a single continuous line.
   if (home > 0.05) {
     segments.push({
       id: 'branch-home',
-      points: isoRoute(A.wallJunction, A.homeWall),
-      color: producing ? colors.home : colors.import,
+      points: [A.wallJunction, { x: A.homeWallStub.x, y: A.wallJunction.y }],
+      color: CONDUCTOR_NEUTRAL,
       kw: home,
       layer: 'front',
       dimmed: args.dimSolar && producing,
     });
   }
 
-  // BATTERY BRANCH — only while charging or discharging.
-  if (Math.abs(battery) > 0.05) {
+  // BATTERY BRANCH — v15: straight horizontal continuation of the same wall
+  // line, panel → Powerwall cabinet.
+  if (args.showBattery !== false) {
     segments.push({
       id: battery > 0 ? 'branch-pw-charge' : 'branch-pw-discharge',
-      points: isoRoute(A.wallJunction, A.powerwall, 'vert-first'),
-      color: colors.solar,
+      points: [A.wallJunction, { x: A.powerwall.x, y: A.wallJunction.y }],
+      color: CONDUCTOR_NEUTRAL,
       kw: battery,
       // Discharge flows out of the pack, back toward the junction.
       forward: battery > 0,
       layer: 'front',
-      dimmed: args.dimSolar && battery > 0,
+      idle: Math.abs(battery) <= 0.05,
     });
   }
 
+
   // EV BRANCH — only when a vehicle is charging at this site. Runs from the
-  // driveway charge point down to the car's port: a short, taut, ground-level
-  // run. It deliberately does NOT start at wallJunction — that route climbed
-  // the facade and crossed the whole house, reading as power coming over the
-  // roof to a car parked on the ground.
+  // driveway charge point down to the car's port. Rendered by `EvChargeCable`,
+  // not by `Conductor`: it is a cable, not a fixed conduit run.
   if (ev > 0.05) {
     segments.push({
       id: 'branch-ev',
@@ -392,16 +536,14 @@ export function buildConductorSegments(args: {
   }
 
 
-  // GRID BRANCH — junction → meter → off-property. Terminates ON the meter
-  // and continues past the frame edge, never stopping short of the post.
+  // GRID BRANCH — exactly two legs: a vertical wall-mounted drop from the
+  // shared panel junction to grade, then a diagonal yard run toward the street.
+  // The yard leg remains right of the EV cable corridor at the garage corner.
   if (!args.hideGrid && (importing || exporting)) {
     segments.push({
       id: exporting ? 'branch-grid-export' : 'branch-grid-import',
-      points: [
-        ...isoRoute(A.wallJunction, A.meter),
-        ...isoRoute(A.meter, A.gridEdge).slice(1),
-      ],
-      color: exporting ? colors.export : colors.import,
+      points: [A.wallJunction, A.gridWallEnd, A.gridYard],
+      color: GRID_FLOW_STROKE,
       kw: grid,
       // Import reverses: pulse and chevron travel inward from the grid.
       forward: exporting,
@@ -409,5 +551,68 @@ export function buildConductorSegments(args: {
     });
   }
 
+
+
+
   return segments;
+}
+
+/**
+ * EvChargeCable — the visible connection between the wall charge point and the
+ * car's charge port. Deliberately styled apart from the fixed conductor runs:
+ * a sagging catenary, violet, with a moving dash so it reads as live current
+ * rather than a permanent conduit.
+ */
+export function EvChargeCable({
+  from = SCENE_ANCHORS.chargePoint,
+  to,
+  color = 'hsl(265 90% 78%)',
+  reducedMotion,
+}: {
+  from?: Pt;
+  to: Pt;
+  color?: string;
+  reducedMotion?: boolean;
+}) {
+  // v15: wall box at the garage's left corner → straight drop to the apron →
+  // short bend right along the ground to the car's rear port.
+  const dropY = Math.max(from.y + 2, to.y - 1.2);
+  const d = roundedPath([from, { x: from.x, y: dropY }, { x: to.x, y: dropY }, to], 1.4);
+
+
+  return (
+    <g style={{ pointerEvents: 'none' }} data-testid="ev-charge-cable">
+      <path
+        d={d}
+        stroke={color}
+        strokeOpacity={0.35}
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        fill="none"
+        style={{ filter: 'blur(1px)' }}
+      />
+      <path
+        d={d}
+        stroke={color}
+        strokeOpacity={0.85}
+        strokeWidth={0.55}
+        strokeLinecap="round"
+        fill="none"
+      />
+      <path
+        d={d}
+        stroke="#ffffff"
+        strokeOpacity={0.9}
+        strokeWidth={0.4}
+        strokeLinecap="round"
+        fill="none"
+        strokeDasharray="1.6 4.4"
+        strokeDashoffset={reducedMotion ? 0 : 6}
+      >
+        {!reducedMotion && (
+          <animate attributeName="stroke-dashoffset" from="6" to="0" dur="0.9s" repeatCount="indefinite" />
+        )}
+      </path>
+    </g>
+  );
 }
