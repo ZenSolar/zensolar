@@ -144,7 +144,7 @@ export const PANEL_PORTS = Object.freeze({
  * the stroke width so the round cap kisses the outline instead of overlapping
  * it. Measured from a 12x crop of the rendered plate.
  */
-export const POWERWALL_CORE = Object.freeze({ x: 35.8, y: 47.8 } as Pt);
+export const POWERWALL_CORE = Object.freeze({ x: 35.75, y: 48.1 } as Pt);
 
 
 
