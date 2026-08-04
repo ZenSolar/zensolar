@@ -831,14 +831,14 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
 
 
   // TESTING ONLY — simulated battery charge line.
-  // ON by default in the dev preview (4.2 kW charging @ 62% SOC). Override with
-  // ?simBattery=-3.1 (discharge) or turn it off with ?simBattery=0.
-  // Never active in a production build.
+  // ON by default in EVERY build (dev preview and published PWA) so the
+  // installed app matches the preview cockpit exactly: 4.2 kW charging @ 62%.
+  // Override with ?simBattery=-3.1 (discharge) or turn it off with ?simBattery=0.
   const simBatteryKw = useMemo(() => {
     if (typeof window === 'undefined') return null;
     const raw = new URLSearchParams(window.location.search).get('simBattery');
     if (raw === '0' || raw === 'off' || raw === 'false') return null;
-    if (raw === null) return import.meta.env.DEV ? 4.2 : null;
+    if (raw === null) return 4.2;
     if (raw === '' || raw === '1' || raw === 'true' || raw === 'charging') return 4.2;
     if (raw === 'discharging') return -3.1;
     const n = Number(raw);
