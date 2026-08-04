@@ -572,10 +572,11 @@ export function EvChargeCable({
   color?: string;
   reducedMotion?: boolean;
 }) {
-  const sag = Math.max(2.2, Math.abs(to.x - from.x) * 0.35);
-  const d =
-    `M ${from.x} ${from.y} ` +
-    `C ${from.x - 1.5} ${from.y + sag} ${to.x + 1.5} ${to.y + sag * 0.6} ${to.x} ${to.y}`;
+  // v15: wall box at the garage's left corner → straight drop to the apron →
+  // short bend right along the ground to the car's rear port.
+  const dropY = Math.max(from.y + 2, to.y - 1.2);
+  const d = roundedPath([from, { x: from.x, y: dropY }, { x: to.x, y: dropY }, to], 1.4);
+
 
   return (
     <g style={{ pointerEvents: 'none' }} data-testid="ev-charge-cable">
