@@ -81,7 +81,7 @@ export const SCENE_ANCHORS = Object.freeze({
 
   /** v15: wall box at the garage's far-LEFT corner. Cable drops straight to
    *  the apron and bends right to the car's rear. */
-  chargePoint:   { x: 7.9, y: 41.8 } as Pt,
+  chargePoint:   { x: 6.2, y: 41.8 } as Pt,
 
 });
 
