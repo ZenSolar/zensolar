@@ -460,6 +460,8 @@ export function buildConductorSegments(args: {
   colors: { solar: string; home: string; export: string; import: string; ev?: string };
   dimSolar?: boolean;
   hideGrid?: boolean;
+  showSolar?: boolean;
+  showBattery?: boolean;
 }): ConductorSegment[] {
   const A = SCENE_ANCHORS;
   // `colors` is accepted for call-site compatibility but only the EV hue is
@@ -477,7 +479,7 @@ export function buildConductorSegments(args: {
 
   // TRUNK — roof array down the visible roof face to the wall junction.
   // Draws in FRONT: this run is on the near roof plane and near facade.
-  if (producing) {
+  if (args.showSolar !== false) {
     segments.push({
       id: 'trunk',
       points: isoRoute(A.roofArrayEdge, A.wallJunction, 'vert-first'),
@@ -485,6 +487,7 @@ export function buildConductorSegments(args: {
       kw: solar,
       layer: 'front',
       dimmed: args.dimSolar,
+      idle: !producing,
     });
   }
 
@@ -504,7 +507,7 @@ export function buildConductorSegments(args: {
 
   // BATTERY BRANCH — v15: straight horizontal continuation of the same wall
   // line, panel → Powerwall cabinet.
-  if (Math.abs(battery) > 0.05) {
+  if (args.showBattery !== false) {
     segments.push({
       id: battery > 0 ? 'branch-pw-charge' : 'branch-pw-discharge',
       points: [A.wallJunction, { x: A.powerwall.x, y: A.wallJunction.y }],
@@ -513,6 +516,7 @@ export function buildConductorSegments(args: {
       // Discharge flows out of the pack, back toward the junction.
       forward: battery > 0,
       layer: 'front',
+      idle: Math.abs(battery) <= 0.05,
     });
   }
 
@@ -540,7 +544,7 @@ export function buildConductorSegments(args: {
   if (!args.hideGrid && (importing || exporting)) {
     segments.push({
       id: exporting ? 'branch-grid-export' : 'branch-grid-import',
-      points: [{ x: A.wallJunction.x, y: A.wallJunction.y + 3.4 }, A.gridYard],
+      points: [A.wallJunction, A.gridYard],
       color: GRID_FLOW_STROKE,
       kw: grid,
       // Import reverses: pulse and chevron travel inward from the grid.
