@@ -1,73 +1,46 @@
-# Tesla-style vehicle labels above the roofline
+# Restore and freeze the verified EV1 driveway state
 
-Adopt Tesla's labelling convention in the cockpit scene, drop the chip-on-car
-treatment, and revert the Powerwall caret to Tesla's meaning.
+Use Lovable project History to restore the complete project version immediately
+after EV2 was removed and `chargePoint` was relocated to the garage's left side,
+before EV1 flipping, mirroring, reverse-parking, rotation, or open-garage overlay
+work began. Do not recreate that state by patching the current implementation.
 
-## 1. Roofline label with leader line (replaces the vehicle chip)
+## Restore checkpoint
 
-Today each rendered car carries a rounded pill anchored to the sprite
-("ZenX · Charging · 11.7 kW · 72% · 214 mi"). That pill is replaced by a
-Tesla-style stacked label placed above the roofline:
+Select the historical version whose rendered behavior visibly matches all of
+the following:
 
-```text
-        ZenX                <- grey, small, vehicle name
-   11.7 kW ▲ 31%            <- white, tabular, kW + green caret + SOC
-        │                   <- hairline leader dropping to the car anchor
-        │
-      [car]
-```
+- EV1 is flat and grounded on the driveway apron.
+- EV1 is parallel to the facade.
+- The violet cable is visible only while EV1 is charging.
+- The cable is absent while EV1 is parked.
+- The away state has an empty driveway.
+- EV2 is absent and `chargePoint` remains on the garage's left side.
 
-- Name in muted grey, metrics line in foreground white, green caret only when
-  the pack is filling.
-- Hairline leader (1px, ~25% foreground opacity) from the label's bottom edge
-  down to the vehicle's roof/anchor point in the same 0-100 scene space the
-  chip uses today.
-- Not charging: label shows `Parked · 72%` with no caret and a dimmer leader.
-- Multi-vehicle: labels stack in a column above the roofline in vehicle order,
-  each with its own leader down to its own car, so two cars never fight over
-  one driveway anchor. Stacking spacing is fixed; leaders may cross the roof
-  but never each other's text.
-- The existing standalone "AC Charging" violet pill stays only for the
-  no-sprite case (unchanged); the Supercharging pill stays as-is (car is away,
-  no roofline anchor exists).
+If the first candidate version does not satisfy every item, inspect adjacent
+history versions rather than modifying source code.
 
-## 2. Revert the Powerwall caret to Tesla's convention
+## Explicitly accepted limitation
 
-`▲` means the battery is filling. The Powerwall readout currently renders `▼`
-for charging and `▲` for discharging — this flips back: charging `▲`,
-discharging `▼`. The generic arrow helper used by the other readouts already
-follows the sign convention and is left alone.
+The cable may land on the passenger side. Preserve that exact behavior. Do not
+rotate, mirror, flip, reposition, auto-fit differently, alter the transform, or
+change `chargePoint`/cable geometry to address port-side accuracy.
 
-## 3. Car position: stay in the driveway
+## Freeze scope
 
-Tesla parks the car inside the garage and hides its front half behind the door
-frame. Our scene is a baked PNG with no depth buffer, so occlusion would need a
-hand-cut foreground plate per house plate — fragile, and it re-opens the garage
-alignment work we just closed. Recommendation, and what this plan implements:
-the car stays on the driveway pad where occlusion never arises. No foreground
-plate. If you want the in-garage look later it is a separate art task.
+Once the matching version is restored, make no EV1 presentation changes. Do
+not reintroduce any of the later garage-interior, reverse-park, or orientation
+experiments. No unrelated scene, conductor, EV2, data, or backend work is part
+of this restoration.
 
-## 4. Colour restraint — noted, not changed here
+## Three-state pixel verification
 
-Amber solar / emerald battery / cyan grid / violet EV stay for now. We show
-four flows where Tesla shows one, so a single accent cannot carry the meaning.
-Flagged as a deliberate follow-up review rather than folded into this change.
+After restoration, render fresh full-car screenshots for:
 
-## 5. Not touched
+1. **Away:** driveway empty; no violet cable.
+2. **Parked:** EV1 flat, grounded, and parallel on the apron; no violet cable.
+3. **Charging:** the same EV1 placement; violet cable visible.
 
-The ZenDrive metrics row (`11 kW · +0.1 kWh · 47/48 A · 245 V · 72% → 93%`)
-already matches Tesla's and is left exactly as-is. Conductor routing,
-chargePoint, cable, anchors and house plate are untouched.
-
-## Technical notes
-
-- `src/components/dashboard/EnergyFlowScene.tsx`: replace `VehicleChip` with a
-  `VehicleRoofLabel` component (name + metrics + leader line), rendered in the
-  same HTML overlay layer and coordinate space; add roofline Y derivation and
-  stacked placement for the multi-vehicle case; flip the Powerwall caret at the
-  Powerwall `FlowLabel`.
-- Leader line drawn as an absolutely positioned 1px div (or an SVG line in the
-  existing overlay `svg`) so it scales with the camera transform like the
-  anchors do.
-- Verify with a Playwright capture in both single-vehicle charging and
-  two-vehicle states, plus a parked (non-charging) state.
+Review the actual pixels, not coordinate output. Attach all three screenshots
+and state plainly if any requirement is not visibly satisfied; do not report
+success unless all three match.
