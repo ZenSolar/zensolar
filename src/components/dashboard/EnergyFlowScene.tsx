@@ -1362,6 +1362,7 @@ export function EnergyFlowScene({
               ry={carH * 0.075}
               fill="hsl(220 60% 3%)"
               opacity={0.32}
+              transform={`rotate(${reverseParkAngle} ${carFit.cx} ${carFit.cy})`}
               style={{ filter: 'blur(2.6px)' }}
             />
             <ellipse
@@ -1371,6 +1372,7 @@ export function EnergyFlowScene({
               ry={carH * 0.052}
               fill="hsl(220 70% 2%)"
               opacity={0.5}
+              transform={`rotate(${reverseParkAngle} ${carFit.cx} ${carFit.cy})`}
               style={{ filter: 'blur(1.2px)' }}
             />
             <ellipse
@@ -1380,25 +1382,29 @@ export function EnergyFlowScene({
               ry={carH * 0.022}
               fill="hsl(220 75% 1%)"
               opacity={0.62}
+              transform={`rotate(${reverseParkAngle} ${carFit.cx} ${carFit.cy})`}
               style={{ filter: 'blur(0.45px)' }}
             />
 
-            {/* True reverse-in parking pose: rear upper-left at the garage,
-                nose lower-right down the approach lane. */}
+            {/* True reverse-in parking pose: mirror swaps the source sprite's
+                ends, then rotation aims its rear upper-left at the garage and
+                its nose lower-right down the approach lane. */}
             <g transform={`rotate(${reverseParkAngle} ${carFit.cx} ${carFit.cy})`}>
-              <image
-                href={vehicleSrc}
-                x={carX}
-                y={carY}
-                width={carW}
-                height={carH}
-                preserveAspectRatio="xMidYMid meet"
-                style={{
-                  filter: [spriteFilter, 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))']
-                    .filter(Boolean)
-                    .join(' '),
-                }}
-              />
+              <g transform={`translate(${carFit.cx * 2} 0) scale(-1 1)`}>
+                <image
+                  href={vehicleSrc}
+                  x={carX}
+                  y={carY}
+                  width={carW}
+                  height={carH}
+                  preserveAspectRatio="xMidYMid meet"
+                  style={{
+                    filter: [spriteFilter, 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))']
+                      .filter(Boolean)
+                      .join(' '),
+                  }}
+                />
+              </g>
             </g>
 
 
