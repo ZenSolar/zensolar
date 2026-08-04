@@ -64,9 +64,9 @@ export const SCENE_ANCHORS = Object.freeze({
   /** Service panel + meter can, baked into the v13 equipment wall.
    *  The ONLY metering object in the scene. */
   wallJunction:  { x: 50.5, y: 46.0 } as Pt,
-  /** Short home-load stub on the wall immediately left of the window bank.
-   *  Kept above the slab: this endpoint is wall/foundation, never driveway. */
-  homeWallStub:  { x: 64.8, y: 55.8 } as Pt,
+  /** v15: home load tap sits on the SAME wall line as the panel, so battery →
+   *  panel → home reads as one straight horizontal run. */
+  homeWallStub:  { x: 66.1, y: 46.0 } as Pt,
   /** Powerwall cabinet, level with the panel. */
   powerwall:     { x: 33.3, y: 45.7 } as Pt,
   /** v14 grid rule: the service run leaves the meter can and continues as ONE
@@ -74,13 +74,15 @@ export const SCENE_ANCHORS = Object.freeze({
    *  point — the Tesla-app convention. `gridWallEnd` is retained only as the
    *  point where the run passes the wall base. */
   gridWallEnd:   { x: 50.5, y: 55.3 } as Pt,
-  /** Where the grid run leaves the visible yard, heading for the street. */
-  gridYard:      { x: 72.0, y: 79.0 } as Pt,
+  /** v15: the grid run leaves the yard at the lower-LEFT of the visible ground,
+   *  well clear of the charge cable's corridor at the garage corner. */
+  gridYard:      { x: 30.2, y: 81.0 } as Pt,
   evPort:        { x: 24.9, y: 64.1 } as Pt,
 
-  /** Charge point on the garage-side facade, left of the Powerwall —
-   *  above and behind the parked vehicle. */
-  chargePoint:   { x: 28.9, y: 48.0 } as Pt,
+  /** v15: wall box at the garage's far-LEFT corner. Cable drops straight to
+   *  the apron and bends right to the car's rear. */
+  chargePoint:   { x: 7.9, y: 41.8 } as Pt,
+
 });
 
 
