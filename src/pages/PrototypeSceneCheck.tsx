@@ -20,11 +20,12 @@ export default function PrototypeSceneCheck() {
 
   const state = params.get('state') ?? 'charging';
   const charging = state === 'charging';
+  const solarState = state === 'solar';
 
   const data = {
-    solarPower: 0,
+    solarPower: solarState ? 6.4 : 0,
     homePower: 0.347,
-    gridPower: charging ? 11.347 : 0.347,
+    gridPower: solarState ? -6.05 : charging ? 11.347 : 0.347,
     batteryPower: 0,
     batteryPercent: 0,
     evPower: charging ? 11 : 0,
