@@ -541,15 +541,14 @@ export function buildConductorSegments(args: {
   }
 
 
-  // GRID BRANCH — v15: ONE straight diagonal from the meter can down and to the
-  // LEFT across the yard toward the street tie point, matching the marked-up
-  // reference. It passes the wall base and keeps going; no bend, no return to
-  // horizontal. It ends well right of the charge-cable corridor at the garage
-  // corner, so the two never touch.
+  // GRID BRANCH — v18: straight vertical drop from the meter can all the way
+  // to the true foundation line (`gridWallEnd`), then one diagonal across the
+  // yard toward the street tie point. It ends well right of the charge-cable
+  // corridor at the garage corner, so the two never touch.
   if (!args.hideGrid && (importing || exporting)) {
     segments.push({
       id: exporting ? 'branch-grid-export' : 'branch-grid-import',
-      points: [{ x: A.wallJunction.x, y: A.wallJunction.y + 3.4 }, A.gridYard],
+      points: [A.wallJunction, A.gridWallEnd, A.gridYard],
       color: GRID_FLOW_STROKE,
       kw: grid,
       // Import reverses: pulse and chevron travel inward from the grid.
