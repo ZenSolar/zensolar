@@ -762,9 +762,13 @@ export function buildConductorSegments(args: {
       kw: grid,
       // Import reverses: the travelling segment runs inward from the grid.
       forward: exporting,
+      // Export continues the same wave that came down from the roof; import is
+      // an incoming wave of its own, so it starts its phase at the yard.
+      phaseDist: exporting ? trunkDist : 0,
       layer: 'front',
     });
   }
+
 
 
 
