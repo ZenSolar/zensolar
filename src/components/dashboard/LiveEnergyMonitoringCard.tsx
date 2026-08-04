@@ -806,12 +806,14 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
   }, [solar.data, solarStats]);
 
   // TESTING ONLY — simulated battery charge line.
-  // Enable with ?simBattery=1 (defaults to 4.2 kW charging) or ?simBattery=-3.1
-  // for a discharge sweep. Never active without the explicit URL flag.
+  // ON by default in the dev preview (4.2 kW charging @ 62% SOC). Override with
+  // ?simBattery=-3.1 (discharge) or turn it off with ?simBattery=0.
+  // Never active in a production build.
   const simBatteryKw = useMemo(() => {
     if (typeof window === 'undefined') return null;
     const raw = new URLSearchParams(window.location.search).get('simBattery');
-    if (raw === null) return null;
+    if (raw === '0' || raw === 'off' || raw === 'false') return null;
+    if (raw === null) return import.meta.env.DEV ? 4.2 : null;
     if (raw === '' || raw === '1' || raw === 'true' || raw === 'charging') return 4.2;
     if (raw === 'discharging') return -3.1;
     const n = Number(raw);
@@ -823,7 +825,9 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
     const withSim = <T extends { powerKw: number | null; soc: number | null; capacityKwh: number | null; reserveKwh: number | null; status: string }>(s: T): T => {
       if (simBatteryKw === null) return s;
       const capacityKwh = s.capacityKwh ?? POWERWALL_DEFAULT_CAPACITY_KWH;
-      const soc = s.soc ?? 62;
+      // Force a plausible mid-pack SOC so "99% · Charging" can't happen.
+      const soc = simBatteryKw > 0 ? 62 : 78;
+
       const reserveKwh = Math.round(capacityKwh * (soc / 100) * 10) / 10;
       return {
         ...s,
