@@ -136,6 +136,15 @@ export const PANEL_PORTS = Object.freeze({
   grid: { x: SCENE_ANCHORS.wallJunction.x, y: PANEL_BOX.y + PANEL_H + 4.2 } as Pt,
 });
 
+/**
+ * v21 — the Powerwall side terminates INSIDE the cabinet graphic, like a
+ * cable plugged into the unit, not at its outer edge. Measured against the
+ * white cabinet baked into `house-v13-day.png` (scene-space bounds
+ * x 32.5–35.9, y 46.2–50.6): the core is its centre.
+ */
+export const POWERWALL_CORE = Object.freeze({ x: 34.2, y: 48.3 } as Pt);
+
+
 /** Debug label order for the `?anchors=1` overlay. */
 export const SCENE_ANCHOR_LIST = Object.entries(SCENE_ANCHORS) as ReadonlyArray<[string, Pt]>;
 
