@@ -556,79 +556,48 @@ export function Conductor({
           />
         </>
       )}
-      {/* 4 — travelling gradient segment: soft-edged colour blob sliding along
-              the pipe, fading to the neutral base at both of its ends. */}
+      {/* 4 — travelling segment.
+              v22: the masked animated gradient is GONE. Chrome and iOS Safari
+              both failed to re-rasterise a mask whose gradient was animated by
+              SMIL, so every conductor rendered a frozen wave while the EV
+              cable — a plain animated stroke-dashoffset — moved fine. This now
+              uses that same proven technique: a dashed colour stroke whose
+              offset animates one wavelength per cycle. Phase locking survives
+              via `phaseDist`; direction via the sign of the offset travel. */}
       {!idle && (
-        <>
-          <defs>
-            <linearGradient
-              id={gradId}
-              gradientUnits="userSpaceOnUse"
-              spreadMethod="repeat"
-              x1={sweepOrigin.x - dirX}
-              y1={sweepOrigin.y - dirY}
-              x2={sweepOrigin.x}
-              y2={sweepOrigin.y}
+        <g>
+          {[
+            { width: w * 3.0, opacity: 0.28, blur: true, stroke: sweepColor },
+            { width: w * 1.12, opacity: 0.95, blur: false, stroke: sweepColor },
+            { width: w * 0.34, opacity: 0.5, blur: false, stroke: '#ffffff' },
+          ].map((layer, i) => (
+            <path
+              key={i}
+              d={d}
+              stroke={layer.stroke}
+              strokeOpacity={layer.opacity}
+              strokeWidth={layer.width}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+              strokeDasharray={`${segLen.toFixed(2)} ${(FLOW_WAVELENGTH - segLen).toFixed(2)}`}
+              strokeDashoffset={dashFrom.toFixed(2)}
+              style={layer.blur ? { filter: 'blur(0.7px)' } : undefined}
             >
-              <stop offset="0%" stopColor="#000" />
-              <stop offset="34%" stopColor="#000" />
-              <stop offset="50%" stopColor="#fff" />
-              <stop offset="66%" stopColor="#000" />
-              <stop offset="100%" stopColor="#000" />
               {!reducedMotion && (
-                <animateTransform
-                  attributeName="gradientTransform"
-                  type="translate"
-                  from="0 0"
-                  to={`${dirX.toFixed(3)} ${dirY.toFixed(3)}`}
+                <animate
+                  attributeName="stroke-dashoffset"
+                  from={dashFrom.toFixed(2)}
+                  to={dashTo.toFixed(2)}
                   dur={`${dur.toFixed(2)}s`}
                   repeatCount="indefinite"
                 />
               )}
-            </linearGradient>
-            <mask id={maskId} maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse">
-              <path
-                d={d}
-                stroke={`url(#${gradId})`}
-                strokeWidth={w * 2.2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
-              />
-            </mask>
-          </defs>
-          <g mask={`url(#${maskId})`}>
-            <path
-              d={d}
-              stroke={sweepColor}
-              strokeOpacity={0.5}
-              strokeWidth={w * 3.0}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              fill="none"
-              style={{ filter: 'blur(0.7px)' }}
-            />
-            <path
-              d={d}
-              stroke={sweepColor}
-              strokeOpacity={1}
-              strokeWidth={w * 1.12}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              fill="none"
-            />
-            <path
-              d={d}
-              stroke="#ffffff"
-              strokeOpacity={0.55}
-              strokeWidth={w * 0.34}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              fill="none"
-            />
-          </g>
-        </>
+            </path>
+          ))}
+        </g>
       )}
+
     </g>
   );
 }
