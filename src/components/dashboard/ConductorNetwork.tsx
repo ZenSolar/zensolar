@@ -480,12 +480,13 @@ export function buildConductorSegments(args: {
   const importing = grid > 0.05;
   const exporting = grid < -0.05;
 
-  // TRUNK — roof array down the visible roof face to the wall junction.
-  // Draws in FRONT: this run is on the near roof plane and near facade.
+  // TRUNK — v16: two segments. Diagonal across the panel field from
+  // `roofArrayMiddle` to the eave at `roofGutter`, then a straight vertical
+  // drop down the facade to the service panel.
   if (producing) {
     segments.push({
       id: 'trunk',
-      points: isoRoute(A.roofArrayEdge, A.wallJunction, 'vert-first'),
+      points: [A.roofArrayMiddle, A.roofGutter, { x: A.roofGutter.x, y: A.wallJunction.y }],
       color: CONDUCTOR_NEUTRAL,
       kw: solar,
       layer: 'front',
