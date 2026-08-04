@@ -147,7 +147,12 @@ export const PANEL_PORTS = Object.freeze({
 
   /** Bottom of the meter-can conduit stub — the grid run starts here. */
   grid: { x: SCENE_ANCHORS.wallJunction.x, y: PANEL_BOX.y + PANEL_H + 4.2 } as Pt,
+  /** Lower-LEFT face — the EV feeder leaves the panel here. A wall connector
+   *  sits on a branch circuit from this panel, so its conductor originates at
+   *  the node like every other one. */
+  ev: { x: PANEL_BOX.x, y: PANEL_BOX.y + PANEL_H * 0.86 } as Pt,
 });
+
 
 /**
  * v23 — the Powerwall side STOPS AT the cabinet's outline. The conductor
