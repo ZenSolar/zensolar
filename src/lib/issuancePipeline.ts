@@ -8,8 +8,9 @@
  *
  *     netting  ->  stack_bonus  ->  allowance_cap
  *
- * Only `netting` is implemented today (2026-07-31). `stack_bonus` and
- * `allowance_cap` are NOT adopted mechanisms — the Stack Bonus has not been
+ * As of 2026-08-04 NO stage transforms anything: `netting` is a documented
+ * reserved no-op (see below), and `stack_bonus` and
+ * `allowance_cap` remain NOT adopted mechanisms — the Stack Bonus has not been
  * decided and the cap needs plans and billing that do not exist yet. They are
  * present here as explicit, typed no-op seams so they can be filled in later
  * without restructuring any caller.
@@ -27,7 +28,6 @@
 
 import {
   CONVERSION_FACTORS,
-  HOME_CHARGING_SOLAR_NETTING_FACTOR,
   MINT_SPLIT_PER_UNIT,
   type MintCategory,
 } from '@/lib/mintFactors';
@@ -75,34 +75,30 @@ const clone = (q: QuantityByCategory): QuantityByCategory => ({ ...q });
 // ---------------------------------------------------------------------------
 
 /**
- * Home charging on a solar-connected home is netted to 0.25:1 so that
- * self-generated energy is not credited twice — once as solar production and
- * again as charging. Homes with no connected solar device are unaffected:
- * their charging energy came off the grid and was only ever counted once.
+ * NETTING IS A DELIBERATE NO-OP AS OF 2026-08-04.
+ *
+ * Its only implemented function was reducing home charging on solar-connected
+ * homes to 0.25:1. That reduction was retired: charging a car is its own
+ * verified act, not a discount on generation (the same articulation adopted
+ * for battery export on 2026-08-01), and the 0.25 stood in for an attribution
+ * we cannot measure.
+ *
+ * The stage is KEPT, not removed, because it is the declared first position in
+ * the canonical pipeline order and it is where a real, measurable attribution
+ * rule would go if an OEM ever exposes Charge-on-Solar. It transforms nothing
+ * today and every trace entry records `applied: false` with that reason, so no
+ * surface can mistake it for functional.
  */
 export const nettingStage: PipelineStage = {
   name: 'netting',
-  run(q, ctx) {
-    const out = clone(q);
-    const home = out.home_charging_kwh ?? 0;
-
-    if (!ctx.solarConnectedHome || home <= 0) {
-      return {
-        quantities: out,
-        applied: false,
-        note: home <= 0
-          ? 'No home charging in this issuance — netting not applicable.'
-          : 'No connected solar device on this account — home charging is grid energy and is not netted.',
-      };
-    }
-
-    out.home_charging_kwh = home * HOME_CHARGING_SOLAR_NETTING_FACTOR;
+  run(q) {
     return {
-      quantities: out,
-      applied: true,
+      quantities: clone(q),
+      applied: false,
       note:
-        `Solar-connected home: home charging netted at ${HOME_CHARGING_SOLAR_NETTING_FACTOR}:1 ` +
-        `(${home} kWh -> ${out.home_charging_kwh} kWh credited) so self-generated energy is not counted twice.`,
+        'Netting retired 2026-08-04: home charging is credited 1:1 like every other ' +
+        'verified act. No quantity adjusted. Reserved for a measurable ' +
+        'generation-attribution signal (e.g. Charge-on-Solar) if one ever ships.',
     };
   },
 };
