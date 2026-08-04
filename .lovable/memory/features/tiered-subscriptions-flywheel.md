@@ -1,26 +1,30 @@
 ---
-name: Tiered Subscriptions Flywheel (ARCHIVED v3.1)
-description: Historical v3.1 scenario only. Superseded by mint split v4.0 and canonical 1:1 member issuance; never use its 10:1 ratio, 50/25/20/5 split, or burn-per-mint assumptions.
+name: Tiered Subscriptions Flywheel (ARCHIVED — subscription tiers only)
+description: Subscription-tier and sell-cohort scenario notes. All tokenomics figures it once carried (10:1 ratio, 50/25/20/5 split, 20% burn-per-mint) were WRONG and have been removed. Locked values live in mint-split-v3-locked.md.
 type: feature
 ---
 
-# ARCHIVED — v3.1 Tokenomics Scenario
+# ARCHIVED — subscription-tier scenario notes
 
-> **Do not implement or quote the economics below.** This historical model is
-> superseded by `mem://features/mint-split-v3-locked.md`: 1.0 to the member +
-> 0.25 to treasury per verified unit, no LP mint, no burn at mint, and 1 kWh =
-> 1 $ZSOLAR to the member. It remains only as an audit record of an abandoned
-> model.
+> **This file no longer states any mint ratio, mint split, or burn rate.** The
+> figures it previously carried were wrong and were labeled as "corrections to
+> apply", which made them standing instructions to regenerate contradictions.
+> They are deleted, not annotated.
+>
+> The canonical economics are in `mem://features/mint-split-v3-locked.md`:
+> **1.25 $ZSOLAR per verified unit — 1.0 to the member, 0.25 to treasury.
+> No LP mint. No burn at mint. No continuous burn.** Member ratio is 1 kWh =
+> 1 $ZSOLAR.
 
-Refreshed 2026-06-01. Supersedes `tiered-subscriptions-halving-flywheel.md`. Genesis Halving is **deprecated as a required mechanism** in v3.1 — continuous 20% burn per mint provides perpetual deflation without a UX cliff. Companion to `mem://features/satoshi-mirror-v2-oracle` and `CANONICAL_SSOT.md`.
+Refreshed 2026-08-04. Supersedes `tiered-subscriptions-halving-flywheel.md`. Genesis Halving is **deprecated**. Companion to `mem://features/satoshi-mirror-v2-oracle` and `CANONICAL_SSOT.md`.
 
-## 1. Core principles (v2.1 ratio · v3.1 split — LOCKED)
+## 1. Core principles (locked — see mint-split-v3-locked.md)
 
-- **10:1 mint ratio:** 10 verified kWh (or 10 EV miles) = 1 $ZSOLAR minted (raw). UI shows the user's 50% share as 1 kWh = 1 $ZSOLAR.
-- **Mint split (v3.1 LIVE):** 50% user / 25% LP direct / 20% burn / 5% treasury. (Supersedes 75/20/3/2.)
-- **Continuous deflation:** every mint burns 20% — no scheduled halving required.
+- **Mint ratio:** 1 verified kWh = 1 $ZSOLAR to the member. Never 10:1.
+- **Mint split:** 1.0 member / 0 LP / 0 burn / 0.25 treasury (1.25 issued per unit). Never 50/25/20/5, never 75/20/3/2.
+- **Supply-side mechanism:** treasury-share step-down 0.25 → 0.10 once Store redemption exceeds 30% for two consecutive quarters. Mechanical and scheduled — **not** a burn, **not** "continuous deflation".
 - **1T hard cap unchanged.**
-- **External phrasing:** "10 kWh = 1 $ZSOLAR" · "Satoshi-Mirror floor" · the protocol's 50% share is framed as a "matching contribution" (401(k)-style).
+- **External phrasing:** "1 kWh = 1 $ZSOLAR" · "Satoshi-Mirror floor" · the protocol's own slice is framed as a "matching contribution" (401(k)-style).
 
 ## 2. Three subscription tiers (50/50 LP/treasury split on every dollar)
 
