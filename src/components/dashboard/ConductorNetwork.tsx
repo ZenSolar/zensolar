@@ -127,11 +127,20 @@ export const PANEL_PORTS = Object.freeze({
     x: PANEL_BOX.x + PANEL_W,
     y: wallSlope(SCENE_ANCHORS.wallJunction, SCENE_ANCHORS.homeWallStub, PANEL_BOX.x + PANEL_W),
   } as Pt,
-  /** Left face — the Powerwall run leaves here, same perspective line. */
-  battery: {
-    x: PANEL_BOX.x,
-    y: wallSlope(SCENE_ANCHORS.wallJunction, SCENE_ANCHORS.powerwall, PANEL_BOX.x),
-  } as Pt,
+  /** Left face — the Powerwall run leaves here. v24: its slope is the MIRROR
+   *  of the home run's slope (same rise per unit of horizontal travel, opposite
+   *  direction), so both sides of the junction read as one line bending only at
+   *  the panel. `POWERWALL_CORE` is fixed, so the port height is solved back
+   *  from it rather than from the old `powerwall` anchor. */
+  battery: (() => {
+    const j = SCENE_ANCHORS.wallJunction;
+    const h = SCENE_ANCHORS.homeWallStub;
+    // magnitude of the home run's slope, mirrored to the left-hand side
+    const m = (h.y - j.y) / (h.x - j.x);
+    const x = PANEL_BOX.x;
+    return { x, y: POWERWALL_CORE_Y - m * (x - POWERWALL_CORE_X) * -1 } as Pt;
+  })(),
+
   /** Bottom of the meter-can conduit stub — the grid run starts here. */
   grid: { x: SCENE_ANCHORS.wallJunction.x, y: PANEL_BOX.y + PANEL_H + 4.2 } as Pt,
 });
