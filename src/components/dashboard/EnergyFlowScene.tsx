@@ -1390,7 +1390,7 @@ export function EnergyFlowScene({
                 opacity={0.55}
               />
               <text
-                x={tx}
+                x={labelX}
                 y={leaderTop - 4.0}
                 textAnchor="middle"
                 fill="hsl(220 10% 68%)"
@@ -1401,7 +1401,7 @@ export function EnergyFlowScene({
                 {displayName || 'Vehicle'}
               </text>
               <text
-                x={tx}
+                x={labelX}
                 y={leaderTop - 1.1}
                 textAnchor="middle"
                 fill="hsl(0 0% 100%)"
