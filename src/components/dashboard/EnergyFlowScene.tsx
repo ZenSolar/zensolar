@@ -794,6 +794,8 @@ export function EnergyFlowScene({
         grid,
         battery: isOutage ? 0 : battery,
         ev: evBranchKw,
+        showSolar: true,
+        showBattery: hasBattery,
         colors: {
           solar: EMERALD_LED,
           home: EMERALD_LED,
@@ -806,7 +808,7 @@ export function EnergyFlowScene({
         dimSolar: isOutage,
         hideGrid: isOutage,
       }),
-    [solar, home, grid, battery, evBranchKw, isOutage],
+    [solar, home, grid, battery, evBranchKw, isOutage, hasBattery],
   );
 
 
@@ -840,12 +842,11 @@ export function EnergyFlowScene({
 
   const chargingAtHome = isCharging && !isSupercharging && !isOutage;
 
-  // v5.4 — ONE FIXED DRIVEWAY POSE. EV1 always sits on the driveway apron,
-  // parallel to the facade. Charging and "present, not charging" share the
-  // same anchor; the only difference is whether the cable and EV spoke are
-  // drawn. The sprite is contained inside the bay at its measured aspect
-  // ratio and seated on the bay's contact line, so it holds at any width.
-  const primaryBay = HOME_BLUEPRINT.bays.driveway;
+  // v16 — REVERSE-PARKED GARAGE POSE. This is a different parking target, not
+  // an in-place sprite flip: the car is fitted tightly to the garage opening,
+  // centred on its bay, with the rear quarter nearest the wall and the nose on
+  // the apron. Charging and parked states share this physically plausible pose.
+  const primaryBay = HOME_BLUEPRINT.bays.garage;
   const carFit = useMemo(
     () => fitVehicleToBay(primaryBay, primaryAspect, 1),
     [primaryBay, primaryAspect],
@@ -859,10 +860,11 @@ export function EnergyFlowScene({
   /** The car's charge port, derived from the sprite's fitted footprint so the
    *  cable always lands on the bodywork, whatever sprite/aspect is in play. */
   const evPortPt = {
-    // v15: the sprite is mirrored, so the REAR (real charge-port side) faces
-    // the garage on the left. Port sits on the rear quarter.
-    x: carFit.cx - carFit.width * 0.30,
-    y: carFit.groundY - carFit.height * 0.34,
+    // The unmirrored Model X art points nose down-left and rear up-right.
+    // Tesla's port is independently pinned to that visible rear driver's-side
+    // quarter; parking direction alone must never decide the port side.
+    x: carFit.cx + carFit.width * 0.30,
+    y: carFit.groundY - carFit.height * 0.58,
   };
 
   const evKw = data.tesla?.kW ?? data.evPower ?? 0;
@@ -1341,17 +1343,15 @@ export function EnergyFlowScene({
               style={{ filter: 'blur(0.45px)' }}
             />
 
-            {/* v14 — EV1 is parked nose-out: the sprite is mirrored about its
-                own centre line so the REAR quarter (where a Tesla's charge
-                port lives) faces the garage-side chargePoint. Pure 180°
-                rotation in place: anchor, bay fit and footprint unchanged. */}
+            {/* v16 — reverse-parked in the garage-centred bay. The source art's
+                natural perspective already places the rear up-right toward the
+                opening, so no mirror/rotation transform is applied. */}
             <image
               href={vehicleSrc}
               x={carX}
               y={carY}
               width={carW}
               height={carH}
-              transform={`translate(${(carFit.cx * 2).toFixed(3)} 0) scale(-1 1)`}
               preserveAspectRatio="xMidYMid meet"
               style={{
                 filter: [spriteFilter, 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))']
