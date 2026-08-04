@@ -530,18 +530,27 @@ export function Conductor({
             <path
               d={d}
               stroke={sweepColor}
-              strokeOpacity={0.35}
-              strokeWidth={w * 2.6}
+              strokeOpacity={0.5}
+              strokeWidth={w * 3.0}
               strokeLinecap="round"
               strokeLinejoin="round"
               fill="none"
-              style={{ filter: 'blur(0.6px)' }}
+              style={{ filter: 'blur(0.7px)' }}
             />
             <path
               d={d}
               stroke={sweepColor}
               strokeOpacity={1}
-              strokeWidth={w}
+              strokeWidth={w * 1.12}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
+            <path
+              d={d}
+              stroke="#ffffff"
+              strokeOpacity={0.55}
+              strokeWidth={w * 0.34}
               strokeLinecap="round"
               strokeLinejoin="round"
               fill="none"
@@ -549,19 +558,6 @@ export function Conductor({
           </g>
         </>
       )}
-
-      {/* 5 — still-frame direction cue */}
-      <g transform={`translate(${p.x.toFixed(2)} ${p.y.toFixed(2)}) rotate(${chevronAngle.toFixed(1)})`}>
-        <path
-          d="M -0.9 -1.15 L 0.9 0 L -0.9 1.15"
-          fill="none"
-          stroke={idle ? 'hsl(215 12% 55%)' : sweepColor}
-          strokeWidth={Math.max(0.42, w * 0.7)}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity={idle ? 0.5 : 0.95}
-        />
-      </g>
     </g>
   );
 }
