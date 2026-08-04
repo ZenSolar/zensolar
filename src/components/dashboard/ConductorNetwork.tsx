@@ -74,7 +74,7 @@ export const SCENE_ANCHORS = Object.freeze({
   /** v18: home load tap lands on the seam between the top and bottom window
    *  rows, horizontally centred on the FIRST (left) window column.
    *  Measured on the v13 plate: seam y ≈ 506px, column centre x ≈ 719px. */
-  homeWallStub:  { x: 70.2, y: 49.4 } as Pt,
+  homeWallStub:  { x: 70.2, y: 50.6 } as Pt,
   /** Powerwall cabinet, slightly higher than the panel on the same sloped
    *  perspective wall line. */
   powerwall:     { x: 33.3, y: 46.0 } as Pt,
