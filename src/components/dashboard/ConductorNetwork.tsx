@@ -96,8 +96,45 @@ export const SCENE_ANCHORS = Object.freeze({
 });
 
 
+/**
+ * v20 — SERVICE PANEL BOX GEOMETRY.
+ *
+ * `ServicePanelGlyph` draws the panel as a rounded rect centred on
+ * `wallJunction`, with a meter can + conduit stub hanging below it. Conductors
+ * must land on that box's EXTERIOR surface — no gap, no overlap into its
+ * interior — so the exact rectangle is published here and every branch
+ * terminates against it rather than at the abstract anchor.
+ */
+const PANEL_W = 3.4;
+const PANEL_H = 4.4;
+export const PANEL_BOX = Object.freeze({
+  w: PANEL_W,
+  h: PANEL_H,
+  x: SCENE_ANCHORS.wallJunction.x - PANEL_W / 2,
+  y: SCENE_ANCHORS.wallJunction.y - PANEL_H / 2 - 0.6,
+});
 
+/** Slope of the wall perspective line the battery/home runs follow. */
+const wallSlope = (from: Pt, to: Pt, atX: number) =>
+  from.y + ((to.y - from.y) / (to.x - from.x)) * (atX - from.x);
 
+/** Exterior contact points on the panel box, one per branch. */
+export const PANEL_PORTS = Object.freeze({
+  /** Top face — the solar drop lands here. */
+  solar: { x: SCENE_ANCHORS.wallJunction.x, y: PANEL_BOX.y } as Pt,
+  /** Right face — the home run leaves here, on the wall's perspective line. */
+  home: {
+    x: PANEL_BOX.x + PANEL_W,
+    y: wallSlope(SCENE_ANCHORS.wallJunction, SCENE_ANCHORS.homeWallStub, PANEL_BOX.x + PANEL_W),
+  } as Pt,
+  /** Left face — the Powerwall run leaves here, same perspective line. */
+  battery: {
+    x: PANEL_BOX.x,
+    y: wallSlope(SCENE_ANCHORS.wallJunction, SCENE_ANCHORS.powerwall, PANEL_BOX.x),
+  } as Pt,
+  /** Bottom of the meter-can conduit stub — the grid run starts here. */
+  grid: { x: SCENE_ANCHORS.wallJunction.x, y: PANEL_BOX.y + PANEL_H + 4.2 } as Pt,
+});
 
 /** Debug label order for the `?anchors=1` overlay. */
 export const SCENE_ANCHOR_LIST = Object.entries(SCENE_ANCHORS) as ReadonlyArray<[string, Pt]>;
