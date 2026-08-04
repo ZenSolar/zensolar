@@ -45,6 +45,9 @@ import { DeferredMount } from "./components/util/DeferredMount";
 import { DashboardEnterEffect } from "./components/onboarding/quiet/DashboardEnterEffect";
 
 // Non-critical chrome — lazy + deferred-mount past first paint
+const PageCleanupFlagger = lazy(() =>
+  import("./components/admin/PageCleanupFlagger").then((m) => ({ default: m.PageCleanupFlagger })),
+);
 const InstallNudge = lazy(() =>
   import("./components/install/InstallNudge").then((m) => ({ default: m.InstallNudge })),
 );
@@ -332,6 +335,11 @@ const App = () => {
                   <SwipeBackHandler />
                   <DashboardEnterEffect />
 
+                  <DeferredMount>
+                    <Suspense fallback={null}>
+                      <PageCleanupFlagger />
+                    </Suspense>
+                  </DeferredMount>
                   <Suspense fallback={<PageLoader />}>
                     <Routes>
                     <Route path="/auth" element={<Auth />} />

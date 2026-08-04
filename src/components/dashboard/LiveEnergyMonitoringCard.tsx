@@ -735,48 +735,14 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
     [solar.data, activeSolarSiteId],
   );
   const primaryBattery = battery.data[0];
-  /**
-   * DISPLAY-ONLY presence fallback.
-   *
-   * A wall connector that has not yet named a VIN leaves an actively AC-charging
-   * car invisible. For RENDERING only, a vehicle whose own charge port reports
-   * an AC charge (phases present / SAE-style cable, no DC-fast brand) is drawn
-   * at this site. Issuance and `evHomeKw` still require an open
-   * `home_charging_sessions` row — nothing here reaches the mint path.
-   */
-  const acAtSiteVins = useMemo(() => {
-    const s = new Set<string>();
-    if (hideVehicle) return s;
-    for (const t of ev.data) {
-      const state = (pickString(t.payload, ['charging_state', 'vehicles.0.charging_state']) ?? '').toLowerCase();
-      if (state !== 'charging') continue;
-      const phases = pickNumber(t.payload, ['charger_phases', 'vehicles.0.charger_phases']);
-      const brand = (pickString(t.payload, ['fast_charger_brand']) ?? '').toLowerCase();
-      const dcFast = brand !== '' && brand !== '<invalid>' && brand !== 'invalid';
-      if (phases != null && phases > 0 && !dcFast) s.add(t.site_id);
-    }
-    return s;
-  }, [hideVehicle, ev.data]);
-
-  const displayAtSiteVins = useMemo(
-    () => new Set<string>([...provenAtHomeVins, ...acAtSiteVins]),
-    [provenAtHomeVins, acAtSiteVins],
-  );
-
-  // The car the scene leads with is the one with the STRONGEST proof of being
-  // at this site — a wall connector naming its VIN under load beats a
-  // vehicle's own "I'm AC charging" claim, which beats whatever telemetry row
-  // happened to be cached most recently. This is what puts ZenX (proven by
-  // the ZenAiredale wall connector) back in the lead slot.
+  // The car the scene leads with is the one PROVEN to be at this site, not
+  // whichever telemetry row happened to be cached most recently. In a
+  // multi-car household the proven car was landing in the second slot while
+  // the unproven one held the primary gate shut, so nothing was drawn at all.
   const primaryEv = useMemo(() => {
     if (!ev.data.length) return undefined;
-    return (
-      ev.data.find((t) => provenAtHomeVins.has(t.site_id)) ??
-      ev.data.find((t) => acAtSiteVins.has(t.site_id)) ??
-      ev.data[0]
-    );
-  }, [ev.data, provenAtHomeVins, acAtSiteVins]);
-
+    return ev.data.find((t) => provenAtHomeVins.has(t.site_id)) ?? ev.data[0];
+  }, [ev.data, provenAtHomeVins]);
 
   const solarStats = solarSnapshot(primarySolar);
   const batteryStats = batterySnapshot(primaryBattery);
@@ -947,6 +913,43 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
     evHomeKw,
   });
 
+
+  // §6 — a SECOND vehicle earns a place in the scene on its own proof, not
+  // by association with the first. Each car's presence_evidence is checked
+  // independently, and each carries its own chip.
+  const secondSceneVehicle = useMemo(() => {
+    if (hideVehicle) return null;
+    const primarySiteId = (primaryEv as { site_id?: string } | null)?.site_id ?? null;
+    const row = ev.data.find(
+      (t) => t.site_id !== primarySiteId && provenAtHomeVins.has(t.site_id),
+    );
+    if (!row) return null;
+    const asset = resolveVehicleAsset(row.payload ?? row, undefined, {
+      fallbackWhenConnected: true,
+    });
+    if (!asset.src) return null;
+    const kw =
+      pickNumber(row.payload, [
+        'charge_rate_kw',
+        'charger_power',
+        'vehicles.0.charger_power',
+        'response.charge_state.charger_power',
+      ]) ?? 0;
+    const soc = pickNumber(row.payload, [
+      'battery_level',
+      'response.charge_state.battery_level',
+      'vehicles.0.battery_level',
+    ]);
+    return {
+      src: asset.src,
+      name:
+        (row as { device_name?: string | null }).device_name ??
+        pickString(row.payload, ['display_name', 'response.display_name']),
+      kw,
+      soc,
+      charging: kw > 0.1,
+    };
+  }, [hideVehicle, ev.data, primaryEv, provenAtHomeVins]);
 
   const flowData = {
     solarPower: solarStats.currentKw ?? 0,
@@ -1213,8 +1216,9 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                 presenceProven={
                   !hideVehicle &&
                   !!primaryEv &&
-                  displayAtSiteVins.has((primaryEv as { site_id?: string }).site_id ?? '')
+                  provenAtHomeVins.has((primaryEv as { site_id?: string }).site_id ?? '')
                 }
+                secondVehicle={secondSceneVehicle}
                 gridSource={reconciledFlow.gridSource}
                 gridOverrideReason={reconciledFlow.overrideReason}
                 homeDerived={reconciledFlow.homeDerived}
@@ -1263,7 +1267,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                 Grid reconciled this frame
               </span>
             )}
-            {ev.data.length > 0 && provenAtHomeVins.size === 0 && acAtSiteVins.size === 0 && (
+            {ev.data.length > 0 && provenAtHomeVins.size === 0 && (
               <span
                 className="inline-flex items-center gap-1"
                 title="The vehicle's own meter, no location claim."

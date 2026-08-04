@@ -19,28 +19,32 @@ export type BlueprintAnchor = Readonly<{ x: number; y: number }>;
 
 export const HOME_BLUEPRINT = Object.freeze({
   /** Solar panel array center on the front-facing roof slope. */
-  solar:        { x: 57.5, y: 27.3 } as BlueprintAnchor,
+  solar:        { x: 58, y: 30 } as BlueprintAnchor,
   /** Center of the lit-window cluster on the front-right wall. */
-  windows:      { x: 76.9, y: 53.3 } as BlueprintAnchor,
+  windows:      { x: 75, y: 58 } as BlueprintAnchor,
   /** Primary Powerwall — white cabinet tucked against the front-left
    *  porch wall in the baked PNG. */
-  powerwall:    { x: 35.6, y: 60.6 } as BlueprintAnchor,
+  powerwall:    { x: 40, y: 68 } as BlueprintAnchor,
   /** Optional second Powerwall stacked just below the first. */
-  powerwall2:   { x: 35.6, y: 65.9 } as BlueprintAnchor,
+  powerwall2:   { x: 40, y: 74 } as BlueprintAnchor,
   /** Front door (porch). */
-  frontDoor:    { x: 53.0, y: 63.4 } as BlueprintAnchor,
+  frontDoor:    { x: 53, y: 70 } as BlueprintAnchor,
   /** Utility grid meter — small box mounted on the far-right wall. */
-  gridMeter:    { x: 90.5, y: 56.9 } as BlueprintAnchor,
+  gridMeter:    { x: 90, y: 62 } as BlueprintAnchor,
   /** Tesla Wall Connector mounted inside the garage. */
-  wallCharger:  { x: 16.0, y: 53.4 } as BlueprintAnchor,
+  wallCharger:  { x: 18, y: 60 } as BlueprintAnchor,
   /** Driveway parking spot in front of the garage (car center). */
-  carPark:      { x: 19.6, y: 73.0 } as BlueprintAnchor,
+  carPark:      { x: 22, y: 82 } as BlueprintAnchor,
+  /** Second driveway spot — used when two vehicles are proven at home (§6).
+   *  Sits alongside `carPark`, still under the house outline. Both cars use
+   *  `carHeightDual` so the pair does not overlap. */
+  carPark2:     { x: 46, y: 84 } as BlueprintAnchor,
   /** "Charging at home" anchor — pulls the car up to the garage apron.
    *  v5.2: nudged left/down so the sprite reads as sitting inside the
    *  garage bay instead of floating across the driveway. */
-  garageFront:  { x: 23.2, y: 67.7 } as BlueprintAnchor,
+  garageFront:  { x: 26, y: 76 } as BlueprintAnchor,
   /** Rectangle over the garage opening — used to paint a warm "door open" bloom. */
-  garageOpening: { x: 3.6, y: 44.5, w: 23.2, h: 19.6 } as Readonly<{
+  garageOpening: { x: 4, y: 50, w: 26, h: 22 } as Readonly<{
     x: number; y: number; w: number; h: number;
   }>,
   /** Dynamic-vehicle <image> overlay dimensions, % of viewBox.
@@ -49,11 +53,11 @@ export const HOME_BLUEPRINT = Object.freeze({
    *  v5.3: these are now the BUDGET for the auto-fit (see `bays` below),
    *  not the literal drawn box — the sprite is contained inside them at
    *  its own aspect ratio. */
-  carWidth: 44.5,
-  carHeight: 24.9,
+  carWidth: 50,
+  carHeight: 28,
   /** Car dimensions when two vehicles share the driveway. */
-  carWidthDual: 37.4,
-  carHeightDual: 21.4,
+  carWidthDual: 42,
+  carHeightDual: 24,
 
   /**
    * v5.3 — parking BAYS. Each bay declares a centre line, the ground
@@ -66,19 +70,19 @@ export const HOME_BLUEPRINT = Object.freeze({
    * preserved: groundY = anchor.y + boxHeight * 0.358.
    */
   bays: {
-    /** EV1 bay centred on the garage opening. The contact line is on the
-     *  visible apron below the open-door threshold; the car is parallel to it. */
-    garage:    { cx: 15.2, groundY: 68.1, maxWidth: 20.0, maxHeight: 7.8 },
-
-    /** v12c driveway apron in front of the garage (plate px cx 266,
-     *  contact line y 784). Single fixed pose, parallel to the facade. */
-    driveway:  { cx: 23.2, groundY: 68.1, maxWidth: 28.5, maxHeight: 16.0 },
+    /** Charging at home — pulled up onto the garage apron. */
+    garage:    { cx: 26, groundY: 86.0, maxWidth: 50, maxHeight: 28 },
+    /** Parked, not charging — driveway spot in front of the garage. */
+    driveway:  { cx: 22, groundY: 92.0, maxWidth: 50, maxHeight: 28 },
+    /** Second proven vehicle — alongside, still under the house outline. */
+    driveway2: { cx: 46, groundY: 92.6, maxWidth: 42, maxHeight: 24 },
   } as Readonly<
-    Record<'garage' | 'driveway', Readonly<{
+    Record<'garage' | 'driveway' | 'driveway2', Readonly<{
       cx: number; groundY: number; maxWidth: number; maxHeight: number;
     }>>
   >,
-
+  /** Shrink factor applied to both cars when two share the driveway. */
+  dualCarScale: 0.84,
 
 
 
@@ -87,11 +91,11 @@ export const HOME_BLUEPRINT = Object.freeze({
    * the front-left porch wall. Slot 0 == legacy `powerwall` anchor.
    */
   powerwallSlots: [
-    { x: 35.6, y: 60.6 },
-    { x: 35.6, y: 65.9 },
-    { x: 39.2, y: 60.6 },
-    { x: 39.2, y: 65.9 },
-    { x: 39.2, y: 71.2 },
+    { x: 40, y: 68 },
+    { x: 40, y: 74 },
+    { x: 44, y: 68 },
+    { x: 44, y: 74 },
+    { x: 44, y: 80 },
   ] as readonly BlueprintAnchor[],
 } as const);
 
@@ -133,43 +137,3 @@ export const BLUEPRINT_PATHS = Object.freeze({
    */
   chargerToEvCharging: `M ${B.wallCharger.x} ${B.wallCharger.y} C ${B.wallCharger.x} ${B.garageFront.y - 6} ${B.garageFront.x + B.carWidth * 0.10} ${B.garageFront.y - 1} ${B.garageFront.x + B.carWidth * 0.30} ${B.garageFront.y - B.carHeight * 0.05}`,
 } as const);
-
-/**
- * SCENE CAMERA — framing only, never layout.
- *
- * The baked art is a 1024² square in which the house occupies only
- * y≈18.5%–86%: a wide band of empty sky above the roofline and empty
- * pavement below the driveway edge. At that framing a ~9-unit conductor
- * run (grid's short local drop, the EV cable) reads as a faint mark.
- *
- * This is a crop of the SAME coordinate system — every anchor keeps its
- * existing 0–100 value. Layers just view a sub-window of it:
- *   · SVG layers  → viewBox = SCENE_CAMERA.viewBox
- *   · <img> layer → scaled/offset to match that window exactly
- *   · HTML chips  → mapped through camPctX / camPctY
- *
- * Margin above the roof (13 → 18.5) is kept for the corner readouts and
- * the sun/moon band; margin below the apron (86 → 91) seats the ground
- * shadows. All 7 scene variants inherit this framing.
- */
-export const SCENE_CAMERA = Object.freeze({
-  x: 0,
-  y: 13,
-  w: 100,
-  h: 70,
-  viewBox: '0 13 100 70',
-  /** CSS aspect-ratio for every stage box, so img and SVG stay in register. */
-  aspect: '100 / 70',
-  /** <img> sizing that reproduces the viewBox crop exactly. */
-  imgStyle: {
-    width: '100%',
-    height: `${(100 / 70) * 100}%`,
-    marginTop: `${-(13 / 70) * 100}%`,
-  } as const,
-});
-
-
-/** Map a blueprint x (0–100 source space) to a % offset inside the camera box. */
-export const camPctX = (x: number) => ((x - SCENE_CAMERA.x) / SCENE_CAMERA.w) * 100;
-/** Map a blueprint y (0–100 source space) to a % offset inside the camera box. */
-export const camPctY = (y: number) => ((y - SCENE_CAMERA.y) / SCENE_CAMERA.h) * 100;

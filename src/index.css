@@ -1196,11 +1196,3 @@ html {
 body[data-capture-mode='on'] [data-capture-hide] {
   display: none !important;
 }
-
-/* Garage door roll-up for the live energy scene (see GarageDoorOpen.tsx).
-   The slab is drawn at ~19% of the opening height and scales down from a
-   fully-closed door to its parked position under the header. */
-@keyframes zen-garage-door-rise {
-  from { transform: scaleY(5.26); }
-  to   { transform: scaleY(1); }
-}

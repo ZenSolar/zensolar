@@ -332,66 +332,38 @@ Deno.serve(async (req) => {
           console.warn("enphase production_micro error, falling back to summary:", microErr);
         }
 
-        // 3) Counter-delta arbitration. `energy_today` is a monotonic within-day
-        //    counter that the summary endpoint refreshes on every ingest, so its
-        //    movement between polls is a *current* observation even when the
-        //    micro/summary instantaneous feeds lag by an hour or more.
-        //
-        //    We keep a rolling anchor (wh + timestamp) in the cached payload so a
-        //    fast poll cadence still accumulates enough elapsed time to divide by.
-        const MICRO_STALE_MS = 20 * 60 * 1000;
-        const microAgeMs = sampleAtIso ? Date.now() - new Date(sampleAtIso).getTime() : Infinity;
-        let anchorWh: number | null = null;
-        let anchorAt: string | null = null;
+        // 3) Counter-delta fallback. `energy_today` is a monotonic within-day
+        //    counter; its movement since the last cached read is the most honest
+        //    "producing now" signal when both instantaneous sources read zero.
+        if (currentPowerW <= 0) {
+          try {
+            const { data: prevCache } = await supabaseClient
+              .from("device_telemetry_cache")
+              .select("payload, cached_at")
+              .eq("user_id", targetUserId)
+              .eq("provider", "enphase")
+              .eq("capability", "solar")
+              .eq("device_id", systemId)
+              .maybeSingle();
 
-        try {
-          const { data: prevCache } = await supabaseClient
-            .from("device_telemetry_cache")
-            .select("payload, cached_at")
-            .eq("user_id", targetUserId)
-            .eq("oem_type", "enphase")
-            .eq("device_type", "solar")
-            .eq("site_id", systemId)
-            .maybeSingle();
-
-          const prevPayload: any = prevCache?.payload ?? null;
-          const prevWh = Number(
-            prevPayload?.counter_anchor_wh ?? prevPayload?.energy_today_wh ?? NaN,
-          );
-          const prevAtIso =
-            prevPayload?.counter_anchor_at ?? prevCache?.cached_at ?? null;
-          const prevAt = prevAtIso ? new Date(prevAtIso).getTime() : NaN;
-          const elapsedH = (Date.now() - prevAt) / 3_600_000;
-
-          // Carry the anchor forward until it is old enough to divide by.
-          anchorWh = Number.isFinite(prevWh) ? prevWh : energyTodayWh;
-          anchorAt = Number.isFinite(prevAt) ? new Date(prevAt).toISOString() : new Date().toISOString();
-
-          const usable =
-            Number.isFinite(prevWh) && Number.isFinite(prevAt) &&
-            elapsedH >= 5 / 60 && elapsedH <= 2 &&
-            energyTodayWh >= prevWh;
-
-          if (usable && (currentPowerW <= 0 || microAgeMs > MICRO_STALE_MS)) {
-            const deltaWh = energyTodayWh - prevWh;
-            if (deltaWh > 0) {
-              currentPowerW = Math.round(deltaWh / elapsedH);
+            const prevWh = Number(prevCache?.payload?.energy_today_wh ?? NaN);
+            const prevAt = prevCache?.cached_at ? new Date(prevCache.cached_at).getTime() : NaN;
+            const elapsedH = (Date.now() - prevAt) / 3_600_000;
+            if (
+              Number.isFinite(prevWh) &&
+              Number.isFinite(prevAt) &&
+              elapsedH >= 5 / 60 && elapsedH <= 2 &&
+              energyTodayWh > prevWh
+            ) {
+              currentPowerW = Math.round((energyTodayWh - prevWh) / elapsedH);
               powerSource = "energy_today_delta";
-            } else {
-              // Counter observed, counter did not move: positive evidence of no
-              // production right now — not a missing reading.
-              currentPowerW = 0;
-              powerSource = "energy_today_flat";
+              sampleAtIso = new Date().toISOString();
+            } else if (microWindowEmpty && summaryPowerW <= 0) {
+              powerSource = "unknown_lagging_feed";
             }
-            // Either way this is an observation made at fetch time.
-            sampleAtIso = new Date().toISOString();
-            anchorWh = energyTodayWh;
-            anchorAt = sampleAtIso;
-          } else if (!usable && microWindowEmpty && summaryPowerW <= 0 && currentPowerW <= 0) {
-            powerSource = "unknown_lagging_feed";
+          } catch (deltaErr) {
+            console.warn("enphase counter-delta fallback failed:", deltaErr);
           }
-        } catch (deltaErr) {
-          console.warn("enphase counter-delta fallback failed:", deltaErr);
         }
 
         return new Response(JSON.stringify({
@@ -403,14 +375,8 @@ Deno.serve(async (req) => {
           energy_today_wh: energyTodayWh,
           energy_lifetime_wh: Number(s?.energy_lifetime || 0),
           last_report_at: sampleAtIso ?? s?.last_report_at,
-          oem_last_report_at: s?.last_report_at
-            ? new Date(Number(s.last_report_at) * 1000).toISOString()
-            : null,
-          counter_anchor_wh: anchorWh,
-          counter_anchor_at: anchorAt,
           status: s?.status,
         }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
-
 
       } catch (e) {
         console.error("enphase telemetry error", e);

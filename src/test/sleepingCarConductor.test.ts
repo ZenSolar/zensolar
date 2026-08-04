@@ -91,7 +91,7 @@ describe('sleeping car, open wall-connector session', () => {
     expect(last).toEqual(SCENE_ANCHORS.evPort);
 
     // And it must be nowhere near the house-right grid run.
-    expect(SCENE_ANCHORS.evPort.x).toBeLessThan(SCENE_ANCHORS.homeWallStub.x);
+    expect(SCENE_ANCHORS.evPort.x).toBeLessThan(SCENE_ANCHORS.homeWall.x);
     expect(ev!.points.every((p) => p.x < SCENE_ANCHORS.wallJunction.x)).toBe(true);
   });
 
@@ -105,36 +105,5 @@ describe('sleeping car, open wall-connector session', () => {
       colors: COLORS,
     });
     expect(segments.find((s) => s.id === 'branch-ev')).toBeUndefined();
-  });
-
-  it('keeps solar and battery conduits visible when idle and joins every house run at one panel anchor', () => {
-    const segments = buildConductorSegments({
-      solar: 0,
-      home: 0.3,
-      grid: 0.3,
-      battery: 0,
-      colors: COLORS,
-    });
-    const solar = segments.find((s) => s.id === 'trunk');
-    const battery = segments.find((s) => s.id === 'branch-pw-discharge');
-    const home = segments.find((s) => s.id === 'branch-home');
-    const grid = segments.find((s) => s.id === 'branch-grid-import');
-
-    expect(solar?.idle).toBe(true);
-    expect(battery?.idle).toBe(true);
-    expect(solar?.points).toEqual([
-      SCENE_ANCHORS.RoofArrayMiddle,
-      SCENE_ANCHORS.roofGutter,
-      SCENE_ANCHORS.wallJunction,
-    ]);
-    expect(solar?.points.at(-1)).toEqual(SCENE_ANCHORS.wallJunction);
-    expect(battery?.points[0]).toEqual(SCENE_ANCHORS.wallJunction);
-    expect(home?.points[0]).toEqual(SCENE_ANCHORS.wallJunction);
-    expect(grid?.points[0]).toEqual(SCENE_ANCHORS.wallJunction);
-    expect(grid?.points).toEqual([
-      SCENE_ANCHORS.wallJunction,
-      SCENE_ANCHORS.gridWallEnd,
-      SCENE_ANCHORS.gridYard,
-    ]);
   });
 });
