@@ -1,6 +1,6 @@
 ---
 name: Cheetah doomsday rebuttal — combined stack
-description: The 4-protection model (tranche LP + sub auto-buy + 3% tx-tax recycle + 20% burn + 6-mo vest) and how it absorbs sell pressure across Seed → Series C.
+description: The 4-protection model (tranche LP + sub auto-buy + 3% tx-tax recycle + treasury-share step-down + 6-mo vest) and how it absorbs sell pressure across Seed → Series C.
 type: feature
 ---
 
@@ -15,7 +15,7 @@ type: feature
    - Series C: +$25M → $50M
 2. **Subscription auto-buy** — 50% of $12.99 blended ARPU → pool USDC
 3. **Transfer-tax recycle** — 3% of every sell pumps back into the pool
-4. **Mint burn + 6-month vest** — 20% burned at mint, remainder vests linearly over 6 months (only 1/6 sellable per month)
+4. **Treasury-share step-down + 6-month vest** — no burn at mint; treasury takes 0.25 per unit, stepping down to 0.10 once Store redemption exceeds 30% for two consecutive quarters. Member balance vests linearly over 6 months (only 1/6 sellable per month)
 
 ## Canonical scenarios
 
