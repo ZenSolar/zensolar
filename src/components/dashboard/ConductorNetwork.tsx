@@ -386,6 +386,24 @@ export const FLOW_COLORS = Object.freeze({
 /** Uniform travel speed, viewBox units per second. Never scales with kW. */
 const FLOW_SPEED = 9;
 
+/**
+ * v21 — PHASE-LOCKED FLOW.
+ *
+ * Every travelling segment shares one wavelength and one period, so all SMIL
+ * animations (which run on the shared SVG document timeline) stay in lockstep
+ * for the life of the card. A branch that continues a wave arriving from
+ * upstream declares how far that wave has already travelled (`phaseDist`);
+ * the gradient origin is pushed back by that distance so the crest crossing
+ * the junction leaves on the outgoing branches at the same instant it
+ * arrives — one wave splitting, not three independent loops.
+ */
+const FLOW_WAVELENGTH = 22;
+const FLOW_DUR = FLOW_WAVELENGTH / FLOW_SPEED;
+
+/** Length of a polyline in viewBox units. */
+export const polylineLength = (pts: Pt[]) =>
+  pts.slice(1).reduce((sum, p, i) => sum + Math.hypot(p.x - pts[i].x, p.y - pts[i].y), 0);
+
 export type ConductorSegment = {
   id: string;
   /** Ordered anchors — the route is built along the isometric axes. */
@@ -404,7 +422,10 @@ export type ConductorSegment = {
   shiftY?: number;
   /** Suppress the base pipe — for the second line of a doubled run. */
   sweepOnly?: boolean;
+  /** Arc distance the wave has already covered upstream, for phase locking. */
+  phaseDist?: number;
 };
+
 
 
 /**
