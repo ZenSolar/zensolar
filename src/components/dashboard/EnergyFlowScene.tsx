@@ -978,6 +978,7 @@ export function EnergyFlowScene({
               id={s.id}
               points={s.points}
               color={s.color}
+              flowColor={s.flowColor}
               kw={s.kw}
               forward={s.forward}
               dimmed={s.dimmed}
@@ -1124,6 +1125,7 @@ export function EnergyFlowScene({
               id={s.id}
               points={s.points}
               color={s.color}
+              flowColor={s.flowColor}
               kw={s.kw}
               forward={s.forward}
               dimmed={s.dimmed}

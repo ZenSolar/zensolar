@@ -232,8 +232,10 @@ export function GridFlowDefs() {
 }
 
 
-/** Travelling-pulse period: higher power travels faster, never frantic. */
+/** Legacy pulse timing helper — superseded by the uniform-speed flow sweep. */
 const pulseDur = (kw: number) => Math.max(1.5, 3.4 - Math.min(Math.abs(kw), 8) * 0.2);
+void pulseDur;
+
 
 /**
  * Service panel + meter can mounted on the facade at `wallJunction`.
@@ -322,11 +324,28 @@ export function ServicePanelGlyph({ at = SCENE_ANCHORS.wallJunction }: { at?: Pt
 
 export type ConductorLayer = 'behind' | 'front';
 
+/**
+ * FLOW COLOURS — fixed per conductor, never blended with the source mix.
+ * The pipe itself stays neutral; only the travelling gradient segment is hued.
+ */
+export const FLOW_COLORS = Object.freeze({
+  solar: 'hsl(42 96% 62%)',      // gold / amber
+  grid: 'hsl(207 94% 62%)',      // blue
+  battery: 'hsl(151 72% 52%)',   // green
+  home: 'hsl(210 20% 92%)',      // neutral white — derived, not a source
+  ev: 'hsl(265 90% 78%)',        // violet
+});
+
+/** Uniform travel speed, viewBox units per second. Never scales with kW. */
+const FLOW_SPEED = 9;
+
 export type ConductorSegment = {
   id: string;
   /** Ordered anchors — the route is built along the isometric axes. */
   points: Pt[];
   color: string;
+  /** Fixed hue of the travelling gradient segment for this conductor. */
+  flowColor?: string;
   kw: number;
   /** false → the pulse and chevron travel from the last point to the first. */
   forward?: boolean;
@@ -335,6 +354,7 @@ export type ConductorSegment = {
   /** Renders grey, no pulse — the conduit exists but carries nothing. */
   idle?: boolean;
 };
+
 
 /**
  * One anchor-to-anchor conductor. Reads as a physical run on the surface:
@@ -350,6 +370,7 @@ export function Conductor({
   id,
   points,
   color,
+  flowColor,
   kw,
   forward = true,
   dimmed,
@@ -360,16 +381,26 @@ export function Conductor({
   // Uniform weight — magnitude lives in the numeric labels, not the stroke.
   const w = CONDUCTOR_WIDTH;
 
-  const dur = pulseDur(kw);
+  void kw;
   const { p, angle } = polylineMidpoint(points);
   const chevronAngle = forward ? angle : angle + 180;
 
-  // Pulse: one short lit run inside a very long gap, so exactly one bright
-  // packet travels the conduit at a time.
-  const pulseLen = Math.max(3, w * 4);
-  const gap = 120;
-  const from = forward ? gap : -pulseLen;
-  const to = forward ? -pulseLen : gap;
+  // Travelling gradient segment (Tesla-style soft sweep). A repeating masked
+  // gradient whose period equals the run's chord length; a soft-edged blob
+  // covering ~25% of that period slides along at a constant speed.
+  const start = points[0];
+  const end = points[points.length - 1];
+  const vx = end.x - start.x;
+  const vy = end.y - start.y;
+  const chord = Math.hypot(vx, vy) || 1;
+  const dirX = forward ? vx : -vx;
+  const dirY = forward ? vy : -vy;
+  const sweepOrigin = forward ? start : end;
+  const dur = Math.min(4, Math.max(1.2, chord / FLOW_SPEED));
+  const maskId = `flow-mask-${id}`;
+  const gradId = `flow-grad-${id}`;
+  const sweepColor = flowColor ?? color;
+
 
   return (
     <g style={{ pointerEvents: 'none' }} opacity={dimmed ? 0.35 : 1} data-conductor={id}>
@@ -406,36 +437,77 @@ export function Conductor({
         strokeLinejoin="round"
         fill="none"
       />
-      {/* 4 — travelling pulse */}
+      {/* 4 — travelling gradient segment: soft-edged colour blob sliding along
+              the pipe, fading to the neutral base at both of its ends. */}
       {!idle && (
-        <path
-          d={d}
-          stroke={color}
-          strokeOpacity={0.98}
-          strokeWidth={w}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          fill="none"
-          strokeDasharray={`${pulseLen} ${gap}`}
-          strokeDashoffset={reducedMotion ? 0 : from}
-        >
-          {!reducedMotion && (
-            <animate
-              attributeName="stroke-dashoffset"
-              from={from}
-              to={to}
-              dur={`${dur}s`}
-              repeatCount="indefinite"
+        <>
+          <defs>
+            <linearGradient
+              id={gradId}
+              gradientUnits="userSpaceOnUse"
+              spreadMethod="repeat"
+              x1={sweepOrigin.x - dirX}
+              y1={sweepOrigin.y - dirY}
+              x2={sweepOrigin.x}
+              y2={sweepOrigin.y}
+            >
+              <stop offset="0%" stopColor="#000" />
+              <stop offset="34%" stopColor="#000" />
+              <stop offset="50%" stopColor="#fff" />
+              <stop offset="66%" stopColor="#000" />
+              <stop offset="100%" stopColor="#000" />
+              {!reducedMotion && (
+                <animateTransform
+                  attributeName="gradientTransform"
+                  type="translate"
+                  from="0 0"
+                  to={`${dirX.toFixed(3)} ${dirY.toFixed(3)}`}
+                  dur={`${dur.toFixed(2)}s`}
+                  repeatCount="indefinite"
+                />
+              )}
+            </linearGradient>
+            <mask id={maskId} maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse">
+              <path
+                d={d}
+                stroke={`url(#${gradId})`}
+                strokeWidth={w * 2.2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+              />
+            </mask>
+          </defs>
+          <g mask={`url(#${maskId})`}>
+            <path
+              d={d}
+              stroke={sweepColor}
+              strokeOpacity={0.35}
+              strokeWidth={w * 2.6}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+              style={{ filter: 'blur(0.6px)' }}
             />
-          )}
-        </path>
+            <path
+              d={d}
+              stroke={sweepColor}
+              strokeOpacity={1}
+              strokeWidth={w}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
+          </g>
+        </>
       )}
+
       {/* 5 — still-frame direction cue */}
       <g transform={`translate(${p.x.toFixed(2)} ${p.y.toFixed(2)}) rotate(${chevronAngle.toFixed(1)})`}>
         <path
           d="M -0.9 -1.15 L 0.9 0 L -0.9 1.15"
           fill="none"
-          stroke={idle ? 'hsl(215 12% 55%)' : color}
+          stroke={idle ? 'hsl(215 12% 55%)' : sweepColor}
           strokeWidth={Math.max(0.42, w * 0.7)}
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -493,6 +565,7 @@ export function buildConductorSegments(args: {
       id: 'trunk',
       points: [A.roofArrayMiddle, A.roofGutter, { x: A.roofGutter.x, y: A.wallJunction.y }],
       color: CONDUCTOR_NEUTRAL,
+      flowColor: FLOW_COLORS.solar,
       kw: solar,
       layer: 'front',
       dimmed: args.dimSolar,
@@ -506,6 +579,7 @@ export function buildConductorSegments(args: {
       id: 'branch-home',
       points: [A.wallJunction, A.homeWallStub],
       color: CONDUCTOR_NEUTRAL,
+      flowColor: FLOW_COLORS.home,
       kw: home,
       layer: 'front',
       dimmed: args.dimSolar && producing,
@@ -519,6 +593,7 @@ export function buildConductorSegments(args: {
       id: battery > 0 ? 'branch-pw-charge' : 'branch-pw-discharge',
       points: [A.wallJunction, A.powerwall],
       color: CONDUCTOR_NEUTRAL,
+      flowColor: FLOW_COLORS.battery,
       kw: battery,
 
       // Discharge flows out of the pack, back toward the junction.
@@ -536,6 +611,7 @@ export function buildConductorSegments(args: {
       id: 'branch-ev',
       points: isoRoute(A.chargePoint, A.evPort, 'vert-first'),
       color: args.colors.ev ?? colors.import,
+      flowColor: FLOW_COLORS.ev,
       kw: ev,
       layer: 'front',
       dimmed: args.dimSolar,
@@ -551,7 +627,8 @@ export function buildConductorSegments(args: {
     segments.push({
       id: exporting ? 'branch-grid-export' : 'branch-grid-import',
       points: [A.wallJunction, A.gridWallEnd, A.gridYard],
-      color: GRID_FLOW_STROKE,
+      color: CONDUCTOR_NEUTRAL,
+      flowColor: FLOW_COLORS.grid,
       kw: grid,
       // Import reverses: pulse and chevron travel inward from the grid.
       forward: exporting,
