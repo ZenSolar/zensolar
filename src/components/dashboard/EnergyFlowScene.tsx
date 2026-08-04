@@ -859,13 +859,18 @@ export function EnergyFlowScene({
 
   /** The car's charge port, derived from the sprite's fitted footprint so the
    *  cable always lands on the bodywork, whatever sprite/aspect is in play. */
+  const carContentW = carFit.width * (primaryAspect.width || 1);
+  const carContentH = carFit.height * (primaryAspect.height || 1);
   const evPortPt = {
-    // The unmirrored Model X art points nose down-left and rear up-right.
-    // Tesla's port is independently pinned to that visible rear driver's-side
-    // quarter; parking direction alone must never decide the port side.
-    x: carFit.cx + carFit.width * 0.30,
-    y: carFit.groundY - carFit.height * 0.58,
+    // The sprite is drawn MIRRORED (see the <image> transform below) so the
+    // car is backed into the bay: nose down-right on the apron, rear up-left
+    // at the garage opening, near flank = driver's side. Tesla's port lives
+    // on that rear driver's-side quarter, which after the mirror is the
+    // upper-LEFT quarter of the visible bodywork.
+    x: carFit.cx - carContentW * 0.30,
+    y: carFit.groundY - carContentH * 0.62,
   };
+
 
   const evKw = data.tesla?.kW ?? data.evPower ?? 0;
 
