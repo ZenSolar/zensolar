@@ -507,7 +507,7 @@ export function Conductor({
         <path
           d="M -0.9 -1.15 L 0.9 0 L -0.9 1.15"
           fill="none"
-          stroke={idle ? 'hsl(215 12% 55%)' : color}
+          stroke={idle ? 'hsl(215 12% 55%)' : sweepColor}
           strokeWidth={Math.max(0.42, w * 0.7)}
           strokeLinecap="round"
           strokeLinejoin="round"
