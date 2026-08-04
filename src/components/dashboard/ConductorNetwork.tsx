@@ -63,7 +63,7 @@ export const SCENE_ANCHORS = Object.freeze({
   roofArrayEdge: { x: 50.5, y: 34.6 } as Pt,
   /** v20: start of the solar run — pulled back DOWN onto the PV field so the
    *  diagonal stays on the roof plane instead of running off into the sky. */
-  roofArrayMiddle: { x: 55.2, y: 23.0 } as Pt,
+  roofArrayMiddle: { x: 56.0, y: 27.2 } as Pt,
   /** v16: eave / gutter line directly above the service panel. The solar run
    *  reaches the roof edge here, then drops vertically down the facade. */
   roofGutter:    { x: 50.5, y: 30.6 } as Pt,
