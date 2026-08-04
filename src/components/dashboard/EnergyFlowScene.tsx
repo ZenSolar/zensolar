@@ -995,6 +995,8 @@ export function EnergyFlowScene({
         className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-full w-auto max-w-full -translate-y-1/2"
         style={{ aspectRatio: SCENE_CAMERA.aspect, zIndex: 15 }}
       >
+        <GridFlowDefs />
+
         {/* ── Device halos (primary visual language) ──
             RoofHalo / WindowsBloom retired: they were free-floating blooms
             anchored to the legacy blueprint coordinates, so they drifted off
