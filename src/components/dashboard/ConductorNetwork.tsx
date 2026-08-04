@@ -64,9 +64,9 @@ export const SCENE_ANCHORS = Object.freeze({
   /** Service panel + meter can, baked into the v13 equipment wall.
    *  The ONLY metering object in the scene. */
   wallJunction:  { x: 50.5, y: 46.0 } as Pt,
-  /** Short home-load stub on the wall immediately left of the window bank.
-   *  Kept above the slab: this endpoint is wall/foundation, never driveway. */
-  homeWallStub:  { x: 64.8, y: 55.8 } as Pt,
+  /** v15: home load tap sits on the SAME wall line as the panel, so battery →
+   *  panel → home reads as one straight horizontal run. */
+  homeWallStub:  { x: 66.1, y: 46.0 } as Pt,
   /** Powerwall cabinet, level with the panel. */
   powerwall:     { x: 33.3, y: 45.7 } as Pt,
   /** v14 grid rule: the service run leaves the meter can and continues as ONE
@@ -74,13 +74,15 @@ export const SCENE_ANCHORS = Object.freeze({
    *  point — the Tesla-app convention. `gridWallEnd` is retained only as the
    *  point where the run passes the wall base. */
   gridWallEnd:   { x: 50.5, y: 55.3 } as Pt,
-  /** Where the grid run leaves the visible yard, heading for the street. */
-  gridYard:      { x: 72.0, y: 79.0 } as Pt,
+  /** v15: the grid run leaves the yard at the lower-LEFT of the visible ground,
+   *  well clear of the charge cable's corridor at the garage corner. */
+  gridYard:      { x: 30.2, y: 81.0 } as Pt,
   evPort:        { x: 24.9, y: 64.1 } as Pt,
 
-  /** Charge point on the garage-side facade, left of the Powerwall —
-   *  above and behind the parked vehicle. */
-  chargePoint:   { x: 28.9, y: 48.0 } as Pt,
+  /** v15: wall box at the garage's far-LEFT corner. Cable drops straight to
+   *  the apron and bends right to the car's rear. */
+  chargePoint:   { x: 6.2, y: 41.8 } as Pt,
+
 });
 
 
@@ -486,20 +488,13 @@ export function buildConductorSegments(args: {
     });
   }
 
-  // HOME BRANCH — a short orthogonal wall run from the panel to the load tap
-  // beside the windows. It stays entirely on the facade and never reaches the
-  // slab/driveway plane.
+  // HOME BRANCH — v15: one straight horizontal wall run from the panel to the
+  // load tap beside the windows. Same y as the panel and the battery run, so
+  // battery → panel → home reads as a single continuous line.
   if (home > 0.05) {
     segments.push({
       id: 'branch-home',
-      // v12c: horizontal panel run, then a short wall-mounted drop. No
-      // diagonal and no foundation/driveway run.
-      points: [
-        { x: A.wallJunction.x + 1.8, y: A.wallJunction.y },
-        { x: A.homeWallStub.x, y: A.wallJunction.y },
-        A.homeWallStub,
-      ],
-
+      points: [A.wallJunction, { x: A.homeWallStub.x, y: A.wallJunction.y }],
       color: CONDUCTOR_NEUTRAL,
       kw: home,
       layer: 'front',
@@ -507,12 +502,12 @@ export function buildConductorSegments(args: {
     });
   }
 
-  // BATTERY BRANCH — only while charging or discharging. Short run along the
-  // garage-side wall to the cabinet beside the panel.
+  // BATTERY BRANCH — v15: straight horizontal continuation of the same wall
+  // line, panel → Powerwall cabinet.
   if (Math.abs(battery) > 0.05) {
     segments.push({
       id: battery > 0 ? 'branch-pw-charge' : 'branch-pw-discharge',
-      points: [A.wallJunction, { x: A.wallJunction.x + 2.5, y: A.powerwall.y }, A.powerwall],
+      points: [A.wallJunction, { x: A.powerwall.x, y: A.wallJunction.y }],
       color: CONDUCTOR_NEUTRAL,
       kw: battery,
       // Discharge flows out of the pack, back toward the junction.
@@ -520,6 +515,7 @@ export function buildConductorSegments(args: {
       layer: 'front',
     });
   }
+
 
   // EV BRANCH — only when a vehicle is charging at this site. Runs from the
   // driveway charge point down to the car's port. Rendered by `EvChargeCable`,
@@ -536,11 +532,11 @@ export function buildConductorSegments(args: {
   }
 
 
-  // GRID BRANCH — v14: ONE straight diagonal from the meter can down and
-  // outward across the yard toward the street tie point, matching the Tesla
-  // app. It passes the wall base and keeps going; no bend, no return to
-  // horizontal. It lives on the centre-right of the scene, so it never enters
-  // the garage-side corridor where the EV cable runs.
+  // GRID BRANCH — v15: ONE straight diagonal from the meter can down and to the
+  // LEFT across the yard toward the street tie point, matching the marked-up
+  // reference. It passes the wall base and keeps going; no bend, no return to
+  // horizontal. It ends well right of the charge-cable corridor at the garage
+  // corner, so the two never touch.
   if (!args.hideGrid && (importing || exporting)) {
     segments.push({
       id: exporting ? 'branch-grid-export' : 'branch-grid-import',
@@ -576,10 +572,11 @@ export function EvChargeCable({
   color?: string;
   reducedMotion?: boolean;
 }) {
-  const sag = Math.max(2.2, Math.abs(to.x - from.x) * 0.35);
-  const d =
-    `M ${from.x} ${from.y} ` +
-    `C ${from.x - 1.5} ${from.y + sag} ${to.x + 1.5} ${to.y + sag * 0.6} ${to.x} ${to.y}`;
+  // v15: wall box at the garage's left corner → straight drop to the apron →
+  // short bend right along the ground to the car's rear port.
+  const dropY = Math.max(from.y + 2, to.y - 1.2);
+  const d = roundedPath([from, { x: from.x, y: dropY }, { x: to.x, y: dropY }, to], 1.4);
+
 
   return (
     <g style={{ pointerEvents: 'none' }} data-testid="ev-charge-cable">
