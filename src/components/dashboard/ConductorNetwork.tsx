@@ -506,20 +506,23 @@ export function buildConductorSegments(args: {
   }
 
 
-  // GRID BRANCH — one truly vertical, wall-mounted segment from the meter can
-  // to the equipment-wall foundation. It stops before the slab; there is no
-  // bend and no horizontal ground run.
+  // GRID BRANCH — v14: ONE straight diagonal from the meter can down and
+  // outward across the yard toward the street tie point, matching the Tesla
+  // app. It passes the wall base and keeps going; no bend, no return to
+  // horizontal. It lives on the centre-right of the scene, so it never enters
+  // the garage-side corridor where the EV cable runs.
   if (!args.hideGrid && (importing || exporting)) {
     segments.push({
       id: exporting ? 'branch-grid-export' : 'branch-grid-import',
-      points: [{ x: A.wallJunction.x, y: A.wallJunction.y + 3.4 }, A.gridWallEnd],
-      color: CONDUCTOR_NEUTRAL,
+      points: [{ x: A.wallJunction.x, y: A.wallJunction.y + 3.4 }, A.gridYard],
+      color: GRID_FLOW_STROKE,
       kw: grid,
       // Import reverses: pulse and chevron travel inward from the grid.
       forward: exporting,
       layer: 'front',
     });
   }
+
 
 
 
