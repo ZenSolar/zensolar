@@ -255,16 +255,31 @@ export function polylineMidpoint(pts: Pt[]): { p: Pt; angle: number } {
   return { p: pts[0], angle: 0 };
 }
 
-/**
- * kW → stroke width is NO LONGER used for conductor rendering. The reference
- * draws every run at the same thin weight; the helper stays exported because
- * `siteBalance` still asserts on it elsewhere.
- */
 export { WIDTH_PER_KW, conductorWidth } from '@/lib/siteBalance';
 
-/** Uniform conductor weight, in viewBox units. v20: thickened so the runs
- *  read as substantial at rest now that the direction chevrons are gone. */
+/**
+ * v25 — WIDTH ENCODES POWER, AND THE WIDTHS SUM AT THE NODE.
+ *
+ * Scale: 0.16 viewBox units of stroke width per kW (the viewBox is 0–100, so
+ * 1 unit ≈ 1% of the card's width). The mapping is strictly linear and is
+ * NEVER clamped from above, so at `wallJunction` the inbound bundle's total
+ * width equals the outbound bundle's total width whenever the site itself
+ * balances. When it does not balance, one bundle simply renders thinner or
+ * thicker — no conductor is ever padded to force agreement.
+ *
+ * Floor: 0.34 units, so a 0.2 kW trickle stays visible. The floor only binds
+ * below 2.1 kW; above that the picture is exactly proportional. A bundle whose
+ * members are all below the floor therefore reads slightly heavy — that is the
+ * one and only departure from proportionality, and it is bounded.
+ */
+export const CONDUCTOR_WIDTH_PER_KW = 0.16;
+export const CONDUCTOR_WIDTH_MIN = 0.34;
+export const conductorStrokeWidth = (kw: number) =>
+  Math.max(CONDUCTOR_WIDTH_MIN, Math.abs(kw) * CONDUCTOR_WIDTH_PER_KW);
+
+/** Legacy uniform weight — retained for glyphs that are not power-carrying. */
 export const CONDUCTOR_WIDTH = 0.78;
+
 
 /**
  * The single neutral conductor colour. Grey-white, like the Tesla reference —
