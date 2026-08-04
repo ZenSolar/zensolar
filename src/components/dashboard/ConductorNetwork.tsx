@@ -385,24 +385,29 @@ export type ConductorSegment = {
   /** Fixed hue of the travelling gradient segment for this conductor. */
   flowColor?: string;
   kw: number;
-  /** false → the pulse and chevron travel from the last point to the first. */
+  /** false → the travelling segment runs from the last point to the first. */
   forward?: boolean;
   layer: ConductorLayer;
   dimmed?: boolean;
   /** Renders grey, no pulse — the conduit exists but carries nothing. */
   idle?: boolean;
+  /** Perpendicular-ish nudge, used to run two parallel lines on one path. */
+  shiftY?: number;
+  /** Suppress the base pipe — for the second line of a doubled run. */
+  sweepOnly?: boolean;
 };
 
 
 /**
  * One anchor-to-anchor conductor. Reads as a physical run on the surface:
  *   1. soft dark shadow, offset down — attaches the run to the wall/roof
- *   2. solid conductor body in the flow colour
+ *   2. solid conductor body, neutral at rest
  *   3. thin lighter stroke along the upper edge — a rounded conductor
  *      catching light
- *   4. a single bright pulse travelling with the flow (not marching dashes)
- *   5. one chevron at the midpoint, ON the path, so direction survives a
- *      still screenshot
+ *   4. a soft-edged colour segment travelling along the run
+ *
+ * v20: the static direction chevron is GONE. Direction is carried solely by
+ * the motion of the travelling segment.
  */
 export function Conductor({
   id,
@@ -413,19 +418,19 @@ export function Conductor({
   forward = true,
   dimmed,
   idle,
+  shiftY = 0,
+  sweepOnly,
   reducedMotion,
 }: Omit<ConductorSegment, 'layer'> & { reducedMotion?: boolean }) {
   const d = roundedPath(points);
   // Uniform weight — magnitude lives in the numeric labels, not the stroke.
-  const w = CONDUCTOR_WIDTH;
+  const w = sweepOnly ? CONDUCTOR_WIDTH * 0.68 : CONDUCTOR_WIDTH;
 
   void kw;
-  const { p, angle } = polylineMidpoint(points);
-  const chevronAngle = forward ? angle : angle + 180;
 
   // Travelling gradient segment (Tesla-style soft sweep). A repeating masked
   // gradient whose period equals the run's chord length; a soft-edged blob
-  // covering ~25% of that period slides along at a constant speed.
+  // covering ~32% of that period slides along at a constant speed.
   const start = points[0];
   const end = points[points.length - 1];
   const vx = end.x - start.x;
@@ -441,7 +446,12 @@ export function Conductor({
 
 
   return (
-    <g style={{ pointerEvents: 'none' }} opacity={dimmed ? 0.35 : 1} data-conductor={id}>
+    <g
+      style={{ pointerEvents: 'none' }}
+      opacity={dimmed ? 0.35 : 1}
+      data-conductor={id}
+      transform={shiftY ? `translate(0 ${shiftY.toFixed(2)})` : undefined}
+    >
       {/* 1 — contact shadow, sits the run on the surface */}
       <path
         d={d}
