@@ -4,7 +4,7 @@
  *
  * TOPOLOGY (mirrors the Tesla app; one trunk, one junction, four branches)
  *
- *     RoofArrayMiddle ─▶ roofGutter ─▶ wallJunction ─┬─▶ gridWallEnd ─▶ gridYard
+ *     roofArrayEdge ──▶ wallJunction ─┬─▶ gridWallEnd         (grid)
  *          (trunk)                    ├─▶ homeWallStub        (house load)
  *                                     ├─▶ powerwall           (battery)
  *                                     └─▶ evPort              (vehicle)
@@ -51,8 +51,7 @@ export function fromHouseImage(x: number, y: number): Pt {
  * wall-base height on the garage side, in the same zone as `chargePoint`,
  * which is where a real service entrance and battery are mounted anyway.
  *
- *   RoofArrayMiddle midpoint on the visible PV roof plane
- *   roofGutter      gutter/eave bend directly above the service panel
+ *   roofArrayEdge  lower-LEFT corner of the PV array, where it meets the eave
  *   wallJunction   service panel + meter can, garage-side facade at wall base
  *   homeWallStub   short wall-mounted load tap beside the window bank
  *   powerwall      battery cabinet, garage-side wall beside the panel
@@ -60,10 +59,8 @@ export function fromHouseImage(x: number, y: number): Pt {
  *   evPort         charge port on the near quarter of the parked vehicle
  */
 export const SCENE_ANCHORS = Object.freeze({
-  /** Collection point in the middle of the visible array, below the ridge. */
-  RoofArrayMiddle: { x: 57.0, y: 27.8 } as Pt,
-  /** Gutter/eave bend directly above the service panel. */
-  roofGutter: { x: 50.5, y: 34.6 } as Pt,
+  /** v13: eave line directly above the service panel. */
+  roofArrayEdge: { x: 50.5, y: 34.6 } as Pt,
   /** Service panel + meter can, baked into the v13 equipment wall.
    *  The ONLY metering object in the scene. */
   wallJunction:  { x: 50.5, y: 46.0 } as Pt,
@@ -72,7 +69,10 @@ export const SCENE_ANCHORS = Object.freeze({
   homeWallStub:  { x: 66.1, y: 46.0 } as Pt,
   /** Powerwall cabinet, level with the panel. */
   powerwall:     { x: 33.3, y: 45.7 } as Pt,
-  /** Bottom of the vertical meter conduit at the wall base. */
+  /** v14 grid rule: the service run leaves the meter can and continues as ONE
+   *  straight diagonal down-and-outward across the yard toward the street tie
+   *  point — the Tesla-app convention. `gridWallEnd` is retained only as the
+   *  point where the run passes the wall base. */
   gridWallEnd:   { x: 50.5, y: 55.3 } as Pt,
   /** v15: the grid run leaves the yard at the lower-LEFT of the visible ground,
    *  well clear of the charge cable's corridor at the garage corner. */
@@ -439,7 +439,7 @@ export function Conductor({
 /**
  * Builds the trunk/branch segment list for the current power reading.
  *
- *   trunk         RoofArrayMiddle → roofGutter → wallJunction (production)
+ *   trunk         roofArrayEdge → wallJunction         (total production)
  *   branch-home   wallJunction  → homeWallStub         (house load)
  *   branch-grid   wallJunction  → gridWallEnd           (export, or reversed
  *                                                       and re-hued on import)
@@ -460,8 +460,6 @@ export function buildConductorSegments(args: {
   colors: { solar: string; home: string; export: string; import: string; ev?: string };
   dimSolar?: boolean;
   hideGrid?: boolean;
-  showSolar?: boolean;
-  showBattery?: boolean;
 }): ConductorSegment[] {
   const A = SCENE_ANCHORS;
   // `colors` is accepted for call-site compatibility but only the EV hue is
@@ -477,17 +475,16 @@ export function buildConductorSegments(args: {
   const importing = grid > 0.05;
   const exporting = grid < -0.05;
 
-  // TRUNK — one diagonal roof-plane leg to the gutter, then one exactly
-  // vertical facade leg into the shared service-panel junction.
-  if (args.showSolar !== false) {
+  // TRUNK — roof array down the visible roof face to the wall junction.
+  // Draws in FRONT: this run is on the near roof plane and near facade.
+  if (producing) {
     segments.push({
       id: 'trunk',
-      points: [A.RoofArrayMiddle, A.roofGutter, A.wallJunction],
+      points: isoRoute(A.roofArrayEdge, A.wallJunction, 'vert-first'),
       color: CONDUCTOR_NEUTRAL,
       kw: solar,
       layer: 'front',
       dimmed: args.dimSolar,
-      idle: !producing,
     });
   }
 
@@ -507,7 +504,7 @@ export function buildConductorSegments(args: {
 
   // BATTERY BRANCH — v15: straight horizontal continuation of the same wall
   // line, panel → Powerwall cabinet.
-  if (args.showBattery !== false) {
+  if (Math.abs(battery) > 0.05) {
     segments.push({
       id: battery > 0 ? 'branch-pw-charge' : 'branch-pw-discharge',
       points: [A.wallJunction, { x: A.powerwall.x, y: A.wallJunction.y }],
@@ -516,7 +513,6 @@ export function buildConductorSegments(args: {
       // Discharge flows out of the pack, back toward the junction.
       forward: battery > 0,
       layer: 'front',
-      idle: Math.abs(battery) <= 0.05,
     });
   }
 
@@ -536,13 +532,15 @@ export function buildConductorSegments(args: {
   }
 
 
-  // GRID BRANCH — exactly two legs: a vertical wall-mounted drop from the
-  // shared panel junction to grade, then a diagonal yard run toward the street.
-  // The yard leg remains right of the EV cable corridor at the garage corner.
+  // GRID BRANCH — v15: ONE straight diagonal from the meter can down and to the
+  // LEFT across the yard toward the street tie point, matching the marked-up
+  // reference. It passes the wall base and keeps going; no bend, no return to
+  // horizontal. It ends well right of the charge-cable corridor at the garage
+  // corner, so the two never touch.
   if (!args.hideGrid && (importing || exporting)) {
     segments.push({
       id: exporting ? 'branch-grid-export' : 'branch-grid-import',
-      points: [A.wallJunction, A.gridWallEnd, A.gridYard],
+      points: [{ x: A.wallJunction.x, y: A.wallJunction.y + 3.4 }, A.gridYard],
       color: GRID_FLOW_STROKE,
       kw: grid,
       // Import reverses: pulse and chevron travel inward from the grid.

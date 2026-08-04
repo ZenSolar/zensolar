@@ -794,8 +794,6 @@ export function EnergyFlowScene({
         grid,
         battery: isOutage ? 0 : battery,
         ev: evBranchKw,
-        showSolar: true,
-        showBattery: hasBattery,
         colors: {
           solar: EMERALD_LED,
           home: EMERALD_LED,
@@ -808,7 +806,7 @@ export function EnergyFlowScene({
         dimSolar: isOutage,
         hideGrid: isOutage,
       }),
-    [solar, home, grid, battery, evBranchKw, isOutage, hasBattery],
+    [solar, home, grid, battery, evBranchKw, isOutage],
   );
 
 
@@ -842,11 +840,12 @@ export function EnergyFlowScene({
 
   const chargingAtHome = isCharging && !isSupercharging && !isOutage;
 
-  // Garage-bay pose: keep the vehicle's long axis parallel to the horizontal
-  // threshold. Rotating this footprint makes the wheels climb the door pixels
-  // and visually float instead of resting on the apron.
-  const primaryBay = HOME_BLUEPRINT.bays.garage;
-  const reverseParkAngle = 0;
+  // v5.4 — ONE FIXED DRIVEWAY POSE. EV1 always sits on the driveway apron,
+  // parallel to the facade. Charging and "present, not charging" share the
+  // same anchor; the only difference is whether the cable and EV spoke are
+  // drawn. The sprite is contained inside the bay at its measured aspect
+  // ratio and seated on the bay's contact line, so it holds at any width.
+  const primaryBay = HOME_BLUEPRINT.bays.driveway;
   const carFit = useMemo(
     () => fitVehicleToBay(primaryBay, primaryAspect, 1),
     [primaryBay, primaryAspect],
@@ -859,34 +858,12 @@ export function EnergyFlowScene({
 
   /** The car's charge port, derived from the sprite's fitted footprint so the
    *  cable always lands on the bodywork, whatever sprite/aspect is in play. */
-  const carContentW = carFit.width * (primaryAspect.width || 1);
-  const carContentH = carFit.height * (primaryAspect.height || 1);
-  const carContentLeft = carFit.cx - carContentW / 2;
-  const carContentTop = carFit.y + carFit.height * (primaryAspect.top || 0);
-  const unrotatedPort = {
-    x: carContentLeft + carContentW * 0.13,
-    y: carContentTop + carContentH * 0.58,
-  };
-  const reverseParkRadians = (reverseParkAngle * Math.PI) / 180;
   const evPortPt = {
-    x:
-      carFit.cx +
-      (unrotatedPort.x - carFit.cx) * Math.cos(reverseParkRadians) -
-      (unrotatedPort.y - carFit.cy) * Math.sin(reverseParkRadians),
-    y:
-      carFit.cy +
-      (unrotatedPort.x - carFit.cx) * Math.sin(reverseParkRadians) +
-      (unrotatedPort.y - carFit.cy) * Math.cos(reverseParkRadians),
+    // v15: the sprite is mirrored, so the REAR (real charge-port side) faces
+    // the garage on the left. Port sits on the rear quarter.
+    x: carFit.cx - carFit.width * 0.30,
+    y: carFit.groundY - carFit.height * 0.34,
   };
-  const rearDebugPt = {
-    x: carFit.cx - Math.cos(reverseParkRadians) * carContentW * 0.42,
-    y: carFit.cy - Math.sin(reverseParkRadians) * carContentW * 0.42,
-  };
-  const noseDebugPt = {
-    x: carFit.cx + Math.cos(reverseParkRadians) * carContentW * 0.42,
-    y: carFit.cy + Math.sin(reverseParkRadians) * carContentW * 0.42,
-  };
-
 
   const evKw = data.tesla?.kW ?? data.evPower ?? 0;
 
@@ -1091,43 +1068,6 @@ export function EnergyFlowScene({
 
 
 
-        {/* EV1 garage opening. The source plate has a closed door baked in, so
-            cover only that opening while EV1 occupies the bay. The lower strip
-            provides a visible floor and threshold behind the grounded wheels. */}
-        {showDynamicCar && (
-          <g data-testid="ev1-open-garage" aria-hidden="true">
-            <defs>
-              <linearGradient id="ev1-garage-interior" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="hsl(220 18% 5%)" />
-                <stop offset="72%" stopColor="hsl(220 14% 9%)" />
-                <stop offset="100%" stopColor="hsl(215 10% 17%)" />
-              </linearGradient>
-            </defs>
-            <rect
-              x={HOME_BLUEPRINT.garageOpening.x}
-              y={HOME_BLUEPRINT.garageOpening.y}
-              width={HOME_BLUEPRINT.garageOpening.w}
-              height={HOME_BLUEPRINT.garageOpening.h}
-              fill="url(#ev1-garage-interior)"
-            />
-            <rect
-              x={HOME_BLUEPRINT.garageOpening.x}
-              y={HOME_BLUEPRINT.garageOpening.y + HOME_BLUEPRINT.garageOpening.h - 1.8}
-              width={HOME_BLUEPRINT.garageOpening.w}
-              height={3.2}
-              fill="hsl(215 8% 28%)"
-            />
-            <line
-              x1={HOME_BLUEPRINT.garageOpening.x}
-              y1={HOME_BLUEPRINT.garageOpening.y + HOME_BLUEPRINT.garageOpening.h}
-              x2={HOME_BLUEPRINT.garageOpening.x + HOME_BLUEPRINT.garageOpening.w}
-              y2={HOME_BLUEPRINT.garageOpening.y + HOME_BLUEPRINT.garageOpening.h}
-              stroke="hsl(210 8% 42%)"
-              strokeWidth={0.35}
-            />
-          </g>
-        )}
-
         {/* Service entrance state — drawn on the ONE meter object (the can at
             the base of the service panel), not on a second pedestal. The old
             free-floating meter halo on the right of the slab was a duplicate
@@ -1194,44 +1134,16 @@ export function EnergyFlowScene({
         {/* Temporary anchor debug overlay — `?anchors=1`. Renders every named
             anchor at its overlay coordinate so it can be checked against the
             baked house art. Not reachable without the query flag. */}
-        {showAnchorDebug && (
-          <g data-testid="parking-pad-debug">
-            <rect
-              x={primaryBay.cx - primaryBay.maxWidth / 2}
-              y={primaryBay.groundY - primaryBay.maxHeight}
-              width={primaryBay.maxWidth}
-              height={primaryBay.maxHeight}
-              rx={1.2}
-              fill="none"
-              stroke="#39ffb6"
-              strokeWidth={0.35}
-              strokeDasharray="1.2 1"
-              transform={`rotate(${reverseParkAngle} ${primaryBay.cx} ${primaryBay.groundY - primaryBay.maxHeight / 2})`}
-            />
-            <text
-              x={primaryBay.cx}
-              y={primaryBay.groundY + 2.2}
-              fill="#39ffb6"
-              fontSize={1.8}
-              textAnchor="middle"
-              fontFamily="ui-monospace, monospace"
-            >
-              reverse-in pad · threshold clearance
-            </text>
-          </g>
-        )}
         {showAnchorDebug &&
           SCENE_ANCHOR_LIST.map(([name, p], index) => {
             const labelOffsets: Record<string, { x: number; y: number }> = {
-              RoofArrayMiddle: { x: -3.0, y: -2.0 },
-              roofGutter: { x: 2.0, y: -1.2 },
+              roofArrayEdge: { x: 1.8, y: -1.2 },
               wallJunction: { x: 2.0, y: -2.1 },
               homeWallStub: { x: 2.2, y: 4.8 },
-              powerwall: { x: -13.0, y: 4.4 },
-              gridWallEnd: { x: 2.0, y: 2.5 },
-              gridYard: { x: 2.0, y: 1.0 },
-              evPort: { x: 2.0, y: 4.2 },
-              chargePoint: { x: 2.0, y: -1.4 },
+              powerwall: { x: -16.8, y: -1.8 },
+              gridWallEnd: { x: -22.0, y: 3.0 },
+              evPort: { x: -13.5, y: 2.5 },
+              chargePoint: { x: -16.0, y: 2.6 },
             };
             const offset = labelOffsets[name] ?? { x: 1.8, y: index * 0.2 };
             return (
@@ -1408,7 +1320,6 @@ export function EnergyFlowScene({
               ry={carH * 0.075}
               fill="hsl(220 60% 3%)"
               opacity={0.32}
-              transform={`rotate(${reverseParkAngle} ${carFit.cx} ${carFit.cy})`}
               style={{ filter: 'blur(2.6px)' }}
             />
             <ellipse
@@ -1418,7 +1329,6 @@ export function EnergyFlowScene({
               ry={carH * 0.052}
               fill="hsl(220 70% 2%)"
               opacity={0.5}
-              transform={`rotate(${reverseParkAngle} ${carFit.cx} ${carFit.cy})`}
               style={{ filter: 'blur(1.2px)' }}
             />
             <ellipse
@@ -1428,28 +1338,27 @@ export function EnergyFlowScene({
               ry={carH * 0.022}
               fill="hsl(220 75% 1%)"
               opacity={0.62}
-              transform={`rotate(${reverseParkAngle} ${carFit.cx} ${carFit.cy})`}
               style={{ filter: 'blur(0.45px)' }}
             />
 
-            {/* EV1 remains horizontal so its body and wheel line are parallel
-                to the garage threshold. No horizontal flip is applied. */}
-            <g transform={`rotate(${reverseParkAngle} ${carFit.cx} ${carFit.cy})`}>
-              <image
-                href={vehicleSrc}
-                x={carX}
-                y={carY}
-                width={carW}
-                height={carH}
-                preserveAspectRatio="xMidYMid meet"
-                style={{
-                  filter: [spriteFilter, 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))']
-                    .filter(Boolean)
-                    .join(' '),
-                }}
-              />
-            </g>
-
+            {/* v14 — EV1 is parked nose-out: the sprite is mirrored about its
+                own centre line so the REAR quarter (where a Tesla's charge
+                port lives) faces the garage-side chargePoint. Pure 180°
+                rotation in place: anchor, bay fit and footprint unchanged. */}
+            <image
+              href={vehicleSrc}
+              x={carX}
+              y={carY}
+              width={carW}
+              height={carH}
+              transform={`translate(${(carFit.cx * 2).toFixed(3)} 0) scale(-1 1)`}
+              preserveAspectRatio="xMidYMid meet"
+              style={{
+                filter: [spriteFilter, 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))']
+                  .filter(Boolean)
+                  .join(' '),
+              }}
+            />
 
             {/* §8b — blue ambient wash so the sprite sits in the same night
                 light as the house instead of reading as a daylight cut-out. */}
@@ -1506,33 +1415,6 @@ export function EnergyFlowScene({
             to={evPortPt}
             reducedMotion={Boolean(prefersReducedMotion)}
           />
-        )}
-
-        {showAnchorDebug && showDynamicCar && (
-          <g data-testid="live-ev-port-debug">
-            <circle cx={rearDebugPt.x} cy={rearDebugPt.y} r={0.75} fill="#ff2d55" />
-            <text x={rearDebugPt.x - 1.2} y={rearDebugPt.y - 1.2} fill="#ff8fa3" fontSize={1.8} textAnchor="end" fontFamily="ui-monospace, monospace">REAR · toward garage</text>
-            <circle cx={noseDebugPt.x} cy={noseDebugPt.y} r={0.75} fill="#00c2ff" />
-            <text x={noseDebugPt.x + 1.2} y={noseDebugPt.y + 2.2} fill="#7fdbff" fontSize={1.8} fontFamily="ui-monospace, monospace">NOSE · driveway</text>
-            <circle cx={evPortPt.x} cy={evPortPt.y} r={1.15} fill="none" stroke="#39ffb6" strokeWidth={0.45} />
-            <line
-              x1={evPortPt.x}
-              y1={evPortPt.y}
-              x2={evPortPt.x + 8}
-              y2={evPortPt.y + 4}
-              stroke="#39ffb6"
-              strokeWidth={0.3}
-            />
-            <text
-              x={evPortPt.x + 8.5}
-              y={evPortPt.y + 4.5}
-              fill="#39ffb6"
-              fontSize={1.8}
-              fontFamily="ui-monospace, monospace"
-            >
-              LIVE rear driver-side port
-            </text>
-          </g>
         )}
 
 

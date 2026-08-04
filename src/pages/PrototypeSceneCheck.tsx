@@ -21,14 +21,12 @@ export default function PrototypeSceneCheck() {
   const state = params.get('state') ?? 'charging';
   const charging = state === 'charging';
 
-  // Deterministic all-path verification frame: every physical run is visible
-  // in one crop while the vehicle is actively charging at home.
   const data = {
-    solarPower: 4.8,
-    homePower: 2.4,
-    gridPower: charging ? 7.1 : -1.2,
-    batteryPower: 1.3,
-    batteryPercent: 64,
+    solarPower: 0,
+    homePower: 0.347,
+    gridPower: charging ? 11.347 : 0.347,
+    batteryPower: 0,
+    batteryPercent: 0,
     evPower: charging ? 11 : 0,
     tesla: {
       isCharging: charging,
@@ -48,7 +46,7 @@ export default function PrototypeSceneCheck() {
           vehicleModel="modelx"
           vehicleColor="pearl-white"
           presenceProven={state !== 'away'}
-          hasBattery
+          hasBattery={false}
           hasCharger
           hasTesla
           gridSource="reconciled"
