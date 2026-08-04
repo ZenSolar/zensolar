@@ -21,13 +21,17 @@ export default function PrototypeSceneCheck() {
   const state = params.get('state') ?? 'charging';
   const charging = state === 'charging';
   const solarState = state === 'solar';
+  /** Grid IMPORT at night, battery idle — checks the orange import sweep. */
+  const importState = state === 'import';
+  /** Battery discharging into the house — checks the dual home line. */
+  const dischargeState = state === 'discharge';
 
   const data = {
-    solarPower: solarState ? 6.4 : 0,
-    homePower: 0.347,
-    gridPower: solarState ? -3.65 : charging ? 11.347 : 0.347,
-    batteryPower: solarState ? 2.4 : 0,
-    batteryPercent: solarState ? 58 : 0,
+    solarPower: solarState ? 6.4 : dischargeState ? 1.2 : 0,
+    homePower: dischargeState ? 4.1 : 0.347,
+    gridPower: solarState ? -3.65 : importState ? 4.8 : charging ? 11.347 : 0.347,
+    batteryPower: solarState ? 2.4 : dischargeState ? -3.2 : 0,
+    batteryPercent: solarState ? 58 : dischargeState ? 41 : 0,
     evPower: charging ? 11 : 0,
     tesla: {
       isCharging: charging,
