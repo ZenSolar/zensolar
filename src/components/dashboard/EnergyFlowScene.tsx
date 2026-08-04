@@ -962,7 +962,7 @@ export function EnergyFlowScene({
         )}
 
         {/* v5 — Additional Powerwalls (slots 2..N), capped at 5 total.
-            Each unit gets the same halo pair as the primary so 1–5+ stacks
+            Each unit gets the same halo as the primary so 1–5+ stacks
             read cleanly along the front porch. */}
         {hasBattery && batteryCount >= 2 &&
           HOME_BLUEPRINT.powerwallSlots
@@ -974,17 +974,8 @@ export function EnergyFlowScene({
                 y: SCENE_ANCHORS.powerwall.y + Math.floor(i / 2) * 4.2,
               };
               return (
-              <g key={`pw-slot-${i + 1}`}>
                 <DeviceHalo
-                  cx={slot.x}
-                  cy={slot.y}
-                  color={EMERALD}
-                  active
-                  intensity={0.5}
-                  radius={3.8}
-                  pulseMs={5000}
-                />
-                <DeviceHalo
+                  key={`pw-slot-${i + 1}`}
                   cx={slot.x}
                   cy={slot.y}
                   color={pwCharging ? EMERALD : AMBER}
@@ -993,7 +984,6 @@ export function EnergyFlowScene({
                   radius={4.6}
                   pulseMs={pwCharging ? 2800 : 2400}
                 />
-              </g>
               );
             })}
 
