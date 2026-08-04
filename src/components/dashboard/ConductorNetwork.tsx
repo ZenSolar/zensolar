@@ -483,30 +483,19 @@ export function Conductor({
 
   void kw;
 
-  // Travelling gradient segment (Tesla-style soft sweep). v21: the gradient's
-  // period is the SHARED wavelength, not this run's chord, and the origin is
-  // pushed back by `phaseDist` so a wave continuing through the junction stays
-  // continuous across branches.
-  const start = points[0];
-  const end = points[points.length - 1];
-  const vx = end.x - start.x;
-  const vy = end.y - start.y;
-  const chord = Math.hypot(vx, vy) || 1;
-  const ux = (forward ? vx : -vx) / chord;
-  const uy = (forward ? vy : -vy) / chord;
-  const dirX = ux * FLOW_WAVELENGTH;
-  const dirY = uy * FLOW_WAVELENGTH;
-  const anchorPt = forward ? start : end;
-  // Slide the repeating gradient back along the travel direction by the
-  // distance the wave already covered upstream.
-  const sweepOrigin = {
-    x: anchorPt.x - ux * phaseDist,
-    y: anchorPt.y - uy * phaseDist,
-  };
+  // Travelling segment, v22 — dash-based. One crest per FLOW_WAVELENGTH of
+  // path length, phase-shifted by the distance the wave already covered
+  // upstream so a crest crossing the junction stays continuous across
+  // branches. Positive dashoffset travel moves the crest backwards along the
+  // path, so forward flow decrements it.
   const dur = FLOW_DUR;
-  const maskId = `flow-mask-${id}`;
-  const gradId = `flow-grad-${id}`;
   const sweepColor = flowColor ?? color;
+  /** Visible crest length — ~28% of the wavelength. */
+  const segLen = FLOW_WAVELENGTH * 0.28;
+  const phase = ((phaseDist % FLOW_WAVELENGTH) + FLOW_WAVELENGTH) % FLOW_WAVELENGTH;
+  const dashFrom = forward ? phase : -phase;
+  const dashTo = forward ? phase - FLOW_WAVELENGTH : -phase + FLOW_WAVELENGTH;
+
 
 
 
