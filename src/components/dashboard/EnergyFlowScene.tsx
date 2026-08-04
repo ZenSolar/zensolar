@@ -859,7 +859,9 @@ export function EnergyFlowScene({
   /** The car's charge port, derived from the sprite's fitted footprint so the
    *  cable always lands on the bodywork, whatever sprite/aspect is in play. */
   const evPortPt = {
-    x: carFit.cx + carFit.width * 0.30,
+    // v15: the sprite is mirrored, so the REAR (real charge-port side) faces
+    // the garage on the left. Port sits on the rear quarter.
+    x: carFit.cx - carFit.width * 0.30,
     y: carFit.groundY - carFit.height * 0.34,
   };
 
