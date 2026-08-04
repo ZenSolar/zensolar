@@ -72,7 +72,7 @@ export const HOME_BLUEPRINT = Object.freeze({
      *  backed squarely into that opening seats its tyres at y≈65.9 with its
      *  body centred on x≈26.6. The rear (and therefore the port) ends up
      *  nearest the door. */
-    garage:    { cx: 26.6, groundY: 65.9, maxWidth: 26.0, maxHeight: 18.5 },
+    garage:    { cx: 28.0, groundY: 71.5, maxWidth: 22.0, maxHeight: 16.0 },
 
     /** v12c driveway apron in front of the garage (plate px cx 266,
      *  contact line y 784). Single fixed pose, parallel to the facade. */
