@@ -452,39 +452,45 @@ export function Conductor({
       data-conductor={id}
       transform={shiftY ? `translate(0 ${shiftY.toFixed(2)})` : undefined}
     >
-      {/* 1 — contact shadow, sits the run on the surface */}
-      <path
-        d={d}
-        transform="translate(0 0.35)"
-        stroke="hsl(220 60% 3%)"
-        strokeOpacity={0.55}
-        strokeWidth={w * 1.7}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-        style={{ filter: 'blur(0.7px)' }}
-      />
-      {/* 2 — conductor body */}
-      <path
-        d={d}
-        stroke={idle ? 'hsl(215 12% 42%)' : color}
-        strokeOpacity={idle ? 0.5 : 0.72}
-        strokeWidth={w}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      {/* 3 — upper-edge highlight */}
-      <path
-        d={d}
-        transform={`translate(0 ${(-w * 0.22).toFixed(2)})`}
-        stroke={idle ? 'hsl(215 15% 68%)' : '#ffffff'}
-        strokeOpacity={idle ? 0.18 : 0.3}
-        strokeWidth={Math.max(0.16, w * 0.26)}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
+      {/* 1–3 — the physical pipe. Skipped for the second line of a doubled
+              run: that one contributes only its travelling segment. */}
+      {!sweepOnly && (
+        <>
+          {/* 1 — contact shadow, sits the run on the surface */}
+          <path
+            d={d}
+            transform="translate(0 0.35)"
+            stroke="hsl(220 60% 3%)"
+            strokeOpacity={0.55}
+            strokeWidth={w * 1.7}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill="none"
+            style={{ filter: 'blur(0.7px)' }}
+          />
+          {/* 2 — conductor body */}
+          <path
+            d={d}
+            stroke={idle ? 'hsl(215 12% 42%)' : color}
+            strokeOpacity={idle ? 0.5 : 0.72}
+            strokeWidth={w}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill="none"
+          />
+          {/* 3 — upper-edge highlight */}
+          <path
+            d={d}
+            transform={`translate(0 ${(-w * 0.22).toFixed(2)})`}
+            stroke={idle ? 'hsl(215 15% 68%)' : '#ffffff'}
+            strokeOpacity={idle ? 0.18 : 0.3}
+            strokeWidth={Math.max(0.16, w * 0.26)}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill="none"
+          />
+        </>
+      )}
       {/* 4 — travelling gradient segment: soft-edged colour blob sliding along
               the pipe, fading to the neutral base at both of its ends. */}
       {!idle && (
