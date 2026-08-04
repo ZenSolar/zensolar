@@ -69,11 +69,15 @@ export const SCENE_ANCHORS = Object.freeze({
   homeWallStub:  { x: 64.8, y: 55.8 } as Pt,
   /** Powerwall cabinet, level with the panel. */
   powerwall:     { x: 33.3, y: 45.7 } as Pt,
-  /** v12c grid rule: the service run drops STRAIGHT DOWN the wall from the
-   *  meter can to grade at the wall base and stops. It is wall-mounted, never
-   *  a ground line, and never enters the driveway/EV-cable corridor. */
+  /** v14 grid rule: the service run leaves the meter can and continues as ONE
+   *  straight diagonal down-and-outward across the yard toward the street tie
+   *  point — the Tesla-app convention. `gridWallEnd` is retained only as the
+   *  point where the run passes the wall base. */
   gridWallEnd:   { x: 50.5, y: 55.3 } as Pt,
+  /** Where the grid run leaves the visible yard, heading for the street. */
+  gridYard:      { x: 72.0, y: 79.0 } as Pt,
   evPort:        { x: 24.9, y: 64.1 } as Pt,
+
   /** Charge point on the garage-side facade, left of the Powerwall —
    *  above and behind the parked vehicle. */
   chargePoint:   { x: 28.9, y: 48.0 } as Pt,
