@@ -565,6 +565,7 @@ export function buildConductorSegments(args: {
       id: 'trunk',
       points: [A.roofArrayMiddle, A.roofGutter, { x: A.roofGutter.x, y: A.wallJunction.y }],
       color: CONDUCTOR_NEUTRAL,
+      flowColor: FLOW_COLORS.solar,
       kw: solar,
       layer: 'front',
       dimmed: args.dimSolar,
@@ -578,6 +579,7 @@ export function buildConductorSegments(args: {
       id: 'branch-home',
       points: [A.wallJunction, A.homeWallStub],
       color: CONDUCTOR_NEUTRAL,
+      flowColor: FLOW_COLORS.home,
       kw: home,
       layer: 'front',
       dimmed: args.dimSolar && producing,
@@ -591,6 +593,7 @@ export function buildConductorSegments(args: {
       id: battery > 0 ? 'branch-pw-charge' : 'branch-pw-discharge',
       points: [A.wallJunction, A.powerwall],
       color: CONDUCTOR_NEUTRAL,
+      flowColor: FLOW_COLORS.battery,
       kw: battery,
 
       // Discharge flows out of the pack, back toward the junction.
@@ -608,6 +611,7 @@ export function buildConductorSegments(args: {
       id: 'branch-ev',
       points: isoRoute(A.chargePoint, A.evPort, 'vert-first'),
       color: args.colors.ev ?? colors.import,
+      flowColor: FLOW_COLORS.ev,
       kw: ev,
       layer: 'front',
       dimmed: args.dimSolar,
@@ -623,7 +627,8 @@ export function buildConductorSegments(args: {
     segments.push({
       id: exporting ? 'branch-grid-export' : 'branch-grid-import',
       points: [A.wallJunction, A.gridWallEnd, A.gridYard],
-      color: GRID_FLOW_STROKE,
+      color: CONDUCTOR_NEUTRAL,
+      flowColor: FLOW_COLORS.grid,
       kw: grid,
       // Import reverses: pulse and chevron travel inward from the grid.
       forward: exporting,
