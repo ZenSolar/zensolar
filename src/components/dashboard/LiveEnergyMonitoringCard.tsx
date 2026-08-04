@@ -778,8 +778,29 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
   }, [ev.data, provenAtHomeVins, acAtSiteVins]);
 
 
-  const solarStats = solarSnapshot(primarySolar);
+  const solarStatsRaw = solarSnapshot(primarySolar);
   const batteryStats = batterySnapshot(primaryBattery);
+
+  /**
+   * SITE-METER SOLAR FALLBACK.
+   * The Enphase inverter can report `current_power_w: 0` with `status: meter_issue`
+   * while the Tesla site meter behind the same array reads real production. When
+   * that happens the card used to say "Idle" on a producing roof. Take the larger
+   * of the two readings for the SAME array — never a sum, so no double counting.
+   */
+  const siteSolarKw = useMemo(() => {
+    const w = pickNumber(primaryBattery?.payload, ['solar_power', 'energy_sites.0.solar_power']);
+    return w === null ? null : normalizeWattsToKw(w);
+  }, [primaryBattery]);
+
+  const solarStats = useMemo(() => {
+    if (siteSolarKw === null) return solarStatsRaw;
+    const best = Math.max(solarStatsRaw.currentKw ?? 0, siteSolarKw);
+    if (best === (solarStatsRaw.currentKw ?? 0)) return solarStatsRaw;
+    return { ...solarStatsRaw, currentKw: best };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [solarStatsRaw.currentKw, solarStatsRaw.todayKwh, solarStatsRaw.label, siteSolarKw]);
+
 
   // Pull exact model + color from Tesla vehicle_config so the EV area
   // mirrors the user's actual car (matches the Tesla app).
