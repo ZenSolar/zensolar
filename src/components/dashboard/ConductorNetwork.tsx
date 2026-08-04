@@ -716,16 +716,16 @@ export function buildConductorSegments(args: {
   }
 
   // BATTERY BRANCH — leaves the panel's LEFT face along the same sloped wall
-  // line, then plugs INTO the middle of the Powerwall cabinet (`POWERWALL_CORE`)
-  // rather than stopping at its outer edge.
+  // line and stops the instant it meets the Powerwall cabinet's right-hand
+  // outline (`POWERWALL_CORE`), centred on that face. No elbow, no overlap.
   if (Math.abs(battery) > 0.05) {
     segments.push({
       id: battery > 0 ? 'branch-pw-charge' : 'branch-pw-discharge',
       points: [
         PANEL_PORTS.battery,
-        { x: POWERWALL_CORE.x, y: A.powerwall.y },
         POWERWALL_CORE,
       ],
+
       color: CONDUCTOR_NEUTRAL,
       flowColor: FLOW_COLORS.battery,
       kw: battery,
