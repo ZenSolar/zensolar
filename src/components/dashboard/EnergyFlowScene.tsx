@@ -34,7 +34,7 @@ import {
   type VehicleModel,
 } from './EnergyFlowScene.scenes';
 import { HOME_BLUEPRINT, BLUEPRINT_PATHS, SCENE_CAMERA, camPctX, camPctY } from './HomeBlueprint';
-import { Conductor, EvChargeCable, buildConductorSegments, SCENE_ANCHOR_LIST, SCENE_ANCHORS } from './ConductorNetwork';
+import { Conductor, EvChargeCable, GridFlowDefs, buildConductorSegments, SCENE_ANCHOR_LIST, SCENE_ANCHORS } from './ConductorNetwork';
 
 import { HouseSceneV5 } from './HouseSceneV5';
 import { fitVehicleToBay } from './carAutoFit';
@@ -995,6 +995,8 @@ export function EnergyFlowScene({
         className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-full w-auto max-w-full -translate-y-1/2"
         style={{ aspectRatio: SCENE_CAMERA.aspect, zIndex: 15 }}
       >
+        <GridFlowDefs />
+
         {/* ── Device halos (primary visual language) ──
             RoofHalo / WindowsBloom retired: they were free-floating blooms
             anchored to the legacy blueprint coordinates, so they drifted off
@@ -1337,12 +1339,17 @@ export function EnergyFlowScene({
               style={{ filter: 'blur(0.45px)' }}
             />
 
+            {/* v14 — EV1 is parked nose-out: the sprite is mirrored about its
+                own centre line so the REAR quarter (where a Tesla's charge
+                port lives) faces the garage-side chargePoint. Pure 180°
+                rotation in place: anchor, bay fit and footprint unchanged. */}
             <image
               href={vehicleSrc}
               x={carX}
               y={carY}
               width={carW}
               height={carH}
+              transform={`translate(${(carFit.cx * 2).toFixed(3)} 0) scale(-1 1)`}
               preserveAspectRatio="xMidYMid meet"
               style={{
                 filter: [spriteFilter, 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))']
@@ -1350,6 +1357,7 @@ export function EnergyFlowScene({
                   .join(' '),
               }}
             />
+
             {/* §8b — blue ambient wash so the sprite sits in the same night
                 light as the house instead of reading as a daylight cut-out. */}
             {spriteIsNight && (

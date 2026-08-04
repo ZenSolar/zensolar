@@ -69,11 +69,15 @@ export const SCENE_ANCHORS = Object.freeze({
   homeWallStub:  { x: 64.8, y: 55.8 } as Pt,
   /** Powerwall cabinet, level with the panel. */
   powerwall:     { x: 33.3, y: 45.7 } as Pt,
-  /** v12c grid rule: the service run drops STRAIGHT DOWN the wall from the
-   *  meter can to grade at the wall base and stops. It is wall-mounted, never
-   *  a ground line, and never enters the driveway/EV-cable corridor. */
+  /** v14 grid rule: the service run leaves the meter can and continues as ONE
+   *  straight diagonal down-and-outward across the yard toward the street tie
+   *  point — the Tesla-app convention. `gridWallEnd` is retained only as the
+   *  point where the run passes the wall base. */
   gridWallEnd:   { x: 50.5, y: 55.3 } as Pt,
+  /** Where the grid run leaves the visible yard, heading for the street. */
+  gridYard:      { x: 72.0, y: 79.0 } as Pt,
   evPort:        { x: 24.9, y: 64.1 } as Pt,
+
   /** Charge point on the garage-side facade, left of the Powerwall —
    *  above and behind the parked vehicle. */
   chargePoint:   { x: 28.9, y: 48.0 } as Pt,
@@ -185,6 +189,36 @@ export const CONDUCTOR_WIDTH = 0.52;
  * no per-source hue. Grid import/export, solar, home and battery all use it.
  */
 export const CONDUCTOR_NEUTRAL = 'hsl(210 18% 82%)';
+
+/**
+ * GRID exception — the one run that leaves the building. Like the Tesla app it
+ * is amber/gold where it leaves the meter (active flow at the house) and fades
+ * to the plain muted conductor colour as it heads off toward the street.
+ */
+export const GRID_FLOW_STROKE = 'url(#grid-flow-fade)';
+
+/** Gradient definition for `GRID_FLOW_STROKE`. Render once inside the scene SVG. */
+export function GridFlowDefs() {
+  const a = SCENE_ANCHORS.wallJunction;
+  const b = SCENE_ANCHORS.gridYard;
+  return (
+    <defs>
+      <linearGradient
+        id="grid-flow-fade"
+        gradientUnits="userSpaceOnUse"
+        x1={a.x}
+        y1={a.y}
+        x2={b.x}
+        y2={b.y}
+      >
+        <stop offset="0%" stopColor="hsl(42 96% 62%)" />
+        <stop offset="38%" stopColor="hsl(42 80% 66%)" />
+        <stop offset="100%" stopColor="hsl(215 12% 58%)" />
+      </linearGradient>
+    </defs>
+  );
+}
+
 
 /** Travelling-pulse period: higher power travels faster, never frantic. */
 const pulseDur = (kw: number) => Math.max(1.5, 3.4 - Math.min(Math.abs(kw), 8) * 0.2);
@@ -502,20 +536,23 @@ export function buildConductorSegments(args: {
   }
 
 
-  // GRID BRANCH — one truly vertical, wall-mounted segment from the meter can
-  // to the equipment-wall foundation. It stops before the slab; there is no
-  // bend and no horizontal ground run.
+  // GRID BRANCH — v14: ONE straight diagonal from the meter can down and
+  // outward across the yard toward the street tie point, matching the Tesla
+  // app. It passes the wall base and keeps going; no bend, no return to
+  // horizontal. It lives on the centre-right of the scene, so it never enters
+  // the garage-side corridor where the EV cable runs.
   if (!args.hideGrid && (importing || exporting)) {
     segments.push({
       id: exporting ? 'branch-grid-export' : 'branch-grid-import',
-      points: [{ x: A.wallJunction.x, y: A.wallJunction.y + 3.4 }, A.gridWallEnd],
-      color: CONDUCTOR_NEUTRAL,
+      points: [{ x: A.wallJunction.x, y: A.wallJunction.y + 3.4 }, A.gridYard],
+      color: GRID_FLOW_STROKE,
       kw: grid,
       // Import reverses: pulse and chevron travel inward from the grid.
       forward: exporting,
       layer: 'front',
     });
   }
+
 
 
 
