@@ -61,9 +61,9 @@ export function fromHouseImage(x: number, y: number): Pt {
 export const SCENE_ANCHORS = Object.freeze({
   /** v13: eave line directly above the service panel. */
   roofArrayEdge: { x: 50.5, y: 34.6 } as Pt,
-  /** v17: start of the solar run, up-RIGHT on the panel field so the diagonal
-   *  descends from upper-right down-left into the gutter. */
-  roofArrayMiddle: { x: 54.6, y: 24.0 } as Pt,
+  /** v19: start of the solar run, traced from the user's straight red line
+   *  running from the gutter up the roof plane to mid-array. */
+  roofArrayMiddle: { x: 59.2, y: 17.0 } as Pt,
   /** v16: eave / gutter line directly above the service panel. The solar run
    *  reaches the roof edge here, then drops vertically down the facade. */
   roofGutter:    { x: 50.5, y: 30.6 } as Pt,
