@@ -25,9 +25,9 @@ export default function PrototypeSceneCheck() {
   const data = {
     solarPower: solarState ? 6.4 : 0,
     homePower: 0.347,
-    gridPower: solarState ? -6.05 : charging ? 11.347 : 0.347,
-    batteryPower: 0,
-    batteryPercent: 0,
+    gridPower: solarState ? -3.65 : charging ? 11.347 : 0.347,
+    batteryPower: solarState ? 2.4 : 0,
+    batteryPercent: solarState ? 58 : 0,
     evPower: charging ? 11 : 0,
     tesla: {
       isCharging: charging,
@@ -38,6 +38,7 @@ export default function PrototypeSceneCheck() {
     },
   };
 
+
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="mx-auto max-w-md rounded-2xl border border-border/40 bg-card p-3">
@@ -47,7 +48,7 @@ export default function PrototypeSceneCheck() {
           vehicleModel="modelx"
           vehicleColor="pearl-white"
           presenceProven={state !== 'away'}
-          hasBattery={false}
+          hasBattery={solarState}
           hasCharger
           hasTesla
           gridSource="reconciled"

@@ -61,6 +61,11 @@ export function fromHouseImage(x: number, y: number): Pt {
 export const SCENE_ANCHORS = Object.freeze({
   /** v13: eave line directly above the service panel. */
   roofArrayEdge: { x: 50.5, y: 34.6 } as Pt,
+  /** v16: start of the solar run, up on the panel field itself. */
+  roofArrayMiddle: { x: 46.7, y: 24.0 } as Pt,
+  /** v16: eave / gutter line directly above the service panel. The solar run
+   *  reaches the roof edge here, then drops vertically down the facade. */
+  roofGutter:    { x: 50.5, y: 30.6 } as Pt,
   /** Service panel + meter can, baked into the v13 equipment wall.
    *  The ONLY metering object in the scene. */
   wallJunction:  { x: 50.5, y: 46.0 } as Pt,
@@ -475,12 +480,13 @@ export function buildConductorSegments(args: {
   const importing = grid > 0.05;
   const exporting = grid < -0.05;
 
-  // TRUNK — roof array down the visible roof face to the wall junction.
-  // Draws in FRONT: this run is on the near roof plane and near facade.
+  // TRUNK — v16: two segments. Diagonal across the panel field from
+  // `roofArrayMiddle` to the eave at `roofGutter`, then a straight vertical
+  // drop down the facade to the service panel.
   if (producing) {
     segments.push({
       id: 'trunk',
-      points: isoRoute(A.roofArrayEdge, A.wallJunction, 'vert-first'),
+      points: [A.roofArrayMiddle, A.roofGutter, { x: A.roofGutter.x, y: A.wallJunction.y }],
       color: CONDUCTOR_NEUTRAL,
       kw: solar,
       layer: 'front',
