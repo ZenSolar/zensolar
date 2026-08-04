@@ -66,13 +66,11 @@ export const HOME_BLUEPRINT = Object.freeze({
    * preserved: groundY = anchor.y + boxHeight * 0.358.
    */
   bays: {
-    /** v17 — reverse-parked on the apron directly out from the garage
-     *  opening. Measured off the v13 plate: the door spans source x 6.6–27.1
-     *  with its base at y≈53, and the apron recedes down-right, so a car
-     *  backed squarely into that opening seats its tyres at y≈65.9 with its
-     *  body centred on x≈26.6. The rear (and therefore the port) ends up
-     *  nearest the door. */
-    garage:    { cx: 22.5, groundY: 68.4, maxWidth: 21.0, maxHeight: 15.0 },
+    /** v18 — dedicated parking pad directly in front of the v13 garage door.
+     *  The opening spans x≈6.6–27.1, so its true centre is x≈16.9. The tyre
+     *  line is pulled down the apron to y=74.2, leaving visible clearance from
+     *  the threshold instead of wedging the body into the door. */
+    garage:    { cx: 16.9, groundY: 74.2, maxWidth: 26.0, maxHeight: 13.6 },
 
     /** v12c driveway apron in front of the garage (plate px cx 266,
      *  contact line y 784). Single fixed pose, parallel to the facade. */
