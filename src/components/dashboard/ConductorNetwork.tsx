@@ -492,7 +492,14 @@ export function Conductor({
   const sweepColor = flowColor ?? color;
   /** Visible crest length — ~28% of the wavelength. */
   const segLen = FLOW_WAVELENGTH * 0.28;
-  const phase = ((phaseDist % FLOW_WAVELENGTH) + FLOW_WAVELENGTH) % FLOW_WAVELENGTH;
+  // v24 — crest-centre alignment. A dash pattern starts its "on" run at the
+  // pattern origin, so the crest CENTRE sits half a dash further along. For a
+  // forward run that puts the centre segLen/2 EARLY at the far end; for a
+  // reversed run it lands segLen/2 LATE at the panel — a full segLen of skew
+  // between the solar trunk and an incoming grid wave. Reversed runs pull
+  // their phase back by one dash so both crests touch the panel together.
+  const phaseRaw = forward ? phaseDist : phaseDist - segLen;
+  const phase = ((phaseRaw % FLOW_WAVELENGTH) + FLOW_WAVELENGTH) % FLOW_WAVELENGTH;
   const dashFrom = forward ? phase : -phase;
   const dashTo = forward ? phase - FLOW_WAVELENGTH : -phase + FLOW_WAVELENGTH;
 
