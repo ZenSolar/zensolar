@@ -777,12 +777,14 @@ export function EnergyFlowScene({
 
   const chargingAtHome = isCharging && !isSupercharging && !isOutage;
 
-  // v5.4 — ONE FIXED DRIVEWAY POSE. EV1 always sits on the driveway apron,
-  // parallel to the facade. Charging and "present, not charging" share the
-  // same anchor; the only difference is whether the cable and EV spoke are
-  // drawn. The sprite is contained inside the bay at its measured aspect
-  // ratio and seated on the bay's contact line, so it holds at any width.
-  const primaryBay = HOME_BLUEPRINT.bays.driveway;
+  // v16 — the charging car pulls INTO the garage bay (Tesla-app framing:
+  // vehicle inside the open bay, wall connector on the garage wall). When it
+  // is present but not charging it stays on the driveway apron. The sprite is
+  // contained inside the bay at its measured aspect ratio and seated on the
+  // bay's contact line, so it holds at any width.
+  const primaryBay = chargingAtHome
+    ? HOME_BLUEPRINT.bays.garage
+    : HOME_BLUEPRINT.bays.driveway;
   const carFit = useMemo(
     () => fitVehicleToBay(primaryBay, primaryAspect, 1),
     [primaryBay, primaryAspect],
@@ -792,6 +794,7 @@ export function EnergyFlowScene({
   const carH = carFit.height;
   const carX = carFit.x;
   const carY = carFit.y;
+
 
   /** The car's charge port, derived from the sprite's fitted footprint so the
    *  cable always lands on the bodywork, whatever sprite/aspect is in play. */
@@ -1362,6 +1365,59 @@ export function EnergyFlowScene({
           />
         )}
 
+        {/* Chrome-less charge readout (Tesla-app framing): no pill, no border.
+            Vehicle name in small grey above a large kW figure, with a 1px
+            hairline leader dropping from the text to the car's roof. */}
+        {chargingAtHome && showDynamicCar && (() => {
+          const kw = evBranchKw > 0.1 ? evBranchKw : evKw;
+          if (!(kw > 0.1)) return null;
+          const tx = carFit.cx;
+          // Keep the text block inside the frame when the car is parked hard
+          // left in the bay; the hairline still drops from the car itself.
+          const labelX = Math.min(Math.max(tx, 21), 79);
+
+          const roofY = carFit.y + carFit.height * 0.18;
+          const leaderTop = roofY - 4.4;
+          return (
+            <g style={{ pointerEvents: 'none' }} data-testid="ev-readout">
+              <line
+                x1={tx}
+                y1={leaderTop}
+                x2={tx}
+                y2={roofY}
+                stroke="hsl(220 12% 78%)"
+                strokeWidth={0.14}
+                opacity={0.55}
+              />
+              <text
+                x={labelX}
+                y={leaderTop - 4.0}
+                textAnchor="middle"
+                fill="hsl(220 10% 68%)"
+                fontSize={1.9}
+                letterSpacing={0.18}
+                style={{ fontWeight: 500 }}
+              >
+                {displayName || 'Vehicle'}
+              </text>
+              <text
+                x={labelX}
+                y={leaderTop - 1.1}
+                textAnchor="middle"
+                fill="hsl(0 0% 100%)"
+                fontSize={3.4}
+                style={{ fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}
+              >
+                {kw.toFixed(1)} kW
+                {typeof evSoc === 'number' && (
+                  <tspan fill="hsl(265 85% 82%)" fontSize={2.3}>
+                    {'  ▲ '}{evSoc}%
+                  </tspan>
+                )}
+              </text>
+            </g>
+          );
+        })()}
 
 
       </svg>
