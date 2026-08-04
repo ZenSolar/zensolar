@@ -118,6 +118,9 @@ export const PANEL_BOX = Object.freeze({
 const wallSlope = (from: Pt, to: Pt, atX: number) =>
   from.y + ((to.y - from.y) / (to.x - from.x)) * (atX - from.x);
 
+/** Powerwall cabinet right-face contact point (see `POWERWALL_CORE` below). */
+const PW_CORE = { x: 35.75, y: 48.1 };
+
 /** Exterior contact points on the panel box, one per branch. */
 export const PANEL_PORTS = Object.freeze({
   /** Top face — the solar drop lands here. */
@@ -138,7 +141,7 @@ export const PANEL_PORTS = Object.freeze({
     // magnitude of the home run's slope, mirrored to the left-hand side
     const m = (h.y - j.y) / (h.x - j.x);
     const x = PANEL_BOX.x;
-    return { x, y: POWERWALL_CORE_Y - m * (x - POWERWALL_CORE_X) * -1 } as Pt;
+    return { x, y: PW_CORE.y - m * (x - PW_CORE.x) } as Pt;
   })(),
 
   /** Bottom of the meter-can conduit stub — the grid run starts here. */
@@ -153,7 +156,7 @@ export const PANEL_PORTS = Object.freeze({
  * the stroke width so the round cap kisses the outline instead of overlapping
  * it. Measured from a 12x crop of the rendered plate.
  */
-export const POWERWALL_CORE = Object.freeze({ x: 35.75, y: 48.1 } as Pt);
+export const POWERWALL_CORE = Object.freeze({ ...PW_CORE } as Pt);
 
 
 
