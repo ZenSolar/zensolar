@@ -656,10 +656,20 @@ export function buildConductorSegments(args: {
   // TRUNK — v16: two segments. Diagonal across the panel field from
   // `roofArrayMiddle` to the eave at `roofGutter`, then a straight vertical
   // drop down the facade onto the TOP face of the service panel.
+  const trunkPoints = [
+    A.roofArrayMiddle,
+    A.roofGutter,
+    { x: A.roofGutter.x, y: PANEL_PORTS.solar.y },
+  ];
+  // v21: distance the solar wave has already travelled by the time it reaches
+  // the junction. Downstream branches inherit it so the crest arriving from
+  // the roof leaves toward home and grid in the same instant.
+  const trunkDist = producing ? polylineLength(trunkPoints) : 0;
+
   if (producing) {
     segments.push({
       id: 'trunk',
-      points: [A.roofArrayMiddle, A.roofGutter, { x: A.roofGutter.x, y: PANEL_PORTS.solar.y }],
+      points: trunkPoints,
       color: CONDUCTOR_NEUTRAL,
       flowColor: FLOW_COLORS.solar,
       kw: solar,
@@ -670,8 +680,9 @@ export function buildConductorSegments(args: {
 
   // HOME BRANCH — leaves the panel's RIGHT face and runs to the load tap
   // beside the windows, sloping gently with the wall's perspective line.
-  // When the battery is ALSO feeding the house, a second green segment runs
-  // in parallel on the same path — two lines, never a blended hue.
+  // When the battery is ALSO feeding the house, a SECOND REAL LINE (its own
+  // grey pipe, offset just below) appears carrying the green segment — and it
+  // disappears entirely, pipe included, when the battery is not contributing.
   if (home > 0.05) {
     segments.push({
       id: 'branch-home',
@@ -680,7 +691,8 @@ export function buildConductorSegments(args: {
       flowColor: FLOW_COLORS.home,
       kw: home,
       layer: 'front',
-      shiftY: batteryDischarging ? -0.42 : 0,
+      shiftY: batteryDischarging ? -0.62 : 0,
+      phaseDist: trunkDist,
       dimmed: args.dimSolar && producing,
     });
     if (batteryDischarging) {
@@ -691,19 +703,25 @@ export function buildConductorSegments(args: {
         flowColor: FLOW_COLORS.battery,
         kw: Math.abs(battery),
         layer: 'front',
-        shiftY: 0.62,
-        sweepOnly: true,
+        shiftY: 0.92,
+        // v21: a real pipe, not a bare sweep — same timing as the orange run.
+        phaseDist: trunkDist,
         dimmed: args.dimSolar && producing,
       });
     }
   }
 
   // BATTERY BRANCH — leaves the panel's LEFT face along the same sloped wall
-  // line, over to the Powerwall cabinet.
+  // line, then plugs INTO the middle of the Powerwall cabinet (`POWERWALL_CORE`)
+  // rather than stopping at its outer edge.
   if (Math.abs(battery) > 0.05) {
     segments.push({
       id: battery > 0 ? 'branch-pw-charge' : 'branch-pw-discharge',
-      points: [PANEL_PORTS.battery, A.powerwall],
+      points: [
+        PANEL_PORTS.battery,
+        { x: POWERWALL_CORE.x, y: A.powerwall.y },
+        POWERWALL_CORE,
+      ],
       color: CONDUCTOR_NEUTRAL,
       flowColor: FLOW_COLORS.battery,
       kw: battery,
@@ -713,6 +731,7 @@ export function buildConductorSegments(args: {
       layer: 'front',
     });
   }
+
 
 
   // EV BRANCH — only when a vehicle is charging at this site. Runs from the
