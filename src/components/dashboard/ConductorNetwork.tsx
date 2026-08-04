@@ -137,12 +137,15 @@ export const PANEL_PORTS = Object.freeze({
 });
 
 /**
- * v21 — the Powerwall side terminates INSIDE the cabinet graphic, like a
- * cable plugged into the unit, not at its outer edge. Measured against the
- * white cabinet baked into `house-v13-day.png` (scene-space bounds
- * x 32.5–35.9, y 46.2–50.6): the core is its centre.
+ * v22 — the Powerwall side terminates INSIDE the cabinet graphic, like a
+ * cable plugged into the unit, not at its outer edge. Re-measured from a 4x
+ * crop of the rendered plate (`house-v13-day.png`): the white cabinet occupies
+ * scene-space x 31.9–36.2, y 47.0–52.9, so its visual centre is ~(33.2, 49.9).
+ * The previous value (34.2, 48.3) sat on the cabinet's top-left corner, which
+ * read as an edge termination.
  */
-export const POWERWALL_CORE = Object.freeze({ x: 34.2, y: 48.3 } as Pt);
+export const POWERWALL_CORE = Object.freeze({ x: 33.2, y: 49.9 } as Pt);
+
 
 
 /** Debug label order for the `?anchors=1` overlay. */
