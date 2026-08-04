@@ -455,69 +455,6 @@ function FlowLabel({
   );
 }
 
-/**
- * §5/§6 — VEHICLE CHIP. Attached to a rendered car, never a standalone list
- * row. Carries name, live kW, SOC and a presence indicator. It states
- * presence-at-home, which is a co-location proof, and deliberately never
- * states a location: the vehicle's meter is the source, not a map.
- */
-function VehicleChip({
-  x,
-  y,
-  name,
-  kw,
-  soc,
-  rangeMi,
-  charging,
-}: {
-  x: number;
-  y: number;
-  name: string | null;
-  kw: number | null;
-  soc: number | null;
-  rangeMi: number | null;
-  charging: boolean;
-}) {
-  return (
-    <div
-      className="absolute -translate-x-1/2 -translate-y-full"
-      style={{ left: `${camPctX(x)}%`, top: `${camPctY(y)}%` }}
-    >
-      <div className="flex flex-col items-center gap-1">
-        <div
-          className={`flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold tabular-nums backdrop-blur ${
-            charging
-              ? 'border-emerald-400/40 bg-background/85 text-emerald-300 shadow-[0_0_14px_hsla(142,76%,50%,0.35)]'
-              : 'border-foreground/15 bg-background/80 text-foreground/85'
-          }`}
-        >
-          <span className="relative inline-flex h-1.5 w-1.5">
-            {charging && (
-              <span className="absolute inset-0 inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70 motion-reduce:animate-none" />
-            )}
-            <span
-              className={`relative inline-flex h-1.5 w-1.5 rounded-full ${
-                charging ? 'bg-emerald-400' : 'bg-foreground/50'
-              }`}
-            />
-          </span>
-          {name ? <span className="max-w-[90px] truncate">{name}</span> : null}
-          <span>
-            {charging && kw !== null ? `Charging · ${kw.toFixed(1)} kW` : 'Parked'}
-          </span>
-          {(soc !== null || rangeMi !== null) && (
-            <span className="font-medium text-foreground/70">
-              ·{soc !== null ? ` ${soc}%` : ''}
-              {rangeMi !== null ? ` · ${Math.round(rangeMi)} mi` : ''}
-            </span>
-          )}
-        </div>
-
-      </div>
-    </div>
-  );
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Main component
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1429,29 +1366,10 @@ export function EnergyFlowScene({
 
       </svg>
 
-      {/* HTML overlay aligned to the same square as the hero PNG / SVG.
-          Lets us drop a "Charging" pill that tracks the car anchor in
-          the exact same 0–100 coordinate space. */}
-      {/* §5 — vehicle chip, attached to the rendered car. A chip exists only
-          where a car exists, and a car exists only where co-location is
-          proven, so the chip never has to claim a location. */}
-      {showDynamicCar && (
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-full max-w-full -translate-y-1/2"
-          style={{ aspectRatio: SCENE_CAMERA.aspect, zIndex: 18 }}
-        >
-          <VehicleChip
-            x={carFit.cx}
-            y={carFit.y - 1}
-            name={displayName}
-            kw={chargingAtHome ? evKw : null}
-            soc={typeof evSoc === 'number' ? evSoc : null}
-            rangeMi={typeof evRange === 'number' ? evRange : null}
-            charging={chargingAtHome}
-          />
-        </div>
-      )}
+      {/* Vehicle chip removed for now (user request) — the car sprite, the
+          violet EV conductor and the CHARGER corner readout already carry the
+          live charge state, so nothing floats above the car. */}
+
 
 
 
@@ -1476,9 +1394,9 @@ export function EnergyFlowScene({
         </div>
       )}
 
-      {/* AC charging badge — only when no car sprite is drawn. When the car
-          IS drawn, its own attached VehicleChip already states the same
-          fact, so showing both stacked two pills on top of each other. */}
+      {/* AC charging badge — only when no car sprite is drawn. When the car IS
+          drawn, the car + violet EV conductor carry the same fact in place. */}
+
       {chargingAtHome && !showDynamicCar && (evBranchKw > 0.1 || evKw > 0.1) && (
         <div
           aria-hidden="true"
