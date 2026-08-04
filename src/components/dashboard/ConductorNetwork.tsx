@@ -744,9 +744,10 @@ export function buildConductorSegments(args: {
       kw: grid,
       // Import reverses: the travelling segment runs inward from the grid.
       forward: exporting,
-      // Export continues the same wave that came down from the roof; import is
-      // an incoming wave of its own, so it starts its phase at the yard.
-      phaseDist: exporting ? trunkDist : 0,
+      // v23: export AND import are phase-locked to the solar trunk, so the
+      // orange crest on the grid run meets the orange crest coming down from
+      // the roof exactly at the meter — one unified wave, either direction.
+      phaseDist: trunkDist,
       layer: 'front',
     });
   }
