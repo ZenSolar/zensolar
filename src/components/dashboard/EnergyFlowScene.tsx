@@ -1429,29 +1429,10 @@ export function EnergyFlowScene({
 
       </svg>
 
-      {/* HTML overlay aligned to the same square as the hero PNG / SVG.
-          Lets us drop a "Charging" pill that tracks the car anchor in
-          the exact same 0–100 coordinate space. */}
-      {/* §5 — vehicle chip, attached to the rendered car. A chip exists only
-          where a car exists, and a car exists only where co-location is
-          proven, so the chip never has to claim a location. */}
-      {showDynamicCar && (
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-1/2 mx-auto h-full max-w-full -translate-y-1/2"
-          style={{ aspectRatio: SCENE_CAMERA.aspect, zIndex: 18 }}
-        >
-          <VehicleChip
-            x={carFit.cx}
-            y={carFit.y - 1}
-            name={displayName}
-            kw={chargingAtHome ? evKw : null}
-            soc={typeof evSoc === 'number' ? evSoc : null}
-            rangeMi={typeof evRange === 'number' ? evRange : null}
-            charging={chargingAtHome}
-          />
-        </div>
-      )}
+      {/* Vehicle chip removed for now (user request) — the car sprite, the
+          violet EV conductor and the CHARGER corner readout already carry the
+          live charge state, so nothing floats above the car. */}
+
 
 
 
