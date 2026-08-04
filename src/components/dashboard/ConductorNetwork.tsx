@@ -68,19 +68,20 @@ export const SCENE_ANCHORS = Object.freeze({
    *  reaches the roof edge here, then drops vertically down the facade. */
   roofGutter:    { x: 50.5, y: 30.6 } as Pt,
   /** Service panel + meter can, baked into the v13 equipment wall.
-   *  The ONLY metering object in the scene. */
-  wallJunction:  { x: 50.5, y: 46.0 } as Pt,
-  /** v17: home load tap sits slightly LOWER than the panel — the wall run
-   *  follows the facade's perspective line instead of a flat horizontal. */
-  homeWallStub:  { x: 66.1, y: 46.9 } as Pt,
+   *  The ONLY metering object in the scene.
+   *  v18: dropped slightly (46.0 → 47.0) so the wall run sits lower. */
+  wallJunction:  { x: 50.5, y: 47.0 } as Pt,
+  /** v18: home load tap lands on the seam between the top and bottom window
+   *  rows, horizontally centred on the FIRST (left) window column.
+   *  Measured on the v13 plate: seam y ≈ 506px, column centre x ≈ 719px. */
+  homeWallStub:  { x: 70.2, y: 50.6 } as Pt,
   /** Powerwall cabinet, slightly higher than the panel on the same sloped
    *  perspective wall line. */
-  powerwall:     { x: 33.3, y: 45.0 } as Pt,
-  /** v14 grid rule: the service run leaves the meter can and continues as ONE
-   *  straight diagonal down-and-outward across the yard toward the street tie
-   *  point — the Tesla-app convention. `gridWallEnd` is retained only as the
-   *  point where the run passes the wall base. */
-  gridWallEnd:   { x: 50.5, y: 55.3 } as Pt,
+  powerwall:     { x: 33.3, y: 46.0 } as Pt,
+  /** v18: true foundation line — where the facade meets the concrete plinth
+   *  directly below the meter can (plate y ≈ 588px). The grid run drops
+   *  vertically to here before bending into the yard diagonal. */
+  gridWallEnd:   { x: 50.5, y: 57.4 } as Pt,
   /** v15: the grid run leaves the yard at the lower-LEFT of the visible ground,
    *  well clear of the charge cable's corridor at the garage corner. */
   gridYard:      { x: 30.2, y: 81.0 } as Pt,
@@ -540,15 +541,14 @@ export function buildConductorSegments(args: {
   }
 
 
-  // GRID BRANCH — v15: ONE straight diagonal from the meter can down and to the
-  // LEFT across the yard toward the street tie point, matching the marked-up
-  // reference. It passes the wall base and keeps going; no bend, no return to
-  // horizontal. It ends well right of the charge-cable corridor at the garage
-  // corner, so the two never touch.
+  // GRID BRANCH — v18: straight vertical drop from the meter can all the way
+  // to the true foundation line (`gridWallEnd`), then one diagonal across the
+  // yard toward the street tie point. It ends well right of the charge-cable
+  // corridor at the garage corner, so the two never touch.
   if (!args.hideGrid && (importing || exporting)) {
     segments.push({
       id: exporting ? 'branch-grid-export' : 'branch-grid-import',
-      points: [{ x: A.wallJunction.x, y: A.wallJunction.y + 3.4 }, A.gridYard],
+      points: [A.wallJunction, A.gridWallEnd, A.gridYard],
       color: GRID_FLOW_STROKE,
       kw: grid,
       // Import reverses: pulse and chevron travel inward from the grid.
