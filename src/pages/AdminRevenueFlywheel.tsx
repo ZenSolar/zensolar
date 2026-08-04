@@ -49,7 +49,7 @@ export default function AdminRevenueFlywheel() {
             getData={() => [
               { flow: "Subscriptions", source: "$9.99/mo", lpContribution: "50% ($4.995)", impact: "Direct LP injection" },
               { flow: "Transfer Tax", source: "7% of trades", lpContribution: "2%", impact: "Continuous LP growth" },
-              { flow: "Mint Burn", source: "20% of mints", lpContribution: "N/A", impact: "Supply deflation" },
+              { flow: "Treasury Share", source: "0.25 per verified unit (→ 0.10 at scale)", lpContribution: "N/A", impact: "Scheduled supply-side step-down" },
               { flow: "Treasury Tax", source: "2% of trades", lpContribution: "N/A", impact: "Operations funding" },
             ]} 
           />

@@ -9,7 +9,7 @@ const blocks = [
     icon: Sun,
     title: 'You earn tokens for clean energy',
     body:
-      'Every kilowatt-hour you produce with solar — or use to charge your EV — earns you $ZSOLAR tokens. During beta you earn 1 token per kWh; at mainnet that settles to 0.1 per kWh, so early users earn 10× more.',
+      'Every kilowatt-hour you produce with solar — or use to charge your EV — earns you $ZSOLAR tokens. You earn 1 token per kWh — 1 kWh = 1 $ZSOLAR, on beta and at mainnet alike.',
     color: 'text-solar',
     bg: 'bg-solar/10',
     border: 'border-solar/20',

@@ -312,7 +312,7 @@ const USPTO_FORM_RESPONSES = {
     { number: 23, name: 'Blockchain Network', description: 'Base Layer 2 network on Ethereum for token and NFT transactions' },
     { number: 24, name: 'Blockchain Smart Contract (Token Minting Contract)', description: 'Smart contract executing conditional, verification-gated token issuance (Mint-on-Proof)' },
     { number: 25, name: 'Token Minting Step (Mint-on-Proof)', description: 'Verification-gated process minting tokens exclusively upon cryptographic proof validation; 1 kWh = 1 $ZSOLAR, 1 mile = 1 $ZSOLAR' },
-    { number: 26, name: 'Mint Burn Mechanism', description: 'Deflationary mechanism applying 20% burn on each mint and a separate 3% transfer tax on transactions (recycled to the liquidity pool)' },
+    { number: 26, name: 'Treasury Step-Down Mechanism', description: 'Scheduled supply-side mechanism reducing the treasury share from 0.25 to 0.10 per verified unit once Store redemption exceeds 30% for two consecutive quarters, plus a separate 3% transfer tax on transactions (recycled to the liquidity pool)' },
     // === STEP 9: NFT MINTING (alongside token minting) ===
     { number: 27, name: 'Milestone Tracking Algorithm', description: 'Cumulative threshold monitor evaluating lifetime totals against configurable achievement levels across 4 categories' },
     { number: 28, name: 'NFT Minting Step', description: 'Process for creating non-fungible tokens encoding achievement metadata and proof hashes, triggered alongside token minting when milestones are reached' },

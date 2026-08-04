@@ -12,9 +12,9 @@ export default function LearnTokenomics() {
       seoUrl="https://beta.zen.solar/learn/tokenomics"
     >
       <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-        Every verified kWh mints a clean 1:1 to you. In the background, the protocol matches
-        your mint — 25% to liquidity, 20% burned, 5% to treasury — plus a separate 3% transfer
-        tax that recycles to LP on every swap.
+        Every verified kWh mints a clean 1:1 to you. Each verified unit issues 1.25 $ZSOLAR —
+        1.0 to you and 0.25 to the treasury. There is no liquidity mint and no burn at mint.
+        A separate 3% transfer tax recycles to LP on every swap.
       </p>
       <Tokenomics101Card />
     </LearnSubPageShell>

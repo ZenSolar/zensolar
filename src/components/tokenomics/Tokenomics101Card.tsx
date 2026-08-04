@@ -18,7 +18,7 @@ const rows = [
   },
   {
     icon: TrendingUp,
-    text: 'The protocol matches your mint: 25% to liquidity, 20% burned forever, 5% to treasury.',
+    text: 'Each verified unit issues 1.25 $ZSOLAR: 1.0 to you, 0.25 to the treasury. No liquidity mint, no burn at mint.',
     color: 'text-secondary',
     bg: 'bg-secondary/10',
   },

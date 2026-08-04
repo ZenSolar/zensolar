@@ -15,8 +15,8 @@ import { supabase } from '@/integrations/supabase/client';
  *   not a bug in the math. This hook is the live wire-up.
  *
  * Math reconstruction for legacy mints:
- *   Tokens are split 50% user / 25% LP / 20% burn / 5% treasury (v3.1 locked).
- *   So: gross_tokens = tokens_minted / 0.50
+ *   Mint split v4.0: 1.0 to the member, 0.25 to treasury (1.25 issued per unit).
+ *   The member receives the full 1.0, so: gross_tokens = tokens_minted / 1.0
  *   For a pure EV mint:  miles_delta ≈ gross_tokens (1 token / mile)
  *   kWh equivalent (Tesla Y/3 baseline): miles / 3.0 mi/kWh
  *
@@ -26,8 +26,8 @@ import { supabase } from '@/integrations/supabase/client';
  * and falls back to the back-calc above only for legacy rows.
  */
 
-// User-share split — keep in sync with smart contract & tokenomics doc (v3.1)
-const USER_SHARE = 0.5; // 50% user, 25% LP, 20% burn, 5% treasury
+// Member share — keep in sync with src/lib/mintFactors.ts (v4.0)
+const USER_SHARE = 1.0; // 1.0 member per verified unit (treasury takes a further 0.25)
 const EV_MI_PER_KWH = 3.0;
 
 export type LiveMintReceipt = {

@@ -137,7 +137,7 @@ const TOKENOMICS = {
   launchPrice: 0.10, // $0.10 launch floor
   targetPrice: 1.00, // $1.00 long-term target ($150B Joseph / $50B Michael at $1)
   lpSeed: 300_000, // $300K USDC paired with 3M tokens
-  // 20% Mint Burn Rate (deflationary) — v3.1 split: 50/25/20/5
+  // No burn at mint — v4.0 split: 1.0 member / 0.25 treasury
   mintDistribution: {
     user: 50,
     lp: 20,
