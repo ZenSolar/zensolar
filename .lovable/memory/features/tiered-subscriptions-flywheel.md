@@ -1,10 +1,16 @@
 ---
-name: Tiered Subscriptions Flywheel (v3.1)
-description: Steady-state $ZSOLAR flywheel — v3.1 mint split (50/25/20/5) with continuous 20% burn replacing Genesis Halving. 3 subscription tiers (Base/Regular/Power), 10:1 mint ratio, Satoshi-Mirror floor.
+name: Tiered Subscriptions Flywheel (ARCHIVED v3.1)
+description: Historical v3.1 scenario only. Superseded by mint split v4.0 and canonical 1:1 member issuance; never use its 10:1 ratio, 50/25/20/5 split, or burn-per-mint assumptions.
 type: feature
 ---
 
-# v3.1 Tokenomics — Tiered Subscriptions Flywheel
+# ARCHIVED — v3.1 Tokenomics Scenario
+
+> **Do not implement or quote the economics below.** This historical model is
+> superseded by `mem://features/mint-split-v3-locked.md`: 1.0 to the member +
+> 0.25 to treasury per verified unit, no LP mint, no burn at mint, and 1 kWh =
+> 1 $ZSOLAR to the member. It remains only as an audit record of an abandoned
+> model.
 
 Refreshed 2026-06-01. Supersedes `tiered-subscriptions-halving-flywheel.md`. Genesis Halving is **deprecated as a required mechanism** in v3.1 — continuous 20% burn per mint provides perpetual deflation without a UX cliff. Companion to `mem://features/satoshi-mirror-v2-oracle` and `CANONICAL_SSOT.md`.
 

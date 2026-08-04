@@ -22,7 +22,7 @@ Full planning page: `/founders/deason-utility-ai-revstream` (founder + VaultPin)
 - **In-App Personalized Energy Insights Page** — `/energy-insights` (or inside Clean Energy Center). Charts, savings forecasts, one-tap actions. Home base for the premium Deason experience.
 
 ## Phase 2 — Tesla FSD / Autonomous Miles
-- Tokenize FSD / autonomous miles: **10 miles = 1 $ZSOLAR** (same 10:1 ratio).
+- Tokenize FSD / autonomous miles: **1 verified FSD mile = 1 $ZSOLAR**. General EV miles remain 0.1:1.
 - Included in the latest patent application.
 - Planned as the visual "cherry on top" for the Lyndon Rive pitch.
 - **Not yet in Clean Energy Center dashboard** — Phase 2 integration after core Deason launch.

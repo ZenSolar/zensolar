@@ -1,10 +1,15 @@
 ---
-name: Scarcity Stack
-description: Five stacked deflationary/anti-dump mechanisms that make $ZSOLAR structurally scarcer than Bitcoin. Hard cap + burn-per-mint + 4yr halving + founder pact-lock + POL. Always present all 5 together — never cite just one.
+name: Scarcity Stack (ARCHIVED)
+description: Historical five-layer narrative, superseded by mint split v4.0. Never reintroduce burn-per-mint or present these five mechanisms as current.
 type: feature
 ---
 
-# Scarcity Stack (the Lyndon centerpiece)
+# ARCHIVED — Scarcity Stack
+
+> **Do not use as current product or investor guidance.** Mint split v4.0 has no
+> burn at mint and no LP mint. The current SSOT is
+> `mem://features/mint-split-v3-locked.md`. The material below is retained only
+> as a historical record.
 
 $ZSOLAR has **five independent scarcity/anti-dump mechanisms** stacked together. Bitcoin has one (halvings). Always present these as a unified stack — citing only one or two undersells the moat.
 

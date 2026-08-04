@@ -14,7 +14,7 @@ The remix ships exactly **three customer-facing products**, each with a dedicate
 **Why it's #1:** It's the engine the entire token economy rests on. Investor framing = "Verified kWh → $ZSOLAR." This is where verified kWh becomes currency.
 **Remix routes:** `/app` (CEC home), `/app/mint` (history), `/app/proof-of-genesis/:mintId` (unified receipt — SSOT per `proof-of-genesis-unified-receipt` memory).
 **Core components:** `EnergyFlowCard`, `TapToMintButton`, `MintReceiptDrawer`, `ProofOfGenesisPage`. Tokenomics SSOT = `src/lib/mintFactors.ts` (v4.0: 1.0 member / 0.25 treasury, locked). `tokenomics.ts` re-exports it.
-**Economics enforced:** UI shows **1 kWh = 1 $ZSOLAR** (user's 50% share). Backend mints raw 100% and splits per v3.1. Sepolia at launch (chain 84532) → flip to Base mainnet via `VITE_CHAIN_ENV`.
+**Economics enforced:** UI and protocol credit the member **1 kWh = 1 $ZSOLAR**. Mint split v4.0 mints 1.0 to the member and 0.25 to treasury; no LP mint and no burn at mint. Sepolia at launch (chain 84532) → flip to Base mainnet via `VITE_CHAIN_ENV`.
 
 ### Pillar 2 — Deason AI (Home Energy Optimizer + Chat)
 **What it is:** Premium AI add-on ($4.99/mo on top of any sub tier). Bill analysis, rate-plan optimization, device-aware advice, Monthly Clean Energy Report. Conversational chat interface.
@@ -46,7 +46,7 @@ Updates `bottomNavRoutes` in `routes.config.ts` — replaces the current Home/Mi
 
 ---
 
-## Updated Economics (carry into remix at v3.1 lock)
+## Updated Economics (carry into remix at v4.0 lock)
 - Mint split v4.0: **1.0 to the member / 0.25 to treasury** — 1.25 tokens per verified unit. No LP mint. No burn at mint.
 - Separate **3% transfer tax** → LP only.
 - Subscription tiers: **$9.99 Base / $19.99 Regular / $49.99 Power**. Each $ → 50% LP / 50% treasury.
