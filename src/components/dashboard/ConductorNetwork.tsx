@@ -61,19 +61,21 @@ export function fromHouseImage(x: number, y: number): Pt {
 export const SCENE_ANCHORS = Object.freeze({
   /** v13: eave line directly above the service panel. */
   roofArrayEdge: { x: 50.5, y: 34.6 } as Pt,
-  /** v16: start of the solar run, up on the panel field itself. */
-  roofArrayMiddle: { x: 46.7, y: 24.0 } as Pt,
+  /** v17: start of the solar run, up-RIGHT on the panel field so the diagonal
+   *  descends from upper-right down-left into the gutter. */
+  roofArrayMiddle: { x: 54.6, y: 24.0 } as Pt,
   /** v16: eave / gutter line directly above the service panel. The solar run
    *  reaches the roof edge here, then drops vertically down the facade. */
   roofGutter:    { x: 50.5, y: 30.6 } as Pt,
   /** Service panel + meter can, baked into the v13 equipment wall.
    *  The ONLY metering object in the scene. */
   wallJunction:  { x: 50.5, y: 46.0 } as Pt,
-  /** v15: home load tap sits on the SAME wall line as the panel, so battery →
-   *  panel → home reads as one straight horizontal run. */
-  homeWallStub:  { x: 66.1, y: 46.0 } as Pt,
-  /** Powerwall cabinet, level with the panel. */
-  powerwall:     { x: 33.3, y: 45.7 } as Pt,
+  /** v17: home load tap sits slightly LOWER than the panel — the wall run
+   *  follows the facade's perspective line instead of a flat horizontal. */
+  homeWallStub:  { x: 66.1, y: 46.9 } as Pt,
+  /** Powerwall cabinet, slightly higher than the panel on the same sloped
+   *  perspective wall line. */
+  powerwall:     { x: 33.3, y: 45.0 } as Pt,
   /** v14 grid rule: the service run leaves the meter can and continues as ONE
    *  straight diagonal down-and-outward across the yard toward the street tie
    *  point — the Tesla-app convention. `gridWallEnd` is retained only as the
@@ -494,13 +496,12 @@ export function buildConductorSegments(args: {
     });
   }
 
-  // HOME BRANCH — v15: one straight horizontal wall run from the panel to the
-  // load tap beside the windows. Same y as the panel and the battery run, so
-  // battery → panel → home reads as a single continuous line.
+  // HOME BRANCH — v17: single straight run from the panel to the load tap
+  // beside the windows, sloping gently down with the wall's perspective line.
   if (home > 0.05) {
     segments.push({
       id: 'branch-home',
-      points: [A.wallJunction, { x: A.homeWallStub.x, y: A.wallJunction.y }],
+      points: [A.wallJunction, A.homeWallStub],
       color: CONDUCTOR_NEUTRAL,
       kw: home,
       layer: 'front',
@@ -508,14 +509,15 @@ export function buildConductorSegments(args: {
     });
   }
 
-  // BATTERY BRANCH — v15: straight horizontal continuation of the same wall
-  // line, panel → Powerwall cabinet.
+  // BATTERY BRANCH — v17: continuation of the same sloped wall line,
+  // panel → Powerwall cabinet.
   if (Math.abs(battery) > 0.05) {
     segments.push({
       id: battery > 0 ? 'branch-pw-charge' : 'branch-pw-discharge',
-      points: [A.wallJunction, { x: A.powerwall.x, y: A.wallJunction.y }],
+      points: [A.wallJunction, A.powerwall],
       color: CONDUCTOR_NEUTRAL,
       kw: battery,
+
       // Discharge flows out of the pack, back toward the junction.
       forward: battery > 0,
       layer: 'front',
