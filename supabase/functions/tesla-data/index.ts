@@ -1200,8 +1200,8 @@ Deno.serve(async (req) => {
         
         // Baseline reads use EXPLICIT key presence — never `||`.
         // A legitimate zero must not fall through to a different activity
-        // type's key (supercharging credits 1:1, home charging nets to
-        // 0.25:1 on solar homes, so a fallthrough can credit at 4x).
+        // type's key. Every kWh category credits 1:1, but a fallthrough would
+        // still attribute energy to the wrong activity and wrong device.
         const vehicleBaseline = (vehicleDevices[0]?.baseline ?? {}) as Record<string, unknown>;
         const baselineNum = (obj: Record<string, unknown>, keys: string[]): number => {
           for (const k of keys) {

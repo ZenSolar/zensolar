@@ -22,7 +22,7 @@ Expressed as a share of tokens minted: 80% member / 20% treasury.
 `src/lib/mintFactors.ts` — mirrored at `supabase/functions/_shared/mintFactors.ts`.
 - solar 1:1 · supercharging 1:1 · FSD miles 1:1 · battery export 1:1
 - general EV miles **0.1:1** (not a direct energy measurement)
-- home charging enters at 1:1, then **netted to 0.25:1 on solar-connected homes**
+- home charging is **1:1** (netting retired 2026-08-04; revisit only if an OEM exposes Charge-on-Solar)
   so self-generated energy is not credited twice.
 
 ## Issuance pipeline (order is fixed)
