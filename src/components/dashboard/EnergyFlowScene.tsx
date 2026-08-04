@@ -777,12 +777,14 @@ export function EnergyFlowScene({
 
   const chargingAtHome = isCharging && !isSupercharging && !isOutage;
 
-  // v5.4 — ONE FIXED DRIVEWAY POSE. EV1 always sits on the driveway apron,
-  // parallel to the facade. Charging and "present, not charging" share the
-  // same anchor; the only difference is whether the cable and EV spoke are
-  // drawn. The sprite is contained inside the bay at its measured aspect
-  // ratio and seated on the bay's contact line, so it holds at any width.
-  const primaryBay = HOME_BLUEPRINT.bays.driveway;
+  // v16 — the charging car pulls INTO the garage bay (Tesla-app framing:
+  // vehicle inside the open bay, wall connector on the garage wall). When it
+  // is present but not charging it stays on the driveway apron. The sprite is
+  // contained inside the bay at its measured aspect ratio and seated on the
+  // bay's contact line, so it holds at any width.
+  const primaryBay = chargingAtHome
+    ? HOME_BLUEPRINT.bays.garage
+    : HOME_BLUEPRINT.bays.driveway;
   const carFit = useMemo(
     () => fitVehicleToBay(primaryBay, primaryAspect, 1),
     [primaryBay, primaryAspect],
@@ -792,6 +794,7 @@ export function EnergyFlowScene({
   const carH = carFit.height;
   const carX = carFit.x;
   const carY = carFit.y;
+
 
   /** The car's charge port, derived from the sprite's fitted footprint so the
    *  cable always lands on the bodywork, whatever sprite/aspect is in play. */
