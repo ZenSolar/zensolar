@@ -1171,11 +1171,11 @@ export function EnergyFlowScene({
               roofGutter: { x: 2.0, y: -1.2 },
               wallJunction: { x: 2.0, y: -2.1 },
               homeWallStub: { x: 2.2, y: 4.8 },
-              powerwall: { x: -16.8, y: -1.8 },
+              powerwall: { x: -13.0, y: 4.4 },
               gridWallEnd: { x: 2.0, y: 2.5 },
               gridYard: { x: 2.0, y: 1.0 },
-              evPort: { x: -13.5, y: 2.5 },
-              chargePoint: { x: -16.0, y: 2.6 },
+              evPort: { x: 2.0, y: 4.2 },
+              chargePoint: { x: 2.0, y: -1.4 },
             };
             const offset = labelOffsets[name] ?? { x: 1.8, y: index * 0.2 };
             return (
@@ -1446,6 +1446,29 @@ export function EnergyFlowScene({
             to={evPortPt}
             reducedMotion={Boolean(prefersReducedMotion)}
           />
+        )}
+
+        {showAnchorDebug && showDynamicCar && (
+          <g data-testid="live-ev-port-debug">
+            <circle cx={evPortPt.x} cy={evPortPt.y} r={1.15} fill="none" stroke="#39ffb6" strokeWidth={0.45} />
+            <line
+              x1={evPortPt.x}
+              y1={evPortPt.y}
+              x2={evPortPt.x + 8}
+              y2={evPortPt.y + 4}
+              stroke="#39ffb6"
+              strokeWidth={0.3}
+            />
+            <text
+              x={evPortPt.x + 8.5}
+              y={evPortPt.y + 4.5}
+              fill="#39ffb6"
+              fontSize={1.8}
+              fontFamily="ui-monospace, monospace"
+            >
+              LIVE rear driver-side port
+            </text>
+          </g>
         )}
 
 
