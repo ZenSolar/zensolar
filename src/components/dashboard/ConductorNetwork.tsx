@@ -71,10 +71,12 @@ export const SCENE_ANCHORS = Object.freeze({
    *  The ONLY metering object in the scene.
    *  v18: dropped slightly (46.0 → 47.0) so the wall run sits lower. */
   wallJunction:  { x: 50.5, y: 47.0 } as Pt,
-  /** v18: home load tap lands on the seam between the top and bottom window
-   *  rows, horizontally centred on the FIRST (left) window column.
-   *  Measured on the v13 plate: seam y ≈ 506px, column centre x ≈ 719px. */
-  homeWallStub:  { x: 70.2, y: 50.6 } as Pt,
+  /** v19: home load tap STOPS at the left outer frame edge of the 2x2 window
+   *  cluster — it no longer runs over glass. Measured on the v13 plate: the
+   *  left frame edge sits at x ≈ 685px (66.9%), and the run lands in the
+   *  frame gap between the top and bottom window rows (y ≈ 499–511px). */
+  homeWallStub:  { x: 66.4, y: 49.6 } as Pt,
+
   /** Powerwall cabinet, slightly higher than the panel on the same sloped
    *  perspective wall line. */
   powerwall:     { x: 33.3, y: 46.0 } as Pt,
