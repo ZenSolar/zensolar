@@ -1367,17 +1367,21 @@ export function EnergyFlowScene({
 
         {/* Chrome-less charge readout (Tesla-app framing): no pill, no border.
             Vehicle name in small grey above a large kW figure, with a 1px
-            hairline leader dropping from the text to the car's roof. */}
+            hairline leader dropping straight down from the text to the car's
+            roof. The label is centered on the vehicle so it sits inside the
+            garage bay and avoids the right garage wall. */}
         {chargingAtHome && showDynamicCar && (() => {
           const kw = evBranchKw > 0.1 ? evBranchKw : evKw;
           if (!(kw > 0.1)) return null;
           const tx = carFit.cx;
-          // Nudge the readout a few units left so the SOC tspan sits farther
-          // from the right-side battery/Powerwall cluster.
-          const labelX = Math.min(Math.max(tx - 4, 21), 79);
+          // Keep the label directly above the car center for a vertical leader.
+          // Loose camera bounds only; never force it toward the right wall.
+          const labelX = Math.min(Math.max(tx, 8), 92);
 
           const roofY = carFit.y + carFit.height * 0.18;
-          const leaderTop = roofY - 4.4;
+          // Raise the readout higher into the garage void so the whole block
+          // clears the door header and stays inside the bay.
+          const leaderTop = roofY - 7.0;
           return (
             <g style={{ pointerEvents: 'none' }} data-testid="ev-readout">
               <line
@@ -1391,7 +1395,7 @@ export function EnergyFlowScene({
               />
               <text
                 x={labelX}
-                y={leaderTop - 4.0}
+                y={leaderTop - 3.5}
                 textAnchor="middle"
                 fill="hsl(220 10% 68%)"
                 fontSize={1.9}
@@ -1402,7 +1406,7 @@ export function EnergyFlowScene({
               </text>
               <text
                 x={labelX}
-                y={leaderTop - 1.1}
+                y={leaderTop - 0.8}
                 textAnchor="middle"
                 fill="hsl(0 0% 100%)"
                 fontSize={3.4}
