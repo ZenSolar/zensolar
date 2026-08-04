@@ -66,11 +66,10 @@ export const HOME_BLUEPRINT = Object.freeze({
    * preserved: groundY = anchor.y + boxHeight * 0.358.
    */
   bays: {
-    /** v18 — dedicated parking pad directly in front of the v13 garage door.
-     *  The opening spans x≈6.6–27.1, so its true centre is x≈16.9. The tyre
-     *  line is pulled down the apron to y=74.2, leaving visible clearance from
-     *  the threshold instead of wedging the body into the door. */
-    garage:    { cx: 16.9, groundY: 74.2, maxWidth: 26.0, maxHeight: 13.6 },
+    /** Reverse-in approach lane in front of the garage. The vehicle's rear is
+     *  aimed at the upper-left garage opening and its nose points down the
+     *  driveway; the rotation is applied in EnergyFlowScene. */
+    garage:    { cx: 18.4, groundY: 75.8, maxWidth: 27.0, maxHeight: 13.6 },
 
     /** v12c driveway apron in front of the garage (plate px cx 266,
      *  contact line y 784). Single fixed pose, parallel to the facade. */
