@@ -1394,9 +1394,9 @@ export function EnergyFlowScene({
         </div>
       )}
 
-      {/* AC charging badge — only when no car sprite is drawn. When the car
-          IS drawn, its own attached VehicleChip already states the same
-          fact, so showing both stacked two pills on top of each other. */}
+      {/* AC charging badge — only when no car sprite is drawn. When the car IS
+          drawn, the car + violet EV conductor carry the same fact in place. */}
+
       {chargingAtHome && !showDynamicCar && (evBranchKw > 0.1 || evKw > 0.1) && (
         <div
           aria-hidden="true"
