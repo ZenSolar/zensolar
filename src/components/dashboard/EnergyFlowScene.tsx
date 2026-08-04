@@ -950,26 +950,15 @@ export function EnergyFlowScene({
 
         {/* Powerwall — only rendered when a battery is actually connected. */}
         {hasBattery && (
-          <>
-            <DeviceHalo
-              cx={SCENE_ANCHORS.powerwall.x}
-              cy={SCENE_ANCHORS.powerwall.y}
-              color={EMERALD}
-              active
-              intensity={0.5}
-              radius={3.8}
-              pulseMs={5000}
-            />
-            <DeviceHalo
-              cx={SCENE_ANCHORS.powerwall.x}
-              cy={SCENE_ANCHORS.powerwall.y}
-              color={isOutage ? AMBER : pwCharging ? EMERALD : AMBER}
-              active={isOutage || pwCharging || pwDischarging}
-              intensity={isOutage ? Math.max(0.95, intensity(battery)) : intensity(battery)}
-              radius={isOutage ? 6.4 : 4.6}
-              pulseMs={isOutage ? 1100 : pwCharging ? 2800 : 2400}
-            />
-          </>
+          <DeviceHalo
+            cx={SCENE_ANCHORS.powerwall.x}
+            cy={SCENE_ANCHORS.powerwall.y}
+            color={isOutage ? AMBER : pwCharging ? EMERALD : AMBER}
+            active={isOutage || pwCharging || pwDischarging}
+            intensity={isOutage ? Math.max(0.95, intensity(battery)) : intensity(battery)}
+            radius={isOutage ? 6.4 : 4.6}
+            pulseMs={isOutage ? 1100 : pwCharging ? 2800 : 2400}
+          />
         )}
 
         {/* v5 — Additional Powerwalls (slots 2..N), capped at 5 total.
