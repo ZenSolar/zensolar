@@ -805,9 +805,37 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
     };
   }, [solar.data, solarStats]);
 
+  // TESTING ONLY — simulated battery charge line.
+  // Enable with ?simBattery=1 (defaults to 4.2 kW charging) or ?simBattery=-3.1
+  // for a discharge sweep. Never active without the explicit URL flag.
+  const simBatteryKw = useMemo(() => {
+    if (typeof window === 'undefined') return null;
+    const raw = new URLSearchParams(window.location.search).get('simBattery');
+    if (raw === null) return null;
+    if (raw === '' || raw === '1' || raw === 'true' || raw === 'charging') return 4.2;
+    if (raw === 'discharging') return -3.1;
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : 4.2;
+  }, []);
+
   // v5 Phase 5 — aggregate across ALL connected Powerwalls / batteries.
   const batteryStatsAll = useMemo(() => {
-    if (battery.data.length <= 1) return batteryStats;
+    const withSim = <T extends { powerKw: number | null; soc: number | null; capacityKwh: number | null; reserveKwh: number | null; status: string }>(s: T): T => {
+      if (simBatteryKw === null) return s;
+      const capacityKwh = s.capacityKwh ?? POWERWALL_DEFAULT_CAPACITY_KWH;
+      const soc = s.soc ?? 62;
+      const reserveKwh = Math.round(capacityKwh * (soc / 100) * 10) / 10;
+      return {
+        ...s,
+        powerKw: simBatteryKw,
+        soc,
+        capacityKwh,
+        reserveKwh,
+        energyLeft: reserveKwh,
+        status: simBatteryKw > 0.05 ? 'Charging' : simBatteryKw < -0.05 ? 'Discharging' : 'Idle',
+      } as T;
+    };
+    if (battery.data.length <= 1) return withSim(batteryStats);
     const snaps = battery.data.map(batterySnapshot);
     const sumNonNull = (xs: Array<number | null>) =>
       xs.some((v) => v !== null) ? xs.reduce<number>((a, v) => a + (v ?? 0), 0) : null;
@@ -822,7 +850,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
     const soc = socs.length
       ? socs.reduce((a, s) => a + s.soc * (s.cap / totalCap), 0)
       : null;
-    return {
+    return withSim({
       ...batteryStats,
       soc,
       powerKw: power,
@@ -832,8 +860,9 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
       status:
         power === null ? 'State pending' : power > 0.05 ? 'Charging' : power < -0.05 ? 'Discharging' : 'Idle',
       label: `${battery.data.length} Powerwalls`,
-    };
-  }, [battery.data, batteryStats]);
+    });
+  }, [battery.data, batteryStats, simBatteryKw]);
+
 
 
   // Current household load (kW) — also re-derived below as `homeKwRaw`,
@@ -942,7 +971,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
   const reconciledFlow = reconcileEnergyFlow({
     solarKw: solarStats.currentKw ?? 0,
     rawHomeKw: effectiveHomeKwRaw,
-    batteryKw: batteryStats.powerKw ?? 0,
+    batteryKw: batteryStatsAll.powerKw ?? 0,
     rawGridKw: gridKwRaw,
     evHomeKw,
   });
@@ -951,10 +980,10 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
   const flowData = {
     solarPower: solarStats.currentKw ?? 0,
     homePower: reconciledFlow.homeKw,
-    batteryPower: batteryStats.powerKw ?? 0,
-    batteryPercent: Math.round(batteryStats.soc ?? 0),
-    batteryCapacityKwh: batteryStats.capacityKwh ?? undefined,
-    batteryReserveKwh: batteryStats.reserveKwh ?? undefined,
+    batteryPower: batteryStatsAll.powerKw ?? 0,
+    batteryPercent: Math.round(batteryStatsAll.soc ?? 0),
+    batteryCapacityKwh: batteryStatsAll.capacityKwh ?? undefined,
+    batteryReserveKwh: batteryStatsAll.reserveKwh ?? undefined,
     gridPower: reconciledFlow.gridKw,
     evPower: hideVehicle ? 0 : evKwRaw,
     tesla: teslaFlow
