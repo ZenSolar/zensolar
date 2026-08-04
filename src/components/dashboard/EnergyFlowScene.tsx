@@ -652,7 +652,6 @@ export function EnergyFlowScene({
   );
 
   const fmtKw = (v: number) => `${Math.abs(v).toFixed(1)} kW`;
-  const arrow = (v: number, threshold = 0.05) => (v > threshold ? '▲' : v < -threshold ? '▼' : '');
   const intensity = (kw: number) => Math.min(1, 0.55 + Math.abs(kw) / 6);
 
   // Only render the dynamic Tesla when the vehicle is actually connected to
