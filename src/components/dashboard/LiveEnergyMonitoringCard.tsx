@@ -1293,7 +1293,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
                 title={reconciledFlow.overrideReason ?? undefined}
               >
                 <span aria-hidden="true" className="inline-block h-1.5 w-1.5 rotate-45 bg-amber-400/80" />
-                Grid reconciled this frame
+                Grid derived this frame
               </span>
             )}
             {ev.data.length > 0 && provenAtHomeVins.size === 0 && acAtSiteVins.size === 0 && (

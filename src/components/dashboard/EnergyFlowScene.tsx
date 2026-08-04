@@ -652,7 +652,6 @@ export function EnergyFlowScene({
   );
 
   const fmtKw = (v: number) => `${Math.abs(v).toFixed(1)} kW`;
-  const arrow = (v: number, threshold = 0.05) => (v > threshold ? '▲' : v < -threshold ? '▼' : '');
   const intensity = (kw: number) => Math.min(1, 0.55 + Math.abs(kw) / 6);
 
   // Only render the dynamic Tesla when the vehicle is actually connected to
@@ -1520,9 +1519,8 @@ export function EnergyFlowScene({
         <FlowLabel
           position="bl"
           label="Powerwall"
-          // Caret follows the FLOW DIRECTION drawn in the diagram, not the raw
-          // sign: charging = energy INTO the pack (▼), discharging = OUT (▲).
-          value={`${fmtKw(battery)} ${pwCharging ? '▼' : pwDischarging ? '▲' : ''}`.trim()}
+          // Tesla convention: ▲ = filling (charging), ▼ = emptying (discharging).
+          value={`${fmtKw(battery)} ${pwCharging ? '▲' : pwDischarging ? '▼' : ''}`.trim()}
           sub={
             pwCharging
               ? `${soc}% · Charging`
@@ -1556,18 +1554,15 @@ export function EnergyFlowScene({
       ) : (
         <FlowLabel
           position="br"
-          /* §3 — grid is usually measured. The marker appears only on the
-             frames where the raw CT disagreed with the rest of the site. */
-          label={gridSource === 'reconciled' ? 'Grid ◆' : 'Grid'}
-          value={`${fmtKw(grid)} ${arrow(grid)}`.trim()}
+          // Grid state is always described with words, never a caret.
+          label="Grid"
+          value={fmtKw(grid)}
           sub={
-            gridSource === 'reconciled'
-              ? 'Reconciled this frame'
-              : gridImporting
-                ? 'Importing'
-                : gridExporting
-                  ? 'Exporting'
-                  : 'Balanced'
+            gridImporting
+              ? 'Importing'
+              : gridExporting
+                ? 'Exporting'
+                : 'Balanced'
           }
           accent={gridExporting ? 'blue' : gridImporting ? 'amber' : 'muted'}
           active={Math.abs(grid) > 0.05}
