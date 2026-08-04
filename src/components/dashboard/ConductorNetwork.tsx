@@ -232,8 +232,10 @@ export function GridFlowDefs() {
 }
 
 
-/** Travelling-pulse period: higher power travels faster, never frantic. */
+/** Legacy pulse timing helper — superseded by the uniform-speed flow sweep. */
 const pulseDur = (kw: number) => Math.max(1.5, 3.4 - Math.min(Math.abs(kw), 8) * 0.2);
+void pulseDur;
+
 
 /**
  * Service panel + meter can mounted on the facade at `wallJunction`.
