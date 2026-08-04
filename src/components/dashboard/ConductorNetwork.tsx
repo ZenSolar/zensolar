@@ -368,6 +368,7 @@ export function Conductor({
   id,
   points,
   color,
+  flowColor,
   kw,
   forward = true,
   dimmed,
@@ -378,16 +379,26 @@ export function Conductor({
   // Uniform weight — magnitude lives in the numeric labels, not the stroke.
   const w = CONDUCTOR_WIDTH;
 
-  const dur = pulseDur(kw);
+  void kw;
   const { p, angle } = polylineMidpoint(points);
   const chevronAngle = forward ? angle : angle + 180;
 
-  // Pulse: one short lit run inside a very long gap, so exactly one bright
-  // packet travels the conduit at a time.
-  const pulseLen = Math.max(3, w * 4);
-  const gap = 120;
-  const from = forward ? gap : -pulseLen;
-  const to = forward ? -pulseLen : gap;
+  // Travelling gradient segment (Tesla-style soft sweep). A repeating masked
+  // gradient whose period equals the run's chord length; a soft-edged blob
+  // covering ~25% of that period slides along at a constant speed.
+  const start = points[0];
+  const end = points[points.length - 1];
+  const vx = end.x - start.x;
+  const vy = end.y - start.y;
+  const chord = Math.hypot(vx, vy) || 1;
+  const dirX = forward ? vx : -vx;
+  const dirY = forward ? vy : -vy;
+  const sweepOrigin = forward ? start : end;
+  const dur = Math.min(4, Math.max(1.2, chord / FLOW_SPEED));
+  const maskId = `flow-mask-${id}`;
+  const gradId = `flow-grad-${id}`;
+  const sweepColor = flowColor ?? color;
+
 
   return (
     <g style={{ pointerEvents: 'none' }} opacity={dimmed ? 0.35 : 1} data-conductor={id}>
