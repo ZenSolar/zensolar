@@ -488,20 +488,13 @@ export function buildConductorSegments(args: {
     });
   }
 
-  // HOME BRANCH — a short orthogonal wall run from the panel to the load tap
-  // beside the windows. It stays entirely on the facade and never reaches the
-  // slab/driveway plane.
+  // HOME BRANCH — v15: one straight horizontal wall run from the panel to the
+  // load tap beside the windows. Same y as the panel and the battery run, so
+  // battery → panel → home reads as a single continuous line.
   if (home > 0.05) {
     segments.push({
       id: 'branch-home',
-      // v12c: horizontal panel run, then a short wall-mounted drop. No
-      // diagonal and no foundation/driveway run.
-      points: [
-        { x: A.wallJunction.x + 1.8, y: A.wallJunction.y },
-        { x: A.homeWallStub.x, y: A.wallJunction.y },
-        A.homeWallStub,
-      ],
-
+      points: [A.wallJunction, { x: A.homeWallStub.x, y: A.wallJunction.y }],
       color: CONDUCTOR_NEUTRAL,
       kw: home,
       layer: 'front',
@@ -509,12 +502,12 @@ export function buildConductorSegments(args: {
     });
   }
 
-  // BATTERY BRANCH — only while charging or discharging. Short run along the
-  // garage-side wall to the cabinet beside the panel.
+  // BATTERY BRANCH — v15: straight horizontal continuation of the same wall
+  // line, panel → Powerwall cabinet.
   if (Math.abs(battery) > 0.05) {
     segments.push({
       id: battery > 0 ? 'branch-pw-charge' : 'branch-pw-discharge',
-      points: [A.wallJunction, { x: A.wallJunction.x + 2.5, y: A.powerwall.y }, A.powerwall],
+      points: [A.wallJunction, { x: A.powerwall.x, y: A.wallJunction.y }],
       color: CONDUCTOR_NEUTRAL,
       kw: battery,
       // Discharge flows out of the pack, back toward the junction.
@@ -522,6 +515,7 @@ export function buildConductorSegments(args: {
       layer: 'front',
     });
   }
+
 
   // EV BRANCH — only when a vehicle is charging at this site. Runs from the
   // driveway charge point down to the car's port. Rendered by `EvChargeCable`,
