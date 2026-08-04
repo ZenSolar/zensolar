@@ -25,9 +25,10 @@ describe('fitVehicleToBay', () => {
     expect(f.y + f.height * SPRITE_CONTACT_RATIO).toBeCloseTo(bay.groundY, 5);
   });
 
-  it('centres the dedicated pad on the garage opening with threshold clearance', () => {
-    expect(bay.cx).toBeCloseTo((6.6 + 27.1) / 2, 1);
-    expect(bay.groundY).toBeGreaterThan(72);
+  it('places the reverse-in lane in front of the garage with threshold clearance', () => {
+    expect(bay.cx).toBeGreaterThan(16.9);
+    expect(bay.cx).toBeLessThan(20);
+    expect(bay.groundY).toBeGreaterThan(74);
   });
 
   it('scales the car down when a scale factor is supplied', () => {

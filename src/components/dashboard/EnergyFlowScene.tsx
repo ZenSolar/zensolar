@@ -842,10 +842,11 @@ export function EnergyFlowScene({
 
   const chargingAtHome = isCharging && !isSupercharging && !isOutage;
 
-  // v18 — a dedicated pad centred on the garage opening, with an explicit
-  // threshold gap. The source sprite points nose-left; mirroring it makes the
-  // rear/port side face the far-left charge point and the nose face right.
+  // Reverse-in pose: the source sprite's rear is on the left and nose on the
+  // right. Rotating the whole footprint clockwise aims the rear upper-left at
+  // the open garage and leaves the nose pointing down-right into the driveway.
   const primaryBay = HOME_BLUEPRINT.bays.garage;
+  const reverseParkAngle = 27;
   const carFit = useMemo(
     () => fitVehicleToBay(primaryBay, primaryAspect, 1),
     [primaryBay, primaryAspect],
@@ -862,11 +863,20 @@ export function EnergyFlowScene({
   const carContentH = carFit.height * (primaryAspect.height || 1);
   const carContentLeft = carFit.cx - carContentW / 2;
   const carContentTop = carFit.y + carFit.height * (primaryAspect.top || 0);
-  const evPortPt = {
-    // Use the measured OPAQUE body, not the transparent PNG canvas. After the
-    // mirror the rear driver's-side quarter is the visible body's left end.
+  const unrotatedPort = {
     x: carContentLeft + carContentW * 0.13,
     y: carContentTop + carContentH * 0.58,
+  };
+  const reverseParkRadians = (reverseParkAngle * Math.PI) / 180;
+  const evPortPt = {
+    x:
+      carFit.cx +
+      (unrotatedPort.x - carFit.cx) * Math.cos(reverseParkRadians) -
+      (unrotatedPort.y - carFit.cy) * Math.sin(reverseParkRadians),
+    y:
+      carFit.cy +
+      (unrotatedPort.x - carFit.cx) * Math.sin(reverseParkRadians) +
+      (unrotatedPort.y - carFit.cy) * Math.cos(reverseParkRadians),
   };
 
 
@@ -1160,7 +1170,7 @@ export function EnergyFlowScene({
               textAnchor="middle"
               fontFamily="ui-monospace, monospace"
             >
-              parking pad · garage center
+              reverse-in lane · rear toward garage
             </text>
           </g>
         )}
@@ -1373,22 +1383,23 @@ export function EnergyFlowScene({
               style={{ filter: 'blur(0.45px)' }}
             />
 
-            {/* v18 — source nose is left; a centre-line mirror makes the left
-                end the rear/port side nearest the far-left charge point. */}
-            <image
-              href={vehicleSrc}
-              x={carX}
-              y={carY}
-              width={carW}
-              height={carH}
-              preserveAspectRatio="xMidYMid meet"
-              transform={`translate(${carFit.cx * 2} 0) scale(-1 1)`}
-              style={{
-                filter: [spriteFilter, 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))']
-                  .filter(Boolean)
-                  .join(' '),
-              }}
-            />
+            {/* True reverse-in parking pose: rear upper-left at the garage,
+                nose lower-right down the approach lane. */}
+            <g transform={`rotate(${reverseParkAngle} ${carFit.cx} ${carFit.cy})`}>
+              <image
+                href={vehicleSrc}
+                x={carX}
+                y={carY}
+                width={carW}
+                height={carH}
+                preserveAspectRatio="xMidYMid meet"
+                style={{
+                  filter: [spriteFilter, 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))']
+                    .filter(Boolean)
+                    .join(' '),
+                }}
+              />
+            </g>
 
 
             {/* §8b — blue ambient wash so the sprite sits in the same night
