@@ -25,9 +25,9 @@ export default function PrototypeSceneCheck() {
   const data = {
     solarPower: solarState ? 6.4 : 0,
     homePower: 0.347,
-    gridPower: solarState ? -6.05 : charging ? 11.347 : 0.347,
-    batteryPower: 0,
-    batteryPercent: 0,
+    gridPower: solarState ? -3.65 : charging ? 11.347 : 0.347,
+    batteryPower: solarState ? 2.4 : 0,
+    batteryPercent: solarState ? 58 : 0,
     evPower: charging ? 11 : 0,
     tesla: {
       isCharging: charging,
@@ -37,6 +37,7 @@ export default function PrototypeSceneCheck() {
       source: 'home' as const,
     },
   };
+
 
   return (
     <div className="min-h-screen bg-background p-4">
