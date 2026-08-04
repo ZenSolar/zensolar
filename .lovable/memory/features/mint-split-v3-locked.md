@@ -23,14 +23,16 @@ Expressed as a share of tokens minted: 80% member / 20% treasury.
 - solar 1:1 · supercharging 1:1 · FSD miles 1:1 · battery export 1:1
 - general EV miles **0.1:1** (not a direct energy measurement)
 - home charging is **1:1** (netting retired 2026-08-04; revisit only if an OEM exposes Charge-on-Solar)
-  so self-generated energy is not credited twice.
+  because charging a vehicle is its own verified act; no generation-attribution
+  reduction is applied without a measurable Charge-on-Solar signal.
 
 ## Issuance pipeline (order is fixed)
 `netting → stack_bonus → allowance_cap`, declared in
 `ISSUANCE_PIPELINE_ORDER` and executed by `_shared/issuancePipeline.ts`.
-Only **netting** is implemented. Stack Bonus is **not an adopted mechanism**.
-The allowance cap needs plan and billing data that does not exist. Both are
-typed no-op seams — do not implement either without an explicit decision.
+All three stages are deliberate typed no-ops today. Netting is reserved for a
+future measurable generation-attribution signal. Stack Bonus is **not an
+adopted mechanism**. The allowance cap needs plan and billing data that does
+not exist. Do not implement any stage without an explicit decision.
 
 ## Issuance source (item 6, cutover 2026-07-31)
 Issuance is the **sum of unminted `energy_production` rows**, never
