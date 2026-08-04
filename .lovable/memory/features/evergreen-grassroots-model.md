@@ -1,10 +1,14 @@
 ---
-name: Evergreen Grassroots Model (LOCKED)
-description: Subscription philosophy for production remix — 100% gross subscription revenue to LP, 4 tiers w/ multipliers, weekly tap-to-claim, 1-yr rolling lock, investment-first messaging
+name: Evergreen Grassroots Model (ARCHIVED)
+description: Historical subscription proposal. Superseded by current subscription and mint-split locks; never use its 5% treasury slice or v3.1 split.
 type: feature
 ---
 
-# Evergreen Grassroots Model — LOCKED, applies to production remix (zensolar.com)
+# ARCHIVED — Evergreen Grassroots Model
+
+> This proposal is not current guidance. Its v3.1 mint split and 5% treasury
+> assumptions conflict with mint split v4.0 (1.0 member + 0.25 treasury, no LP
+> mint, no burn at mint). Retained for historical context only.
 
 ## 1. 100% to LP (literal, gross)
 - Every gross subscription dollar — BEFORE Stripe fees — goes directly to the $ZSOLAR Liquidity Pool.
@@ -40,4 +44,4 @@ type: feature
 ## Scope
 - Lives in the production remix (`zensolar-prod` → zensolar.com).
 - R&D project (this one, beta.zen.solar) keeps existing 50/50 SubscriptionStatusCard / flywheelLedger UNTOUCHED unless explicitly asked.
-- Does NOT change mint split v3.1 (50/25/20/5 + 3% transfer tax) — orthogonal.
+- Historical note only; current mint economics are governed exclusively by the v4.0 SSOT.

@@ -20,8 +20,9 @@ export const DATA_TYPE_TO_CATEGORY: Record<string, MintCategory> = {
   battery_discharge: 'battery_export_kwh',
   ev_miles: 'ev_miles',
   fsd_miles: 'fsd_miles',
-  // ev_charging is split by provider below: the home charger providers net,
-  // everything else is supercharging.
+  // ev_charging is split by provider below: home-charger providers map to
+  // home_charging_kwh; everything else maps to supercharging_kwh. Netting is
+  // retired, so both categories retain their full verified quantity here.
 };
 
 const HOME_CHARGING_PROVIDERS = new Set(['tesla_home_charging', 'wallbox']);
