@@ -496,13 +496,12 @@ export function buildConductorSegments(args: {
     });
   }
 
-  // HOME BRANCH — v15: one straight horizontal wall run from the panel to the
-  // load tap beside the windows. Same y as the panel and the battery run, so
-  // battery → panel → home reads as a single continuous line.
+  // HOME BRANCH — v17: single straight run from the panel to the load tap
+  // beside the windows, sloping gently down with the wall's perspective line.
   if (home > 0.05) {
     segments.push({
       id: 'branch-home',
-      points: [A.wallJunction, { x: A.homeWallStub.x, y: A.wallJunction.y }],
+      points: [A.wallJunction, A.homeWallStub],
       color: CONDUCTOR_NEUTRAL,
       kw: home,
       layer: 'front',
@@ -510,14 +509,15 @@ export function buildConductorSegments(args: {
     });
   }
 
-  // BATTERY BRANCH — v15: straight horizontal continuation of the same wall
-  // line, panel → Powerwall cabinet.
+  // BATTERY BRANCH — v17: continuation of the same sloped wall line,
+  // panel → Powerwall cabinet.
   if (Math.abs(battery) > 0.05) {
     segments.push({
       id: battery > 0 ? 'branch-pw-charge' : 'branch-pw-discharge',
-      points: [A.wallJunction, { x: A.powerwall.x, y: A.wallJunction.y }],
+      points: [A.wallJunction, A.powerwall],
       color: CONDUCTOR_NEUTRAL,
       kw: battery,
+
       // Discharge flows out of the pack, back toward the junction.
       forward: battery > 0,
       layer: 'front',
