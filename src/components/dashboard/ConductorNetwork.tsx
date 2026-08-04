@@ -435,30 +435,71 @@ export function Conductor({
         strokeLinejoin="round"
         fill="none"
       />
-      {/* 4 — travelling pulse */}
+      {/* 4 — travelling gradient segment: soft-edged colour blob sliding along
+              the pipe, fading to the neutral base at both of its ends. */}
       {!idle && (
-        <path
-          d={d}
-          stroke={color}
-          strokeOpacity={0.98}
-          strokeWidth={w}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          fill="none"
-          strokeDasharray={`${pulseLen} ${gap}`}
-          strokeDashoffset={reducedMotion ? 0 : from}
-        >
-          {!reducedMotion && (
-            <animate
-              attributeName="stroke-dashoffset"
-              from={from}
-              to={to}
-              dur={`${dur}s`}
-              repeatCount="indefinite"
+        <>
+          <defs>
+            <linearGradient
+              id={gradId}
+              gradientUnits="userSpaceOnUse"
+              spreadMethod="repeat"
+              x1={sweepOrigin.x - dirX}
+              y1={sweepOrigin.y - dirY}
+              x2={sweepOrigin.x}
+              y2={sweepOrigin.y}
+            >
+              <stop offset="0%" stopColor="#000" />
+              <stop offset="34%" stopColor="#000" />
+              <stop offset="50%" stopColor="#fff" />
+              <stop offset="66%" stopColor="#000" />
+              <stop offset="100%" stopColor="#000" />
+              {!reducedMotion && (
+                <animateTransform
+                  attributeName="gradientTransform"
+                  type="translate"
+                  from="0 0"
+                  to={`${dirX.toFixed(3)} ${dirY.toFixed(3)}`}
+                  dur={`${dur.toFixed(2)}s`}
+                  repeatCount="indefinite"
+                />
+              )}
+            </linearGradient>
+            <mask id={maskId} maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse">
+              <path
+                d={d}
+                stroke={`url(#${gradId})`}
+                strokeWidth={w * 2.2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+              />
+            </mask>
+          </defs>
+          <g mask={`url(#${maskId})`}>
+            <path
+              d={d}
+              stroke={sweepColor}
+              strokeOpacity={0.35}
+              strokeWidth={w * 2.6}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+              style={{ filter: 'blur(0.6px)' }}
             />
-          )}
-        </path>
+            <path
+              d={d}
+              stroke={sweepColor}
+              strokeOpacity={1}
+              strokeWidth={w}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
+          </g>
+        </>
       )}
+
       {/* 5 — still-frame direction cue */}
       <g transform={`translate(${p.x.toFixed(2)} ${p.y.toFixed(2)}) rotate(${chevronAngle.toFixed(1)})`}>
         <path
