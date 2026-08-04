@@ -1365,6 +1365,55 @@ export function EnergyFlowScene({
           />
         )}
 
+        {/* Chrome-less charge readout (Tesla-app framing): no pill, no border.
+            Vehicle name in small grey above a large kW figure, with a 1px
+            hairline leader dropping from the text to the car's roof. */}
+        {chargingAtHome && showDynamicCar && (() => {
+          const kw = evBranchKw > 0.1 ? evBranchKw : evKw;
+          if (!(kw > 0.1)) return null;
+          const tx = carFit.cx;
+          const roofY = carFit.y + carFit.height * 0.18;
+          const leaderTop = roofY - 4.4;
+          return (
+            <g style={{ pointerEvents: 'none' }} data-testid="ev-readout">
+              <line
+                x1={tx}
+                y1={leaderTop}
+                x2={tx}
+                y2={roofY}
+                stroke="hsl(220 12% 78%)"
+                strokeWidth={0.14}
+                opacity={0.55}
+              />
+              <text
+                x={tx}
+                y={leaderTop - 4.0}
+                textAnchor="middle"
+                fill="hsl(220 10% 68%)"
+                fontSize={1.9}
+                letterSpacing={0.18}
+                style={{ fontWeight: 500 }}
+              >
+                {displayName || 'Vehicle'}
+              </text>
+              <text
+                x={tx}
+                y={leaderTop - 1.1}
+                textAnchor="middle"
+                fill="hsl(0 0% 100%)"
+                fontSize={3.4}
+                style={{ fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}
+              >
+                {kw.toFixed(1)} kW
+                {typeof evSoc === 'number' && (
+                  <tspan fill="hsl(265 85% 82%)" fontSize={2.3}>
+                    {'  ▲ '}{evSoc}%
+                  </tspan>
+                )}
+              </text>
+            </g>
+          );
+        })()}
 
 
       </svg>
