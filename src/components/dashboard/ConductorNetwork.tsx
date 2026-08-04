@@ -322,11 +322,28 @@ export function ServicePanelGlyph({ at = SCENE_ANCHORS.wallJunction }: { at?: Pt
 
 export type ConductorLayer = 'behind' | 'front';
 
+/**
+ * FLOW COLOURS — fixed per conductor, never blended with the source mix.
+ * The pipe itself stays neutral; only the travelling gradient segment is hued.
+ */
+export const FLOW_COLORS = Object.freeze({
+  solar: 'hsl(42 96% 62%)',      // gold / amber
+  grid: 'hsl(207 94% 62%)',      // blue
+  battery: 'hsl(151 72% 52%)',   // green
+  home: 'hsl(210 20% 92%)',      // neutral white — derived, not a source
+  ev: 'hsl(265 90% 78%)',        // violet
+});
+
+/** Uniform travel speed, viewBox units per second. Never scales with kW. */
+const FLOW_SPEED = 9;
+
 export type ConductorSegment = {
   id: string;
   /** Ordered anchors — the route is built along the isometric axes. */
   points: Pt[];
   color: string;
+  /** Fixed hue of the travelling gradient segment for this conductor. */
+  flowColor?: string;
   kw: number;
   /** false → the pulse and chevron travel from the last point to the first. */
   forward?: boolean;
@@ -335,6 +352,7 @@ export type ConductorSegment = {
   /** Renders grey, no pulse — the conduit exists but carries nothing. */
   idle?: boolean;
 };
+
 
 /**
  * One anchor-to-anchor conductor. Reads as a physical run on the surface:
