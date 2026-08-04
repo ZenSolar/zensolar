@@ -124,9 +124,6 @@ const wallSlope = (from: Pt, to: Pt, atX: number) =>
  * is the battery anchor's centerline, so the conductor points directly at the
  * red debug anchor while its cap still stops at the cabinet's right outline.
  */
-const HOME_WALL_SLOPE =
-  (SCENE_ANCHORS.homeWallStub.y - SCENE_ANCHORS.wallJunction.y) /
-  (SCENE_ANCHORS.homeWallStub.x - SCENE_ANCHORS.wallJunction.x);
 const POWERWALL_FACE_X = 35.75;
 const PW_CORE = {
   x: POWERWALL_FACE_X,
