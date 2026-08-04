@@ -483,30 +483,19 @@ export function Conductor({
 
   void kw;
 
-  // Travelling gradient segment (Tesla-style soft sweep). v21: the gradient's
-  // period is the SHARED wavelength, not this run's chord, and the origin is
-  // pushed back by `phaseDist` so a wave continuing through the junction stays
-  // continuous across branches.
-  const start = points[0];
-  const end = points[points.length - 1];
-  const vx = end.x - start.x;
-  const vy = end.y - start.y;
-  const chord = Math.hypot(vx, vy) || 1;
-  const ux = (forward ? vx : -vx) / chord;
-  const uy = (forward ? vy : -vy) / chord;
-  const dirX = ux * FLOW_WAVELENGTH;
-  const dirY = uy * FLOW_WAVELENGTH;
-  const anchorPt = forward ? start : end;
-  // Slide the repeating gradient back along the travel direction by the
-  // distance the wave already covered upstream.
-  const sweepOrigin = {
-    x: anchorPt.x - ux * phaseDist,
-    y: anchorPt.y - uy * phaseDist,
-  };
+  // Travelling segment, v22 — dash-based. One crest per FLOW_WAVELENGTH of
+  // path length, phase-shifted by the distance the wave already covered
+  // upstream so a crest crossing the junction stays continuous across
+  // branches. Positive dashoffset travel moves the crest backwards along the
+  // path, so forward flow decrements it.
   const dur = FLOW_DUR;
-  const maskId = `flow-mask-${id}`;
-  const gradId = `flow-grad-${id}`;
   const sweepColor = flowColor ?? color;
+  /** Visible crest length — ~28% of the wavelength. */
+  const segLen = FLOW_WAVELENGTH * 0.28;
+  const phase = ((phaseDist % FLOW_WAVELENGTH) + FLOW_WAVELENGTH) % FLOW_WAVELENGTH;
+  const dashFrom = forward ? phase : -phase;
+  const dashTo = forward ? phase - FLOW_WAVELENGTH : -phase + FLOW_WAVELENGTH;
+
 
 
 
@@ -556,79 +545,48 @@ export function Conductor({
           />
         </>
       )}
-      {/* 4 — travelling gradient segment: soft-edged colour blob sliding along
-              the pipe, fading to the neutral base at both of its ends. */}
+      {/* 4 — travelling segment.
+              v22: the masked animated gradient is GONE. Chrome and iOS Safari
+              both failed to re-rasterise a mask whose gradient was animated by
+              SMIL, so every conductor rendered a frozen wave while the EV
+              cable — a plain animated stroke-dashoffset — moved fine. This now
+              uses that same proven technique: a dashed colour stroke whose
+              offset animates one wavelength per cycle. Phase locking survives
+              via `phaseDist`; direction via the sign of the offset travel. */}
       {!idle && (
-        <>
-          <defs>
-            <linearGradient
-              id={gradId}
-              gradientUnits="userSpaceOnUse"
-              spreadMethod="repeat"
-              x1={sweepOrigin.x - dirX}
-              y1={sweepOrigin.y - dirY}
-              x2={sweepOrigin.x}
-              y2={sweepOrigin.y}
+        <g>
+          {[
+            { width: w * 3.0, opacity: 0.28, blur: true, stroke: sweepColor },
+            { width: w * 1.12, opacity: 0.95, blur: false, stroke: sweepColor },
+            { width: w * 0.34, opacity: 0.5, blur: false, stroke: '#ffffff' },
+          ].map((layer, i) => (
+            <path
+              key={i}
+              d={d}
+              stroke={layer.stroke}
+              strokeOpacity={layer.opacity}
+              strokeWidth={layer.width}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+              strokeDasharray={`${segLen.toFixed(2)} ${(FLOW_WAVELENGTH - segLen).toFixed(2)}`}
+              strokeDashoffset={dashFrom.toFixed(2)}
+              style={layer.blur ? { filter: 'blur(0.7px)' } : undefined}
             >
-              <stop offset="0%" stopColor="#000" />
-              <stop offset="34%" stopColor="#000" />
-              <stop offset="50%" stopColor="#fff" />
-              <stop offset="66%" stopColor="#000" />
-              <stop offset="100%" stopColor="#000" />
               {!reducedMotion && (
-                <animateTransform
-                  attributeName="gradientTransform"
-                  type="translate"
-                  from="0 0"
-                  to={`${dirX.toFixed(3)} ${dirY.toFixed(3)}`}
+                <animate
+                  attributeName="stroke-dashoffset"
+                  from={dashFrom.toFixed(2)}
+                  to={dashTo.toFixed(2)}
                   dur={`${dur.toFixed(2)}s`}
                   repeatCount="indefinite"
                 />
               )}
-            </linearGradient>
-            <mask id={maskId} maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse">
-              <path
-                d={d}
-                stroke={`url(#${gradId})`}
-                strokeWidth={w * 2.2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
-              />
-            </mask>
-          </defs>
-          <g mask={`url(#${maskId})`}>
-            <path
-              d={d}
-              stroke={sweepColor}
-              strokeOpacity={0.5}
-              strokeWidth={w * 3.0}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              fill="none"
-              style={{ filter: 'blur(0.7px)' }}
-            />
-            <path
-              d={d}
-              stroke={sweepColor}
-              strokeOpacity={1}
-              strokeWidth={w * 1.12}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              fill="none"
-            />
-            <path
-              d={d}
-              stroke="#ffffff"
-              strokeOpacity={0.55}
-              strokeWidth={w * 0.34}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              fill="none"
-            />
-          </g>
-        </>
+            </path>
+          ))}
+        </g>
       )}
+
     </g>
   );
 }
