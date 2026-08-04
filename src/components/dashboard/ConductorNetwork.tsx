@@ -532,11 +532,11 @@ export function buildConductorSegments(args: {
   }
 
 
-  // GRID BRANCH — v14: ONE straight diagonal from the meter can down and
-  // outward across the yard toward the street tie point, matching the Tesla
-  // app. It passes the wall base and keeps going; no bend, no return to
-  // horizontal. It lives on the centre-right of the scene, so it never enters
-  // the garage-side corridor where the EV cable runs.
+  // GRID BRANCH — v15: ONE straight diagonal from the meter can down and to the
+  // LEFT across the yard toward the street tie point, matching the marked-up
+  // reference. It passes the wall base and keeps going; no bend, no return to
+  // horizontal. It ends well right of the charge-cable corridor at the garage
+  // corner, so the two never touch.
   if (!args.hideGrid && (importing || exporting)) {
     segments.push({
       id: exporting ? 'branch-grid-export' : 'branch-grid-import',
