@@ -25,10 +25,10 @@ describe('fitVehicleToBay', () => {
     expect(f.y + f.height * SPRITE_CONTACT_RATIO).toBeCloseTo(bay.groundY, 5);
   });
 
-  it('places the reverse-in lane in front of the garage with threshold clearance', () => {
-    expect(bay.cx).toBeGreaterThan(16.9);
-    expect(bay.cx).toBeLessThan(20);
-    expect(bay.groundY).toBeGreaterThan(74);
+  it('centres the reverse-in pad on the garage opening with threshold clearance', () => {
+    const openingCenter = HOME_BLUEPRINT.garageOpening.x + HOME_BLUEPRINT.garageOpening.w / 2;
+    expect(Math.abs(bay.cx - openingCenter)).toBeLessThan(1);
+    expect(bay.groundY - bay.maxHeight).toBeGreaterThan(HOME_BLUEPRINT.garageOpening.y + HOME_BLUEPRINT.garageOpening.h);
   });
 
   it('scales the car down when a scale factor is supplied', () => {
