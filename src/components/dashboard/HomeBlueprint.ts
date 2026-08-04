@@ -66,10 +66,9 @@ export const HOME_BLUEPRINT = Object.freeze({
    * preserved: groundY = anchor.y + boxHeight * 0.358.
    */
   bays: {
-    /** Defined reverse-in pad centred on the garage opening. Its top edge sits
-     *  clear of the threshold; the vehicle is rotated rear-first toward the
-     *  upper-left opening in EnergyFlowScene. */
-    garage:    { cx: 15.8, groundY: 76.2, maxWidth: 24.0, maxHeight: 10.5 },
+    /** EV1 bay centred on the garage opening. The contact line is on the
+     *  visible apron below the open-door threshold; the car is parallel to it. */
+    garage:    { cx: 15.2, groundY: 72.7, maxWidth: 22.0, maxHeight: 8.2 },
 
     /** v12c driveway apron in front of the garage (plate px cx 266,
      *  contact line y 784). Single fixed pose, parallel to the facade. */
