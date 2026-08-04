@@ -32,14 +32,14 @@ Telemetry SSOT: one OEM per KPI, never sum across providers. Resolver = `src/lib
 - [Evergreen Grassroots Model — Prod Remix (LOCKED)](mem://features/evergreen-grassroots-model) — Prod remix (zensolar.com) rules: 100% gross subs→LP (ZenSolar absorbs Stripe fees), 4 tiers w/ multipliers 1×/2.5×/7×/15×, weekly tap-to-claim (skip=forfeit), 1-yr rolling lock, investment-first copy. R&D project unchanged.
 - [Mint ratio SSoT (1:1)](mem://features/mint-ratio-ssot) — Strictly 1 $ZSOLAR = 1 kWh = 1 mile. Never multiply tokens by 10. Never back-calc via `tokens / USER_SHARE`.
 - [Battery bi-dir not integrated](mem://features/battery-bidir-not-integrated) — Receipts/KPIs must NOT read bidir_export/bidir_out/bidir_import rows yet.
-- [Tiered Subscriptions Flywheel (v3.1)](mem://features/tiered-subscriptions-flywheel) — 3 tiers + steady-state per-tier flywheel math (mint burn removed in v4.0; halving deprecated).
-- [Deason AI Utility Optimizer](mem://features/deason-utility-optimizer) — Phase 1 weekly report, Phase 1.5 monthly deep insights + /energy-insights, Phase 2 Tesla FSD miles (10:1).
+- [Tiered Subscriptions Flywheel (archived)](mem://features/tiered-subscriptions-flywheel) — subscription tiers + sell-cohort assumptions ONLY. All tokenomics figures purged 2026-08-04; no ratio or split lives there.
+- [Deason AI Utility Optimizer](mem://features/deason-utility-optimizer) — Phase 1 weekly report, Phase 1.5 monthly deep insights + /energy-insights, Phase 2 Tesla FSD miles (1:1).
 - [Satoshi-Mirror v2 Oracle](mem://features/satoshi-mirror-v2-oracle) — EIA monthly floor + treasury auto-buyback. Pending Michael sign-off.
 - [Sell-cohort terminology](mem://preferences/terminology-sell-cohort) — never "cheetah" for sellers; that's Michael Tschida.
 - [Energy Price Oracle (parked)](mem://roadmap/energy-price-oracle) — Per-user verified $/kWh on-chain. Phase 3 = Series A moat.
 - [Launch Model (LP rounds)](mem://features/launch-model) — $0.10 launch, tranche-per-round LP seeding.
 - [Auth & Web3 Integration](mem://features/auth) — Wallet connection, auth guards, PWA constraints.
-- [Tokenomics & Mechanics](mem://features/tokenomics) — Protocol limits, mint allocations, burn logic, LP automation.
+- [Tokenomics & Mechanics](mem://features/tokenomics) — Protocol limits, mint allocations, LP automation. No burn logic — there is no burn at mint.
 - [Energy Verification Engine](mem://features/energy-verification) — Cryptographic standards, ownership transfer.
 - [Clean Energy Center Dashboard](mem://features/dashboard) — UI specs, fallbacks, navigation.
 - [Live Energy Flow beta access](mem://features/live-energy-flow-beta-access) — Hero EnergyFlowGlowCard shows LiveEnergyMonitoringCard to founders, active subs, AND any user with ≥1 connected_devices row (pre-launch beta auto-grant). Wallbox/SolarEdge telemetry-mode gaps noted.

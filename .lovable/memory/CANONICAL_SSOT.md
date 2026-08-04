@@ -124,13 +124,15 @@ Michael: 50B locked until $20 crossover
 
 ---
 
-## 7. Scarcity Stack (always cite all 5 + floor)
+## 7. Scarcity Stack (current mechanisms only)
 
 1. 1T hard cap
-2. ~~20% burn-per-mint~~ REMOVED v4.0 — there is no burn at mint
-3. Halving schedule
+2. Treasury-share step-down: 0.25 → 0.10 per unit once Store redemption exceeds 30% for two consecutive quarters (mechanical/scheduled — NOT a burn)
+3. ~~Halving schedule~~ DEPRECATED
 4. Founder pact-lock
 5. Protocol-Owned Liquidity (POL)
+
+There is no burn-per-mint and no continuous burn. The only burn anywhere is the separate 3% transfer tax.
 
 **+ Satoshi-Mirror v2 floor** (6th layer)
 
@@ -196,7 +198,9 @@ Full menu of 9 candidate levers lives at `/founders/creative-1to1-tokenomics` �
 - ❌ "Launch at $1"
 - ❌ "10B supply"
 - ❌ "Anyone can buy at launch"
-- ❌ "10 kWh = 1 $ZSOLAR" (reverted in v3.0 — always 1:1)
+- ❌ "10 kWh = 1 $ZSOLAR" (always 1:1)
+- ❌ "20% burn" / "continuous burn" / "burn-per-mint" (no burn at mint exists)
+- ❌ "50/25/20/5" / "75/20/3/2" (mint split is 1.0 member / 0.25 treasury)
 
 ---
 
