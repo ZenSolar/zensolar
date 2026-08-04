@@ -68,7 +68,7 @@ export const HOME_BLUEPRINT = Object.freeze({
   bays: {
     /** EV1 bay centred on the garage opening. The contact line is on the
      *  visible apron below the open-door threshold; the car is parallel to it. */
-    garage:    { cx: 15.2, groundY: 72.7, maxWidth: 22.0, maxHeight: 8.2 },
+    garage:    { cx: 15.2, groundY: 68.1, maxWidth: 20.0, maxHeight: 7.8 },
 
     /** v12c driveway apron in front of the garage (plate px cx 266,
      *  contact line y 784). Single fixed pose, parallel to the facade. */
