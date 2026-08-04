@@ -948,44 +948,9 @@ export function EnergyFlowScene({
             the roof plane and onto blank sky/wall. A glow may only render at
             a named anchor that is actually passing power. */}
 
-        {/* Powerwall — only rendered when a battery is actually connected. */}
-        {hasBattery && (
-          <DeviceHalo
-            cx={SCENE_ANCHORS.powerwall.x}
-            cy={SCENE_ANCHORS.powerwall.y}
-            color={isOutage ? AMBER : pwCharging ? EMERALD : AMBER}
-            active={isOutage || pwCharging || pwDischarging}
-            intensity={isOutage ? Math.max(0.95, intensity(battery)) : intensity(battery)}
-            radius={isOutage ? 6.4 : 4.6}
-            pulseMs={isOutage ? 1100 : pwCharging ? 2800 : 2400}
-          />
-        )}
-
-        {/* v5 — Additional Powerwalls (slots 2..N), capped at 5 total.
-            Each unit gets the same halo as the primary so 1–5+ stacks
-            read cleanly along the front porch. */}
-        {hasBattery && batteryCount >= 2 &&
-          HOME_BLUEPRINT.powerwallSlots
-            .slice(1, Math.min(5, batteryCount))
-            .map((legacySlot, i) => {
-              // Slots are laid out relative to the VERIFIED powerwall anchor.
-              const slot = {
-                x: SCENE_ANCHORS.powerwall.x + (i % 2 === 0 ? -3.4 : 3.4),
-                y: SCENE_ANCHORS.powerwall.y + Math.floor(i / 2) * 4.2,
-              };
-              return (
-                <DeviceHalo
-                  key={`pw-slot-${i + 1}`}
-                  cx={slot.x}
-                  cy={slot.y}
-                  color={pwCharging ? EMERALD : AMBER}
-                  active={pwCharging || pwDischarging}
-                  intensity={intensity(battery)}
-                  radius={4.6}
-                  pulseMs={pwCharging ? 2800 : 2400}
-                />
-              );
-            })}
+        {/* Powerwall halos retired entirely (v23): the battery never glows.
+            Charge/discharge state is carried by the green conductor sweep and
+            the readout caret — no bloom on the cabinet in any state. */}
 
 
 
