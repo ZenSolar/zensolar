@@ -190,6 +190,36 @@ export const CONDUCTOR_WIDTH = 0.52;
  */
 export const CONDUCTOR_NEUTRAL = 'hsl(210 18% 82%)';
 
+/**
+ * GRID exception — the one run that leaves the building. Like the Tesla app it
+ * is amber/gold where it leaves the meter (active flow at the house) and fades
+ * to the plain muted conductor colour as it heads off toward the street.
+ */
+export const GRID_FLOW_STROKE = 'url(#grid-flow-fade)';
+
+/** Gradient definition for `GRID_FLOW_STROKE`. Render once inside the scene SVG. */
+export function GridFlowDefs() {
+  const a = SCENE_ANCHORS.wallJunction;
+  const b = SCENE_ANCHORS.gridYard;
+  return (
+    <defs>
+      <linearGradient
+        id="grid-flow-fade"
+        gradientUnits="userSpaceOnUse"
+        x1={a.x}
+        y1={a.y}
+        x2={b.x}
+        y2={b.y}
+      >
+        <stop offset="0%" stopColor="hsl(42 96% 62%)" />
+        <stop offset="38%" stopColor="hsl(42 80% 66%)" />
+        <stop offset="100%" stopColor="hsl(215 12% 58%)" />
+      </linearGradient>
+    </defs>
+  );
+}
+
+
 /** Travelling-pulse period: higher power travels faster, never frantic. */
 const pulseDur = (kw: number) => Math.max(1.5, 3.4 - Math.min(Math.abs(kw), 8) * 0.2);
 
