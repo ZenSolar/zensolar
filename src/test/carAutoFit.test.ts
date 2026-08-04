@@ -25,6 +25,11 @@ describe('fitVehicleToBay', () => {
     expect(f.y + f.height * SPRITE_CONTACT_RATIO).toBeCloseTo(bay.groundY, 5);
   });
 
+  it('centres the dedicated pad on the garage opening with threshold clearance', () => {
+    expect(bay.cx).toBeCloseTo((6.6 + 27.1) / 2, 1);
+    expect(bay.groundY).toBeGreaterThan(72);
+  });
+
   it('scales the car down when a scale factor is supplied', () => {
     const solo = fitVehicleToBay(HOME_BLUEPRINT.bays.driveway, 1.8);
     const scaled = fitVehicleToBay(HOME_BLUEPRINT.bays.driveway, 1.8, 0.84);

@@ -122,9 +122,19 @@ describe('sleeping car, open wall-connector session', () => {
 
     expect(solar?.idle).toBe(true);
     expect(battery?.idle).toBe(true);
+    expect(solar?.points).toEqual([
+      SCENE_ANCHORS.RoofArrayMiddle,
+      SCENE_ANCHORS.roofGutter,
+      SCENE_ANCHORS.wallJunction,
+    ]);
     expect(solar?.points.at(-1)).toEqual(SCENE_ANCHORS.wallJunction);
     expect(battery?.points[0]).toEqual(SCENE_ANCHORS.wallJunction);
     expect(home?.points[0]).toEqual(SCENE_ANCHORS.wallJunction);
     expect(grid?.points[0]).toEqual(SCENE_ANCHORS.wallJunction);
+    expect(grid?.points).toEqual([
+      SCENE_ANCHORS.wallJunction,
+      SCENE_ANCHORS.gridWallEnd,
+      SCENE_ANCHORS.gridYard,
+    ]);
   });
 });

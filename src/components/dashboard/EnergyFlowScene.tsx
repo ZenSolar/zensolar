@@ -842,10 +842,9 @@ export function EnergyFlowScene({
 
   const chargingAtHome = isCharging && !isSupercharging && !isOutage;
 
-  // v16 — REVERSE-PARKED GARAGE POSE. This is a different parking target, not
-  // an in-place sprite flip: the car is fitted tightly to the garage opening,
-  // centred on its bay, with the rear quarter nearest the wall and the nose on
-  // the apron. Charging and parked states share this physically plausible pose.
+  // v18 — a dedicated pad centred on the garage opening, with an explicit
+  // threshold gap. The source sprite points nose-left; mirroring it makes the
+  // rear/port side face the far-left charge point and the nose face right.
   const primaryBay = HOME_BLUEPRINT.bays.garage;
   const carFit = useMemo(
     () => fitVehicleToBay(primaryBay, primaryAspect, 1),
@@ -861,14 +860,13 @@ export function EnergyFlowScene({
    *  cable always lands on the bodywork, whatever sprite/aspect is in play. */
   const carContentW = carFit.width * (primaryAspect.width || 1);
   const carContentH = carFit.height * (primaryAspect.height || 1);
+  const carContentLeft = carFit.cx - carContentW / 2;
+  const carContentTop = carFit.y + carFit.height * (primaryAspect.top || 0);
   const evPortPt = {
-    // The sprite is drawn MIRRORED (see the <image> transform below) so the
-    // car is backed into the bay: nose down-right on the apron, rear up-left
-    // at the garage opening, near flank = driver's side. Tesla's port lives
-    // on that rear driver's-side quarter, which after the mirror is the
-    // upper-LEFT quarter of the visible bodywork.
-    x: carFit.cx - carContentW * 0.30,
-    y: carFit.groundY - carContentH * 0.62,
+    // Use the measured OPAQUE body, not the transparent PNG canvas. After the
+    // mirror the rear driver's-side quarter is the visible body's left end.
+    x: carContentLeft + carContentW * 0.13,
+    y: carContentTop + carContentH * 0.58,
   };
 
 
@@ -1141,16 +1139,43 @@ export function EnergyFlowScene({
         {/* Temporary anchor debug overlay — `?anchors=1`. Renders every named
             anchor at its overlay coordinate so it can be checked against the
             baked house art. Not reachable without the query flag. */}
+        {showAnchorDebug && (
+          <g data-testid="parking-pad-debug">
+            <rect
+              x={primaryBay.cx - primaryBay.maxWidth / 2}
+              y={primaryBay.groundY - primaryBay.maxHeight}
+              width={primaryBay.maxWidth}
+              height={primaryBay.maxHeight}
+              rx={1.2}
+              fill="none"
+              stroke="#39ffb6"
+              strokeWidth={0.35}
+              strokeDasharray="1.2 1"
+            />
+            <text
+              x={primaryBay.cx}
+              y={primaryBay.groundY + 2.2}
+              fill="#39ffb6"
+              fontSize={1.8}
+              textAnchor="middle"
+              fontFamily="ui-monospace, monospace"
+            >
+              parking pad · garage center
+            </text>
+          </g>
+        )}
         {showAnchorDebug &&
           SCENE_ANCHOR_LIST.map(([name, p], index) => {
             const labelOffsets: Record<string, { x: number; y: number }> = {
-              roofArrayEdge: { x: 1.8, y: -1.2 },
+              RoofArrayMiddle: { x: -3.0, y: -2.0 },
+              roofGutter: { x: 2.0, y: -1.2 },
               wallJunction: { x: 2.0, y: -2.1 },
               homeWallStub: { x: 2.2, y: 4.8 },
-              powerwall: { x: -16.8, y: -1.8 },
-              gridWallEnd: { x: -22.0, y: 3.0 },
-              evPort: { x: -13.5, y: 2.5 },
-              chargePoint: { x: -16.0, y: 2.6 },
+              powerwall: { x: -13.0, y: 4.4 },
+              gridWallEnd: { x: 2.0, y: 2.5 },
+              gridYard: { x: 2.0, y: 1.0 },
+              evPort: { x: 2.0, y: 4.2 },
+              chargePoint: { x: 2.0, y: -1.4 },
             };
             const offset = labelOffsets[name] ?? { x: 1.8, y: index * 0.2 };
             return (
@@ -1348,11 +1373,8 @@ export function EnergyFlowScene({
               style={{ filter: 'blur(0.45px)' }}
             />
 
-            {/* v17 — REVERSE-PARKED. The source art points nose down-LEFT with
-                the rear up-right, i.e. nose-in. Mirroring about the fitted
-                centre line backs the car into the bay: rear up-left at the
-                garage opening, nose down-right on the apron, and the near
-                flank becomes the driver's side that carries the port. */}
+            {/* v18 — source nose is left; a centre-line mirror makes the left
+                end the rear/port side nearest the far-left charge point. */}
             <image
               href={vehicleSrc}
               x={carX}
@@ -1424,6 +1446,29 @@ export function EnergyFlowScene({
             to={evPortPt}
             reducedMotion={Boolean(prefersReducedMotion)}
           />
+        )}
+
+        {showAnchorDebug && showDynamicCar && (
+          <g data-testid="live-ev-port-debug">
+            <circle cx={evPortPt.x} cy={evPortPt.y} r={1.15} fill="none" stroke="#39ffb6" strokeWidth={0.45} />
+            <line
+              x1={evPortPt.x}
+              y1={evPortPt.y}
+              x2={evPortPt.x + 8}
+              y2={evPortPt.y + 4}
+              stroke="#39ffb6"
+              strokeWidth={0.3}
+            />
+            <text
+              x={evPortPt.x + 8.5}
+              y={evPortPt.y + 4.5}
+              fill="#39ffb6"
+              fontSize={1.8}
+              fontFamily="ui-monospace, monospace"
+            >
+              LIVE rear driver-side port
+            </text>
+          </g>
         )}
 
 
