@@ -1372,6 +1372,10 @@ export function EnergyFlowScene({
           const kw = evBranchKw > 0.1 ? evBranchKw : evKw;
           if (!(kw > 0.1)) return null;
           const tx = carFit.cx;
+          // Keep the text block inside the frame when the car is parked hard
+          // left in the bay; the hairline still drops from the car itself.
+          const labelX = Math.min(Math.max(tx, 21), 79);
+
           const roofY = carFit.y + carFit.height * 0.18;
           const leaderTop = roofY - 4.4;
           return (
