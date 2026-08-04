@@ -96,8 +96,45 @@ export const SCENE_ANCHORS = Object.freeze({
 });
 
 
+/**
+ * v20 — SERVICE PANEL BOX GEOMETRY.
+ *
+ * `ServicePanelGlyph` draws the panel as a rounded rect centred on
+ * `wallJunction`, with a meter can + conduit stub hanging below it. Conductors
+ * must land on that box's EXTERIOR surface — no gap, no overlap into its
+ * interior — so the exact rectangle is published here and every branch
+ * terminates against it rather than at the abstract anchor.
+ */
+const PANEL_W = 3.4;
+const PANEL_H = 4.4;
+export const PANEL_BOX = Object.freeze({
+  w: PANEL_W,
+  h: PANEL_H,
+  x: SCENE_ANCHORS.wallJunction.x - PANEL_W / 2,
+  y: SCENE_ANCHORS.wallJunction.y - PANEL_H / 2 - 0.6,
+});
 
+/** Slope of the wall perspective line the battery/home runs follow. */
+const wallSlope = (from: Pt, to: Pt, atX: number) =>
+  from.y + ((to.y - from.y) / (to.x - from.x)) * (atX - from.x);
 
+/** Exterior contact points on the panel box, one per branch. */
+export const PANEL_PORTS = Object.freeze({
+  /** Top face — the solar drop lands here. */
+  solar: { x: SCENE_ANCHORS.wallJunction.x, y: PANEL_BOX.y } as Pt,
+  /** Right face — the home run leaves here, on the wall's perspective line. */
+  home: {
+    x: PANEL_BOX.x + PANEL_W,
+    y: wallSlope(SCENE_ANCHORS.wallJunction, SCENE_ANCHORS.homeWallStub, PANEL_BOX.x + PANEL_W),
+  } as Pt,
+  /** Left face — the Powerwall run leaves here, same perspective line. */
+  battery: {
+    x: PANEL_BOX.x,
+    y: wallSlope(SCENE_ANCHORS.wallJunction, SCENE_ANCHORS.powerwall, PANEL_BOX.x),
+  } as Pt,
+  /** Bottom of the meter-can conduit stub — the grid run starts here. */
+  grid: { x: SCENE_ANCHORS.wallJunction.x, y: PANEL_BOX.y + PANEL_H + 4.2 } as Pt,
+});
 
 /** Debug label order for the `?anchors=1` overlay. */
 export const SCENE_ANCHOR_LIST = Object.entries(SCENE_ANCHORS) as ReadonlyArray<[string, Pt]>;
@@ -193,8 +230,9 @@ export function polylineMidpoint(pts: Pt[]): { p: Pt; angle: number } {
  */
 export { WIDTH_PER_KW, conductorWidth } from '@/lib/siteBalance';
 
-/** Uniform conductor weight, in viewBox units. Thin, like the reference. */
-export const CONDUCTOR_WIDTH = 0.52;
+/** Uniform conductor weight, in viewBox units. v20: thickened so the runs
+ *  read as substantial at rest now that the direction chevrons are gone. */
+export const CONDUCTOR_WIDTH = 0.78;
 
 /**
  * The single neutral conductor colour. Grey-white, like the Tesla reference —
@@ -329,10 +367,10 @@ export type ConductorLayer = 'behind' | 'front';
  * The pipe itself stays neutral; only the travelling gradient segment is hued.
  */
 export const FLOW_COLORS = Object.freeze({
-  solar: 'hsl(42 96% 62%)',      // gold / amber
-  grid: 'hsl(207 94% 62%)',      // blue
-  battery: 'hsl(151 72% 52%)',   // green
-  home: 'hsl(210 20% 92%)',      // neutral white — derived, not a source
+  solar: 'hsl(38 98% 60%)',      // orange / gold
+  grid: 'hsl(38 98% 60%)',       // v20: orange too — direction, not hue
+  battery: 'hsl(151 76% 50%)',   // green
+  home: 'hsl(38 98% 60%)',       // routed solar/grid — orange
   ev: 'hsl(265 90% 78%)',        // violet
 });
 
@@ -347,24 +385,29 @@ export type ConductorSegment = {
   /** Fixed hue of the travelling gradient segment for this conductor. */
   flowColor?: string;
   kw: number;
-  /** false → the pulse and chevron travel from the last point to the first. */
+  /** false → the travelling segment runs from the last point to the first. */
   forward?: boolean;
   layer: ConductorLayer;
   dimmed?: boolean;
   /** Renders grey, no pulse — the conduit exists but carries nothing. */
   idle?: boolean;
+  /** Perpendicular-ish nudge, used to run two parallel lines on one path. */
+  shiftY?: number;
+  /** Suppress the base pipe — for the second line of a doubled run. */
+  sweepOnly?: boolean;
 };
 
 
 /**
  * One anchor-to-anchor conductor. Reads as a physical run on the surface:
  *   1. soft dark shadow, offset down — attaches the run to the wall/roof
- *   2. solid conductor body in the flow colour
+ *   2. solid conductor body, neutral at rest
  *   3. thin lighter stroke along the upper edge — a rounded conductor
  *      catching light
- *   4. a single bright pulse travelling with the flow (not marching dashes)
- *   5. one chevron at the midpoint, ON the path, so direction survives a
- *      still screenshot
+ *   4. a soft-edged colour segment travelling along the run
+ *
+ * v20: the static direction chevron is GONE. Direction is carried solely by
+ * the motion of the travelling segment.
  */
 export function Conductor({
   id,
@@ -375,19 +418,19 @@ export function Conductor({
   forward = true,
   dimmed,
   idle,
+  shiftY = 0,
+  sweepOnly,
   reducedMotion,
 }: Omit<ConductorSegment, 'layer'> & { reducedMotion?: boolean }) {
   const d = roundedPath(points);
   // Uniform weight — magnitude lives in the numeric labels, not the stroke.
-  const w = CONDUCTOR_WIDTH;
+  const w = sweepOnly ? CONDUCTOR_WIDTH * 0.68 : CONDUCTOR_WIDTH;
 
   void kw;
-  const { p, angle } = polylineMidpoint(points);
-  const chevronAngle = forward ? angle : angle + 180;
 
   // Travelling gradient segment (Tesla-style soft sweep). A repeating masked
   // gradient whose period equals the run's chord length; a soft-edged blob
-  // covering ~25% of that period slides along at a constant speed.
+  // covering ~32% of that period slides along at a constant speed.
   const start = points[0];
   const end = points[points.length - 1];
   const vx = end.x - start.x;
@@ -403,40 +446,51 @@ export function Conductor({
 
 
   return (
-    <g style={{ pointerEvents: 'none' }} opacity={dimmed ? 0.35 : 1} data-conductor={id}>
-      {/* 1 — contact shadow, sits the run on the surface */}
-      <path
-        d={d}
-        transform="translate(0 0.35)"
-        stroke="hsl(220 60% 3%)"
-        strokeOpacity={0.55}
-        strokeWidth={w * 1.7}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-        style={{ filter: 'blur(0.7px)' }}
-      />
-      {/* 2 — conductor body */}
-      <path
-        d={d}
-        stroke={idle ? 'hsl(215 12% 42%)' : color}
-        strokeOpacity={idle ? 0.5 : 0.72}
-        strokeWidth={w}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      {/* 3 — upper-edge highlight */}
-      <path
-        d={d}
-        transform={`translate(0 ${(-w * 0.22).toFixed(2)})`}
-        stroke={idle ? 'hsl(215 15% 68%)' : '#ffffff'}
-        strokeOpacity={idle ? 0.18 : 0.3}
-        strokeWidth={Math.max(0.16, w * 0.26)}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
+    <g
+      style={{ pointerEvents: 'none' }}
+      opacity={dimmed ? 0.35 : 1}
+      data-conductor={id}
+      transform={shiftY ? `translate(0 ${shiftY.toFixed(2)})` : undefined}
+    >
+      {/* 1–3 — the physical pipe. Skipped for the second line of a doubled
+              run: that one contributes only its travelling segment. */}
+      {!sweepOnly && (
+        <>
+          {/* 1 — contact shadow, sits the run on the surface */}
+          <path
+            d={d}
+            transform="translate(0 0.35)"
+            stroke="hsl(220 60% 3%)"
+            strokeOpacity={0.55}
+            strokeWidth={w * 1.7}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill="none"
+            style={{ filter: 'blur(0.7px)' }}
+          />
+          {/* 2 — conductor body */}
+          <path
+            d={d}
+            stroke={idle ? 'hsl(215 12% 42%)' : color}
+            strokeOpacity={idle ? 0.5 : 0.72}
+            strokeWidth={w}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill="none"
+          />
+          {/* 3 — upper-edge highlight */}
+          <path
+            d={d}
+            transform={`translate(0 ${(-w * 0.22).toFixed(2)})`}
+            stroke={idle ? 'hsl(215 15% 68%)' : '#ffffff'}
+            strokeOpacity={idle ? 0.18 : 0.3}
+            strokeWidth={Math.max(0.16, w * 0.26)}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill="none"
+          />
+        </>
+      )}
       {/* 4 — travelling gradient segment: soft-edged colour blob sliding along
               the pipe, fading to the neutral base at both of its ends. */}
       {!idle && (
@@ -482,18 +536,27 @@ export function Conductor({
             <path
               d={d}
               stroke={sweepColor}
-              strokeOpacity={0.35}
-              strokeWidth={w * 2.6}
+              strokeOpacity={0.5}
+              strokeWidth={w * 3.0}
               strokeLinecap="round"
               strokeLinejoin="round"
               fill="none"
-              style={{ filter: 'blur(0.6px)' }}
+              style={{ filter: 'blur(0.7px)' }}
             />
             <path
               d={d}
               stroke={sweepColor}
               strokeOpacity={1}
-              strokeWidth={w}
+              strokeWidth={w * 1.12}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
+            <path
+              d={d}
+              stroke="#ffffff"
+              strokeOpacity={0.55}
+              strokeWidth={w * 0.34}
               strokeLinecap="round"
               strokeLinejoin="round"
               fill="none"
@@ -501,19 +564,6 @@ export function Conductor({
           </g>
         </>
       )}
-
-      {/* 5 — still-frame direction cue */}
-      <g transform={`translate(${p.x.toFixed(2)} ${p.y.toFixed(2)}) rotate(${chevronAngle.toFixed(1)})`}>
-        <path
-          d="M -0.9 -1.15 L 0.9 0 L -0.9 1.15"
-          fill="none"
-          stroke={idle ? 'hsl(215 12% 55%)' : sweepColor}
-          strokeWidth={Math.max(0.42, w * 0.7)}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity={idle ? 0.5 : 0.95}
-        />
-      </g>
     </g>
   );
 }
@@ -557,13 +607,18 @@ export function buildConductorSegments(args: {
   const importing = grid > 0.05;
   const exporting = grid < -0.05;
 
+  // v20: every branch starts/ends on the SERVICE PANEL's exterior surface
+  // (`PANEL_PORTS`), not at the abstract `wallJunction` centre, so no line
+  // overlaps the box's interior and none stops short of it.
+  const batteryDischarging = battery < -0.05;
+
   // TRUNK — v16: two segments. Diagonal across the panel field from
   // `roofArrayMiddle` to the eave at `roofGutter`, then a straight vertical
-  // drop down the facade to the service panel.
+  // drop down the facade onto the TOP face of the service panel.
   if (producing) {
     segments.push({
       id: 'trunk',
-      points: [A.roofArrayMiddle, A.roofGutter, { x: A.roofGutter.x, y: A.wallJunction.y }],
+      points: [A.roofArrayMiddle, A.roofGutter, { x: A.roofGutter.x, y: PANEL_PORTS.solar.y }],
       color: CONDUCTOR_NEUTRAL,
       flowColor: FLOW_COLORS.solar,
       kw: solar,
@@ -572,26 +627,42 @@ export function buildConductorSegments(args: {
     });
   }
 
-  // HOME BRANCH — v17: single straight run from the panel to the load tap
-  // beside the windows, sloping gently down with the wall's perspective line.
+  // HOME BRANCH — leaves the panel's RIGHT face and runs to the load tap
+  // beside the windows, sloping gently with the wall's perspective line.
+  // When the battery is ALSO feeding the house, a second green segment runs
+  // in parallel on the same path — two lines, never a blended hue.
   if (home > 0.05) {
     segments.push({
       id: 'branch-home',
-      points: [A.wallJunction, A.homeWallStub],
+      points: [PANEL_PORTS.home, A.homeWallStub],
       color: CONDUCTOR_NEUTRAL,
       flowColor: FLOW_COLORS.home,
       kw: home,
       layer: 'front',
+      shiftY: batteryDischarging ? -0.42 : 0,
       dimmed: args.dimSolar && producing,
     });
+    if (batteryDischarging) {
+      segments.push({
+        id: 'branch-home-battery',
+        points: [PANEL_PORTS.home, A.homeWallStub],
+        color: CONDUCTOR_NEUTRAL,
+        flowColor: FLOW_COLORS.battery,
+        kw: Math.abs(battery),
+        layer: 'front',
+        shiftY: 0.62,
+        sweepOnly: true,
+        dimmed: args.dimSolar && producing,
+      });
+    }
   }
 
-  // BATTERY BRANCH — v17: continuation of the same sloped wall line,
-  // panel → Powerwall cabinet.
+  // BATTERY BRANCH — leaves the panel's LEFT face along the same sloped wall
+  // line, over to the Powerwall cabinet.
   if (Math.abs(battery) > 0.05) {
     segments.push({
       id: battery > 0 ? 'branch-pw-charge' : 'branch-pw-discharge',
-      points: [A.wallJunction, A.powerwall],
+      points: [PANEL_PORTS.battery, A.powerwall],
       color: CONDUCTOR_NEUTRAL,
       flowColor: FLOW_COLORS.battery,
       kw: battery,
@@ -619,18 +690,17 @@ export function buildConductorSegments(args: {
   }
 
 
-  // GRID BRANCH — v18: straight vertical drop from the meter can all the way
-  // to the true foundation line (`gridWallEnd`), then one diagonal across the
-  // yard toward the street tie point. It ends well right of the charge-cable
-  // corridor at the garage corner, so the two never touch.
+  // GRID BRANCH — v20: starts at the BOTTOM of the meter-can conduit stub,
+  // drops to the true foundation line (`gridWallEnd`), then one diagonal
+  // across the yard toward the street tie point.
   if (!args.hideGrid && (importing || exporting)) {
     segments.push({
       id: exporting ? 'branch-grid-export' : 'branch-grid-import',
-      points: [A.wallJunction, A.gridWallEnd, A.gridYard],
+      points: [PANEL_PORTS.grid, A.gridWallEnd, A.gridYard],
       color: CONDUCTOR_NEUTRAL,
       flowColor: FLOW_COLORS.grid,
       kw: grid,
-      // Import reverses: pulse and chevron travel inward from the grid.
+      // Import reverses: the travelling segment runs inward from the grid.
       forward: exporting,
       layer: 'front',
     });

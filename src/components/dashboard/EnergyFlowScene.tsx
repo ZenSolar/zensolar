@@ -982,6 +982,8 @@ export function EnergyFlowScene({
               kw={s.kw}
               forward={s.forward}
               dimmed={s.dimmed}
+              shiftY={s.shiftY}
+              sweepOnly={s.sweepOnly}
               reducedMotion={Boolean(prefersReducedMotion)}
             />
           ))}
@@ -1129,6 +1131,8 @@ export function EnergyFlowScene({
               kw={s.kw}
               forward={s.forward}
               dimmed={s.dimmed}
+              shiftY={s.shiftY}
+              sweepOnly={s.sweepOnly}
               reducedMotion={Boolean(prefersReducedMotion)}
             />
           ))}
