@@ -1555,18 +1555,15 @@ export function EnergyFlowScene({
       ) : (
         <FlowLabel
           position="br"
-          /* §3 — grid is usually measured. The marker appears only on the
-             frames where the raw CT disagreed with the rest of the site. */
-          label={gridSource === 'reconciled' ? 'Grid ◆' : 'Grid'}
-          value={`${fmtKw(grid)} ${arrow(grid)}`.trim()}
+          // Grid state is always described with words, never a caret.
+          label="Grid"
+          value={fmtKw(grid)}
           sub={
-            gridSource === 'reconciled'
-              ? 'Reconciled this frame'
-              : gridImporting
-                ? 'Importing'
-                : gridExporting
-                  ? 'Exporting'
-                  : 'Balanced'
+            gridImporting
+              ? 'Importing'
+              : gridExporting
+                ? 'Exporting'
+                : 'Balanced'
           }
           accent={gridExporting ? 'blue' : gridImporting ? 'amber' : 'muted'}
           active={Math.abs(grid) > 0.05}
