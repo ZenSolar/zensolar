@@ -450,29 +450,40 @@ export function Conductor({
   idle,
   shiftY = 0,
   sweepOnly,
+  phaseDist = 0,
   reducedMotion,
 }: Omit<ConductorSegment, 'layer'> & { reducedMotion?: boolean }) {
   const d = roundedPath(points);
   // Uniform weight — magnitude lives in the numeric labels, not the stroke.
-  const w = sweepOnly ? CONDUCTOR_WIDTH * 0.68 : CONDUCTOR_WIDTH;
+  const w = CONDUCTOR_WIDTH;
 
   void kw;
 
-  // Travelling gradient segment (Tesla-style soft sweep). A repeating masked
-  // gradient whose period equals the run's chord length; a soft-edged blob
-  // covering ~32% of that period slides along at a constant speed.
+  // Travelling gradient segment (Tesla-style soft sweep). v21: the gradient's
+  // period is the SHARED wavelength, not this run's chord, and the origin is
+  // pushed back by `phaseDist` so a wave continuing through the junction stays
+  // continuous across branches.
   const start = points[0];
   const end = points[points.length - 1];
   const vx = end.x - start.x;
   const vy = end.y - start.y;
   const chord = Math.hypot(vx, vy) || 1;
-  const dirX = forward ? vx : -vx;
-  const dirY = forward ? vy : -vy;
-  const sweepOrigin = forward ? start : end;
-  const dur = Math.min(4, Math.max(1.2, chord / FLOW_SPEED));
+  const ux = (forward ? vx : -vx) / chord;
+  const uy = (forward ? vy : -vy) / chord;
+  const dirX = ux * FLOW_WAVELENGTH;
+  const dirY = uy * FLOW_WAVELENGTH;
+  const anchorPt = forward ? start : end;
+  // Slide the repeating gradient back along the travel direction by the
+  // distance the wave already covered upstream.
+  const sweepOrigin = {
+    x: anchorPt.x - ux * phaseDist,
+    y: anchorPt.y - uy * phaseDist,
+  };
+  const dur = FLOW_DUR;
   const maskId = `flow-mask-${id}`;
   const gradId = `flow-grad-${id}`;
   const sweepColor = flowColor ?? color;
+
 
 
   return (
