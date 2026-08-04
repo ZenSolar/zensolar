@@ -118,8 +118,22 @@ export const PANEL_BOX = Object.freeze({
 const wallSlope = (from: Pt, to: Pt, atX: number) =>
   from.y + ((to.y - from.y) / (to.x - from.x)) * (atX - from.x);
 
-/** Powerwall cabinet right-face contact point (see `POWERWALL_CORE` below). */
-const PW_CORE = { x: 35.75, y: 48.1 };
+/**
+ * Powerwall cabinet right-face contact point (see `POWERWALL_CORE` below).
+ * Its x-coordinate is the verified no-overlap outline contact. Its y-coordinate
+ * is solved from the unchanged home run so the two sides have exactly mirrored
+ * slopes through `wallJunction`.
+ */
+const HOME_WALL_SLOPE =
+  (SCENE_ANCHORS.homeWallStub.y - SCENE_ANCHORS.wallJunction.y) /
+  (SCENE_ANCHORS.homeWallStub.x - SCENE_ANCHORS.wallJunction.x);
+const POWERWALL_FACE_X = 35.75;
+const PW_CORE = {
+  x: POWERWALL_FACE_X,
+  y:
+    SCENE_ANCHORS.wallJunction.y +
+    HOME_WALL_SLOPE * (SCENE_ANCHORS.wallJunction.x - POWERWALL_FACE_X),
+};
 
 /** Exterior contact points on the panel box, one per branch. */
 export const PANEL_PORTS = Object.freeze({
@@ -137,11 +151,9 @@ export const PANEL_PORTS = Object.freeze({
    *  from it rather than from the old `powerwall` anchor. */
   battery: (() => {
     const j = SCENE_ANCHORS.wallJunction;
-    const h = SCENE_ANCHORS.homeWallStub;
-    // magnitude of the home run's slope, mirrored to the left-hand side
-    const m = (h.y - j.y) / (h.x - j.x);
+    // The left port lies on the same mirrored line as the Powerwall contact.
     const x = PANEL_BOX.x;
-    return { x, y: PW_CORE.y - m * (x - PW_CORE.x) } as Pt;
+    return { x, y: j.y + HOME_WALL_SLOPE * (j.x - x) } as Pt;
   })(),
 
   /** Bottom of the meter-can conduit stub — the grid run starts here. */
@@ -151,10 +163,11 @@ export const PANEL_PORTS = Object.freeze({
 /**
  * v23 — the Powerwall side STOPS AT the cabinet's outline. The conductor
  * approaches from the panel (east), so it lands on the cabinet's RIGHT face,
- * centred vertically on that face — not at a corner, and with no part of the
- * stroke crossing into the cabinet's body. The value is pulled back by half
- * the stroke width so the round cap kisses the outline instead of overlapping
- * it. Measured from a 12x crop of the rendered plate.
+ * away from either corner and with no part of the stroke crossing into the
+ * cabinet's body. The verified x contact remains fixed; y shifts slightly down
+ * from the face midpoint so the battery and home slopes are numerically equal.
+ * The x value is pulled back by half the stroke width so the round cap kisses
+ * the outline instead of overlapping it. Measured from a 12x render crop.
  */
 export const POWERWALL_CORE = Object.freeze({ ...PW_CORE } as Pt);
 
