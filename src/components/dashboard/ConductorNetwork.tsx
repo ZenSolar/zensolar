@@ -59,41 +59,35 @@ export function fromHouseImage(x: number, y: number): Pt {
  *   evPort         charge port on the near quarter of the parked vehicle
  */
 export const SCENE_ANCHORS = Object.freeze({
-  /** v13: eave line directly above the service panel. */
-  roofArrayEdge: { x: 50.5, y: 34.6 } as Pt,
   /** v17: start of the solar run, up-RIGHT on the panel field so the diagonal
    *  descends from upper-right down-left into the gutter. */
   roofArrayMiddle: { x: 54.6, y: 24.0 } as Pt,
-  /** v16: eave / gutter line directly above the service panel. The solar run
-   *  reaches the roof edge here, then drops vertically down the facade. */
-  roofGutter:    { x: 50.5, y: 30.6 } as Pt,
-  /** Service panel + meter can, baked into the v13 equipment wall.
-   *  The ONLY metering object in the scene.
-   *  v18: dropped slightly (46.0 → 47.0) so the wall run sits lower. */
-  wallJunction:  { x: 50.5, y: 47.0 } as Pt,
-  /** v19: home load tap STOPS at the left outer frame edge of the 2x2 window
-   *  cluster — it no longer runs over glass. Measured on the v13 plate: the
-   *  left frame edge sits at x ≈ 685px (66.9%), and the run lands in the
-   *  frame gap between the top and bottom window rows (y ≈ 499–511px). */
-  homeWallStub:  { x: 66.4, y: 49.6 } as Pt,
+  /** v25: eave / gutter line directly above the service panel. The solar run
+   *  reaches the roof edge here, then drops vertically onto the junction. */
+  roofGutter:    { x: 50.5, y: 34.6 } as Pt,
+  /** THE NODE. Service panel + meter can — the only place in the scene where
+   *  the household resolves. Every conductor starts or ends here; nothing
+   *  passes through it. */
+  wallJunction:  { x: 50.1, y: 46.0 } as Pt,
+  /** House-load tap beside the window bank. */
+  homeWallStub:  { x: 66.1, y: 46.0 } as Pt,
 
-  /** Powerwall cabinet, slightly higher than the panel on the same sloped
-   *  perspective wall line. */
-  powerwall:     { x: 33.3, y: 46.0 } as Pt,
-  /** v18: true foundation line — where the facade meets the concrete plinth
-   *  directly below the meter can (plate y ≈ 588px). The grid run drops
-   *  vertically to here before bending into the yard diagonal. */
-  gridWallEnd:   { x: 50.5, y: 57.4 } as Pt,
-  /** v15: the grid run leaves the yard at the lower-LEFT of the visible ground,
-   *  well clear of the charge cable's corridor at the garage corner. */
+  /** Powerwall cabinet, garage-side wall beside the panel. */
+  powerwall:     { x: 33.0, y: 45.7 } as Pt,
+  /** Foundation line below the meter can — the grid run drops here before
+   *  bending into the yard diagonal. */
+  gridWallEnd:   { x: 50.5, y: 55.3 } as Pt,
+  /** Street tie point at the lower-left of the visible yard. */
   gridYard:      { x: 30.2, y: 81.0 } as Pt,
-  evPort:        { x: 24.9, y: 64.1 } as Pt,
-
-  /** v15: wall box at the garage's far-LEFT corner. Cable drops straight to
-   *  the apron and bends right to the car's rear. */
+  /** v25: named corner where the EV feeder turns up the garage wall toward
+   *  the wall connector. Exists so no segment routes to an unnamed point. */
+  evWallCorner:  { x: 6.2, y: 50.4 } as Pt,
+  /** Wall connector at the garage's far-LEFT corner. */
   chargePoint:   { x: 6.2, y: 41.8 } as Pt,
-
+  /** Charge port on the parked vehicle. */
+  evPort:        { x: 24.9, y: 64.1 } as Pt,
 });
+
 
 
 /**
@@ -153,7 +147,12 @@ export const PANEL_PORTS = Object.freeze({
 
   /** Bottom of the meter-can conduit stub — the grid run starts here. */
   grid: { x: SCENE_ANCHORS.wallJunction.x, y: PANEL_BOX.y + PANEL_H + 4.2 } as Pt,
+  /** Lower-LEFT face — the EV feeder leaves the panel here. A wall connector
+   *  sits on a branch circuit from this panel, so its conductor originates at
+   *  the node like every other one. */
+  ev: { x: PANEL_BOX.x, y: PANEL_BOX.y + PANEL_H * 0.86 } as Pt,
 });
+
 
 /**
  * v23 — the Powerwall side STOPS AT the cabinet's outline. The conductor
@@ -256,16 +255,31 @@ export function polylineMidpoint(pts: Pt[]): { p: Pt; angle: number } {
   return { p: pts[0], angle: 0 };
 }
 
-/**
- * kW → stroke width is NO LONGER used for conductor rendering. The reference
- * draws every run at the same thin weight; the helper stays exported because
- * `siteBalance` still asserts on it elsewhere.
- */
 export { WIDTH_PER_KW, conductorWidth } from '@/lib/siteBalance';
 
-/** Uniform conductor weight, in viewBox units. v20: thickened so the runs
- *  read as substantial at rest now that the direction chevrons are gone. */
+/**
+ * v25 — WIDTH ENCODES POWER, AND THE WIDTHS SUM AT THE NODE.
+ *
+ * Scale: 0.16 viewBox units of stroke width per kW (the viewBox is 0–100, so
+ * 1 unit ≈ 1% of the card's width). The mapping is strictly linear and is
+ * NEVER clamped from above, so at `wallJunction` the inbound bundle's total
+ * width equals the outbound bundle's total width whenever the site itself
+ * balances. When it does not balance, one bundle simply renders thinner or
+ * thicker — no conductor is ever padded to force agreement.
+ *
+ * Floor: 0.34 units, so a 0.2 kW trickle stays visible. The floor only binds
+ * below 2.1 kW; above that the picture is exactly proportional. A bundle whose
+ * members are all below the floor therefore reads slightly heavy — that is the
+ * one and only departure from proportionality, and it is bounded.
+ */
+export const CONDUCTOR_WIDTH_PER_KW = 0.16;
+export const CONDUCTOR_WIDTH_MIN = 0.34;
+export const conductorStrokeWidth = (kw: number) =>
+  Math.max(CONDUCTOR_WIDTH_MIN, Math.abs(kw) * CONDUCTOR_WIDTH_PER_KW);
+
+/** Legacy uniform weight — retained for glyphs that are not power-carrying. */
 export const CONDUCTOR_WIDTH = 0.78;
+
 
 /**
  * The single neutral conductor colour. Grey-white, like the Tesla reference —
