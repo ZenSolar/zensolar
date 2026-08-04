@@ -842,11 +842,11 @@ export function EnergyFlowScene({
 
   const chargingAtHome = isCharging && !isSupercharging && !isOutage;
 
-  // Reverse-in pose: the source sprite already has its rear on the local-left.
-  // Rotating the footprint clockwise aims that rear upper-left at the open
-  // garage and leaves the nose pointing down-right into the driveway.
+  // Garage-bay pose: keep the vehicle's long axis parallel to the horizontal
+  // threshold. Rotating this footprint makes the wheels climb the door pixels
+  // and visually float instead of resting on the apron.
   const primaryBay = HOME_BLUEPRINT.bays.garage;
-  const reverseParkAngle = 27;
+  const reverseParkAngle = 0;
   const carFit = useMemo(
     () => fitVehicleToBay(primaryBay, primaryAspect, 1),
     [primaryBay, primaryAspect],
@@ -1090,6 +1090,43 @@ export function EnergyFlowScene({
 
 
 
+
+        {/* EV1 garage opening. The source plate has a closed door baked in, so
+            cover only that opening while EV1 occupies the bay. The lower strip
+            provides a visible floor and threshold behind the grounded wheels. */}
+        {showDynamicCar && (
+          <g data-testid="ev1-open-garage" aria-hidden="true">
+            <defs>
+              <linearGradient id="ev1-garage-interior" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="hsl(220 18% 5%)" />
+                <stop offset="72%" stopColor="hsl(220 14% 9%)" />
+                <stop offset="100%" stopColor="hsl(215 10% 17%)" />
+              </linearGradient>
+            </defs>
+            <rect
+              x={HOME_BLUEPRINT.garageOpening.x}
+              y={HOME_BLUEPRINT.garageOpening.y}
+              width={HOME_BLUEPRINT.garageOpening.w}
+              height={HOME_BLUEPRINT.garageOpening.h}
+              fill="url(#ev1-garage-interior)"
+            />
+            <rect
+              x={HOME_BLUEPRINT.garageOpening.x}
+              y={HOME_BLUEPRINT.garageOpening.y + HOME_BLUEPRINT.garageOpening.h - 1.8}
+              width={HOME_BLUEPRINT.garageOpening.w}
+              height={3.2}
+              fill="hsl(215 8% 28%)"
+            />
+            <line
+              x1={HOME_BLUEPRINT.garageOpening.x}
+              y1={HOME_BLUEPRINT.garageOpening.y + HOME_BLUEPRINT.garageOpening.h}
+              x2={HOME_BLUEPRINT.garageOpening.x + HOME_BLUEPRINT.garageOpening.w}
+              y2={HOME_BLUEPRINT.garageOpening.y + HOME_BLUEPRINT.garageOpening.h}
+              stroke="hsl(210 8% 42%)"
+              strokeWidth={0.35}
+            />
+          </g>
+        )}
 
         {/* Service entrance state — drawn on the ONE meter object (the can at
             the base of the service panel), not on a second pedestal. The old
@@ -1395,9 +1432,8 @@ export function EnergyFlowScene({
               style={{ filter: 'blur(0.45px)' }}
             />
 
-            {/* True reverse-in parking pose: the sprite's rear is the local-left
-                end, aimed upper-left at the garage; its nose points down the
-                approach lane. No horizontal flip is applied. */}
+            {/* EV1 remains horizontal so its body and wheel line are parallel
+                to the garage threshold. No horizontal flip is applied. */}
             <g transform={`rotate(${reverseParkAngle} ${carFit.cx} ${carFit.cy})`}>
               <image
                 href={vehicleSrc}
