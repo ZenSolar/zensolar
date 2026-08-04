@@ -137,14 +137,15 @@ export const PANEL_PORTS = Object.freeze({
 });
 
 /**
- * v22 — the Powerwall side terminates INSIDE the cabinet graphic, like a
- * cable plugged into the unit, not at its outer edge. Re-measured from a 4x
- * crop of the rendered plate (`house-v13-day.png`): the white cabinet occupies
- * scene-space x 31.9–36.2, y 47.0–52.9, so its visual centre resolves to (33.05, 47.7) in anchor space.
- * The previous value (34.2, 48.3) sat on the cabinet's top-left corner, which
- * read as an edge termination.
+ * v23 — the Powerwall side STOPS AT the cabinet's outline. The conductor
+ * approaches from the panel (east), so it lands on the cabinet's RIGHT face,
+ * centred vertically on that face — not at a corner, and with no part of the
+ * stroke crossing into the cabinet's body. The value is pulled back by half
+ * the stroke width so the round cap kisses the outline instead of overlapping
+ * it. Measured from a 12x crop of the rendered plate.
  */
-export const POWERWALL_CORE = Object.freeze({ x: 33.05, y: 47.7 } as Pt);
+export const POWERWALL_CORE = Object.freeze({ x: 35.8, y: 47.8 } as Pt);
+
 
 
 
