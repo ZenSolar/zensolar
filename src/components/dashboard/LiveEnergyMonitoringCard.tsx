@@ -971,7 +971,7 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
   const reconciledFlow = reconcileEnergyFlow({
     solarKw: solarStats.currentKw ?? 0,
     rawHomeKw: effectiveHomeKwRaw,
-    batteryKw: batteryStats.powerKw ?? 0,
+    batteryKw: batteryStatsAll.powerKw ?? 0,
     rawGridKw: gridKwRaw,
     evHomeKw,
   });
@@ -980,10 +980,10 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
   const flowData = {
     solarPower: solarStats.currentKw ?? 0,
     homePower: reconciledFlow.homeKw,
-    batteryPower: batteryStats.powerKw ?? 0,
-    batteryPercent: Math.round(batteryStats.soc ?? 0),
-    batteryCapacityKwh: batteryStats.capacityKwh ?? undefined,
-    batteryReserveKwh: batteryStats.reserveKwh ?? undefined,
+    batteryPower: batteryStatsAll.powerKw ?? 0,
+    batteryPercent: Math.round(batteryStatsAll.soc ?? 0),
+    batteryCapacityKwh: batteryStatsAll.capacityKwh ?? undefined,
+    batteryReserveKwh: batteryStatsAll.reserveKwh ?? undefined,
     gridPower: reconciledFlow.gridKw,
     evPower: hideVehicle ? 0 : evKwRaw,
     tesla: teslaFlow
