@@ -78,16 +78,20 @@ Leading design: **Vesting + Stake-to-Unlock + (optional) Sell Cap**.
 
 ---
 
-## 3. Per-Mint Distribution (LOCKED)
+## 3. Per-Mint Distribution (LOCKED v4.0 — 2026-07-31)
 
-| Slice | % | Purpose |
-|---|---|---|
-| User | 75% | Producer reward |
-| Burn | 20% | Permanent destruction |
-| LP | 3% | Liquidity growth |
-| Treasury | 2% | Operations |
+Every verified unit issues **1.25 $ZSOLAR**.
 
-Transfer tax: 7%. Redemption burn: 5%.
+| Slice | Tokens per unit | Share of issued | Purpose |
+|---|---|---|---|
+| Member | 1.0 | 80% | Producer reward |
+| Treasury | 0.25 | 20% | Operations (steps down to 0.10 once Store redemption > 30% for two consecutive quarters) |
+| LP | 0 | 0% | No LP mint |
+| Burn | 0 | 0% | No burn at mint |
+
+Supersedes 75/20/3/2, 50/25/20/5, 50/20/20/10 and 50/25/20/3/2.
+
+Transfer tax: 3% (LP recycle only — separate mechanism, never conflate with the mint split).
 
 ---
 
