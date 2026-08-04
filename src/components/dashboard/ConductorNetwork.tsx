@@ -60,8 +60,8 @@ export function fromHouseImage(x: number, y: number): Pt {
  *   evPort         charge port on the near quarter of the parked vehicle
  */
 export const SCENE_ANCHORS = Object.freeze({
-  /** Collection point traced from the user's red roof mark. */
-  RoofArrayMiddle: { x: 58.0, y: 22.8 } as Pt,
+  /** Collection point in the middle of the visible array, below the ridge. */
+  RoofArrayMiddle: { x: 57.0, y: 27.8 } as Pt,
   /** Gutter/eave bend directly above the service panel. */
   roofGutter: { x: 50.5, y: 34.6 } as Pt,
   /** Service panel + meter can, baked into the v13 equipment wall.

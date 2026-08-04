@@ -842,9 +842,9 @@ export function EnergyFlowScene({
 
   const chargingAtHome = isCharging && !isSupercharging && !isOutage;
 
-  // Reverse-in pose: the source sprite's rear is on the left and nose on the
-  // right. Rotating the whole footprint clockwise aims the rear upper-left at
-  // the open garage and leaves the nose pointing down-right into the driveway.
+  // Reverse-in pose: the source sprite already has its rear on the local-left.
+  // Rotating the footprint clockwise aims that rear upper-left at the open
+  // garage and leaves the nose pointing down-right into the driveway.
   const primaryBay = HOME_BLUEPRINT.bays.garage;
   const reverseParkAngle = 27;
   const carFit = useMemo(
@@ -877,6 +877,14 @@ export function EnergyFlowScene({
       carFit.cy +
       (unrotatedPort.x - carFit.cx) * Math.sin(reverseParkRadians) +
       (unrotatedPort.y - carFit.cy) * Math.cos(reverseParkRadians),
+  };
+  const rearDebugPt = {
+    x: carFit.cx - Math.cos(reverseParkRadians) * carContentW * 0.42,
+    y: carFit.cy - Math.sin(reverseParkRadians) * carContentW * 0.42,
+  };
+  const noseDebugPt = {
+    x: carFit.cx + Math.cos(reverseParkRadians) * carContentW * 0.42,
+    y: carFit.cy + Math.sin(reverseParkRadians) * carContentW * 0.42,
   };
 
 
@@ -1161,6 +1169,7 @@ export function EnergyFlowScene({
               stroke="#39ffb6"
               strokeWidth={0.35}
               strokeDasharray="1.2 1"
+              transform={`rotate(${reverseParkAngle} ${primaryBay.cx} ${primaryBay.groundY - primaryBay.maxHeight / 2})`}
             />
             <text
               x={primaryBay.cx}
@@ -1170,7 +1179,7 @@ export function EnergyFlowScene({
               textAnchor="middle"
               fontFamily="ui-monospace, monospace"
             >
-              reverse-in lane · rear toward garage
+              reverse-in pad · threshold clearance
             </text>
           </g>
         )}
@@ -1386,25 +1395,23 @@ export function EnergyFlowScene({
               style={{ filter: 'blur(0.45px)' }}
             />
 
-            {/* True reverse-in parking pose: mirror swaps the source sprite's
-                ends, then rotation aims its rear upper-left at the garage and
-                its nose lower-right down the approach lane. */}
+            {/* True reverse-in parking pose: the sprite's rear is the local-left
+                end, aimed upper-left at the garage; its nose points down the
+                approach lane. No horizontal flip is applied. */}
             <g transform={`rotate(${reverseParkAngle} ${carFit.cx} ${carFit.cy})`}>
-              <g transform={`translate(${carFit.cx * 2} 0) scale(-1 1)`}>
-                <image
-                  href={vehicleSrc}
-                  x={carX}
-                  y={carY}
-                  width={carW}
-                  height={carH}
-                  preserveAspectRatio="xMidYMid meet"
-                  style={{
-                    filter: [spriteFilter, 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))']
-                      .filter(Boolean)
-                      .join(' '),
-                  }}
-                />
-              </g>
+              <image
+                href={vehicleSrc}
+                x={carX}
+                y={carY}
+                width={carW}
+                height={carH}
+                preserveAspectRatio="xMidYMid meet"
+                style={{
+                  filter: [spriteFilter, 'drop-shadow(0 1.5px 2px hsl(220 70% 2% / 0.65))']
+                    .filter(Boolean)
+                    .join(' '),
+                }}
+              />
             </g>
 
 
@@ -1467,6 +1474,10 @@ export function EnergyFlowScene({
 
         {showAnchorDebug && showDynamicCar && (
           <g data-testid="live-ev-port-debug">
+            <circle cx={rearDebugPt.x} cy={rearDebugPt.y} r={0.75} fill="#ff2d55" />
+            <text x={rearDebugPt.x - 1.2} y={rearDebugPt.y - 1.2} fill="#ff8fa3" fontSize={1.8} textAnchor="end" fontFamily="ui-monospace, monospace">REAR · toward garage</text>
+            <circle cx={noseDebugPt.x} cy={noseDebugPt.y} r={0.75} fill="#00c2ff" />
+            <text x={noseDebugPt.x + 1.2} y={noseDebugPt.y + 2.2} fill="#7fdbff" fontSize={1.8} fontFamily="ui-monospace, monospace">NOSE · driveway</text>
             <circle cx={evPortPt.x} cy={evPortPt.y} r={1.15} fill="none" stroke="#39ffb6" strokeWidth={0.45} />
             <line
               x1={evPortPt.x}

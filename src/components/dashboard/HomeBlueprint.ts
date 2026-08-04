@@ -66,10 +66,10 @@ export const HOME_BLUEPRINT = Object.freeze({
    * preserved: groundY = anchor.y + boxHeight * 0.358.
    */
   bays: {
-    /** Reverse-in approach lane in front of the garage. The vehicle's rear is
-     *  aimed at the upper-left garage opening and its nose points down the
-     *  driveway; the rotation is applied in EnergyFlowScene. */
-    garage:    { cx: 18.4, groundY: 75.8, maxWidth: 27.0, maxHeight: 13.6 },
+    /** Defined reverse-in pad centred on the garage opening. Its top edge sits
+     *  clear of the threshold; the vehicle is rotated rear-first toward the
+     *  upper-left opening in EnergyFlowScene. */
+    garage:    { cx: 15.8, groundY: 76.2, maxWidth: 24.0, maxHeight: 10.5 },
 
     /** v12c driveway apron in front of the garage (plate px cx 266,
      *  contact line y 784). Single fixed pose, parallel to the facade. */
