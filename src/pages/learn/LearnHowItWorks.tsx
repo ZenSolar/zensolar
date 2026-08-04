@@ -6,7 +6,7 @@ import { HowItWorksCTA } from '@/components/how-it-works/HowItWorksCTA';
 const bullets = [
   { icon: Sparkles, text: 'What you see is what you mint — 1 kWh = 1 $ZSOLAR, every time.' },
   { icon: Activity, text: 'One cockpit for Tesla, Enphase, SolarEdge, and Wallbox — verified live on Base.' },
-  { icon: Flame, text: 'Continuous 20% burn on every mint + separate 3% transfer tax recycled to LP.' },
+  { icon: Flame, text: 'No burn at mint. Treasury takes 0.25 per unit (steps down to 0.10 at scale) + a separate 3% transfer tax recycled to LP.' },
   { icon: Rocket, text: 'Launches at $0.10 via LP-seeded rounds — no speculative pre-pump.' },
 ];
 

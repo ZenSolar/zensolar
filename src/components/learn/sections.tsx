@@ -70,21 +70,19 @@ export function TokenomicsSection() {
   const stats = [
     { label: 'Max Supply', value: '1T', icon: Coins },
     { label: 'Launch Price', value: '$0.10', icon: DollarSign },
-    { label: 'Mint Burn', value: '20%', icon: Flame },
-    { label: 'Transfer Tax', value: '7%', icon: Target },
+    { label: 'Issued / Unit', value: '1.25', icon: Flame },
+    { label: 'Transfer Tax', value: '3%', icon: Target },
   ];
   const splits = [
-    { label: 'User reward', pct: '75%', desc: 'Goes to your wallet on every mint' },
-    { label: 'Burn', pct: '20%', desc: 'Permanently removed — deflationary by design' },
-    { label: 'Liquidity', pct: '3%', desc: 'Auto-injected to USDC pool each round' },
-    { label: 'Treasury', pct: '2%', desc: 'Funds protocol operations & growth' },
+    { label: 'You', pct: '1.0', desc: 'Goes to your wallet on every verified unit' },
+    { label: 'Treasury', pct: '0.25', desc: 'Funds protocol operations & growth' },
   ];
   return (
     <section className="space-y-6">
       <SectionHeader
         eyebrow="02 — The Economy"
         title="$ZSOLAR tokenomics"
-        description="1 trillion hard cap. Aggressive deflation. Every mint burns supply and seeds liquidity."
+        description="1 trillion hard cap. Every verified unit issues 1.25 $ZSOLAR — 1.0 to you, 0.25 to treasury. No liquidity mint, no burn at mint."
         icon={Coins}
       />
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

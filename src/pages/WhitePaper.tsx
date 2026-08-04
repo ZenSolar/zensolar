@@ -140,8 +140,8 @@ const investorBenefits = [
   },
   {
     icon: Shield,
-    title: "Aggressive Deflationary Mechanics",
-    description: "20% of every mint is permanently burned. A separate 3% transfer tax (LP recycle) compounds with continuous mint burn for net-negative issuance.",
+    title: "Disciplined Supply Mechanics",
+    description: "No burn at mint. Treasury takes 0.25 per verified unit, stepping down to 0.10 once Store redemption exceeds 30% for two consecutive quarters. A separate 3% transfer tax recycles to LP.",
   },
   {
     icon: Cpu,

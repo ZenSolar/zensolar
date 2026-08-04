@@ -1,26 +1,30 @@
 ---
-name: Tiered Subscriptions Flywheel (ARCHIVED v3.1)
-description: Historical v3.1 scenario only. Superseded by mint split v4.0 and canonical 1:1 member issuance; never use its 10:1 ratio, 50/25/20/5 split, or burn-per-mint assumptions.
+name: Tiered Subscriptions Flywheel (ARCHIVED — subscription tiers only)
+description: Subscription-tier and sell-cohort scenario notes. All tokenomics figures it once carried (10:1 ratio, 50/25/20/5 split, 20% burn-per-mint) were WRONG and have been removed. Locked values live in mint-split-v3-locked.md.
 type: feature
 ---
 
-# ARCHIVED — v3.1 Tokenomics Scenario
+# ARCHIVED — subscription-tier scenario notes
 
-> **Do not implement or quote the economics below.** This historical model is
-> superseded by `mem://features/mint-split-v3-locked.md`: 1.0 to the member +
-> 0.25 to treasury per verified unit, no LP mint, no burn at mint, and 1 kWh =
-> 1 $ZSOLAR to the member. It remains only as an audit record of an abandoned
-> model.
+> **This file no longer states any mint ratio, mint split, or burn rate.** The
+> figures it previously carried were wrong and were labeled as "corrections to
+> apply", which made them standing instructions to regenerate contradictions.
+> They are deleted, not annotated.
+>
+> The canonical economics are in `mem://features/mint-split-v3-locked.md`:
+> **1.25 $ZSOLAR per verified unit — 1.0 to the member, 0.25 to treasury.
+> No LP mint. No burn at mint. No continuous burn.** Member ratio is 1 kWh =
+> 1 $ZSOLAR.
 
-Refreshed 2026-06-01. Supersedes `tiered-subscriptions-halving-flywheel.md`. Genesis Halving is **deprecated as a required mechanism** in v3.1 — continuous 20% burn per mint provides perpetual deflation without a UX cliff. Companion to `mem://features/satoshi-mirror-v2-oracle` and `CANONICAL_SSOT.md`.
+Refreshed 2026-08-04. Supersedes `tiered-subscriptions-halving-flywheel.md`. Genesis Halving is **deprecated**. Companion to `mem://features/satoshi-mirror-v2-oracle` and `CANONICAL_SSOT.md`.
 
-## 1. Core principles (v2.1 ratio · v3.1 split — LOCKED)
+## 1. Core principles (locked — see mint-split-v3-locked.md)
 
-- **10:1 mint ratio:** 10 verified kWh (or 10 EV miles) = 1 $ZSOLAR minted (raw). UI shows the user's 50% share as 1 kWh = 1 $ZSOLAR.
-- **Mint split (v3.1 LIVE):** 50% user / 25% LP direct / 20% burn / 5% treasury. (Supersedes 75/20/3/2.)
-- **Continuous deflation:** every mint burns 20% — no scheduled halving required.
+- **Mint ratio:** 1 verified kWh = 1 $ZSOLAR to the member. Never 10:1.
+- **Mint split:** 1.0 member / 0 LP / 0 burn / 0.25 treasury (1.25 issued per unit). Never 50/25/20/5, never 75/20/3/2.
+- **Supply-side mechanism:** treasury-share step-down 0.25 → 0.10 once Store redemption exceeds 30% for two consecutive quarters. Mechanical and scheduled — **not** a burn, **not** "continuous deflation".
 - **1T hard cap unchanged.**
-- **External phrasing:** "10 kWh = 1 $ZSOLAR" · "Satoshi-Mirror floor" · the protocol's 50% share is framed as a "matching contribution" (401(k)-style).
+- **External phrasing:** "1 kWh = 1 $ZSOLAR" · "Satoshi-Mirror floor" · the protocol's own slice is framed as a "matching contribution" (401(k)-style).
 
 ## 2. Three subscription tiers (50/50 LP/treasury split on every dollar)
 
@@ -42,17 +46,17 @@ Every dollar of subscription revenue: **50% → LP, 50% → Treasury.** No excep
 
 These are the assumptions we model against. Power-tier mix shift is the long-term flywheel win.
 
-## 4. Per-tier flywheel math (steady-state, v3.1, $0.10 floor)
+## 4. Per-tier flywheel math (steady-state, $0.10 floor)
 
-Assumes ~1,000 raw tokens minted/user/month → **500 to user (50% of mint)**. Remaining 500 = 250 LP + 200 burn + 50 treasury (the "matching contribution"). No halving regime; numbers hold across all phases.
+Assumes ~1,000 verified units/user/month → **1,000 to the member** and 250 to treasury (1,250 issued, the "matching contribution"). No LP mint, no burn at mint, no halving regime.
 
-| Tier | LP/user/mo | User tokens | Sold tokens | Sell pressure ($) | Net (LP − sells) |
-|---|---|---|---|---|---|
-| Base | $4.995 | 500 | 450 | $45.00 | **−$40.005** |
-| Regular | $9.995 | 500 | 125 | $12.50 | **−$2.505** |
-| Power | $24.995 | 500 | 25 | $2.50 | **+$22.495** |
+| Tier | LP/user/mo | Member tokens | Sold tokens | Sell pressure ($) |
+|---|---|---|---|---|
+| Base | $9.99 | 1,000 | 900 | $90.00 |
+| Regular | $19.99 | 1,000 | 250 | $25.00 |
+| Power | $49.99 | 1,000 | 50 | $5.00 |
 
-**Key insight:** Power tier is strongly net-positive for LP; Regular sits near breakeven and improves as the cohort mix shifts upward; Base remains intentionally subsidized as the on-ramp. The 20% continuous burn on every mint provides perpetual scarcity — no halving cliff needed. Treasury auto-buyback (Satoshi-Mirror v2) absorbs residual Base-tier sell pressure.
+**Key insight:** Power tier is strongly net-positive for LP; Base remains intentionally subsidized as the on-ramp. Supply-side control comes from the treasury-share step-down (0.25 → 0.10 after Store redemption > 30% for two consecutive quarters), not from any burn. Treasury auto-buyback (Satoshi-Mirror v2) absorbs residual Base-tier sell pressure.
 
 ## 5. Cohort mix evolution (target)
 
@@ -79,7 +83,7 @@ Higher tiers grow as users accumulate token value and unlock staking multipliers
 ## 8. How this interacts with Satoshi-Mirror v2
 
 - **Satoshi-Mirror v2** = floor defense (EIA $/kWh anchor + treasury auto-buyback via POL).
-- **Tiered subs + continuous 20% burn** = supply/demand balance at the cohort level.
+- **Tiered subs + treasury-share step-down** = supply/demand balance at the cohort level. There is no burn component.
 - The two are **complementary, independent mechanisms.** Floor catches what the flywheel doesn't absorb. Neither depends on a halving event.
 
 ## 9. Open questions (Michael sign-off needed)
@@ -98,15 +102,16 @@ Higher tiers grow as users accumulate token value and unlock staking multipliers
 
 ## 11. Forbidden phrasings
 
-- ❌ "1 kWh = 1 $ZSOLAR" (raw) → ✅ "10 kWh = 1 $ZSOLAR" (display ratio handled via 50% user share)
+- ❌ "10 kWh = 1 $ZSOLAR" / any 10:1 ratio → ✅ "1 kWh = 1 $ZSOLAR"
 - ❌ "Tier-1/Tier-2/Tier-3" externally → ✅ "Base / Regular / Power"
-- ❌ "75% user share" / "75/20/3/2" → ✅ "50% user share (v3.1)" / "50/25/20/5"
-- ❌ "Genesis Halving" as a required v3.1 mechanism → ✅ "continuous 20% burn"
+- ❌ "50/25/20/5" · "75/20/3/2" · "50/20/20/10" → ✅ "1.0 member / 0.25 treasury (1.25 per verified unit)"
+- ❌ "continuous 20% burn" · "burn-per-mint" · "20% burned" → ✅ "treasury-share step-down 0.25 → 0.10"
+- ❌ "Genesis Halving" as a current mechanism → ✅ deprecated, do not surface
 
-## 12. Why no halving in v3.1
+## 12. Why no halving and no burn
 
-- **Continuous 20% burn** is already perpetual deflation — smoother and more reliable than a one-time event.
-- **Constant 25% LP allocation** deepens the pool every mint — no need to "force" scarcity via a mint-rate cut.
+- **There is no burn at mint** — minting then immediately burning the same tokens has zero net supply effect.
+- **There is no LP mint** — LP is fed by subscriptions and the separate 3% transfer tax only.
+- **Supply-side control is the treasury-share step-down**: 0.25 → 0.10 once Store redemption exceeds 30% for two consecutive quarters. Mechanical and scheduled.
 - **No UX cliff** — rewards stay predictable, no overnight 50% drop to explain to users.
-- **Simpler model** — single steady-state regime, no pre/post-halving tables to maintain.
-- Code constants (`GENESIS_HALVING`, `GenesisHalvingAnnouncementModal`, `FlywheelSimulation`) remain in the repo for optional future re-activation but should NOT be surfaced in new investor/user copy.
+- Code constants (`GENESIS_HALVING`, `GenesisHalvingAnnouncementModal`, `FlywheelSimulation`) remain in the repo for optional future re-activation but must NOT be surfaced in any copy.

@@ -44,7 +44,7 @@ ZenSolar is **not** a Web3 energy app. It is a **verification system that happen
 - Multisig on contract upgrade authority
 - On-chain `DeviceWatermarkRegistry` snapshots (Proof-of-Permanence™) make any anomaly forensically detectable
 - Hard cap (1T) limits worst-case blast radius
-- 20% burn-per-mint structurally penalizes any inflation event
+- The treasury-share step-down (0.25 → 0.10 after Store redemption > 30% for two consecutive quarters) is the scheduled supply-side lever. There is no burn-per-mint.
 - Subscription gate means attack scales linearly with attacker's payment graph
 
 **Investor framing:** *"We're a centralized oracle today, the same way Coinbase is a centralized custodian — and we're decentralizing on the same timeline post-Series A. The verification stack is already 10 layers deep before we add decentralization."*

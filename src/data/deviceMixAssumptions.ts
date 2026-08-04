@@ -58,8 +58,8 @@ export const WEIGHTED_AVG_RAW_TOKENS = DEVICE_MIX.reduce(
   0
 );
 
-/** v3.1 mint split: user receives 50% of raw mint (25% LP / 20% burn / 5% treasury). */
-export const NET_MULTIPLIER = 0.50;
+/** Mint split v4.0: the member receives 1.0 per verified unit (treasury takes a further 0.25). */
+export const NET_MULTIPLIER = 1.0;
 
 /** Weighted average NET tokens received per user per month */
 export const WEIGHTED_AVG_NET_TOKENS = Math.round(WEIGHTED_AVG_RAW_TOKENS * NET_MULTIPLIER);

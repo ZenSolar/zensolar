@@ -345,7 +345,7 @@ export default function AdminCompetitiveIntel() {
               Operating on VeChainThor and leveraging the Smartcar API for multi-brand vehicle support, EVearn validates the market demand 
               for driving-to-earn rewards. However, their tokenomics rely on a 12-year inflationary emission schedule distributing tokens 
               from a pre-minted B3TR pool—a fundamentally different economic model than ZenSolar's deflationary on-demand minting with 
-              20% burn mechanics.
+              treasury step-down mechanics.
             </p>
             
             <h3 className="text-foreground font-semibold mt-6">ZenSolar's Competitive Moat</h3>

@@ -329,8 +329,8 @@ export function useDemoData() {
       tokens += breakdown.chargingKwh;
     }
     
-    // v3.1: User receives 50% (25% LP, 20% burn, 5% treasury). UI shows 1:1.
-    const userTokens = Math.floor(tokens * 0.50);
+    // v4.0: member receives 1.0 per verified unit (treasury takes a further 0.25). UI shows 1:1.
+    const userTokens = Math.floor(tokens * 1.0);
     
     // Clear pending rewards after mint
     setActivityData(prev => ({

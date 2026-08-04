@@ -302,7 +302,7 @@ export function ProofOfGenesisThesis() {
               Bitcoin's moat is{' '}
               <span className="font-semibold text-foreground">cultural, institutional, and monetary</span>{' '}
               — a 15-year head start, spot ETFs, and "digital gold" brand recognition. We don't need to
-              dethrone it. With our five stacked scarcity mechanisms (1T cap, continuous 20% burn-per-mint,
+              dethrone it. With our stacked scarcity mechanisms (1T cap, treasury-share step-down,
               hybrid sell-throttle, founder pact-lock, POL) tied to real-world clean energy utility, $ZSOLAR has a
               credible path to{' '}
               <span className="font-semibold text-foreground">

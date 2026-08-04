@@ -41,6 +41,12 @@ Issuance is the **sum of unminted `energy_production` rows**, never
 twice. All rows predating the cutover are marked `consumed_reason = 'pre_cutover'`.
 Audit + reversal: `public.issuance_cutovers` / `public.revert_issuance_cutover`.
 
+## Treasury-share step-down (the supply-side mechanism)
+Treasury takes **0.25** per verified unit, stepping down to **0.10** once Store
+redemption exceeds **30% for two consecutive quarters**. It is mechanical and
+scheduled. It is NOT a burn and must never be described as "continuous
+deflation" or "burn-per-mint".
+
 ## Transfer tax (SEPARATE mechanism — never conflate with the mint split)
 - 3% on transfer/swap, recycled to LP only.
 - `contracts/ZSOLAR.sol` as deployed still carries the retired 7% schedule
@@ -54,3 +60,5 @@ tax-exempt. Do not deploy a v3 range order without resolving this.
 
 ## Supersedes (never reintroduce)
 - 50/25/20/5 · 50/20/20/10 · 50/25/20/3/2 · 75/20/3/2
+- Any "20% burn", "continuous burn" or "burn-per-mint" claim
+- Any 10:1 kWh:token ratio

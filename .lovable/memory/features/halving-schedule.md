@@ -6,7 +6,7 @@ type: feature
 
 # Halving Schedule (LEGACY — DEPRECATED in v3.1 narrative)
 
-> ⚠️ **DEPRECATED 2026-06-01.** v3.1 tokenomics use **continuous 20% burn per mint** as the deflation mechanism — no scheduled halving. This file is retained as a historical record and for optional future re-activation. See `mem://features/tiered-subscriptions-flywheel.md` for the current model. Code constants (`GENESIS_HALVING`) remain in `src/lib/tokenomics.ts` but should not be surfaced in new user/investor copy.
+> ⚠️ **DEPRECATED 2026-06-01.** Current tokenomics use the **treasury-share step-down** (0.25 → 0.10 once Store redemption exceeds 30% for two consecutive quarters) as the supply-side mechanism — no scheduled halving and no burn. This file is retained as a historical record and for optional future re-activation. See `mem://features/tiered-subscriptions-flywheel.md` for the current model. Code constants (`GENESIS_HALVING`) remain in `src/lib/tokenomics.ts` but should not be surfaced in new user/investor copy.
 >
 > **Defers to `mem://CANONICAL_SSOT.md` §4.** If anything below conflicts with the SSoT, the SSoT wins.
 
@@ -42,12 +42,12 @@ Earlier drafts (and an interim model run) cited Epoch 1 = 400B based on an 800B 
 
 ## Stacks with rest of scarcity engine
 1. 1T hard cap (capped supply)
-2. 20% burn-per-mint (every kWh shrinks float)
+2. Treasury-share step-down 0.25 → 0.10 (no burn)
 3. **4-year halving** (this) — issuance halves on schedule
 4. Founder pact-lock (no cliff dumps)
 5. Protocol-Owned Liquidity (no rented liquidity flight)
 
-By **epoch 5 (years 16–20)**, only 6.25B/yr is being minted while 20% burn applies to all activity → ZenSolar becomes **net-deflationary** ~16 years after launch (vs Bitcoin's 116 years to its tail).
+RETIRED: the net-deflationary-by-epoch-5 claim depended on a 20% burn that does not exist.
 
 ## The Lyndon line
 *"Bitcoin halves every 4 years against wasted compute. ZenSolar halves every 4 years against productive clean energy. Same monetary discipline, real-world utility, net-deflationary inside 16 years instead of 116."*

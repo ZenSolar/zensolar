@@ -239,7 +239,7 @@ export const SUBSCRIPTION_TIERS = {
 export type SubscriptionTierId = keyof typeof SUBSCRIPTION_TIERS;
 
 // === GENESIS HALVING (LEGACY — DEPRECATED in v3.1 narrative) ===
-// v3.1 tokenomics rely on the continuous 20% burn-per-mint for deflation;
+// There is no burn-per-mint; supply-side control is the treasury-share step-down.
 // the halving is no longer surfaced in user/investor copy. Constants and
 // helpers retained for optional future re-activation only. Setting `enabled`
 // to `false` is intentional and keeps the steady-state model consistent.
@@ -360,7 +360,7 @@ export function kwhToTokens(units: number): number {
 }
 
 // === STAKING / LOCKING INCENTIVES (Regular + Power tiers — future, not yet on-chain) ===
-// Voluntary lock-ups grant a mint multiplier on top of the base 10:1 ratio.
+// Voluntary lock-ups grant a mint multiplier on top of the base 1:1 ratio.
 // Multipliers are NOT compatible with Base tier (which has the soft mint cap).
 // Locked tokens are non-transferable for the duration; early-unlock forfeits 50% to burn.
 export const STAKING_MULTIPLIERS = {

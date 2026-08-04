@@ -4,7 +4,7 @@ description: Context-aware CO₂ framing per source and EV-miles token formula f
 type: feature
 ---
 **EV mint math** (canonical):
-- 1 $ZSOLAR per mile driven, then × 0.5 user share (20% LP / 20% burn / 10% treasury).
+- 1 $ZSOLAR per mile driven to the member (mint split v4.0: 1.0 member / 0.25 treasury; no LP mint, no burn at mint).
 - kWh equivalent for display: miles ÷ 3.0 mi/kWh (Tesla Model Y/3 baseline).
 
 **Receipt CO₂ framing — context-aware per primary source:**

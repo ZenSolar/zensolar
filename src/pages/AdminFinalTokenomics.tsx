@@ -61,8 +61,8 @@ const metricDefinitions: Record<string, { title: string; definition: string; exa
   },
   burn_rate: {
     title: "Mint Burn Rate",
-    definition: "The percentage of newly minted tokens that are immediately destroyed. Higher burn rates create scarcity and reduce sell pressure on the market.",
-    example: "If 1,000 tokens are minted, a 20% burn rate means 200 are destroyed and only 800 enter circulation."
+    definition: "RETIRED. ZenSolar applies no burn at mint — minting and immediately burning the same tokens has zero net supply effect.",
+    example: "Supply-side control is the treasury-share step-down: 0.25 per unit falling to 0.10 once Store redemption exceeds 30% for two consecutive quarters."
   },
   transfer_tax: {
     title: "Transfer Tax",

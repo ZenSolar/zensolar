@@ -104,10 +104,10 @@ export function S08ThreeEngines() {
             </p>
             <ul className="mt-4 space-y-1.5">
               {[
-                'Mint split: 50 user · 25 LP · 20 burn · 5 treasury',
+                'Mint split: 1.0 member · 0.25 treasury (1.25 issued/unit)',
                 'Separate 3% transfer tax → LP (recycle only)',
                 '$0.10 LP-seeded launch on Base · 1T hard cap',
-                'Mint split + transfer tax compound supply + LP depth',
+                'Treasury-share steps down 0.25 → 0.10 once Store redemption > 30% for two consecutive quarters',
               ].map((b) => (
                 <li
                   key={b}

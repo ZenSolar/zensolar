@@ -285,7 +285,7 @@ export default function Engineering() {
                 icon={Workflow}
                 title="The Tokenomics Engine"
                 plain="Every mint is split four ways automatically: most goes to you, some is burned forever, some seeds liquidity, and a sliver funds the treasury."
-                technical="On-chain split: 50% user / 25% LP / 20% burn / 5% treasury. Hard cap of 10B tokens. Burn logic is irreversible. LP automation routes through the pool atomically."
+                technical="On-chain split: 1.0 to the member / 0.25 to treasury per verified unit (1.25 issued). No LP mint, no burn at mint. Hard cap of 1T tokens. LP is fed by subscriptions and the separate 3% transfer tax."
               />
               <PillarCard
                 icon={Bell}
