@@ -118,6 +118,9 @@ export const PANEL_BOX = Object.freeze({
 const wallSlope = (from: Pt, to: Pt, atX: number) =>
   from.y + ((to.y - from.y) / (to.x - from.x)) * (atX - from.x);
 
+/** Powerwall cabinet right-face contact point (see `POWERWALL_CORE` below). */
+const PW_CORE = { x: 35.75, y: 48.1 };
+
 /** Exterior contact points on the panel box, one per branch. */
 export const PANEL_PORTS = Object.freeze({
   /** Top face — the solar drop lands here. */
@@ -127,11 +130,20 @@ export const PANEL_PORTS = Object.freeze({
     x: PANEL_BOX.x + PANEL_W,
     y: wallSlope(SCENE_ANCHORS.wallJunction, SCENE_ANCHORS.homeWallStub, PANEL_BOX.x + PANEL_W),
   } as Pt,
-  /** Left face — the Powerwall run leaves here, same perspective line. */
-  battery: {
-    x: PANEL_BOX.x,
-    y: wallSlope(SCENE_ANCHORS.wallJunction, SCENE_ANCHORS.powerwall, PANEL_BOX.x),
-  } as Pt,
+  /** Left face — the Powerwall run leaves here. v24: its slope is the MIRROR
+   *  of the home run's slope (same rise per unit of horizontal travel, opposite
+   *  direction), so both sides of the junction read as one line bending only at
+   *  the panel. `POWERWALL_CORE` is fixed, so the port height is solved back
+   *  from it rather than from the old `powerwall` anchor. */
+  battery: (() => {
+    const j = SCENE_ANCHORS.wallJunction;
+    const h = SCENE_ANCHORS.homeWallStub;
+    // magnitude of the home run's slope, mirrored to the left-hand side
+    const m = (h.y - j.y) / (h.x - j.x);
+    const x = PANEL_BOX.x;
+    return { x, y: PW_CORE.y - m * (x - PW_CORE.x) } as Pt;
+  })(),
+
   /** Bottom of the meter-can conduit stub — the grid run starts here. */
   grid: { x: SCENE_ANCHORS.wallJunction.x, y: PANEL_BOX.y + PANEL_H + 4.2 } as Pt,
 });
@@ -144,7 +156,7 @@ export const PANEL_PORTS = Object.freeze({
  * the stroke width so the round cap kisses the outline instead of overlapping
  * it. Measured from a 12x crop of the rendered plate.
  */
-export const POWERWALL_CORE = Object.freeze({ x: 35.75, y: 48.1 } as Pt);
+export const POWERWALL_CORE = Object.freeze({ ...PW_CORE } as Pt);
 
 
 
