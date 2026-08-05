@@ -348,6 +348,7 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
           oemInflight.set(oemKey, livePromise);
         }
         const live = await livePromise;
+        if ((live as any)?.__reauth) revoked.add(oem);
         if (live && !(live as any).error && !(live as any).__reauth) {
           liveSuccesses++;
           if (!targetHeaderId) {
@@ -369,6 +370,7 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
         }
       }
       setData(out);
+      setReauthProviders(Array.from(revoked));
       // Backoff bookkeeping: any live-fetch success clears the streak; a
       // refresh that attempted live fetches and got zero successes counts as
       // a failure. Refreshes that only served cached rows are neutral.
@@ -377,6 +379,7 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
       } else if (liveSuccesses > 0) {
         setFailureCount(0);
       }
+
     } catch (e: any) {
       setError(e?.message ?? 'Failed to load telemetry');
       setFailureCount((n) => n + 1);
