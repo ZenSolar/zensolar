@@ -489,7 +489,8 @@ export function resolveVehicleAsset(
     null;
 
   // Persist for next poll so a transient missing payload doesn't blank the car.
-  if (src && !overrides?.model) writeLastKnown(detectedModel, detectedColor ?? null);
+  if (src && !overrides?.model) writeLastKnown(detectedModel, detectedColor ?? null, options?.vehicleKey);
+
 
   return { model: detectedModel, color, src, generic: false };
 }
