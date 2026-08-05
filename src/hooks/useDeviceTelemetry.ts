@@ -288,7 +288,12 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [failureCount, setFailureCount] = useState(0);
+  // Providers whose refresh token the OEM rejected. A revoked grant is NOT a
+  // transient failure — retrying can never fix it, so it must be stated to the
+  // member rather than silently degrading into hours-old cached readings.
+  const [reauthProviders, setReauthProviders] = useState<OEM[]>([]);
   const pollMs = opts?.pollMs ?? 0;
+
 
   const refresh = useCallback(async (opts?: { force?: boolean }) => {
     if (!effectiveUserId) {
