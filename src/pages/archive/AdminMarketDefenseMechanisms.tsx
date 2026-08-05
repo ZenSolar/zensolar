@@ -1,3 +1,4 @@
+import { SupersededTokenomicsNotice } from '@/components/admin/SupersededTokenomicsNotice';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Navigate } from 'react-router-dom';
@@ -488,7 +489,7 @@ function TierSection({
   );
 }
 
-export default function AdminMarketDefenseMechanisms() {
+function AdminMarketDefenseMechanismsPage() {
   const { user, isLoading: authLoading } = useAuth();
   const { isAdmin, isChecking: adminLoading } = useAdminCheck();
 
@@ -961,5 +962,14 @@ export default function AdminMarketDefenseMechanisms() {
         </Card>
       </motion.div>
     </div>
+  );
+}
+
+export default function AdminMarketDefenseMechanismsArchived() {
+  return (
+    <>
+      <SupersededTokenomicsNotice />
+      <AdminMarketDefenseMechanismsPage />
+    </>
   );
 }

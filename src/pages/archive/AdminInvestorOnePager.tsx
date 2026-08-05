@@ -1,3 +1,4 @@
+import { SupersededTokenomicsNotice } from '@/components/admin/SupersededTokenomicsNotice';
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { Navigate } from "react-router-dom";
@@ -79,7 +80,7 @@ const MOONSHOT_SCENARIOS = [
   { price: "$20+", label: "ESG Integration", subs: "250K+", driver: "Carbon market adoption", color: "purple" },
 ];
 
-export default function AdminInvestorOnePager() {
+function AdminInvestorOnePagerPage() {
   const { user, isLoading: authLoading } = useAuth();
   const { isAdmin, isChecking: adminLoading } = useAdminCheck();
 
@@ -507,5 +508,14 @@ export default function AdminInvestorOnePager() {
         </p>
       </motion.div>
     </div>
+  );
+}
+
+export default function AdminInvestorOnePagerArchived() {
+  return (
+    <>
+      <SupersededTokenomicsNotice />
+      <AdminInvestorOnePagerPage />
+    </>
   );
 }

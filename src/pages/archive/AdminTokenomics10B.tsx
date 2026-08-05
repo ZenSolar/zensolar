@@ -1,3 +1,4 @@
+import { SupersededTokenomicsNotice } from '@/components/admin/SupersededTokenomicsNotice';
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { Navigate } from "react-router-dom";
@@ -148,7 +149,7 @@ const fadeIn = {
   transition: { duration: 0.5 }
 };
 
-export default function AdminTokenomics10B() {
+function AdminTokenomics10BPage() {
   const { user, isLoading: authLoading } = useAuth();
   const { isAdmin, isChecking: adminLoading } = useAdminCheck();
 
@@ -1424,5 +1425,14 @@ export default function AdminTokenomics10B() {
         </Card>
       </motion.div>
     </div>
+  );
+}
+
+export default function AdminTokenomics10BArchived() {
+  return (
+    <>
+      <SupersededTokenomicsNotice />
+      <AdminTokenomics10BPage />
+    </>
   );
 }

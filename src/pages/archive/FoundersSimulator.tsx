@@ -1,3 +1,4 @@
+import { SupersededTokenomicsNotice } from '@/components/admin/SupersededTokenomicsNotice';
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
@@ -86,7 +87,7 @@ interface SavedScenario {
   grade?: { letter: ScenarioGrade["letter"]; total: number };
 }
 
-export default function FoundersSimulator() {
+function FoundersSimulatorPage() {
   return (
     <PublicSimulatorPinGate>
       <Helmet>
@@ -2094,4 +2095,13 @@ function loadScenarios(): SavedScenario[] {
   } catch {
     return [];
   }
+}
+
+export default function FoundersSimulatorArchived() {
+  return (
+    <>
+      <SupersededTokenomicsNotice />
+      <FoundersSimulatorPage />
+    </>
+  );
 }

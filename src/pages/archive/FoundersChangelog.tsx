@@ -1,3 +1,4 @@
+import { SupersededTokenomicsNotice } from '@/components/admin/SupersededTokenomicsNotice';
 import { useEffect, useState } from "react";
 import { Navigate, Link } from "react-router-dom";
 import {
@@ -453,7 +454,7 @@ const ENTRIES: ChangelogEntry[] = [
   },
 ];
 
-export default function FoundersChangelog() {
+function FoundersChangelogPage() {
   const { user, isLoading: authLoading } = useAuth();
   const [isFounder, setIsFounder] = useState<boolean | null>(null);
 
@@ -636,5 +637,14 @@ function ChangelogContent() {
         </footer>
       </div>
     </div>
+  );
+}
+
+export default function FoundersChangelogArchived() {
+  return (
+    <>
+      <SupersededTokenomicsNotice />
+      <FoundersChangelogPage />
+    </>
   );
 }

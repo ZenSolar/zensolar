@@ -1,3 +1,4 @@
+import { SupersededTokenomicsNotice } from '@/components/admin/SupersededTokenomicsNotice';
 import { useEffect, useState } from "react";
 import { Navigate, Link } from "react-router-dom";
 import { ArrowLeft, FileText, Loader2 } from "lucide-react";
@@ -5,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { VaultPinGate } from "@/components/founders/VaultPinGate";
 
-export default function WhitepaperPhase1() {
+function WhitepaperPhase1Page() {
   const { user, isLoading: authLoading } = useAuth();
   const [isFounder, setIsFounder] = useState<boolean | null>(null);
 
@@ -221,5 +222,14 @@ function Phase1Content() {
         </article>
       </div>
     </div>
+  );
+}
+
+export default function WhitepaperPhase1Archived() {
+  return (
+    <>
+      <SupersededTokenomicsNotice />
+      <WhitepaperPhase1Page />
+    </>
   );
 }

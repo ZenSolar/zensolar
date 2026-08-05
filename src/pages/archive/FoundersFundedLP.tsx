@@ -1,3 +1,4 @@
+import { SupersededTokenomicsNotice } from '@/components/admin/SupersededTokenomicsNotice';
 import { useEffect, useMemo, useState } from "react";
 import { Navigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -309,7 +310,7 @@ const fmtPrice = (n: number) =>
 // PAGE
 // =============================================================================
 
-export default function FoundersFundedLP() {
+function FoundersFundedLPPage() {
   const { user, isLoading: authLoading } = useAuth();
   const [isFounder, setIsFounder] = useState<boolean | null>(null);
 
@@ -1104,5 +1105,14 @@ function UnitTestPanel() {
         </div>
       </div>
     </Section>
+  );
+}
+
+export default function FoundersFundedLPArchived() {
+  return (
+    <>
+      <SupersededTokenomicsNotice />
+      <FoundersFundedLPPage />
+    </>
   );
 }

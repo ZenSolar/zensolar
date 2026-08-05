@@ -1,3 +1,4 @@
+import { SupersededTokenomicsNotice } from '@/components/admin/SupersededTokenomicsNotice';
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
@@ -81,7 +82,7 @@ function GlassCard({ className, children }: { className?: string; children: Reac
   );
 }
 
-export default function FoundersSsotOnePager() {
+function FoundersSsotOnePagerPage() {
   return (
     <PageTransition>
       <SEO title="ZenSolar SSOT — One-Pager" description="Executive one-pager: tokenomics, flywheel, roadmap." />
@@ -292,5 +293,14 @@ export default function FoundersSsotOnePager() {
         </div>
       </div>
     </PageTransition>
+  );
+}
+
+export default function FoundersSsotOnePagerArchived() {
+  return (
+    <>
+      <SupersededTokenomicsNotice />
+      <FoundersSsotOnePagerPage />
+    </>
   );
 }

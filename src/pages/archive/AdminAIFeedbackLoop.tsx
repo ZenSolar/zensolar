@@ -1,3 +1,4 @@
+import { SupersededTokenomicsNotice } from '@/components/admin/SupersededTokenomicsNotice';
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { Navigate } from "react-router-dom";
@@ -194,7 +195,7 @@ const ACTION_ITEMS = [
   { priority: "medium", item: "Create investor FAQ addressing VC objections", owner: "Founder", status: "todo" },
 ];
 
-export default function AdminAIFeedbackLoop() {
+function AdminAIFeedbackLoopPage() {
   const { user, isLoading: authLoading } = useAuth();
   const { isAdmin, isChecking: adminLoading } = useAdminCheck();
 
@@ -578,5 +579,14 @@ export default function AdminAIFeedbackLoop() {
         </Card>
       </motion.div>
     </div>
+  );
+}
+
+export default function AdminAIFeedbackLoopArchived() {
+  return (
+    <>
+      <SupersededTokenomicsNotice />
+      <AdminAIFeedbackLoopPage />
+    </>
   );
 }

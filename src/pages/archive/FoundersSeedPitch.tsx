@@ -1,3 +1,4 @@
+import { SupersededTokenomicsNotice } from '@/components/admin/SupersededTokenomicsNotice';
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { ArrowLeft, Lock, Sparkles, PlugZap, ShieldCheck, Coins } from "lucide-react";
@@ -74,7 +75,7 @@ const MILESTONES = [
   { months: "18–24", milestone: "Multi-OEM live · Energy Oracle Phase 2 · Series A optional", why: "Raise on metrics + moat — never on runway pressure" },
 ];
 
-export default function FoundersSeedPitch() {
+function FoundersSeedPitchPage() {
   return (
     <div className="min-h-[100svh] bg-background text-foreground pb-safe">
       <Helmet>
@@ -702,5 +703,14 @@ export default function FoundersSeedPitch() {
         ZenSolar · Confidential · Review Draft · Prepared for Greg Falesnik (MZ Group)
       </footer>
     </div>
+  );
+}
+
+export default function FoundersSeedPitchArchived() {
+  return (
+    <>
+      <SupersededTokenomicsNotice />
+      <FoundersSeedPitchPage />
+    </>
   );
 }

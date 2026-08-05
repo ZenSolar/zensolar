@@ -1,3 +1,4 @@
+import { SupersededTokenomicsNotice } from '@/components/admin/SupersededTokenomicsNotice';
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Navigate } from "react-router-dom";
@@ -264,7 +265,7 @@ const glossaryTerms = [
 
 const categories = [...new Set(glossaryTerms.map(t => t.category))].sort();
 
-export default function AdminGlossary() {
+function AdminGlossaryPage() {
   const { user, isLoading: authLoading } = useAuth();
   const { isAdmin, isChecking: adminLoading } = useAdminCheck();
   const [searchQuery, setSearchQuery] = useState("");
@@ -438,5 +439,14 @@ export default function AdminGlossary() {
         )}
       </motion.div>
     </div>
+  );
+}
+
+export default function AdminGlossaryArchived() {
+  return (
+    <>
+      <SupersededTokenomicsNotice />
+      <AdminGlossaryPage />
+    </>
   );
 }

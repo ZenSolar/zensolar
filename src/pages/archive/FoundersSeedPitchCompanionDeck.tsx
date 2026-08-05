@@ -1,3 +1,4 @@
+import { SupersededTokenomicsNotice } from '@/components/admin/SupersededTokenomicsNotice';
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import {
@@ -765,7 +766,7 @@ const labels = [
   "Next Steps",
 ];
 
-export default function FoundersSeedPitchCompanionDeck() {
+function FoundersSeedPitchCompanionDeckPage() {
   return (
     <div className="min-h-[100svh] bg-[hsl(220,20%,6%)] text-white">
       <Helmet>
@@ -792,5 +793,14 @@ export default function FoundersSeedPitchCompanionDeck() {
 
       <PitchDeckShell slides={slides} slideLabels={labels} />
     </div>
+  );
+}
+
+export default function FoundersSeedPitchCompanionDeckArchived() {
+  return (
+    <>
+      <SupersededTokenomicsNotice />
+      <FoundersSeedPitchCompanionDeckPage />
+    </>
   );
 }

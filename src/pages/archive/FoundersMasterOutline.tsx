@@ -1,3 +1,4 @@
+import { SupersededTokenomicsNotice } from '@/components/admin/SupersededTokenomicsNotice';
 import { useEffect, useState } from "react";
 import { Navigate, Link } from "react-router-dom";
 import {
@@ -830,7 +831,7 @@ More attractive to new users → loop restarts, stronger`}
   },
 ];
 
-export default function FoundersMasterOutline() {
+function FoundersMasterOutlinePage() {
   const { user, isLoading: authLoading } = useAuth();
   const [isFounder, setIsFounder] = useState<boolean | null>(null);
 
@@ -1006,5 +1007,14 @@ function OutlineContent() {
         </footer>
       </div>
     </div>
+  );
+}
+
+export default function FoundersMasterOutlineArchived() {
+  return (
+    <>
+      <SupersededTokenomicsNotice />
+      <FoundersMasterOutlinePage />
+    </>
   );
 }
