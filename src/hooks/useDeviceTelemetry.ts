@@ -305,6 +305,8 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
     setError(null);
     let liveAttempts = 0;
     let liveSuccesses = 0;
+    const revoked = new Set<OEM>();
+
     try {
       const devices = await loadDevicesDeduped(effectiveUserId);
 
