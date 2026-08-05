@@ -444,10 +444,11 @@ export function resolveVehicleColor(
 export function resolveVehicleAsset(
   input: unknown,
   overrides?: { model?: VehicleModel | null; color?: VehicleColor | null },
-  options?: { fallbackWhenConnected?: boolean },
+  options?: { fallbackWhenConnected?: boolean; vehicleKey?: string | null },
 ): { model: VehicleModel | null; color: VehicleColor | null; src: string | null; generic: boolean } {
   const urlOverride = readUrlOverride();
-  const lastKnown = readLastKnown();
+  const lastKnown = readLastKnown(options?.vehicleKey);
+
 
   const detectedModel =
     overrides?.model ??
