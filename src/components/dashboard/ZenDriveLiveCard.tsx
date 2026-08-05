@@ -57,26 +57,33 @@ export interface ZenDriveLiveCardProps {
 }
 
 export function ZenDriveLiveCard({ alwaysRender = false, deviceIndex = 0 }: ZenDriveLiveCardProps = {}) {
-  const { data: isActivelyCharging } = useActiveChargingSession();
+  // Household-level session: used ONLY to decide whether to poll faster.
+  const { data: householdCharging } = useActiveChargingSession();
   // While a charging session is live and the app is foregrounded, poll Tesla
   // telemetry every 20s so `charge_energy_added` advances in near-real-time.
   // Idle → no polling (single fetch on mount).
-  const ev = useEVChargerTelemetry({ pollMs: isActivelyCharging ? 20_000 : 0 });
+  const ev = useEVChargerTelemetry({ pollMs: householdCharging ? 20_000 : 0 });
   const battery = useBatteryTelemetry();
   const solar = useSolarTelemetry();
   const primaryEv = ev.data[deviceIndex];
   // Scope charging totals to THIS vehicle (site_id holds the VIN) so multi-car
   // households see per-car Home & AC / Supercharging kWh instead of a shared total.
   const evTotals = useEVTotals(1, primaryEv?.site_id);
+  // Charging state must be scoped to THIS VIN. A household-wide session (e.g.
+  // ZenX on the wall connector) must never make a second, unplugged car
+  // (TesYto) render as "charging".
+  const { data: vinCharging } = useActiveChargingSession(primaryEv?.site_id ?? undefined);
+  const isActivelyCharging = !!primaryEv?.site_id && !!vinCharging;
 
   const [refreshing, setRefreshing] = useState(false);
   const tileRef = useRef<HTMLDivElement | null>(null);
   const [ping, setPing] = useState(false);
 
   const teslaFlow = useMemo(
-    () => deriveTeslaFlow(primaryEv, !!isActivelyCharging),
+    () => deriveTeslaFlow(primaryEv, isActivelyCharging),
     [primaryEv, isActivelyCharging]
   );
+
 
 
   // Pull exact model + color from Tesla vehicle_config so the image mirrors
