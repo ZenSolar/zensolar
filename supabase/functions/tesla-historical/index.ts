@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { readSessionEnergy, sessionRef } from "../_shared/sessionEnergy.ts";
+import { getTeslaAccessToken } from '../_shared/teslaToken.ts';
 
 
 const corsHeaders = {
@@ -106,49 +107,26 @@ function extractChargingSessionVin(session: any, knownVins: Set<string>): string
   return null;
 }
 
+/**
+ * Delegates to the ONE Tesla refresh authority in _shared/teslaToken.ts.
+ *
+ * Tesla rotates refresh tokens on every use and invalidates the presented
+ * one, so a private refresh copy per function is a race: parallel callers
+ * present the same token, all but one are rejected with `login_required`,
+ * and that rejection was being misreported as the member revoking consent.
+ * The broker serialises via compare-and-swap and recovers lost races.
+ *
+ * `_unusedRefreshToken` is accepted only to keep existing call sites intact;
+ * the broker reads the authoritative row itself and must never be handed a
+ * refresh token captured earlier in a request.
+ */
 async function refreshTeslaToken(
-  supabaseClient: any,
+  client: any,
   userId: string,
-  refreshToken: string
+  _unusedRefreshToken?: string,
 ): Promise<string | null> {
-  const clientId = Deno.env.get("TESLA_CLIENT_ID");
-  const clientSecret = Deno.env.get("TESLA_CLIENT_SECRET");
-  if (!clientId || !clientSecret || !refreshToken) return null;
-
-  try {
-    const resp = await fetch(TESLA_TOKEN_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        grant_type: "refresh_token",
-        client_id: clientId,
-        client_secret: clientSecret,
-        refresh_token: refreshToken,
-      }),
-    });
-
-    if (!resp.ok) return null;
-
-    const tokens = await resp.json();
-    const expiresAt = tokens.expires_in
-      ? new Date(Date.now() + tokens.expires_in * 1000).toISOString()
-      : null;
-
-    await supabaseClient
-      .from("energy_tokens")
-      .update({
-        access_token: tokens.access_token,
-        refresh_token: tokens.refresh_token || refreshToken,
-        expires_at: expiresAt,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("user_id", userId)
-      .eq("provider", "tesla");
-
-    return tokens.access_token;
-  } catch {
-    return null;
-  }
+  const r = await getTeslaAccessToken(client, userId);
+  return r.ok ? r.accessToken : null;
 }
 
 
