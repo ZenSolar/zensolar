@@ -895,10 +895,19 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
       : null,
     batteryCount: battery.data?.length ?? 1,
   });
+  // The open session belongs to ONE vehicle. Only let it drive the charging
+  // state of the car it actually belongs to — otherwise a second, unplugged
+  // car inherits "charging" from its sibling.
+  const sessionIsThisVehicle =
+    isActivelyCharging &&
+    !!activeSession?.deviceId &&
+    !!primaryEv?.site_id &&
+    activeSession.deviceId === primaryEv.site_id;
   const teslaFlow = useMemo(
-    () => (hideVehicle ? null : deriveTeslaFlow(primaryEv, !!isActivelyCharging, sessionChargerKw)),
-    [hideVehicle, primaryEv, isActivelyCharging, sessionChargerKw]
+    () => (hideVehicle ? null : deriveTeslaFlow(primaryEv, sessionIsThisVehicle, sessionChargerKw)),
+    [hideVehicle, primaryEv, sessionIsThisVehicle, sessionChargerKw]
   );
+
 
   // Haptic ping on Tesla pill state change
   const lastPillState = useRef<TeslaPillState | null>(null);
