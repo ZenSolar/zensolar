@@ -39,6 +39,8 @@ export const CardFreshnessContext = createContext<string | null>(null);
 
 import { LiveCardHeader } from './LiveCardHeader';
 import { TelemetrySyncBadge } from './TelemetrySyncBadge';
+import { ProviderReauthCallout, type ReauthProvider } from './ProviderReauthCallout';
+
 import { SolarSiteTabs } from './SolarSiteTabs';
 import { useWeather } from '@/hooks/useWeather';
 import { useLifetimeTotals } from '@/hooks/useLifetimeTotals';
@@ -1097,6 +1099,28 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
       />
 
       {(() => {
+        // A revoked OEM grant can never heal by retrying. State it plainly and
+        // offer the reconnect path instead of letting the card serve
+        // hours-old cached readings as if they were live.
+        const revoked = Array.from(
+          new Set([
+            ...(solar.reauthProviders ?? []),
+            ...(battery.reauthProviders ?? []),
+            ...(ev.reauthProviders ?? []),
+          ]),
+        ) as ReauthProvider[];
+        if (revoked.length === 0) return null;
+        return (
+          <div className="mb-3 -mt-1 space-y-2">
+            {revoked.map((p) => (
+              <ProviderReauthCallout key={p} provider={p} />
+            ))}
+          </div>
+        );
+      })()}
+
+      {(() => {
+
         // Surface whichever telemetry lane is unhealthiest so a broken OEM
         // never leaves the tile silently frozen. Prefer paused > retrying.
         // A reading older than 24h renders the "gone dark" state even when

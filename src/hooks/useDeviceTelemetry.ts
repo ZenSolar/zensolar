@@ -288,7 +288,12 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [failureCount, setFailureCount] = useState(0);
+  // Providers whose refresh token the OEM rejected. A revoked grant is NOT a
+  // transient failure — retrying can never fix it, so it must be stated to the
+  // member rather than silently degrading into hours-old cached readings.
+  const [reauthProviders, setReauthProviders] = useState<OEM[]>([]);
   const pollMs = opts?.pollMs ?? 0;
+
 
   const refresh = useCallback(async (opts?: { force?: boolean }) => {
     if (!effectiveUserId) {
@@ -300,6 +305,8 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
     setError(null);
     let liveAttempts = 0;
     let liveSuccesses = 0;
+    const revoked = new Set<OEM>();
+
     try {
       const devices = await loadDevicesDeduped(effectiveUserId);
 
@@ -341,6 +348,7 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
           oemInflight.set(oemKey, livePromise);
         }
         const live = await livePromise;
+        if ((live as any)?.__reauth) revoked.add(oem);
         if (live && !(live as any).error && !(live as any).__reauth) {
           liveSuccesses++;
           if (!targetHeaderId) {
@@ -362,6 +370,7 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
         }
       }
       setData(out);
+      setReauthProviders(Array.from(revoked));
       // Backoff bookkeeping: any live-fetch success clears the streak; a
       // refresh that attempted live fetches and got zero successes counts as
       // a failure. Refreshes that only served cached rows are neutral.
@@ -370,6 +379,7 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
       } else if (liveSuccesses > 0) {
         setFailureCount(0);
       }
+
     } catch (e: any) {
       setError(e?.message ?? 'Failed to load telemetry');
       setFailureCount((n) => n + 1);
@@ -447,7 +457,7 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
     void refresh({ force: true });
   }, [refresh]);
 
-  return { data, loading, error, refresh, syncState, failureCount, resetFailures };
+  return { data, loading, error, refresh, syncState, failureCount, resetFailures, reauthProviders };
 }
 
 export const useBatteryTelemetry = (opts?: { pollMs?: number }) => useTelemetry('battery', opts);
