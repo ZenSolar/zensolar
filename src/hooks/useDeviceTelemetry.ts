@@ -457,7 +457,7 @@ function useTelemetry(capability: Capability, opts?: { pollMs?: number }) {
     void refresh({ force: true });
   }, [refresh]);
 
-  return { data, loading, error, refresh, syncState, failureCount, resetFailures };
+  return { data, loading, error, refresh, syncState, failureCount, resetFailures, reauthProviders };
 }
 
 export const useBatteryTelemetry = (opts?: { pollMs?: number }) => useTelemetry('battery', opts);
