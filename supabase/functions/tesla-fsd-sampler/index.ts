@@ -26,6 +26,7 @@ import { recordGrantFailure, clearGrantFailure } from "../_shared/grantHealth.ts
 // the lifetime reading kept in proof_metadata.value.
 const ISSUANCE_WRITES_ENABLED = true;
 import {
+import { getTeslaAccessToken } from '../_shared/teslaToken.ts';
   applyOdometerSample,
   defaultSamplerState,
   extractAutopilotState,
@@ -54,44 +55,26 @@ async function sha256Hex(input: string): Promise<string> {
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-async function refreshTeslaToken(supabase: any, userId: string, refreshToken: string): Promise<string | null> {
-  const clientId = Deno.env.get("TESLA_CLIENT_ID");
-  const clientSecret = Deno.env.get("TESLA_CLIENT_SECRET");
-  if (!clientId || !clientSecret || !refreshToken) return null;
-  try {
-    const r = await fetch(TESLA_TOKEN_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        grant_type: "refresh_token",
-        client_id: clientId,
-        client_secret: clientSecret,
-        refresh_token: refreshToken,
-      }),
-    });
-    if (!r.ok) {
-      const body = await r.text();
-      const cls = await recordGrantFailure(supabase, userId, "tesla", r.status, body);
-      console.error(`[fsd-sampler] token refresh failed [${cls}]:`, body);
-      return null;
-    }
-    const j = await r.json();
-    await supabase
-      .from("energy_tokens")
-      .update({
-        access_token: j.access_token,
-        refresh_token: j.refresh_token || refreshToken,
-        expires_at: j.expires_in ? new Date(Date.now() + j.expires_in * 1000).toISOString() : null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("user_id", userId)
-      .eq("provider", "tesla");
-    await clearGrantFailure(supabase, userId, "tesla");
-    return j.access_token;
-  } catch (e) {
-    console.error("[fsd-sampler] refresh error", e);
-    return null;
-  }
+/**
+ * Delegates to the ONE Tesla refresh authority in _shared/teslaToken.ts.
+ *
+ * Tesla rotates refresh tokens on every use and invalidates the presented
+ * one, so a private refresh copy per function is a race: parallel callers
+ * present the same token, all but one are rejected with `login_required`,
+ * and that rejection was being misreported as the member revoking consent.
+ * The broker serialises via compare-and-swap and recovers lost races.
+ *
+ * `_unusedRefreshToken` is accepted only to keep existing call sites intact;
+ * the broker reads the authoritative row itself and must never be handed a
+ * refresh token captured earlier in a request.
+ */
+async function refreshTeslaToken(
+  client: any,
+  userId: string,
+  _unusedRefreshToken?: string,
+): Promise<string | null> {
+  const r = await getTeslaAccessToken(client, userId);
+  return r.ok ? r.accessToken : null;
 }
 
 Deno.serve(async (req) => {
