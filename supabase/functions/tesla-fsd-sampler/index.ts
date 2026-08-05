@@ -25,8 +25,9 @@ import { recordGrantFailure, clearGrantFailure } from "../_shared/grantHealth.ts
 // Re-enabled 2026-08-01: rows now store snapshotDelta() as production_wh with
 // the lifetime reading kept in proof_metadata.value.
 const ISSUANCE_WRITES_ENABLED = true;
-import {
 import { getTeslaAccessToken } from '../_shared/teslaToken.ts';
+import {
+
   applyOdometerSample,
   defaultSamplerState,
   extractAutopilotState,
