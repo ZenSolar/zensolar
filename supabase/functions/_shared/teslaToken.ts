@@ -52,8 +52,17 @@ import { recordGrantFailure, clearGrantFailure } from './grantHealth.ts';
 export const TESLA_TOKEN_URL =
   'https://fleet-auth.prd.vn.cloud.tesla.com/oauth2/v3/token';
 
-/** Refresh this long before the stamped expiry so no caller races the clock. */
-const RENEW_SKEW_MS = 10 * 60 * 1000;
+/**
+ * Renew this far ahead of the stamped expiry.
+ *
+ * Wider than the hourly refresh-provider-tokens cadence on purpose: the goal
+ * is that a scheduled run ALWAYS renews a grant before it lapses, so no
+ * member-facing request is ever the thing that discovers an expired token.
+ * Tesla access tokens live ~8h, so a 90-minute lead costs a couple of extra
+ * rotations a day and buys uninterrupted coverage.
+ */
+const RENEW_SKEW_MS = 90 * 60 * 1000;
+
 
 interface MinimalClient {
   from: (t: string) => any;
