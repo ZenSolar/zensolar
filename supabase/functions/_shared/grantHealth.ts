@@ -15,16 +15,36 @@ export type GrantFailureClass = 'user_revoked' | 'technically_invalid';
 
 /**
  * OAuth2 says `invalid_grant` covers both "revoked" and "expired/unknown".
- * Tesla additionally returns `login_required` / `consent_required` when the
- * member withdrew consent, which is the only signal that reliably means churn.
+ *
+ * Tesla wraps THREE very different situations in the same `login_required`
+ * error code, and treating that code as churn was actively misleading:
+ *
+ *   "User consent revoked."          -> real churn, the member withdrew access
+ *   "The refresh_token is invalid"   -> a single-use rotating token was already
+ *                                       spent, i.e. our own refresh race
+ *   "user session flushed"           -> Tesla dropped the session on their side
+ *
+ * Only the first is the member's doing. Classify on the DESCRIPTION, never on
+ * the `login_required` code alone, or every concurrency bug we ship gets
+ * reported as members quitting.
  */
 export function classifyGrantFailure(status: number, body: string): GrantFailureClass {
   const b = (body || '').toLowerCase();
+
+  // Unambiguous "we were rotated out from under ourselves" markers win first.
   if (
-    b.includes('login_required') ||
+    b.includes('refresh_token is invalid') ||
+    b.includes('invalid refresh token') ||
+    b.includes('session flushed')
+  ) {
+    return 'technically_invalid';
+  }
+
+  if (
+    b.includes('consent revoked') ||
     b.includes('consent_required') ||
     b.includes('access_denied') ||
-    b.includes('revoked')
+    b.includes('user_revoked')
   ) {
     return 'user_revoked';
   }
@@ -33,6 +53,7 @@ export function classifyGrantFailure(status: number, body: string): GrantFailure
   void status;
   return 'technically_invalid';
 }
+
 
 interface MinimalClient {
   from: (t: string) => any;
