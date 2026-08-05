@@ -554,7 +554,12 @@ function EnergyFlowGlowCard({ batteryKwhExportedToday }: { batteryKwhExportedTod
               balance loses an entire measured load (an 11 kW charge read as
               0.3 kW home) and no vehicle can ever be drawn. */}
           <LiveEnergyMonitoringCard batteryKwhExportedToday={batteryKwhExportedToday} />
+          {/* Tier 2 — per-vehicle detail cards (Tesla-app pattern): big car
+              hero, SOC/ETA, and the Home & AC vs Supercharging split. One card
+              per connected EV. */}
+          <ZenDriveMultiCard />
         </>
+
 
       ) : (
         // Default placeholder/mock card everyone sees until they pay $4.99/mo.
