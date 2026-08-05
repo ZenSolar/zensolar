@@ -161,15 +161,25 @@ const NICKNAME_COLOR_MAP: Array<[RegExp, VehicleColor]> = [
   [/\bzen[\s_-]?x\b/i, 'solid-black'],
 ];
 
-/** Local persistence key — last successfully resolved vehicle for this browser. */
+/**
+ * Local persistence key — last successfully resolved vehicle for this browser.
+ * Multi-car households MUST scope this per vehicle (VIN / site_id): a single
+ * shared key let the second car inherit the first car's model+paint whenever
+ * its own payload momentarily lacked `vehicle_config` (TesYto rendering as a
+ * black Model X instead of a pearl-white Model Y).
+ */
 const LAST_KNOWN_KEY = 'zen:vehicle:lastKnown';
+
+function lastKnownKey(vehicleKey?: string | null) {
+  return vehicleKey ? `${LAST_KNOWN_KEY}:${vehicleKey}` : LAST_KNOWN_KEY;
+}
 
 type LastKnown = { model: VehicleModel; color: VehicleColor | null };
 
-function readLastKnown(): LastKnown | null {
+function readLastKnown(vehicleKey?: string | null): LastKnown | null {
   if (typeof window === 'undefined') return null;
   try {
-    const raw = window.localStorage.getItem(LAST_KNOWN_KEY);
+    const raw = window.localStorage.getItem(lastKnownKey(vehicleKey));
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (parsed && typeof parsed.model === 'string') return parsed as LastKnown;
@@ -177,12 +187,13 @@ function readLastKnown(): LastKnown | null {
   return null;
 }
 
-function writeLastKnown(model: VehicleModel, color: VehicleColor | null) {
+function writeLastKnown(model: VehicleModel, color: VehicleColor | null, vehicleKey?: string | null) {
   if (typeof window === 'undefined') return;
   try {
-    window.localStorage.setItem(LAST_KNOWN_KEY, JSON.stringify({ model, color }));
+    window.localStorage.setItem(lastKnownKey(vehicleKey), JSON.stringify({ model, color }));
   } catch {}
 }
+
 
 /** URL ?vehicle=modelx&color=stealth-grey escape hatch for demos. */
 function readUrlOverride(): { model?: VehicleModel; color?: VehicleColor } {
