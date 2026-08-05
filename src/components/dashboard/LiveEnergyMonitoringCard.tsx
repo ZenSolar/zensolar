@@ -39,6 +39,8 @@ export const CardFreshnessContext = createContext<string | null>(null);
 
 import { LiveCardHeader } from './LiveCardHeader';
 import { TelemetrySyncBadge } from './TelemetrySyncBadge';
+import { ProviderReauthCallout, type ReauthProvider } from './ProviderReauthCallout';
+
 import { SolarSiteTabs } from './SolarSiteTabs';
 import { useWeather } from '@/hooks/useWeather';
 import { useLifetimeTotals } from '@/hooks/useLifetimeTotals';
