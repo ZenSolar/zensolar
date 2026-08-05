@@ -1,3 +1,4 @@
+import { SupersededTokenomicsNotice } from '@/components/admin/SupersededTokenomicsNotice';
 import { SEO } from '@/components/SEO';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -206,7 +207,7 @@ const diligenceQuestions = [
   'How much of GridPay’s differentiation is actual technical architecture versus ERCOT go-to-market packaging?',
 ];
 
-export default function GridPayCompetition() {
+function GridPayCompetitionPage() {
   return (
     <>
       <SEO
@@ -635,6 +636,15 @@ export default function GridPayCompetition() {
           </Card>
         </section>
       </main>
+    </>
+  );
+}
+
+export default function GridPayCompetitionArchived() {
+  return (
+    <>
+      <SupersededTokenomicsNotice />
+      <GridPayCompetitionPage />
     </>
   );
 }

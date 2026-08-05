@@ -1,3 +1,4 @@
+import { SupersededTokenomicsNotice } from '@/components/admin/SupersededTokenomicsNotice';
 import { useEffect, useMemo, useState } from "react";
 import { Navigate, Link } from "react-router-dom";
 import { ArrowLeft, Loader2, Check, Circle, Minus, Zap, Sparkles } from "lucide-react";
@@ -6,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { VaultPinGate } from "@/components/founders/VaultPinGate";
 
-export default function FoundersAppOverhaul() {
+function FoundersAppOverhaulPage() {
   const { user, isLoading: authLoading } = useAuth();
   const [isFounder, setIsFounder] = useState<boolean | null>(null);
 
@@ -519,5 +520,14 @@ function StatusLabel({ status }: { status: Status }) {
     <span className={`text-[10px] uppercase tracking-widest font-medium ${color} flex-shrink-0`}>
       {text}
     </span>
+  );
+}
+
+export default function FoundersAppOverhaulArchived() {
+  return (
+    <>
+      <SupersededTokenomicsNotice />
+      <FoundersAppOverhaulPage />
+    </>
   );
 }

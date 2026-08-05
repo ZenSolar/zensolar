@@ -1,3 +1,4 @@
+import { SupersededTokenomicsNotice } from '@/components/admin/SupersededTokenomicsNotice';
 import { useEffect, useState } from "react";
 import { Navigate, Link } from "react-router-dom";
 import {
@@ -32,7 +33,7 @@ import { VaultPinGate } from "@/components/founders/VaultPinGate";
 
 const LAST_UPDATED = "April 26, 2026";
 
-export default function FoundersBitcoinThesis() {
+function FoundersBitcoinThesisPage() {
   const { user, isLoading: authLoading } = useAuth();
   const [isFounder, setIsFounder] = useState<boolean | null>(null);
 
@@ -506,5 +507,14 @@ function ThesisContent() {
         </footer>
       </main>
     </div>
+  );
+}
+
+export default function FoundersBitcoinThesisArchived() {
+  return (
+    <>
+      <SupersededTokenomicsNotice />
+      <FoundersBitcoinThesisPage />
+    </>
   );
 }

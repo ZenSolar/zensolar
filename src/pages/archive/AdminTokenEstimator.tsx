@@ -1,3 +1,4 @@
+import { SupersededTokenomicsNotice } from '@/components/admin/SupersededTokenomicsNotice';
 import { useEffect, useMemo, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -74,7 +75,7 @@ function InfoTooltip({ text }: { text: string }) {
   );
 }
 
-export default function AdminTokenEstimator() {
+function AdminTokenEstimatorPage() {
   const { user, isLoading } = useAuth();
   const { isAdmin, isChecking } = useAdminCheck();
 
@@ -662,5 +663,14 @@ export default function AdminTokenEstimator() {
         </Card>
       </motion.div>
     </div>
+  );
+}
+
+export default function AdminTokenEstimatorArchived() {
+  return (
+    <>
+      <SupersededTokenomicsNotice />
+      <AdminTokenEstimatorPage />
+    </>
   );
 }

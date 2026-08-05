@@ -1,3 +1,4 @@
+import { SupersededTokenomicsNotice } from '@/components/admin/SupersededTokenomicsNotice';
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Navigate } from "react-router-dom";
@@ -99,7 +100,7 @@ const milestones = [
   { users: 100000, label: "Escape Velocity", description: "Unassailable moat" }
 ];
 
-export default function AdminGrowthProjections() {
+function AdminGrowthProjectionsPage() {
   const { user, isLoading: authLoading } = useAuth();
   const { isAdmin, isChecking: adminLoading } = useAdminCheck();
   
@@ -686,5 +687,14 @@ export default function AdminGrowthProjections() {
         </Card>
       </motion.div>
     </div>
+  );
+}
+
+export default function AdminGrowthProjectionsArchived() {
+  return (
+    <>
+      <SupersededTokenomicsNotice />
+      <AdminGrowthProjectionsPage />
+    </>
   );
 }

@@ -1,11 +1,22 @@
 /**
- * Core Tokenomics Constants
- * 
- * SINGLE SOURCE OF TRUTH for all tokenomics values across the app.
- * Based on the 10B Strategy with $0.10 launch floor.
- * 
- * Reference: docs/TOKENOMICS_OPTIMIZATION_FRAMEWORK.md
+ * ARCHIVED — v1 "10B Strategy" tokenomics. HISTORICAL RECORD ONLY.
+ * Superseded 2026-08-04 by mint split v4.0.
+ *
+ * DO NOT import this file into any live surface. Every ratio, split and burn
+ * rate below is obsolete (10:1 ratios, 20% mint burn, LP mint, 3% burn,
+ * Genesis Halving).
+ *
+ * Canonical values live in `src/lib/mintFactors.ts`:
+ *   1 verified unit = 1.25 $ZSOLAR issued — 1.0 member / 0.25 treasury.
+ *   No LP mint. No burn at mint. No halving.
+ *   Supply control = treasury-share step-down 0.25 -> 0.10.
+ *
+ * Kept only so archived /admin/archive/* pages continue to compile and render
+ * their frozen historical figures behind the superseded-tokenomics banner.
+ *
+ * Reference: docs/TOKENOMICS_OPTIMIZATION_FRAMEWORK.md (also historical)
  */
+
 
 // === LIVE BETA MODE ===
 // When true, applies 10x reward multiplier for testing with scaled-down LP

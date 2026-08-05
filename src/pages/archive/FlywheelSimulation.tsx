@@ -1,3 +1,4 @@
+import { SupersededTokenomicsNotice } from '@/components/admin/SupersededTokenomicsNotice';
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -48,7 +49,7 @@ import {
  * Splits per SSoT v2.1: 50% LP / 50% Treasury of every subscription dollar.
  * Mint ratio: 10 kWh = 1 $ZSOLAR (10:1).
  */
-export default function FlywheelSimulation() {
+function FlywheelSimulationPage() {
   const [startUsers, setStartUsers] = useState(1_000);
   const [growthPct, setGrowthPct] = useState(15); // monthly compound %
   const [baseShare, setBaseShare] = useState(40);
@@ -491,4 +492,13 @@ function compactUsd(n: number): string {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
   if (n >= 1_000) return `$${(n / 1_000).toFixed(0)}K`;
   return `$${Math.round(n).toLocaleString()}`;
+}
+
+export default function FlywheelSimulationArchived() {
+  return (
+    <>
+      <SupersededTokenomicsNotice />
+      <FlywheelSimulationPage />
+    </>
+  );
 }

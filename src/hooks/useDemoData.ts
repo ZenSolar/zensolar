@@ -59,11 +59,11 @@ const DEMO_CHARGING_KWH = DEMO_SUPERCHARGER_KWH + DEMO_HOME_CHARGER_KWH;
 // 25–35% of lifetime is pending (since last mint)
 const PENDING_RATIO = 0.25 + rand() * 0.10;
 
-// 1 token ≈ 1 kWh-equivalent. Lifetime tokens earned ≈ sum of activities,
-// minus what's still pending; v3.1 user-share applied (50% post-split).
+// 1 token ≈ 1 kWh-equivalent. Mint split v4.0: the member receives 1.0 per
+// verified unit (treasury takes a further 0.25), so no reduction is applied.
 const lifetimeKwhEquivalent =
   DEMO_SOLAR_KWH + DEMO_BATTERY_KWH + DEMO_CHARGING_KWH + Math.round(DEMO_EV_MILES * 0.27);
-const DEMO_TOKENS_EARNED = Math.round(lifetimeKwhEquivalent * 0.50);
+const DEMO_TOKENS_EARNED = Math.round(lifetimeKwhEquivalent * 1.0);
 const DEMO_REFERRAL_TOKENS = between(800, 3600);
 
 // Calculate NFTs earned based on actual milestone thresholds
