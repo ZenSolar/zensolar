@@ -39,7 +39,6 @@ async function refreshTesla(
   const r = await getTeslaAccessToken(supabase, userId);
   return r.ok;
 }
-}
 
 // ── Enphase refresh ──────────────────────────────────────────────────────────
 
