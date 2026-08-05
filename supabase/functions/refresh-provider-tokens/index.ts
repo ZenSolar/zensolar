@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getTeslaAccessToken } from '../_shared/teslaToken.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -29,45 +30,15 @@ interface RefreshResult {
 async function refreshTesla(
   supabase: any,
   userId: string,
-  refreshToken: string,
+  _unusedRefreshToken: string,
 ): Promise<boolean> {
-  const clientId = Deno.env.get("TESLA_CLIENT_ID");
-  const clientSecret = Deno.env.get("TESLA_CLIENT_SECRET");
-  if (!clientId || !clientSecret || !refreshToken) return false;
-
-  const resp = await fetch(TESLA_TOKEN_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      grant_type: "refresh_token",
-      client_id: clientId,
-      client_secret: clientSecret,
-      refresh_token: refreshToken,
-    }),
-  });
-
-  if (!resp.ok) {
-    console.error(`Tesla refresh failed for ${userId}: ${resp.status} ${await resp.text()}`);
-    return false;
-  }
-
-  const tokens = await resp.json();
-  const expiresAt = tokens.expires_in
-    ? new Date(Date.now() + tokens.expires_in * 1000).toISOString()
-    : null;
-
-  await supabase
-    .from("energy_tokens")
-    .update({
-      access_token: tokens.access_token,
-      refresh_token: tokens.refresh_token || refreshToken,
-      expires_at: expiresAt,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("user_id", userId)
-    .eq("provider", "tesla");
-
-  return true;
+  // Single refresh authority — see _shared/teslaToken.ts. This cron used the
+  // legacy owner-API host and an unconditional UPDATE, so when it overlapped
+  // with a dashboard fetch it could overwrite a freshly rotated refresh token
+  // with a spent one and take a healthy grant offline.
+  const r = await getTeslaAccessToken(supabase, userId);
+  return r.ok;
+}
 }
 
 // ── Enphase refresh ──────────────────────────────────────────────────────────
