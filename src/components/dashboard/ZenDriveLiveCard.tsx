@@ -84,9 +84,13 @@ export function ZenDriveLiveCard({ alwaysRender = false, deviceIndex = 0 }: ZenD
   const vehicleAsset = useMemo(
     () => resolveVehicleAsset(primaryEv?.payload ?? primaryEv, undefined, {
       fallbackWhenConnected: ev.data.length > 0,
+      // Scope the last-known cache to THIS VIN so a second car (TesYto) never
+      // inherits the primary car's model/paint on a payload gap.
+      vehicleKey: primaryEv?.site_id ?? null,
     }),
     [primaryEv, ev.data.length],
   );
+
 
   // Force-refresh EV telemetry when a charging session toggles.
   const lastCharging = useRef<boolean | undefined>(undefined);
