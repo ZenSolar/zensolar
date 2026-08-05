@@ -1039,14 +1039,19 @@ export function LiveEnergyMonitoringCard({ outage: outageOverride, hideVehicle =
     : `Home Energy Cockpit · ${subtitleParts.join(' + ') || 'Live'}`;
 
   // §2 — ONE badge per card, and it speaks for the OLDEST in-scope signal.
-  // Solar / battery / grid CT are always in scope. A vehicle is in scope only
-  // when it is claimed into Connected Devices and therefore expected to
-  // report; an unclaimed car must not drag the household badge down.
+  // Solar / battery / grid CT are always in scope. A vehicle is in scope ONLY
+  // while it is actually expected to report — i.e. plugged in and charging at
+  // this site. A parked, sleeping Tesla legitimately stops reporting; that is
+  // not stale household telemetry and must not turn the badge amber.
   const cardFreshness = computeCardFreshness([
     ...solar.data.map((r) => ({ iso: r.sample_at ?? r.cached_at })),
     ...battery.data.map((r) => ({ iso: r.sample_at ?? r.cached_at })),
-    ...ev.data.map((r) => ({ iso: r.sample_at ?? r.cached_at, inScope: true })),
+    ...ev.data.map((r) => ({
+      iso: r.sample_at ?? r.cached_at,
+      inScope: !hideVehicle && openHomeChargingVins.has(r.site_id),
+    })),
   ]);
+
   const cardIso = cardFreshness.iso;
 
   // Dead: the badge is the only content the card shows. No partial numbers
