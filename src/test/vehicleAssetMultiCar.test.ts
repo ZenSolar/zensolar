@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 /**
  * Multi-car vehicle art regression.
  *
