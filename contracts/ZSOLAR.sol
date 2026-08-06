@@ -106,7 +106,10 @@ contract ZSOLAR is ERC20, Ownable {
     }
 
     /**
-     * @notice Internal transfer with 7% tax (3% burn, 2% LP, 2% treasury)
+     * @notice Internal transfer with the locked v4.0 transfer tax:
+     *         3% recycled to LP. No burn, no treasury cut.
+     * @dev    Zero-rate legs are skipped so no zero-value Transfer events are
+     *         emitted, and so setting a rate to 0 is genuinely a no-op.
      */
     function _transferWithTax(address from, address to, uint256 amount) internal returns (bool) {
         if (isExemptFromTax[from] || isExemptFromTax[to]) {
@@ -119,12 +122,14 @@ contract ZSOLAR is ERC20, Ownable {
         uint256 treasuryAmount = (amount * treasuryTaxBps) / 10000;
         uint256 transferAmount = amount - burnAmount - lpAmount - treasuryAmount;
 
-        _burn(from, burnAmount);
-        _transfer(from, lpRewards, lpAmount);
-        _transfer(from, treasury, treasuryAmount);
+        if (burnAmount > 0) {
+            _burn(from, burnAmount);
+            emit Burned(burnAmount);
+        }
+        if (lpAmount > 0) _transfer(from, lpRewards, lpAmount);
+        if (treasuryAmount > 0) _transfer(from, treasury, treasuryAmount);
         _transfer(from, to, transferAmount);
 
-        emit Burned(burnAmount);
         emit TaxDistributed(burnAmount, lpAmount, treasuryAmount);
         return true;
     }
