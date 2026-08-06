@@ -963,7 +963,10 @@ Deno.serve(async (req) => {
       const receipt = await publicClient.waitForTransactionReceipt({ hash });
       console.log("Mint rewards tx confirmed, status:", receipt.status);
 
-      const expectedTokens = Number(totalUnits) * 0.93;
+      // MINT SPLIT v4.0 (LOCKED): the member receives 1.0 token per verified
+      // unit. No 93% haircut — the treasury's 0.25 is minted ON TOP, not taken
+      // out of the member's share.
+      const expectedTokens = Number(totalUnits) * MINT_SPLIT_PER_UNIT.user;
       let newNfts: number[] = [];
       let mintStatus: string = "confirmed";
       let maxDiffPct = 0;
