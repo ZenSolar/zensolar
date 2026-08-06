@@ -372,6 +372,14 @@ Deno.serve(async (req) => {
             elapsedH >= 5 / 60 && elapsedH <= 2 &&
             energyTodayWh >= prevWh;
 
+          // A carried-forward anchor that aged past the 2h window, or a counter
+          // that went backwards (midnight rollover), can NEVER become usable —
+          // it latches and the card sits "stale" forever. Re-seed it now so the
+          // very next poll has a divisible interval.
+          const anchorUnusableForever =
+            !Number.isFinite(prevWh) || !Number.isFinite(prevAt) ||
+            elapsedH > 2 || energyTodayWh < prevWh;
+
           if (usable && (currentPowerW <= 0 || microAgeMs > MICRO_STALE_MS)) {
             const deltaWh = energyTodayWh - prevWh;
             if (deltaWh > 0) {
@@ -387,9 +395,20 @@ Deno.serve(async (req) => {
             sampleAtIso = new Date().toISOString();
             anchorWh = energyTodayWh;
             anchorAt = sampleAtIso;
+          } else if (anchorUnusableForever) {
+            anchorWh = energyTodayWh;
+            anchorAt = new Date().toISOString();
+            if (microAgeMs > MICRO_STALE_MS) {
+              // Every instantaneous feed is lagging and we have no divisible
+              // counter interval yet — say so rather than replaying an
+              // hour-old wattage as if it were live.
+              currentPowerW = 0;
+              powerSource = "unknown_lagging_feed";
+            }
           } else if (!usable && microWindowEmpty && summaryPowerW <= 0 && currentPowerW <= 0) {
             powerSource = "unknown_lagging_feed";
           }
+
         } catch (deltaErr) {
           console.warn("enphase counter-delta fallback failed:", deltaErr);
         }
