@@ -77,6 +77,11 @@ contract ZenSolar is Ownable {
     uint256 public constant TOKENS_PER_UNIT = 1e18; // 1 token (18 decimals) per kWh or mile
     uint256 public constant MAX_SUPPLY = 50_000_000_000 * 10**18; // 50 billion max
 
+    // MINT SPLIT v4.0 (LOCKED 2026-07-31) — basis points of ONE verified unit.
+    // 1.0 member + 0.25 treasury = 1.25 issued per unit. No LP mint. No burn at mint.
+    uint256 public constant MEMBER_TOKENS_PER_UNIT_BPS = 10000;  // 1.00
+    uint256 public constant TREASURY_TOKENS_PER_UNIT_BPS = 2500; // 0.25
+
     // Special token IDs
     uint256 public constant WELCOME_TOKEN_ID = 0;
 
