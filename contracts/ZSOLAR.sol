@@ -17,10 +17,10 @@ contract ZSOLAR is ERC20, Ownable {
     address public minter;     // The ZenSolar Controller that can mint tokens
 
     // Tax rates (in basis points, 100 = 1%)
-    // Total: 7% (3% burn + 2% LP + 2% treasury)
-    uint256 public burnTaxBps = 300;     // 3% burn
-    uint256 public lpTaxBps = 200;       // 2% to LP
-    uint256 public treasuryTaxBps = 200; // 2% to treasury
+    // LOCKED v4.0: 3% transfer tax, LP-recycle ONLY. No burn. No treasury cut.
+    uint256 public burnTaxBps = 0;       // 0% burn — there is no burn on transfer
+    uint256 public lpTaxBps = 300;       // 3% recycled to LP
+    uint256 public treasuryTaxBps = 0;   // 0% treasury
 
     // Addresses exempt from transfer tax
     mapping(address => bool) public isExemptFromTax;
