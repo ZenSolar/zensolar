@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title ZSOLAR Token
- * @notice ERC-20 token with 7% transfer tax (3% burn, 2% LP, 2% treasury)
+ * @notice ERC-20 token with a 3% transfer tax, recycled to LP only (locked v4.0)
  * @dev Aligned with 10B supply strategy and $0.10 launch floor
  */
 contract ZSOLAR is ERC20, Ownable {
@@ -17,10 +17,10 @@ contract ZSOLAR is ERC20, Ownable {
     address public minter;     // The ZenSolar Controller that can mint tokens
 
     // Tax rates (in basis points, 100 = 1%)
-    // Total: 7% (3% burn + 2% LP + 2% treasury)
-    uint256 public burnTaxBps = 300;     // 3% burn
-    uint256 public lpTaxBps = 200;       // 2% to LP
-    uint256 public treasuryTaxBps = 200; // 2% to treasury
+    // LOCKED v4.0: 3% transfer tax, LP-recycle ONLY. No burn. No treasury cut.
+    uint256 public burnTaxBps = 0;       // 0% burn — there is no burn on transfer
+    uint256 public lpTaxBps = 300;       // 3% recycled to LP
+    uint256 public treasuryTaxBps = 0;   // 0% treasury
 
     // Addresses exempt from transfer tax
     mapping(address => bool) public isExemptFromTax;
@@ -106,7 +106,10 @@ contract ZSOLAR is ERC20, Ownable {
     }
 
     /**
-     * @notice Internal transfer with 7% tax (3% burn, 2% LP, 2% treasury)
+     * @notice Internal transfer with the locked v4.0 transfer tax:
+     *         3% recycled to LP. No burn, no treasury cut.
+     * @dev    Zero-rate legs are skipped so no zero-value Transfer events are
+     *         emitted, and so setting a rate to 0 is genuinely a no-op.
      */
     function _transferWithTax(address from, address to, uint256 amount) internal returns (bool) {
         if (isExemptFromTax[from] || isExemptFromTax[to]) {
@@ -119,12 +122,14 @@ contract ZSOLAR is ERC20, Ownable {
         uint256 treasuryAmount = (amount * treasuryTaxBps) / 10000;
         uint256 transferAmount = amount - burnAmount - lpAmount - treasuryAmount;
 
-        _burn(from, burnAmount);
-        _transfer(from, lpRewards, lpAmount);
-        _transfer(from, treasury, treasuryAmount);
+        if (burnAmount > 0) {
+            _burn(from, burnAmount);
+            emit Burned(burnAmount);
+        }
+        if (lpAmount > 0) _transfer(from, lpRewards, lpAmount);
+        if (treasuryAmount > 0) _transfer(from, treasury, treasuryAmount);
         _transfer(from, to, transferAmount);
 
-        emit Burned(burnAmount);
         emit TaxDistributed(burnAmount, lpAmount, treasuryAmount);
         return true;
     }
