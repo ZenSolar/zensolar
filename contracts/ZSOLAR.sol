@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title ZSOLAR Token
- * @notice ERC-20 token with 7% transfer tax (3% burn, 2% LP, 2% treasury)
+ * @notice ERC-20 token with a 3% transfer tax, recycled to LP only (locked v4.0)
  * @dev Aligned with 10B supply strategy and $0.10 launch floor
  */
 contract ZSOLAR is ERC20, Ownable {
