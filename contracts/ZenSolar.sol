@@ -267,25 +267,20 @@ contract ZenSolar is Ownable {
         uint256 totalUnits = solarDeltaKwh + evMilesDelta + batteryDeltaKwh + chargingDeltaKwh;
         if (totalUnits == 0) return;
 
-        uint256 tokenAmount = totalUnits * TOKENS_PER_UNIT;
+        // MINT SPLIT v4.0 (LOCKED 2026-07-31)
+        // Every verified unit issues 1.25 $ZSOLAR:
+        //   1.00 to the member  (MEMBER_TOKENS_PER_UNIT_BPS  = 10000 bps of one unit)
+        //   0.25 to the treasury (TREASURY_TOKENS_PER_UNIT_BPS = 2500 bps of one unit)
+        //   0 LP mint. 0 burn at mint (a burn at mint has zero net supply effect).
+        uint256 userAmount = (totalUnits * TOKENS_PER_UNIT * MEMBER_TOKENS_PER_UNIT_BPS) / 10000;
+        uint256 treasuryAmount = (totalUnits * TOKENS_PER_UNIT * TREASURY_TOKENS_PER_UNIT_BPS) / 10000;
+        uint256 tokenAmount = userAmount + treasuryAmount;
 
-        // Distribution: 93% user, 5% burn, 1% LP, 1% treasury
-        uint256 burnAmount = (tokenAmount * 5) / 100;
-        uint256 lpAmount = (tokenAmount * 1) / 100;
-        uint256 treasuryAmount = (tokenAmount * 1) / 100;
-        uint256 userAmount = tokenAmount - burnAmount - lpAmount - treasuryAmount;
-
-        // Mint tokens
+        // Mint tokens — member first, then treasury. No LP mint, no burn.
         zSolarToken.mint(user, userAmount);
-        zSolarToken.mint(lpRewards, lpAmount);
         zSolarToken.mint(treasury, treasuryAmount);
-        
-        // Burn tokens (mint to controller then burn from controller)
-        zSolarToken.mint(address(this), burnAmount);
-        zSolarToken.burnFrom(address(this), burnAmount);
 
         emit TokensMinted(user, tokenAmount, userAmount);
-        emit Burned(burnAmount);
 
         // Update cumulative values (for NFT milestone checks)
         cumulativeSolarKwh[user] += solarDeltaKwh;
