@@ -31,6 +31,7 @@ import { toast } from "sonner";
 
 import { useDensity } from "@/hooks/useDensity";
 import { MeteringRolesCard } from "@/components/devices/MeteringRolesCard";
+import { ChangeEmailCard } from "@/components/settings/ChangeEmailCard";
 
 
 export default function Settings() {
@@ -111,6 +112,14 @@ export default function Settings() {
         transition={{ delay: 0.055 }}
       >
         <MeteringRolesCard />
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.057 }}
+      >
+        <ChangeEmailCard />
       </motion.div>
 
 
