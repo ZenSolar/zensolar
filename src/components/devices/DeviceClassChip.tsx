@@ -19,9 +19,12 @@ export type DeviceClass = 'metered' | 'observer';
 
 export function DeviceClassChip({
   deviceClass,
+  label,
   className,
 }: {
   deviceClass: DeviceClass;
+  /** Optional per-capability label, e.g. "Battery metered". */
+  label?: string;
   className?: string;
 }) {
   const metered = deviceClass === 'metered';
@@ -37,7 +40,7 @@ export function DeviceClassChip({
       )}
     >
       <Icon className="h-2.5 w-2.5" />
-      {metered ? 'Metered' : 'Monitored, not metered'}
+      {label ?? (metered ? 'Metered' : 'Monitored, not metered')}
     </span>
   );
 }
