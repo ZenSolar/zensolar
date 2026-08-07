@@ -232,6 +232,58 @@
         background: #0a1628;
         background: hsl(var(--background));
       }
+
+      /* Pre-hydration boot indicator (removed automatically when React mounts) */
+      .zs-boot {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        background: #0a0c0e;
+        animation: zs-boot-in 240ms ease-out both;
+      }
+      .zs-boot-mark {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: linear-gradient(90deg, #00e19b 0%, #00c2ff 100%);
+        opacity: 0.9;
+        filter: blur(0.2px);
+        animation: zs-boot-pulse 1.4s ease-in-out infinite;
+      }
+      .zs-boot-bar {
+        width: 132px;
+        height: 2px;
+        border-radius: 2px;
+        background: rgba(232, 234, 237, 0.1);
+        overflow: hidden;
+      }
+      .zs-boot-bar span {
+        display: block;
+        width: 40%;
+        height: 100%;
+        border-radius: 2px;
+        background: linear-gradient(90deg, #00e19b 0%, #00c2ff 100%);
+        animation: zs-boot-slide 1.15s ease-in-out infinite;
+      }
+      @keyframes zs-boot-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @keyframes zs-boot-pulse {
+        0%, 100% { transform: scale(0.88); opacity: 0.55; }
+        50% { transform: scale(1); opacity: 1; }
+      }
+      @keyframes zs-boot-slide {
+        0% { transform: translateX(-110%); }
+        100% { transform: translateX(360%); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .zs-boot-mark, .zs-boot-bar span, .zs-boot { animation: none; }
+      }
     </style>
 
     <!-- Theme fonts are injected on demand by the learn/app theme hooks
