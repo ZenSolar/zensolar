@@ -198,16 +198,25 @@ export function DashboardHexBackground() {
       const endRow = startRow + Math.ceil(h / hexHeight) + 3;
       const cols = Math.ceil(w / (hexWidth * 0.75)) + 2;
 
-      // Wave-front parameters: long, slow diagonal shimmer
-      const waveSpeed = 0.35;          // horizontal pixels per second
-      const waveAngle = -0.45;         // diagonal tilt (radians)
-      const waveLength = 1400;         // broad crest-to-crest distance
-      const waveWidth = 360;           // soft falloff of the wave envelope
-      const waveFront = time * waveSpeed * waveLength; // current crest position
+      // ---- Advance the falling flakes ----
+      if (flakes.length !== flakeCount()) seedFlakes();
+      for (let f = 0; f < flakes.length; f++) {
+        const fl = flakes[f];
+        fl.y += fl.vy * dt;
+        fl.swayPhase += fl.swayFreq * dt * 16.667;
+        fl.fx = fl.x + Math.sin(fl.swayPhase) * fl.swayAmp;
+        if (fl.y - fl.radius > h) {
+          const fresh = makeFlake(true);
+          fresh.y = -fresh.radius;
+          flakes[f] = fresh;
+          flakes[f].fx = fresh.x;
+        }
+      }
 
       const driftA = time * 160;
       const driftB = time * 110;
       const driftC = time * 80;
+
 
       ctx.shadowColor = 'transparent';
       ctx.shadowBlur = 0;
