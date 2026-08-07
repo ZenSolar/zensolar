@@ -8,11 +8,11 @@ export function HexagonAmbient() {
       className="fixed inset-0 pointer-events-none"
       style={{
         zIndex: 0,
-        opacity: 0.045,
+        opacity: 0.22,
         maskImage:
-          "radial-gradient(circle at 50% 35%, black 0%, black 35%, transparent 80%)",
+          "radial-gradient(circle at 50% 30%, black 0%, black 45%, transparent 85%)",
         WebkitMaskImage:
-          "radial-gradient(circle at 50% 35%, black 0%, black 35%, transparent 80%)",
+          "radial-gradient(circle at 50% 30%, black 0%, black 45%, transparent 85%)",
       }}
       aria-hidden="true"
     >
