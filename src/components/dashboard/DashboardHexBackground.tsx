@@ -140,13 +140,13 @@ export function DashboardHexBackground() {
         }
       }
 
-      // Slower, more liquid drift
-      time += 0.003 * dt;
+      // Slow, liquid time step for the wave shimmer
+      time += 0.0025 * dt;
       currentScrollY = window.scrollY;
 
       // Re-check theme every frame for live switching
       const isDark = document.documentElement.classList.contains('dark');
-      const alphaMultiplier = isDark ? 1 : 1.8;
+      const alphaMultiplier = isDark ? 1 : 1.55;
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
@@ -166,9 +166,16 @@ export function DashboardHexBackground() {
       const endRow = startRow + Math.ceil(h / hexHeight) + 3;
       const cols = Math.ceil(w / (hexWidth * 0.75)) + 2;
 
-      const driftA = time * 200;
-      const driftB = time * 150;
-      const driftC = time * 110;
+      // Wave-front parameters: long, slow diagonal shimmer
+      const waveSpeed = 0.35;          // horizontal pixels per second
+      const waveAngle = -0.45;         // diagonal tilt (radians)
+      const waveLength = 1400;         // broad crest-to-crest distance
+      const waveWidth = 360;           // soft falloff of the wave envelope
+      const waveFront = time * waveSpeed * waveLength; // current crest position
+
+      const driftA = time * 160;
+      const driftB = time * 110;
+      const driftC = time * 80;
 
       ctx.shadowColor = 'transparent';
       ctx.shadowBlur = 0;
@@ -184,75 +191,74 @@ export function DashboardHexBackground() {
 
           if (cyScreen < -hexSize || cyScreen > h + hexSize) continue;
 
-          let alpha = isDark ? 0.032 : 0.04;
+          let alpha = isDark ? 0.03 : 0.038;
 
           const dA = cx + cyPage * 0.55;
           const dB = cx * 0.78 + cyPage * 0.82;
           const dC = cx * 1.08 - cyPage * 0.28;
 
-          // Smoother, rounder waves (lower exponents = softer peaks)
-          const phA = ((dA - driftA) / 720) * TAU;
+          // Soft ambient undulation (large, slow waves)
+          const phA = ((dA - driftA) / 900) * TAU;
           const bA = Math.pow((Math.cos(phA) + 1) * 0.5, 3);
 
-          const phB = ((dB + driftB) / 900) * TAU;
+          const phB = ((dB + driftB) / 1200) * TAU;
           const bB = Math.pow((Math.cos(phB) + 1) * 0.5, 4);
 
-          const phC = ((dC - driftC) / 1080) * TAU;
+          const phC = ((dC - driftC) / 1500) * TAU;
           const bC = Math.pow((Math.cos(phC) + 1) * 0.5, 3);
 
-          // Slower, more harmonious shimmer frequencies
-          const shimmer = (Math.sin(dA * 0.008 - time * 1.6) + 1) * 0.5;
-          const shimmer2 = (Math.sin(dB * 0.011 + time * 2.1) + 1) * 0.5;
-          const shimmer3 = (Math.sin(dC * 0.006 - time * 1.3) + 1) * 0.5;
-          // Reduced sparkle exponents = gentler flashes, not staccato pops
-          const sparkle = profile.sparkle
-            ? Math.pow((Math.sin(dA * 0.015 + dB * 0.009 - time * 2.4) + 1) * 0.5, 5)
-            : 0;
-          const sparkle2 = profile.sparkle
-            ? Math.pow((Math.sin(dB * 0.012 - dC * 0.008 + time * 3.0) + 1) * 0.5, 6)
-            : 0;
+          // ---- Soft wave shimmer ----
+          // Project hex position onto the wave direction and measure distance
+          // from the moving crest. The envelope is a smooth gaussian-ish hump
+          // so the brightness rolls across the field like a gentle swell.
+          const waveProjection = cx * Math.cos(waveAngle) + cyPage * Math.sin(waveAngle);
+          const distFromCrest = waveProjection - waveFront;
+          // Wrap the wave so it continuously re-enters from the left
+          const wrappedDist = Math.abs(distFromCrest % waveLength);
+          const waveEnvelope = Math.exp(-(wrappedDist * wrappedDist) / (2 * waveWidth * waveWidth));
+          // Add a second, slower counter-wave for organic interference
+          const waveProjection2 = cx * Math.cos(0.25) - cyPage * Math.sin(0.25);
+          const distFromCrest2 = waveProjection2 - time * 0.22 * waveLength;
+          const wrappedDist2 = Math.abs(distFromCrest2 % (waveLength * 1.4));
+          const waveEnvelope2 = Math.exp(-(wrappedDist2 * wrappedDist2) / (2 * (waveWidth * 1.6) * (waveWidth * 1.6)));
+          const waveShimmer = waveEnvelope * 0.7 + waveEnvelope2 * 0.3;
 
           if (isDark) {
-            alpha += bA * 0.045 + bB * 0.035 + bC * 0.03 + shimmer * 0.03 + shimmer2 * 0.025 + shimmer3 * 0.02 + sparkle * 0.16 + sparkle2 * 0.13;
+            alpha += bA * 0.04 + bB * 0.03 + bC * 0.025 + waveShimmer * 0.08;
           } else {
-            alpha += bA * 0.055 + bB * 0.04 + bC * 0.035 + shimmer * 0.035 + shimmer2 * 0.03 + shimmer3 * 0.022 + sparkle * 0.16 + sparkle2 * 0.13;
+            alpha += bA * 0.05 + bB * 0.038 + bC * 0.032 + waveShimmer * 0.095;
           }
-          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.22 : 0.34);
+          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.18 : 0.28);
 
-          if (alpha < 0.022) continue;
+          if (alpha < 0.02) continue;
 
           // Finer alpha granularity removes visible stepping during slow fades
           const roundedAlpha = ((alpha * 100 + 0.5) | 0) / 100;
           const alphaStr = roundedAlpha.toFixed(2);
 
           if (!isDark) {
-            const colorMix = (shimmer * 0.4 + shimmer2 * 0.35 + sparkle * 0.25);
-            // Blue (210) → Teal-emerald (170) — restrained color shift
-            const hue = 210 - colorMix * 40;          // 210 (blue) → 170 (teal)
-            const sat = 45 + colorMix * 25;            // 45–70%
-            const lgt = 50 + colorMix * 8;             // 50–58%
+            // Color warms slightly inside the wave crest
+            const colorMix = waveShimmer;
+            const hue = 210 - colorMix * 35;   // 210 (blue) → 175 (teal)
+            const sat = 42 + colorMix * 20;    // 42–62%
+            const lgt = 52 + colorMix * 6;     // 52–58%
             ctx.strokeStyle = `hsla(${hue | 0},${sat | 0}%,${lgt | 0}%,${alphaStr})`;
           } else if (alphaStr !== lastAlphaStr) {
             ctx.strokeStyle = `hsla(160,84%,39%,${alphaStr})`;
           }
           lastAlphaStr = alphaStr;
 
-          // Glow (shadowBlur) is the most expensive op — disabled on low tiers
+          // Glow follows the wave crest softly
           let glowKeyFinal = 0;
           if (profile.glow) {
-            const needsGlow = alpha > (isDark ? 0.18 : 0.16);
-            const colorMixForGlow = !isDark ? (shimmer * 0.4 + shimmer2 * 0.35 + sparkle * 0.25) : 0;
-            glowKeyFinal = (!isDark && colorMixForGlow > 0.7) ? 2 : needsGlow ? 1 : 0;
+            const needsGlow = alpha > (isDark ? 0.14 : 0.13);
+            glowKeyFinal = needsGlow ? 1 : 0;
           }
           if (glowKeyFinal !== lastGlow) {
-            if (glowKeyFinal === 2) {
-              ctx.lineWidth = 0.8;
-              ctx.shadowColor = 'hsla(170,60%,50%,0.2)';
-              ctx.shadowBlur = 8;
-            } else if (glowKeyFinal === 1) {
-              ctx.lineWidth = isDark ? 0.7 : 0.6;
-              ctx.shadowColor = isDark ? 'hsla(160,84%,50%,0.12)' : 'hsla(200,50%,55%,0.15)';
-              ctx.shadowBlur = 6;
+            if (glowKeyFinal === 1) {
+              ctx.lineWidth = isDark ? 0.65 : 0.55;
+              ctx.shadowColor = isDark ? 'hsla(160,84%,45%,0.10)' : 'hsla(195,50%,55%,0.12)';
+              ctx.shadowBlur = 5;
             } else {
               ctx.lineWidth = 0.5;
               ctx.shadowColor = 'transparent';
@@ -296,7 +302,7 @@ export function DashboardHexBackground() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0"
-      style={{ opacity: 0.72 }}
+      style={{ opacity: 0.55 }}
       aria-hidden="true"
     />
   );
