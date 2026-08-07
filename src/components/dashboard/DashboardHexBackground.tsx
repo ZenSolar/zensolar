@@ -114,6 +114,7 @@ export function DashboardHexBackground() {
     // ---- Falling "snowflake" shimmer ---------------------------------------
     interface Flake {
       x: number;
+      fx: number;      // swayed x used for rendering
       y: number;
       vy: number;      // px per 60fps-frame
       swayAmp: number;
