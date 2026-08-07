@@ -94,13 +94,12 @@ root.render(
   </React.StrictMode>
 );
 
-// Dismiss splash after React's first paint using a double-rAF to ensure
-// the browser has actually composited the first frame before fading out.
-if (typeof window !== 'undefined' && typeof (window as any).hideSplashScreen === 'function') {
+// Mark the app as booted after React's first paint using a double-rAF to
+// ensure the browser has actually composited the first frame.
+if (typeof window !== 'undefined') {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       (window as any).__zensolarBooted = true;
-      (window as any).hideSplashScreen();
     });
   });
 }
