@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useViewAsUserId } from '@/hooks/useViewAsUserId';
-import { classifyDevices, type AuthorityDevice } from '@/lib/deviceAuthority';
+import { classifyDevices, isExcludedFor, type AuthorityDevice } from '@/lib/deviceAuthority';
 
 export interface VehicleLifetime {
   deviceId: string;
