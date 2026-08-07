@@ -34,7 +34,7 @@ export function DashboardHexBackground() {
     let h = 0;
 
     const isMobile = window.innerWidth < 768;
-    const TARGET_FPS = isMobile ? 24 : 40;
+    const TARGET_FPS = isMobile ? 30 : 48;
     const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
     const resize = () => {
