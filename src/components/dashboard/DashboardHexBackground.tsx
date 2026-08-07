@@ -184,7 +184,7 @@ export function DashboardHexBackground() {
 
           if (cyScreen < -hexSize || cyScreen > h + hexSize) continue;
 
-          let alpha = isDark ? 0.06 : 0.07;
+          let alpha = isDark ? 0.032 : 0.04;
 
           const dA = cx + cyPage * 0.55;
           const dB = cx * 0.78 + cyPage * 0.82;
