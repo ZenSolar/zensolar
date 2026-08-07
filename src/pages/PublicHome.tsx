@@ -4,7 +4,7 @@ import { PublicHeader } from "@/components/public/PublicHeader";
 import { PublicFooter, CONTACT_EMAIL } from "@/components/public/PublicFooter";
 import { ProofChain } from "@/components/public/ProofChain";
 import { RequestAccessForm } from "@/components/public/RequestAccessForm";
-import { HexagonAmbient } from "@/components/public/HexagonAmbient";
+import { DashboardHexBackground } from "@/components/dashboard/DashboardHexBackground";
 import { SEO } from "@/components/SEO";
 import "@/styles/ambient.css";
 
