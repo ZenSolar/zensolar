@@ -34,7 +34,7 @@ export function DashboardHexBackground() {
     let h = 0;
 
     const isMobile = window.innerWidth < 768;
-    const TARGET_FPS = isMobile ? 24 : 40;
+    const TARGET_FPS = isMobile ? 30 : 48;
     const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
     const resize = () => {
@@ -62,7 +62,8 @@ export function DashboardHexBackground() {
       const dt = lastFrameTime ? Math.min((now - lastFrameTime) / 16.667, 2) : 1;
       lastFrameTime = now;
 
-      time += 0.005 * dt;
+      // Slower, more liquid drift
+      time += 0.003 * dt;
       currentScrollY = window.scrollY;
 
       // Re-check theme every frame for live switching
@@ -111,39 +112,43 @@ export function DashboardHexBackground() {
           const dB = cx * 0.78 + cyPage * 0.82;
           const dC = cx * 1.08 - cyPage * 0.28;
 
-          const phA = ((dA - driftA) / 580) * TAU;
-          const bA = Math.pow((Math.cos(phA) + 1) * 0.5, 5);
+          // Smoother, rounder waves (lower exponents = softer peaks)
+          const phA = ((dA - driftA) / 720) * TAU;
+          const bA = Math.pow((Math.cos(phA) + 1) * 0.5, 3);
 
-          const phB = ((dB + driftB) / 720) * TAU;
-          const bB = Math.pow((Math.cos(phB) + 1) * 0.5, 6);
+          const phB = ((dB + driftB) / 900) * TAU;
+          const bB = Math.pow((Math.cos(phB) + 1) * 0.5, 4);
 
-          const phC = ((dC - driftC) / 860) * TAU;
-          const bC = Math.pow((Math.cos(phC) + 1) * 0.5, 4);
+          const phC = ((dC - driftC) / 1080) * TAU;
+          const bC = Math.pow((Math.cos(phC) + 1) * 0.5, 3);
 
-          const shimmer = (Math.sin(dA * 0.01 - time * 2.5) + 1) * 0.5;
-          const shimmer2 = (Math.sin(dB * 0.014 + time * 3.2) + 1) * 0.5;
-          const shimmer3 = (Math.sin(dC * 0.008 - time * 2.0) + 1) * 0.5;
-          const sparkle = Math.pow((Math.sin(dA * 0.02 + dB * 0.012 - time * 4) + 1) * 0.5, 8);
-          const sparkle2 = Math.pow((Math.sin(dB * 0.016 - dC * 0.01 + time * 5) + 1) * 0.5, 9);
+          // Slower, more harmonious shimmer frequencies
+          const shimmer = (Math.sin(dA * 0.008 - time * 1.6) + 1) * 0.5;
+          const shimmer2 = (Math.sin(dB * 0.011 + time * 2.1) + 1) * 0.5;
+          const shimmer3 = (Math.sin(dC * 0.006 - time * 1.3) + 1) * 0.5;
+          // Reduced sparkle exponents = gentler flashes, not staccato pops
+          const sparkle = Math.pow((Math.sin(dA * 0.015 + dB * 0.009 - time * 2.4) + 1) * 0.5, 5);
+          const sparkle2 = Math.pow((Math.sin(dB * 0.012 - dC * 0.008 + time * 3.0) + 1) * 0.5, 6);
 
           if (isDark) {
-            alpha += bA * 0.12 + bB * 0.1 + bC * 0.08 + shimmer * 0.05 + shimmer2 * 0.045 + shimmer3 * 0.03 + sparkle * 0.28 + sparkle2 * 0.22;
+            alpha += bA * 0.10 + bB * 0.08 + bC * 0.07 + shimmer * 0.04 + shimmer2 * 0.035 + shimmer3 * 0.025 + sparkle * 0.20 + sparkle2 * 0.16;
           } else {
-            alpha += bA * 0.14 + bB * 0.11 + bC * 0.09 + shimmer * 0.06 + shimmer2 * 0.05 + shimmer3 * 0.04 + sparkle * 0.28 + sparkle2 * 0.22;
+            alpha += bA * 0.12 + bB * 0.09 + bC * 0.08 + shimmer * 0.05 + shimmer2 * 0.04 + shimmer3 * 0.03 + sparkle * 0.20 + sparkle2 * 0.16;
           }
-          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.42 : 0.65);
+          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.38 : 0.58);
 
           if (alpha < 0.04) continue;
 
-          const roundedAlpha = ((alpha * 50 + 0.5) | 0) / 50;
+          // Finer alpha granularity removes visible stepping during slow fades
+          const roundedAlpha = ((alpha * 100 + 0.5) | 0) / 100;
           const alphaStr = roundedAlpha.toFixed(2);
 
           if (!isDark) {
             const colorMix = (shimmer * 0.4 + shimmer2 * 0.35 + sparkle * 0.25);
-            // Blue (210) → Emerald green (145) — dramatic color shift
-            const hue = 210 - colorMix * 65;          // 210 (blue) → 145 (emerald)
-            const sat = 50 + colorMix * 35;            // 50–85% — vivid
-            const lgt = 50 + colorMix * 10;            // 50–60%
+            // Blue (210) → Teal-emerald (170) — restrained color shift
+            const hue = 210 - colorMix * 40;          // 210 (blue) → 170 (teal)
+            const sat = 45 + colorMix * 25;            // 45–70%
+            const lgt = 50 + colorMix * 8;             // 50–58%
             const h = hue | 0;
             const s = sat | 0;
             const l = lgt | 0;
