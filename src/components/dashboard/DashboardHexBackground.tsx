@@ -175,7 +175,7 @@ export function DashboardHexBackground() {
       }
 
       // Slow, liquid time step for the wave shimmer
-      time += 0.0025 * dt;
+      time += 0.0014 * dt;
       currentScrollY = window.scrollY;
 
       // Re-check theme every frame for live switching
@@ -215,9 +215,9 @@ export function DashboardHexBackground() {
         }
       }
 
-      const driftA = time * 160;
-      const driftB = time * 110;
-      const driftC = time * 80;
+      const driftA = time * 95;
+      const driftB = time * 65;
+      const driftC = time * 45;
 
 
       ctx.shadowColor = 'transparent';
