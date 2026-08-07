@@ -245,7 +245,14 @@
 
 
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Pre-hydration boot state. React replaces this on first render, so the
+           visitor sees a brand-colored mark instead of a raw black screen. -->
+      <div class="zs-boot" aria-hidden="true">
+        <div class="zs-boot-mark"></div>
+        <div class="zs-boot-bar"><span></span></div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
