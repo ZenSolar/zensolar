@@ -4,7 +4,7 @@ import { PublicHeader } from "@/components/public/PublicHeader";
 import { PublicFooter, CONTACT_EMAIL } from "@/components/public/PublicFooter";
 import { ProofChain } from "@/components/public/ProofChain";
 import { RequestAccessForm } from "@/components/public/RequestAccessForm";
-import { HexagonAmbient } from "@/components/public/HexagonAmbient";
+import { DashboardHexBackground } from "@/components/dashboard/DashboardHexBackground";
 import { SEO } from "@/components/SEO";
 import "@/styles/ambient.css";
 
@@ -38,7 +38,9 @@ export default function PublicHome() {
       />
       <div style={{ background: "#0A0C0E", color: "#E8EAED" }} className="qc-ambient min-h-screen">
         <div className="qc-vignette" aria-hidden="true" />
-        <HexagonAmbient />
+        <div className="qc-hexagons" aria-hidden="true">
+          <DashboardHexBackground />
+        </div>
         <PublicHeader />
 
         {/* HERO */}
