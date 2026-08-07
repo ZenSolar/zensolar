@@ -111,6 +111,38 @@ export function DashboardHexBackground() {
 
     const TAU = Math.PI * 2;
 
+    // ---- Falling "snowflake" shimmer ---------------------------------------
+    interface Flake {
+      x: number;
+      y: number;
+      vy: number;      // px per 60fps-frame
+      swayAmp: number;
+      swayFreq: number;
+      swayPhase: number;
+      radius: number;  // influence radius in px
+      strength: number;
+    }
+    let flakes: Flake[] = [];
+
+    const flakeCount = () => (tier === 0 ? 14 : tier === 1 ? 24 : 38);
+
+    const makeFlake = (seedTop: boolean): Flake => ({
+      x: Math.random() * (w || window.innerWidth),
+      y: seedTop ? -Math.random() * 200 : Math.random() * (h || window.innerHeight),
+      vy: 0.25 + Math.random() * 0.55,
+      swayAmp: 18 + Math.random() * 42,
+      swayFreq: 0.004 + Math.random() * 0.008,
+      swayPhase: Math.random() * TAU,
+      radius: 70 + Math.random() * 110,
+      strength: 0.55 + Math.random() * 0.45,
+    });
+
+    const seedFlakes = () => {
+      flakes = Array.from({ length: flakeCount() }, () => makeFlake(false));
+    };
+    seedFlakes();
+
+
     const animate = (now: number) => {
       // Throttle framerate for battery savings
       if (lastFrameTime && (now - lastFrameTime) < frameInterval) {
