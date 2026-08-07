@@ -90,6 +90,11 @@ export function ChangeEmailCard() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
+        {signedIn === false && (
+          <p className="text-xs text-destructive">
+            You're signed out in this browser tab. Sign in first, then change your login email here.
+          </p>
+        )}
         {pendingEmail && (
           <p className="text-xs text-muted-foreground">
             Pending change to <span className="text-foreground font-medium">{pendingEmail}</span> — confirm via the link
@@ -109,7 +114,7 @@ export function ChangeEmailCard() {
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
-        <Button onClick={submit} disabled={saving || !email} className="w-full">
+        <Button onClick={submit} disabled={saving || !email || signedIn === false} className="w-full">
           {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
           Send confirmation link
         </Button>
