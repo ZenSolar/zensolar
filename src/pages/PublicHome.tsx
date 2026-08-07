@@ -38,6 +38,7 @@ export default function PublicHome() {
       />
       <div style={{ background: "#0A0C0E", color: "#E8EAED" }} className="qc-ambient min-h-screen">
         <div className="qc-vignette" aria-hidden="true" />
+        <HexagonAmbient />
         <PublicHeader />
 
         {/* HERO */}
