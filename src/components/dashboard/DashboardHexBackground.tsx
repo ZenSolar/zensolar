@@ -150,8 +150,6 @@ export function DashboardHexBackground() {
     resize();
     window.addEventListener('resize', resize);
 
-    const TAU = Math.PI * 2;
-
     const animate = (now: number) => {
       // Throttle framerate for battery savings
       if (lastFrameTime && (now - lastFrameTime) < frameInterval) {
