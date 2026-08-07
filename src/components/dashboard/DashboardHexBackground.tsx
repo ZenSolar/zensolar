@@ -7,13 +7,13 @@ interface QualityProfile {
   dprCap: number;
   hexSize: number;
   glow: boolean;
-  sparkle: boolean;
+  snowflakeCount: number;
 }
 
 const QUALITY: Record<QualityTier, QualityProfile> = {
-  0: { targetFps: 24, dprCap: 1, hexSize: 38, glow: false, sparkle: true },
-  1: { targetFps: 30, dprCap: 1.5, hexSize: 34, glow: false, sparkle: true },
-  2: { targetFps: 48, dprCap: 2, hexSize: 30, glow: true, sparkle: true },
+  0: { targetFps: 24, dprCap: 1, hexSize: 38, glow: false, snowflakeCount: 18 },
+  1: { targetFps: 30, dprCap: 1.5, hexSize: 34, glow: false, snowflakeCount: 32 },
+  2: { targetFps: 48, dprCap: 2, hexSize: 30, glow: true, snowflakeCount: 52 },
 };
 
 /** Best-effort initial guess so weak devices never render a heavy first frame. */
@@ -91,6 +91,46 @@ export function DashboardHexBackground() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
+    // ---- Snowflake particle system ----------------------------------------
+    interface Snowflake {
+      x: number;
+      y: number;
+      size: number;
+      speedY: number;
+      swayFreq: number;
+      swayAmp: number;
+      phase: number;
+      opacity: number;
+      twinkleSpeed: number;
+      twinklePhase: number;
+      color: 'emerald' | 'cyan' | 'white';
+    }
+
+    const TAU = Math.PI * 2;
+
+    let snowflakes: Snowflake[] = [];
+
+    const randomSnowflake = (startAbove = true): Snowflake => {
+      const sizeBase = 1.2 + Math.random() * 1.8;
+      return {
+        x: Math.random() * w,
+        y: startAbove ? -sizeBase * 4 - Math.random() * h * 0.4 : Math.random() * h,
+        size: sizeBase,
+        speedY: 14 + Math.random() * 22, // pixels per second
+        swayFreq: 0.4 + Math.random() * 0.6,
+        swayAmp: 12 + Math.random() * 22,
+        phase: Math.random() * TAU,
+        opacity: 0.12 + Math.random() * 0.18,
+        twinkleSpeed: 0.8 + Math.random() * 1.4,
+        twinklePhase: Math.random() * TAU,
+        color: Math.random() < 0.45 ? 'emerald' : Math.random() < 0.75 ? 'cyan' : 'white',
+      };
+    };
+
+    const resetSnowflakes = () => {
+      snowflakes = Array.from({ length: profile.snowflakeCount }, () => randomSnowflake(true));
+    };
+
     const applyTier = (next: QualityTier) => {
       if (next === tier) return;
       tier = next;
@@ -103,13 +143,13 @@ export function DashboardHexBackground() {
       hexSize = profile.hexSize;
       buildHexPath();
       resize();
+      resetSnowflakes();
     };
 
     buildHexPath();
     resize();
+    resetSnowflakes();
     window.addEventListener('resize', resize);
-
-    const TAU = Math.PI * 2;
 
     const animate = (now: number) => {
       // Throttle framerate for battery savings
