@@ -32,4 +32,18 @@ export function isAppHost(): boolean {
   return !MARKETING_HOSTS.has(window.location.hostname);
 }
 
+/**
+ * Public marketing / pre-auth surfaces. These pages never touch wallets,
+ * charts or any dashboard-only code, so the heavy Web3 stack must not be
+ * pulled in for anonymous visitors landing here.
+ */
+const PUBLIC_PATH_PREFIXES = ['/home', '/invite', '/onboarding'];
+
+export function isPublicMarketingPath(pathname?: string): boolean {
+  if (typeof window === 'undefined') return false;
+  const path = pathname ?? window.location.pathname;
+  if (path === '/' && isMarketingHost()) return true;
+  return PUBLIC_PATH_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`));
+}
+
 export { MARKETING_HOSTS, APP_HOSTS };

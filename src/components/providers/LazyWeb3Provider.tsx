@@ -1,4 +1,5 @@
 import { type ComponentType, type ReactNode, useState, useEffect, createContext, useContext, useRef } from 'react';
+import { isPublicMarketingPath } from '@/lib/hostRoles';
 
 // Context so any component can check if wagmi hooks are safe to call
 const Web3ReadyContext = createContext(false);
@@ -34,19 +35,45 @@ export function LazyWeb3Provider({ children }: LazyWeb3ProviderProps) {
   const loadAttemptedRef = useRef(false);
 
   useEffect(() => {
-    // Defer Web3 loading until after initial paint
+    // Public marketing / pre-auth surfaces never use wallets — keep the whole
+    // Web3 stack off the wire for anonymous visitors. We re-check on history
+    // changes so entering the app mounts it as soon as it's actually needed.
     const browserWindow = window as Window & typeof globalThis & {
       requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number;
       cancelIdleCallback?: (handle: number) => void;
     };
 
-    if (typeof browserWindow.requestIdleCallback === 'function') {
-      const id = browserWindow.requestIdleCallback(() => setShouldLoad(true), { timeout: 3000 });
-      return () => browserWindow.cancelIdleCallback?.(id);
+    let idleId: number | undefined;
+    let timerId: ReturnType<typeof setTimeout> | undefined;
+    let pollId: ReturnType<typeof setInterval> | undefined;
+
+    const schedule = () => {
+      if (typeof browserWindow.requestIdleCallback === 'function') {
+        idleId = browserWindow.requestIdleCallback(() => setShouldLoad(true), { timeout: 3000 });
+      } else {
+        timerId = globalThis.setTimeout(() => setShouldLoad(true), 1500);
+      }
+    };
+
+    if (!isPublicMarketingPath()) {
+      schedule();
+    } else {
+      // Cheap poll (client-side routing emits no universal event) — stops as
+      // soon as the visitor leaves a public route.
+      pollId = globalThis.setInterval(() => {
+        if (!isPublicMarketingPath()) {
+          globalThis.clearInterval(pollId);
+          pollId = undefined;
+          schedule();
+        }
+      }, 800);
     }
 
-    const timer = globalThis.setTimeout(() => setShouldLoad(true), 1500);
-    return () => globalThis.clearTimeout(timer);
+    return () => {
+      if (idleId !== undefined) browserWindow.cancelIdleCallback?.(idleId);
+      if (timerId !== undefined) globalThis.clearTimeout(timerId);
+      if (pollId !== undefined) globalThis.clearInterval(pollId);
+    };
   }, []);
 
   useEffect(() => {
