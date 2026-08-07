@@ -42,7 +42,11 @@ import { AppHistoryTracker } from "./components/AppHistoryTracker";
 import { ScrollManager } from "./components/ScrollManager";
 import { SwipeBackHandler } from "./components/SwipeBackHandler";
 import { DeferredMount } from "./components/util/DeferredMount";
-import { DashboardEnterEffect } from "./components/onboarding/quiet/DashboardEnterEffect";
+// Pulls framer-motion — keep it out of the entry bundle so public marketing
+// routes never download the animation library.
+const DashboardEnterEffect = lazy(() =>
+  import("./components/onboarding/quiet/DashboardEnterEffect").then((m) => ({ default: m.DashboardEnterEffect })),
+);
 
 // Non-critical chrome — lazy + deferred-mount past first paint
 const InstallNudge = lazy(() =>
