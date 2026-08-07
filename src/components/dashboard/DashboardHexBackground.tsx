@@ -145,10 +145,10 @@ export function DashboardHexBackground() {
 
           if (!isDark) {
             const colorMix = (shimmer * 0.4 + shimmer2 * 0.35 + sparkle * 0.25);
-            // Blue (210) → Emerald green (145) — dramatic color shift
-            const hue = 210 - colorMix * 65;          // 210 (blue) → 145 (emerald)
-            const sat = 50 + colorMix * 35;            // 50–85% — vivid
-            const lgt = 50 + colorMix * 10;            // 50–60%
+            // Blue (210) → Teal-emerald (170) — restrained color shift
+            const hue = 210 - colorMix * 40;          // 210 (blue) → 170 (teal)
+            const sat = 45 + colorMix * 25;            // 45–70%
+            const lgt = 50 + colorMix * 8;             // 50–58%
             const h = hue | 0;
             const s = sat | 0;
             const l = lgt | 0;
