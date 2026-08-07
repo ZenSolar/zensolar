@@ -62,7 +62,8 @@ export function DashboardHexBackground() {
       const dt = lastFrameTime ? Math.min((now - lastFrameTime) / 16.667, 2) : 1;
       lastFrameTime = now;
 
-      time += 0.005 * dt;
+      // Slower, more liquid drift
+      time += 0.003 * dt;
       currentScrollY = window.scrollY;
 
       // Re-check theme every frame for live switching
