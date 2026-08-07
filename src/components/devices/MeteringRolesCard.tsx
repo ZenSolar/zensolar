@@ -32,7 +32,7 @@ export function MeteringRolesCard() {
 
   if (loading || devices.length === 0) return null;
 
-  const anyObserver = devices.some((d) => classes[d.device_id]?.deviceClass === 'observer');
+  const anyPartial = devices.some((d) => (classes[d.device_id]?.excludedTypes.length ?? 0) > 0);
 
   return (
     <Card className="overflow-hidden border-border/50">
@@ -40,14 +40,16 @@ export function MeteringRolesCard() {
         <div>
           <h2 className="text-sm font-semibold text-foreground">Metering roles</h2>
           <p className="mt-0.5 text-[11.5px] leading-relaxed text-muted-foreground">
-            Every connected device reports to your cockpit. One device is the source of record for
-            each reading, so the same energy is never counted twice.
+            Every connected device reports to your cockpit. Roles are per reading: one device is the
+            source of record for each quantity, so the same energy is never counted twice.
           </p>
         </div>
 
         <ul className="divide-y divide-border/50">
           {devices.map((d) => {
-            const c = classes[d.device_id] ?? { deviceClass: 'metered' as const };
+            const c = classes[d.device_id];
+            const metered = c?.meteredTypes ?? [];
+            const excluded = c?.excludedTypes ?? [];
             return (
               <li key={d.device_id} className="flex items-start justify-between gap-3 py-2.5">
                 <div className="min-w-0">
@@ -57,23 +59,48 @@ export function MeteringRolesCard() {
                   <p className="mt-0.5 text-[10.5px] uppercase tracking-wider text-muted-foreground">
                     {TYPE_LABEL[d.device_type] ?? d.device_type} · {d.provider}
                   </p>
-                  {c.deviceClass === 'observer' && c.reason && (
+                  {excluded.length > 0 && c?.reason && (
                     <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
-                      {c.reason}
+                      {excluded.map(capabilityLabel).join(' and ')} readings:{' '}
+                      {c.reason.charAt(0).toLowerCase() + c.reason.slice(1)}
                       {c.authoritativeName ? ` Source of record: ${c.authoritativeName}.` : ''}
                     </p>
                   )}
                 </div>
-                <DeviceClassChip deviceClass={c.deviceClass} className="mt-0.5 shrink-0" />
+                <div className="flex shrink-0 flex-col items-end gap-1">
+                  {metered.map((t) => (
+                    <DeviceClassChip
+                      key={t}
+                      deviceClass="metered"
+                      label={
+                        (c?.capabilities.length ?? 0) > 1
+                          ? `${capabilityLabel(t)} metered`
+                          : 'Metered'
+                      }
+                    />
+                  ))}
+                  {excluded.map((t) => (
+                    <DeviceClassChip
+                      key={t}
+                      deviceClass="observer"
+                      label={
+                        (c?.capabilities.length ?? 0) > 1
+                          ? `${capabilityLabel(t)} monitored`
+                          : undefined
+                      }
+                    />
+                  ))}
+                </div>
               </li>
             );
           })}
         </ul>
 
-        {anyObserver && (
+        {anyPartial && (
           <p className="rounded-lg border border-border/60 bg-muted/20 px-3 py-2 text-[11px] leading-relaxed text-muted-foreground">
-            A monitored device is not earning less than it should. Its readings overlap a more
-            precise meter on the same energy, and that meter is the one counted.
+            A monitored reading is not earning less than it should. It overlaps a more precise meter
+            on the same energy, and that meter is the one counted. Every other reading from the same
+            device — a home battery's own charge and discharge, for example — still counts in full.
           </p>
         )}
       </CardContent>
