@@ -72,18 +72,77 @@ export function resolveExclusions(devices: AuthorityDevice[]): AuthorityExclusio
 
 export type DeviceClass = 'metered' | 'observer';
 
+/**
+ * What a device physically measures. Authority is resolved PER CAPABILITY, so
+ * a device can be the source of record for one quantity and an observer for
+ * another. A Powerwall next to a dedicated inverter is the clearest case: its
+ * site CT clamps observe the same roof (solar → observer), but the pack's own
+ * charge/discharge meter is unique on the account (battery → metered).
+ */
+const DEVICE_CAPABILITIES: Record<string, string[]> = {
+  solar: ['solar'],
+  solar_system: ['solar'],
+  pv: ['solar'],
+  powerwall: ['solar', 'battery'],
+  battery: ['solar', 'battery'],
+  vehicle: ['charging'],
+  wall_connector: ['charging'],
+  home_charger: ['charging'],
+  ev_charger: ['charging'],
+};
+
+const CAPABILITY_LABEL: Record<string, string> = {
+  solar: 'Solar',
+  battery: 'Battery',
+  charging: 'Charging',
+};
+
+export interface DeviceClassInfo {
+  /** Observer only when EVERY capability the device measures is excluded. */
+  deviceClass: DeviceClass;
+  /** Capabilities this device reports. */
+  capabilities: string[];
+  /** Capabilities another device is the source of record for. */
+  excludedTypes: string[];
+  /** Capabilities this device is counted on. */
+  meteredTypes: string[];
+  reason?: string;
+  authoritativeName?: string | null;
+}
+
+export function capabilityLabel(type: string): string {
+  return CAPABILITY_LABEL[type] ?? type;
+}
+
 /** Derived at render — never stored. Class changes with what else is connected. */
 export function classifyDevices(
   devices: AuthorityDevice[],
-): Record<string, { deviceClass: DeviceClass; reason?: string; authoritativeName?: string | null }> {
+): Record<string, DeviceClassInfo> {
   const exclusions = resolveExclusions(devices);
-  const byId = new Map(exclusions.map((e) => [e.device_id, e]));
-  const out: Record<string, { deviceClass: DeviceClass; reason?: string; authoritativeName?: string | null }> = {};
+  const out: Record<string, DeviceClassInfo> = {};
   for (const d of devices) {
-    const e = byId.get(d.device_id);
-    out[d.device_id] = e
-      ? { deviceClass: 'observer', reason: e.reason, authoritativeName: e.authoritative_name }
-      : { deviceClass: 'metered' };
+    const capabilities = DEVICE_CAPABILITIES[d.device_type] ?? [];
+    const mine = exclusions.filter((e) => e.device_id === d.device_id);
+    const excludedTypes = mine.map((e) => e.data_type).filter((t) => capabilities.includes(t));
+    const meteredTypes = capabilities.filter((c) => !excludedTypes.includes(c));
+    const first = mine[0];
+    out[d.device_id] = {
+      deviceClass:
+        capabilities.length > 0 && meteredTypes.length === 0 ? 'observer' : 'metered',
+      capabilities,
+      excludedTypes,
+      meteredTypes,
+      reason: first?.reason,
+      authoritativeName: first?.authoritative_name ?? null,
+    };
   }
   return out;
+}
+
+/** True when another device is the source of record for this quantity. */
+export function isExcludedFor(
+  info: DeviceClassInfo | undefined,
+  dataType: string,
+): boolean {
+  return !!info?.excludedTypes.includes(dataType);
 }
