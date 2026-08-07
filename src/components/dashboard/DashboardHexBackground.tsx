@@ -106,6 +106,8 @@ export function DashboardHexBackground() {
       color: 'emerald' | 'cyan' | 'white';
     }
 
+    const TAU = Math.PI * 2;
+
     let snowflakes: Snowflake[] = [];
 
     const randomSnowflake = (startAbove = true): Snowflake => {
