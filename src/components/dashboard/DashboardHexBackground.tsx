@@ -129,6 +129,7 @@ export function DashboardHexBackground() {
 
     const makeFlake = (seedTop: boolean): Flake => ({
       x: Math.random() * (w || window.innerWidth),
+      fx: 0,
       y: seedTop ? -Math.random() * 200 : Math.random() * (h || window.innerHeight),
       vy: 0.25 + Math.random() * 0.55,
       swayAmp: 18 + Math.random() * 42,
