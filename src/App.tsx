@@ -331,7 +331,7 @@ const App = () => {
                   <AppHistoryTracker />
                   <ScrollManager />
                   <SwipeBackHandler />
-                  <DashboardEnterEffect />
+                  <Suspense fallback={null}><DashboardEnterEffect /></Suspense>
 
                   <Suspense fallback={<PageLoader />}>
                     <Routes>
