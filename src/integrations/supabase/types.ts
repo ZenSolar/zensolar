@@ -3777,6 +3777,13 @@ export type Database = {
       _baseline_canonical_keys: { Args: never; Returns: string[] }
       can_user_mint: { Args: { _user_id: string }; Returns: Json }
       check_anchor_freshness: { Args: never; Returns: number }
+      check_beta_invite: {
+        Args: { _token: string }
+        Returns: {
+          label: string
+          valid: boolean
+        }[]
+      }
       check_nda_signed: { Args: { _email: string }; Returns: boolean }
       compute_mint_chain_hash: {
         Args: {
