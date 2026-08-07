@@ -1,4 +1,5 @@
 import { type ComponentType, type ReactNode, useState, useEffect, createContext, useContext, useRef } from 'react';
+import { isPublicMarketingPath } from '@/lib/hostRoles';
 
 // Context so any component can check if wagmi hooks are safe to call
 const Web3ReadyContext = createContext(false);
