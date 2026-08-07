@@ -11,7 +11,7 @@ interface QualityProfile {
 }
 
 const QUALITY: Record<QualityTier, QualityProfile> = {
-  0: { targetFps: 20, dprCap: 1, hexSize: 42, glow: false, sparkle: false },
+  0: { targetFps: 24, dprCap: 1, hexSize: 38, glow: false, sparkle: true },
   1: { targetFps: 30, dprCap: 1.5, hexSize: 34, glow: false, sparkle: true },
   2: { targetFps: 48, dprCap: 2, hexSize: 30, glow: true, sparkle: true },
 };
