@@ -56,10 +56,20 @@
   );
 }
 
-/* Ensure page content sits above the fixed ambient layers. */
-.qc-ambient > * {
-  position: relative;
+/* Keep the decorative grid fixed behind content. The explicit exclusion is
+   important: applying position:relative to it collapses the inset layer. */
+.qc-hexagons {
+  position: fixed;
+  inset: 0;
   z-index: 1;
+  width: 100%;
+  height: 100%;
+}
+
+/* Ensure page content sits above the fixed ambient layers. */
+.qc-ambient > :not(.qc-hexagons) {
+  position: relative;
+  z-index: 2;
 }
 
 @keyframes qc-drift-a {

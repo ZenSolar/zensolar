@@ -5,14 +5,13 @@
 export function HexagonAmbient() {
   return (
     <div
-      className="fixed inset-0 pointer-events-none"
+      className="qc-hexagons pointer-events-none"
       style={{
-        zIndex: 1,
-        opacity: 0.4,
+        opacity: 0.46,
         maskImage:
-          "radial-gradient(circle at 50% 35%, black 0%, black 60%, transparent 95%)",
+          "radial-gradient(ellipse 100% 72% at 50% 32%, black 0%, black 58%, transparent 100%)",
         WebkitMaskImage:
-          "radial-gradient(circle at 50% 35%, black 0%, black 60%, transparent 95%)",
+          "radial-gradient(ellipse 100% 72% at 50% 32%, black 0%, black 58%, transparent 100%)",
       }}
       aria-hidden="true"
     >
@@ -26,32 +25,21 @@ export function HexagonAmbient() {
         <defs>
           <pattern
             id="hex-quiet"
-            width="92"
-            height="160"
+            width="104"
+            height="90"
             patternUnits="userSpaceOnUse"
-            patternTransform="scale(1.15)"
           >
-            {/* Row A */}
             <path
-              d="M46 8 L84 30 L84 74 L46 96 L8 74 L8 30 Z"
+              d="M26 1 L51 15.5 L51 44.5 L26 59 L1 44.5 L1 15.5 Z M78 31 L103 45.5 L103 74.5 L78 89 L53 74.5 L53 45.5 Z"
               fill="none"
               stroke="url(#hex-grad)"
-              strokeWidth="2.2"
+              strokeWidth="1.5"
               strokeLinejoin="round"
-            />
-            {/* Row B, offset */}
-            <path
-              d="M46 88 L84 110 L84 154 L46 176 L8 154 L8 110 Z"
-              fill="none"
-              stroke="url(#hex-grad)"
-              strokeWidth="2.2"
-              strokeLinejoin="round"
-              transform="translate(46, -80)"
             />
           </pattern>
           <linearGradient id="hex-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#00E19B" stopOpacity="0.9" />
-            <stop offset="100%" stopColor="#00C2FF" stopOpacity="0.9" />
+            <stop offset="0%" stopColor="#00E19B" />
+            <stop offset="100%" stopColor="#00C2FF" />
           </linearGradient>
         </defs>
         <rect width="100%" height="100%" fill="url(#hex-quiet)" />
