@@ -307,7 +307,7 @@ export function DashboardHexBackground() {
             const fl = flakes[f];
             const dx = cx - fl.fx;
             if (dx > fl.radius || dx < -fl.radius) continue;
-            const dy = cyScreen - fl.y;
+            const dy = cyScreen - fl.fy;
             if (dy > fl.radius || dy < -fl.radius) continue;
             const d2 = dx * dx + dy * dy;
             const r2 = fl.radius * fl.radius;
@@ -389,6 +389,9 @@ export function DashboardHexBackground() {
     return () => {
       cancelAnimationFrame(animationId);
       window.removeEventListener('resize', resize);
+      window.removeEventListener('deviceorientation', onOrient);
+      window.removeEventListener('scroll', onScroll);
+
       document.removeEventListener('visibilitychange', onVisibility);
     };
   }, []);
