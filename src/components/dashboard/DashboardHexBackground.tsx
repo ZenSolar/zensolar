@@ -148,6 +148,7 @@ export function DashboardHexBackground() {
 
     buildHexPath();
     resize();
+    resetSnowflakes();
     window.addEventListener('resize', resize);
 
     const animate = (now: number) => {
