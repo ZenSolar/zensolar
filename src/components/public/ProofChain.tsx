@@ -8,17 +8,14 @@ import { useEffect, useState, useId } from "react";
  *
  * device → Δ → SHA-256(device_id ‖ ts ‖ Δ ‖ prev_hash) → proofₙ → proofₙ₊₁ → …
  *
- * Rendering contract: at every animation frame (including first paint), ALL
- * five nodes and their labels render at full legibility. Motion is limited to
- * a single traveling pulse along the connecting lines and a soft glow on the
- * currently-active node. A dimmed, unlabeled partial node at the right edge
- * implies the chain continues — it makes no claim about cadence.
+ * Rendering contract: the diagram is now static. All five nodes and their
+ * labels render at full legibility with no traveling pulse or glow animation.
+ * A dimmed, unlabeled partial node at the right edge implies the chain
+ * continues — it makes no claim about cadence.
  */
 export function ProofChain({ compact = false }: { compact?: boolean }) {
   const gradId = useId();
   const fadeId = useId();
-  const [tick, setTick] = useState(0);
-  const [reduced, setReduced] = useState(false);
   const [narrow, setNarrow] = useState(false);
 
   useEffect(() => {
@@ -26,23 +23,7 @@ export function ProofChain({ compact = false }: { compact?: boolean }) {
     const syncNarrow = () => setNarrow(nq.matches);
     syncNarrow();
     nq.addEventListener?.("change", syncNarrow);
-
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReduced(mq.matches);
-    const listener = () => setReduced(mq.matches);
-    mq.addEventListener?.("change", listener);
-    if (mq.matches) {
-      return () => {
-        mq.removeEventListener?.("change", listener);
-        nq.removeEventListener?.("change", syncNarrow);
-      };
-    }
-    const id = window.setInterval(() => setTick((t) => (t + 1) % 5), 1400);
-    return () => {
-      window.clearInterval(id);
-      mq.removeEventListener?.("change", listener);
-      nq.removeEventListener?.("change", syncNarrow);
-    };
+    return () => nq.removeEventListener?.("change", syncNarrow);
   }, []);
 
   // Scaled up: the chain is the hero centerpiece. Narrow viewports use a
@@ -52,9 +33,7 @@ export function ProofChain({ compact = false }: { compact?: boolean }) {
   const h = small ? 200 : 300;
   const cy = small ? 78 : 128;
 
-  const positions = (small ? [0.07, 0.245, 0.45, 0.665, 0.845] : [0.07, 0.245, 0.45, 0.665, 0.845]).map(
-    (p) => p * w,
-  );
+  const positions = [0.07, 0.245, 0.45, 0.665, 0.845].map((p) => p * w);
   const nodeSize = small ? 26 : 46;
   /** Half-width of each node shape — the hash-op rect is wider than the rest. */
   const halfW = (i: number) => (i === 2 ? nodeSize * 0.72 : nodeSize / 2);
@@ -94,10 +73,9 @@ export function ProofChain({ compact = false }: { compact?: boolean }) {
           </linearGradient>
         </defs>
 
-        {/* connecting lines — all visible at rest, active segment lights up */}
+        {/* connecting lines — all visible at rest */}
         {positions.slice(0, -1).map((x, i) => {
           const x2 = positions[i + 1];
-          const isActive = !reduced && i === tick % 4;
           return (
             <line
               key={i}
@@ -105,11 +83,8 @@ export function ProofChain({ compact = false }: { compact?: boolean }) {
               y1={cy}
               x2={x2 - halfW(i + 1)}
               y2={cy}
-              stroke={isActive ? `url(#${gradId})` : "#2F3338"}
-              strokeWidth={isActive ? strokeW + 0.5 : 1}
-              style={{
-                transition: "stroke 300ms ease-out, stroke-width 300ms ease-out",
-              }}
+              stroke="#2F3338"
+              strokeWidth={1}
             />
           );
         })}
@@ -132,21 +107,17 @@ export function ProofChain({ compact = false }: { compact?: boolean }) {
           />
         </g>
 
-        {/* nodes — all five always fully rendered; active gets a soft glow */}
-        {positions.map((x, i) => {
-          const isActive = !reduced && i === tick;
-          return (
-            <g key={i} transform={`translate(${x} ${cy})`}>
-              <NodeShape
-                kind={nodeKind(i)}
-                size={nodeSize}
-                pulse={isActive}
-                strokeUrl={`url(#${gradId})`}
-                strokeW={strokeW}
-              />
-            </g>
-          );
-        })}
+        {/* nodes — all five always fully rendered, no pulse */}
+        {positions.map((x, i) => (
+          <g key={i} transform={`translate(${x} ${cy})`}>
+            <NodeShape
+              kind={nodeKind(i)}
+              size={nodeSize}
+              strokeUrl={`url(#${gradId})`}
+              strokeW={strokeW}
+            />
+          </g>
+        ))}
 
         {/* labels — one per node, always rendered, centered on a single
             shared baseline directly beneath its node. */}
@@ -159,12 +130,11 @@ export function ProofChain({ compact = false }: { compact?: boolean }) {
               key={i}
               x={x}
               y={baseY}
-              fill={!reduced && i === tick ? "#E8EAED" : "#8B9198"}
+              fill="#8B9198"
               fontSize={isLong ? labelFont - (small ? 1.5 : 1) : labelFont}
               letterSpacing={isLong ? 0.2 : 0.6}
               fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace"
               textAnchor="middle"
-              style={{ transition: "fill 300ms ease-out" }}
             >
               {label}
             </text>
@@ -185,13 +155,11 @@ function nodeKind(i: number): "hex" | "diamond" | "rect" | "circle" {
 function NodeShape({
   kind,
   size,
-  pulse,
   strokeUrl,
   strokeW,
 }: {
   kind: "hex" | "diamond" | "rect" | "circle";
   size: number;
-  pulse: boolean;
   strokeUrl: string;
   strokeW: number;
 }) {
@@ -199,11 +167,7 @@ function NodeShape({
   const common = {
     fill: "#121417",
     stroke: strokeUrl,
-    strokeWidth: pulse ? strokeW + 0.5 : strokeW,
-    style: {
-      filter: pulse ? "drop-shadow(0 0 8px rgba(0, 225, 155, 0.55))" : "none",
-      transition: "filter 300ms ease-out, stroke-width 300ms ease-out",
-    },
+    strokeWidth: strokeW,
   } as const;
   if (kind === "hex") {
     return <polygon points={hexPoints(s / 2)} {...common} />;

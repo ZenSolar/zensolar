@@ -131,7 +131,7 @@ export function DashboardHexBackground() {
       x: Math.random() * (w || window.innerWidth),
       fx: 0,
       y: seedTop ? -Math.random() * 200 : Math.random() * (h || window.innerHeight),
-      vy: 0.25 + Math.random() * 0.55,
+      vy: 0.85 + Math.random() * 1.25,
       swayAmp: 18 + Math.random() * 42,
       swayFreq: 0.004 + Math.random() * 0.008,
       swayPhase: Math.random() * TAU,
