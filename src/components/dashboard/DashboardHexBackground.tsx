@@ -91,6 +91,44 @@ export function DashboardHexBackground() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
+    // ---- Snowflake particle system ----------------------------------------
+    interface Snowflake {
+      x: number;
+      y: number;
+      size: number;
+      speedY: number;
+      swayFreq: number;
+      swayAmp: number;
+      phase: number;
+      opacity: number;
+      twinkleSpeed: number;
+      twinklePhase: number;
+      color: 'emerald' | 'cyan' | 'white';
+    }
+
+    let snowflakes: Snowflake[] = [];
+
+    const randomSnowflake = (startAbove = true): Snowflake => {
+      const sizeBase = 1.2 + Math.random() * 1.8;
+      return {
+        x: Math.random() * w,
+        y: startAbove ? -sizeBase * 4 - Math.random() * h * 0.4 : Math.random() * h,
+        size: sizeBase,
+        speedY: 14 + Math.random() * 22, // pixels per second
+        swayFreq: 0.4 + Math.random() * 0.6,
+        swayAmp: 12 + Math.random() * 22,
+        phase: Math.random() * TAU,
+        opacity: 0.12 + Math.random() * 0.18,
+        twinkleSpeed: 0.8 + Math.random() * 1.4,
+        twinklePhase: Math.random() * TAU,
+        color: Math.random() < 0.45 ? 'emerald' : Math.random() < 0.75 ? 'cyan' : 'white',
+      };
+    };
+
+    const resetSnowflakes = () => {
+      snowflakes = Array.from({ length: profile.snowflakeCount }, () => randomSnowflake(true));
+    };
+
     const applyTier = (next: QualityTier) => {
       if (next === tier) return;
       tier = next;
@@ -103,6 +141,7 @@ export function DashboardHexBackground() {
       hexSize = profile.hexSize;
       buildHexPath();
       resize();
+      resetSnowflakes();
     };
 
     buildHexPath();
