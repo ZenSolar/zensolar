@@ -15,10 +15,8 @@ import('@/pages/Index').catch(() => {});
 /**
  * Loader for the cold-boot path.
  *
- * We render `null` rather than a <BrandSplash /> here because the inline
- * `#pwa-splash` in index.html is already on-screen and stays visible until
- * `window.hideSplashScreen()` fires from main.tsx. Rendering a second
- * brand splash on top caused the "logo → spinner → logo again" flash.
+ * We render `null` here so the first route paints as soon as React is ready
+ * without any intermediate splash or spinner.
  */
 function RouteLoader() {
   return null;

@@ -131,16 +131,14 @@
 
         window.setTimeout(function () {
           // Only recover on TRUE cold-boot failure: React never mounted AND
-          // the #root has no rendered content AND the inline splash is still
-          // on screen. This avoids reloading during slow-but-successful boots,
-          // OAuth reconnect hops, or normal client-side navigations that
-          // happen to be slow.
+          // the #root has no rendered content. This avoids reloading during
+          // slow-but-successful boots, OAuth reconnect hops, or normal
+          // client-side navigations that happen to be slow.
           try {
             var rootEl = document.getElementById('root');
             var rootHasContent = !!(rootEl && rootEl.children && rootEl.children.length > 0);
             if (window.__zensolarBooted) return;
             if (rootHasContent) return;
-            if (!document.getElementById('pwa-splash')) return;
             window.__zensolarRecoverBoot();
           } catch (e) { /* noop */ }
         }, 12000);
@@ -228,86 +226,6 @@
 
 
   <body>
-    <!-- Inline splash: shows instantly before any JS loads. React removes it on mount.
-         Mirrors the in-app <BrandSplash /> component so the cold-boot → React handoff
-         feels like one continuous moment (same logo, same emerald shimmer, dark canvas). -->
-    <style>
-      #pwa-splash {
-        position: fixed;
-        inset: 0;
-        z-index: 9999;
-        background: #0a1628;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 24px;
-        padding: env(safe-area-inset-top) 24px env(safe-area-inset-bottom);
-        transition: opacity 0.32s ease;
-      }
-      #pwa-splash.fade-out {
-        opacity: 0;
-        pointer-events: none;
-      }
-      #pwa-splash img {
-        width: 160px;
-        height: auto;
-        user-select: none;
-        -webkit-user-drag: none;
-      }
-      #pwa-splash-bar-track {
-        width: 128px;
-        height: 3px;
-        background: rgba(255,255,255,0.10);
-        border-radius: 99px;
-        overflow: hidden;
-        position: relative;
-      }
-      #pwa-splash-bar {
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
-        width: 33%;
-        background: #22c55e;
-        border-radius: 99px;
-        animation: splashSlide 1.4s ease-in-out infinite;
-      }
-      @keyframes splashSlide {
-        0%   { transform: translateX(-100%); }
-        50%  { transform: translateX(150%); }
-        100% { transform: translateX(300%); }
-      }
-    </style>
-
-    <div id="pwa-splash" role="status" aria-label="Loading ZenSolar">
-      <img src="/logos/zen-logo-horizontal-new.png" alt="ZenSolar" />
-      <div id="pwa-splash-bar-track">
-        <div id="pwa-splash-bar"></div>
-      </div>
-    </div>
-
-    <script>
-      // Mark splash start time so we can enforce a minimum display duration.
-      window.__zensolarSplashStart = Date.now();
-      // Default minimum splash duration (ms). Keeps the brand splash on screen
-      // for at least this long even if React boots faster — gives the cold-boot
-      // → first-route handoff a consistent, premium feel on PWA + desktop login.
-      window.__zensolarSplashMinMs = 800;
-      window.hideSplashScreen = function() {
-        var el = document.getElementById('pwa-splash');
-        if (!el) return;
-        var elapsed = Date.now() - (window.__zensolarSplashStart || 0);
-        var minMs = window.__zensolarSplashMinMs || 0;
-        var wait = Math.max(0, minMs - elapsed);
-        setTimeout(function () {
-          el.classList.add('fade-out');
-          setTimeout(function () { el.remove(); }, 340);
-        }, wait);
-      };
-    </script>
-
-
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
