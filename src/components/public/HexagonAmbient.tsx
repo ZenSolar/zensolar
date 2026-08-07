@@ -36,7 +36,7 @@ export function HexagonAmbient() {
               d="M46 8 L84 30 L84 74 L46 96 L8 74 L8 30 Z"
               fill="none"
               stroke="url(#hex-grad)"
-              strokeWidth="0.8"
+              strokeWidth="1.6"
               strokeLinejoin="round"
             />
             {/* Row B, offset */}
@@ -44,7 +44,7 @@ export function HexagonAmbient() {
               d="M46 88 L84 110 L84 154 L46 176 L8 154 L8 110 Z"
               fill="none"
               stroke="url(#hex-grad)"
-              strokeWidth="0.8"
+              strokeWidth="1.6"
               strokeLinejoin="round"
               transform="translate(46, -80)"
             />
