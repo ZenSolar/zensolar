@@ -11,6 +11,25 @@
          - Runs one-time migration from legacy "light"/"system" -> "dark".
          - Forces dark on /demo (without persisting, so user prefs elsewhere are preserved).
          - Reads next-themes' default "theme" key from localStorage. -->
+    <!-- Legacy domain bridge: zen.solar hosts are retired in favour of zensolar.com.
+         Browser visitors are forwarded; already-installed PWAs (standalone display)
+         are left alone so their home-screen icon keeps working in-scope. -->
+    <script>
+      (function () {
+        try {
+          var h = location.hostname;
+          var legacy = h === 'zen.solar' || h.endsWith('.zen.solar');
+          if (!legacy) return;
+          var standalone =
+            window.matchMedia('(display-mode: standalone)').matches ||
+            window.navigator.standalone === true;
+          if (standalone) return;
+          var target = h.indexOf('beta.') === 0 ? 'beta.zensolar.com' : 'zensolar.com';
+          location.replace('https://' + target + location.pathname + location.search + location.hash);
+        } catch (e) {}
+      })();
+    </script>
+
     <script>
       (function () {
         try {
