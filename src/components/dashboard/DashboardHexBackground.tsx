@@ -240,7 +240,7 @@ export function DashboardHexBackground() {
           // Glow (shadowBlur) is the most expensive op — disabled on low tiers
           let glowKeyFinal = 0;
           if (profile.glow) {
-            const needsGlow = alpha > (isDark ? 0.32 : 0.22);
+            const needsGlow = alpha > (isDark ? 0.18 : 0.16);
             const colorMixForGlow = !isDark ? (shimmer * 0.4 + shimmer2 * 0.35 + sparkle * 0.25) : 0;
             glowKeyFinal = (!isDark && colorMixForGlow > 0.7) ? 2 : needsGlow ? 1 : 0;
           }
