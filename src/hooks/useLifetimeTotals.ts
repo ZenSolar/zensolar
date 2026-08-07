@@ -100,7 +100,7 @@ export function useLifetimeTotals() {
 
       for (const d of rows as any[]) {
         const l: any = d.lifetime_totals ?? {};
-        const isObserverSolar = classes[String(d.device_id)]?.deviceClass === 'observer';
+        const isObserverSolar = isExcludedFor(classes[String(d.device_id)], 'solar');
         if (isObserverSolar) observerSolar += solarWh(l);
         else solar += solarWh(l);
         battery += batteryWh(l);
