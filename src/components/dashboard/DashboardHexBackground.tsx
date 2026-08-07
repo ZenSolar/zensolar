@@ -7,13 +7,13 @@ interface QualityProfile {
   dprCap: number;
   hexSize: number;
   glow: boolean;
-  sparkle: boolean;
+  snowflakeCount: number;
 }
 
 const QUALITY: Record<QualityTier, QualityProfile> = {
-  0: { targetFps: 24, dprCap: 1, hexSize: 38, glow: false, sparkle: true },
-  1: { targetFps: 30, dprCap: 1.5, hexSize: 34, glow: false, sparkle: true },
-  2: { targetFps: 48, dprCap: 2, hexSize: 30, glow: true, sparkle: true },
+  0: { targetFps: 24, dprCap: 1, hexSize: 38, glow: false, snowflakeCount: 18 },
+  1: { targetFps: 30, dprCap: 1.5, hexSize: 34, glow: false, snowflakeCount: 32 },
+  2: { targetFps: 48, dprCap: 2, hexSize: 30, glow: true, snowflakeCount: 52 },
 };
 
 /** Best-effort initial guess so weak devices never render a heavy first frame. */
