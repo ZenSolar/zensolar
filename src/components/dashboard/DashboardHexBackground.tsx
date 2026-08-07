@@ -213,11 +213,11 @@ export function DashboardHexBackground() {
             : 0;
 
           if (isDark) {
-            alpha += bA * 0.10 + bB * 0.08 + bC * 0.07 + shimmer * 0.04 + shimmer2 * 0.035 + shimmer3 * 0.025 + sparkle * 0.20 + sparkle2 * 0.16;
+            alpha += bA * 0.045 + bB * 0.035 + bC * 0.03 + shimmer * 0.03 + shimmer2 * 0.025 + shimmer3 * 0.02 + sparkle * 0.16 + sparkle2 * 0.13;
           } else {
-            alpha += bA * 0.12 + bB * 0.09 + bC * 0.08 + shimmer * 0.05 + shimmer2 * 0.04 + shimmer3 * 0.03 + sparkle * 0.20 + sparkle2 * 0.16;
+            alpha += bA * 0.055 + bB * 0.04 + bC * 0.035 + shimmer * 0.035 + shimmer2 * 0.03 + shimmer3 * 0.022 + sparkle * 0.16 + sparkle2 * 0.13;
           }
-          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.38 : 0.58);
+          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.22 : 0.34);
 
           if (alpha < 0.04) continue;
 
