@@ -239,21 +239,24 @@ export function DashboardHexBackground() {
           const phC = ((dC - driftC) / 1500) * TAU;
           const bC = Math.pow((Math.cos(phC) + 1) * 0.5, 3);
 
-          // ---- Soft wave shimmer ----
-          // Project hex position onto the wave direction and measure distance
-          // from the moving crest. The envelope is a smooth gaussian-ish hump
-          // so the brightness rolls across the field like a gentle swell.
-          const waveProjection = cx * Math.cos(waveAngle) + cyPage * Math.sin(waveAngle);
-          const distFromCrest = waveProjection - waveFront;
-          // Wrap the wave so it continuously re-enters from the left
-          const wrappedDist = Math.abs(distFromCrest % waveLength);
-          const waveEnvelope = Math.exp(-(wrappedDist * wrappedDist) / (2 * waveWidth * waveWidth));
-          // Add a second, slower counter-wave for organic interference
-          const waveProjection2 = cx * Math.cos(0.25) - cyPage * Math.sin(0.25);
-          const distFromCrest2 = waveProjection2 - time * 0.22 * waveLength;
-          const wrappedDist2 = Math.abs(distFromCrest2 % (waveLength * 1.4));
-          const waveEnvelope2 = Math.exp(-(wrappedDist2 * wrappedDist2) / (2 * (waveWidth * 1.6) * (waveWidth * 1.6)));
-          const waveShimmer = waveEnvelope * 0.7 + waveEnvelope2 * 0.3;
+          // ---- Falling snowflake shimmer ----
+          // Each drifting flake lights the hexes it passes over with a soft
+          // radial falloff, so brightness trickles downward across the field.
+          let waveShimmer = 0;
+          for (let f = 0; f < flakes.length; f++) {
+            const fl = flakes[f];
+            const dx = cx - fl.fx;
+            if (dx > fl.radius || dx < -fl.radius) continue;
+            const dy = cyScreen - fl.y;
+            if (dy > fl.radius || dy < -fl.radius) continue;
+            const d2 = dx * dx + dy * dy;
+            const r2 = fl.radius * fl.radius;
+            if (d2 > r2) continue;
+            const falloff = 1 - d2 / r2;
+            waveShimmer += falloff * falloff * fl.strength;
+          }
+          if (waveShimmer > 1) waveShimmer = 1;
+
 
           if (isDark) {
             alpha += bA * 0.04 + bB * 0.03 + bC * 0.025 + waveShimmer * 0.08;
