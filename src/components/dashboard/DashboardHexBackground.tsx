@@ -111,6 +111,40 @@ export function DashboardHexBackground() {
 
     const TAU = Math.PI * 2;
 
+    // ---- Falling "snowflake" shimmer ---------------------------------------
+    interface Flake {
+      x: number;
+      fx: number;      // swayed x used for rendering
+      y: number;
+      vy: number;      // px per 60fps-frame
+      swayAmp: number;
+      swayFreq: number;
+      swayPhase: number;
+      radius: number;  // influence radius in px
+      strength: number;
+    }
+    let flakes: Flake[] = [];
+
+    const flakeCount = () => (tier === 0 ? 14 : tier === 1 ? 24 : 38);
+
+    const makeFlake = (seedTop: boolean): Flake => ({
+      x: Math.random() * (w || window.innerWidth),
+      fx: 0,
+      y: seedTop ? -Math.random() * 200 : Math.random() * (h || window.innerHeight),
+      vy: 0.25 + Math.random() * 0.55,
+      swayAmp: 18 + Math.random() * 42,
+      swayFreq: 0.004 + Math.random() * 0.008,
+      swayPhase: Math.random() * TAU,
+      radius: 70 + Math.random() * 110,
+      strength: 0.55 + Math.random() * 0.45,
+    });
+
+    const seedFlakes = () => {
+      flakes = Array.from({ length: flakeCount() }, () => makeFlake(false));
+    };
+    seedFlakes();
+
+
     const animate = (now: number) => {
       // Throttle framerate for battery savings
       if (lastFrameTime && (now - lastFrameTime) < frameInterval) {
@@ -166,16 +200,25 @@ export function DashboardHexBackground() {
       const endRow = startRow + Math.ceil(h / hexHeight) + 3;
       const cols = Math.ceil(w / (hexWidth * 0.75)) + 2;
 
-      // Wave-front parameters: long, slow diagonal shimmer
-      const waveSpeed = 0.35;          // horizontal pixels per second
-      const waveAngle = -0.45;         // diagonal tilt (radians)
-      const waveLength = 1400;         // broad crest-to-crest distance
-      const waveWidth = 360;           // soft falloff of the wave envelope
-      const waveFront = time * waveSpeed * waveLength; // current crest position
+      // ---- Advance the falling flakes ----
+      if (flakes.length !== flakeCount()) seedFlakes();
+      for (let f = 0; f < flakes.length; f++) {
+        const fl = flakes[f];
+        fl.y += fl.vy * dt;
+        fl.swayPhase += fl.swayFreq * dt * 16.667;
+        fl.fx = fl.x + Math.sin(fl.swayPhase) * fl.swayAmp;
+        if (fl.y - fl.radius > h) {
+          const fresh = makeFlake(true);
+          fresh.y = -fresh.radius;
+          flakes[f] = fresh;
+          flakes[f].fx = fresh.x;
+        }
+      }
 
       const driftA = time * 160;
       const driftB = time * 110;
       const driftC = time * 80;
+
 
       ctx.shadowColor = 'transparent';
       ctx.shadowBlur = 0;
@@ -207,21 +250,24 @@ export function DashboardHexBackground() {
           const phC = ((dC - driftC) / 1500) * TAU;
           const bC = Math.pow((Math.cos(phC) + 1) * 0.5, 3);
 
-          // ---- Soft wave shimmer ----
-          // Project hex position onto the wave direction and measure distance
-          // from the moving crest. The envelope is a smooth gaussian-ish hump
-          // so the brightness rolls across the field like a gentle swell.
-          const waveProjection = cx * Math.cos(waveAngle) + cyPage * Math.sin(waveAngle);
-          const distFromCrest = waveProjection - waveFront;
-          // Wrap the wave so it continuously re-enters from the left
-          const wrappedDist = Math.abs(distFromCrest % waveLength);
-          const waveEnvelope = Math.exp(-(wrappedDist * wrappedDist) / (2 * waveWidth * waveWidth));
-          // Add a second, slower counter-wave for organic interference
-          const waveProjection2 = cx * Math.cos(0.25) - cyPage * Math.sin(0.25);
-          const distFromCrest2 = waveProjection2 - time * 0.22 * waveLength;
-          const wrappedDist2 = Math.abs(distFromCrest2 % (waveLength * 1.4));
-          const waveEnvelope2 = Math.exp(-(wrappedDist2 * wrappedDist2) / (2 * (waveWidth * 1.6) * (waveWidth * 1.6)));
-          const waveShimmer = waveEnvelope * 0.7 + waveEnvelope2 * 0.3;
+          // ---- Falling snowflake shimmer ----
+          // Each drifting flake lights the hexes it passes over with a soft
+          // radial falloff, so brightness trickles downward across the field.
+          let waveShimmer = 0;
+          for (let f = 0; f < flakes.length; f++) {
+            const fl = flakes[f];
+            const dx = cx - fl.fx;
+            if (dx > fl.radius || dx < -fl.radius) continue;
+            const dy = cyScreen - fl.y;
+            if (dy > fl.radius || dy < -fl.radius) continue;
+            const d2 = dx * dx + dy * dy;
+            const r2 = fl.radius * fl.radius;
+            if (d2 > r2) continue;
+            const falloff = 1 - d2 / r2;
+            waveShimmer += falloff * falloff * fl.strength;
+          }
+          if (waveShimmer > 1) waveShimmer = 1;
+
 
           if (isDark) {
             alpha += bA * 0.04 + bB * 0.03 + bC * 0.025 + waveShimmer * 0.08;
