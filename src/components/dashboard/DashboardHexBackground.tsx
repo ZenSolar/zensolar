@@ -239,20 +239,30 @@ export function DashboardHexBackground() {
       const endRow = startRow + Math.ceil(h / hexHeight) + 3;
       const cols = Math.ceil(w / (hexWidth * 0.75)) + 2;
 
+      // ---- Parallax easing (critically damped feel, frame-rate aware) ----
+      const ease = 1 - Math.pow(0.86, dt);
+      tiltCurrent += (tiltTarget - tiltCurrent) * ease;
+      scrollCurrent += (scrollTarget - scrollCurrent) * ease;
+      // Scroll impulse decays back to rest so the field settles when idle
+      scrollTarget *= Math.pow(0.90, dt);
+
       // ---- Advance the falling flakes ----
       if (flakes.length !== flakeCount()) seedFlakes();
       for (let f = 0; f < flakes.length; f++) {
         const fl = flakes[f];
         fl.y += fl.vy * dt;
         fl.swayPhase += fl.swayFreq * dt * 16.667;
-        fl.fx = fl.x + Math.sin(fl.swayPhase) * fl.swayAmp;
-        if (fl.y - fl.radius > h) {
+        fl.fx = fl.x + Math.sin(fl.swayPhase) * fl.swayAmp + tiltCurrent * fl.depth;
+        fl.fy = fl.y + scrollCurrent * fl.depth;
+        if (fl.y - fl.radius > h + MAX_SCROLL_PX) {
           const fresh = makeFlake(true);
           fresh.y = -fresh.radius;
+          fresh.fx = fresh.x + tiltCurrent * fresh.depth;
+          fresh.fy = fresh.y;
           flakes[f] = fresh;
-          flakes[f].fx = fresh.x;
         }
       }
+
 
       const driftA = time * 95;
       const driftB = time * 65;
