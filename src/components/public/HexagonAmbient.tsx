@@ -7,12 +7,12 @@ export function HexagonAmbient() {
     <div
       className="fixed inset-0 pointer-events-none"
       style={{
-        zIndex: 0,
-        opacity: 0.22,
+        zIndex: 1,
+        opacity: 0.4,
         maskImage:
-          "radial-gradient(circle at 50% 30%, black 0%, black 45%, transparent 85%)",
+          "radial-gradient(circle at 50% 35%, black 0%, black 60%, transparent 95%)",
         WebkitMaskImage:
-          "radial-gradient(circle at 50% 30%, black 0%, black 45%, transparent 85%)",
+          "radial-gradient(circle at 50% 35%, black 0%, black 60%, transparent 95%)",
       }}
       aria-hidden="true"
     >
