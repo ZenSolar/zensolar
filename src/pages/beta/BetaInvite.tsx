@@ -13,8 +13,9 @@ export default function BetaInvite() {
   useEffect(() => {
     localStorage.setItem('beta_invite_token', token);
     (async () => {
-      const { data } = await supabase.from('beta_invites').select('token, label').eq('token', token).maybeSingle();
-      if (data) { setLabel(data.label ?? null); setStatus('ok'); }
+      const { data } = await supabase.rpc('check_beta_invite', { _token: token });
+      const row = Array.isArray(data) ? data[0] : null;
+      if (row) { setLabel(row.label ?? null); setStatus('ok'); }
       else setStatus('ok'); // permissive for beta — accept any token, log later
     })();
   }, [token]);
