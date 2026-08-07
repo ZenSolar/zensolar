@@ -276,11 +276,8 @@ const BlogV2L = lazy(() => import("./pages/blog/V2LVehicleToLoad"));
 const BlogVPP = lazy(() => import("./pages/blog/VirtualPowerPlantVPP"));
 
 // Minimal loading fallback.
-// IMPORTANT: We intentionally render `null` here. The inline `#pwa-splash`
-// in index.html stays visible during the cold boot → first-route handoff,
-// so a separate <BrandedSpinner /> would just stack a *second* loader on
-// top of it (the "spinning circle then logo again" flash users reported).
-// The first real page content calls `window.hideSplashScreen()` to dismiss.
+// We intentionally render `null` here so the first route paints as soon as
+// React is ready, without any intermediate splash or spinner.
 function PageLoader() {
   return null;
 }
