@@ -1,6 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { DeviceClassChip } from '@/components/devices/DeviceClassChip';
 import { useDeviceClasses } from '@/hooks/useDeviceClasses';
+import { capabilityLabel } from '@/lib/deviceAuthority';
 
 /**
  * METERING ROLES — the member-facing home for the device class chip.
