@@ -219,7 +219,7 @@ export function DashboardHexBackground() {
           }
           alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.22 : 0.34);
 
-          if (alpha < 0.04) continue;
+          if (alpha < 0.022) continue;
 
           // Finer alpha granularity removes visible stepping during slow fades
           const roundedAlpha = ((alpha * 100 + 0.5) | 0) / 100;
