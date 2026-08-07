@@ -114,35 +114,74 @@ export function DashboardHexBackground() {
     // ---- Falling "snowflake" shimmer ---------------------------------------
     interface Flake {
       x: number;
-      fx: number;      // swayed x used for rendering
+      fx: number;      // swayed + parallaxed x used for rendering
       y: number;
+      fy: number;      // parallaxed y used for rendering
       vy: number;      // px per 60fps-frame
       swayAmp: number;
       swayFreq: number;
       swayPhase: number;
       radius: number;  // influence radius in px
       strength: number;
+      depth: number;   // 0 = far (barely moves), 1 = near (full parallax)
     }
     let flakes: Flake[] = [];
 
     const flakeCount = () => (tier === 0 ? 14 : tier === 1 ? 24 : 38);
 
-    const makeFlake = (seedTop: boolean): Flake => ({
-      x: Math.random() * (w || window.innerWidth),
-      fx: 0,
-      y: seedTop ? -Math.random() * 200 : Math.random() * (h || window.innerHeight),
-      vy: 0.85 + Math.random() * 1.25,
-      swayAmp: 18 + Math.random() * 42,
-      swayFreq: 0.004 + Math.random() * 0.008,
-      swayPhase: Math.random() * TAU,
-      radius: 70 + Math.random() * 110,
-      strength: 0.55 + Math.random() * 0.45,
-    });
+    const makeFlake = (seedTop: boolean): Flake => {
+      const depth = 0.25 + Math.random() * 0.75;
+      return {
+        x: Math.random() * (w || window.innerWidth),
+        fx: 0,
+        y: seedTop ? -Math.random() * 200 : Math.random() * (h || window.innerHeight),
+        fy: 0,
+        vy: (0.85 + Math.random() * 1.25) * (0.7 + depth * 0.6),
+        swayAmp: 18 + Math.random() * 42,
+        swayFreq: 0.004 + Math.random() * 0.008,
+        swayPhase: Math.random() * TAU,
+        radius: 70 + Math.random() * 110,
+        strength: 0.55 + Math.random() * 0.45,
+        depth,
+      };
+    };
 
     const seedFlakes = () => {
       flakes = Array.from({ length: flakeCount() }, () => makeFlake(false));
     };
     seedFlakes();
+
+    // ---- Parallax inputs: device tilt + scroll -----------------------------
+    // Targets are raw inputs; the rendered values ease toward them so motion
+    // stays physical and never jitters.
+    let tiltTarget = 0;      // px of horizontal push at depth 1
+    let tiltCurrent = 0;
+    let scrollTarget = 0;    // px of vertical push at depth 1
+    let scrollCurrent = 0;
+    let lastScrollY = window.scrollY;
+
+    const MAX_TILT_PX = 26;
+    const MAX_SCROLL_PX = 60;
+
+    const onOrient = (e: DeviceOrientationEvent) => {
+      if (reduceMotion || e.gamma == null) return;
+      // gamma: -90..90 (left/right tilt). Clamp to a gentle +-35deg range.
+      const g = Math.max(-35, Math.min(35, e.gamma));
+      tiltTarget = (g / 35) * MAX_TILT_PX;
+    };
+
+    const onScroll = () => {
+      if (reduceMotion) return;
+      const y = window.scrollY;
+      const delta = y - lastScrollY;
+      lastScrollY = y;
+      scrollTarget = Math.max(-MAX_SCROLL_PX, Math.min(MAX_SCROLL_PX, scrollTarget + delta * 0.55));
+    };
+
+    window.addEventListener('deviceorientation', onOrient);
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+
 
 
     const animate = (now: number) => {
