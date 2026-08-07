@@ -22,9 +22,20 @@ const normalizeEmailCode = (value: string) => value.replace(/\D/g, '').slice(0, 
  */
 export default function BetaSignIn() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { signIn, signUp, resetPassword } = useAuth();
 
-  const [mode, setMode] = useState<Mode>('signup');
+  // Intent is read from how the page was reached:
+  //   /onboarding/signin?tab=login  → Log In tab
+  //   /onboarding/signin?tab=signup → Sign Up tab (also the default)
+  // Router state (`{ tab: 'login' }`) works too, for in-app navigations.
+  const requestedTab =
+    (searchParams.get('tab') || (location.state as { tab?: string } | null)?.tab || '').toLowerCase();
+  const initialMode: Mode =
+    requestedTab === 'login' || requestedTab === 'signin' ? 'login' : 'signup';
+
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
