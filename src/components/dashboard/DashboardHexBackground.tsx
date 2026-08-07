@@ -11,7 +11,7 @@ interface QualityProfile {
 }
 
 const QUALITY: Record<QualityTier, QualityProfile> = {
-  0: { targetFps: 20, dprCap: 1, hexSize: 42, glow: false, sparkle: false },
+  0: { targetFps: 24, dprCap: 1, hexSize: 38, glow: false, sparkle: true },
   1: { targetFps: 30, dprCap: 1.5, hexSize: 34, glow: false, sparkle: true },
   2: { targetFps: 48, dprCap: 2, hexSize: 30, glow: true, sparkle: true },
 };
@@ -184,7 +184,7 @@ export function DashboardHexBackground() {
 
           if (cyScreen < -hexSize || cyScreen > h + hexSize) continue;
 
-          let alpha = isDark ? 0.06 : 0.07;
+          let alpha = isDark ? 0.032 : 0.04;
 
           const dA = cx + cyPage * 0.55;
           const dB = cx * 0.78 + cyPage * 0.82;
@@ -213,13 +213,13 @@ export function DashboardHexBackground() {
             : 0;
 
           if (isDark) {
-            alpha += bA * 0.10 + bB * 0.08 + bC * 0.07 + shimmer * 0.04 + shimmer2 * 0.035 + shimmer3 * 0.025 + sparkle * 0.20 + sparkle2 * 0.16;
+            alpha += bA * 0.045 + bB * 0.035 + bC * 0.03 + shimmer * 0.03 + shimmer2 * 0.025 + shimmer3 * 0.02 + sparkle * 0.16 + sparkle2 * 0.13;
           } else {
-            alpha += bA * 0.12 + bB * 0.09 + bC * 0.08 + shimmer * 0.05 + shimmer2 * 0.04 + shimmer3 * 0.03 + sparkle * 0.20 + sparkle2 * 0.16;
+            alpha += bA * 0.055 + bB * 0.04 + bC * 0.035 + shimmer * 0.035 + shimmer2 * 0.03 + shimmer3 * 0.022 + sparkle * 0.16 + sparkle2 * 0.13;
           }
-          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.38 : 0.58);
+          alpha = Math.min(alpha * alphaMultiplier, isDark ? 0.22 : 0.34);
 
-          if (alpha < 0.04) continue;
+          if (alpha < 0.022) continue;
 
           // Finer alpha granularity removes visible stepping during slow fades
           const roundedAlpha = ((alpha * 100 + 0.5) | 0) / 100;
@@ -240,7 +240,7 @@ export function DashboardHexBackground() {
           // Glow (shadowBlur) is the most expensive op — disabled on low tiers
           let glowKeyFinal = 0;
           if (profile.glow) {
-            const needsGlow = alpha > (isDark ? 0.32 : 0.22);
+            const needsGlow = alpha > (isDark ? 0.18 : 0.16);
             const colorMixForGlow = !isDark ? (shimmer * 0.4 + shimmer2 * 0.35 + sparkle * 0.25) : 0;
             glowKeyFinal = (!isDark && colorMixForGlow > 0.7) ? 2 : needsGlow ? 1 : 0;
           }
@@ -296,7 +296,7 @@ export function DashboardHexBackground() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0"
-      style={{ opacity: 0.92 }}
+      style={{ opacity: 0.72 }}
       aria-hidden="true"
     />
   );
