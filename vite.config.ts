@@ -37,7 +37,13 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          // Rollup's synthetic CJS interop helpers are shared by nearly every
+          // chunk. Left unpinned they land inside `charts`, which forces the
+          // entry bundle to download all of Recharts on public pages.
+          if (id.includes("commonjsHelpers") || id.includes("commonjs-dynamic-modules"))
+            return "utils";
           if (!id.includes("node_modules")) return;
+
           // React itself and tiny shared utils (clsx, tailwind-merge, cva)
           // MUST live in their own chunks. If they get absorbed into the
           // charts/motion chunks, the entry bundle pulls ~430KB of Recharts
