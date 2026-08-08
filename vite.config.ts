@@ -36,23 +36,23 @@ export default defineConfig(({ mode }) => ({
     // Optimize chunking for faster builds
     rollupOptions: {
       output: {
-        manualChunks: {
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return;
+          // Tiny shared utils (clsx, tailwind-merge, class-variance-authority)
+          // MUST live in their own chunk. If they get absorbed into the
+          // charts/motion chunks, the entry bundle pulls ~430KB of Recharts
+          // onto every public marketing page just to get `clsx`.
+          if (/node_modules\/(clsx|tailwind-merge|class-variance-authority)\//.test(id))
+            return "utils";
+          if (id.includes("node_modules/recharts/")) return "charts";
+          if (id.includes("node_modules/framer-motion/")) return "motion";
+          if (/node_modules\/@radix-ui\/react-(dialog|dropdown-menu|tabs|tooltip|popover|select)\//.test(id))
+            return "radix";
           // Let the lazy-loaded Web3 stack stay naturally grouped.
           // Splitting AppKit and wagmi manually creates circular chunk graphs.
-          // Split UI framework
-          'radix': [
-            '@radix-ui/react-dialog',
-            '@radix-ui/react-dropdown-menu',
-            '@radix-ui/react-tabs',
-            '@radix-ui/react-tooltip',
-            '@radix-ui/react-popover',
-            '@radix-ui/react-select',
-          ],
-          // Split charting library
-          'charts': ['recharts'],
-          // Split animation library
-          'motion': ['framer-motion'],
+          return;
         },
+
       },
     },
     // Increase chunk size warning limit (AppKit is large)
