@@ -246,7 +246,7 @@ export default function PublicHome() {
             Trust
           </h2>
           <p className="text-[17px] mb-4" style={{ color: "#E8EAED" }}>
-            The Zen team.
+            The ZenTeam.
           </p>
           <div className="flex flex-wrap gap-6 text-[14px]" style={{ color: "#8B9198" }}>
             <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-[#E8EAED]">
