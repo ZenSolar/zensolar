@@ -232,7 +232,7 @@ export default function PublicHome() {
             </div>
 
             <p className="text-[13px] max-w-2xl" style={{ color: "#8B9198" }}>
-              Patent-pending. Currently verifying end-to-end on Sepolia ahead of mainnet deployment.
+              Patent-pending. USPTO: 19/634,402
             </p>
           </div>
         </section>
