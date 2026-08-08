@@ -307,9 +307,15 @@
   <body>
     <div id="root">
       <!-- Pre-hydration boot state. React replaces this on first render, so the
-           visitor sees a brand-colored mark instead of a raw black screen. -->
+           visitor sees the ZenSolar logo instead of a raw black screen. -->
       <div class="zs-boot" aria-hidden="true">
-        <div class="zs-boot-mark"></div>
+        <img
+          src="/logos/zen-logo-horizontal-new.png"
+          alt="ZenSolar"
+          class="zs-boot-logo"
+          fetchpriority="high"
+          decoding="async"
+        />
         <div class="zs-boot-bar"><span></span></div>
       </div>
     </div>
