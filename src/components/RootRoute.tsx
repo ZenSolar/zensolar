@@ -2,7 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { isPreviewMode } from '@/lib/previewMode';
-import { isMarketingHost } from '@/lib/hostRoles';
+import { isMarketingHost, isPublicMarketingPath } from '@/lib/hostRoles';
 
 const AppLayout = lazy(() => import('@/components/layout/AppLayout').then(m => ({ default: m.AppLayout })));
 const Index = lazy(() => import('@/pages/Index'));
