@@ -36,23 +36,32 @@ export default defineConfig(({ mode }) => ({
     // Optimize chunking for faster builds
     rollupOptions: {
       output: {
-        manualChunks: {
+        manualChunks(id) {
+          // Rollup's synthetic CJS interop helpers are shared by nearly every
+          // chunk. Left unpinned they land inside `charts`, which forces the
+          // entry bundle to download all of Recharts on public pages.
+          if (id.includes("commonjsHelpers") || id.includes("commonjs-dynamic-modules"))
+            return "utils";
+          if (!id.includes("node_modules")) return;
+
+          // React itself and tiny shared utils (clsx, tailwind-merge, cva)
+          // MUST live in their own chunks. If they get absorbed into the
+          // charts/motion chunks, the entry bundle pulls ~430KB of Recharts
+          // and 130KB of Framer Motion onto every public marketing page.
+          if (/node_modules\/(react|react-dom|scheduler|react-is|use-sync-external-store)\//.test(id))
+            return "react-vendor";
+          if (/node_modules\/(clsx|tailwind-merge|class-variance-authority)\//.test(id))
+            return "utils";
+
+          if (id.includes("node_modules/recharts/")) return "charts";
+          if (id.includes("node_modules/framer-motion/")) return "motion";
+          if (/node_modules\/@radix-ui\/react-(dialog|dropdown-menu|tabs|tooltip|popover|select)\//.test(id))
+            return "radix";
           // Let the lazy-loaded Web3 stack stay naturally grouped.
           // Splitting AppKit and wagmi manually creates circular chunk graphs.
-          // Split UI framework
-          'radix': [
-            '@radix-ui/react-dialog',
-            '@radix-ui/react-dropdown-menu',
-            '@radix-ui/react-tabs',
-            '@radix-ui/react-tooltip',
-            '@radix-ui/react-popover',
-            '@radix-ui/react-select',
-          ],
-          // Split charting library
-          'charts': ['recharts'],
-          // Split animation library
-          'motion': ['framer-motion'],
+          return;
         },
+
       },
     },
     // Increase chunk size warning limit (AppKit is large)

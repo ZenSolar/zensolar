@@ -2,7 +2,9 @@ import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { isPublicMarketingPath } from "@/lib/hostRoles";
+
 import { ThemeProvider } from "next-themes";
 import { AppThemeProvider } from "@/contexts/AppThemeContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -47,6 +49,23 @@ import { DeferredMount } from "./components/util/DeferredMount";
 const DashboardEnterEffect = lazy(() =>
   import("./components/onboarding/quiet/DashboardEnterEffect").then((m) => ({ default: m.DashboardEnterEffect })),
 );
+
+/**
+ * Only mounts the (framer-motion powered) dashboard entrance effect on
+ * authenticated app surfaces. Public marketing routes must never download the
+ * animation bundle.
+ */
+function DashboardEnterEffectGate() {
+  const { pathname } = useLocation();
+  if (isPublicMarketingPath(pathname)) return null;
+  return (
+    <Suspense fallback={null}>
+      <DashboardEnterEffect />
+    </Suspense>
+  );
+}
+
+
 
 // Non-critical chrome — lazy + deferred-mount past first paint
 const InstallNudge = lazy(() =>
@@ -331,7 +350,7 @@ const App = () => {
                   <AppHistoryTracker />
                   <ScrollManager />
                   <SwipeBackHandler />
-                  <Suspense fallback={null}><DashboardEnterEffect /></Suspense>
+                  <DashboardEnterEffectGate />
 
                   <Suspense fallback={<PageLoader />}>
                     <Routes>
