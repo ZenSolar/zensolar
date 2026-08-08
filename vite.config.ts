@@ -38,12 +38,15 @@ export default defineConfig(({ mode }) => ({
       output: {
         manualChunks(id) {
           if (!id.includes("node_modules")) return;
-          // Tiny shared utils (clsx, tailwind-merge, class-variance-authority)
-          // MUST live in their own chunk. If they get absorbed into the
+          // React itself and tiny shared utils (clsx, tailwind-merge, cva)
+          // MUST live in their own chunks. If they get absorbed into the
           // charts/motion chunks, the entry bundle pulls ~430KB of Recharts
-          // onto every public marketing page just to get `clsx`.
+          // and 130KB of Framer Motion onto every public marketing page.
+          if (/node_modules\/(react|react-dom|scheduler|react-is|use-sync-external-store)\//.test(id))
+            return "react-vendor";
           if (/node_modules\/(clsx|tailwind-merge|class-variance-authority)\//.test(id))
             return "utils";
+
           if (id.includes("node_modules/recharts/")) return "charts";
           if (id.includes("node_modules/framer-motion/")) return "motion";
           if (/node_modules\/@radix-ui\/react-(dialog|dropdown-menu|tabs|tooltip|popover|select)\//.test(id))
