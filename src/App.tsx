@@ -48,6 +48,23 @@ const DashboardEnterEffect = lazy(() =>
   import("./components/onboarding/quiet/DashboardEnterEffect").then((m) => ({ default: m.DashboardEnterEffect })),
 );
 
+/**
+ * Only mounts the (framer-motion powered) dashboard entrance effect on
+ * authenticated app surfaces. Public marketing routes must never download the
+ * animation bundle.
+ */
+function DashboardEnterEffectGate() {
+  const { pathname } = useLocation();
+  if (isPublicMarketingPath(pathname)) return null;
+  return (
+    <Suspense fallback={null}>
+      <DashboardEnterEffect />
+    </Suspense>
+  );
+}
+
+
+
 // Non-critical chrome — lazy + deferred-mount past first paint
 const InstallNudge = lazy(() =>
   import("./components/install/InstallNudge").then((m) => ({ default: m.InstallNudge })),
