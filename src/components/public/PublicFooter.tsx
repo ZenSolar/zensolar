@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-export const CONTACT_EMAIL = "joe@zensolar.com";
+export const CONTACT_EMAIL = "thezenteam@zensolar.com";
 
 export function PublicFooter() {
   return (
